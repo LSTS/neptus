@@ -27,28 +27,26 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: jfortuna
- * 12/2/2015
+ * Author: krisklau
+ * 9/2/2016
  */
 package pt.lsts.neptus.plugins.uavs.panels;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.LinkedHashMap;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 
+import com.google.common.eventbus.Subscribe;
+
 import net.miginfocom.swing.MigLayout;
-import pt.lsts.imc.RemoteActions;
 import pt.lsts.imc.GpsFixRtk;
 import pt.lsts.imc.GpsFixRtk.TYPE;
 import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
@@ -57,32 +55,30 @@ import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.NeptusProperty;
-import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
+import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
 
-import com.google.common.eventbus.Subscribe;
-
 /**
- * Shows buttons to do various calibrations for Piksi.
+ * Shows buttons to do various calibrations for RTKLib
  *
  * @author krisklau
  *
  */
 @SuppressWarnings("serial")
-@PluginDescription(name = "Piksi Panel", author = "krisklau", version = "0.1", category = CATEGORY.INTERFACE)
-public class PiksiPanel extends ConsolePanel implements MainVehicleChangeListener {
-    
+@PluginDescription(name = "RtkLib Panel", author = "krisklau", version = "0.1", category = CATEGORY.INTERFACE)
+public class RtkLibPanel extends ConsolePanel implements MainVehicleChangeListener {
+
     public enum DisplayType {
-       DISTANCE, NED
-    }
-    
+        DISTANCE, NED
+     }
+
     @NeptusProperty(name = "Display NED coordinates", description = "Set true to display NED xyz coordinates. Set to false to give distance.", userLevel = LEVEL.REGULAR)
     public DisplayType displayType = DisplayType.DISTANCE;
 
     // GUI
     private JPanel titlePanel = null;
-    private JPanel buttonPanel = null;
+//    private JPanel buttonPanel = null;
     private JPanel statusPanel = null;
     private JScrollPane scrollStatusPane = null;
 
@@ -104,7 +100,7 @@ public class PiksiPanel extends ConsolePanel implements MainVehicleChangeListene
     /**
      * @param console
      */
-    public PiksiPanel(ConsoleLayout console) {
+    public RtkLibPanel(ConsoleLayout console) {
         super(console);
 
         // clears all the unused initializations of the standard SimpleSubPanel
@@ -114,14 +110,14 @@ public class PiksiPanel extends ConsolePanel implements MainVehicleChangeListene
     @Override
     public void initSubPanel() {
         titlePanelSetup();
-        buttonPanelSetup();
+        //buttonPanelSetup();
         statusPanelSetup();
 
         // panel general layout setup
         this.setLayout(new MigLayout("gap 0 0, ins 0"));
         this.add(titlePanel, "w 100%, h 20%, wrap");
-        this.add(buttonPanel, "w 100%, h 20%, wrap");
-        this.add(scrollStatusPane, "w 100%, h 60%, wrap");
+        //this.add(buttonPanel, "w 100%, h 20%, wrap");
+        this.add(scrollStatusPane, "w 100%, h 80%, wrap");
 
         this.vehicleFixes = new LinkedHashMap<Integer, GpsFixRtkContainer>();
     }
@@ -135,20 +131,77 @@ public class PiksiPanel extends ConsolePanel implements MainVehicleChangeListene
     public void cleanSubPanel() {
     }
 
+    private void statusPanelSetup() {
+        statusPanel = new JPanel(new MigLayout("gap 0 0, ins 0"));
+
+        scrollStatusPane = new JScrollPane(statusPanel);
+        scrollStatusPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollStatusPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+
+    }
+
+    private void titlePanelSetup() {
+        titlePanel = new JPanel(new MigLayout("gap 0 0, ins 0"));
+        JLabel titleLabel = new JLabel(I18n.text("RtkLib Interface"), SwingConstants.LEFT);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 9));
+        titlePanel.add(titleLabel, "w 100%, h 100%");
+    }
+
+//    private void buttonPanelSetup() {
+//        buttonPanel = new JPanel(new MigLayout("gap 0 0, ins 0"));
+//
+//        // Calibrate
+//        JButton initBaselineButton = new JButton(I18n.text("Init Baseline"));
+//        initBaselineButton.addActionListener(new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                RemoteActions action = new RemoteActions();
+//                action.setActions("piksiInitZeroBaseline=1");
+//                send(action);
+//            }
+//        });
+//        buttonPanel.add(initBaselineButton, "w 34%, h 100%");
+//
+//        // Arm
+//        JButton resetFilterButton = new JButton(I18n.text("Reset Filter"));
+//        resetFilterButton.addActionListener(new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                RemoteActions action = new RemoteActions();
+//                action.setActions("piksiResetFilters=1");
+//                send(action);
+//            }
+//        });
+//        buttonPanel.add(resetFilterButton, "w 33%, h 100%");
+//
+//        // Disarm
+//        JButton resetIARButton = new JButton(I18n.text("Reset IAR"));
+//        resetIARButton.addActionListener(new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                RemoteActions action = new RemoteActions();
+//                action.setActions("piksiResetIARs=1");
+//                send(action);
+//            }
+//        });
+//        buttonPanel.add(resetIARButton, "w 33%, h 100%");
+//    }
+
     // Listener
     @Subscribe
     public void on(GpsFixRtk msg) {
         // Check if it is a piksi
         String entName = EntitiesResolver.resolveName(msg.getSourceName(), (int) msg.getSrcEnt());
         
-        // Check if the entity contains the "Piksi" label
-        if (entName != null && entName.toLowerCase().indexOf("piksi") == -1) {
+        // Check if the entity contains the "rtklib" label
+        if (entName != null && entName.toLowerCase().indexOf("rtklib") == -1) {
             // Nope. 
             return;
         }
 
         // If new, add to table
         if (!vehicleFixes.containsKey(msg.getSrc())) {
+
             GpsFixRtkContainer container = new GpsFixRtkContainer();
             container.lastMessage = msg;
 
@@ -187,7 +240,7 @@ public class PiksiPanel extends ConsolePanel implements MainVehicleChangeListene
             System.out.println("Warning: Key not found. Should not happen. ");
             return;
         }
-
+        
         container.lastMessage = msg;
 
         fixStatus = msg.getTypeStr();
@@ -196,28 +249,31 @@ public class PiksiPanel extends ConsolePanel implements MainVehicleChangeListene
         nedPos[2] = msg.getD();
 
         String statusText;
-        if (msg.getType() == TYPE.FIXED) {
+
+        if (msg.getType() == TYPE.FIXED || msg.getType() == TYPE.FLOAT) {
+            String fixType = "FIX";
+            if (msg.getType() == TYPE.FLOAT)
+                fixType = "Float";
+            
             if (displayType == DisplayType.NED) {
                 statusText = container.vehicleName + ": "
-                        + String.format("FIX: %.2f, %.2f, %.2f", nedPos[0], nedPos[1], nedPos[2]);
+                        + String.format("%s: %.2f, %.2f, %.2f", fixType, nedPos[0], nedPos[1], nedPos[2]);
             }
             else {
-                statusText = container.vehicleName + ": " + String.format("FIX: %.3fm",
+                statusText = container.vehicleName + ": " + String.format("%s: %.3fm", fixType,
                         Math.sqrt(Math.pow(nedPos[0], 2.0) + Math.pow(nedPos[1], 2.0) + Math.pow(nedPos[2], 2.0)));
             }
-
+            
             container.text.setBackground(new Color(81, 179, 54));
-
-            // If IAR number is higher than 1, change the color to Orange
-            if (msg.getIarHyp() > 1) {
+            if (msg.getType() == TYPE.FLOAT) {
                 container.text.setBackground(new Color(205, 179, 49));
             }
 
-            container.text.setOpaque(true);
-        }
-        else if(msg.getType() == TYPE.FLOAT) {
-            statusText = container.vehicleName + ": " + "Float" + ", IAR: " + String.format("%d", msg.getIarHyp());
-            container.text.setBackground(new Color(205, 179, 49));
+            // If IAR number is higher than 1, change the color to Orange
+            if (msg.getType() == TYPE.FIXED && msg.getIarHyp() > 1) {
+                container.text.setBackground(new Color(205, 179, 49));
+            }
+
             container.text.setOpaque(true);
         }
         else if(msg.getType() == TYPE.NONE) {
@@ -231,60 +287,5 @@ public class PiksiPanel extends ConsolePanel implements MainVehicleChangeListene
         }
 
         container.text.setText(statusText);
-    }
-
-    private void statusPanelSetup() {
-        statusPanel = new JPanel(new MigLayout("gap 0 0, ins 0"));
-
-        scrollStatusPane = new JScrollPane(statusPanel);
-        scrollStatusPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        scrollStatusPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-    }
-
-    private void titlePanelSetup() {
-        titlePanel = new JPanel(new MigLayout("gap 0 0, ins 0"));
-        JLabel titleLabel = new JLabel(I18n.text("Piksi Interface"), SwingConstants.LEFT);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 9));
-        titlePanel.add(titleLabel, "w 100%, h 100%");
-    }
-
-    private void buttonPanelSetup() {
-        buttonPanel = new JPanel(new MigLayout("gap 0 0, ins 0"));
-
-        // Calibrate
-        JButton initBaselineButton = new JButton(I18n.text("Init Baseline"));
-        initBaselineButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                RemoteActions action = new RemoteActions();
-                action.setActions("piksiInitZeroBaseline=1");
-                send(action);
-            }
-        });
-        buttonPanel.add(initBaselineButton, "w 34%, h 100%");
-
-        // Arm
-        JButton resetFilterButton = new JButton(I18n.text("Reset Filter"));
-        resetFilterButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                RemoteActions action = new RemoteActions();
-                action.setActions("piksiResetFilters=1");
-                send(action);
-            }
-        });
-        buttonPanel.add(resetFilterButton, "w 33%, h 100%");
-
-        // Disarm
-        JButton resetIARButton = new JButton(I18n.text("Reset IAR"));
-        resetIARButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                RemoteActions action = new RemoteActions();
-                action.setActions("piksiResetIARs=1");
-                send(action);
-            }
-        });
-        buttonPanel.add(resetIARButton, "w 33%, h 100%");
     }
 }
