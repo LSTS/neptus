@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * Modified European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the Modified EUPL,
+ * European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENSE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,8 +22,7 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
- * and http://ec.europa.eu/idabc/eupl.html.
+ * https://www.lsts.pt/neptus/licence.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -64,20 +63,20 @@ import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
 import com.google.common.eventbus.Subscribe;
 
 /**
- * Shows buttons to do various calibrations for Piksi.
+ * Shows buttons to do various calibrations for RTKLib
  *
  * @author krisklau
  *
  */
-@PluginDescription(name = "Piksi Panel", author = "krisklau", version = "0.1", category = CATEGORY.INTERFACE)
-public class PiksiPanel extends ConsolePanel implements MainVehicleChangeListener {
+@PluginDescription(name = "RtkLib Panel", author = "krisklau", version = "0.1", category = CATEGORY.INTERFACE)
+public class RtkLibPanel extends ConsolePanel implements MainVehicleChangeListener {
 
     public enum DisplayType {
-       DISTANCE, NED
-    }
-    
-    @NeptusProperty(name = "Display NED coordinates", description = "Set true to display NED xyz coordinates. Set to false to give distance.", userLevel = LEVEL.REGULAR)
-    public DisplayType displayType = DisplayType.DISTANCE;
+        DISTANCE, NED
+     }
+     
+     @NeptusProperty(name = "Display NED coordinates", description = "Set true to display NED xyz coordinates. Set to false to give distance.", userLevel = LEVEL.REGULAR)
+     public DisplayType displayType = DisplayType.DISTANCE;
     
     private static final long serialVersionUID = 1L;
 
@@ -111,8 +110,8 @@ public class PiksiPanel extends ConsolePanel implements MainVehicleChangeListene
         // Check if it is a piksi
         String entName = EntitiesResolver.resolveName(msg.getSourceName(), (int) msg.getSrcEnt());
         
-        // Check if the entity contains the "Piksi" label
-        if (entName != null && entName.toLowerCase().indexOf("piksi") == -1) {
+        // Check if the entity contains the "rtklib" label
+        if (entName != null && entName.toLowerCase().indexOf("rtklib") == -1) {
             // Nope. 
             return;
         }
@@ -175,28 +174,30 @@ public class PiksiPanel extends ConsolePanel implements MainVehicleChangeListene
 
         String statusText;
 
-        if (msg.getType() == TYPE.FIXED)
+        if (msg.getType() == TYPE.FIXED || msg.getType() == TYPE.FLOAT)
         {
+            String fixType = "FIX";
+            if (msg.getType() == TYPE.FLOAT)
+                fixType = "Float";
+            
             if (displayType == DisplayType.NED) {
-                statusText = container.vehicleName + ": " + String.format("FIX: %.2f, %.2f, %.2f", nedPos[0], nedPos[1], nedPos[2]);
+                statusText = container.vehicleName + ": " + String.format("%s: %.2f, %.2f, %.2f", fixType, nedPos[0], nedPos[1], nedPos[2]);
             } else {
-                statusText = container.vehicleName + ": " + String.format("FIX: %.3fm", Math.sqrt(Math.pow(nedPos[0],2.0) + 
-                                                                                                 Math.pow(nedPos[1], 2.0) +
-                                                                                                 Math.pow(nedPos[2], 2.0)));
+                statusText = container.vehicleName + ": " + String.format("%s: %.3fm", fixType,  Math.sqrt(Math.pow(nedPos[0],2.0) + 
+                                                                                                           Math.pow(nedPos[1], 2.0) +
+                                                                                                           Math.pow(nedPos[2], 2.0)));
             }
-
+            
             container.text.setBackground(new Color(81, 179, 54));
-
-            // If IAR number is higher than 1, change the color to Orange
-            if (msg.getIarHyp() > 1) {
+            if (msg.getType() == TYPE.FLOAT) {
                 container.text.setBackground(new Color(205, 179, 49));
             }
 
-            container.text.setOpaque(true);
-        }
-        else if(msg.getType() == TYPE.FLOAT) {
-            statusText = container.vehicleName + ": " + "Float" + ", IAR: " + String.format("%d", msg.getIarHyp());
-            container.text.setBackground(new Color(205, 179, 49));
+            // If IAR number is higher than 1, change the color to Orange
+            if (msg.getType() == TYPE.FIXED && msg.getIarHyp() > 1) {
+                container.text.setBackground(new Color(205, 179, 49));
+            }
+
             container.text.setOpaque(true);
         }
         else if(msg.getType() == TYPE.NONE) {
@@ -218,7 +219,7 @@ public class PiksiPanel extends ConsolePanel implements MainVehicleChangeListene
     /**
      * @param console
      */
-    public PiksiPanel(ConsoleLayout console) {
+    public RtkLibPanel(ConsoleLayout console) {
         super(console);
 
         // clears all the unused initializations of the standard SimpleSubPanel
@@ -228,14 +229,14 @@ public class PiksiPanel extends ConsolePanel implements MainVehicleChangeListene
     @Override
     public void initSubPanel() {
         titlePanelSetup();
-        buttonPanelSetup();
+        //buttonPanelSetup();
         statusPanelSetup();
 
         // panel general layout setup
         this.setLayout(new MigLayout("gap 0 0, ins 0"));
         this.add(titlePanel, "w 100%, h 20%, wrap");
-        this.add(buttonPanel, "w 100%, h 20%, wrap");
-        this.add(scrollStatusPane, "w 100%, h 60%, wrap");
+        //this.add(buttonPanel, "w 100%, h 20%, wrap");
+        this.add(scrollStatusPane, "w 100%, h 80%, wrap");
 
         this.vehicleFixes = new LinkedHashMap<Integer, GpsFixRtkContainer>();
     }
@@ -251,7 +252,7 @@ public class PiksiPanel extends ConsolePanel implements MainVehicleChangeListene
 
     private void titlePanelSetup() {
         titlePanel = new JPanel(new MigLayout("gap 0 0, ins 0"));
-        JLabel titleLabel = new JLabel(I18n.text("Piksi Interface"), SwingConstants.LEFT);
+        JLabel titleLabel = new JLabel(I18n.text("RtkLib Interface"), SwingConstants.LEFT);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 9));
         titlePanel.add(titleLabel, "w 100%, h 100%");
     }
