@@ -188,7 +188,7 @@ public class UavHUDInfoPainter implements IUavPainter{
         drawRulerBackgrounds(g, width, height, width/4, height, 0.6);
                 
         //draws the ruler with speed values
-        drawRuler(g, width, height, width/4, 4*height/6, indicatedSpeed, 8, 5, LEFTSIDED);
+        drawRuler(g, width, height, width/4, 4*height/6, indicatedSpeed, 10, 5, LEFTSIDED);
         
         g.translate(width/8, height/2);
         g.setColor(Color.black);
