@@ -235,6 +235,19 @@ public class MarksImporterPanel extends JPanel {
             sourceLabel.setText(msgStr);
             return;
         }
+        catch (Exception e) {
+            try {
+                url = new URL(urlStr);
+            }
+            catch (MalformedURLException e1) {
+                e1.printStackTrace();
+                String msgStr = I18n.textf("KML %url is not a valid URL", urlStr);
+                GuiUtils.showErrorPopup("KML", msgStr);
+                sourceLabel.setForeground(Color.RED);
+                sourceLabel.setText(msgStr);
+                return;
+            }
+        }
 
         importedMarks = MarksKMLHandler.importKML(url);
         if (importedMarks == null) {
