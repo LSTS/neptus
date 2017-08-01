@@ -48,6 +48,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileFilter;
 
 import org.jdesktop.swingx.JXBusyLabel;
@@ -177,19 +178,32 @@ public class MarksImporterPanel extends JPanel {
         kmlFromFileBtn.addActionListener(e -> {
             sourceLabel.setText("");
             setWorking(true);
-            try {
-                fileChooser.resetChoosableFileFilters();
-                fileChooser.setFileFilter(kmlFilter);
-                int res = fileChooser.showDialog(parent, I18n.text("KML Source"));
-                if(res == JFileChooser.APPROVE_OPTION)
-                    doKmlImport(fileChooser.getSelectedFile().getAbsolutePath());
+            fileChooser.resetChoosableFileFilters();
+            fileChooser.setFileFilter(kmlFilter);
+            int res = fileChooser.showDialog(parent, I18n.text("KML Source"));
+            if(res == JFileChooser.APPROVE_OPTION) {
+                SwingWorker<Void, Void> sw = new SwingWorker<Void, Void>() {
+                    @Override
+                    protected Void doInBackground() throws Exception {
+                        doKmlImport(fileChooser.getSelectedFile().getAbsolutePath());
+                        return null;
+                    }
+                    @Override
+                    protected void done() {
+                        try {
+                            get();
+                        }
+                        catch (Exception e) {
+                            e.printStackTrace();
+                            sourceLabel.setForeground(Color.RED);
+                            sourceLabel.setText(e.toString());
+                        }
+                        setWorking(false);
+                    }
+                };
+                sw.execute();
             }
-            catch (Exception e1) {
-                e1.printStackTrace();
-                sourceLabel.setForeground(Color.RED);
-                sourceLabel.setText(e1.toString());
-            }
-            finally {
+            else {
                 setWorking(false);
             }
         });
@@ -197,17 +211,30 @@ public class MarksImporterPanel extends JPanel {
         kmlFromUrlBtn.addActionListener(e -> {
             sourceLabel.setText("");
             setWorking(true);
-            try {
-                String url = JOptionPane.showInputDialog(MarksImporterPanel.this, "URL");
-                if(url != null)
-                    doKmlImport(url);
+            String url = JOptionPane.showInputDialog(MarksImporterPanel.this, "URL");
+            if(url != null) {
+                SwingWorker<Void, Void> sw = new SwingWorker<Void, Void>() {
+                    @Override
+                    protected Void doInBackground() throws Exception {
+                        doKmlImport(url);
+                        return null;
+                    }
+                    @Override
+                    protected void done() {
+                        try {
+                            get();
+                        }
+                        catch (Exception e) {
+                            e.printStackTrace();
+                            sourceLabel.setForeground(Color.RED);
+                            sourceLabel.setText(e.toString());
+                        }
+                        setWorking(false);
+                    }
+                };
+                sw.execute();
             }
-            catch (Exception e1) {
-                e1.printStackTrace();
-                sourceLabel.setForeground(Color.RED);
-                sourceLabel.setText(e1.toString());
-            }
-            finally {
+            else {
                 setWorking(false);
             }
         });
