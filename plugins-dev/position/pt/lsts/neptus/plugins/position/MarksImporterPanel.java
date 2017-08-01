@@ -50,7 +50,10 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.filechooser.FileFilter;
 
+import org.jdesktop.swingx.JXBusyLabel;
+
 import net.miginfocom.swing.MigLayout;
+import pt.lsts.neptus.gui.InfiniteProgressPanel;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.types.map.MarkElement;
 import pt.lsts.neptus.util.GuiUtils;
@@ -85,9 +88,10 @@ public class MarksImporterPanel extends JPanel {
     private final JPanel importerPanel = new JPanel();
     private final JPanel csvImporterPanel = new JPanel();
     private final JPanel kmlImporterPanel = new JPanel();
+    private final JXBusyLabel busyLabel = InfiniteProgressPanel.createBusyAnimationInfiniteBeans(40);
 
     private final FileFilter csvFilter = GuiUtils.getCustomFileFilter(I18n.text("Comma Separated Values"), "csv");
-    private final FileFilter kmlFilter = GuiUtils.getCustomFileFilter(I18n.text("KML"), "kml");
+    private final FileFilter kmlFilter = GuiUtils.getCustomFileFilter(I18n.text("KML"), "kml", "kmz");
 
     private Component parent = null;
     private List<MarkElement> importedMarks = null;
@@ -106,14 +110,22 @@ public class MarksImporterPanel extends JPanel {
 
         initSourcesPanel();
         initImporterPanel();
-
+        
+        setWorking(false);
+        
         add(importerSourcePanel, "w 20%, h 90%");
-        add(importerPanel, "w 80%, h 90%, wrap");
+        add(importerPanel, "w 60%, h 90%");
+        add(busyLabel, "w 40px, h 100%, wrap");
         add(sourceLabel, "w 20%, h 20%, spanx");
         
         fgColor = sourceLabel.getForeground();
     }
 
+    private void setWorking(boolean working) {
+        busyLabel.setBusy(working);
+        busyLabel.setVisible(working);
+    }
+    
     /**
      * Null if something went wrong
      */
@@ -131,40 +143,73 @@ public class MarksImporterPanel extends JPanel {
         csvImporterPanel.setLayout(new MigLayout());
         csvFromFileBtn.addActionListener(e -> {
             sourceLabel.setText("");
-            fileChooser.resetChoosableFileFilters();
-            fileChooser.setFileFilter(csvFilter);
-            int res = fileChooser.showDialog(parent, I18n.text("CSV Source"));
+            setWorking(true);
+            try {
+                fileChooser.resetChoosableFileFilters();
+                fileChooser.setFileFilter(csvFilter);
+                int res = fileChooser.showDialog(parent, I18n.text("CSV Source"));
 
-            if(res == JFileChooser.APPROVE_OPTION) {
-                String filePath = fileChooser.getSelectedFile().getAbsolutePath();
-                importedMarks = MarksCSVHandler.importCsv(filePath, csvDelimiter);
-                if(importedMarks == null) {
-                    sourceLabel.setForeground(Color.RED);
-                    sourceLabel.setText(I18n.text("Error while importing marks"));
-                    return;
+                if(res == JFileChooser.APPROVE_OPTION) {
+                    String filePath = fileChooser.getSelectedFile().getAbsolutePath();
+                    importedMarks = MarksCSVHandler.importCsv(filePath, csvDelimiter);
+                    if(importedMarks == null) {
+                        sourceLabel.setForeground(Color.RED);
+                        sourceLabel.setText(I18n.text("Error while importing marks"));
+                        return;
+                    }
+
+                    sourceLabel.setForeground(fgColor);
+                    sourceLabel.setText(I18n.textf("Imported %numberOfMarks marks from '%path'", importedMarks.size(),
+                            fileChooser.getSelectedFile().getName()));
                 }
-
-                sourceLabel.setForeground(fgColor);
-                sourceLabel.setText(I18n.textf("Imported %numberOfMarks marks from '%path'", importedMarks.size(),
-                        fileChooser.getSelectedFile().getName()));
+            }
+            catch (Exception e1) {
+                e1.printStackTrace();
+                sourceLabel.setForeground(Color.RED);
+                sourceLabel.setText(e1.toString());
+            }
+            finally {
+                setWorking(false);
             }
         });
 
         kmlImporterPanel.setLayout(new MigLayout());
         kmlFromFileBtn.addActionListener(e -> {
             sourceLabel.setText("");
-            fileChooser.resetChoosableFileFilters();
-            fileChooser.setFileFilter(kmlFilter);
-            int res = fileChooser.showDialog(parent, I18n.text("KML Source"));
-            if(res == JFileChooser.APPROVE_OPTION)
-                doKmlImport(fileChooser.getSelectedFile().getAbsolutePath());
+            setWorking(true);
+            try {
+                fileChooser.resetChoosableFileFilters();
+                fileChooser.setFileFilter(kmlFilter);
+                int res = fileChooser.showDialog(parent, I18n.text("KML Source"));
+                if(res == JFileChooser.APPROVE_OPTION)
+                    doKmlImport(fileChooser.getSelectedFile().getAbsolutePath());
+            }
+            catch (Exception e1) {
+                e1.printStackTrace();
+                sourceLabel.setForeground(Color.RED);
+                sourceLabel.setText(e1.toString());
+            }
+            finally {
+                setWorking(false);
+            }
         });
 
         kmlFromUrlBtn.addActionListener(e -> {
             sourceLabel.setText("");
-            String url = JOptionPane.showInputDialog(MarksImporterPanel.this, "URL");
-            if(url != null)
-                doKmlImport(url);
+            setWorking(true);
+            try {
+                String url = JOptionPane.showInputDialog(MarksImporterPanel.this, "URL");
+                if(url != null)
+                    doKmlImport(url);
+            }
+            catch (Exception e1) {
+                e1.printStackTrace();
+                sourceLabel.setForeground(Color.RED);
+                sourceLabel.setText(e1.toString());
+            }
+            finally {
+                setWorking(false);
+            }
         });
 
         csvImporterPanel.add(csvFromFileBtn);
@@ -184,7 +229,10 @@ public class MarksImporterPanel extends JPanel {
         }
         catch (MalformedURLException e1) {
             e1.printStackTrace();
-            GuiUtils.showErrorPopup("KML", I18n.textf("KML %url is not a valid URL", urlStr));
+            String msgStr = I18n.textf("KML %url is not a valid URL", urlStr);
+            GuiUtils.showErrorPopup("KML", msgStr);
+            sourceLabel.setForeground(Color.RED);
+            sourceLabel.setText(msgStr);
             return;
         }
 
