@@ -57,7 +57,7 @@ For simple use the main targets are:
 	<!-- Defines variables used by the other targets                         -->
 	<!-- =================================================================== -->
 	<property name="version.MAJOR" value="2017" />
-	<property name="version.MINOR" value="03" />
+	<property name="version.MINOR" value="06" />
 	<property name="version.PATCH" value="1" />
 	<!-- Set this to '-dev' if a developer release; blank "" if maintenance release; or '-rcX' for release candidate X (X number) -->
 	<property name="version.DEVELOPER" value="-dev" />
@@ -2002,7 +2002,7 @@ For simple use the main targets are:
 			<param name="copy-includes-excludes-file-sufix" value="NeptusFull" />
 			<param name="dist.installer.name" value="${dist.installer.name.full}" />
 			<param name="dist.instalation.folder.name" value="Neptus" />
-			<reference refid="neptus.filters" torefid="dist.filters" />
+			<reference refid="empty.filters" torefid="dist.filters" />
 			<reference refid="neptus.filters" torefid="common.filters" />
 		</antcall>
 	</target>

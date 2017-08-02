@@ -55,7 +55,7 @@ import pt.lsts.neptus.plugins.Popup.POSITION;
  */
 @SuppressWarnings("serial")
 @PluginDescription(name = "System Configuration", icon = "images/settings2.png")
-@Popup(accelerator='Z', pos=POSITION.CENTER, width=600, height=600)
+@Popup(accelerator='1', pos=POSITION.CENTER, width=600, height=600)
 public class SystemConfiguration extends ConsolePanel implements NeptusMessageListener, MainVehicleChangeListener {
 
     private SystemConfigurationEditorPanel systemConfEditor;

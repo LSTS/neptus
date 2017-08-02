@@ -252,6 +252,9 @@ SubPanelChangeListener, MainVehicleChangeListener {
 
         for (VehicleType v : avVehicles) {
             final ImcSystem sys = ImcSystemsHolder.lookupSystemByName(v.getId());
+            if (sys == null)
+                continue;
+            
             final String vid = v.getId();
             if (sys.getLocation() != null) {
                 AbstractAction actionSys = new AbstractAction(I18n.textf("Add a mark at %system's location", v.getId())) {
