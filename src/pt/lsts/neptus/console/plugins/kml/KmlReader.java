@@ -60,6 +60,10 @@ public class KmlReader {
     public KmlReader(URL url, boolean fromFile) {
         streamIsOpen = unmarshalStream(url, fromFile);
     }
+
+    public boolean streamIsOpen() {
+        return streamIsOpen;
+    }
     
     private boolean unmarshalStream(URL url, boolean fromFile) {
         boolean zipped;
