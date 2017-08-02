@@ -49,13 +49,14 @@ import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.def.SpeedUnits;
 import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.SpeedType;
+import pt.lsts.neptus.mp.SpeedType.Units;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.PlanElement;
@@ -66,8 +67,8 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, Maneuve
 	public static final double MINIMUM_SK_RADIUS = 10;
 	
 	private int duration = 60;
-	private double radius = 10, speed = 30;
-	private Maneuver.SPEED_UNITS speedUnits = Maneuver.SPEED_UNITS.METERS_PS;
+	private double radius = 10;
+	private SpeedType speed = new SpeedType(1000, Units.RPM);
 	private ManeuverLocation location = new ManeuverLocation();	 
 
 	@Override
@@ -78,7 +79,6 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, Maneuve
 		l.setManeuverLocation(getManeuverLocation().clone());
 		l.setRadius(getRadius());
 		l.setSpeed(getSpeed());
-		l.setSpeedUnits(getSpeedUnits());
 		return l;		
 	}
 
@@ -105,13 +105,8 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, Maneuve
 	    trajRadius.setText(String.valueOf(getRadius()));
 	    trajRadius.addAttribute("type", "float");	    
 
-	    //speed
-	    Element velocity = root.addElement("speed");
-	    //velocity.addAttribute("tolerance", String.valueOf(getSpeedTolerance()));
-	    velocity.addAttribute("type", "float");
-	    velocity.addAttribute("unit", getSpeedUnits().getString());
-	    velocity.setText(String.valueOf(getSpeed()));
-	    
+	    SpeedType.addSpeedElement(root, this);
+
 	    return document;
 	}
 	
@@ -131,12 +126,7 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, Maneuve
             loc.load(node.asXML());
             setManeuverLocation(loc);	       
 	        
-	        // Speed
-	        Node speedNode = doc.selectSingleNode("StationKeeping/speed");
-	        setSpeed(Double.parseDouble(speedNode.getText()));
-//	        setSpeedUnits(speedNode.valueOf("@unit"));
-	        SPEED_UNITS sUnits = ManeuversXMLUtil.parseSpeedUnits((Element) speedNode);
-            setSpeedUnits(sUnits);
+            SpeedType.parseManeuverSpeed(doc.getRootElement(), this);
 	        
 	        // Duration
 	        setDuration(Integer.parseInt(doc.selectSingleNode("StationKeeping/duration").getText()));
@@ -187,13 +177,9 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, Maneuve
 		duration.setShortDescription("The Station Keeping's duration, in seconds (0 means +Infinity)");		
 		props.add(duration);
 				
-		DefaultProperty speed = PropertiesEditor.getPropertyInstance("Speed", Double.class, this.speed, true);
+		DefaultProperty speed = PropertiesEditor.getPropertyInstance("Speed", SpeedType.class, this.speed, true);
 		speed.setShortDescription("The vehicle's desired speed when Station Keeping");
 		props.add(speed);
-		
-		DefaultProperty speedUnits = PropertiesEditor.getPropertyInstance("Speed Units", Maneuver.SPEED_UNITS.class, this.speedUnits, true);
-		speedUnits.setShortDescription("The units to consider in the speed parameters");
-		props.add(speedUnits);
 		
 		DefaultProperty radius = PropertiesEditor.getPropertyInstance("Radius", Double.class, this.radius, true);
 		radius.setShortDescription("Radius of the Station Keeping circle. Lower values default to "+MINIMUM_SK_RADIUS+" meters.");
@@ -212,33 +198,22 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, Maneuve
 				setDuration((Integer)p.getValue());
 				continue;
 			}
-			
 			if (p.getName().equals("Speed")) {
-				setSpeed((Double)p.getValue());
+				setSpeed((SpeedType)p.getValue());
 				continue;
 			}
-			
-//			if (p.getName().equalsIgnoreCase("Speed Units")) {
-//				setSpeedUnits((String)p.getValue());
-//				continue;
-//			}
-			
 			if (p.getName().equals("Radius")) {
 				setRadius(Math.max(MINIMUM_SK_RADIUS, (Double)p.getValue()));
 				continue;
 			}
 			
-			// "Speed Units" parsing
-            SPEED_UNITS speedUnits = ManeuversUtil.getSpeedUnitsFromPropertyOrNullIfInvalidName(p);
-            if (speedUnits != null)
-                setSpeedUnits(speedUnits);
 		}
 	}
 	
 	@Override
 	public String getTooltipText() {
 		return super.getTooltipText()+"<hr>"+
-		"<br>" + I18n.text("speed") + ": <b>"+(int)speed+" "+I18n.text(speedUnits.getString())+"</b>"+
+		"<br>" + I18n.text("speed") + ": <b>"+speed+"</b>"+
 		"<br>" + I18n.text("radius") + ": <b>"+radius+" " + I18n.textc("m", "meters") + "</b>"+
 		"<br>" + I18n.text("duration") + ": <b>"+duration+" " + I18n.textc("s", "seconds") + "</b><br>";
 	}
@@ -262,34 +237,6 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, Maneuve
 	public void setRadius(double radius) {
 		this.radius = Math.max(MINIMUM_SK_RADIUS, radius);
 	}
-
-	public double getSpeed() {
-		return speed;
-	}
-
-	public void setSpeed(double speed) {
-		this.speed = speed;
-	}
-
-	public SPEED_UNITS getSpeedUnits() {
-		return speedUnits;
-	}
-
-	public void setSpeedUnits(SPEED_UNITS speedUnits) {
-		this.speedUnits = speedUnits;
-	}
-	
-//	protected double getVelocityInMetersPerSeconds() {
-//		if (speedUnits == Maneuver.SPEED_UNITS.METERS_PS)
-//			return speed;
-//		if (speedUnits.equalsIgnoreCase("Km/h"))
-//			return speed * (1.0/3.6);
-//		if (speedUnits.equalsIgnoreCase("MPH"))
-//			return speed * 0.4471;
-//		
-//		return 0;		
-//	}
-	
 	
 	@Override
 	public void paintOnMap(Graphics2D g2d, PlanElement planElement, StateRenderer2D renderer) {
@@ -309,7 +256,7 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, Maneuve
 	@Override
 	public void parseIMCMessage(IMCMessage message) {
 		setMaxTime((int)message.getDouble("timeout"));
-    	setSpeed(message.getDouble("speed"));
+    	
     	
     	ManeuverLocation pos = new ManeuverLocation();
     	pos.setLatitudeRads(message.getDouble("lat"));
@@ -320,14 +267,7 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, Maneuve
     	    pos.setZUnits(ManeuverLocation.Z_UNITS.valueOf(zunits));
     	setManeuverLocation(pos);
     	
-		try {
-            String speedUnits = message.getString("speed_units");
-            setSpeedUnits(Maneuver.SPEED_UNITS.parse(speedUnits));
-        }
-        catch (Exception e) {
-            setSpeedUnits(Maneuver.SPEED_UNITS.RPM);
-            e.printStackTrace();
-        }
+		speed = SpeedType.parseImcSpeed(message);
 		
 		setDuration((int)message.getDouble("duration"));
 		setRadius(message.getDouble("radius"));
@@ -344,24 +284,8 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, Maneuve
 		message.setZ(getManeuverLocation().getZ());
 		message.setZUnits(ZUnits.valueOf(getManeuverLocation().getZUnits().toString()));
 		message.setDuration(getDuration());
-		message.setSpeed(this.getSpeed());
-		try {
-            switch (this.getSpeedUnits()) {
-                case METERS_PS:
-                    message.setSpeedUnits(SpeedUnits.METERS_PS);
-                    break;
-                case PERCENTAGE:
-                    message.setSpeedUnits(SpeedUnits.PERCENTAGE);
-                    break;
-                case RPM:
-                default:
-                    message.setSpeedUnits(SpeedUnits.RPM);
-                    break;
-            }
-        }
-        catch (Exception ex) {
-            NeptusLog.pub().error(this, ex);                     
-        }
+		
+		speed.setSpeedToMessage(message);
         
 		message.setRadius(this.getRadius());
 		message.setCustom(getCustomSettings());
@@ -374,15 +298,7 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, Maneuve
      */
     @Override
     public double getCompletionTime(LocationType initialPosition) {
-        double speed = this.speed;
-        if (this.speedUnits == Maneuver.SPEED_UNITS.RPM) {
-            speed = speed/769.230769231; //1.3 m/s for 1000 RPMs
-        }
-        else if (this.speedUnits == Maneuver.SPEED_UNITS.PERCENTAGE) {
-            speed = speed/76.923076923; //1.3 m/s for 100% speed
-        }
-
-        double time = getDistanceTravelled(initialPosition) / speed;
+        double time = getDistanceTravelled(initialPosition) / speed.getMPS();
 
         return /*getDuration() == 0 ? Double.POSITIVE_INFINITY :*/ getDuration() + time;
     }
@@ -415,6 +331,16 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, Maneuve
     @Override
     public Collection<ManeuverLocation> getWaypoints() {
         return Collections.singleton(getStartLocation());
+    }
+    
+    @Override
+    public SpeedType getSpeed() {
+        return new SpeedType(speed);
+    }
+    
+    @Override
+    public void setSpeed(SpeedType speed) {
+        this.speed = new SpeedType(speed);       
     }
 
 }

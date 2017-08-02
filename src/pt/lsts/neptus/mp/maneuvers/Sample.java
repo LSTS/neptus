@@ -43,11 +43,11 @@ import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.def.Boolean;
-import pt.lsts.imc.def.SpeedUnits;
 import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.SpeedType;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.types.coord.LocationType;
 
@@ -76,7 +76,6 @@ public class Sample extends Goto {
         Sample clone = new Sample();
         super.clone(clone);
         clone.setManeuverLocation(getManeuverLocation());
-        clone.setSpeedUnits(getSpeedUnits());
         clone.setSpeed(getSpeed());
         clone.setSpeedTolerance(getSpeedTolerance());
         clone.setUseSyringe0(useSyringe0);
@@ -92,18 +91,7 @@ public class Sample extends Goto {
             pt.lsts.imc.Sample msg = pt.lsts.imc.Sample.clone(message);
             
             setMaxTime(msg.getTimeout());
-            setSpeed(msg.getSpeed());
-            switch (msg.getSpeedUnits()) {
-                case METERS_PS:
-                    setSpeedUnits(SPEED_UNITS.METERS_PS);
-                    break;
-                case PERCENTAGE:
-                    setSpeedUnits(SPEED_UNITS.PERCENTAGE);
-                    break;
-                case RPM:
-                    setSpeedUnits(SPEED_UNITS.RPM);
-                    break;
-            }
+            setSpeed(SpeedType.parseImcSpeed(message));
             ManeuverLocation pos = new ManeuverLocation();
             pos.setLatitudeRads(msg.getLat());
             pos.setLongitudeRads(msg.getLon());
@@ -157,22 +145,7 @@ public class Sample extends Goto {
         sampleManeuver.setZ(getManeuverLocation().getZ());
         sampleManeuver.setZUnits(ZUnits.valueOf(getManeuverLocation().getZUnits().name()));
 
-        sampleManeuver.setSpeed(this.getSpeed());
-
-        switch (this.getSpeedUnits()) {
-            case METERS_PS:
-                sampleManeuver.setSpeedUnits(SpeedUnits.METERS_PS);
-                break;
-            case RPM:
-                sampleManeuver.setSpeedUnits(SpeedUnits.RPM);
-                break;
-            case PERCENTAGE:
-                sampleManeuver.setSpeedUnits(SpeedUnits.PERCENTAGE);
-                break;
-            default:
-                sampleManeuver.setSpeedUnits(SpeedUnits.RPM);
-                break;
-        }
+        getSpeed().setSpeedToMessage(sampleManeuver);
        
         sampleManeuver.setSyringe0(getStateSyringe0() ? Boolean.TRUE : Boolean.FALSE);
         sampleManeuver.setSyringe1(getStateSyringe1() ? Boolean.TRUE : Boolean.FALSE);

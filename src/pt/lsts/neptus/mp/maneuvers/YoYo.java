@@ -46,7 +46,6 @@ import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.def.SpeedUnits;
 import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
@@ -54,6 +53,8 @@ import pt.lsts.neptus.gui.editor.AngleEditorRads;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.SpeedType;
+import pt.lsts.neptus.mp.SpeedType.Units;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.GuiUtils;
 
@@ -62,11 +63,11 @@ import pt.lsts.neptus.util.GuiUtils;
  */
 public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver, ManeuverWithSpeed {
 
-    protected double speed = 1000, speedTolerance = 100, amplitude = 2;
+    protected double amplitude = 2;
     protected float pitchAngle = (float) (Math.PI/4);
-    protected Maneuver.SPEED_UNITS speedUnits = SPEED_UNITS.RPM;
     protected ManeuverLocation destination = new ManeuverLocation();
     protected static final String DEFAULT_ROOT_ELEMENT = "YoYo";
+	protected SpeedType speed = new SpeedType(1000, Units.RPM);
 	
 	public String getType() {
 		return "YoYo";
@@ -84,12 +85,7 @@ public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver,
 	    Element radTolerance = finalPoint.addElement("radiusTolerance");
 	    radTolerance.setText("0");
 	   
-	    Element velocity = root.addElement("speed");
-	    velocity.addAttribute("tolerance", String.valueOf(getSpeedTolerance()));
-	    velocity.addAttribute("type", "float");
-	    velocity.addAttribute("unit", getSpeedUnits().getString());
-	    velocity.setText(String.valueOf(getSpeed()));
-	    
+	    SpeedType.addSpeedElement(root, this);
 	    Element amplitude = root.addElement("amplitude");
 	    amplitude.setText(String.valueOf(getAmplitude()));	    
 	    Element pitchAngle = root.addElement("pitch");
@@ -107,15 +103,7 @@ public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver,
             setManeuverLocation(loc); 
 	        setAmplitude(Double.parseDouble(doc.selectSingleNode("YoYo/amplitude").getText()));
 	        setPitchAngle(Float.parseFloat(doc.selectSingleNode("YoYo/pitch").getText()));
-	        Node speedNode = doc.selectSingleNode("YoYo/speed");
-	        if (speedNode == null) 
-	        	speedNode = doc.selectSingleNode("YoYo/velocity");
-	        setSpeed(Double.parseDouble(speedNode.getText()));
-//	        String speedUnit = speedNode.valueOf("@unit");
-//	        setSpeedUnits(speedUnit);
-	        SPEED_UNITS sUnits = ManeuversXMLUtil.parseSpeedUnits((Element) speedNode);
-            setSpeedUnits(sUnits);
-	        //setSpeedTolerance(Double.parseDouble(speedNode.valueOf("@tolerance")));
+	        SpeedType.parseManeuverSpeed(doc.getRootElement(), this);
 	    }
 	    catch (Exception e) {
 	        NeptusLog.pub().error(this, e);
@@ -129,9 +117,7 @@ public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver,
 	    clone.setManeuverLocation(destination.clone());
 	    clone.setAmplitude(getAmplitude());
 	    clone.setPitchAngle(getPitchAngle());
-	    clone.setSpeedUnits(getSpeedUnits());
 	    clone.setSpeed(getSpeed());
-	    clone.setSpeedTolerance(getSpeedTolerance());
 	    
 	    return clone;
 	}
@@ -158,30 +144,6 @@ public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver,
 		this.pitchAngle = pitchAngle;
 	}
     
-    public SPEED_UNITS getSpeedUnits() {
-        return speedUnits;
-    }
-    
-    public void setSpeedUnits(SPEED_UNITS speedUnits) {
-        this.speedUnits = speedUnits;
-    }
-    
-    public double getSpeed() {
-        return speed;
-    }
-    
-    public void setSpeed(double speed) {
-        this.speed = speed;
-    }
-    
-    public double getSpeedTolerance() {
-        return speedTolerance;
-    }
-    
-    public void setSpeedTolerance(double speedTolerance) {
-        this.speedTolerance = speedTolerance;
-    }
-    
     public void translate(double offsetNorth, double offsetEast, double offsetDown) {    
     	destination.translatePosition(offsetNorth, offsetEast, offsetDown);
     }
@@ -189,15 +151,7 @@ public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver,
     @Override
     protected Vector<DefaultProperty> additionalProperties() {
     	Vector<DefaultProperty> properties = new Vector<DefaultProperty>();
-
-    	DefaultProperty units = PropertiesEditor.getPropertyInstance("Speed units", Maneuver.SPEED_UNITS.class, getSpeedUnits(), true);
-    	units.setShortDescription("The speed units");
-    
-    	properties.add(PropertiesEditor.getPropertyInstance("Speed", Double.class, getSpeed(), true));
-    	properties.add(units);
-
-//    	properties.add(PropertiesEditor.getPropertyInstance("Speed tolerance", Double.class, getSpeedTolerance(), true));
-    	
+    	properties.add(PropertiesEditor.getPropertyInstance("Speed", SpeedType.class, getSpeed(), true));
         properties.add(PropertiesEditor.getPropertyInstance("Amplitude", Double.class, getAmplitude(), true));
         DefaultProperty ap = PropertiesEditor.getPropertyInstance("Pitch angle", Float.class, getPitchAngle(), true);
         PropertiesEditor.getPropertyEditorRegistry().registerEditor(ap, AngleEditorRads.class);
@@ -216,26 +170,15 @@ public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver,
     	super.setProperties(properties);
     	
     	for (Property p : properties) {
-//    		if (p.getName().equals("Speed units")) {
-//    			setSpeedUnits((String)p.getValue());
-//    		}
-    		if (p.getName().equalsIgnoreCase("Speed tolerance")) {
-    			setSpeedTolerance((Double)p.getValue());
-    		}
-    		else if (p.getName().equalsIgnoreCase("Speed")) {
-    			setSpeed((Double)p.getValue());
+    		if (p.getName().equalsIgnoreCase("Speed")) {
+    			setSpeed((SpeedType)p.getValue());
     		}
     		else if (p.getName().equalsIgnoreCase("Amplitude")) {
     			setAmplitude((Double)p.getValue());
     		}    		
     		else if (p.getName().equalsIgnoreCase("Pitch angle")) {
     			setPitchAngle((Float)p.getValue());
-    		}
-    		else {
-    		    SPEED_UNITS speedUnits = ManeuversUtil.getSpeedUnitsFromPropertyOrNullIfInvalidName(p);
-    		    if (speedUnits != null)
-    		        setSpeedUnits(speedUnits);
-    		}
+    		}    		
     	}
     }
     
@@ -248,9 +191,6 @@ public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver,
     	return destination.clone();
     }
     
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.mp.maneuvers.LocationProvider#getFirstPosition()
-     */
     @Override
     public ManeuverLocation getStartLocation() {
         return destination.clone();
@@ -271,7 +211,7 @@ public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver,
     	NumberFormat nf = GuiUtils.getNeptusDecimalFormat(2);
 		
 		return super.getTooltipText()+"<hr>"+
-		I18n.text("speed") + ": <b>"+nf.format(getSpeed())+" "+getSpeedUnits()+"</b>"+
+		I18n.text("speed") + ": <b>"+getSpeed()+"</b>"+
 		"<br>"+I18n.text(destination.getZUnits().toString())+": <b>"+nf.format(destination.getZ())+" " + I18n.textc("m", "meters") + "</b>" +
 		"<br>" + I18n.text("amplitude") + ": <b>"+nf.format(getAmplitude())+" " + I18n.textc("m", "meters") + "</b>"+
 		"<br>" + I18n.text("pitch") + ": <b>"+nf.format(Math.toDegrees(getPitchAngle()))+" \u00B0</b>";
@@ -280,7 +220,6 @@ public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver,
     @Override
     public void parseIMCMessage(IMCMessage message) {
     	setMaxTime((int)message.getDouble("timeout"));
-    	setSpeed(message.getDouble("speed"));
     	setAmplitude(message.getDouble("amplitude"));
     	setPitchAngle((float)message.getDouble("pitch"));
     	
@@ -290,16 +229,10 @@ public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver,
     	pos.setZ(message.getDouble("z"));
     	pos.setZUnits(ManeuverLocation.Z_UNITS.valueOf(message.getString("z_units")));
     	
+    	speed = SpeedType.parseImcSpeed(message);
+    	
     	setManeuverLocation(pos);
     	
-		try {
-            String speedUnits = message.getString("speed_units");
-            setSpeedUnits(Maneuver.SPEED_UNITS.parse(speedUnits));
-        }
-        catch (Exception e) {
-            setSpeedUnits(Maneuver.SPEED_UNITS.RPM);
-            e.printStackTrace();
-        }
 		
 		setCustomSettings(message.getTupleList("custom"));
     }
@@ -315,42 +248,32 @@ public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver,
 		yoyo.setLon(loc.getLongitudeRads());
 		yoyo.setZ(getManeuverLocation().getZ());
 		yoyo.setZUnits(ZUnits.valueOf(getManeuverLocation().getZUnits().toString()));
-		yoyo.setSpeed(getSpeed());
 		yoyo.setAmplitude(getAmplitude());
 		yoyo.setPitch(getPitchAngle());
-
-		try {
-            switch (this.getSpeedUnits()) {
-                case METERS_PS:
-                    yoyo.setSpeedUnits(SpeedUnits.METERS_PS);
-                    break;
-                case PERCENTAGE:
-                    yoyo.setSpeedUnits(SpeedUnits.PERCENTAGE);
-                    break;
-                case RPM:
-                default:
-                    yoyo.setSpeedUnits(SpeedUnits.RPM);
-                    break;
-            }
-        }
-        catch (Exception ex) {
-            NeptusLog.pub().error(this, ex);                     
-        }
-		
+		speed.setSpeedToMessage(yoyo);
 		yoyo.setCustom(getCustomSettings());
 
 		return yoyo;
-	}   
-
-    public static void main(String[] args) {
-    	YoYo g = new YoYo();
-		PropertiesEditor.editProperties(g, true);
-		PropertiesEditor.editProperties(g, true);	
 	}
-    
+	
+	@Override
+	public SpeedType getSpeed() {
+	    return new SpeedType(speed);
+	}
+
+	@Override
+	public void setSpeed(SpeedType speed) {
+	    this.speed = new SpeedType(speed);       
+	}
+
     @Override
     public Collection<ManeuverLocation> getWaypoints() {
         return Collections.singleton(getStartLocation());
     }
 
+    public static void main(String[] args) {
+        YoYo g = new YoYo();
+        PropertiesEditor.editProperties(g, true);
+        PropertiesEditor.editProperties(g, true);   
+    }    
 }

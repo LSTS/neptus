@@ -61,8 +61,9 @@ import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.mp.Maneuver.SPEED_UNITS;
 import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.SpeedType;
+import pt.lsts.neptus.mp.SpeedType.Units;
 import pt.lsts.neptus.mp.templates.PlanCreator;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
@@ -99,10 +100,7 @@ public class ImuAlignmentPanel extends ConsolePanel implements IPeriodicUpdates 
     public double squareSideLength = 80;
 
     @NeptusProperty(name="Alignment Speed", userLevel=LEVEL.REGULAR)
-    public double alignSpeed = 1.25;
-
-    @NeptusProperty(name="Alignment Speed Units", userLevel=LEVEL.REGULAR)
-    public SPEED_UNITS alignSpeedUnits = SPEED_UNITS.METERS_PS;
+    public SpeedType alignSpeed = new SpeedType(1.25, Units.MPS);
     
     @NeptusProperty(name="Use Error Notifications", userLevel = LEVEL.ADVANCED, description="Use an error instead of warning when navigation becomes not aligned")
     public boolean useErrorNotification = false;
@@ -255,7 +253,7 @@ public class ImuAlignmentPanel extends ConsolePanel implements IPeriodicUpdates 
             else {
                 pc.setLocation(new LocationType(getConsole().getMission().getHomeRef()));
             }
-            pc.setSpeed(alignSpeed, alignSpeedUnits);
+            pc.setSpeed(alignSpeed);
             pc.setZ(0, ManeuverLocation.Z_UNITS.DEPTH);
 
             pc.addGoto(null);

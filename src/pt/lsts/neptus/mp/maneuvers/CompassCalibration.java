@@ -50,13 +50,13 @@ import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.CompassCalibration.DIRECTION;
 import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.def.SpeedUnits;
 import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.gui.editor.SpeedUnitsEnumEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.SpeedType;
+import pt.lsts.neptus.mp.SpeedType.Units;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginProperty;
 import pt.lsts.neptus.plugins.PluginUtils;
@@ -77,10 +77,7 @@ public class CompassCalibration extends Maneuver
     public ManeuverLocation location = new ManeuverLocation();
 
     @NeptusProperty(name="Speed", description="The speed to be used")
-    public double speed = 1.3; 
-
-    @NeptusProperty(name="Speed units", description="The speed units", editorClass=SpeedUnitsEnumEditor.class)
-    public Maneuver.SPEED_UNITS speedUnits = SPEED_UNITS.METERS_PS;
+    public SpeedType speed = new SpeedType(1.3, Units.MPS); 
 
     @NeptusProperty(name="Pitch", description="The Pitch angle used to perform the maneuver.")
     public double pitchDegs = 15;
@@ -98,34 +95,6 @@ public class CompassCalibration extends Maneuver
     public DIRECTION direction = DIRECTION.CLOCKW;
 
     public CompassCalibration() {
-    }
-
-    /**
-     * @return the speed
-     */
-    public double getSpeed() {
-        return speed;
-    }
-
-    /**
-     * @param speed the speed to set
-     */
-    public void setSpeed(double speed) {
-        this.speed = speed;
-    }
-
-    /**
-     * @return the speedUnits
-     */
-    public Maneuver.SPEED_UNITS getSpeedUnits() {
-        return speedUnits;
-    }
-
-    /**
-     * @param speedUnits the speedUnits to set
-     */
-    public void setSpeedUnits(Maneuver.SPEED_UNITS speedUnits) {
-        this.speedUnits = speedUnits;
     }
 
     @Override
@@ -151,10 +120,9 @@ public class CompassCalibration extends Maneuver
         durationEl.setText(String.valueOf(duration));
 
         Element speedEl = root.addElement("speed");
-        //speedEl.addAttribute("tolerance", String.valueOf(speedTolerance));
         speedEl.addAttribute("type", "float");
-        speedEl.addAttribute("unit", speedUnits.getString());
-        speedEl.setText(String.valueOf(speed));
+        speedEl.addAttribute("unit", speed.getUnits().name());
+        speedEl.setText(String.valueOf(speed.getValue()));
 
         Element radiusEl = root.addElement("radius");
         radiusEl.setText(String.valueOf(radius));
@@ -188,11 +156,7 @@ public class CompassCalibration extends Maneuver
             Node durationNode = doc.selectSingleNode(DEFAULT_ROOT_ELEMENT+ "/duration");
             duration = Integer.parseInt(durationNode.getText());
             
-            Node speedNode = doc.selectSingleNode(DEFAULT_ROOT_ELEMENT+ "/speed");
-            speed = Double.parseDouble(speedNode.getText());
-//            speedUnits = speedNode.valueOf("@unit");
-            SPEED_UNITS sUnits = ManeuversXMLUtil.parseSpeedUnits((Element) speedNode);
-            speedUnits = sUnits;
+            SpeedType.parseManeuverSpeed(doc.getRootElement(), this);            
 
             radius = Float.parseFloat(doc.selectSingleNode(DEFAULT_ROOT_ELEMENT+ "/radius").getText());
 
@@ -232,7 +196,7 @@ public class CompassCalibration extends Maneuver
     @Override
     public String getTooltipText() {
         return super.getTooltipText() + "<hr>" + 
-                I18n.text("speed") + ": <b>" + speed + " " + I18n.text(speedUnits.getString()) + "</b>" + 
+                I18n.text("speed") + ": <b>" + speed + "</b>" + 
                 ("<br>" + I18n.text("cruise depth") + ": <b>" + (int) getStartLocation().getDepth() + " " + I18n.textc("m", "meters") + "</b>") + 
                 "<br>" + I18n.text("end z") + ": <b>" + getManeuverLocation().getZ() + " " + I18n.textc("m", "meters") + " (" + I18n.text(getManeuverLocation().getZUnits().toString()) + ")</b>" +
                 "<br>" + I18n.text("pitch") + ": <b>" + pitchDegs + " " + I18n.textc("m", "meters") + "</b>" +
@@ -279,27 +243,11 @@ public class CompassCalibration extends Maneuver
         man.setAmplitude(amplitude);
         man.setDuration(duration);
         man.setRadius(radius);
-        man.setSpeed(speed);
+        
         man.setDirection(direction);
         man.setCustom(getCustomSettings());
         
-        try {
-            switch (speedUnits) {
-                case METERS_PS:
-                    man.setSpeedUnits(SpeedUnits.METERS_PS);
-                    break;
-                case PERCENTAGE:
-                    man.setSpeedUnits(SpeedUnits.PERCENTAGE);
-                    break;
-                case RPM:
-                default:
-                    man.setSpeedUnits(SpeedUnits.RPM);
-                    break;
-            }
-        }
-        catch (Exception ex) {
-            NeptusLog.pub().error(this, ex);                     
-        }
+        speed.setSpeedToMessage(man);
 
         return man;
     }
@@ -329,34 +277,13 @@ public class CompassCalibration extends Maneuver
         amplitude = man.getAmplitude();
         duration = man.getDuration();
         radius = (float) man.getRadius();
-        speed = man.getSpeed();
+        
+        speed = SpeedType.parseImcSpeed(message);
         
         direction = man.getDirection();
 
-        setCustomSettings(man.getCustom());
-        
-        try {
-            String speedUnitsStr = message.getString("speed_units");
-            this.speedUnits = Maneuver.SPEED_UNITS.parse(speedUnitsStr);
-        }
-        catch (Exception e) {
-            this.speedUnits = Maneuver.SPEED_UNITS.RPM;
-            e.printStackTrace();
-        }
+        setCustomSettings(man.getCustom());       
     }
-
-//    setTimeout(timeout);
-//    setLat(lat);
-//    setLon(lon);
-//    setZ(z);
-//    setZUnits(z_units);
-//    setPitch(pitch);
-//    setAmplitude(amplitude);
-//    setDuration(duration);
-//    setSpeed(speed);
-//    setSpeedUnits(speed_units);
-//    setRadius(radius);
-//    setDirection(direction);
 
     @Override
     public Object clone() {
@@ -367,8 +294,7 @@ public class CompassCalibration extends Maneuver
         clone.amplitude = amplitude;
         clone.duration = duration;
         clone.radius = radius;
-        clone.speed = speed;
-        clone.speedUnits = speedUnits;
+        clone.setSpeed(getSpeed());
         clone.direction = direction;
         return clone;
     }
@@ -409,15 +335,7 @@ public class CompassCalibration extends Maneuver
     
     @Override
     public double getCompletionTime(LocationType initialPosition) {
-        double speed = this.speed;
-        if (this.speedUnits == SPEED_UNITS.RPM) {
-            speed = speed/769.230769231; //1.3 m/s for 1000 RPMs
-        }
-        else if (this.speedUnits == SPEED_UNITS.PERCENTAGE) {
-            speed = speed/76.923076923; //1.3 m/s for 100% speed
-        }
-      
-        return getDistanceTravelled(initialPosition) / speed;
+        return getDistanceTravelled(initialPosition) / getSpeed().getMPS();
     }
 
     @Override
@@ -452,5 +370,15 @@ public class CompassCalibration extends Maneuver
         ccmanXML = compc.getManeuverAsDocument("CompassCalibration").asXML();
         System.out.println(ccmanXML);
         
+    }
+
+    @Override
+    public SpeedType getSpeed() {
+        return new SpeedType(speed);
+    }
+
+    @Override
+    public void setSpeed(SpeedType speed) {
+        this.speed = new SpeedType(speed);
     }
 }

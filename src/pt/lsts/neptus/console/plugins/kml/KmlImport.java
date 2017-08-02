@@ -85,8 +85,9 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.SpeedType;
+import pt.lsts.neptus.mp.SpeedType.Units;
 import pt.lsts.neptus.mp.maneuvers.Goto;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
@@ -477,8 +478,7 @@ public class KmlImport extends ConsolePanel {
             mloc.setZUnits(ManeuverLocation.Z_UNITS.DEPTH);
             mloc.setZ(0);
             
-            maneuver.setSpeed(1.3);
-            maneuver.setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);
+            maneuver.setSpeed(new SpeedType(1.3, Units.MPS));
             maneuver.setManeuverLocation(mloc);
             plan.getGraph().addManeuverAtEnd(maneuver);
         }

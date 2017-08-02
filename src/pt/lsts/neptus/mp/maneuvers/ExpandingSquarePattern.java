@@ -49,6 +49,7 @@ import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.SpeedType;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.map.PlanElement;
@@ -212,13 +213,7 @@ public class ExpandingSquarePattern extends FollowPath {
             loc.load(node.asXML());
             setManeuverLocation(loc);
 
-            // Speed
-            Node speedNode = doc.selectSingleNode("//speed");
-            speed = Double.parseDouble(speedNode.getText());
-//            speed_units = speedNode.valueOf("@unit");
-            SPEED_UNITS sUnits = ManeuversXMLUtil.parseSpeedUnits((Element) speedNode);
-            setSpeedUnits(sUnits);
-
+            SpeedType.parseManeuverSpeed(doc.getRootElement(), this);
             bearingDeg = Double.parseDouble(doc.selectSingleNode("//bearing").getText());
 
             // area
@@ -260,10 +255,7 @@ public class ExpandingSquarePattern extends FollowPath {
         if (!firstCurveRight)
             root.addElement("firstCurveRight").setText(""+firstCurveRight);
 
-        //speed
-        Element speedElem = root.addElement("speed");        
-        speedElem.addAttribute("unit", speedUnits.getString());
-        speedElem.setText("" + speed);
+        SpeedType.addSpeedElement(root, this);
 
         return document;
     }

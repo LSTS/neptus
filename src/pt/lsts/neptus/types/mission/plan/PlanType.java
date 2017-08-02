@@ -66,6 +66,8 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
+import pt.lsts.neptus.mp.SpeedType;
+import pt.lsts.neptus.mp.SpeedType.Units;
 import pt.lsts.neptus.mp.actions.PlanActions;
 import pt.lsts.neptus.mp.element.PlanElements;
 import pt.lsts.neptus.mp.maneuvers.IMCSerialization;
@@ -282,10 +284,15 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, NameId {
     public void setVehicle(String vehicle) {
         if (vehicle == null) {
             setVehicles(new Vector<VehicleType>());
+            for (Maneuver m : getGraph().getAllManeuvers())
+                m.setVehicles(null);
         }
         VehicleType vt = VehiclesHolder.getVehicleById(vehicle);
-        if (vt != null)
+        if (vt != null) {
             this.setVehicleType(vt);
+            for (Maneuver m : getGraph().getAllManeuvers())
+                m.setVehicles(Arrays.asList(vt));
+        }
     }
 
     /**
@@ -409,7 +416,9 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, NameId {
         this.vehicles.clear();
         for (VehicleType v : vehicles)
             if (!this.vehicles.contains(v))
-                this.vehicles.add(v);        
+                this.vehicles.add(v);      
+        for (Maneuver m : getGraph().getAllManeuvers())
+            m.setVehicles(this.vehicles);
     }
 
     /**
@@ -429,6 +438,8 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, NameId {
     private void setVehicleType(VehicleType vehicleType) {
         vehicles.clear();
         vehicles.add(vehicleType);
+        for (Maneuver m : getGraph().getAllManeuvers())
+            m.setVehicles(this.vehicles);
     }
 
     /**
@@ -838,7 +849,7 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, NameId {
             PlanType plan1 = new PlanType(new MissionType());
             
             RowsManeuver rows = new RowsManeuver();
-            rows.setSpeed(32);
+            rows.setSpeed(new SpeedType(1.7, Units.MPS));
             ManeuverLocation loc = new ManeuverLocation();
             loc.setLatitudeStr("41N11'6.139669166224781''");
             loc.setLongitudeStr("8W42'21.723814187086976''");

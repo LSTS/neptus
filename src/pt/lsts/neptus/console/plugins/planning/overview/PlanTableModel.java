@@ -45,8 +45,8 @@ import pt.lsts.imc.EntityParameter;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.SetEntityParameters;
 import pt.lsts.neptus.mp.Maneuver;
-import pt.lsts.neptus.mp.Maneuver.SPEED_UNITS;
 import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.SpeedType;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.mp.maneuvers.ManeuverWithSpeed;
 import pt.lsts.neptus.types.map.PlanUtil;
@@ -64,6 +64,7 @@ public class PlanTableModel extends AbstractTableModel {
     public static final Color INIT_MANEUVER_COLOR = new Color(0x7BBD87);
     public static final Color UNREACH_MANEUVER_COLOR = new Color(0x94959C);
     public static final Color SELECTED_MANEUVER_COLOR = new Color(0x0077CC);
+    
     private PlanType plan;
     private ArrayList<ExtendedManeuver> list = new ArrayList<>();
     public static final int COLUMN_LABEL = 0;
@@ -480,7 +481,7 @@ public class PlanTableModel extends AbstractTableModel {
         private Maneuver maneuver;
         private ManeuverLocation maneuverLoc;
         private String index;
-        private double speed;
+        private SpeedType speed;
         private String speedStr;
         private String duration;
         private String distance;
@@ -489,8 +490,8 @@ public class PlanTableModel extends AbstractTableModel {
 
         public ExtendedManeuver(Maneuver man, String index) {
             this.maneuverLoc = ((LocatedManeuver) man).getManeuverLocation();
-            double speed = -1;
-            SPEED_UNITS speedUnits = null;
+            SpeedType speed = null;
+
             if (index.equals("0")) {
                 this.distance = "0";
                 this.duration = "0s";
@@ -498,8 +499,7 @@ public class PlanTableModel extends AbstractTableModel {
 
             if (man instanceof ManeuverWithSpeed) {
                 speed = ((ManeuverWithSpeed) man).getSpeed();
-                speedUnits = ((ManeuverWithSpeed) man).getSpeedUnits();
-                speedStr = speed + " "+speedUnits.getString();
+                speedStr = speed.toString();
             }
 
             this.maneuver = man;

@@ -51,16 +51,17 @@ import pt.lsts.neptus.console.plugins.planning.edit.ManeuverPropertiesPanel;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
-import pt.lsts.neptus.mp.Maneuver.SPEED_UNITS;
 import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.SpeedType;
+import pt.lsts.neptus.mp.SpeedType.Units;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mp.element.IPlanElement;
 import pt.lsts.neptus.mp.element.PlanElements;
 import pt.lsts.neptus.mp.element.PlanElementsFactory;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
+import pt.lsts.neptus.mp.maneuvers.ManeuverWithSpeed;
 import pt.lsts.neptus.mp.maneuvers.StatisticsProvider;
 import pt.lsts.neptus.mp.preview.PlanSimulator;
-import pt.lsts.neptus.mp.preview.SpeedConversion;
 import pt.lsts.neptus.params.PlanPayloadConfig;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
@@ -79,9 +80,6 @@ public class PlanUtil {
 
     private static NumberFormat format = GuiUtils.getNeptusDecimalFormat(0);
     
-    public static double speedRpmRatioSpeed = 1.3;
-    
-    public static double speedRpmRatioRpms = 1000;
 
     private PlanUtil() {
     }
@@ -106,13 +104,10 @@ public class PlanUtil {
      * @param speedMps The speed to be set to all maneuvers (that accept a speed parameter) in meters per second
      */
     public static void setPlanSpeed(PlanType plan, double speedMps) {
-        DefaultProperty units = PropertiesEditor.getPropertyInstance("Speed units", Maneuver.SPEED_UNITS.class, Maneuver.SPEED_UNITS.METERS_PS, true);
-        units.setDisplayName(I18n.text("Speed units"));
-        units.setShortDescription(I18n.text("The speed units"));
-        
-        DefaultProperty propertySpeed = PropertiesEditor.getPropertyInstance("Speed", Double.class, speedMps, true);
+       
+        DefaultProperty propertySpeed = PropertiesEditor.getPropertyInstance("Speed", SpeedType.class, new SpeedType(speedMps, Units.MPS), true);
         propertySpeed.setDisplayName(I18n.text("Speed"));
-        Property[] props = new Property[] {units, propertySpeed};
+        Property[] props = new Property[] {propertySpeed};
         
         for (Maneuver man : plan.getGraph().getAllManeuvers()) {
             try {
@@ -289,22 +284,13 @@ public class PlanUtil {
             }
             else {
                 try {
-                    double speed = (Double) m.getClass().getMethod("getSpeed").invoke(m);
-                    SPEED_UNITS units = (Maneuver.SPEED_UNITS) m.getClass().getMethod("getSpeedUnits").invoke(m);
-                    switch (units) {
-                        case PERCENTAGE:
-                            speed = SpeedConversion.convertPercentageToMps(speed);
-                            break;
-                        case RPM:
-                            speed = SpeedConversion.convertRpmtoMps(speed);
-                        default:
-                            break;
-                    }
+                    SpeedType speed = (SpeedType) m.getClass().getMethod("getSpeed").invoke(m);
+                 
                     if (m instanceof LocatedManeuver) {
                         LocationType start = ((LocatedManeuver) m).getStartLocation();
                         LocationType end = ((LocatedManeuver) m).getEndLocation();
-                        time += start.getDistanceInMeters(previousPos) / speed;
-                        time += end.getDistanceInMeters(start) / speed;                        
+                        time += start.getDistanceInMeters(previousPos) / speed.getMPS();
+                        time += end.getDistanceInMeters(start) / speed.getMPS();                        
                     }
                 }
                 catch (Exception e) {
@@ -332,22 +318,16 @@ public class PlanUtil {
         }
         else {
             try {
-                double speed = (Double) m.getClass().getMethod("getSpeed").invoke(m);
-                SPEED_UNITS units = (Maneuver.SPEED_UNITS) m.getClass().getMethod("getSpeedUnits").invoke(m);
-                switch (units) {
-                    case PERCENTAGE:
-                        speed = SpeedConversion.convertPercentageToMps(speed);
-                        break;
-                    case RPM:
-                        speed = SpeedConversion.convertRpmtoMps(speed);
-                    default:
-                        break;
+                SpeedType speed = new SpeedType(0, Units.MPS);
+                if (m instanceof ManeuverWithSpeed) {
+                    speed = ((ManeuverWithSpeed) m).getSpeed();
                 }
+
                 if (m instanceof LocatedManeuver) {
                     LocationType start = ((LocatedManeuver) m).getStartLocation();
                     LocationType end = ((LocatedManeuver) m).getEndLocation();
-                    time += start.getDistanceInMeters(previousPos) / speed;
-                    time += end.getDistanceInMeters(start) / speed;
+                    time += start.getDistanceInMeters(previousPos) / speed.getMPS();
+                    time += end.getDistanceInMeters(start) / speed.getMPS();
                 }
             }
             catch (Exception e) {
@@ -361,37 +341,34 @@ public class PlanUtil {
     public static String getDelayStr(LocationType previousPos, PlanType plan) throws Exception {
         return DateTimeUtil.milliSecondsToFormatedString((long)(getEstimatedDelay(previousPos, plan) * 1000));
     }
-
-    public static String estimatedTime(Vector<LocatedManeuver> mans, double speedRpmRatioSpeed, double speedRpmRatioRpms) {
+    
+    public static String estimatedTime(Vector<LocatedManeuver> mans) {
         double timeSecs = 0;
 
         for (int i = 0; i < mans.size(); i++) {
             LocatedManeuver m = mans.get(i);
             LocationType previousPos = (i > 0)? new LocationType(mans.get(i-1).getManeuverLocation()) : new LocationType(m.getManeuverLocation());
-            double speed = speedRpmRatioSpeed;
+            SpeedType speed = new SpeedType(1, Units.MPS);
             if (m instanceof StatisticsProvider)
                 timeSecs += ((StatisticsProvider)m).getCompletionTime(previousPos);
             else {
                 try {
-                    speed = (Double) m.getClass().getMethod("getSpeed").invoke(m);
-                    SPEED_UNITS units = (Maneuver.SPEED_UNITS) m.getClass().getMethod("getSpeedUnits").invoke(m);
+                    speed = (SpeedType) m.getClass().getMethod("getSpeed").invoke(m);
+                    /* SPEED_UNITS units = (Maneuver.SPEED_UNITS) m.getClass().getMethod("getSpeedUnits").invoke(m);
                     if (units == SPEED_UNITS.PERCENTAGE)
                         speed = speed/100 * speedRpmRatioSpeed;
                     else if (units == SPEED_UNITS.RPM)
-                        speed = (speed / speedRpmRatioRpms) * speedRpmRatioSpeed;
+                        speed = (speed / speedRpmRatioRpms) * speedRpmRatioSpeed;*/
                 }
                 catch (Exception e) {
-                    //e.printStackTrace();
+                    e.printStackTrace();
                 }
                 double dist = mans.get(i).getManeuverLocation().getDistanceInMeters(previousPos);
             
-                timeSecs += dist / speed;
+                timeSecs += dist / speed.getMPS();
             }
         }
-//      int minutes = (int)timeSecs / 60;
-//      int seconds = (int)timeSecs % 60;
-        
-        //return minutes+"m "+seconds+"s";
+
         return DateTimeUtil.milliSecondsToFormatedString((long) (timeSecs * 1E3));
     }
     
@@ -428,19 +405,11 @@ public class PlanUtil {
     }
 
     public static JMenu getPlanStatisticsAsJMenu (PlanType plan, String title) {
-        return getPlanStatisticsAsJMenu(plan, title, speedRpmRatioSpeed, speedRpmRatioRpms);
-    }
-
-    public static JMenu getPlanStatisticsAsJMenu (PlanType plan, double speedRpmRatioSpeed, double speedRpmRatioRpms) {
-        return getPlanStatisticsAsJMenu(plan, null, speedRpmRatioSpeed, speedRpmRatioRpms);
-    }
-
-    public static JMenu getPlanStatisticsAsJMenu (PlanType plan, String title, double speedRpmRatioSpeed, double speedRpmRatioRpms) {
         if (title == null || title.length() == 0)
             title = I18n.text("Plan Statistics");
         JMenu menu = new JMenu(title);
         
-        String txt = getPlanStatisticsAsText(plan, title, speedRpmRatioSpeed, speedRpmRatioRpms, true, false);
+        String txt = getPlanStatisticsAsText(plan, title, true, false);
         boolean titleBool = true;
         for (String str : txt.split("\n")) {
             if (titleBool) {
@@ -455,19 +424,12 @@ public class PlanUtil {
         return menu;
     }
 
-    public static String getPlanStatisticsAsText(PlanType plan, String title,
-            boolean simpleTextOrHTML, boolean asHTMLFragment) {
-        return getPlanStatisticsAsText(plan, title, speedRpmRatioSpeed, speedRpmRatioRpms, simpleTextOrHTML,
-                asHTMLFragment);
-    }
-    
-    public static String getPlanStatisticsAsText(PlanType plan, String title, double speedRpmRatioSpeed,
-            double speedRpmRatioRpms, boolean simpleTextOrHTML, boolean asHTMLFragment) {
+    public static String getPlanStatisticsAsText(PlanType plan, String title, boolean simpleTextOrHTML, boolean asHTMLFragment) {
         if (title == null || title.length() == 0)
             title = I18n.text("Plan Statistics");
         Vector<LocatedManeuver> mans = PlanUtil.getLocationsAsSequence(plan);
         String ret = "";
-        String estDelay = PlanUtil.estimatedTime(mans, speedRpmRatioSpeed, speedRpmRatioRpms);
+        String estDelay = PlanUtil.estimatedTime(mans);
         try {
             estDelay = PlanUtil.getDelayStr(null, plan);
         }
@@ -551,6 +513,7 @@ public class PlanUtil {
             return plan;
         }
         
+        @SuppressWarnings("unused")
         PlanType originalPlan = plan.clonePlan();
         plan.setVehicles(newVehicles);
 

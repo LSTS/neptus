@@ -80,15 +80,14 @@ import pt.lsts.neptus.gui.editor.RenderSelectionEditor;
 import pt.lsts.neptus.gui.editor.RenderType;
 import pt.lsts.neptus.gui.editor.Script;
 import pt.lsts.neptus.gui.editor.ScriptSelectionEditor;
-import pt.lsts.neptus.gui.editor.SpeedUnitsEnumEditor;
+import pt.lsts.neptus.gui.editor.SpeedEditor;
 import pt.lsts.neptus.gui.editor.VehicleSelectionEditor;
-import pt.lsts.neptus.gui.editor.renderer.SpeedUnitsEnumRenderer;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.messages.Bitmask;
 import pt.lsts.neptus.messages.Enumerated;
-import pt.lsts.neptus.mp.Maneuver.SPEED_UNITS;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.ManeuverLocationEditor;
+import pt.lsts.neptus.mp.SpeedType;
 import pt.lsts.neptus.mp.actions.PlanActions;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
@@ -539,8 +538,8 @@ public class PropertiesEditor {
 			per.registerEditor(Double.class, NeptusDoubleEditor.class);
 			per.registerEditor(Float.class, NeptusDoubleEditor.class);
 			per.registerEditor(ManeuverLocation.class, ManeuverLocationEditor.class);
-			per.registerEditor(Credentials.class, CredentialsEditor.class);
-            per.registerEditor(SPEED_UNITS.class, SpeedUnitsEnumEditor.class); // This one does not seams to work.
+			per.registerEditor(Credentials.class, CredentialsEditor.class);            
+            per.registerEditor(SpeedType.class, SpeedEditor.class);
             per.registerEditor(File.class, FileOnlyPropertyEditor.class);
 		}
 		return per;
@@ -613,7 +612,6 @@ public class PropertiesEditor {
                     return I18n.text(Arrays.toString((String[]) value).toString());
                 }
             });
-            prr.registerRenderer(SPEED_UNITS.class, new SpeedUnitsEnumRenderer());
         }
 	    return prr;
 	}

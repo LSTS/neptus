@@ -32,19 +32,12 @@
  */
 package pt.lsts.neptus.mp.maneuvers;
 
-import java.lang.reflect.Field;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
-import pt.lsts.neptus.mp.Maneuver;
-import pt.lsts.neptus.mp.Maneuver.SPEED_UNITS;
 import pt.lsts.neptus.mp.ManeuverLocation;
-import pt.lsts.neptus.plugins.NeptusProperty;
 
 /**
  * Utility to create an load base data (location and speed from and to XML.
@@ -107,107 +100,5 @@ public class ManeuversXMLUtil {
         ManeuverLocation loc = new ManeuverLocation();
         loc.load(node.asXML());
         return loc;
-    }
-
-    public static <M extends Maneuver> Element addSpeed(Element root, M maneuver) throws Exception {
-        Field sField = getFieldByName(maneuver, "Speed");
-        if (sField == null)
-            sField = getFieldByName(maneuver, "speed");
-        Field sUField = getFieldByName(maneuver, "Speed Units");
-        if (sUField == null)
-            sUField = getFieldByName(maneuver, "Speed units");
-        if (sUField == null)
-            sUField = getFieldByName(maneuver, "speed units");
-        if (sUField == null)
-            sUField = getFieldByName(maneuver, "speedUnits");
-
-        if (sField != null && sUField != null) {
-            double speed = (double) sField.get(maneuver);
-            Maneuver.SPEED_UNITS speedUnits = (SPEED_UNITS) sUField.get(maneuver);
-            return addSpeed(root, speed, speedUnits);
-        }
-        throw new Exception("No Speed to found!");
-    }
-
-    public static Element addSpeed(Element root, double speed, Maneuver.SPEED_UNITS units) {
-        Element speedElm = root.addElement("speed");
-        speedElm.addAttribute("unit", units.getString());
-        speedElm.setText(String.valueOf(speed));
-        return speedElm;
-    }
-
-    public static double parseSpeed(Element root) {
-        Node speedNode = root.selectSingleNode("//speed");
-        if (speedNode == null)
-            speedNode = root.selectSingleNode("//velocity"); // Is deprecated but to load old defs
-        double speed = Double.parseDouble(speedNode.getText());
-        return speed;
-    }
-    
-    public static Maneuver.SPEED_UNITS parseSpeedUnits(Element root) {
-        Node speedNode = root.selectSingleNode("//speed");
-        if (speedNode == null)
-            speedNode = root.selectSingleNode("//velocity"); // Is deprecated but to load old defs
-        SPEED_UNITS speedUnits = SPEED_UNITS.parse(speedNode.valueOf("@unit"));
-        return speedUnits;
-    }
-
-    public static <M extends Maneuver>  double parseSpeed(Element root, M maneuver) throws Exception {
-        Node speedNode = root.selectSingleNode("//speed");
-        if (speedNode == null)
-            speedNode = root.selectSingleNode("//velocity"); // Is deprecated but to load old defs
-        double speed = Double.parseDouble(speedNode.getText());
-        SPEED_UNITS speedUnits = SPEED_UNITS.parse(speedNode.valueOf("@unit"));
-        Field sField = getFieldByName(maneuver, "Speed");
-        if (sField == null)
-            sField = getFieldByName(maneuver, "speed");
-        sField.set(maneuver, speed);
-        Field sUField = getFieldByName(maneuver, "Speed Units");
-        if (sUField == null)
-            sUField = getFieldByName(maneuver, "Speed units");
-        if (sUField == null)
-            sUField = getFieldByName(maneuver, "speed units");
-        if (sUField == null)
-            sUField = getFieldByName(maneuver, "speedUnits");
-        sUField.set(maneuver, speedUnits);
-        return speed;
-    }
-
-    // -----------------------------------------------------------------
-
-    private static Field[] getFields(Object o) {
-        Class<?> c;
-        if (o instanceof Class<?>)
-            c = (Class<?>) o;
-        else
-            c = o.getClass();
-
-        HashSet<Field> fields = new LinkedHashSet<>();
-        for (Field f : c.getFields())
-            fields.add(f);
-        for (Field f : c.getDeclaredFields()) {
-            f.setAccessible(true);
-            fields.add(f);
-        }
-        return fields.toArray(new Field[0]);
-    }
-
-    private static Field getFieldByName(Object obj, String name) {
-        Field[] fields = getFields(obj);
-        for (Field f : fields) {
-            NeptusProperty a = f.getAnnotation(NeptusProperty.class);
-
-            if (a != null) {
-                f.setAccessible(true);
-                String nf = a.name();
-                if (nf == null) {
-                    nf = f.getName();
-                    name = name.replaceAll(" ", "");
-                }
-                if (name.equalsIgnoreCase(nf))
-                    return f;
-            }
-        }
-        return null;
     }
 }

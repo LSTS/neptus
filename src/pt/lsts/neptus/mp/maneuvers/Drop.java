@@ -32,9 +32,9 @@
 package pt.lsts.neptus.mp.maneuvers;
 
 import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.def.SpeedUnits;
 import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.SpeedType;
 import pt.lsts.neptus.types.coord.LocationType;
 
 /**
@@ -56,7 +56,6 @@ public class Drop extends Goto {
         super.clone(clone);
         clone.setManeuverLocation(getManeuverLocation());
         clone.setRadiusTolerance(getRadiusTolerance());
-        clone.setSpeedUnits(getSpeedUnits());
         clone.setSpeed(getSpeed());
         clone.setSpeedTolerance(getSpeedTolerance());
         
@@ -69,18 +68,7 @@ public class Drop extends Goto {
             pt.lsts.imc.Drop msg = pt.lsts.imc.Drop.clone(message);
             
             setMaxTime(msg.getTimeout());
-            setSpeed(msg.getSpeed());
-            switch (msg.getSpeedUnits()) {
-                case METERS_PS:
-                    setSpeedUnits(SPEED_UNITS.METERS_PS);
-                    break;
-                case PERCENTAGE:
-                    setSpeedUnits(SPEED_UNITS.PERCENTAGE);
-                    break;
-                case RPM:
-                    setSpeedUnits(SPEED_UNITS.RPM);
-                    break;
-            }
+            speed = SpeedType.parseImcSpeed(message);
             ManeuverLocation pos = new ManeuverLocation();
             pos.setLatitudeRads(msg.getLat());
             pos.setLongitudeRads(msg.getLon());
@@ -105,22 +93,7 @@ public class Drop extends Goto {
         dropManeuver.setLon(l.getLongitudeRads());
         dropManeuver.setZ(getManeuverLocation().getZ());
         dropManeuver.setZUnits(ZUnits.valueOf(getManeuverLocation().getZUnits().name()));
-        dropManeuver.setSpeed(this.getSpeed());
-       
-        switch (this.getSpeedUnits()) {
-            case METERS_PS:
-                dropManeuver.setSpeedUnits(SpeedUnits.METERS_PS);
-                break;
-            case RPM:
-                dropManeuver.setSpeedUnits(SpeedUnits.RPM);
-                break;
-            case PERCENTAGE:
-                dropManeuver.setSpeedUnits(SpeedUnits.PERCENTAGE);
-                break;
-            default:
-                dropManeuver.setSpeedUnits(SpeedUnits.RPM);
-                break;
-        }
+        speed.setSpeedToMessage(dropManeuver);
         
         dropManeuver.setCustom(getCustomSettings());
 
