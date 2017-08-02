@@ -109,41 +109,42 @@ public class NmeaPlotter extends ConsoleLayer {
     private static final Color COLOR_GREEN_DARK_100 = new Color(155, 255, 155, 250);
     private static final Color COLOR_RED_DARK_100 = new Color(255, 155, 155, 250);
 
-    @NeptusProperty(name = "Connect to the serial port", category = "Serial Port")
+    @NeptusProperty(name = "Connect to the serial port", category = "Serial Port", userLevel = LEVEL.REGULAR)
     public boolean serialListen = false;
 
-    @NeptusProperty(name = "Serial Port Device", category = "Serial Port")
+    @NeptusProperty(name = "Serial Port Device", category = "Serial Port", userLevel = LEVEL.REGULAR)
     public String uartDevice = "/dev/ttyUSB0";
 
-    @NeptusProperty(name = "Serial Port Baud Rate", category = "Serial Port")
+    @NeptusProperty(name = "Serial Port Baud Rate", category = "Serial Port", userLevel = LEVEL.ADVANCED)
     public int uartBaudRate = 38400;
 
-    @NeptusProperty(name = "Serial Port Data Bits", category = "Serial Port")
+    @NeptusProperty(name = "Serial Port Data Bits", category = "Serial Port", userLevel = LEVEL.ADVANCED)
     public int dataBits = 8;
 
-    @NeptusProperty(name = "Serial Port Stop Bits", category = "Serial Port")
+    @NeptusProperty(name = "Serial Port Stop Bits", category = "Serial Port", userLevel = LEVEL.ADVANCED)
     public int stopBits = 1;
 
-    @NeptusProperty(name = "Serial Port Parity Bits", category = "Serial Port")
+    @NeptusProperty(name = "Serial Port Parity Bits", category = "Serial Port", userLevel = LEVEL.ADVANCED)
     public int parity = 0;
 
-    @NeptusProperty(name = "UDP port to bind", category = "UDP")
+    @NeptusProperty(name = "UDP port to bind", category = "UDP", userLevel = LEVEL.REGULAR)
     public int udpPort = 7878;
 
-    @NeptusProperty(name = "Listen for incoming UDP packets", category = "UDP")
+    @NeptusProperty(name = "Listen for incoming UDP packets", category = "UDP", userLevel = LEVEL.REGULAR)
     public boolean udpListen = true;
 
-    @NeptusProperty(name = "Connect via TCP", category = "TCP Client")
+    @NeptusProperty(name = "Connect via TCP", category = "TCP Client", userLevel = LEVEL.REGULAR)
     public boolean tcpConnect = false;
 
-    @NeptusProperty(name = "TCP Host", category = "TCP Client")
+    @NeptusProperty(name = "TCP Host", category = "TCP Client", userLevel = LEVEL.REGULAR)
     public String tcpHost = "127.0.0.1";
 
-    @NeptusProperty(name = "TCP Port", category = "TCP Client")
+    @NeptusProperty(name = "TCP Port", category = "TCP Client", userLevel = LEVEL.REGULAR)
     public int tcpPort = 13000;
 
-    @NeptusProperty(name = "Maximum age in for AIS contacts (seconds)")
-    public int maximumAisAge = 600;
+    @NeptusProperty(name = "Maximum age in for AIS contacts (minutes)", userLevel = LEVEL.REGULAR,
+            description = "0 for disable filter")
+    public int maximumAisAgeMinutes = 10;
 
     @NeptusProperty(name = "Retransmit to other Neptus consoles", userLevel = LEVEL.ADVANCED)
     public boolean retransmitToNeptus = true;
@@ -547,7 +548,8 @@ public class NmeaPlotter extends ConsoleLayer {
 
     @Periodic(millisBetweenUpdates = 60000)
     public void purgeOldContacts() {
-        contactDb.purge(maximumAisAge * 1000);
+        if (maximumAisAgeMinutes >= 0)
+            contactDb.purge(maximumAisAgeMinutes * 60 * 1000);
     }
 
     @Periodic(millisBetweenUpdates = 120000)
