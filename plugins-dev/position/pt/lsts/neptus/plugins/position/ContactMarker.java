@@ -117,7 +117,7 @@ SubPanelChangeListener, MainVehicleChangeListener {
 
     @NeptusProperty(name = "Allow mark dissemination", userLevel = LEVEL.ADVANCED,
             description = "Ability disseminate marks")
-    public boolean showDisseminateOption = false;
+    public boolean showDisseminateOption = true;
 
     private Vector<IMapPopup> renderersPopups = new Vector<IMapPopup>();
 
