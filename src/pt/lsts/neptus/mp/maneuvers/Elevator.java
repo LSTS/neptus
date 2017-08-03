@@ -50,13 +50,13 @@ import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.def.SpeedUnits;
 import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.gui.editor.SpeedUnitsEnumEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.SpeedType;
+import pt.lsts.neptus.mp.SpeedType.Units;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginProperty;
 import pt.lsts.neptus.plugins.PluginUtils;
@@ -76,10 +76,7 @@ public class Elevator extends Maneuver implements LocatedManeuver, ManeuverWithS
     public ManeuverLocation location = new ManeuverLocation();
 
     @NeptusProperty(name="Speed", description="The speed to be used")
-    public double speed = 1000; 
-
-    @NeptusProperty(name="Speed units", description="The speed units", editorClass = SpeedUnitsEnumEditor.class)
-    public Maneuver.SPEED_UNITS speedUnits = SPEED_UNITS.RPM;
+    public SpeedType speed = new SpeedType(1000, Units.RPM); 
 
     @NeptusProperty(name="Start from current position", description="Start from current position or use the location field")
     public boolean startFromCurrentPosition = false;
@@ -125,11 +122,7 @@ public class Elevator extends Maneuver implements LocatedManeuver, ManeuverWithS
         Element radius = root.addElement("radius");
         radius.setText(String.valueOf(getRadius()));
 
-        Element velocity = root.addElement("speed");
-        velocity.addAttribute("tolerance", String.valueOf(speedTolerance));
-        velocity.addAttribute("type", "float");
-        velocity.addAttribute("unit", getSpeedUnits().getString());
-        velocity.setText(String.valueOf(getSpeed()));
+        SpeedType.addSpeedElement(root, this);
 
         Element flags = root.addElement("flags");
         flags.addAttribute("useCurrentLocation", String.valueOf(isStartFromCurrentPosition()));
@@ -141,7 +134,7 @@ public class Elevator extends Maneuver implements LocatedManeuver, ManeuverWithS
      * @see pt.lsts.neptus.mp.Maneuver#loadFromXML(java.lang.String)
      */
     @Override
-    public void loadFromXML(String xml) {
+    public void loadManeuverFromXML(String xml) {
         try {
             Document doc = DocumentHelper.parseText(xml);
             Node node = doc.selectSingleNode(DEFAULT_ROOT_ELEMENT+ "/finalPoint/point");
@@ -150,11 +143,8 @@ public class Elevator extends Maneuver implements LocatedManeuver, ManeuverWithS
             ManeuverLocation loc = new ManeuverLocation();
             loc.load(node.asXML());
             setManeuverLocation(loc);
-            Node speedNode = doc.selectSingleNode(DEFAULT_ROOT_ELEMENT+ "/speed");
-            setSpeed(Double.parseDouble(speedNode.getText()));
-//            setSpeedUnits(speedNode.valueOf("@unit"));
-            SPEED_UNITS sUnits = ManeuversXMLUtil.parseSpeedUnits((Element) speedNode);
-            setSpeedUnits(sUnits);
+          
+            SpeedType.parseManeuverSpeed(doc.getRootElement(), this);
 
             Node sz = doc.selectSingleNode(DEFAULT_ROOT_ELEMENT+ "/startZ");
             if (sz == null)
@@ -238,7 +228,7 @@ public class Elevator extends Maneuver implements LocatedManeuver, ManeuverWithS
 
     @Override
     public String getTooltipText() {
-        return super.getTooltipText() + "<hr>" + I18n.text("speed") + ": <b>" + speed + " " + I18n.text(speedUnits.getString()) + "</b>" + 
+        return super.getTooltipText() + "<hr>" + I18n.text("speed") + ": <b>" + speed + "</b>" + 
                 (!startFromCurrentPosition ? "<br>" + I18n.text("cruise depth") + ": <b>" + (int) getStartLocation().getDepth() + " " + I18n.textc("m", "meters") + "</b>":"") + 
                 "<br>" + I18n.text("start") + "" + ": <b>" + startZ + " " + I18n.textc("m", "meters") + " (" + I18n.text(startZUnits.toString()) + ")</b>" +
                 "<br>" + I18n.text("end z") + ": <b>" + getManeuverLocation().getZ() + " " + I18n.textc("m", "meters") + " (" + I18n.text(getManeuverLocation().getZUnits().toString()) + ")</b>" +
@@ -282,27 +272,11 @@ public class Elevator extends Maneuver implements LocatedManeuver, ManeuverWithS
         elevator.setEndZUnits(ZUnits.valueOf(
                 getManeuverLocation().getZUnits().toString()));
         elevator.setRadius(getRadius());
-        elevator.setSpeed(getSpeed());
+        
+        speed.setSpeedToMessage(elevator);
+        
         elevator.setCustom(getCustomSettings());
         
-        try {
-            switch (this.getSpeedUnits()) {
-                case METERS_PS:
-                    elevator.setSpeedUnits(SpeedUnits.METERS_PS);
-                    break;
-                case PERCENTAGE:
-                    elevator.setSpeedUnits(SpeedUnits.PERCENTAGE);
-                    break;
-                case RPM:
-                default:
-                    elevator.setSpeedUnits(SpeedUnits.RPM);
-                    break;
-            }
-        }
-        catch (Exception ex) {
-            NeptusLog.pub().error(this, ex);                     
-        }
-
         if (isStartFromCurrentPosition())
             elevator.setFlags(pt.lsts.imc.Elevator.FLG_CURR_POS);
         else
@@ -335,18 +309,10 @@ public class Elevator extends Maneuver implements LocatedManeuver, ManeuverWithS
         startZ = (float)elev.getStartZ();
         startZUnits = ManeuverLocation.Z_UNITS.valueOf(message.getString("start_z_units").toString());
         setRadius((float)elev.getRadius());
-        setSpeed(elev.getSpeed());
+        
         setStartFromCurrentPosition((elev.getFlags() & pt.lsts.imc.Elevator.FLG_CURR_POS) != 0);
         setCustomSettings(elev.getCustom());
-        
-        try {
-            String speedUnitsStr = message.getString("speed_units");
-            speedUnits = Maneuver.SPEED_UNITS.parse(speedUnitsStr);
-        }
-        catch (Exception e) {
-            speedUnits = Maneuver.SPEED_UNITS.RPM;
-            e.printStackTrace();
-        }
+        setSpeed(SpeedType.parseImcSpeed(elev));
     }
 
     @Override
@@ -359,7 +325,6 @@ public class Elevator extends Maneuver implements LocatedManeuver, ManeuverWithS
         clone.setStartFromCurrentPosition(isStartFromCurrentPosition());
         clone.setRadius(getRadius());
         clone.setSpeed(getSpeed());
-        clone.setSpeedUnits(getSpeedUnits());
         return clone;
     }
 
@@ -377,32 +342,14 @@ public class Elevator extends Maneuver implements LocatedManeuver, ManeuverWithS
         this.radius = radius;
     }
 
-    /**
-     * @return the speed
-     */
-    public double getSpeed() {
-        return speed;
+    @Override
+    public SpeedType getSpeed() {
+        return new SpeedType(speed);
     }
 
-    /**
-     * @param speed the speed to set
-     */
-    public void setSpeed(double speed) {
-        this.speed = speed;
-    }
-
-    /**
-     * @return the units
-     */
-    public SPEED_UNITS getSpeedUnits() {
-        return speedUnits;
-    }
-
-    /**
-     * @param units the units to set
-     */
-    public void setSpeedUnits(SPEED_UNITS units) {
-        this.speedUnits = units;
+    @Override
+    public void setSpeed(SpeedType speed) {
+        this.speed = new SpeedType(speed);
     }
 
     /**
@@ -484,14 +431,7 @@ public class Elevator extends Maneuver implements LocatedManeuver, ManeuverWithS
 
     @Override
     public double getCompletionTime(LocationType initialPosition) {
-        double speed = this.speed;
-        if (this.speedUnits == SPEED_UNITS.RPM) {
-            speed = speed/769.230769231; //1.3 m/s for 1000 RPMs
-        }
-        else if (this.speedUnits == SPEED_UNITS.PERCENTAGE) {
-            speed = speed/76.923076923; //1.3 m/s for 100% speed
-        }
-      
+        double speed = getSpeed().getMPS();
         return getDistanceTravelled(initialPosition) / speed;
     }
 

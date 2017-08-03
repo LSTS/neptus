@@ -32,8 +32,10 @@
  */
 package pt.lsts.neptus.mp.element;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.List;
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -50,7 +52,7 @@ import pt.lsts.neptus.util.XMLUtil;
  */
 public class PlanElements {
 
-    protected LinkedList<IPlanElement<?>> planElements = new LinkedList<>();
+    protected List<IPlanElement<?>> planElements = Collections.synchronizedList(new LinkedList<IPlanElement<?>>());
     
     public PlanElements() {
     }
@@ -58,7 +60,7 @@ public class PlanElements {
     /**
      * @return the planElements
      */
-    public LinkedList<IPlanElement<?>> getPlanElements() {
+    public List<IPlanElement<?>> getPlanElements() {
         return planElements;
     }
     
@@ -76,6 +78,8 @@ public class PlanElements {
     public boolean load(Element element) {
         @SuppressWarnings("rawtypes")
         LinkedHashMap<String, Class<? extends IPlanElement>> pElementsPlugins = PluginsRepository.getPlanElements();
+        
+        planElements.clear();
         
         Element root = element;
         NodeList cElems = root.getChildNodes();
@@ -133,17 +137,16 @@ public class PlanElements {
         for (IPlanElement<?> iPlanElement : planElements) {
             String ipXml = iPlanElement.getElementAsXml();
             Document ipDoc = XMLUtil.createDocumentFromXmlString(ipXml);
-            System.out.println("1- " + XMLUtil.nodeToString(ipDoc.getDocumentElement()));
+            // System.out.println("1- " + XMLUtil.nodeToString(ipDoc.getDocumentElement()));
             try {
                 root.appendChild(doc.adoptNode(ipDoc.getDocumentElement()));
             }
             catch (DOMException e) {
                 e.printStackTrace();
             }
-            System.out.println("2- " + XMLUtil.nodeToString(doc.getDocumentElement()));
-            System.out.println("3- " + XMLUtil.nodeToString(root));
+            // System.out.println("2- " + XMLUtil.nodeToString(doc.getDocumentElement()));
+            // System.out.println("3- " + XMLUtil.nodeToString(root));
         }
         return root;
     }
-
 }

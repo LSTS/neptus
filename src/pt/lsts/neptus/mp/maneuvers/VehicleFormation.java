@@ -60,7 +60,6 @@ import org.dom4j.Node;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.TrajectoryPoint;
 import pt.lsts.imc.VehicleFormationParticipant;
-import pt.lsts.imc.def.SpeedUnits;
 import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
@@ -151,8 +150,7 @@ public class VehicleFormation extends FollowTrajectory {
     public Object clone() {
         VehicleFormation clone = new VehicleFormation();
         super.clone(clone);
-        clone.speed = speed;
-        clone.speedUnits = speedUnits;
+        clone.speed = getSpeed();
         clone.setManeuverLocation(getManeuverLocation());
         clone.points.addAll(points);                
         clone.setStartTime(getStartTime());
@@ -202,24 +200,7 @@ public class VehicleFormation extends FollowTrajectory {
                 getManeuverLocation().getZUnits().toString()));
         vfMessage.setStartTime(startTime/1000.0);
         vfMessage.setParticipants(getParticipantsIMC());
-        vfMessage.setSpeed(speed);
-        try {
-            switch (speedUnits) {
-                case METERS_PS:
-                    vfMessage.setSpeedUnits(SpeedUnits.METERS_PS);
-                    break;
-                case PERCENTAGE:
-                    vfMessage.setSpeedUnits(SpeedUnits.PERCENTAGE);
-                    break;
-                case RPM:
-                default:
-                    vfMessage.setSpeedUnits(SpeedUnits.RPM);
-                    break;
-            }
-        }
-        catch (Exception ex) {
-            NeptusLog.pub().error(this, ex);                     
-        }
+        speed.setSpeedToMessage(vfMessage);
 
         // conversion into absolute times
         double[]  absoluteTimes = new double[points.size()];
@@ -309,8 +290,8 @@ public class VehicleFormation extends FollowTrajectory {
 
 
     @Override
-    public void loadFromXML(String xml) {
-        super.loadFromXML(xml);
+    public void loadManeuverFromXML(String xml) {
+        super.loadManeuverFromXML(xml);
         try {
             Document doc = DocumentHelper.parseText(xml);
 
@@ -541,21 +522,7 @@ public class VehicleFormation extends FollowTrajectory {
 
                 Point2D clicked = event.getPoint();
                 LocationType curLoc = source.getRealWorldLocation(clicked);
-                double distance, speedWithConversion;
-
-                // do any required speed conversions
-                speedWithConversion = speed;
-                switch (speedUnits) {
-                    case PERCENTAGE:
-                        speedWithConversion /= PERCENT_MPS_CONVERSION;
-                        break;
-                    case RPM:
-                        speedWithConversion /= RPM_MPS_CONVERSION;
-                        break;
-                    case METERS_PS:
-                    default:
-                        break;
-                }
+                double distance;
 
                 double[] offsets = source.getRealWorldLocation(clicked).getOffsetFrom(startLoc);
 
@@ -569,7 +536,7 @@ public class VehicleFormation extends FollowTrajectory {
                         distance = curLoc.getDistanceInMeters(previousLoc);
                     else 
                         distance = curLoc.getDistanceInMeters(startLoc);
-                    xyzt[3] = distance / speedWithConversion;
+                    xyzt[3] = distance / speed.getMPS();
                 }
                 else
                     xyzt[3] = -1;

@@ -74,18 +74,24 @@ public class PlanTranslated extends AbstractUndoableEdit {
 
     @Override
     public void undo() throws CannotUndoException {
-        for (Maneuver man : plan.getGraph().getAllManeuvers())
+        for (Maneuver man : plan.getGraph().getAllManeuvers()) {
             if (man != null && man instanceof LocatedManeuver) {
                 ((LocatedManeuver)man).translate(-deltaNorth, -deltaEast, 0);
             }
+        }
+        
+        plan.getPlanElements().getPlanElements().stream().forEach(pe -> pe.translate(-deltaNorth, -deltaEast, 0));
     }
 
     @Override
     public void redo() throws CannotRedoException {      
-        for (Maneuver man : plan.getGraph().getAllManeuvers())
+        for (Maneuver man : plan.getGraph().getAllManeuvers()) {
             if (man != null && man instanceof LocatedManeuver) {
                 ((LocatedManeuver)man).translate(deltaNorth, deltaEast, 0);
-            }        
+            }
+        }
+
+        plan.getPlanElements().getPlanElements().stream().forEach(pe -> pe.translate(-deltaNorth, -deltaEast, 0));
     }
 
     /**

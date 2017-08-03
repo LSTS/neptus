@@ -44,6 +44,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.types.coord.LatLonFormatEnum;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.map.TransponderElement;
@@ -211,8 +212,8 @@ public class MissionServlet extends HttpServlet implements IConsoleServlet {
 	
 		page.write("<h2>Map</h2><blockquote>");
 		LocationType home = new LocationType(mission.getHomeRef()), start = IMCUtils.lookForStartPosition(mission);
-		String homeLoc = home.getLatitudeAsPrettyString()+", "+home.getLongitudeAsPrettyString();
-		String startLoc = (start != null)? start.getLatitudeAsPrettyString()+", "+start.getLongitudeAsPrettyString() : "";
+		String homeLoc = home.getLatitudeAsPrettyString(LatLonFormatEnum.DMS)+", "+home.getLongitudeAsPrettyString(LatLonFormatEnum.DMS);
+		String startLoc = (start != null)? start.getLatitudeAsPrettyString(LatLonFormatEnum.DMS)+", "+start.getLongitudeAsPrettyString(LatLonFormatEnum.DMS) : "";
 		
 		page.write("<b>Home Reference: </b><a href='/mission/homeRef'>"+homeLoc+"</a><br/>");
 		page.write("<b>Start Location: </b><a href='/mission/startLoc'>"+startLoc+"</a><br/>");
@@ -223,7 +224,7 @@ public class MissionServlet extends HttpServlet implements IConsoleServlet {
 			LinkedHashMap<String, TransponderElement> transList = mpm.getMap()
 					.getTranspondersList();
 			for (TransponderElement tmp : transList.values()) {
-				String tLoc = tmp.getCenterLocation().getLatitudeAsPrettyString()+", "+tmp.getCenterLocation().getLongitudeAsPrettyString()+", "+tmp.getCenterLocation().getAllZ();
+				String tLoc = tmp.getCenterLocation().getLatitudeAsPrettyString(LatLonFormatEnum.DMS)+", "+tmp.getCenterLocation().getLongitudeAsPrettyString(LatLonFormatEnum.DMS)+", "+tmp.getCenterLocation().getAllZ();
 				page.write("<b>Transponder "+tmp.getId()+":</b> <a href='/mission/transponder/"+tmp.getId()+"'>"+tLoc+"</a><br/>");				
 			}
 		}

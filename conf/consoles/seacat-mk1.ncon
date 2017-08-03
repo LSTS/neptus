@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <console name="Neptus Console" width="1368" height="727" resizable="true" mission-file="../../missions/seacatmk1-test.nmisz" main-vehicle="seacat-mk1-01">
-  <!-- Data saved on 2017-05-03T11:03:43.0Z with Neptus version @VERSION@ (compiled on @DATE@, g@SCM_REV@). -->
+  <!-- Data saved on 2017-08-03T10:56:48.0Z with Neptus version @VERSION@ (compiled on @DATE@, g@SCM_REV@). -->
   <mainpanel name="console main panel">
     <subpanel class="pt.lsts.neptus.console.plugins.containers.MigLayoutContainer" x="0" y="0" width="1352" height="632">
       <properties>
@@ -26,7 +26,9 @@
 &lt;/profiles&gt;</entry>
       </properties>
       <child class="pt.lsts.neptus.plugins.position.ContactMarker" x="0" y="0" width="0" height="0">
-        <properties/>
+        <properties>
+          <entry key="Allow mark dissemination">false</entry>
+        </properties>
       </child>
       <child class="pt.lsts.neptus.console.plugins.kml.KmlImport" x="0" y="0" width="0" height="0">
         <properties/>
@@ -35,15 +37,14 @@
         <properties/>
       </child>
       <child class="pt.lsts.neptus.console.plugins.planning.MapPanel" x="0" y="0" width="1048" height="632">
-        <properties/>
+        <properties>
+          <entry key="Show Vehicles' Tail Button">false</entry>
+        </properties>
       </child>
       <child class="pt.lsts.neptus.console.plugins.planning.MissionTreePanel" x="0" y="0" width="294" height="626">
         <properties/>
       </child>
       <child class="pt.lsts.neptus.console.plugins.MyLocationDisplay" x="0" y="0" width="0" height="0">
-        <properties/>
-      </child>
-      <child class="pt.lsts.neptus.plugins.oplimits.OperationLimitsSubPanel" x="0" y="0" width="95" height="40">
         <properties/>
       </child>
       <child class="pt.lsts.neptus.console.plugins.planning.PlanEditor" x="0" y="0" width="0" height="0">
@@ -68,6 +69,9 @@
         <properties/>
       </child>
       <child class="pt.lsts.neptus.console.bathymLayer.TidePanel" x="0" y="0" width="0" height="0">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.plugins.atlas.elektronik.HomeRefEditor" x="0" y="0" width="0" height="0">
         <properties/>
       </child>
     </subpanel>

@@ -45,12 +45,12 @@ import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.def.SpeedUnits;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.mp.Maneuver;
+import pt.lsts.neptus.mp.SpeedType;
+import pt.lsts.neptus.mp.SpeedType.Units;
 import pt.lsts.neptus.util.MathMiscUtils;
 
 /**
@@ -59,8 +59,7 @@ import pt.lsts.neptus.util.MathMiscUtils;
  */
 public class FollowSystem extends DefaultManeuver implements ManeuverWithSpeed, IMCSerialization {
 
-    private double speed = 1000, speedTolerance = 100;
-    private Maneuver.SPEED_UNITS speedUnits = SPEED_UNITS.RPM;
+    private SpeedType speed = new SpeedType(1000, Units.RPM);
     private int duration = 60;
     private String system = "";
     private double xOffset = 1, yOffset = 1, zOffset = 1;
@@ -91,17 +90,11 @@ public class FollowSystem extends DefaultManeuver implements ManeuverWithSpeed, 
 	    offsets.addAttribute("xOffset", Double.toString(getXOffset()));
 	    offsets.addAttribute("yOffset", Double.toString(getYOffset()));
 	    offsets.addAttribute("zOffset", Double.toString(getZOffset()));
-        
-	    Element velocity = root.addElement("speed");
-	    velocity.addAttribute("tolerance", String.valueOf(getSpeedTolerance()));
-	    velocity.addAttribute("type", "float");
-	    velocity.addAttribute("unit", getSpeedUnits().getString());
-	    velocity.setText(String.valueOf(getSpeed()));
-
+        SpeedType.addSpeedElement(root, this);
 	    return document;
     }
 	
-	public void loadFromXML(String xml) {
+	public void loadManeuverFromXML(String xml) {
 	    try {
 	        Document doc = DocumentHelper.parseText(xml);
 	        setSystem(doc.selectSingleNode("//system").getText());
@@ -112,15 +105,7 @@ public class FollowSystem extends DefaultManeuver implements ManeuverWithSpeed, 
             setYOffset(Double.parseDouble(offsetNode.valueOf("@yOffset")));
             setZOffset(Double.parseDouble(offsetNode.valueOf("@zOffset")));
             
-            Node speedNode = doc.selectSingleNode("//speed");
-	        if (speedNode == null) 
-	        	speedNode = doc.selectSingleNode("//velocity");
-
-	        setSpeed(Double.parseDouble(speedNode.getText()));
-//	        setUnits(speedNode.valueOf("@unit"));
-	        SPEED_UNITS sUnits = ManeuversXMLUtil.parseSpeedUnits((Element) speedNode);
-            setSpeedUnits(sUnits);
-	        setSpeedTolerance(Double.parseDouble(speedNode.valueOf("@tolerance")));
+            SpeedType.parseManeuverSpeed(doc.getRootElement(), this);
 	        
 	    }
 	    catch (Exception e) {
@@ -187,30 +172,6 @@ public class FollowSystem extends DefaultManeuver implements ManeuverWithSpeed, 
         this.zOffset = zOffset;
     }
 
-    public SPEED_UNITS getSpeedUnits() {
-        return speedUnits;
-    }
-    
-    public void setSpeedUnits(SPEED_UNITS units) {
-        this.speedUnits = units;
-    }
-    
-    public double getSpeed() {
-        return speed;
-    }
-    
-    public void setSpeed(double speed) {
-        this.speed = speed;
-    }
-    
-    public double getSpeedTolerance() {
-        return speedTolerance;
-    }
-    
-    public void setSpeedTolerance(double speedTolerance) {
-        this.speedTolerance = speedTolerance;
-    }
-
 	public Object clone() {  
 	    FollowSystem clone = new FollowSystem();
 	    super.clone(clone);
@@ -220,9 +181,7 @@ public class FollowSystem extends DefaultManeuver implements ManeuverWithSpeed, 
         clone.setXOffset(getXOffset());
         clone.setYOffset(getYOffset());
         clone.setZOffset(getZOffset());
-	    clone.setSpeedUnits(getSpeedUnits());
 	    clone.setSpeed(getSpeed());
-	    clone.setSpeedTolerance(getSpeedTolerance());
 		
 	    return clone;
 	}
@@ -240,14 +199,7 @@ public class FollowSystem extends DefaultManeuver implements ManeuverWithSpeed, 
         properties.add(PropertiesEditor.getPropertyInstance("x offset", Double.class, getXOffset(), true));
         properties.add(PropertiesEditor.getPropertyInstance("y offset", Double.class, getYOffset(), true));
         properties.add(PropertiesEditor.getPropertyInstance("z offset", Double.class, getZOffset(), true));
-
-    	DefaultProperty units = PropertiesEditor.getPropertyInstance("Speed units", Maneuver.SPEED_UNITS.class, getSpeedUnits(), true);
-    	units.setShortDescription("The speed units");
-    
-    	properties.add(PropertiesEditor.getPropertyInstance("Speed", Double.class, getSpeed(), true));
-    	properties.add(units);
-
-    	properties.add(PropertiesEditor.getPropertyInstance("Speed tolerance", Double.class, getSpeedTolerance(), true));
+        properties.add(PropertiesEditor.getPropertyInstance("Speed", SpeedType.class, getSpeed(), true));
     	
     	return properties;
     }
@@ -261,14 +213,8 @@ public class FollowSystem extends DefaultManeuver implements ManeuverWithSpeed, 
     	super.setProperties(properties);
     	
     	for (Property p : properties) {
-//    		if (p.getName().equals("Speed units")) {
-//    			setUnits((String)p.getValue());
-//    		}
-    		if (p.getName().equals("Speed tolerance")) {
-    			setSpeedTolerance((Double)p.getValue());
-    		}
-    		else if (p.getName().equals("Speed")) {
-    			setSpeed((Double)p.getValue());
+    	    if (p.getName().equals("Speed")) {
+    			setSpeed((SpeedType)p.getValue());
     		}
     		else if (p.getName().equals("Duration")) {
     			setDuration((Integer)p.getValue());
@@ -284,12 +230,7 @@ public class FollowSystem extends DefaultManeuver implements ManeuverWithSpeed, 
             }
     		else if (p.getName().equals("z offset")) {
                 setZOffset((Double)p.getValue());
-            }
-    		else {
-                SPEED_UNITS speedUnits = ManeuversUtil.getSpeedUnitsFromPropertyOrNullIfInvalidName(p);
-                if (speedUnits != null)
-                    setSpeedUnits(speedUnits);
-            }
+            }    	
     	}
     }
     
@@ -301,7 +242,7 @@ public class FollowSystem extends DefaultManeuver implements ManeuverWithSpeed, 
 	@Override
 	public String getTooltipText() {
 		return super.getTooltipText()+"<hr>"+
-		"speed" + ": <b>"+getSpeed()+" "+I18n.text(getSpeedUnits().getString())+"</b>"+
+		"speed" + ": <b>"+getSpeed()+"</b>"+
 		"<br>" + I18n.text("duration") + ": <b>"+(int)getDuration()+" " + I18n.textc("s", "seconds") + "</b>" +
 		"<br>" + I18n.text("system") + ": <b>"+getSystem()+"</b>" +
 		"<br>" + I18n.text("system") + ": <b>" + I18n.textc("nOff", "north offset") + "=</b>'" + MathMiscUtils.round(getXOffset(), 1) +
@@ -320,18 +261,11 @@ public class FollowSystem extends DefaultManeuver implements ManeuverWithSpeed, 
 		setXOffset(message.getDouble("x"));
 		setYOffset(message.getDouble("y"));
 		setZOffset(message.getDouble("z"));
+		setSpeed(SpeedType.parseImcSpeed(message));
 		
-		setSpeed(message.getDouble("speed"));
-		try {
-            String speedUnits = message.getString("speed_units");
-            setSpeedUnits(Maneuver.SPEED_UNITS.parse(speedUnits));
-        }
-        catch (Exception e) {
-            setSpeedUnits(Maneuver.SPEED_UNITS.RPM);
-            e.printStackTrace();
-        }
-
 	}
+	
+	
 
     public IMCMessage serializeToIMC() {
         IMCMessage msgManeuver = IMCDefinition.getInstance().create(
@@ -346,26 +280,7 @@ public class FollowSystem extends DefaultManeuver implements ManeuverWithSpeed, 
         msgManeuver.setValue("x", this.getXOffset());
         msgManeuver.setValue("y", this.getYOffset());
         msgManeuver.setValue("z", this.getZOffset());
-        
-		//msgManeuver.setValue("velocity", new NativeFLOAT(this.getSpeed()));
-		msgManeuver.setValue("speed",this.getSpeed());
-		try {
-            switch (this.getSpeedUnits()) {
-                case METERS_PS:
-                    ((pt.lsts.imc.FollowSystem) msgManeuver).setSpeedUnits(SpeedUnits.METERS_PS);
-                    break;
-                case PERCENTAGE:
-                    ((pt.lsts.imc.FollowSystem) msgManeuver).setSpeedUnits(SpeedUnits.PERCENTAGE);
-                    break;
-                case RPM:
-                default:
-                    ((pt.lsts.imc.FollowSystem) msgManeuver).setSpeedUnits(SpeedUnits.RPM);
-                    break;
-            }
-        }
-        catch (Exception ex) {
-            NeptusLog.pub().error(this, ex);                     
-        }
+        speed.setSpeedToMessage(msgManeuver);     
 		
 		//NativeTupleList ntl = new NativeTupleList();
         //FIXME commented line above for translation to new Message TupleList format
@@ -377,4 +292,14 @@ public class FollowSystem extends DefaultManeuver implements ManeuverWithSpeed, 
 		
 		return msgManeuver;
 	}
+    
+    @Override
+    public SpeedType getSpeed() {
+        return new SpeedType(speed);
+    }
+    
+    @Override
+    public void setSpeed(SpeedType speed) {
+        this.speed = new SpeedType(speed);       
+    }
 }

@@ -90,6 +90,10 @@ public class InterpolationColorMap implements ColorMap, PropertyType {
     }
 
     public InterpolationColorMap(Reader reader) throws IOException {
+        this(reader, false);        
+    }       
+
+    public InterpolationColorMap(Reader reader, boolean is255) throws IOException {
         BufferedReader br = new BufferedReader(reader);
         String line;
         Vector<Color> colorsV = new Vector<Color>();
@@ -98,13 +102,13 @@ public class InterpolationColorMap implements ColorMap, PropertyType {
             if (line.charAt(0) == '#')
                 continue;
 
-            String[] parts = line.split("[ \t,]+");
+            String[] parts = line.trim().split("[ \t,]+");
 
             if (parts.length < 3)
                 continue;
-            int r = (int)(Double.parseDouble(parts[0])*255);
-            int g = (int)(Double.parseDouble(parts[1])*255);
-            int b = (int)(Double.parseDouble(parts[2])*255);
+            int r = (int)(Double.parseDouble(parts[parts.length - 3])* (is255 ? 1 : 255));
+            int g = (int)(Double.parseDouble(parts[parts.length - 2])*(is255 ? 1 : 255));
+            int b = (int)(Double.parseDouble(parts[parts.length - 1])*(is255 ? 1 : 255));
 
             colorsV.add(new Color(r,g,b));
         }

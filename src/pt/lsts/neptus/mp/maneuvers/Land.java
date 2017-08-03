@@ -57,13 +57,13 @@ import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.def.SpeedUnits;
 import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.gui.ToolbarSwitch;
-import pt.lsts.neptus.gui.editor.SpeedUnitsEnumEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.SpeedType;
+import pt.lsts.neptus.mp.SpeedType.Units;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.renderer2d.InteractionAdapter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
@@ -92,9 +92,8 @@ public class Land extends Maneuver implements LocatedManeuver, ManeuverWithSpeed
     @NeptusProperty(name = "Abort Z", description = "Abort altitude or height. If landing is aborted while executing, the UAV will maintain its course and attempt to climb to the abort z reference.")
     protected double zAbort = 20;
     @NeptusProperty(name = "Speed")
-    protected double speed = 17;
-    @NeptusProperty(name = "Speed Units", editorClass = SpeedUnitsEnumEditor.class)
-    protected SPEED_UNITS speedUnits = SPEED_UNITS.METERS_PS;
+    protected SpeedType speed = new SpeedType(17, Units.MPS);
+    
     @NeptusProperty(name = "Bearing", description = "Land bearing angle.")
     protected double bearingDegs = 0;
     @NeptusProperty(name = "Glide Slope", description = "Ratio (%) of the distance from the last waypoint to the landing point (touchdown) and the height difference between them.")
@@ -123,9 +122,6 @@ public class Land extends Maneuver implements LocatedManeuver, ManeuverWithSpeed
         return manLoc;
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.mp.maneuvers.LocatedManeuver#setManeuverLocation(pt.lsts.neptus.mp.ManeuverLocation)
-     */
     @Override
     public void setManeuverLocation(ManeuverLocation location) {
         double absoluteLatLonDepth[] = location.getAbsoluteLatLonDepth(); 
@@ -148,9 +144,6 @@ public class Land extends Maneuver implements LocatedManeuver, ManeuverWithSpeed
         return loc;
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.mp.maneuvers.LocatedManeuver#getEndLocation()
-     */
     @Override
     public ManeuverLocation getEndLocation() {
         return getManeuverLocation();
@@ -163,9 +156,6 @@ public class Land extends Maneuver implements LocatedManeuver, ManeuverWithSpeed
         setManeuverLocation(loc);
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.mp.maneuvers.LocatedManeuver#getWaypoints()
-     */
     @Override
     public Collection<ManeuverLocation> getWaypoints() {
         ArrayList<ManeuverLocation> wps = new ArrayList<ManeuverLocation>();
@@ -173,50 +163,14 @@ public class Land extends Maneuver implements LocatedManeuver, ManeuverWithSpeed
         return wps;
     }
 
-    /**
-     * @return the speed
-     */
-    public double getSpeed() {
-        return speed;
-    }
-    
-    /**
-     * @param speed the speed to set
-     */
-    public void setSpeed(double speed) {
-        this.speed = speed;
-    }
-    
-    /**
-     * @return the speedUnits
-     */
-    public SPEED_UNITS getSpeedUnits() {
-        return speedUnits;
-    }
-    
-    /**
-     * @param speedUnits the speedUnits to set
-     */
-    public void setSpeedUnits(SPEED_UNITS speedUnits) {
-        this.speedUnits = speedUnits;
-    }
-    
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.mp.Maneuver#loadFromXML(java.lang.String)
-     */
     @Override
-    public void loadFromXML(String xml) {
+    public void loadManeuverFromXML(String xml) {
         try {
             Document doc = DocumentHelper.parseText(xml);
     
             ManeuversXMLUtil.parseLocation(doc.getRootElement(), this);
-            try {
-                ManeuversXMLUtil.parseSpeed(doc.getRootElement(), this);
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
-
+            SpeedType.parseManeuverSpeed(doc.getRootElement(), this);
+            
             Node node = doc.selectSingleNode("//bearing");
             if (node != null)
                 bearingDegs = Double.parseDouble(node.getText());
@@ -235,19 +189,11 @@ public class Land extends Maneuver implements LocatedManeuver, ManeuverWithSpeed
         }
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.mp.Maneuver#getManeuverAsDocument(java.lang.String)
-     */
     @Override
     public Document getManeuverAsDocument(String rootElementName) {
         Document doc = ManeuversXMLUtil.createBaseDoc(getType());
         ManeuversXMLUtil.addLocation(doc.getRootElement(), this);
-        try {
-            ManeuversXMLUtil.addSpeed(doc.getRootElement(), this);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
+        SpeedType.addSpeedElement(doc.getRootElement(), this);
 
         Element root = doc.getRootElement();
 
@@ -273,9 +219,6 @@ public class Land extends Maneuver implements LocatedManeuver, ManeuverWithSpeed
             bearingDegs = AngleUtils.nomalizeAngleDegrees360(bearingDegs);
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.mp.Maneuver#clone()
-     */
     @Override
     public Object clone() {
         Land clone = new Land();
@@ -284,17 +227,13 @@ public class Land extends Maneuver implements LocatedManeuver, ManeuverWithSpeed
         clone.lonDegs = lonDegs;
         clone.z = z;
         clone.zUnits = zUnits;
-        clone.speed = speed;
-        clone.speedUnits = speedUnits;
+        clone.speed = getSpeed();
         clone.bearingDegs = bearingDegs;
         clone.glideSlope = glideSlope;
         clone.glideSlopeAltitude = glideSlopeAltitude;
         return clone;
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.mp.maneuvers.IMCSerialization#serializeToIMC()
-     */
     @Override
     public IMCMessage serializeToIMC() {
         pt.lsts.imc.Land man = new pt.lsts.imc.Land();
@@ -302,22 +241,7 @@ public class Land extends Maneuver implements LocatedManeuver, ManeuverWithSpeed
         man.setLon(Math.toRadians(lonDegs));
         man.setZ(z);
         man.setZUnits(ZUnits.valueOf(getManeuverLocation().getZUnits().toString()));        
-        man.setSpeed(speed);
-        
-        SPEED_UNITS speedU = speedUnits;
-        switch (speedU) {
-            case RPM:
-                man.setSpeedUnits(SpeedUnits.RPM);
-                break;
-            case PERCENTAGE:
-                man.setSpeedUnits(SpeedUnits.PERCENTAGE);
-                break;
-            case METERS_PS:
-            default:
-                man.setSpeedUnits(SpeedUnits.METERS_PS);
-                break;
-        }
-
+        speed.setSpeedToMessage(man);
         man.setAbortZ(zAbort);
         man.setBearing(Math.toRadians(bearingDegs));
         man.setGlideSlope(glideSlope);
@@ -326,9 +250,6 @@ public class Land extends Maneuver implements LocatedManeuver, ManeuverWithSpeed
         return man;
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.mp.maneuvers.IMCSerialization#parseIMCMessage(pt.lsts.imc.IMCMessage)
-     */
     @Override
     public void parseIMCMessage(IMCMessage message) {
         pt.lsts.imc.Land man = null;
@@ -344,29 +265,13 @@ public class Land extends Maneuver implements LocatedManeuver, ManeuverWithSpeed
         lonDegs = Math.toDegrees(man.getLon());
         z = man.getZ();
         zUnits = ManeuverLocation.Z_UNITS.valueOf(man.getZUnits().toString());
-
-        speed = man.getSpeed();
-        switch (man.getSpeedUnits()) {
-            case METERS_PS:
-                speedUnits = SPEED_UNITS.METERS_PS;
-                break;
-            case RPM:
-                speedUnits = SPEED_UNITS.RPM;
-                break;
-            default:
-                speedUnits = SPEED_UNITS.PERCENTAGE;
-                break;
-        }
-        
+        speed = SpeedType.parseImcSpeed(message);
         zAbort = man.getAbortZ();
         bearingDegs = Math.toDegrees(man.getBearing());
         glideSlope = man.getGlideSlope();
         glideSlopeAltitude = (float) man.getGlideSlopeAlt();
     }
-    
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.mp.Maneuver#paintOnMap(java.awt.Graphics2D, pt.lsts.neptus.types.map.PlanElement, pt.lsts.neptus.renderer2d.StateRenderer2D)
-     */
+
     @Override
     public void paintOnMap(Graphics2D g2d, PlanElement planElement, StateRenderer2D renderer) {
         super.paintOnMap(g2d, planElement, renderer);
@@ -593,6 +498,16 @@ public class Land extends Maneuver implements LocatedManeuver, ManeuverWithSpeed
      */
     @Override
     public void paintInteraction(Graphics2D g, StateRenderer2D source) {
+    }
+    
+    @Override
+    public SpeedType getSpeed() {
+        return new SpeedType(speed);
+    }
+    
+    @Override
+    public void setSpeed(SpeedType speed) {
+        this.speed = new SpeedType(speed);       
     }
 
     public static void main(String[] args) {

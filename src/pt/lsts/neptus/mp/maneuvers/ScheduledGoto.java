@@ -95,7 +95,6 @@ public class ScheduledGoto extends Goto {
         super.clone(clone);
         clone.setManeuverLocation(getManeuverLocation());
         clone.setRadiusTolerance(getRadiusTolerance());
-        clone.setSpeedUnits(getSpeedUnits());
         clone.setSpeed(getSpeed());
         clone.setSpeedTolerance(getSpeedTolerance());
         clone.setTravelUnits(getTravelUnits());
@@ -176,8 +175,8 @@ public class ScheduledGoto extends Goto {
         return doc;
     }
 
-    public void loadFromXML(String xml) {
-        super.loadFromXML(xml);
+    public void loadManeuverFromXML(String xml) {
+        super.loadManeuverFromXML(xml);
         try {
             Document doc = DocumentHelper.parseText(xml);
             Node node = doc.selectSingleNode(getType()+"/ArrivalTime");

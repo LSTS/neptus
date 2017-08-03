@@ -65,6 +65,8 @@ import pt.lsts.neptus.util.ImageUtils;
  */
 public class EmergencyRendezvousPointInteraction implements IPlanElementEditorInteraction<RendezvousPoints> {
 
+    private boolean hasChanges = false;
+    
     private RendezvousPoints originalPoints = null;
     private RendezvousPoints copyPoints = null;
     
@@ -137,6 +139,7 @@ public class EmergencyRendezvousPointInteraction implements IPlanElementEditorIn
                 public void actionPerformed(ActionEvent e) {
                     LocationType locClick = renderer.getRealWorldLocation(mousePoint);
                     copyPoints.addPoint(locClick);
+                    hasChanges = true;
                 }
             };
             popup.add(addMenu);
@@ -147,6 +150,7 @@ public class EmergencyRendezvousPointInteraction implements IPlanElementEditorIn
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     copyPoints.removePoint(selPoint);
+                    hasChanges = true;
                 }
             };
             popup.add(remMenu);
@@ -199,6 +203,7 @@ public class EmergencyRendezvousPointInteraction implements IPlanElementEditorIn
             selPoint.setLatDeg(locClick.getLatitudeDegs());
             selPoint.setLonDeg(locClick.getLongitudeDegs());
             copyPoints.triggerChange();
+            hasChanges = true;
         }
         else {
             adapter.mouseDragged(event, source);
@@ -309,5 +314,13 @@ public class EmergencyRendezvousPointInteraction implements IPlanElementEditorIn
     @Override
     public RendezvousPoints getUpdatedElement() {
         return copyPoints;
+    }
+    
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.mp.element.IPlanElementEditorInteraction#hasChanges()
+     */
+    @Override
+    public boolean hasChanges() {
+        return hasChanges;
     }
 }

@@ -68,6 +68,8 @@
 	<classpathentry kind="src" path="plugins-dev/txtmsg"/>
 	<classpathentry kind="src" path="plugins-dev/mvplanner"/>
 	<classpathentry kind="src" path="plugins-dev/atlas-elektronik"/>
+	<classpathentry kind="src" path="plugins-dev/transas-maps"/>
+	<classpathentry kind="src" path="plugins-dev/uav-parameters"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.17.jar"/>
 	<classpathentry kind="lib" path="lib/xerces-2.7.1/xml-apis.jar"/>
 	<classpathentry kind="lib" path="lib/xerces-2.7.1/xercesImpl.jar"/>
@@ -169,7 +171,7 @@
 	<classpathentry kind="lib" path="plugins-dev/odss/lib/rabbitmq-client.jar"/>
 	<classpathentry kind="lib" path="lib/gson-2.2.2.jar"/>
 	<classpathentry kind="lib" path="lib/wms.jar"/>
-	<classpathentry kind="lib" path="lib/toolsUI-4.3.jar"/>
+	<classpathentry kind="lib" path="lib/netcdfAll-4.6.9.jar"/>
 	<classpathentry kind="lib" path="lib/imgscalr-lib-4.2.jar"/>
 	<classpathentry kind="lib" path="lib/xuggle-xuggler-5.4.jar"/>
 	<classpathentry kind="lib" path="lib/jh_image_filters.jar"/>
@@ -199,7 +201,7 @@
 	<classpathentry kind="lib" path="lib/commons-codec-1.9.jar"/>
 	<classpathentry kind="lib" path="lib/commons-configuration-1.10.jar"/>
 	<classpathentry kind="lib" path="lib/reflections-0.9.9-RC1.jar"/>
-	<classpathentry kind="lib" path="plugins-dev/s57/s57-package-2.3.2.jar"/>
+	<classpathentry kind="lib" path="plugins-dev/s57/s57-package-2.4.4.jar"/>
 	<classpathentry kind="lib" path="lib/PSEngine.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:platform:/resource/neptus/libJNI/europa/PSEngine-javadoc.jar!/"/>
@@ -220,6 +222,7 @@
 	<classpathentry kind="lib" path="lib/xmpcore-5.1.2.jar"/>
 	<classpathentry kind="lib" path="lib/JavaAPIforKml-2.2.0.jar"/>
 	<classpathentry kind="lib" path="plugins-dev/necsave/lib/NMPJava.jar"/>
+	<classpathentry kind="lib" path="plugins-dev/uav-parameters/lib/mavlink.jar"/>
 	<classpathentry kind="lib" path="lib/jsch-0.1.53.jar"/>
 	<classpathentry kind="lib" path="lib/javacsv.jar"/>
 	<classpathentry kind="lib" path="lib/commons-collections-3.2.1.jar"/>
@@ -237,9 +240,10 @@
 	<classpathentry kind="lib" path="lib/graphstream/gs-core-1.3.jar"/>
 	<classpathentry kind="lib" path="lib/graphstream/gs-ui-1.3.jar"/>
 	<classpathentry kind="lib" path="plugins-dev/necsave/lib/minimal-json-0.9.4.jar"/>
+	<classpathentry kind="lib" path="lib/jtransform_thin.jar"/>
+	<classpathentry kind="lib" path="lib/commons-httpclient-3.1-deprecation.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry kind="lib" path="conf"/>
 	<classpathentry kind="lib" path="lib/ini4j-0.5.2.jar"/>
 	<classpathentry kind="lib" path="lib/vtk.jar">
 		<attributes>

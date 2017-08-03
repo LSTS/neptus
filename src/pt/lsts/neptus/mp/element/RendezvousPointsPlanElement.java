@@ -46,7 +46,7 @@ import pt.lsts.neptus.types.coord.LocationType;
  *
  */
 @PluginDescription
-public class RendezvousPointsPlanElement implements IPlanElement<RendezvousPoints> {
+public class RendezvousPointsPlanElement implements IPlanElement<RendezvousPoints>, Renderer2DPainter {
 
     private RendezvousPoints points = new RendezvousPoints();
     
@@ -126,12 +126,35 @@ public class RendezvousPointsPlanElement implements IPlanElement<RendezvousPoint
      */
     @Override
     public Renderer2DPainter getPainter() {
-        Renderer2DPainter painter = getElement() != null ? getElement() : new Renderer2DPainter() {
-            @Override
-            public void paint(Graphics2D g, StateRenderer2D renderer) {
-            }
-        };
-        return painter;
+        return this;
+    }
+
+    @Override
+    public void paint(Graphics2D g, StateRenderer2D renderer) {
+        if (points == null)
+            return;
+
+        boolean ed = points.isEditing();
+        points.setEditing(false);
+        points.paint(g, renderer);
+        points.setEditing(ed);
+    }
+    
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.mp.element.IPlanElement#translate(double, double, double)
+     */
+    @Override
+    public void translate(double offsetNorth, double offsetEast, double offsetDown) {
+        points.getPoints().stream().forEach(pt -> {
+            double latDeg = pt.getLatDeg();
+            double lonDeg = pt.getLonDeg();
+            LocationType loc = new LocationType(latDeg, lonDeg);
+            loc.translatePosition(offsetNorth, offsetEast, offsetDown);
+            loc.convertToAbsoluteLatLonDepth();
+            pt.setLatDeg(loc.getLatitudeDegs());
+            pt.setLonDeg(loc.getLongitudeDegs());
+        });
+        points.triggerChange();
     }
     
     public static void main(String[] args) {

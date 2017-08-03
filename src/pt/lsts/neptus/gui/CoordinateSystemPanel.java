@@ -340,6 +340,9 @@ public class CoordinateSystemPanel extends ParametersPanel implements ActionList
 							transMan.translate(offsetNorth, offsetEast, offsetDown);
 						}
 					}
+					
+                    plan.getPlanElements().getPlanElements().stream()
+                            .forEach(pe -> pe.translate(offsetNorth, offsetEast, offsetDown));
 				}
 			}
 			

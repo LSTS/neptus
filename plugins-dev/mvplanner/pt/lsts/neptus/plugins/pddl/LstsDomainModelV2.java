@@ -92,6 +92,12 @@ public class LstsDomainModelV2 extends LstsDomainModel {
                 sb.append("  (communicated_data " + t.getName() + "_" + r.name() + ")\n");
             }
         }
+        for (SurveyPolygonTask t : problem.surveyPolygon) {
+            for (PayloadRequirement r : t.getRequiredPayloads()) {
+                sb.append("  (communicated_data " + t.getName() + "_" + r.name() + ")\n");
+            }
+        }
+        
         sb.append("))\n\n");
 
         sb.append("(:metric minimize (+ (total-time)(base-returns))))\n");

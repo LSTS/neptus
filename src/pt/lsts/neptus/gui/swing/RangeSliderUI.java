@@ -410,6 +410,12 @@ class RangeSliderUI extends BasicSliderUI {
     public class RangeTrackListener extends TrackListener {
         
         @Override
+        public void mouseClicked(MouseEvent e) {
+            upperThumbSelected = !upperThumbSelected;
+            super.mouseClicked(e);
+        }
+        
+        @Override
         public void mousePressed(MouseEvent e) {
             if (!slider.isEnabled()) {
                 return;

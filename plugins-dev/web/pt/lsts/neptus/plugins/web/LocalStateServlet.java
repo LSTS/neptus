@@ -53,6 +53,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mystate.MyState;
+import pt.lsts.neptus.types.coord.LatLonFormatEnum;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.FileUtil;
@@ -149,7 +150,7 @@ public class LocalStateServlet extends HttpServlet implements IConsoleMenuItemSe
             
             ret += "<h2>Location</h2><blockquote>";
             LocationType home = MyState.getLocation();
-            String homeLoc = home.getLatitudeAsPrettyString()+", "+home.getLongitudeAsPrettyString();
+            String homeLoc = home.getLatitudeAsPrettyString(LatLonFormatEnum.DMS)+", "+home.getLongitudeAsPrettyString(LatLonFormatEnum.DMS);
             //ret += homeLoc+"<br/>";
             ret += "<a href='/localstate/location'>"+homeLoc+"</a><br/>";
             ret += "</blockquote><br>";

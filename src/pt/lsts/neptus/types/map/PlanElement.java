@@ -57,8 +57,10 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.objparams.ParametersPanel;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.element.IPlanElement;
 import pt.lsts.neptus.mp.maneuvers.Goto;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
+import pt.lsts.neptus.mystate.MyState;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
@@ -455,6 +457,7 @@ public class PlanElement extends AbstractElement implements Renderer2DPainter, P
         lastRotationAngle = renderer.getRotation();
 
         Maneuver[] maneuvers = getPlan().getGraph().getAllManeuvers();
+        Object[] pElementsObjs = getPlan().getPlanElements().getPlanElements().toArray();
 
         LocationType start = null;
 
@@ -465,7 +468,12 @@ public class PlanElement extends AbstractElement implements Renderer2DPainter, P
         if (getPlan().getStartMode() == PlanType.INIT_START_WPT) {
             if (getPlan().getMapGroup().getMapObjectsByID("start").length > 0) {
                 start = new LocationType(getPlan().getMapGroup().getMapObjectsByID("start")[0].getCenterLocation());
-
+            }
+            else if (getPlan().getMapGroup().getMapObjectsByID("home").length > 0) {
+                start = new LocationType(getPlan().getMapGroup().getMapObjectsByID("home")[0].getCenterLocation());
+            }
+            else if ((start = MyState.getLocation()) != null) {
+                // start = start; Already in the test to not duplicate the location instances created 
             }
             else {
                 start = new LocationType(getPlan().getMapGroup().getCoordinateSystem());
@@ -485,6 +493,8 @@ public class PlanElement extends AbstractElement implements Renderer2DPainter, P
         Vector<String> drawnLocations = new Vector<String>();
         Vector<String> drawnTransitions = new Vector<String>();
 
+        Graphics2D gElements = (Graphics2D) g.create();
+        
         for (Maneuver man : maneuvers) {
             
             for (Maneuver previousMan : plan.getGraph().getPreviousManeuvers(man.getId())) {
@@ -627,6 +637,13 @@ public class PlanElement extends AbstractElement implements Renderer2DPainter, P
         }
 
         g.setTransform(oldTransform);
+        
+        for (Object pElmObj : pElementsObjs) {
+            Graphics2D gT = (Graphics2D) gElements.create();
+            ((IPlanElement<?>) pElmObj).getPainter().paint(gT, renderer);
+            gT.dispose();
+        }
+        gElements.dispose();
     }
 
     public void setPlanZ(double z, ManeuverLocation.Z_UNITS units) {
@@ -662,6 +679,9 @@ public class PlanElement extends AbstractElement implements Renderer2DPainter, P
             }
         }
         recalculateManeuverPositions(renderer);
+        
+        plan.getPlanElements().getPlanElements().stream()
+                .forEach(pe -> pe.translate(offsetNorth, offsetEast, offsetDown));
     }
 
     public void rotatePlan(LocatedManeuver center, double ammount) {

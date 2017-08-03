@@ -72,6 +72,7 @@ import pt.lsts.neptus.planeditor.IEditorMenuExtension;
 import pt.lsts.neptus.planeditor.IMapPopup;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
@@ -125,6 +126,9 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
 
     @NeptusProperty(name = "Fixed Vehicle Size", description = "Vehicle icon size (0 for real size)")
     public int fixedSize = 0;
+
+    @NeptusProperty(name = "Show Vehicles' Tail Button", userLevel = LEVEL.ADVANCED)
+    public boolean showTailButton = true;
 
     public enum PlacementEnum {
         Left,
@@ -225,7 +229,6 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
         bottom.add(status);
 
         setToolbarPlacement();
-
     }
     
     public void focusLocation(LocationType loc) {
@@ -247,6 +250,8 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
         for (ConsoleSystem v : getConsole().getSystems().values()) {
             v.addRenderFeed(this);
         }
+        
+        tailSwitch.setVisible(showTailButton);
     }
 
     @Override
@@ -390,6 +395,8 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
         renderer.setFixedVehicleWidth(fixedSize);
         renderer.setWorldMapShown(worldMapShown);
         setToolbarPlacement(); // Refresh toolbar position
+        
+        tailSwitch.setVisible(showTailButton);
     }
 
     public void addLayer(final IConsoleLayer layer) {

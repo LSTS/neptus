@@ -62,6 +62,15 @@ public interface IPlanElement<T> {
      */
     public Class<T> getHoldingType();
     
+    /**
+     * Used to be able to configure or reconfigure the element. Similar to the constructor with String[] args as
+     * argument.
+     * 
+     * @param args
+     */
+    public default void configure(String... args) {
+    }
+    
     public T getElement();
     
     public void setElement(Object element);
@@ -73,4 +82,6 @@ public interface IPlanElement<T> {
     public IPlanElementEditorInteraction<T> getEditor();
     
     public Renderer2DPainter getPainter();
+    
+    public void translate(double offsetNorth, double offsetEast, double offsetDown);
 }

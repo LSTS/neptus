@@ -34,7 +34,6 @@ package pt.lsts.neptus.mp.preview;
 
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
-import pt.lsts.neptus.mp.Maneuver.SPEED_UNITS;
 import pt.lsts.neptus.mp.maneuvers.StationKeeping;
 import pt.lsts.neptus.types.coord.LocationType;
 
@@ -60,12 +59,7 @@ public class StationKeepingPreview implements IManeuverPreview<StationKeeping> {
         else
             destination.setDepth(Math.max(0.5, 10 - man.getManeuverLocation().getZ()));
 
-        speed = man.getSpeed();
-        if (man.getSpeedUnits() == SPEED_UNITS.RPM)
-            speed = SpeedConversion.convertRpmtoMps(speed);
-        else if (man.getSpeedUnits() == SPEED_UNITS.PERCENTAGE) // convert to RPM and then to m/s
-            speed = SpeedConversion.convertPercentageToMps(speed);
-
+        speed = man.getSpeed().getMPS();
         speed = Math.min(speed, SpeedConversion.MAX_SPEED);
         duration = man.getDuration();
         

@@ -1,5 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2016.05.0 (master,126112c)" system="manta-3" i18n="en_US">
+<config format="1" version="2017.01.0 (master,6686c4f0)" system="manta-3" i18n="en_US">
+  <section name="Text Message Parser" name-i18n="Text Message Parser">
+    <param name="Entity Label">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Text Message Parser</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Activation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+  </section>
   <section name="Navigation" name-i18n="Navigation">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -522,7 +571,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>OS4000-T</default>
+      <default>Iridium</default>
       <units/>
       <desc/>
     </param>
@@ -531,7 +580,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1</default>
+      <default>0</default>
       <units/>
       <desc/>
     </param>
@@ -648,7 +697,7 @@
       <type>boolean</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>false</default>
+      <default>true</default>
       <units/>
       <desc>LCD is controlled by MCB</desc>
     </param>
@@ -1053,7 +1102,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>/dev/uart/1</default>
+      <default>/dev/ttyUSB0</default>
       <units/>
       <desc>Serial port device used to communicate with the sensor</desc>
     </param>
@@ -1086,109 +1135,6 @@
       <desc>Sensor data rate</desc>
       <min>-50</min>
       <max>40</max>
-    </param>
-  </section>
-  <section name="Clock" name-i18n="Clock">
-    <param name="Entity Label">
-      <name-i18n>Entity Label</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Clock</default>
-      <units/>
-      <desc>Main entity label</desc>
-    </param>
-    <param name="Execution Priority">
-      <name-i18n>Execution Priority</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units/>
-      <desc>Execution priority</desc>
-    </param>
-    <param name="Activation Time">
-      <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Deactivation Time">
-      <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Debug Level">
-      <name-i18n>Debug Level</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>None</default>
-      <units/>
-      <desc/>
-      <values>None, Debug, Trace, Spew</values>
-      <values-i18n>None, Debug, Trace, Spew</values-i18n>
-    </param>
-    <param name="Serial Port - Device">
-      <name-i18n>Serial Port - Device</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default/>
-      <units/>
-      <desc>Serial port device with PPS on CDC pin</desc>
-    </param>
-    <param name="PPS - Device">
-      <name-i18n>PPS - Device</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>/dev/pps0</default>
-      <units/>
-      <desc>Platform specific PPS device</desc>
-    </param>
-    <param name="PPS - Propagation Delay">
-      <name-i18n>PPS - Propagation Delay</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>675</default>
-      <units>ns</units>
-      <desc>Propagation delay of the PPS</desc>
-    </param>
-    <param name="PPS - Maximum Offset">
-      <name-i18n>PPS - Maximum Offset</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>50</default>
-      <units>us</units>
-      <desc>Maximum PPS offset in order to consider the local clock disciplined</desc>
-    </param>
-    <param name="GPS Offset Count">
-      <name-i18n>GPS Offset Count</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units/>
-      <desc>Number of GPS samples to compute time offser</desc>
-    </param>
-    <param name="Execute On Synchronization">
-      <name-i18n>Execute On Synchronization</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>hwclock -w</default>
-      <units/>
-      <desc>System command to execute everytime the clock is synchronized</desc>
     </param>
   </section>
   <section name="Service Announcer" name-i18n="Service Announcer">
@@ -1812,7 +1758,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Abort, Announce, CpuUsage, Current, EntityList, EntityState, EstimatedState, EulerAngles, GpsFix, Heartbeat, LogBookControl, LogBookEntry, LoggingControl, MagneticField, SetControlSurfaceDeflection, StorageUsage, Temperature, Voltage</default>
+      <default>Abort, Announce, CpuUsage, Current, EntityList, EntityState, EstimatedState, EulerAngles, GpsFix, Heartbeat, LogBookControl, LogBookEntry, LoggingControl, MagneticField, SetControlSurfaceDeflection, StorageUsage, Temperature, TextMessage, Voltage</default>
       <units/>
       <desc/>
     </param>
@@ -1951,9 +1897,18 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>AT\^SYSCFG=2,2,3fffffff,0,1</default>
+      <default>AT\^SYSCFG=2,2,3fffffff,1,1</default>
       <units/>
       <desc>GSM/GPRS mode.</desc>
+    </param>
+    <param name="Code Presentation Mode">
+      <name-i18n>Code Presentation Mode</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Code Presentation Mode</desc>
     </param>
     <param name="PPP - Interface">
       <name-i18n>PPP - Interface</name-i18n>
@@ -2126,7 +2081,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Abort, CpuUsage, Current, EntityList, EstimatedState, EulerAngles, GpsFix, Heartbeat, LogBookControl, LoggingControl, MagneticField, PlanControl, SetControlSurfaceDeflection, StorageUsage, Temperature, Voltage</default>
+      <default>Abort, CpuUsage, Current, EntityList, EstimatedState, EulerAngles, GpsFix, Heartbeat, LogBookControl, LoggingControl, MagneticField, PlanControl, SetControlSurfaceDeflection, StorageUsage, Temperature, TextMessage, Voltage</default>
       <units/>
       <desc>List of messages to transport</desc>
     </param>

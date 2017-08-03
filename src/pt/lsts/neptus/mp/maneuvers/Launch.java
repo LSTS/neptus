@@ -33,9 +33,9 @@
 package pt.lsts.neptus.mp.maneuvers;
 
 import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.def.SpeedUnits;
 import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.SpeedType;
 import pt.lsts.neptus.types.coord.LocationType;
 
 /**
@@ -56,7 +56,6 @@ public class Launch extends Goto {
         super.clone(clone);
         clone.setManeuverLocation(getManeuverLocation());
         clone.setRadiusTolerance(getRadiusTolerance());
-        clone.setSpeedUnits(getSpeedUnits());
         clone.setSpeed(getSpeed());
         clone.setSpeedTolerance(getSpeedTolerance());
         
@@ -69,18 +68,7 @@ public class Launch extends Goto {
             pt.lsts.imc.Launch msg = pt.lsts.imc.Launch.clone(message);
             
             setMaxTime(msg.getTimeout());
-            setSpeed(msg.getSpeed());
-            switch (msg.getSpeedUnits()) {
-                case METERS_PS:
-                    setSpeedUnits(SPEED_UNITS.METERS_PS);
-                    break;
-                case PERCENTAGE:
-                    setSpeedUnits(SPEED_UNITS.PERCENTAGE);
-                    break;
-                case RPM:
-                    setSpeedUnits(SPEED_UNITS.RPM);
-                    break;
-            }
+            speed = SpeedType.parseImcSpeed(message);
             ManeuverLocation pos = new ManeuverLocation();
             pos.setLatitudeRads(msg.getLat());
             pos.setLongitudeRads(msg.getLon());
@@ -106,23 +94,8 @@ public class Launch extends Goto {
         gotoManeuver.setLon(l.getLongitudeRads());
         gotoManeuver.setZ(getManeuverLocation().getZ());
         gotoManeuver.setZUnits(ZUnits.valueOf(getManeuverLocation().getZUnits().name()));
-        gotoManeuver.setSpeed(this.getSpeed());
-       
-        switch (this.getSpeedUnits()) {
-            case METERS_PS:
-                gotoManeuver.setSpeedUnits(SpeedUnits.METERS_PS);
-                break;
-            case RPM:
-                gotoManeuver.setSpeedUnits(SpeedUnits.RPM);
-                break;
-            case PERCENTAGE:
-                gotoManeuver.setSpeedUnits(SpeedUnits.PERCENTAGE);
-                break;
-            default:
-                gotoManeuver.setSpeedUnits(SpeedUnits.RPM);
-                break;
-        }
-        
+        speed.setSpeedToMessage(gotoManeuver);
+         
         gotoManeuver.setCustom(getCustomSettings());
 
         return gotoManeuver;
