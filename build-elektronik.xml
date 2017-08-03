@@ -41,12 +41,12 @@ Copyright:
 	
 	<property name="dist.installer.basename.seacatmk1" value="${Name}SeaCatMK1-${full.release}-x86-32bit-x64-64bit"/>
 
-	<target name="prepare">
-		<antcall target="buildbase.prepare" inheritall="true" />
+	<target name="prepare" depends="buildbase.prepare">
+		<!--antcall target="buildbase.prepare" inheritall="true" inheritrefs="true" /-->
 		
 		<property name="dist.installer.name.seacatmk1" value="${dist.installer.basename.seacatmk1}-${scm.last.changed.date.short}"/>
 
-		<filterset id="neptusSeacon.filters">
+		<filterset id="neptusSeaCatMK1.filters">
 			<filter token="NEPTUS_NAME" value="${Name}SeaCatMK1" />
 			<filter token="EXTRA_DIST_NAME" value="SeaCat Edition ${full.release}" />
 			<filter token="INSTALL_DIR" value="${install.dir.name}SeaCatMK1" />
@@ -74,7 +74,7 @@ Copyright:
 			<param name="copy-includes-excludes-file-sufix" value="NeptusSeacatMK1" />
 			<param name="dist.installer.name" value="${dist.installer.name.seacatmk1}" />
 			<param name="dist.instalation.folder.name" value="NeptusSeaCatMK1" />
-			<reference refid="neptusSeacon.filters" torefid="dist.filters" />
+			<reference refid="neptusSeaCatMK1.filters" torefid="dist.filters" />
 			<reference refid="neptus.filters" torefid="common.filters" />
 		</antcall>
 	</target>
@@ -88,7 +88,7 @@ Copyright:
 			<param name="copy-includes-excludes-file-sufix" value="NeptusSeacatMK1" />
 			<param name="dist.installer.name" value="${dist.installer.name.seacatmk1}" />
 			<param name="dist.instalation.folder.name" value="NeptusSeaCatMK1" />
-			<reference refid="neptusSeacon.filters" torefid="dist.filters" />
+			<reference refid="neptusSeaCatMK1.filters" torefid="dist.filters" />
 			<reference refid="neptus.filters" torefid="common.filters" />
 		</antcall>
 	</target>
@@ -102,7 +102,7 @@ Copyright:
 			<param name="copy-includes-excludes-file-sufix" value="NeptusSeacatMK1" />
 			<param name="dist.installer.name" value="${dist.installer.name.seacatmk1}" />
 			<param name="dist.instalation.folder.name" value="NeptusSeaCatMK1" />
-			<reference refid="neptusSeacon.filters" torefid="dist.filters" />
+			<reference refid="neptusSeaCatMK1.filters" torefid="dist.filters" />
 			<reference refid="neptus.filters" torefid="common.filters" />
 		</antcall>
 	</target>
