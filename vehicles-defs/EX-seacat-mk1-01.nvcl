@@ -37,7 +37,7 @@
                     </point>
                     <radiusTolerance>5</radiusTolerance>
                 </finalPoint>
-                <speed tolerance="10" type="float" unit="m/s">1.8</speed>
+                <speed tolerance="10" type="float" unit="kn">2.0</speed>
                 <trajectoryTolerance>
                     <radiusTolerance type="float">1</radiusTolerance>
                 </trajectoryTolerance>
@@ -65,7 +65,7 @@
                 <trajectory>
                     <radius type="float">10</radius>
                 </trajectory>
-                <speed type="float" unit="m/s" tolerance="5">1.0</speed>
+                <speed type="float" unit="kn" tolerance="5">2.0</speed>
                 <annotation>
                     <documentation>Station Keeping</documentation>
                     <implementation-class>pt.lsts.neptus.mp.maneuvers.StationKeeping</implementation-class>
@@ -91,7 +91,7 @@
                 <hstep>27.0</hstep>
                 <vstep>0.0</vstep>
                 <bearing>0.0</bearing>
-                <speed unit="m/s">1.8</speed>
+                <speed unit="kn">2.0</speed>
                 <annotation>
                     <documentation>No documentation available</documentation>
                     <implementation-class>pt.lsts.neptus.mp.maneuvers.RowsManeuver</implementation-class>
@@ -115,7 +115,7 @@
                 <hstep>20.0</hstep>
                 <bearing>0.0</bearing>
                 <squareCurve>false</squareCurve>
-                <speed unit="m/s">1.8</speed>
+                <speed unit="kn">2.0</speed>
                 <annotation>
                     <documentation>No documentation available</documentation>
                     <implementation-class>pt.lsts.neptus.mp.maneuvers.RIPattern</implementation-class>
@@ -139,7 +139,7 @@
                 <hstep>20.0</hstep>
                 <bearing>0.0</bearing>
                 <squareCurve>false</squareCurve>
-                <speed unit="m/s">1.8</speed>
+                <speed unit="kn">2.0</speed>
                 <annotation>
                     <documentation>No documentation available</documentation>
                     <implementation-class>pt.lsts.neptus.mp.maneuvers.CrossHatchPattern</implementation-class>
