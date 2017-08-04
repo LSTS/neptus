@@ -38,7 +38,8 @@ Copyright:
   (c) FEUP-LSTS, Neptus Team.
 ==================================================================== -->
 
-<project name="Neptus" default="default" basedir=".">
+<project name="Neptus" default="default" basedir="."
+		xmlns:if="ant:if" xmlns:unless="ant:unless">
 
 	<description>
 For simple use the main targets are:
@@ -1781,12 +1782,13 @@ For simple use the main targets are:
 
 	<!--
 	Reference:
-	       dist.filters = neptusLE.filters | neptusSeacon.filters
-	       common.filters = neptus.filters
+	       dist.filters = [empty.filters | neptusLE.filters | neptusSeacon.filters]
+	       common.filters = [neptus.filters]
 	Params:
 	       jre-os = ["All-OS" | "Windows" | "Linux"] // use one of this, the word 'windows' 'linux' and 'all' will be used to access folder naming
 	       dist.tmp.dir = <Path> // Path to unzip the tar.gz jre and to prepare distribution package
 	       sh-bash-basename = [neptus | neptusse] // from ${nsis_src.dir}/batch_files/
+	       ignore-includes-common = ["" | "*"] // blanc or null to include or any value to ignore
 	       copy-includes-excludes-file-sufix = [NeptusSE | NeptusSeacon] // in dist folder as includes_<copy-includes-excludes-file-sufix>.txt and excludes_<copy-includes-excludes-file-sufix>.txt
 	       dist.installer.name = ${dist.installer.name.full} // basename of file of distribution
 	       dist.instalation.folder.name = [Neptus | NeptusLE | NeptusSC]
@@ -1838,9 +1840,9 @@ For simple use the main targets are:
 
 		<copy todir="${dist.tmp.dir}" verbose="yes" preservelastmodified="true">
 			<fileset dir="." excludes="neptus.tgz,neptus-installer.sh,**/*.svn${exclude-win}${exclude-linux}">
-				<includesfile name="dist/includes_NeptusCommon.txt" />
-				<includesfile name="dist/includes_${copy-includes-excludes-file-sufix}.txt" />
 				<excludesfile name="dist/excludes_${copy-includes-excludes-file-sufix}.txt" />
+				<includesfile name="dist/includes_NeptusCommon.txt" if:blank="${ignore-includes-common}" />
+				<includesfile name="dist/includes_${copy-includes-excludes-file-sufix}.txt" />
 			</fileset>
 		</copy>
 		<copy file="${src.dir}/images/neptus-icon2.png" tofile="${dist.tmp.dir}/neptus.png" preservelastmodified="true" />
@@ -1906,7 +1908,7 @@ For simple use the main targets are:
 				<exclude name="**/neptus.sh,jre/bin/,helper-scripts" />
 			</tarfileset>
 			<tarfileset prefix="${dist.instalation.folder.name}" file="${dist.tmp.dir}/neptus.sh" mode="755" />
-			<tarfileset prefix="${dist.instalation.folder.name}/helper-scripts" dir="${all.os.dist.dir}/helper-scripts" mode="755" />
+			<tarfileset prefix="${dist.instalation.folder.name}/helper-scripts" dir="${all.os.dist.dir}/helper-scripts" mode="755" erroronmissingdir="false" />
 		</tar>
 		<delete dir="${dist.tmp.dir}" failonerror="false" />
 	</target>
