@@ -65,6 +65,9 @@ public class VehicleChooser {
 	    if (vehicles.isEmpty())
 	        return null;
 	    
+	    if (vehicles.size() == 1)
+	        return VehiclesHolder.getVehicleById(vehicles.get(0));
+	    
 	    Collections.sort(vehicles);
         Object ret = JOptionPane.showInputDialog(parentComponent, I18n.text("Select vehicle"),
                 I18n.text("Select vehicle"), JOptionPane.QUESTION_MESSAGE, null, vehicles.toArray(new String[0]),
