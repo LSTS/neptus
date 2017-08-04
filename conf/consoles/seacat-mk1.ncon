@@ -44,9 +44,6 @@
       <child class="pt.lsts.neptus.console.plugins.planning.MissionTreePanel" x="0" y="0" width="294" height="626">
         <properties/>
       </child>
-      <child class="pt.lsts.neptus.console.plugins.MyLocationDisplay" x="0" y="0" width="0" height="0">
-        <properties/>
-      </child>
       <child class="pt.lsts.neptus.console.plugins.planning.PlanEditor" x="0" y="0" width="0" height="0">
         <properties/>
       </child>
@@ -60,9 +57,6 @@
         <properties/>
       </child>
       <child class="pt.lsts.neptus.plugins.s57.S57SoundingsExporter" x="0" y="0" width="0" height="0">
-        <properties/>
-      </child>
-      <child class="pt.lsts.neptus.plugins.sim.SimulationActionsPlugin" x="0" y="0" width="0" height="0">
         <properties/>
       </child>
       <child class="pt.lsts.neptus.params.SystemConfiguration" x="0" y="0" width="0" height="0">
