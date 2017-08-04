@@ -37,6 +37,7 @@ import pt.lsts.neptus.gui.Loader;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.loader.NeptusMain;
 import pt.lsts.neptus.mc.lauvconsole.LAUVConsole;
+import pt.lsts.neptus.mp.SpeedType.Units;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
@@ -68,6 +69,14 @@ public class SeaCatMK1Console extends LAUVConsole {
     }
 
     /**
+     * This will force some values. 
+     */
+    private static void setupGeneralPreferencesChanges() {
+        GeneralPreferences.speedUnits = Units.Knots;
+        GeneralPreferences.forceSpeedUnits = true;
+    }
+
+    /**
      * @param args
      */
     public static void main(String[] args) {
@@ -75,7 +84,9 @@ public class SeaCatMK1Console extends LAUVConsole {
         ConfigFetch.initialize();
 
         loader = new Loader("images/neptus_loader_light.png");
+        
         GeneralPreferences.initialize();
+        setupGeneralPreferencesChanges();
 
         loader.start();
         ConfigFetch.setSuperParentFrameForced(loader);
