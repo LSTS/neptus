@@ -1008,6 +1008,15 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
             return;
         }
         
+        if (event.getKeyCode() == KeyEvent.VK_Z && event.isControlDown()) {
+            undo.doClick(20);
+            event.consume();
+        }
+        else if (event.getKeyCode() == KeyEvent.VK_Y && event.isControlDown()) {
+            redo.doClick(20);
+            event.consume();
+        }
+
         adapter.keyPressed(event, source);
     }
 
