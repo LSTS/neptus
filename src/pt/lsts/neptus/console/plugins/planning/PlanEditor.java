@@ -1966,6 +1966,15 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                 delegate.keyPressed(event, source);
         }
         else {
+            if (event.getKeyCode() == KeyEvent.VK_Z && event.isControlDown()) {
+                getUndoAction().actionPerformed(new ActionEvent(this, 0, ""));
+                event.consume();
+            }
+            else if (event.getKeyCode() == KeyEvent.VK_Y && event.isControlDown()) {
+                getRedoAction().actionPerformed(new ActionEvent(this, 0, ""));
+                event.consume();
+            }
+
             super.keyPressed(event, source);
         }
     }
