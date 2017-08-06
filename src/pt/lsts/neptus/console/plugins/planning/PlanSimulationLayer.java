@@ -51,6 +51,7 @@ import pt.lsts.neptus.mp.preview.PlanSimulationListener;
 import pt.lsts.neptus.mp.preview.PlanSimulationOverlay;
 import pt.lsts.neptus.mystate.MyState;
 import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -76,16 +77,16 @@ public class PlanSimulationLayer extends ConsoleLayer implements PlanSimulationL
     private Image warnImage = ImageUtils.getImage("pt/lsts/neptus/console/plugins/planning/warning.png");
     private Image fineImage = ImageUtils.getImage("pt/lsts/neptus/console/plugins/planning/fine.png");
 
-    @NeptusProperty(name = "Max AUV distance", description = "Warn user if AUV distance exceeds this value")
+    @NeptusProperty(name = "Max AUV distance", description = "Warn user if AUV distance exceeds this value", userLevel = LEVEL.REGULAR)
     private double maxAUVDistance = 1000;
 
-    @NeptusProperty(name = "Max AUV end distance", description = "Warn user if last planned AUV position is further than this distance away from base")
+    @NeptusProperty(name = "Max AUV end distance", description = "Warn user if last planned AUV position is further than this distance away from base", userLevel = LEVEL.REGULAR)
     private double maxAUVDistAtEnd = 300;
 
-    @NeptusProperty(name = "Max UAV distance", description = "Warn user if UAV distance exceeds this value")
+    @NeptusProperty(name = "Max UAV distance", description = "Warn user if UAV distance exceeds this value", userLevel = LEVEL.REGULAR)
     private double maxUAVDistance = 10000;
 
-    @NeptusProperty(name = "Max UAV end distance", description = "Warn user if last planned UAV position is further than this distance away from base")
+    @NeptusProperty(name = "Max UAV end distance", description = "Warn user if last planned UAV position is further than this distance away from base", userLevel = LEVEL.REGULAR)
     private double maxUAVDistAtEnd = 500;
 
     private enum PlanCheck {
