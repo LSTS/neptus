@@ -77,6 +77,7 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.MapChangeEvent;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
 import pt.lsts.neptus.plugins.PluginUtils;
@@ -100,6 +101,7 @@ import pt.lsts.neptus.types.map.AbstractElement;
 import pt.lsts.neptus.types.map.ImageElement;
 import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.map.MapType;
+import pt.lsts.neptus.types.map.Model3DElement;
 import pt.lsts.neptus.types.map.RotatableElement;
 import pt.lsts.neptus.types.map.TransponderElement;
 import pt.lsts.neptus.types.mission.MissionType;
@@ -149,8 +151,14 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
         Bottom
     };
 
-    @NeptusProperty(name = "Toolbar location")
+    @NeptusProperty(name = "Toolbar location", userLevel = LEVEL.ADVANCED)
     public ControlsLocation toolbarLocation = ControlsLocation.Right;
+
+    @NeptusProperty(name = "Ignore Addition of Transponders", category = "Ignore List", userLevel = LEVEL.ADVANCED)
+    public boolean ignoreAdditionOfTransponders = false;
+
+    @NeptusProperty(name = "Ignore Addition of Model3D", category = "Ignore List", userLevel = LEVEL.ADVANCED)
+    public boolean ignoreAdditionOfModel3D = false;
 
     public MapEditor(ConsoleLayout console) {
         super(console);
@@ -593,6 +601,11 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
 
             JMenu add = new JMenu(I18n.text("Add..."));
             for (AbstractElement elem : MapType.getMapElements()) {
+                if (ignoreAdditionOfTransponders && elem.getClass() == TransponderElement.class)
+                    continue;
+                else if (ignoreAdditionOfTransponders && elem.getClass() == Model3DElement.class)
+                    continue;
+                
                 try {
                     final AbstractElement el = elem;
                     MapType m = null;
