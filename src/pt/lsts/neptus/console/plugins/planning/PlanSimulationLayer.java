@@ -89,6 +89,9 @@ public class PlanSimulationLayer extends ConsoleLayer implements PlanSimulationL
     @NeptusProperty(name = "Max UAV end distance", description = "Warn user if last planned UAV position is further than this distance away from base", userLevel = LEVEL.REGULAR)
     private double maxUAVDistAtEnd = 500;
 
+    @NeptusProperty(name = "Use My State (true) or Home Ref (false)", userLevel = LEVEL.ADVANCED)
+    private boolean useMystate = true;
+    
     private enum PlanCheck {
         Fine,
         Warning,
@@ -193,7 +196,7 @@ public class PlanSimulationLayer extends ConsoleLayer implements PlanSimulationL
 
     private List<Pair<PlanCheck, String>> validateDistances() {
         VehicleType v = VehiclesHolder.getVehicleById(getConsole().getMainSystem());
-        LocationType base = MyState.getLocation();
+        LocationType base = useMystate ? MyState.getLocation() : getConsole().getMission().getHomeRef();
         double maxDistToBase = 0;
         double distAtEnd = 0;
 
