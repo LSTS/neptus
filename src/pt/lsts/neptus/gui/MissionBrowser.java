@@ -654,8 +654,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
      */
     public void updatePlansStateEDT(final TreeMap<String, PlanType> localPlans, final String sysName) {
         final Map<String, PlanDBInfo> remotePlans = getRemotePlans(sysName);
-        SwingUtilities.invokeLater(new Runnable() {
-
+        Runnable runnble = new Runnable() {
             @Override
             public void run() {
                 // NeptusLog.pub().error("--> updatePlansStateEDT ");
@@ -674,7 +673,18 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 revalidate();
                 repaint();
             }
-        });
+        };
+        if (SwingUtilities.isEventDispatchThread()) {
+            runnble.run();
+        }
+        else {
+            try {
+                SwingUtilities.invokeAndWait(runnble);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     /**
