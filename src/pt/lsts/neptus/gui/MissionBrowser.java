@@ -75,9 +75,6 @@ import pt.lsts.neptus.util.ByteUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 
-
-
-
 /**
  * This is a visual class that displays the various items contained in a mission like transponders and plans.
  * 
@@ -336,8 +333,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
      * @param mission
      * @param mainVehicleId
      */
-    public void refreshBrowser(final MissionType mission,
- final String mainVehicleId, ConsoleLayout console) {
+    public void refreshBrowser(final MissionType mission, final String mainVehicleId, ConsoleLayout console) {
         // Selected nodes
         TreePath[] selectedNodes = getSelectionPath();
         // Home ref
@@ -610,10 +606,10 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             elementTree.scrollPathToVisible(selPath);
         }
         catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
+    
     public ArrayList<ExtendedTreeNode> getSelectedNodes() {
         ArrayList<ExtendedTreeNode> nodes = new ArrayList<ExtendedTreeNode>();
         TreePath[] selectionPaths = elementTree.getSelectionPaths();
