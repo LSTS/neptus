@@ -719,10 +719,6 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
 
                 boolean consolePlanSet = false;
                 PlanType tmpPlan = plan;
-                if (getConsole().getPlan() == null || getConsole().getPlan().getId().equalsIgnoreCase(plan.getId())) {
-                    getConsole().setPlan(plan);
-                    consolePlanSet = true;
-                }
 
                 setPlan(null);
                 manager.discardAllEdits();
@@ -731,6 +727,11 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                     getAssociatedSwitch().doClick();
                 getConsole().updateMissionListeners();
 
+                if (getConsole().getPlan() == null || getConsole().getPlan().getId().equalsIgnoreCase(tmpPlan.getId())) {
+                    getConsole().setPlan(tmpPlan);
+                    consolePlanSet = true;
+                }
+                
                 if (selectSavedPlanOnConsole && !consolePlanSet) {
                     getConsole().setPlan(tmpPlan);
                 }
