@@ -75,9 +75,6 @@ import pt.lsts.neptus.util.ByteUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 
-
-
-
 /**
  * This is a visual class that displays the various items contained in a mission like transponders and plans.
  * 
@@ -114,6 +111,8 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
     final private MissionTreeModel treeModel;
 
     private final ArrayList<String> transToMerge;
+    
+    private boolean ignoreConsolePlanUpdate = false;
 
     /**
      * Creates a new mission browser which will display the items contained in the given mission type
@@ -334,8 +333,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
      * @param mission
      * @param mainVehicleId
      */
-    public void refreshBrowser(final MissionType mission,
- final String mainVehicleId, ConsoleLayout console) {
+    public void refreshBrowser(final MissionType mission, final String mainVehicleId, ConsoleLayout console) {
         // Selected nodes
         TreePath[] selectedNodes = getSelectionPath();
         // Home ref
@@ -555,20 +553,19 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
 
                     if (node.getUserObject() instanceof PlanType) {
                         PlanType selectedPlan = (PlanType) node.getUserObject();
-                        if (console2 != null)
+                        if (console2 != null && !ignoreConsolePlanUpdate)
                             console2.setPlan(selectedPlan);
                     }
-                    else if (console2 != null) {
+                    else if (console2 != null && !ignoreConsolePlanUpdate) {
                         console2.setPlan(null);
                     }
-
             }
 
         });
     }
 
     public void setSelectedPlan(PlanType plan) {
-        if (getSelectedItem() == null || plan == null || getSelectedItem() == plan) {
+        if (plan == null || getSelectedItem() == plan) {
             return;
         }
 
@@ -585,6 +582,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                     // setNodeSyncState(planNode, State.SYNC);
                     break;
                 }
+                planNode = null;
             }
             // for (planNode = planIt.next(); planIt.hasNext(); planNode = planIt.next()) {
             // NameId tmpPlan = (NameId) planNode.getUserObject();
@@ -602,14 +600,16 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             }
 
             selPath = new TreePath(treeModel.getPathToRoot(planNode));
+            ignoreConsolePlanUpdate = true;
             elementTree.setSelectionPath(selPath);
+            ignoreConsolePlanUpdate = false;
             elementTree.scrollPathToVisible(selPath);
         }
         catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
+    
     public ArrayList<ExtendedTreeNode> getSelectedNodes() {
         ArrayList<ExtendedTreeNode> nodes = new ArrayList<ExtendedTreeNode>();
         TreePath[] selectionPaths = elementTree.getSelectionPaths();
@@ -654,8 +654,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
      */
     public void updatePlansStateEDT(final TreeMap<String, PlanType> localPlans, final String sysName) {
         final Map<String, PlanDBInfo> remotePlans = getRemotePlans(sysName);
-        SwingUtilities.invokeLater(new Runnable() {
-
+        Runnable runnble = new Runnable() {
             @Override
             public void run() {
                 // NeptusLog.pub().error("--> updatePlansStateEDT ");
@@ -674,7 +673,18 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 revalidate();
                 repaint();
             }
-        });
+        };
+        if (SwingUtilities.isEventDispatchThread()) {
+            runnble.run();
+        }
+        else {
+            try {
+                SwingUtilities.invokeAndWait(runnble);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     /**
