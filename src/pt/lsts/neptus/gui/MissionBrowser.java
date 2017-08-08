@@ -114,6 +114,8 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
     final private MissionTreeModel treeModel;
 
     private final ArrayList<String> transToMerge;
+    
+    private boolean ignoreConsolePlanUpdate = false;
 
     /**
      * Creates a new mission browser which will display the items contained in the given mission type
@@ -555,13 +557,12 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
 
                     if (node.getUserObject() instanceof PlanType) {
                         PlanType selectedPlan = (PlanType) node.getUserObject();
-                        if (console2 != null)
+                        if (console2 != null && !ignoreConsolePlanUpdate)
                             console2.setPlan(selectedPlan);
                     }
-                    else if (console2 != null) {
+                    else if (console2 != null && !ignoreConsolePlanUpdate) {
                         console2.setPlan(null);
                     }
-
             }
 
         });
@@ -602,7 +603,9 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             }
 
             selPath = new TreePath(treeModel.getPathToRoot(planNode));
+            ignoreConsolePlanUpdate = true;
             elementTree.setSelectionPath(selPath);
+            ignoreConsolePlanUpdate = false;
             elementTree.scrollPathToVisible(selPath);
         }
         catch (Exception e) {
