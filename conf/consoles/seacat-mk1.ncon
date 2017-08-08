@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <console name="Neptus Console" width="1368" height="727" resizable="true" mission-file="../../missions/seacatmk1-test.nmisz" main-vehicle="seacat-mk1-01">
-  <!-- Data saved on 2017-08-03T10:56:48.0Z with Neptus version @VERSION@ (compiled on @DATE@, g@SCM_REV@). -->
+  <!-- Data saved on 2017-08-08T19:10:33.0Z with Neptus version @VERSION@ (compiled on @DATE@, g@SCM_REV@). -->
   <mainpanel name="console main panel">
     <subpanel class="pt.lsts.neptus.console.plugins.containers.MigLayoutContainer" x="0" y="0" width="1352" height="632">
       <properties>
@@ -34,7 +34,10 @@
         <properties/>
       </child>
       <child class="pt.lsts.neptus.plugins.map.MapEditor" x="0" y="0" width="0" height="0">
-        <properties/>
+        <properties>
+          <entry key="Ignore Addition of Model3D">true</entry>
+          <entry key="Ignore Addition of Transponders">true</entry>
+        </properties>
       </child>
       <child class="pt.lsts.neptus.console.plugins.planning.MapPanel" x="0" y="0" width="1048" height="632">
         <properties>
@@ -45,7 +48,9 @@
         <properties/>
       </child>
       <child class="pt.lsts.neptus.console.plugins.planning.PlanEditor" x="0" y="0" width="0" height="0">
-        <properties/>
+        <properties>
+          <entry key="Select Saved Plan on Console">true</entry>
+        </properties>
       </child>
       <child class="pt.lsts.neptus.console.plugins.PlanExporter" x="0" y="0" width="0" height="0">
         <properties/>
@@ -76,7 +81,9 @@
       <properties/>
     </layer>
     <layer class="pt.lsts.neptus.console.plugins.planning.PlanSimulationLayer" opacity="1.0">
-      <properties/>
+      <properties>
+        <entry key="Use My State (true) or Home Ref (false)">false</entry>
+      </properties>
     </layer>
   </layers>
   <interactions>
