@@ -221,6 +221,9 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
     
     @NeptusProperty(name = "Show Depth Profile", userLevel = LEVEL.REGULAR)
     protected boolean showDepth;
+
+    @NeptusProperty(name = "Select Saved Plan on Console", userLevel = LEVEL.ADVANCED)
+    protected boolean selectSavedPlanOnConsole = false;;
     
     /**
      * @param console
@@ -714,8 +717,11 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                 };
                 worker.execute();
 
+                boolean consolePlanSet = false;
+                PlanType tmpPlan = plan;
                 if (getConsole().getPlan() == null || getConsole().getPlan().getId().equalsIgnoreCase(plan.getId())) {
                     getConsole().setPlan(plan);
+                    consolePlanSet = true;
                 }
 
                 setPlan(null);
@@ -724,6 +730,10 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                 if (getAssociatedSwitch() != null)
                     getAssociatedSwitch().doClick();
                 getConsole().updateMissionListeners();
+
+                if (selectSavedPlanOnConsole && !consolePlanSet) {
+                    getConsole().setPlan(tmpPlan);
+                }
             }
         };
     }
