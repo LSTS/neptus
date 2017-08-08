@@ -586,6 +586,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                     // setNodeSyncState(planNode, State.SYNC);
                     break;
                 }
+                planNode = null;
             }
             // for (planNode = planIt.next(); planIt.hasNext(); planNode = planIt.next()) {
             // NameId tmpPlan = (NameId) planNode.getUserObject();
