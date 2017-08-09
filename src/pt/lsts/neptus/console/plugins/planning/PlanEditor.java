@@ -193,7 +193,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
     private final Vector<String> takenNames = new Vector<String>();
     private StateRenderer2D renderer;
     private StateRendererInteraction delegate = null;
-    private JPanel controls;
+    protected JPanel controls;
     protected JPanel sidePanel = null;
     protected JLabel statsLabel = null;
     protected static final String maneuverPreamble = "[Neptus:Maneuver]\n";

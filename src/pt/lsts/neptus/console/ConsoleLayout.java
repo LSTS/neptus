@@ -227,6 +227,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     public boolean resizableConsole = false;
     
     private boolean systemComboOnMenu = true;
+    private boolean useMainVehicleComboOnConsoles = true;
     
     protected PluginManager pluginManager = null;
     protected SettingsWindow settingsWindow = null;
@@ -348,6 +349,8 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
      */
     protected ConsoleLayout() {
         systemComboOnMenu = GeneralPreferences.placeMainVehicleComboOnMenuOrStatusBar;
+        useMainVehicleComboOnConsoles = GeneralPreferences.useMainVehicleComboOnConsoles;
+        boolean placeNotificationButtonOnConsoleStatusBar = GeneralPreferences.placeNotificationButtonOnConsoleStatusBar;
         
         NeptusEvents.create(this);
         this.setupListeners();
@@ -355,10 +358,13 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         this.setLayout(new BorderLayout());
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         notificationsDialog = new NotificationsDialog(new NotificationsCollection(this), this);
-        if (systemComboOnMenu)
-            statusBar = new StatusBar(this, notificationsDialog);
-        else
-            statusBar = new StatusBar(this, notificationsDialog, new MainSystemSelectionCombo(this));
+        if (systemComboOnMenu) {
+            statusBar = new StatusBar(this, placeNotificationButtonOnConsoleStatusBar ? notificationsDialog : null);
+        }
+        else {
+            statusBar = new StatusBar(this, placeNotificationButtonOnConsoleStatusBar ? notificationsDialog : null,
+                    useMainVehicleComboOnConsoles ? new MainSystemSelectionCombo(this) : null);
+        }
 
         mainPanel = new MainPanel(this);
         this.add(mainPanel, BorderLayout.CENTER);
@@ -730,7 +736,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     }
 
     protected void includeExtraMainMenus() {
-        if (systemComboOnMenu) {
+        if (useMainVehicleComboOnConsoles && systemComboOnMenu) {
             menuBar.add(Box.createHorizontalGlue());
             mainSystemCombo = new MainSystemSelectionCombo(this);
             menuBar.add(mainSystemCombo);

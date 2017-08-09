@@ -41,6 +41,8 @@
       </child>
       <child class="pt.lsts.neptus.console.plugins.planning.MapPanel" x="0" y="0" width="1048" height="632">
         <properties>
+          <entry key="Focus Use My Location">false</entry>
+          <entry key="Focus Use Vehicles and Systems">false</entry>
           <entry key="Show Vehicles' Tail Button">false</entry>
         </properties>
       </child>
@@ -62,9 +64,6 @@
         <properties/>
       </child>
       <child class="pt.lsts.neptus.plugins.s57.S57SoundingsExporter" x="0" y="0" width="0" height="0">
-        <properties/>
-      </child>
-      <child class="pt.lsts.neptus.params.SystemConfiguration" x="0" y="0" width="0" height="0">
         <properties/>
       </child>
       <child class="pt.lsts.neptus.console.bathymLayer.TidePanel" x="0" y="0" width="0" height="0">
