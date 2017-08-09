@@ -70,7 +70,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Vector;
-import java.util.function.Predicate;
 
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
