@@ -86,7 +86,7 @@ public class SeaCatMK1Console extends LAUVConsole {
         GuiUtils.setLookAndFeel();
         ConfigFetch.initialize();
 
-        loader = new Loader("images/neptus_loader_light.png");
+        loader = new Loader("images/seacatmk1-loader.png");
         
         GeneralPreferences.initialize();
         setupGeneralPreferencesChanges();
