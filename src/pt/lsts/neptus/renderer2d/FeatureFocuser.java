@@ -64,7 +64,7 @@ import pt.lsts.neptus.util.ImageUtils;
 
 /**
  * @author zp
- *
+ * @author pdias
  */
 public class FeatureFocuser implements IEditorMenuExtension {
 
@@ -149,22 +149,8 @@ public class FeatureFocuser implements IEditorMenuExtension {
         }
         centerInMenu.addSeparator();
 
-        //        for (String vt : renderer.vehicleStates.keySet()) {
-        //            final LocationType l = renderer.getVehicleLocation(vt);
-        //            final VehicleType veh = VehiclesHolder.getVehicleById(vt);
-        //            JMenuItem menuItem = veh != null ? new JMenuItem(veh.getId(), veh.getIcon()) : new JMenuItem(vt);
-        //            menuItem.addActionListener(new ActionListener() {
-        //                @Override
-        //                public void actionPerformed(ActionEvent e) {
-        //                    renderer.focusLocation(l);
-        //                }
-        //            });
-        //            menu.add(menuItem);
-        //        }
 
         JMenu vehMenu = new JMenu(I18n.text("Vehicles"));
-        //        vehMenu.setIcon();
-        //        mainSystem = ?
         Comparator<ImcSystem> imcComparator = new Comparator<ImcSystem>() {
             @Override
             public int compare(ImcSystem o1, ImcSystem o2) {
@@ -197,7 +183,6 @@ public class FeatureFocuser implements IEditorMenuExtension {
         centerInMenu.add(vehMenu);
 
         JMenu otherMenu = new JMenu(I18n.text("Others"));
-        //      otherMenu.setIcon();
         ImcSystem[] other = ImcSystemsHolder.lookupAllSystems();
         Arrays.sort(other, imcComparator);
         List<ImcSystem> vecLst = Arrays.asList(veh);
@@ -219,7 +204,6 @@ public class FeatureFocuser implements IEditorMenuExtension {
         centerInMenu.add(otherMenu);
 
         JMenu extMenu = new JMenu(I18n.text("External"));
-        //      otherMenu.setIcon();
         ExternalSystem[] exts = ExternalSystemsHolder.lookupAllSystems();
         Arrays.sort(exts);
         for (ExternalSystem ext : exts) {
