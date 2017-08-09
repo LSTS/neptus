@@ -75,12 +75,26 @@ public class FeatureFocuser implements IEditorMenuExtension {
 
     private final ConsoleLayout console;
     private String mainVeh = "";
+    
+    protected boolean useMyLocation = true;
+    protected boolean useVehiclesAndSystems = true;
 
     /**
      * @param console
      */
     public FeatureFocuser(ConsoleLayout console) {
         this.console = console;
+    }
+
+    /**
+     * @param console
+     * @param useMyLocation
+     * @param useVehiclesAndSystems
+     */
+    public FeatureFocuser(ConsoleLayout console, boolean useMyLocation, boolean useVehiclesAndSystems) {
+        this(console);
+        this.useMyLocation = useMyLocation;
+        this.useVehiclesAndSystems = useVehiclesAndSystems;
     }
 
     /**
@@ -96,17 +110,19 @@ public class FeatureFocuser implements IEditorMenuExtension {
         if (mg == null)
             return null;
 
-        final LocationType myLoc = MyState.getLocation();
-        if (!myLoc.isLocationEqual(LocationType.ABSOLUTE_ZERO)) {
-            JMenuItem myLocItem = new JMenuItem(I18n.text("My location"), myLocIcon);
-            myLocItem.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    renderer.focusLocation(myLoc);
-                }
-            });
-            centerInMenu.add(myLocItem);
-            centerInMenu.addSeparator();
+        if (useMyLocation) {
+            final LocationType myLoc = MyState.getLocation();
+            if (!myLoc.isLocationEqual(LocationType.ABSOLUTE_ZERO)) {
+                JMenuItem myLocItem = new JMenuItem(I18n.text("My location"), myLocIcon);
+                myLocItem.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        renderer.focusLocation(myLoc);
+                    }
+                });
+                centerInMenu.add(myLocItem);
+                centerInMenu.addSeparator();
+            }
         }
 
 
@@ -147,100 +163,106 @@ public class FeatureFocuser implements IEditorMenuExtension {
             });
             centerInMenu.add(menuItem);
         }
-        centerInMenu.addSeparator();
 
+        if (useVehiclesAndSystems) {
+            centerInMenu.addSeparator();
 
-        JMenu vehMenu = new JMenu(I18n.text("Vehicles"));
-        Comparator<ImcSystem> imcComparator = new Comparator<ImcSystem>() {
-            @Override
-            public int compare(ImcSystem o1, ImcSystem o2) {
-                // Comparison if authority option and only one has it
-                if ((o1.isWithAuthority() ^ o2.isWithAuthority()))
-                    return o1.isWithAuthority() ? Integer.MIN_VALUE : Integer.MAX_VALUE;
-
-                // Comparison if authority option and the levels are different
-                if ((o1.getAuthorityState() != o2.getAuthorityState()))
-                    return o2.getAuthorityState().ordinal() - o1.getAuthorityState().ordinal();
-
-                return o1.compareTo(o2);
+            JMenu vehMenu = new JMenu(I18n.text("Vehicles"));
+            Comparator<ImcSystem> imcComparator = new Comparator<ImcSystem>() {
+                @Override
+                public int compare(ImcSystem o1, ImcSystem o2) {
+                    // Comparison if authority option and only one has it
+                    if ((o1.isWithAuthority() ^ o2.isWithAuthority()))
+                        return o1.isWithAuthority() ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+                    
+                    // Comparison if authority option and the levels are different
+                    if ((o1.getAuthorityState() != o2.getAuthorityState()))
+                        return o2.getAuthorityState().ordinal() - o1.getAuthorityState().ordinal();
+                    
+                    return o1.compareTo(o2);
+                }
+            };
+            ImcSystem[] veh = ImcSystemsHolder.lookupSystemVehicles();
+            Arrays.sort(veh, imcComparator);
+            for (ImcSystem sys : veh) {
+                final LocationType l = sys.getLocation();
+                final VehicleType vehS = VehiclesHolder.getVehicleById(sys.getName());
+                JMenuItem menuItem = vehS != null ? new JMenuItem(vehS.getId(), vehS.getIcon()) : new JMenuItem(sys.getName());
+                menuItem.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        renderer.focusLocation(l);
+                    }
+                });
+                vehMenu.add(menuItem);
             }
-        };
-        ImcSystem[] veh = ImcSystemsHolder.lookupSystemVehicles();
-        Arrays.sort(veh, imcComparator);
-        for (ImcSystem sys : veh) {
-            final LocationType l = sys.getLocation();
-            final VehicleType vehS = VehiclesHolder.getVehicleById(sys.getName());
-            JMenuItem menuItem = vehS != null ? new JMenuItem(vehS.getId(), vehS.getIcon()) : new JMenuItem(sys.getName());
-            menuItem.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    renderer.focusLocation(l);
-                }
-            });
-            vehMenu.add(menuItem);
-        }
-        MenuScroller.setScrollerFor(vehMenu);
-        centerInMenu.add(vehMenu);
-
-        JMenu otherMenu = new JMenu(I18n.text("Others"));
-        ImcSystem[] other = ImcSystemsHolder.lookupAllSystems();
-        Arrays.sort(other, imcComparator);
-        List<ImcSystem> vecLst = Arrays.asList(veh);
-        for (ImcSystem sys : other) {
-            if (vecLst.contains(sys))
-                continue;
-
-            final LocationType l = sys.getLocation();
-            JMenuItem menuItem = new JMenuItem(sys.getName());
-            menuItem.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    renderer.focusLocation(l);
-                }
-            });
-            otherMenu.add(menuItem);
-        }
-        MenuScroller.setScrollerFor(otherMenu);
-        centerInMenu.add(otherMenu);
-
-        JMenu extMenu = new JMenu(I18n.text("External"));
-        ExternalSystem[] exts = ExternalSystemsHolder.lookupAllSystems();
-        Arrays.sort(exts);
-        for (ExternalSystem ext : exts) {
-            final LocationType l = ext.getLocation();
-            JMenuItem menuItem = new JMenuItem(ext.getName());
-            menuItem.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    renderer.focusLocation(l);
-                }
-            });
-            extMenu.add(menuItem);
-        }
-        MenuScroller.setScrollerFor(extMenu);
-        centerInMenu.add(extMenu);
-
-        JMenuItem centerInMainVeh = new JMenuItem();
-        mainVeh = (console.getMainSystem() != null) ? console.getMainSystem() : "";
-        centerInMainVeh.setText(I18n.text("Center map in: ") + mainVeh);
-
-        centerInMainVeh.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                if (console.getMainSystem() != null) {
-                    String mainVeh = console.getMainSystem();
-                    ImcSystem sys = ImcSystemsHolder.getSystemWithName(mainVeh);
-                    LocationType lt = sys.getLocation();
-                    renderer.focusLocation(lt);
-                }
+            MenuScroller.setScrollerFor(vehMenu);
+            centerInMenu.add(vehMenu);
+            
+            JMenu otherMenu = new JMenu(I18n.text("Others"));
+            ImcSystem[] other = ImcSystemsHolder.lookupAllSystems();
+            Arrays.sort(other, imcComparator);
+            List<ImcSystem> vecLst = Arrays.asList(veh);
+            for (ImcSystem sys : other) {
+                if (vecLst.contains(sys))
+                    continue;
+                
+                final LocationType l = sys.getLocation();
+                JMenuItem menuItem = new JMenuItem(sys.getName());
+                menuItem.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        renderer.focusLocation(l);
+                    }
+                });
+                otherMenu.add(menuItem);
             }
-        });
+            MenuScroller.setScrollerFor(otherMenu);
+            centerInMenu.add(otherMenu);
+            
+            JMenu extMenu = new JMenu(I18n.text("External"));
+            ExternalSystem[] exts = ExternalSystemsHolder.lookupAllSystems();
+            Arrays.sort(exts);
+            for (ExternalSystem ext : exts) {
+                final LocationType l = ext.getLocation();
+                JMenuItem menuItem = new JMenuItem(ext.getName());
+                menuItem.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        renderer.focusLocation(l);
+                    }
+                });
+                extMenu.add(menuItem);
+            }
+            MenuScroller.setScrollerFor(extMenu);
+            centerInMenu.add(extMenu);
+        }
+
+        JMenuItem centerInMainVeh = null;
+        if (useVehiclesAndSystems) {
+            mainVeh = (console.getMainSystem() != null) ? console.getMainSystem() : "";
+            if (mainVeh != null && !mainVeh.isEmpty()) {
+                centerInMainVeh = new JMenuItem();
+                centerInMainVeh.setText(I18n.text("Center map in: ") + mainVeh);
+                centerInMainVeh.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        
+                        if (console.getMainSystem() != null) {
+                            String mainVeh = console.getMainSystem();
+                            ImcSystem sys = ImcSystemsHolder.getSystemWithName(mainVeh);
+                            LocationType lt = sys.getLocation();
+                            renderer.focusLocation(lt);
+                        }
+                    }
+                });
+            }
+        }
 
         Collection<JMenuItem> listItems = new ArrayList<>();
         listItems.add(centerInMenu);
-        listItems.add(centerInMainVeh);
+        if (centerInMainVeh != null)
+            listItems.add(centerInMainVeh);
 
         return listItems;
     }
