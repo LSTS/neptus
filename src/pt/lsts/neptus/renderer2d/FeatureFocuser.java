@@ -98,6 +98,34 @@ public class FeatureFocuser implements IEditorMenuExtension {
     }
 
     /**
+     * @return the useMyLocation
+     */
+    public boolean isUseMyLocation() {
+        return useMyLocation;
+    }
+
+    /**
+     * @param useMyLocation the useMyLocation to set
+     */
+    public void setUseMyLocation(boolean useMyLocation) {
+        this.useMyLocation = useMyLocation;
+    }
+
+    /**
+     * @return the useVehiclesAndSystems
+     */
+    public boolean isUseVehiclesAndSystems() {
+        return useVehiclesAndSystems;
+    }
+
+    /**
+     * @param useVehiclesAndSystems the useVehiclesAndSystems to set
+     */
+    public void setUseVehiclesAndSystems(boolean useVehiclesAndSystems) {
+        this.useVehiclesAndSystems = useVehiclesAndSystems;
+    }
+
+    /**
      * @see pt.lsts.neptus.planeditor.IEditorMenuExtension#getApplicableItems(pt.lsts.neptus.types.coord.LocationType, pt.lsts.neptus.planeditor.IMapPopup)
      */
     @Override
