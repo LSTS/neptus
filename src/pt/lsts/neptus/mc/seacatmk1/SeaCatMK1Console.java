@@ -32,6 +32,7 @@
  */
 package pt.lsts.neptus.mc.seacatmk1;
 
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.gui.Loader;
 import pt.lsts.neptus.i18n.I18n;
@@ -74,6 +75,8 @@ public class SeaCatMK1Console extends LAUVConsole {
     private static void setupGeneralPreferencesChanges() {
         GeneralPreferences.speedUnits = Units.Knots;
         GeneralPreferences.forceSpeedUnits = true;
+        GeneralPreferences.useMainVehicleComboOnConsoles = false;
+        GeneralPreferences.placeNotificationButtonOnConsoleStatusBar = false;
     }
 
     /**
@@ -95,6 +98,10 @@ public class SeaCatMK1Console extends LAUVConsole {
         NeptusMain.loadPreRequirementsDataExceptConfigFetch(loader, neptusLookAndFeel);
 
         ConsoleLayout con = create(new String[0]);
+        
+        // To stop the comms
+        ImcMsgManager.getManager().stop();
+        
         NeptusMain.wrapMainApplicationWindowWithCloseActionWindowAdapter(con);
         
         loader.setText(I18n.text("Application started"));
