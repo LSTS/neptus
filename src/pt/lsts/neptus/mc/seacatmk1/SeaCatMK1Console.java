@@ -99,6 +99,9 @@ public class SeaCatMK1Console extends LAUVConsole {
 
         ConsoleLayout con = create(new String[0]);
         
+        // con.getJMenuBar().setVisible(false);
+        // con.getStatusBar().setVisible(false);
+        
         // To stop the comms
         ImcMsgManager.getManager().stop();
         
