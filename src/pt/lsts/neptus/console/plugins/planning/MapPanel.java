@@ -72,6 +72,7 @@ import pt.lsts.neptus.planeditor.IEditorMenuExtension;
 import pt.lsts.neptus.planeditor.IMapPopup;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.NeptusProperty.DistributionEnum;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
@@ -133,12 +134,13 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
     @NeptusProperty(name = "Toolbar placement", userLevel = LEVEL.ADVANCED, description = "Where to place the toolbar")
     public PlacementEnum toolbarPlacement = PlacementEnum.Left;
 
-    @NeptusProperty(name = "Focus Use My Location", category = "Feature Focuser", userLevel = LEVEL.ADVANCED)
+    @NeptusProperty(name = "Focus Use My Location", category = "Feature Focuser", userLevel = LEVEL.ADVANCED, distribution = DistributionEnum.DEVELOPER)
     protected boolean focusUseMyLocation = true;
-    @NeptusProperty(name = "Focus Use Vehicles and Systems", category = "Feature Focuser", userLevel = LEVEL.ADVANCED)
+    @NeptusProperty(name = "Focus Use Vehicles and Systems", category = "Feature Focuser", userLevel = LEVEL.ADVANCED, distribution = DistributionEnum.DEVELOPER)
     protected boolean focusUseVehiclesAndSystems = true;
     
     protected StateRenderer2D renderer = new StateRenderer2D();
+    protected FeatureFocuser featureFocuser = null; 
     protected String planId = null;
     protected boolean editing = false;
     protected ToolbarSwitch tailSwitch, dummySwitch;
@@ -171,7 +173,9 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
         add(renderer, BorderLayout.CENTER);
         bottom.setFloatable(false);
         bottom.setAlignmentX(JToolBar.CENTER_ALIGNMENT);
-        renderer.addMenuExtension(new FeatureFocuser(console, focusUseMyLocation, focusUseVehiclesAndSystems));
+        
+        featureFocuser = new FeatureFocuser(console, focusUseMyLocation, focusUseVehiclesAndSystems);
+        renderer.addMenuExtension(featureFocuser);
         
         AbstractAction tmp = new AbstractAction("dummy", null) {
             @Override
@@ -392,6 +396,9 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
         setToolbarPlacement(); // Refresh toolbar position
         
         tailSwitch.setVisible(showTailButton);
+        
+        featureFocuser.setUseMyLocation(focusUseMyLocation);
+        featureFocuser.setUseVehiclesAndSystems(focusUseVehiclesAndSystems);
     }
 
     public void addLayer(final IConsoleLayer layer) {
