@@ -1575,8 +1575,10 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         
         clearGlobalKeyBindings();
         
-        pluginManager.reset();
-        settingsWindow.reset();
+        if (pluginManager != null)
+            pluginManager.reset();
+        if (settingsWindow != null)
+            settingsWindow.reset();
     }
 
     /**
