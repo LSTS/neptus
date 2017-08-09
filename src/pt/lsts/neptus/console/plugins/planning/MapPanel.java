@@ -133,6 +133,11 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
     @NeptusProperty(name = "Toolbar placement", userLevel = LEVEL.ADVANCED, description = "Where to place the toolbar")
     public PlacementEnum toolbarPlacement = PlacementEnum.Left;
 
+    @NeptusProperty(name = "Focus Use My Location", category = "Feature Focuser", userLevel = LEVEL.ADVANCED)
+    protected boolean focusUseMyLocation = true;
+    @NeptusProperty(name = "Focus Use Vehicles and Systems", category = "Feature Focuser", userLevel = LEVEL.ADVANCED)
+    protected boolean focusUseVehiclesAndSystems = true;
+    
     protected StateRenderer2D renderer = new StateRenderer2D();
     protected String planId = null;
     protected boolean editing = false;
@@ -166,7 +171,7 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
         add(renderer, BorderLayout.CENTER);
         bottom.setFloatable(false);
         bottom.setAlignmentX(JToolBar.CENTER_ALIGNMENT);
-        renderer.addMenuExtension(new FeatureFocuser(console));
+        renderer.addMenuExtension(new FeatureFocuser(console, focusUseMyLocation, focusUseVehiclesAndSystems));
         
         AbstractAction tmp = new AbstractAction("dummy", null) {
             @Override
