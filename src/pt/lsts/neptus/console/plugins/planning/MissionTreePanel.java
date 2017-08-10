@@ -468,6 +468,7 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
         browser.setDebugOn(debugOn);
         planDBListener.setDebugOn(debugOn);
         browser.setMaxAcceptableElapsedTime(maxAcceptableElapsedTime);
+        browser.setHideTransponder(!useTransponderFeatures);
     }
 
     class MissionTreeMouse extends MouseAdapter {

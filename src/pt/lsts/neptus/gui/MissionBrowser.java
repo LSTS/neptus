@@ -157,6 +157,20 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
     }
 
     /**
+     * @return the hideTransponder
+     */
+    public boolean isHideTransponder() {
+        return treeModel.isHideTransponder();
+    }
+    
+    /**
+     * @param hideTransponder the hideTransponder to set
+     */
+    public void setHideTransponder(boolean hideTransponder) {
+        treeModel.setHideTransponder(hideTransponder);
+    }
+    
+    /**
      * Returns the currently selected item (may be a directory, map, vehicle, ...)
      * 
      * @return The currently selected object
