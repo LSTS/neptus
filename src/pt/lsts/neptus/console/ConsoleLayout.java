@@ -35,6 +35,7 @@ package pt.lsts.neptus.console;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dialog.ModalityType;
 import java.awt.Dimension;
 import java.awt.KeyEventDispatcher;
@@ -77,6 +78,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
 
 import org.dom4j.Document;
@@ -654,7 +656,16 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         if (mn == null)
             return false;
 
-        mn.getParent().remove(mn);
+        Container parent = mn.getParent();
+        if (parent == null)
+            return false;
+        
+        parent.remove(mn);
+        
+        Component pef = parent.getComponent(0);
+        if (pef != null && pef instanceof JPopupMenu.Separator)
+            parent.remove(0);
+        
         return true;
     }
 
