@@ -126,10 +126,12 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
         DropTargetListener, NeptusMessageListener, IPlanSelection, IPeriodicUpdates, ConfigurationListener,
         ITransponderSelection {
 
-//    @NeptusProperty(name = "Use Plan DB Sync. Features", userLevel = LEVEL.ADVANCED, distribution = DistributionEnum.DEVELOPER)
-//    private boolean usePlanDBSyncFeatures = true;
-//    @NeptusProperty(name = "Use Plan DB Sync. Features Extended", userLevel = LEVEL.ADVANCED, distribution = DistributionEnum.DEVELOPER, description = "Needs 'Use Plan DB Sync. Features' on")
-//    private boolean usePlanDBSyncFeaturesExt = false;
+    @NeptusProperty(name = "Use Plan DB Sync. Features", userLevel = LEVEL.ADVANCED, distribution = DistributionEnum.DEVELOPER)
+    private boolean usePlanDBSyncFeatures = true;
+    @NeptusProperty(name = "Use Share and URL Features", userLevel = LEVEL.ADVANCED, distribution = DistributionEnum.DEVELOPER)
+    private boolean useShareAndURLFeatures = true;
+    @NeptusProperty(name = "Use Transponder Features", userLevel = LEVEL.ADVANCED, distribution = DistributionEnum.DEVELOPER)
+    private boolean useTransponderFeatures = true;
     @NeptusProperty(name = "Debug", userLevel = LEVEL.ADVANCED, distribution = DistributionEnum.DEVELOPER)
     private boolean debugOn = false;
     @NeptusProperty(name = "Acceptable Elapsed Time", description = "Maximum acceptable interval between transponder ranges, in seconds.")
@@ -504,6 +506,9 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
 
         private void addActionSendPlan(final ConsoleLayout console2, final PlanDBControl pdbControl,
                 final ArrayList<NameId> selectedItems, JPopupMenu popupMenu) {
+            if (!usePlanDBSyncFeatures)
+                return;
+            
             popupMenu.add(
 		    I18n.textf("Send %planName to %system", getPlanNamesString(selectedItems, true), console2.getMainSystem()))
                     .addActionListener(
@@ -569,7 +574,10 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
         private void addActionRemovePlanLocally(final ConsoleLayout console2, final ArrayList<NameId> selectedItems,
                 JPopupMenu popupMenu) {
             final StringBuilder itemsInString = getPlanNamesString(selectedItems, true);
-            popupMenu.add(I18n.textf("Delete %planName locally", itemsInString)).addActionListener(
+            String actionTxt = I18n.textf("Delete %planName locally", itemsInString);
+            if (!usePlanDBSyncFeatures)
+                actionTxt = I18n.textf("Delete %planName", itemsInString);
+            popupMenu.add(actionTxt).addActionListener(
                     new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
@@ -592,6 +600,9 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
 
         private void addActionGetRemotePlan(final ConsoleLayout console2, final PlanDBControl pdbControl,
                 final ArrayList<NameId> remotePlans, JPopupMenu popupMenu) {
+            if (!usePlanDBSyncFeatures)
+                return;
+
             StringBuilder itemsInString = getPlanNamesString(remotePlans, true);
             popupMenu.add(I18n.textf("Get %planName from %system", itemsInString, console2.getMainSystem()))
                     .addActionListener(new ActionListener() {
@@ -606,6 +617,9 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
 
         private void addActionGetRemoteTrans(final ConsoleLayout console2, JPopupMenu popupMenu,
                 final ArrayList<NameId> remoteTrans) {
+            if (!useTransponderFeatures)
+                return;
+
             StringBuilder itemsInString = getPlanNamesString(remoteTrans, false);
             popupMenu.add(I18n.textf("Get %planName from %system", itemsInString, console2.getMainSystem()))
                     .addActionListener(new ActionListener() {
@@ -623,6 +637,9 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
 
         private void addActionRemovePlanRemotely(final ConsoleLayout console2, final PlanDBControl pdbControl,
                 final ArrayList<NameId> synAndUnsyncPlans, JPopupMenu popupMenu) {
+            if (!usePlanDBSyncFeatures)
+                return;
+
             popupMenu.add(
 		    I18n.textf("Remove '%planName' from %system", getPlanNamesString(synAndUnsyncPlans, true),
                             console2.getMainSystem())).addActionListener(new ActionListener() {
@@ -779,21 +796,24 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
                     if (notSyncTrans.size() > 0) {
                         addActionGetRemoteTrans(getConsole(), popupMenu, notSyncTrans);
                     }
-                    // Switch
-                    JMenu switchM = new JMenu(I18n.text("Switch"));
-                    ArrayList<TransponderElement> transponders = browser.getTransponders();
-                    if (transponders.size() > 0) {
-                        TransponderElement transA, transB;
-                        for (int iA = 0; iA < transponders.size(); iA++) {
-                            transA = transponders.get(iA);
-                            for (int iB = iA + 1; iB < transponders.size(); iB++) {
-                                transB = transponders.get(iB);
-                                if (!transA.getDisplayName().equals(transB.getDisplayName())) {
-                                    addActionSwitchTrans(transA, switchM, transB);
+                    
+                    if (useTransponderFeatures) {
+                        // Switch
+                        JMenu switchM = new JMenu(I18n.text("Switch"));
+                        ArrayList<TransponderElement> transponders = browser.getTransponders();
+                        if (transponders.size() > 0) {
+                            TransponderElement transA, transB;
+                            for (int iA = 0; iA < transponders.size(); iA++) {
+                                transA = transponders.get(iA);
+                                for (int iB = iA + 1; iB < transponders.size(); iB++) {
+                                    transB = transponders.get(iB);
+                                    if (!transA.getDisplayName().equals(transB.getDisplayName())) {
+                                        addActionSwitchTrans(transA, switchM, transB);
+                                    }
                                 }
                             }
+                            popupMenu.add(switchM);
                         }
-                        popupMenu.add(switchM);
                     }
                     break;
                 case HomeRef:
@@ -821,10 +841,18 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
                 addActionPasteUrl(popupMenu);
             }
             addActionReloadPanel(popupMenu);
+            
+            Component pef = popupMenu.getComponent(0);
+            if (pef != null && pef instanceof JPopupMenu.Separator)
+                popupMenu.remove(0);
+            
             popupMenu.show((Component) e.getSource(), e.getX(), e.getY());
         }
 
         private void addActionRemoveAllTrans(JPopupMenu popupMenu) {
+            if (!useTransponderFeatures)
+                return;
+
             popupMenu.add(I18n.text("Remove all transponders from vehicle")).addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -1014,6 +1042,9 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
         }
 
         private void addActionRemoveTrans(final ArrayList<TransponderElement> selectedTrans, JPopupMenu popupMenu) {
+            if (!useTransponderFeatures)
+                return;
+
             StringBuilder itemsInString = getPlanNamesString(selectedTrans, false);
             popupMenu.add(I18n.textf("Remove %transponderName", itemsInString)).addActionListener(
                     new ActionListener() {
@@ -1027,6 +1058,9 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
         }
 
         private void addActionEditTrans(final TransponderElement selection, JPopupMenu popupMenu) {
+            if (!useTransponderFeatures)
+                return;
+
             popupMenu.add(I18n.textf("View/Edit %transponderName", selection.getDisplayName())).addActionListener(
                     new ActionListener() {
                         @Override
@@ -1058,6 +1092,9 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
         // }
 
         private void addActionShare(final ArrayList<NameId> selectedItems, JPopupMenu popupMenu2) {
+            if (!useShareAndURLFeatures)
+                return;
+
             StringBuilder itemsInString = getPlanNamesString(selectedItems, true);
             popupMenu2.add(I18n.textf("Share %planName", itemsInString)).addActionListener(new ActionListener() {
                 @Override
@@ -1071,6 +1108,9 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
         }
 
         private void addActionAddNewTrans(JPopupMenu popupMenu) {
+            if (!useTransponderFeatures)
+                return;
+
             popupMenu.add(I18n.text("Add a new transponder")).addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -1080,8 +1120,10 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
         }
 
         private void addActionPasteUrl(JPopupMenu popupMenu2) {
-            popupMenu2.add(I18n.text("Paste URL")).addActionListener(new ActionListener() {
+            if (!useShareAndURLFeatures)
+                return;
 
+            popupMenu2.add(I18n.text("Paste URL")).addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent arg0) {
                     if (browser.setContent(Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null),
