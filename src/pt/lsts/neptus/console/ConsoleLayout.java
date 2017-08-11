@@ -1827,24 +1827,35 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
 
         int i = 1;
 
-        while (parent != null && i < menuPath.length) {
-            boolean found = false;
-            for (int j = 0; j < parent.getItemCount(); j++) {
-                JMenuItem child = parent.getItem(j);
-                if (child != null && child.getText() != null && child.getText().equalsIgnoreCase(menuPath[i].trim())) {
-                    i++;
-                    found = true;
-                    if (i == menuPath.length) {
-                        parent.remove(child);
-                        return parent;
+        if (menuPath.length > 1) {
+            while (parent != null && i < menuPath.length) {
+                boolean found = false;
+                for (int j = 0; j < parent.getItemCount(); j++) {
+                    JMenuItem child = parent.getItem(j);
+                    if (child != null && child.getText() != null && child.getText().equalsIgnoreCase(menuPath[i].trim())) {
+                        i++;
+                        found = true;
+                        if (i == menuPath.length) {
+                            parent.remove(child);
+                            return parent;
+                        }
+                        parent = (JMenu) child;
+                        break;
                     }
-                    parent = (JMenu) child;
-                    break;
                 }
+                if (!found)
+                    break;
+                
             }
-            if (!found)
-                break;
-
+        }
+        else {
+            try {
+                Container grandParent = parent.getParent();
+                grandParent.remove(parent);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return null;
     }
