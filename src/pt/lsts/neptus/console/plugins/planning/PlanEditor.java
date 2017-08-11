@@ -225,6 +225,9 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
     @NeptusProperty(name = "Select Saved Plan on Console", userLevel = LEVEL.ADVANCED)
     public boolean selectSavedPlanOnConsole = false;
     
+    @NeptusProperty(name = "Close Editor on Save", userLevel = LEVEL.ADVANCED)
+    public boolean closeEditorOnSave = true;
+    
     /**
      * @param console
      */
@@ -737,8 +740,14 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                 setPlan(null);
                 manager.discardAllEdits();
                 updateUndoRedo();
-                if (getAssociatedSwitch() != null)
-                    getAssociatedSwitch().doClick();
+                if (closeEditorOnSave){
+                    if (getAssociatedSwitch() != null)
+                        getAssociatedSwitch().doClick();
+                }
+                else {
+                    setPlan(tmpPlan);
+                }
+                
                 getConsole().updateMissionListeners();
 
                 if (getConsole().getPlan() == null || getConsole().getPlan().getId().equalsIgnoreCase(tmpPlan.getId())) {
@@ -749,6 +758,8 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                 if (selectSavedPlanOnConsole && !consolePlanSet) {
                     getConsole().setPlan(tmpPlan);
                 }
+                
+                setPlanChanged(false);
             }
         };
     }
