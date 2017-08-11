@@ -233,6 +233,20 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
 
     }
 
+    /**
+     * @return the planChanged
+     */
+    protected boolean isPlanChanged() {
+        return planChanged;
+    }
+    
+    /**
+     * @param planChanged the planChanged to set
+     */
+    protected void setPlanChanged(boolean planChanged) {
+        this.planChanged = planChanged;
+    }
+    
     protected ManeuverPropertiesPanel getPropertiesPanel() {
         if (propertiesPanel == null)
             propertiesPanel = new ManeuverPropertiesPanel();
@@ -612,7 +626,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
         getRedoAction().putValue(AbstractAction.SHORT_DESCRIPTION, manager.getRedoPresentationName());
         getUndoAction().setEnabled(manager.canUndo());
         getRedoAction().setEnabled(manager.canRedo());
-        planChanged = manager.canUndo();
+        setPlanChanged(manager.canUndo());
 
         if (planElem != null)
             planElem.recalculateManeuverPositions(renderer);
