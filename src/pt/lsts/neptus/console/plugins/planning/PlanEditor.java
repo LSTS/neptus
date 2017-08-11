@@ -182,7 +182,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
     private static final long serialVersionUID = 1L;
     private final String defaultCondition = "ManeuverIsDone";
     private MissionType mission = null;
-    private PlanType plan = null;
+    protected PlanType plan = null;
     private PlanElement planElem;
     private ManeuverFactory mf = null;
     private final MapGroup mapGroup = null;
@@ -232,13 +232,16 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
     public ToolbarLocation toolbarLocation = ToolbarLocation.Right;
 
     @NeptusProperty(name = "Show Plan Simulation", userLevel = LEVEL.REGULAR)
-    protected boolean showSimulation;
+    public boolean showSimulation;
     
     @NeptusProperty(name = "Show Depth Profile", userLevel = LEVEL.REGULAR)
-    protected boolean showDepth;
+    public boolean showDepth;
 
     @NeptusProperty(name = "Select Saved Plan on Console", userLevel = LEVEL.ADVANCED)
-    protected boolean selectSavedPlanOnConsole = false;;
+    public boolean selectSavedPlanOnConsole = false;
+    
+    @NeptusProperty(name = "Close Editor on Save", userLevel = LEVEL.ADVANCED)
+    public boolean closeEditorOnSave = true;
     
     /**
      * @param console
@@ -247,6 +250,20 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
         super(console);
     }
 
+    /**
+     * @return the planChanged
+     */
+    protected boolean isPlanChanged() {
+        return planChanged;
+    }
+    
+    /**
+     * @param planChanged the planChanged to set
+     */
+    protected void setPlanChanged(boolean planChanged) {
+        this.planChanged = planChanged;
+    }
+    
     protected ManeuverPropertiesPanel getPropertiesPanel() {
         if (propertiesPanel == null)
             propertiesPanel = new ManeuverPropertiesPanel();
@@ -626,7 +643,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
         getRedoAction().putValue(AbstractAction.SHORT_DESCRIPTION, manager.getRedoPresentationName());
         getUndoAction().setEnabled(manager.canUndo());
         getRedoAction().setEnabled(manager.canRedo());
-        planChanged = manager.canUndo();
+        setPlanChanged(manager.canUndo());
 
         if (planElem != null)
             planElem.recalculateManeuverPositions(renderer);
@@ -737,8 +754,14 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                 setPlan(null);
                 manager.discardAllEdits();
                 updateUndoRedo();
-                if (getAssociatedSwitch() != null)
-                    getAssociatedSwitch().doClick();
+                if (closeEditorOnSave){
+                    if (getAssociatedSwitch() != null)
+                        getAssociatedSwitch().doClick();
+                }
+                else {
+                    setPlan(tmpPlan);
+                }
+                
                 getConsole().updateMissionListeners();
 
                 if (getConsole().getPlan() == null || getConsole().getPlan().getId().equalsIgnoreCase(tmpPlan.getId())) {
@@ -749,6 +772,8 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                 if (selectSavedPlanOnConsole && !consolePlanSet) {
                     getConsole().setPlan(tmpPlan);
                 }
+                
+                setPlanChanged(false);
             }
         };
     }
