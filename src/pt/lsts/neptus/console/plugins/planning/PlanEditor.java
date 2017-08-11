@@ -171,7 +171,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
     private static final long serialVersionUID = 1L;
     private final String defaultCondition = "ManeuverIsDone";
     private MissionType mission = null;
-    private PlanType plan = null;
+    protected PlanType plan = null;
     private PlanElement planElem;
     private ManeuverFactory mf = null;
     private final MapGroup mapGroup = null;
@@ -217,13 +217,13 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
     public ToolbarLocation toolbarLocation = ToolbarLocation.Right;
 
     @NeptusProperty(name = "Show Plan Simulation", userLevel = LEVEL.REGULAR)
-    protected boolean showSimulation;
+    public boolean showSimulation;
     
     @NeptusProperty(name = "Show Depth Profile", userLevel = LEVEL.REGULAR)
-    protected boolean showDepth;
+    public boolean showDepth;
 
     @NeptusProperty(name = "Select Saved Plan on Console", userLevel = LEVEL.ADVANCED)
-    protected boolean selectSavedPlanOnConsole = false;;
+    public boolean selectSavedPlanOnConsole = false;
     
     /**
      * @param console
