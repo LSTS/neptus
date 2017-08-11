@@ -79,6 +79,16 @@ public class SeaCatMK1Console extends LAUVConsole {
         GeneralPreferences.placeNotificationButtonOnConsoleStatusBar = false;
     }
 
+    private static void removeExtraMenus(ConsoleLayout con) {
+        con.removeMenuItem(I18n.text("View"), I18n.text("Console Settings"));
+        
+        con.removeMenuItem(I18n.text("Tools"), I18n.text("MRA"));
+        con.removeMenuItem(I18n.text("Tools"), I18n.text("Export Plan"));
+        con.removeMenuItem(I18n.text("Tools"), I18n.text("Generate plan..."));
+        
+        con.removeMenuItem(I18n.text("Advanced"));
+    }
+
     /**
      * @param args
      */
@@ -101,6 +111,8 @@ public class SeaCatMK1Console extends LAUVConsole {
         
         // con.getJMenuBar().setVisible(false);
         // con.getStatusBar().setVisible(false);
+        
+        removeExtraMenus(con);
         
         // To stop the comms
         ImcMsgManager.getManager().stop();
