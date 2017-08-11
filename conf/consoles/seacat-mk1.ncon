@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <console name="Neptus Console" width="1368" height="727" resizable="true" mission-file="../../missions/seacatmk1-test.nmisz" main-vehicle="seacat-mk1-01">
-  <!-- Data saved on 2017-08-10T20:06:53.0Z with Neptus version @VERSION@ (compiled on @DATE@, g@SCM_REV@). -->
+  <!-- Data saved on 2017-08-11T12:31:13.0Z with Neptus version @VERSION@ (compiled on @DATE@, g@SCM_REV@). -->
   <mainpanel name="console main panel">
     <subpanel class="pt.lsts.neptus.console.plugins.containers.MigLayoutContainer" x="0" y="0" width="1352" height="632">
       <properties>
@@ -53,11 +53,6 @@
           <entry key="Use Plan DB Sync. Features">false</entry>
         </properties>
       </child>
-      <child class="pt.lsts.neptus.console.plugins.planning.PlanEditor" x="0" y="0" width="0" height="0">
-        <properties>
-          <entry key="Select Saved Plan on Console">true</entry>
-        </properties>
-      </child>
       <child class="pt.lsts.neptus.console.plugins.PlanExporter" x="0" y="0" width="0" height="0">
         <properties/>
       </child>
@@ -75,6 +70,12 @@
       </child>
       <child class="pt.lsts.neptus.plugins.atlas.elektronik.HomeRefEditor" x="0" y="0" width="0" height="0">
         <properties/>
+      </child>
+      <child class="pt.lsts.neptus.plugins.atlas.elektronik.SeaCatMK1PlanEditor" x="0" y="0" width="0" height="0">
+        <properties>
+          <entry key="Close Editor on Save">false</entry>
+          <entry key="Select Saved Plan on Console">true</entry>
+        </properties>
       </child>
     </subpanel>
   </mainpanel>
