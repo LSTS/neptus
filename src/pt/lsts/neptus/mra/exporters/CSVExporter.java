@@ -85,6 +85,7 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.util.MathMiscUtils;
 
 /**
  * @author zp
@@ -102,6 +103,10 @@ public class CSVExporter implements MRAExporter {
     @NeptusProperty(name = "Textualize enumerations and bitfields",
             description = "If true will transform the enumerations and bitfields into the textual representation.")
     public boolean textualizeEnum = true;
+
+    @NeptusProperty(name = "Decimal places",
+            description = "Maximum number of decimal places desired. Minimum is 3. If this value is < 3 it will default to 8")
+    public int maxDecimalPlace = 3;
 
     private IMraLogGroup source;
     private int progress;
@@ -137,8 +142,8 @@ public class CSVExporter implements MRAExporter {
     }
 
     public String getLine(IMCMessage m) {
-        NumberFormat doubles = GuiUtils.getNeptusDecimalFormat(8);
-        NumberFormat floats = GuiUtils.getNeptusDecimalFormat(3);
+        NumberFormat doubles = MathMiscUtils.getNumberFormat(8, maxDecimalPlace);
+        NumberFormat floats = MathMiscUtils.getNumberFormat(3, maxDecimalPlace);
         String entity = entityNames.get(m.getSrcEnt());
 
         if (entity == null)
@@ -199,6 +204,10 @@ public class CSVExporter implements MRAExporter {
 
         if (pmonitor != null && pmonitor.isCanceled())
             return I18n.text("Cancelled by the user");
+
+        // check decimal places property
+        if(maxDecimalPlace < 3)
+            maxDecimalPlace = 8;
 
         filter = new Filter(ConfigFetch.getSuperParentAsFrame());
         filter.updateMsgListOnInterface();
