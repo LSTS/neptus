@@ -112,9 +112,9 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
     private HashMap<Integer, Parameter> parameters = new HashMap<Integer, Parameter>();
     private ArrayList<Parameter> parameterList = new ArrayList<Parameter>();
     private ParameterTableModel model = null;
-    private JButton btnGetParams, btnWriteParams, btnSaveToFile, btnLoadFromFile, btnFind, btnConnect;
+    private JButton btnGetParams, btnWriteParams, btnSaveToFile, btnLoadFromFile, btnConnect;
     private JXStatusBar statusBar = null;
-    private JLabel messageBarLabel = null;
+    private JLabel findLabel, messageBarLabel = null;
     private StatusLed statusLed = null;
     private boolean requestingWriting = false;
 
@@ -142,7 +142,7 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
         btnWriteParams = new JButton("Write Parameters");
         btnSaveToFile = new JButton("Save to File");
         btnLoadFromFile = new JButton("Load from File");
-        btnFind = new JButton("Find");
+        findLabel = new JLabel(I18n.text("Find:"));
         findTxtField = new JTextField();
         btnConnect = new JButton("Connect");
         statusBar = new JXStatusBar();
@@ -196,7 +196,7 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
         tablePanel.add(btnWriteParams, "cell 0 1,growx");
         tablePanel.add(btnSaveToFile, "cell 0 2,growx");
         tablePanel.add(btnLoadFromFile, "cell 0 3,growx");
-        tablePanel.add(btnFind, "cell 0 6,growx");
+        tablePanel.add(findLabel, "cell 0 6,growx");
         tablePanel.add(findTxtField, "cell 0 7,growx");
         tablePanel.add(loader, "cell 0 9,growx");
 
@@ -419,7 +419,7 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
                     }
 
                     if (address != null && port != -1) {
-                        beginMavConnection(address, 9999, system);
+                        beginMavConnection(address, port, system);
                         setActivity("Connecting...", StatusLed.LEVEL_1, "Connecting!");
                     }
                 } 
@@ -672,7 +672,6 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
         btnWriteParams.setEnabled(state);
         btnSaveToFile.setEnabled(state);
         btnLoadFromFile.setEnabled(state);
-        btnFind.setEnabled(state);
     }
 
     @Override
