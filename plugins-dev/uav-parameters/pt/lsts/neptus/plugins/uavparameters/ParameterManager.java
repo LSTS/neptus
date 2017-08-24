@@ -114,7 +114,7 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
     private ParameterTableModel model = null;
     private JButton btnGetParams, btnWriteParams, btnSaveToFile, btnLoadFromFile, btnConnect;
     private JXStatusBar statusBar = null;
-    private JLabel findLabel, messageBarLabel = null;
+    private JLabel findLabel, messageBarLabel, systemLabel = null;
     private StatusLed statusLed = null;
     private boolean requestingWriting = false;
 
@@ -206,7 +206,12 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
 
         statusBar.add(getMessageBarLabel(), JXStatusBar.Constraint.ResizeBehavior.FILL);
         statusBar.add(btnConnect);
-        statusBar.add(getStatusLed());
+        JPanel rightP = new JPanel(new BorderLayout());
+        rightP.add(getSystemLabel(), BorderLayout.WEST);
+        rightP.add(new JLabel("  "), BorderLayout.CENTER);
+        rightP.add(getStatusLed(), BorderLayout.EAST);
+        
+        statusBar.add(rightP);
     }
 
     private void applyFilter() {
@@ -421,6 +426,7 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
                     if (address != null && port != -1) {
                         beginMavConnection(address, port, system);
                         setActivity("Connecting...", StatusLed.LEVEL_1, "Connecting!");
+                        getSystemLabel().setText(system);
                     }
                 } 
                 else {
@@ -430,6 +436,7 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
                             setActivity("Not connected...", StatusLed.LEVEL_OFF, "Not connected!");
                             updateConnectMenuText();
                             setBtnsEnabled(false);
+                            getSystemLabel().setText("");
                         }
                         catch (IOException e1) {
                             e1.printStackTrace();
@@ -501,6 +508,14 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
             messageBarLabel.setText("");
         }
         return messageBarLabel;
+    }
+    
+    private JLabel getSystemLabel() {
+        if (systemLabel == null) {
+            systemLabel = new JLabel();
+            systemLabel.setText("");
+        }
+        return systemLabel;
     }
 
     private StatusLed getStatusLed() {
@@ -656,8 +671,10 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
     public void onDisconnect() {
         if (mavlink.isToInitiateConnection())
             setActivity("No connection. Retrying...", StatusLed.LEVEL_2, "Not connected!");
-        else
+        else {
             setActivity("Not connected...", StatusLed.LEVEL_OFF, "Not connected!");
+            getSystemLabel().setText("");
+        }
 
         setBtnsEnabled(false);
         updateConnectMenuText();
