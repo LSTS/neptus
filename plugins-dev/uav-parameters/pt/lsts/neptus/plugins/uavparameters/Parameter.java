@@ -34,10 +34,11 @@ package pt.lsts.neptus.plugins.uavparameters;
 
 import java.io.Serializable;
 import java.text.DecimalFormat;
+import java.util.Comparator;
 
 import com.MAVLink.common.msg_param_value;
 
-public class Parameter implements Comparable<Parameter>, Serializable {
+public class Parameter implements Comparable<Parameter>, Comparator<Parameter>, Serializable {
 
     private static final long serialVersionUID = 1L;
     public String name;
@@ -45,8 +46,9 @@ public class Parameter implements Comparable<Parameter>, Serializable {
     public int type;
 
     private final static DecimalFormat format = (DecimalFormat) DecimalFormat.getInstance();
+   
     static {
-        format.applyPattern("0.###");
+        format.applyPattern("0.####");
     }
 
     public Parameter(String name, double value, int type) {
@@ -120,5 +122,10 @@ public class Parameter implements Comparable<Parameter>, Serializable {
     @Override
     public int compareTo(Parameter another) {
         return name.compareTo(another.name);
+    }
+    
+    @Override
+    public int compare(Parameter o1, Parameter o2) {
+        return o1.name.compareTo(o2.name);
     }
 }

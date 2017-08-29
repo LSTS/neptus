@@ -463,12 +463,19 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
                 setBackground(model.getRowColor(row, column, param));
 
                 JLabel c = (JLabel)super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-                if (column == ParameterTableModel.COLUMN_DESCRIPTION || column == ParameterTableModel.COLUMN_UNITS) {
+                
+                if (column == ParameterTableModel.COLUMN_DESCRIPTION || column == ParameterTableModel.COLUMN_UNITS 
+                        || column == ParameterTableModel.COLUMN_OPTIONS) {
                     String desc = (String) model.getValueAt(table.convertRowIndexToModel(row), column);
                     
                     if (desc != null) {
-                        if (!desc.isEmpty())
-                            c.setToolTipText("<html>"+ WordUtils.wrap(desc, 40, "<br>", false) + "</html>");
+                        if (!desc.isEmpty()) {
+                            if (column == ParameterTableModel.COLUMN_OPTIONS) {
+                                c.setToolTipText("<html>"+ desc.replace(",", "<br>").replace("{", "").replace("}", "") + "</html>");
+                            }
+                            else
+                                c.setToolTipText("<html>"+ WordUtils.wrap(desc, 40, "<br>", false) + "</html>");
+                        }
                     }
                 }
                 else
@@ -593,7 +600,7 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
         if (m_value.param_index == 65535) 
             return; //ignore 
 
-        if (!parameters.containsKey((int) m_value.param_index)) {
+        if (!parameters.containsKey((int) m_value.param_index) && !isFinished) {
             setActivity("Got "+param.name+ "...", StatusLed.LEVEL_1);
         }
         
@@ -626,9 +633,8 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
         //All parameters here!
         if (parameters.size() >= m_value.param_count) {
             parameterList.clear();
-            for (int key : parameters.keySet()) {
+            for (int key : parameters.keySet())
                 parameterList.add(parameters.get(key));
-            }
             
             Collections.sort(parameterList);
 

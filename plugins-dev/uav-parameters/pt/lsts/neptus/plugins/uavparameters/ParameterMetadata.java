@@ -34,6 +34,7 @@ package pt.lsts.neptus.plugins.uavparameters;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public class ParameterMetadata implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -48,7 +49,7 @@ public class ParameterMetadata implements Serializable {
     private String increment;
     private String units;
     private String bitmask;
-    private HashMap<String, String> values = new HashMap<>();
+    private LinkedHashMap<String, String> values = new LinkedHashMap<>();
 
     public String getName() {
         return name;
@@ -94,7 +95,7 @@ public class ParameterMetadata implements Serializable {
         return values;
     }
 
-    public void setValues(HashMap<String, String> values) {
+    public void setValues(LinkedHashMap<String, String> values) {
         this.values = values;
     }
 

@@ -47,7 +47,7 @@ public class ParameterWriter {
 
     public ParameterWriter(List<Parameter> param) {
         this.parameterList = param;
-        df = new DecimalFormat("0.#########", DecimalFormatSymbols.getInstance(Locale.ENGLISH));
+        df = new DecimalFormat("0.#########", DecimalFormatSymbols.getInstance(Locale.US));
     }
 
     public boolean saveParametersToFile(String file) {

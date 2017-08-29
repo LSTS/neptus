@@ -72,7 +72,7 @@ public class ParameterTableModel extends AbstractTableModel  {
             "Name",
             "Value",
             "Units",
-            "Range",
+            "Options",
             "Description"
     };
 
@@ -131,7 +131,14 @@ public class ParameterTableModel extends AbstractTableModel  {
         return (range.length < 2) ? "" : (range[0] + " ... " + range[1]);
     }
 
-    private String getMetaValue(Parameter param) {
+    private String getValues(String param) {
+        if (metadata == null || metadata.get(param) == null || metadata.get(param).getValues() == null)
+            return "";
+        
+        return metadata.get(param).getValues().toString().replace("{", "").replace("}", "");
+    }
+    
+    private String getMetaValue(Parameter param) { //FIXME
         if (metadata == null) {
             if (modifiedParams.containsKey(param.name))
                 return modifiedParams.get(param.name).getParameter().getValue();
@@ -188,8 +195,16 @@ public class ParameterTableModel extends AbstractTableModel  {
         }
         else
             if (v instanceof String) {
-                param.value = Double.parseDouble((String) value);
-
+                String inputValue = (String) value;
+                Double newV = 0.0;
+                try {
+                    newV = inputValue.contains(",") ? Double.valueOf(inputValue.replace(',', '.')) : Double.valueOf(inputValue);
+                } 
+                catch (NumberFormatException e) {
+                    return;
+                }
+                param.value = newV;
+                
                 if (!oldValue.equals(value)) {
                     ParameterExtended p = new ParameterExtended(param, Color.RED.darker());
                     modifiedParams.put(param.name, p);
@@ -232,8 +247,8 @@ public class ParameterTableModel extends AbstractTableModel  {
             return (JComboBox<Item>) value;
         }
 
-        if (meta.getBitmask() != null) {
-
+        if (meta.getBitmask() != null) { 
+            //TODO
         }
 
         return param.getValue();
@@ -260,7 +275,7 @@ public class ParameterTableModel extends AbstractTableModel  {
                 returnValue = getUnits(param.name);
                 break;
             case COLUMN_OPTIONS:
-                returnValue = getRange(param.name);
+                returnValue = getRange(param.name).isEmpty() ? getValues(param.name) : getRange(param.name);
                 break;
             case COLUMN_DESCRIPTION:
                 returnValue = getDescription(param.name);
