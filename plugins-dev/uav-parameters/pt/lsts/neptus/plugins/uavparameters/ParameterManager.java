@@ -42,6 +42,7 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -343,10 +344,12 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
                 String path = System.getProperty("user.home");
                 JFileChooser fc = GuiUtils.getFileChooser(path, "", ".param");
 
-                if (fc.showOpenDialog(ParameterManager.this) == JFileChooser.APPROVE_OPTION) {
+                if (fc.showSaveDialog(ParameterManager.this) == JFileChooser.APPROVE_OPTION) {
                     boolean saved = writer.saveParametersToFile(fc.getSelectedFile().getPath());
-                    if (saved)
-                        setActivity("Wrote "+ reader.getParameters().size() +" parameters to file...", StatusLed.LEVEL_0, "Ok!");
+                    if (saved) {
+                        int size = (reader==null) ? parameterList.size() :  reader.getParameters().size();
+                        setActivity("Wrote "+ size +" parameters to file...", StatusLed.LEVEL_0, "Ok!");
+                    }
                 }
             }
         });
@@ -561,17 +564,20 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
      * Request parameter list and updates table accordingly
      */
     private void requestParameters() {
-        expectedParams = 0;
-        parameters.clear();
-        parameterList.clear();
-        model.clearModifiedParams();
-        isFinished = false;
+        clear();
         updateTable();
 
         if (mavlink != null)
             MAVLinkParameters.requestParametersList(mavlink);
     }
 
+    private void clear() {
+        expectedParams = 0;
+        parameters.clear();
+        parameterList.clear();
+        model.clearModifiedParams();
+        isFinished = false;
+    }
     /**
      * Validate incoming MavLinkMessage and process if it's a parameter message
      * @param msg the message to be validated/processed
@@ -584,8 +590,15 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
 
     private void processReceivedParam(msg_param_value m_value) {
         Parameter param = new Parameter(m_value);
-        parameters.put((int) m_value.param_index, param);
+        if (m_value.param_index == 65535) 
+            return; //ignore 
 
+        if (!parameters.containsKey((int) m_value.param_index)) {
+            setActivity("Got "+param.name+ "...", StatusLed.LEVEL_1);
+        }
+        
+        parameters.put((int) m_value.param_index, param);
+            
         expectedParams = m_value.param_count;
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
             @Override
@@ -616,6 +629,8 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
             for (int key : parameters.keySet()) {
                 parameterList.add(parameters.get(key));
             }
+            
+            Collections.sort(parameterList);
 
             loader.setVisible(false);
             loader.setBusy(false);
