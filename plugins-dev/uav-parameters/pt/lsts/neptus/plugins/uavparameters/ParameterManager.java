@@ -469,13 +469,11 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
                     String desc = (String) model.getValueAt(table.convertRowIndexToModel(row), column);
                     
                     if (desc != null) {
-                        if (!desc.isEmpty()) {
-                            if (column == ParameterTableModel.COLUMN_OPTIONS) {
+                        if (!desc.isEmpty())
+                            if (column == ParameterTableModel.COLUMN_OPTIONS)
                                 c.setToolTipText("<html>"+ desc.replace(",", "<br>").replace("{", "").replace("}", "") + "</html>");
-                            }
                             else
                                 c.setToolTipText("<html>"+ WordUtils.wrap(desc, 40, "<br>", false) + "</html>");
-                        }
                     }
                 }
                 else

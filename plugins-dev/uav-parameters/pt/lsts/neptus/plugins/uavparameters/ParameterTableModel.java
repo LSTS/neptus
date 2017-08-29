@@ -147,6 +147,7 @@ public class ParameterTableModel extends AbstractTableModel  {
         }
 
         ParameterMetadata info = metadata.get(param.name);
+
         if (info == null) {
             if (modifiedParams.containsKey(param.name))
                 return modifiedParams.get(param.name).getParameter().getValue();
@@ -163,8 +164,15 @@ public class ParameterTableModel extends AbstractTableModel  {
 
         if (modifiedParams.containsKey(param.name))
             return info.getValues().get(modifiedParams.get(param.name).getParameter().getValue());
-        else
-            return info.getValues().get(param.getValue());
+        
+        else {
+            String inputValue = ((String) param.getValue()).replace(',', '.');
+            
+            if (info.getValues().get(inputValue) == null)
+                return param.getValue();
+            else
+                return info.getValues().get(inputValue);
+        }
     }
 
     @Override
