@@ -139,7 +139,6 @@ public class ParameterTableModel extends AbstractTableModel  {
     }
     
     private String getMetaValue(Parameter param) {
-    private String getMetaValue(Parameter param) { //FIXME
         if (metadata == null) {
             if (modifiedParams.containsKey(param.name))
                 return modifiedParams.get(param.name).getParameter().getValue();
