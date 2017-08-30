@@ -535,8 +535,16 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
     }
 
     private void setActivity(String message, short level) {
-        getMessageBarLabel().setText(message);
-        getStatusLed().setLevel(level);
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                getMessageBarLabel().setText(message);
+                getStatusLed().setLevel(level);
+                
+                return null;
+            }
+        };
+        worker.execute();
     }
 
     private void beginMavConnection(String address, int port, String system) {
@@ -594,9 +602,10 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
     }
 
     private void processReceivedParam(msg_param_value m_value) {
-        Parameter param = new Parameter(m_value);
-        if (m_value.param_index == 65535) 
+        if (m_value.param_index == 65535 && !requestingWriting) 
             return; //ignore 
+        
+        Parameter param = new Parameter(m_value);
 
         if (!parameters.containsKey((int) m_value.param_index) && !isFinished) {
             setActivity("Got "+param.name+ "...", StatusLed.LEVEL_1);

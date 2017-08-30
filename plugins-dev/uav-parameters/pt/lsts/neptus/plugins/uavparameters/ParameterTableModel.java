@@ -162,8 +162,12 @@ public class ParameterTableModel extends AbstractTableModel  {
                 return param.getValue();
         }
 
-        if (modifiedParams.containsKey(param.name))
-            return info.getValues().get(modifiedParams.get(param.name).getParameter().getValue());
+        if (modifiedParams.containsKey(param.name)){
+            if (info.getValues().get(modifiedParams.get(param.name).getParameter().getValue()) == null)
+                return modifiedParams.get(param.name).getParameter().getValue();
+            else
+                return info.getValues().get(modifiedParams.get(param.name).getParameter().getValue());
+        }
         
         else {
             String inputValue = ((String) param.getValue()).replace(',', '.');
@@ -242,6 +246,7 @@ public class ParameterTableModel extends AbstractTableModel  {
             return param.getValue();
 
         if (meta.getBitmask() == null && !meta.getValues().isEmpty()) {
+            boolean selectedItemSet = false;
             JComboBox<Item> value = new JComboBox<Item>();
             for (Entry<String, String> e : meta.getValues().entrySet()) {
                 Item item = meta.new Item(e.getKey(), e.getValue());
@@ -249,10 +254,13 @@ public class ParameterTableModel extends AbstractTableModel  {
 
                 if (param.getValue().equalsIgnoreCase(e.getKey()) && selectItem) {
                     value.setSelectedItem(item);
+                    selectedItemSet = true;
                 }
             }
-
-            return (JComboBox<Item>) value;
+            if (selectedItemSet)
+                return (JComboBox<Item>) value;
+            else
+                return param.getValue();
         }
 
         if (meta.getBitmask() != null) { 
