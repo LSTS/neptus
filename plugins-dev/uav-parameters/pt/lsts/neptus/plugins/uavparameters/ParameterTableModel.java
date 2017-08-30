@@ -138,6 +138,7 @@ public class ParameterTableModel extends AbstractTableModel  {
         return metadata.get(param).getValues().toString().replace("{", "").replace("}", "");
     }
     
+    private String getMetaValue(Parameter param) {
     private String getMetaValue(Parameter param) { //FIXME
         if (metadata == null) {
             if (modifiedParams.containsKey(param.name))
@@ -333,6 +334,21 @@ public class ParameterTableModel extends AbstractTableModel  {
         fireTableDataChanged();
     }
 
+    /**
+     * @param parameters the new parameters to be integrated
+     */
+    public void integrateParams(ArrayList<Parameter> parameters) {
+
+        for (Parameter p: parameters) {
+            if (params.contains(p)) {
+                ParameterExtended newP = new ParameterExtended(p, Color.RED.darker());
+                modifiedParams.put(p.name, newP);
+            }
+        }
+        
+        fireTableDataChanged();
+    }
+    
     /**
      * @return the modifiedParams
      */

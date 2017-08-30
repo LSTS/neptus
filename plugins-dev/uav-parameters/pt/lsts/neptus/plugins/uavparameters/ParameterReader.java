@@ -39,6 +39,8 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import pt.lsts.neptus.NeptusLog;
+
 public class ParameterReader {
     private List<Parameter> parameters;
 
@@ -84,6 +86,10 @@ public class ParameterReader {
 
     private void parseLine(String line) throws Exception {
         String[] rowData = splitLine(line);
+        
+        if (rowData.length != 2)
+            return;
+        
         String name = rowData[0];
         Double value = Double.valueOf(rowData[1]);
 
@@ -93,7 +99,7 @@ public class ParameterReader {
     private String[] splitLine(String line) throws Exception {
         String[] rowData = line.split(",");
         if (rowData.length != 2) {
-            throw new Exception("Invalid Length");
+            NeptusLog.pub().error("Unable to parse file (invalid length) at : "+line);
         }
         rowData[0] = rowData[0].trim();
         return rowData;

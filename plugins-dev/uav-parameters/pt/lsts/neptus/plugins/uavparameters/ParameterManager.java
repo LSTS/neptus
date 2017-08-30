@@ -139,7 +139,7 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
         JPanel tablePanel = new JPanel();
         JPanel statusPanel = new JPanel();
         JScrollPane scrollPane = new JScrollPane();
-        btnGetParams = new JButton("Load Parameters");
+        btnGetParams = new JButton("Refresh Parameters");
         btnWriteParams = new JButton("Write Parameters");
         btnSaveToFile = new JButton("Save to File");
         btnLoadFromFile = new JButton("Load from File");
@@ -358,10 +358,7 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                parameterList.clear();
                 parameters.clear();
-                model.clearModifiedParams();
-                updateTable();
 
                 reader = new ParameterReader();
                 String path = System.getProperty("user.home");
@@ -370,7 +367,8 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
                 if (fc.showOpenDialog(ParameterManager.this) == JFileChooser.APPROVE_OPTION) {
                     boolean f = reader.openFile(fc.getSelectedFile().getPath());
                     if (f) {
-                        model.updateParamList((ArrayList<Parameter>) reader.getParameters(), mavlink.getSystemType());
+                        model.integrateParams((ArrayList<Parameter>) reader.getParameters());
+                        
                         setActivity("Loaded "+ reader.getParameters().size() +" parameters from file...", StatusLed.LEVEL_0, "Ok!");
                     }
                     else
