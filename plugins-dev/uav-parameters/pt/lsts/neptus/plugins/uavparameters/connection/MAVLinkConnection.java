@@ -170,7 +170,6 @@ public class MAVLinkConnection {
 
                     }
                     catch (Exception e) {
-                        e.printStackTrace();
                         break;
                     }
                 }

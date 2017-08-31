@@ -282,6 +282,9 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
                         loader.setText("");
                         loader.setVisible(true);
                         loader.setBusy(true);
+                        btnWriteParams.setEnabled(false);
+                        btnSaveToFile.setEnabled(false);
+                        btnLoadFromFile.setEnabled(false);
 
                         int num_of_retries = 1;
                         long now = System.currentTimeMillis();
@@ -308,6 +311,11 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
 
                         if (isFinished){
                             setActivity("Parameters loaded successfully...", StatusLed.LEVEL_0);
+                            
+                            btnWriteParams.setEnabled(true);
+                            btnSaveToFile.setEnabled(true);
+                            btnLoadFromFile.setEnabled(true);
+                            
                             updateTable();
                         }
                         else {
@@ -383,7 +391,7 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
             public void actionPerformed(ActionEvent e) {
 
                 if (mavlink == null || (!mavlink.isMAVLinkConnected() && !mavlink.isToInitiateConnection())) {
-
+                    
                     HashMap<String, ImcSystem> validSystems = new HashMap<>();
                     ImcSystem[] syss = ImcSystemsHolder.lookupActiveSystemVehicles();
                     for (ImcSystem s : syss) {
@@ -438,6 +446,8 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
                             updateConnectMenuText();
                             setBtnsEnabled(false);
                             getSystemLabel().setText("");
+                            clear();
+                            updateTable();
                         }
                         catch (IOException e1) {
                             e1.printStackTrace();
@@ -660,11 +670,17 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
 
     @Override
     public void onReceiveMessage(MAVLinkMessage msg) {
+
         if (!btnGetParams.isEnabled()) {
             setActivity("Connected successfully...", StatusLed.LEVEL_0, "Connected!");
+            btnGetParams.setEnabled(true);
         }
-
-        setBtnsEnabled(true);
+        
+        if (!parameterList.isEmpty()) {
+            btnWriteParams.setEnabled(true);
+            btnSaveToFile.setEnabled(true);
+            btnLoadFromFile.setEnabled(true);
+        }
 
         validateMessage(msg);
     }
@@ -689,7 +705,10 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
     @Override
     public void onConnect() {
         setActivity("Connected successfully...", StatusLed.LEVEL_0, "Connected!");
-        setBtnsEnabled(true);
+        btnGetParams.setEnabled(true);
+        btnWriteParams.setEnabled(false);
+        btnSaveToFile.setEnabled(false);
+        btnLoadFromFile.setEnabled(false);
         updateConnectMenuText();
     }
 
@@ -708,8 +727,6 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
     }
 
     private void setBtnsEnabled(boolean state) {
-        if (btnGetParams.isEnabled() == state)
-            return;
 
         btnGetParams.setEnabled(state); 
         btnWriteParams.setEnabled(state);
@@ -721,5 +738,7 @@ public class ParameterManager extends ConsolePanel implements MAVLinkConnectionL
     public void onComError(String errMsg) {
         setActivity(errMsg, StatusLed.LEVEL_1);
         setBtnsEnabled(false);
+        if (!parameterList.isEmpty())
+            btnSaveToFile.setEnabled(true);
     }
 }
