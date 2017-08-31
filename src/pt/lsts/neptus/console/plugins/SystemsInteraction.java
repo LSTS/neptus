@@ -56,6 +56,7 @@ import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.systems.external.ExternalSystem;
 import pt.lsts.neptus.systems.external.ExternalSystemsHolder;
+import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.util.DateTimeUtil;
@@ -76,7 +77,7 @@ public class SystemsInteraction extends ConsoleInteraction {
     
     @NeptusProperty(name = "Consider External Systems Icons", userLevel = LEVEL.REGULAR)
     public boolean considerExternalSystemsIcons = true;
-    @NeptusProperty(name = "Minutes To Consider Systems Without Known Location", userLevel = LEVEL.REGULAR)
+    @NeptusProperty(name = "Minutes To Consider Systems Without Known Location", description = "0 to disable", userLevel = LEVEL.REGULAR)
     public int minutesToConsiderSystemsWithoutKnownLocation = 5;
     @NeptusProperty(name = "Minutes to Show Distress Signal", category = "Test", userLevel = LEVEL.ADVANCED)
     private int minutesToShowDistress = 5; 
@@ -219,9 +220,17 @@ public class SystemsInteraction extends ConsoleInteraction {
 
                     sb.append("<br/>").append("<b>").append(I18n.text("Type")).append(": ").append("</b>")
                         .append(sys.getType() == SystemTypeEnum.VEHICLE ? sys.getTypeVehicle() : sys.getType());
-                
+
                     sb.append("<br/>").append("<b>").append("IMC: ").append("</b>").append(sys.getId().toPrettyString().toUpperCase());
                     
+                    LocationType loc = sys.getLocation();
+                    sb.append("<br/>").append("<b>").append(I18n.text("Pos")).append(": ").append("</b>");
+                    sb.append(CoordinateUtil.latitudeAsPrettyString(loc.getLatitudeDegs()))
+                        .append(" ")
+                        .append(CoordinateUtil.longitudeAsPrettyString(loc.getLongitudeDegs()));
+                    if (Math.round(loc.getHeight()) != 0)
+                        sb.append(" H").append(Math.round(loc.getHeight())).append("m");
+
                     Object speed = sys.retrieveData(SystemUtils.GROUND_SPEED_KEY);
                     Object course = sys.retrieveData(SystemUtils.COURSE_DEGS_KEY);
                     Object rateOfturn = sys.retrieveData(SystemUtils.RATE_OF_TURN_DEGS_PER_MIN_KEY);
@@ -269,6 +278,14 @@ public class SystemsInteraction extends ConsoleInteraction {
                             sb.append("<b>").append("MMSI: ").append("</b>").append(mmsi);
                         if (callSign != null)
                             sb.append(" ").append("<b>").append(I18n.text("Call-Sign")).append(": ").append("</b>").append(callSign);
+
+                        LocationType loc = sys.getLocation();
+                        sb.append("<br/>").append("<b>").append(I18n.text("Pos")).append(": ").append("</b>");
+                        sb.append(CoordinateUtil.latitudeAsPrettyString(loc.getLatitudeDegs()))
+                            .append(" ")
+                            .append(CoordinateUtil.longitudeAsPrettyString(loc.getLongitudeDegs()));
+                        if (Math.round(loc.getHeight()) != 0)
+                            sb.append(" H").append(Math.round(loc.getHeight())).append("m");
 
                         Object speed = sys.retrieveData(SystemUtils.GROUND_SPEED_KEY);
                         Object course = sys.retrieveData(SystemUtils.COURSE_DEGS_KEY);
@@ -420,8 +437,8 @@ public class SystemsInteraction extends ConsoleInteraction {
         ArrayList<ExternalSystem> extSystems = new ArrayList<>();
         
         for (ImcSystem sys : ImcSystemsHolder.lookupAllSystems()) {
-            if (System.currentTimeMillis() - sys.getLocationTimeMillis() > minutesToConsiderSystemsWithoutKnownLocation
-                    * DateTimeUtil.MINUTE)
+            if (minutesToConsiderSystemsWithoutKnownLocation > 0 && System.currentTimeMillis()
+                    - sys.getLocationTimeMillis() > minutesToConsiderSystemsWithoutKnownLocation * DateTimeUtil.MINUTE)
                 continue;
             LocationType loc = sys.getLocation();
             Point2D locScreenXY = source.getScreenPosition(loc);
@@ -432,7 +449,7 @@ public class SystemsInteraction extends ConsoleInteraction {
         
         if (considerExternalSystemsIcons) {
             for (ExternalSystem sys : ExternalSystemsHolder.lookupAllSystems()) {
-                if (System.currentTimeMillis()
+                if (minutesToConsiderSystemsWithoutKnownLocation > 0 && System.currentTimeMillis()
                         - sys.getLocationTimeMillis() > minutesToConsiderSystemsWithoutKnownLocation
                                 * DateTimeUtil.MINUTE)
                     continue;

@@ -185,7 +185,7 @@ public class Takeoff extends Maneuver implements LocatedManeuver, ManeuverWithSp
      * @see pt.lsts.neptus.mp.Maneuver#loadFromXML(java.lang.String)
      */
     @Override
-    public void loadFromXML(String xml) {
+    public void loadManeuverFromXML(String xml) {
         try {
             Document doc = DocumentHelper.parseText(xml);
     

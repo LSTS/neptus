@@ -198,8 +198,8 @@ public class Sample extends Goto {
      * @see pt.lsts.neptus.mp.maneuvers.Goto#loadFromXML(java.lang.String)
      */
     @Override
-    public void loadFromXML(String xml) {
-        super.loadFromXML(xml);
+    public void loadManeuverFromXML(String xml) {
+        super.loadManeuverFromXML(xml);
         
         try {
             Document doc = DocumentHelper.parseText(xml);

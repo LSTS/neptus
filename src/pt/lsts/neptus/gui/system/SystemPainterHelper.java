@@ -268,6 +268,9 @@ public class SystemPainterHelper {
      * @param isLocationKnownUpToDate
      */
     public static final void drawCircleForSystem(Graphics2D g, Color color, double diameter, CircleTypeBySystemType circleType, boolean isLocationKnownUpToDate) {
+        if (circleType == null)
+            return;
+        
         Graphics2D g2 = (Graphics2D) g.create();
 
         int useTransparency = (isLocationKnownUpToDate ? 255 : AGE_TRANSPARENCY);

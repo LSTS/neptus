@@ -84,9 +84,10 @@ public class NeptusMain {
 
         appNames.put("ws", I18n.text("Workspace"));
         appNames.put("mra", I18n.text("Mission Review & Analysis"));
-        appNames.put("cl", I18n.text("Empty Console"));
-        appNames.put("console", I18n.text("LAUV Console"));
+        appNames.put("auv", I18n.text("LAUV Console"));
         appNames.put("la", I18n.text("LAUV SE Console"));
+        appNames.put("uav", I18n.text("UAV Console"));
+        appNames.put("cl", I18n.text("Empty Console"));
 
         fileHandlers.put(FileUtil.FILE_TYPE_MISSION, Workspace.class);
         fileHandlers.put(FileUtil.FILE_TYPE_MISSION_COMPRESSED, Workspace.class);
@@ -195,7 +196,7 @@ public class NeptusMain {
             wrapMainApplicationWindowWithCloseActionWindowAdapter(appC);
         }
         // LAUV Console
-        else if (app.equalsIgnoreCase("console")) {
+        else if (app.equalsIgnoreCase("auv")) {
             ConfigFetch.initialize();
             ConsoleLayout appC = ConsoleLayout.forge("conf/consoles/lauv.ncon", loader);
             appC.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -212,6 +213,14 @@ public class NeptusMain {
             catch (Exception e) {
                 e.printStackTrace();
             }
+        }
+        // UAV Console
+        else if (app.equalsIgnoreCase("uav")) {
+            ConfigFetch.initialize();
+            ConsoleLayout appC = ConsoleLayout.forge("conf/consoles/uav-light.ncon", loader);
+            appC.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            appC.setVisible(true);
+            wrapMainApplicationWindowWithCloseActionWindowAdapter(appC);
         }
         // File loading
         else {
