@@ -42,24 +42,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.Calendar;
-import java.util.Vector;
+import java.util.*;
+import java.util.stream.Collectors;
 
-import javax.swing.AbstractAction;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JDialog;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.ListCellRenderer;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
@@ -77,6 +63,8 @@ import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.plots.MRA2DPlot;
 import pt.lsts.neptus.mra.plots.MRATimeSeriesPlot;
 import pt.lsts.neptus.mra.plots.TimedXYDataItem;
+import pt.lsts.neptus.mra.plots.filters.MraFilter;
+import pt.lsts.neptus.mra.plots.filters.MraFilterFactory;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.llf.LsfReport;
 import pt.lsts.neptus.util.llf.LsfReportProperties;
@@ -322,6 +310,33 @@ public class MRAChartPanel extends JPanel implements ChartMouseListener {
             }
         });
 
+        if(chart instanceof MRATimeSeriesPlot) {
+            JMenu filtersMenu = new JMenu(I18n.text("Apply filter"));
+            cpanel.getPopupMenu().add(filtersMenu);
+
+            MraFilterFactory.getAvailableFilters().forEach(filterName -> {
+                filtersMenu.add(filterName).addActionListener(e ->  {
+                    MraFilter filter = MraFilterFactory.getInstanceOf(((JMenuItem) e.getSource()).getText());
+
+                    // user cancelled
+                    if(!filter.queryFilterParameters())
+                        return;
+
+                    fetchSeries().forEach(seriesName ->
+                            ((MRATimeSeriesPlot) chart).applyFilter(filter, seriesName));
+
+                    regeneratePanel();
+                });
+            });
+
+            cpanel.getPopupMenu().add(I18n.text("Restore data")).addActionListener(e -> {
+                fetchSeries().forEach(seriesName ->
+                        ((MRATimeSeriesPlot) chart).restoreData(seriesName));
+
+                regeneratePanel();
+            });
+        }
+
         cpanel.addChartMouseListener(new ChartMouseListener() {
 
             protected final long localTimeOffset = Calendar.getInstance().get(Calendar.DST_OFFSET)
@@ -363,13 +378,19 @@ public class MRAChartPanel extends JPanel implements ChartMouseListener {
                                         e.getChart().getCategoryPlot().getRangeAxisEdge())
                                 + localTimeOffset;
                     }
-                }                
+                }
             }
 
             @Override
             public void chartMouseClicked(ChartMouseEvent e) {
             }
         });
+
+        if(chart instanceof MRA2DPlot) {
+            cpanel.getPopupMenu().add(I18n.text("Apply filter")).addActionListener(e -> {
+
+            });
+        }
         add(cpanel);
         revalidate();
     }
@@ -389,5 +410,40 @@ public class MRAChartPanel extends JPanel implements ChartMouseListener {
 
         lblX.setText(dx + "");
         lblY.setText(dy + "");
+    }
+
+    /**
+     * Displays a dialog with JCheckBox to choose
+     * a list of series by name. If there's only one
+     * available series, no window will be displayed
+     *
+     * NOTE: For know this assumes that chart is of type
+     * MRATimeSeriesPlot
+     * */
+    private List<String> fetchSeries() {
+        ArrayList<JCheckBox> boxes = new ArrayList<>();
+
+        Collection<String> availableSeries = ((MRATimeSeriesPlot) chart).getSeriesNames();
+
+        if(availableSeries.size() == 1)
+            return Arrays.asList(availableSeries.stream().findFirst().get());
+
+
+        for (String seriesName : availableSeries){
+            JCheckBox box = new JCheckBox(seriesName);
+            boxes.add(box);
+        }
+
+        Object[] obj = boxes.toArray(new Object[boxes.size()]);
+        int res = JOptionPane.showConfirmDialog(this, obj);
+
+        if(res != JOptionPane.YES_OPTION)
+            return new ArrayList<>(0);
+
+        return boxes.stream()
+                .filter(b -> b.isSelected())
+                .map(b -> b.getText())
+                .collect(Collectors.toList());
+
     }
 }
