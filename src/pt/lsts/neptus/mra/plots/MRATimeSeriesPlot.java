@@ -42,6 +42,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.TimeZone;
 import java.util.Vector;
+import java.util.function.Function;
 
 import javax.swing.ImageIcon;
 
@@ -60,6 +61,7 @@ import pt.lsts.neptus.mra.LogStatisticsItem;
 import pt.lsts.neptus.mra.MRAChartPanel;
 import pt.lsts.neptus.mra.MRAPanel;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.mra.plots.filters.MraFilter;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.llf.chart.LLFChart;
@@ -75,6 +77,10 @@ public abstract class MRATimeSeriesPlot implements LLFChart, LogMarkerListener {
     protected double timestep = 0;
     protected TimeSeriesCollection tsc = new TimeSeriesCollection();
     protected LinkedHashMap<String, TimeSeries> series = new LinkedHashMap<>();
+
+    /** Original time series before a filter has been applied **/
+    protected LinkedHashMap<String, TimeSeries> originalSeries = new LinkedHashMap<>();
+    protected boolean hasFilterdData = false;
     protected JFreeChart chart;
     protected MRAPanel mraPanel;
 
@@ -177,10 +183,13 @@ public abstract class MRATimeSeriesPlot implements LLFChart, LogMarkerListener {
     @Override
     public JFreeChart getChart(IMraLogGroup source, double timestep) {
         this.timestep = timestep;
-        this.index = source.getLsfIndex();
-        tsc = new TimeSeriesCollection();
-        series.clear();
-        process(index);
+        if(!hasFilterdData) {
+            this.index = source.getLsfIndex();
+            tsc = new TimeSeriesCollection();
+            series.clear();
+            process(index);
+        }
+
         chart = createChart();
         XYItemRenderer r = chart.getXYPlot().getRenderer();
         if (r != null) {
@@ -195,6 +204,41 @@ public abstract class MRATimeSeriesPlot implements LLFChart, LogMarkerListener {
     }
 
     public abstract void process(LsfIndex source);
+
+    /**
+     * Applies the given filter to the data specified by trace
+     * */
+    public boolean applyFilter(MraFilter f, String trace) {
+        TimeSeries tSeries = series.get(trace);
+        if(tSeries == null)
+            return false;
+
+        // save original data
+        if(!hasFilterdData)
+            originalSeries.put(trace, tSeries);
+
+
+        tsc.removeAllSeries();
+        series.put(trace, f.apply(tSeries));
+        series.keySet().forEach(k -> tsc.addSeries(series.get(k)));
+        hasFilterdData = true;
+
+        return true;
+    }
+
+    /**
+     * If a filter was applied, then restore data to its original form
+     * **/
+    public void restoreData(String seriesName) {
+        if(!originalSeries.containsKey(seriesName))
+            return;
+
+        hasFilterdData = false;
+        tsc.removeAllSeries();
+        series.put(seriesName, originalSeries.remove(seriesName));
+        series.keySet().forEach(k -> tsc.addSeries(series.get(k)));
+        hasFilterdData = false;
+    }
 
     @Override
     public Vector<LogStatisticsItem> getStatistics() {
