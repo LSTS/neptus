@@ -30,9 +30,6 @@
           <entry key="Allow mark dissemination">false</entry>
         </properties>
       </child>
-      <child class="pt.lsts.neptus.console.plugins.kml.KmlImport" x="0" y="0" width="0" height="0">
-        <properties/>
-      </child>
       <child class="pt.lsts.neptus.plugins.map.MapEditor" x="0" y="0" width="0" height="0">
         <properties>
           <entry key="Ignore Addition of Model3D">true</entry>
