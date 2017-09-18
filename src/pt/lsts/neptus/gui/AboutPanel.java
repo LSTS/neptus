@@ -59,20 +59,22 @@ import pt.lsts.neptus.util.ImageUtils;
 public class AboutPanel extends JFrame {
     private static final long serialVersionUID = -6597059494859637226L;
 
-    private static final String IMG_FILE_NAME = "images/nep-about.jpg";
     private static final String VERSION_FILE_NAME = "/version.txt";
+
+    private static String aboutImageFilePath = "images/nep-about.jpg";
+    private static String additionalHTML = "";
 
     private static final String COPY_YEARS = "2004-2017";
 
     private String mainDevelopers = "Paulo Dias, José Pinto";
     private String contributorsDevelopers = "Ricardo Martins, Sérgio Ferreira, "
-            + "Manuel Ribeiro, José Braga, João Fortuna, João Pereira, Tiago Marques, "
-            + "Pedro Gonçalves, Mauro Brandão";
+            + "Manuel Ribeiro, José Braga, João Fortuna, Tiago Marques, "
+            + "Pedro Gonçalves";
     private String pastDevelopers = "José Loureiro, Hugo Queirós, Margarida Faria, "
             + "José Correia, Hugo Dias, Rui Gonçalves, Eduardo Marques";
 
     private JPanel contentPanel = null;
-    private ImagePanel imagePanel = null;
+    protected ImagePanel imagePanel = null;
     private JEditorPane htmlPane = null;
 
     public AboutPanel() {
@@ -110,7 +112,7 @@ public class AboutPanel extends JFrame {
      */
     private ImagePanel getImagePanel() {
         if (imagePanel == null) {
-            Image image = ImageUtils.getImage(IMG_FILE_NAME);
+            Image image = ImageUtils.getImage(aboutImageFilePath);
             imagePanel = new ImagePanel(image);
             imagePanel.setPreferredSize(new Dimension(500, 264));
         }
@@ -183,18 +185,19 @@ public class AboutPanel extends JFrame {
                 + "-->"
                 + "</style>"
                 + "</head>"
-                + "<body><br/>" 
+                + "<body><br/>"
                 + "<b>" + I18n.text("Maintainers:") + "</b>"+ "<br/>&nbsp;&nbsp;&nbsp;"
-                + mainDevelopers 
+                + mainDevelopers
                 + "<br><br>"
-                + "<b>" + I18n.text("Contributors:") + "</b>"  + "<br/>&nbsp;&nbsp;&nbsp;" 
+                + "<b>" + I18n.text("Contributors:") + "</b>"  + "<br/>&nbsp;&nbsp;&nbsp;"
                 + contributorsDevelopers + "<br/><br/>"
-                + "<b>" + I18n.text("Past Developers:") + "</b><br/>" 
-                + "&nbsp;&nbsp;&nbsp;" + pastDevelopers + "<br/><br/>" 
-                + "<b>" + I18n.text("Contact info:") + "</b>" 
-                + "<br/>" + "   " 
-                + I18n.text("URL:") + " http://www.lsts.pt/" + "&nbsp;&nbsp;&nbsp;<br/>" 
-                + I18n.text("URL:") + " http://www.lsts.pt/neptus" 
+                + "<b>" + I18n.text("Past Developers:") + "</b><br/>"
+                + "&nbsp;&nbsp;&nbsp;" + pastDevelopers + "<br/><br/>"
+                + "<b>" + I18n.text("Contact info:") + "</b>"
+                + "<br/>" + "   "
+                + I18n.text("URL:") + " http://www.lsts.pt/" + "&nbsp;&nbsp;&nbsp;<br/>"
+                + I18n.text("URL:") + " http://www.lsts.pt/neptus"
+                + additionalHTML
                 + "<br/><br/>"
                 + "<div class=\"align-right\">"
                 + versionString + "<br/>"
@@ -204,7 +207,21 @@ public class AboutPanel extends JFrame {
         
         getHtmlPane().setText(htmlString);
     }
+    
+    /**
+     * @param additionalHTML the additionalHTML to set
+     */
+    public static void setAdditionalHTML(String additionalHTML) {
+        AboutPanel.additionalHTML = additionalHTML;
+    }
 
+    /**
+     * @param iMG_FILE_NAME the iMG_FILE_NAME to set
+     */
+    public static void setAboutImageFilePath(String aboutImageFilePath) {
+        AboutPanel.aboutImageFilePath = aboutImageFilePath;
+    }
+    
     /**
      * @param args
      */
