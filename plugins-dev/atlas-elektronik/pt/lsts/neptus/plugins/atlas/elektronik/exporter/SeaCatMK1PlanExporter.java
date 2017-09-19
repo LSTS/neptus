@@ -32,6 +32,13 @@
  */
 package pt.lsts.neptus.plugins.atlas.elektronik.exporter;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Shape;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
+import java.awt.geom.QuadCurve2D;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -74,6 +81,8 @@ import pt.lsts.neptus.mp.maneuvers.PathProvider;
 import pt.lsts.neptus.mp.maneuvers.RowsManeuver;
 import pt.lsts.neptus.mp.maneuvers.RowsPattern;
 import pt.lsts.neptus.mp.maneuvers.StationKeeping;
+import pt.lsts.neptus.renderer2d.Renderer2DPainter;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.IPlanFileExporter;
 import pt.lsts.neptus.types.mission.plan.PlanType;
@@ -87,6 +96,8 @@ import pt.lsts.neptus.util.FileUtil;
  */
 public class SeaCatMK1PlanExporter implements IPlanFileExporter {
 
+    private static final int DEFAULT_TURN_RADIUS = 15;
+    
     private static final String NEW_LINE = "\r\n";
     private static final String COMMENT_CHAR = "%";
     private static final String COMMENT_CHAR_WITH_SPACE = COMMENT_CHAR + " ";
@@ -179,6 +190,69 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
     private long commandLineCounter = 1;
     private ArrayList<String> payloadsInPlan = new ArrayList<>();
     private boolean isKeepPositionOrDriftAtEnd = true;
+    private double turnRadius = DEFAULT_TURN_RADIUS;
+    
+    // Debug
+    public static boolean debug = false;
+    public static ArrayList<Shape> planShapes = new ArrayList<>();
+    public static ArrayList<LocationType> planPoints = new ArrayList<>();
+    public static ArrayList<LocationType> planControlPoints = new ArrayList<>();
+    public static StateRenderer2D renderer = null;
+    public static Renderer2DPainter painter = new Renderer2DPainter() {
+        @Override
+        public void paint(Graphics2D g, StateRenderer2D renderer) {
+            Graphics2D g0 = (Graphics2D) g.create();
+            
+            Ellipse2D.Float ellipse = new Ellipse2D.Float(-5, -5, 10, 10); 
+            final Color color = new Color(210, 176, 106, 160); // KHAKI
+            // final Color color2 = new Color(210, 176, 106); // KHAKI
+            final Color color3 = new Color(255, 0, 255, 160); // PLUM_RED
+            final Color color4 = new Color(255, 0, 255); // PLUM_RED
+
+            for (int i = 1; i < planPoints.size(); i++) {
+                Graphics2D g2 = (Graphics2D) g0.create();
+                Point2D pts = renderer.getScreenPosition(planPoints.get(i - 1));
+                Point2D pte = renderer.getScreenPosition(planPoints.get(i));
+                g2.setColor(color);
+                Line2D line = new Line2D.Float(pts, pte);
+                g2.draw(line);
+                g2.dispose();
+            }
+            
+            planShapes.parallelStream().forEach(sp -> {
+                LocationType lt = planPoints.get(0);
+                Graphics2D g2 = (Graphics2D) g0.create();
+                Point2D pt = renderer.getScreenPosition(lt);
+                g2.translate(pt.getX(), pt.getY());
+                g2.scale(1, -1);
+                g2.scale(renderer.getZoom(), renderer.getZoom());
+                //g2.setStroke(new BasicStroke(2));
+                g2.setColor(color4);
+                g2.draw(sp);
+                g2.dispose();
+            });
+
+            planControlPoints.parallelStream().forEach(lt -> {
+                Graphics2D g2 = (Graphics2D) g0.create();
+                Point2D pt = renderer.getScreenPosition(lt);
+                g2.translate(pt.getX(), pt.getY());
+                g2.setColor(color3);
+                g2.fill(ellipse);
+                g2.dispose();
+            });
+
+            planPoints.parallelStream().forEach(lt -> {
+                Graphics2D g2 = (Graphics2D) g0.create();
+                Point2D pt = renderer.getScreenPosition(lt);
+                g2.translate(pt.getX(), pt.getY());
+                g2.setColor(color);
+                g2.fill(ellipse);
+                g2.dispose();
+            });
+
+            g0.dispose();
+        }
+    };
 
     public SeaCatMK1PlanExporter() {
         resetLocalData();
@@ -229,7 +303,15 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
         HashMap<String, String> settingHeader = processPlanActionsExceptPayload(plan);
         String lowBatteryStateStr = getSectionLowBatteryState(settingHeader.get("LowBatteryState"));
         String emergencyEndStr = getSectionEmergencyEnd(settingHeader.get("EmergencyEnd"));
-        String safeAltitudeStr = getSectionSafeAltitude(settingHeader.get("SafeAltitude"));       
+        String safeAltitudeStr = getSectionSafeAltitude(settingHeader.get("SafeAltitude"));
+        
+        try {
+            if (settingHeader.containsKey("CurveRadiusAt3knots"))
+                turnRadius = Double.parseDouble(settingHeader.get("CurveRadiusAt3knots"));
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
 
         String emergencyRendezvousPointStr = getSectionEmergencyRendezvousPoint(plan);
 
@@ -259,6 +341,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
         resetCommandLineCounter();
         payloadsInPlan.clear();
         isKeepPositionOrDriftAtEnd = true;
+        turnRadius = DEFAULT_TURN_RADIUS;
     }
 
     private long resetCommandLineCounter() {
@@ -294,7 +377,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
             try {
                 if (msg instanceof SetEntityParameters) {
                     SetEntityParameters sep = (SetEntityParameters) msg;
-                    if (!"General".equalsIgnoreCase(sep.getName()))
+                    if (!"General".equalsIgnoreCase(sep.getName()) && !"Limits".equalsIgnoreCase(sep.getName()))
                         continue;
                     
                     Vector<EntityParameter> params = sep.getParams();
@@ -630,9 +713,13 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
      * @throws Exception
      */
     private void processManeuvers(PlanType plan, StringBuilder sb) throws Exception {
+        // Debug
+        planShapes.clear();
+        planPoints.clear();
+        
         for (Maneuver m : plan.getGraph().getManeuversSequence()) {
             double speedMS = ManeuversUtil.getSpeedMps(m);
-
+            
             if (m instanceof PathProvider) {
                 processHeaderCommentAndPayloadForManeuver(sb, m);
 
@@ -664,6 +751,18 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                                     sb.append(getCommandCurve(targetLatDegs, targetLonDegs, centerLatDegs,
                                             centerLonDegs, direction, wp.getZ(), wp.getZUnits(), speedMS));
                                     curveAdded = true;
+                                    if (debug) {
+                                        planControlPoints.add(centerLocation);
+                                        planPoints.add(wp);
+                                        double[] offprev = prevWp.getOffsetFrom(planPoints.get(0));
+                                        double[] offcenter = centerLocation.getOffsetFrom(planPoints.get(0));
+                                        double xDelta = -turnRadius * Math.cos(curHeadingRad);
+                                        double yDelta = -turnRadius * Math.sin(curHeadingRad);
+                                        double[] off = wp.getOffsetFrom(planPoints.get(0));
+                                        QuadCurve2D curv = new QuadCurve2D.Double(offprev[1], offprev[0],
+                                                offcenter[1] + yDelta, offcenter[0] + xDelta, off[1], off[0]);
+                                        planShapes.add(curv);
+                                    }
                                 }
                             }
                         }
@@ -677,6 +776,9 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
 
                     sb.append(getCommandGoto(wp.getLatitudeDegs(), wp.getLongitudeDegs(), wp.getZ(), wp.getZUnits(),
                             speedMS));
+                    if (debug) {
+                        planPoints.add(wp);
+                    }
                     prevWp = wp;
                     prevWasCurve = false;
                 }
@@ -688,6 +790,9 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                 wp.convertToAbsoluteLatLonDepth();
                 sb.append(getCommandKeepPosition(wp.getLatitudeDegs(), wp.getLongitudeDegs(), wp.getZ(), wp.getZUnits(),
                         ((StationKeeping) m).getDuration()));
+                if (debug) {
+                    planPoints.add(wp);
+                }
             }
             else if (m instanceof Goto) { // Careful with ordering because of extensions
                 if (Double.isNaN(speedMS))
@@ -699,6 +804,9 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                 wp.convertToAbsoluteLatLonDepth();
                 sb.append(getCommandGoto(wp.getLatitudeDegs(), wp.getLongitudeDegs(), wp.getZ(), wp.getZUnits(),
                         speedMS));
+                if (debug) {
+                    planPoints.add(wp);
+                }
             }
             else {
                 NeptusLog.pub().warn(

@@ -46,6 +46,7 @@ import javax.swing.JPanel;
 import javax.swing.ProgressMonitor;
 
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.plugins.planning.MapPanel;
 import pt.lsts.neptus.console.plugins.planning.PlanEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.NeptusProperty;
@@ -95,6 +96,30 @@ public class SeaCatMK1PlanEditor extends PlanEditor {
         super(console);
     }
 
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.console.plugins.planning.PlanEditor#initSubPanel()
+     */
+    @Override
+    public void initSubPanel() {
+        super.initSubPanel();
+        
+        // Debug
+        getConsole().getSubPanelsOfClass(MapPanel.class).stream()
+                .forEach(p -> p.addPostRenderPainter(SeaCatMK1PlanExporter.painter, "SeaCatMK1PlanExporter Painter"));
+    }
+    
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.renderer2d.InteractionAdapter#cleanSubPanel()
+     */
+    @Override
+    public void cleanSubPanel() {
+        super.cleanSubPanel();
+        
+        // Debug
+        getConsole().getSubPanelsOfClass(MapPanel.class).stream()
+                .forEach(p -> p.removePostRenderPainter(SeaCatMK1PlanExporter.painter));
+    }
+    
     /* (non-Javadoc)
      * @see pt.lsts.neptus.console.plugins.planning.PlanEditor#setPlanChanged(boolean)
      */
