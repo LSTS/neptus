@@ -752,27 +752,63 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                                         ManeuverLocation centerLocation = prevWp.getNewAbsoluteLatLonDepth();
                                         centerLocation.translatePosition(dist[0] / 2, dist[1] / 2, dist[2] / 2);
                                         centerLocation.convertToAbsoluteLatLonDepth();
+                                        
+                                        double midTurnRadius = distBetweenWp / 2.;
+                                        double xDeltaC = -midTurnRadius * Math.cos(curHeadingRad);
+                                        double yDeltaC = -midTurnRadius * Math.sin(curHeadingRad);
+                                        LocationType curvCtrlLocation = centerLocation.getNewAbsoluteLatLonDepth();
+                                        curvCtrlLocation.translatePosition(xDeltaC, yDeltaC, 0);
+                                        curvCtrlLocation.convertToAbsoluteLatLonDepth();
 
-                                        double targetLatDegs = wp.getLatitudeDegs();
-                                        double targetLonDegs = wp.getLongitudeDegs();
+                                        double targetLatDegs = curvCtrlLocation.getLatitudeDegs();
+                                        double targetLonDegs = curvCtrlLocation.getLongitudeDegs();
                                         double centerLatDegs = centerLocation.getLatitudeDegs();
                                         double centerLonDegs = centerLocation.getLongitudeDegs();
+                                        sb.append(getCommandCurve(targetLatDegs, targetLonDegs, centerLatDegs,
+                                                centerLonDegs, direction, wp.getZ(), wp.getZUnits(), speedMS));
+
+                                        targetLatDegs = wp.getLatitudeDegs();
+                                        targetLonDegs = wp.getLongitudeDegs();
+                                        centerLatDegs = centerLocation.getLatitudeDegs();
+                                        centerLonDegs = centerLocation.getLongitudeDegs();
                                         sb.append(getCommandCurve(targetLatDegs, targetLonDegs, centerLatDegs,
                                                 centerLonDegs, direction, wp.getZ(), wp.getZUnits(), speedMS));
                                         
                                         if (debug) {
                                             planControlPoints.add(centerLocation);
+                                            planPoints.add(curvCtrlLocation);
                                             planPoints.add(wp);
                                             double xDelta = -turnRadius * Math.cos(curHeadingRad);
                                             double yDelta = -turnRadius * Math.sin(curHeadingRad);
+
+                                            double xDeltaCtrlS = -midTurnRadius * Math.cos(curHeadingRad - angleDirection * Math.PI / 4);
+                                            double yDeltaCtrlS = -midTurnRadius * Math.sin(curHeadingRad - angleDirection * Math.PI / 4);
+                                            double xDeltaCtrlE = -midTurnRadius * Math.cos(curHeadingRad + angleDirection * Math.PI / 4);
+                                            double yDeltaCtrlE = -midTurnRadius * Math.sin(curHeadingRad + angleDirection * Math.PI / 4);
+
                                             double[] offprev = prevWp.getOffsetFrom(planPoints.get(0));
                                             double[] offcenter = centerLocation.getOffsetFrom(planPoints.get(0));
-                                            double[] off = wp.getOffsetFrom(planPoints.get(0));
+                                            double[] off = curvCtrlLocation.getOffsetFrom(planPoints.get(0));
                                             QuadCurve2D curv = new QuadCurve2D.Double(offprev[1], offprev[0],
-                                                    offcenter[1] + yDelta, offcenter[0] + xDelta, off[1], off[0]);
+                                                    offcenter[1] + yDeltaCtrlS, offcenter[0] + xDeltaCtrlS, off[1], off[0]);
                                             planShapes.add(curv);
+                                            offprev = curvCtrlLocation.getOffsetFrom(planPoints.get(0));
+                                            offcenter = centerLocation.getOffsetFrom(planPoints.get(0));
+                                            off = wp.getOffsetFrom(planPoints.get(0));
+                                            curv = new QuadCurve2D.Double(offprev[1], offprev[0],
+                                                    offcenter[1] + yDeltaCtrlE, offcenter[0] + xDeltaCtrlE, off[1], off[0]);
+                                            planShapes.add(curv);
+
                                             LocationType centerLocationCtrlDraw = centerLocation.getNewAbsoluteLatLonDepth();
                                             centerLocationCtrlDraw = centerLocationCtrlDraw.translatePosition(xDelta, yDelta, 0);
+                                            centerLocationCtrlDraw.convertToAbsoluteLatLonDepth();
+                                            planControlPoints.add(centerLocationCtrlDraw);
+                                            centerLocationCtrlDraw = centerLocation.getNewAbsoluteLatLonDepth();
+                                            centerLocationCtrlDraw = centerLocationCtrlDraw.translatePosition(xDeltaCtrlS, yDeltaCtrlS, 0);
+                                            centerLocationCtrlDraw.convertToAbsoluteLatLonDepth();
+                                            planControlPoints.add(centerLocationCtrlDraw);
+                                            centerLocationCtrlDraw = centerLocation.getNewAbsoluteLatLonDepth();
+                                            centerLocationCtrlDraw = centerLocationCtrlDraw.translatePosition(xDeltaCtrlE, yDeltaCtrlE, 0);
                                             centerLocationCtrlDraw.convertToAbsoluteLatLonDepth();
                                             planControlPoints.add(centerLocationCtrlDraw);
                                         }
@@ -1240,7 +1276,6 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
      * @return
      * @throws Exception
      */
-    @SuppressWarnings("unused")
     private String getCommandGotoDirection(double directionDegs, double distanceMeters, double depth,
             ManeuverLocation.Z_UNITS depthUnit, double speedMS) throws Exception {
         double dir = AngleUtils.nomalizeAngleDegrees360(directionDegs);
