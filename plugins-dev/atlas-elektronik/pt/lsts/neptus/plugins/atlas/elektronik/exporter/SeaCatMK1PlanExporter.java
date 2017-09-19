@@ -716,6 +716,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
         // Debug
         planShapes.clear();
         planPoints.clear();
+        planControlPoints.clear();
         
         for (Maneuver m : plan.getGraph().getManeuversSequence()) {
             double speedMS = ManeuversUtil.getSpeedMps(m);
@@ -739,30 +740,116 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                                 double deltaAngleCurveRad = AngleUtils
                                         .nomalizeAngleRadsPi(nextHeadingRad - curHeadingRad);
                                 if (Math.abs(Math.abs(Math.toDegrees(deltaAngleCurveRad)) - 90) < 2) {
-                                    double[] dist = wp.getOffsetFrom(prevWp);
-                                    ManeuverLocation centerLocation = prevWp.getNewAbsoluteLatLonDepth();
-                                    centerLocation.translatePosition(dist[0] / 2, dist[1] / 2, dist[2] / 2);
-                                    centerLocation.convertToAbsoluteLatLonDepth();
-                                    double targetLatDegs = wp.getLatitudeDegs();
-                                    double targetLonDegs = wp.getLongitudeDegs();
-                                    double centerLatDegs = centerLocation.getLatitudeDegs();
-                                    double centerLonDegs = centerLocation.getLongitudeDegs();
+                                    double distBetweenWp = wp.getDistanceInMeters(prevWp);
+                                    boolean distLessThanTurnRadius = distBetweenWp < turnRadius * 2;
+                                    
+                                    double angleDirection = Math.signum(deltaAngleCurveRad);
                                     Character direction = Math.signum(deltaAngleCurveRad) > 0 ? 'R' : 'L';
-                                    sb.append(getCommandCurve(targetLatDegs, targetLonDegs, centerLatDegs,
-                                            centerLonDegs, direction, wp.getZ(), wp.getZUnits(), speedMS));
-                                    curveAdded = true;
-                                    if (debug) {
-                                        planControlPoints.add(centerLocation);
-                                        planPoints.add(wp);
-                                        double[] offprev = prevWp.getOffsetFrom(planPoints.get(0));
-                                        double[] offcenter = centerLocation.getOffsetFrom(planPoints.get(0));
-                                        double xDelta = -turnRadius * Math.cos(curHeadingRad);
-                                        double yDelta = -turnRadius * Math.sin(curHeadingRad);
-                                        double[] off = wp.getOffsetFrom(planPoints.get(0));
-                                        QuadCurve2D curv = new QuadCurve2D.Double(offprev[1], offprev[0],
-                                                offcenter[1] + yDelta, offcenter[0] + xDelta, off[1], off[0]);
-                                        planShapes.add(curv);
+
+                                    double[] dist = wp.getOffsetFrom(prevWp);
+
+                                    if (distLessThanTurnRadius) {
+                                        ManeuverLocation centerLocation = prevWp.getNewAbsoluteLatLonDepth();
+                                        centerLocation.translatePosition(dist[0] / 2, dist[1] / 2, dist[2] / 2);
+                                        centerLocation.convertToAbsoluteLatLonDepth();
+
+                                        double targetLatDegs = wp.getLatitudeDegs();
+                                        double targetLonDegs = wp.getLongitudeDegs();
+                                        double centerLatDegs = centerLocation.getLatitudeDegs();
+                                        double centerLonDegs = centerLocation.getLongitudeDegs();
+                                        sb.append(getCommandCurve(targetLatDegs, targetLonDegs, centerLatDegs,
+                                                centerLonDegs, direction, wp.getZ(), wp.getZUnits(), speedMS));
+                                        
+                                        if (debug) {
+                                            planControlPoints.add(centerLocation);
+                                            planPoints.add(wp);
+                                            double xDelta = -turnRadius * Math.cos(curHeadingRad);
+                                            double yDelta = -turnRadius * Math.sin(curHeadingRad);
+                                            double[] offprev = prevWp.getOffsetFrom(planPoints.get(0));
+                                            double[] offcenter = centerLocation.getOffsetFrom(planPoints.get(0));
+                                            double[] off = wp.getOffsetFrom(planPoints.get(0));
+                                            QuadCurve2D curv = new QuadCurve2D.Double(offprev[1], offprev[0],
+                                                    offcenter[1] + yDelta, offcenter[0] + xDelta, off[1], off[0]);
+                                            planShapes.add(curv);
+                                            LocationType centerLocationCtrlDraw = centerLocation.getNewAbsoluteLatLonDepth();
+                                            centerLocationCtrlDraw = centerLocationCtrlDraw.translatePosition(xDelta, yDelta, 0);
+                                            centerLocationCtrlDraw.convertToAbsoluteLatLonDepth();
+                                            planControlPoints.add(centerLocationCtrlDraw);
+                                        }
                                     }
+                                    else {
+                                        double xDeltaCS = -turnRadius * Math.cos(curHeadingRad);
+                                        double yDeltaCS = -turnRadius * Math.sin(curHeadingRad);
+                                        double xDeltaCE = -turnRadius * Math.cos(curHeadingRad);
+                                        double yDeltaCE = -turnRadius * Math.sin(curHeadingRad);
+
+                                        double xDeltaCtrlS = -turnRadius * Math.cos(curHeadingRad + angleDirection * Math.PI / 2);
+                                        double yDeltaCtrlS = -turnRadius * Math.sin(curHeadingRad + angleDirection * Math.PI / 2);
+                                        double xDeltaCtrlE = -turnRadius * Math.cos(curHeadingRad - angleDirection * Math.PI / 2);
+                                        double yDeltaCtrlE = -turnRadius * Math.sin(curHeadingRad - angleDirection * Math.PI / 2);
+
+                                        ManeuverLocation curvCtrlStartLocation = prevWp.getNewAbsoluteLatLonDepth();
+                                        curvCtrlStartLocation.translatePosition(xDeltaCtrlS, yDeltaCtrlS, 0);
+                                        curvCtrlStartLocation.convertToAbsoluteLatLonDepth();
+                                        ManeuverLocation curvCtrlEndLocation = wp.getNewAbsoluteLatLonDepth();
+                                        curvCtrlEndLocation.translatePosition(xDeltaCtrlE, yDeltaCtrlE, 0);
+                                        curvCtrlEndLocation.convertToAbsoluteLatLonDepth();
+                                        
+                                        ManeuverLocation curvStartLocation = curvCtrlStartLocation.getNewAbsoluteLatLonDepth();
+                                        curvStartLocation.translatePosition(xDeltaCS, yDeltaCS, 0);
+                                        curvStartLocation.convertToAbsoluteLatLonDepth();
+                                        ManeuverLocation curvEndLocation = curvCtrlEndLocation.getNewAbsoluteLatLonDepth();
+                                        curvEndLocation.translatePosition(xDeltaCE, yDeltaCE, 0);
+                                        curvEndLocation.convertToAbsoluteLatLonDepth();
+
+                                        sb.append(getCommandCurve(curvStartLocation.getLatitudeDegs(),
+                                                curvStartLocation.getLongitudeDegs(),
+                                                curvCtrlStartLocation.getLatitudeDegs(),
+                                                curvCtrlStartLocation.getLongitudeDegs(), direction, wp.getZ(),
+                                                wp.getZUnits(), speedMS));
+                                        double directionDegs = Math.toDegrees(curHeadingRad + angleDirection * Math.PI / 2);
+                                        double distanceMeters = curvCtrlEndLocation.getDistanceInMeters(curvCtrlStartLocation);
+                                        if (distanceMeters > turnRadius) {
+                                            sb.append(getCommandGotoDirection(directionDegs , distanceMeters , wp.getZ(),
+                                                    wp.getZUnits(), speedMS));
+                                        }
+                                        sb.append(getCommandCurve(wp.getLatitudeDegs(), wp.getLongitudeDegs(),
+                                                curvCtrlStartLocation.getLatitudeDegs(),
+                                                curvCtrlStartLocation.getLongitudeDegs(), direction, wp.getZ(),
+                                                wp.getZUnits(), speedMS));
+
+                                        if (debug) {
+                                            planPoints.add(curvStartLocation);
+                                            if (distanceMeters > turnRadius)
+                                                planPoints.add(curvEndLocation);
+                                            planPoints.add(wp);
+                                            planControlPoints.add(curvCtrlStartLocation);
+                                            planControlPoints.add(curvCtrlEndLocation);
+
+                                            double xDeltaCtrlSDraw = -turnRadius * Math.cos(curHeadingRad + angleDirection * -Math.PI / 4);
+                                            double yDeltaCtrlSDraw = -turnRadius * Math.sin(curHeadingRad + angleDirection * -Math.PI / 4);
+                                            double xDeltaCtrlEDraw = -turnRadius * Math.cos(curHeadingRad - angleDirection * -Math.PI / 4);
+                                            double yDeltaCtrlEDraw = -turnRadius * Math.sin(curHeadingRad - angleDirection * -Math.PI / 4);
+
+                                            double[] offprev = prevWp.getOffsetFrom(planPoints.get(0));
+                                            double[] offcenter = curvCtrlStartLocation.getOffsetFrom(planPoints.get(0));
+                                            double[] offnext = curvStartLocation.getOffsetFrom(planPoints.get(0));
+                                            QuadCurve2D curv = new QuadCurve2D.Double(offprev[1], offprev[0],
+                                                    offcenter[1] + yDeltaCtrlSDraw, offcenter[0] + xDeltaCtrlSDraw, offnext[1], offnext[0]);
+                                            planShapes.add(curv);
+
+                                            offprev = (distanceMeters > turnRadius) ? curvEndLocation.getOffsetFrom(planPoints.get(0)) : 
+                                                    curvStartLocation.getOffsetFrom(planPoints.get(0));
+                                            offcenter = curvCtrlEndLocation.getOffsetFrom(planPoints.get(0));
+                                            offnext = wp.getOffsetFrom(planPoints.get(0));
+                                            curv = new QuadCurve2D.Double(offprev[1], offprev[0],
+                                                    offcenter[1] + yDeltaCtrlEDraw, offcenter[0] + xDeltaCtrlEDraw, offnext[1], offnext[0]);
+                                            planShapes.add(curv);
+
+                                        }
+                                    }
+
+                                    curveAdded = true;
                                 }
                             }
                         }
