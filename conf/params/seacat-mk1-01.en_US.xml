@@ -35,7 +35,7 @@
       <name-i18n>Curve Radius At 3 knots</name-i18n>
       <type>real</type>
       <visibility>user</visibility>
-      <scope>none</scope>
+      <scope>plan</scope>
       <default>15</default>
       <units>m</units>
       <desc></desc>
