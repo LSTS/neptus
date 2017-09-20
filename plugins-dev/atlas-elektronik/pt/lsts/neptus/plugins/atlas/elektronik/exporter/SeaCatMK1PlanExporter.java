@@ -843,21 +843,17 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                                                 curvCtrlStartLocation.getLatitudeDegs(),
                                                 curvCtrlStartLocation.getLongitudeDegs(), direction, wp.getZ(),
                                                 wp.getZUnits(), speedMS));
-                                        double directionDegs = Math.toDegrees(curHeadingRad + angleDirection * Math.PI / 2);
-                                        double distanceMeters = curvCtrlEndLocation.getDistanceInMeters(curvCtrlStartLocation);
-                                        if (distanceMeters > turnRadius) {
-                                            sb.append(getCommandGotoDirection(directionDegs , distanceMeters , wp.getZ(),
-                                                    wp.getZUnits(), speedMS));
-                                        }
+                                        sb.append(getCommandGoto(curvEndLocation.getLatitudeDegs(),
+                                                curvEndLocation.getLongitudeDegs(), wp.getZ(), wp.getZUnits(),
+                                                speedMS));
                                         sb.append(getCommandCurve(wp.getLatitudeDegs(), wp.getLongitudeDegs(),
-                                                curvCtrlStartLocation.getLatitudeDegs(),
-                                                curvCtrlStartLocation.getLongitudeDegs(), direction, wp.getZ(),
+                                                curvCtrlEndLocation.getLatitudeDegs(),
+                                                curvCtrlEndLocation.getLongitudeDegs(), direction, wp.getZ(),
                                                 wp.getZUnits(), speedMS));
 
                                         if (debug) {
                                             planPoints.add(curvStartLocation);
-                                            if (distanceMeters > turnRadius)
-                                                planPoints.add(curvEndLocation);
+                                            planPoints.add(curvEndLocation);
                                             planPoints.add(wp);
                                             planControlPoints.add(curvCtrlStartLocation);
                                             planControlPoints.add(curvCtrlEndLocation);
@@ -874,14 +870,12 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                                                     offcenter[1] + yDeltaCtrlSDraw, offcenter[0] + xDeltaCtrlSDraw, offnext[1], offnext[0]);
                                             planShapes.add(curv);
 
-                                            offprev = (distanceMeters > turnRadius) ? curvEndLocation.getOffsetFrom(planPoints.get(0)) : 
-                                                    curvStartLocation.getOffsetFrom(planPoints.get(0));
+                                            offprev = curvEndLocation.getOffsetFrom(planPoints.get(0));
                                             offcenter = curvCtrlEndLocation.getOffsetFrom(planPoints.get(0));
                                             offnext = wp.getOffsetFrom(planPoints.get(0));
                                             curv = new QuadCurve2D.Double(offprev[1], offprev[0],
                                                     offcenter[1] + yDeltaCtrlEDraw, offcenter[0] + xDeltaCtrlEDraw, offnext[1], offnext[0]);
                                             planShapes.add(curv);
-
                                         }
                                     }
 
@@ -1276,6 +1270,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
      * @return
      * @throws Exception
      */
+    @SuppressWarnings("unused")
     private String getCommandGotoDirection(double directionDegs, double distanceMeters, double depth,
             ManeuverLocation.Z_UNITS depthUnit, double speedMS) throws Exception {
         double dir = AngleUtils.nomalizeAngleDegrees360(directionDegs);
