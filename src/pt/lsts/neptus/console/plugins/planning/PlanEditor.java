@@ -1049,20 +1049,6 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
             }
         }
 
-        if (event.getClickCount() == 2) {
-            planElem.iterateManeuverBack(event.getPoint());
-            final Maneuver man = planElem.iterateManeuverBack(event.getPoint());
-            if (man != null) {
-                if (man instanceof StateRendererInteraction) {
-                    delegate = (StateRendererInteraction) man;
-                    ((StateRendererInteraction) man).setActive(true, source);
-                    getPropertiesPanel().getEditBtn().setSelected(true);
-                    saveManeuverXmlState();
-                }
-                return;
-            }
-        }
-
         if (event.isControlDown() && event.getButton() == MouseEvent.BUTTON1) {
             Maneuver m = plan.getGraph().getLastManeuver();
             addManeuverAtEnd(event.getPoint(), m.getType());
