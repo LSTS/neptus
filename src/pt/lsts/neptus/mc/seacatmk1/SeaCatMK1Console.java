@@ -81,14 +81,10 @@ public class SeaCatMK1Console extends LAUVConsole {
 
     private static void removeExtraMenus(ConsoleLayout con) {
         con.removeMenuItem(I18n.text("View"));
-        // con.removeMenuItem(I18n.text("View"), I18n.text("Console Settings"));
-        
         con.removeMenuItem(I18n.text("Tools"));
-        // con.removeMenuItem(I18n.text("Tools"), I18n.text("MRA"));
-        // con.removeMenuItem(I18n.text("Tools"), I18n.text("Export Plan"));
-        // con.removeMenuItem(I18n.text("Tools"), I18n.text("Generate plan..."));
-        
         con.removeMenuItem(I18n.text("Advanced"));
+        con.removeMenuItem(I18n.text("Profiles"));
+        con.removeMenuItem(I18n.text("Help"));
     }
 
     /**
