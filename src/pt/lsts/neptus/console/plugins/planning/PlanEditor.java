@@ -1392,7 +1392,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                     // popup.addSeparator();
                 }
                 
-                AbstractAction planPayload = new AbstractAction(I18n.text("Plan Payload Settings")) {
+                AbstractAction planPayload = new AbstractAction(I18n.text("Plan General Settings")) {
                     private static final long serialVersionUID = 1L;
                     @SuppressWarnings("serial")
                     private PropertySheetPanel psp = new PropertySheetPanel() {{
@@ -1426,8 +1426,8 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                         psp.setProperties(properties);
 
                         final PropertySheetDialog propertySheetDialog = PropertiesEditor.createWindow(getConsole(),
-                                true, psp, I18n.text("Plan Payload Settings"),
-                                "<html>" + I18n.text("Plan Payload Settings"));
+                                true, psp, I18n.text("Plan General Settings"),
+                                "<html>" + I18n.text("Plan General Settings"));
                         if (propertySheetDialog.ask()) {
                             payloadConfig.setProperties(properties);
                             
