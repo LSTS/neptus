@@ -32,6 +32,13 @@
  */
 package pt.lsts.neptus.plugins.atlas.elektronik.exporter;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Shape;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
+import java.awt.geom.QuadCurve2D;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -74,6 +81,8 @@ import pt.lsts.neptus.mp.maneuvers.PathProvider;
 import pt.lsts.neptus.mp.maneuvers.RowsManeuver;
 import pt.lsts.neptus.mp.maneuvers.RowsPattern;
 import pt.lsts.neptus.mp.maneuvers.StationKeeping;
+import pt.lsts.neptus.renderer2d.Renderer2DPainter;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.IPlanFileExporter;
 import pt.lsts.neptus.types.mission.plan.PlanType;
@@ -87,6 +96,8 @@ import pt.lsts.neptus.util.FileUtil;
  */
 public class SeaCatMK1PlanExporter implements IPlanFileExporter {
 
+    private static final int DEFAULT_TURN_RADIUS = 15;
+    
     private static final String NEW_LINE = "\r\n";
     private static final String COMMENT_CHAR = "%";
     private static final String COMMENT_CHAR_WITH_SPACE = COMMENT_CHAR + " ";
@@ -179,6 +190,70 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
     private long commandLineCounter = 1;
     private ArrayList<String> payloadsInPlan = new ArrayList<>();
     private boolean isKeepPositionOrDriftAtEnd = true;
+    private double turnRadius = DEFAULT_TURN_RADIUS;
+    private boolean acomsOnCurves = false;
+    
+    // Debug
+    public static boolean debug = false;
+    public static ArrayList<Shape> planShapes = new ArrayList<>();
+    public static ArrayList<LocationType> planPoints = new ArrayList<>();
+    public static ArrayList<LocationType> planControlPoints = new ArrayList<>();
+    public static StateRenderer2D renderer = null;
+    public static Renderer2DPainter painter = new Renderer2DPainter() {
+        @Override
+        public void paint(Graphics2D g, StateRenderer2D renderer) {
+            Graphics2D g0 = (Graphics2D) g.create();
+            
+            Ellipse2D.Float ellipse = new Ellipse2D.Float(-5, -5, 10, 10); 
+            final Color color = new Color(210, 176, 106, 160); // KHAKI
+            // final Color color2 = new Color(210, 176, 106); // KHAKI
+            final Color color3 = new Color(255, 0, 255, 160); // PLUM_RED
+            final Color color4 = new Color(255, 0, 255); // PLUM_RED
+
+            for (int i = 1; i < planPoints.size(); i++) {
+                Graphics2D g2 = (Graphics2D) g0.create();
+                Point2D pts = renderer.getScreenPosition(planPoints.get(i - 1));
+                Point2D pte = renderer.getScreenPosition(planPoints.get(i));
+                g2.setColor(color);
+                Line2D line = new Line2D.Float(pts, pte);
+                g2.draw(line);
+                g2.dispose();
+            }
+            
+            planShapes.parallelStream().forEach(sp -> {
+                LocationType lt = planPoints.get(0);
+                Graphics2D g2 = (Graphics2D) g0.create();
+                Point2D pt = renderer.getScreenPosition(lt);
+                g2.translate(pt.getX(), pt.getY());
+                g2.scale(1, -1);
+                g2.scale(renderer.getZoom(), renderer.getZoom());
+                //g2.setStroke(new BasicStroke(2));
+                g2.setColor(color4);
+                g2.draw(sp);
+                g2.dispose();
+            });
+
+            planControlPoints.parallelStream().forEach(lt -> {
+                Graphics2D g2 = (Graphics2D) g0.create();
+                Point2D pt = renderer.getScreenPosition(lt);
+                g2.translate(pt.getX(), pt.getY());
+                g2.setColor(color3);
+                g2.fill(ellipse);
+                g2.dispose();
+            });
+
+            planPoints.parallelStream().forEach(lt -> {
+                Graphics2D g2 = (Graphics2D) g0.create();
+                Point2D pt = renderer.getScreenPosition(lt);
+                g2.translate(pt.getX(), pt.getY());
+                g2.setColor(color);
+                g2.fill(ellipse);
+                g2.dispose();
+            });
+
+            g0.dispose();
+        }
+    };
 
     public SeaCatMK1PlanExporter() {
         resetLocalData();
@@ -229,7 +304,15 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
         HashMap<String, String> settingHeader = processPlanActionsExceptPayload(plan);
         String lowBatteryStateStr = getSectionLowBatteryState(settingHeader.get("LowBatteryState"));
         String emergencyEndStr = getSectionEmergencyEnd(settingHeader.get("EmergencyEnd"));
-        String safeAltitudeStr = getSectionSafeAltitude(settingHeader.get("SafeAltitude"));       
+        String safeAltitudeStr = getSectionSafeAltitude(settingHeader.get("SafeAltitude"));
+        
+        try {
+            if (settingHeader.containsKey("CurveRadiusAt3knots"))
+                turnRadius = Double.parseDouble(settingHeader.get("CurveRadiusAt3knots"));
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
 
         String emergencyRendezvousPointStr = getSectionEmergencyRendezvousPoint(plan);
 
@@ -259,6 +342,8 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
         resetCommandLineCounter();
         payloadsInPlan.clear();
         isKeepPositionOrDriftAtEnd = true;
+        turnRadius = DEFAULT_TURN_RADIUS;
+        acomsOnCurves = false;
     }
 
     private long resetCommandLineCounter() {
@@ -294,7 +379,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
             try {
                 if (msg instanceof SetEntityParameters) {
                     SetEntityParameters sep = (SetEntityParameters) msg;
-                    if (!"General".equalsIgnoreCase(sep.getName()))
+                    if (!"General".equalsIgnoreCase(sep.getName()) && !"Limits".equalsIgnoreCase(sep.getName()))
                         continue;
                     
                     Vector<EntityParameter> params = sep.getParams();
@@ -630,11 +715,16 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
      * @throws Exception
      */
     private void processManeuvers(PlanType plan, StringBuilder sb) throws Exception {
+        // Debug
+        planShapes.clear();
+        planPoints.clear();
+        planControlPoints.clear();
+        
         for (Maneuver m : plan.getGraph().getManeuversSequence()) {
             double speedMS = ManeuversUtil.getSpeedMps(m);
-
+            
             if (m instanceof PathProvider) {
-                processHeaderCommentAndPayloadForManeuver(sb, m);
+                processHeaderCommentAndPayloadForManeuver(sb, m); // This fills acomsOnCurves
 
                 Collection<ManeuverLocation> waypoints = ((LocatedManeuver) m).getWaypoints();
                 waypoints.stream().forEach(wp -> wp.convertToAbsoluteLatLonDepth());
@@ -652,17 +742,153 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                                 double deltaAngleCurveRad = AngleUtils
                                         .nomalizeAngleRadsPi(nextHeadingRad - curHeadingRad);
                                 if (Math.abs(Math.abs(Math.toDegrees(deltaAngleCurveRad)) - 90) < 2) {
-                                    double[] dist = wp.getOffsetFrom(prevWp);
-                                    ManeuverLocation centerLocation = prevWp.getNewAbsoluteLatLonDepth();
-                                    centerLocation.translatePosition(dist[0] / 2, dist[1] / 2, dist[2] / 2);
-                                    centerLocation.convertToAbsoluteLatLonDepth();
-                                    double targetLatDegs = wp.getLatitudeDegs();
-                                    double targetLonDegs = wp.getLongitudeDegs();
-                                    double centerLatDegs = centerLocation.getLatitudeDegs();
-                                    double centerLonDegs = centerLocation.getLongitudeDegs();
+                                    double distBetweenWp = wp.getDistanceInMeters(prevWp);
+                                    boolean distLessThanTurnRadius = distBetweenWp < turnRadius * 2;
+                                    
+                                    double angleDirection = Math.signum(deltaAngleCurveRad);
                                     Character direction = Math.signum(deltaAngleCurveRad) > 0 ? 'R' : 'L';
-                                    sb.append(getCommandCurve(targetLatDegs, targetLonDegs, centerLatDegs,
-                                            centerLonDegs, direction, wp.getZ(), wp.getZUnits(), speedMS));
+
+                                    double[] dist = wp.getOffsetFrom(prevWp);
+
+                                    if (distLessThanTurnRadius) {
+                                        ManeuverLocation centerLocation = prevWp.getNewAbsoluteLatLonDepth();
+                                        centerLocation.translatePosition(dist[0] / 2, dist[1] / 2, dist[2] / 2);
+                                        centerLocation.convertToAbsoluteLatLonDepth();
+                                        
+                                        double midTurnRadius = distBetweenWp / 2.;
+                                        double xDeltaC = -midTurnRadius * Math.cos(curHeadingRad);
+                                        double yDeltaC = -midTurnRadius * Math.sin(curHeadingRad);
+                                        LocationType curvCtrlLocation = centerLocation.getNewAbsoluteLatLonDepth();
+                                        curvCtrlLocation.translatePosition(xDeltaC, yDeltaC, 0);
+                                        curvCtrlLocation.convertToAbsoluteLatLonDepth();
+
+                                        insertAcomsOnCurveIfEnabled(sb, true);
+                                        
+                                        double targetLatDegs = curvCtrlLocation.getLatitudeDegs();
+                                        double targetLonDegs = curvCtrlLocation.getLongitudeDegs();
+                                        double centerLatDegs = centerLocation.getLatitudeDegs();
+                                        double centerLonDegs = centerLocation.getLongitudeDegs();
+                                        sb.append(getCommandCurve(targetLatDegs, targetLonDegs, centerLatDegs,
+                                                centerLonDegs, direction, wp.getZ(), wp.getZUnits(), speedMS));
+
+                                        targetLatDegs = wp.getLatitudeDegs();
+                                        targetLonDegs = wp.getLongitudeDegs();
+                                        centerLatDegs = centerLocation.getLatitudeDegs();
+                                        centerLonDegs = centerLocation.getLongitudeDegs();
+                                        sb.append(getCommandCurve(targetLatDegs, targetLonDegs, centerLatDegs,
+                                                centerLonDegs, direction, wp.getZ(), wp.getZUnits(), speedMS));
+
+                                        insertAcomsOnCurveIfEnabled(sb, false);
+
+                                        if (debug) {
+                                            planControlPoints.add(centerLocation);
+                                            planPoints.add(curvCtrlLocation);
+                                            planPoints.add(wp);
+                                            double xDelta = -turnRadius * Math.cos(curHeadingRad);
+                                            double yDelta = -turnRadius * Math.sin(curHeadingRad);
+
+                                            double xDeltaCtrlS = -midTurnRadius * Math.cos(curHeadingRad - angleDirection * Math.PI / 4);
+                                            double yDeltaCtrlS = -midTurnRadius * Math.sin(curHeadingRad - angleDirection * Math.PI / 4);
+                                            double xDeltaCtrlE = -midTurnRadius * Math.cos(curHeadingRad + angleDirection * Math.PI / 4);
+                                            double yDeltaCtrlE = -midTurnRadius * Math.sin(curHeadingRad + angleDirection * Math.PI / 4);
+
+                                            double[] offprev = prevWp.getOffsetFrom(planPoints.get(0));
+                                            double[] offcenter = centerLocation.getOffsetFrom(planPoints.get(0));
+                                            double[] off = curvCtrlLocation.getOffsetFrom(planPoints.get(0));
+                                            QuadCurve2D curv = new QuadCurve2D.Double(offprev[1], offprev[0],
+                                                    offcenter[1] + yDeltaCtrlS, offcenter[0] + xDeltaCtrlS, off[1], off[0]);
+                                            planShapes.add(curv);
+                                            offprev = curvCtrlLocation.getOffsetFrom(planPoints.get(0));
+                                            offcenter = centerLocation.getOffsetFrom(planPoints.get(0));
+                                            off = wp.getOffsetFrom(planPoints.get(0));
+                                            curv = new QuadCurve2D.Double(offprev[1], offprev[0],
+                                                    offcenter[1] + yDeltaCtrlE, offcenter[0] + xDeltaCtrlE, off[1], off[0]);
+                                            planShapes.add(curv);
+
+                                            LocationType centerLocationCtrlDraw = centerLocation.getNewAbsoluteLatLonDepth();
+                                            centerLocationCtrlDraw = centerLocationCtrlDraw.translatePosition(xDelta, yDelta, 0);
+                                            centerLocationCtrlDraw.convertToAbsoluteLatLonDepth();
+                                            planControlPoints.add(centerLocationCtrlDraw);
+                                            centerLocationCtrlDraw = centerLocation.getNewAbsoluteLatLonDepth();
+                                            centerLocationCtrlDraw = centerLocationCtrlDraw.translatePosition(xDeltaCtrlS, yDeltaCtrlS, 0);
+                                            centerLocationCtrlDraw.convertToAbsoluteLatLonDepth();
+                                            planControlPoints.add(centerLocationCtrlDraw);
+                                            centerLocationCtrlDraw = centerLocation.getNewAbsoluteLatLonDepth();
+                                            centerLocationCtrlDraw = centerLocationCtrlDraw.translatePosition(xDeltaCtrlE, yDeltaCtrlE, 0);
+                                            centerLocationCtrlDraw.convertToAbsoluteLatLonDepth();
+                                            planControlPoints.add(centerLocationCtrlDraw);
+                                        }
+                                    }
+                                    else {
+                                        double xDeltaCS = -turnRadius * Math.cos(curHeadingRad);
+                                        double yDeltaCS = -turnRadius * Math.sin(curHeadingRad);
+                                        double xDeltaCE = -turnRadius * Math.cos(curHeadingRad);
+                                        double yDeltaCE = -turnRadius * Math.sin(curHeadingRad);
+
+                                        double xDeltaCtrlS = -turnRadius * Math.cos(curHeadingRad + angleDirection * Math.PI / 2);
+                                        double yDeltaCtrlS = -turnRadius * Math.sin(curHeadingRad + angleDirection * Math.PI / 2);
+                                        double xDeltaCtrlE = -turnRadius * Math.cos(curHeadingRad - angleDirection * Math.PI / 2);
+                                        double yDeltaCtrlE = -turnRadius * Math.sin(curHeadingRad - angleDirection * Math.PI / 2);
+
+                                        ManeuverLocation curvCtrlStartLocation = prevWp.getNewAbsoluteLatLonDepth();
+                                        curvCtrlStartLocation.translatePosition(xDeltaCtrlS, yDeltaCtrlS, 0);
+                                        curvCtrlStartLocation.convertToAbsoluteLatLonDepth();
+                                        ManeuverLocation curvCtrlEndLocation = wp.getNewAbsoluteLatLonDepth();
+                                        curvCtrlEndLocation.translatePosition(xDeltaCtrlE, yDeltaCtrlE, 0);
+                                        curvCtrlEndLocation.convertToAbsoluteLatLonDepth();
+                                        
+                                        ManeuverLocation curvStartLocation = curvCtrlStartLocation.getNewAbsoluteLatLonDepth();
+                                        curvStartLocation.translatePosition(xDeltaCS, yDeltaCS, 0);
+                                        curvStartLocation.convertToAbsoluteLatLonDepth();
+                                        ManeuverLocation curvEndLocation = curvCtrlEndLocation.getNewAbsoluteLatLonDepth();
+                                        curvEndLocation.translatePosition(xDeltaCE, yDeltaCE, 0);
+                                        curvEndLocation.convertToAbsoluteLatLonDepth();
+
+                                        insertAcomsOnCurveIfEnabled(sb, true);
+                                        
+                                        sb.append(getCommandCurve(curvStartLocation.getLatitudeDegs(),
+                                                curvStartLocation.getLongitudeDegs(),
+                                                curvCtrlStartLocation.getLatitudeDegs(),
+                                                curvCtrlStartLocation.getLongitudeDegs(), direction, wp.getZ(),
+                                                wp.getZUnits(), speedMS));
+                                        sb.append(getCommandGoto(curvEndLocation.getLatitudeDegs(),
+                                                curvEndLocation.getLongitudeDegs(), wp.getZ(), wp.getZUnits(),
+                                                speedMS));
+                                        sb.append(getCommandCurve(wp.getLatitudeDegs(), wp.getLongitudeDegs(),
+                                                curvCtrlEndLocation.getLatitudeDegs(),
+                                                curvCtrlEndLocation.getLongitudeDegs(), direction, wp.getZ(),
+                                                wp.getZUnits(), speedMS));
+
+                                        insertAcomsOnCurveIfEnabled(sb, false);
+                                        
+                                        if (debug) {
+                                            planPoints.add(curvStartLocation);
+                                            planPoints.add(curvEndLocation);
+                                            planPoints.add(wp);
+                                            planControlPoints.add(curvCtrlStartLocation);
+                                            planControlPoints.add(curvCtrlEndLocation);
+
+                                            double xDeltaCtrlSDraw = -turnRadius * Math.cos(curHeadingRad + angleDirection * -Math.PI / 4);
+                                            double yDeltaCtrlSDraw = -turnRadius * Math.sin(curHeadingRad + angleDirection * -Math.PI / 4);
+                                            double xDeltaCtrlEDraw = -turnRadius * Math.cos(curHeadingRad - angleDirection * -Math.PI / 4);
+                                            double yDeltaCtrlEDraw = -turnRadius * Math.sin(curHeadingRad - angleDirection * -Math.PI / 4);
+
+                                            double[] offprev = prevWp.getOffsetFrom(planPoints.get(0));
+                                            double[] offcenter = curvCtrlStartLocation.getOffsetFrom(planPoints.get(0));
+                                            double[] offnext = curvStartLocation.getOffsetFrom(planPoints.get(0));
+                                            QuadCurve2D curv = new QuadCurve2D.Double(offprev[1], offprev[0],
+                                                    offcenter[1] + yDeltaCtrlSDraw, offcenter[0] + xDeltaCtrlSDraw, offnext[1], offnext[0]);
+                                            planShapes.add(curv);
+
+                                            offprev = curvEndLocation.getOffsetFrom(planPoints.get(0));
+                                            offcenter = curvCtrlEndLocation.getOffsetFrom(planPoints.get(0));
+                                            offnext = wp.getOffsetFrom(planPoints.get(0));
+                                            curv = new QuadCurve2D.Double(offprev[1], offprev[0],
+                                                    offcenter[1] + yDeltaCtrlEDraw, offcenter[0] + xDeltaCtrlEDraw, offnext[1], offnext[0]);
+                                            planShapes.add(curv);
+                                        }
+                                    }
+
                                     curveAdded = true;
                                 }
                             }
@@ -677,6 +903,9 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
 
                     sb.append(getCommandGoto(wp.getLatitudeDegs(), wp.getLongitudeDegs(), wp.getZ(), wp.getZUnits(),
                             speedMS));
+                    if (debug) {
+                        planPoints.add(wp);
+                    }
                     prevWp = wp;
                     prevWasCurve = false;
                 }
@@ -688,6 +917,9 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                 wp.convertToAbsoluteLatLonDepth();
                 sb.append(getCommandKeepPosition(wp.getLatitudeDegs(), wp.getLongitudeDegs(), wp.getZ(), wp.getZUnits(),
                         ((StationKeeping) m).getDuration()));
+                if (debug) {
+                    planPoints.add(wp);
+                }
             }
             else if (m instanceof Goto) { // Careful with ordering because of extensions
                 if (Double.isNaN(speedMS))
@@ -699,6 +931,9 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                 wp.convertToAbsoluteLatLonDepth();
                 sb.append(getCommandGoto(wp.getLatitudeDegs(), wp.getLongitudeDegs(), wp.getZ(), wp.getZUnits(),
                         speedMS));
+                if (debug) {
+                    planPoints.add(wp);
+                }
             }
             else {
                 NeptusLog.pub().warn(
@@ -708,6 +943,20 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
             nextCommandLineCounter(COUNTER_MANEUVERS_GAP);
             sb.append(NEW_LINE);
         }
+    }
+
+    /**
+     * @param sb
+     * @param curveStartOrEnd If curve segment start (true), or end (false)
+     */
+    private void insertAcomsOnCurveIfEnabled(StringBuilder sb, boolean curveStartOrEnd) {
+        if (!acomsOnCurves)
+            return;
+        
+        if (curveStartOrEnd)
+            sb.append(getSetting('Q', "Acoms", "3", "0"));
+        else
+            sb.append(getSetting('Q', "Acoms", "0"));
     }
 
     /**
@@ -747,9 +996,21 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                             if (Boolean.parseBoolean(params.get(0).getValue())) { // "Auto Send" parameter
                                 EntityParameter pRep = getParamWithName(params, "Repetitions");
                                 EntityParameter pInt = getParamWithName(params, "Interval");
-                                sb.append(getSetting('Q', "Acoms", pRep.getValue(), pInt.getValue()));
+                                
+                                try {
+                                    acomsOnCurves = Integer.parseInt(pInt.getValue()) == -1 ? true : false;
+                                }
+                                catch (Exception e) {
+                                    e.printStackTrace();
+                                    acomsOnCurves = false;
+                                }
+                                if (!acomsOnCurves)
+                                    sb.append(getSetting('Q', "Acoms", pRep.getValue(), pInt.getValue()));
+                                else
+                                    sb.append(getSetting('Q', "Acoms", "0"));
                             }
                             else {
+                                acomsOnCurves = false;
                                 sb.append(getSetting('Q', "Acoms", "0"));
                             }
                             break;

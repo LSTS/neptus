@@ -1082,19 +1082,6 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
             }
         }
 
-        if (event.getClickCount() == 2) {
-            planElem.iterateManeuverBack(event.getPoint());
-            final Maneuver man = planElem.iterateManeuverBack(event.getPoint());
-            if (man != null) {
-                if (man instanceof StateRendererInteraction) {
-                    updateDelegate((StateRendererInteraction) man, source);
-                    getPropertiesPanel().getEditBtn().setSelected(true);
-                    saveManeuverXmlState();
-                }
-                return;
-            }
-        }
-
         if (event.isControlDown() && event.getButton() == MouseEvent.BUTTON1) {
             Maneuver m = plan.getGraph().getLastManeuver();
             addManeuverAtEnd(event.getPoint(), m.getType());
@@ -1403,7 +1390,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                     // popup.addSeparator();
                 }
                 
-                AbstractAction planPayload = new AbstractAction(I18n.text("Plan Payload Settings")) {
+                AbstractAction planPayload = new AbstractAction(I18n.text("Plan General Settings")) {
                     private static final long serialVersionUID = 1L;
                     @SuppressWarnings("serial")
                     private PropertySheetPanel psp = new PropertySheetPanel() {{
@@ -1437,8 +1424,8 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                         psp.setProperties(properties);
 
                         final PropertySheetDialog propertySheetDialog = PropertiesEditor.createWindow(getConsole(),
-                                true, psp, I18n.text("Plan Payload Settings"),
-                                "<html>" + I18n.text("Plan Payload Settings"));
+                                true, psp, I18n.text("Plan General Settings"),
+                                "<html>" + I18n.text("Plan General Settings"));
                         if (propertySheetDialog.ask()) {
                             payloadConfig.setProperties(properties);
                             
