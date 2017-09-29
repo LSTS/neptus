@@ -65,7 +65,7 @@ public class AboutAction extends ConsoleAction {
     @Override
     public void actionPerformed(ActionEvent e) {
         if (aboutPanel == null) {
-            final AboutPanel ap = new AboutPanel();
+            final AboutPanel ap = createNewAboutPanel();
             aboutPanel = ap;
             ap.setVisible(true);
             console.addWindowToOppenedList(ap);
@@ -81,5 +81,12 @@ public class AboutAction extends ConsoleAction {
             aboutPanel.setVisible(true);
             aboutPanel.requestFocusInWindow();
         }
+    }
+
+    /**
+     * @return
+     */
+    protected AboutPanel createNewAboutPanel() {
+        return new AboutPanel();
     }
 }
