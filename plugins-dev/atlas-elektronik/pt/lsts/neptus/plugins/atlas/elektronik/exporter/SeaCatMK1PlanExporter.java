@@ -191,6 +191,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
     private ArrayList<String> payloadsInPlan = new ArrayList<>();
     private boolean isKeepPositionOrDriftAtEnd = true;
     private double turnRadius = DEFAULT_TURN_RADIUS;
+    private boolean acomsOnCurves = false;
     
     // Debug
     public static boolean debug = false;
@@ -342,6 +343,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
         payloadsInPlan.clear();
         isKeepPositionOrDriftAtEnd = true;
         turnRadius = DEFAULT_TURN_RADIUS;
+        acomsOnCurves = false;
     }
 
     private long resetCommandLineCounter() {
@@ -722,7 +724,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
             double speedMS = ManeuversUtil.getSpeedMps(m);
             
             if (m instanceof PathProvider) {
-                processHeaderCommentAndPayloadForManeuver(sb, m);
+                processHeaderCommentAndPayloadForManeuver(sb, m); // This fills acomsOnCurves
 
                 Collection<ManeuverLocation> waypoints = ((LocatedManeuver) m).getWaypoints();
                 waypoints.stream().forEach(wp -> wp.convertToAbsoluteLatLonDepth());
@@ -760,6 +762,8 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                                         curvCtrlLocation.translatePosition(xDeltaC, yDeltaC, 0);
                                         curvCtrlLocation.convertToAbsoluteLatLonDepth();
 
+                                        insertAcomsOnCurveIfEnabled(sb, true);
+                                        
                                         double targetLatDegs = curvCtrlLocation.getLatitudeDegs();
                                         double targetLonDegs = curvCtrlLocation.getLongitudeDegs();
                                         double centerLatDegs = centerLocation.getLatitudeDegs();
@@ -773,7 +777,9 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                                         centerLonDegs = centerLocation.getLongitudeDegs();
                                         sb.append(getCommandCurve(targetLatDegs, targetLonDegs, centerLatDegs,
                                                 centerLonDegs, direction, wp.getZ(), wp.getZUnits(), speedMS));
-                                        
+
+                                        insertAcomsOnCurveIfEnabled(sb, false);
+
                                         if (debug) {
                                             planControlPoints.add(centerLocation);
                                             planPoints.add(curvCtrlLocation);
@@ -838,6 +844,8 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                                         curvEndLocation.translatePosition(xDeltaCE, yDeltaCE, 0);
                                         curvEndLocation.convertToAbsoluteLatLonDepth();
 
+                                        insertAcomsOnCurveIfEnabled(sb, true);
+                                        
                                         sb.append(getCommandCurve(curvStartLocation.getLatitudeDegs(),
                                                 curvStartLocation.getLongitudeDegs(),
                                                 curvCtrlStartLocation.getLatitudeDegs(),
@@ -851,6 +859,8 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                                                 curvCtrlEndLocation.getLongitudeDegs(), direction, wp.getZ(),
                                                 wp.getZUnits(), speedMS));
 
+                                        insertAcomsOnCurveIfEnabled(sb, false);
+                                        
                                         if (debug) {
                                             planPoints.add(curvStartLocation);
                                             planPoints.add(curvEndLocation);
@@ -936,6 +946,20 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
     }
 
     /**
+     * @param sb
+     * @param curveStartOrEnd If curve segment start (true), or end (false)
+     */
+    private void insertAcomsOnCurveIfEnabled(StringBuilder sb, boolean curveStartOrEnd) {
+        if (!acomsOnCurves)
+            return;
+        
+        if (curveStartOrEnd)
+            sb.append(getSetting('Q', "Acoms", "3", "0"));
+        else
+            sb.append(getSetting('Q', "Acoms", "0"));
+    }
+
+    /**
      * Comment on maneuver id and payload are created and added to sb provided.
      * 
      * @param sb
@@ -972,9 +996,21 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                             if (Boolean.parseBoolean(params.get(0).getValue())) { // "Auto Send" parameter
                                 EntityParameter pRep = getParamWithName(params, "Repetitions");
                                 EntityParameter pInt = getParamWithName(params, "Interval");
-                                sb.append(getSetting('Q', "Acoms", pRep.getValue(), pInt.getValue()));
+                                
+                                try {
+                                    acomsOnCurves = Integer.parseInt(pInt.getValue()) == -1 ? true : false;
+                                }
+                                catch (Exception e) {
+                                    e.printStackTrace();
+                                    acomsOnCurves = false;
+                                }
+                                if (!acomsOnCurves)
+                                    sb.append(getSetting('Q', "Acoms", pRep.getValue(), pInt.getValue()));
+                                else
+                                    sb.append(getSetting('Q', "Acoms", "0"));
                             }
                             else {
+                                acomsOnCurves = false;
                                 sb.append(getSetting('Q', "Acoms", "0"));
                             }
                             break;
