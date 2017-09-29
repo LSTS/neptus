@@ -33,9 +33,12 @@
 package pt.lsts.neptus.gui;
 
 import java.awt.Color;
+import java.awt.Dialog;
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.Image;
 import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
@@ -43,8 +46,8 @@ import java.io.InputStream;
 import java.util.Properties;
 
 import javax.swing.BoxLayout;
+import javax.swing.JDialog;
 import javax.swing.JEditorPane;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 
@@ -56,7 +59,7 @@ import pt.lsts.neptus.util.ImageUtils;
 /**
  * @author Paulo Dias
  */
-public class AboutPanel extends JFrame {
+public class AboutPanel extends JDialog {
     private static final long serialVersionUID = -6597059494859637226L;
 
     private static final String VERSION_FILE_NAME = "/version.txt";
@@ -80,6 +83,22 @@ public class AboutPanel extends JFrame {
     public AboutPanel() {
         super();
         initialize();
+        this.setAlwaysOnTop(true);
+    }
+
+    public AboutPanel(Window owner) {
+        super(owner);
+        initialize();
+    }
+
+    public AboutPanel(Dialog owner) {
+        super(owner);
+        initialize();
+    }
+
+    public AboutPanel(Frame owner) {
+        super(owner);
+        initialize();
     }
 
     /**
@@ -88,6 +107,7 @@ public class AboutPanel extends JFrame {
      * @return void
      */
     private void initialize() {
+        this.setModalityType(ModalityType.DOCUMENT_MODAL);
         this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/images/neptus-icon.png")));
         this.setResizable(false);
         this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);

@@ -87,6 +87,6 @@ public class AboutAction extends ConsoleAction {
      * @return
      */
     protected AboutPanel createNewAboutPanel() {
-        return new AboutPanel();
+        return new AboutPanel(console);
     }
 }

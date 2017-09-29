@@ -907,7 +907,7 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
             aboutMenuItem.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    AboutPanel ap = new AboutPanel();
+                    AboutPanel ap = new AboutPanel(Workspace.this);
                     ap.setVisible(true);
                 }
             });
