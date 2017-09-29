@@ -35,6 +35,7 @@ package pt.lsts.neptus.plugins.atlas.elektronik;
 import java.util.Arrays;
 import java.util.Collection;
 
+import javax.swing.Action;
 import javax.swing.JMenuItem;
 
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -93,6 +94,9 @@ public class SeaCatMK1VersionInfo extends ConsolePanel implements IEditorMenuExt
     @Override
     public Collection<JMenuItem> getApplicableItems(LocationType loc, IMapPopup source) {
         JMenuItem versionInfo = new JMenuItem(new AboutAction(this.getConsole()) {
+            {
+                putValue(Action.ACCELERATOR_KEY, null);
+            }
             @Override
             protected AboutPanel createNewAboutPanel() {
                 return new AboutPanel() {
