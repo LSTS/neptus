@@ -609,7 +609,7 @@ public class MRAMenuBar {
         aboutMenuItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                AboutPanel ap = new AboutPanel();
+                AboutPanel ap = new AboutPanel(mra);
                 ap.setVisible(true);
             }
         });
