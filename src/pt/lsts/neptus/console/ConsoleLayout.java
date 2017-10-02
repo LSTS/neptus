@@ -1930,8 +1930,13 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
             }
             insertM = i + 1;
         }
-        getConsole().getJMenuBar().add(topMenu, insertM);
 
+        try {
+            getConsole().getJMenuBar().add(topMenu, insertM);
+        }
+        catch (Exception e) {
+            NeptusLog.pub().warn("insertJMenuIntoTheMenuBarOrdered ::" + topMenu.getName() + " :: " + e.getMessage());
+        }
     }
 
     @Override
