@@ -54,6 +54,10 @@ import pt.lsts.neptus.types.coord.LocationType;
 @SuppressWarnings("serial")
 @PluginDescription(name = "SeaCat-MK1 Version Info", description = "Shows version info.")
 public class SeaCatMK1VersionInfo extends ConsolePanel implements IEditorMenuExtension {
+    {
+        String additionalHTML = "<br/><br/><b>Note:</b> Planner created with Neptus framework.";
+        AboutPanel.setAdditionalHTML(additionalHTML);
+    }
 
     /**
      * @param console
@@ -99,15 +103,9 @@ public class SeaCatMK1VersionInfo extends ConsolePanel implements IEditorMenuExt
             }
             @Override
             protected AboutPanel createNewAboutPanel() {
-                return new AboutPanel() {
-                    {
-                        String aboutImageFilePath = "images/nep-about.jpg";
-                        setAboutImageFilePath(aboutImageFilePath);
-
-                        String additionalHTML = "";
-                        setAdditionalHTML(additionalHTML);
-                    }
-                };
+                AboutPanel panel = super.createNewAboutPanel();
+                panel.setSize(506, 565 + 50);
+                return panel;
             }
         });
         return Arrays.asList(new JMenuItem[] {versionInfo});
