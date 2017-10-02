@@ -183,7 +183,7 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
     }
 
     private void removeProfilesMenu() {
-        if (profilesMenu != null) {
+        if (profilesMenu != null && profilesMenu.getParent() != null) {
             profilesMenu.getParent().remove(profilesMenu);
             profilesMenu = null;
         }

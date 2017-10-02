@@ -136,6 +136,9 @@ public class PoFile {
                 }
             }        
         }
+        if (lastType == LAST_TYPE.STR && (curEntry.msgctxt != null || curEntry.msgid != null))
+            addEntry(curEntry);
+
         reader.close();
         NeptusLog.pub().info("Loaded " + translations.size() + " translations.");
     }
