@@ -8,7 +8,7 @@ libJNI/
 conf/log4j.xml
 conf/log4j.dtd
 conf/i18n/*.pot
-conf/i18n/**/*.po
+conf/i18n/en_US/*.po
 conf/neptus-coordinateSystems.xml
 conf/neptus-misc-systems.xml
 neptus.exe
