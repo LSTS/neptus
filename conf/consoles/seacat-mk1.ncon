@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <console name="Neptus Console" width="1368" height="727" resizable="true" mission-file="../../missions/seacatmk1-test.nmisz" main-vehicle="seacat-mk1-01">
-  <!-- Data saved on 2017-09-29T11:33:46.0Z with Neptus version @VERSION@ (compiled on @DATE@, g@SCM_REV@). -->
+  <!-- Data saved on 2017-10-02T20:29:12.0Z with Neptus version @VERSION@ (compiled on @DATE@, g@SCM_REV@). -->
   <mainpanel name="console main panel">
     <subpanel class="pt.lsts.neptus.console.plugins.containers.MigLayoutContainer" x="0" y="0" width="1352" height="632">
       <properties>
@@ -14,6 +14,7 @@
         &lt;child name="Plan Control" param="w 80%, h 50px!"/&gt;
         &lt;child name="Abort Button" param="w 20%, h 50px!, wrap"/&gt;
         &lt;child name="Plan Control State" param="w 100%!, h 100px!, span, wrap"/&gt;
+        &lt;child name="SeaCat-MK1 Mission Save Panel" param="w 100%, h 40px, span"/&gt;
         &lt;child name="Mission Tree" param="w 100%, h 100%, span"/&gt;
       &lt;/container&gt;
     &lt;/container&gt;
@@ -75,6 +76,9 @@
         </properties>
       </child>
       <child class="pt.lsts.neptus.plugins.atlas.elektronik.SeaCatMK1VersionInfo" x="0" y="0" width="0" height="0">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.plugins.atlas.elektronik.SeaCatMK1MissionSavePanel" x="0" y="0" width="294" height="63">
         <properties/>
       </child>
     </subpanel>
