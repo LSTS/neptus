@@ -46,6 +46,7 @@ import pt.lsts.neptus.planeditor.IEditorMenuExtension;
 import pt.lsts.neptus.planeditor.IMapPopup;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.FileUtil;
 
 /**
  * @author pdias
@@ -55,6 +56,9 @@ import pt.lsts.neptus.types.coord.LocationType;
 @PluginDescription(name = "SeaCat-MK1 Version Info", description = "Shows version info.")
 public class SeaCatMK1VersionInfo extends ConsolePanel implements IEditorMenuExtension {
     {
+        String aboutImageFilePath = FileUtil.getPackageAsPath(SeaCatMK1VersionInfo.this) + "/images/nep-about-seacat.png";
+        AboutPanel.setAboutImageFilePath(aboutImageFilePath);
+
         String additionalHTML = "<br/><br/><b>Note:</b> Planner created with Neptus framework.";
         AboutPanel.setAdditionalHTML(additionalHTML);
     }
