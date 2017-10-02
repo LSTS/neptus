@@ -107,7 +107,7 @@ public class SeaCatMK1Console extends LAUVConsole {
 
         ConsoleLayout con = create(new String[0]);
         
-        // con.getJMenuBar().setVisible(false);
+        con.getJMenuBar().setVisible(false);
         // con.getStatusBar().setVisible(false);
         
         removeExtraMenus(con);
