@@ -148,7 +148,7 @@ public class PlanSimulator {
         s.setPosition(loc);
 
         Pair<Integer, SimulationState> nearest = simulatedPath.nearestState(s, distanceThreshold);
-
+        
         if (nearest != null) {
             engine.setSimulationState(state, nearest.second());
             simTime = nearest.first();
@@ -169,6 +169,7 @@ public class PlanSimulator {
         Pair<Integer, SimulationState> nearest = simulatedPath.nearestState(s, Integer.MAX_VALUE);
 
         if (nearest != null) {
+            System.out.println("Nearest is "+nearest.first());
             engine.setSimulationState(state, nearest.second());
             simTime = nearest.first();
         }
