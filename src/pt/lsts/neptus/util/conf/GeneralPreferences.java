@@ -51,7 +51,9 @@ import pt.lsts.neptus.comm.iridium.IridiumManager.IridiumMessengerEnum;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.PropertiesProvider;
+import pt.lsts.neptus.gui.editor.renderer.ArrayAsStringRenderer;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.SpeedType;
 import pt.lsts.neptus.mp.SpeedType.Units;
 import pt.lsts.neptus.plugins.NeptusProperty;
@@ -255,6 +257,12 @@ public class GeneralPreferences implements PropertiesProvider {
             description = "If speed units are forced, the user cannot set other units.")
     public static boolean forceSpeedUnits = false;
     
+    @NeptusProperty(name = "Preferred Z Units Array", category = "Z Value", userLevel = LEVEL.REGULAR, 
+            editable = false, rendererClass = ArrayAsStringRenderer.class,
+            description = "This lists the valid Z units to show. This can be overided by the per vehicle settings. "
+                    + "Leeave it empty for no restrictions.")
+    public static ManeuverLocation.Z_UNITS[] validZUnits = {};
+
     // -------------------------------------------------------------------------
     // Constructor and initialize
 
@@ -526,6 +534,8 @@ public class GeneralPreferences implements PropertiesProvider {
                 }
 
                 PropertiesEditor.editProperties(gp, true);
+                
+                validZUnits = new ManeuverLocation.Z_UNITS[] { ManeuverLocation.Z_UNITS.NONE };
                 
                 try {
                     PluginUtils.saveProperties(filenameProps, true, GeneralPreferences.class);
