@@ -92,10 +92,12 @@ import pt.lsts.neptus.gui.editor.Script;
 import pt.lsts.neptus.gui.editor.ScriptSelectionEditor;
 import pt.lsts.neptus.gui.editor.SpeedEditor;
 import pt.lsts.neptus.gui.editor.VehicleSelectionEditor;
+import pt.lsts.neptus.gui.editor.ZUnitsEditor;
 import pt.lsts.neptus.gui.editor.renderer.ArrayAsStringRenderer;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.messages.Bitmask;
 import pt.lsts.neptus.messages.Enumerated;
+import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.SpeedType;
 import pt.lsts.neptus.mp.actions.PlanActions;
 import pt.lsts.neptus.plugins.NeptusProperty;
@@ -737,6 +739,7 @@ public class FunctionalitiesSettings extends JPanel {
         pEditorRegistry.registerEditor(Float.class, NeptusDoubleEditor.class);
         pEditorRegistry.registerEditor(File.class, FileOnlyPropertyEditor.class);
         pEditorRegistry.registerEditor(SpeedType.class, SpeedEditor.class);
+        pEditorRegistry.registerEditor(ManeuverLocation.Z_UNITS.class, ZUnitsEditor.class);
     }
 
     @SuppressWarnings("serial")

@@ -524,4 +524,22 @@ public class PlanUtil {
         
         return plan;
     }
+
+    /**
+     * @param vehicle
+     * @return
+     */
+    public static ManeuverLocation.Z_UNITS[] getValidZUnitsForVehicle(String vehicle) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /**
+     * @param vehicle
+     * @return
+     */
+    public static ManeuverLocation.Z_UNITS[] getValidZUnitsForVehicle(VehicleType vehicle) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }

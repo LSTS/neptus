@@ -82,6 +82,7 @@ import pt.lsts.neptus.gui.editor.Script;
 import pt.lsts.neptus.gui.editor.ScriptSelectionEditor;
 import pt.lsts.neptus.gui.editor.SpeedEditor;
 import pt.lsts.neptus.gui.editor.VehicleSelectionEditor;
+import pt.lsts.neptus.gui.editor.ZUnitsEditor;
 import pt.lsts.neptus.gui.editor.renderer.ArrayAsStringRenderer;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.messages.Bitmask;
@@ -542,6 +543,7 @@ public class PropertiesEditor {
 			per.registerEditor(Credentials.class, CredentialsEditor.class);            
             per.registerEditor(SpeedType.class, SpeedEditor.class);
             per.registerEditor(File.class, FileOnlyPropertyEditor.class);
+            per.registerEditor(ManeuverLocation.Z_UNITS.class, ZUnitsEditor.class);
 		}
 		return per;
 	}

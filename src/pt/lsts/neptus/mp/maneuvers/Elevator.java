@@ -39,6 +39,7 @@ import java.awt.geom.Ellipse2D;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Vector;
 
 import org.dom4j.Document;
@@ -52,6 +53,8 @@ import com.l2fprod.common.propertysheet.Property;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.PropertiesEditor;
+import pt.lsts.neptus.gui.editor.ZUnitsEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
@@ -63,6 +66,7 @@ import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.PlanElement;
+import pt.lsts.neptus.types.map.PlanUtil;
 
 /**
  * @author pdias
@@ -245,7 +249,14 @@ public class Elevator extends Maneuver implements LocatedManeuver, ManeuverWithS
     @Override
     protected Vector<DefaultProperty> additionalProperties() {
         Vector<DefaultProperty> properties = new Vector<DefaultProperty>();
-        PluginProperty[] prop = PluginUtils.getPluginProperties(this);
+        LinkedHashMap<String, PluginProperty> propList = PluginUtils.getProperties(this, true);
+        
+        PluginProperty pStartZ = propList.get("startZUnits");
+        PropertiesEditor.getPropertyEditorRegistry().unregisterEditor(pStartZ);
+        PropertiesEditor.getPropertyEditorRegistry().registerEditor(pStartZ, vehicles.isEmpty() ? new ZUnitsEditor()
+                : new ZUnitsEditor(PlanUtil.getValidZUnitsForVehicle(vehicles.get(0))));
+        
+        PluginProperty[] prop = propList.values().toArray(new PluginProperty[0]);
         properties.addAll(Arrays.asList(prop));
         return properties;
     }
