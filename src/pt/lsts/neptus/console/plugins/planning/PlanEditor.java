@@ -1119,8 +1119,8 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                                 }
                             }
 
-                            boolean newZ = ZValueSelector.showHeightDepthDialog(getConsole().getMainPanel(), loc,
-                                    I18n.text("Plan depth / altitude"));
+                            boolean newZ = ZValueSelector.showHeightDepthDialog(getConsole().getMainPanel(),
+                                    plan.getVehicle(), loc, I18n.text("Plan depth / altitude"));
                             if (newZ) {
                                 
                                 LinkedHashMap<String, Z_UNITS> prevUnits = new LinkedHashMap<String, ManeuverLocation.Z_UNITS>();
