@@ -38,6 +38,7 @@ import pt.lsts.neptus.gui.Loader;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.loader.NeptusMain;
 import pt.lsts.neptus.mc.lauvconsole.LAUVConsole;
+import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.SpeedType.Units;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
@@ -75,6 +76,8 @@ public class SeaCatMK1Console extends LAUVConsole {
     private static void setupGeneralPreferencesChanges() {
         GeneralPreferences.speedUnits = Units.Knots;
         GeneralPreferences.forceSpeedUnits = true;
+        GeneralPreferences.validZUnits = new ManeuverLocation.Z_UNITS[] { ManeuverLocation.Z_UNITS.NONE,
+                ManeuverLocation.Z_UNITS.DEPTH, ManeuverLocation.Z_UNITS.ALTITUDE };
         GeneralPreferences.useMainVehicleComboOnConsoles = false;
         GeneralPreferences.placeNotificationButtonOnConsoleStatusBar = false;
     }
