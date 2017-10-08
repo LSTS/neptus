@@ -68,7 +68,7 @@ import com.l2fprod.common.propertysheet.Property;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.PropertiesProvider;
-import pt.lsts.neptus.gui.editor.ComboEditor;
+import pt.lsts.neptus.gui.editor.ZUnitsEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.actions.PlanActions;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
@@ -78,6 +78,7 @@ import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.XmlOutputMethods;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.PlanElement;
+import pt.lsts.neptus.types.map.PlanUtil;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
@@ -908,7 +909,8 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
             props.add(propertyZ);
             DefaultProperty pz = PropertiesEditor.getPropertyInstance("Z-Units", I18n.text("Location"), ManeuverLocation.Z_UNITS.class, loc.getZUnits(), true, I18n.text("Maneuver's z units"));
             pz.setDisplayName(I18n.textc("Z-Units", "Maneuver's z units"));
-            PropertiesEditor.getPropertyEditorRegistry().registerEditor(pz, new ComboEditor<ManeuverLocation.Z_UNITS>(ManeuverLocation.Z_UNITS.values()));
+            PropertiesEditor.getPropertyEditorRegistry().registerEditor(pz, vehicles.isEmpty() ? new ZUnitsEditor()
+                    : new ZUnitsEditor(PlanUtil.getValidZUnitsForVehicle(vehicles.get(0))));
             props.add(pz);
         }
 
