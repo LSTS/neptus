@@ -59,7 +59,7 @@ public class SeaCatMK1VersionInfo extends ConsolePanel implements IEditorMenuExt
         String aboutImageFilePath = FileUtil.getPackageAsPath(SeaCatMK1VersionInfo.this) + "/images/nep-about-seacat.png";
         AboutPanel.setAboutImageFilePath(aboutImageFilePath);
 
-        String additionalHTML = "<br/><br/><b>Note:</b> Planner created with Neptus framework.";
+        String additionalHTML = "<br/><br/><b>Note:</b> Planner created with Neptus framework. A valid license is need it for it's use.";
         AboutPanel.setAdditionalHTML(additionalHTML);
     }
 

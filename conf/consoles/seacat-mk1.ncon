@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <console name="Neptus Console" width="1368" height="727" resizable="true" mission-file="../../missions/seacatmk1-test.nmisz" main-vehicle="seacat-mk1-01">
-  <!-- Data saved on 2017-10-02T20:29:12.0Z with Neptus version @VERSION@ (compiled on @DATE@, g@SCM_REV@). -->
+  <!-- Data saved on 2017-10-09T18:09:25.0Z with Neptus version @VERSION@ (compiled on @DATE@, g@SCM_REV@). -->
   <mainpanel name="console main panel">
     <subpanel class="pt.lsts.neptus.console.plugins.containers.MigLayoutContainer" x="0" y="0" width="1352" height="632">
       <properties>
@@ -51,19 +51,10 @@
           <entry key="Use Plan DB Sync. Features">false</entry>
         </properties>
       </child>
-      <child class="pt.lsts.neptus.console.plugins.PlanExporter" x="0" y="0" width="0" height="0">
-        <properties/>
-      </child>
       <child class="pt.lsts.neptus.console.plugins.planning.PlanExecutionPreview" x="0" y="0" width="0" height="0">
         <properties/>
       </child>
       <child class="pt.lsts.neptus.console.plugins.planning.PlanStatistics" x="0" y="0" width="0" height="0">
-        <properties/>
-      </child>
-      <child class="pt.lsts.neptus.plugins.s57.S57SoundingsExporter" x="0" y="0" width="0" height="0">
-        <properties/>
-      </child>
-      <child class="pt.lsts.neptus.console.bathymLayer.TidePanel" x="0" y="0" width="0" height="0">
         <properties/>
       </child>
       <child class="pt.lsts.neptus.plugins.atlas.elektronik.HomeRefEditor" x="0" y="0" width="0" height="0">
@@ -72,6 +63,7 @@
       <child class="pt.lsts.neptus.plugins.atlas.elektronik.SeaCatMK1PlanEditor" x="0" y="0" width="0" height="0">
         <properties>
           <entry key="Close Editor on Save">false</entry>
+          <entry key="Show Depth Profile">NEVER</entry>
           <entry key="Select Saved Plan on Console">true</entry>
         </properties>
       </child>
@@ -94,9 +86,4 @@
       </properties>
     </layer>
   </layers>
-  <interactions>
-    <interaction class="pt.lsts.neptus.console.bathymLayer.DepthSoundingsInteraction">
-      <properties/>
-    </interaction>
-  </interactions>
 </console>
