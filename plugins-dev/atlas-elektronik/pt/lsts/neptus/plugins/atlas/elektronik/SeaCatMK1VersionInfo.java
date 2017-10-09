@@ -55,7 +55,7 @@ import pt.lsts.neptus.types.coord.LocationType;
 @PluginDescription(name = "SeaCat-MK1 Version Info", description = "Shows version info.")
 public class SeaCatMK1VersionInfo extends ConsolePanel implements IEditorMenuExtension {
     {
-        String additionalHTML = "<br/><br/><b>Note:</b> Planner created with Neptus framework.";
+        String additionalHTML = "<br/><br/><b>Note:</b> Planner created with Neptus framework. A valid license is need it for it's use.";
         AboutPanel.setAdditionalHTML(additionalHTML);
     }
 
