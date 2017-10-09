@@ -17,9 +17,35 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 1.8.4\n"
 
+#: src/pt/lsts/neptus/console/actions/CreateMissionConsoleAction.java:62
+msgid "Create Mission"
+msgstr "Create Task"
+
+#: src/pt/lsts/neptus/console/ConsoleLayout.java:1031
+msgid "Error Loading Mission File.\n"
+msgstr "Error Loading Task File.\n"
+
+#: src/pt/lsts/neptus/types/mission/MissionType.java:205
+#: src/pt/lsts/neptus/types/mission/MissionType.java:365
+msgid "Loading mission"
+msgstr "Loading task"
+
+#: src/pt/lsts/neptus/types/mission/MissionType.java:213
+msgid "Loading mission header..."
+msgstr "Loading task header..."
+
+#: src/pt/lsts/neptus/console/ConsoleLayout.java:1958
+msgid "Mission"
+msgstr "Task"
+
 #: src/pt/lsts/neptus/gui/MissionFileChooser.java:68
 msgid "Mission Files"
 msgstr "Task Files"
+
+#: src/pt/lsts/neptus/console/actions/SaveMissionAsConsoleAction.java:75
+#: src/pt/lsts/neptus/console/actions/CreateMissionConsoleAction.java:85
+msgid "Mission Files ('nmisz')"
+msgstr "Task Files ('nmisz')"
 
 #: src/pt/lsts/neptus/gui/MissionFileChooser.java:153
 #: src/pt/lsts/neptus/gui/MissionFileChooser.java:161
@@ -31,11 +57,6 @@ msgstr "Not a valid task"
 msgid "Open Mission"
 msgstr "Open Task"
 
-#: src/pt/lsts/neptus/console/actions/SaveMissionAsConsoleAction.java:75
-#: src/pt/lsts/neptus/console/actions/CreateMissionConsoleAction.java:85
-msgid "Mission Files ('nmisz')"
-msgstr "Task Files ('nmisz')"
-
 #: src/pt/lsts/neptus/console/actions/SaveMissionAsConsoleAction.java:60
 #: src/pt/lsts/neptus/console/actions/SaveMissionAsConsoleAction.java:82
 #: src/pt/lsts/neptus/console/actions/CreateMissionConsoleAction.java:91
@@ -46,10 +67,3 @@ msgstr "Save Task As..."
 msgid "Set mission home"
 msgstr "Set task home"
 
-#: src/pt/lsts/neptus/console/actions/CreateMissionConsoleAction.java:62
-msgid "Create Mission"
-msgstr "Create Task"
-
-#: src/pt/lsts/neptus/console/ConsoleLayout.java:1958
-msgid "Mission"
-msgstr "Task"
