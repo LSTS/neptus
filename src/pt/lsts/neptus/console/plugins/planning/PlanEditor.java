@@ -1327,9 +1327,9 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                             new ImageIcon(ImageUtils.getScaledImage("images/buttons/wizard.png", 16, 16)));
                     planSettings.add(pPayload);
 
-                    String[] vehiclesArray = VehiclesHolder.getVehiclesArray();
-                    if (vehiclesArray.length > 1 || vehiclesArray.length == 1
-                            && !plan.getVehicles().containsAll(Arrays.asList(vehiclesArray))) {
+                    LinkedHashMap<String,VehicleType> vehiclesAvailableMap = VehiclesHolder.getVehiclesList();
+                    if (vehiclesAvailableMap.size() > 1 || vehiclesAvailableMap.size() == 1
+                            && !plan.getVehicles().containsAll(Arrays.asList(vehiclesAvailableMap.values()))) {
                         AbstractAction pVehicle = new AbstractAction(I18n.text("Set plan vehicles...")) {
                             private static final long serialVersionUID = 1L;
                             
