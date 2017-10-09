@@ -1329,7 +1329,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
 
                     LinkedHashMap<String,VehicleType> vehiclesAvailableMap = VehiclesHolder.getVehiclesList();
                     if (vehiclesAvailableMap.size() > 1 || vehiclesAvailableMap.size() == 1
-                            && !plan.getVehicles().containsAll(Arrays.asList(vehiclesAvailableMap.values()))) {
+                            && !plan.getVehicles().containsAll(vehiclesAvailableMap.values())) {
                         AbstractAction pVehicle = new AbstractAction(I18n.text("Set plan vehicles...")) {
                             private static final long serialVersionUID = 1L;
                             
