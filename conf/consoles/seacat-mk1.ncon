@@ -50,19 +50,10 @@
           <entry key="Use Plan DB Sync. Features">false</entry>
         </properties>
       </child>
-      <child class="pt.lsts.neptus.console.plugins.PlanExporter" x="0" y="0" width="0" height="0">
-        <properties/>
-      </child>
       <child class="pt.lsts.neptus.console.plugins.planning.PlanExecutionPreview" x="0" y="0" width="0" height="0">
         <properties/>
       </child>
       <child class="pt.lsts.neptus.console.plugins.planning.PlanStatistics" x="0" y="0" width="0" height="0">
-        <properties/>
-      </child>
-      <child class="pt.lsts.neptus.plugins.s57.S57SoundingsExporter" x="0" y="0" width="0" height="0">
-        <properties/>
-      </child>
-      <child class="pt.lsts.neptus.console.bathymLayer.TidePanel" x="0" y="0" width="0" height="0">
         <properties/>
       </child>
       <child class="pt.lsts.neptus.plugins.atlas.elektronik.HomeRefEditor" x="0" y="0" width="0" height="0">
@@ -91,8 +82,5 @@
     </layer>
   </layers>
   <interactions>
-    <interaction class="pt.lsts.neptus.console.bathymLayer.DepthSoundingsInteraction">
-      <properties/>
-    </interaction>
   </interactions>
 </console>
