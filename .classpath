@@ -69,6 +69,7 @@
 	<classpathentry kind="src" path="plugins-dev/mvplanner"/>
 	<classpathentry kind="src" path="plugins-dev/transas-maps"/>
 	<classpathentry kind="src" path="plugins-dev/uav-parameters"/>
+	<classpathentry kind="src" path="plugins-dev/soi"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.17.jar"/>
 	<classpathentry kind="lib" path="lib/xerces-2.7.1/xml-apis.jar"/>
 	<classpathentry kind="lib" path="lib/xerces-2.7.1/xercesImpl.jar"/>

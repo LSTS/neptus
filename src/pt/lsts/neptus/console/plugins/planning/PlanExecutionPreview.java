@@ -382,7 +382,6 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
                 sim.setPositionEstimation(current, ellapsedTime);
             }            
         }
-
     }
 
     @Override
