@@ -74,6 +74,12 @@ public class SeaCatMK1Console extends LAUVConsole {
      * This will force some values. 
      */
     private static void setupGeneralPreferencesChanges() {
+        GeneralPreferences.imcTransportsToUse = "";
+        GeneralPreferences.imcMulticastEnable = false;
+        GeneralPreferences.imcBroadcastEnable = false;
+        GeneralPreferences.messageLogSentMessages = false;
+        GeneralPreferences.messageLogReceivedMessages = false;
+        
         GeneralPreferences.speedUnits = Units.Knots;
         GeneralPreferences.forceSpeedUnits = true;
         GeneralPreferences.validZUnits = new ManeuverLocation.Z_UNITS[] { ManeuverLocation.Z_UNITS.NONE,
