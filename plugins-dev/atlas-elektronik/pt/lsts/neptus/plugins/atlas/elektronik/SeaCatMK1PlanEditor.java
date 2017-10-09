@@ -50,11 +50,13 @@ import pt.lsts.neptus.console.plugins.planning.MapPanel;
 import pt.lsts.neptus.console.plugins.planning.PlanEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.NeptusProperty.DistributionEnum;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
 import pt.lsts.neptus.plugins.atlas.elektronik.exporter.SeaCatMK1PlanExporter;
 import pt.lsts.neptus.renderer2d.LayerPriority;
+import pt.lsts.neptus.types.enumeration.AlwaysSelectNeverEnum;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
@@ -73,11 +75,11 @@ public class SeaCatMK1PlanEditor extends PlanEditor {
     @NeptusProperty(name = "Toolbar Location", userLevel = LEVEL.REGULAR)
     public ToolbarLocation toolbarLocation = ToolbarLocation.Right;
 
-    @NeptusProperty(name = "Show Plan Simulation", userLevel = LEVEL.REGULAR)
-    public boolean showSimulation;
+    @NeptusProperty(name = "Show Plan Simulation", userLevel = LEVEL.ADVANCED, distribution = DistributionEnum.DEVELOPER)
+    public AlwaysSelectNeverEnum allowShowSimulation = AlwaysSelectNeverEnum.SELECTABLE_OFF;
     
-    @NeptusProperty(name = "Show Depth Profile", userLevel = LEVEL.REGULAR)
-    public boolean showDepth;
+    @NeptusProperty(name = "Show Depth Profile", userLevel = LEVEL.ADVANCED, distribution = DistributionEnum.DEVELOPER)
+    public AlwaysSelectNeverEnum allowShowDepth = AlwaysSelectNeverEnum.SELECTABLE_OFF;
 
     @NeptusProperty(name = "Select Saved Plan on Console", userLevel = LEVEL.ADVANCED)
     public boolean selectSavedPlanOnConsole = false;;
