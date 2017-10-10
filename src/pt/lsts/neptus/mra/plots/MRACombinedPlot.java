@@ -96,6 +96,7 @@ public abstract class MRACombinedPlot extends MRATimeSeriesPlot {
     @Override
     public void addLogMarker(LogMarker e) {
         if(combinedPlot != null) {
+            long localTimeOffset = getLocalTimeOffset((long) e.getTimestamp());
             for(Object plot : combinedPlot.getSubplots()) {
                 ValueMarker vm = new ValueMarker(e.getTimestamp()- localTimeOffset);
                 vm.setLabel(e.getLabel());
