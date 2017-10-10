@@ -40,7 +40,6 @@ import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dialog.ModalityType;
 import java.awt.Font;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.Image;
