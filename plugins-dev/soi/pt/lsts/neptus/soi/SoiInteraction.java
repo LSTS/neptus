@@ -33,6 +33,9 @@
 package pt.lsts.neptus.soi;
 
 import java.util.LinkedHashMap;
+import java.util.List;
+
+import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Arrays;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -50,6 +53,7 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.NeptusMenuItem;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.PluginProperty;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.SimpleRendererInteraction;
 import pt.lsts.neptus.util.GuiUtils;
@@ -63,7 +67,7 @@ public class SoiInteraction extends SimpleRendererInteraction {
 
     private static final long serialVersionUID = 477322168507708457L;
     private LinkedHashMap<String, SoiSettings> settings = new LinkedHashMap<>();
-    
+
     @NeptusProperty(name = "Communication Mean", description = "Communication mean to use to send commands")
     public CommMean commMean = CommMean.WiFi;
 
@@ -89,36 +93,107 @@ public class SoiInteraction extends SimpleRendererInteraction {
         GuiUtils.errorMessage(getConsole(), "Not implemented",
                 "Not yet implemented. Send a plan named 'soi_plan' instead.");
     }
-    
+
     @NeptusMenuItem("Tools>SOI>Clear Plan")
     public void clearPlan() {
         SoiCommand cmd = new SoiCommand();
         cmd.setCommand(COMMAND.EXEC);
         cmd.setType(TYPE.REQUEST);
+        sendCommand(cmd);
     }
-    
-    @NeptusMenuItem("Tools>SOI>Settings")
+
+    @NeptusMenuItem("Tools>SOI>Request Settings")
+    public void getSettings() {
+        SoiCommand cmd = new SoiCommand();
+        cmd.setCommand(COMMAND.GET_PARAMS);
+        cmd.setType(TYPE.REQUEST);
+        sendCommand(cmd);
+    }
+
+    @NeptusMenuItem("Tools>SOI>Request Plan")
+    public void getPlan() {
+        SoiCommand cmd = new SoiCommand();
+        cmd.setCommand(COMMAND.GET_PLAN);
+        cmd.setType(TYPE.REQUEST);
+        sendCommand(cmd);
+    }
+
+    @NeptusMenuItem("Tools>SOI>Change Settings")
     public void sendSettings() {
-        if (PluginUtils.editPluginProperties(settings, getConsole(), true))
+
+        String system = getConsole().getMainSystem();
+
+        if (!settings.containsKey(system)) {
+            settings.put(system, new SoiSettings());
+        }
+
+        if (PluginUtils.editPluginProperties(settings.get(system), getConsole(), true))
             return;
-        
-        //TODO
+        @SuppressWarnings("unchecked")
+        List<PluginProperty> after = Arrays.asList(PluginUtils.getPluginProperties(settings.get(system)));
+        SoiCommand cmd = new SoiCommand();
+        cmd.setType(TYPE.REQUEST);
+        cmd.setCommand(COMMAND.SET_PARAMS);
+        String settingsStr = "";
+        for (PluginProperty p : after) {
+            settingsStr += p.getName() + "=" + p.getValue() + ";";
+        }
+        cmd.setSettings(settingsStr.substring(0, settingsStr.length() - 1));
+        sendCommand(cmd);
     }
-    
-    
-   
+
+    protected void setParams(String vehicle, LinkedHashMap<String, String> params) {
+        if (!settings.containsKey(vehicle))
+            settings.put(vehicle, new SoiSettings());
+
+        PluginProperty[] props = PluginUtils.getPluginProperties(settings.get(vehicle));
+
+        for (PluginProperty p : props) {
+
+            if (!params.containsKey(p.getName()))
+                continue;
+
+            switch (p.getType().getSimpleName()) {
+                case "String":
+                    p.setValue(params.get(p.getName()));
+                    break;
+                case "double":
+                    p.setValue(Double.parseDouble(params.get(p.getName())));
+                    break;
+                case "float":
+                    p.setValue(Float.parseFloat(params.get(p.getName())));
+                    break;
+                case "int":
+                    p.setValue(Integer.parseInt(params.get(p.getName())));
+                    break;
+                case "boolean":
+                    p.setValue(Boolean.parseBoolean(params.get(p.getName())));
+                    break;
+                default:
+                    System.out.println("Class not recognized: " + p.getType());
+                    break;
+            }
+        }
+
+        PluginUtils.setPluginProperties(settings.get(vehicle), props);
+    }
+
     @Subscribe
     public void on(SoiCommand cmd) {
-        
+
         if (cmd.getType() != SoiCommand.TYPE.SUCCESS)
             return;
-        
+
         switch (cmd.getCommand()) {
             case GET_PARAMS:
-                LinkedHashMap<String, String> params = cmd.getSettings();
-                //TODO: set params
+                getConsole().post(Notification.success(I18n.text("SOI Settings"),
+                        I18n.textf("Received settings from %vehicle.", cmd.getSourceName())));
+                setParams(cmd.getSourceName(), cmd.getSettings());
                 break;
-
+            case GET_PLAN:
+                getConsole().post(Notification.success(I18n.text("SOI Plan"),
+                        I18n.textf("Received plan from %vehicle.", cmd.getSourceName())));
+                System.out.println(cmd.getPlan());
             default:
                 break;
         }
@@ -198,7 +273,7 @@ public class SoiInteraction extends SimpleRendererInteraction {
 
         @NeptusProperty(description = "Number where to send reports")
         String sms_number = "+351914785889";
-      
+
         @NeptusProperty(description = "Seconds to idle at each vertex")
         int wait_secs = 60;
 
