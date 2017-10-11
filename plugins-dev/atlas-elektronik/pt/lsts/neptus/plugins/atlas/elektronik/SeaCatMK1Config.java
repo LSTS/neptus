@@ -65,6 +65,7 @@ public class SeaCatMK1Config extends ConsolePanel implements IEditorMenuExtensio
     private LatLonFormatEnum latLonPrefFormat = LatLonFormatEnum.DM;
 
     private GeneralPreferences gp;
+    private boolean initializeDone = false;
     
     /**
      * @param console
@@ -93,7 +94,13 @@ public class SeaCatMK1Config extends ConsolePanel implements IEditorMenuExtensio
      */
     @Override
     public void propertiesChanged() {
-        gp.setProperties(PluginUtils.getPluginProperties(this));
+        if (initializeDone) { // So we don't override what is on the console XML to the general preferences stored
+            gp.setProperties(PluginUtils.getPluginProperties(this));
+            GeneralPreferences.saveProperties();
+        }
+        else {
+            initializeDone = true;
+        }
     }
 
     /* (non-Javadoc)
