@@ -332,17 +332,14 @@ public class PluginProperty extends DefaultProperty {
                 Method m = null;
                 try {
                     m = type.getMethod("valueOf", String.class);
+                    Object o = m.invoke(null, value.trim());
+                    return (Enum) o;
                 }
                 catch (Exception e1) {
-                    try {
-                        m = type.getMethod("parse", String.class);
-                    }
-                    catch (Exception e2) {
-                        // Don't do anything
-                    }
+                    m = type.getMethod("parse", String.class);
+                    Object o = m.invoke(null, value.trim());
+                    return (Enum) o;
                 }
-                Object o = m.invoke(null, value.trim());
-                return (Enum) o;
             }
             catch (Exception e1) {
                 throw e;
