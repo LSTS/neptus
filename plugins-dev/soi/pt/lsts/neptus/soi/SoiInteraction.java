@@ -46,6 +46,7 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.iridium.ImcIridiumMessage;
 import pt.lsts.neptus.comm.iridium.IridiumManager;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.notifications.Notification;
@@ -207,20 +208,17 @@ public class SoiInteraction extends SimpleRendererInteraction {
                     I18n.textf("%cmd sent over UDP to %vehicle.", cmd.getCommandStr(), getConsole().getMainSystem())));
         }
         else if (commMean == CommMean.Iridium) {
-            ImcIridiumMessage msg = new ImcIridiumMessage();
-            msg.setSource(ImcMsgManager.getManager().getLocalId().intValue());
-
             try {
-                msg.setDestination(ImcSystemsHolder.getSystemWithName(getConsole().getMainSystem()).getId().intValue());
+                ImcSystem system = ImcSystemsHolder.lookupSystemByName(getConsole().getMainSystem());
+                ImcIridiumMessage msg = new ImcIridiumMessage();
+                msg.setSource(ImcMsgManager.getManager().getLocalId().intValue());
                 msg.setMsg(cmd);
+                msg.setDestination(system.getId().intValue());
                 IridiumManager.getManager().send(msg);
-                getConsole().post(Notification.success(I18n.text("Command sent"), I18n.textf(
-                        "%cmd sent over Iridium to %vehicle.", cmd.getCommandStr(), getConsole().getMainSystem())));
+                getConsole().post(Notification.success("Iridium message sent", "1 Iridium messages were sent using "+IridiumManager.getManager().getCurrentMessenger().getName()));
             }
             catch (Exception e) {
-                getConsole().post(Notification.error(I18n.textf("Error sending %cmd", cmd.getCommandStr()),
-                        e.getClass().getSimpleName() + ": " + e.getMessage()));
-                NeptusLog.pub().error(e);
+                GuiUtils.errorMessage(getConsole(), e);
             }
         }
     }
