@@ -282,8 +282,12 @@ public class PlanSimulationOverlay implements Renderer2DPainter {
         for (int i = 0; i < states.size(); i++) {
             g.setColor(colors.get(i));
             double zoom = renderer.getZoom();
-            double[] neOffsets = states.get(i).getPosition().getOffsetFrom(ref); 
-            g.fillRect((int)(neOffsets[1]*zoom)-1, (int)-(neOffsets[0]*zoom)-1, 2, 2);
+            double[] neOffsets = states.get(i).getPosition().getOffsetFrom(ref);
+            Graphics2D g3 = (Graphics2D) g.create();
+            g3.translate((int)(neOffsets[1] * zoom), -(int)(neOffsets[0] * zoom));
+            g3.rotate(states.get(i).getYaw());
+            g3.fillRect(-4, -1, 8, 2);
+            g3.dispose();
         }
     }
 }
