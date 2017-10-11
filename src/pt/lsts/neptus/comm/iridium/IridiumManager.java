@@ -103,12 +103,14 @@ public class IridiumManager {
     }
     
     private Runnable pollMessages = new Runnable() {
-        
         Date lastTime = new Date(System.currentTimeMillis() - 3600 * 1000);
+        
         @Override
         public void run() {
+        
             try {
                 Date now = new Date();
+                NeptusLog.pub().info("Polling iridium messages using "+getCurrentMessenger().getName());
                 Collection<IridiumMessage> msgs = getCurrentMessenger().pollMessages(lastTime);
                 for (IridiumMessage m : msgs)
                     processMessage(m);
@@ -171,7 +173,7 @@ public class IridiumManager {
         
         ImcMsgManager.getManager().registerBusListener(this);        
         service = Executors.newScheduledThreadPool(1);
-        service.scheduleAtFixedRate(pollMessages, 0, 5, TimeUnit.MINUTES);
+        service.scheduleAtFixedRate(pollMessages, 0, 1, TimeUnit.MINUTES);
     }
     
     public synchronized void stop() {

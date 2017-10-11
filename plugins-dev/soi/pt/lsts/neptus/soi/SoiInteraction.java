@@ -39,6 +39,8 @@ import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Arrays;
 
 import com.google.common.eventbus.Subscribe;
 
+import pt.lsts.autonomy.soi.Plan;
+import pt.lsts.imc.PlanSpecification;
 import pt.lsts.imc.SoiCommand;
 import pt.lsts.imc.SoiCommand.COMMAND;
 import pt.lsts.imc.SoiCommand.TYPE;
@@ -57,6 +59,7 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginProperty;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.SimpleRendererInteraction;
+import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.GuiUtils;
 
 /**
@@ -71,7 +74,10 @@ public class SoiInteraction extends SimpleRendererInteraction {
 
     @NeptusProperty(name = "Communication Mean", description = "Communication mean to use to send commands")
     public CommMean commMean = CommMean.WiFi;
-
+    
+    @NeptusProperty(name = "Soi Plan ID", description = "Identifier for SOI plan")
+    public String soiPlanId = "soi_plan";
+    
     @NeptusMenuItem("Tools>SOI>Send Resume")
     public void sendResume() {
         SoiCommand cmd = new SoiCommand();
@@ -90,9 +96,19 @@ public class SoiInteraction extends SimpleRendererInteraction {
 
     @NeptusMenuItem("Tools>SOI>Send Plan")
     public void sendPlan() {
-        // FIXME
-        GuiUtils.errorMessage(getConsole(), "Not implemented",
-                "Not yet implemented. Send a plan named 'soi_plan' instead.");
+        Plan plan;
+        try {
+            PlanType ptype = getConsole().getMission().getIndividualPlansList().get(soiPlanId);
+            plan = Plan.parse((PlanSpecification)ptype.asIMCPlan());
+            SoiCommand cmd = new SoiCommand();
+            cmd.setCommand(COMMAND.EXEC);
+            cmd.setType(TYPE.REQUEST);
+            cmd.setPlan(plan.asImc());
+            sendCommand(cmd);
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error("Error translating plan", e);
+        }
     }
 
     @NeptusMenuItem("Tools>SOI>Clear Plan")
