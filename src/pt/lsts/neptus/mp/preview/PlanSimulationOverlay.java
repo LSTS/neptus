@@ -131,8 +131,6 @@ public class PlanSimulationOverlay implements Renderer2DPainter {
         listeners.remove(l);
     }
     
-    
-
     protected void addPoint(double northing, double easting, Color color) {
         LocationType loc = new LocationType(ref);        
         loc.translatePosition(northing, easting, 0);
@@ -149,7 +147,6 @@ public class PlanSimulationOverlay implements Renderer2DPainter {
         else
             addPoint(loc, Color.white);       
     }
-
 
     public void addPoint(SystemPositionAndAttitude state, Color color, SimulationState simState) {
         states.add(state);
@@ -184,8 +181,6 @@ public class PlanSimulationOverlay implements Renderer2DPainter {
     public final Vector<SimulationState> getSimStates() {
         return simStates;
     }
-
-
 
     /**
      * @return the states
@@ -238,7 +233,6 @@ public class PlanSimulationOverlay implements Renderer2DPainter {
         }
 
         return stats;
-
     }
 
     /**
@@ -275,7 +269,6 @@ public class PlanSimulationOverlay implements Renderer2DPainter {
             catch (ArrayIndexOutOfBoundsException e) {
                 // still being generated...
             }
-            
         }
         g.translate(center.getX(), center.getY());
         g.rotate(-renderer.getRotation());
