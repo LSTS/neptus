@@ -33,7 +33,9 @@
 package de.atlas.elektronik.simulation;
 
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.mp.maneuvers.Goto;
 import pt.lsts.neptus.mp.preview.GotoPreview;
+import pt.lsts.neptus.mp.preview.controller.EightLoopController;
 import pt.lsts.neptus.types.coord.LocationType;
 
 /**
@@ -44,9 +46,32 @@ public class SeacatGotoPreview extends GotoPreview {
 
     protected boolean arrived = false;
     private static final double EIGHT_DIST = 10;
+    
+    private EightLoopController eightCtrl = null;
+    private LocationType targetPoint = null;
+    
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.mp.preview.GotoPreview#init(java.lang.String, pt.lsts.neptus.mp.maneuvers.Goto, pt.lsts.neptus.mp.SystemPositionAndAttitude, java.lang.Object)
+     */
+    @Override
+    public boolean init(String vehicleId, Goto man, SystemPositionAndAttitude state, Object manState) {
+        boolean ret = super.init(vehicleId, man, state, manState);
+        targetPoint = new LocationType(destination);
+        return ret;
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.mp.preview.GotoPreview#reset(pt.lsts.neptus.mp.SystemPositionAndAttitude)
+     */
+    @Override
+    public void reset(SystemPositionAndAttitude state) {
+        super.reset(state);
+        eightCtrl = null;
+    }
 
     @Override
     public SystemPositionAndAttitude step(SystemPositionAndAttitude state, double timestep, double ellapsedTime) {
+        System.out.println("state= " + state.getPosition());
         model.setState(state);
         if (!arrived)
             arrived = model.guide(destination, speed, destination.getDepth() >= 0 ? null : -destination.getDepth());
@@ -55,20 +80,21 @@ public class SeacatGotoPreview extends GotoPreview {
         if (destination.getDepth() < 0)
             zDistance = Math.abs(-destination.getDepth() -  state.getAltitude());
         
-        if (destination.getDepth() < 0)
-            zDistance = Math.abs(-destination.getDepth() - state.getAltitude());
-        if (arrived && zDistance > 0.1) {
-            double xyDistance = destination.getHorizontalDistanceInMeters(state.getPosition());
+        if (arrived && (zDistance > 0.1 || eightCtrl != null && (targetPoint.getHorizontalDistanceInMeters(state.getPosition()) >= speed))) {
             double angle = state.getYaw();
-            LocationType tmp = new LocationType(destination);
-            if (xyDistance < EIGHT_DIST)
-                tmp.translatePosition(Math.cos(angle) * 10, Math.sin(angle) * 10, 0);
-            model.guide(tmp, speed, destination.getDepth() >= 0 ? null : -destination.getDepth());    
+            if (eightCtrl == null) {
+                eightCtrl = new EightLoopController(destination.getLatitudeRads(), destination.getLongitudeRads(), angle + Math.PI / 2.0,
+                        EIGHT_DIST * 2, 15, destination.getDepth(), true, speed);
+            }
+            LocationType tmp = eightCtrl.step(model, state, timestep, ellapsedTime);
+            System.out.println("tmpDest= " + tmp);
+            model.guide(tmp, speed, destination.getDepth() >= 0 ? null : -destination.getDepth());
         }
-        finished = arrived && zDistance < 0.1;
+        finished = arrived && zDistance < 0.1 && (eightCtrl == null
+                || eightCtrl != null && (targetPoint.getHorizontalDistanceInMeters(state.getPosition()) < speed));
         model.advance(timestep);
+        System.out.println(targetPoint.getHorizontalDistanceInMeters(state.getPosition()));
 
         return model.getState();
     }
-
 }
