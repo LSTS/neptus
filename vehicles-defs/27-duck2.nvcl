@@ -2,8 +2,8 @@
 <system xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="..\src\schemas\neptus-vehicle.xsd">
     <!-- Data saved on 2010-04-24T19:58:44.0Z with Neptus version 1.6.0dev_R8-b1 (compiled on April 22 2010). -->
     <properties>
-        <id>duck2</id>
-        <name>Duck2</name>
+        <id>Duckling-2</id>
+        <name>Duckling-2</name>
         <type>ASV</type>
         <model>ASV</model>
         <appearance>
@@ -317,7 +317,7 @@
                     <port-tcp>6002</port-tcp>
                     <udp-on>true</udp-on>
                     <tcp-on>false</tcp-on>
-                    <imc-id>08:06</imc-id>
+                    <imc-id>87:02</imc-id>
                 </imc>
             </protocols-args>
         </comm-mean>

@@ -7,7 +7,7 @@ import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
 import org.apache.commons.math3.util.Pair;
-import javax.vecmath.Vector2d;
+
 import java.util.ArrayList;
 
 public class TripleVehicleControllerOpt {
@@ -84,38 +84,38 @@ public class TripleVehicleControllerOpt {
                 double beta2 = Vector2D.distanceSq(x1,x3);
                 double beta3 = Vector2D.distanceSq(x2,x3);
 
-                double firstTerm = 1/Math.pow(T,2)*(w[0]*delta1+w[1]*delta2+w[2]*delta3);
+                double firstTerm = 1/Math.pow(T,2)*(1/w[0]*delta1+1/w[1]*delta2+1/w[2]*delta3);
                 double secondTerm = gamma_ij*(Math.pow(beta1-Math.pow(d,2),2)/beta1+Math.pow(beta2-Math.pow(d,2),2)/beta2+Math.pow(beta3-Math.pow(d,2),2)/beta3);
                 double thirdTerm = gamma_T*(Math.pow(alpha1-Math.pow(r,2),2)/alpha1+Math.pow(alpha2-Math.pow(r,2),2)/alpha2+Math.pow(alpha3-Math.pow(r,2),2)/alpha3);
                 double model = firstTerm+secondTerm+thirdTerm;
                 value.setEntry(0,model);
 
-                double derive1 = 2*w[0]/Math.pow(T,2)*(x1.getX()-observedPoints[1].getX())+
+                double derive1 = 2*1/w[0]/Math.pow(T,2)*(x1.getX()-observedPoints[1].getX())+
                         gamma_T*(Math.pow(alpha1,2)-Math.pow(r,4))/Math.pow(alpha1,2)*(x1.getX()-observedPoints[0].getX())+
                         gamma_ij*(Math.pow(beta1,2)-Math.pow(d,4))/Math.pow(beta1,2)*(x1.getX()-x2.getX())+
                         gamma_ij*(Math.pow(beta2,2)-Math.pow(d,4))/Math.pow(beta2,2)*(x1.getX()-x3.getX());
                 jacobian.setEntry(0,0, derive1);
-                double derive2 = 2*w[0]/Math.pow(T,2)*(x1.getY()-observedPoints[1].getY())+
+                double derive2 = 2*1/w[0]/Math.pow(T,2)*(x1.getY()-observedPoints[1].getY())+
                         gamma_T*(Math.pow(alpha1,2)-Math.pow(r,4))/Math.pow(alpha1,2)*(x1.getY()-observedPoints[0].getY())+
                         gamma_ij*(Math.pow(beta1,2)-Math.pow(d,4))/Math.pow(beta1,2)*(x1.getY()-x2.getY())+
                         gamma_ij*(Math.pow(beta2,2)-Math.pow(d,4))/Math.pow(beta2,2)*(x1.getY()-x3.getY());
                 jacobian.setEntry(0,1, derive2);
-                double derive3 = 2*w[1]/Math.pow(T,2)*(x2.getX()-observedPoints[2].getX())+
+                double derive3 = 2*1/w[1]/Math.pow(T,2)*(x2.getX()-observedPoints[2].getX())+
                         gamma_T*(Math.pow(alpha2,2)-Math.pow(r,4))/Math.pow(alpha2,2)*(x2.getX()-observedPoints[0].getX())-
                         gamma_ij*(Math.pow(beta1,2)-Math.pow(d,4))/Math.pow(beta1,2)*(x1.getX()-x2.getX())+
                         gamma_ij*(Math.pow(beta3,2)-Math.pow(d,4))/Math.pow(beta3,2)*(x2.getX()-x3.getX());
                 jacobian.setEntry(0,2, derive3);
-                double derive4 = 2*w[1]/Math.pow(T,2)*(x2.getY()-observedPoints[2].getY())+
+                double derive4 = 2*1/w[1]/Math.pow(T,2)*(x2.getY()-observedPoints[2].getY())+
                         gamma_T*(Math.pow(alpha2,2)-Math.pow(r,4))/Math.pow(alpha2,2)*(x2.getY()-observedPoints[0].getY())-
                         gamma_ij*(Math.pow(beta1,2)-Math.pow(d,4))/Math.pow(beta1,2)*(x1.getY()-x2.getY())+
                         gamma_ij*(Math.pow(beta3,2)-Math.pow(d,4))/Math.pow(beta3,2)*(x2.getY()-x3.getY());
                 jacobian.setEntry(0,3, derive4);
-                double derive5 = 2*w[2]/Math.pow(T,2)*(x3.getX()-observedPoints[3].getX())+
+                double derive5 = 2*1/w[2]/Math.pow(T,2)*(x3.getX()-observedPoints[3].getX())+
                         gamma_T*(Math.pow(alpha3,2)-Math.pow(r,4))/Math.pow(alpha3,2)*(x3.getX()-observedPoints[0].getX())-
                         gamma_ij*(Math.pow(beta2,2)-Math.pow(d,4))/Math.pow(beta2,2)*(x1.getX()-x3.getX())-
                         gamma_ij*(Math.pow(beta3,2)-Math.pow(d,4))/Math.pow(beta3,2)*(x2.getX()-x3.getX());
                 jacobian.setEntry(0,4, derive5);
-                double derive6 = 2*w[2]/Math.pow(T,2)*(x3.getY()-observedPoints[3].getY())+
+                double derive6 = 2*1/w[2]/Math.pow(T,2)*(x3.getY()-observedPoints[3].getY())+
                         gamma_T*(Math.pow(alpha3,2)-Math.pow(r,4))/Math.pow(alpha3,2)*(x3.getY()-observedPoints[0].getY())-
                         gamma_ij*(Math.pow(beta2,2)-Math.pow(d,4))/Math.pow(beta2,2)*(x1.getY()-x3.getY())-
                         gamma_ij*(Math.pow(beta3,2)-Math.pow(d,4))/Math.pow(beta3,2)*(x2.getY()-x3.getY());

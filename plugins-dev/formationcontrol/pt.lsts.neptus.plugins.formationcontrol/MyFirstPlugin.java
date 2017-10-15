@@ -34,13 +34,15 @@ public class MyFirstPlugin extends SimpleRendererInteraction {
     public double[][] y_agents = new double[4][2];
 
     int controller = 1;
-    double[] w = {1, 1, 1};
+    double w1 = 100; double w2 = 100; double w3 = 100;
+    double w_sum = w1 + w2 + w3;
+    double[] w = {w1/w_sum,w2/w_sum,w3/w_sum};
     double tau = 10;
     double gamma_T = .05; double gamma_ij = 0.5*gamma_T;
 
-    private Vehicle vehicle1 = new Vehicle(getConsole(),"duck1", Color.cyan, R_triple, R_triple, 0.01);
-    private Vehicle vehicle2 = new Vehicle(getConsole(),"duck3", Color.magenta, R_triple, R_triple, 0.01);
-    private Vehicle vehicle3 = new Vehicle(getConsole(),"duck4", Color.green, R_triple, R_triple, 0.01);
+    private Vehicle vehicle1 = new Vehicle(getConsole(),"Duckling-1", Color.cyan, R_triple, R_triple, 0.01);
+    private Vehicle vehicle2 = new Vehicle(getConsole(),"Duckling-2", Color.magenta, R_triple, R_triple, 0.01);
+    private Vehicle vehicle3 = new Vehicle(getConsole(),"Duckling-3", Color.green, R_triple, R_triple, 0.01);
 
     SingleVehicleController SVControl = new SingleVehicleController();
     DualVehicleController DVcontroller = new DualVehicleController();
@@ -86,7 +88,7 @@ public class MyFirstPlugin extends SimpleRendererInteraction {
     public void consume(RemoteSensorInfo msg) {
         fishLocationTime = System.currentTimeMillis();
 
-        if (!msg.getId().equals("fish_module"))
+        if (!msg.getId().equals("Fish_position_est_1"))
             return;
 
         if (!hasFishLocation)
@@ -158,8 +160,8 @@ public class MyFirstPlugin extends SimpleRendererInteraction {
             vlon2 = desiredVelocities[3];
         }
 
-        speed1 = Earth.getRadius()*(Math.sqrt(vlat1*vlat1 + vlon1*vlon1));
-        speed2 = Earth.getRadius()*(Math.sqrt(vlat2*vlat2 + vlon2*vlon2));
+        speed1 = 1; //Earth.getRadius()*(Math.sqrt(vlat1*vlat1 + vlon1*vlon1));
+        speed2 = 1; //Earth.getRadius()*(Math.sqrt(vlat2*vlat2 + vlon2*vlon2));
 
         if (true) {//(speed1 < 10) {
             //dt = 0.001 / Math.sqrt(vlat1*vlat1 + vlon1*vlon1);

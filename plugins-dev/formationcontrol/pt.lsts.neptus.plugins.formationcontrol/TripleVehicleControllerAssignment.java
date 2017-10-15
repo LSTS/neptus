@@ -81,7 +81,7 @@ public class TripleVehicleControllerAssignment {
             }
             for (int i = 1; i < 4; i++) {
                 for (int j = 1; j < 4; j++) {
-                    d = w[i-1]*((xy_agents[2*i][0]-xy_agents[2*j+1][0])*(xy_agents[2*i][0]-xy_agents[2*j+1][0])+(xy_agents[2*i][1]-xy_agents[2*j+1][1])*(xy_agents[2*i][1]-xy_agents[2*j+1][1]));
+                    d = 1/w[i-1]*((xy_agents[2*i][0]-xy_agents[2*j+1][0])*(xy_agents[2*i][0]-xy_agents[2*j+1][0])+(xy_agents[2*i][1]-xy_agents[2*j+1][1])*(xy_agents[2*i][1]-xy_agents[2*j+1][1]));
                     f = (float)d;
                     CostMat[i][j] = f;
                 }
@@ -103,8 +103,8 @@ public class TripleVehicleControllerAssignment {
             double[] tau = {xy_agents[0][0]-xy_agents[1][0],xy_agents[0][1]-xy_agents[1][1]};
             double W1 = 0; double W2 = 0;
             for (int i = 1; i < 4; i++) {
-                W1 = W1 + w[i-1]*((xy_agents[2*i][0]-xy_agents[0][0])*(xy_agents[2*i+1][0]-xy_agents[1][0])+(xy_agents[2*i][1]-xy_agents[0][1])*(xy_agents[2*i+1][1]-xy_agents[1][1]));
-                W2 = W2 + w[i-1]*((xy_agents[2*i][1]-xy_agents[0][1])*(xy_agents[2*i+1][0]-xy_agents[1][0])-(xy_agents[2*i][0]-xy_agents[0][0])*(xy_agents[2*i+1][1]-xy_agents[1][1]));
+                W1 = W1 + 1/w[i-1]*((xy_agents[2*i][0]-xy_agents[0][0])*(xy_agents[2*i+1][0]-xy_agents[1][0])+(xy_agents[2*i][1]-xy_agents[0][1])*(xy_agents[2*i+1][1]-xy_agents[1][1]));
+                W2 = W2 + 1/w[i-1]*((xy_agents[2*i][1]-xy_agents[0][1])*(xy_agents[2*i+1][0]-xy_agents[1][0])-(xy_agents[2*i][0]-xy_agents[0][0])*(xy_agents[2*i+1][1]-xy_agents[1][1]));
             }
             theta_prev = theta;
             theta = Math.atan2(W2,W1);
