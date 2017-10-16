@@ -90,7 +90,7 @@ public class SeacatSurveyPreview extends RowsManeuverPreview {
                             EIGHT_DIST * 2, 15, destination.getDepth(), true, speed);
                 }
                 LocationType tmp = eightCtrl.step(model, state, timestep, ellapsedTime);
-                System.out.println("tmpDest= " + tmp);
+                // System.out.println("tmpDest= " + tmp);
                 model.guide(tmp, speed, destination.getDepth() >= 0 ? null : -destination.getDepth());
             }
             if (arrived && zDistance < 0.3 && (eightCtrl == null
@@ -99,8 +99,8 @@ public class SeacatSurveyPreview extends RowsManeuverPreview {
             model.advance(timestep);
             return model.getState();
         }
-        else
+        else {
             return super.step(state, timestep, ellapsedTime);
+        }
     }
-    
 }

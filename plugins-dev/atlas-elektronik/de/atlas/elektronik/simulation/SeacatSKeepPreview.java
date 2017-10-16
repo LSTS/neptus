@@ -67,7 +67,6 @@ public class SeacatSKeepPreview extends StationKeepingPreview {
 
     @Override
     public SystemPositionAndAttitude step(SystemPositionAndAttitude state, double timestep, double ellapsedTime) {
-        
         double distance = destination.getHorizontalDistanceInMeters(state.getPosition());
         
         if (distance < radius) {
@@ -97,13 +96,11 @@ public class SeacatSKeepPreview extends StationKeepingPreview {
                             EIGHT_DIST * 2, 15, destination.getDepth(), true, speed);
                 }
                 LocationType tmp = eightCtrl.step(model, state, timestep, ellapsedTime);
-                System.out.println("tmpDest= " + tmp);
+                // System.out.println("tmpDest= " + tmp);
                 model.guide(tmp, speed, destination.getDepth() >= 0 ? null : -destination.getDepth());
-
             }
         }        
         model.advance(timestep);
         return model.getState();
     }
-    
 }

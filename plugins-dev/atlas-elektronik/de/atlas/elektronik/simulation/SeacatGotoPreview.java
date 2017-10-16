@@ -71,7 +71,7 @@ public class SeacatGotoPreview extends GotoPreview {
 
     @Override
     public SystemPositionAndAttitude step(SystemPositionAndAttitude state, double timestep, double ellapsedTime) {
-        System.out.println("state= " + state.getPosition());
+        // System.out.println(arrived + " :: state= " + state.getPosition());
         model.setState(state);
         if (!arrived)
             arrived = model.guide(destination, speed, destination.getDepth() >= 0 ? null : -destination.getDepth());
@@ -87,14 +87,13 @@ public class SeacatGotoPreview extends GotoPreview {
                         EIGHT_DIST * 2, 15, destination.getDepth(), true, speed);
             }
             LocationType tmp = eightCtrl.step(model, state, timestep, ellapsedTime);
-            System.out.println("tmpDest= " + tmp);
+            // System.out.println("tmpDest= " + tmp);
             model.guide(tmp, speed, destination.getDepth() >= 0 ? null : -destination.getDepth());
         }
         finished = arrived && zDistance < 0.1 && (eightCtrl == null
                 || eightCtrl != null && (targetPoint.getHorizontalDistanceInMeters(state.getPosition()) < speed));
         model.advance(timestep);
-        System.out.println(targetPoint.getHorizontalDistanceInMeters(state.getPosition()));
-
+        // System.out.println(arrived + " :: " + targetPoint.getHorizontalDistanceInMeters(state.getPosition()));
         return model.getState();
     }
 }
