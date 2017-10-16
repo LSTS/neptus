@@ -163,7 +163,8 @@ public class PlanSimulationLayer extends ConsoleLayer implements PlanSimulationL
     private void refreshOverlay() {
         if (mainPlan != null) {
             synchronized (PlanSimulationLayer.this) {
-                simOverlay = new PlanSimulationOverlay(mainPlan, 0, 4, null);
+                VehicleType vt = mainPlan.getVehicleType();
+                simOverlay = new PlanSimulationOverlay(mainPlan, 0, vt == null ? VehicleType.MAX_DURATION_H : vt.getMaxDurationHours(), null);
                 simOverlay.addListener(this);
             }
         }
