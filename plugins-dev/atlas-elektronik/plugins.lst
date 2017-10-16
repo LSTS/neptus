@@ -3,3 +3,5 @@ pt.lsts.neptus.plugins.atlas.elektronik.HomeRefEditor
 pt.lsts.neptus.plugins.atlas.elektronik.SeaCatMK1PlanEditor
 pt.lsts.neptus.plugins.atlas.elektronik.SeaCatMK1VersionInfo
 pt.lsts.neptus.plugins.atlas.elektronik.SeaCatMK1MissionSavePanel
+pt.lsts.neptus.plugins.atlas.elektronik.SeaCatMK1Config
+

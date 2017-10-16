@@ -82,6 +82,10 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
  */
 public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputMethodsFromFile {
 
+    public static final int MAX_SPEED_MS = 2;
+    public static final double MIN_SPEED_MS = 0.5;
+    public static final double MAX_DURATION_H = 6;
+
     /*
      * <def prefix="SYSTEMTYPE" name="System Type" abbrev="SystemType"> <enum id="0" name="CCU" abbrev="CCU"/> <enum
      * id="1" name="Human-portable Sensor" abbrev="HUMANSENSOR"/> <enum id="2" name="UUV" abbrev="UUV"/> <enum id="3"
@@ -135,6 +139,11 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
     private String coordinateSystemLabel = null;
     private CoordinateSystem coordinateSystem = null;
 
+    private double minSpeedMS = MIN_SPEED_MS; // min stable speed
+    private double maxSpeedMS = MAX_SPEED_MS; //max speed
+    
+    private double maxDurationHours = MAX_DURATION_H; // In "normal" operation
+    
     private Document doc = null;
     protected boolean isLoadOk = true;
 
@@ -336,6 +345,51 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
                     CoordinateSystem cs = new CoordinateSystem();
                     this.setCoordinateSystem(cs);
                 }
+            }
+
+            nd = doc.selectSingleNode("/" + rootElemName + "/properties/limits/min-speed");
+            if (nd != null) {
+                try {
+                    minSpeedMS = Double.parseDouble(nd.getText());
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().warn(e.getMessage());
+                    minSpeedMS = MIN_SPEED_MS;
+                }
+            }
+            else {
+                minSpeedMS = MIN_SPEED_MS;
+            }
+            
+            nd = doc.selectSingleNode("/" + rootElemName + "/properties/limits/max-speed");
+            if (nd != null) {
+                try {
+                    maxSpeedMS = Double.parseDouble(nd.getText());
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().warn(e.getMessage());
+                    maxSpeedMS = MAX_SPEED_MS;
+                }
+            }
+            else {
+                maxSpeedMS = MAX_SPEED_MS;
+            }
+            
+            if (maxSpeedMS < minSpeedMS)
+                maxSpeedMS = minSpeedMS;
+
+            nd = doc.selectSingleNode("/" + rootElemName + "/properties/limits/max-duration-hours");
+            if (nd != null) {
+                try {
+                    maxDurationHours = Double.parseDouble(nd.getText());
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().warn(e.getMessage());
+                    maxDurationHours = MAX_DURATION_H;
+                }
+            }
+            else {
+                maxDurationHours = MAX_DURATION_H;
             }
 
             try {
@@ -638,6 +692,48 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
     }
 
     /**
+     * @return the minSpeedMS
+     */
+    public double getMinSpeedMS() {
+        return minSpeedMS;
+    }
+
+    /**
+     * @param minSpeedMS the minSpeedMS to set
+     */
+    public void setMinSpeedMS(double minSpeedMS) {
+        this.minSpeedMS = minSpeedMS;
+    }
+
+    /**
+     * @return the maxSpeedMS
+     */
+    public double getMaxSpeedMS() {
+        return maxSpeedMS;
+    }
+
+    /**
+     * @param maxSpeedMS the maxSpeedMS to set
+     */
+    public void setMaxSpeedMS(double maxSpeedMS) {
+        this.maxSpeedMS = maxSpeedMS;
+    }
+
+    /**
+     * @return the maxDurationHours
+     */
+    public double getMaxDurationHours() {
+        return maxDurationHours;
+    }
+
+    /**
+     * @param maxDurationHours the maxDurationHours to set
+     */
+    public void setMaxDurationHours(double maxDurationHours) {
+        this.maxDurationHours = maxDurationHours;
+    }
+
+    /**
      * @return Returns the transformationXSLTTemplates.
      */
     public LinkedHashMap<String, TemplateFileVehicle> getTransformationXSLTTemplates() {
@@ -934,6 +1030,11 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
             colorE.addElement("b").setText(Integer.toString(getIconColor().getBlue()));
         }
 
+        Element limits = properties.addElement("limits");
+        limits.addElement("min-speed").addText(Double.toString(getMinSpeedMS()));
+        limits.addElement("max-speed").addText(Double.toString(getMaxSpeedMS()));
+        limits.addElement("max-duration-hours").addText(Double.toString(getMaxDurationHours()));
+        
         if ("".equals(coordinateSystemLabel))
             properties.add(coordinateSystem.asElement());
         else
