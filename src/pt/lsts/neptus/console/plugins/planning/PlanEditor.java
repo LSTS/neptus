@@ -823,6 +823,9 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         this.renderer = renderer;
 
+        if (showSimulation && overlay != null && isActive())
+            overlay.paint(g, renderer);
+        
         g.setTransform(renderer.getIdentity());
         
         if (plan != null) {
@@ -856,13 +859,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
             g.setColor(Color.white);
             g.drawString(txt, 54, 14);
         }
-
-        if (showSimulation && overlay != null && isActive()) {
-            Graphics2D g2 = (Graphics2D) g.create();
-            overlay.paint(g2, renderer);
-            g2.dispose();
-        }
-
+        
         BufferedImage depthProfile = null;
         if (showDepth && sdp != null && isActive()) {
             depthProfile = sdp.getProfile();
