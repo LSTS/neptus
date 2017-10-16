@@ -15,7 +15,7 @@
  *
  * Modified European Union Public Licence - EUPL v.1.1 Usage
  * Alternatively, this file may be used under the terms of the Modified EUPL,
- * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
+ * Version 1.1 only (the "Licence"), appearing in the file LICENSE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
  * law or agreed to in writing, software distributed under the Licence is
@@ -27,78 +27,80 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: José Pinto
- * Oct 11, 2011
+ * Author: zp
+ * 04/05/2017
  */
-package pt.lsts.neptus.mp.preview;
+package de.atlas.elektronik.simulation;
 
-import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mp.maneuvers.StationKeeping;
+import pt.lsts.neptus.mp.preview.StationKeepingPreview;
+import pt.lsts.neptus.mp.preview.controller.EightLoopController;
 import pt.lsts.neptus.types.coord.LocationType;
 
 /**
  * @author zp
- * 
+ *
  */
-public class StationKeepingPreview implements IManeuverPreview<StationKeeping> {
+public class SeacatSKeepPreview extends StationKeepingPreview {
 
-    protected LocationType destination;
-    protected double speed;
-    protected boolean finished = false;
-    protected double sk_time = -0.1;
-    protected double maxTime, duration;
-    protected boolean arrived = false;
-    protected double radius;
-    protected UnicycleModel model = new UnicycleModel();
-
+    private static final double EIGHT_DIST = 10;
+    
+    private EightLoopController eightCtrl = null;
+    
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.mp.preview.GotoPreview#init(java.lang.String, pt.lsts.neptus.mp.maneuvers.Goto, pt.lsts.neptus.mp.SystemPositionAndAttitude, java.lang.Object)
+     */
     @Override
     public boolean init(String vehicleId, StationKeeping man, SystemPositionAndAttitude state, Object manState) {
-        destination = new LocationType(man.getManeuverLocation());
-        radius = man.getRadius();
-        if (man.getManeuverLocation().getZUnits() == ManeuverLocation.Z_UNITS.DEPTH)
-            destination.setDepth(man.getManeuverLocation().getZ());
-        else
-            destination.setDepth(Math.max(0.5, 10 - man.getManeuverLocation().getZ()));
+        return super.init(vehicleId, man, state, manState);
+    }
 
-        speed = man.getSpeed().getMPS();
-        speed = Math.min(speed, SpeedConversion.MAX_SPEED);
-        duration = man.getDuration();
-        
-        model.setState(state);
-        return true;
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.mp.preview.GotoPreview#reset(pt.lsts.neptus.mp.SystemPositionAndAttitude)
+     */
+    @Override
+    public void reset(SystemPositionAndAttitude state) {
+        super.reset(state);
+        eightCtrl = null;
     }
 
     @Override
     public SystemPositionAndAttitude step(SystemPositionAndAttitude state, double timestep, double ellapsedTime) {
+        double distance = destination.getHorizontalDistanceInMeters(state.getPosition());
+        
+        if (distance < radius) {
+            sk_time += timestep;
+            if (duration > 0 && sk_time > duration) {
+                finished = true;
+                return model.getState();
+            }
+        }
+        
         if (!arrived) {
             model.setState(state);
             arrived = model.guide(destination, speed, destination.getDepth() >= 0 ? null : -destination.getDepth());
         }
         else {
-            sk_time += timestep;
-            if (duration == 0)
-                finished = model.getDepth() <= 0;
-            else
+            if (duration == 0) {
+                finished = destination.getDepth() == 0 && model.getDepth() <= 0;
+            }
+            else {
                 finished = sk_time >= duration;
-        }
-        
+            }
+            
+            if (destination.getDepth() != 0) {
+                double angle = state.getYaw();
+                if (eightCtrl == null) {
+                    eightCtrl = new EightLoopController(destination.getLatitudeRads(), destination.getLongitudeRads(), angle + Math.PI / 2.0,
+                            EIGHT_DIST * 2, 15, destination.getDepth(), true, speed);
+                }
+                LocationType tmp = eightCtrl.step(model, state, timestep, ellapsedTime);
+                // System.out.println("tmpDest= " + tmp);
+                model.guide(tmp, speed, destination.getDepth() >= 0 ? null : -destination.getDepth());
+            }
+        }        
         model.advance(timestep);
         return model.getState();
-    }
-
-    @Override
-    public boolean isFinished() {
-        return finished;
-    }
-
-    @Override
-    public void reset(SystemPositionAndAttitude state) {
-        model.setState(state);
-    }
-
-    @Override
-    public Object getState() {
-        return null;
     }
 }
