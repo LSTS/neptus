@@ -236,7 +236,8 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
             sdp = null;
         }
         else {
-            overlay = new PlanSimulationOverlay(plan, 0, 6, null);
+            VehicleType vt = plan.getVehicleType();
+            overlay = new PlanSimulationOverlay(plan, 0, vt == null ? VehicleType.MAX_DURATION_H : vt.getMaxDurationHours(), null);
             sdp = new SimDepthProfile(overlay);
         }
     }
