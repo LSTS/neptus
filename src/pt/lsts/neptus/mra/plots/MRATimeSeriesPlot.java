@@ -76,6 +76,9 @@ public abstract class MRATimeSeriesPlot implements LLFChart, LogMarkerListener {
     protected TimeSeriesCollection tsc = new TimeSeriesCollection();
     protected LinkedHashMap<String, TimeSeries> series = new LinkedHashMap<>();
     protected JFreeChart chart;
+
+    protected long localTimeOffset = 0;
+    
     protected MRAPanel mraPanel;
 
     protected static Color[] seriesColors = new Color[] { Color.red.darker(), Color.blue.darker(),
@@ -88,6 +91,8 @@ public abstract class MRATimeSeriesPlot implements LLFChart, LogMarkerListener {
      */
     public MRATimeSeriesPlot(MRAPanel panel) {
         this.mraPanel = panel;
+        this.localTimeOffset = LogLocalTimeOffset.getLocalTimeOffset((long) 
+                mraPanel.getSource().getLsfIndex().getStartTime()*1000);
     }
 
     public Vector<String> getForbiddenSeries() {
@@ -217,22 +222,9 @@ public abstract class MRATimeSeriesPlot implements LLFChart, LogMarkerListener {
     public void onShow() {
         // nothing
     }
-    
-    protected long getLocalTimeOffset(long timestamp) {
-
-        Calendar logCalendar = Calendar.getInstance();
-        logCalendar.setTimeInMillis( timestamp);
-        
-        long localTimeOffset = logCalendar.get(Calendar.DST_OFFSET)
-                                + logCalendar.get(Calendar.ZONE_OFFSET);
-        
-        return localTimeOffset;
-    }
 
     @Override
     public void addLogMarker(LogMarker e) {
-        
-        long localTimeOffset = getLocalTimeOffset((long) e.getTimestamp());
         
         ValueMarker marker = new ValueMarker(e.getTimestamp() - localTimeOffset);
         marker.setLabel(e.getLabel());
