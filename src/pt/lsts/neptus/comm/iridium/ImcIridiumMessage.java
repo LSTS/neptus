@@ -101,8 +101,13 @@ public class ImcIridiumMessage extends IridiumMessage {
     @Override
     public Collection<IMCMessage> asImc() {
        Vector<IMCMessage> vec = new Vector<>();
-       if (msg != null)
-           vec.add(msg);
+       if (msg == null)
+           return vec;
+       IMCMessage clone = msg.cloneMessage();
+       clone.setSrc(getSource());
+       clone.setDst(getDestination());
+       clone.setTimestamp(timestampMillis/1000.0);
+       vec.add(clone);
        return vec;
     }
     

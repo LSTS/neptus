@@ -68,6 +68,7 @@ import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.MessagePart;
 import pt.lsts.imc.RemoteSensorInfo;
 import pt.lsts.imc.ReportedState;
+import pt.lsts.imc.StateReport;
 import pt.lsts.imc.lsf.LsfMessageLogger;
 import pt.lsts.imc.net.IMCFragmentHandler;
 import pt.lsts.imc.state.ImcSystemState;
@@ -324,6 +325,8 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         
         //message.setSrc(ImcMsgManager.getManager().getLocalId().intValue());
         //message.setSrcEnt(255);
+        
+        System.out.println("Posting msg of type "+message.getAbbrev()+" from "+srcName);
         
         onMessage(minfo, message);
         bus.post(message);
@@ -830,6 +833,28 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         }
     }
 
+    private void processStateReport(MessageInfo info, StateReport msg) {
+        String sysId = msg.getSourceName();
+        double lat = msg.getLatitude();
+        double lon = msg.getLongitude();
+        double depth = msg.getDepth() / 10.0;
+        double heading = ((double)msg.getHeading() * 0xFFFF) / 360;
+        NeptusLog.pub().info("Received report from "+msg.getSourceName());
+        
+        ImcSystem imcSys = ImcSystemsHolder.lookupSystemByName(sysId);
+        if (imcSys == null) {
+            NeptusLog.pub().error("Could not find system with id "+sysId);
+            return;
+        }        
+        
+        LocationType loc = new LocationType(lat, lon);
+        loc.setDepth(depth);
+        imcSys.setLocation(loc, msg.getTimestampMillis());
+        imcSys.setAttitudeDegrees(heading);
+        
+        
+    }
+    
     private void processRemoteSensorInfo(MessageInfo info, RemoteSensorInfo msg) {
         // Process pos. state reported from other system
         String sysId = msg.getId();
@@ -878,6 +903,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         SystemTypeEnum type = SystemUtils.getSystemTypeFrom(sensorClass);
         VehicleTypeEnum typeVehicle = SystemUtils.getVehicleTypeFrom(sensorClass);
         ExternalTypeEnum typeExternal = SystemUtils.getExternalTypeFrom(sensorClass);
+        
         if (imcSys != null) {
             imcSys.setType(type);
             imcSys.setTypeVehicle(typeVehicle);
@@ -955,6 +981,8 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                     case RemoteSensorInfo.ID_STATIC:
                         processRemoteSensorInfo(info, (RemoteSensorInfo) msg);
                         break;
+                    case StateReport.ID_STATIC:
+                        processStateReport(info, new StateReport(msg));
                     default:
                         break;
                 }
