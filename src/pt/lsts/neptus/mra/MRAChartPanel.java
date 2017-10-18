@@ -74,6 +74,7 @@ import org.jfree.data.xy.XYSeriesCollection;
 import pt.lsts.neptus.gui.SelectAllFocusListener;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.mra.plots.LogLocalTimeOffset;
 import pt.lsts.neptus.mra.plots.MRA2DPlot;
 import pt.lsts.neptus.mra.plots.MRATimeSeriesPlot;
 import pt.lsts.neptus.mra.plots.TimedXYDataItem;
@@ -324,9 +325,6 @@ public class MRAChartPanel extends JPanel implements ChartMouseListener {
 
         cpanel.addChartMouseListener(new ChartMouseListener() {
 
-            protected final long localTimeOffset = Calendar.getInstance().get(Calendar.DST_OFFSET)
-                    + Calendar.getInstance().get(Calendar.ZONE_OFFSET);
-
             @Override
             public void chartMouseMoved(ChartMouseEvent e) {
                 MouseEvent me = e.getTrigger();
@@ -346,22 +344,18 @@ public class MRAChartPanel extends JPanel implements ChartMouseListener {
                         }
                     }
                     else if (e.getChart().getPlot() instanceof XYPlot) {
-                        mouseValue = e
-                                .getChart()
-                                .getXYPlot()
-                                .getDomainAxis()
+                        long timestamp = (long) e.getChart().getXYPlot().getDomainAxis()
                                 .java2DToValue(x, cpanel.getScreenDataArea(),
-                                        e.getChart().getXYPlot().getDomainAxisEdge())
-                                        + localTimeOffset;
+                                        e.getChart().getXYPlot().getDomainAxisEdge());
+                        
+                        mouseValue = timestamp + LogLocalTimeOffset.getLocalTimeOffset(timestamp);
                     }
                     else if (e.getChart().getPlot() instanceof CategoryPlot){
-                        mouseValue = e
-                                .getChart()
-                                .getCategoryPlot()
-                                .getRangeAxis()
+                        long timestamp = (long) e.getChart().getCategoryPlot().getRangeAxis()
                                 .java2DToValue(x, cpanel.getScreenDataArea(),
-                                        e.getChart().getCategoryPlot().getRangeAxisEdge())
-                                + localTimeOffset;
+                                        e.getChart().getCategoryPlot().getRangeAxisEdge());
+                        
+                        mouseValue = timestamp + LogLocalTimeOffset.getLocalTimeOffset(timestamp);
                     }
                 }                
             }
