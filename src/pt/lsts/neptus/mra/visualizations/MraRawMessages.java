@@ -37,6 +37,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -64,7 +65,10 @@ import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTable;
@@ -85,6 +89,7 @@ import pt.lsts.imc.Announce;
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.gui.InfiniteProgressPanel;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.MRAPanel;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -255,6 +260,36 @@ public class MraRawMessages extends SimpleMRAVisualization {
                 if (e.getClickCount() == 2) {
                     mraPanel.loadVisualization(new MessageHtmlVisualization(index.getMessage(table.getSelectedRow())),
                             true);
+                }
+                else if(e.getButton() == MouseEvent.BUTTON3) {
+                    JPopupMenu popupMenu = new JPopupMenu();
+                    JMenuItem menuItemAddMark = new JMenuItem("Add Mark");
+
+                    popupMenu.add(menuItemAddMark);
+                    
+                    table.setComponentPopupMenu(popupMenu);
+                    
+                    Point point = e.getPoint();
+                    int currentRow = table.rowAtPoint(point);
+                    table.setRowSelectionInterval(currentRow, currentRow);
+                    
+                    menuItemAddMark.addActionListener(new ActionListener() {
+                        
+                        @Override
+                        public void actionPerformed(ActionEvent  e) {
+                            
+                            if (e.getSource() == menuItemAddMark){
+                                String res = JOptionPane.showInputDialog(I18n.text("Marker name"));
+                                if (res != null && !res.isEmpty()) {
+                                    long ts = (long) index.getMessage(table.getSelectedRow()).getTimestampMillis();
+                                    
+                                    mraPanel.addMarker(
+                                            new LogMarker(res, ts, 0, 0));
+                                }
+                            }
+                        }
+                    });
+                    
                 }
             }
         });
