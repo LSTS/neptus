@@ -49,6 +49,7 @@ import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.MRAPanel;
 
 /**
+ * Util class with static fuctions to create a JTable menu with an "Add mark" option
  * @author richard
  *
  */
