@@ -37,6 +37,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Point;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -63,7 +64,10 @@ import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -205,6 +209,36 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
                 if (table.getSelectedRow() != -1 && e.getClickCount() == 2) {
                     int msgIndex = table.convertRowIndexToModel(table.getSelectedRow());
                     mraPanel.loadVisualization(new MessageHtmlVisualization(model.getMessage(msgIndex)), true);
+                }
+                if(e.getButton() == MouseEvent.BUTTON3) {
+                    JPopupMenu popupMenu = new JPopupMenu();
+                    JMenuItem menuItemAddMark = new JMenuItem("Add Mark");
+
+                    popupMenu.add(menuItemAddMark);
+                    
+                    table.setComponentPopupMenu(popupMenu);
+                    
+                    Point point = e.getPoint();
+                    int currentRow = table.rowAtPoint(point);
+                    table.setRowSelectionInterval(currentRow, currentRow);
+                    
+                    menuItemAddMark.addActionListener(new ActionListener() {
+                        
+                        @Override
+                        public void actionPerformed(ActionEvent  e) {
+                            
+                            if (e.getSource() == menuItemAddMark){
+                                String res = JOptionPane.showInputDialog(I18n.text("Marker name"));
+                                if (res != null && !res.isEmpty()) {
+                                    long ts = (long) model.getMessage(table.getSelectedRow()).getTimestampMillis();
+                                    
+                                    mraPanel.addMarker(
+                                            new LogMarker(res, ts, 0, 0));
+                                }
+                            }
+                        }
+                    });
+                    
                 }
             };
         });
