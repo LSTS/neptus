@@ -35,11 +35,17 @@ package pt.lsts.neptus.mra.plots;
 import java.util.Calendar;
 
 /**
+ * Util class with static functions to calculate the offset of the Timezone and Daylight Savings, given system time/date details
  * @author richard
  *
  */
 public class LogLocalTimeOffset {
     
+    /**
+     * Calculates the offset of the Timezone and Daylight Savings, given system time/date details
+     * @param timestamp The timestamp to use to calculate the Daylight Savings
+     * @return The offset in milliseconds
+     */
     public static long getLocalTimeOffset(long timestamp) {
 
         Calendar logCalendar = Calendar.getInstance();
