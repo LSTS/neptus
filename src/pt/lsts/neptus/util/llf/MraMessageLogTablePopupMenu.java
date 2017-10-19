@@ -55,9 +55,10 @@ import pt.lsts.neptus.mra.MRAPanel;
 public class MraMessageLogTablePopupMenu {
     
     /**
-     * @param table
-     * @param point
-     * @return
+     * Defines the row selected at a certain point in the table
+     * @param table Table from which a row is selected
+     * @param point Point on the table that was clicked
+     * @return Returns the selected row of the table
      */
     public static int setRowSelection(JTable table, Point point){
         
@@ -67,10 +68,11 @@ public class MraMessageLogTablePopupMenu {
     }
 
     /**
-     * @param mraPanel 
-     * @param table
-     * @param index 
-     * @param me
+     * Creates a new table menu with an "Add mark" option
+     * @param mraPanel Mission Review & Analysis panel
+     * @param table Table where the menu is generated
+     * @param msg Message selected message
+     * @param point Point where the menu is generated
      */
     public static void newMenu(MRAPanel mraPanel, JTable table, IMCMessage msg, Point point) {
         JPopupMenu popupMenu = new JPopupMenu();
