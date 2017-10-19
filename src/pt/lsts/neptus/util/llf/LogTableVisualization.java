@@ -211,33 +211,11 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
                     mraPanel.loadVisualization(new MessageHtmlVisualization(model.getMessage(msgIndex)), true);
                 }
                 if(e.getButton() == MouseEvent.BUTTON3) {
-                    JPopupMenu popupMenu = new JPopupMenu();
-                    JMenuItem menuItemAddMark = new JMenuItem("Add Mark");
 
-                    popupMenu.add(menuItemAddMark);
-                    
-                    table.setComponentPopupMenu(popupMenu);
-                    
                     Point point = e.getPoint();
-                    int currentRow = table.rowAtPoint(point);
-                    table.setRowSelectionInterval(currentRow, currentRow);
-                    
-                    menuItemAddMark.addActionListener(new ActionListener() {
-                        
-                        @Override
-                        public void actionPerformed(ActionEvent  e) {
-                            
-                            if (e.getSource() == menuItemAddMark){
-                                String res = JOptionPane.showInputDialog(I18n.text("Marker name"));
-                                if (res != null && !res.isEmpty()) {
-                                    long ts = (long) model.getMessage(table.getSelectedRow()).getTimestampMillis();
-                                    
-                                    mraPanel.addMarker(
-                                            new LogMarker(res, ts, 0, 0));
-                                }
-                            }
-                        }
-                    });
+                    int selRow = MraMessageLogTablePopupMenu.setRowSelection(table, point);
+                    MraMessageLogTablePopupMenu.newMenu(mraPanel, table, 
+                            model.getMessage(selRow), point);
                     
                 }
             };

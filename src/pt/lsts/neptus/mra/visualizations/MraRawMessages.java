@@ -96,6 +96,7 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.gui.Java2sAutoTextField;
+import pt.lsts.neptus.util.llf.MraMessageLogTablePopupMenu;
 import pt.lsts.neptus.util.llf.MessageHtmlVisualization;
 import pt.lsts.neptus.util.llf.RawMessagesTableModel;
 import pt.lsts.neptus.util.llf.SortedComboBoxModel;
@@ -262,33 +263,11 @@ public class MraRawMessages extends SimpleMRAVisualization {
                             true);
                 }
                 else if(e.getButton() == MouseEvent.BUTTON3) {
-                    JPopupMenu popupMenu = new JPopupMenu();
-                    JMenuItem menuItemAddMark = new JMenuItem("Add Mark");
 
-                    popupMenu.add(menuItemAddMark);
-                    
-                    table.setComponentPopupMenu(popupMenu);
-                    
                     Point point = e.getPoint();
-                    int currentRow = table.rowAtPoint(point);
-                    table.setRowSelectionInterval(currentRow, currentRow);
-                    
-                    menuItemAddMark.addActionListener(new ActionListener() {
-                        
-                        @Override
-                        public void actionPerformed(ActionEvent  e) {
-                            
-                            if (e.getSource() == menuItemAddMark){
-                                String res = JOptionPane.showInputDialog(I18n.text("Marker name"));
-                                if (res != null && !res.isEmpty()) {
-                                    long ts = (long) index.getMessage(table.getSelectedRow()).getTimestampMillis();
-                                    
-                                    mraPanel.addMarker(
-                                            new LogMarker(res, ts, 0, 0));
-                                }
-                            }
-                        }
-                    });
+                    int selRow = MraMessageLogTablePopupMenu.setRowSelection(table, point);
+                    MraMessageLogTablePopupMenu.newMenu(mraPanel, table, 
+                            index.getMessage(selRow), point);
                     
                 }
             }
