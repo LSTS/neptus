@@ -838,7 +838,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         double lat = msg.getLatitude();
         double lon = msg.getLongitude();
         double depth = msg.getDepth() / 10.0;
-        double heading = ((double)msg.getHeading() * 0xFFFF) / 360;
+        double heading = ((double)msg.getHeading() / 65535.0) * 360;
         NeptusLog.pub().info("Received report from "+msg.getSourceName());
         
         ImcSystem imcSys = ImcSystemsHolder.lookupSystemByName(sysId);
