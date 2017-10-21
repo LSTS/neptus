@@ -51,7 +51,9 @@ import com.google.gson.stream.JsonReader;
 import pt.lsts.colormap.ColorMap;
 import pt.lsts.colormap.ColorMapFactory;
 import pt.lsts.imc.IMCDefinition;
+import pt.lsts.imc.RemoteSensorInfo;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.plugins.NeptusProperty;
@@ -181,6 +183,15 @@ public class RipplesPositions extends ConsoleLayer {
                     if (!positions.containsKey(update.id))
                         positions.put(update.id, new ArrayList<>());
                     positions.get(update.id).add(update);
+                    
+                    NeptusLog.pub().info("Publishing RemoteSensorInfo synthesized from Ripples position of system "+update.id);
+                    RemoteSensorInfo rsi = new RemoteSensorInfo();
+                    rsi.setSrc(id);
+                    rsi.setTimestamp(time.getTime()/1000.0);
+                    rsi.setLat(update.location.getLatitudeRads());
+                    rsi.setLon(update.location.getLongitudeRads());
+                    rsi.setSensorClass("UUV");
+                    ImcMsgManager.getManager().postInternalMessage(update.id, rsi);
                 }
                 
             }

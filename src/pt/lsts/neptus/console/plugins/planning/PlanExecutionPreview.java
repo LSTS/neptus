@@ -41,6 +41,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Vector;
+import java.util.concurrent.Executors;
 
 import com.google.common.eventbus.Subscribe;
 import com.l2fprod.common.propertysheet.Property;
@@ -54,6 +55,7 @@ import pt.lsts.imc.RemoteSensorInfo;
 import pt.lsts.imc.StateReport;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventFutureState;
@@ -138,7 +140,7 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
             e.printStackTrace();
             return 0;
         }
-    }
+    }   
     
     @NeptusMenuItem("Tools>Simulation>Set Simulator State")
     public void forceSimulation() {
@@ -146,23 +148,45 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
         state.location = LocationType.clipboardLocation();
         if (state.location == null)
             state.location = new LocationType(MapGroup.getMapGroupInstance(getConsole().getMission()).getCoordinateSystem());
-        
+
         if (getConsole().getPlan() != null)
             state.planId = getConsole().getPlan().getId();
-        
+
         PluginUtils.editPluginProperties(state, getConsole(), true);
-        
-        PlanSimulator sim = setSimulationState(getConsole().getMainSystem(), state.planId, null);
-        
-        if (sim != null) {
-            EstimatedState current = sim.getState().toEstimatedState();
-            state.location.convertToAbsoluteLatLonDepth();
-            current.setLat(state.location.getLatitudeRads());
-            current.setLon(state.location.getLongitudeRads());            
-            sim.setPositionEstimation(current, 0);    
-        }        
+
+
+        final PlanSimulator sim = setSimulationState(getConsole().getMainSystem(), state.planId, null);
+
+        if (sim == null)
+            return;
+
+        Executors.newSingleThreadExecutor().submit(new Runnable() {
+
+            @Override
+            public void run() {
+                int i = 0;
+
+                while(i < 10000 && !sim.getSimulationOverlay().simulationFinished) {
+                    try {
+                        Thread.sleep(100);
+                    }
+                    catch (InterruptedException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                    i++;
+                }
+
+                EstimatedState current = sim.getState().toEstimatedState();
+                state.location.convertToAbsoluteLatLonDepth();
+                current.setLat(state.location.getLatitudeRads());
+                current.setLon(state.location.getLongitudeRads());
+                sim.setPositionEstimation(current, 0);
+                lastStateTimes.put(getConsole().getMainSystem(), System.currentTimeMillis());
+            }
+        });       
     }
-    
+
     @NeptusMenuItem("Tools>Simulation>Stop Simulator")
     public void stopSimulation() {
         if (simulators.containsKey(getConsole().getMainSystem()))
@@ -172,16 +196,16 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
     @Subscribe
     public void consume(EstimatedState msg) {
         try {
-        String src = msg.getSourceName();
-        if (src == null)
-            return;
+            String src = msg.getSourceName();
+            if (src == null)
+                return;
 
-        if (simulators.containsKey(src)) {
-            simulators.get(src).setEstimatedState(msg);
-            lastStates.put(src, msg);
-            lastStateTimes.put(src, System.currentTimeMillis());
-            updateFutureState(src);
-        }
+            if (simulators.containsKey(src)) {
+                simulators.get(src).setEstimatedState(msg);
+                lastStates.put(src, msg);
+                lastStateTimes.put(src, System.currentTimeMillis());
+                updateFutureState(src);
+            }
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -194,19 +218,21 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
         if (src == null)
             return;
 
-        if (simulators.containsKey(src) && lastStateTimes.containsKey(getConsole().getMainSystem())) {
+        if (simulators.containsKey(src)) {
 
-            long lastStateTime = lastStateTimes.get(getConsole().getMainSystem());
+            if (lastStateTimes.containsKey(getConsole().getMainSystem())) {
+                long lastStateTime = lastStateTimes.get(getConsole().getMainSystem());
 
-            if (System.currentTimeMillis() - lastStateTime < 1000)
-                return;
+                if (System.currentTimeMillis() - lastStateTime < 1000)
+                    return;
+            }            
 
             EstimatedState state = new EstimatedState();
             state.setLat(msg.getLat());
             state.setLon(msg.getLon());
 
             simulators.get(src).setPositionEstimation(state, 15);
-            lastStateTimes.put(src, System.currentTimeMillis());
+            lastStateTimes.put(src, msg.getTimestampMillis());
             updateFutureState(src);
         }
     }
@@ -214,6 +240,7 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
     @Subscribe
     public void consume(RemoteSensorInfo msg) {
         String src = msg.getSourceName();
+        
         if (src == null)
             return;
 
@@ -228,7 +255,7 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
             state.setLat(msg.getLat());
             state.setLon(msg.getLon());
 
-            simulators.get(src).setPositionEstimation(state, 50);
+            simulators.get(src).setPositionEstimation(state, 0);
             lastStateTimes.put(src, System.currentTimeMillis());
             updateFutureState(src);
         }
@@ -250,16 +277,16 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
             updateFutureState(getConsole().getMainSystem());
         }
     }
-    
+
     protected void updateFutureState(String system) {
         PlanSimulator simulator = simulators.get(system);
         if (simulator == null)
             return;
-        
+
         SimulatedFutureState future = simulator.getFutureState();
         if (future == null)
             return;
-        
+
         ConsoleEventFutureState futureState = new ConsoleEventFutureState(future);
         getConsole().post(futureState);        
     }
@@ -271,14 +298,14 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
         simulators.clear();
         mainSimulator = null;
     }
-    
+
     @Override
     public void cleanSubPanel() {
         stopSimulator();
     }
 
-    
-    
+
+
     public PlanSimulator setSimulationState(String vehicleId, String planId, String maneuverId) {
         boolean main = vehicleId == getConsole().getMainSystem();
         if (planId == null) {
@@ -298,9 +325,9 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
         else {
             if (planId.equals("trex_plan")
                     && getConsole().getMission().getIndividualPlansList()
-                            .containsKey("trex_" + vehicleId))
+                    .containsKey("trex_" + vehicleId))
                 planId = "trex_" + vehicleId;
-            
+
             PlanSimulator simulator = simulators.get(vehicleId);
 
             if (simulator == null || simulator.isFinished() || !planId.equals(simulator.getPlan().getId())) {
@@ -314,7 +341,7 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
                         simulator = new PlanSimulator(plan, new SystemPositionAndAttitude(last));
                     else
                         simulator = new PlanSimulator(plan, null);
-                    
+
                     simulator.setVehicleId(vehicleId);
                     simulator.setTimestep(timestep);
                     if (activated)
@@ -323,7 +350,8 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
                     if (main) {
                         mainSimulator = simulator;
                     }
-                    simulators.put(vehicleId, simulator);
+                    lastStateTimes.put(vehicleId, System.currentTimeMillis());
+                    simulators.put(vehicleId, simulator);                    
                 }
             }
 
@@ -335,27 +363,27 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
                     NeptusLog.pub().error("Could not select simulated maneuver: "+maneuverId, e);
                 }
             }
-            
+
             return simulator;
         }
     }
-    
+
     @Subscribe
     public synchronized void consume(PlanControlState msg) {
         String src = msg.getSourceName();
         String plan = msg.getPlanId();
         String maneuver = (msg.getManId() == null || msg.getManId().isEmpty()) ? null : msg.getManId();
-        
+
         if (msg.getState() == STATE.BLOCKED || msg.getState() == STATE.READY)
             plan = maneuver = null;
 
         setSimulationState(src, plan, maneuver);
     }
-    
+
     private String getPlanFromChecksum(int checksum) {
         if (getConsole().getMission() == null)
             return null;
-        
+
         for (String planId : getConsole().getMission().getIndividualPlansList().keySet()) {
             byte[] str = planId.getBytes();
             if (IMCUtil.computeCrc16(str, 0, str.length) == checksum)
@@ -363,16 +391,18 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
         }
         return null;
     }
-    
+
     @Subscribe
     public synchronized void consume(StateReport msg) {
+
         String src = msg.getSourceName();
         String plan = getPlanFromChecksum(msg.getPlanChecksum());
         if (msg.getExecState() < -1) {
-            setSimulationState(src, null, null);
+            //setSimulationState(src, null, null);
             return;
         }
         else {
+            System.out.println("Set simulation state to x");
             PlanSimulator sim = setSimulationState(src, plan, null);
             if (sim != null) {
                 EstimatedState current = sim.getState().toEstimatedState();
@@ -394,17 +424,18 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
             g = (Graphics2D)g2.create();
 
             String vehicle = sim.getVehicleId();
-            long lastTime = lastStateTimes.containsKey(vehicle) ? lastStateTimes.get(vehicle) : 0; 
-            long simTime = System.currentTimeMillis() - lastTime;
+            long lastStateTime = lastStateTimes.containsKey(vehicle)? lastStateTimes.get(vehicle) : System.currentTimeMillis();
+            //long lastTime = lastStateTimes.containsKey(vehicle) ? lastStateTimes.get(vehicle) : System.currentTimeMillis(); 
+            long simTime = System.currentTimeMillis() - lastStateTime;
             if (simTime > 1000) {
                 strs.add("[" + I18n.textf("Simulating %vehicle for %time", vehicle,
                         DateTimeUtil.milliSecondsToFormatedString(simTime, true)) + "]");                
             }
 
-            long lastStateTime = lastStateTimes.containsKey(vehicle)? lastStateTimes.get(vehicle) : 0;
             if (System.currentTimeMillis() - lastStateTime < millisToWait) {
                 continue;
             }
+
             else if (sim != null && sim.isRunning()) {
                 SystemPositionAndAttitude simulatedState = sim.getState();
                 if (simulatedState == null)

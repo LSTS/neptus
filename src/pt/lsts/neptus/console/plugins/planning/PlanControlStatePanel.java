@@ -46,9 +46,9 @@ import pt.lsts.imc.IMCUtil;
 import pt.lsts.imc.PlanControlState;
 import pt.lsts.imc.PlanControlState.STATE;
 import pt.lsts.imc.PlanDB;
-import pt.lsts.imc.StateReport;
 import pt.lsts.imc.PlanDB.OP;
 import pt.lsts.imc.PlanDB.TYPE;
+import pt.lsts.imc.StateReport;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
@@ -60,7 +60,6 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.GuiUtils;
-import sun.misc.CRC16;
 
 /**
  * @author pdias
