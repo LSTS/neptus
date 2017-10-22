@@ -4,7 +4,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Vector;
+
+import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 
 import pt.lsts.imc.Goto;
 import pt.lsts.imc.IMCDefinition;
@@ -125,6 +128,11 @@ public class Plan {
 		synchronized (waypoints) {
 			waypoints.add(waypoint);			
 		}
+	}
+	
+	@SuppressWarnings("unchecked")
+    public List<Waypoint> waypoints() {
+	    return Collections.unmodifiableList(waypoints);
 	}
 	
 	public Waypoint waypoint(int index) {
