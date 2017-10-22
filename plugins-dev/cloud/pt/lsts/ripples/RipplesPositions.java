@@ -178,20 +178,26 @@ public class RipplesPositions extends ConsoleLayer {
                 update.timestamp = time;
                 update.location = new LocationType(latDegs, lonDegs);
                 synchronized (lastPositions) {
+                    
+                    PositionUpdate lastUpdate = lastPositions.get(update.id);
+                    
                     if (!lastPositions.containsKey(update.id) || lastPositions.get(update.id).timestamp.before(update.timestamp))
                         lastPositions.put(update.id, update);
                     if (!positions.containsKey(update.id))
                         positions.put(update.id, new ArrayList<>());
                     positions.get(update.id).add(update);
                     
-                    NeptusLog.pub().info("Publishing RemoteSensorInfo synthesized from Ripples position of system "+update.id);
-                    RemoteSensorInfo rsi = new RemoteSensorInfo();
-                    rsi.setSrc(id);
-                    rsi.setTimestamp(time.getTime()/1000.0);
-                    rsi.setLat(update.location.getLatitudeRads());
-                    rsi.setLon(update.location.getLongitudeRads());
-                    rsi.setSensorClass("UUV");
-                    ImcMsgManager.getManager().postInternalMessage(update.id, rsi);
+                    if (lastUpdate == null || lastUpdate.timestamp.before(update.timestamp)) {
+                        NeptusLog.pub().info("Publishing RemoteSensorInfo synthesized from Ripples position of system "+update.id);
+                        RemoteSensorInfo rsi = new RemoteSensorInfo();
+                        rsi.setSrc(id);
+                        rsi.setTimestamp(time.getTime()/1000.0);
+                        rsi.setLat(update.location.getLatitudeRads());
+                        rsi.setLon(update.location.getLongitudeRads());
+                        rsi.setSensorClass("UUV");
+                        System.out.println(rsi);
+                        ImcMsgManager.getManager().postInternalMessage(update.id, rsi);    
+                    }                    
                 }
                 
             }
