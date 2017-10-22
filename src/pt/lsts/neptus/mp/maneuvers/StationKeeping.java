@@ -155,9 +155,15 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, Maneuve
 
             // Duration
             setDuration(Integer.parseInt(doc.selectSingleNode("StationKeeping/duration").getText()));
-            setPopupDuration(Integer.parseInt(doc.selectSingleNode("StationKeeping/popupDuration").getText()));
-            setPopupPeriod(Integer.parseInt(doc.selectSingleNode("StationKeeping/popupPeriod").getText()));
-            setKeepSafe(Boolean.parseBoolean(doc.selectSingleNode("StationKeeping/keepSafe").getText()));
+            try {
+                setPopupDuration(Integer.parseInt(doc.selectSingleNode("StationKeeping/popupDuration").getText()));
+                setPopupPeriod(Integer.parseInt(doc.selectSingleNode("StationKeeping/popupPeriod").getText()));
+                setKeepSafe(Boolean.parseBoolean(doc.selectSingleNode("StationKeeping/keepSafe").getText()));    
+            }
+            catch (Exception e) {
+                NeptusLog.pub().warn("Vehicle does not have defaults for keepSafe parameters.");
+            }
+            
 
             // Trajectory
             setRadius(Double.parseDouble(doc.selectSingleNode("StationKeeping/trajectory/radius").getText()));
