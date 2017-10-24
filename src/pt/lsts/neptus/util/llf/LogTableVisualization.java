@@ -102,6 +102,7 @@ import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.plots.LogMarkerListener;
 import pt.lsts.neptus.mra.visualizations.MRAVisualization;
+import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.ImageUtils;
 
 /**
@@ -352,13 +353,28 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
     @Override
     public void addLogMarker(LogMarker marker) {
         Long timestamp = new Double(marker.getTimestamp()).longValue();
+        
+        long smallestTimestampDiff = Long.MAX_VALUE;
+        int iTSMarker = -1;
+        
         for (int i = 0; i < log.getNumberOfEntries() - 1; i++) {
-            if (timestamp < ((long) model.getValueAt(i, 0) - 10)) {
-                markerList.put(i, marker);
+            long timestampDiff = Math.abs(((long) model.getValueAt(i, 0)) - timestamp);
+            if(timestampDiff > 500) {
+                continue;
+            }
+            if(timestampDiff == 0) {
+                iTSMarker = i;
                 break;
             }
+            if(smallestTimestampDiff > timestampDiff) {
+                iTSMarker = i;
+                smallestTimestampDiff = timestampDiff;
+            }
         }
-        model.fireTableDataChanged();
+        if(iTSMarker > -1) {
+            markerList.put(iTSMarker, marker);
+            model.fireTableDataChanged();
+        }
     }
 
     @Override
