@@ -326,10 +326,10 @@
         <protocols>gsm iridium</protocols>
         <protocols-args>
             <gsm>
-                <number>+351999999999</number>
+                <number>+351964093243</number>
             </gsm>
             <iridium>
-                <imei>333333333333333</imei>
+                <imei>300234065526740</imei>
             </iridium>
         </protocols-args>
     </protocols-supported>
