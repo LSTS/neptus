@@ -67,6 +67,7 @@ import pt.lsts.neptus.plugins.SimpleRendererInteraction;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.GuiUtils;
 
 /**
@@ -81,20 +82,18 @@ public class SoiInteraction extends SimpleRendererInteraction {
 
     @NeptusProperty(name = "Communication Mean", description = "Communication mean to use to send commands")
     public CommMean commMean = CommMean.WiFi;
-    
+
     @NeptusProperty(name = "Soi Plan ID", description = "Identifier for SOI plan")
     public String soiPlanId = "soi_plan";
-    
+
     @NeptusProperty(name = "Schedule plan waypoints", description = "Schedule plan before transmission")
     public boolean scheduleWaypoints = false;
-    
+
     @NeptusProperty(name = "Time (seconds) till first waypoint", description = "Time, in seconds, for the first waypoint ETA")
     public double timeToFirstWaypoint;
-    
-    
+
     private LinkedHashMap<String, Plan> plans = new LinkedHashMap<>();
-    
-    
+
     @NeptusMenuItem("Tools>SOI>Send Resume")
     public void sendResume() {
         SoiCommand cmd = new SoiCommand();
@@ -117,22 +116,23 @@ public class SoiInteraction extends SimpleRendererInteraction {
         Plan plan;
         try {
             PlanType ptype = getConsole().getMission().getIndividualPlansList().get(soiPlanId);
-            plan = Plan.parse((PlanSpecification)ptype.asIMCPlan());
+            plan = Plan.parse((PlanSpecification) ptype.asIMCPlan());
             SoiCommand cmd = new SoiCommand();
             cmd.setCommand(COMMAND.EXEC);
             cmd.setType(TYPE.REQUEST);
             cmd.setPlan(plan.asImc());
             sendCommand(cmd);
-            
+
             if (scheduleWaypoints) {
-                
+
                 if (!settings.containsKey(system)) {
                     settings.put(system, new SoiSettings());
                 }
                 SoiSettings vehicleSettings = settings.get(system);
-                plan.scheduleWaypoints(System.currentTimeMillis() + (long)(timeToFirstWaypoint * 1000l), vehicleSettings.speed);
+                plan.scheduleWaypoints(System.currentTimeMillis() + (long) (timeToFirstWaypoint * 1000l),
+                        vehicleSettings.speed);
             }
-            
+
             plans.put(system, plan);
         }
         catch (Exception e) {
@@ -240,7 +240,7 @@ public class SoiInteraction extends SimpleRendererInteraction {
             case EXEC:
                 getConsole().post(Notification.success(I18n.text("SOI Plan"),
                         I18n.textf("Received plan from %vehicle.", cmd.getSourceName())));
-                plans.put(cmd.getSourceName(), Plan.parse(cmd.getPlan()));  
+                plans.put(cmd.getSourceName(), Plan.parse(cmd.getPlan()));
                 break;
             default:
                 break;
@@ -262,7 +262,8 @@ public class SoiInteraction extends SimpleRendererInteraction {
                 msg.setMsg(cmd);
                 msg.setDestination(system.getId().intValue());
                 IridiumManager.getManager().send(msg);
-                getConsole().post(Notification.success("Iridium message sent", "1 Iridium messages were sent using "+IridiumManager.getManager().getCurrentMessenger().getName()));
+                getConsole().post(Notification.success("Iridium message sent", "1 Iridium messages were sent using "
+                        + IridiumManager.getManager().getCurrentMessenger().getName()));
             }
             catch (Exception e) {
                 GuiUtils.errorMessage(getConsole(), e);
@@ -296,24 +297,30 @@ public class SoiInteraction extends SimpleRendererInteraction {
         WiFi,
         Iridium
     }
-    
+
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         super.paint(g, renderer);
-        
+
         if (!active)
             return;
-        
+
         String sys = getConsole().getMainSystem();
-        
+
         if (plans.containsKey(sys)) {
-            g.setColor(Color.red);
             Plan p = plans.get(sys);
+
+            g.setColor(Color.red);
+
             for (Waypoint pt : p.waypoints()) {
+                String minsToEta = "ETA: ?";
+                if (pt.getArrivalTime() != null)
+                    minsToEta = "ETA: " + DateTimeUtil
+                            .milliSecondsToFormatedString(pt.getArrivalTime().getTime() - System.currentTimeMillis());
                 LocationType loc = new LocationType(pt.getLatitude(), pt.getLongitude());
                 Point2D pt2d = renderer.getScreenPosition(loc);
-                g.draw(new Ellipse2D.Double(pt2d.getX()-3, pt2d.getY()-3, 6, 6));
-                g.drawString(""+pt.getArrivalTime(), (int) pt2d.getX()+6, (int) pt2d.getY()-3);                
+                g.draw(new Ellipse2D.Double(pt2d.getX() - 3, pt2d.getY() - 3, 6, 6));
+                g.drawString(minsToEta, (int) pt2d.getX() + 6, (int) pt2d.getY() - 3);
             }
         }
     }
