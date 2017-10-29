@@ -323,10 +323,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         minfo.setTimeReceivedSec(System.currentTimeMillis() / 1000.0);
         checkAndSetMessageSrcEntity(message);
         
-        //message.setSrc(ImcMsgManager.getManager().getLocalId().intValue());
-        //message.setSrcEnt(255);
-        
-        System.out.println("Posting msg of type "+message.getAbbrev()+" from "+srcName);
+        NeptusLog.pub().info("Posting internal msg: "+message.getAbbrev()+" from "+srcName);
         
         onMessage(minfo, message);
         bus.post(message);
@@ -850,8 +847,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         LocationType loc = new LocationType(lat, lon);
         loc.setDepth(depth);
         imcSys.setLocation(loc, msg.getTimestampMillis());
-        imcSys.setAttitudeDegrees(heading);
-        
+        imcSys.setAttitudeDegrees(heading);        
         
     }
     

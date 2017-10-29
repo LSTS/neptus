@@ -65,7 +65,7 @@ import pt.lsts.neptus.util.ByteUtil;
 @IridiumProvider(id="hub", name="HUB Iridium Messenger", description="Uses the HUB web server to send and receive messages")
 public class HubIridiumMessenger implements IridiumMessenger {
 
-    protected boolean available = true;
+    protected boolean available = true;    
     protected String serverUrl = "http://ripples.lsts.pt/api/v1/";
     // protected String serverUrl = "http://lsts-hub/api/v1/";
     protected String systemsUrl = serverUrl+"systems";
@@ -77,13 +77,7 @@ public class HubIridiumMessenger implements IridiumMessenger {
     private static TimeZone tz = TimeZone.getTimeZone("UTC");
     private static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
     static { dateFormat.setTimeZone(tz); }
-    
-   // protected Thread t = null;
 
-    // public HubIridiumMessenger() {
-    //  startPolling();
-    // }
-    
     public DeviceUpdate pollActiveDevices() throws Exception {
         Gson gson = new Gson();
         URL url = new URL(activeSystemsUrl);        

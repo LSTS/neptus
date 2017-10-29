@@ -171,9 +171,9 @@ public class IridiumComms extends SimpleRendererInteraction {
                     rsi.setTimestamp(p.timestamp);
                     rsi.setLat(p.latRads);
                     rsi.setLon(p.lonRads);
-                    String name = IMCDefinition.getInstance().getResolver().resolve(p.id);
+                    String name = ImcSystemsHolder.translateImcIdToSystemName(p.id);
                     if (name != null)
-                        rsi.setId(IMCDefinition.getInstance().getResolver().resolve(p.id));
+                        rsi.setId(ImcSystemsHolder.translateImcIdToSystemName(p.id));
                     else
                         rsi.setId(String.format("Unknown (%X)" , p.id));
 
@@ -208,8 +208,10 @@ public class IridiumComms extends SimpleRendererInteraction {
             }
             else if (m instanceof ImcIridiumMessage) {
                 for (IMCMessage message : m.asImc()) {
-                    System.out.println("Posting internally: "+message);                    
+                    NeptusLog.pub().info("Posting incoming message to bus: "+message);                    
                     message.setSrc(m.getSource());
+                    message.setTimestampMillis(m.timestampMillis);
+                    message.setDst(m.getDestination());
                     ImcMsgManager.getManager().postInternalMessage("IridiumComms", message);
                 }
             }
