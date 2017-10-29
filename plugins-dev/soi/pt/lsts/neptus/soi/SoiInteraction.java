@@ -33,11 +33,15 @@
 package pt.lsts.neptus.soi;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
+
+import javax.swing.JLabel;
 
 import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Arrays;
 
@@ -45,10 +49,13 @@ import com.google.common.eventbus.Subscribe;
 
 import pt.lsts.autonomy.soi.Plan;
 import pt.lsts.autonomy.soi.Waypoint;
+import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.PlanSpecification;
 import pt.lsts.imc.SoiCommand;
 import pt.lsts.imc.SoiCommand.COMMAND;
 import pt.lsts.imc.SoiCommand.TYPE;
+import pt.lsts.imc.def.SystemType;
+import pt.lsts.imc.state.ImcSystemState;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.iridium.ImcIridiumMessage;
 import pt.lsts.neptus.comm.iridium.IridiumManager;
@@ -58,6 +65,8 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.mystate.MyState;
 import pt.lsts.neptus.plugins.NeptusMenuItem;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -67,6 +76,7 @@ import pt.lsts.neptus.plugins.SimpleRendererInteraction;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.GuiUtils;
 
@@ -297,6 +307,67 @@ public class SoiInteraction extends SimpleRendererInteraction {
         WiFi,
         Iridium
     }
+    
+    public String infoHtml(ImcSystem[] vehicles) {
+        StringBuilder html = new StringBuilder();  
+        html.append("<html><table>");
+        html.append("<tr><th>Vehicle</th><th>Distance</th><th>Last Comm.</th><th>Next Comm.</th><th>Fuel</th></tr>\n");
+        
+        for (ImcSystem vehicle : vehicles) {
+            if (vehicle.getLocation() == null)
+                continue;
+            
+            Plan plan = plans.get(vehicle.getName());
+            if (plan == null)
+                continue;
+            
+            SystemPositionAndAttitude lastState = new SystemPositionAndAttitude(vehicle.getLocation(), 0, 0, 0);
+            lastState.setTime(vehicle.getLocationTimeMillis());
+            
+            SystemPositionAndAttitude estimatedState = SoiUtils.estimatedState(vehicle, plan);
+            
+            SystemPositionAndAttitude futureState = SoiUtils.futureState(vehicle, plan);
+            
+            String distance = "?";
+            String lastComm = "?";
+            String nextComm = "?";
+            String fuel = "?";
+            
+            if (estimatedState != null) 
+                distance = String.format(Locale.US, "%.0f m",
+                        MyState.getLocation().getDistanceInMeters(estimatedState.getPosition()));
+            
+            if (lastState != null)
+                lastComm = DateTimeUtil.milliSecondsToFormatedString(System.currentTimeMillis()-lastState.getTime());
+            
+            if (futureState != null)
+                nextComm = DateTimeUtil.milliSecondsToFormatedString(futureState.getTime() - System.currentTimeMillis());
+            
+            ImcSystemState state = ImcMsgManager.getManager().getState(vehicle.getName());
+            if (state != null) {
+                IMCMessage fuelLevel = state.get("FuelLevel");
+                IMCMessage stateReport = state.get("StateReport");
+                if (stateReport != null && fuelLevel != null) {
+                    if (stateReport.getTimestampMillis() > fuelLevel.getTimestampMillis())
+                        fuel = stateReport.getInteger("fuel") + "%";
+                    else 
+                        fuel = fuelLevel.getInteger("value") + "%";
+                }
+                else if (stateReport != null)
+                    fuel = stateReport.getInteger("fuel") + "%";
+                else if (fuelLevel != null)
+                    fuel = fuelLevel.getInteger("value") + "%";
+                    
+            }
+            
+            html.append("<tr><td>" + vehicle.getName() + "</td><td>" + distance + "</td><td>" + lastComm + "</td><td>"
+                    + nextComm + "</td><td>" + fuel + "</td></tr>\n");
+        }
+        
+        html.append("</table></html>");
+        
+        return html.toString();
+    }
 
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
@@ -307,6 +378,20 @@ public class SoiInteraction extends SimpleRendererInteraction {
 
         String sys = getConsole().getMainSystem();
 
+        JLabel label = new JLabel(infoHtml(ImcSystemsHolder.lookupSystemByType(SystemTypeEnum.VEHICLE)));
+        Dimension d = label.getPreferredSize();
+        
+        int x = (int) ((renderer.getWidth() - d.getWidth())/2.0);
+        
+        label.setBounds(x, 0, (int) d.getWidth(), (int) d.getHeight());
+        label.setBackground(new Color(255,255,255,128));
+        label.setForeground(Color.BLACK);
+        label.setOpaque(true);
+        
+        
+        g.translate(x, 0);
+        label.paint(g);
+        g.translate(-x, 0);
         if (plans.containsKey(sys)) {
             Plan p = plans.get(sys);
 
@@ -321,6 +406,15 @@ public class SoiInteraction extends SimpleRendererInteraction {
                 Point2D pt2d = renderer.getScreenPosition(loc);
                 g.draw(new Ellipse2D.Double(pt2d.getX() - 3, pt2d.getY() - 3, 6, 6));
                 g.drawString(minsToEta, (int) pt2d.getX() + 6, (int) pt2d.getY() - 3);
+            }
+            
+            SystemPositionAndAttitude pose = SoiUtils.estimatedState(ImcSystemsHolder.lookupSystemByName(sys), p);
+            if (pose != null) {
+                g.setColor(new Color(128,0,0,128));
+                Point2D pt = renderer.getScreenPosition(pose.getPosition());
+                g.translate(pt.getX(), pt.getY());
+                g.rotate(pose.getYaw());
+                g.fill(new Ellipse2D.Double(-4, -4, 8, 8));
             }
         }
     }
