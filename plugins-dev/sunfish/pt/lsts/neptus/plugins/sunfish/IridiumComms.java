@@ -208,8 +208,7 @@ public class IridiumComms extends SimpleRendererInteraction {
             }
             else if (m instanceof ImcIridiumMessage) {
                 for (IMCMessage message : m.asImc()) {
-                    System.out.println("Posting internally: "+message);
-                    
+                    System.out.println("Posting internally: "+message);                    
                     message.setSrc(m.getSource());
                     ImcMsgManager.getManager().postInternalMessage("IridiumComms", message);
                 }
@@ -217,20 +216,20 @@ public class IridiumComms extends SimpleRendererInteraction {
             NeptusLog.pub().info("Resulting message: "+m);
         }
         catch (Exception e) {
-            NeptusLog.pub().error(e);
+            NeptusLog.pub().info("Received a custom Iridium text from "+msg.getSourceName()+": "+new String(msg.getData()));
         }
     }
 
     @Subscribe
     public void on(IridiumMsgTx msg) {
         try {
-            byte[] data = msg.getData();
+            byte[] data = msg.getData();            
             NeptusLog.pub().info(msg.getSourceName()+" request sending of iridium message with data "+new String(Hex.encodeHex(data)));
             IridiumMessage m = IridiumMessage.deserialize(data);
             NeptusLog.pub().info("Encoded message: "+m);
         }
         catch (Exception e) {
-            NeptusLog.pub().error(e);
+            NeptusLog.pub().info(msg.getSourceName()+" sent a custom iridium message with text: "+new String(msg.getData()));
         }
     }
 
