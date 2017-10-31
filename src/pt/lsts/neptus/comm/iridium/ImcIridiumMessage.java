@@ -103,7 +103,8 @@ public class ImcIridiumMessage extends IridiumMessage {
        Vector<IMCMessage> vec = new Vector<>();
        if (msg == null)
            return vec;
-       IMCMessage clone = msg.cloneMessage();
+       IMCMessage clone = IMCDefinition.getInstance().create(msg.getAbbrev());
+       clone.setValues(msg.getValues());
        clone.setSrc(getSource());
        clone.setDst(getDestination());
        clone.setTimestamp(timestampMillis/1000.0);
