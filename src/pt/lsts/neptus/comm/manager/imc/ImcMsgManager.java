@@ -316,17 +316,15 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
      * @param message The message to be sent
      */
     public void postInternalMessage(String srcName, IMCMessage message) {
+        
         MessageInfoImpl minfo = new MessageInfoImpl();
         minfo.setPublisher(srcName);
         minfo.setPublisherInetAddress("127.0.0.1");
         minfo.setPublisherPort(6001);
         minfo.setTimeReceivedSec(System.currentTimeMillis() / 1000.0);
         checkAndSetMessageSrcEntity(message);
-        
-        NeptusLog.pub().info("Posting internal msg: "+message.getAbbrev()+" from "+srcName);
-        
+        NeptusLog.pub().debug("Posting internal msg: "+message.getAbbrev()+" from "+srcName);        
         onMessage(minfo, message);
-        bus.post(message);
     }
 
     private void updateUdpOnIpMapper() {

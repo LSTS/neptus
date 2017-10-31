@@ -45,6 +45,7 @@ import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 
+import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
@@ -115,6 +116,10 @@ public enum NeptusEvents {
      * @param arg0
      */
     public static void post(Object arg0) {
+        
+        if (arg0.getClass() == IMCMessage.class)
+            NeptusLog.pub().warn("Posting an abstract IMCMessage (type:"+((IMCMessage)arg0).getAbbrev()+") to the bus.");
+        
         NeptusEvents.INSTANCE.eventBus.post(arg0);
     }
 
