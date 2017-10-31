@@ -54,7 +54,6 @@ import pt.lsts.imc.PlanSpecification;
 import pt.lsts.imc.SoiCommand;
 import pt.lsts.imc.SoiCommand.COMMAND;
 import pt.lsts.imc.SoiCommand.TYPE;
-import pt.lsts.imc.def.SystemType;
 import pt.lsts.imc.state.ImcSystemState;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.iridium.ImcIridiumMessage;
@@ -101,7 +100,10 @@ public class SoiInteraction extends SimpleRendererInteraction {
 
     @NeptusProperty(name = "Time (seconds) till first waypoint", description = "Time, in seconds, for the first waypoint ETA")
     public double timeToFirstWaypoint;
-
+    
+    @NeptusProperty(name = "Hide layer if inactive")
+    public boolean hideIfInactive = true;
+    
     private LinkedHashMap<String, Plan> plans = new LinkedHashMap<>();
 
     @NeptusMenuItem("Tools>SOI>Send Resume")
@@ -236,10 +238,11 @@ public class SoiInteraction extends SimpleRendererInteraction {
 
     @Subscribe
     public void on(SoiCommand cmd) {
-
         if (cmd.getType() != SoiCommand.TYPE.SUCCESS)
             return;
-
+        
+        NeptusLog.pub().info("Processing SoiCommand: "+cmd.asJSON());
+        
         switch (cmd.getCommand()) {
             case GET_PARAMS:
                 getConsole().post(Notification.success(I18n.text("SOI Settings"),
@@ -373,7 +376,7 @@ public class SoiInteraction extends SimpleRendererInteraction {
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         super.paint(g, renderer);
 
-        if (!active)
+        if (!active && hideIfInactive)
             return;
 
         String sys = getConsole().getMainSystem();
