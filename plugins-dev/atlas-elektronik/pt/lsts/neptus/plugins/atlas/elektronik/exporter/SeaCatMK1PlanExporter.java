@@ -212,7 +212,10 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
     private ArrayList<String> payloadsInPlan = new ArrayList<>();
     private boolean isKeepPositionOrDriftAtEnd = true;
     private double turnRadius = DEFAULT_TURN_RADIUS;
+    
+    // Acoms vars
     private boolean acomsOnCurves = false;
+    private int acomsRepetitions = 3;
     
     // Debug
     public static boolean debug = false;
@@ -365,6 +368,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
         isKeepPositionOrDriftAtEnd = true;
         turnRadius = DEFAULT_TURN_RADIUS;
         acomsOnCurves = false;
+        acomsRepetitions = 3;
     }
 
     private long resetCommandLineCounter() {
@@ -975,7 +979,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
             return;
         
         if (curveStartOrEnd)
-            sb.append(getSetting('Q', "Acoms", "3", "0"));
+            sb.append(getSetting('Q', "Acoms", Integer.toString(acomsRepetitions), "0"));
         else
             sb.append(getSetting('Q', "Acoms", "0"));
     }
@@ -1017,6 +1021,14 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                             if (Boolean.parseBoolean(params.get(0).getValue())) { // "Auto Send" parameter
                                 EntityParameter pRep = getParamWithName(params, "Repetitions");
                                 EntityParameter pInt = getParamWithName(params, "Interval");
+                                
+                                try {
+                                    acomsRepetitions = Integer.parseInt(pRep.getValue());
+                                }
+                                catch (Exception e) {
+                                    e.printStackTrace();
+                                    acomsRepetitions = 3;
+                                }
                                 
                                 try {
                                     acomsOnCurves = Integer.parseInt(pInt.getValue()) == -1 ? true : false;
