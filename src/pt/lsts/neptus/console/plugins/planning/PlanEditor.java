@@ -736,10 +736,6 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                         break;
                 }
                 
-                // To avoid reusing a plan that is being re-saved to another name
-                if (!closeEditorOnSave && !planId.equals(plan.getId()))
-                    plan = plan.clonePlan();
-                
                 plan.setId(planId);
                 plan.setMissionType(getConsole().getMission());
                 getConsole().getMission().addPlan(plan);
@@ -765,7 +761,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                         getAssociatedSwitch().doClick();
                 }
                 else {
-                    setPlan(tmpPlan);
+                    setPlan(tmpPlan.clonePlan());
                 }
                 
                 getConsole().updateMissionListeners();
