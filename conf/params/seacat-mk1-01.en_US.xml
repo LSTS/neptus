@@ -625,4 +625,14 @@
       <desc>Sets automatic target recognition function active or inactive.</desc>
     </param>
   </section>
+  <section name="ATR" name-i18n="Automatic Target Recognition">
+    <param name="Mission Critical">
+      <name-i18n>Mission Critical</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>plan</scope>
+      <default>false</default>
+      <units/>
+    </param>
+  </section>
 </config>
