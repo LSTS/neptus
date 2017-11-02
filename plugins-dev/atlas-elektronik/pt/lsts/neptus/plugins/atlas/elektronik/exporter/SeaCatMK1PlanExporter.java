@@ -1089,6 +1089,8 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
             activeValue = Boolean.parseBoolean(ep.getValue().trim());
             String value = replaceTextIfBoolean(payloadName, name, ep.getValue());
             
+            if (sb.length() > 0)
+                sb.append(";");
             sb.append(name.toUpperCase());
             sb.append(":");
             sb.append(formatParameterValue(value));
@@ -1102,7 +1104,6 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                     break;
                 }
             }
-            sb.append(";");
         }
 
         return getSetting('P', payloadName, sb.toString());
