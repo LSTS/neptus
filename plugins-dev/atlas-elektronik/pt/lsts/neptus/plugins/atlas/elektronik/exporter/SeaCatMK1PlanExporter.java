@@ -1092,12 +1092,15 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
             sb.append(name.toUpperCase());
             sb.append(":");
             sb.append(formatParameterValue(value));
-            if (activeKey && !activeValue) {
-                // Mark payload for mission end switch off
-                if (!payloadsInPlan.contains(payloadName))
-                    payloadsInPlan.add(payloadName);
-
-                break;
+            if (activeKey) {
+                if (activeValue) {
+                    // Mark payload for mission end switch off
+                    if (!payloadsInPlan.contains(payloadName))
+                        payloadsInPlan.add(payloadName);
+                }
+                else {
+                    break;
+                }
             }
             sb.append(";");
         }
