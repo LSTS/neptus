@@ -46,6 +46,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Vector;
@@ -118,6 +119,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
     public static HashMap<String, String> activeReplacementStringForPayload = new HashMap<>();
     public static HashMap<String, HashMap<String, Pair<String, String>>> booleanReplacementString = new HashMap<>();
     public static HashMap<String, ArrayList<String>> modelSystemPayloads = new HashMap<>();
+    public static HashMap<String, HashMap<String, String>> functionPayloadReplacement = new HashMap<>();
     
     // register maneuver previews
     static {
@@ -200,6 +202,33 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                     }
                     if (!pls.isEmpty())
                         modelSystemPayloads.put(pair[0].trim(), pls);
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        
+        try {
+            String mapperTxt = IOUtils.toString(FileUtil.getResourceAsStream("payload-to-function-replacement.txt"));
+            String[] lines = mapperTxt.split("[\r\n]");
+            for (String ln : lines) {
+                if (ln.startsWith("#") || ln.startsWith("%") || ln.startsWith(";"))
+                    continue;
+                try {
+                    if (ln.isEmpty())
+                        continue;
+                    String[] pair = ln.trim().split(" {1,}");
+                    if (pair.length < 3)
+                        continue;
+                    
+                    if (!functionPayloadReplacement.containsKey(pair[0].trim()))
+                        functionPayloadReplacement.put(pair[0].trim(), new HashMap<String, String>());
+                    
+                    functionPayloadReplacement.get(pair[0].trim()).put(pair[1].trim(), pair[2].trim());
                 }
                 catch (Exception e) {
                     e.printStackTrace();
@@ -1073,21 +1102,42 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
      * @return
      */
     private String processPayload(String payloadName, Vector<EntityParameter> params) {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder mainSb = new StringBuilder();
+        StringBuilder sb = mainSb;
+        LinkedHashMap<String, StringBuilder> funcSb = new LinkedHashMap<>();
+        
+        HashMap<String, String> functionPayload = functionPayloadReplacement.get(payloadName);
+        
+        boolean isProcessingActiveOrInactive = true;
         for (EntityParameter ep : params) {
+            sb = mainSb;
+            
             String name = ep.getName();
             boolean activeKey = false;
             boolean activeValue = false;
-            if (name.equalsIgnoreCase("Active")) {
-                name = translatePayloadActiveFor(payloadName);
-                activeKey = true;
+            boolean isFunctionPayload = false;
+            
+            if (functionPayload != null && functionPayload.containsKey(formatParameterName(name))) {
+                name = functionPayload.get(formatParameterName(name));
+                isFunctionPayload = true;
+                sb = new StringBuilder();
+                funcSb.put(formatParameterName(ep.getName()), sb);
             }
             else {
-                name = formatParameterName(name);
+                if (name.equalsIgnoreCase("Active")) {
+                    name = translatePayloadActiveFor(payloadName);
+                    activeKey = true;
+                }
+                else {
+                    if (!isProcessingActiveOrInactive)
+                        continue;
+                    
+                    name = formatParameterName(name);
+                }
             }
             
             activeValue = Boolean.parseBoolean(ep.getValue().trim());
-            String value = replaceTextIfBoolean(payloadName, name, ep.getValue());
+            String value = replaceTextIfBoolean(payloadName, isFunctionPayload ? formatParameterName(ep.getName()) : name, ep.getValue());
             
             if (sb.length() > 0)
                 sb.append(";");
@@ -1101,12 +1151,23 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                         payloadsInPlan.add(payloadName);
                 }
                 else {
-                    break;
+                    isProcessingActiveOrInactive = false;
+                    
+                    if (functionPayload == null || functionPayload.isEmpty())
+                        break;
                 }
             }
+            
+            if (isProcessingActiveOrInactive && isFunctionPayload
+                    && !payloadsInPlan.contains(formatParameterName(ep.getName())))
+                payloadsInPlan.add(formatParameterName(ep.getName()));
         }
 
-        return getSetting('P', payloadName, sb.toString());
+        StringBuilder retSb = new StringBuilder(getSetting('P', payloadName, mainSb.toString()));
+        for (String key : funcSb.keySet())
+            retSb.append(getSetting('P', key, funcSb.get(key).toString()));
+        
+        return retSb.toString();
     }
 
     /**

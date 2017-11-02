@@ -5,3 +5,4 @@ TritechPSBP PING
 UUVCam LOG
 GeometricsG882 PING
 KrakenMinsas PING
+ATR PING

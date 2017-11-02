@@ -1,0 +1,3 @@
+# Space separated values  for payload params promoted to payload function with the param name replacement
+# Payload param-to-be-funcion-payload param-replacement-name
+KrakenMinsas ATR PING
