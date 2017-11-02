@@ -3,6 +3,5 @@
 # Context can be '*' for global scope or the name of he payload
 * MISSIONCRITICAL N C
 * PING OFF ON_LOG
-KrakenMinsas PING OFF ON_PROC
 * IMAGE_COMPR NO AUTO
 * ATR OFF ON_LOG
