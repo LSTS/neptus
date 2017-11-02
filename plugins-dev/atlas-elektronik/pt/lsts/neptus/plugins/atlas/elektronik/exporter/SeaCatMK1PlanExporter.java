@@ -64,7 +64,6 @@ import de.atlas.elektronik.simulation.SeacatSKeepPreview;
 import de.atlas.elektronik.simulation.SeacatSurveyPreview;
 import de.atlas.elektronik.simulation.SeacatTrajectoryPreview;
 import pt.lsts.imc.EntityParameter;
-import pt.lsts.imc.FollowTrajectory;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.SetEntityParameters;
 import pt.lsts.neptus.NeptusLog;
@@ -106,6 +105,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
 
     private static final int DEFAULT_TURN_RADIUS = 15;
     
+    private static final String GLOBAL_CONTEXT_STRING = "*";
     private static final String NEW_LINE = "\r\n";
     private static final String COMMENT_CHAR = "%";
     private static final String COMMENT_CHAR_WITH_SPACE = COMMENT_CHAR + " ";
@@ -116,7 +116,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
     /** Tue Dec 15 13:34:50 2009 */
     public static final SimpleDateFormat dateFormatter = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy Z", Locale.US);
     public static HashMap<String, String> activeReplacementStringForPayload = new HashMap<>();
-    public static HashMap<String, Pair<String, String>> booleanReplacementString = new HashMap<>();
+    public static HashMap<String, HashMap<String, Pair<String, String>>> booleanReplacementString = new HashMap<>();
     public static HashMap<String, ArrayList<String>> modelSystemPayloads = new HashMap<>();
     
     // register maneuver previews
@@ -165,9 +165,13 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                     if (ln.isEmpty())
                         continue;
                     String[] pair = ln.trim().split(" {1,}");
-                    if (pair.length < 3)
+                    if (pair.length < 4)
                         continue;
-                    booleanReplacementString.put(pair[0].trim(), Pair.of(pair[1].trim(), pair[2].trim()));
+                    
+                    if (!booleanReplacementString.containsKey(pair[0].trim())) {
+                        booleanReplacementString.put(pair[0].trim(), new HashMap<String, Pair<String, String>>());
+                    }
+                    booleanReplacementString.get(pair[0].trim()).put(pair[1].trim(), Pair.of(pair[2].trim(), pair[3].trim()));
                 }
                 catch (Exception e) {
                     e.printStackTrace();
@@ -423,23 +427,23 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
     }
 
     @SuppressWarnings("unused")
-    private String translateValueToString(String name, String value) {
-        return translateValueToString(name, value, (short) -1);
+    private String translateValueToString(String context, String name, String value) {
+        return translateValueToString(context, name, value, (short) -1);
     }
 
     @SuppressWarnings("unused")
     private String translateValueToString(String value) {
-        return translateValueToString("", value, (short) -1);
+        return translateValueToString("", "", value, (short) -1);
     }
 
     private String translateValueToString(String value, short decimalPlaces) {
-        return translateValueToString("", value, decimalPlaces);
+        return translateValueToString("", "", value, decimalPlaces);
     }
 
-    private String translateValueToString(String name, String value, short decimalPlaces) {
+    private String translateValueToString(String context, String name, String value, short decimalPlaces) {
         Boolean boolValue = BooleanUtils.toBooleanObject(value);
         if (boolValue != null) {
-            return replaceTextIfBoolean(name, value);
+            return replaceTextIfBoolean(context, name, value);
         }
         else {
             try {
@@ -653,7 +657,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                         Boolean boolValue = BooleanUtils.toBooleanObject(pMC.getValue().trim());
                         if (boolValue == null)
                             continue;
-                        String value = replaceTextIfBoolean(pMC.getName(), pMC.getValue());
+                        String value = replaceTextIfBoolean(sep.getName(), pMC.getName(), pMC.getValue());
                         boolean systemOrSwappable = isPayloadASystemOrSwappable(plan.getVehicle(), sep.getName());
                         int counter;
                         StringBuilder sb;
@@ -1083,7 +1087,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
             }
             
             activeValue = Boolean.parseBoolean(ep.getValue().trim());
-            String value = replaceTextIfBoolean(name, ep.getValue());
+            String value = replaceTextIfBoolean(payloadName, name, ep.getValue());
             
             sb.append(name.toUpperCase());
             sb.append(":");
@@ -1106,13 +1110,26 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
      * @param string 
      * @return
      */
-    private String replaceTextIfBoolean(String name, String value) {
+    private String replaceTextIfBoolean(String context, String name, String value) {
         value = value.trim().toLowerCase();
         Boolean bvt = BooleanUtils.toBooleanObject(value);
         if (bvt == null)
             return value;
+
+        String formatedParameterName = formatParameterName(name);
+        Pair<String, String> boolRep = null;
+
+        HashMap<String, Pair<String, String>> ctxt = booleanReplacementString.get(context);
+        if (ctxt != null && ctxt.containsKey(formatedParameterName)) {
+            boolRep = ctxt.get(formatedParameterName);
+        }
+        else {
+            ctxt = booleanReplacementString.get(GLOBAL_CONTEXT_STRING);
+            if (ctxt != null && ctxt.containsKey(formatedParameterName)) {
+                boolRep = ctxt.get(formatedParameterName);
+            }
+        }
         
-        Pair<String, String> boolRep = booleanReplacementString.get(formatParameterName(name));
         if (boolRep != null) {
             if (bvt == true)
                 return boolRep.getRight();
