@@ -1,8 +1,1 @@
 # Space separated values for "Active" parameters replacement text
-Edgetech2205 ACTIVE
-NorbitWBMS ACTIVE
-TritechPSBP ACTIVE
-UUVCam ACTIVE
-GeometricsG882 ACTIVE
-KrakenMinsas ACTIVE
-ATR ACTIVE
