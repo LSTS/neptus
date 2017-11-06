@@ -455,7 +455,6 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
         return ret;
     }
 
-    @SuppressWarnings("unused")
     private String translateValueToString(String context, String name, String value) {
         return translateValueToString(context, name, value, (short) -1);
     }
@@ -1483,7 +1482,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
         // Switch off payloads
         for (String payloadName : payloadsInPlan) {
             String name = translatePayloadActiveFor(payloadName);
-            sb.append(getSetting('P', payloadName, name.toUpperCase() + ":OFF"));
+            sb.append(getSetting('P', payloadName, name.toUpperCase() + ":" + translateValueToString(payloadName, name.toUpperCase(), "OFF")));
         }
 
         return sb.toString();
