@@ -1,6 +1,1 @@
 # Space separated values for "Active" parameters replacement text
-Edgetech2205 PING
-NorbitWBMS PING
-TritechPSBP PING
-UUVCam LOG
-GeometricsG882 PING

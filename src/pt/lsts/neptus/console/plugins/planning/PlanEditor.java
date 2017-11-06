@@ -750,6 +750,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                     else
                         break;
                 }
+                
                 plan.setId(planId);
                 plan.setMissionType(getConsole().getMission());
                 getConsole().getMission().addPlan(plan);
@@ -775,7 +776,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                         getAssociatedSwitch().doClick();
                 }
                 else {
-                    setPlan(tmpPlan);
+                    setPlan(tmpPlan.clonePlan());
                 }
                 
                 getConsole().updateMissionListeners();

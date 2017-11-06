@@ -552,4 +552,87 @@
       <units/>
     </param>
   </section>
+  <section name="KrakenMinsas" name-i18n="SAS">
+    <param name="Active">
+      <name-i18n>Active</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>false</default>
+      <units/>
+      <desc>True to activate task, false otherwise</desc>
+    </param>
+    <param name="Mission Critical">
+      <name-i18n>Mission Critical</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>plan</scope>
+      <default>false</default>
+      <units/>
+    </param>
+    <param name="Pulse_Inerval">
+      <name-i18n>Pulse Inerval</name-i18n>
+      <type>real</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>0.15</default>
+      <units>s</units>
+      <desc>Sets the pulse interval (in seconds).</desc>
+      <min>0.1</min>
+      <max>0.5</max>
+    </param>
+    <param name="Pulse_Length">
+      <name-i18n>Pulse Length</name-i18n>
+      <type>real</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>0.005</default>
+      <units>s</units>
+      <desc>Sets the pulse lengths (in seconds).</desc>
+      <min>0.001</min>
+      <max>0.01</max>
+    </param>
+    <param name="Gain">
+      <name-i18n>Gain</name-i18n>
+      <type>integer</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>30</default>
+      <units></units>
+      <desc>Sets the analog front end gain.</desc>
+      <min>20</min>
+      <max>30</max>
+      <values>20,25,27,30</values>
+    </param>
+    <param name="Max_Range_Per_Altitude">
+      <name-i18n>Max Range per Altitude</name-i18n>
+      <type>integer</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>10</default>
+      <units>m</units>
+      <desc>Sets the ratio of the maximum range to the altitude.</desc>
+      <min>5</min>
+      <max>20</max>
+    </param>
+    <param name="ATR">
+      <name-i18n>Automatic Target Recognition</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>false</default>
+      <units/>
+      <desc>Sets automatic target recognition function active or inactive.</desc>
+    </param>
+  </section>
+  <section name="ATR" name-i18n="Automatic Target Recognition">
+    <param name="Mission Critical">
+      <name-i18n>Mission Critical</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>plan</scope>
+      <default>false</default>
+      <units/>
+    </param>
+  </section>
 </config>

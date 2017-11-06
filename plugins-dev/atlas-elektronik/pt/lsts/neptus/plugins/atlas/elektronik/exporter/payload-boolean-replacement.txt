@@ -1,5 +1,8 @@
 # Space separated values for boolean values replacement text values
-# Parameter False True
-MISSIONCRITICAL N C
-PING OFF ON_LOG
-IMAGE_COMPR NO AUTO
+# Context Parameter False True
+# Context can be '*' for global scope or the name of he payload
+* MISSIONCRITICAL N C
+* ACTIVE OFF;RECORDING:OFF ON;RECORDING:ON
+KrakenMinsas ACTIVE OFF;RECORDING:OFF;PROCESSING:ON ON;RECORDING:ON;PROCESSING:ON
+* IMAGE_COMPR NO AUTO
+* ATR OFF;RECORDING:OFF ON;RECORDING:ON

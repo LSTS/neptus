@@ -204,7 +204,7 @@ public class PlanSimulationLayer extends ConsoleLayer implements PlanSimulationL
         ArrayList<Pair<PlanCheck, String>> checks = new ArrayList<>();
 
         synchronized (PlanSimulationLayer.this) {
-            for (SystemPositionAndAttitude s : simOverlay.getStates()) {
+            for (SystemPositionAndAttitude s : simOverlay.getStates().toArray(new SystemPositionAndAttitude[0])) {
                 distAtEnd = s.getPosition().getDistanceInMeters(base);
                 maxDistToBase = Math.max(distAtEnd, maxDistToBase);
             }
