@@ -46,6 +46,8 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Vector;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.swing.JFileChooser;
 import javax.swing.JPopupMenu;
@@ -653,19 +655,18 @@ public class MVPlannerInteraction extends ConsoleInteraction {
      * and split them
      * */
     private void searchAndSplitSurveys() {
-        List<MVPlannerTask> toBeSplit = new ArrayList<>();
-        
-        synchronized (tasks) {
-            // fetch surveys eligible to be split
-            for(MVPlannerTask task : tasks) {
-                if (task.getLength() > surveyMaxLength)
-                    toBeSplit.add(task);
-            }
 
-            for(MVPlannerTask task : toBeSplit) {
-                tasks.addAll(task.splitTask(surveyMaxLength));
-                tasks.remove(task);
-            }                        
+        synchronized (tasks) {
+            
+            List<MVPlannerTask> toBeSplit = tasks.stream()
+                    .filter(t -> t.getLength() > surveyMaxLength)                    
+                    .collect(Collectors.toList());
+
+            tasks.removeAll(toBeSplit);
+            
+            tasks.addAll(toBeSplit.stream()
+                .flatMap(t -> Stream.of(t.splitTask(surveyMaxLength).toArray(new MVPlannerTask[0])))
+                .collect(Collectors.toList()));
         }
     }
 
@@ -832,8 +833,7 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                     if (autoExec) {
                         Iterator<Pair<ArrayList<String>, ConsoleEventPlanAllocation>> it = allocations.iterator();
                         while (it.hasNext()) {
-                            Pair<ArrayList<String>, ConsoleEventPlanAllocation> val = it.next();    
-                            System.out.println(val);
+                            Pair<ArrayList<String>, ConsoleEventPlanAllocation> val = it.next();                                
                             if (val.second().getStartTime().after(nextAllocation)) {
                                 // ignore as it can be computed again before the allocation
                                 NeptusLog.pub()

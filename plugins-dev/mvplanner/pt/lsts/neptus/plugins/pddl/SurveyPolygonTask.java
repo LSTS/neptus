@@ -45,7 +45,10 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXB;
 
@@ -153,11 +156,11 @@ public class SurveyPolygonTask extends MVPlannerTask {
     }
 
     private void updateManeuver() {
-        double minHorStep = area.getDiameter();
+        //double minHorStep = area.getDiameter();
         double minDepth = Double.MAX_VALUE;
         double maxDepth = -Double.MAX_VALUE;
         for (PayloadRequirement p : getRequiredPayloads()) {
-            minHorStep = Math.min(minHorStep, p.getSwathWidth());
+          //  minHorStep = Math.min(minHorStep, p.getSwathWidth());
             if (p.getMinDepth() < 0)
                 minDepth = p.getMinDepth();
             else
@@ -170,16 +173,15 @@ public class SurveyPolygonTask extends MVPlannerTask {
         }
         entry.setCenterLocation(getEntryPoint());
         exit.setCenterLocation(getEndPoint());
-        pivot.setHorizontalStep(minHorStep);
         pivot.setPolygon(area);
     }
 
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         Graphics2D copy = (Graphics2D) g.create();
-        area.setColor(new Color(128, 180, 128, 64));
+        area.setColor(new Color(128, 224, 128, 64));
         area.paint((Graphics2D) g.create(), renderer);
-        g.setColor(Color.magenta);
+         
         for (Vertex v : area.getVertices()) {
             Point2D pt = renderer.getScreenPosition(v.getLocation());
             g.fill(new Ellipse2D.Double(pt.getX() - 5, pt.getY() - 5, 10, 10));
@@ -241,13 +243,18 @@ public class SurveyPolygonTask extends MVPlannerTask {
 
     @Override
     public Collection<MVPlannerTask> splitTask(double maxLength) {
-        //maxLength -= 100;
+
+        if (area.getDiameter() < pivot.getHorizontalStep()*2)
+            return Collections.singletonList(this);
+        
+        if (getLength() < maxLength + area.getDiameter() * 3)
+            return Collections.singletonList(this);
+        
         ArrayList<MVPlannerTask> surveys = new ArrayList<>();
         double horStep = Double.MAX_VALUE;
 
         for (PayloadRequirement p : getRequiredPayloads())
-            horStep = Math.min(horStep, p.getSwathWidth());
-        System.out.println(horStep);
+            horStep = Math.min(horStep, p.getSwathWidth());        
         
         final double swathWidth = horStep;
 
@@ -264,7 +271,7 @@ public class SurveyPolygonTask extends MVPlannerTask {
         while (curLength >= maxLength) {
             numAreas++;
             polygons.clear();
-            int horSplits = numAreas / 3 + 1;
+            int horSplits = numAreas / 2;
 
             if (horSplits > 1) {
                 ArrayList<PolygonType> polygonsHor = area.subAreas(horSplits, angle + Math.PI / 2);
@@ -277,23 +284,25 @@ public class SurveyPolygonTask extends MVPlannerTask {
                 polygons.addAll(area.subAreas(numAreas+1, angle));
             }
             
-            curLength = 0;
-            for (PolygonType p : polygons) {
-                //double swathW = Math.min(p.getDiameter(), swathWidth); 
-                curLength = Math.max(curLength, p.getPathLength(swathWidth, 0));                
-            }
+            curLength = polygons.stream()
+                .mapToDouble(p -> p.getPathLength(swathWidth, 0))
+                .max()
+                .getAsDouble();
         }
 
-        for (int i = 0; i < polygons.size(); i++) {
-            PolygonType p = polygons.get(i);
-            SurveyPolygonTask task = new SurveyPolygonTask(p.getCentroid());
-            task.area = p;
-            task.requiredPayloads = getRequiredPayloads();
-            task.firstPriority = firstPriority;
-            task.collaborative = collaborative;
-            task.updateManeuver();
-            surveys.add(task);
-        }
+        List<SurveyPolygonTask> newTasks = polygons.parallelStream()
+            .map(p -> {
+                SurveyPolygonTask task = new SurveyPolygonTask(p.getCentroid());
+                task.area = p;
+                task.requiredPayloads = getRequiredPayloads();
+                task.firstPriority = firstPriority;
+                task.collaborative = collaborative;                
+                return task;
+            })
+            .peek(t -> t.updateManeuver())
+            .collect(Collectors.toList());
+        
+        surveys.addAll(newTasks);        
 
         return surveys;
     }

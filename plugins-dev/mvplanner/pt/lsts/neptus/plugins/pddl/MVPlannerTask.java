@@ -45,6 +45,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Vector;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -66,8 +67,8 @@ import pt.lsts.neptus.util.ImageUtils;
  */
 public abstract class MVPlannerTask implements Renderer2DPainter, PropertiesProvider {
 
-    private static int count = 1;
-    protected String name = String.format(Locale.US, "t%02d", count++);
+    private static AtomicInteger count = new AtomicInteger(1);
+    protected String name = String.format(Locale.US, "t%02d", count.getAndIncrement());
     protected HashSet<PayloadRequirement> requiredPayloads = new HashSet<PayloadRequirement>();
     protected boolean firstPriority = false;
     protected boolean collaborative = false;
@@ -111,9 +112,10 @@ public abstract class MVPlannerTask implements Renderer2DPainter, PropertiesProv
         Vector<DefaultProperty> props = new Vector<DefaultProperty>();
         props.add(PropertiesEditor.getPropertyInstance("First Priority", "Options", Boolean.class, firstPriority, true));
         props.add(PropertiesEditor.getPropertyInstance("Collaborative Localization", "Options", Boolean.class, collaborative, true));
-         
+        
         for (PayloadRequirement pr : PayloadRequirement.values()) {
-            props.add(PropertiesEditor.getPropertyInstance(pr.name(), "Payload Requirements", Boolean.class, requiredPayloads.contains(pr), true));
+            props.add(PropertiesEditor.getPropertyInstance(pr.name(), "Payload Requirements", Boolean.class,
+                    requiredPayloads.contains(pr), true, pr.getDescription()));
         }
         
         return props.toArray(new DefaultProperty[0]);
