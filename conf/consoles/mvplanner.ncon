@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<console name="Neptus Console" width="1366" height="743" resizable="true" mission-file="../../missions/REP17/rep17.nmisz" main-vehicle="lauv-noptilus-1">
-  <!-- Data saved on 2017-07-11T14:20:33.0Z with Neptus version 2017.06.1-dev (compiled on 2017-07-10, gneptus-2016.10.0-1110-g7186089). -->
+<console name="Neptus Console" width="1366" height="727" resizable="true" mission-file="../../missions/APDL/missao-apdl.nmisz" main-vehicle="lauv-noptilus-3">
+  <!-- Data saved on 2017-11-12T10:10:37.0Z with Neptus version @VERSION@ (compiled on @DATE@, g@SCM_REV@). -->
   <mainpanel name="console main panel">
-    <subpanel class="pt.lsts.neptus.console.plugins.containers.MigLayoutContainer" x="0" y="0" width="1360" height="659">
+    <subpanel class="pt.lsts.neptus.console.plugins.containers.MigLayoutContainer" x="0" y="0" width="1360" height="643">
       <properties>
         <entry key="XML Definitions">&lt;profiles&gt;
   &lt;profile name="Normal"&gt;
@@ -87,10 +87,10 @@
       <child class="pt.lsts.neptus.plugins.map.MapEditor" x="0" y="0" width="0" height="0">
         <properties/>
       </child>
-      <child class="pt.lsts.neptus.console.plugins.planning.MapPanel" x="0" y="0" width="1054" height="659">
+      <child class="pt.lsts.neptus.console.plugins.planning.MapPanel" x="0" y="0" width="1054" height="643">
         <properties/>
       </child>
-      <child class="pt.lsts.neptus.console.plugins.planning.MissionTreePanel" x="0" y="162" width="294" height="491">
+      <child class="pt.lsts.neptus.console.plugins.planning.MissionTreePanel" x="0" y="162" width="294" height="475">
         <properties/>
       </child>
       <child class="pt.lsts.neptus.console.plugins.planning.MultiVehiclePlanOverlay" x="0" y="0" width="0" height="0">
@@ -109,10 +109,7 @@
         <properties/>
       </child>
       <child class="pt.lsts.neptus.console.plugins.planning.PlanEditor" x="0" y="0" width="0" height="0">
-        <properties>
-          <entry key="Show Depth Profile">true</entry>
-          <entry key="Show Plan Simulation">true</entry>
-        </properties>
+        <properties/>
       </child>
       <child class="pt.lsts.neptus.console.plugins.PlanExporter" x="0" y="0" width="0" height="0">
         <properties/>
@@ -158,6 +155,9 @@ altitude: ${EstimatedState.alt};
     <layer class="pt.lsts.neptus.console.plugins.planning.MapShortcutsLayer" opacity="1.0">
       <properties/>
     </layer>
+    <layer class="pt.lsts.neptus.plugins.alliance.NmeaPlotter" opacity="1.0">
+      <properties/>
+    </layer>
     <layer class="pt.lsts.neptus.console.plugins.planning.PlanSimulationLayer" opacity="1.0">
       <properties/>
     </layer>
@@ -171,10 +171,10 @@ altitude: ${EstimatedState.alt};
     </interaction>
     <interaction class="pt.lsts.neptus.plugins.pddl.MVPlannerInteraction">
       <properties>
-        <entry key="Time (seconds) vehicles can stay away from depot">1200</entry>
+        <entry key="Domain Model to use">OneRound</entry>
+        <entry key="Time (seconds) vehicles can stay away from depot">2000</entry>
         <entry key="Use Onboard Executive">false</entry>
-        <entry key="Maximum length permitted for a survey task.">300.0</entry>
-        <entry key="Time (seconds) to search for optimal solution.">20</entry>
+        <entry key="Automatic execution.">true</entry>
       </properties>
     </interaction>
     <interaction class="pt.lsts.neptus.console.plugins.SystemsInteraction">
