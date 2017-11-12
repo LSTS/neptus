@@ -132,8 +132,8 @@ public class UavHUDInfoPainter implements IUavPainter{
             pitchOuterBox = createPitchOuterBox(pitchReadOut.getBounds().width, pitchReadOut.getBounds().height, 90,10);
             rollOuterBox = createDefaultOuterBox(rollReadOut.getBounds().width, rollReadOut.getBounds().height, 80, 10, NO_ORIENTATION);
             yawOuterBox = createDefaultOuterBox(yawReadOut.getBounds().width, yawReadOut.getBounds().height, 80, 10, NO_ORIENTATION);
-            indicatedSpeedOuterBox = createDefaultOuterBox(indicatedSpeedReadOut.getBounds().width, indicatedSpeedReadOut.getBounds().height, 80, 10, RIGHTSIDED);
-            altitudeOuterBox = createDefaultOuterBox(altitudeReadOut.getBounds().width, altitudeReadOut.getBounds().height, 80, 10, LEFTSIDED);
+            indicatedSpeedOuterBox = createDefaultOuterBox(indicatedSpeedReadOut.getBounds().width, indicatedSpeedReadOut.getBounds().height, 80, 10, LEFTSIDED);
+            altitudeOuterBox = createDefaultOuterBox(altitudeReadOut.getBounds().width, altitudeReadOut.getBounds().height, 80, 10, RIGHTSIDED);
             setNeedsCreation(false);
         }
                 
@@ -156,14 +156,14 @@ public class UavHUDInfoPainter implements IUavPainter{
      */
     private void drawAltitude(Graphics2D g, int width, int height) {
         
-        g.translate(0, 0);
+        g.translate(3*width/4, 0);
         
         //sets up background panel for the altitude ruler         
         drawRulerBackgrounds(g, width, height, width/4, height, 0.6);
         
-        //draws the ruler with altitude values
-        drawRuler(g, width, height, width/4, 4*height/6, altitude, 25, 8, LEFTSIDED);
         
+        //draws the ruler with altitude values
+        drawRuler(g, width, height, width/4, 4*height/6, altitude, 25, 8, RIGHTSIDED);
         g.translate(width/8, height/2);
         g.draw(altitudeOuterBox);
         g.setColor(Color.gray.brighter());
@@ -172,7 +172,7 @@ public class UavHUDInfoPainter implements IUavPainter{
         drawReadOut(g,altitudeReadOut);
         g.translate(-width/8, -height/2);
         
-        g.translate(0, 0);
+        g.translate(-3*width/4, 0);
     }
 
     /**
@@ -182,13 +182,13 @@ public class UavHUDInfoPainter implements IUavPainter{
      */
     private void drawSpeed(Graphics2D g, int width, int height) {
         
-        g.translate(3*width/4, 0);
+        g.translate(0, 0);
         
         //sets up background panel for the speed ruler         
         drawRulerBackgrounds(g, width, height, width/4, height, 0.6);
                 
         //draws the ruler with speed values
-        drawRuler(g, width, height, width/4, 4*height/6, indicatedSpeed, 10, 5, RIGHTSIDED);
+        drawRuler(g, width, height, width/4, 4*height/6, indicatedSpeed, 10, 5, LEFTSIDED);
         
         g.translate(width/8, height/2);
         g.setColor(Color.black);
@@ -199,7 +199,7 @@ public class UavHUDInfoPainter implements IUavPainter{
         drawReadOut(g,indicatedSpeedReadOut);
         g.translate(-width/8, -height/2);
         
-        g.translate(-3*width/4, 0);
+        g.translate(0, 0);
     }
 
     /**
@@ -299,9 +299,9 @@ public class UavHUDInfoPainter implements IUavPainter{
         if(orientation == LEFTSIDED){        
             g.translate(0,(hostHeight-desiredHeight)/2);
 
-            int markValue = BigDecimal.valueOf(value).intValue()/scale + (numMarks/2);
+            int markValue = BigDecimal.valueOf(value*10).intValue()/scale + (numMarks/2);
             int markSeparation = desiredHeight / numMarks;
-            int alignment = ( BigDecimal.valueOf(value%scale).intValue() * markSeparation) / scale;
+            int alignment = ( BigDecimal.valueOf(value*10%scale).intValue() * markSeparation) / scale;
             int i = ((desiredHeight/2) + alignment) - ((numMarks/2)*markSeparation);       
             
             g.setColor(Color.black);
@@ -311,9 +311,9 @@ public class UavHUDInfoPainter implements IUavPainter{
                 if(i > 0){
                     g.fillRect(0,i-2,desiredWidth/6,4);
                     if(i < (desiredHeight/2)-10 || i > (desiredHeight/2)+10){
-                        g.drawString(String.valueOf(markValue*scale), 
+                        g.drawString(String.valueOf(BigDecimal.valueOf(markValue).doubleValue()), 
                                 (desiredWidth/6)+3, 
-                                i+g.getFontMetrics().getHeight()/4);     
+                                i+g.getFontMetrics().getHeight()/4); 
                     }
                 }
 
@@ -328,9 +328,9 @@ public class UavHUDInfoPainter implements IUavPainter{
         else if(orientation == RIGHTSIDED){
             g.translate(0,(hostHeight-desiredHeight)/2);
 
-            int markValue = BigDecimal.valueOf(value*10).intValue()/scale + (numMarks/2);
+            int markValue = BigDecimal.valueOf(value).intValue()/scale + (numMarks/2);
             int markSeparation = desiredHeight / numMarks;
-            int alignment = ( BigDecimal.valueOf(value*10%scale).intValue() * markSeparation) / scale;
+            int alignment = ( BigDecimal.valueOf(value%scale).intValue() * markSeparation) / scale;
             int i = ((desiredHeight/2) + alignment) - ((numMarks/2)*markSeparation);       
             
             g.setColor(Color.black);
@@ -338,10 +338,10 @@ public class UavHUDInfoPainter implements IUavPainter{
             while(i < desiredHeight){
 
                 if(i > 0){
-                    g.fillRect(5*desiredWidth/6,i-2,desiredWidth/6,4);
+                     g.fillRect(5*desiredWidth/6,i-2,desiredWidth/6,4);
                     
                     if(i < (desiredHeight/2)-10 || i > (desiredHeight/2)+10){
-                        g.drawString(String.valueOf(BigDecimal.valueOf(markValue).doubleValue()), 
+                        g.drawString(String.valueOf(markValue*scale), 
                                 (5*desiredWidth/6)-(g.getFontMetrics().stringWidth(String.valueOf(BigDecimal.valueOf(markValue).doubleValue()))), 
                                 i+g.getFontMetrics().getHeight()/4);     
                     }

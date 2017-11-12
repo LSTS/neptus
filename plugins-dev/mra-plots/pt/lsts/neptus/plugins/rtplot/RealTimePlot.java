@@ -102,6 +102,7 @@ public class RealTimePlot extends ConsolePanel implements IPeriodicUpdates, Conf
     public String traceScripts = "roll: ${EstimatedState.phi} * 180 / Math.PI;\npitch: ${EstimatedState.theta} * 180 / Math.PI;\nyaw: ${EstimatedState.psi} * 180 / Math.PI";
 
     private String traceScriptsBefore = "";
+    private int numPointsBefore = numPoints;
 
     public RealTimePlot(ConsoleLayout c) {
         super(c);
@@ -187,7 +188,7 @@ public class RealTimePlot extends ConsolePanel implements IPeriodicUpdates, Conf
 
     @Override
     public void propertiesChanged() {
-        if (!traceScripts.equals(traceScriptsBefore)) {
+        if (!traceScripts.equals(traceScriptsBefore) || numPoints != numPointsBefore) {
             tsc.removeAllSeries();
             scripts.clear();
 
@@ -200,6 +201,7 @@ public class RealTimePlot extends ConsolePanel implements IPeriodicUpdates, Conf
         }
 
         traceScriptsBefore = traceScripts;
+        numPointsBefore = numPoints;
     }
 
     protected void parseScript() throws Exception {

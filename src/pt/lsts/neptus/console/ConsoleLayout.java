@@ -35,6 +35,7 @@ package pt.lsts.neptus.console;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dialog.ModalityType;
 import java.awt.Dimension;
 import java.awt.KeyEventDispatcher;
@@ -77,6 +78,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
 
 import org.dom4j.Document;
@@ -227,6 +229,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     public boolean resizableConsole = false;
     
     private boolean systemComboOnMenu = true;
+    private boolean useMainVehicleComboOnConsoles = true;
     
     protected PluginManager pluginManager = null;
     protected SettingsWindow settingsWindow = null;
@@ -348,6 +351,8 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
      */
     protected ConsoleLayout() {
         systemComboOnMenu = GeneralPreferences.placeMainVehicleComboOnMenuOrStatusBar;
+        useMainVehicleComboOnConsoles = GeneralPreferences.useMainVehicleComboOnConsoles;
+        boolean placeNotificationButtonOnConsoleStatusBar = GeneralPreferences.placeNotificationButtonOnConsoleStatusBar;
         
         NeptusEvents.create(this);
         this.setupListeners();
@@ -355,10 +360,13 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         this.setLayout(new BorderLayout());
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         notificationsDialog = new NotificationsDialog(new NotificationsCollection(this), this);
-        if (systemComboOnMenu)
-            statusBar = new StatusBar(this, notificationsDialog);
-        else
-            statusBar = new StatusBar(this, notificationsDialog, new MainSystemSelectionCombo(this));
+        if (systemComboOnMenu) {
+            statusBar = new StatusBar(this, placeNotificationButtonOnConsoleStatusBar ? notificationsDialog : null);
+        }
+        else {
+            statusBar = new StatusBar(this, placeNotificationButtonOnConsoleStatusBar ? notificationsDialog : null,
+                    useMainVehicleComboOnConsoles ? new MainSystemSelectionCombo(this) : null);
+        }
 
         mainPanel = new MainPanel(this);
         this.add(mainPanel, BorderLayout.CENTER);
@@ -648,7 +656,16 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         if (mn == null)
             return false;
 
-        mn.getParent().remove(mn);
+        Container parent = mn.getParent();
+        if (parent == null)
+            return false;
+        
+        parent.remove(mn);
+        
+        Component pef = parent.getComponent(0);
+        if (pef != null && pef instanceof JPopupMenu.Separator)
+            parent.remove(0);
+        
         return true;
     }
 
@@ -730,7 +747,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     }
 
     protected void includeExtraMainMenus() {
-        if (systemComboOnMenu) {
+        if (useMainVehicleComboOnConsoles && systemComboOnMenu) {
             menuBar.add(Box.createHorizontalGlue());
             mainSystemCombo = new MainSystemSelectionCombo(this);
             menuBar.add(mainSystemCombo);
@@ -1569,8 +1586,10 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         
         clearGlobalKeyBindings();
         
-        pluginManager.reset();
-        settingsWindow.reset();
+        if (pluginManager != null)
+            pluginManager.reset();
+        if (settingsWindow != null)
+            settingsWindow.reset();
     }
 
     /**
@@ -1900,8 +1919,13 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
             }
             insertM = i + 1;
         }
-        getConsole().getJMenuBar().add(topMenu, insertM);
 
+        try {
+            getConsole().getJMenuBar().add(topMenu, insertM);
+        }
+        catch (Exception e) {
+            NeptusLog.pub().warn("insertJMenuIntoTheMenuBarOrdered ::" + topMenu.getName() + " :: " + e.getMessage());
+        }
     }
 
     @Override
