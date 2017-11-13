@@ -570,8 +570,8 @@
       <default>false</default>
       <units/>
     </param>
-    <param name="Pulse_Inerval">
-      <name-i18n>Pulse Inerval</name-i18n>
+    <param name="Pulse_Interval">
+      <name-i18n>Pulse Interval</name-i18n>
       <type>real</type>
       <visibility>user</visibility>
       <scope>maneuver</scope>
