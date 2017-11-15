@@ -247,11 +247,14 @@ public class PluginUtils {
             //}
             String name = a.name();
             String desc = a.description();
-            String defaultStr = "";
+            String units = a.units();
+            String defaultAndUnitsStr = "";
             if (defaultValueString != null && forEdit) {
                 if (f.getType().getEnumConstants() != null)
                     defaultValueString = I18n.text(defaultValueString);
-                defaultStr = "<br><i>[[" + I18n.text("Default value:") + " \"<b><code>" + defaultValueString
+                defaultAndUnitsStr = "<br>";
+                defaultAndUnitsStr += units.length() > 0 ? "(" + units + ") " : "";
+                defaultAndUnitsStr += "<i>[[" + I18n.text("Default value:") + " \"<b><code>" + defaultValueString
                         + "</code></b>\"]]</i>";
             }
             Class<? extends PropertyEditor> editClass = null;
@@ -292,7 +295,7 @@ public class PluginUtils {
             }
 
             PluginProperty pp = new PluginProperty(name, f.getType(), o);
-            pp.setShortDescription((forEdit ? I18n.text(desc) : desc) + defaultStr);
+            pp.setShortDescription((forEdit ? I18n.text(desc) : desc) + defaultAndUnitsStr);
             pp.setEditable(a.editable());
             pp.setDisplayName(forEdit ? I18n.text(name) : name);
             if (category != null && category.length() > 0) {
