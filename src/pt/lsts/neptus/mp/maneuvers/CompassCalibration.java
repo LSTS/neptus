@@ -88,10 +88,10 @@ public class CompassCalibration extends Maneuver
     @NeptusProperty(name="Amplitude", description="Yoyo motion amplitude.", units = "m")
     public double amplitude = 1;
 
-    @NeptusProperty(name="Duration (s)", description="The duration in seconds of this maneuver. Use '0' for unlimited duration time.", units = "s")
+    @NeptusProperty(name="Duration", description="The duration in seconds of this maneuver. Use '0' for unlimited duration time.", units = "s")
     public int duration = 300;
 
-    @NeptusProperty(name="Radius (m)", description="Radius of the maneuver.", units = "m")
+    @NeptusProperty(name="Radius", description="Radius of the maneuver.", units = "m")
     public float radius = 5;
 
     @NeptusProperty(name="Direction", description="Direction of the maneuver.")
