@@ -84,7 +84,7 @@ public class Elevator extends Maneuver implements LocatedManeuver, ManeuverWithS
     @NeptusProperty(name="Start from current position", description="Start from current position or use the location field")
     public boolean startFromCurrentPosition = false;
     
-    @NeptusProperty(name="Start Z (m)")
+    @NeptusProperty(name="Start Z (m)", units = "m")
     public float startZ = 0;
     
     @NeptusProperty(name="Start Z Units")
@@ -92,7 +92,7 @@ public class Elevator extends Maneuver implements LocatedManeuver, ManeuverWithS
 
 //    protected ManeuverLocation.Z_UNITS startZUnits = pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS.NONE;
     
-    @NeptusProperty(name="Radius (m)")
+    @NeptusProperty(name="Radius (m)", units = "m")
     public float radius = 5;
 
     double speedTolerance = 5, radiusTolerance = 2;

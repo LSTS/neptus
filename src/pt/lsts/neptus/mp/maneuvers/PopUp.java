@@ -219,20 +219,20 @@ public class PopUp extends Maneuver implements LocatedManeuver, ManeuverWithSpee
     	properties.add(PropertiesEditor.getPropertyInstance("Speed", Double.class, getSpeed(), true));
     	properties.add(units);
     	
-    	properties.add(PropertiesEditor.getPropertyInstance("Radius", Double.class, getRadiusTolerance(), true));
-        
-    	
-    	//properties.add(PropertiesEditor.getPropertyInstance("Speed tolerance", Double.class, getSpeedTolerance(), true));
+    	DefaultProperty radProp = PropertiesEditor.getPropertyInstance("Radius", Double.class, getRadiusTolerance(), true);
+    	radProp.setShortDescription("(m)");
+    	properties.add(radProp);
 
-    	properties.add(PropertiesEditor.getPropertyInstance("Duration", Integer.class, getDuration(), true));
+    	DefaultProperty durProp = PropertiesEditor.getPropertyInstance("Duration", Integer.class, getDuration(), true);
+    	durProp.setShortDescription("(s)");
+    	properties.add(durProp);
     	
     	properties.add(PropertiesEditor.getPropertyInstance("CURR_POS", "Flags", Boolean.class, isCurrPos(), true));
-	properties.add(PropertiesEditor.getPropertyInstance("WAIT_AT_SURFACE", "Flags", Boolean.class, isWaitAtSurface(), true));
+    	properties.add(PropertiesEditor.getPropertyInstance("WAIT_AT_SURFACE", "Flags", Boolean.class, isWaitAtSurface(), true));
     	properties.add(PropertiesEditor.getPropertyInstance("STATION_KEEP", "Flags", Boolean.class, isStationKeep(), false)); // To become deprecated
     	
     	return properties;
     }
-    
     
     public String getPropertiesDialogTitle() {    
     	return getId()+" parameters";
@@ -243,12 +243,6 @@ public class PopUp extends Maneuver implements LocatedManeuver, ManeuverWithSpee
     	super.setProperties(properties);
     	
     	for (Property p : properties) {
-//    		if (p.getName().equals("Speed units")) {
-//    			setSpeedUnits((String)p.getValue());
-//    		}
-    		//if (p.getName().equals("Speed tolerance")) {
-    		//	setSpeedTolerance((Double)p.getValue());
-    		//}
     		if (p.getName().equalsIgnoreCase("Speed")) {
     			setSpeed((Double)p.getValue());
     		}

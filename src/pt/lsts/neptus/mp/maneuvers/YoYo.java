@@ -191,15 +191,16 @@ public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver,
     	Vector<DefaultProperty> properties = new Vector<DefaultProperty>();
 
     	DefaultProperty units = PropertiesEditor.getPropertyInstance("Speed units", Maneuver.SPEED_UNITS.class, getSpeedUnits(), true);
-    	units.setShortDescription("The speed units");
+    	units.setShortDescription(I18n.text("The speed units"));
     
     	properties.add(PropertiesEditor.getPropertyInstance("Speed", Double.class, getSpeed(), true));
     	properties.add(units);
 
-//    	properties.add(PropertiesEditor.getPropertyInstance("Speed tolerance", Double.class, getSpeedTolerance(), true));
-    	
-        properties.add(PropertiesEditor.getPropertyInstance("Amplitude", Double.class, getAmplitude(), true));
+    	DefaultProperty ampProp = PropertiesEditor.getPropertyInstance("Amplitude", Double.class, getAmplitude(), true);
+    	ampProp.setShortDescription("(m)");
+        properties.add(ampProp);
         DefaultProperty ap = PropertiesEditor.getPropertyInstance("Pitch angle", Float.class, getPitchAngle(), true);
+        // ap.setShortDescription("(\u00B0)");
         PropertiesEditor.getPropertyEditorRegistry().registerEditor(ap, AngleEditorRads.class);
     	properties.add(ap);
     	
