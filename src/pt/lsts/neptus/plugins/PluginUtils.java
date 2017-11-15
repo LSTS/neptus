@@ -257,6 +257,9 @@ public class PluginUtils {
                 defaultAndUnitsStr += "<i>[[" + I18n.text("Default value:") + " \"<b><code>" + defaultValueString
                         + "</code></b>\"]]</i>";
             }
+            else {
+                defaultAndUnitsStr += units.length() > 0 ? "<br>(" + units + ") " : "";
+            }
             Class<? extends PropertyEditor> editClass = null;
             Class<? extends TableCellRenderer> rendererClass = null;
             String category = a.category();
