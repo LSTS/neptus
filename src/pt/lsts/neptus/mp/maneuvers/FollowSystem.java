@@ -194,11 +194,20 @@ public class FollowSystem extends DefaultManeuver implements ManeuverWithSpeed, 
     	// @FIXME
     	properties.add(PropertiesEditor.getPropertyInstance("System", String.class, getSystem(), true));
     	
-    	properties.add(PropertiesEditor.getPropertyInstance("Duration", Integer.class, getDuration(), true));
+    	DefaultProperty durProp = PropertiesEditor.getPropertyInstance("Duration", Integer.class, getDuration(), true);
+    	durProp.setShortDescription("(s)");
+    	properties.add(durProp);
 
-        properties.add(PropertiesEditor.getPropertyInstance("x offset", Double.class, getXOffset(), true));
-        properties.add(PropertiesEditor.getPropertyInstance("y offset", Double.class, getYOffset(), true));
-        properties.add(PropertiesEditor.getPropertyInstance("z offset", Double.class, getZOffset(), true));
+    	DefaultProperty xOffProp = PropertiesEditor.getPropertyInstance("x offset", Double.class, getXOffset(), true);
+    	xOffProp.setShortDescription("(m)");
+        properties.add(xOffProp);
+        DefaultProperty yOffProp = PropertiesEditor.getPropertyInstance("y offset", Double.class, getYOffset(), true);
+        yOffProp.setShortDescription("(m)");
+        properties.add(yOffProp);
+        DefaultProperty zOffProp = PropertiesEditor.getPropertyInstance("z offset", Double.class, getZOffset(), true);
+        zOffProp.setShortDescription("(m)");
+        properties.add(zOffProp);
+
         properties.add(PropertiesEditor.getPropertyInstance("Speed", SpeedType.class, getSpeed(), true));
     	
     	return properties;
@@ -262,11 +271,8 @@ public class FollowSystem extends DefaultManeuver implements ManeuverWithSpeed, 
 		setYOffset(message.getDouble("y"));
 		setZOffset(message.getDouble("z"));
 		setSpeed(SpeedType.parseImcSpeed(message));
-		
 	}
 	
-	
-
     public IMCMessage serializeToIMC() {
         IMCMessage msgManeuver = IMCDefinition.getInstance().create(
                 DEFAULT_ROOT_ELEMENT);

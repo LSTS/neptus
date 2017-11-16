@@ -662,6 +662,13 @@ public class FunctionalitiesSettings extends JPanel {
         Map<String, PluginProperty> hashMap = PluginUtils.getDefaultsValues(class1);
         StringBuilder description = new StringBuilder();
         description.append(I18n.text(neptusProperty.description()));
+        
+        if (neptusProperty.units() != null && neptusProperty.units().length() > 0) {
+            description.append(" (");
+            description.append(neptusProperty.units());
+            description.append(")");
+        }
+        
         String defaultValue;
         if (hashMap == null) {
             // no value!
