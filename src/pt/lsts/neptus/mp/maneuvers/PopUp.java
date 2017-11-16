@@ -177,9 +177,16 @@ public class PopUp extends Maneuver implements LocatedManeuver, ManeuverWithSpee
     @Override
     protected Vector<DefaultProperty> additionalProperties() {
     	Vector<DefaultProperty> properties = new Vector<DefaultProperty>();
+
     	properties.add(PropertiesEditor.getPropertyInstance("Speed", SpeedType.class, getSpeed(), true));
-    	properties.add(PropertiesEditor.getPropertyInstance("Radius", Double.class, getRadiusTolerance(), true));
-    	properties.add(PropertiesEditor.getPropertyInstance("Duration", Integer.class, getDuration(), true));
+    	
+    	DefaultProperty radProp = PropertiesEditor.getPropertyInstance("Radius", Double.class, getRadiusTolerance(), true);
+    	radProp.setShortDescription("(m)");
+    	properties.add(radProp);
+
+    	DefaultProperty durProp = PropertiesEditor.getPropertyInstance("Duration", Integer.class, getDuration(), true);
+    	durProp.setShortDescription("(s)");
+    	properties.add(durProp);
     	
     	properties.add(PropertiesEditor.getPropertyInstance("CURR_POS", "Flags", Boolean.class, isCurrPos(), true));
     	properties.add(PropertiesEditor.getPropertyInstance("WAIT_AT_SURFACE", "Flags", Boolean.class, isWaitAtSurface(), true));
@@ -187,7 +194,6 @@ public class PopUp extends Maneuver implements LocatedManeuver, ManeuverWithSpee
     	
     	return properties;
     }
-    
     
     public String getPropertiesDialogTitle() {    
     	return getId()+" parameters";
@@ -198,7 +204,6 @@ public class PopUp extends Maneuver implements LocatedManeuver, ManeuverWithSpee
     	super.setProperties(properties);
     	
     	for (Property p : properties) {
-
     		if (p.getName().equalsIgnoreCase("Speed")) {
     			setSpeed((SpeedType)p.getValue());
     		}
