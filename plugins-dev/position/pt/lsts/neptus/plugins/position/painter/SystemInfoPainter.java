@@ -133,7 +133,7 @@ public class SystemInfoPainter extends ConsoleLayer {
     }
 
     private InterpolationColorMap rygColorMap = new InterpolationColorMap(new double[] { 0.0, 0.01, 0.75, 1.0 },
-            new Color[] { Color.black, Color.red.brighter(), Color.yellow, Color.green.brighter() });
+            new Color[] { Color.black, new Color(0xff7367), Color.yellow, Color.green.brighter() });
 
     private InterpolationColorMap greenToBlack = new InterpolationColorMap(new double[] { 0.0, 0.75, 1.0 },
             new Color[] { Color.black, Color.green.darker(), Color.green.brighter().brighter() });
