@@ -91,7 +91,7 @@ public class AreaSurvey extends FollowPath {
         A, B, C, D
     }
 
-    @NeptusProperty(name = "Horizontal Step", description="Distance, in meters between transects")
+    @NeptusProperty(name = "Horizontal Step", description="Distance, in meters between transects", units = "m")
     protected double horizontalStep = 30;
 
     @NeptusProperty(name = "Survey Bearing", description="Angle to use for the survey transects", editorClass = AngleEditorRads.class)

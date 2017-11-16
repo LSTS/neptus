@@ -74,7 +74,7 @@ public class Takeoff extends Maneuver implements LocatedManeuver, ManeuverWithSp
     protected double speed = 17;
     @NeptusProperty(name = "Speed Units", editorClass = SpeedUnitsEnumEditor.class)
     protected SPEED_UNITS speedUnits = SPEED_UNITS.METERS_PS;
-    @NeptusProperty(name = "Takeoff Pitch Angle", description = "Minimum pitch angle during automatic takeoff.")
+    @NeptusProperty(name = "Takeoff Pitch Angle", description = "Minimum pitch angle during automatic takeoff.", units = "\u00B0")
     protected double takeoffPitchAngleDegs = 10;
 
     public Takeoff() {

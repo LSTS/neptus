@@ -235,11 +235,19 @@ public class FollowSystem extends DefaultManeuver implements ManeuverWithSpeed, 
     	// @FIXME
     	properties.add(PropertiesEditor.getPropertyInstance("System", String.class, getSystem(), true));
     	
-    	properties.add(PropertiesEditor.getPropertyInstance("Duration", Integer.class, getDuration(), true));
+    	DefaultProperty durProp = PropertiesEditor.getPropertyInstance("Duration", Integer.class, getDuration(), true);
+    	durProp.setShortDescription("(s)");
+    	properties.add(durProp);
 
-        properties.add(PropertiesEditor.getPropertyInstance("x offset", Double.class, getXOffset(), true));
-        properties.add(PropertiesEditor.getPropertyInstance("y offset", Double.class, getYOffset(), true));
-        properties.add(PropertiesEditor.getPropertyInstance("z offset", Double.class, getZOffset(), true));
+    	DefaultProperty xOffProp = PropertiesEditor.getPropertyInstance("x offset", Double.class, getXOffset(), true);
+    	xOffProp.setShortDescription("(m)");
+        properties.add(xOffProp);
+        DefaultProperty yOffProp = PropertiesEditor.getPropertyInstance("y offset", Double.class, getYOffset(), true);
+        yOffProp.setShortDescription("(m)");
+        properties.add(yOffProp);
+        DefaultProperty zOffProp = PropertiesEditor.getPropertyInstance("z offset", Double.class, getZOffset(), true);
+        zOffProp.setShortDescription("(m)");
+        properties.add(zOffProp);
 
     	DefaultProperty units = PropertiesEditor.getPropertyInstance("Speed units", Maneuver.SPEED_UNITS.class, getSpeedUnits(), true);
     	units.setShortDescription("The speed units");
@@ -247,7 +255,7 @@ public class FollowSystem extends DefaultManeuver implements ManeuverWithSpeed, 
     	properties.add(PropertiesEditor.getPropertyInstance("Speed", Double.class, getSpeed(), true));
     	properties.add(units);
 
-    	properties.add(PropertiesEditor.getPropertyInstance("Speed tolerance", Double.class, getSpeedTolerance(), true));
+    	// properties.add(PropertiesEditor.getPropertyInstance("Speed tolerance", Double.class, getSpeedTolerance(), true));
     	
     	return properties;
     }
@@ -261,9 +269,6 @@ public class FollowSystem extends DefaultManeuver implements ManeuverWithSpeed, 
     	super.setProperties(properties);
     	
     	for (Property p : properties) {
-//    		if (p.getName().equals("Speed units")) {
-//    			setUnits((String)p.getValue());
-//    		}
     		if (p.getName().equals("Speed tolerance")) {
     			setSpeedTolerance((Double)p.getValue());
     		}
@@ -330,7 +335,6 @@ public class FollowSystem extends DefaultManeuver implements ManeuverWithSpeed, 
             setSpeedUnits(Maneuver.SPEED_UNITS.RPM);
             e.printStackTrace();
         }
-
 	}
 
     public IMCMessage serializeToIMC() {

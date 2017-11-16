@@ -184,19 +184,21 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, Maneuve
 		    radius = MINIMUM_SK_RADIUS;
 		
 		DefaultProperty duration = PropertiesEditor.getPropertyInstance("Duration", Integer.class, this.duration, true);
-		duration.setShortDescription("The Station Keeping's duration, in seconds (0 means +Infinity)");		
+		duration.setShortDescription(I18n.text("The Station Keeping's duration, in seconds (0 means +Infinity)") + "<br/>(s)");		
 		props.add(duration);
 				
 		DefaultProperty speed = PropertiesEditor.getPropertyInstance("Speed", Double.class, this.speed, true);
-		speed.setShortDescription("The vehicle's desired speed when Station Keeping");
+		speed.setShortDescription(I18n.text("The vehicle's desired speed when Station Keeping"));
 		props.add(speed);
 		
 		DefaultProperty speedUnits = PropertiesEditor.getPropertyInstance("Speed Units", Maneuver.SPEED_UNITS.class, this.speedUnits, true);
-		speedUnits.setShortDescription("The units to consider in the speed parameters");
+		speedUnits.setShortDescription(I18n.text("The units to consider in the speed parameters"));
 		props.add(speedUnits);
 		
 		DefaultProperty radius = PropertiesEditor.getPropertyInstance("Radius", Double.class, this.radius, true);
-		radius.setShortDescription("Radius of the Station Keeping circle. Lower values default to "+MINIMUM_SK_RADIUS+" meters.");
+        radius.setShortDescription(
+                I18n.textf("Radius of the Station Keeping circle. Lower values default to %radius meters.",
+                        MINIMUM_SK_RADIUS) + "<br/>(m)");
 		props.add(radius);
 		
 		return props;

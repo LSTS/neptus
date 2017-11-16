@@ -89,17 +89,17 @@ public class Land extends Maneuver implements LocatedManeuver, ManeuverWithSpeed
     protected Point2D lastDragPoint = null;
     protected boolean editing = false;
 
-    @NeptusProperty(name = "Abort Z", description = "Abort altitude or height. If landing is aborted while executing, the UAV will maintain its course and attempt to climb to the abort z reference.")
+    @NeptusProperty(name = "Abort Z", description = "Abort altitude or height. If landing is aborted while executing, the UAV will maintain its course and attempt to climb to the abort z reference.", units = "m")
     protected double zAbort = 20;
     @NeptusProperty(name = "Speed")
     protected double speed = 17;
     @NeptusProperty(name = "Speed Units", editorClass = SpeedUnitsEnumEditor.class)
     protected SPEED_UNITS speedUnits = SPEED_UNITS.METERS_PS;
-    @NeptusProperty(name = "Bearing", description = "Land bearing angle.")
+    @NeptusProperty(name = "Bearing", description = "Land bearing angle.", units = "\u00B0")
     protected double bearingDegs = 0;
-    @NeptusProperty(name = "Glide Slope", description = "Ratio (%) of the distance from the last waypoint to the landing point (touchdown) and the height difference between them.")
+    @NeptusProperty(name = "Glide Slope", description = "Ratio (%) of the distance from the last waypoint to the landing point (touchdown) and the height difference between them.", units = "%")
     protected short glideSlope = 10;
-    @NeptusProperty(name = "Glide Slope Altitude", description = "Height difference between the last waypoint to the landing point (touchdown).")
+    @NeptusProperty(name = "Glide Slope Altitude", description = "Height difference between the last waypoint to the landing point (touchdown).", units = "m")
     protected float glideSlopeAltitude = 10;
 
     public Land() {
