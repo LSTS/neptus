@@ -39,17 +39,18 @@ import java.awt.geom.Point2D;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
-import java.util.Map.Entry;
-import java.util.Set;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
 
 import pt.lsts.colormap.ColorMap;
 import pt.lsts.colormap.ColorMapFactory;
+import pt.lsts.imc.IMCDefinition;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.console.notifications.Notification;
@@ -58,6 +59,7 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.ImageUtils;
 
 /**
@@ -68,12 +70,13 @@ import pt.lsts.neptus.util.ImageUtils;
 public class RipplesPositions extends ConsoleLayer {
 
     @NeptusProperty
-    String firebasePath = "https://neptus.firebaseio.com/";
+    String positionsApiUrl = "http://ripples.lsts.pt/positions";
 
     ColorMap cmap = ColorMapFactory.createRedYellowGreenColorMap();
 
-    LinkedHashMap<String, PositionUpdate> positions = new LinkedHashMap<>();
-    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.S Z");
+    LinkedHashMap<String, PositionUpdate> lastPositions = new LinkedHashMap<>();
+    LinkedHashMap<String, ArrayList<PositionUpdate> > positions = new LinkedHashMap<>();
+    SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd'T'HH:mm:ssZ");
     Image pin = null;
     int pinWidth = 0, pinHeight = 0;
 
@@ -106,8 +109,10 @@ public class RipplesPositions extends ConsoleLayer {
             g.drawString(error, 50, 50);
         }
         
-        synchronized (positions) {
-            for (PositionUpdate update : positions.values()) {
+        PositionUpdate pivot = null;
+        
+        synchronized (lastPositions) {
+            for (PositionUpdate update : lastPositions.values()) {
                 if (System.currentTimeMillis() - update.timestamp.getTime() > 3600 * 1000)
                     continue;
 
@@ -116,15 +121,25 @@ public class RipplesPositions extends ConsoleLayer {
                 String date = sdf.format(update.timestamp);
                 Point2D pt = renderer.getScreenPosition(update.location);
                 pt.setLocation(pt.getX() - pinWidth / 2, pt.getY() - pinHeight);
-                g.drawImage(pin, (int) pt.getX(), (int) pt.getY(), (int) pt.getX() + pinWidth,
-                        (int) pt.getY() + pinHeight, 0, 0, pinWidth, pinHeight, getConsole());
-                g.setColor(Color.green);
+                g.drawImage(pin, (int) pt.getX(), (int) pt.getY(), getConsole());
+                g.setColor(cmap.getColor(age).darker().darker());
+                
                 g.drawString(update.id, (int) pt.getX() + pinWidth + 2, (int) pt.getY() + pinHeight / 2);
-                g.setColor(cmap.getColor(age));
+                g.setColor(Color.black);
                 g.drawString(date, (int) pt.getX() + pinWidth + 2,
                         (int) pt.getY() + pinHeight / 2 + g.getFontMetrics().getHeight());
 
             }
+            pivot = lastPositions.get(getConsole().getMainSystem());
+        }
+        
+        if (pivot != null) {
+            String age = DateTimeUtil.milliSecondsToFormatedString(System.currentTimeMillis() - pivot.timestamp.getTime());
+            g.setColor(Color.blue.brighter());
+            g.drawString(pivot.id+" updated "+age+" ago.", 11, renderer.getHeight()-29);
+            
+            g.setColor(Color.black);
+            g.drawString(pivot.id+" updated "+age+" ago.", 10, renderer.getHeight()-30);
         }
     }
 
@@ -133,31 +148,41 @@ public class RipplesPositions extends ConsoleLayer {
         if (!isVisible())
             return;
 
+        sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+        
         try {
             JsonParser parser = new JsonParser();
-            URL url = new URL(firebasePath.trim() + (firebasePath.trim().endsWith("/") ? "" : "/") + ".json");
+            URL url = new URL(positionsApiUrl);
 
             JsonElement root = parser
                     .parse(new JsonReader(new InputStreamReader(url.openConnection().getInputStream())));
-            Set<Entry<String, JsonElement>> assets = root.getAsJsonObject().get("assets").getAsJsonObject().entrySet();
+            JsonArray posArray = root.getAsJsonArray();
+            
+            
+            for (JsonElement position : posArray) {
+                
+                //long updatedAt = asset.getValue().getAsJsonObject().get("updated_at").getAsLong();
+                //JsonElement position = asset.getValue().getAsJsonObject().get("position");
+                //if (position == null)
+                //    continue;
 
-            for (Entry<String, JsonElement> asset : assets) {
-                long updatedAt = asset.getValue().getAsJsonObject().get("updated_at").getAsLong();
-                JsonElement position = asset.getValue().getAsJsonObject().get("position");
-                if (position == null)
-                    continue;
-
-                double latDegs = position.getAsJsonObject().get("latitude").getAsDouble();
-                double lonDegs = position.getAsJsonObject().get("longitude").getAsDouble();
-
+                double latDegs = position.getAsJsonObject().get("lat").getAsDouble();
+                double lonDegs = position.getAsJsonObject().get("lon").getAsDouble();
+                Date time = sdf.parse(position.getAsJsonObject().get("timestamp").getAsString());
+                int id = position.getAsJsonObject().get("imc_id").getAsInt();
+                
                 PositionUpdate update = new PositionUpdate();
-                update.id = asset.getKey();
-                update.timestamp = new Date(updatedAt);
+                update.id = IMCDefinition.getInstance().getResolver().resolve(id);
+                update.timestamp = time;
                 update.location = new LocationType(latDegs, lonDegs);
-
-                synchronized (positions) {
-                    positions.put(update.id, update);
+                synchronized (lastPositions) {
+                    if (!lastPositions.containsKey(update.id) || lastPositions.get(update.id).timestamp.before(update.timestamp))
+                        lastPositions.put(update.id, update);
+                    if (!positions.containsKey(update.id))
+                        positions.put(update.id, new ArrayList<>());
+                    positions.get(update.id).add(update);
                 }
+                
             }
             error = null;
         }
@@ -170,10 +195,15 @@ public class RipplesPositions extends ConsoleLayer {
         }
     }
 
-    static class PositionUpdate {
+    static class PositionUpdate implements Comparable<PositionUpdate> {
         public String id;
         public Date timestamp;
         public LocationType location;
+        
+        @Override
+        public int compareTo(PositionUpdate o) {
+            return timestamp.compareTo(o.timestamp);
+        }
     }
 
 }

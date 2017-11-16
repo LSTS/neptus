@@ -183,9 +183,13 @@ public class CommsRelay extends DefaultManeuver implements IMCSerialization, Loc
     	properties.add(PropertiesEditor.getPropertyInstance("System A", String.class, getSystemA(), true));
     	properties.add(PropertiesEditor.getPropertyInstance("System B", String.class, getSystemB(), true));
     	
-    	properties.add(PropertiesEditor.getPropertyInstance("Duration", Integer.class, getDuration(), true));
-
-    	properties.add(PropertiesEditor.getPropertyInstance("Move threshold", Double.class, getMoveThreshold(), true));
+    	DefaultProperty durProp = PropertiesEditor.getPropertyInstance("Duration", Integer.class, getDuration(), true);
+    	durProp.setShortDescription("(s)");
+    	properties.add(durProp);
+    	
+    	DefaultProperty mvProp = PropertiesEditor.getPropertyInstance("Move threshold", Double.class, getMoveThreshold(), true);
+    	mvProp.setShortDescription("(m)");
+    	properties.add(mvProp);
 
     	properties.add(PropertiesEditor.getPropertyInstance("Speed", SpeedType.class, getSpeed(), true));
     

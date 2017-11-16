@@ -539,62 +539,51 @@ public class RowsPattern extends FollowPath {
 
         if (!ignoreLength) {
             DefaultProperty length = PropertiesEditor.getPropertyInstance("Length", Double.class, this.length, true);
-            length.setShortDescription("The length of the volume to cover, in meters");
+            length.setShortDescription(I18n.text("The length of the volume to cover, in meters") + "<br/>(m)");
             props.add(length);
         }
 
         DefaultProperty width = PropertiesEditor.getPropertyInstance("Width", Double.class, this.width, true);
-        width.setShortDescription("Width of the volume to cover, in meters");
+        width.setShortDescription(I18n.text("Width of the volume to cover, in meters") + "<br/>(m)");
         props.add(width);
 
-        //        DefaultProperty height = PropertiesEditor.getPropertyInstance("Height", Double.class, this.height, false);
-        //        height.setShortDescription("Height of the volume to cover, in meters. Use 0 for 2D rows");
-        //        props.add(height);        
-
         DefaultProperty halt = PropertiesEditor.getPropertyInstance("Horizontal Alternation", Short.class, (short)(this.alternationPercentage*100), true);
-        halt.setShortDescription("Horizontal alternation in percentage. 100 will make all rows separated by the Horizontal Step");
+        halt.setShortDescription(I18n
+                .text("Horizontal alternation in percentage. 100 will make all rows separated by the Horizontal Step")
+                + "<br/>(%)");
         props.add(halt);
 
         DefaultProperty hstep = PropertiesEditor.getPropertyInstance("Horizontal Step", Double.class, this.hstep, true);
-        hstep.setShortDescription("Horizontal distance between rows, in meters");
+        hstep.setShortDescription(I18n.text("Horizontal distance between rows, in meters") + "<br/>(m)");
         props.add(hstep);
 
-        //        DefaultProperty vstep = PropertiesEditor.getPropertyInstance("Vertical Step", Double.class, this.vstep, false);
-        //        vstep.setShortDescription("Vertical distance between rows, in meters");
-        //        props.add(vstep);
-
         DefaultProperty direction = PropertiesEditor.getPropertyInstance("Bearing", Double.class, Math.toDegrees(bearingRad), true);
-        direction.setShortDescription("The outgoing bearing (from starting location) in degrees");       
+        direction.setShortDescription(I18n.text("The outgoing bearing (from starting location) in degrees") + "<br/>(\u00B0)");       
         props.add(direction);
 
         if (!ignoreCrossAngle) {
             DefaultProperty cross = PropertiesEditor.getPropertyInstance("Cross Angle", Double.class, Math.toDegrees(crossAngleRadians), true);
-            cross.setShortDescription("The tilt angle of the search box in degrees");       
+            cross.setShortDescription(I18n.text("The tilt angle of the search box in degrees") + "<br/>(\u00B0)");
             props.add(cross);
         }
 
         DefaultProperty speed = PropertiesEditor.getPropertyInstance("Speed", SpeedType.class, this.speed, true);
-        speed.setShortDescription("The vehicle's desired speed");
+        speed.setShortDescription(I18n.text("The vehicle's desired speed"));
         props.add(speed);
 
-
         DefaultProperty curvOffset = PropertiesEditor.getPropertyInstance("Curve Offset", Double.class, curvOff, true);
-        curvOffset.setShortDescription("The extra length to use for the curve");       
+        curvOffset.setShortDescription(I18n.text("The extra length to use for the curve") + "<br/>(m)");
         props.add(curvOffset);
 
         DefaultProperty squareCurveP = PropertiesEditor.getPropertyInstance("Square Curve", Boolean.class, squareCurve, true);
-        squareCurveP.setShortDescription("If the curve should be square or direct");       
+        squareCurveP.setShortDescription(I18n.text("If the curve should be square or direct"));
         props.add(squareCurveP);
 
         if (!ignoreFirstCurveRight) {
             DefaultProperty firstCurveRightP = PropertiesEditor.getPropertyInstance("First Curve Right", Boolean.class, firstCurveRight, true);
-            firstCurveRightP.setShortDescription("If the first curve should be to the right or left");       
+            firstCurveRightP.setShortDescription(I18n.text("If the first curve should be to the right or left"));       
             props.add(firstCurveRightP);
         }
-
-        //        for (DefaultProperty p : props) {
-        //            NeptusLog.pub().info("<###>* "+p.getName()+"="+p.getValue());
-        //        }
 
         return props;
     }
