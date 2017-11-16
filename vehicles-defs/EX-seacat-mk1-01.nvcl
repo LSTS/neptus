@@ -21,8 +21,8 @@
             </icon-color>
         </appearance>
         <limits>
-            <min-speed>2,9</min-speed>
-            <max-speed>11,7</max-speed>
+            <min-speed>2.9</min-speed>
+            <max-speed>11.7</max-speed>
             <max-duration-hours>10</max-duration-hours>
         </limits>
         <coordinate-system-label>SNAME</coordinate-system-label>
