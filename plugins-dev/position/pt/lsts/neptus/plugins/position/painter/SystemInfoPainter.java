@@ -79,11 +79,11 @@ public class SystemInfoPainter extends ConsoleLayer {
     private static final String GPS_MAN = I18n.textc("MAN", "Manual input.Use a single small word");
     private static final String GPS_SIM = I18n.textc("SIM", "Simulated. Use a single small word");
 
-    private static final int RECT_WIDTH = 228;
+    private static final int RECT_WIDTH = 248;
     private static final int RECT_HEIGHT = 70;
     private static final int MARGIN = 5;
 
-    private String strCpu, strFuel, strComms, strDisk, strGPS, strGPSFix;
+    private String strCpu, strFuel, strComms, strDisk, strGPS, strGPSFix, strFixedSat;
 
     @NeptusProperty(name = "Enable")
     public boolean enablePainter = true;
@@ -108,7 +108,7 @@ public class SystemInfoPainter extends ConsoleLayer {
 
     private long lastMessageMillis = 0;
 
-    private int cpuUsage = 0, fixQuality = 0;
+    private int cpuUsage = 0, fixQuality = 0, fixedSats = 0;;
     private double batteryVoltage, current, fixHdop;
     private float fuelLevel, confidenceLevel;
     private int storageUsage;
@@ -128,6 +128,7 @@ public class SystemInfoPainter extends ConsoleLayer {
         strDisk = I18n.textc("Disk", "Use a single small word");
         strComms = I18n.textc("Comms", "Use a single small word");
         strGPS = I18n.textc("GPS", "Use a single small word");
+        strFixedSat = I18n.textc("Sats", "Short for satellite. Use a single small word");
 
         strGPSFix = GPS_NO_FIX;
     }
@@ -180,9 +181,12 @@ public class SystemInfoPainter extends ConsoleLayer {
                     + storageUsage + "%</font><br/>";
             txt += "<b>" + strComms + ":</b> <font color=" + getColor(lastHbCount * 20, false, commsDead) + ">"
                     + (lastHbCount * 20) + "%</font>";
-            if (showGPS)
+            if (showGPS) {
                 txt += " <b>" + strGPS + ":</b> <font color=" + getColor(fixQuality, false, commsDead) + ">"
                         + strGPSFix + "</font>";
+                txt += " (<font color=" + getColor(fixQuality, false, commsDead) + ">"
+                        + fixedSats + "</font> " + strFixedSat + ")";
+            }
             txt += "<br/>";
             txt += "</html>";
 
@@ -260,7 +264,8 @@ public class SystemInfoPainter extends ConsoleLayer {
         fixValidity = msg.getValidity();
         fixHdop = msg.getHdop();
         fixHdop = Math.round(fixHdop*100.0)/100.0;
-
+        fixedSats = msg.getSatellites();
+        
         switch (fixType) {
             case DEAD_RECKONING:
                 fixQuality = 0;
