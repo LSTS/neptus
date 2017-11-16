@@ -430,7 +430,7 @@
     </communication-means>
     <consoles>
         <console name="turbot">
-            <xml-file>../conf/consoles/turbot.ncon</xml-file>
+            <xml-file>../conf/consoles/lauv.ncon</xml-file>
         </console>
     </consoles>
 </system>
