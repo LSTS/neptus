@@ -171,7 +171,7 @@ public class SystemInfoPainter extends ConsoleLayer {
             txt += "<b>" + strCpu + ":</b> <font color=" + getColor(cpuUsage, true, commsDead) + ">" + cpuUsage
                     + "%</font><br/>";
             txt += "<b>" + strFuel + ":</b> <font color=" + getColor(fuelLevel, false, commsDead) + ">"
-                    + (int) fuelLevel + "%</font> <font color=#cccccc>(" + (int) (batteryVoltage * 10) / 10f + "V";
+                    + (int) Math.round(fuelLevel) + "%</font> <font color=#cccccc>(" + (int) (batteryVoltage * 10) / 10f + "V";
             if (showCurrent)
                 txt += "@" + (int) (current * 10) / 10f + "A";
             if (showConfidence)
