@@ -134,7 +134,6 @@ public class IridiumManager {
     }
     
     public void incoming(IridiumMessage msg) {
-
         
         try {
             IridiumMsgRx transmission = new IridiumMsgRx();
@@ -146,16 +145,7 @@ public class IridiumManager {
         }
         catch (Exception e) {
             NeptusLog.pub().error(e);
-        }        
-        /*
-        Collection<IMCMessage> msgs = msg.asImc();
-
-        for (IMCMessage m : msgs) {
-            m.setSrc(msg.getSource());
-            m.setDst(msg.getDestination());
-            m.setTimestamp(msg.timestampMillis/1000.0);
-            ImcMsgManager.getManager().postInternalMessage("IridiumManager", m);            
-        }*/
+        }       
     }
 
     public void selectMessenger(Component parent) {

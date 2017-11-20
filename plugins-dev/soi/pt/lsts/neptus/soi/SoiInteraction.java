@@ -241,7 +241,7 @@ public class SoiInteraction extends SimpleRendererInteraction {
         if (cmd.getType() != SoiCommand.TYPE.SUCCESS)
             return;
         
-        NeptusLog.pub().info("Processing SoiCommand: "+cmd.asJSON());
+        NeptusLog.pub().info("Processing SoiCommand: "+cmd.asJSON()+", "+Thread.currentThread().getName()+", "+cmd.hashCode());
         
         switch (cmd.getCommand()) {
             case GET_PARAMS:

@@ -339,14 +339,16 @@ public class IridiumComms extends SimpleRendererInteraction {
 
         IridiumCommand command = new IridiumCommand();
         command.setCommand(cmd);
+        
+        ImcSystem sys = ImcSystemsHolder.getSystemWithName(getMainVehicleId());
 
-        VehicleType vt = VehiclesHolder.getVehicleById(getMainVehicleId());
-        if (vt == null) {
+        //VehicleType vt = VehiclesHolder.getVehicleById(getMainVehicleId());
+        if (sys == null) {
             GuiUtils.errorMessage(getConsole(), "Send Iridium Command",
                     "Could not calculate destination's IMC identifier");
             return;
         }
-        command.setDestination(vt.getImcId().intValue());
+        command.setDestination(sys.getId().intValue());
         command.setSource(ImcMsgManager.getManager().getLocalId().intValue());
         try {
             IridiumManager.getManager().send(command);
@@ -482,7 +484,7 @@ public class IridiumComms extends SimpleRendererInteraction {
         popup.add(I18n.text("Simulate incoming message")).addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                final String res = JOptionPane.showInputDialog(getConsole(), "Paste here the message data (hex)");
+                final String res = JOptionPane.showInputDialog(getConsole(), "Paste the message data here (hex)");
 
                 if (res == null)
                     return;
@@ -503,41 +505,6 @@ public class IridiumComms extends SimpleRendererInteraction {
                 }
             }
         });
-
-        // popup.add("Set this as actual wave glider target").addActionListener(new ActionListener() {
-        // @Override
-        // public void actionPerformed(ActionEvent e) {
-        // setWaveGliderTargetPosition(loc);
-        // }
-        // });
-        //
-        // popup.add("Set this as desired wave glider target").addActionListener(new ActionListener() {
-        // @Override
-        // public void actionPerformed(ActionEvent e) {
-        // setWaveGliderDesiredPosition(loc);
-        // }
-        // });
-
-        // popup.addSeparator();
-
-        // popup.add(I18n.text("Send a text note")).addActionListener(
-        // new ActionListener() {
-        // @Override
-        // public void actionPerformed(ActionEvent e) {
-        // sendTextNote();
-        // }
-        // });
-
-        // popup.add("Add virtual drifter").addActionListener(new ActionListener() {
-        //
-        // @Override
-        // public void actionPerformed(ActionEvent e) {
-        // VirtualDrifter d = new VirtualDrifter(loc, 0, 0.1);
-        // PropertiesEditor.editProperties(d, true);
-        // drifters.add(d);
-        // update();
-        // }
-        // });
 
         popup.show(source, event.getX(), event.getY());
     }
