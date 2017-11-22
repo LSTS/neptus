@@ -67,6 +67,8 @@ import pt.lsts.imc.FuelLevel;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.MessagePart;
+import pt.lsts.imc.PlanControlState;
+import pt.lsts.imc.PlanControlState.STATE;
 import pt.lsts.imc.RemoteSensorInfo;
 import pt.lsts.imc.ReportedState;
 import pt.lsts.imc.StateReport;
@@ -831,10 +833,10 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         }
     }
 
-    private void processStateReport(MessageInfo info, StateReport msg) {
+    private void processStateReport(MessageInfo info, StateReport msg, ArrayList<IMCMessage> messagesCreatedToFoward) {
         String sysId = msg.getSourceName();
         
-        long dataTimeMillis = msg.getTimestampMillis();
+        long dataTimeMillis = msg.getStime() * 1000;
         
         double lat = msg.getLatitude();
         double lon = msg.getLongitude();
@@ -870,9 +872,42 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
             IMCUtils.copyHeader(msg, fuelLevelMsg);
             fuelLevelMsg.setTimestampMillis(dataTimeMillis);
             fuelLevelMsg.setValue(fuelPerc);
-            fuelLevelMsg.setConfidence(50);
+            fuelLevelMsg.setConfidence(0);
             imcSys.storeData(SystemUtils.FUEL_LEVEL_KEY, fuelLevelMsg, dataTimeMillis, true);
+            
+            messagesCreatedToFoward.add(fuelLevelMsg);
         }
+        
+        int execState = msg.getExecState();
+        PlanControlState pcsMsg = new PlanControlState();
+        IMCUtils.copyHeader(msg, pcsMsg);
+        pcsMsg.setTimestampMillis(dataTimeMillis);
+        switch (execState) {
+            case -1:
+                pcsMsg.setState(STATE.READY);
+                break;
+            case -3:
+                pcsMsg.setState(STATE.INITIALIZING);
+                break;
+            case -2:
+            case -4:
+                pcsMsg.setState(STATE.BLOCKED);
+                break;
+            default:
+                if (execState > 0)
+                    pcsMsg.setState(STATE.EXECUTING);
+                else
+                    pcsMsg.setState(STATE.BLOCKED);
+                break;
+        }
+
+        pcsMsg.setPlanEta(-1);
+        pcsMsg.setPlanProgress(execState >=0 ? execState : -1);
+        pcsMsg.setManId("");
+        pcsMsg.setManEta(-1);
+        pcsMsg.setManType(0xFFFF);
+        
+        messagesCreatedToFoward.add(pcsMsg);
     }
     
     private void processRemoteSensorInfo(MessageInfo info, RemoteSensorInfo msg) {
@@ -981,6 +1016,8 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
             if (!ImcId16.NULL_ID.equals(id) && !ImcId16.BROADCAST_ID.equals(id) && !ImcId16.ANNOUNCE.equals(id)
                     && !localId.equals(id)) {
                 
+                ArrayList<IMCMessage> messagesCreatedToFoward = new ArrayList<>();
+                
                 switch (msg.getMgid()) {
                     case Announce.ID_STATIC:
                         announceLastArriveTime = System.currentTimeMillis();
@@ -1002,7 +1039,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                         processRemoteSensorInfo(info, (RemoteSensorInfo) msg);
                         break;
                     case StateReport.ID_STATIC:
-                        processStateReport(info, new StateReport(msg));
+                        processStateReport(info, new StateReport(msg), messagesCreatedToFoward);
                     default:
                         break;
                 }
@@ -1018,6 +1055,11 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                             this.getClass().getSimpleName() + ": Message redirected for system comm. "
                                     + vci.getSystemCommId() + ".");
                     vci.onMessage(info, msg);
+                    
+                    for (IMCMessage imcMsg : messagesCreatedToFoward) {
+                        vci.onMessage(info, imcMsg);
+                    }
+                    
                     return true;
                 }
             }
