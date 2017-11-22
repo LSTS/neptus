@@ -36,6 +36,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Method;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
@@ -64,6 +65,9 @@ import org.dom4j.tree.DefaultAttribute;
 import com.l2fprod.common.propertysheet.Property;
 import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
 
+import pt.lsts.imc.EstimatedState;
+import pt.lsts.imc.FuelLevel;
+import pt.lsts.imc.Header;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCFieldType;
 import pt.lsts.imc.IMCMessage;
@@ -944,6 +948,26 @@ public class IMCUtils {
         return IMCDefinition.getInstance().create("MessageList");
     }
 
+    public static <M extends IMCMessage, Mo extends IMCMessage> M copyHeader(Mo toCopyFrom, M message) {
+        Header hMsg = message.getHeader();
+        Header hToCopyFromMsg = toCopyFrom.getHeader();
+        
+        Method[] mth = hMsg.getClass().getDeclaredMethods();
+        for (Method method : mth) {
+            try {
+                if (method.getName().startsWith("set")) {
+                    Method methodGet = hToCopyFromMsg.getClass().getMethod(method.getName().replaceFirst("set", "get"));
+                    method.invoke(hMsg, methodGet.invoke(hToCopyFromMsg));
+                }
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        
+        return message;
+    }
+    
     public static LocationType parseLocation(IMCMessage imcEstimatedState) {
         LocationType loc = new LocationType();
         loc.setLatitudeDegs(Math.toDegrees(imcEstimatedState.getDouble("lat")));
@@ -1390,10 +1414,15 @@ public class IMCUtils {
 
 
     public static void main(String[] args) {
-
         for (String v : ImcStringDefs.IMC_ADDRESSES.keySet()) {
             System.out.println(v + " is of type " + getSystemType(ImcStringDefs.IMC_ADDRESSES.get(v)));
         }
+        
+        EstimatedState es = new EstimatedState();
+        es.setSrc(0x22);
+        es.setTimestampMillis(System.currentTimeMillis() - 356789);
+        FuelLevel fl = new FuelLevel();
+        copyHeader(es, fl);
     }
 
     public static void testSysTypeResolution() throws Exception {
