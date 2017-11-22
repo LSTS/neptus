@@ -63,6 +63,7 @@ import com.google.common.eventbus.AsyncEventBus;
 import pt.lsts.imc.Announce;
 import pt.lsts.imc.EntityInfo;
 import pt.lsts.imc.EntityList;
+import pt.lsts.imc.FuelLevel;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.MessagePart;
@@ -100,7 +101,9 @@ import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
+import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.NetworkInterfacesUtil;
 import pt.lsts.neptus.util.NetworkInterfacesUtil.NInterface;
 import pt.lsts.neptus.util.StringUtils;
@@ -830,10 +833,15 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
 
     private void processStateReport(MessageInfo info, StateReport msg) {
         String sysId = msg.getSourceName();
+        
+        long dataTimeMillis = msg.getTimestampMillis();
+        
         double lat = msg.getLatitude();
         double lon = msg.getLongitude();
-        double depth = msg.getDepth() / 10.0;
+        double depth = msg.getDepth() == 0xFFFF ? -1 : msg.getDepth() / 10.0;
+        // double altitude = msg.getAltitude() == 0xFFFF ? -1 : msg.getAltitude() / 10.0;
         double heading = ((double)msg.getHeading() / 65535.0) * 360;
+        double speedMS = msg.getSpeed() / 100.;
         NeptusLog.pub().info("Received report from "+msg.getSourceName());
         
         ImcSystem imcSys = ImcSystemsHolder.lookupSystemByName(sysId);
@@ -844,9 +852,27 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         
         LocationType loc = new LocationType(lat, lon);
         loc.setDepth(depth);
-        imcSys.setLocation(loc, msg.getTimestampMillis());
-        imcSys.setAttitudeDegrees(heading);        
+        imcSys.setLocation(loc, dataTimeMillis);
+        imcSys.setAttitudeDegrees(heading, dataTimeMillis);
         
+        imcSys.storeData(SystemUtils.GROUND_SPEED_KEY, speedMS, dataTimeMillis, true);
+        imcSys.storeData(SystemUtils.COURSE_DEGS_KEY,
+                (int) AngleUtils.nomalizeAngleDegrees360(MathMiscUtils.round(heading, 0)),
+                dataTimeMillis, true);
+        imcSys.storeData(
+                SystemUtils.HEADING_DEGS_KEY,
+                (int) AngleUtils.nomalizeAngleDegrees360(MathMiscUtils.round(heading, 0)),
+                dataTimeMillis, true);
+        
+        int fuelPerc = msg.getFuel();
+        if (fuelPerc > 0) {
+            FuelLevel fuelLevelMsg = new FuelLevel();
+            IMCUtils.copyHeader(msg, fuelLevelMsg);
+            fuelLevelMsg.setTimestampMillis(dataTimeMillis);
+            fuelLevelMsg.setValue(fuelPerc);
+            fuelLevelMsg.setConfidence(50);
+            imcSys.storeData(SystemUtils.FUEL_LEVEL_KEY, fuelLevelMsg, dataTimeMillis, true);
+        }
     }
     
     private void processRemoteSensorInfo(MessageInfo info, RemoteSensorInfo msg) {
