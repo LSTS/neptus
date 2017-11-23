@@ -151,6 +151,24 @@ public class NetCDFUtils {
     }
 
     /**
+     * Checks if a value is valid.
+     * 
+     * @param value
+     * @param fillValue
+     * @param validRange
+     * @return
+     */
+    public static boolean isValueValid(double value, double fillValue,Pair<Double, Double> validRange) {
+        if (!Double.isNaN(value) && value != fillValue) {
+            if (validRange != null && !Double.isNaN(validRange.first()) && !Double.isNaN(validRange.second())) {
+                if (value >= validRange.first() && value <= validRange.second())
+                    return true;
+            }
+        }
+        return false;
+    }
+    
+    /**
      * Check and return the {@link #NETCDF_ATT_VALID_RANGE} interval, or used the {@link #NETCDF_ATT_VALID_MIN}
      * and {@link #NETCDF_ATT_VALID_MAX}.
      * 
