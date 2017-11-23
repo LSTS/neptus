@@ -310,15 +310,15 @@ public class NmeaPlotter extends ConsoleLayer {
             String nmeaType = NMEAUtils.nmeaType(s);
             if (nmeaType.equals("$B-TLL") || nmeaType.equals("$A-TLL"))
                 contactDb.processBtll(s);
-            else if (nmeaType.equals("$GPGGA"))
+            else if (nmeaType.startsWith("GGA", 3)) // GP or GN
                 contactDb.processGGA(s);
-            else if (nmeaType.equals("$RATTM"))
+            else if (nmeaType.startsWith("TTM", 3)) // RA
                 contactDb.processRattm(s);
-            else if (nmeaType.equals("$GPHDT"))
+            else if (nmeaType.startsWith("HDT", 3)) // GP
                 contactDb.processGPHDT(s);
             else {
                 synchronized (parser) {
-                    parser.process(s);
+                    parser.process(s); // Is AIS
                 }
             }
         }

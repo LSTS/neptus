@@ -38,6 +38,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
@@ -158,14 +159,14 @@ public class AisContactDb implements AISObserver {
     
     public void processGGA(String sentence) {
         lastGGA = sentence;
-        // System.err.println(lastGGA);
         LocationType myLoc = NMEAUtils.processGGASentence(lastGGA);
+        Date dateTime = NMEAUtils.processGGATimeFromSentence(lastGGA);
         if (ExternalSystemsHolder.lookupSystem("Ship") == null) {
             ExternalSystem es = new ExternalSystem("Ship");
             ExternalSystemsHolder.registerSystem(es);
         }
         ExternalSystem extSys = ExternalSystemsHolder.lookupSystem("Ship");
-        extSys.setLocation(myLoc, System.currentTimeMillis());
+        extSys.setLocation(myLoc, dateTime == null ? System.currentTimeMillis() : dateTime.getTime());
     }
 
     public void processGPHDT(String sentence) {
