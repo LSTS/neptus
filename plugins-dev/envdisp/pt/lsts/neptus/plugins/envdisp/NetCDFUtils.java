@@ -52,6 +52,7 @@ public class NetCDFUtils {
 
     public static final String NETCDF_ATT_STANDARD_NAME = "standard_name";
     public static final String NETCDF_ATT_FILL_VALUE = "_FillValue";
+    public static final String NETCDF_ATT_MISSING_VALUE = "missing_value";
     public static final String NETCDF_ATT_UNITS = "units";
 
     /**
@@ -124,11 +125,17 @@ public class NetCDFUtils {
      * Tries to find the fill value for a variable.
      * 
      * @param var
-     * @return The fill value using the {@link #NETCDF_ATT_FILL_VALUE}
+     * @return The fill value using the {@link #NETCDF_ATT_FILL_VALUE} or {@link #NETCDF_ATT_MISSING_VALUE}
+     * in this order
      * @throws NumberFormatException
      */
     public static double findFillValue(Variable var) throws NumberFormatException {
-        Attribute fillValueAtt = var == null ? null : var.findAttribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE);
+        Attribute fillValueAtt = null;
+        if (var != null) {
+            fillValueAtt = var.findAttribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE);
+            if (fillValueAtt == null)
+                fillValueAtt = var.findAttribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE);
+        }
         if (fillValueAtt != null) {
             try {
                 return ((Number) fillValueAtt.getValue(0)).doubleValue();
