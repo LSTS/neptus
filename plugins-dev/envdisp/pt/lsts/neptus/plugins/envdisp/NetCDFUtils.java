@@ -53,6 +53,9 @@ public class NetCDFUtils {
     public static final String NETCDF_ATT_STANDARD_NAME = "standard_name";
     public static final String NETCDF_ATT_FILL_VALUE = "_FillValue";
     public static final String NETCDF_ATT_MISSING_VALUE = "missing_value";
+    public static final String NETCDF_ATT_VALID_RANGE = "valid_range";
+    public static final String NETCDF_ATT_VALID_MIN = "valid_min";
+    public static final String NETCDF_ATT_VALID_MAX = "valid_max";
     public static final String NETCDF_ATT_UNITS = "units";
 
     /**
@@ -145,6 +148,47 @@ public class NetCDFUtils {
             }
         }
         return Double.NaN;
+    }
+
+    /**
+     * Check and return the {@link #NETCDF_ATT_VALID_RANGE} interval, or used the {@link #NETCDF_ATT_VALID_MIN}
+     * and {@link #NETCDF_ATT_VALID_MAX}.
+     * 
+     * @param var
+     * @return The interval or null if none.
+     * @throws NumberFormatException
+     */
+    public static Pair<Double, Double> findValidRange(Variable var) throws NumberFormatException {
+        Attribute validRangeValueAtt = var == null ? null : var.findAttribute(NETCDF_ATT_VALID_RANGE);
+        Attribute validMinValueAtt = var == null ? null : var.findAttribute(NETCDF_ATT_VALID_MIN);
+        Attribute validMaxValueAtt = var == null ? null : var.findAttribute(NETCDF_ATT_VALID_MAX);
+
+        if (validRangeValueAtt != null || (validMinValueAtt != null && validMaxValueAtt != null)) {
+            try {
+                double minRange = 0;
+                double maxRange = 0;
+                if (validRangeValueAtt != null) {
+                    minRange = ((Number) validRangeValueAtt.getValue(0)).doubleValue();
+                    maxRange = ((Number) validRangeValueAtt.getValue(1)).doubleValue();
+                }
+                else if (validMinValueAtt != null && validMaxValueAtt != null) {
+                    minRange = ((Number) validMinValueAtt.getValue(0)).doubleValue();
+                    maxRange = ((Number) validMaxValueAtt.getValue(0)).doubleValue();
+                }
+                else {
+                    throw new NumberFormatException("One or both range values are not finite");
+                }
+                if (!Double.isFinite(minRange) || !Double.isFinite(maxRange)) {
+                    throw new NumberFormatException(
+                            String.format("One or both range values are not finite (%d | %d)", minRange, maxRange));
+                }
+                return new Pair<Double, Double>(minRange, maxRange);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
     }
 
     /**
