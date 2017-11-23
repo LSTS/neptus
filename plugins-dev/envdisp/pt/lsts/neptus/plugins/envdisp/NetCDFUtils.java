@@ -163,7 +163,7 @@ public class NetCDFUtils {
         Attribute validMinValueAtt = var == null ? null : var.findAttribute(NETCDF_ATT_VALID_MIN);
         Attribute validMaxValueAtt = var == null ? null : var.findAttribute(NETCDF_ATT_VALID_MAX);
 
-        if (validRangeValueAtt != null || (validMinValueAtt != null && validMaxValueAtt != null)) {
+        if (validRangeValueAtt != null || (validMinValueAtt != null || validMaxValueAtt != null)) {
             try {
                 double minRange = 0;
                 double maxRange = 0;
@@ -172,8 +172,10 @@ public class NetCDFUtils {
                     maxRange = ((Number) validRangeValueAtt.getValue(1)).doubleValue();
                 }
                 else if (validMinValueAtt != null && validMaxValueAtt != null) {
-                    minRange = ((Number) validMinValueAtt.getValue(0)).doubleValue();
-                    maxRange = ((Number) validMaxValueAtt.getValue(0)).doubleValue();
+                    minRange = validMinValueAtt != null ? ((Number) validMinValueAtt.getValue(0)).doubleValue()
+                            : Double.MIN_VALUE;
+                    maxRange = validMaxValueAtt != null ? ((Number) validMaxValueAtt.getValue(0)).doubleValue()
+                            : Double.MAX_VALUE;
                 }
                 else {
                     throw new NumberFormatException("One or both range values are not finite");
