@@ -239,7 +239,9 @@ public class LoaderHelper {
               vUnits = (String) vUnitsAtt.getValue(0);
 
           double uFillValue = NetCDFUtils.findFillValue(uVar);
+          Pair<Double, Double> uValidRange = NetCDFUtils.findValidRange(uVar);
           double vFillValue = NetCDFUtils.findFillValue(vVar);
+          Pair<Double, Double> vValidRange = NetCDFUtils.findValidRange(vVar);
           
           int[] shape = uVar.getShape();
           int[] counter = new int[shape.length];
@@ -281,8 +283,8 @@ public class LoaderHelper {
               double u = uArray == null ? Double.NaN : uArray.getDouble(uIndex);
               double v = vArray == null ? Double.NaN : vArray.getDouble(vIndex);
 
-              if (!Double.isNaN(u) && !Double.isNaN(v)
-                      && u != uFillValue && v != vFillValue) {
+                if (NetCDFUtils.isValueValid(u, uFillValue, uValidRange)
+                        && NetCDFUtils.isValueValid(v, vFillValue, vValidRange)) {
                   
                   u = u * NetCDFUnitsUtils.getMultiplierForCmPerSecondsFromSpeedUnits(uUnits);
                   v = v * NetCDFUnitsUtils.getMultiplierForCmPerSecondsFromSpeedUnits(vUnits);
@@ -417,6 +419,7 @@ public class LoaderHelper {
                       sstUnits = (String) sstUnitsAtt.getValue(0);
 
                   double sstFillValue = NetCDFUtils.findFillValue(sstVar);
+                  Pair<Double, Double> sstValidRange = NetCDFUtils.findValidRange(sstVar);
                   
                   int[] shape = sstVar.getShape();
                   int[] counter = new int[shape.length];
@@ -455,7 +458,7 @@ public class LoaderHelper {
 
                       double sst = sstArray == null ? Double.NaN : sstArray.getDouble(index);
 
-                      if (!Double.isNaN(sst) && sst != sstFillValue) {
+                      if (NetCDFUtils.isValueValid(sst, sstFillValue, sstValidRange)) {
                           SSTDataPoint dp = new SSTDataPoint(lat, lon);
                           sst = NetCDFUnitsUtils.getValueForDegreesCelciusFromTempUnits(sst, sstUnits);
                           dp.setSst(sst);
@@ -666,8 +669,11 @@ public class LoaderHelper {
           double timeOffset = multAndOffset[1];
           
           double hsFillValue = NetCDFUtils.findFillValue(hsVar);
+          Pair<Double, Double> hsValidRange = NetCDFUtils.findValidRange(hsVar);
           double tpFillValue = NetCDFUtils.findFillValue(tpVar);
+          Pair<Double, Double> tpValidRange = NetCDFUtils.findValidRange(tpVar);
           double pdirFillValue = NetCDFUtils.findFillValue(pdirVar);
+          Pair<Double, Double> pdirValidRange = NetCDFUtils.findValidRange(pdirVar);
 
           int[] shape = hsVar.getShape();
           int[] counter = new int[shape.length];
@@ -712,9 +718,10 @@ public class LoaderHelper {
               double pdir = pdirArray.getDouble(index);
 
 
-              if (!Double.isNaN(hs) && !Double.isNaN(tp) && !Double.isNaN(pdir)
-                      && hs != hsFillValue && tp != tpFillValue && pdir != pdirFillValue) {
-                  WavesDataPoint dp = new WavesDataPoint(lat, lon);
+                if (NetCDFUtils.isValueValid(hs, hsFillValue, hsValidRange)
+                        && NetCDFUtils.isValueValid(tp, tpFillValue, tpValidRange)
+                        && NetCDFUtils.isValueValid(pdir, pdirFillValue, pdirValidRange)) {
+                    WavesDataPoint dp = new WavesDataPoint(lat, lon);
                   dp.setSignificantHeight(hs);
                   dp.setPeakPeriod(tp);
                   dp.setPeakDirection(pdir);
@@ -829,6 +836,7 @@ public class LoaderHelper {
                       chlorophyllUnits = (String) chlorophyllUnitsAtt.getValue(0);
 
                   double chlorophyllFillValue = NetCDFUtils.findFillValue(chlorophyllVar);
+                  Pair<Double, Double> chlorophyllValidRange = NetCDFUtils.findValidRange(chlorophyllVar);
                   
                   int[] shape = chlorophyllVar.getShape();
                   int[] counter = new int[shape.length];
@@ -867,7 +875,7 @@ public class LoaderHelper {
 
                       double chlorophyll = chlorophyllArray == null ? Double.NaN : chlorophyllArray.getDouble(index);
 
-                      if (!Double.isNaN(chlorophyll) && chlorophyll != chlorophyllFillValue) {
+                      if (NetCDFUtils.isValueValid(chlorophyll, chlorophyllFillValue, chlorophyllValidRange)) {
                           ChlorophyllDataPoint dp = new ChlorophyllDataPoint(lat, lon);
                           
                           chlorophyll = NetCDFUnitsUtils.getValueForMilliGPerM3FromTempUnits(chlorophyll, chlorophyllUnits);
