@@ -30,7 +30,7 @@
  * Author: pdias
  * 23/04/2017
  */
-package pt.lsts.neptus.plugins.envdisp;
+package pt.lsts.neptus.plugins.envdisp.painter;
 
 import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;

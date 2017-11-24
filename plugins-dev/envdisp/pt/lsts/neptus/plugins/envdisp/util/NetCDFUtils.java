@@ -30,7 +30,7 @@
  * Author: pdias
  * 23/11/2017
  */
-package pt.lsts.neptus.plugins.envdisp;
+package pt.lsts.neptus.plugins.envdisp.util;
 
 import java.util.Arrays;
 import java.util.Date;

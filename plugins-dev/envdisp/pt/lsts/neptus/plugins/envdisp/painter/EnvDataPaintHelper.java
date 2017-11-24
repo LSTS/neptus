@@ -30,7 +30,7 @@
  * Author: pdias
  * 23/04/2017
  */
-package pt.lsts.neptus.plugins.envdisp;
+package pt.lsts.neptus.plugins.envdisp.painter;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -60,6 +60,13 @@ import org.apache.commons.lang3.ArrayUtils;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.data.Pair;
+import pt.lsts.neptus.plugins.envdisp.EnvironmentalDataVisualization;
+import pt.lsts.neptus.plugins.envdisp.datapoints.BaseDataPoint;
+import pt.lsts.neptus.plugins.envdisp.datapoints.ChlorophyllDataPoint;
+import pt.lsts.neptus.plugins.envdisp.datapoints.HFRadarDataPoint;
+import pt.lsts.neptus.plugins.envdisp.datapoints.SSTDataPoint;
+import pt.lsts.neptus.plugins.envdisp.datapoints.WavesDataPoint;
+import pt.lsts.neptus.plugins.envdisp.datapoints.WindDataPoint;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.AngleUtils;

@@ -30,7 +30,7 @@
  * Author: pdias
  * 23/11/2017
  */
-package pt.lsts.neptus.plugins.envdisp;
+package pt.lsts.neptus.plugins.envdisp.util;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -40,6 +40,7 @@ import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import pt.lsts.neptus.plugins.envdisp.datapoints.SSTDataPoint;
 import pt.lsts.neptus.util.DateTimeUtil;
 
 /**

@@ -44,6 +44,13 @@ import java.util.Map;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.data.Pair;
+import pt.lsts.neptus.plugins.envdisp.datapoints.ChlorophyllDataPoint;
+import pt.lsts.neptus.plugins.envdisp.datapoints.HFRadarDataPoint;
+import pt.lsts.neptus.plugins.envdisp.datapoints.SSTDataPoint;
+import pt.lsts.neptus.plugins.envdisp.datapoints.WavesDataPoint;
+import pt.lsts.neptus.plugins.envdisp.datapoints.WindDataPoint;
+import pt.lsts.neptus.plugins.envdisp.util.NetCDFUnitsUtils;
+import pt.lsts.neptus.plugins.envdisp.util.NetCDFUtils;
 import pt.lsts.neptus.util.AngleUtils;
 import ucar.ma2.Array;
 import ucar.ma2.Index;
