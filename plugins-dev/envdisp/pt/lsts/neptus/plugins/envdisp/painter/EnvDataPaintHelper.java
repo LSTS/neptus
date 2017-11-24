@@ -78,9 +78,12 @@ import pt.lsts.neptus.util.UnitsUtil;
  * @author pdias
  *
  */
-class EnvDataPaintHelper {
+public class EnvDataPaintHelper {
 
-    private static int filterUseLOD = 9;
+    static final int OFFSET_REND_TXT_DATE_RANGES = 52;
+    static final int OFFSET_REND_TXT_DATE_RANGES_DELTA = 15;
+
+    static int filterUseLOD = 9;
 
     private EnvDataPaintHelper() {
     }
@@ -161,7 +164,7 @@ class EnvDataPaintHelper {
      * @param font8Pt
      * @param showDataDebugLegend
      */
-    static void paintHFRadarInGraphics(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit,
+    public static void paintHFRadarInGraphics(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit,
             HashMap<String, HFRadarDataPoint> dataPointsCurrents, boolean ignoreDateLimitToLoad, int offScreenBufferPixel,
             ColorMap colorMapCurrents, double minCurrentCmS, double maxCurrentCmS,
             boolean showCurrentsLegend, int showCurrentsLegendFromZoomLevel, Font font8Pt, boolean showDataDebugLegend) {
@@ -245,8 +248,8 @@ class EnvDataPaintHelper {
             debugOut(showDataDebugLegend, String.format("Currents stg 2 took %ss",
                     MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1)));
             
-            int offset = EnvironmentalDataVisualization.OFFSET_REND_TXT_DATE_RANGES
-                    + EnvironmentalDataVisualization.OFFSET_REND_TXT_DATE_RANGES_DELTA * 0;
+            int offset = OFFSET_REND_TXT_DATE_RANGES
+                    + OFFSET_REND_TXT_DATE_RANGES_DELTA * 0;
             String typeName = "Currents";
             EnvDataPaintHelper.paintDatesRange(g2, toDatePts.longValue(), fromDatePts.longValue(), offset, typeName,
                     showDataDebugLegend, font8Pt);
@@ -272,7 +275,7 @@ class EnvDataPaintHelper {
      * @param font8Pt
      * @param showDataDebugLegend
      */
-    static void paintSSTInGraphics(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit,
+    public static void paintSSTInGraphics(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit,
             HashMap<String, SSTDataPoint> dataPointsSST, boolean ignoreDateLimitToLoad, int offScreenBufferPixel,
             ColorMap colorMapSST, double minSST, double maxSST,
             boolean showSSTLegend, int showSSTLegendFromZoomLevel, Font font8Pt, boolean showDataDebugLegend) {
@@ -345,7 +348,7 @@ class EnvDataPaintHelper {
             debugOut(showDataDebugLegend, String.format("SST stg 2 took %ss",
                     MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1)));
             
-            int offset = EnvironmentalDataVisualization.OFFSET_REND_TXT_DATE_RANGES + EnvironmentalDataVisualization.OFFSET_REND_TXT_DATE_RANGES_DELTA * 1;
+            int offset = OFFSET_REND_TXT_DATE_RANGES + OFFSET_REND_TXT_DATE_RANGES_DELTA * 1;
             String typeName = "SST";
             paintDatesRange(g2, toDatePts.longValue(), fromDatePts.longValue(), offset, typeName, showDataDebugLegend,
                     font8Pt);
@@ -370,7 +373,7 @@ class EnvDataPaintHelper {
      * @param font8Pt
      * @param showDataDebugLegend
      */
-    static void paintWindInGraphics(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit,
+    public static void paintWindInGraphics(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit,
             HashMap<String, WindDataPoint> dataPointsWind, boolean ignoreDateLimitToLoad, int offScreenBufferPixel,
             boolean useColorMapForWind, ColorMap colorMapWind, double minWind, double maxWind,
             Font font8Pt, boolean showDataDebugLegend) {
@@ -450,7 +453,7 @@ class EnvDataPaintHelper {
             debugOut(showDataDebugLegend, String.format("Wind stg 2 took %ss",
                     MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1)));
             
-            int offset = EnvironmentalDataVisualization.OFFSET_REND_TXT_DATE_RANGES + EnvironmentalDataVisualization.OFFSET_REND_TXT_DATE_RANGES_DELTA * 2;
+            int offset = OFFSET_REND_TXT_DATE_RANGES + OFFSET_REND_TXT_DATE_RANGES_DELTA * 2;
             String typeName = "Wind";
             paintDatesRange(g2, toDatePts.longValue(), fromDatePts.longValue(), offset, typeName, showDataDebugLegend,
                     font8Pt);
@@ -476,7 +479,7 @@ class EnvDataPaintHelper {
      * @param font8Pt
      * @param showDataDebugLegend
      */
-    static void paintWavesInGraphics(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit,
+    public static void paintWavesInGraphics(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit,
             HashMap<String, WavesDataPoint> dataPointsWaves, boolean ignoreDateLimitToLoad, int offScreenBufferPixel,
             ColorMap colorMapWaves, double minWaves, double maxWaves, boolean showWavesLegend,
             int showWavesLegendFromZoomLevel, Font font8Pt, boolean showDataDebugLegend) {
@@ -560,7 +563,7 @@ class EnvDataPaintHelper {
             debugOut(showDataDebugLegend, String.format("Waves stg 2 took %ss",
                     MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1)));
             
-            int offset = EnvironmentalDataVisualization.OFFSET_REND_TXT_DATE_RANGES + EnvironmentalDataVisualization.OFFSET_REND_TXT_DATE_RANGES_DELTA * 3;
+            int offset = OFFSET_REND_TXT_DATE_RANGES + OFFSET_REND_TXT_DATE_RANGES_DELTA * 3;
             String typeName = "Waves";
             paintDatesRange(g2, toDatePts.longValue(), fromDatePts.longValue(), offset, typeName, showDataDebugLegend,
                     font8Pt);
@@ -570,7 +573,7 @@ class EnvDataPaintHelper {
         }
     }
 
-    static void paintChlorophyllInGraphics(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit,
+    public static void paintChlorophyllInGraphics(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit,
             HashMap<String, ChlorophyllDataPoint> dataPointsChlorophyll, boolean ignoreDateLimitToLoad, int offScreenBufferPixel,
             ColorMap colorMapChlorophyll, double minChlorophyll, double maxChlorophyll,
             boolean showChlorophyllLegend, int showChlorophyllLegendFromZoomLevel, Font font8Pt, boolean showDataDebugLegend) {
@@ -643,7 +646,7 @@ class EnvDataPaintHelper {
             debugOut(showDataDebugLegend, String.format("Chlorophyll stg 2 took %ss",
                     MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1)));
             
-            int offset = EnvironmentalDataVisualization.OFFSET_REND_TXT_DATE_RANGES + EnvironmentalDataVisualization.OFFSET_REND_TXT_DATE_RANGES_DELTA * 4;
+            int offset = OFFSET_REND_TXT_DATE_RANGES + OFFSET_REND_TXT_DATE_RANGES_DELTA * 4;
             String typeName = "Chlorophyll";
             paintDatesRange(g2, toDatePts.longValue(), fromDatePts.longValue(), offset, typeName, showDataDebugLegend,
                     font8Pt);

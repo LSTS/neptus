@@ -110,9 +110,6 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
     private static final String CATEGORY_VISIBILITY_WAVES = "Visibility Waves";
     private static final String CATEGORY_VISIBILITY_CHLOROPHILL = "Visibility Chlorophyll";
 
-    static final int OFFSET_REND_TXT_DATE_RANGES = 52;
-    static final int OFFSET_REND_TXT_DATE_RANGES_DELTA = 15;
-
     /*
      * Currents, wind, waves, SST 
      */
@@ -1298,7 +1295,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
         // Test update to the most recent
         HFRadarDataPoint dp = ret.values().iterator().next();
         System.out.println("" + dp);
-        Date newDate = new Date(dp.dateUTC.getTime() + DateTimeUtil.HOUR * 3 + DateTimeUtil.MINUTE * 30);
+        Date newDate = new Date(dp.getDateUTC().getTime() + DateTimeUtil.HOUR * 3 + DateTimeUtil.MINUTE * 30);
         System.out.println(newDate);
         dp.useMostRecent(newDate);
         System.out.println("" + dp);
