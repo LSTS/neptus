@@ -521,101 +521,11 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
     private void cleanDataPointsBeforeDate() {
         Date dateLimit = ignoreDateLimitToLoad ? null : createDateLimitToRemove();
         
-        cleanCurrentsDataPointsBeforeDate(dateLimit);
-        cleanSSTDataPointsBeforeDate(dateLimit);
-        cleanWindDataPointsBeforeDate(dateLimit);
-        cleanWavesDataPointsBeforeDate(dateLimit);
-        cleanChlorophyllDataPointsBeforeDate(dateLimit);
-    }
-
-    private void cleanCurrentsDataPointsBeforeDate(Date dateLimit) {
-        if (dateLimit == null)
-            return;
-        
-        for (String dpID : dataPointsCurrents.keySet().toArray(new String[0])) {
-            HFRadarDataPoint dp = dataPointsCurrents.get(dpID);
-            if (dp == null)
-                continue;
-            
-            if (dp.getDateUTC().before(dateLimit))
-                dataPointsCurrents.remove(dpID);
-            else {
-                // Cleanup historicalData
-                dp.purgeAllBefore(dateLimit);
-            }
-        }
-    }
-
-    private void cleanSSTDataPointsBeforeDate(Date dateLimit) {
-        if (dateLimit == null)
-            return;
-        
-        for (String dpID : dataPointsSST.keySet().toArray(new String[0])) {
-            BaseDataPoint<?> dp = dataPointsSST.get(dpID);
-            if (dp == null)
-                continue;
-            
-            if (dp.getDateUTC().before(dateLimit))
-                dataPointsSST.remove(dpID);
-            else {
-                // Cleanup historicalData
-                dp.purgeAllBefore(dateLimit);
-            }
-        }
-    }
-
-    private void cleanWindDataPointsBeforeDate(Date dateLimit) {
-        if (dateLimit == null)
-            return;
-        
-        for (String dpID : dataPointsWind.keySet().toArray(new String[0])) {
-            BaseDataPoint<?> dp = dataPointsWind.get(dpID);
-            if (dp == null)
-                continue;
-            
-            if (dp.getDateUTC().before(dateLimit))
-                dataPointsWind.remove(dpID);
-            else {
-                // Cleanup historicalData
-                dp.purgeAllBefore(dateLimit);
-            }
-        }
-    }
-
-    private void cleanWavesDataPointsBeforeDate(Date dateLimit) {
-        if (dateLimit == null)
-            return;
-        
-        for (String dpID : dataPointsWaves.keySet().toArray(new String[0])) {
-            BaseDataPoint<?> dp = dataPointsWaves.get(dpID);
-            if (dp == null)
-                continue;
-            
-            if (dp.getDateUTC().before(dateLimit))
-                dataPointsWaves.remove(dpID);
-            else {
-                // Cleanup historicalData
-                dp.purgeAllBefore(dateLimit);
-            }
-        }
-    }
-
-    private void cleanChlorophyllDataPointsBeforeDate(Date dateLimit) {
-        if (dateLimit == null)
-            return;
-        
-        for (String dpID : dataPointsChlorophyll.keySet().toArray(new String[0])) {
-            BaseDataPoint<?> dp = dataPointsChlorophyll.get(dpID);
-            if (dp == null)
-                continue;
-            
-            if (dp.getDateUTC().before(dateLimit))
-                dataPointsChlorophyll.remove(dpID);
-            else {
-                // Cleanup historicalData
-                dp.purgeAllBefore(dateLimit);
-            }
-        }
+        BaseDataPoint.cleanDataPointsBeforeDate(dataPointsCurrents, dateLimit);
+        BaseDataPoint.cleanDataPointsBeforeDate(dataPointsSST, dateLimit);
+        BaseDataPoint.cleanDataPointsBeforeDate(dataPointsWind, dateLimit);
+        BaseDataPoint.cleanDataPointsBeforeDate(dataPointsWaves, dateLimit);
+        BaseDataPoint.cleanDataPointsBeforeDate(dataPointsChlorophyll, dateLimit);
     }
 
     public void mergeCurrentsDataToInternalDataList(HashMap<String, HFRadarDataPoint> toMergeData) {
