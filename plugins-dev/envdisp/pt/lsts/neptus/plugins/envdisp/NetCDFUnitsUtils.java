@@ -48,6 +48,9 @@ import pt.lsts.neptus.util.DateTimeUtil;
  */
 public class NetCDFUnitsUtils {
 
+    @SuppressWarnings("serial")
+    private static final SimpleDateFormat dateTimeFormaterUTC = new SimpleDateFormat("yyyy-MM-dd HH':'mm':'ss") {{setTimeZone(TimeZone.getTimeZone("UTC"));}};
+
     /**
      * Time Coordinate in the NetCDF Climate and Forecast (CF) Metadata Conventions v1.6
      * indicated the format as: <br/>
@@ -154,7 +157,7 @@ public class NetCDFUnitsUtils {
                 }
                 
                 try {
-                    Date date = EnvironmentalDataVisualization.dateTimeFormaterUTC.parse(dateTkStr + " " + timeTkStr);
+                    Date date = dateTimeFormaterUTC.parse(dateTkStr + " " + timeTkStr);
                     off = date.getTime();
                     
                     // Let us see if milliseconds are present
@@ -285,9 +288,6 @@ public class NetCDFUnitsUtils {
     }
     
     public static void main(String[] args) throws Exception {
-        @SuppressWarnings("serial")
-        SimpleDateFormat dateTimeFormaterUTC = new SimpleDateFormat("yyyy-MM-dd HH':'mm':'ss") {{setTimeZone(TimeZone.getTimeZone("UTC"));}};
-        
         try {
             double[] val = getMultiplierAndMillisOffsetFromTimeUnits("days since 00-01-00 00:00:00");
             System.out.println(val[0] + "    " + val[1]);
