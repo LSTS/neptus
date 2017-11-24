@@ -164,6 +164,9 @@ public class NetCDFUtils {
                 if (value >= validRange.first() && value <= validRange.second())
                     return true;
             }
+            else {
+                return true;
+            }
         }
         return false;
     }
