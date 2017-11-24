@@ -135,9 +135,9 @@ public class NetCDFUtils {
     public static double findFillValue(Variable var) throws NumberFormatException {
         Attribute fillValueAtt = null;
         if (var != null) {
-            fillValueAtt = var.findAttribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE);
+            fillValueAtt = var.findAttribute(NETCDF_ATT_FILL_VALUE);
             if (fillValueAtt == null)
-                fillValueAtt = var.findAttribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE);
+                fillValueAtt = var.findAttribute(NETCDF_ATT_MISSING_VALUE);
         }
         if (fillValueAtt != null) {
             try {
@@ -220,9 +220,9 @@ public class NetCDFUtils {
      */
     public static Pair<String, Variable> findVariableForStandardNameOrName(NetcdfFile dataFile, String fileNameForErrorString,
             boolean failIfNotFound, String... varStName) {
-        Pair<String, Variable> ret = NetCDFUtils.findVariableForStandardName(dataFile, fileNameForErrorString, false, varStName);
+        Pair<String, Variable> ret = findVariableForStandardName(dataFile, fileNameForErrorString, false, varStName);
         if (ret == null)
-            ret = NetCDFUtils.findVariableFor(dataFile, fileNameForErrorString, failIfNotFound, varStName);
+            ret = findVariableFor(dataFile, fileNameForErrorString, failIfNotFound, varStName);
         
         return ret;
     }
@@ -264,7 +264,7 @@ public class NetCDFUtils {
         String name = "";
         Variable latVar = null;
         for (String st : varName) {
-            latVar = dataFile.findVariableByAttribute(null, NetCDFUtils.NETCDF_ATT_STANDARD_NAME, st);
+            latVar = dataFile.findVariableByAttribute(null, NETCDF_ATT_STANDARD_NAME, st);
             if (latVar != null) {
                 name = latVar.getShortName();
                 break;
@@ -323,7 +323,7 @@ public class NetCDFUtils {
     public static double[] getTimeMultiplierAndOffset(Variable timeVar, String fileNameForErrorString)
             throws Exception {
         String timeUnits = "days since 00-01-00 00:00:00"; // "seconds since 2013-07-04 00:00:00"
-        Attribute timeUnitsAtt = timeVar.findAttribute(NetCDFUtils.NETCDF_ATT_UNITS);
+        Attribute timeUnitsAtt = timeVar.findAttribute(NETCDF_ATT_UNITS);
         if (timeUnitsAtt != null)
             timeUnits = (String) timeUnitsAtt.getValue(0);
         double[] multAndOffset = NetCDFUnitsUtils.getMultiplierAndMillisOffsetFromTimeUnits(timeUnits);
