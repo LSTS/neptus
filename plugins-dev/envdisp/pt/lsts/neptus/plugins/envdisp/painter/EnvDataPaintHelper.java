@@ -30,7 +30,7 @@
  * Author: pdias
  * 23/04/2017
  */
-package pt.lsts.neptus.plugins.envdisp;
+package pt.lsts.neptus.plugins.envdisp.painter;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -41,17 +41,10 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.atomic.LongAccumulator;
-import java.util.function.BiConsumer;
-import java.util.function.BinaryOperator;
-import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -60,8 +53,12 @@ import org.apache.commons.lang3.ArrayUtils;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.data.Pair;
+import pt.lsts.neptus.plugins.envdisp.datapoints.ChlorophyllDataPoint;
+import pt.lsts.neptus.plugins.envdisp.datapoints.HFRadarDataPoint;
+import pt.lsts.neptus.plugins.envdisp.datapoints.SSTDataPoint;
+import pt.lsts.neptus.plugins.envdisp.datapoints.WavesDataPoint;
+import pt.lsts.neptus.plugins.envdisp.datapoints.WindDataPoint;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
-import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.ColorUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
@@ -71,9 +68,12 @@ import pt.lsts.neptus.util.UnitsUtil;
  * @author pdias
  *
  */
-class EnvDataPaintHelper {
+public class EnvDataPaintHelper {
 
-    private static int filterUseLOD = 9;
+    static final int OFFSET_REND_TXT_DATE_RANGES = 52;
+    static final int OFFSET_REND_TXT_DATE_RANGES_DELTA = 15;
+
+    static int filterUseLOD = 9;
 
     private EnvDataPaintHelper() {
     }
@@ -154,7 +154,7 @@ class EnvDataPaintHelper {
      * @param font8Pt
      * @param showDataDebugLegend
      */
-    static void paintHFRadarInGraphics(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit,
+    public static void paintHFRadarInGraphics(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit,
             HashMap<String, HFRadarDataPoint> dataPointsCurrents, boolean ignoreDateLimitToLoad, int offScreenBufferPixel,
             ColorMap colorMapCurrents, double minCurrentCmS, double maxCurrentCmS,
             boolean showCurrentsLegend, int showCurrentsLegendFromZoomLevel, Font font8Pt, boolean showDataDebugLegend) {
@@ -238,8 +238,8 @@ class EnvDataPaintHelper {
             debugOut(showDataDebugLegend, String.format("Currents stg 2 took %ss",
                     MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1)));
             
-            int offset = EnvironmentalDataVisualization.OFFSET_REND_TXT_DATE_RANGES
-                    + EnvironmentalDataVisualization.OFFSET_REND_TXT_DATE_RANGES_DELTA * 0;
+            int offset = OFFSET_REND_TXT_DATE_RANGES
+                    + OFFSET_REND_TXT_DATE_RANGES_DELTA * 0;
             String typeName = "Currents";
             EnvDataPaintHelper.paintDatesRange(g2, toDatePts.longValue(), fromDatePts.longValue(), offset, typeName,
                     showDataDebugLegend, font8Pt);
@@ -265,7 +265,7 @@ class EnvDataPaintHelper {
      * @param font8Pt
      * @param showDataDebugLegend
      */
-    static void paintSSTInGraphics(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit,
+    public static void paintSSTInGraphics(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit,
             HashMap<String, SSTDataPoint> dataPointsSST, boolean ignoreDateLimitToLoad, int offScreenBufferPixel,
             ColorMap colorMapSST, double minSST, double maxSST,
             boolean showSSTLegend, int showSSTLegendFromZoomLevel, Font font8Pt, boolean showDataDebugLegend) {
@@ -338,7 +338,7 @@ class EnvDataPaintHelper {
             debugOut(showDataDebugLegend, String.format("SST stg 2 took %ss",
                     MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1)));
             
-            int offset = EnvironmentalDataVisualization.OFFSET_REND_TXT_DATE_RANGES + EnvironmentalDataVisualization.OFFSET_REND_TXT_DATE_RANGES_DELTA * 1;
+            int offset = OFFSET_REND_TXT_DATE_RANGES + OFFSET_REND_TXT_DATE_RANGES_DELTA * 1;
             String typeName = "SST";
             paintDatesRange(g2, toDatePts.longValue(), fromDatePts.longValue(), offset, typeName, showDataDebugLegend,
                     font8Pt);
@@ -363,7 +363,7 @@ class EnvDataPaintHelper {
      * @param font8Pt
      * @param showDataDebugLegend
      */
-    static void paintWindInGraphics(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit,
+    public static void paintWindInGraphics(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit,
             HashMap<String, WindDataPoint> dataPointsWind, boolean ignoreDateLimitToLoad, int offScreenBufferPixel,
             boolean useColorMapForWind, ColorMap colorMapWind, double minWind, double maxWind,
             Font font8Pt, boolean showDataDebugLegend) {
@@ -443,7 +443,7 @@ class EnvDataPaintHelper {
             debugOut(showDataDebugLegend, String.format("Wind stg 2 took %ss",
                     MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1)));
             
-            int offset = EnvironmentalDataVisualization.OFFSET_REND_TXT_DATE_RANGES + EnvironmentalDataVisualization.OFFSET_REND_TXT_DATE_RANGES_DELTA * 2;
+            int offset = OFFSET_REND_TXT_DATE_RANGES + OFFSET_REND_TXT_DATE_RANGES_DELTA * 2;
             String typeName = "Wind";
             paintDatesRange(g2, toDatePts.longValue(), fromDatePts.longValue(), offset, typeName, showDataDebugLegend,
                     font8Pt);
@@ -469,7 +469,7 @@ class EnvDataPaintHelper {
      * @param font8Pt
      * @param showDataDebugLegend
      */
-    static void paintWavesInGraphics(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit,
+    public static void paintWavesInGraphics(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit,
             HashMap<String, WavesDataPoint> dataPointsWaves, boolean ignoreDateLimitToLoad, int offScreenBufferPixel,
             ColorMap colorMapWaves, double minWaves, double maxWaves, boolean showWavesLegend,
             int showWavesLegendFromZoomLevel, Font font8Pt, boolean showDataDebugLegend) {
@@ -553,7 +553,7 @@ class EnvDataPaintHelper {
             debugOut(showDataDebugLegend, String.format("Waves stg 2 took %ss",
                     MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1)));
             
-            int offset = EnvironmentalDataVisualization.OFFSET_REND_TXT_DATE_RANGES + EnvironmentalDataVisualization.OFFSET_REND_TXT_DATE_RANGES_DELTA * 3;
+            int offset = OFFSET_REND_TXT_DATE_RANGES + OFFSET_REND_TXT_DATE_RANGES_DELTA * 3;
             String typeName = "Waves";
             paintDatesRange(g2, toDatePts.longValue(), fromDatePts.longValue(), offset, typeName, showDataDebugLegend,
                     font8Pt);
@@ -563,7 +563,7 @@ class EnvDataPaintHelper {
         }
     }
 
-    static void paintChlorophyllInGraphics(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit,
+    public static void paintChlorophyllInGraphics(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit,
             HashMap<String, ChlorophyllDataPoint> dataPointsChlorophyll, boolean ignoreDateLimitToLoad, int offScreenBufferPixel,
             ColorMap colorMapChlorophyll, double minChlorophyll, double maxChlorophyll,
             boolean showChlorophyllLegend, int showChlorophyllLegendFromZoomLevel, Font font8Pt, boolean showDataDebugLegend) {
@@ -636,7 +636,7 @@ class EnvDataPaintHelper {
             debugOut(showDataDebugLegend, String.format("Chlorophyll stg 2 took %ss",
                     MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1)));
             
-            int offset = EnvironmentalDataVisualization.OFFSET_REND_TXT_DATE_RANGES + EnvironmentalDataVisualization.OFFSET_REND_TXT_DATE_RANGES_DELTA * 4;
+            int offset = OFFSET_REND_TXT_DATE_RANGES + OFFSET_REND_TXT_DATE_RANGES_DELTA * 4;
             String typeName = "Chlorophyll";
             paintDatesRange(g2, toDatePts.longValue(), fromDatePts.longValue(), offset, typeName, showDataDebugLegend,
                     font8Pt);
@@ -669,187 +669,5 @@ class EnvDataPaintHelper {
         String[] both = ArrayUtils.addAll(strVTk1, strVTk2);
         List<String> distinct = Stream.of(both).distinct().collect(Collectors.toList());
         return distinct.stream().map(i -> i.toString()) .collect(Collectors.joining(", "));
-    }
-
-    public static class DataCollector<T extends BaseDataPoint<?>> implements
-            java.util.stream.Collector<T, ArrayList<Map<Point2D, Pair<ArrayList<Object>, Date>>>, ArrayList<Map<Point2D, Pair<ArrayList<Object>, Date>>>> {
-        
-        public boolean ignoreDateLimitToLoad = false;
-        public Date dateLimit;
-        public StateRenderer2D renderer;
-        public int offScreenBufferPixel;
-        
-        public int gridSpacing = 8;
-        
-        public Function<T, ArrayList<Object>> extractor;
-        public BinaryOperator<ArrayList<Object>> merger;
-
-        public LongAccumulator visiblePts = new LongAccumulator((r, i) -> r += i, 0);
-        public LongAccumulator toDatePts = new LongAccumulator((r, i) -> r = i > r ? i : r, 0);
-        public LongAccumulator fromDatePts = new LongAccumulator((r, i) -> r = i < r ? i : r, Long.MAX_VALUE);
-
-        /**
-         * Data collector class, see {@link java.util.stream.Collector}, to process data
-         * for painting.
-         * 
-         * @param ignoreDateLimitToLoad To ignore data limit filtering.
-         * @param dateLimit Data limit for filtering is enabled.
-         * @param renderer The renderer where it will be painted.
-         * @param offScreenBufferPixel The off-screen pixels to consider.
-         * @param gridSpacing The grid spacing to use, in pixels.
-         * @param extractor This will be called to extract data from the data point.
-         * @param merger This will be called to merge 2 data points data.
-         */
-        public DataCollector(boolean ignoreDateLimitToLoad, Date dateLimit, StateRenderer2D renderer, 
-                int offScreenBufferPixel, int gridSpacing, Function<T, ArrayList<Object>> extractor,
-                BinaryOperator<ArrayList<Object>> merger) {
-            this.ignoreDateLimitToLoad = ignoreDateLimitToLoad;
-            this.dateLimit = dateLimit;
-            this.renderer = renderer; 
-            this.offScreenBufferPixel = offScreenBufferPixel;
-            this.gridSpacing = gridSpacing;
-            this.extractor = extractor;
-            this.merger = merger;
-        }
-        
-        @Override
-        public Supplier<ArrayList<Map<Point2D, Pair<ArrayList<Object>, Date>>>> supplier() {
-            return new Supplier<ArrayList<Map<Point2D, Pair<ArrayList<Object>, Date>>>>() {
-                @Override
-                public ArrayList<Map<Point2D, Pair<ArrayList<Object>, Date>>> get() {
-                    return new ArrayList<Map<Point2D, Pair<ArrayList<Object>, Date>>>();
-                }
-            };
-        }
-
-        @Override
-        public BiConsumer<ArrayList<Map<Point2D, Pair<ArrayList<Object>, Date>>>, T> accumulator() {
-            return new BiConsumer<ArrayList<Map<Point2D, Pair<ArrayList<Object>, Date>>>, T>() {
-                @Override
-                public void accept(ArrayList<Map<Point2D, Pair<ArrayList<Object>, Date>>> res, T dp) {
-                    try {
-                        if (res.isEmpty()) {
-                            res.add(new HashMap<Point2D, Pair<ArrayList<Object>, Date>>());
-                            res.add(new HashMap<Point2D, Pair<ArrayList<Object>, Date>>());
-                        }
-                        
-                        if (!ignoreDateLimitToLoad && dp.getDateUTC().before(dateLimit))
-                            return;
-                        
-                        double latV = dp.getLat();
-                        double lonV = dp.getLon();
-                        ArrayList<Object> vals = extractor.apply(dp); // dp.getAllDataValues();
-                        
-                        if (Double.isNaN(latV) || Double.isNaN(lonV))
-                            return;
-                        for (Object object : vals) {
-                            if (object instanceof Number) {
-                                double dv = ((Number) object).doubleValue();
-                                if (Double.isNaN(dv) || !Double.isFinite(dv))
-                                    return;
-                            }
-                        }
-                        
-                        Date dateV = new Date(dp.getDateUTC().getTime());
-
-                        LocationType loc = new LocationType();
-                        loc.setLatitudeDegs(latV);
-                        loc.setLongitudeDegs(lonV);
-                        
-                        Point2D pt = renderer.getScreenPosition(loc);
-                        
-                        if (!isVisibleInRender(pt, renderer, offScreenBufferPixel))
-                            return;
-                        
-                        visiblePts.accumulate(1);
-                        
-                        toDatePts.accumulate(dateV.getTime());
-                        fromDatePts.accumulate(dateV.getTime());
-                        
-                        ArrayList<Point2D> pts = new ArrayList<>();
-                        if (renderer.getLevelOfDetail() >= filterUseLOD)
-                            pts.add((Point2D) pt.clone());
-
-                        double x = pt.getX();
-                        double y = pt.getY();
-                        x = ((int) x) / gridSpacing * gridSpacing;
-                        y = ((int) y) / gridSpacing * gridSpacing;
-                        pt.setLocation(x, y);
-                        pts.add(0, pt);
-
-                        for (int idx = 0; idx < pts.size(); idx++) {
-                            Point2D ptI = pts.get(idx);
-                            if (!res.get(idx).containsKey(ptI)) {
-                                res.get(idx).put(ptI, new Pair<>(vals, dateV));
-                            }
-                            else {
-                                Pair<ArrayList<Object>, Date> pval = res.get(idx).get(ptI);
-                                ArrayList<Object> pvals = pval.first();
-                                vals = merger.apply(vals, pvals);
-                                if (dateV.after(pval.second()))
-                                    res.get(idx).put(ptI, new Pair<>(vals, dateV));
-                                else
-                                    res.get(idx).put(ptI, new Pair<>(vals, pval.second()));
-                            }
-                        }
-                    }
-                    catch (Exception e) {
-                        NeptusLog.pub().debug(e);
-                    }
-                }
-            };
-        }
-
-        @Override
-        public BinaryOperator<ArrayList<Map<Point2D, Pair<ArrayList<Object>, Date>>>> combiner() {
-            return new BinaryOperator<ArrayList<Map<Point2D,Pair<ArrayList<Object>,Date>>>>() {
-                @Override
-                public ArrayList<Map<Point2D, Pair<ArrayList<Object>, Date>>> apply(
-                        ArrayList<Map<Point2D, Pair<ArrayList<Object>, Date>>> res,
-                        ArrayList<Map<Point2D, Pair<ArrayList<Object>, Date>>> resInt) {
-                    for (int idxc = 0; idxc < 2; idxc++) {
-                        final int idx = idxc;
-                        resInt.get(idx).keySet().stream().forEach(k1 -> {
-                            try {
-                                Pair<ArrayList<Object>, Date> sI = resInt.get(idx).get(k1);
-                                if (res.get(idx).containsKey(k1)) {
-                                    Pair<ArrayList<Object>, Date> s = res.get(idx).get(k1);
-                                    ArrayList<Object> vals = merger.apply(s.first(), sI.first());
-                                    Date valDate = sI.second().after(s.second()) ? new Date(sI.second().getTime())
-                                            : s.second();
-                                    res.get(idx).put(k1, new Pair<ArrayList<Object>, Date>(vals, valDate));
-                                }
-                                else {
-                                    res.get(idx).put(k1, sI);
-                                }
-                            }
-                            catch (Exception e) {
-                                NeptusLog.pub().debug(e);
-                            }
-                        });
-                    }
-                    return res;
-                }
-            };
-        }
-
-        @Override
-        public Function<ArrayList<Map<Point2D, Pair<ArrayList<Object>, Date>>>, ArrayList<Map<Point2D, Pair<ArrayList<Object>, Date>>>> finisher() {
-            return new Function<ArrayList<Map<Point2D,Pair<ArrayList<Object>,Date>>>, ArrayList<Map<Point2D,Pair<ArrayList<Object>,Date>>>>() {
-                @Override
-                public ArrayList<Map<Point2D, Pair<ArrayList<Object>, Date>>> apply(
-                        ArrayList<Map<Point2D, Pair<ArrayList<Object>, Date>>> t) {
-                    return t;
-                }
-            };
-        }
-
-        /* (non-Javadoc)
-         * @see java.util.stream.Collector#characteristics()
-         */
-        @Override
-        public Set<java.util.stream.Collector.Characteristics> characteristics() {
-            return EnumSet.of(Collector.Characteristics.CONCURRENT, Collector.Characteristics.UNORDERED);
-        }
     }
 }

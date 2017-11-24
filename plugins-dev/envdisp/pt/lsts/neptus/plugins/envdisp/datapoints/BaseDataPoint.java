@@ -30,10 +30,11 @@
  * Author: pdias
  * Jun 23, 2013
  */
-package pt.lsts.neptus.plugins.envdisp;
+package pt.lsts.neptus.plugins.envdisp.datapoints;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 
 @SuppressWarnings("rawtypes")
 public class BaseDataPoint<T extends BaseDataPoint> implements Comparable<BaseDataPoint> {
@@ -148,5 +149,30 @@ public class BaseDataPoint<T extends BaseDataPoint> implements Comparable<BaseDa
      */
     public boolean setAllDataValues(ArrayList<Object> newValues) {
         return true;
+    }
+
+    /**
+     * To clean data points that are older than a date limit. Works directly on the dataPoints parameter.
+     * 
+     * @param dataPoints
+     * @param dateLimit
+     */
+    public static <Bp extends BaseDataPoint<?>> void cleanDataPointsBeforeDate(HashMap<String, Bp> dataPoints,
+            Date dateLimit) {
+        if (dateLimit == null)
+            return;
+        
+        for (String dpID : dataPoints.keySet().toArray(new String[0])) {
+            Bp dp = dataPoints.get(dpID);
+            if (dp == null)
+                continue;
+            
+            if (dp.getDateUTC().before(dateLimit))
+                dataPoints.remove(dpID);
+            else {
+                // Cleanup historicalData
+                dp.purgeAllBefore(dateLimit);
+            }
+        }
     }
 }

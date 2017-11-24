@@ -72,6 +72,13 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
+import pt.lsts.neptus.plugins.envdisp.datapoints.BaseDataPoint;
+import pt.lsts.neptus.plugins.envdisp.datapoints.ChlorophyllDataPoint;
+import pt.lsts.neptus.plugins.envdisp.datapoints.HFRadarDataPoint;
+import pt.lsts.neptus.plugins.envdisp.datapoints.SSTDataPoint;
+import pt.lsts.neptus.plugins.envdisp.datapoints.WavesDataPoint;
+import pt.lsts.neptus.plugins.envdisp.datapoints.WindDataPoint;
+import pt.lsts.neptus.plugins.envdisp.painter.EnvDataPaintHelper;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.renderer2d.LayerPriority;
@@ -102,9 +109,6 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
     private static final String CATEGORY_VISIBILITY_WIND = "Visibility Wind";
     private static final String CATEGORY_VISIBILITY_WAVES = "Visibility Waves";
     private static final String CATEGORY_VISIBILITY_CHLOROPHILL = "Visibility Chlorophyll";
-
-    static final int OFFSET_REND_TXT_DATE_RANGES = 52;
-    static final int OFFSET_REND_TXT_DATE_RANGES_DELTA = 15;
 
     /*
      * Currents, wind, waves, SST 
@@ -385,7 +389,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
                 if (requestFromNooaWeb) {
                     HashMap<String, HFRadarDataPoint> dpLts = getNoaaHFRadarData();
                     if (dpLts != null && dpLts.size() > 0) {
-                        mergeCurrentsDataToInternalDataList(dpLts);
+                        mergeDataToInternalDataList(dataPointsCurrents, dpLts);
                         System.out.println(dpLts.size() + " ------------------------------");
                     }
                 }
@@ -517,165 +521,34 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
     private void cleanDataPointsBeforeDate() {
         Date dateLimit = ignoreDateLimitToLoad ? null : createDateLimitToRemove();
         
-        cleanCurrentsDataPointsBeforeDate(dateLimit);
-        cleanSSTDataPointsBeforeDate(dateLimit);
-        cleanWindDataPointsBeforeDate(dateLimit);
-        cleanWavesDataPointsBeforeDate(dateLimit);
-        cleanChlorophyllDataPointsBeforeDate(dateLimit);
+        BaseDataPoint.cleanDataPointsBeforeDate(dataPointsCurrents, dateLimit);
+        BaseDataPoint.cleanDataPointsBeforeDate(dataPointsSST, dateLimit);
+        BaseDataPoint.cleanDataPointsBeforeDate(dataPointsWind, dateLimit);
+        BaseDataPoint.cleanDataPointsBeforeDate(dataPointsWaves, dateLimit);
+        BaseDataPoint.cleanDataPointsBeforeDate(dataPointsChlorophyll, dateLimit);
     }
 
-    private void cleanCurrentsDataPointsBeforeDate(Date dateLimit) {
-        if (dateLimit == null)
-            return;
-        
-        for (String dpID : dataPointsCurrents.keySet().toArray(new String[0])) {
-            HFRadarDataPoint dp = dataPointsCurrents.get(dpID);
-            if (dp == null)
-                continue;
-            
-            if (dp.getDateUTC().before(dateLimit))
-                dataPointsCurrents.remove(dpID);
-            else {
-                // Cleanup historicalData
-                dp.purgeAllBefore(dateLimit);
-            }
-        }
-    }
-
-    private void cleanSSTDataPointsBeforeDate(Date dateLimit) {
-        if (dateLimit == null)
-            return;
-        
-        for (String dpID : dataPointsSST.keySet().toArray(new String[0])) {
-            BaseDataPoint<?> dp = dataPointsSST.get(dpID);
-            if (dp == null)
-                continue;
-            
-            if (dp.getDateUTC().before(dateLimit))
-                dataPointsSST.remove(dpID);
-            else {
-                // Cleanup historicalData
-                dp.purgeAllBefore(dateLimit);
-            }
-        }
-    }
-
-    private void cleanWindDataPointsBeforeDate(Date dateLimit) {
-        if (dateLimit == null)
-            return;
-        
-        for (String dpID : dataPointsWind.keySet().toArray(new String[0])) {
-            BaseDataPoint<?> dp = dataPointsWind.get(dpID);
-            if (dp == null)
-                continue;
-            
-            if (dp.getDateUTC().before(dateLimit))
-                dataPointsWind.remove(dpID);
-            else {
-                // Cleanup historicalData
-                dp.purgeAllBefore(dateLimit);
-            }
-        }
-    }
-
-    private void cleanWavesDataPointsBeforeDate(Date dateLimit) {
-        if (dateLimit == null)
-            return;
-        
-        for (String dpID : dataPointsWaves.keySet().toArray(new String[0])) {
-            BaseDataPoint<?> dp = dataPointsWaves.get(dpID);
-            if (dp == null)
-                continue;
-            
-            if (dp.getDateUTC().before(dateLimit))
-                dataPointsWaves.remove(dpID);
-            else {
-                // Cleanup historicalData
-                dp.purgeAllBefore(dateLimit);
-            }
-        }
-    }
-
-    private void cleanChlorophyllDataPointsBeforeDate(Date dateLimit) {
-        if (dateLimit == null)
-            return;
-        
-        for (String dpID : dataPointsChlorophyll.keySet().toArray(new String[0])) {
-            BaseDataPoint<?> dp = dataPointsChlorophyll.get(dpID);
-            if (dp == null)
-                continue;
-            
-            if (dp.getDateUTC().before(dateLimit))
-                dataPointsChlorophyll.remove(dpID);
-            else {
-                // Cleanup historicalData
-                dp.purgeAllBefore(dateLimit);
-            }
-        }
-    }
-
-    public void mergeCurrentsDataToInternalDataList(HashMap<String, HFRadarDataPoint> toMergeData) {
+    private <Bp extends BaseDataPoint<?>> void mergeDataToInternalDataList(HashMap<String, Bp> originalData,
+            HashMap<String, Bp> toMergeData) {
         for (String dpId : toMergeData.keySet()) {
-            HFRadarDataPoint dp = toMergeData.get(dpId);
-            HFRadarDataPoint dpo = dataPointsCurrents.get(dpId);
+            Bp dp = toMergeData.get(dpId);
+            Bp dpo = originalData.get(dpId);
             if (dpo == null) {
-                dataPointsCurrents.put(dpId, dp);
+                originalData.put(dpId, dp);
                 dpo = dp;
             }
             else {
                 mergeDataPointsWorker(dp, dpo);
             }
         }
-    }
-    
-    public void mergeSSTDataToInternalDataList(HashMap<String, SSTDataPoint> toMergeData) {
-        for (String dpId : toMergeData.keySet()) {
-            SSTDataPoint dp = toMergeData.get(dpId);
-            SSTDataPoint dpo = dataPointsSST.get(dpId);
-            if (dpo == null) {
-                dataPointsSST.put(dpId, dp);
-                dpo = dp;
-            }
-            else {
-                mergeDataPointsWorker(dp, dpo);
-            }
-        }
-        debugOut(toMergeData.size() + " vs " + dataPointsSST.size());
+        debugOut(toMergeData.size() + " vs " + originalData.size());
     }
 
-    public void mergeWindDataToInternalDataList(HashMap<String, WindDataPoint> toMergeData) {
-        for (String dpId : toMergeData.keySet()) {
-            WindDataPoint dp = toMergeData.get(dpId);
-            WindDataPoint dpo = dataPointsWind.get(dpId);
-            if (dpo == null) {
-                dataPointsWind.put(dpId, dp);
-                dpo = dp;
-            }
-            else {
-                mergeDataPointsWorker(dp, dpo);
-            }
-        }
-    }
-    
-    public void mergeWavesDataToInternalDataList(HashMap<String, WavesDataPoint> toMergeData) {
-        for (String dpId : toMergeData.keySet()) {
-            WavesDataPoint dp = toMergeData.get(dpId);
-            WavesDataPoint dpo = dataPointsWaves.get(dpId);
-            if (dpo == null) {
-                dataPointsWaves.put(dpId, dp);
-                dpo = dp;
-            }
-            else {
-                mergeDataPointsWorker(dp, dpo);
-            }
-        }
-    }
-    
     /**
      * @param dpToMerge
      * @param dpOriginal
      */
-    private void mergeDataPointsWorker(BaseDataPoint<?> dpToMerge, BaseDataPoint<?> dpOriginal) {
+    private static void mergeDataPointsWorker(BaseDataPoint<?> dpToMerge, BaseDataPoint<?> dpOriginal) {
         @SuppressWarnings("unchecked")
         ArrayList<BaseDataPoint<?>> histToMergeData = (ArrayList<BaseDataPoint<?>>) dpToMerge.getHistoricalData();
         @SuppressWarnings("unchecked")
@@ -704,21 +577,6 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
             histOrigData.addAll(toAddDP);
     }
     
-    public void mergeChlorophyllDataToInternalDataList(HashMap<String, ChlorophyllDataPoint> toMergeData) {
-        for (String dpId : toMergeData.keySet()) {
-            ChlorophyllDataPoint dp = toMergeData.get(dpId);
-            ChlorophyllDataPoint dpo = dataPointsChlorophyll.get(dpId);
-            if (dpo == null) {
-                dataPointsChlorophyll.put(dpId, dp);
-                dpo = dp;
-            }
-            else {
-                mergeDataPointsWorker(dp, dpo);
-            }
-        }
-        debugOut(toMergeData.size() + " vs " + dataPointsChlorophyll.size());
-    }
-
     private void loadCurrentsFromFiles() {
         // TUV files
         File[] fileList = FileUtil.getFilesFromDisk(baseFolderForCurrentsTUVFiles, currentsFilePatternTUV);
@@ -728,7 +586,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
         for (File fx : fileList) {
             HashMap<String, HFRadarDataPoint> tdp = processTuvHFRadarTest(fx.getAbsolutePath());
             if (tdp != null && tdp.size() > 0)
-                mergeCurrentsDataToInternalDataList(tdp);
+                mergeDataToInternalDataList(dataPointsCurrents, tdp);
         }
 
         // NetCDF files
@@ -739,7 +597,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
         for (File fx : fileList) {
             HashMap<String, HFRadarDataPoint> tdp = processNetCDFHFRadarTest(fx.getAbsolutePath());
             if (tdp != null && tdp.size() > 0)
-                mergeCurrentsDataToInternalDataList(tdp);
+                mergeDataToInternalDataList(dataPointsCurrents, tdp);
         }
 
     }
@@ -755,11 +613,11 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
                 @SuppressWarnings("unchecked")
                 HashMap<String, SSTDataPoint> sstdp = (HashMap<String, SSTDataPoint>) meteodp[0];
                 if (sstdp != null && sstdp.size() > 0)
-                    mergeSSTDataToInternalDataList(sstdp);
+                    mergeDataToInternalDataList(dataPointsSST, sstdp);
                 @SuppressWarnings("unchecked")
                 HashMap<String, WindDataPoint> winddp = (HashMap<String, WindDataPoint>) meteodp[1];
                 if (winddp != null && winddp.size() > 0)
-                    mergeWindDataToInternalDataList(winddp);
+                    mergeDataToInternalDataList(dataPointsWind, winddp);
             }
             catch (Exception e) {
                 e.printStackTrace();
@@ -775,7 +633,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
         for (File fx : fileList) {
             HashMap<String, WavesDataPoint> wavesdp = processWavesFile(fx.getAbsolutePath());
             if (wavesdp != null && wavesdp.size() > 0)
-                mergeWavesDataToInternalDataList(wavesdp);
+                mergeDataToInternalDataList(dataPointsWaves, wavesdp);
         }
     }
 
@@ -787,7 +645,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
         for (File fx : fileList) {
             HashMap<String, ChlorophyllDataPoint> chlorophylldp = processChlorophyllFile(fx.getAbsolutePath());
             if (chlorophylldp != null && chlorophylldp.size() > 0)
-                mergeChlorophyllDataToInternalDataList(chlorophylldp);
+                mergeDataToInternalDataList(dataPointsChlorophyll, chlorophylldp);
         }
     }
 
@@ -1291,7 +1149,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
         // Test update to the most recent
         HFRadarDataPoint dp = ret.values().iterator().next();
         System.out.println("" + dp);
-        Date newDate = new Date(dp.dateUTC.getTime() + DateTimeUtil.HOUR * 3 + DateTimeUtil.MINUTE * 30);
+        Date newDate = new Date(dp.getDateUTC().getTime() + DateTimeUtil.HOUR * 3 + DateTimeUtil.MINUTE * 30);
         System.out.println(newDate);
         dp.useMostRecent(newDate);
         System.out.println("" + dp);
