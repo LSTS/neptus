@@ -170,9 +170,8 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
 
     private void removeAllComponentsFromPanelAndWindows() {
         this.removeAll();
-        for (JDialog w : windowMap.values()) {
-            w.removeAll();
-        }
+        for (JDialog w : windowMap.values())
+            w.getContentPane().removeAll();
     }
 
     public void changeProfile(String profileName) {
@@ -341,18 +340,20 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
                     container.setLayout(new MigLayout(layoutparam, colparam, rowparam));
 
                     JDialog window;
-                    window = new JDialog(getConsole());
-                    window.setSize(getConsole().getWidth(), getConsole().getHeight());
-                    window.setTitle(nameparam);
-                    window.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-                    window.setLayout(new BorderLayout());
                     if (windowMap.containsKey(nameparam)) {
-                        JDialog w2 = windowMap.get(nameparam);
-                        window.setSize(w2.getSize());
-                        window.setLocation(w2.getLocation());
-                        w2.dispose();
+                        window = windowMap.get(nameparam);
+                        window.getContentPane().removeAll();
+                        window.revalidate();
+                        window.repaint();
                     }
-                    windowMap.put(nameparam, window);
+                    else {
+                        window = new JDialog(getConsole());
+                        window.setSize(getConsole().getWidth(), getConsole().getHeight());
+                        window.setTitle(nameparam);
+                        window.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+                        windowMap.put(nameparam, window);
+                    }
+                    window.setLayout(new BorderLayout());
 
                     window.getContentPane().add(container, BorderLayout.CENTER);
                     window.setVisible(true);
@@ -388,9 +389,11 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
         super.clean();
         removeProfilesMenu();
         for (JDialog window : windowMap.values()) {
+            window.removeAll();
             window.dispose();
         }
         windowMap.clear();
+        usedWindows.clear();
     }
 
     /*
