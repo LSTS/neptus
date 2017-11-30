@@ -50,6 +50,7 @@ import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
 import pt.lsts.neptus.console.plugins.containers.MigLayoutContainer;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.GuiUtils;
 
 /**
@@ -101,18 +102,28 @@ public class SyntaxFormaterTextArea {
         // Add a couple of "shorthand" completions. These completions don't
         // require the input text to be the same thing as the replacement text.
         provider.addCompletion(new ShorthandCompletion(provider, "<profiles>",
-                "<profiles>\n  <profile name=\"Normal\">\n  </profile>\n</profiles>", "profiles tag"));
+                "<profiles>\n  <profile name=\"Normal\">\n  </profile>\n</profiles>", I18n.text("profiles template")));
+
+        provider.addCompletion(new ShorthandCompletion(provider, "<profiles>",
+                "<profiles>\n  <profile name=\"Normal\">\n    <child name=\"?\" param=\"\" />"
+                + "\n    <window name=\"Window 2\">\n        <child name=\"?\" param=\"\" />"
+                + "\n    </window>\n    <window name=\"Window 3\">\n        <child name=\"?\" param=\"\" />"
+                + "\n    </window>\n  </profile>\n</profiles>", I18n.text("profiles with windows template")));
+
         provider.addCompletion(new ShorthandCompletion(provider, "<profile>",
-                "<profile name=\"?\"></profile>", "profile tag"));
+                "<profile name=\"?\"></profile>", I18n.text("profile tag")));
 
         provider.addCompletion(new ShorthandCompletion(provider, "<container>",
-                "<container layoutparam=\"\" param=\"\"></container>", "container tag"));
+                "<container layoutparam=\"\" param=\"\"></container>", I18n.text("container tag")));
 
         provider.addCompletion(new ShorthandCompletion(provider, "<child>",
-                "<child name=\"?\" param=\"\" />", "child tag"));
+                "<child name=\"?\" param=\"\" />", I18n.text("child tag")));
+
+        provider.addCompletion(new ShorthandCompletion(provider, "<child>",
+                "<window name=\"?\" />", I18n.text("window tag")));
 
         provider.addCompletion(new ShorthandCompletion(provider, "<tab>",
-                "<tab tabname=\"\" layoutparam=\"\"></tab>", "tab tag"));
+                "<tab tabname=\"\" layoutparam=\"\"></tab>", I18n.text("tab tag")));
 
         return provider;
      }
