@@ -56,6 +56,7 @@ public interface ColorMap {
 		ColorMapFactory.createRedYellowGreenColorMap(),
 		ColorMapFactory.createRainbowColormap(),
 		ColorMapFactory.createBronzeColormap(),
+		ColorMapFactory.createBrownToWhiteColormap(),
         ColorMapFactory.createStoreDataColormap()
 	};
 }

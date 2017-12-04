@@ -75,6 +75,8 @@ import com.l2fprod.common.propertysheet.Property;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.PathPoint;
 import pt.lsts.imc.TrajectoryPoint;
+import pt.lsts.imc.def.SpeedUnits;
+import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.ToolbarSwitch;
@@ -127,7 +129,7 @@ StateRendererInteraction, IMCSerialization, PathProvider {
     }
     
     @Override
-    public void loadFromXML(String xml) {
+    public void loadManeuverFromXML(String xml) {
         try {
             Document doc = DocumentHelper.parseText(xml);
 
@@ -642,7 +644,8 @@ StateRendererInteraction, IMCSerialization, PathProvider {
         double lastTime = 0;
         for (int i = 0; i < points.size(); i++) {
             try {
-                lastTime += points.get(i)[T];
+                if (points.get(i).length > 3)
+                    lastTime += points.get(i)[T];
             }
             catch (Exception e) {
                 e.printStackTrace();
@@ -669,20 +672,20 @@ StateRendererInteraction, IMCSerialization, PathProvider {
             trajMessage.setLat(Math.toRadians(lld[0]));
             trajMessage.setLon(Math.toRadians(lld[1]));
             trajMessage.setZ(getManeuverLocation().getZ());
-            trajMessage.setZUnits(pt.lsts.imc.FollowTrajectory.Z_UNITS.valueOf(
+            trajMessage.setZUnits(ZUnits.valueOf(
                     getManeuverLocation().getZUnits().toString()));
             trajMessage.setSpeed(speed);
             try {
                 switch (this.getSpeedUnits()) {
                     case METERS_PS:
-                        trajMessage.setSpeedUnits(pt.lsts.imc.FollowTrajectory.SPEED_UNITS.METERS_PS);
+                        trajMessage.setSpeedUnits(SpeedUnits.METERS_PS);
                         break;
                     case PERCENTAGE:
-                        trajMessage.setSpeedUnits(pt.lsts.imc.FollowTrajectory.SPEED_UNITS.PERCENTAGE);
+                        trajMessage.setSpeedUnits(SpeedUnits.PERCENTAGE);
                         break;
                     case RPM:
                     default:
-                        trajMessage.setSpeedUnits(pt.lsts.imc.FollowTrajectory.SPEED_UNITS.RPM);
+                        trajMessage.setSpeedUnits(SpeedUnits.RPM);
                         break;
                 }
             }
@@ -709,20 +712,20 @@ StateRendererInteraction, IMCSerialization, PathProvider {
             pathMessage.setLat(Math.toRadians(lld[0]));
             pathMessage.setLon(Math.toRadians(lld[1]));
             pathMessage.setZ(getManeuverLocation().getZ());
-            pathMessage.setZUnits(pt.lsts.imc.FollowPath.Z_UNITS.valueOf(
+            pathMessage.setZUnits(ZUnits.valueOf(
                     getManeuverLocation().getZUnits().toString()));            
             pathMessage.setSpeed(speed);
             try {
                 switch (this.getSpeedUnits()) {
                     case METERS_PS:
-                        pathMessage.setSpeedUnits(pt.lsts.imc.FollowPath.SPEED_UNITS.METERS_PS);
+                        pathMessage.setSpeedUnits(SpeedUnits.METERS_PS);
                         break;
                     case PERCENTAGE:
-                        pathMessage.setSpeedUnits(pt.lsts.imc.FollowPath.SPEED_UNITS.PERCENTAGE);
+                        pathMessage.setSpeedUnits(SpeedUnits.PERCENTAGE);
                         break;
                     case RPM:
                     default:
-                        pathMessage.setSpeedUnits(pt.lsts.imc.FollowPath.SPEED_UNITS.RPM);
+                        pathMessage.setSpeedUnits(SpeedUnits.RPM);
                         break;
                 }            }
             catch (Exception ex) {
@@ -832,7 +835,7 @@ StateRendererInteraction, IMCSerialization, PathProvider {
         String xml = traj.getManeuverAsDocument("FollowTrajectory").asXML();
         NeptusLog.pub().info("<###> "+traj.getManeuverAsDocument("FollowTrajectory").asXML());
         FollowTrajectory other = new FollowTrajectory();
-        other.loadFromXML(xml);
+        other.loadManeuverFromXML(xml);
         NeptusLog.pub().info("<###> "+other.getManeuverAsDocument("FollowTrajectory").asXML());
         other.serializeToIMC().dump(System.out);
     }
@@ -875,7 +878,7 @@ StateRendererInteraction, IMCSerialization, PathProvider {
         // test1();
 
         FollowTrajectory traj = new FollowTrajectory();
-        traj.loadFromXML("<FollowTrajectory kind=\"automatic\"><basePoint type=\"pointType\"><point><id>id_53802104</id><name>id_53802104</name><coordinate><latitude>0N0'0''</latitude><longitude>0E0'0''</longitude><depth>0.0</depth></coordinate></point><radiusTolerance>0.0</radiusTolerance></basePoint><trajectory><nedOffsets northOffset=\"0.0\" eastOffset=\"1.0\" depthOffset=\"2.0\" timeOffset=\"3.0\"/><nedOffsets northOffset=\"4.0\" eastOffset=\"5.0\" depthOffset=\"6.0\" timeOffset=\"7.0\"/></trajectory><speed unit=\"RPM\">1000.0</speed></FollowTrajectory>");
+        traj.loadManeuverFromXML("<FollowTrajectory kind=\"automatic\"><basePoint type=\"pointType\"><point><id>id_53802104</id><name>id_53802104</name><coordinate><latitude>0N0'0''</latitude><longitude>0E0'0''</longitude><depth>0.0</depth></coordinate></point><radiusTolerance>0.0</radiusTolerance></basePoint><trajectory><nedOffsets northOffset=\"0.0\" eastOffset=\"1.0\" depthOffset=\"2.0\" timeOffset=\"3.0\"/><nedOffsets northOffset=\"4.0\" eastOffset=\"5.0\" depthOffset=\"6.0\" timeOffset=\"7.0\"/></trajectory><speed unit=\"RPM\">1000.0</speed></FollowTrajectory>");
         //NeptusLog.pub().info("<###> "+FileUtil.getAsPrettyPrintFormatedXMLString(traj.getManeuverAsDocument("FollowTrajectory")));
         traj.setSpeed(1);
         traj.setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);        

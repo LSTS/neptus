@@ -90,7 +90,7 @@ public class ElevatorPreview implements IManeuverPreview<Elevator> {
     }
 
     @Override
-    public SystemPositionAndAttitude step(SystemPositionAndAttitude state, double timestep) {
+    public SystemPositionAndAttitude step(SystemPositionAndAttitude state, double timestep, double ellapsedTime) {
         model.setState(state);
         double distToDestination = state.getPosition().getHorizontalDistanceInMeters(destination);
         if (distToDestination-2 > radius) {

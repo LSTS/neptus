@@ -38,6 +38,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
@@ -56,6 +57,7 @@ import pt.lsts.neptus.systems.external.ExternalSystemsHolder;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.AISUtil;
 import pt.lsts.neptus.util.NMEAUtils;
+import pt.lsts.neptus.util.UnitsUtil;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
@@ -64,8 +66,6 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
  */
 public class AisContactDb implements AISObserver {
 
-    public static final double MPS_TO_KNOT_CONV = 1.94384449244;
-    
     private LinkedHashMap<Integer, AisContact> contacts = new LinkedHashMap<>();
     private LinkedHashMap<Integer, String> labelCache = new LinkedHashMap<>();
     private LinkedHashMap<Integer, HashMap<String, Object>> dimensionsCache = new LinkedHashMap<>();
@@ -84,7 +84,13 @@ public class AisContactDb implements AISObserver {
             String line = reader.readLine();
             while (line != null) {
                 String[] parts = line.split(",");
-                int mmsi = Integer.parseInt(parts[0]);
+                int mmsi;
+                try {
+                    mmsi = Integer.parseInt(parts[0]);
+                }
+                catch (Exception e1) {
+                    mmsi = Integer.parseInt(parts[0].replaceAll("^0x", ""), 16);
+                }
                 String name = parts[1].trim();
                 labelCache.put(mmsi, name);
 
@@ -153,14 +159,14 @@ public class AisContactDb implements AISObserver {
     
     public void processGGA(String sentence) {
         lastGGA = sentence;
-        // System.err.println(lastGGA);
         LocationType myLoc = NMEAUtils.processGGASentence(lastGGA);
+        Date dateTime = NMEAUtils.processGGATimeFromSentence(lastGGA);
         if (ExternalSystemsHolder.lookupSystem("Ship") == null) {
             ExternalSystem es = new ExternalSystem("Ship");
             ExternalSystemsHolder.registerSystem(es);
         }
         ExternalSystem extSys = ExternalSystemsHolder.lookupSystem("Ship");
-        extSys.setLocation(myLoc, System.currentTimeMillis());
+        extSys.setLocation(myLoc, dateTime == null ? System.currentTimeMillis() : dateTime.getTime());
     }
 
     public void processGPHDT(String sentence) {
@@ -271,7 +277,7 @@ public class AisContactDb implements AISObserver {
 
         sys.storeData(SystemUtils.MMSI_KEY, mmsi);
 
-        sys.storeData(SystemUtils.GROUND_SPEED_KEY, contact.getSog() / MPS_TO_KNOT_CONV);
+        sys.storeData(SystemUtils.GROUND_SPEED_KEY, contact.getSog() / UnitsUtil.MS_TO_KNOT);
         sys.storeData(SystemUtils.COURSE_DEGS_KEY, contact.getCog());
         
         sys.storeData(SystemUtils.RATE_OF_TURN_DEGS_PER_MIN_KEY, contact.getRateOfTurn());

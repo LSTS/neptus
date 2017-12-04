@@ -44,6 +44,7 @@ import java.util.Vector;
 
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
+import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
@@ -101,12 +102,12 @@ public class PlanSimulationOverlay implements Renderer2DPainter {
                 while (!engine.isFinished() && ellapsedTime < 10 * 3600) {
                     ellapsedTime += engine.getTimestep();
                     engine.simulationStep();
-                    if (ellapsedTime - lastPoint > 1) {
+                    if (ellapsedTime - lastPoint >= 1) {
                         Color c = cmap.getColor(1 - ((ellapsedTime + usedBatt) / totalBattTime));
                         SystemPositionAndAttitude state = engine.getState();
                         addPoint(state, c,
                                 new SimulationState(engine.getManId(), engine.getCurPreview() == null ? null : engine
-                                        .getCurPreview().getState(), state));
+                                        .getCurPreview().getState(), state, ellapsedTime));
                         
                         lastPoint = ellapsedTime;
                     }
@@ -130,8 +131,6 @@ public class PlanSimulationOverlay implements Renderer2DPainter {
         listeners.remove(l);
     }
     
-    
-
     protected void addPoint(double northing, double easting, Color color) {
         LocationType loc = new LocationType(ref);        
         loc.translatePosition(northing, easting, 0);
@@ -148,7 +147,6 @@ public class PlanSimulationOverlay implements Renderer2DPainter {
         else
             addPoint(loc, Color.white);       
     }
-
 
     public void addPoint(SystemPositionAndAttitude state, Color color, SimulationState simState) {
         states.add(state);
@@ -184,24 +182,21 @@ public class PlanSimulationOverlay implements Renderer2DPainter {
         return simStates;
     }
 
-
-
     /**
      * @return the states
      */
     public final Vector<SystemPositionAndAttitude> getStates() {
         return states;
     }
-
-
-
-    public SimulationState nearestState(SystemPositionAndAttitude state, double minDistThreshold) {
+    
+    public Pair<Integer, SimulationState> nearestState(SystemPositionAndAttitude state, double minDistThreshold) {
         int nearest = 0;
         double nearestDistance = Double.MAX_VALUE;
-
+        
         for (int i = 0; i < simStates.size(); i++) {
             LocationType center = states.get(i).getPosition();
-            double dist = center.getHorizontalDistanceInMeters(state.getPosition()) + 2 * Math.abs(state.getYaw() - states.get(i).getYaw());
+            
+            double dist = center.getHorizontalDistanceInMeters(state.getPosition()) + 100 * Math.abs(state.getYaw() - states.get(i).getYaw());
             if (dist < nearestDistance) {
                 nearestDistance = dist;
                 nearest = i;
@@ -209,7 +204,7 @@ public class PlanSimulationOverlay implements Renderer2DPainter {
         }
 
         if (nearestDistance < minDistThreshold)
-            return simStates.get(nearest);
+            return new Pair<Integer, SimulationState>(nearest, simStates.get(nearest));
         else
             return null;
     }
@@ -221,7 +216,7 @@ public class PlanSimulationOverlay implements Renderer2DPainter {
             SimulationState nearest = simStates.get(0);
 
             if (state != null)
-                nearest = nearestState(state, Integer.MAX_VALUE);
+                nearest = nearestState(state, Integer.MAX_VALUE).second();
 
             int pos = simStates.indexOf(nearest);
 
@@ -238,7 +233,6 @@ public class PlanSimulationOverlay implements Renderer2DPainter {
         }
 
         return stats;
-
     }
 
     /**
@@ -275,15 +269,18 @@ public class PlanSimulationOverlay implements Renderer2DPainter {
             catch (ArrayIndexOutOfBoundsException e) {
                 // still being generated...
             }
-            
         }
         g.translate(center.getX(), center.getY());
         g.rotate(-renderer.getRotation());
         for (int i = 0; i < states.size(); i++) {
             g.setColor(colors.get(i));
             double zoom = renderer.getZoom();
-            double[] neOffsets = states.get(i).getPosition().getOffsetFrom(ref); 
-            g.fillRect((int)(neOffsets[1]*zoom)-1, (int)-(neOffsets[0]*zoom)-1, 2, 2);
+            double[] neOffsets = states.get(i).getPosition().getOffsetFrom(ref);
+            Graphics2D g3 = (Graphics2D) g.create();
+            g3.translate((int)(neOffsets[1] * zoom), -(int)(neOffsets[0] * zoom));
+            g3.rotate(states.get(i).getYaw());
+            g3.fillRect(-4, -1, 8, 2);
+            g3.dispose();
         }
     }
 }

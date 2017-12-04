@@ -47,6 +47,8 @@ import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.def.SpeedUnits;
+import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.gui.editor.SpeedUnitsEnumEditor;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
@@ -72,7 +74,7 @@ public class Takeoff extends Maneuver implements LocatedManeuver, ManeuverWithSp
     protected double speed = 17;
     @NeptusProperty(name = "Speed Units", editorClass = SpeedUnitsEnumEditor.class)
     protected SPEED_UNITS speedUnits = SPEED_UNITS.METERS_PS;
-    @NeptusProperty(name = "Takeoff Pitch Angle", description = "Minimum pitch angle during automatic takeoff.")
+    @NeptusProperty(name = "Takeoff Pitch Angle", description = "Minimum pitch angle during automatic takeoff.", units = "\u00B0")
     protected double takeoffPitchAngleDegs = 10;
 
     public Takeoff() {
@@ -183,7 +185,7 @@ public class Takeoff extends Maneuver implements LocatedManeuver, ManeuverWithSp
      * @see pt.lsts.neptus.mp.Maneuver#loadFromXML(java.lang.String)
      */
     @Override
-    public void loadFromXML(String xml) {
+    public void loadManeuverFromXML(String xml) {
         try {
             Document doc = DocumentHelper.parseText(xml);
     
@@ -265,20 +267,20 @@ public class Takeoff extends Maneuver implements LocatedManeuver, ManeuverWithSp
         man.setLat(Math.toRadians(latDegs));
         man.setLon(Math.toRadians(lonDegs));
         man.setZ(z);
-        man.setZUnits(pt.lsts.imc.Takeoff.Z_UNITS.valueOf(getManeuverLocation().getZUnits().toString()));        
+        man.setZUnits(ZUnits.valueOf(getManeuverLocation().getZUnits().toString()));        
         man.setSpeed(speed);
         
         SPEED_UNITS speedU = this.getSpeedUnits();
         switch (speedU) {
             case RPM:
-                man.setSpeedUnits(pt.lsts.imc.Takeoff.SPEED_UNITS.RPM);
+                man.setSpeedUnits(SpeedUnits.RPM);
                 break;
             case PERCENTAGE:
-                man.setSpeedUnits(pt.lsts.imc.Takeoff.SPEED_UNITS.PERCENTAGE);
+                man.setSpeedUnits(SpeedUnits.PERCENTAGE);
                 break;
             case METERS_PS:
             default:
-                man.setSpeedUnits(pt.lsts.imc.Takeoff.SPEED_UNITS.METERS_PS);
+                man.setSpeedUnits(SpeedUnits.METERS_PS);
                 break;
         }
 

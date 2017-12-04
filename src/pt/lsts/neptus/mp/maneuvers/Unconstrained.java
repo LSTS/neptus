@@ -46,7 +46,7 @@ import pt.lsts.neptus.mp.Maneuver;
  */
 public class Unconstrained extends Maneuver implements IMCSerialization {
 
-	public void loadFromXML(String xml) {
+	public void loadManeuverFromXML(String xml) {
 	}
 
 	public void initializeManeuver(ParametersPanel params) {

@@ -46,6 +46,8 @@ import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.def.SpeedUnits;
+import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.editor.AngleEditorRads;
@@ -96,7 +98,7 @@ public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver,
 	    return document;
     }
 	
-	public void loadFromXML(String xml) {
+	public void loadManeuverFromXML(String xml) {
 	    try {
 	        Document doc = DocumentHelper.parseText(xml);
 	        Node node = doc.selectSingleNode("YoYo/finalPoint/point");
@@ -189,15 +191,16 @@ public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver,
     	Vector<DefaultProperty> properties = new Vector<DefaultProperty>();
 
     	DefaultProperty units = PropertiesEditor.getPropertyInstance("Speed units", Maneuver.SPEED_UNITS.class, getSpeedUnits(), true);
-    	units.setShortDescription("The speed units");
+    	units.setShortDescription(I18n.text("The speed units"));
     
     	properties.add(PropertiesEditor.getPropertyInstance("Speed", Double.class, getSpeed(), true));
     	properties.add(units);
 
-//    	properties.add(PropertiesEditor.getPropertyInstance("Speed tolerance", Double.class, getSpeedTolerance(), true));
-    	
-        properties.add(PropertiesEditor.getPropertyInstance("Amplitude", Double.class, getAmplitude(), true));
+    	DefaultProperty ampProp = PropertiesEditor.getPropertyInstance("Amplitude", Double.class, getAmplitude(), true);
+    	ampProp.setShortDescription("(m)");
+        properties.add(ampProp);
         DefaultProperty ap = PropertiesEditor.getPropertyInstance("Pitch angle", Float.class, getPitchAngle(), true);
+        // ap.setShortDescription("(\u00B0)");
         PropertiesEditor.getPropertyEditorRegistry().registerEditor(ap, AngleEditorRads.class);
     	properties.add(ap);
     	
@@ -312,7 +315,7 @@ public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver,
 		yoyo.setLat(loc.getLatitudeRads());
 		yoyo.setLon(loc.getLongitudeRads());
 		yoyo.setZ(getManeuverLocation().getZ());
-		yoyo.setZUnits(pt.lsts.imc.YoYo.Z_UNITS.valueOf(getManeuverLocation().getZUnits().toString()));
+		yoyo.setZUnits(ZUnits.valueOf(getManeuverLocation().getZUnits().toString()));
 		yoyo.setSpeed(getSpeed());
 		yoyo.setAmplitude(getAmplitude());
 		yoyo.setPitch(getPitchAngle());
@@ -320,14 +323,14 @@ public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver,
 		try {
             switch (this.getSpeedUnits()) {
                 case METERS_PS:
-                    yoyo.setSpeedUnits(pt.lsts.imc.YoYo.SPEED_UNITS.METERS_PS);
+                    yoyo.setSpeedUnits(SpeedUnits.METERS_PS);
                     break;
                 case PERCENTAGE:
-                    yoyo.setSpeedUnits(pt.lsts.imc.YoYo.SPEED_UNITS.PERCENTAGE);
+                    yoyo.setSpeedUnits(SpeedUnits.PERCENTAGE);
                     break;
                 case RPM:
                 default:
-                    yoyo.setSpeedUnits(pt.lsts.imc.YoYo.SPEED_UNITS.RPM);
+                    yoyo.setSpeedUnits(SpeedUnits.RPM);
                     break;
             }
         }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2016.05.0 (master,126112c)" system="lauv-xtreme-2" i18n="en_US">
+<config format="1" version="2017.01.0 (master,6686c4f)" system="lauv-xtreme-2" i18n="en_US">
   <section name="Motor Controller" name-i18n="Motor Controller">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -490,7 +490,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>30.0</default>
+      <default>25.0</default>
       <units>°</units>
       <desc>Maximum admissible fin rotation</desc>
     </param>
@@ -540,6 +540,15 @@
       <desc>Percentage of fin margin to use for braking</desc>
       <min>0.0</min>
       <max>1.0</max>
+    </param>
+    <param name="Maximum Rotation Rate">
+      <name-i18n>Maximum Rotation Rate</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>300.0</default>
+      <units>°/s</units>
+      <desc>Maximum rotation rate allowed by the servo</desc>
     </param>
     <param name="Entity Label - Servo Position">
       <name-i18n>Entity Label - Servo Position</name-i18n>
@@ -616,6 +625,15 @@
       <default>60.0f</default>
       <units>m</units>
       <desc>Timeout for ignoring invalid altitude</desc>
+    </param>
+    <param name="Altitude Reference Margin">
+      <name-i18n>Altitude Reference Margin</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.2f</default>
+      <units>m</units>
+      <desc>Altitude reference marging to add above minimum altitude.</desc>
     </param>
     <param name="Roll PID Gains">
       <name-i18n>Roll PID Gains</name-i18n>
@@ -717,7 +735,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>30.0</default>
+      <default>25.0</default>
       <units>°</units>
       <desc>Maximum admissible fin rotation</desc>
     </param>
@@ -866,7 +884,7 @@
       <type>boolean</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>true</default>
+      <default>false</default>
       <units/>
       <desc>Coarse Altitude arguments</desc>
     </param>
@@ -3393,7 +3411,7 @@
       <default>20.0</default>
       <units>s</units>
       <desc>Time to wait at beginning before assessing vehicle medium</desc>
-      <min>10.0</min>
+      <min>5.0</min>
       <max>60.0</max>
     </param>
     <param name="Wet Data Timeout">
@@ -3736,7 +3754,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>10.0</default>
+      <default>5.0</default>
       <units>s</units>
       <desc>Delay for the detection triggering using DelayedTrigger class</desc>
     </param>
@@ -3817,6 +3835,26 @@
       <units>s</units>
       <desc>Period of time after which the fault vectors will be reset to zero</desc>
       <min>0.0</min>
+    </param>
+    <param name="Failure Error Timeout">
+      <name-i18n>Failure Error Timeout</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>120.0</default>
+      <units>s</units>
+      <desc>Period of time to count number of errors that issue a failure</desc>
+      <min>30.0</min>
+    </param>
+    <param name="Failure Error Count">
+      <name-i18n>Failure Error Count</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5</default>
+      <units/>
+      <desc>Maximum number of errors allowed in a period of time that issue a failure</desc>
+      <min>3</min>
     </param>
     <param name="Entity Label - Current 0">
       <name-i18n>Entity Label - Current 0</name-i18n>
@@ -4243,7 +4281,7 @@
       <scope>global</scope>
       <default>1e-3, 1e-3, 1e-1, 1e-2, 1e-7, 5e-11</default>
       <units/>
-      <desc>Kalman Filter Process Noise Covariance values</desc>
+      <desc>Kalman Filter process noise covariance values</desc>
       <size>6</size>
     </param>
     <param name="GPS Noise Covariance">
@@ -4253,8 +4291,18 @@
       <scope>global</scope>
       <default>10, 1, 0.01, 0.001</default>
       <units/>
-      <desc>Kalman Filter Gps Noise Covariance values</desc>
+      <desc>Kalman Filter GPS noise covariance values</desc>
       <size>4</size>
+    </param>
+    <param name="USBL Noise Covariance">
+      <name-i18n>USBL Noise Covariance</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>100.0</default>
+      <units/>
+      <desc>Kalman Filter USBL noise covariance value</desc>
+      <min>0.0</min>
     </param>
     <param name="Measure Noise Covariance">
       <name-i18n>Measure Noise Covariance</name-i18n>
@@ -4263,7 +4311,7 @@
       <scope>global</scope>
       <default>1e-3, 1e-4, 1e-3, 1e-3, 200</default>
       <units/>
-      <desc>Kalman Filter Measurement Noise Covariance values</desc>
+      <desc>Kalman Filter measurement noise covariance values</desc>
       <size>5</size>
     </param>
     <param name="State Covariance Initial State">
@@ -4308,15 +4356,6 @@
       <desc>Kalman Filter revolutions to speed maximum allowed variation</desc>
       <min>4e-4</min>
       <max>8e-4</max>
-    </param>
-    <param name="Update Heading with Euler Increments">
-      <name-i18n>Update Heading with Euler Increments</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Use 'EulerAnglesDelta' or 'AngularVelocity' to update heading</desc>
     </param>
     <param name="Abort if Uncertainty Exceeded">
       <name-i18n>Abort if Uncertainty Exceeded</name-i18n>
@@ -5059,7 +5098,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Pressure Sensor</default>
+      <default>Magnetometer</default>
       <units/>
       <desc/>
     </param>
@@ -5068,7 +5107,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1</default>
+      <default>0</default>
       <units/>
       <desc/>
     </param>
@@ -6250,6 +6289,15 @@
       <units/>
       <desc>Power channel that controls the power of the device</desc>
     </param>
+    <param name="Log Raw Data">
+      <name-i18n>Log Raw Data</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Log raw accelerations and angular velocities</desc>
+    </param>
   </section>
   <section name="Echo Sounder" name-i18n="Echo Sounder">
     <param name="Entity Label">
@@ -6629,6 +6677,15 @@
       <desc>Number of seconds without data before restarting task</desc>
       <min>1.0</min>
     </param>
+    <param name="Entity Label - GPS">
+      <name-i18n>Entity Label - GPS</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>GPS</default>
+      <units/>
+      <desc>Entity label of 'GpsFix' messages</desc>
+    </param>
   </section>
   <section name="Sidescan" name-i18n="Sidescan">
     <param name="Entity Label">
@@ -6742,6 +6799,24 @@
       <default>false</default>
       <units/>
       <desc>Enable low-frequency channel</desc>
+    </param>
+    <param name="Low-Frequency Bathymetry Channel">
+      <name-i18n>Low-Frequency Bathymetry Channel</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>false</default>
+      <units/>
+      <desc>Enable low-frequency bathymetry channel</desc>
+    </param>
+    <param name="Bathymetry Channel Available">
+      <name-i18n>Bathymetry Channel Available</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>This device has an additional bathymetry channel</desc>
     </param>
     <param name="Range">
       <name-i18n>Range</name-i18n>
@@ -7021,6 +7096,118 @@
       <default>Mainboard (Board)</default>
       <units/>
       <desc>Entity label of temperature sensor number 2</desc>
+    </param>
+  </section>
+  <section name="Magnetometer" name-i18n="Magnetometer">
+    <param name="Entity Label">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Magnetometer</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Activation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5.0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Spew</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Active - Scope">
+      <name-i18n>Active - Scope</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>idle</default>
+      <units/>
+      <desc>Scoped of the 'Active' parameter</desc>
+    </param>
+    <param name="Active - Visibility">
+      <name-i18n>Active - Visibility</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>user</default>
+      <units/>
+      <desc>Visibility of the 'Active' parameter</desc>
+    </param>
+    <param name="Active">
+      <name-i18n>Active</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>idle</scope>
+      <default>0</default>
+      <units/>
+      <desc>True to activate task, false otherwise</desc>
+    </param>
+    <param name="Serial Port - Device">
+      <name-i18n>Serial Port - Device</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>/dev/uart/1</default>
+      <units/>
+      <desc>Serial port device used to communicate with the sensor</desc>
+    </param>
+    <param name="Serial Port - Baud Rate">
+      <name-i18n>Serial Port - Baud Rate</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>9600</default>
+      <units/>
+      <desc>Serial port baud rate</desc>
+    </param>
+    <param name="Power Channel">
+      <name-i18n>Power Channel</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Magnetometer</default>
+      <units/>
+      <desc>Name of device's power channel</desc>
+    </param>
+    <param name="Entity Label - Motor Current">
+      <name-i18n>Entity Label - Motor Current</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Motor</default>
+      <units/>
+      <desc>Entity label of the Motor current</desc>
     </param>
   </section>
   <section name="Sound Speed Sensor" name-i18n="Sound Speed Sensor">
@@ -9187,7 +9374,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>AcousticOperation, AlignmentState, CpuUsage, DevCalibrationControl, DevCalibrationState, Distance, EntityList, EntityParameters, EntityState, EstimatedState, FollowRefState, FuelLevel, Heartbeat, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblEstimate, LblRangeAcceptance, LblConfig, LogBookEntry, LogBookControl, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PowerChannelState, ReportControl, RemoteActions, RemoteActionsRequest, Rpm, RSSI, SimulatedState, StorageUsage, Temperature, TrexObservation, TrexOperation, TrexToken, TrexPlan, UsblAnglesExtended, UsblPositionExtended, UsblFixExtended, UsblModem, UsblConfig, VehicleMedium, VehicleState, Voltage</default>
+      <default>AcousticOperation, AlignmentState, CpuUsage, DevCalibrationControl, DevCalibrationState, Distance, EntityList, EntityParameters, EntityState, EstimatedState, FollowRefState, FuelLevel, Heartbeat, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblEstimate, LblRangeAcceptance, LblConfig, LogBookEntry, LogBookControl, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PowerChannelState, ReportControl, RemoteActions, RemoteActionsRequest, Rpm, RSSI, SimulatedState, StorageUsage, Temperature, TextMessage, TrexObservation, TrexOperation, TrexToken, TrexPlan, UsblAnglesExtended, UsblPositionExtended, UsblFixExtended, UsblModem, UsblConfig, VehicleMedium, VehicleState, Voltage</default>
       <units/>
       <desc>List of messages to transport</desc>
     </param>

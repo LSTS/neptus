@@ -65,7 +65,7 @@ import pt.lsts.neptus.util.ImageUtils;
  * @author zp
  *
  */
-@PluginDescription(author="zp", active=false, name="Echo Sounder Analysis", icon="pt/lsts/neptus/plugins/echosounder/echosounder.png")
+@PluginDescription(author = "zp", active = false, name = "Echo Sounder Analysis", icon = "pt/lsts/neptus/plugins/echosounder/echosounder.png")
 public class EchoSounderMRA extends JPanel implements MRAVisualization {
 
     private static final long serialVersionUID = 1L;
@@ -75,6 +75,9 @@ public class EchoSounderMRA extends JPanel implements MRAVisualization {
 
     @NeptusProperty
     public ColorMap colormap = ColorMapFactory.createJetColorMap();
+
+    @NeptusProperty(name = "Draw distance", description = "Draw black line indicating measured distance")
+    public boolean drawLine = false;
 
     protected BufferedImage image = null;
     protected int imageWidth;
@@ -89,7 +92,9 @@ public class EchoSounderMRA extends JPanel implements MRAVisualization {
         mraPanel = panel;
 
         this.addComponentListener(new ComponentAdapter() {
-            /* (non-Javadoc)
+            /*
+             * (non-Javadoc)
+             * 
              * @see java.awt.event.ComponentAdapter#componentResized(java.awt.event.ComponentEvent)
              */
             @Override
@@ -118,13 +123,12 @@ public class EchoSounderMRA extends JPanel implements MRAVisualization {
     }
 
     /**
-     * Gets maxRange and minRange from SonarData msgs
-     * sets up buffered image width and height
+     * Gets maxRange and minRange from SonarData msgs sets up buffered image width and height
      */
     private void getSonarDataValues() {
         int c = 0;
-        for(IMCMessage msg : source.getLsfIndex().getIterator("SonarData")) {
-            if(msg.getInteger("type") == SonarData.TYPE.ECHOSOUNDER.value()) {
+        for (IMCMessage msg : source.getLsfIndex().getIterator("SonarData")) {
+            if (msg.getInteger("type") == SonarData.TYPE.ECHOSOUNDER.value()) {
                 c++;
                 imageHeight = msg.getRawData("data").length;
                 maxRange = msg.getInteger("max_range");
@@ -135,9 +139,7 @@ public class EchoSounderMRA extends JPanel implements MRAVisualization {
     }
 
     /**
-     * Generates buffered image from echousounder data
-     * Old msgs - SonarData msgs
-     * Current msgs Distance
+     * Generates buffered image from echousounder data Old msgs - SonarData msgs Current msgs Distance
      */
     public void generateImage() {
         NeptusLog.pub().info("<###>Generating Echo sounder image");
@@ -148,51 +150,54 @@ public class EchoSounderMRA extends JPanel implements MRAVisualization {
         // for old messages
         int x = 0;
 
-        for(IMCMessage msg : source.getLsfIndex().getIterator("SonarData")) {
-            if(msg.getInteger("type") == SonarData.TYPE.ECHOSOUNDER.value()) {
+        for (IMCMessage msg : source.getLsfIndex().getIterator("SonarData")) {
+            if (msg.getInteger("type") == SonarData.TYPE.ECHOSOUNDER.value()) {
                 int y = 0;
-                for(byte b : msg.getRawData("data")) {
-                    //                    NeptusLog.pub().info("<###> "+x + " " + y + " " + b + " " + new Byte(b).doubleValue() + " " + colormap.getColor(new Byte(b).doubleValue()).getBlue());
-                    image.setRGB(x, imageHeight - y - 1, colormap.getColor(new Byte(b).doubleValue() * 2 / 255).getRGB());
+                for (byte b : msg.getRawData("data")) {
+                    image.setRGB(x, y,
+                            colormap.getColor(new Byte(b).doubleValue() * 2 / 255).getRGB());
                     y++;
                 }
                 x++;
             }
         }
 
-        // Sonar Data is now stored on Distance msgs
-        x = 0;
+        if (drawLine) {
+            // Sonar Data is now stored on Distance msgs
+            x = 0;
 
-        int prevX = 0, prevY = 0;
+            int prevX = 0, prevY = 0;
 
-        for (int j = source.getLsfIndex().getFirstMessageOfType(Distance.ID_STATIC); j != -1; j = source.getLsfIndex().getNextMessageOfType(Distance.ID_STATIC, j)) {
-            if(source.getLsfIndex().entityNameOf(j).equals("Echo Sounder")) {
-                // In case there is some more Distance messages that Echo Sounder sonar data points
-                if(x >= imageWidth)
-                    break;
-                double y = imageHeight - (500 / maxRange * source.getLsfIndex().getMessage(j).getDouble("value")) - 1;
-                image.setRGB(x, (int)y, Color.BLACK.getRGB());
+            for (int j = source.getLsfIndex().getFirstMessageOfType(Distance.ID_STATIC); j != -1; j = source
+                    .getLsfIndex().getNextMessageOfType(Distance.ID_STATIC, j)) {
+                if (source.getLsfIndex().entityNameOf(j).equals("Echo Sounder")) {
+                    // In case there is some more Distance messages that Echo Sounder sonar data points
+                    if (x >= imageWidth)
+                        break;
+                    double y = imageHeight - (500 / maxRange * source.getLsfIndex().getMessage(j).getDouble("value"))
+                            - 1;
+                    image.setRGB(x, (int) y, Color.BLACK.getRGB());
 
-                if(x != 0) {
-                    g2d.setColor(Color.BLACK);
-                    g2d.drawLine(prevX, prevY, x, (int)y);
-                    prevX = x;
-                    prevY = (int) y;
+                    if (x != 0) {
+                        g2d.setColor(Color.BLACK);
+                        g2d.drawLine(prevX, prevY, x, (int) y);
+                        prevX = x;
+                        prevY = (int) y;
+                    }
+                    else {
+                        prevX = x;
+                        prevY = (int) y;
+                    }
+                    x++;
                 }
-                else {
-                    prevX = x;
-                    prevY = (int) y;
-                }
-                x++;
             }
         }
     }
 
     @Override
     public void paint(Graphics g) {
-        NeptusLog.pub().info("<###> " + this.getWidth() + " " + this.getHeight());
-
-        g.drawImage(image, 0 + EchoSounderMRARuler.RULER_WIDTH + 1, 0 , this.getWidth(), this.getHeight(), 0, 0, imageWidth, imageHeight, null);
+        g.drawImage(image, 0 + EchoSounderMRARuler.RULER_WIDTH + 1, 0, this.getWidth(), this.getHeight(), 0, 0,
+                imageWidth, imageHeight, null);
         ruler.paintComponent(g);
     }
 
@@ -212,7 +217,7 @@ public class EchoSounderMRA extends JPanel implements MRAVisualization {
     }
 
     @Override
-    public String getName() {		
+    public String getName() {
         return I18n.text(PluginUtils.getPluginName(this.getClass()));
     }
 
@@ -228,11 +233,11 @@ public class EchoSounderMRA extends JPanel implements MRAVisualization {
 
     @Override
     public void onHide() {
-        // TODO Auto-generated method stub	   
+        // TODO Auto-generated method stub
     }
 
     @Override
     public void onShow() {
-        //nothing
+        // nothing
     }
 }

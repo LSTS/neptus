@@ -299,13 +299,18 @@ public class PlanTransitionsSimpleEditor extends JPanel {
                     ActionType actT = new ActionType();
                     actT.setAction(pt.actionPane.getText());
                     pt.transition.setAction(actT);
-                    transitions.put(pt.transition.getId(), pt.transition);
+                    
+                    if (pt.transition.getSourceManeuver() != null && pt.transition.getTargetManeuver() != null)
+                        transitions.put(pt.transition.getId(), pt.transition);
                 }
                 else {
                     pt.transition.setSourceManeuver((String)pt.sourceComboBox.getSelectedItem());
                     pt.transition.setTargetManeuver((String)pt.targetComboBox.getSelectedItem());
                     pt.transition.getCondition().setCondition(pt.conditionPane.getText());
                     pt.transition.getAction().setAction(pt.actionPane.getText());
+                    
+                    if (pt.transition.getSourceManeuver() == null || pt.transition.getTargetManeuver() == null)
+                        toRemoveFromPlanGraph.add(pt);
                 }
             }
             catch (ClassCastException e2) {

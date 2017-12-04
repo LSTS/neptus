@@ -57,7 +57,7 @@ For simple use the main targets are:
 	<!-- Defines variables used by the other targets                         -->
 	<!-- =================================================================== -->
 	<property name="version.MAJOR" value="2017" />
-	<property name="version.MINOR" value="03" />
+	<property name="version.MINOR" value="10" />
 	<property name="version.PATCH" value="1" />
 	<!-- Set this to '-dev' if a developer release; blank "" if maintenance release; or '-rcX' for release candidate X (X number) -->
 	<property name="version.DEVELOPER" value="-dev" />
@@ -292,7 +292,7 @@ For simple use the main targets are:
 						<resourceexists>
 							<file file="neptus.bat"/>
 						</resourceexists>
-						<resourcecount refid="nsis-generated-launchers" when="ge" count="4" />
+						<resourcecount refid="nsis-generated-launchers" when="ge" count="2" />
 					</and>
 				</not>
 			</condition>
@@ -388,7 +388,8 @@ For simple use the main targets are:
 			<filter token="DIST_EXE" value="${dist.installer.name.full}" />
 			<filter token="SCM_REV" value="${scm.revision}" />
 			<filter token="SCM_PATH" value="${scm.repository.path}" />
-			<filter token="INSTALLER_NSIS_NEPTUS_BATCH_PATH" value="..\static_files\batch_files\neptus.bat" />
+			<!--filter token="INSTALLER_NSIS_NEPTUS_BATCH_PATH" value="..\static_files\batch_files\neptus.bat" /-->
+			<filter token="MAIN_CLASS" value="pt.lsts.neptus.loader.NeptusMain" />
 			<filter token="LICENSE" value="${license-content}" />
 		</filterset>
 		<filterset id="neptusLE.filters">
@@ -397,7 +398,8 @@ For simple use the main targets are:
 			<filter token="INSTALL_DIR" value="${install.dir.name}LE" />
 			<!--filter token="VERSION_SE" value="${light.release}" /-->
 			<filter token="DIST_EXE" value="${dist.installer.name.le}" />
-			<filter token="INSTALLER_NSIS_NEPTUS_BATCH_PATH" value="..\static_files\batch_files\neptusse.bat" />
+			<!--filter token="INSTALLER_NSIS_NEPTUS_BATCH_PATH" value="..\static_files\batch_files\neptusse.bat" /-->
+			<filter token="MAIN_CLASS" value="pt.lsts.neptus.mc.lauvconsole.LAUVConsole" />
 		</filterset>
 		<filterset id="neptusSeacon.filters">
 			<filter token="NEPTUS_NAME" value="${Name}SC" />
@@ -405,7 +407,8 @@ For simple use the main targets are:
 			<filter token="INSTALL_DIR" value="${install.dir.name}SC" />
 			<!--filter token="VERSION_SE" value="${seacon.release}" /-->
 			<filter token="DIST_EXE" value="${dist.installer.name.seacon}" />
-			<filter token="INSTALLER_NSIS_NEPTUS_BATCH_PATH" value="..\static_files\batch_files\neptusse.bat" />
+			<!--filter token="INSTALLER_NSIS_NEPTUS_BATCH_PATH" value="..\static_files\batch_files\neptusse.bat" /-->
+			<filter token="MAIN_CLASS" value="pt.lsts.neptus.mc.lauvconsole.LAUVConsole" />
 		</filterset>
 		<filterset id="empty.filters">
 		</filterset>
@@ -1841,9 +1844,9 @@ For simple use the main targets are:
 			</fileset>
 		</copy>
 		<copy file="${src.dir}/images/neptus-icon2.png" tofile="${dist.tmp.dir}/neptus.png" preservelastmodified="true" />
-		<antcall target="copy-launcher-bat.worker" />
-		<antcall target="copy-launcher-sh.worker" />
-		<antcall target="copy-launcher-exe.worker" />
+		<antcall target="copy-launcher-bat.worker" inheritall="true" inheritrefs="true" />
+		<antcall target="copy-launcher-sh.worker" inheritall="true" inheritrefs="true" />
+		<antcall target="copy-launcher-exe.worker" inheritall="true" inheritrefs="true" />
 		<copy file="${scm.info.file}" tofile="${dist.tmp.dir}/conf/version"
 				overwrite="yes" failonerror="false" preservelastmodified="true">
 		</copy>
@@ -1851,11 +1854,15 @@ For simple use the main targets are:
 	<target name="copy-launcher-bat.worker" if="copy-launcher-bat">
 		<copy file="${nsis_src.dir}/batch_files/${sh-bash-basename}.bat" tofile="${dist.tmp.dir}/neptus.bat"
 				overwrite="yes" failonerror="yes" preservelastmodified="true">
+			<filterset refid="dist.filters" />
+			<filterset refid="common.filters" />
 		</copy>
 	</target>
 	<target name="copy-launcher-sh.worker" if="copy-launcher-sh">
 		<copy file="${nsis_src.dir}/batch_files/${sh-bash-basename}.sh" tofile="${dist.tmp.dir}/neptus.sh"
 				overwrite="yes" failonerror="yes" preservelastmodified="true">
+			<filterset refid="dist.filters" />
+			<filterset refid="common.filters" />
 		</copy>
 	</target>
 	<target name="copy-launcher-exe.worker" if="copy-launcher-exe">
@@ -1911,7 +1918,7 @@ For simple use the main targets are:
 		<!-- not on depends to allow calling multiple installers -->
 		<antcall target="jre64-windows-copy-to-dist" />
 
-		<delete file="${dist.tmp.dir}/neptus.bat" />
+		<!--delete file="${dist.tmp.dir}/neptus.bat" /-->
 		<!-- this will be copies by the nsis script -->
 		<nsis script="NSIS_release/install_scripts/neptus.nsi">
 			<define name="BASEDIR" value="..\..\${dist.tmp.dir}" />
@@ -1991,11 +1998,11 @@ For simple use the main targets are:
 			<param name="installer-to-call" value="create-installer-all-os.worker"/>
 			<param name="jre-os" value="All-OS"/>
 			<param name="dist.tmp.dir" value="${all.os.dist.dir}" />
-			<param name="sh-bash-basename" value="neptus" />
+			<param name="sh-bash-basename" value="neptusse" />
 			<param name="copy-includes-excludes-file-sufix" value="NeptusFull" />
 			<param name="dist.installer.name" value="${dist.installer.name.full}" />
 			<param name="dist.instalation.folder.name" value="Neptus" />
-			<reference refid="neptus.filters" torefid="dist.filters" />
+			<reference refid="empty.filters" torefid="dist.filters" />
 			<reference refid="neptus.filters" torefid="common.filters" />
 		</antcall>
 	</target>
@@ -2005,7 +2012,7 @@ For simple use the main targets are:
 			<param name="installer-to-call" value="create-installer-windows.worker"/>
 			<param name="jre-os" value="Windows"/>
 			<param name="dist.tmp.dir" value="${windows.dist.dir}" />
-			<param name="sh-bash-basename" value="neptus" />
+			<param name="sh-bash-basename" value="neptusse" />
 			<param name="copy-includes-excludes-file-sufix" value="NeptusFull" />
 			<param name="dist.installer.name" value="${dist.installer.name.full}" />
 			<param name="dist.instalation.folder.name" value="Neptus" />
@@ -2019,7 +2026,7 @@ For simple use the main targets are:
 			<param name="installer-to-call" value="create-installer-linux.worker"/>
 			<param name="jre-os" value="Linux"/>
 			<param name="dist.tmp.dir" value="${linux.dist.dir}" />
-			<param name="sh-bash-basename" value="neptus" />
+			<param name="sh-bash-basename" value="neptusse" />
 			<param name="copy-includes-excludes-file-sufix" value="NeptusFull" />
 			<param name="dist.installer.name" value="${dist.installer.name.full}" />
 			<param name="dist.instalation.folder.name" value="Neptus" />

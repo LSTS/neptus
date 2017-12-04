@@ -34,6 +34,7 @@ package pt.lsts.neptus.console.plugins;
 
 import java.awt.Component;
 import java.beans.PropertyEditor;
+import java.io.File;
 import java.lang.reflect.Field;
 import java.text.Collator;
 import java.text.DecimalFormat;
@@ -80,6 +81,7 @@ import pt.lsts.neptus.gui.editor.BitmaskPropertyEditor;
 import pt.lsts.neptus.gui.editor.ColorMapPropertyEditor;
 import pt.lsts.neptus.gui.editor.EnumEditor;
 import pt.lsts.neptus.gui.editor.EnumeratedPropertyEditor;
+import pt.lsts.neptus.gui.editor.FileOnlyPropertyEditor;
 import pt.lsts.neptus.gui.editor.ImcId16Editor;
 import pt.lsts.neptus.gui.editor.LocationTypePropertyEditor;
 import pt.lsts.neptus.gui.editor.NeptusDoubleEditor;
@@ -89,6 +91,7 @@ import pt.lsts.neptus.gui.editor.RenderType;
 import pt.lsts.neptus.gui.editor.Script;
 import pt.lsts.neptus.gui.editor.ScriptSelectionEditor;
 import pt.lsts.neptus.gui.editor.VehicleSelectionEditor;
+import pt.lsts.neptus.gui.editor.renderer.ArrayAsStringRenderer;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.messages.Bitmask;
 import pt.lsts.neptus.messages.Enumerated;
@@ -655,6 +658,13 @@ public class FunctionalitiesSettings extends JPanel {
         Map<String, PluginProperty> hashMap = PluginUtils.getDefaultsValues(class1);
         StringBuilder description = new StringBuilder();
         description.append(I18n.text(neptusProperty.description()));
+        
+        if (neptusProperty.units() != null && neptusProperty.units().length() > 0) {
+            description.append(" (");
+            description.append(neptusProperty.units());
+            description.append(")");
+        }
+        
         String defaultValue;
         if (hashMap == null) {
             // no value!
@@ -668,9 +678,15 @@ public class FunctionalitiesSettings extends JPanel {
             }
             else {
                 Object defaultPropValue = pluginProperty.getValue();
-                defaultValue = (defaultPropValue == null ? I18n.text("Absence of value") : ((f.getType()
-                        .getEnumConstants() != null ? I18n.text(defaultPropValue.toString()) : defaultPropValue
-                        .toString())));
+                String defaultStr = null;
+                if (defaultPropValue == null) {
+                    defaultValue = I18n.text("Absence of value");
+                }
+                else {
+                    if (hashMap.containsKey(f.getName()))
+                        defaultStr = hashMap.get(f.getName()).serialize();
+                    defaultValue = defaultStr;
+                }
             }
         }
         description.append(" (");
@@ -724,6 +740,7 @@ public class FunctionalitiesSettings extends JPanel {
         pEditorRegistry.registerEditor(PlanActions.class, PlanActionsEditor.class);
         pEditorRegistry.registerEditor(Double.class, NeptusDoubleEditor.class);
         pEditorRegistry.registerEditor(Float.class, NeptusDoubleEditor.class);
+        pEditorRegistry.registerEditor(File.class, FileOnlyPropertyEditor.class);
     }
 
     @SuppressWarnings("serial")
@@ -790,6 +807,23 @@ public class FunctionalitiesSettings extends JPanel {
             }
         });
 
+        pRenderRegistry.registerRenderer(String[].class, new ArrayAsStringRenderer());
+        pRenderRegistry.registerRenderer(Long[].class, new ArrayAsStringRenderer());
+        pRenderRegistry.registerRenderer(long[].class, new ArrayAsStringRenderer());
+        pRenderRegistry.registerRenderer(Integer[].class, new ArrayAsStringRenderer());
+        pRenderRegistry.registerRenderer(int[].class, new ArrayAsStringRenderer());
+        pRenderRegistry.registerRenderer(Short[].class, new ArrayAsStringRenderer());
+        pRenderRegistry.registerRenderer(short[].class, new ArrayAsStringRenderer());
+        pRenderRegistry.registerRenderer(Double[].class, new ArrayAsStringRenderer());
+        pRenderRegistry.registerRenderer(double[].class, new ArrayAsStringRenderer());
+        pRenderRegistry.registerRenderer(Float[].class, new ArrayAsStringRenderer());
+        pRenderRegistry.registerRenderer(float[].class, new ArrayAsStringRenderer());
+        pRenderRegistry.registerRenderer(Boolean[].class, new ArrayAsStringRenderer());
+        pRenderRegistry.registerRenderer(boolean[].class, new ArrayAsStringRenderer());
+        pRenderRegistry.registerRenderer(Byte[].class, new ArrayAsStringRenderer());
+        pRenderRegistry.registerRenderer(byte[].class, new ArrayAsStringRenderer());
+        pRenderRegistry.registerRenderer(Character[].class, new ArrayAsStringRenderer());
+        pRenderRegistry.registerRenderer(char[].class, new ArrayAsStringRenderer());
     }
 
     class IconRenderer extends DefaultTreeCellRenderer {

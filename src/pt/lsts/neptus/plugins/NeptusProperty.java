@@ -89,6 +89,13 @@ public @interface NeptusProperty {
     String description() default "";
     
     /**
+     * The units will provide further information on the units (if any) for this field. 
+     * It will be used with {@link #description()} to show to the operator.
+     * @return The units of the field. It is optional.
+     */
+    String units() default "";
+    
+    /**
      * You can use categories to group various properties that are somehow related
      * @return The category for this configuration field
      */

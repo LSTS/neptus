@@ -100,6 +100,8 @@ public class SystemUtils {
             return SystemTypeEnum.MOBILESENSOR;
         else if ("mooring".equalsIgnoreCase(typeStr.trim()))
             return SystemTypeEnum.STATICSENSOR;
+        else if ("buoy".equalsIgnoreCase(typeStr.trim()))
+            return SystemTypeEnum.STATICSENSOR;
         else if ("glider".equalsIgnoreCase(typeStr.trim()))
             return SystemTypeEnum.VEHICLE;
         else if (!"helicopter".equalsIgnoreCase(typeStr.trim()) && typeStr.trim().endsWith("copter"))
@@ -177,6 +179,8 @@ public class SystemUtils {
         else if ("WSN".equalsIgnoreCase(typeStr.trim()))
             return ExternalTypeEnum.MOBILESENSOR;
         else if ("mooring".equalsIgnoreCase(typeStr.trim()))
+            return ExternalTypeEnum.STATICSENSOR;
+        else if ("buoy".equalsIgnoreCase(typeStr.trim()))
             return ExternalTypeEnum.STATICSENSOR;
         else if ("glider".equalsIgnoreCase(typeStr.trim()))
             return ExternalTypeEnum.VEHICLE;

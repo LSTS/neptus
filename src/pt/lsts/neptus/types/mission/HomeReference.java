@@ -39,31 +39,22 @@ import pt.lsts.neptus.types.coord.CoordinateSystem;
  * @author Paulo
  *
  */
-public class HomeReference extends CoordinateSystem implements NameId
-{
+public class HomeReference extends CoordinateSystem implements NameId {
 
-	/**
-     * 
-     */
     private static final long serialVersionUID = 1L;
+    
     private MissionType mission = null;
 	
-    /**
-     * 
-     */
-    public HomeReference()
-    {
+    public HomeReference() {
         super();
         this.id = "home";
         this.name = "home";
     }
 
-    public HomeReference(String xml)
-    {
+    public HomeReference(String xml) {
         super(xml);
         this.id = "home";
         this.name = "home";
-        //this.coordinate = coord;
     }
 
 	public MissionType getMission() {
@@ -83,5 +74,4 @@ public class HomeReference extends CoordinateSystem implements NameId
     public String getDisplayName() {
         return toString();
     }
-
 }

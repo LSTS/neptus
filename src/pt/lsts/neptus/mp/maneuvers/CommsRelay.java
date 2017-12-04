@@ -45,6 +45,7 @@ import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.def.SpeedUnits;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
@@ -107,7 +108,7 @@ public class CommsRelay extends DefaultManeuver implements IMCSerialization, Loc
 	    return document;
     }
 	
-	public void loadFromXML(String xml) {
+	public void loadManeuverFromXML(String xml) {
 	    try {
 	        Document doc = DocumentHelper.parseText(xml);
 	        
@@ -212,9 +213,13 @@ public class CommsRelay extends DefaultManeuver implements IMCSerialization, Loc
     	properties.add(PropertiesEditor.getPropertyInstance("System A", String.class, getSystemA(), true));
     	properties.add(PropertiesEditor.getPropertyInstance("System B", String.class, getSystemB(), true));
     	
-    	properties.add(PropertiesEditor.getPropertyInstance("Duration", Integer.class, getDuration(), true));
-
-    	properties.add(PropertiesEditor.getPropertyInstance("Move threshold", Double.class, getMoveThreshold(), true));
+    	DefaultProperty durProp = PropertiesEditor.getPropertyInstance("Duration", Integer.class, getDuration(), true);
+    	durProp.setShortDescription("(s)");
+    	properties.add(durProp);
+    	
+    	DefaultProperty mvProp = PropertiesEditor.getPropertyInstance("Move threshold", Double.class, getMoveThreshold(), true);
+    	mvProp.setShortDescription("(m)");
+    	properties.add(mvProp);
 
     	DefaultProperty units = PropertiesEditor.getPropertyInstance("Speed units", Maneuver.SPEED_UNITS.class, getSpeedUnits(), true);
     	units.setShortDescription("The speed units");
@@ -336,14 +341,14 @@ public class CommsRelay extends DefaultManeuver implements IMCSerialization, Loc
 		try {
             switch (this.getSpeedUnits()) {
                 case METERS_PS:
-                    msg.setSpeedUnits(pt.lsts.imc.CommsRelay.SPEED_UNITS.METERS_PS);
+                    msg.setSpeedUnits(SpeedUnits.METERS_PS);
                     break;
                 case PERCENTAGE:
-                    msg.setSpeedUnits(pt.lsts.imc.CommsRelay.SPEED_UNITS.PERCENTAGE);
+                    msg.setSpeedUnits(SpeedUnits.PERCENTAGE);
                     break;
                 case RPM:
                 default:
-                    msg.setSpeedUnits(pt.lsts.imc.CommsRelay.SPEED_UNITS.RPM);
+                    msg.setSpeedUnits(SpeedUnits.RPM);
                     break;
             }
         }

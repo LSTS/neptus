@@ -51,6 +51,8 @@ import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.def.SpeedUnits;
+import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.i18n.I18n;
@@ -109,7 +111,7 @@ public class PopUp extends Maneuver implements LocatedManeuver, ManeuverWithSpee
 	    return document;
     }
 	
-	public void loadFromXML(String xml) {
+	public void loadManeuverFromXML(String xml) {
 	    try {
 	        Document doc = DocumentHelper.parseText(xml);
 	        Node node = doc.selectSingleNode("PopUp/finalPoint/point");
@@ -217,20 +219,20 @@ public class PopUp extends Maneuver implements LocatedManeuver, ManeuverWithSpee
     	properties.add(PropertiesEditor.getPropertyInstance("Speed", Double.class, getSpeed(), true));
     	properties.add(units);
     	
-    	properties.add(PropertiesEditor.getPropertyInstance("Radius", Double.class, getRadiusTolerance(), true));
-        
-    	
-    	//properties.add(PropertiesEditor.getPropertyInstance("Speed tolerance", Double.class, getSpeedTolerance(), true));
+    	DefaultProperty radProp = PropertiesEditor.getPropertyInstance("Radius", Double.class, getRadiusTolerance(), true);
+    	radProp.setShortDescription("(m)");
+    	properties.add(radProp);
 
-    	properties.add(PropertiesEditor.getPropertyInstance("Duration", Integer.class, getDuration(), true));
+    	DefaultProperty durProp = PropertiesEditor.getPropertyInstance("Duration", Integer.class, getDuration(), true);
+    	durProp.setShortDescription("(s)");
+    	properties.add(durProp);
     	
     	properties.add(PropertiesEditor.getPropertyInstance("CURR_POS", "Flags", Boolean.class, isCurrPos(), true));
-	properties.add(PropertiesEditor.getPropertyInstance("WAIT_AT_SURFACE", "Flags", Boolean.class, isWaitAtSurface(), true));
+    	properties.add(PropertiesEditor.getPropertyInstance("WAIT_AT_SURFACE", "Flags", Boolean.class, isWaitAtSurface(), true));
     	properties.add(PropertiesEditor.getPropertyInstance("STATION_KEEP", "Flags", Boolean.class, isStationKeep(), false)); // To become deprecated
     	
     	return properties;
     }
-    
     
     public String getPropertiesDialogTitle() {    
     	return getId()+" parameters";
@@ -241,12 +243,6 @@ public class PopUp extends Maneuver implements LocatedManeuver, ManeuverWithSpee
     	super.setProperties(properties);
     	
     	for (Property p : properties) {
-//    		if (p.getName().equals("Speed units")) {
-//    			setSpeedUnits((String)p.getValue());
-//    		}
-    		//if (p.getName().equals("Speed tolerance")) {
-    		//	setSpeedTolerance((Double)p.getValue());
-    		//}
     		if (p.getName().equalsIgnoreCase("Speed")) {
     			setSpeed((Double)p.getValue());
     		}
@@ -414,21 +410,21 @@ public class PopUp extends Maneuver implements LocatedManeuver, ManeuverWithSpee
 	    msg.setLon(loc.getLongitudeRads());
 		msg.setZ(getManeuverLocation().getZ());
 		
-		msg.setZUnits(pt.lsts.imc.PopUp.Z_UNITS.valueOf(getManeuverLocation().getZUnits().toString()));
+		msg.setZUnits(ZUnits.valueOf(getManeuverLocation().getZUnits().toString()));
 	    msg.setDuration(getDuration());
 	    msg.setSpeed(speed);
 	    
 	    try {
             switch (this.getSpeedUnits()) {
                 case METERS_PS:
-                    msg.setSpeedUnits(pt.lsts.imc.PopUp.SPEED_UNITS.METERS_PS);
+                    msg.setSpeedUnits(SpeedUnits.METERS_PS);
                     break;
                 case PERCENTAGE:
-                    msg.setSpeedUnits(pt.lsts.imc.PopUp.SPEED_UNITS.PERCENTAGE);
+                    msg.setSpeedUnits(SpeedUnits.PERCENTAGE);
                     break;
                 case RPM:
                 default:
-                    msg.setSpeedUnits(pt.lsts.imc.PopUp.SPEED_UNITS.RPM);
+                    msg.setSpeedUnits(SpeedUnits.RPM);
                     break;
             }
         }
@@ -481,7 +477,7 @@ public class PopUp extends Maneuver implements LocatedManeuver, ManeuverWithSpee
         msg1.dump(System.out);
         popup.parseIMCMessage(msg1);
         String xml2 = popup.asXML();
-        popup.loadFromXML(xml2);
+        popup.loadManeuverFromXML(xml2);
         popup.serializeToIMC().dump(System.out);
         System.out.println(xml1);
         System.out.println(xml2);

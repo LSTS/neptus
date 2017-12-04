@@ -131,6 +131,7 @@ public class AudibleVehicleState extends ConsolePanel implements IPeriodicUpdate
         return text
                 .replaceAll("xtreme", "extreme")
                 .replaceAll("xplore", "explore")
+                .replaceAll("arpao", "arpau")
                 .replaceAll("lauv-seacon-1", "eereena")
                 .replaceAll("lauv-seacon-2", "premah")
                 .replaceAll("lauv-seacon-3", "valenteenah");

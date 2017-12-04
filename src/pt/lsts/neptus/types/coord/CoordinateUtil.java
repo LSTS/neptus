@@ -39,6 +39,7 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.List;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
@@ -1718,6 +1719,22 @@ public class CoordinateUtil {
         double[] pt2 = l2.getOffsetFrom(point);
         Line2D line = new Line2D.Double(pt1[0], pt1[1], pt2[0], pt2[1]);
         return line.ptLineDist(new Point2D.Double());
+    }
+
+    /**
+     * Compute the centroid of the given locations
+     * */
+    public static LocationType computeLocationsCentroid(List<LocationType> locations) {
+        double sumLatDegs = 0;
+        double sumLonDegs = 0;
+
+        for(LocationType loc : locations) {
+            LocationType tmp = loc.getNewAbsoluteLatLonDepth();
+            sumLatDegs += tmp.getLatitudeDegs();
+            sumLonDegs += tmp.getLongitudeDegs();
+        }
+
+        return new LocationType(sumLatDegs/locations.size(), sumLonDegs/locations.size());
     }
 
     // ---------------------------------------------------------------------------------------------

@@ -42,7 +42,7 @@ import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 public interface IManeuverPreview<T extends Maneuver> {
 
     public boolean init(String vehicleId, T man, SystemPositionAndAttitude state, Object maneuverState);
-    public SystemPositionAndAttitude step(SystemPositionAndAttitude state, double timestep);
+    public SystemPositionAndAttitude step(SystemPositionAndAttitude state, double timestep, double totalTime);
     public void reset(SystemPositionAndAttitude state);
     public boolean isFinished();
     /**

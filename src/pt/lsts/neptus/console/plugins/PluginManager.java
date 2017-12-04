@@ -199,7 +199,13 @@ public class PluginManager extends ConsolePanel {
             public void actionPerformed(ActionEvent e) {
                 if (availableSelected == null)
                     return;
+                
                 Class<?> clazz = plugins.get(availableSelected);
+                if (clazz == null) {
+                    NeptusLog.pub().error("Plugin \"" + activeSelected
+                            + "\" is not properly loaded as plugin!");
+                    return;
+                }
 
                 if (container == null && ContainerSubPanel.class.isAssignableFrom(clazz)) {
                     ConsolePanel sp = PluginsRepository.getPanelPlugin(availableSelected, getConsole());
@@ -270,6 +276,12 @@ public class PluginManager extends ConsolePanel {
 
                 String activeSelectedFixed = activeSelected.replaceAll("_\\d*$", "");
                 Class<?> clazz = plugins.get(activeSelectedFixed);
+                if (clazz == null) {
+                    NeptusLog.pub().error("Plugin \"" + activeSelectedFixed
+                            + "\" is not properly loaded as plugin!");
+                    return;
+                }
+                
                 if (ConsolePanel.class.isAssignableFrom(clazz)) {
                     ConsolePanel sp = (ConsolePanel) pluginsMap.get(activeSelected);
                     if (container != null && container.getSubPanelsCount() == 0 
@@ -354,6 +366,11 @@ public class PluginManager extends ConsolePanel {
                         activeSelected = (String) activePluginsList.getSelectedValue();
                         String activeSelectedFixed = activeSelected.replaceAll("_\\d*$", "");
                         Class<?> clazz = plugins.get(activeSelectedFixed);
+                        if (clazz == null) {
+                            NeptusLog.pub().error("Plugin \"" + activeSelectedFixed
+                                    + "\" is not properly loaded as plugin!");
+                        }
+
                         updateDescriptionTextInGui(clazz);
                     }
                 }
@@ -368,6 +385,11 @@ public class PluginManager extends ConsolePanel {
                         availableSelected = pluginName;
                         String pluginNameFixed = pluginName.replaceAll("_\\d*$", "");
                         Class<?> clazz = plugins.get(pluginNameFixed);
+                        if (clazz == null) {
+                            NeptusLog.pub().error("Plugin \"" + pluginNameFixed
+                                    + "\" is not properly loaded as plugin!");
+                        }
+
                         updateDescriptionTextInGui(clazz);
                     }
                 }
@@ -397,9 +419,12 @@ public class PluginManager extends ConsolePanel {
 
                 String pluginNameFixed = pluginName.replaceAll("_\\d*$", "");
                 Class<?> clazz = plugins.get(pluginNameFixed);
-                if (clazz != null) {
-                    updateDescriptionTextInGui(clazz);
+                if (clazz == null) {
+                    NeptusLog.pub().error("Plugin \"" + pluginNameFixed
+                            + "\" is not properly loaded as plugin!");
                 }
+
+                updateDescriptionTextInGui(clazz);
             }
         };
         availablePluginsList.addKeyListener(keyboardListener);
@@ -407,9 +432,15 @@ public class PluginManager extends ConsolePanel {
     }
 
     private void updateDescriptionTextInGui(Class<?> clazz) {
-        boolean experimental = PluginUtils.isPluginExperimental(clazz);
-        type.setText(getType(clazz) + (experimental ? " (" + I18n.text("experimental") + ")" : ""));
-        description.setText(PluginUtils.getPluginDescription(clazz));
+        if (clazz == null) {
+            type.setText("");
+            description.setText("");
+        }
+        else {
+            boolean experimental = PluginUtils.isPluginExperimental(clazz);
+            type.setText(getType(clazz) + (experimental ? " (" + I18n.text("experimental") + ")" : ""));
+            description.setText(PluginUtils.getPluginDescription(clazz));
+        }
     }
 
     private String getType(Class<?> clazz) {

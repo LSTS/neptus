@@ -39,6 +39,7 @@ import java.awt.Frame;
 import java.awt.Window;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.Collection;
@@ -70,6 +71,7 @@ import pt.lsts.neptus.gui.editor.BitmaskPropertyEditor;
 import pt.lsts.neptus.gui.editor.ColorMapPropertyEditor;
 import pt.lsts.neptus.gui.editor.ComboEditor;
 import pt.lsts.neptus.gui.editor.EnumeratedPropertyEditor;
+import pt.lsts.neptus.gui.editor.FileOnlyPropertyEditor;
 import pt.lsts.neptus.gui.editor.ImcId16Editor;
 import pt.lsts.neptus.gui.editor.LocationTypePropertyEditor;
 import pt.lsts.neptus.gui.editor.NeptusDoubleEditor;
@@ -81,6 +83,7 @@ import pt.lsts.neptus.gui.editor.ScriptSelectionEditor;
 import pt.lsts.neptus.gui.editor.SpeedUnitsEnumEditor;
 import pt.lsts.neptus.gui.editor.VehicleSelectionEditor;
 import pt.lsts.neptus.gui.editor.renderer.SpeedUnitsEnumRenderer;
+import pt.lsts.neptus.gui.editor.renderer.ArrayAsStringRenderer;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.messages.Bitmask;
 import pt.lsts.neptus.messages.Enumerated;
@@ -539,6 +542,7 @@ public class PropertiesEditor {
 			per.registerEditor(ManeuverLocation.class, ManeuverLocationEditor.class);
 			per.registerEditor(Credentials.class, CredentialsEditor.class);
             per.registerEditor(SPEED_UNITS.class, SpeedUnitsEnumEditor.class); // This one does not seams to work.
+            per.registerEditor(File.class, FileOnlyPropertyEditor.class);
 		}
 		return per;
 	}
@@ -600,17 +604,26 @@ public class PropertiesEditor {
                     return I18n.text(value.toString());
                 }
             });
-            prr.registerRenderer(String[].class, new DefaultCellRenderer() {
-                {
-                    setOpaque(false);
-                }
 
-                @Override
-                protected String convertToString(Object value) {
-                    return I18n.text(Arrays.toString((String[]) value).toString());
-                }
-            });
             prr.registerRenderer(SPEED_UNITS.class, new SpeedUnitsEnumRenderer());
+
+            prr.registerRenderer(String[].class, new ArrayAsStringRenderer());
+            prr.registerRenderer(Long[].class, new ArrayAsStringRenderer());
+            prr.registerRenderer(long[].class, new ArrayAsStringRenderer());
+            prr.registerRenderer(Integer[].class, new ArrayAsStringRenderer());
+            prr.registerRenderer(int[].class, new ArrayAsStringRenderer());
+            prr.registerRenderer(Short[].class, new ArrayAsStringRenderer());
+            prr.registerRenderer(short[].class, new ArrayAsStringRenderer());
+            prr.registerRenderer(Double[].class, new ArrayAsStringRenderer());
+            prr.registerRenderer(double[].class, new ArrayAsStringRenderer());
+            prr.registerRenderer(Float[].class, new ArrayAsStringRenderer());
+            prr.registerRenderer(float[].class, new ArrayAsStringRenderer());
+            prr.registerRenderer(Boolean[].class, new ArrayAsStringRenderer());
+            prr.registerRenderer(boolean[].class, new ArrayAsStringRenderer());
+            prr.registerRenderer(Byte[].class, new ArrayAsStringRenderer());
+            prr.registerRenderer(byte[].class, new ArrayAsStringRenderer());
+            prr.registerRenderer(Character[].class, new ArrayAsStringRenderer());
+            prr.registerRenderer(char[].class, new ArrayAsStringRenderer());
         }
 	    return prr;
 	}

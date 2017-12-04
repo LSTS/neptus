@@ -58,6 +58,8 @@ import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.Rows;
+import pt.lsts.imc.def.SpeedUnits;
+import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.ToolbarSwitch;
 import pt.lsts.neptus.gui.editor.SpeedUnitsEnumEditor;
@@ -91,21 +93,21 @@ IMCSerialization, StatisticsProvider, PathProvider {
     protected double speed = 1;
     @NeptusProperty(name = "Speed Units", editorClass = SpeedUnitsEnumEditor.class)
     protected SPEED_UNITS speedUnits = SPEED_UNITS.METERS_PS;
-    @NeptusProperty(name = "Bearing")
+    @NeptusProperty(name = "Bearing", units = "\u00B0")
     protected double bearingDegs = 0;
-    @NeptusProperty(name = "Width")
+    @NeptusProperty(name = "Width", units = "m")
     protected double width = 100;
-    @NeptusProperty(name = "Length")
+    @NeptusProperty(name = "Length", units = "m")
     protected double length = 200;
-    @NeptusProperty(name = "Cross Angle")
+    @NeptusProperty(name = "Cross Angle", units = "\u00B0")
     protected double crossAngleDegs = 0;
-    @NeptusProperty(name = "Curve Offset")
+    @NeptusProperty(name = "Curve Offset", units = "m")
     protected double curvOff = 15;
-    @NeptusProperty(name = "Angle Aperture")
+    @NeptusProperty(name = "Angle Aperture", units = "\u00B0")
     protected double angleApertureDegs = 120;
-    @NeptusProperty(name = "Max. Range")
+    @NeptusProperty(name = "Max. Range", units = "m")
     protected int range = 30;
-    @NeptusProperty(name = "Overlap Percentage")
+    @NeptusProperty(name = "Overlap Percentage", units = "%")
     protected short overlapPercentage = 0;
     @NeptusProperty(name = "Square Curve")
     protected boolean squareCurve = true;
@@ -142,7 +144,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
     }
 
     @Override
-    public void loadFromXML(String xml) {
+    public void loadManeuverFromXML(String xml) {
         try {
             Document doc = DocumentHelper.parseText(xml);
             
@@ -592,7 +594,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
         man.setLat(Math.toRadians(latDegs));
         man.setLon(Math.toRadians(lonDegs));
         man.setZ(z);
-        man.setZUnits(pt.lsts.imc.RowsCoverage.Z_UNITS.valueOf(getManeuverLocation().getZUnits().toString()));        
+        man.setZUnits(ZUnits.valueOf(getManeuverLocation().getZUnits().toString()));        
         man.setSpeed(speed);
         man.setWidth(width);
         man.setLength(length);
@@ -609,14 +611,14 @@ IMCSerialization, StatisticsProvider, PathProvider {
         try {
             switch (this.getSpeedUnits()) {
                 case PERCENTAGE:
-                    man.setSpeedUnits(pt.lsts.imc.RowsCoverage.SPEED_UNITS.PERCENTAGE);
+                    man.setSpeedUnits(SpeedUnits.PERCENTAGE);
                     break;
                 case RPM:
-                    man.setSpeedUnits(pt.lsts.imc.RowsCoverage.SPEED_UNITS.RPM);
+                    man.setSpeedUnits(SpeedUnits.RPM);
                     break;
                 case METERS_PS:
                 default:
-                    man.setSpeedUnits(pt.lsts.imc.RowsCoverage.SPEED_UNITS.METERS_PS);
+                    man.setSpeedUnits(SpeedUnits.METERS_PS);
                     break;
             }
         }
@@ -819,7 +821,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
         System.out.println(XMLUtil.getAsPrettyPrintFormatedXMLString(rc.asXML().substring(39)));
 
         RowsCoverage rc1 = new RowsCoverage();
-        rc1.loadFromXML(XMLUtil.getAsPrettyPrintFormatedXMLString(rc.asXML().substring(39)));
+        rc1.loadManeuverFromXML(XMLUtil.getAsPrettyPrintFormatedXMLString(rc.asXML().substring(39)));
         PluginUtils.editPluginProperties(rc1, true);
     }
 }

@@ -81,6 +81,10 @@ public class Notification implements Comparable<Notification> {
         return new Notification(title, text, NotificationType.WARNING);
     }
 
+    public static Notification newNotification(String title, String text, NotificationType type) {
+        return new Notification(title, text, type);
+    }
+
     private Notification(String title, String text, NotificationType type) {
         this.timestamp = System.currentTimeMillis();
         this.text = text;

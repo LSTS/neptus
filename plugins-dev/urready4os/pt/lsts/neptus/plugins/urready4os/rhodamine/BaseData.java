@@ -38,6 +38,8 @@ package pt.lsts.neptus.plugins.urready4os.rhodamine;
  *
  */
 public class BaseData  implements Comparable<BaseData> {
+    protected String sourceSystem = "";
+    
     protected double lat;
     protected double lon;
     protected long timeMillis;
@@ -55,6 +57,20 @@ public class BaseData  implements Comparable<BaseData> {
         this.lon = lon;
         this.depth = depth;
         this.timeMillis = timeMillis;
+    }
+    
+    /**
+     * @return the sourceSystem
+     */
+    public String getSourceSystem() {
+        return sourceSystem;
+    }
+    
+    /**
+     * @param sourceSystem the sourceSystem to set
+     */
+    public void setSourceSystem(String sourceSystem) {
+        this.sourceSystem = sourceSystem;
     }
     
     /**

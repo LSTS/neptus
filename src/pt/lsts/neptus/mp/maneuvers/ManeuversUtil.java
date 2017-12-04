@@ -66,6 +66,20 @@ public class ManeuversUtil {
     public static final Color noEditBoxColor = new Color(255, 160, 0, 100);
     public static final Color editBoxColor = new Color(255, 125, 255, 200);
 
+    private static GeneralPath arrow1 = new GeneralPath();
+    private static GeneralPath arrow2 = new GeneralPath();
+    static {
+        arrow1.moveTo(0, -5);
+        arrow1.lineTo(-3.5, -11);
+        arrow1.lineTo(3.5, -11);
+        arrow1.closePath();
+
+        arrow2.moveTo(0, -6);
+        arrow2.lineTo(-4.5, -12);
+        arrow2.lineTo(4.5, -12);
+        arrow2.closePath();
+    }
+
     private ManeuversUtil() {
     }
     
@@ -386,6 +400,7 @@ public class ManeuversUtil {
                 g2d.setStroke(sO);
 
                 g2d.translate(pointF[X] * zoom, pointF[Y] * zoom);
+                
                 g2d.setColor(new Color(255, 0, 0));
                 if (i == points.size() - 2) {
                     g2d.setColor(new Color(0, 0, 255));
@@ -396,6 +411,20 @@ public class ManeuversUtil {
                 else {
                     g2d.fill(el);
                 }
+                
+                if (zoom > 0.4) {
+                    double angle = Math.atan2(pointF[Y] - pointI[Y], pointF[X] - pointI[X]);
+                    Graphics2D gArrow = (Graphics2D) g2d.create();
+                    gArrow.rotate(angle - Math.PI / 2);
+                    if (editMode)
+                        gArrow.scale(1.5, 1.5);
+                    gArrow.setColor(!editMode ? Color.gray : Color.black);
+                    gArrow.fill(arrow2);
+                    gArrow.setColor(!editMode ? Color.yellow : Color.orange);
+                    gArrow.fill(arrow1);
+                    gArrow.dispose();
+                }
+                
                 g2d.translate(-pointF[X] * zoom, -pointF[Y] * zoom);
 
                 if (pointN != null) {
@@ -410,6 +439,7 @@ public class ManeuversUtil {
                     g2d.setStroke(sO);
                     
                     g2d.translate(pointN[X] * zoom, pointN[Y] * zoom);
+                    
                     g2d.setColor(new Color(0, 255, 0));
                     if (i == points.size() - 3) {
                         g2d.setColor(new Color(0, 0, 255));
@@ -420,6 +450,20 @@ public class ManeuversUtil {
                     else {
                         g2d.fill(el);
                     }
+                    
+                    if (zoom > 0.4) {
+                        double angle = Math.atan2(pointN[Y] - pointF[Y], pointN[X] - pointF[X]);
+                        Graphics2D gArrow = (Graphics2D) g2d.create();
+                        gArrow.rotate(angle - Math.PI / 2);
+                        if (editMode)
+                            gArrow.scale(1.5, 1.5);
+                        gArrow.setColor(!editMode ? Color.gray : Color.black);
+                        gArrow.fill(arrow2);
+                        gArrow.setColor(!editMode ? Color.yellow : Color.orange);
+                        gArrow.fill(arrow1);
+                        gArrow.dispose();
+                    }
+                    
                     g2d.translate(-pointN[X] * zoom, -pointN[Y] * zoom);
                 }
             }
@@ -477,17 +521,32 @@ public class ManeuversUtil {
         
         if (speedProp == null || unitsProp == null)
             return Double.NaN;
-        
-        switch (""+unitsProp.getValue()) {
-            case "m/s":
-                return Double.parseDouble(""+speedProp.getValue());
-            case "RPM":
-                return SpeedConversion.convertRpmtoMps(Double.parseDouble(""+speedProp.getValue()));
-            case "%":
-                return SpeedConversion.convertPercentageToMps(Double.parseDouble(""+speedProp.getValue()));
-            default:
-                NeptusLog.pub().error("Unrecognized speed units: "+unitsProp.getValue());
-                return Double.NaN;
+
+        if (unitsProp.getValue() instanceof Maneuver.SPEED_UNITS) {
+            switch ((Maneuver.SPEED_UNITS) unitsProp.getValue()) {
+                case METERS_PS:
+                    return Double.parseDouble(""+speedProp.getValue());
+                case RPM:
+                    return SpeedConversion.convertPercentageToMps(Double.parseDouble(""+speedProp.getValue()));
+                case PERCENTAGE:
+                    return SpeedConversion.convertPercentageToMps(Double.parseDouble(""+speedProp.getValue()));
+                default:
+                    NeptusLog.pub().error("Unrecognized speed units: "+unitsProp.getValue());
+                    return Double.NaN;
+            }
+        }
+        else {
+            switch (""+unitsProp.getValue()) {
+                case "m/s":
+                    return Double.parseDouble(""+speedProp.getValue());
+                case "RPM":
+                    return SpeedConversion.convertRpmtoMps(Double.parseDouble(""+speedProp.getValue()));
+                case "%":
+                    return SpeedConversion.convertPercentageToMps(Double.parseDouble(""+speedProp.getValue()));
+                default:
+                    NeptusLog.pub().error("Unrecognized speed units: "+unitsProp.getValue());
+                    return Double.NaN;
+            }
         }
     }
     

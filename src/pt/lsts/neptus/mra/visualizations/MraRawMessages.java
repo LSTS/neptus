@@ -308,8 +308,8 @@ public class MraRawMessages extends SimpleMRAVisualization {
         String rowType = null;
         String rowSrc = null;
         String rowSrcEnt = null;
-        long t1 = (long) find.defTimestampLow;
-        long t2 = (long) find.defTimestampHigh;
+        long t1 = (long) time1.getTime() / 1000;
+        long t2 = (long) time2.getTime() / 1000;
 
         if (type.equals(ANY_TXT) && src.equals(ANY_TXT) && 
                 srcEnt.equals(ANY_TXT) && find.hasDefaultTS(t1, t2)) {

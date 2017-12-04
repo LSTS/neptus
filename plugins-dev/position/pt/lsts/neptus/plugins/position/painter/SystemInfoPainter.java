@@ -79,11 +79,11 @@ public class SystemInfoPainter extends ConsoleLayer {
     private static final String GPS_MAN = I18n.textc("MAN", "Manual input.Use a single small word");
     private static final String GPS_SIM = I18n.textc("SIM", "Simulated. Use a single small word");
 
-    private static final int RECT_WIDTH = 228;
+    private static final int RECT_WIDTH = 248;
     private static final int RECT_HEIGHT = 70;
     private static final int MARGIN = 5;
 
-    private String strCpu, strFuel, strComms, strDisk, strGPS, strGPSFix;
+    private String strCpu, strFuel, strComms, strDisk, strGPS, strGPSFix, strFixedSat;
 
     @NeptusProperty(name = "Enable")
     public boolean enablePainter = true;
@@ -108,7 +108,7 @@ public class SystemInfoPainter extends ConsoleLayer {
 
     private long lastMessageMillis = 0;
 
-    private int cpuUsage = 0, fixQuality = 0;
+    private int cpuUsage = 0, fixQuality = 0, fixedSats = 0;;
     private double batteryVoltage, current, fixHdop;
     private float fuelLevel, confidenceLevel;
     private int storageUsage;
@@ -128,12 +128,13 @@ public class SystemInfoPainter extends ConsoleLayer {
         strDisk = I18n.textc("Disk", "Use a single small word");
         strComms = I18n.textc("Comms", "Use a single small word");
         strGPS = I18n.textc("GPS", "Use a single small word");
+        strFixedSat = I18n.textc("Sats", "Short for satellite. Use a single small word");
 
         strGPSFix = GPS_NO_FIX;
     }
 
     private InterpolationColorMap rygColorMap = new InterpolationColorMap(new double[] { 0.0, 0.01, 0.75, 1.0 },
-            new Color[] { Color.black, Color.red.brighter(), Color.yellow, Color.green.brighter() });
+            new Color[] { Color.black, new Color(0xff7367), Color.yellow, Color.green.brighter() });
 
     private InterpolationColorMap greenToBlack = new InterpolationColorMap(new double[] { 0.0, 0.75, 1.0 },
             new Color[] { Color.black, Color.green.darker(), Color.green.brighter().brighter() });
@@ -170,7 +171,7 @@ public class SystemInfoPainter extends ConsoleLayer {
             txt += "<b>" + strCpu + ":</b> <font color=" + getColor(cpuUsage, true, commsDead) + ">" + cpuUsage
                     + "%</font><br/>";
             txt += "<b>" + strFuel + ":</b> <font color=" + getColor(fuelLevel, false, commsDead) + ">"
-                    + (int) fuelLevel + "%</font> <font color=#cccccc>(" + (int) (batteryVoltage * 10) / 10f + "V";
+                    + (int) Math.round(fuelLevel) + "%</font> <font color=#cccccc>(" + (int) (batteryVoltage * 10) / 10f + "V";
             if (showCurrent)
                 txt += "@" + (int) (current * 10) / 10f + "A";
             if (showConfidence)
@@ -180,9 +181,12 @@ public class SystemInfoPainter extends ConsoleLayer {
                     + storageUsage + "%</font><br/>";
             txt += "<b>" + strComms + ":</b> <font color=" + getColor(lastHbCount * 20, false, commsDead) + ">"
                     + (lastHbCount * 20) + "%</font>";
-            if (showGPS)
+            if (showGPS) {
                 txt += " <b>" + strGPS + ":</b> <font color=" + getColor(fixQuality, false, commsDead) + ">"
                         + strGPSFix + "</font>";
+                txt += " (<font color=" + getColor(fixQuality, false, commsDead) + ">"
+                        + fixedSats + "</font> " + strFixedSat + ")";
+            }
             txt += "<br/>";
             txt += "</html>";
 
@@ -260,7 +264,8 @@ public class SystemInfoPainter extends ConsoleLayer {
         fixValidity = msg.getValidity();
         fixHdop = msg.getHdop();
         fixHdop = Math.round(fixHdop*100.0)/100.0;
-
+        fixedSats = msg.getSatellites();
+        
         switch (fixType) {
             case DEAD_RECKONING:
                 fixQuality = 0;
