@@ -220,6 +220,60 @@
               </annotation>
             </Land>
         </maneuver>
+        <maneuver>
+            <Elevator>
+                <finalPoint type="pointType">
+                    <point>
+                        <id>Elevator-Point</id>
+                       <coordinate>
+                            <latitude>0N</latitude>
+                            <longitude>0E</longitude>
+                            <height>800</height>
+                        </coordinate>
+                    </point>
+                    <radiusTolerance>0</radiusTolerance>
+                </finalPoint>
+                <startZ>800</startZ>
+                <startZUnits>HEIGHT</startZUnits>
+                <pitch>10</pitch>
+                <radius>75</radius>
+                <duration>0</duration>
+                <speed unit="m/s">17.0</speed>
+                <annotation>
+                    <documentation>No documentation available</documentation>
+                    <implementation-class>pt.lsts.neptus.mp.maneuvers.Elevator</implementation-class>
+                </annotation>
+            </Elevator>
+        </maneuver>
+        <maneuver>
+            <ScheduledGoto kind="automatic">
+                <finalPoint type="pointType">
+                    <point>
+                        <id>Destination</id>
+                        <name>Destination</name>
+                        <coordinate>
+                            <latitude>0N</latitude>
+                            <longitude>0E</longitude>
+                            <height>800</height>
+                        </coordinate>
+                        <z>800.0</z>
+          				<zunits>HEIGHT</zunits>
+                    </point>
+                    <radiusTolerance>5</radiusTolerance>
+                </finalPoint>
+                <velocity tolerance="1" type="float" unit="m/s">17.0</velocity>
+                <trajectoryTolerance>
+                    <radiusTolerance type="float">1</radiusTolerance>
+                </trajectoryTolerance>    
+                <DelayedBehavior>RESUME</DelayedBehavior>
+      	  		<TravelZ>800</TravelZ>
+      	  		<TravelUnits>HEIGHT</TravelUnits>
+                <annotation>
+                    <documentation>No documentation available</documentation>
+                    <implementation-class>pt.lsts.neptus.mp.maneuvers.ScheduledGoto</implementation-class>
+                </annotation>
+            </ScheduledGoto>
+        </maneuver>
     </feasibleManeuvers>
     <communication-means>
         <comm-mean>
