@@ -57,7 +57,7 @@ public class ImagePositionsExporter implements MRAExporter {
 
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
-        return source.getFile("Photos").exists();        
+        return source.getFile("Photos") == null ? false : source.getFile("Photos").exists();
     }
 
     public String getHeader() {
