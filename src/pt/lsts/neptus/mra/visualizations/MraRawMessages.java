@@ -51,9 +51,9 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.TimeZone;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
@@ -267,22 +267,6 @@ public class MraRawMessages extends SimpleMRAVisualization {
         return contentPane;
     }
 
-    private static Date fixTime(Date base, Date timeToFix) {
-        Calendar c1 = Calendar.getInstance();
-        int offset = (c1.get(Calendar.ZONE_OFFSET) + c1.get(Calendar.DST_OFFSET))  / (60 * 1000);
-        c1.setTime(base);
-        int hour = c1.get(Calendar.HOUR);
-        int day = c1.get(Calendar.DAY_OF_MONTH);
-        int month = c1.get(Calendar.MONTH);
-        int year = c1.get(Calendar.YEAR);
-        c1.setTime(timeToFix);
-        c1.set(Calendar.HOUR, hour + offset);
-        c1.set(Calendar.DAY_OF_MONTH, day);
-        c1.set(Calendar.MONTH, month);
-        c1.set(Calendar.YEAR, year);
-        return c1.getTime();
-    }
-
     /**
      * Checks if there are messages in the list that have a specific type, source, source_entity, 
      * destination and are within specified time limits 
@@ -297,19 +281,14 @@ public class MraRawMessages extends SimpleMRAVisualization {
         table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         find.busyLbl.setBusy(true);
         find.busyLbl.setVisible(true);
+        long t1 = (long) time1.getTime() / 1000;
+        long t2 = (long) time2.getTime() / 1000;
 
-        //Fix year/month/day of textbox's timestamp and timestampHigh
-        Date base = new Date((long)(1000.0*source.getLsfIndex().timeOf(0)));
-        time1 = fixTime(base, time1);
-        time2 = fixTime(base, time2);
-
-        find.validateTimestamp(time1.getTime() / 1000, time2.getTime() / 1000);
+        find.validateTimestamp(t1, t2);
 
         String rowType = null;
         String rowSrc = null;
         String rowSrcEnt = null;
-        long t1 = (long) time1.getTime() / 1000;
-        long t2 = (long) time2.getTime() / 1000;
 
         if (type.equals(ANY_TXT) && src.equals(ANY_TXT) && 
                 srcEnt.equals(ANY_TXT) && find.hasDefaultTS(t1, t2)) {
@@ -384,7 +363,7 @@ public class MraRawMessages extends SimpleMRAVisualization {
                             resultList.add(row);
 
             count++;
-            int state = (count * 100) / total;
+            long state = (long) count * 100 / total;
             find.statusLbl.setText(state+"%");
         }
 
@@ -594,7 +573,11 @@ public class MraRawMessages extends SimpleMRAVisualization {
                 sourceEntCBox = new JComboBox<String>(model2);
                 JLabel timeLbl = new JLabel(I18n.text("Time"));
                 timestampLow = new JSpinner( new SpinnerDateModel() );
-                JSpinner.DateEditor timeEditor = new JSpinner.DateEditor(timestampLow, "HH:mm:ss");
+                JLabel separatorLbl = new JLabel("-");
+                timestampHigh = new JSpinner( new SpinnerDateModel() );
+
+                JSpinner.DateEditor timeEditor = new JSpinner.DateEditor(timestampLow, "yyyy-MM-dd HH:mm:ss");
+                timeEditor.getFormat().setTimeZone(TimeZone.getTimeZone("UTC"));
                 timestampLow.setEditor(timeEditor);
                 timestampLow.setUI(new javax.swing.plaf.basic.BasicSpinnerUI(){
                     protected Component createNextButton(){
@@ -609,12 +592,12 @@ public class MraRawMessages extends SimpleMRAVisualization {
                     }
                 });
                 timestampLow.setBorder(null);
+
                 JTextField tf = ((JSpinner.DefaultEditor)timestampLow.getEditor()).getTextField();
                 ((JComponent)tf.getParent()).setBorder(BorderFactory.createLineBorder(Color.GRAY));
 
-                JLabel separatorLbl = new JLabel("-");
-                timestampHigh = new JSpinner( new SpinnerDateModel() );
-                JSpinner.DateEditor timeEditor2 = new JSpinner.DateEditor(timestampHigh, "HH:mm:ss");
+                JSpinner.DateEditor timeEditor2 = new JSpinner.DateEditor(timestampHigh, "yyyy-MM-dd HH:mm:ss");
+                timeEditor2.getFormat().setTimeZone(TimeZone.getTimeZone("UTC"));
                 timestampHigh.setEditor(timeEditor2);
                 timestampHigh.setUI(new javax.swing.plaf.basic.BasicSpinnerUI(){
                     protected Component createNextButton(){
@@ -661,9 +644,7 @@ public class MraRawMessages extends SimpleMRAVisualization {
                 findBtn.setHorizontalAlignment(SwingConstants.RIGHT);
                 resetBtn.setHorizontalAlignment(SwingConstants.RIGHT);
 
-                //
                 ArrayList<String> typeList = new ArrayList<>();
-
 
                 Date dtX = parseDate(0); //get first timestamp from table
                 Date dtY = parseDate(table.getRowCount() - 1); //get last timestamp from table
@@ -679,10 +660,8 @@ public class MraRawMessages extends SimpleMRAVisualization {
                     if (!typeList.contains(type))
                         typeList.add(type);
 
-
                 int total = source.getLsfIndex().getNumberOfMessages();
-                int count = 0;
-
+                long state = 0;
                 for (int row = 0; row < source.getLsfIndex().getNumberOfMessages(); row++) {
                     if (closingUp)
                         break;
@@ -692,9 +671,8 @@ public class MraRawMessages extends SimpleMRAVisualization {
                     //populate source_entity combobox
                     addItemToBox(sourceEntCBox, srcEntity);
 
-                    count++;
-                    int state = (count * 100) / total;
-                    loader.setText("Initializing Find ("+state+"%)");
+                    state = (long) row * 100;
+                    loader.setText("Initializing Find ("+state/total+"%)");
                 }
 
                 typeList.add(ANY_TXT);
@@ -769,8 +747,9 @@ public class MraRawMessages extends SimpleMRAVisualization {
                         SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
                             @Override
                             protected Boolean doInBackground() throws Exception {
-                                Date t1 = (Date) timestampLow.getValue(); 
+                                Date t1 = (Date) timestampLow.getValue();
                                 Date t2 = (Date) timestampHigh.getValue();
+
                                 boolean found = findMessage(typeTxt.getText(), (String) sourceCBox.getSelectedItem(), 
                                         (String)sourceEntCBox.getSelectedItem(), t1, t2);
 
@@ -819,6 +798,7 @@ public class MraRawMessages extends SimpleMRAVisualization {
         private Date parseDate(int row){
             String t1 = (String) table.getValueAt(row, 1);
             DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+            format.setTimeZone(TimeZone.getTimeZone("UTC"));
             Date dtX = null;
 
             try {
@@ -832,7 +812,6 @@ public class MraRawMessages extends SimpleMRAVisualization {
         }
 
         private void validateTimestamp(long d1, long d2) {
-
             if (d1 < defTimestampLow)
                 timestampLow.setValue(parseDate(0));
 
@@ -843,7 +822,6 @@ public class MraRawMessages extends SimpleMRAVisualization {
                 timestampLow.setValue(parseDate(0));
                 timestampHigh.setValue(parseDate(table.getRowCount() - 1));
             }
-
         }
 
         private void clear() {
