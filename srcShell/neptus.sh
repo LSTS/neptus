@@ -32,7 +32,7 @@
 #############################################################################
 
 PROGNAME=$0
-NEPTUS_HOME=`dirname $PROGNAME`
+NEPTUS_HOME=`dirname $(readlink -f $PROGNAME)`
 cd $NEPTUS_HOME
 
 WORKSPACE="pt.lsts.neptus.loader.NeptusMain ws"

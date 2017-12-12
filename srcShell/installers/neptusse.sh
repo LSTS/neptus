@@ -32,7 +32,7 @@
 #############################################################################
 
 PROGNAME=$0
-NEPTUS_HOME=`dirname $PROGNAME`
+NEPTUS_HOME=`dirname $(readlink -f $PROGNAME)`
 cd $NEPTUS_HOME
 
 CLASSPATH=".:bin/neptus.jar:conf@NEPTUS_LIBS@":$CLASSPATH
