@@ -67,7 +67,7 @@ public class ImagePositionsExporter implements MRAExporter {
     public String getLine(double time) {
         SystemPositionAndAttitude pose = positions.getPosition(time);
 
-        return String.format(Locale.US, "%.3f, %.5f, %.5f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f", time,
+        return String.format(Locale.US, "%.4f, %.5f, %.5f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f", time,
                 pose.getPosition().getLatitudeDegs(), pose.getPosition().getLongitudeDegs(), pose.getDepth(),
                 pose.getAltitude(), pose.getU(), Math.toDegrees(pose.getRoll()), Math.toDegrees(pose.getPitch()),
                 Math.toDegrees(pose.getYaw()));
