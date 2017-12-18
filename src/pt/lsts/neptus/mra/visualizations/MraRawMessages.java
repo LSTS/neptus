@@ -37,6 +37,8 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.KeyEventDispatcher;
+import java.awt.KeyboardFocusManager;
 import java.awt.Rectangle;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -77,6 +79,7 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.border.EmptyBorder;
+import javax.swing.text.DateFormatter;
 
 import org.jdesktop.swingx.JXBusyLabel;
 
@@ -275,6 +278,7 @@ public class MraRawMessages extends SimpleMRAVisualization {
      * @return true if there is at least one element, false otherwise
      */
     private boolean findMessage(String type, String src, String srcEnt, Date time1, Date time2) {
+        resultList.clear();
         closingUp = false;
         finished = false;
         table.setRowSelectionAllowed(true);
@@ -283,8 +287,6 @@ public class MraRawMessages extends SimpleMRAVisualization {
         find.busyLbl.setVisible(true);
         long t1 = (long) time1.getTime() / 1000;
         long t2 = (long) time2.getTime() / 1000;
-
-        find.validateTimestamp(t1, t2);
 
         String rowType = null;
         String rowSrc = null;
@@ -343,7 +345,7 @@ public class MraRawMessages extends SimpleMRAVisualization {
         int total = indexLast - indexFirst;
         int count = 0;
 
-        for (int row = indexFirst; row < indexLast; row++) {
+        for (int row = indexFirst; row <= indexLast; row++) {
             if (closingUp) {
                 find.clear();
                 return true;
@@ -554,6 +556,48 @@ public class MraRawMessages extends SimpleMRAVisualization {
 
         private class LoadComponentsThread implements Runnable {
 
+            private void moveCaretPos(KeyEvent ke, JTextField tf) {
+                Component currentFocusOwner = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
+
+                if(tf.equals(currentFocusOwner)){
+                    if (tf.getCaretPosition() <= 3) {
+                        tf.setCaretPosition(5); //go to month
+                        ke.consume();
+                        return;
+                    }
+
+                    if(tf.getCaretPosition() > 3 && tf.getCaretPosition() <= 7) {
+                        tf.setCaretPosition(8); //go to day
+                        ke.consume();
+                        return;
+                    }
+
+                    if(tf.getCaretPosition() > 7 && tf.getCaretPosition() <= 10) {
+                        tf.setCaretPosition(11);//go to hour
+                        ke.consume();
+                        return;
+                    }
+
+                    if(tf.getCaretPosition() > 10 && tf.getCaretPosition() <= 13) {
+                        tf.setCaretPosition(14); //go to minutes
+                        ke.consume();
+                        return;
+                    }
+
+                    if(tf.getCaretPosition() > 13 && tf.getCaretPosition() <= 16) {
+                        tf.setCaretPosition(17); //go to seconds
+                        ke.consume();
+                        return;
+                    }
+
+                    if(tf.getCaretPosition() >= 17) {
+                        tf.setCaretPosition(0); //loop, go to year
+                        ke.consume();
+                        return;
+                    }
+                }
+            }
+
             @Override
             public void run() {
 
@@ -592,7 +636,6 @@ public class MraRawMessages extends SimpleMRAVisualization {
                     }
                 });
                 timestampLow.setBorder(null);
-
                 JTextField tf = ((JSpinner.DefaultEditor)timestampLow.getEditor()).getTextField();
                 ((JComponent)tf.getParent()).setBorder(BorderFactory.createLineBorder(Color.GRAY));
 
@@ -614,6 +657,39 @@ public class MraRawMessages extends SimpleMRAVisualization {
                 timestampHigh.setBorder(null);
                 JTextField tf1 = ((JSpinner.DefaultEditor)timestampHigh.getEditor()).getTextField();
                 ((JComponent)tf1.getParent()).setBorder(BorderFactory.createLineBorder(Color.GRAY));
+
+                DateFormatter formatter1 = (DateFormatter)timeEditor.getTextField().getFormatter();
+                formatter1.setAllowsInvalid(false);
+                formatter1.setOverwriteMode(true);
+
+                DateFormatter formatter2 = (DateFormatter)timeEditor2.getTextField().getFormatter();
+                formatter2.setAllowsInvalid(false);
+                formatter2.setOverwriteMode(true);
+
+                KeyboardFocusManager.getCurrentKeyboardFocusManager()
+                .addKeyEventDispatcher(new KeyEventDispatcher(){
+                    public boolean dispatchKeyEvent(KeyEvent ke){
+                        if(ke.getID() == KeyEvent.KEY_PRESSED) {
+                            switch (((KeyEvent) ke).getKeyCode()) {
+                                case KeyEvent.VK_TAB:
+                                    moveCaretPos(ke, tf);
+                                    moveCaretPos(ke, tf1);
+
+                                    break;
+                                case KeyEvent.VK_ENTER:
+                                    SwingUtilities.invokeLater(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            findAction();
+                                        }
+                                    });
+                                    break;
+                            }
+                        }
+                        return false;
+                    }
+
+                });
 
                 prevBtn = new JButton(I18n.textc("Prev.", "Previous"));
                 findBtn = new JButton(I18n.text("Find"));
@@ -742,43 +818,7 @@ public class MraRawMessages extends SimpleMRAVisualization {
 
                 findBtn.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
-                        clear();
-                        closingUp = true;
-                        SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
-                            @Override
-                            protected Boolean doInBackground() throws Exception {
-                                Date t1 = (Date) timestampLow.getValue();
-                                Date t2 = (Date) timestampHigh.getValue();
-
-                                boolean found = findMessage(typeTxt.getText(), (String) sourceCBox.getSelectedItem(), 
-                                        (String)sourceEntCBox.getSelectedItem(), t1, t2);
-
-                                return found;
-                            }
-
-                            @Override
-                            protected void done() {
-                                try {
-                                    boolean found = get();
-                                    if (found) {
-                                        if (!resultList.isEmpty() && finished) {
-                                            nextBtn.setEnabled(true);
-                                            prevBtn.setEnabled(true);
-                                        }
-
-                                        updateStatus();
-                                    } 
-                                    else {
-                                        GuiUtils.errorMessage(FinderDialog.this, I18n.text("Find"), 
-                                                "No message with current selected filter has been found.");
-                                    }
-                                }
-                                catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        };
-                        worker.execute();
+                        findAction();
                     }
                 });
 
@@ -792,6 +832,45 @@ public class MraRawMessages extends SimpleMRAVisualization {
                 requestFocus();
                 getRootPane().setDefaultButton(findBtn);
                 pack();
+            }
+
+            private void findAction() {
+                clear();
+                closingUp = true;
+                SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
+                    @Override
+                    protected Boolean doInBackground() throws Exception {
+                        Date t1 = (Date) timestampLow.getValue();
+                        Date t2 = (Date) timestampHigh.getValue();
+
+                        boolean found = findMessage(typeTxt.getText(), (String) sourceCBox.getSelectedItem(),
+                                (String)sourceEntCBox.getSelectedItem(), t1, t2);
+
+                        return found;
+                    }
+
+                    @Override
+                    protected void done() {
+                        try {
+                            boolean found = get();
+                            if (found) {
+                                if (!resultList.isEmpty() && finished) {
+                                    nextBtn.setEnabled(true);
+                                    prevBtn.setEnabled(true);
+                                    updateStatus();
+                                }
+                            }
+                            else {
+                                GuiUtils.errorMessage(FinderDialog.this, I18n.text("Find"),
+                                        "No message with current selected filter has been found.");
+                            }
+                        }
+                        catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                };
+                worker.execute();
             }
         }
 
@@ -809,19 +888,6 @@ public class MraRawMessages extends SimpleMRAVisualization {
             }
 
             return dtX;
-        }
-
-        private void validateTimestamp(long d1, long d2) {
-            if (d1 < defTimestampLow)
-                timestampLow.setValue(parseDate(0));
-
-            if (d2 > defTimestampHigh)
-                timestampHigh.setValue(parseDate(table.getRowCount() - 1));
-
-            if (d1 > d2) { 
-                timestampLow.setValue(parseDate(0));
-                timestampHigh.setValue(parseDate(table.getRowCount() - 1));
-            }
         }
 
         private void clear() {
