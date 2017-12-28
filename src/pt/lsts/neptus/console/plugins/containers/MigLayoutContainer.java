@@ -375,9 +375,18 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
     
     @Override
     protected void addSubPanelFinishUp() {
-        applyLayout(this.xmlDef);
+        if (!isChildsBulkLoad())
+            applyLayout(this.xmlDef);
     }
 
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.console.ContainerSubPanel#addSubPanelBulkFinishUp()
+     */
+    @Override
+    protected void addSubPanelBulkFinishUp() {
+        applyLayout(this.xmlDef);
+    }
+    
     @Override
     public void removeSubPanelExtra(ConsolePanel sp) {
         applyLayout(this.xmlDef);
