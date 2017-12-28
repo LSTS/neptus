@@ -273,8 +273,8 @@ public class GroupLayoutContainer extends ContainerSubPanel implements Configura
     }
 
     @Override
-    public void XML_ChildsRead(org.dom4j.Element el) {
-        super.XML_ChildsRead(el);
+    protected void readChildFromXml(org.dom4j.Element el) {
+        super.readChildFromXml(el);
         applyLayout();
     }
 

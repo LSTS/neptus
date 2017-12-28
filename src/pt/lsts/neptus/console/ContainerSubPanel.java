@@ -163,7 +163,7 @@ public class ContainerSubPanel extends ConsolePanel implements LockableSubPanel 
     }
 
     /**
-     * This is called at the end of the bulk load of child elements in {@link #XML_ChildsRead(Element)}
+     * This is called at the end of the bulk load of child elements in {@link #readChildFromXml(Element)}
      * and can be used to layout only at the end of all childs.
      * 
      * This is an empty implementation.
@@ -240,7 +240,7 @@ public class ContainerSubPanel extends ConsolePanel implements LockableSubPanel 
     }
 
     @Override
-    public void XML_ChildsWrite(Element e) {
+    protected void writeChildToXml(Element e) {
         for (ConsolePanel sp : panels) {
 
             try {
@@ -259,7 +259,7 @@ public class ContainerSubPanel extends ConsolePanel implements LockableSubPanel 
     }
 
     @Override
-    public void XML_ChildsRead(Element el) {
+    protected void readChildFromXml(Element el) {
         List<?> list = el.selectNodes("*");
         setChildsBulkLoad(true);
         
@@ -292,7 +292,7 @@ public class ContainerSubPanel extends ConsolePanel implements LockableSubPanel 
     }
    
     @Override
-    public void XML_PropertiesWrite(Element e) {
+    protected void writePropertiesToXml(Element e) {
         String xml = PluginUtils.getConfigXml(this);
         try {
             Element el = DocumentHelper.parseText(xml).getRootElement();

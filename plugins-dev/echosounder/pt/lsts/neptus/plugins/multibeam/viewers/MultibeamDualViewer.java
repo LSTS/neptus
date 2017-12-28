@@ -145,8 +145,8 @@ public class MultibeamDualViewer extends ConsolePanel {
     /* (non-Javadoc)
      * @see pt.lsts.neptus.console.ConsolePanel#XML_PropertiesRead(org.dom4j.Element)
      */
-    public void XML_PropertiesRead(Element e) {
-        super.XML_PropertiesRead(e);
+    protected void readPropertiesFromXml(Element e) {
+        super.readPropertiesFromXml(e);
         
         PluginUtils.setConfigXml(crossSection, e.asXML());
         PluginUtils.setConfigXml(waterfall, e.asXML());
@@ -155,7 +155,7 @@ public class MultibeamDualViewer extends ConsolePanel {
     /* (non-Javadoc)
      * @see pt.lsts.neptus.console.ConsolePanel#XML_PropertiesWrite(org.dom4j.Element)
      */
-    public void XML_PropertiesWrite(Element e) {
+    protected void writePropertiesToXml(Element e) {
         //super.XML_PropertiesWrite(e);
         
         String xml = PluginUtils.getConfigXml(this, waterfall, crossSection);
