@@ -193,8 +193,8 @@ public class TabContainer extends ContainerSubPanel implements ConfigurationList
 	}
 	
 	@Override
-	public void XML_ChildsRead(Element el) {
-		super.XML_ChildsRead(el);
+	protected void readChildFromXml(Element el) {
+		super.readChildFromXml(el);
 		pivot.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent arg0) {
