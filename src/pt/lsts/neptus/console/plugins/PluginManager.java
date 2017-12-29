@@ -33,8 +33,7 @@
 package pt.lsts.neptus.console.plugins;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -58,9 +57,11 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
-import com.l2fprod.common.swing.StatusBar;
+import org.apache.commons.lang3.text.WordUtils;
+
 import com.sun.java.swing.plaf.windows.WindowsButtonUI;
 
 import net.miginfocom.swing.MigLayout;
@@ -81,6 +82,7 @@ import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.PluginsRepository;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
+import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * @author Hugo Dias
@@ -95,9 +97,10 @@ public class PluginManager extends ConsolePanel {
     private JPanel content;
     @SuppressWarnings("unused")
     private JPanel statusPanel;
-    private JLabel type = new JLabel();
     private JPanel info;
-    private JLabel description = new JLabel();
+    private JLabel name = new JLabel();
+    private JLabel type = new JLabel();
+    private JTextArea description = new JTextArea();
     private JList<String> activePluginsList;
     private JList<String> availablePluginsList;
     private Map<String, Object> pluginsMap = new LinkedHashMap<String, Object>();
@@ -108,6 +111,7 @@ public class PluginManager extends ConsolePanel {
     private JButton btnAdd;
     private JButton btnRemove;
     private JButton btnSettings;
+    private JButton btnExit;
 
     private KeyListener keyboardListener;
     
@@ -124,12 +128,6 @@ public class PluginManager extends ConsolePanel {
         // Content Panel
         this.add(content = new JPanel(new MigLayout("gap 5px 0, ins 5px")), BorderLayout.CENTER);
 
-        // Status Bar
-        StatusBar statusBar = new StatusBar();
-        statusBar.setZoneBorder(BorderFactory.createLineBorder(Color.GRAY));
-        statusBar.setZones(new String[] { "zone" }, new Component[] { statusPanel = new JPanel(), },
-                new String[] { "*" });
-        this.add(statusBar, BorderLayout.SOUTH);
         // Add components to the content panel
         this.createComponents();
         // /this.refreshActivePlugins();
@@ -145,22 +143,30 @@ public class PluginManager extends ConsolePanel {
         JPanel availablePluginsPanel = new JPanel(new MigLayout("ins 0"));
         info = new JPanel(new MigLayout("gap 5px 0, ins 1px"));
         info.setBorder(BorderFactory.createTitledBorder(I18n.text("Info")));
-        info.add(new JLabel(I18n.text("Type") + ":"));
+        info.add(new JLabel("<html><b>" + I18n.text("Name") + ":"));
+        info.add(name, "span, wrap");
+        info.add(new JLabel("<html><b>" + I18n.text("Type") + ":"));
         info.add(type, "span, wrap");
-        info.add(description, "span");
+        JScrollPane descriptionScrollPane = new JScrollPane();
+        description.setEditable(false);
+        descriptionScrollPane.setViewportView(description);
+        descriptionScrollPane.setBorder(null);
+        info.add(descriptionScrollPane, "h 100%, span");
+        JPanel okPanel = new JPanel(new MigLayout("ins 0", "push[]", ""));
 
         content.add(availablePluginsPanel, "h 100%, w 50%");
         content.add(activePluginsPanel, "h 100%, w 50%, wrap");
-        content.add(info, "w 100%, h 150px, span");
+        content.add(info, "w 100%, h 250px, span, wrap");
+        content.add(okPanel, "gaptop 5, gapbottom 5, gapright 5, w 100%, h 60px, span");
 
         // availablePluginsPanel components
         // label
-        JLabel availablePluginsLabel = new JLabel(I18n.text("Available"));
+        JLabel availablePluginsLabel = new JLabel("<html><b>" + I18n.text("Available"));
         availablePluginsPanel.add(availablePluginsLabel, "h 7%");
         // buttons
-        btnAdd = new JButton(I18n.text("Add"));
+        btnAdd = new JButton();
         btnAdd.setUI(new WindowsButtonUI());
-        availablePluginsPanel.add(btnAdd, "h 7%, wrap");
+        availablePluginsPanel.add(btnAdd, "w 80px::, h 7%, wrap");
 
         // list
         JScrollPane listScroll = new JScrollPane();
@@ -172,22 +178,34 @@ public class PluginManager extends ConsolePanel {
 
         // activePluginsPanel components
         // label
-        JLabel activePluginsLabel = new JLabel(I18n.text("Active"));
+        JLabel activePluginsLabel = new JLabel("<html><b>" + I18n.text("Active"));
         activePluginsPanel.add(activePluginsLabel, "h 7%");
         // buttons
-        btnRemove = new JButton(I18n.text("Remove"));
+        btnRemove = new JButton();
         btnRemove.setUI(new WindowsButtonUI());
-        activePluginsPanel.add(btnRemove, "h 7%");
+        activePluginsPanel.add(btnRemove, "w 80px::, h 7%");
 
-        btnSettings = new JButton(I18n.text("Settings"));
+        btnSettings = new JButton();
         btnSettings.setUI(new WindowsButtonUI());
-        activePluginsPanel.add(btnSettings, "h 7%, wrap");
+        activePluginsPanel.add(btnSettings, "w 80px::, h 7%, wrap");
 
         // list
         JScrollPane activePluginsScrollPane = new JScrollPane();
         activePluginsList = new JList<String>();
         activePluginsScrollPane.setViewportView(activePluginsList);
         activePluginsPanel.add(activePluginsScrollPane, "h 93%, w 100%, span");
+        
+        btnExit = new JButton();
+        okPanel.add(btnExit, "w 80px::");
+
+        GuiUtils.reactEscapeKeyPress(btnExit);
+        GuiUtils.reactKeyPress(btnAdd, KeyEvent.VK_A);
+        GuiUtils.reactKeyPress(btnAdd, KeyEvent.VK_ADD);
+        GuiUtils.reactKeyPress(btnAdd, KeyEvent.VK_PLUS);
+        GuiUtils.reactKeyPress(btnRemove, KeyEvent.VK_R);
+        GuiUtils.reactKeyPress(btnRemove, KeyEvent.VK_SUBTRACT);
+        GuiUtils.reactKeyPress(btnRemove, KeyEvent.VK_MINUS);
+        GuiUtils.reactKeyPress(btnSettings, KeyEvent.VK_S);
     }
 
     private void createActions() {
@@ -345,6 +363,17 @@ public class PluginManager extends ConsolePanel {
         });
         btnSettings.getAction().putValue(Action.SHORT_DESCRIPTION,
                 I18n.text("Open settings dialog for the selected plugin"));
+
+        btnExit.setAction(new AbstractAction(I18n.text("Exit")) {
+            private static final long serialVersionUID = 1L;
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Window sa = SwingUtilities.getWindowAncestor(PluginManager.this);
+                if (sa != null)
+                    sa.setVisible(false);
+            }
+        });
+
     }
 
     private void createListeners() {
@@ -433,13 +462,16 @@ public class PluginManager extends ConsolePanel {
 
     private void updateDescriptionTextInGui(Class<?> clazz) {
         if (clazz == null) {
+            name.setText("");
             type.setText("");
             description.setText("");
         }
         else {
+            name.setText(PluginUtils.getPluginName(clazz));
             boolean experimental = PluginUtils.isPluginExperimental(clazz);
             type.setText(getType(clazz) + (experimental ? " (" + I18n.text("experimental") + ")" : ""));
-            description.setText(PluginUtils.getPluginDescription(clazz));
+            description.setText(WordUtils.wrap(PluginUtils.getPluginDescription(clazz), 72));
+            description.setCaretPosition(0);
         }
     }
 
