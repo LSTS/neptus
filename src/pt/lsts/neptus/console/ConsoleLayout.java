@@ -143,6 +143,7 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.loader.NeptusMain;
 import pt.lsts.neptus.mp.MapChangeEvent;
 import pt.lsts.neptus.mp.MapChangeListener;
+import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.renderer2d.VehicleStateListener;
 import pt.lsts.neptus.types.XmlInOutMethods;
 import pt.lsts.neptus.types.XmlOutputMethods;
@@ -233,6 +234,8 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     
     protected PluginManager pluginManager = null;
     protected SettingsWindow settingsWindow = null;
+    protected String pluginManagerName = null;
+    protected String settingsWindowName = null;
 
     /**
      * Static factory method
@@ -1933,6 +1936,58 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         }
     }
 
+    public synchronized void addJMenuIntoViewMenu(JMenuItem menu) {
+        JMenu viewMenu = getConsole().getOrCreateJMenu(new String[] { I18n.text("View") });
+        
+        if (settingsWindowName == null) {
+            Popup cAction = settingsWindow != null ? settingsWindow.getClass().getAnnotation(Popup.class)
+                    : SettingsWindow.class.getAnnotation(Popup.class);
+            settingsWindowName = I18n.text(cAction.name());
+        }
+        if (pluginManagerName == null) {
+            Popup cAction = pluginManager != null ? pluginManager.getClass().getAnnotation(Popup.class)
+                    : PluginManager.class.getAnnotation(Popup.class);
+            pluginManagerName = I18n.text(cAction.name());
+        }
+        
+        int elms = viewMenu.getItemCount();
+        if (elms == 0 || settingsWindowName.equals(menu.getText())) {
+            viewMenu.add(menu); // Add to last
+            return;
+        }
+        else if (pluginManagerName.equals(menu.getText())) {
+            // Add previous to Settings
+            if (elms == 0) {
+                viewMenu.add(menu);
+                return;
+            }
+            else {
+                JMenuItem lastMenu = viewMenu.getItem(elms - 1);
+                if (settingsWindowName.equals(lastMenu.getText()))
+                    viewMenu.add(menu, elms - 1);
+                else
+                    viewMenu.add(menu);
+                return;
+            }
+        } 
+
+        // If we got here at least one element we have in the menu
+        for (int i = elms - 1; i >= 0; i--) {
+            JMenuItem itemM = viewMenu.getItem(i);
+            if (settingsWindowName.equalsIgnoreCase(itemM.getText()) || pluginManagerName.equalsIgnoreCase(itemM.getText())) {
+                if (i == 0) {
+                    viewMenu.add(menu, 0);
+                    return;
+                }
+                continue;
+            }
+            else {
+                viewMenu.add(menu, i + 1);
+                return;
+            }
+        }
+    }
+    
     @Override
     public void componentResized(ComponentEvent e) {
         notificationsDialog.setVisible(false);
