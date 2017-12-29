@@ -1518,8 +1518,10 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         if (pluginManager != null)
             pluginManager.reset();
         
-        if (settingsWindow != null)
+        if (settingsWindow != null) {
+            settingsWindow.setIgnoreSubPanelChangedEvents(false);
             settingsWindow.reset();
+        }
     }
     
     /**
@@ -1588,8 +1590,11 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         
         if (pluginManager != null)
             pluginManager.reset();
-        if (settingsWindow != null)
+        if (settingsWindow != null) {
             settingsWindow.reset();
+            settingsWindow.setIgnoreSubPanelChangedEvents(true);
+        }
+
     }
 
     /**

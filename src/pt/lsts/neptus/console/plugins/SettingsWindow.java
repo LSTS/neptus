@@ -73,6 +73,8 @@ public class SettingsWindow extends ConsolePanel implements SubPanelChangeListen
     private FunctionalitiesSettings settingsPanel;
     private final Vector<PropertiesProvider> subPanels = new Vector<>();
     private JCheckBox checkLvl;
+    private boolean ignoreSubPanelChangedEvents = false;
+
 
     /**
      * Saves available plugins for later use in settings panel.
@@ -238,11 +240,28 @@ public class SettingsWindow extends ConsolePanel implements SubPanelChangeListen
         }
     }
 
+    /**
+     * @return the ignoreSubPanelChangedEvents
+     */
+    public boolean isIgnoreSubPanelChangedEvents() {
+        return ignoreSubPanelChangedEvents;
+    }
+    
+    /**
+     * @param ignoreSubPanelChangedEvents the ignoreSubPanelChangedEvents to set
+     */
+    public void setIgnoreSubPanelChangedEvents(boolean ignoreSubPanelChangedEvents) {
+        this.ignoreSubPanelChangedEvents = ignoreSubPanelChangedEvents;
+    }
+    
     /* (non-Javadoc)
      * @see pt.lsts.neptus.console.plugins.SubPanelChangeListener#subPanelChanged(pt.lsts.neptus.console.plugins.SubPanelChangeEvent)
      */
     @Override
     public void subPanelChanged(SubPanelChangeEvent panelChange) {
+        if (ignoreSubPanelChangedEvents)
+            return;
+        
         ConsolePanel panel = panelChange.getPanel();
         NeptusLog.pub().debug(">>>>>>>>>>>>>>   " + panelChange.getAction() + " > " + panel);
         switch (panelChange.getAction()) {
