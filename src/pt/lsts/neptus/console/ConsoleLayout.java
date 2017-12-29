@@ -1975,7 +1975,6 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         Collator collator = Collator.getInstance(Locale.US);
         for (int i = elms - 1; i >= 0; i--) {
             JMenuItem itemM = viewMenu.getItem(i);
-            String name = itemM.getText();
             if (settingsWindowName.equalsIgnoreCase(itemM.getText()) || pluginManagerName.equalsIgnoreCase(itemM.getText())) {
                 if (i == 0) {
                     viewMenu.add(menu, 0);
