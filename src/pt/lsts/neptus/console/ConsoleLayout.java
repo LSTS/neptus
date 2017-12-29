@@ -1972,8 +1972,10 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         } 
 
         // If we got here at least one element we have in the menu
+        Collator collator = Collator.getInstance(Locale.US);
         for (int i = elms - 1; i >= 0; i--) {
             JMenuItem itemM = viewMenu.getItem(i);
+            String name = itemM.getText();
             if (settingsWindowName.equalsIgnoreCase(itemM.getText()) || pluginManagerName.equalsIgnoreCase(itemM.getText())) {
                 if (i == 0) {
                     viewMenu.add(menu, 0);
@@ -1982,6 +1984,8 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
                 continue;
             }
             else {
+                if (collator.compare(menu.getText(), itemM.getText()) < 0)
+                    continue;
                 viewMenu.add(menu, i + 1);
                 return;
             }
