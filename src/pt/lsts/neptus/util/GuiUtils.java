@@ -1008,6 +1008,18 @@ public class GuiUtils {
                 KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, true), JComponent.WHEN_IN_FOCUSED_WINDOW);
     }
 
+    /**
+     * @param btn
+     * @param keyEvent 
+     */
+    public static void reactKeyPress(JButton btn, int keyEvent) {
+        btn.registerKeyboardAction(btn.getActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0, false)),
+                KeyStroke.getKeyStroke(keyEvent, 0, false), JComponent.WHEN_IN_FOCUSED_WINDOW);
+
+        btn.registerKeyboardAction(btn.getActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0, true)),
+                KeyStroke.getKeyStroke(keyEvent, 0, true), JComponent.WHEN_IN_FOCUSED_WINDOW);
+    }
+
     public static void printArray(Object[] array) {
         if (array == null)
             NeptusLog.pub().info("<###> "+array);
