@@ -32,6 +32,7 @@
  */
 package pt.lsts.neptus.util;
 
+import java.awt.Component;
 import java.awt.MouseInfo;
 import java.awt.Rectangle;
 import java.io.File;
@@ -59,6 +60,8 @@ import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.IConsoleInteraction;
 import pt.lsts.neptus.console.IConsoleLayer;
 import pt.lsts.neptus.console.plugins.planning.MapPanel;
+import pt.lsts.neptus.gui.InfiniteProgressPanel;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.loader.FileHandler;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
@@ -103,94 +106,105 @@ public class ConsoleParse implements FileHandler {
     }
 
     public static void parseElement(Element rootconsole, ConsoleLayout console, String consoleUrl) {
-        List<?> list = rootconsole.selectNodes("@*");
-        for (Iterator<?> iter = list.iterator(); iter.hasNext();) {
-            Attribute attribute = (Attribute) iter.next();
+        InfiniteProgressPanel progressPanel = InfiniteProgressPanel.createInfinitePanelBeans(I18n.text("Loading"));
+        Component gPane = console.getGlassPane();
+        console.setGlassPane(progressPanel);
+        try {
+            List<?> list = rootconsole.selectNodes("@*");
+            for (Iterator<?> iter = list.iterator(); iter.hasNext();) {
+                Attribute attribute = (Attribute) iter.next();
 
-            if ("name".equals(attribute.getName())) {
-                console.setName(attribute.getValue());
-            }
+                if ("name".equals(attribute.getName())) {
+                    console.setName(attribute.getValue());
+                }
 
-            if ("mission-file".equals(attribute.getName())) {
-                String missionFile = null;
-                if ((consoleUrl != null) || (!"".equalsIgnoreCase(consoleUrl)))
-                    missionFile = ConfigFetch.resolvePathWithParent(consoleUrl, attribute.getText());
-                else
-                    missionFile = attribute.getText();
+                if ("mission-file".equals(attribute.getName())) {
+                    String missionFile = null;
+                    if ((consoleUrl != null) || (!"".equalsIgnoreCase(consoleUrl)))
+                        missionFile = ConfigFetch.resolvePathWithParent(consoleUrl, attribute.getText());
+                    else
+                        missionFile = attribute.getText();
 
-                if (!new File(missionFile).canRead())
-                    GuiUtils.errorMessage(ConfigFetch.getSuperParentFrame(), "Console loading",
-                            "Error setting main mission: File not found");
-                else
-                    console.setMission(new MissionType(missionFile));
-            }
-            if ("main-vehicle".equals(attribute.getName())) {
-                console.addSystem(attribute.getValue());
-                console.setMainSystem(attribute.getValue());
-            }
+                    if (!new File(missionFile).canRead())
+                        GuiUtils.errorMessage(ConfigFetch.getSuperParentFrame(), "Console loading",
+                                "Error setting main mission: File not found");
+                    else
+                        console.setMission(new MissionType(missionFile));
+                }
+                if ("main-vehicle".equals(attribute.getName())) {
+                    console.addSystem(attribute.getValue());
+                    console.setMainSystem(attribute.getValue());
+                }
 
-            if ("width".equals(attribute.getName())) {
-                console.setSize(Integer.parseInt(attribute.getValue()), console.getHeight());
-                console.repaint();
-            }
-            if ("height".equals(attribute.getName())) {
-                console.setSize(console.getWidth(), Integer.parseInt(attribute.getValue()));
-                console.repaint();
-            }
-            if ("resizable".equals(attribute.getName())) {
-                boolean resizable = attribute.getValue().equals("true");
-
-                if (resizable) {
-                    console.setResizableConsole(true);
-                    console.setResizable(true);
+                if ("width".equals(attribute.getName())) {
+                    console.setSize(Integer.parseInt(attribute.getValue()), console.getHeight());
                     console.repaint();
                 }
-                else {
-                    console.setResizableConsole(false);
-                    console.setResizable(false);
+                if ("height".equals(attribute.getName())) {
+                    console.setSize(console.getWidth(), Integer.parseInt(attribute.getValue()));
+                    console.repaint();
                 }
-            }
-        }
-        list = rootconsole.selectNodes("/" + ConsoleLayout.DEFAULT_ROOT_ELEMENT + "/*");
-        List<IConsoleLayer> layers = new ArrayList<>();
-        List<IConsoleInteraction> interactions = new ArrayList<>();
-        
-        for (Iterator<?> i = list.iterator(); i.hasNext();) {
-            Element element = (Element) i.next();
-            
-            if ("mainpanel".equals(element.getName())) {
-                Attribute attribute = (Attribute) element.selectSingleNode("@name");
-                if ("console main panel".equals(attribute.getValue())) {
-                    parseConsoleMainPanel(element, console);
-                }
-            }
-            else if ("layers".equals(element.getName())) {
-                layers = parseConsoleLayers(element, console);
-            }
-            else if ("interactions".equals(element.getName())) {
-                interactions = parseConsoleInteractions(element, console);
-            }
-                
-        }
+                if ("resizable".equals(attribute.getName())) {
+                    boolean resizable = attribute.getValue().equals("true");
 
-        console.initSubPanels();
-        
-        // Add map layers and interactions
-        Vector<MapPanel> maps = console.getSubPanelsOfClass(MapPanel.class);
-        if (maps.isEmpty() && !layers.isEmpty()) {
-            NeptusLog.pub().error("Cannot add "+layers.size()+" layers because there is no MapPanel");            
-        }
-        if (maps.isEmpty() && !interactions.isEmpty()) {
-            NeptusLog.pub().error("Cannot add "+interactions.size()+" interactions because there is no MapPanel");            
-        }
-        else {
-            for (IConsoleLayer layer : layers) {
-                console.addMapLayer(layer);
+                    if (resizable) {
+                        console.setResizableConsole(true);
+                        console.setResizable(true);
+                        console.repaint();
+                    }
+                    else {
+                        console.setResizableConsole(false);
+                        console.setResizable(false);
+                    }
+                }
             }
+            list = rootconsole.selectNodes("/" + ConsoleLayout.DEFAULT_ROOT_ELEMENT + "/*");
+            List<IConsoleLayer> layers = new ArrayList<>();
+            List<IConsoleInteraction> interactions = new ArrayList<>();
             
-            for (IConsoleInteraction inter : interactions) {
-                console.addInteraction(inter);
+            for (Iterator<?> i = list.iterator(); i.hasNext();) {
+                Element element = (Element) i.next();
+                
+                if ("mainpanel".equals(element.getName())) {
+                    Attribute attribute = (Attribute) element.selectSingleNode("@name");
+                    if ("console main panel".equals(attribute.getValue())) {
+                        parseConsoleMainPanel(element, console);
+                    }
+                }
+                else if ("layers".equals(element.getName())) {
+                    layers = parseConsoleLayers(element, console);
+                }
+                else if ("interactions".equals(element.getName())) {
+                    interactions = parseConsoleInteractions(element, console);
+                }
+                    
             }
+
+            console.initSubPanels();
+            
+            // Add map layers and interactions
+            Vector<MapPanel> maps = console.getSubPanelsOfClass(MapPanel.class);
+            if (maps.isEmpty() && !layers.isEmpty()) {
+                NeptusLog.pub().error("Cannot add "+layers.size()+" layers because there is no MapPanel");            
+            }
+            if (maps.isEmpty() && !interactions.isEmpty()) {
+                NeptusLog.pub().error("Cannot add "+interactions.size()+" interactions because there is no MapPanel");            
+            }
+            else {
+                for (IConsoleLayer layer : layers) {
+                    console.addMapLayer(layer);
+                }
+                
+                for (IConsoleInteraction inter : interactions) {
+                    console.addInteraction(inter);
+                }
+            }
+        }
+        catch (Exception e) {
+            NeptusLog.pub().warn(e.getMessage());
+        }
+        finally {
+            console.setGlassPane(gPane);
         }
     }
 
