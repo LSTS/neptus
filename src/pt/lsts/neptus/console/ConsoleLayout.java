@@ -698,6 +698,29 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         return null;
     }
 
+    private void cleanEmptyJMenusOnMenuBar() {
+        for (Component comp : menuBar.getComponents()) {
+            if (!(comp instanceof JMenu))
+                continue;
+
+            JMenu menu = (JMenu) comp;
+            cleanEmptyJMenusOnMenuBarWorker(menu);
+        }
+    }
+
+    private void cleanEmptyJMenusOnMenuBarWorker(JMenu menu) {
+        if (menu.getMenuComponentCount() == 0) {
+            menu.getParent().remove(menu);
+        }
+        else {
+            for (Component comp1 : menu.getMenuComponents()) {
+                if (!(comp1 instanceof JMenu))
+                    continue;
+                else
+                    cleanEmptyJMenusOnMenuBarWorker((JMenu) comp1);
+            }
+        }
+    }
 
     protected JMenu includeHelpMenu() {
         JMenu helpMenu = new JMenu();
@@ -1498,6 +1521,8 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
             settingsWindow.setIgnoreSubPanelChangedEvents(false);
             settingsWindow.reset();
         }
+        
+        cleanEmptyJMenusOnMenuBar();
     }
     
     /**
