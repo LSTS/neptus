@@ -1,7 +1,6 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR 2004-2016 FEUP-LSTS
+# Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
 # This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# lsts <lsts@fe.up.pt>.
 #
 #, fuzzy
 msgid ""
