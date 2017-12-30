@@ -1819,6 +1819,12 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     }
 
     public JMenu removeMenuItem(String... menuPath) {
+        // To account for the add option of separating menus by '>'
+        if (menuPath.length == 1 && menuPath[0].contains(">")) {
+            String[] tks = menuPath[0].split(">");
+            menuPath = tks;
+        }
+        
         JMenu parent = null;
         for (int i = 0; i < this.menuBar.getMenuCount(); i++) {
             JMenu menu = getConsole().getJMenuBar().getMenu(i);
