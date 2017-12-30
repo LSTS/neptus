@@ -306,12 +306,9 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
             }
         }
         // Build menu
-        JMenu menu = getConsole().getOrCreateJMenu(new String[] { I18n.text("View") });
         ImageIcon icon = ImageUtils.getIcon(iconPath);
         menuItem = createMenuItem(popupPosition, name2, icon);
-//        if (accelerator != null)
-//            menuItem.setAccelerator(accelerator);
-        menu.add(menuItem);
+        getConsole().addJMenuIntoViewMenu(menuItem);
 
         // Build Dialog
         dialog = new JDialog(getConsole());
