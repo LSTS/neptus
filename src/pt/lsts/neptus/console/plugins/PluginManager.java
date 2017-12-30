@@ -58,9 +58,12 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 
 import org.apache.commons.lang3.text.WordUtils;
+import org.jdesktop.swingx.JXBusyLabel;
 
 import com.sun.java.swing.plaf.windows.WindowsButtonUI;
 
@@ -75,6 +78,7 @@ import pt.lsts.neptus.console.ContainerSubPanel;
 import pt.lsts.neptus.console.IConsoleInteraction;
 import pt.lsts.neptus.console.IConsoleLayer;
 import pt.lsts.neptus.console.plugins.SubPanelChangeEvent.SubPanelChangeAction;
+import pt.lsts.neptus.gui.InfiniteProgressPanel;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.PropertiesProvider;
 import pt.lsts.neptus.i18n.I18n;
@@ -112,6 +116,7 @@ public class PluginManager extends ConsolePanel {
     private JButton btnRemove;
     private JButton btnSettings;
     private JButton btnExit;
+    private JXBusyLabel progress;
 
     private KeyListener keyboardListener;
     
@@ -171,6 +176,7 @@ public class PluginManager extends ConsolePanel {
         // list
         JScrollPane listScroll = new JScrollPane();
         availablePluginsList = new JList<String>();
+        availablePluginsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         availablePluginsList.setListData(this.getAvailablePlugins());
 
         listScroll.setViewportView(availablePluginsList);
@@ -192,10 +198,14 @@ public class PluginManager extends ConsolePanel {
         // list
         JScrollPane activePluginsScrollPane = new JScrollPane();
         activePluginsList = new JList<String>();
+        activePluginsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         activePluginsScrollPane.setViewportView(activePluginsList);
         activePluginsPanel.add(activePluginsScrollPane, "h 93%, w 100%, span");
         
         btnExit = new JButton();
+        progress =  InfiniteProgressPanel.createBusyAnimationInfiniteBeans(20);
+        progress.setVisible(false);
+        okPanel.add(progress, "");
         okPanel.add(btnExit, "w 80px::");
 
         // Key bindings
@@ -222,68 +232,92 @@ public class PluginManager extends ConsolePanel {
                 if (availableSelected == null)
                     return;
                 
-                Class<?> clazz = plugins.get(availableSelected);
-                if (clazz == null) {
-                    NeptusLog.pub().error("Plugin \"" + activeSelected
-                            + "\" is not properly loaded as plugin!");
-                    return;
-                }
+                progress.setBusy(true);
+                progress.setVisible(true);
+                enableButtons(false);
+                
+                SwingWorker<Void, Void> sw = new SwingWorker<Void, Void>() {
+                    @Override
+                    protected Void doInBackground() throws Exception {
+                        Class<?> clazz = plugins.get(availableSelected);
+                        if (clazz == null) {
+                            NeptusLog.pub().error("Plugin \"" + activeSelected
+                                    + "\" is not properly loaded as plugin!");
+                            return null;
+                        }
 
-                if (container == null && ContainerSubPanel.class.isAssignableFrom(clazz)) {
-                    ConsolePanel sp = PluginsRepository.getPanelPlugin(availableSelected, getConsole());
-                    if (sp != null) {
-                        getConsole().getMainPanel().addSubPanel(sp);
-                        container = (ContainerSubPanel) sp;
-                        sp.init();
-                        getConsole().informSubPanelListener(sp, SubPanelChangeAction.ADDED);
-                        refreshActivePlugins();
-                        warnSettingsWindowAdd(sp);
-                        getConsole().setConsoleChanged(true);
+                        if (container == null && ContainerSubPanel.class.isAssignableFrom(clazz)) {
+                            ConsolePanel sp = PluginsRepository.getPanelPlugin(availableSelected, getConsole());
+                            if (sp != null) {
+                                getConsole().getMainPanel().addSubPanel(sp);
+                                container = (ContainerSubPanel) sp;
+                                sp.init();
+                                getConsole().informSubPanelListener(sp, SubPanelChangeAction.ADDED);
+                                refreshActivePlugins();
+                                warnSettingsWindowAdd(sp);
+                                getConsole().setConsoleChanged(true);
+                            }
+                            
+                            return null;
+                        }
+
+                        if (container != null && ContainerSubPanel.class.isAssignableFrom(clazz)) {
+                            return null;
+                        }
+                        
+                        if (ConsolePanel.class.isAssignableFrom(clazz)) {
+                            if (container != null) {
+                                ConsolePanel sp = PluginsRepository.getPanelPlugin(availableSelected, getConsole());
+                                container.addSubPanel(sp);
+                                sp.init();
+                                getConsole().informSubPanelListener(sp, SubPanelChangeAction.ADDED);
+                                refreshActivePlugins();
+                                warnSettingsWindowAdd(sp);
+                                NeptusLog.pub().warn(
+                                        "Added new console panel: " + sp.getName() + " Class name : "
+                                                + sp.getClass().getCanonicalName());
+                                getConsole().setConsoleChanged(true);
+                            }
+                        }
+
+                        if (ConsoleLayer.class.isAssignableFrom(clazz)) {
+                            ConsoleLayer sp = PluginsRepository.getConsoleLayer(availableSelected);
+                            getConsole().addMapLayer(sp);
+                            refreshActivePlugins();
+                            warnSettingsWindowAdd(sp);
+                            NeptusLog.pub().warn(
+                                    "Added new console layer: " + sp.getName() + " Class name : "
+                                            + sp.getClass().getCanonicalName());
+                            getConsole().setConsoleChanged(true);
+                        }
+
+                        if (ConsoleInteraction.class.isAssignableFrom(clazz)) {
+                            ConsoleInteraction sp = PluginsRepository.getConsoleInteraction(availableSelected);
+                            getConsole().addInteraction(sp);
+                            refreshActivePlugins();
+                            warnSettingsWindowAdd(sp);
+                            NeptusLog.pub().warn(
+                                    "Added new console interaction: " + sp.getName() + " Class name : "
+                                            + sp.getClass().getCanonicalName());
+                            getConsole().setConsoleChanged(true);
+                        }
+                        return null;
                     }
                     
-                    return;
-                }
-
-                if (container != null && ContainerSubPanel.class.isAssignableFrom(clazz)) {
-                    return;
-                }
-                
-                if (ConsolePanel.class.isAssignableFrom(clazz)) {
-                    if (container != null) {
-                        ConsolePanel sp = PluginsRepository.getPanelPlugin(availableSelected, getConsole());
-                        container.addSubPanel(sp);
-                        sp.init();
-                        getConsole().informSubPanelListener(sp, SubPanelChangeAction.ADDED);
-                        refreshActivePlugins();
-                        warnSettingsWindowAdd(sp);
-                        NeptusLog.pub().warn(
-                                "Added new console panel: " + sp.getName() + " Class name : "
-                                        + sp.getClass().getCanonicalName());
-                        getConsole().setConsoleChanged(true);
+                    @Override
+                    protected void done() {
+                        try {
+                            get();
+                        }
+                        catch (Exception e) {
+                            NeptusLog.pub().warn(e.getMessage());;
+                        }
+                        progress.setBusy(false);
+                        progress.setVisible(false);
+                        enableButtons(true);
                     }
-                }
-
-                if (ConsoleLayer.class.isAssignableFrom(clazz)) {
-                    ConsoleLayer sp = PluginsRepository.getConsoleLayer(availableSelected);
-                    getConsole().addMapLayer(sp);
-                    refreshActivePlugins();
-                    warnSettingsWindowAdd(sp);
-                    NeptusLog.pub().warn(
-                            "Added new console layer: " + sp.getName() + " Class name : "
-                                    + sp.getClass().getCanonicalName());
-                    getConsole().setConsoleChanged(true);
-                }
-
-                if (ConsoleInteraction.class.isAssignableFrom(clazz)) {
-                    ConsoleInteraction sp = PluginsRepository.getConsoleInteraction(availableSelected);
-                    getConsole().addInteraction(sp);
-                    refreshActivePlugins();
-                    warnSettingsWindowAdd(sp);
-                    NeptusLog.pub().warn(
-                            "Added new console interaction: " + sp.getName() + " Class name : "
-                                    + sp.getClass().getCanonicalName());
-                    getConsole().setConsoleChanged(true);
-                }
+                };
+                sw.execute();;
             }
         });
 
@@ -296,57 +330,81 @@ public class PluginManager extends ConsolePanel {
                 if (activeSelected == null)
                     return;
 
-                String activeSelectedFixed = activeSelected.replaceAll("_\\d*$", "");
-                Class<?> clazz = plugins.get(activeSelectedFixed);
-                if (clazz == null) {
-                    NeptusLog.pub().error("Plugin \"" + activeSelectedFixed
-                            + "\" is not properly loaded as plugin!");
-                    return;
-                }
+                progress.setBusy(true);
+                progress.setVisible(true);
+                enableButtons(false);
                 
-                if (ConsolePanel.class.isAssignableFrom(clazz)) {
-                    ConsolePanel sp = (ConsolePanel) pluginsMap.get(activeSelected);
-                    if (container != null && container.getSubPanelsCount() == 0 
-                            &&  sp == container) {
-                        getConsole().getMainPanel().removeSubPanel(container);
-                        container = null;
+                SwingWorker<Void, Void> sw = new SwingWorker<Void, Void>() {
+                    @Override
+                    protected Void doInBackground() throws Exception {
+                        String activeSelectedFixed = activeSelected.replaceAll("_\\d*$", "");
+                        Class<?> clazz = plugins.get(activeSelectedFixed);
+                        if (clazz == null) {
+                            NeptusLog.pub().error("Plugin \"" + activeSelectedFixed
+                                    + "\" is not properly loaded as plugin!");
+                            return null;
+                        }
+                        
+                        if (ConsolePanel.class.isAssignableFrom(clazz)) {
+                            ConsolePanel sp = (ConsolePanel) pluginsMap.get(activeSelected);
+                            if (container != null && container.getSubPanelsCount() == 0 
+                                    &&  sp == container) {
+                                getConsole().getMainPanel().removeSubPanel(container);
+                                container = null;
+                            }
+                            else {
+                                if (container != null)
+                                    container.removeSubPanel(activeSelected);
+                                else // Try to remove from console
+                                    getConsole().removeSubPanel(sp);
+                            }
+                            getConsole().informSubPanelListener(sp, SubPanelChangeAction.REMOVED);
+                            refreshActivePlugins();
+                            warnSettingsWindowRemove(sp);
+                            NeptusLog.pub().warn(
+                                    "Removed console panel: " + sp.getName() + " Class name : "
+                                            + sp.getClass().getCanonicalName());
+                            getConsole().setConsoleChanged(true);
+                        }
+
+                        if (ConsoleLayer.class.isAssignableFrom(clazz)) {
+                            ConsoleLayer sp = (ConsoleLayer) pluginsMap.get(activeSelected);
+                            getConsole().removeMapLayer(sp);
+                            refreshActivePlugins();
+                            warnSettingsWindowRemove(sp);
+                            NeptusLog.pub().warn(
+                                    "Removed layer: " + sp.getName() + " Class name : " + sp.getClass().getCanonicalName());
+                            getConsole().setConsoleChanged(true);
+                        }
+
+                        if (ConsoleInteraction.class.isAssignableFrom(clazz)) {
+                            ConsoleInteraction sp = (ConsoleInteraction) pluginsMap.get(activeSelected);
+                            getConsole().removeInteraction(sp);
+                            refreshActivePlugins();
+                            warnSettingsWindowRemove(sp);
+                            NeptusLog.pub().warn(
+                                    "Removed console interaction: " + sp.getName() + " Class name : "
+                                            + sp.getClass().getCanonicalName());
+                            getConsole().setConsoleChanged(true);
+                        }
+
+                        return null;
                     }
-                    else {
-                        if (container != null)
-                            container.removeSubPanel(activeSelected);
-                        else // Try to remove from console
-                            getConsole().removeSubPanel(sp);
+                    
+                    @Override
+                    protected void done() {
+                        try {
+                            get();
+                        }
+                        catch (Exception e) {
+                            NeptusLog.pub().warn(e.getMessage());;
+                        }
+                        progress.setBusy(false);
+                        progress.setVisible(false);
+                        enableButtons(true);
                     }
-                    getConsole().informSubPanelListener(sp, SubPanelChangeAction.REMOVED);
-                    refreshActivePlugins();
-                    warnSettingsWindowRemove(sp);
-                    NeptusLog.pub().warn(
-                            "Removed console panel: " + sp.getName() + " Class name : "
-                                    + sp.getClass().getCanonicalName());
-                    getConsole().setConsoleChanged(true);
-                }
-
-                if (ConsoleLayer.class.isAssignableFrom(clazz)) {
-                    ConsoleLayer sp = (ConsoleLayer) pluginsMap.get(activeSelected);
-                    getConsole().removeMapLayer(sp);
-                    refreshActivePlugins();
-                    warnSettingsWindowRemove(sp);
-                    NeptusLog.pub().warn(
-                            "Removed layer: " + sp.getName() + " Class name : " + sp.getClass().getCanonicalName());
-                    getConsole().setConsoleChanged(true);
-                }
-
-                if (ConsoleInteraction.class.isAssignableFrom(clazz)) {
-                    ConsoleInteraction sp = (ConsoleInteraction) pluginsMap.get(activeSelected);
-                    getConsole().removeInteraction(sp);
-                    refreshActivePlugins();
-                    warnSettingsWindowRemove(sp);
-                    NeptusLog.pub().warn(
-                            "Removed console interaction: " + sp.getName() + " Class name : "
-                                    + sp.getClass().getCanonicalName());
-                    getConsole().setConsoleChanged(true);
-                }
-
+                };
+                sw.execute();;
             }
         });
         btnRemove.getAction().putValue(Action.SHORT_DESCRIPTION, I18n.text("Remove selected plugin"));
@@ -378,6 +436,12 @@ public class PluginManager extends ConsolePanel {
             }
         });
 
+    }
+
+    private void enableButtons(boolean b) {
+        btnAdd.setEnabled(b);
+        btnRemove.setEnabled(b);
+        btnSettings.setEnabled(b);
     }
 
     private void createListeners() {
