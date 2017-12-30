@@ -328,6 +328,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
             manager.setSettingsWindow(settings);
         instance.settingsWindow = settings;
 
+        // @Deprecated
         if (!editable)
             instance.removeJMenuAction(LayoutEditConsoleAction.class);
 
@@ -510,6 +511,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
      * 
      * @param mode boolean to set editing off or on
      */
+    @Deprecated
     public void setModeEdit(boolean mode) {
         if (mode) {
             if (consolePluginSelector == null) {
@@ -634,9 +636,10 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
 
         advanced.addSeparator();
 
-        LayoutEditConsoleAction layoutEdit = new LayoutEditConsoleAction(this);
-        actions.put(LayoutEditConsoleAction.class, layoutEdit);
-        advanced.add(layoutEdit);
+        // @Deprecated
+        // LayoutEditConsoleAction layoutEdit = new LayoutEditConsoleAction(this);
+        // actions.put(LayoutEditConsoleAction.class, layoutEdit);
+        // advanced.add(layoutEdit);
 
         advanced.add(new SetMainVehicleConsoleAction(this));
 

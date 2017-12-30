@@ -46,6 +46,7 @@ import pt.lsts.neptus.i18n.I18n;
  * 
  */
 @SuppressWarnings("serial")
+@Deprecated
 public class LayoutEditConsoleAction extends ConsoleAction {
     protected ConsoleLayout console;
     protected boolean enable = false;
