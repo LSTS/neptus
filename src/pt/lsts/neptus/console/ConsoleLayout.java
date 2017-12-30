@@ -698,33 +698,6 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         return null;
     }
 
-    // public void addSettingsWindowtiMenuBar() {
-    // Vector<SubPanel> pluginSubPanels = getSubPanelsOfClass(SubPanel.class);
-    // SettingsWindow settingsWindow = new SettingsWindow(pluginSubPanels, true);
-    // if (settingsWindow.existsSettingsToShow()) {
-    //
-    // }
-    //
-    // final String settings = "@Settings";
-    // MenuElement[] menuElements = menuBar.getSubElements();
-    // for (int i = 0; i < menuElements.length; i++) {
-    // JMenu menuElement = (JMenu) menuElements[i];
-    // String text = menuElement.getText();
-    // if (text.equals(settings)) {
-    // menuElement.add(new AbstractAction(I18n.text("All Settings"), ICON_SETTINGS) {
-    // private static final long serialVersionUID = 9145507092153218703L;
-    //
-    // @Override
-    // public void actionPerformed(ActionEvent e) {
-    // Vector<SubPanel> pluginSubPanels = getSubPanelsOfClass(SubPanel.class);
-    // SettingsWindow settingsWindow = new SettingsWindow(pluginSubPanels, mainPanel.isEditFlag());
-    // settingsWindow.showWindow();
-    // }
-    // });
-    //
-    // }
-    // }
-    // }
 
     protected JMenu includeHelpMenu() {
         JMenu helpMenu = new JMenu();
