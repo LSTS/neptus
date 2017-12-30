@@ -198,14 +198,18 @@ public class PluginManager extends ConsolePanel {
         btnExit = new JButton();
         okPanel.add(btnExit, "w 80px::");
 
-        GuiUtils.reactEscapeKeyPress(btnExit);
-        GuiUtils.reactKeyPress(btnAdd, KeyEvent.VK_A);
+        // Key bindings
         GuiUtils.reactKeyPress(btnAdd, KeyEvent.VK_ADD);
         GuiUtils.reactKeyPress(btnAdd, KeyEvent.VK_PLUS);
-        GuiUtils.reactKeyPress(btnRemove, KeyEvent.VK_R);
+
         GuiUtils.reactKeyPress(btnRemove, KeyEvent.VK_SUBTRACT);
         GuiUtils.reactKeyPress(btnRemove, KeyEvent.VK_MINUS);
-        GuiUtils.reactKeyPress(btnSettings, KeyEvent.VK_S);
+        
+        GuiUtils.reactKeyPress(btnSettings, KeyEvent.VK_PERIOD);
+        GuiUtils.reactKeyPress(btnSettings, KeyEvent.VK_MULTIPLY);
+        GuiUtils.reactKeyPress(btnSettings, KeyEvent.VK_ASTERISK);
+        
+        GuiUtils.reactEscapeKeyPress(btnExit);
     }
 
     private void createActions() {
