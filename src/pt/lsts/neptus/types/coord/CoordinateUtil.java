@@ -414,7 +414,7 @@ public class CoordinateUtil {
         if (!dmonly)
             s = dms[2];
 
-        if ((d < 0 || "-0.0".equalsIgnoreCase("" + d)) && (d + m + s != 0)) {
+        if ((d < 0 || "-0.0".equalsIgnoreCase("" + d)) && (Math.abs(d) + Math.abs(m) + Math.abs(s) != 0)) {
             l = "S";
             if (!isLat)
                 l = "W";
@@ -1982,5 +1982,9 @@ public class CoordinateUtil {
 //        longitudeAsPrettyString(double longitude, boolean showSeconds)
 //        longitudeAsString(longitude, !showSeconds, showSeconds ? 6 : 8)
 
+
+        NeptusLog.pub().info("-------------------------------------------------------");
+        String lonMTestStr = dmsToLatLonString(new double[] { -9, 9, 0 }, false, 3);
+        NeptusLog.pub().info(lonMTestStr + " == 9W9'0.000''  " + ("9W9'0.000''".equalsIgnoreCase(lonMTestStr)));
     }
 }
