@@ -680,88 +680,6 @@ public class CoordinateUtil {
         return latLonFrom83PFormatWorker(lonStr);
     }
 
-    
-//    /**
-//     * Converts a latitude string to double usage (string format to pass to the method): gg[N/S]mm.mmmm
-//     * 
-//     * @deprecated
-//     */
-//    private static double strtolat(String string) {
-//        // double multiplier = 1;
-//        String str = string.toUpperCase();
-//        double lat = 0;
-//        int index;
-//        if (str.indexOf('S') == -1)
-//            index = str.indexOf('N');
-//        else
-//            index = str.indexOf('S');
-//        lat = new Double(str.substring(0, index)).doubleValue();
-//        lat += new Double(str.substring(index + 1)).doubleValue() / 60;
-//        if (str.indexOf('N') == -1)
-//            lat = -lat;
-//        while (lat > 90)
-//            lat -= 180;
-//        while (lat < -90)
-//            lat += 180.0;
-//        return lat;
-//    }
-
-//    /**
-//     * Converts a latitude string to double usage (string format to pass to the method): gg[N/S]mm.mmmm
-//     * 
-//     * @deprecated
-//     */
-//    private static double strtolon(String string) {
-//        // double multiplier = 1;
-//        String str = string.toUpperCase();
-//        double lon = 0;
-//        int index;
-//        str.toLowerCase();
-//        if (str.indexOf('W') == -1)
-//            index = str.indexOf('E');
-//        else
-//            index = str.indexOf('W');
-//        lon = new Double(str.substring(0, index)).doubleValue();
-//        lon += new Double(str.substring(index + 1)).doubleValue() / 60;
-//        if (str.indexOf('E') == -1)
-//            lon = -lon;
-//
-//        while (lon > 180)
-//            lon -= 360;
-//        while (lon < -180)
-//            lon += 360;
-//        return lon;
-//    }
-
-//    private static double[] LatLonOffset(double latitude, double longitude, double eastOffset, double northOffset) {
-//        LocationType lt1 = new LocationType();
-//        LocationType lt2 = new LocationType();
-//
-//        lt1.setLatitude(latitude);
-//        lt1.setLongitude(longitude);
-//
-//        lt2.setLatitude(latitude + 1.0);
-//        lt2.setLongitude(longitude);
-//
-//        double metersPerLatitudeDegree = lt2.getDistanceInMeters(lt1);
-//        // System.err.println("LT1: "+lt1.getDebugString());
-//        // System.err.println("LT2: "+lt2.getDebugString());
-//
-//        // System.err.println("metersPerLatitudeDegree ="+metersPerLatitudeDegree);
-//        lt2 = new LocationType();
-//        lt2.setLatitude(latitude);
-//        lt2.setLongitude(longitude + 1);
-//
-//        double metersPerLongitudeDegree = lt2.getDistanceInMeters(lt1);
-//        // NeptusLog.pub().info("metersPerLongitudeDegree="+metersPerLongitudeDegree);
-//        double lat = latitude + northOffset / metersPerLatitudeDegree;
-//        double lon = longitude + eastOffset / metersPerLongitudeDegree;
-//
-//        // NeptusLog.pub().info("Result: "+lat+", "+lon);
-//
-//        return new double[] { lat, lon };
-//    }
-
     /**
      * Add an offset in meters(north, east) to a (lat,lon) in decimal degrees
      */
@@ -770,95 +688,7 @@ public class CoordinateUtil {
         loc.setLatitudeDegs(lat);
         loc.setLongitudeDegs(lon);
         return WGS84displace(lat, lon, 0, north, east, 0);
-        
-//        final double meterToFeet = 3.2808399;
-//
-//        if (north == 0 && east == 0)
-//            return new double[] {lat, lon};
-//        
-//        GISCoordinate coord = new GISCoordinate(lat, lon, false);
-//        try {
-//            double angRad = Math.atan2(east, north);
-//            double dist = Math.sqrt(north * north + east * east);
-//
-//            coord.move(dist * meterToFeet, Math.toDegrees(angRad), GISCoordinate.WGS84);
-//
-//            double rest[] = CoordinateUtil.latLonDiff(lat, lon, coord.getLatInDecDeg(), coord.getLonInDecDeg());
-//            rest[0] = 0;
-//            rest[1] = -rest[1] + east;
-//            angRad = Math.atan2(rest[1], rest[0]);
-//            dist = Math.sqrt(rest[0] * rest[0] + rest[1] * rest[1]);
-//            coord.move(dist * meterToFeet, Math.toDegrees(angRad), GISCoordinate.WGS84);
-//
-//            rest = CoordinateUtil.latLonDiff(lat, lon, coord.getLatInDecDeg(), coord.getLonInDecDeg());
-//            rest[0] = -rest[0] + north;
-//            rest[1] = 0;
-//            angRad = Math.atan2(rest[1], rest[0]);
-//            dist = Math.sqrt(rest[0] * rest[0] + rest[1] * rest[1]);
-//            coord.move(dist * meterToFeet, Math.toDegrees(angRad), GISCoordinate.WGS84);
-//        }
-//        catch (Exception e) {
-//            NeptusLog.pub().error("latLonAddNE()", e);
-//        }
-//
-//        return new double[] { coord.getLatInDecDeg(), coord.getLonInDecDeg() };
     }
-
-//    /**
-//     * Add an offset in meters(north, east) to a (lat,lon) in decimal degrees
-//     * 
-//     * @deprecated
-//     */
-//    private static double[] latLonAddNE(double lat, double lon, double north, double east) {
-//        /*
-//         * //double newOffset[] = normalizeOffsetToLocation(new double[] {north, east, 0}, new double[] {lat, lon, 0}); double absXYZ[] =
-//         * latLonDepthToGeocentricXYZ(lat, lon, 0); absXYZ[0] += north; absXYZ[1] += east; //absXYZ[2] += newOffset[2]; // Só para ficar bonito :P
-//         * 
-//         * return geocentricXYZToLatLonDepth(absXYZ);
-//         */
-//
-//        double lat_rad = lat * Math.PI / 180;
-//        lat += north / (111132.92 - 559.82 * Math.cos(2 * lat_rad) + 1.175 * Math.cos(4 * lat_rad));
-//        lon += east / (111412.84 * Math.cos(lat_rad) - 93.5 * Math.cos(3 * lat_rad));
-//
-//        while (lon > 180)
-//            lon -= 360;
-//        while (lon < -180)
-//            lon += 360;
-//        while (lat > 90)
-//            lat -= 180;
-//        while (lat < -90)
-//            lat += 180.0;
-//
-//        double[] latLon = new double[2];
-//        latLon[0] = lat;
-//        latLon[1] = lon;
-//        return latLon;
-//
-//    }
-
-//    /**
-//     * Computes the offset (north, east) in meters from (lat, lon) to (alat, alon) [both of these in decimal degrees].<br>
-//     * Subtract the two latlons and come up with the distance in meters N/S and E/W between them.
-//     * 
-//     * @deprecated
-//     */
-//    private static double[] latLonDiff_(double lat, double lon, double alat, double alon) {
-//        /*
-//         * double abs1[] = latLonDepthToGeocentricXYZ(lat, lon, 0); double abs2[] = latLonDepthToGeocentricXYZ(alat, alon, 0);
-//         * 
-//         * return new double[] {abs1[0]-abs2[0], abs1[1]-abs2[1], 0};
-//         */
-//
-//        double lat_rad = lat * Math.PI / 180;
-//        double n = (alat - lat) * (111132.92 - 559.82 * Math.cos(2 * lat_rad) + 1.175 * Math.cos(4 * lat_rad));
-//        double e = (alon - lon) * (111412.84 * Math.cos(lat_rad) - 93.5 * Math.cos(3 * lat_rad));
-//        // NeptusLog.pub().info("n/e: " + n + " ;" + e);
-//        double[] NE = new double[2];
-//        NE[0] = n;
-//        NE[1] = e;
-//        return NE;
-//    }
 
     /**
      * Computes the offset (north, east) in meters from (lat, lon) to (alat, alon) [both of these in decimal degrees].<br>
@@ -868,45 +698,7 @@ public class CoordinateUtil {
         
         double[] ret = WGS84displacement(lat, lon, 0, alat, alon, 0);
         return new double[] { ret[0], ret[1] };
-
-//        if (lat == alat && lon == alon)
-//            return new double[] { 0, 0 };
-//
-//        UTMCoordinates coords1 = new UTMCoordinates(lat, lon);
-//        UTMCoordinates coords2 = new UTMCoordinates(alat, alon);
-//
-//        double diff[] = new double[2];
-//
-//        diff[0] = coords2.getNorthing() - coords1.getNorthing();
-//        diff[1] = coords2.getEasting() - coords1.getEasting();
-//        return diff;
     }
-
-//    /**
-//     * Transforms a spherical location to the respective cartesian one.
-//     * 
-//     * @param coord Is expeted to be in the form of: Examples: Input-> "41N3.6117" "8W27.4009" 10 Output: (0,0,10) "N41 36' 3.333''", "41N36 3.333",
-//     *            "N41 36' 3,333''", "41N36.21"
-//     * @return Is null if some error occurs or an StringArray in the form of {"N", "0", "0", "0"} (all elements will allways exist).
-//     * @see #parseCoordToStringArray(String)
-//     */
-//    private static double[] latLonHeightCoordToXYZCoord(String lat, String lon, double height) {
-//        // TODO NOT FINISHED!!!!!!!!!!!!!!!!!!!
-//        Double latVal = parseLatitudeCoordToDouble(lat);
-//        Double lonVal = parseLongitudeCoordToDouble(lon);
-//
-//        if ((latVal == null) || (lonVal == null))
-//            return null;
-//
-//        double[] xYCoordinates = CoordinateUtil.latLonAddNE(latVal.doubleValue(), lonVal.doubleValue(), 0.0, 0.0);
-//
-//        double[] latLonHeight = new double[3];
-//        latLonHeight[0] = xYCoordinates[0];
-//        latLonHeight[1] = xYCoordinates[1];
-//        latLonHeight[2] = height;
-//
-//        return latLonHeight;
-//    }
 
     /**
      * Changes a 3D point in the vehicle body reference frame to the inertial reference frame.
@@ -940,88 +732,6 @@ public class CoordinateUtil {
 
         return result;
     }
-
-//    /**
-//     * function [dphi,dtheta,dpsi]=inertial_eq(p,q,r,phi,theta,psi) ctheta = cos(theta); stheta = sin(theta); cphi = cos(phi); sphi = sin(phi);
-//     * 
-//     * t4 = stheta*sphi; t9 = stheta*cphi; t28 = 1/ctheta;
-//     * 
-//     * dphi = (p*ctheta+t4*q+t9*r)*t28; dtheta = cphi*q-sphi*r; dpsi = (sphi*q+cphi*r)*t28;
-//     * 
-//     * @param p
-//     * @param q
-//     * @param r
-//     * @param phi
-//     * @param theta
-//     * @param psi
-//     * @return
-//     */
-//    private static double[] pqrToInertialFrame(double p, double q, double r, double phi, double theta, double psi) {
-//        double[] result = { 0.0, 0.0, 0.0 };
-//
-//        double ctheta = Math.cos(theta);
-//        double stheta = Math.sin(theta);
-//        double cphi = Math.cos(phi);
-//        double sphi = Math.sin(phi);
-//
-//        double t4 = stheta * sphi;
-//        double t9 = stheta * cphi;
-//        double t28 = 1 / ctheta;
-//
-//        double dphi = (p * ctheta + t4 * q + t9 * r) * t28;
-//        double dtheta = cphi * q - sphi * r;
-//        double dpsi = (sphi * q + cphi * r) * t28;
-//
-//        result[0] = dphi;
-//        result[1] = dtheta;
-//        result[2] = dpsi;
-//        return result;
-//    }
-//
-//    /**
-//     * 
-//     * function [dx,dy,dz]=inertial_eq(u,v,w,phi,theta,psi)
-//     * 
-//     * cpsi = cos(psi); spsi = sin(psi); ctheta = cos(theta); stheta = sin(theta); cphi = cos(phi); sphi = sin(phi);
-//     * 
-//     * t3 = v*cpsi; t4 = stheta*sphi; t6 = v*spsi; t8 = w*cpsi; t9 = stheta*cphi; t11 = w*spsi;
-//     * 
-//     * dx = cpsi*ctheta*u+t3*t4-t6*cphi+t8*t9+t11*sphi; dy = spsi*ctheta*u+t6*t4+t3*cphi+t11*t9-t8*sphi; dz = -stheta*u+ctheta*sphi*v+ctheta*cphi*w;
-//     * 
-//     * @param u
-//     * @param v
-//     * @param w
-//     * @param phi
-//     * @param theta
-//     * @param psi
-//     * @return
-//     */
-//    private static double[] uvwToInertialFrame(double u, double v, double w, double phi, double theta, double psi) {
-//        double[] result = { 0.0, 0.0, 0.0 };
-//
-//        double cpsi = Math.cos(psi);
-//        double spsi = Math.sin(psi);
-//        double ctheta = Math.cos(theta);
-//        double stheta = Math.sin(theta);
-//        double cphi = Math.cos(phi);
-//        double sphi = Math.sin(phi);
-//
-//        double t3 = v * cpsi;
-//        double t4 = stheta * sphi;
-//        double t6 = v * spsi;
-//        double t8 = w * cpsi;
-//        double t9 = stheta * cphi;
-//        double t11 = w * spsi;
-//
-//        double dx = cpsi * ctheta * u + t3 * t4 - t6 * cphi + t8 * t9 + t11 * sphi;
-//        double dy = spsi * ctheta * u + t6 * t4 + t3 * cphi + t11 * t9 - t8 * sphi;
-//        double dz = -stheta * u + ctheta * sphi * v + ctheta * cphi * w;
-//
-//        result[0] = dx;
-//        result[1] = dy;
-//        result[2] = dz;
-//        return result;
-//    }
 
     /**
      * Changes a 3D point in the inertial reference frame to the vehicle body frame.
@@ -1495,14 +1205,6 @@ public class CoordinateUtil {
         return longitudeAsString(longitude, true);
     }
 
-//    public static String latitudeAsPrettyString(double latitude, boolean showSeconds) {
-//        return latitudeAsString(latitude, !showSeconds, showSeconds ? 6 : 8);
-//    }
-//
-//    public static String longitudeAsPrettyString(double longitude, boolean showSeconds) {
-//        return longitudeAsString(longitude, !showSeconds, showSeconds ? 6 : 8);
-//    }
-
     public static String latitudeAsString(double latitude, boolean minutesOnly) {
         return latitudeAsString(latitude, minutesOnly, -1);
     }
@@ -1681,11 +1383,6 @@ public class CoordinateUtil {
 
         // Convert back to WGS-84 coordinates
         lld = toGeodetic(xyz[0], xyz[1], xyz[2]);
-//        LocationType loc2 = new LocationType();
-//        loc2.setLatitude(lld[0]);
-//        loc2.setLongitude(lld[1]);
-//        loc2.setDepth(lld[2]);
-//        loc.setLocation(loc2);
         
         if (d != 0d)
             lld[2] = depth + d;
