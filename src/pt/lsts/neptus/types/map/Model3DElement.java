@@ -383,7 +383,7 @@ public class Model3DElement extends AbstractElement implements ScalableElement, 
 
             // Tests if a 2D image is given
             nd = doc.selectSingleNode("//href-2d");
-            if (nd != null && !(nd.equals(""))) {
+            if (nd != null && !nd.getText().isEmpty()) {
                 if ("".equals(originalFilePath))
                     this.image2DFilename = nd.getText();
                 else
