@@ -334,7 +334,7 @@ public class IMCUtils {
             fieldEl.addAttribute("name", fieldName);
             fieldEl.addAttribute("type", msg.getMessageType().getFieldType(fieldName).getTypeName());
 
-            if (!msg.getMessageType().getFieldType(fieldName).equals("message")) {
+            if (!msg.getMessageType().getFieldType(fieldName).getTypeName().equalsIgnoreCase("message")) {
                 fieldEl.setText(msg.getString(fieldName));
             }
             else {
