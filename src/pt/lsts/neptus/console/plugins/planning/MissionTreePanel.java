@@ -375,7 +375,7 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
         for (ExtendedTreeNode node : selectedNodes) {
             Object userObject = node.getUserObject();
             if (userObject instanceof TransponderElement
-                    && node.getUserInfo().get(NodeInfoKey.SYNC) != State.REMOTE)
+                    && node.getUserInfo().get(NodeInfoKey.SYNC.name()) != State.REMOTE)
                 trans.add((TransponderElement) userObject);
         }
         return trans;
