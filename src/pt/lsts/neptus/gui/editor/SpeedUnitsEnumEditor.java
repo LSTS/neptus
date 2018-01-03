@@ -34,7 +34,6 @@ package pt.lsts.neptus.gui.editor;
 
 import pt.lsts.neptus.mp.Maneuver.SPEED_UNITS;
 
-
 /**
  * @author pdias
  *
