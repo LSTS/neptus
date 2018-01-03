@@ -663,9 +663,9 @@ CustomInteractionSupport, IMapPopup, FocusListener {
      * @param vehicle The vehicle to be removed from this Renderer
      */
     public void removeVehicle(VehicleType vehicle) {
-        vehicleStates.remove(vehicle);
-        vehicleImages.remove(vehicle);
-        vehicleTails.remove(vehicle);
+        vehicleStates.remove(vehicle.getName());
+        vehicleImages.remove(vehicle.getName());
+        vehicleTails.remove(vehicle.getName());
     }
 
     /**
@@ -2055,7 +2055,7 @@ CustomInteractionSupport, IMapPopup, FocusListener {
      */
     public LocationType getVehicleLocation(String vehicle) {
         try {
-            return vehicleStates.get(VehiclesHolder.getVehicleById(vehicle)).getPosition();
+            return vehicleStates.get(vehicle).getPosition();
         }
         catch (Exception e) {
             NeptusLog.pub().debug("getVehicleLocation(" + vehicle + ")");
@@ -2068,7 +2068,7 @@ CustomInteractionSupport, IMapPopup, FocusListener {
      */
     public SystemPositionAndAttitude getVehicleState(String vehicle) {
         try {
-            return vehicleStates.get(VehiclesHolder.getVehicleById(vehicle));
+            return vehicleStates.get(vehicle);
         }
         catch (Exception e) {
             NeptusLog.pub().debug("getVehicleState(" + vehicle + ")");
