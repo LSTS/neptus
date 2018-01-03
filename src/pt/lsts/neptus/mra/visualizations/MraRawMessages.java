@@ -65,10 +65,7 @@ import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTable;
@@ -89,7 +86,6 @@ import pt.lsts.imc.Announce;
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.gui.InfiniteProgressPanel;
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.MRAPanel;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -266,9 +262,8 @@ public class MraRawMessages extends SimpleMRAVisualization {
 
                     Point point = e.getPoint();
                     int selRow = MraMessageLogTablePopupMenu.setRowSelection(table, point);
-                    MraMessageLogTablePopupMenu.newMenu(mraPanel, table, 
+                    MraMessageLogTablePopupMenu.setAddMarkMenu(mraPanel, table, 
                             index.getMessage(selRow), point);
-                    
                 }
             }
         });
@@ -352,7 +347,7 @@ public class MraRawMessages extends SimpleMRAVisualization {
         int mid = -1;
         int last = high;
 
-        while(low <= high) {
+        while (low <= high) {
             if (closingUp) {
                 find.nextBtn.setEnabled(false);
                 find.prevBtn.setEnabled(false);

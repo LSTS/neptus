@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -36,6 +36,7 @@ import java.util.Calendar;
 
 /**
  * Util class with static functions to calculate the offset of the Timezone and Daylight Savings, given system time/date details
+ * 
  * @author richard
  *
  */
@@ -43,18 +44,16 @@ public class LogLocalTimeOffset {
     
     /**
      * Calculates the offset of the Timezone and Daylight Savings, given system time/date details
+     * 
      * @param timestamp The timestamp to use to calculate the Daylight Savings
      * @return The offset in milliseconds
      */
     public static long getLocalTimeOffset(long timestamp) {
-
         Calendar logCalendar = Calendar.getInstance();
         logCalendar.setTimeInMillis( timestamp);
         
-        long localTimeOffset = logCalendar.get(Calendar.DST_OFFSET)
-                                + logCalendar.get(Calendar.ZONE_OFFSET);
-        
+        long localTimeOffset = logCalendar.get(Calendar.DST_OFFSET) + logCalendar.get(Calendar.ZONE_OFFSET);
+     
         return localTimeOffset;
     }
-
 }

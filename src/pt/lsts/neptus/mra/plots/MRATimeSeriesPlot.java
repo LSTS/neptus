@@ -34,7 +34,6 @@ package pt.lsts.neptus.mra.plots;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -86,9 +85,6 @@ public abstract class MRATimeSeriesPlot implements LLFChart, LogMarkerListener {
             Color.blue.brighter().brighter(), Color.red.brighter().brighter(), Color.green.brighter().brighter(),
             Color.black, Color.pink, Color.yellow.darker(), Color.cyan, Color.magenta };
 
-    /**
-     * 
-     */
     public MRATimeSeriesPlot(MRAPanel panel) {
         this.mraPanel = panel;
         this.localTimeOffset = LogLocalTimeOffset.getLocalTimeOffset((long) 
@@ -132,7 +128,6 @@ public abstract class MRATimeSeriesPlot implements LLFChart, LogMarkerListener {
             addTrace(trace);
         }
         series.get(trace).addOrUpdate(new Millisecond(new Date(timeMillis), TimeZone.getTimeZone("UTC")), value);
-
     }
 
     @Override
@@ -225,7 +220,6 @@ public abstract class MRATimeSeriesPlot implements LLFChart, LogMarkerListener {
 
     @Override
     public void addLogMarker(LogMarker e) {
-        
         ValueMarker marker = new ValueMarker(e.getTimestamp() - localTimeOffset);
         marker.setLabel(e.getLabel());
         if (chart != null)
@@ -244,6 +238,5 @@ public abstract class MRATimeSeriesPlot implements LLFChart, LogMarkerListener {
 
     @Override
     public void goToMarker(LogMarker marker) {
-
     }
 }

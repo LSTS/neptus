@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -35,7 +35,6 @@ package pt.lsts.neptus.util.llf;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
 
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -43,13 +42,13 @@ import javax.swing.JPopupMenu;
 import javax.swing.JTable;
 
 import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.MRAPanel;
 
 /**
  * Util class with static fuctions to create a JTable menu with an "Add mark" option
+ * 
  * @author richard
  *
  */
@@ -57,12 +56,12 @@ public class MraMessageLogTablePopupMenu {
     
     /**
      * Defines the row selected at a certain point in the table
+     * 
      * @param table Table from which a row is selected
      * @param point Point on the table that was clicked
      * @return Returns the selected row of the table
      */
     public static int setRowSelection(JTable table, Point point){
-        
         int currentRow = table.rowAtPoint(point);
         table.setRowSelectionInterval(currentRow, currentRow);
         return table.getSelectedRow();
@@ -70,35 +69,30 @@ public class MraMessageLogTablePopupMenu {
 
     /**
      * Creates a new table menu with an "Add mark" option
+     * 
      * @param mraPanel Mission Review & Analysis panel
      * @param table Table where the menu is generated
      * @param msg Message selected message
      * @param point Point where the menu is generated
      */
-    public static void newMenu(MRAPanel mraPanel, JTable table, IMCMessage msg, Point point) {
+    public static void setAddMarkMenu(MRAPanel mraPanel, JTable table, IMCMessage msg, Point point) {
         JPopupMenu popupMenu = new JPopupMenu();
-        JMenuItem menuItemAddMark = new JMenuItem("Add Mark");
+        JMenuItem menuItemAddMark = new JMenuItem(I18n.text("Add Mark"));
 
         popupMenu.add(menuItemAddMark);
-        
         popupMenu.show(table, point.x, point.y);
         
         menuItemAddMark.addActionListener(new ActionListener() {
-            
             @Override
             public void actionPerformed(ActionEvent  e) {
-                
                 if (e.getSource() == menuItemAddMark){
                     String res = JOptionPane.showInputDialog(I18n.text("Marker name"));
                     if (res != null && !res.isEmpty()) {
                         long ts = (long) msg.getTimestampMillis();
-                        
-                        mraPanel.addMarker(
-                                new LogMarker(res, ts, 0, 0));
+                        mraPanel.addMarker(new LogMarker(res, ts, 0, 0));
                     }
                 }
             }
         });
     }
-
 }

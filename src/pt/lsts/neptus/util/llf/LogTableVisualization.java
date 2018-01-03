@@ -64,10 +64,7 @@ import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -102,7 +99,6 @@ import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.plots.LogMarkerListener;
 import pt.lsts.neptus.mra.visualizations.MRAVisualization;
-import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.ImageUtils;
 
 /**
@@ -212,12 +208,9 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
                     mraPanel.loadVisualization(new MessageHtmlVisualization(model.getMessage(msgIndex)), true);
                 }
                 if(e.getButton() == MouseEvent.BUTTON3) {
-
                     Point point = e.getPoint();
                     int selRow = MraMessageLogTablePopupMenu.setRowSelection(table, point);
-                    MraMessageLogTablePopupMenu.newMenu(mraPanel, table, 
-                            model.getMessage(selRow), point);
-                    
+                    MraMessageLogTablePopupMenu.setAddMarkMenu(mraPanel, table, model.getMessage(selRow), point);
                 }
             };
         });
