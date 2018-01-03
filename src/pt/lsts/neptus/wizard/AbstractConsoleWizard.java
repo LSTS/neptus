@@ -40,13 +40,13 @@ import pt.lsts.neptus.console.ConsoleLayout;
  * @author zp
  *
  */
+@SuppressWarnings("serial")
+@Deprecated
 public class AbstractConsoleWizard extends JPanel {
 
-    private ConsoleLayout console;
+    protected ConsoleLayout console;
     
     public AbstractConsoleWizard(ConsoleLayout console) {
         this.console = console;
     }
-    
-    
 }

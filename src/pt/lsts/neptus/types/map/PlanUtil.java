@@ -558,7 +558,7 @@ public class PlanUtil {
             propertiesPanel.setProps();
         }
         
-        // System.out.println(String.format("ORIGINAL PLAN:\n%s\n\nNEW PLAN:\\n%s\n", originalPlan.asXML(), plan.asXML()));
+        NeptusLog.pub().debug(String.format("ORIGINAL PLAN:\n%s\n\nNEW PLAN:\\n%s\n", originalPlan.asXML(), plan.asXML()));
         
         return plan;
     }

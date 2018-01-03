@@ -94,6 +94,7 @@ public class FerryScheduler extends ConsolePanel {
     double depth = 3;
 
     private Long startTime = null;
+    @SuppressWarnings("unused")
     private int minutesEllapsed = 0;
     private JEditorPane editor = new JEditorPane("text/plain", "");
     private JButton btnStart = new JButton(I18n.text("Start"));

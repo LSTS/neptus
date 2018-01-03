@@ -235,6 +235,7 @@ public class PlanTableModel extends AbstractTableModel {
         if (initial == null)
             return;
 
+        @SuppressWarnings("unchecked")
         LinkedHashMap<String, TransitionType> trans = (LinkedHashMap<String, TransitionType>) plan.getGraph().getTransitions().clone();
 
         //add initial maneuver if exists
@@ -480,6 +481,7 @@ public class PlanTableModel extends AbstractTableModel {
         private Maneuver maneuver;
         private ManeuverLocation maneuverLoc;
         private String index;
+        @SuppressWarnings("unused")
         private double speed;
         private String speedStr;
         private String duration;
@@ -528,10 +530,12 @@ public class PlanTableModel extends AbstractTableModel {
             return speedStr;
         }
 
+        @SuppressWarnings("unused")
         public Maneuver getManeuver() {
             return maneuver;
         }
 
+        @SuppressWarnings("unused")
         public String getIndex() {
             return index;
         }

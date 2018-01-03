@@ -63,6 +63,7 @@ public class ParameterMetadataMapReader {
     private static final String METADATA_INCREMENT = "Increment";
     private static final String METADATA_BITMASK = "Bitmask";
     private static final String METADATA_VALUES = "values";
+    @SuppressWarnings("unused")
     private static final String METADATA_VALUE = "value";
     private static final String METADATA_VALUE_CODE = "code";
     private static final String METADATA_PARAMETERS = "parameters";
