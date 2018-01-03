@@ -32,11 +32,16 @@
  */
 package pt.lsts.neptus.plugins.mvplanner.algorithms;
 
-import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.data.Pair;
-import pt.lsts.neptus.plugins.mvplanner.mapdecomposition.GridCell;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.NoSuchElementException;
 
-import java.util.*;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.plugins.mvplanner.mapdecomposition.GridCell;
 
 public class SpanningTree {
     /* Sequence of nodes used to traverse this tree */
