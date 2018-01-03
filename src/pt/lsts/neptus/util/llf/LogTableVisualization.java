@@ -37,6 +37,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Point;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -206,6 +207,11 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
                     int msgIndex = table.convertRowIndexToModel(table.getSelectedRow());
                     mraPanel.loadVisualization(new MessageHtmlVisualization(model.getMessage(msgIndex)), true);
                 }
+                if(e.getButton() == MouseEvent.BUTTON3) {
+                    Point point = e.getPoint();
+                    int selRow = MraMessageLogTablePopupMenu.setRowSelection(table, point);
+                    MraMessageLogTablePopupMenu.setAddMarkMenu(mraPanel, table, model.getMessage(selRow), point);
+                }
             };
         });
         table.setAutoResizeMode(JXTable.AUTO_RESIZE_OFF);
@@ -340,13 +346,28 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
     @Override
     public void addLogMarker(LogMarker marker) {
         Long timestamp = new Double(marker.getTimestamp()).longValue();
+        
+        long smallestTimestampDiff = Long.MAX_VALUE;
+        int iTSMarker = -1;
+        
         for (int i = 0; i < log.getNumberOfEntries() - 1; i++) {
-            if (timestamp < ((long) model.getValueAt(i, 0) - 10)) {
-                markerList.put(i, marker);
+            long timestampDiff = Math.abs(((long) model.getValueAt(i, 0)) - timestamp);
+            if(timestampDiff > 500) {
+                continue;
+            }
+            if(timestampDiff == 0) {
+                iTSMarker = i;
                 break;
             }
+            if(smallestTimestampDiff > timestampDiff) {
+                iTSMarker = i;
+                smallestTimestampDiff = timestampDiff;
+            }
         }
-        model.fireTableDataChanged();
+        if(iTSMarker > -1) {
+            markerList.put(iTSMarker, marker);
+            model.fireTableDataChanged();
+        }
     }
 
     @Override

@@ -37,6 +37,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -91,6 +92,7 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.gui.Java2sAutoTextField;
+import pt.lsts.neptus.util.llf.MraMessageLogTablePopupMenu;
 import pt.lsts.neptus.util.llf.MessageHtmlVisualization;
 import pt.lsts.neptus.util.llf.RawMessagesTableModel;
 import pt.lsts.neptus.util.llf.SortedComboBoxModel;
@@ -256,6 +258,13 @@ public class MraRawMessages extends SimpleMRAVisualization {
                     mraPanel.loadVisualization(new MessageHtmlVisualization(index.getMessage(table.getSelectedRow())),
                             true);
                 }
+                else if(e.getButton() == MouseEvent.BUTTON3) {
+
+                    Point point = e.getPoint();
+                    int selRow = MraMessageLogTablePopupMenu.setRowSelection(table, point);
+                    MraMessageLogTablePopupMenu.setAddMarkMenu(mraPanel, table, 
+                            index.getMessage(selRow), point);
+                }
             }
         });
 
@@ -317,7 +326,7 @@ public class MraRawMessages extends SimpleMRAVisualization {
         int mid = -1;
         int last = high;
 
-        while(low <= high) {
+        while (low <= high) {
             if (closingUp) {
                 find.nextBtn.setEnabled(false);
                 find.prevBtn.setEnabled(false);
