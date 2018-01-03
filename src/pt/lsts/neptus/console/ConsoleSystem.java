@@ -378,7 +378,7 @@ public class ConsoleSystem implements MissionChangeListener, PreferencesListener
         if (VehicleStateListener.class.isAssignableFrom(panelChange.getPanel().getClass())) {
 
             if (panelChange.removed()) {
-                feedRenders.remove(panelChange.getPanel());
+                feedRenders.remove((VehicleStateListener) panelChange.getPanel());
             }
             if (panelChange.added()) {
                 feedRenders.add((VehicleStateListener) panelChange.getPanel());
