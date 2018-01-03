@@ -52,7 +52,6 @@ public class TypedMessageFilter implements MessageFilter<MessageInfo, IMCMessage
     
     @Override
     public boolean isMessageToListen(MessageInfo info, IMCMessage msg) {
-        return msgsToListen.contains(msg);
+        return msgsToListen.contains(msg.getAbbrev());
     }
-    
 }
