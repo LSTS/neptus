@@ -156,7 +156,7 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
         removeAll();
         setPreferredSize(new Dimension(150, 400));
         setMinimumSize(new Dimension(0, 0));
-        setMaximumSize(new Dimension(1000, 1000));
+        // setMaximumSize(new Dimension(1000, 1000));
 
         setLayout(new BorderLayout());
         add(browser, BorderLayout.CENTER);
