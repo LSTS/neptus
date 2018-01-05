@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -74,7 +74,7 @@ public class Takeoff extends Maneuver implements LocatedManeuver, ManeuverWithSp
     protected double speed = 17;
     @NeptusProperty(name = "Speed Units", editorClass = SpeedUnitsEnumEditor.class)
     protected SPEED_UNITS speedUnits = SPEED_UNITS.METERS_PS;
-    @NeptusProperty(name = "Takeoff Pitch Angle", description = "Minimum pitch angle during automatic takeoff.")
+    @NeptusProperty(name = "Takeoff Pitch Angle", description = "Minimum pitch angle during automatic takeoff.", units = "\u00B0")
     protected double takeoffPitchAngleDegs = 10;
 
     public Takeoff() {

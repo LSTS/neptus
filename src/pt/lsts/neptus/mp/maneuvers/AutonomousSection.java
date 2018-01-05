@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -103,19 +103,19 @@ public class AutonomousSection extends Maneuver
     @NeptusProperty(name = "Enforce Depth Limit")
     protected boolean enforceDepth = true;
     
-    @NeptusProperty(name = "Maximum Depth")
+    @NeptusProperty(name = "Maximum Depth", units = "m")
     protected double maxDepth = 100;
     
     @NeptusProperty(name = "Enforce Altitude Limit")
     protected boolean enforceAlt = true;
 
-    @NeptusProperty(name = "Minimum Altitude")
+    @NeptusProperty(name = "Minimum Altitude", units = "m")
     protected double minAlt = 2;
     
     @NeptusProperty(name = "Enforce Time Limit")
     protected boolean enforceTime = true;
     
-    @NeptusProperty(name = "Timeout", description="Time limit, in seconds, after which the maneuver completes")
+    @NeptusProperty(name = "Timeout", description="Time limit, in seconds, after which the maneuver completes", units = "s")
     protected double timeout = 1800;
     
     @NeptusProperty(name = "Enforce Area Limits")

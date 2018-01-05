@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -658,6 +658,13 @@ public class FunctionalitiesSettings extends JPanel {
         Map<String, PluginProperty> hashMap = PluginUtils.getDefaultsValues(class1);
         StringBuilder description = new StringBuilder();
         description.append(I18n.text(neptusProperty.description()));
+        
+        if (neptusProperty.units() != null && neptusProperty.units().length() > 0) {
+            description.append(" (");
+            description.append(neptusProperty.units());
+            description.append(")");
+        }
+        
         String defaultValue;
         if (hashMap == null) {
             // no value!

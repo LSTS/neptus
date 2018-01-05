@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -57,7 +57,7 @@ public class ImagePositionsExporter implements MRAExporter {
 
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
-        return source.getFile("Photos").exists();        
+        return source.getFile("Photos") == null ? false : source.getFile("Photos").exists();
     }
 
     public String getHeader() {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -82,16 +82,16 @@ public class CompassCalibration extends Maneuver
     @NeptusProperty(name="Speed units", description="The speed units", editorClass=SpeedUnitsEnumEditor.class)
     public Maneuver.SPEED_UNITS speedUnits = SPEED_UNITS.METERS_PS;
 
-    @NeptusProperty(name="Pitch", description="The Pitch angle used to perform the maneuver.")
+    @NeptusProperty(name="Pitch", description="The Pitch angle used to perform the maneuver.", units = "\u00B0")
     public double pitchDegs = 15;
 
-    @NeptusProperty(name="Amplitude", description="Yoyo motion amplitude.")
+    @NeptusProperty(name="Amplitude", description="Yoyo motion amplitude.", units = "m")
     public double amplitude = 1;
 
-    @NeptusProperty(name="Duration (s)", description="The duration in seconds of this maneuver. Use '0' for unlimited duration time.")
+    @NeptusProperty(name="Duration", description="The duration in seconds of this maneuver. Use '0' for unlimited duration time.", units = "s")
     public int duration = 300;
 
-    @NeptusProperty(name="Radius (m)", description="Radius of the maneuver.")
+    @NeptusProperty(name="Radius", description="Radius of the maneuver.", units = "m")
     public float radius = 5;
 
     @NeptusProperty(name="Direction", description="Direction of the maneuver.")

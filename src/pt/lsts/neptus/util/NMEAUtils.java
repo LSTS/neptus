@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -36,8 +36,11 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.dinopolis.gpstool.gpsinput.nmea.NMEA0183Sentence;
 
@@ -53,6 +56,7 @@ import pt.lsts.neptus.types.coord.LocationType;
 
 /**
  * @author ZP
+ * @author pdias
  */
 public class NMEAUtils {
 	
@@ -177,6 +181,32 @@ public class NMEAUtils {
 		return (wgs84_pos);
 	}
 
+    private static Date processTimeFromSentence(String sentence, int fieldCount) {        
+        try {
+            NMEA0183Sentence nmea = new NMEA0183Sentence(sentence);
+        
+            if (!nmea.isValid())
+                return null;
+            
+            List<?> data_fields = nmea.getDataFields();
+            
+            String timeUTC = (String) data_fields.get(fieldCount); // hhmmss.ss UTC
+            @SuppressWarnings("serial")
+            SimpleDateFormat dateFormatterUTC = new SimpleDateFormat("yyyyMMdd") {{setTimeZone(TimeZone.getTimeZone("UTC"));}};
+            @SuppressWarnings("serial")
+            SimpleDateFormat dateTimeFormatterUTC = new SimpleDateFormat("yyyyMMddHHmmss.SS") {{setTimeZone(TimeZone.getTimeZone("UTC"));}};
+            Date date = dateTimeFormatterUTC.parse(dateFormatterUTC.format(new Date()) + timeUTC.trim());
+            return date;
+        }
+        catch (Exception ex) {
+            ex.printStackTrace();
+            return null;
+        }
+    }
+
+    public static Date processGGATimeFromSentence(String sentence) {
+        return processTimeFromSentence(sentence, 0);
+    }
 
 	public static LocationType processGGASentence(String sentence) {		
 		try {

@@ -1,16 +1,36 @@
 package pt.lsts.neptus.plugins.mvplanner;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dialog;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Frame;
+import java.awt.Graphics2D;
 import java.awt.event.ItemEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
-import java.util.*;
+import java.util.Map;
+import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.swing.BoxLayout;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+
 import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.PlanControlState;
 import pt.lsts.neptus.console.ConsoleInteraction;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
@@ -32,9 +52,6 @@ import pt.lsts.neptus.types.coord.PolygonType;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.NameNormalizer;
 import pt.lsts.neptus.util.conf.ConfigFetch;
-
-import javax.swing.*;
-
 
 /**
  * Allows an operator to add tasks and obstacles as polygonal objects.
