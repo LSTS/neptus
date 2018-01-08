@@ -80,6 +80,8 @@ import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.renderer2d.CustomInteractionSupport;
 import pt.lsts.neptus.renderer2d.FeatureFocuser;
 import pt.lsts.neptus.renderer2d.ILayerPainter;
+import pt.lsts.neptus.renderer2d.IMapRendererChangeEvent;
+import pt.lsts.neptus.renderer2d.IMapRendererChangeEvent.RendererChangeEvent;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.renderer2d.StateRendererInteraction;
@@ -138,7 +140,10 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
     protected boolean focusUseMyLocation = true;
     @NeptusProperty(name = "Focus Use Vehicles and Systems", category = "Feature Focuser", userLevel = LEVEL.ADVANCED, distribution = DistributionEnum.DEVELOPER)
     protected boolean focusUseVehiclesAndSystems = true;
-    
+
+    @NeptusProperty(name = "Syncronize All Maps Movements", userLevel = LEVEL.REGULAR)
+    public boolean isSyncronizeAllMapsMovements = true;
+
     protected StateRenderer2D renderer = new StateRenderer2D();
     protected FeatureFocuser featureFocuser = null; 
     protected String planId = null;
@@ -171,6 +176,7 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
         renderer.setMinDelay(0);
         renderer.setShowWorldMapOnScreenControls(false);
         add(renderer, BorderLayout.CENTER);
+        
         bottom.setFloatable(false);
         bottom.setAlignmentX(JToolBar.CENTER_ALIGNMENT);
         
@@ -253,6 +259,13 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
         }
         
         tailSwitch.setVisible(showTailButton);
+        
+        renderer.addRendererChangeEvent(new IMapRendererChangeEvent() {
+            @Override
+            public void mapRendererChangeEvent(RendererChangeEvent event) {
+                getConsole().post(event);
+            }
+        });
     }
 
     @Override
@@ -261,6 +274,11 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
         getConsole().removeRenderAll(this);
     }
 
+    @Subscribe
+    public void on(RendererChangeEvent event) {
+        renderer.newRendererChangeEvent(event);
+    }
+    
     private void setToolbarPlacement() {
         // Orient and position the tab based on placement property (toolbarPlacement)
         String position = BorderLayout.SOUTH;
@@ -393,6 +411,8 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
         renderer.setAntialiasing(antialias);
         renderer.setFixedVehicleWidth(fixedSize);
         renderer.setWorldMapShown(worldMapShown);
+        renderer.setRespondToRendererChangeEvents(isSyncronizeAllMapsMovements);
+        
         setToolbarPlacement(); // Refresh toolbar position
         
         tailSwitch.setVisible(showTailButton);
