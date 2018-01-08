@@ -94,6 +94,7 @@ import pt.lsts.neptus.mp.MapChangeListener;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.planeditor.IEditorMenuExtension;
 import pt.lsts.neptus.planeditor.IMapPopup;
+import pt.lsts.neptus.renderer2d.IMapRendererChangeEvent.RendererChangeEvent;
 import pt.lsts.neptus.renderer2d.tiles.TileMercatorSVG;
 import pt.lsts.neptus.types.coord.CoordinateSystem;
 import pt.lsts.neptus.types.coord.CoordinateUtil;
@@ -263,7 +264,11 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
     private BufferedImage stage;
 
     private Vector<IEditorMenuExtension> menuExtensions = new Vector<IEditorMenuExtension>();
-    
+
+    private IMapRendererChangeEvent rendererChangelistener = null;
+    private boolean respondToRendererChangeEvents = false;
+    private boolean processingRendererChangeEvents = false;
+
     /**
      * Empty class constructor - creates a new renderer panel with empty map.
      */
@@ -723,6 +728,9 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
         // + MapTileUtil.groundResolution(getCenter().getLatitudeAsDoubleValue(), levelOfDetail)
         // + "  |  mapSize=" + MapTileUtil.mapSize(levelOfDetail)
         // + "  |  wxh=" + getWidth() + "x" + getHeight());
+        
+        warnRendererChangeEvent();
+        
         return this.levelOfDetail;
     }
 
@@ -1847,6 +1855,7 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
      */
     public void setRotation(double rotationAngle) {
         this.rotationRads = rotationAngle;
+        warnRendererChangeEvent();
     }
 
     /**
@@ -2127,5 +2136,73 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
      */
     public WorldRenderPainter getWorldMapPainter() {
         return worldMapPainter;
+    }
+    
+    /**
+     * This will create a new renderer change event and dispatch it to the listener, if set.
+     */
+    private void warnRendererChangeEvent() {
+        if (processingRendererChangeEvents || rendererChangelistener == null)
+            return;
+        
+        RendererChangeEvent event = new RendererChangeEvent(this, getCenter(), getRotation(), getLevelOfDetail());
+        NeptusLog.pub().debug("Sending   " + event);
+        // new Exception().printStackTrace();
+        rendererChangelistener.mapRendererChangeEvent(event);
+    }
+    
+    /**
+     * To add a {@link IMapRendererChangeEvent} listener.
+     * 
+     * @param listener
+     */
+    public void addRendererChangeEvent(IMapRendererChangeEvent listener) {
+        this.rendererChangelistener = listener;
+    }
+
+    /**
+     * To remove a {@link IMapRendererChangeEvent} listener.
+     * 
+     * @param listener
+     */
+    public void removeRendererChangeEvent(IMapRendererChangeEvent listener) {
+        if (rendererChangelistener != null && rendererChangelistener == listener)
+            this.rendererChangelistener = null;
+    }
+
+    /**
+     * To enable or disable the external renderer change events.
+     * 
+     * @param respondToRendererChangeEvents the respondToRendererChangeEvents to set
+     */
+    public void setRespondToRendererChangeEvents(boolean respondToRendererChangeEvents) {
+        this.respondToRendererChangeEvents = respondToRendererChangeEvents;
+    }
+    
+    /**
+     * This is an external change event to be processed.
+     * 
+     * @param event
+     * @return
+     */
+    public boolean newRendererChangeEvent(IMapRendererChangeEvent.RendererChangeEvent event) {
+        if (!respondToRendererChangeEvents || this == event.getSource())
+            return false;
+        
+        NeptusLog.pub().warn("Receiving " + event);
+        processingRendererChangeEvents = true;
+        try {
+            setCenter(event.getCenterLoc());
+            setRotation(event.getRotationRads());
+            setLevelOfDetail(event.getLevelOfDetail());
+        }
+        catch (Exception e) {
+            NeptusLog.pub().debug(e.getMessage());
+        }
+        finally {
+            processingRendererChangeEvents = false;
+        }
+
+        return true;
     }
 }
