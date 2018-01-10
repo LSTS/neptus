@@ -539,6 +539,8 @@ public class IridiumComms extends SimpleRendererInteraction {
                         .warning(I18n.text("Iridium communications"), I18n.text("Iridium message is being transmited"))
                         .src(status.getSourceName()));
                 break;
+            default:
+                break;
         }
     }
 
