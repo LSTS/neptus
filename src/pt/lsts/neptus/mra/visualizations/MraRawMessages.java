@@ -77,6 +77,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerDateModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.DateFormatter;
 
@@ -350,7 +351,7 @@ public class MraRawMessages extends SimpleMRAVisualization {
         private JButton prevBtn, nextBtn, findBtn, resetBtn;
         private JLabel statusLbl;
         private JXBusyLabel busyLbl;
-        private boolean hightlighted = false;
+        private boolean highlighted = false;
         private Window parent;
         private FindWorker findWorker;
 
@@ -398,21 +399,31 @@ public class MraRawMessages extends SimpleMRAVisualization {
          * Highlights found rows or clears every highlighted one
          */
         private void toggleHighlight() {
-            if (!hightlighted) {
+            if (!highlighted) {
                 if (!resultList.isEmpty()) {
                     table.clearSelection();
                     table.setSelectionBackground(Color.yellow);
-                    for (Integer row : resultList) {
-                        table.addRowSelectionInterval(row, row);
-                    }
-                    hightlighted = true;
-                    highlightBtn.setSelected(hightlighted);
+                    SwingWorker<Void, Integer> highLight = new SwingWorker<Void, Integer>() {
+                        @Override
+                        protected Void doInBackground() throws Exception {
+                            for (Integer row : resultList) {
+                                if (isCancelled())
+                                    return null;
+                                table.addRowSelectionInterval(row, row);
+                            }
+                            highlighted = true;
+                            highlightBtn.setSelected(highlighted);
+
+                            return null;
+                        }
+                    };
+                    highLight.execute();
                 }
             }
             else {
                 table.clearSelection();
-                hightlighted = false;
-                highlightBtn.setSelected(hightlighted);
+                highlighted = false;
+                highlightBtn.setSelected(highlighted);
             }
         }
 
@@ -802,7 +813,7 @@ public class MraRawMessages extends SimpleMRAVisualization {
         }
 
         private void setHighlighted(boolean value) {
-            hightlighted = value;
+            highlighted = value;
         }
 
         public void startFind() {
