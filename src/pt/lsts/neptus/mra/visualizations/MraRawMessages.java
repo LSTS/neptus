@@ -77,7 +77,6 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerDateModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.DateFormatter;
 
@@ -162,9 +161,11 @@ public class MraRawMessages extends SimpleMRAVisualization {
     @Override
     public void onCleanup() {
         super.onCleanup();
-        closingUp = true;
-        if (find != null)
+        if (find != null) {
             find.close();
+            find.stopFind();
+        }
+
     }
 
     @Override
@@ -270,125 +271,6 @@ public class MraRawMessages extends SimpleMRAVisualization {
         return contentPane;
     }
 
-    /**
-     * Checks if there are messages in the list that have a specific type, source, source_entity, 
-     * destination and are within specified time limits 
-     * @param src, TYPE of the message
-     * @param srcEnt, SOURCE_ENTITY of the message
-     * @return true if there is at least one element, false otherwise
-     */
-    private boolean findMessage(String type, String src, String srcEnt, Date time1, Date time2) {
-        resultList.clear();
-        closingUp = false;
-        finished = false;
-        table.setRowSelectionAllowed(true);
-        table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-        find.busyLbl.setBusy(true);
-        find.busyLbl.setVisible(true);
-        long t1 = (long) time1.getTime() / 1000;
-        long t2 = (long) time2.getTime() / 1000;
-
-        String rowType = null;
-        String rowSrc = null;
-        String rowSrcEnt = null;
-
-        if (type.equals(ANY_TXT) && src.equals(ANY_TXT) && 
-                srcEnt.equals(ANY_TXT) && find.hasDefaultTS(t1, t2)) {
-            find.busyLbl.setBusy(false);
-            find.busyLbl.setVisible(false);
-            find.nextBtn.setEnabled(false);
-            find.prevBtn.setEnabled(false);
-
-            return true;
-        }
-
-        int first = source.getLsfIndex().getFirstMessageAtOrAfter(t1);
-        int indexFirst = findFirstOcc(first, source.getLsfIndex().getNumberOfMessages(), t1, type);
-
-        // if there isn't at least one result...
-        if (indexFirst == -1) {
-            find.busyLbl.setBusy(false);
-            find.busyLbl.setVisible(false);
-            find.nextBtn.setEnabled(false);
-            find.prevBtn.setEnabled(false);
-            return false;
-        }
-
-        int low = 0;
-        int high = source.getLsfIndex().getNumberOfMessages() - 1;
-        int mid = -1;
-        int last = high;
-
-        while(low <= high) {
-            if (closingUp) {
-                find.nextBtn.setEnabled(false);
-                find.prevBtn.setEnabled(false);
-                break;
-            }
-
-            mid = high - (high - low) / 2;
-            long rowTime2 = (long) source.getLsfIndex().timeOf(mid);
-            rowType = source.getLsfIndex().getDefinitions().getMessageName(source.getLsfIndex().typeOf(mid));
-            rowSrc = source.getLsfIndex().sourceNameOf(mid);
-
-            if (rowTime2 > t2) {
-                high = mid - 1;
-            } else if (rowTime2 < t2) {
-                low = mid + 1;
-            }
-            else {
-                last = high;
-                break;
-            }
-        }
-        int indexLast = last;
-        int total = indexLast - indexFirst;
-        int count = 0;
-
-        for (int row = indexFirst; row <= indexLast; row++) {
-            if (closingUp) {
-                find.clear();
-                return true;
-            }
-
-            long rowTime = (long) source.getLsfIndex().timeOf(row); //Time
-            rowType = source.getLsfIndex().getDefinitions().getMessageName(source.getLsfIndex().typeOf(row)); //Type
-            rowSrc = source.getLsfIndex().sourceNameOf(row);  //Source
-            rowSrcEnt = source.getLsfIndex().entityNameOf(row); //SourceEntity
-            if (rowSrcEnt == null || rowSrcEnt.isEmpty())
-                rowSrcEnt = "empty";
-
-            if (rowType.equals(type) || type.equals(ANY_TXT))
-                if (rowSrc.equals(src) || src.equals(ANY_TXT))
-                    if (rowSrcEnt.equals(srcEnt) || srcEnt.equals(ANY_TXT))
-                        if ((rowTime >= t1) && (rowTime <= t2))
-                            resultList.add(row);
-
-            count++;
-            long state = (long) count * 100 / total;
-            find.statusLbl.setText(state+"%");
-        }
-
-        find.busyLbl.setBusy(false);
-        find.busyLbl.setVisible(false);
-        find.statusLbl.setVisible(false);
-
-        if (!resultList.isEmpty()) {
-            table.clearSelection();
-            table.setSelectionBackground(Color.yellow);
-            table.addRowSelectionInterval(resultList.get(0), resultList.get(0));
-            table.scrollRectToVisible(new Rectangle(table.getCellRect(resultList.get(0), 0, true)));
-            table.repaint();
-            finderNextIndex++;
-            finished = true;
-            return true;
-        }
-
-        find.nextBtn.setEnabled(false);
-        find.prevBtn.setEnabled(false);
-        return false;
-    }
-
     private int findFirstOcc(int first, int last, long t1, String type) {
         for (int row = first; row < last; row++) {
             long rowTime = (long) source.getLsfIndex().timeOf(row);
@@ -470,6 +352,7 @@ public class MraRawMessages extends SimpleMRAVisualization {
         private JXBusyLabel busyLbl;
         private boolean hightlighted = false;
         private Window parent;
+        private FindWorker findWorker;
 
         public FinderDialog(Window parent) {
             super(parent, ModalityType.MODELESS);
@@ -539,6 +422,13 @@ public class MraRawMessages extends SimpleMRAVisualization {
         private void close() {
             setVisible(false); //you can't see me!
             dispose();
+        }
+
+        private void validateTimestamp(long d1, long d2) {
+            if (d1 > d2) { 
+                timestampLow.setValue(parseDate(0));
+                timestampHigh.setValue(parseDate(table.getRowCount() - 1));
+            }
         }
 
         private void initComponents() {
@@ -837,40 +727,8 @@ public class MraRawMessages extends SimpleMRAVisualization {
             private void findAction() {
                 clear();
                 closingUp = true;
-                SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
-                    @Override
-                    protected Boolean doInBackground() throws Exception {
-                        Date t1 = (Date) timestampLow.getValue();
-                        Date t2 = (Date) timestampHigh.getValue();
-
-                        boolean found = findMessage(typeTxt.getText(), (String) sourceCBox.getSelectedItem(),
-                                (String)sourceEntCBox.getSelectedItem(), t1, t2);
-
-                        return found;
-                    }
-
-                    @Override
-                    protected void done() {
-                        try {
-                            boolean found = get();
-                            if (found) {
-                                if (!resultList.isEmpty() && finished) {
-                                    nextBtn.setEnabled(true);
-                                    prevBtn.setEnabled(true);
-                                    updateStatus();
-                                }
-                            }
-                            else {
-                                GuiUtils.errorMessage(FinderDialog.this, I18n.text("Find"),
-                                        "No message with current selected filter has been found.");
-                            }
-                        }
-                        catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                };
-                worker.execute();
+                find.stopFind();
+                find.startFind();
             }
         }
 
@@ -945,6 +803,175 @@ public class MraRawMessages extends SimpleMRAVisualization {
 
         private void setHighlighted(boolean value) {
             hightlighted = value;
+        }
+
+        public void startFind() {
+            findBtn.setText("Cancel");
+            (findWorker = new FindWorker()).execute();
+        }
+
+        public void stopFind() {
+            if (findWorker != null)
+                findWorker.cancel(true);
+
+            findWorker = null;
+            findBtn.setText("Find");
+        }
+
+
+        private class FindWorker extends javax.swing.SwingWorker<Boolean, Integer> {
+
+            @Override
+            protected Boolean doInBackground() throws Exception {
+
+                Date t1_ = (Date) timestampLow.getValue();
+                Date t2_ = (Date) timestampHigh.getValue();
+
+
+                String type = typeTxt.getText();
+                String src = (String) sourceCBox.getSelectedItem();
+                String srcEnt = (String)sourceEntCBox.getSelectedItem();
+
+                resultList.clear();
+                closingUp = false;
+                finished = false;
+                table.setRowSelectionAllowed(true);
+                table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+                find.busyLbl.setBusy(true);
+                find.busyLbl.setVisible(true);
+                long t1 = (long) t1_.getTime() / 1000;
+                long t2 = (long) t2_.getTime() / 1000;
+                find.validateTimestamp(t1, t2);
+
+                String rowType = null;
+                String rowSrc = null;
+                String rowSrcEnt = null;
+
+                if (type.equals(ANY_TXT) && src.equals(ANY_TXT) && 
+                        srcEnt.equals(ANY_TXT) && find.hasDefaultTS(t1, t2)) {
+                    find.busyLbl.setBusy(false);
+                    find.busyLbl.setVisible(false);
+                    find.nextBtn.setEnabled(false);
+                    find.prevBtn.setEnabled(false);
+
+                    return true;
+                }
+
+                int first = source.getLsfIndex().getFirstMessageAtOrAfter(t1);
+                int indexFirst = findFirstOcc(first, source.getLsfIndex().getNumberOfMessages(), t1, type);
+
+                // if there isn't at least one result...
+                if (indexFirst == -1) {
+                    find.busyLbl.setBusy(false);
+                    find.busyLbl.setVisible(false);
+                    find.nextBtn.setEnabled(false);
+                    find.prevBtn.setEnabled(false);
+
+                    finished = true;
+                    return false;
+                }
+
+                int low = 0;
+                int high = source.getLsfIndex().getNumberOfMessages() - 1;
+                int mid = -1;
+                int last = high;
+
+                while(low <= high) {
+                    if (isCancelled()) {
+                        find.clear();
+                        finished = true;
+                        return false;
+                    }
+
+                    mid = high - (high - low) / 2;
+                    long rowTime2 = (long) source.getLsfIndex().timeOf(mid);
+                    rowType = source.getLsfIndex().getDefinitions().getMessageName(source.getLsfIndex().typeOf(mid));
+                    rowSrc = source.getLsfIndex().sourceNameOf(mid);
+
+                    if (rowTime2 > t2) {
+                        high = mid - 1;
+                    } else if (rowTime2 < t2) {
+                        low = mid + 1;
+                    }
+                    else {
+                        last = high;
+                        break;
+                    }
+                }
+
+                int indexLast = last;
+                int total = indexLast - indexFirst;
+                int count = 0;
+                for (int row = indexFirst; row <= indexLast; row++) {
+                    if (isCancelled()) {
+                        find.clear();
+                        finished = true;
+                        resultList.clear();
+                        return false;
+                    }
+
+                    long rowTime = (long) source.getLsfIndex().timeOf(row); //Time
+                    rowType = source.getLsfIndex().getDefinitions().getMessageName(source.getLsfIndex().typeOf(row)); //Type
+                    rowSrc = source.getLsfIndex().sourceNameOf(row);  //Source
+                    rowSrcEnt = source.getLsfIndex().entityNameOf(row); //SourceEntity
+                    if (rowSrcEnt == null || rowSrcEnt.isEmpty())
+                        rowSrcEnt = "empty";
+
+                    if (rowType.equals(type) || type.equals(ANY_TXT))
+                        if (rowSrc.equals(src) || src.equals(ANY_TXT))
+                            if (rowSrcEnt.equals(srcEnt) || srcEnt.equals(ANY_TXT))
+                                if ((rowTime >= t1) && (rowTime <= t2))
+                                    resultList.add(row);
+
+                    count++;
+                    long state = (long) count * 100 / total;
+                    find.statusLbl.setText(state+"%");
+                }
+
+                find.busyLbl.setBusy(false);
+                find.busyLbl.setVisible(false);
+                find.statusLbl.setVisible(false);
+
+                if (!resultList.isEmpty()) {
+                    table.clearSelection();
+                    table.setSelectionBackground(Color.yellow);
+                    table.addRowSelectionInterval(resultList.get(0), resultList.get(0));
+                    table.scrollRectToVisible(new Rectangle(table.getCellRect(resultList.get(0), 0, true)));
+                    table.repaint();
+                    finderNextIndex++;
+                    finished = true;
+                    return true;
+                }
+
+                find.clear();
+                return false;
+
+            }
+
+
+            @Override
+            protected void done() {
+                findBtn.setText("Find");
+
+                try {
+                    boolean found = get();
+                    if (found) {
+                        if (!resultList.isEmpty() && finished) {
+                            nextBtn.setEnabled(true);
+                            prevBtn.setEnabled(true);
+                            updateStatus();
+                        }
+                    } 
+                    else {
+                        if (finished && resultList.isEmpty()) {
+                            GuiUtils.errorMessage(FinderDialog.this, I18n.text("Find"),
+                                    "No message with current selected filter has been found.");
+                        }
+                    }
+                } catch (Exception e) {
+                    // do nothing
+                }
+            }
         }
     }
 }
