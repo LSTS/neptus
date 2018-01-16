@@ -482,6 +482,7 @@ public class PlanTableModel extends AbstractTableModel {
         private Maneuver maneuver;
         private ManeuverLocation maneuverLoc;
         private String index;
+        @SuppressWarnings("unused")
         private SpeedType speed;
         private String speedStr;
         private String duration;

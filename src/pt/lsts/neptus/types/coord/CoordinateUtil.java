@@ -46,7 +46,6 @@ import java.util.regex.Pattern;
 
 import javax.vecmath.Matrix3d;
 
-import cern.colt.Arrays;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.conf.GeneralPreferences;

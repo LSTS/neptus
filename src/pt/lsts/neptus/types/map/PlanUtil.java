@@ -513,7 +513,6 @@ public class PlanUtil {
             return plan;
         }
         
-        @SuppressWarnings("unused")
         PlanType originalPlan = plan.clonePlan();
         plan.setVehicles(newVehicles);
 
