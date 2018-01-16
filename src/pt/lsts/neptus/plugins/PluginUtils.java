@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -68,6 +68,8 @@ import org.apache.commons.io.IOUtils;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
+import com.l2fprod.common.propertysheet.PropertyEditorRegistry;
+import com.l2fprod.common.propertysheet.PropertyRendererRegistry;
 import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
 
 import pt.lsts.neptus.NeptusLog;
@@ -237,8 +239,25 @@ public class PluginUtils {
      * @param defaultValueString or null if not known.
      * @return
      */    
-    @SuppressWarnings({ "unchecked", "serial" })
     public static PluginProperty createPluginProperty(Object obj, Field f, String defaultValueString, boolean forEdit) {
+        return createPluginProperty(obj, f, defaultValueString, forEdit, PropertiesEditor.getPropertyEditorRegistry(),
+                PropertiesEditor.getPropertyRendererRegistry());
+    }
+
+    /**
+     * NOTE: the forEdit is important because if we want to load properties for the {@link GeneralPreferences}
+     * we pass forEdit=false so we don't call I18n that loads {@link GeneralPreferences#language} while we are 
+     * loading {@link GeneralPreferences} properties from file.
+     * @param obj
+     * @param f
+     * @param defaultValueString or null if not known.
+     * @param propertyEditorRegistry
+     * @param propertyRendererRegistry
+     * @return
+     */
+    @SuppressWarnings({ "unchecked", "serial" })
+    public static PluginProperty createPluginProperty(Object obj, Field f, String defaultValueString, boolean forEdit,
+            PropertyEditorRegistry propertyEditorRegistry, PropertyRendererRegistry propertyRendererRegistry) {
         NeptusProperty a = f.getAnnotation(NeptusProperty.class);
 
         if (a != null) {
@@ -254,8 +273,8 @@ public class PluginUtils {
                     defaultValueString = I18n.text(defaultValueString);
                 defaultAndUnitsStr = "<br>";
                 defaultAndUnitsStr += units.length() > 0 ? "(" + units + ") " : "";
-                defaultAndUnitsStr += "<i>[[" + I18n.text("Default value:") + " \"<b><code>" + defaultValueString
-                        + "</code></b>\"]]</i>";
+                defaultAndUnitsStr += "<i>(" + I18n.text("Default value:") + " \"<b><code>" + defaultValueString
+                        + "</code></b>\")</i>";
             }
             else {
                 defaultAndUnitsStr += units.length() > 0 ? "<br>(" + units + ") " : "";
@@ -267,9 +286,9 @@ public class PluginUtils {
             if (a.name().length() == 0) {
                 name = f.getName();
             }
-            if (a.description().length() == 0) {
-                desc = f.getName();
-            }
+            // if (a.description().length() == 0) {
+            //     desc = f.getName();
+            // }
 
             if (a.editorClass() != PropertyEditor.class) {
                 editClass = a.editorClass();
@@ -300,22 +319,22 @@ public class PluginUtils {
             PluginProperty pp = new PluginProperty(name, f.getType(), o);
             pp.setShortDescription((forEdit ? I18n.text(desc) : desc) + defaultAndUnitsStr);
             pp.setEditable(a.editable());
-            pp.setDisplayName(forEdit ? I18n.text(name) : name);
+            pp.setDisplayName(forEdit ? (obj.getClass().equals(GeneralPreferences.class) ? "* " : "") + I18n.text(name) : name);
             if (category != null && category.length() > 0) {
                 pp.setCategory(category);
             }
 
             if (editClass != null) {
-                PropertiesEditor.getPropertyEditorRegistry().registerEditor(pp, editClass);
+                propertyEditorRegistry.registerEditor(pp, editClass);
             }
             else {
                 if (ReflectionUtil.hasInterface(f.getType(), PropertyType.class)) {
                     PropertyType pt = (PropertyType) o;
-                    PropertiesEditor.getPropertyEditorRegistry().registerEditor(pp, pt.getPropertyEditor());
+                    propertyEditorRegistry.registerEditor(pp, pt.getPropertyEditor());
                 }
                 if (f.getType().getEnumConstants() != null) {
                     if (o != null) {
-                        PropertiesEditor.getPropertyEditorRegistry().registerEditor(pp,
+                        propertyEditorRegistry.registerEditor(pp,
                                 new EnumEditor((Class<? extends Enum<?>>) o.getClass()));
                         PropertiesEditor.getPropertyRendererRegistry().registerRenderer(pp, new DefaultCellRenderer() {
                             {
@@ -332,7 +351,7 @@ public class PluginUtils {
             }
             
             if (rendererClass != null)
-                PropertiesEditor.getPropertyRendererRegistry().registerRenderer(pp, rendererClass);
+                propertyRendererRegistry.registerRenderer(pp, rendererClass);
 
             return pp;
         }
@@ -494,7 +513,7 @@ public class PluginUtils {
         return errors.toArray(new String[0]);
     }
     
-    private static Field[] getFields(Object o) {
+    public static Field[] getFields(Object o) {
         Class<?> c;
         if (o instanceof Class<?>)
             c = (Class<?>)o;

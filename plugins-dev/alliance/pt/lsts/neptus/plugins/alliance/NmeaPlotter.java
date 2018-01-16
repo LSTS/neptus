@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -292,7 +292,7 @@ public class NmeaPlotter extends ConsoleLayer {
     private void retransmit(String sentence) {
         DevDataText ddt = new DevDataText(sentence);
         for (ImcSystem s : ImcSystemsHolder.lookupSystemByType(SystemTypeEnum.CCU)) {
-            ImcMsgManager.getManager().sendMessageToSystem(ddt, s.getName());
+            ImcMsgManager.getManager().sendMessageToSystem(ddt.cloneMessage(), s.getName());
         }
     }
 
@@ -310,15 +310,15 @@ public class NmeaPlotter extends ConsoleLayer {
             String nmeaType = NMEAUtils.nmeaType(s);
             if (nmeaType.equals("$B-TLL") || nmeaType.equals("$A-TLL"))
                 contactDb.processBtll(s);
-            else if (nmeaType.equals("$GPGGA"))
+            else if (nmeaType.startsWith("GGA", 3)) // GP or GN
                 contactDb.processGGA(s);
-            else if (nmeaType.equals("$RATTM"))
+            else if (nmeaType.startsWith("TTM", 3)) // RA
                 contactDb.processRattm(s);
-            else if (nmeaType.equals("$GPHDT"))
+            else if (nmeaType.startsWith("HDT", 3)) // GP
                 contactDb.processGPHDT(s);
             else {
                 synchronized (parser) {
-                    parser.process(s);
+                    parser.process(s); // Is AIS
                 }
             }
         }

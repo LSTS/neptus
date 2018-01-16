@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -45,8 +45,8 @@ import java.awt.Toolkit;
 import java.awt.Transparency;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
@@ -94,6 +94,7 @@ import pt.lsts.neptus.mp.MapChangeListener;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.planeditor.IEditorMenuExtension;
 import pt.lsts.neptus.planeditor.IMapPopup;
+import pt.lsts.neptus.renderer2d.IMapRendererChangeEvent.RendererChangeEvent;
 import pt.lsts.neptus.renderer2d.tiles.TileMercatorSVG;
 import pt.lsts.neptus.types.coord.CoordinateSystem;
 import pt.lsts.neptus.types.coord.CoordinateUtil;
@@ -121,8 +122,8 @@ import pt.lsts.neptus.util.coord.MapTileUtil;
  * @author pdias
  */
 public class StateRenderer2D extends JPanel implements PropertiesProvider, Renderer, MapChangeListener,
-MouseWheelListener, MouseMotionListener, MouseListener, KeyListener, PreferencesListener, ILayerPainter,
-CustomInteractionSupport, IMapPopup, FocusListener {
+        MouseWheelListener, MouseMotionListener, MouseListener, KeyListener, PreferencesListener, ILayerPainter,
+        CustomInteractionSupport, IMapPopup, FocusListener {
 
     static final long serialVersionUID = 15;
     public static final int MAP_MOVES = 0, VEHICLE_MOVES = 1;
@@ -130,11 +131,10 @@ CustomInteractionSupport, IMapPopup, FocusListener {
     private final int DEFAULT_LOD = 18;
     private final int MIN_LOD = MapTileUtil.LEVEL_MIN;
     private final int MAX_LOD = MapTileUtil.LEVEL_MAX;
-    //private final Image overlayIcon = ImageUtils.getImage("images/neptus-icon1.png");
     private boolean worldMapShowScreenControls = false;
 
     public static Cursor rotateCursor, translateCursor, zoomCursor, grabCursor, grab2Cursor, crosshairCursor,
-    drawCursor;
+            drawCursor;
 
     protected AffineTransform identity = new AffineTransform();
 
@@ -175,7 +175,6 @@ CustomInteractionSupport, IMapPopup, FocusListener {
         worldPixelXY.setLocation(ms2, ms2);
     }
 
-
     private float zoom = DEFAULT_ZOOM; // zoomMult = 1.0f;
     private int levelOfDetail = DEFAULT_LOD;
     {
@@ -183,8 +182,7 @@ CustomInteractionSupport, IMapPopup, FocusListener {
     }
 
     private double setLevelOfDetailLastLat = Double.NaN; // #setLevelOfDetail(..) helper variable
-    private double mapScale = Double.NaN; // Depends on the levelOfDetail and center and screen DPI, used to cache the
-    // value
+    private double mapScale = Double.NaN; // Depends on the levelOfDetail and center and screen DPI, used to cache the value
     private double mapScaleLastLat = Double.NaN; // #getMapScale() helper variable
     private int mapScaleLastLevelOfDetail = -1; // #getMapScale() helper variable
     private int mapScaleLastScreenResolution = -1; // #getMapScale() helper variable
@@ -194,7 +192,8 @@ CustomInteractionSupport, IMapPopup, FocusListener {
 
     protected double fixedVehicleWidth = 25;
 
-    protected int show_mode = VEHICLE_MOVES, lastClickedButton;
+    protected int show_mode = VEHICLE_MOVES;
+    protected int lastClickedButton;
     protected LinkedList<MapClickListener> clickListeners = new LinkedList<MapClickListener>();
     protected Hashtable<String, SystemPositionAndAttitude> vehicleStates = new Hashtable<String, SystemPositionAndAttitude>();
     protected String[] vehicles = new String[0];
@@ -202,18 +201,22 @@ CustomInteractionSupport, IMapPopup, FocusListener {
     protected Hashtable<String, VehicleTailElement> vehicleTails = new Hashtable<String, VehicleTailElement>();
     protected HashSet<String> vehiclesTailOn = new HashSet<String>();
 
-    protected boolean worldMapShown = true, worldBondariesShown = false;
+    protected boolean worldMapShown = true;
+    protected boolean worldBondariesShown = false;
     protected String worldMapStyle = TileMercatorSVG.getTileStyleID();
 
-    protected boolean gridShown = false, showDots = false, legendShown = false;
-    // protected boolean vehicleSymbolShown = true;
+    protected boolean gridShown = false;
+    protected boolean showDots = false;
+    protected boolean legendShown = false;
     protected boolean vehicleImageShown = false;
     protected boolean mapCenterShown = true;
     protected boolean mapDragEnable = true;
     protected boolean isAllTailOn = false;
 
     protected int numberOfShownPoints = 0;
-    protected Point2D lastDragPoint = null, rulerFirstPoint = null, rulerLastPoint = null;
+    protected Point2D lastDragPoint = null;
+    protected Point2D rulerFirstPoint = null;
+    protected Point2D rulerLastPoint = null;
     protected MarkElement homeRef;
     protected MapLegend legend = new MapLegend();
     protected CursorLocationPainter cursorPainter = new CursorLocationPainter();
@@ -261,6 +264,11 @@ CustomInteractionSupport, IMapPopup, FocusListener {
     private BufferedImage stage;
 
     private Vector<IEditorMenuExtension> menuExtensions = new Vector<IEditorMenuExtension>();
+
+    private IMapRendererChangeEvent rendererChangelistener = null;
+    private boolean respondToRendererChangeEvents = false;
+    private boolean processingRendererChangeEvents = false;
+
     /**
      * Empty class constructor - creates a new renderer panel with empty map.
      */
@@ -327,23 +335,10 @@ CustomInteractionSupport, IMapPopup, FocusListener {
             e.printStackTrace();
         }
 
-        addComponentListener(new ComponentListener() {
-
-            @Override
-            public void componentShown(ComponentEvent e) {
-            }
-
+        addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
                 stage = null; 
-            }
-
-            @Override
-            public void componentMoved(ComponentEvent e) {
-            }
-
-            @Override
-            public void componentHidden(ComponentEvent e) {
             }
         });
     }
@@ -425,7 +420,6 @@ CustomInteractionSupport, IMapPopup, FocusListener {
      */
     public LocationType getTopLeftLocationType() {
         return getRealWorldLocation(new Point2D.Double(0, 0));
-
     }
 
     /**
@@ -443,7 +437,6 @@ CustomInteractionSupport, IMapPopup, FocusListener {
      * @return A LocationType that is inside the visible area of this Renderer
      */
     public LocationType getRandomVisibleLocationType() {
-        // LocationType topLeft = getTopLeftLocationType(), bottomRight = getBottomRightLocationType();
         LocationType center = new LocationType(getCenter());
         Random rnd = new Random(System.currentTimeMillis());
 
@@ -544,7 +537,6 @@ CustomInteractionSupport, IMapPopup, FocusListener {
      */
     @Override
     public void setMapGroup(MapGroup mapGroup) {
-
         if (this.mapGroup != null) {
             this.mapGroup.removeChangeListener(this);
         }
@@ -624,7 +616,6 @@ CustomInteractionSupport, IMapPopup, FocusListener {
                             vehicleType.getIconColor());
                     vehicleTail.setNumberOfPoints(numberOfShownPoints);
                     vehicleTails.put(systemId, vehicleTail);
-
                 }
                 else {
                     VehicleTailElement vehicleTail = new VehicleTailElement(getMapGroup(), new MapType(),
@@ -663,9 +654,9 @@ CustomInteractionSupport, IMapPopup, FocusListener {
      * @param vehicle The vehicle to be removed from this Renderer
      */
     public void removeVehicle(VehicleType vehicle) {
-        vehicleStates.remove(vehicle);
-        vehicleImages.remove(vehicle);
-        vehicleTails.remove(vehicle);
+        vehicleStates.remove(vehicle.getName());
+        vehicleImages.remove(vehicle.getName());
+        vehicleTails.remove(vehicle.getName());
     }
 
     /**
@@ -737,6 +728,9 @@ CustomInteractionSupport, IMapPopup, FocusListener {
         // + MapTileUtil.groundResolution(getCenter().getLatitudeAsDoubleValue(), levelOfDetail)
         // + "  |  mapSize=" + MapTileUtil.mapSize(levelOfDetail)
         // + "  |  wxh=" + getWidth() + "x" + getHeight());
+        
+        warnRendererChangeEvent();
+        
         return this.levelOfDetail;
     }
 
@@ -794,9 +788,6 @@ CustomInteractionSupport, IMapPopup, FocusListener {
      * Changes the current world zoom
      */
     public float setZoom(float newZoom) {
-        // newZoom = Math.min(newZoom, 100);
-        // this.zoom = newZoom;
-        // this.repaint();
         double grdResol = 1.0 / newZoom;
         for (int lod = MIN_LOD; lod <= MAX_LOD; lod++) {
             double lodG1 = MapTileUtil.groundResolution(getCenter().getLatitudeDegs(), lod);
@@ -952,7 +943,6 @@ CustomInteractionSupport, IMapPopup, FocusListener {
      * Whenever the component is painted, its graphics are updated to the current vehicle state.
      */
     public void update(Graphics2D g2d, boolean force) {
-
         if (antialiasing)
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         else
@@ -1110,8 +1100,6 @@ CustomInteractionSupport, IMapPopup, FocusListener {
 
         if (isGridShown())
             drawGrid(g2d, getGridSize());
-
-
     }
 
     /**
@@ -1119,7 +1107,6 @@ CustomInteractionSupport, IMapPopup, FocusListener {
      */
     @Override
     public void mouseDragged(MouseEvent e) {
-
         requestFocusInWindow();
         activeInteraction.mouseDragged(e, this);
         repaint();
@@ -1130,7 +1117,6 @@ CustomInteractionSupport, IMapPopup, FocusListener {
      */
     @Override
     public void mouseMoved(MouseEvent e) {
-
         requestFocusInWindow();
         activeInteraction.mouseMoved(e, this);
         repaint();
@@ -1238,30 +1224,11 @@ CustomInteractionSupport, IMapPopup, FocusListener {
                 @Override
                 public void actionPerformed(java.awt.event.ActionEvent arg0) {
                     GuiUtils.htmlMessage(
-                            ConfigFetch.getSuperParentFrame() == null ? StateRenderer2D.this : ConfigFetch
-                                    .getSuperParentFrame(),
-                                    I18n.text("2D Renderer Shortcuts"),
-                                    I18n.text("(Keys pressed while the Renderer component is focused)"),
-//                                    "<html><h1>" + I18n.text("2D Renderer Shortcuts")
-//                                    + "</h1><br><div align='center'><table border='1' align='center'><tr><th>"
-//                                    + I18n.text("Key Combination") + "</th><th>" + I18n.text("Action") + "</th></tr>"
-//                                    + "<tr><td>" + I18n.text("PgUp or plus (+)") + "</td><td>"
-//                                    + I18n.text("Double the current zoom value (plus in keyboards where '+' key does not need Shift)")
-//                                    + "</td></tr>" + "<tr><td>"
-//                                    + I18n.text("PgDn or minus (-)") + "</td><td>"
-//                                    + I18n.text("Half the current zoom value (minus in keyboards where '-' key does not need Shift)")
-//                                    + "</td></tr>" + "<tr><td>" + I18n.text("left") + "</td><td>"
-//                                    + I18n.text("Move the map to the left") + "</td></tr>" + "<tr><td>"
-//                                    + I18n.text("right") + "</td><td>" + I18n.text("Move the map to the right")
-//                                    + "</td></tr>" + "<tr><td>" + I18n.text("up") + "</td><td>"
-//                                    + I18n.text("Move the map upwards") + "</td></tr>" + "<tr><td>"
-//                                    + I18n.text("down") + "</td><td>" + I18n.text("Move the map downwards") + "</td></tr>"
-//                                    + "<tr><td>" + I18n.textc("N", "N key") + "</td><td>"
-//                                    + I18n.text("Reset the current rotation (up facing north)") + "</td></tr>"
-//                                    + "<tr><td>" + I18n.text("F1") + "</td><td>"
-//                                    + I18n.text("Reset the current view to defaults") + "</td></tr></table></div>"
-                                    MapShortcutsLayer.getShortcutsHtml()
-                                    );
+                            ConfigFetch.getSuperParentFrame() == null ? StateRenderer2D.this
+                                    : ConfigFetch.getSuperParentFrame(),
+                            I18n.text("2D Renderer Shortcuts"),
+                            I18n.text("(Keys pressed while the Renderer component is focused)"),
+                            MapShortcutsLayer.getShortcutsHtml());
                 }
             });
             item.setIcon(ImageUtils.getIcon("images/menus/info.png"));
@@ -1297,7 +1264,6 @@ CustomInteractionSupport, IMapPopup, FocusListener {
                 }
             }
 
-
             popup.show(this, e.getX(), e.getY());
 
             return;
@@ -1312,7 +1278,7 @@ CustomInteractionSupport, IMapPopup, FocusListener {
     }
 
     /**
-     * {@link MouseListener} implementation. Currently empty.
+     * {@link MouseListener} implementation. Currently calls activeInteraction.mouseExited(e, this).
      */
     @Override
     public void mouseExited(MouseEvent e) {
@@ -1324,7 +1290,6 @@ CustomInteractionSupport, IMapPopup, FocusListener {
      */
     @Override
     public void mousePressed(MouseEvent e) {
-
         requestFocusInWindow();
         activeInteraction.mousePressed(e, this);
         repaint();
@@ -1335,18 +1300,15 @@ CustomInteractionSupport, IMapPopup, FocusListener {
      */
     @Override
     public void mouseReleased(MouseEvent e) {
-
         requestFocusInWindow();
         activeInteraction.mouseReleased(e, this);
         repaint();
     }
     
-    
     @Override
     public void focusGained(FocusEvent e) {
         activeInteraction.focusGained(e, this);
     }
-    
     
     @Override
     public void focusLost(FocusEvent e) {
@@ -1458,7 +1420,6 @@ CustomInteractionSupport, IMapPopup, FocusListener {
      */
     @Override
     public void followVehicle(String systemId) {
-
         if (systemId != null)
             show_mode = MAP_MOVES;
         else
@@ -1597,7 +1558,6 @@ CustomInteractionSupport, IMapPopup, FocusListener {
      * @param cellSize The width of each grid cell, in meters
      */
     public void drawGrid(Graphics2D g, double cellSize) {
-
         double panelCellSize = (cellSize * zoom);
 
         if (panelCellSize < 3)
@@ -1707,11 +1667,9 @@ CustomInteractionSupport, IMapPopup, FocusListener {
      */
     @Override
     public void keyPressed(KeyEvent keyEvt) {
-
         activeInteraction.keyPressed(keyEvt, this);
         repaint();
         return;
-
     }
 
     /**
@@ -1897,6 +1855,7 @@ CustomInteractionSupport, IMapPopup, FocusListener {
      */
     public void setRotation(double rotationAngle) {
         this.rotationRads = rotationAngle;
+        warnRendererChangeEvent();
     }
 
     /**
@@ -1907,7 +1866,6 @@ CustomInteractionSupport, IMapPopup, FocusListener {
      * @return The intercepted <b>MapObject</b> or <b>null</b> if no object was intercepted
      */
     public AbstractElement getFirstInterceptedObject(Point2D screenPoint) {
-
         LocationType lt = getRealWorldLocation(screenPoint);
         Object[] objArray;
 
@@ -2055,7 +2013,7 @@ CustomInteractionSupport, IMapPopup, FocusListener {
      */
     public LocationType getVehicleLocation(String vehicle) {
         try {
-            return vehicleStates.get(VehiclesHolder.getVehicleById(vehicle)).getPosition();
+            return vehicleStates.get(vehicle).getPosition();
         }
         catch (Exception e) {
             NeptusLog.pub().debug("getVehicleLocation(" + vehicle + ")");
@@ -2068,7 +2026,7 @@ CustomInteractionSupport, IMapPopup, FocusListener {
      */
     public SystemPositionAndAttitude getVehicleState(String vehicle) {
         try {
-            return vehicleStates.get(VehiclesHolder.getVehicleById(vehicle));
+            return vehicleStates.get(vehicle);
         }
         catch (Exception e) {
             NeptusLog.pub().debug("getVehicleState(" + vehicle + ")");
@@ -2103,11 +2061,9 @@ CustomInteractionSupport, IMapPopup, FocusListener {
         interactions.remove(interaction);
     }
 
-
     @Deprecated
     @Override
     public void setViewMode(int mode) {
-
     }
 
     /**
@@ -2180,5 +2136,73 @@ CustomInteractionSupport, IMapPopup, FocusListener {
      */
     public WorldRenderPainter getWorldMapPainter() {
         return worldMapPainter;
+    }
+    
+    /**
+     * This will create a new renderer change event and dispatch it to the listener, if set.
+     */
+    private void warnRendererChangeEvent() {
+        if (processingRendererChangeEvents || rendererChangelistener == null)
+            return;
+        
+        RendererChangeEvent event = new RendererChangeEvent(this, getCenter(), getRotation(), getLevelOfDetail());
+        NeptusLog.pub().debug("Sending   " + event);
+        // new Exception().printStackTrace();
+        rendererChangelistener.mapRendererChangeEvent(event);
+    }
+    
+    /**
+     * To add a {@link IMapRendererChangeEvent} listener.
+     * 
+     * @param listener
+     */
+    public void addRendererChangeEvent(IMapRendererChangeEvent listener) {
+        this.rendererChangelistener = listener;
+    }
+
+    /**
+     * To remove a {@link IMapRendererChangeEvent} listener.
+     * 
+     * @param listener
+     */
+    public void removeRendererChangeEvent(IMapRendererChangeEvent listener) {
+        if (rendererChangelistener != null && rendererChangelistener == listener)
+            this.rendererChangelistener = null;
+    }
+
+    /**
+     * To enable or disable the external renderer change events.
+     * 
+     * @param respondToRendererChangeEvents the respondToRendererChangeEvents to set
+     */
+    public void setRespondToRendererChangeEvents(boolean respondToRendererChangeEvents) {
+        this.respondToRendererChangeEvents = respondToRendererChangeEvents;
+    }
+    
+    /**
+     * This is an external change event to be processed.
+     * 
+     * @param event
+     * @return
+     */
+    public boolean newRendererChangeEvent(IMapRendererChangeEvent.RendererChangeEvent event) {
+        if (!respondToRendererChangeEvents || this == event.getSource())
+            return false;
+        
+        NeptusLog.pub().warn("Receiving " + event);
+        processingRendererChangeEvents = true;
+        try {
+            setCenter(event.getCenterLoc());
+            setRotation(event.getRotationRads());
+            setLevelOfDetail(event.getLevelOfDetail());
+        }
+        catch (Exception e) {
+            NeptusLog.pub().debug(e.getMessage());
+        }
+        finally {
+            processingRendererChangeEvents = false;
+        }
+
+        return true;
     }
 }

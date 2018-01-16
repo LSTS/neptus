@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -62,74 +62,77 @@ public class NetcdfTimeSeriesExporter {
     }
 
     public void export(File outputFile) throws Exception {
-        NetcdfFileWriteable file = new NetcdfFileWriteable(outputFile.getAbsolutePath(), true);
-        Dimension timeDim = file.addDimension("time", (int) (endTime-startTime));
-        Vector<LocationType> locations = new Vector<>();
-        LinkedHashMap<String, Vector<Double>> scalars = new LinkedHashMap<>();
-        LinkedHashMap<String, Integer> lsfIndexes = new LinkedHashMap<>();
-        
-        file.addVariable("latitude", DataType.DOUBLE, new Dimension[] { timeDim });
-        file.addVariable("longitude", DataType.DOUBLE, new Dimension[] { timeDim });
-        file.addVariable("depth", DataType.DOUBLE, new Dimension[] { timeDim });
-
-        scalars.put("latitude", new Vector<Double>());
-        scalars.put("longitude", new Vector<Double>());
-        scalars.put("depth", new Vector<Double>());
-        file.addVariableAttribute("latitude", "units", "degrees_north");
-        file.addVariableAttribute("longitude", "units", "degrees_east");
-        file.addVariableAttribute("depth", "units", "meters");
-
-        for (ImcField f : scalarsToExport) {
-            file.addVariable(f.getVarName(), DataType.DOUBLE, new Dimension[] { timeDim });
-            scalars.put(f.getVarName(), new Vector<Double>());
-            lsfIndexes.put(f.getVarName(), 0);
-        }
-        
-        
-
-        for (ImcField f : scalarsToExport) {
-            if (index.getDefinitions().getType(f.getMessage()).getFieldUnits(f.getField()) != null)
-                file.addVariableAttribute(f.getVarName(), "units",
-                        index.getDefinitions().getType(f.getMessage()).getFieldUnits(f.getField()));
-        }
-        
-        
-        int stateId = index.getDefinitions().getMessageId("EstimatedState");
-        int curIndex = 0;
-        for (double time = startTime; time < endTime; time++) {
-            curIndex = index.getMessageAtOrAfer(stateId, 255, curIndex, time);
-            if (curIndex == -1)
-                break;
+        try(NetcdfFileWriteable file = new NetcdfFileWriteable(outputFile.getAbsolutePath(), true)) {
+            Dimension timeDim = file.addDimension("time", (int) (endTime-startTime));
+            Vector<LocationType> locations = new Vector<>();
+            LinkedHashMap<String, Vector<Double>> scalars = new LinkedHashMap<>();
+            LinkedHashMap<String, Integer> lsfIndexes = new LinkedHashMap<>();
             
-            IMCMessage m = index.getMessage(curIndex);
-            double lat = Math.toDegrees(m.getDouble("lat"));
-            double lon = Math.toDegrees(m.getDouble("lon"));
+            file.addVariable("latitude", DataType.DOUBLE, new Dimension[] { timeDim });
+            file.addVariable("longitude", DataType.DOUBLE, new Dimension[] { timeDim });
+            file.addVariable("depth", DataType.DOUBLE, new Dimension[] { timeDim });
             
-            LocationType loc = new LocationType(lat, lon);
-            loc.translatePosition(m.getDouble("x"), m.getDouble("y"), 0);            
-            locations.add(loc);
-            loc.convertToAbsoluteLatLonDepth();
-            scalars.get("latitude").add(loc.getLatitudeDegs());
-            scalars.get("longitude").add(loc.getLongitudeDegs());
-            scalars.get("depth").add(m.getDouble("depth"));
+            scalars.put("latitude", new Vector<Double>());
+            scalars.put("longitude", new Vector<Double>());
+            scalars.put("depth", new Vector<Double>());
+            file.addVariableAttribute("latitude", "units", "degrees_north");
+            file.addVariableAttribute("longitude", "units", "degrees_east");
+            file.addVariableAttribute("depth", "units", "meters");
             
             for (ImcField f : scalarsToExport) {
-                int idx = index.getMessageAtOrAfer(index.getDefinitions().getMessageId(f.getMessage()),
-                        index.getEntityId(f.getEntity()), lsfIndexes.get(f.getVarName()), time);
-                lsfIndexes.put(f.getVarName(), idx);
-                try {
-                    if (idx != -1)
-                        scalars.get(f.getVarName()).add(index.getMessage(idx).getDouble(f.getField()));
-                    else
-                        scalars.get(f.getVarName()).add(0d);
-                }
-                catch (Exception e) {
-                    e.printStackTrace();
+                file.addVariable(f.getVarName(), DataType.DOUBLE, new Dimension[] { timeDim });
+                scalars.put(f.getVarName(), new Vector<Double>());
+                lsfIndexes.put(f.getVarName(), 0);
+            }
+            
+            
+            
+            for (ImcField f : scalarsToExport) {
+                if (index.getDefinitions().getType(f.getMessage()).getFieldUnits(f.getField()) != null)
+                    file.addVariableAttribute(f.getVarName(), "units",
+                            index.getDefinitions().getType(f.getMessage()).getFieldUnits(f.getField()));
+            }
+            
+            
+            int stateId = index.getDefinitions().getMessageId("EstimatedState");
+            int curIndex = 0;
+            for (double time = startTime; time < endTime; time++) {
+                curIndex = index.getMessageAtOrAfer(stateId, 255, curIndex, time);
+                if (curIndex == -1)
+                    break;
+                
+                IMCMessage m = index.getMessage(curIndex);
+                double lat = Math.toDegrees(m.getDouble("lat"));
+                double lon = Math.toDegrees(m.getDouble("lon"));
+                
+                LocationType loc = new LocationType(lat, lon);
+                loc.translatePosition(m.getDouble("x"), m.getDouble("y"), 0);            
+                locations.add(loc);
+                loc.convertToAbsoluteLatLonDepth();
+                scalars.get("latitude").add(loc.getLatitudeDegs());
+                scalars.get("longitude").add(loc.getLongitudeDegs());
+                scalars.get("depth").add(m.getDouble("depth"));
+                
+                for (ImcField f : scalarsToExport) {
+                    int idx = index.getMessageAtOrAfer(index.getDefinitions().getMessageId(f.getMessage()),
+                            index.getEntityId(f.getEntity()), lsfIndexes.get(f.getVarName()), time);
+                    lsfIndexes.put(f.getVarName(), idx);
+                    try {
+                        if (idx != -1)
+                            scalars.get(f.getVarName()).add(index.getMessage(idx).getDouble(f.getField()));
+                        else
+                            scalars.get(f.getVarName()).add(0d);
+                    }
+                    catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
+            NeptusLog.pub().info("<###> "+scalars);
         }
-        
-        NeptusLog.pub().info("<###> "+scalars);
+        catch (Exception e) {
+            NeptusLog.pub().warn(e.getMessage());
+        }
     }
     
     public static void main(String[] args) throws Exception {

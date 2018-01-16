@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -513,7 +513,6 @@ public class PlanUtil {
             return plan;
         }
         
-        @SuppressWarnings("unused")
         PlanType originalPlan = plan.clonePlan();
         plan.setVehicles(newVehicles);
 
@@ -558,7 +557,7 @@ public class PlanUtil {
             
         }
         
-        // System.out.println(String.format("ORIGINAL PLAN:\n%s\n\nNEW PLAN:\\n%s\n", originalPlan.asXML(), plan.asXML()));
+        NeptusLog.pub().debug(String.format("ORIGINAL PLAN:\n%s\n\nNEW PLAN:\\n%s\n", originalPlan.asXML(), plan.asXML()));
         
         return plan;
     }
