@@ -16,7 +16,7 @@
       <type>real</type>
       <visibility>user</visibility>
       <scope>none</scope>
-      <default>1.5</default>
+      <default>0.3</default>
       <units>kn</units>
       <desc>Minimum stable speed during survey</desc>
       <min>1</min>
@@ -64,7 +64,7 @@
       <min>1</min>
     </param>
     <param name="EmergencyEnd">
-      <name-i18n>Emergency End Behavior</name-i18n>
+      <name-i18n>Mission End Behavior</name-i18n>
       <type>string</type>
       <visibility>user</visibility>
       <scope>plan</scope>
@@ -94,7 +94,7 @@
       <scope>maneuver</scope>
       <default>false</default>
       <units/>
-      <desc>True to activate task, false otherwise</desc>
+      <desc>Active allows for automatic avoidance of obstacles in the water column</desc>
     </param>
   </section>
   <section name="MicronDST" name-i18n="Obstacle Avoidance Sensor">
@@ -115,7 +115,7 @@
       <scope>maneuver</scope>
       <default>false</default>
       <units/>
-      <desc>True to activate task, false otherwise</desc>
+      <desc>Active allows for external control</desc>
     </param>
   </section>
   <section name="Acoms" name-i18n="Acoms">
@@ -126,7 +126,7 @@
       <scope>maneuver</scope>
       <default>false</default>
       <units/>
-      <desc>Unchecked sets to passive mode, checked sets into active mode</desc>
+      <desc>Unchecked: modem responds on external request only</desc>
     </param>
     <param name="Repetitions">
       <name-i18n>Repetitions</name-i18n>
@@ -135,7 +135,7 @@
       <scope>maneuver</scope>
       <default>0</default>
       <units></units>
-      <desc></desc>
+      <desc>Number of consecutive messages</desc>
       <min>0</min>
       <max>5</max>
       <values-if>
@@ -156,7 +156,7 @@
       <scope>maneuver</scope>
       <default>false</default>
       <units/>
-      <desc>Transmits only on curves</desc>
+      <desc>Transmits in curves only</desc>
     </param>
     <param name="Interval">
       <name-i18n>Interval</name-i18n>
@@ -165,7 +165,7 @@
       <scope>maneuver</scope>
       <default>1</default>
       <units>s</units>
-      <desc></desc>
+      <desc>Time between active transmissions</desc>
       <min>-1</min>
       <max>60</max>
       <values-if>
@@ -188,7 +188,7 @@
       <scope>maneuver</scope>
       <default>false</default>
       <units/>
-      <desc>True to activate task, false otherwise</desc>
+      <desc>Activates sensor operation</desc>
     </param>
     <param name="Mission Critical">
       <name-i18n>Mission Critical</name-i18n>
@@ -205,7 +205,7 @@
       <scope>maneuver</scope>
       <default>HF</default>
       <units/>
-      <desc></desc>
+      <desc>Select High Frequency, Low Frequency, or both</desc>
       <values>HF, LF, LF_HF</values>
       <values-i18n>HF, LF, both</values-i18n>
     </param>
@@ -216,7 +216,7 @@
       <scope>maneuver</scope>
       <default>100</default>
       <units>%</units>
-      <desc>Power</desc>
+      <desc>Sets power level</desc>
       <min>0</min>
       <max>100</max>
     </param>
@@ -227,7 +227,7 @@
       <scope>maneuver</scope>
       <default>50</default>
       <units>m</units>
-      <desc>Operating range</desc>
+      <desc>Scanning range</desc>
       <min>0</min>
       <max>200</max>
     </param>
@@ -240,7 +240,7 @@
       <scope>maneuver</scope>
       <default>false</default>
       <units/>
-      <desc>True to activate task, false otherwise</desc>
+      <desc>Activates sensor operation</desc>
     </param>
     <param name="Mission Critical">
       <name-i18n>Mission Critical</name-i18n>
@@ -257,7 +257,7 @@
       <scope>maneuver</scope>
       <default>140</default>
       <units>°</units>
-      <desc></desc>
+      <desc>Sets opening angle</desc>
       <min>5</min>
       <max>179</max>
     </param>
@@ -268,7 +268,7 @@
       <scope>maneuver</scope>
       <default>BATHY</default>
       <units/>
-      <desc></desc>
+      <desc>Sets operational mode</desc>
       <values>BATHY, BATHYAMP</values>
       <values-i18n>Bathy, BathyAmp</values-i18n>
     </param>
@@ -279,7 +279,7 @@
       <scope>maneuver</scope>
       <default>Depth</default>
       <units/>
-      <desc></desc>
+      <desc>Sets gate mode for bottom detection</desc>
       <values>Depth, Range</values>
       <values-i18n>Depth, Range</values-i18n>
     </param>
@@ -290,7 +290,7 @@
       <scope>maneuver</scope>
       <default>1</default>
       <units>m</units>
-      <desc></desc>
+      <desc>Sets near limit of gate</desc>
       <min>1</min>
       <max>300</max>
     </param>
@@ -301,7 +301,7 @@
       <scope>maneuver</scope>
       <default>20</default>
       <units>m</units>
-      <desc>Minimum value depends on the upper gate value (min = [Value of upper gate] m)</desc>
+      <desc>Sets far limit of gate, at least value of upper gate</desc>
       <min>1</min>
       <max>300</max>
     </param>
@@ -312,7 +312,7 @@
       <scope>maneuver</scope>
       <default>EQUIDIST</default>
       <units/>
-      <desc></desc>
+      <desc>Distribution of individual beams within opening angle</desc>
       <values>EQUIANGLE, EQUIDIST</values>
       <values-i18n>Equiangular, Equidistant</values-i18n>
     </param>
@@ -325,7 +325,7 @@
       <scope>maneuver</scope>
       <default>false</default>
       <units/>
-      <desc>True to activate task, false otherwise</desc>
+      <desc>Activates sensor operation</desc>
     </param>
     <param name="Mission Critical">
       <name-i18n>Mission Critical</name-i18n>
@@ -342,7 +342,7 @@
       <scope>maneuver</scope>
       <default>10</default>
       <units>m</units>
-      <desc>Operating range</desc>
+      <desc>Scanning range</desc>
       <min>0</min>
       <max>300</max>
     </param>
@@ -353,7 +353,7 @@
       <scope>maneuver</scope>
       <default>50</default>
       <units>%</units>
-      <desc></desc>
+      <desc>Gain for low frequency reception</desc>
       <min>0</min>
       <max>100</max>
     </param>
@@ -364,7 +364,7 @@
       <scope>maneuver</scope>
       <default>50</default>
       <units>%</units>
-      <desc></desc>
+      <desc>Threshold for data visibility</desc>
       <min>0</min>
       <max>100</max>
     </param>
@@ -375,7 +375,7 @@
       <scope>maneuver</scope>
       <default>50</default>
       <units>%</units>
-      <desc></desc>
+      <desc>Contrast for low frequency reception</desc>
       <min>0</min>
       <max>100</max>
     </param>
@@ -386,7 +386,7 @@
       <scope>maneuver</scope>
       <default>50</default>
       <units>%</units>
-      <desc></desc>
+      <desc>Gain for high frequency reception</desc>
       <min>0</min>
       <max>100</max>
     </param>
@@ -397,7 +397,7 @@
       <scope>maneuver</scope>
       <default>50</default>
       <units>%</units>
-      <desc></desc>
+      <desc>Threshold for data visibility</desc>
       <min>0</min>
       <max>100</max>
     </param>
@@ -408,7 +408,7 @@
       <scope>maneuver</scope>
       <default>50</default>
       <units>%</units>
-      <desc></desc>
+      <desc>Contrast for low frequency reception</desc>
       <min>0</min>
       <max>100</max>
     </param>
@@ -421,7 +421,7 @@
       <scope>maneuver</scope>
       <default>false</default>
       <units/>
-      <desc>True to activate task, false otherwise</desc>
+      <desc>Activates camera</desc>
     </param>
     <param name="Mission Critical">
       <name-i18n>Mission Critical</name-i18n>
@@ -438,7 +438,7 @@
       <scope>maneuver</scope>
       <default>Image</default>
       <units/>
-      <desc></desc>
+      <desc>Camera will always record still images</desc>
       <values>Image, Video</values>
       <values-i18n>Still Images, Video</values-i18n>
     </param>
@@ -449,7 +449,7 @@
       <scope>maneuver</scope>
       <default>4</default>
       <units>fps</units>
-      <desc></desc>
+      <desc>Framerate for high resolution image capturing</desc>
       <min>-1</min>
       <max>4</max>
       <values-if>
@@ -470,6 +470,7 @@
       <scope>maneuver</scope>
       <default>false</default>
       <units/>
+      <desc>Outputs compressed video</desc>
     </param>
     <param name="Gain">
       <name-i18n>Gain</name-i18n>
@@ -478,7 +479,7 @@
       <scope>maneuver</scope>
       <default>25</default>
       <units>%</units>
-      <desc>0 for auto gain</desc>
+      <desc>Sets light sensivity, 0 for auto gain</desc>
       <min>0</min>
       <max>100</max>
       <values>0, 1..100</values>
@@ -501,6 +502,7 @@
       <scope>maneuver</scope>
       <default>true</default>
       <units/>
+      <desc>Recorded images will be compressed</desc>
     </param>
     <param name="Shutter_Time">
       <name-i18n>Shutter Time</name-i18n>
@@ -541,7 +543,7 @@
       <scope>maneuver</scope>
       <default>false</default>
       <units/>
-      <desc>True to activate task, false otherwise</desc>
+      <desc>Activates sensor data recording</desc>
     </param>
     <param name="Mission Critical">
       <name-i18n>Mission Critical</name-i18n>
@@ -560,7 +562,7 @@
       <scope>maneuver</scope>
       <default>false</default>
       <units/>
-      <desc>True to activate task, false otherwise</desc>
+      <desc>Activates sensor operation</desc>
     </param>
     <param name="Mission Critical">
       <name-i18n>Mission Critical</name-i18n>
