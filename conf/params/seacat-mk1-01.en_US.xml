@@ -164,7 +164,7 @@
       <visibility>user</visibility>
       <scope>maneuver</scope>
       <default>1</default>
-      <units>s</units>
+      <units>min</units>
       <desc>Time between active transmissions</desc>
       <min>-1</min>
       <max>60</max>
