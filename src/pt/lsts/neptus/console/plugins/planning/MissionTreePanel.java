@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -156,7 +156,7 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
         removeAll();
         setPreferredSize(new Dimension(150, 400));
         setMinimumSize(new Dimension(0, 0));
-        setMaximumSize(new Dimension(1000, 1000));
+        // setMaximumSize(new Dimension(1000, 1000));
 
         setLayout(new BorderLayout());
         add(browser, BorderLayout.CENTER);
@@ -375,7 +375,7 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
         for (ExtendedTreeNode node : selectedNodes) {
             Object userObject = node.getUserObject();
             if (userObject instanceof TransponderElement
-                    && node.getUserInfo().get(NodeInfoKey.SYNC) != State.REMOTE)
+                    && node.getUserInfo().get(NodeInfoKey.SYNC.name()) != State.REMOTE)
                 trans.add((TransponderElement) userObject);
         }
         return trans;

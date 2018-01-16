@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -34,7 +34,6 @@ package pt.lsts.neptus.plugins.multibeam.viewers;
 
 import java.awt.Dimension;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -145,8 +144,8 @@ public class MultibeamDualViewer extends ConsolePanel {
     /* (non-Javadoc)
      * @see pt.lsts.neptus.console.ConsolePanel#XML_PropertiesRead(org.dom4j.Element)
      */
-    public void XML_PropertiesRead(Element e) {
-        super.XML_PropertiesRead(e);
+    protected void readPropertiesFromXml(Element e) {
+        super.readPropertiesFromXml(e);
         
         PluginUtils.setConfigXml(crossSection, e.asXML());
         PluginUtils.setConfigXml(waterfall, e.asXML());
@@ -155,7 +154,7 @@ public class MultibeamDualViewer extends ConsolePanel {
     /* (non-Javadoc)
      * @see pt.lsts.neptus.console.ConsolePanel#XML_PropertiesWrite(org.dom4j.Element)
      */
-    public void XML_PropertiesWrite(Element e) {
+    protected void writePropertiesToXml(Element e) {
         //super.XML_PropertiesWrite(e);
         
         String xml = PluginUtils.getConfigXml(this, waterfall, crossSection);
