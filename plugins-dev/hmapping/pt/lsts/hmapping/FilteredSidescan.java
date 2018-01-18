@@ -39,7 +39,6 @@ import java.util.ArrayList;
 import javax.imageio.ImageIO;
 import javax.swing.ProgressMonitor;
 
-
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
@@ -61,12 +60,8 @@ import pt.lsts.neptus.plugins.PluginUtils;
  */
 @PluginDescription(name="Filtered sidescan")
 public class FilteredSidescan implements MRAExporter {
-    SidescanParser parser = null;
-    IMraLogGroup source = null;
-    
-    public FilteredSidescan(IMraLogGroup source) {
-        this.source = source;
-    }
+    private SidescanParser parser = null;
+    private IMraLogGroup source = null;
     
     @NeptusProperty(name="Time Variable Gain")
     public double timeVariableGain = 300;
@@ -97,9 +92,14 @@ public class FilteredSidescan implements MRAExporter {
     
     @NeptusProperty(name="Color map")
     public ColorMap cmap = ColorMapFactory.createGrayScaleColorMap();
+
+    public FilteredSidescan(IMraLogGroup source) {
+        this.source = source;
+    }
     
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
+        this.source = source;
         parser = SidescanParserFactory.build(source);
         boolean canBeApplied = (parser != null && !parser.getSubsystemList().isEmpty());
         if (canBeApplied) {
@@ -111,10 +111,11 @@ public class FilteredSidescan implements MRAExporter {
   
     @Override
     public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
-        parser = SidescanParserFactory.build(source);
+        parser = SidescanParserFactory.build(this.source);
         boolean cancel = PluginUtils.editPluginProperties(this, true);
         if (cancel)
-            return I18n.text("Cancelled by user");        
+            return I18n.text("Cancelled by user");
+        
         SidescanParameters params = new SidescanParameters(normalization, timeVariableGain);
         long start = parser.firstPingTimestamp();
         long end = parser.lastPingTimestamp();
@@ -125,7 +126,8 @@ public class FilteredSidescan implements MRAExporter {
         }
         File out;
         try {
-            pmonitor.setNote("Creating output dir");
+            if(pmonitor != null)
+                pmonitor.setNote("Creating output dir");
             out = new File(source.getFile("mra"), "filtered_sss_images");
             out.mkdirs();            
         }
@@ -133,6 +135,7 @@ public class FilteredSidescan implements MRAExporter {
             NeptusLog.pub().error(e);
             return e.getMessage();
         }
+        
         int ypos = 0;
         int image_num = 1;
         ArrayList<SidescanLine> lines = new ArrayList<SidescanLine>();
@@ -141,11 +144,12 @@ public class FilteredSidescan implements MRAExporter {
         int height = 1000;
         
         for (long time = start; time < end - 1000; time += 1000) {
-            if (pmonitor.isCanceled())
+            if (pmonitor != null && pmonitor.isCanceled())
                 return I18n.text("Cancelled by the user");
             lines = parser.getLinesBetween(time, time + 1000, sys, params);
             if (lines.isEmpty())
                 continue;
+            
             if (img == null) {
                 width = Math.min(imageWidth, lines.get(0).getXSize());
                 height = imageHeight;
@@ -158,7 +162,8 @@ public class FilteredSidescan implements MRAExporter {
                 double altitude = pos.getAltitude();
                 double roll = pos.getRoll();
                 double pitch = pos.getPitch();
-                if(Math.abs(altitude) > maxAltitude || Math.abs(Math.toDegrees(pitch)) > maxPitch || Math.abs(Math.toDegrees(roll)) > maxRoll) {
+                if (Math.abs(altitude) > maxAltitude || Math.abs(Math.toDegrees(pitch)) > maxPitch
+                        || Math.abs(Math.toDegrees(roll)) > maxRoll) {
                     continue;
                 }
                 if(pmonitor != null) {
@@ -168,8 +173,10 @@ public class FilteredSidescan implements MRAExporter {
                 if (ypos >= height || time == end) {
                     try {
                         ImageIO.write(img, "PNG", new File(out, "filtered_sss_"+image_num+".png"));
-                        if (imageOverlap > 0)
-                            img.getGraphics().drawImage(img, 0, 0, img.getWidth(), imageOverlap, 0, img.getHeight()-imageOverlap, img.getWidth(), img.getHeight(), null);                            
+                        if (imageOverlap > 0) {
+                            img.getGraphics().drawImage(img, 0, 0, img.getWidth(), imageOverlap, 0,
+                                    img.getHeight() - imageOverlap, img.getWidth(), img.getHeight(), null);
+                        }
                         img.getGraphics().clearRect(0, imageOverlap, img.getWidth(), img.getHeight()-imageOverlap);
                         ypos = imageOverlap;
                         image_num++;
@@ -185,7 +192,8 @@ public class FilteredSidescan implements MRAExporter {
                 img.getGraphics().drawImage(tmp, 0, ypos, width-1, ypos+1, 0, 0, tmp.getWidth(), tmp.getHeight(), null);
                 ypos++;
             }
-        }        
+        }
+        
         try {
             ImageIO.write(img, "PNG", new File(out, "filtered_sss_"+image_num+".png"));
             ypos = 0;
@@ -195,11 +203,15 @@ public class FilteredSidescan implements MRAExporter {
             NeptusLog.pub().error(e);
             return e.getMessage();
         }
-        pmonitor.close();        
+        
+        if (pmonitor != null)
+            pmonitor.close();
+        
         if (parser != null ) {
             parser.cleanup();
             parser = null;
         }
+        
         return I18n.textf("%num images were exported to %path.", image_num, out.getAbsolutePath());
     }    
 }
