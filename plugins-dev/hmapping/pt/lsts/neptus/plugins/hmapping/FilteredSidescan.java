@@ -30,7 +30,7 @@
  * Author: andrediegues
  * Jan 18, 2018
  */
-package pt.lsts.hmapping;
+package pt.lsts.neptus.plugins.hmapping;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
