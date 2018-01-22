@@ -35,20 +35,23 @@ package pt.lsts.neptus.soi;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.Point2D;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map.Entry;
 
 import javax.swing.JLabel;
+import javax.swing.JPopupMenu;
 
 import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Arrays;
 
 import com.google.common.eventbus.Subscribe;
 
 import pt.lsts.autonomy.soi.Plan;
-import pt.lsts.autonomy.soi.Waypoint;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.PlanSpecification;
 import pt.lsts.imc.SoiCommand;
@@ -73,9 +76,9 @@ import pt.lsts.neptus.plugins.PluginProperty;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.SimpleRendererInteraction;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
-import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
+import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.GuiUtils;
 
@@ -100,10 +103,10 @@ public class SoiInteraction extends SimpleRendererInteraction {
 
     @NeptusProperty(name = "Time (seconds) till first waypoint", description = "Time, in seconds, for the first waypoint ETA")
     public double timeToFirstWaypoint;
-    
+
     @NeptusProperty(name = "Hide layer if inactive")
     public boolean hideIfInactive = true;
-    
+
     private LinkedHashMap<String, Plan> plans = new LinkedHashMap<>();
 
     @NeptusMenuItem("Tools>SOI>Send Resume")
@@ -149,7 +152,7 @@ public class SoiInteraction extends SimpleRendererInteraction {
         }
         catch (Exception e) {
             NeptusLog.pub().error("Error translating plan", e);
-        }
+        }                
     }
 
     @NeptusMenuItem("Tools>SOI>Clear Plan")
@@ -240,9 +243,10 @@ public class SoiInteraction extends SimpleRendererInteraction {
     public void on(SoiCommand cmd) {
         if (cmd.getType() != SoiCommand.TYPE.SUCCESS)
             return;
-        
-        NeptusLog.pub().info("Processing SoiCommand: "+cmd.asJSON()+", "+Thread.currentThread().getName()+", "+cmd.hashCode());
-        
+
+        NeptusLog.pub().info("Processing SoiCommand: " + cmd.asJSON() + ", " + Thread.currentThread().getName() + ", "
+                + cmd.hashCode());
+
         switch (cmd.getCommand()) {
             case GET_PARAMS:
                 getConsole().post(Notification.success(I18n.text("SOI Settings"),
@@ -257,6 +261,58 @@ public class SoiInteraction extends SimpleRendererInteraction {
                 break;
             default:
                 break;
+        }
+    }
+
+    private void paintPlans(Graphics2D g, StateRenderer2D renderer) {
+        for (Entry<String, Plan> p : plans.entrySet()) {
+            SoiPlanRenderer prenderer = new SoiPlanRenderer();
+            try {
+                prenderer.setColor(VehiclesHolder.getVehicleById(p.getKey()).getIconColor());
+                prenderer.setPlan(p.getValue());
+                prenderer.paint(g, renderer);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    
+    @Override
+    public void mouseClicked(MouseEvent event, StateRenderer2D source) {
+        if (event.getButton() == MouseEvent.BUTTON3) {
+            JPopupMenu popup = new JPopupMenu();
+            
+            for (final Method m : getClass().getDeclaredMethods()) {
+                if (m.getAnnotation(NeptusMenuItem.class) != null) {
+                    String path = m.getAnnotation(NeptusMenuItem.class).value();
+                    String name = path.substring(path.lastIndexOf(">")+1);
+                    
+                    popup.add(name).addActionListener(new ActionListener() {
+                        
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            try {
+                                m.invoke(SoiInteraction.this);                   
+                            }
+                            catch (Exception ex) {
+                                ex.printStackTrace();
+                            }
+                        }
+                    });
+                }
+            }
+            
+            popup.addSeparator();
+            
+            popup.add("Change plug-in settings").addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    PluginUtils.editPluginProperties(SoiInteraction.this, true);
+                }
+            });
+            
+            popup.show(source, event.getX(), event.getY());
         }
     }
 
@@ -310,42 +366,43 @@ public class SoiInteraction extends SimpleRendererInteraction {
         WiFi,
         Iridium
     }
-    
+
     public String infoHtml(ImcSystem[] vehicles) {
-        StringBuilder html = new StringBuilder();  
+        StringBuilder html = new StringBuilder();
         html.append("<html><table>");
         html.append("<tr><th>Vehicle</th><th>Distance</th><th>Last Comm.</th><th>Next Comm.</th><th>Fuel</th></tr>\n");
-        
+
         for (ImcSystem vehicle : vehicles) {
             if (vehicle.getLocation() == null)
                 continue;
-            
+
             Plan plan = plans.get(vehicle.getName());
             if (plan == null)
                 continue;
-            
+
             SystemPositionAndAttitude lastState = new SystemPositionAndAttitude(vehicle.getLocation(), 0, 0, 0);
             lastState.setTime(vehicle.getLocationTimeMillis());
-            
+
             SystemPositionAndAttitude estimatedState = SoiUtils.estimatedState(vehicle, plan);
-            
+
             SystemPositionAndAttitude futureState = SoiUtils.futureState(vehicle, plan);
-            
+
             String distance = "?";
             String lastComm = "?";
             String nextComm = "?";
             String fuel = "?";
-            
-            if (estimatedState != null) 
+
+            if (estimatedState != null)
                 distance = String.format(Locale.US, "%.0f m",
                         MyState.getLocation().getDistanceInMeters(estimatedState.getPosition()));
-            
+
             if (lastState != null)
-                lastComm = DateTimeUtil.milliSecondsToFormatedString(System.currentTimeMillis()-lastState.getTime());
-            
+                lastComm = DateTimeUtil.milliSecondsToFormatedString(System.currentTimeMillis() - lastState.getTime());
+
             if (futureState != null)
-                nextComm = DateTimeUtil.milliSecondsToFormatedString(futureState.getTime() - System.currentTimeMillis());
-            
+                nextComm = DateTimeUtil
+                        .milliSecondsToFormatedString(futureState.getTime() - System.currentTimeMillis());
+
             ImcSystemState state = ImcMsgManager.getManager().getState(vehicle.getName());
             if (state != null) {
                 IMCMessage fuelLevel = state.get("FuelLevel");
@@ -353,22 +410,22 @@ public class SoiInteraction extends SimpleRendererInteraction {
                 if (stateReport != null && fuelLevel != null) {
                     if (stateReport.getTimestampMillis() > fuelLevel.getTimestampMillis())
                         fuel = stateReport.getInteger("fuel") + "%";
-                    else 
+                    else
                         fuel = fuelLevel.getInteger("value") + "%";
                 }
                 else if (stateReport != null)
                     fuel = stateReport.getInteger("fuel") + "%";
                 else if (fuelLevel != null)
                     fuel = fuelLevel.getInteger("value") + "%";
-                    
+
             }
-            
+
             html.append("<tr><td>" + vehicle.getName() + "</td><td>" + distance + "</td><td>" + lastComm + "</td><td>"
                     + nextComm + "</td><td>" + fuel + "</td></tr>\n");
         }
-        
+
         html.append("</table></html>");
-        
+
         return html.toString();
     }
 
@@ -379,47 +436,23 @@ public class SoiInteraction extends SimpleRendererInteraction {
         if (!active && hideIfInactive)
             return;
 
-        String sys = getConsole().getMainSystem();
+        // String sys = getConsole().getMainSystem();
 
         JLabel label = new JLabel(infoHtml(ImcSystemsHolder.lookupSystemByType(SystemTypeEnum.VEHICLE)));
         Dimension d = label.getPreferredSize();
-        
-        int x = (int) ((renderer.getWidth() - d.getWidth())/2.0);
-        
+
+        int x = (int) ((renderer.getWidth() - d.getWidth()) / 2.0);
+
         label.setBounds(x, 0, (int) d.getWidth(), (int) d.getHeight());
-        label.setBackground(new Color(255,255,255,128));
+        label.setBackground(new Color(255, 255, 255, 128));
         label.setForeground(Color.BLACK);
         label.setOpaque(true);
-        
-        
+
         g.translate(x, 0);
         label.paint(g);
         g.translate(-x, 0);
-        if (plans.containsKey(sys)) {
-            Plan p = plans.get(sys);
 
-            g.setColor(Color.red);
-
-            for (Waypoint pt : p.waypoints()) {
-                String minsToEta = "ETA: ?";
-                if (pt.getArrivalTime() != null)
-                    minsToEta = "ETA: " + DateTimeUtil
-                            .milliSecondsToFormatedString(pt.getArrivalTime().getTime() - System.currentTimeMillis());
-                LocationType loc = new LocationType(pt.getLatitude(), pt.getLongitude());
-                Point2D pt2d = renderer.getScreenPosition(loc);
-                g.draw(new Ellipse2D.Double(pt2d.getX() - 3, pt2d.getY() - 3, 6, 6));
-                g.drawString(minsToEta, (int) pt2d.getX() + 6, (int) pt2d.getY() - 3);
-            }
-            
-            SystemPositionAndAttitude pose = SoiUtils.estimatedState(ImcSystemsHolder.lookupSystemByName(sys), p);
-            if (pose != null) {
-                g.setColor(new Color(128,0,0,128));
-                Point2D pt = renderer.getScreenPosition(pose.getPosition());
-                g.translate(pt.getX(), pt.getY());
-                g.rotate(pose.getYaw());
-                g.fill(new Ellipse2D.Double(-4, -4, 8, 8));
-            }
-        }
+        paintPlans(g, renderer);
     }
 
     class SoiSettings {
