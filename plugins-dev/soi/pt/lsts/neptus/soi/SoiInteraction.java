@@ -98,9 +98,6 @@ public class SoiInteraction extends SimpleRendererInteraction {
     @NeptusProperty(name = "Communication Mean", description = "Communication mean to use to send commands")
     public CommMean commMean = CommMean.WiFi;
 
-    @NeptusProperty(name = "Soi Plan ID", description = "Identifier for SOI plan")
-    public String soiPlanId = "soi_plan";
-
     @NeptusProperty(name = "Schedule plan waypoints", description = "Schedule plan before transmission")
     public boolean scheduleWaypoints = false;
 
