@@ -39,12 +39,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 
 import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Arrays;
@@ -130,7 +133,22 @@ public class SoiInteraction extends SimpleRendererInteraction {
         String system = getConsole().getMainSystem();
         Plan plan;
         try {
-            PlanType ptype = getConsole().getMission().getIndividualPlansList().get(soiPlanId);
+            
+            Collection<PlanType> pps = getConsole().getMission().getIndividualPlansList().values();
+            List<String> ps = pps.stream().map(p -> p.getId()).collect(Collectors.toList());
+            
+            if (ps.isEmpty()) {
+                GuiUtils.errorMessage(getConsole(), "Send SOI plan", "Create a plan to define the SOI waypoints.");
+                return;
+            }
+            
+            String p = getConsole().getPlan() != null ? getConsole().getPlan().getId() : ps.get(0);
+            final Object selection = JOptionPane.showInputDialog(getConsole(), "Select plan to be sent as SOI waypoints",
+                    "Start plan", JOptionPane.QUESTION_MESSAGE, null, ps.toArray(), p);
+            if (selection == null)
+                return;
+                
+            PlanType ptype = getConsole().getMission().getIndividualPlansList().get(""+selection);
             plan = Plan.parse((PlanSpecification) ptype.asIMCPlan());
             SoiCommand cmd = new SoiCommand();
             cmd.setCommand(COMMAND.EXEC);
