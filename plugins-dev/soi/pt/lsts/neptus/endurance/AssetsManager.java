@@ -276,6 +276,8 @@ public class AssetsManager {
                     curAsset.getConfig().putAll(asset.getConfig());
                 }
                 lockAssets.unlock();
+                
+                plans.put(id, asset.getPlan());
             }
             if (sb.length() > 0)
                 System.out.println(sb.toString());
