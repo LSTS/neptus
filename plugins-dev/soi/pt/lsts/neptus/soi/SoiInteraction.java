@@ -61,14 +61,15 @@ import pt.lsts.imc.SoiCommand.COMMAND;
 import pt.lsts.imc.SoiCommand.TYPE;
 import pt.lsts.imc.state.ImcSystemState;
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.comm.iridium.ImcIridiumMessage;
-import pt.lsts.neptus.comm.iridium.IridiumManager;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.notifications.Notification;
+import pt.lsts.neptus.endurance.AssetsManager;
+import pt.lsts.neptus.endurance.CommMean;
 import pt.lsts.neptus.endurance.Plan;
+import pt.lsts.neptus.endurance.SoiSettings;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mystate.MyState;
@@ -93,7 +94,6 @@ import pt.lsts.neptus.util.GuiUtils;
 public class SoiInteraction extends SimpleRendererInteraction {
 
     private static final long serialVersionUID = 477322168507708457L;
-    private LinkedHashMap<String, SoiSettings> settings = new LinkedHashMap<>();
 
     @NeptusProperty(name = "Communication Mean", description = "Communication mean to use to send commands")
     public CommMean commMean = CommMean.WiFi;
@@ -108,6 +108,29 @@ public class SoiInteraction extends SimpleRendererInteraction {
     public boolean hideIfInactive = true;
 
     private LinkedHashMap<String, Plan> plans = new LinkedHashMap<>();
+    private LinkedHashMap<String, SoiSettings> settings = new LinkedHashMap<>();
+    
+    private AssetsManager assetsManager = AssetsManager.getInstance();
+
+    /**
+     * @param console
+     */
+    public SoiInteraction(ConsoleLayout console) {
+        super(console);
+    }
+
+    @Override
+    public void initSubPanel() {
+    }
+    
+    @Override
+    public void cleanSubPanel() {
+    }
+    
+    @Override
+    public boolean isExclusive() {
+        return true;
+    }
 
     @NeptusMenuItem("Tools>SOI>Send Resume")
     public void sendResume() {
@@ -219,6 +242,8 @@ public class SoiInteraction extends SimpleRendererInteraction {
     }
 
     protected void setParams(String vehicle, LinkedHashMap<String, String> params) {
+        assetsManager.setParams(vehicle, params);
+        
         if (!settings.containsKey(vehicle))
             settings.put(vehicle, new SoiSettings());
 
@@ -256,6 +281,8 @@ public class SoiInteraction extends SimpleRendererInteraction {
 
     @Subscribe
     public void on(SoiCommand cmd) {
+        assetsManager.process(cmd, getConsole());
+        
         if (cmd.getType() != SoiCommand.TYPE.SUCCESS)
             return;
 
@@ -332,57 +359,10 @@ public class SoiInteraction extends SimpleRendererInteraction {
     }
 
     private void sendCommand(SoiCommand cmd) {
-
-        if (commMean == CommMean.WiFi) {
-            send(cmd);
-            getConsole().post(Notification.success(I18n.text("Command sent"),
-                    I18n.textf("%cmd sent over UDP to %vehicle.", cmd.getCommandStr(), getConsole().getMainSystem())));
-        }
-        else if (commMean == CommMean.Iridium) {
-            try {
-                ImcSystem system = ImcSystemsHolder.lookupSystemByName(getConsole().getMainSystem());
-                ImcIridiumMessage msg = new ImcIridiumMessage();
-                msg.setSource(ImcMsgManager.getManager().getLocalId().intValue());
-                msg.setMsg(cmd);
-                msg.setDestination(system.getId().intValue());
-                IridiumManager.getManager().send(msg);
-                getConsole().post(Notification.success("Iridium message sent", "1 Iridium messages were sent using "
-                        + IridiumManager.getManager().getCurrentMessenger().getName()));
-            }
-            catch (Exception e) {
-                GuiUtils.errorMessage(getConsole(), e);
-            }
-        }
+        assetsManager.sendCommand(getConsole().getMainSystem(), cmd, commMean, getConsole());
     }
 
-    /**
-     * @param console
-     */
-    public SoiInteraction(ConsoleLayout console) {
-        super(console);
-    }
-
-    @Override
-    public boolean isExclusive() {
-        return true;
-    }
-
-    @Override
-    public void cleanSubPanel() {
-
-    }
-
-    @Override
-    public void initSubPanel() {
-
-    }
-
-    enum CommMean {
-        WiFi,
-        Iridium
-    }
-
-    public String infoHtml(ImcSystem[] vehicles) {
+     public String infoHtml(ImcSystem[] vehicles) {
         StringBuilder html = new StringBuilder();
         html.append("<html><table>");
         html.append("<tr><th>Vehicle</th><th>Distance</th><th>Last Comm.</th><th>Next Comm.</th><th>Fuel</th></tr>\n");
@@ -468,37 +448,5 @@ public class SoiInteraction extends SimpleRendererInteraction {
         g.translate(-x, 0);
 
         paintPlans(g, renderer);
-    }
-
-    class SoiSettings {
-        @NeptusProperty(description = "Nominal Speed")
-        double speed = 1;
-
-        @NeptusProperty(description = "Maximum Depth")
-        double max_depth = 10;
-
-        @NeptusProperty(description = "Minimum Depth")
-        double min_depth = 0.0;
-
-        @NeptusProperty(description = "Maximum Speed")
-        double max_speed = 1.5;
-
-        @NeptusProperty(description = "Minimum Speed")
-        double min_speed = 0.7;
-
-        @NeptusProperty(description = "Maximum time underwater")
-        int mins_under = 10;
-
-        @NeptusProperty(description = "Number where to send reports")
-        String sms_number = "+351914785889";
-
-        @NeptusProperty(description = "Seconds to idle at each vertex")
-        int wait_secs = 60;
-
-        @NeptusProperty(description = "SOI plan identifier")
-        String soi_plan_id = "soi_plan";
-
-        @NeptusProperty(description = "Cyclic execution")
-        boolean cycle = false;
     }
 }
