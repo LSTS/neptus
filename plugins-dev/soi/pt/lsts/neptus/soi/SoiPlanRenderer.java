@@ -39,8 +39,8 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.Date;
 
-import pt.lsts.autonomy.soi.Plan;
-import pt.lsts.autonomy.soi.Waypoint;
+import pt.lsts.neptus.endurance.Plan;
+import pt.lsts.neptus.endurance.Waypoint;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;

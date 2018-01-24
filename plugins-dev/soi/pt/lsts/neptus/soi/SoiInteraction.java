@@ -54,7 +54,6 @@ import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Arrays;
 
 import com.google.common.eventbus.Subscribe;
 
-import pt.lsts.autonomy.soi.Plan;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.PlanSpecification;
 import pt.lsts.imc.SoiCommand;
@@ -69,6 +68,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.notifications.Notification;
+import pt.lsts.neptus.endurance.Plan;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mystate.MyState;

@@ -38,13 +38,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Vector;
 
-import pt.lsts.autonomy.soi.Plan;
-import pt.lsts.autonomy.soi.Waypoint;
 import pt.lsts.imc.Maneuver;
 import pt.lsts.imc.PlanManeuver;
 import pt.lsts.imc.PlanSpecification;
 import pt.lsts.imc.PlanTransition;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.endurance.Plan;
+import pt.lsts.neptus.endurance.Waypoint;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.util.WGS84Utilities;
