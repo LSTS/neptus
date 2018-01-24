@@ -87,9 +87,7 @@ import pt.lsts.neptus.systems.external.ExternalSystem;
 import pt.lsts.neptus.systems.external.ExternalSystemsHolder;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
-import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
-import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.ConsoleParse;
 import pt.lsts.neptus.util.GuiUtils;
 
@@ -217,6 +215,14 @@ public class IridiumComms extends SimpleRendererInteraction {
                     ImcMsgManager.getManager().postInternalMessage("IridiumComms", message);
                 }
             }
+            else if (m instanceof IridiumCommand) {
+                IridiumCommand cmd = (IridiumCommand) m;
+                if (cmd.getCommand().toLowerCase().startsWith("error"))
+                    getConsole()
+                            .post(Notification.error("Iridium Report", msg.getSourceName() + ": " + cmd.getCommand()));
+                else
+                    getConsole().post(Notification.info("Iridium Text", msg.getSourceName() + ": " + cmd.getCommand()));
+            }
             NeptusLog.pub().info("Resulting message: " + m);
         }
         catch (Exception e) {
@@ -339,10 +345,10 @@ public class IridiumComms extends SimpleRendererInteraction {
 
         IridiumCommand command = new IridiumCommand();
         command.setCommand(cmd);
-        
+
         ImcSystem sys = ImcSystemsHolder.getSystemWithName(getMainVehicleId());
 
-        //VehicleType vt = VehiclesHolder.getVehicleById(getMainVehicleId());
+        // VehicleType vt = VehiclesHolder.getVehicleById(getMainVehicleId());
         if (sys == null) {
             GuiUtils.errorMessage(getConsole(), "Send Iridium Command",
                     "Could not calculate destination's IMC identifier");
@@ -361,7 +367,6 @@ public class IridiumComms extends SimpleRendererInteraction {
 
     }
 
-    
     private void setWaveGliderTargetPosition(LocationType loc) {
         TargetAssetPosition pos = new TargetAssetPosition();
         pos.setLocation(loc);
@@ -479,6 +484,32 @@ public class IridiumComms extends SimpleRendererInteraction {
                     }
                 });
 
+        popup.add(I18n.text("Sent an Iridium text")).addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String text = JOptionPane.showInputDialog(getConsole(), "Enter text to send via Iridium");
+                if (text == null || text.isEmpty())
+                    return;
+
+                IridiumCommand command = new IridiumCommand();
+                command.setCommand(text);
+
+                // send to broadcast
+                command.setDestination(0xFFFF);
+                command.setSource(ImcMsgManager.getManager().getLocalId().intValue());
+                try {
+                    IridiumManager.getManager().send(command);
+                    getConsole().post(Notification.success("Iridium message sent", "Iridium message sent using "
+                            + IridiumManager.getManager().getCurrentMessenger().getName()));
+                }
+                catch (Exception ex) {
+                    GuiUtils.errorMessage(getConsole(), ex);
+                }
+
+            }
+        });
+
         popup.addSeparator();
 
         popup.add(I18n.text("Simulate incoming message")).addActionListener(new ActionListener() {
@@ -511,36 +542,40 @@ public class IridiumComms extends SimpleRendererInteraction {
 
     @Subscribe
     public void on(IridiumTxStatus status) {
-        switch (status.getStatus()) {
-            case ERROR:
-                post(Notification
-                        .warning(I18n.text("Iridium communications"), I18n.text("Error sending iridium message"))
-                        .src(status.getSourceName()));
-                break;
-            case EXPIRED:
-                post(Notification
-                        .warning(I18n.text("Iridium communications"),
-                                I18n.text("Iridium message transmission time has expired"))
-                        .src(status.getSourceName()));
-                break;
-            case OK:
-                post(Notification
-                        .success(I18n.text("Iridium communications"), I18n.text("Iridium message sent successfully"))
-                        .src(status.getSourceName()));
-                break;
-            case QUEUED:
-                post(Notification
-                        .warning(I18n.text("Iridium communications"),
-                                I18n.text("Iridium message was queued for later transmission"))
-                        .src(status.getSourceName()));
-                break;
-            case TRANSMIT:
-                post(Notification
-                        .warning(I18n.text("Iridium communications"), I18n.text("Iridium message is being transmited"))
-                        .src(status.getSourceName()));
-                break;
-            default:
-                break;
+        try {
+
+            switch (status.getStatus()) {
+                case ERROR:
+                    post(Notification
+                            .warning(I18n.text("Iridium communications"), I18n.text("Error sending iridium message"))
+                            .src(status.getSourceName()));
+                    break;
+                case EXPIRED:
+                    post(Notification
+                            .warning(I18n.text("Iridium communications"),
+                                    I18n.text("Iridium message transmission time has expired"))
+                            .src(status.getSourceName()));
+                    break;
+                case OK:
+                    post(Notification.success(I18n.text("Iridium communications"),
+                            I18n.text("Iridium message sent successfully")).src(status.getSourceName()));
+                    break;
+                case QUEUED:
+                    post(Notification
+                            .warning(I18n.text("Iridium communications"),
+                                    I18n.text("Iridium message was queued for later transmission"))
+                            .src(status.getSourceName()));
+                    break;
+                case TRANSMIT:
+                    post(Notification.warning(I18n.text("Iridium communications"),
+                            I18n.text("Iridium message is being transmited")).src(status.getSourceName()));
+                    break;
+                default:
+                    break;
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -567,7 +602,7 @@ public class IridiumComms extends SimpleRendererInteraction {
     public static void main(String[] args) throws Exception {
         IridiumComms comms = new IridiumComms(ConsoleParse.dummyConsole());
         IridiumMsgRx rx = new IridiumMsgRx();
-        String plan = "1e00ffffda075403a711f75902050000530303890500520326ca244224cd0bc16801f7590000520315ca2442869a0bc17505f759000052037ec02442d1990bc18509f759000052036dc0244270cc0bc1920df75900005203abc92442f8cc0bc17c11f75900000000";
+        String plan = "2100ffffd50738004552524f523a205061746820436f6e74726f6c3a206578706563746564206e6577207061746820636f6e74726f6c207265666572656e6365";
         byte[] data = Hex.decodeHex(plan.toCharArray());
         rx.setData(data);
         rx.setSrc(30);

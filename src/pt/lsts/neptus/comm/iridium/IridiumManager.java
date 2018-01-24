@@ -69,6 +69,7 @@ public class IridiumManager {
     private RockBlockIridiumMessenger rockBlockMessenger;
     private HubIridiumMessenger hubMessenger;
     private SimulatedMessenger simMessenger;
+    private RipplesIridiumMessenger ripplesMessenger;
     private ScheduledExecutorService service = null;
     //private IridiumMessenger currentMessenger;
     
@@ -79,7 +80,8 @@ public class IridiumManager {
         DuneIridiumMessenger,
         RockBlockIridiumMessenger,
         HubIridiumMessenger,
-        SimulatedMessenger
+        SimulatedMessenger,
+        HerokuMessenger
     }
     
     private IridiumManager() {
@@ -87,6 +89,7 @@ public class IridiumManager {
         rockBlockMessenger = new RockBlockIridiumMessenger();
         hubMessenger = new HubIridiumMessenger();
         simMessenger = new SimulatedMessenger();
+        ripplesMessenger = new RipplesIridiumMessenger();
     }
     
     public IridiumMessenger getCurrentMessenger() {
@@ -97,6 +100,8 @@ public class IridiumManager {
                 return hubMessenger;
             case RockBlockIridiumMessenger:
                 return rockBlockMessenger;
+            case HerokuMessenger:
+                return ripplesMessenger;
             default:
                 return simMessenger;
         }
