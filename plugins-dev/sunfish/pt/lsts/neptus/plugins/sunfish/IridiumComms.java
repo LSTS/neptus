@@ -219,9 +219,9 @@ public class IridiumComms extends SimpleRendererInteraction {
                 IridiumCommand cmd = (IridiumCommand) m;
                 if (cmd.getCommand().toLowerCase().startsWith("error"))
                     getConsole()
-                            .post(Notification.error("Iridium Report", msg.getSourceName() + ": " + cmd.getCommand()));
+                            .post(Notification.warning("Iridium Report", msg.getSourceName() + ": " + cmd.getCommand()).requireHumanAction(true));
                 else
-                    getConsole().post(Notification.info("Iridium Text", msg.getSourceName() + ": " + cmd.getCommand()));
+                    getConsole().post(Notification.info("Iridium Text", msg.getSourceName() + ": " + cmd.getCommand()).requireHumanAction(true));
             }
             NeptusLog.pub().info("Resulting message: " + m);
         }
@@ -484,7 +484,7 @@ public class IridiumComms extends SimpleRendererInteraction {
                     }
                 });
 
-        popup.add(I18n.text("Sent an Iridium text")).addActionListener(new ActionListener() {
+        popup.add(I18n.text("Send an Iridium text")).addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
