@@ -131,7 +131,7 @@ public class SoiPlanning extends SimpleMapPanel implements ILayerPainter, Config
         ignoredPostRenderersListArray.clear();
         String tmpList = ignoredPostRenderersList.trim();
         String[] lst = tmpList.split(",");
-        Arrays.asList(lst).stream().forEach(s -> ignoredPostRenderersListArray.add(s));
+        Arrays.asList(lst).stream().forEach(s -> ignoredPostRenderersListArray.add(s.trim()));
     }
 
     private void paintPlans(Graphics2D g, StateRenderer2D renderer) {
