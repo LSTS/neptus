@@ -81,7 +81,7 @@ public class SoiUtils {
         Waypoint next = null;
         
         for (Waypoint wpt : plan.waypoints()) {
-            if (wpt.getArrivalTime().after(now)) {
+            if (wpt.getArrivalTime() != null && wpt.getArrivalTime().after(now)) {
                 next = wpt;
                 break;
             }
@@ -108,13 +108,14 @@ public class SoiUtils {
             if (previous == null || wpt.getArrivalTime().before(now)) {
                 previous = wpt;
             }
-            if (wpt.getArrivalTime().after(now)) {
+            if (wpt.getArrivalTime() == null || wpt.getArrivalTime().after(now)) {
                 next = wpt;
                 break;
             }
         }
                 
-        if (previous == null || next == null || previous.compareTo(next) > 0)
+        if (previous == null || next == null || previous.compareTo(next) > 0
+                || previous.getArrivalTime() == null || next.getArrivalTime() == null)
             return null;
         
         // calculate where should the vehicle be between these two waypoints
