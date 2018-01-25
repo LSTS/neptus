@@ -36,6 +36,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -67,11 +68,11 @@ public class AssetsManager {
 
     private static AssetsManager instance = null;
     
-    private HashMap<String, SoiSettings> settings = (HashMap<String, SoiSettings>) Collections
+    private Map<String, SoiSettings> settings = (Map<String, SoiSettings>) Collections
             .synchronizedMap(new LinkedHashMap<String, SoiSettings>());
-    private HashMap<String, Plan> plans = (HashMap<String, Plan>) Collections
+    private Map<String, Plan> plans = (Map<String, Plan>) Collections
             .synchronizedMap(new LinkedHashMap<String, Plan>());
-    private HashMap<String, Asset> assetsMap = (HashMap<String, Asset>) Collections
+    private Map<String, Asset> assetsMap = (Map<String, Asset>) Collections
             .synchronizedMap(new LinkedHashMap<String, Asset>());
     
     private ReentrantLock lockAssets = new ReentrantLock();
@@ -93,14 +94,14 @@ public class AssetsManager {
     /**
      * @return the plans
      */
-    public HashMap<String, Plan> getPlans() {
+    public Map<String, Plan> getPlans() {
         return plans;
     }
     
     /**
      * @return the settings
      */
-    public HashMap<String, SoiSettings> getSettings() {
+    public Map<String, SoiSettings> getSettings() {
         return settings;
     }
     
