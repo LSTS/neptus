@@ -90,7 +90,8 @@ public class EnduranceWebApi {
 				}
 				in.close();
 				conn.disconnect();
-				System.out.println(content);
+				if (content.length() > 2)
+				    System.out.println("SoiState JSON :> " + content);
 				return AssetState.parseStates(content.toString());
 			}
 		});
@@ -142,7 +143,7 @@ public class EnduranceWebApi {
 				}
 				in.close();
 				conn.disconnect();
-				System.out.println(conn.getResponseCode());
+				System.out.println("PostJSON Result Code :>" + conn.getResponseCode());
 				return null;
 			}
 		});
