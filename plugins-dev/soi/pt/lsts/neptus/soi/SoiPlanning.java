@@ -32,19 +32,33 @@
  */
 package pt.lsts.neptus.soi;
 
+import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JPanel;
+import javax.swing.JToggleButton;
+
+import com.sun.java.swing.plaf.windows.WindowsButtonUI;
+
+import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.SimpleMapPanel;
 import pt.lsts.neptus.endurance.AssetsManager;
 import pt.lsts.neptus.endurance.Plan;
 import pt.lsts.neptus.gui.editor.StringListEditor;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -56,6 +70,7 @@ import pt.lsts.neptus.renderer2d.ILayerPainter;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
+import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * @author pdias
@@ -75,6 +90,21 @@ public class SoiPlanning extends SimpleMapPanel implements ILayerPainter, Config
     private Renderer2DPainter planPainter = null;
     protected FeatureFocuser featureFocuser = null;
     
+    protected SoiPlanEditor planEditor = null;
+    
+    // ------- UI Components -------
+    protected JPanel sidePanel = null;
+    protected JPanel bottomPanel = null;
+    protected JToggleButton paintPlansButton = null;
+    protected JToggleButton mapSyncButton = null;
+    private JButton zoomInButton;
+    private JButton zoomOutButton;
+    protected JToggleButton plansEditModeButton = null;
+    
+    // Flags
+    private boolean isPaintPlans = true;
+    private boolean isMapMoveSync = isSyncronizeAllMapsMovements;
+
     /**
      * @param console
      */
@@ -84,10 +114,25 @@ public class SoiPlanning extends SimpleMapPanel implements ILayerPainter, Config
     }
 
     private void initialize() {
+        removeAll();
+        setLayout(new MigLayout());
+        
+        JPanel rendererHolderPanel = new JPanel();
+        rendererHolderPanel.setLayout(new BorderLayout());
+        rendererHolderPanel.setBorder(BorderFactory.createEmptyBorder());
+        rendererHolderPanel.add(renderer, BorderLayout.CENTER);
+        
         featureFocuser = new FeatureFocuser(getConsole(), true, false);
         renderer.addMenuExtension(featureFocuser);
+        
+        planEditor = new SoiPlanEditor(getConsole());
+        renderer.addInteraction(planEditor);
 
         renderer.addPostRenderPainter(getPlansPainter(), getName() + " - Plans");
+
+        add(getSidePanel(), "w 100px:200px:");
+        add(rendererHolderPanel, "w :100%:, h :100%:, wrap");
+        add(getBottomPanel(), "w :100%:, span 2");
     }
     
     /* (non-Javadoc)
@@ -104,8 +149,88 @@ public class SoiPlanning extends SimpleMapPanel implements ILayerPainter, Config
     @Override
     public void cleanSubPanel() {
         super.cleanSubPanel();
+        
+        renderer.removeInteraction(planEditor);
     }
     
+    /**
+     * @return
+     */
+    private Component getSidePanel() {
+        if (sidePanel == null) {
+            sidePanel = new JPanel(new MigLayout("", "[]", ""));
+        }
+
+        return sidePanel;
+    }
+
+    /**
+     * @return
+     */
+    private Component getBottomPanel() {
+        if (bottomPanel == null) {
+            bottomPanel = new JPanel();
+            bottomPanel.setBorder(BorderFactory.createEmptyBorder(1, 2, 1, 2));
+            bottomPanel.setLayout(new MigLayout("", "", "[]"));
+
+            plansEditModeButton = new JToggleButton(I18n.text("Edit plans"));
+            plansEditModeButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    JToggleButton btn = (JToggleButton) e.getSource();
+                    planEditor.setActive(btn.isSelected(), renderer);
+                }
+            });
+            plansEditModeButton.setUI(new WindowsButtonUI());
+            bottomPanel.add(plansEditModeButton, "push, al right, sg g1, gapright 10");
+
+            paintPlansButton = new JToggleButton(I18n.text("Show cur. plans"));
+            paintPlansButton.setSelected(isMapMoveSync);
+            paintPlansButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    JToggleButton btn = (JToggleButton) e.getSource();
+                    isPaintPlans = btn.isSelected();
+                }
+            });
+            paintPlansButton.setUI(new WindowsButtonUI());
+            bottomPanel.add(paintPlansButton, "sg g1, gapright 10");
+
+            mapSyncButton = new JToggleButton(I18n.text("Map move sync"));
+            mapSyncButton.setSelected(isMapMoveSync);
+            mapSyncButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    JToggleButton btn = (JToggleButton) e.getSource();
+                    isMapMoveSync = btn.isSelected();
+                    renderer.setRespondToRendererChangeEvents(isMapMoveSync);
+                }
+            });
+            mapSyncButton.setUI(new WindowsButtonUI());
+            bottomPanel.add(mapSyncButton, "sg g1");
+            
+            zoomInButton = new JButton(new AbstractAction("+") {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    renderer.zoomIn();
+                }
+            });
+            zoomInButton.setUI(new WindowsButtonUI());
+            bottomPanel.add(zoomInButton, "sg g2");
+
+            zoomOutButton = new JButton(new AbstractAction("-") {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    renderer.zoomOut();
+                }
+            });
+            zoomOutButton.setUI(new WindowsButtonUI());
+            bottomPanel.add(zoomOutButton, "sg g2");
+        }
+
+        return bottomPanel;
+    }
+
     /**
      * @return
      */
@@ -114,6 +239,9 @@ public class SoiPlanning extends SimpleMapPanel implements ILayerPainter, Config
             planPainter = new Renderer2DPainter() {
                 @Override
                 public void paint(Graphics2D g, StateRenderer2D renderer) {
+                    if (!isPaintPlans)
+                        return;
+                    
                     Graphics2D g2 = (Graphics2D) g.create();
                     paintPlans(g2, renderer);
                     g2.dispose();
@@ -132,6 +260,9 @@ public class SoiPlanning extends SimpleMapPanel implements ILayerPainter, Config
         String tmpList = ignoredPostRenderersList.trim();
         String[] lst = tmpList.split(",");
         Arrays.asList(lst).stream().forEach(s -> ignoredPostRenderersListArray.add(s.trim()));
+        
+        isMapMoveSync = isSyncronizeAllMapsMovements;
+        mapSyncButton.setSelected(isMapMoveSync);
     }
 
     private void paintPlans(Graphics2D g, StateRenderer2D renderer) {
@@ -192,5 +323,9 @@ public class SoiPlanning extends SimpleMapPanel implements ILayerPainter, Config
     @Override
     public void removePreRenderPainter(Renderer2DPainter painter) {
         renderer.removePreRenderPainter(painter);
+    }
+    
+    public static void main(String[] args) {
+        GuiUtils.testFrame(new SoiPlanning(ConsoleLayout.forge()), "", 400, 400);
     }
 }
