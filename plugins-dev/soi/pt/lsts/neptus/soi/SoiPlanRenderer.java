@@ -39,8 +39,8 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.Date;
 
-import pt.lsts.autonomy.soi.Plan;
-import pt.lsts.autonomy.soi.Waypoint;
+import pt.lsts.neptus.endurance.Plan;
+import pt.lsts.neptus.endurance.Waypoint;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -61,10 +61,10 @@ public class SoiPlanRenderer implements Renderer2DPainter {
     }
 
     @Override
-    public void paint(Graphics2D g, StateRenderer2D renderer) {
+    public void paint(Graphics2D g0, StateRenderer2D renderer) {
         if (plan != null && !plan.waypoints().isEmpty()) {
             LocationType lastLoc = null;
-
+            Graphics2D g = (Graphics2D) g0.create();
             for (Waypoint wpt : plan.waypoints()) {
                 LocationType loc = new LocationType(wpt.getLatitude(), wpt.getLongitude());
                 Point2D pt2d = renderer.getScreenPosition(loc);
@@ -93,6 +93,7 @@ public class SoiPlanRenderer implements Renderer2DPainter {
                 g.setColor(color);
                 g.draw(new Ellipse2D.Double(pt2d.getX() - 4, pt2d.getY() - 4, 8, 8));
             }
+            g.dispose();
         }
     }
 

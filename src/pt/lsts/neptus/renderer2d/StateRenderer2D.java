@@ -2189,7 +2189,7 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
         if (!respondToRendererChangeEvents || this == event.getSource())
             return false;
         
-        NeptusLog.pub().warn("Receiving " + event);
+        NeptusLog.pub().debug("Receiving " + event);
         processingRendererChangeEvents = true;
         try {
             setCenter(event.getCenterLoc());

@@ -27,10 +27,10 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: zp
- * 11/10/2017
+ * Author: zepinto
+ * 09/01/2018
  */
-package pt.lsts.autonomy.soi;
+package pt.lsts.neptus.endurance;
 
 import java.util.Date;
 
@@ -47,12 +47,11 @@ public class Waypoint implements Comparable<Waypoint> {
 		this.latitude = (float) Math.toDegrees(man.getDouble("lat"));
 		this.longitude = (float )Math.toDegrees(man.getDouble("lon"));
 		
-		if (man.getInteger("duration") != 0)
-			this.duration = man.getInteger("duration"); 
+		//if (man.getInteger("duration") != null)
+		this.duration = man.getInteger("duration"); 
 		
 		if (man.getInteger("arrival_time") != 0)
-			this.arrivalTime = new Date(man.getInteger("arrival_time") * 1000l); 
-		
+			this.arrivalTime = new Date(man.getInteger("arrival_time") * 1000l); 	
 	}
 
 	public Waypoint(int id, float lat, float lon) {
@@ -60,7 +59,16 @@ public class Waypoint implements Comparable<Waypoint> {
 		this.longitude = lon;
 		this.id = id;
 	}
-
+	
+	public Waypoint clone() {
+		Waypoint wpt = new Waypoint(id, latitude, longitude);
+		wpt.setDuration(duration);
+		if (arrivalTime != null)
+			wpt.setArrivalTime(new Date(arrivalTime.getTime()));
+		
+		return wpt;
+	}
+	
 	public int getDuration() {
 		return duration;
 	}

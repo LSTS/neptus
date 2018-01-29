@@ -32,11 +32,19 @@
  */
 package pt.lsts.neptus.soi;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Vector;
 
-import pt.lsts.autonomy.soi.Plan;
-import pt.lsts.autonomy.soi.Waypoint;
+import pt.lsts.imc.Maneuver;
+import pt.lsts.imc.PlanManeuver;
+import pt.lsts.imc.PlanSpecification;
+import pt.lsts.imc.PlanTransition;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.endurance.Plan;
+import pt.lsts.neptus.endurance.Waypoint;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.util.WGS84Utilities;
@@ -73,7 +81,7 @@ public class SoiUtils {
         Waypoint next = null;
         
         for (Waypoint wpt : plan.waypoints()) {
-            if (wpt.getArrivalTime().after(now)) {
+            if (wpt.getArrivalTime() != null && wpt.getArrivalTime().after(now)) {
                 next = wpt;
                 break;
             }
@@ -100,13 +108,14 @@ public class SoiUtils {
             if (previous == null || wpt.getArrivalTime().before(now)) {
                 previous = wpt;
             }
-            if (wpt.getArrivalTime().after(now)) {
+            if (wpt.getArrivalTime() == null || wpt.getArrivalTime().after(now)) {
                 next = wpt;
                 break;
             }
         }
                 
-        if (previous == null || next == null || previous.compareTo(next) > 0)
+        if (previous == null || next == null || previous.compareTo(next) > 0
+                || previous.getArrivalTime() == null || next.getArrivalTime() == null)
             return null;
         
         // calculate where should the vehicle be between these two waypoints
@@ -131,6 +140,48 @@ public class SoiUtils {
         
         ret.setYaw(Math.toDegrees(Math.atan2(offsets[1], offsets[0])));
         
+        return ret;
+    }
+    
+    /**
+     * This method calculates the maneuver sequence present in a plan. In case
+     * of cyclic plans, it will retrieve the first non-repeating sequence of
+     * maneuvers.
+     * 
+     * @param plan
+     *            The plan to parsed.
+     * @return a maneuver sequence.
+     */
+    public static List<Maneuver> getFirstManeuverSequence(PlanSpecification plan) {
+        ArrayList<Maneuver> ret = new ArrayList<Maneuver>();
+
+        LinkedHashMap<String, Maneuver> maneuvers = new LinkedHashMap<String, Maneuver>();
+        LinkedHashMap<String, String> transitions = new LinkedHashMap<String, String>();
+
+        for (PlanManeuver m : plan.getManeuvers())
+            maneuvers.put(m.getManeuverId(), m.getData());
+
+        for (PlanTransition pt : plan.getTransitions()) {
+            if (transitions.containsKey(pt.getSourceMan())) {
+                System.err.println("This should be used only in sequential plans");
+                continue;
+            }
+            transitions.put(pt.getSourceMan(), pt.getDestMan());
+        }
+
+        Vector<String> visited = new Vector<String>();
+        String man = plan.getStartManId();
+
+        while (man != null) {
+            if (visited.contains(man)) {
+                return ret;
+            }
+            visited.add(man);
+            Maneuver m = maneuvers.get(man);
+            ret.add(m);
+            man = transitions.get(man);
+        }
+
         return ret;
     }
 }
