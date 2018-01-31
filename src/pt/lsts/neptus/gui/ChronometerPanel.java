@@ -56,7 +56,9 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFormattedTextField;
+import javax.swing.JLabel;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingConstants;
@@ -129,6 +131,7 @@ public class ChronometerPanel extends JPanel implements ActionListener {
     private MiniButton alarmValueButton = null;
     private MiniButton countdownToggleButton = null;
     private MiniButton resetButton = null;
+    private JLabel labelPanel = null;
 
     public ChronometerPanel() {
         this.removeAll();
@@ -148,7 +151,8 @@ public class ChronometerPanel extends JPanel implements ActionListener {
                 .addGroup(
                         layout.createSequentialGroup().addComponent(getStartStopToggleButton())
                                 .addComponent(getPauseResumeToggleButton()).addComponent(getAlarmValueButton())
-                                .addComponent(getCountdownToggleButton())));
+                                .addComponent(getCountdownToggleButton())
+                                .addComponent(getLabelPanel())));
 
         layout.setVerticalGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addGroup(
                 layout.createSequentialGroup()
@@ -157,7 +161,8 @@ public class ChronometerPanel extends JPanel implements ActionListener {
                                 layout.createParallelGroup(GroupLayout.Alignment.CENTER)
                                         .addComponent(getStartStopToggleButton())
                                         .addComponent(getPauseResumeToggleButton()).addComponent(getAlarmValueButton())
-                                        .addComponent(getCountdownToggleButton()))));
+                                        .addComponent(getCountdownToggleButton())
+                                        .addComponent(getLabelPanel()))));
 
         layout.linkSize(SwingConstants.HORIZONTAL, getStartStopToggleButton(), getPauseResumeToggleButton(),
                 getAlarmValueButton(), getCountdownToggleButton()/* , getResetButton() */);
@@ -196,6 +201,17 @@ public class ChronometerPanel extends JPanel implements ActionListener {
                     };
                     Toolkit.getDefaultToolkit().getSystemClipboard()
                             .setContents(new StringSelection(ChronometerPanel.this.getFormattedTime()), owner);
+                }
+            }));
+            popup.add(new JMenuItem(new AbstractAction(I18n.text("Set label")) {
+                private static final long serialVersionUID = 1L;
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    String newLabel = JOptionPane.showInputDialog(
+                            SwingUtilities.windowForComponent(ChronometerPanel.this), I18n.text("Label text"),
+                            getLabelPanel().getText());
+                    getLabelPanel().setText(newLabel);
                 }
             }));
             display.add(popup);
@@ -270,6 +286,16 @@ public class ChronometerPanel extends JPanel implements ActionListener {
         return alarmValueButton;
     }
 
+    /**
+     * @return the labelPanel
+     */
+    public JLabel getLabelPanel() {
+        if (labelPanel == null) {
+            labelPanel = new JLabel("Label");
+        }
+        return labelPanel;
+    }
+    
     /**
      * Start the timer
      */
