@@ -291,7 +291,7 @@ public class ChronometerPanel extends JPanel implements ActionListener {
      */
     public JLabel getLabelPanel() {
         if (labelPanel == null) {
-            labelPanel = new JLabel("Label");
+            labelPanel = new JLabel("");
         }
         return labelPanel;
     }
