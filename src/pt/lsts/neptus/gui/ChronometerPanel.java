@@ -70,6 +70,7 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
+import pt.lsts.neptus.util.speech.SpeechUtil;
 
 /**
  * @author pdias
@@ -132,6 +133,9 @@ public class ChronometerPanel extends JPanel implements ActionListener {
     private MiniButton countdownToggleButton = null;
     private MiniButton resetButton = null;
     private JLabel labelPanel = null;
+    
+    private boolean audioAlertOnZero = false;
+    private boolean alreadyReported = false;
 
     public ChronometerPanel() {
         this.removeAll();
@@ -490,6 +494,7 @@ public class ChronometerPanel extends JPanel implements ActionListener {
                 cState = CronState.STOPED;
                 stopDisplayUpdate();
                 updateDisplay();
+                alreadyReported = false;
             }
         }
         else if (cState == CronState.PAUSED) {
@@ -574,10 +579,15 @@ public class ChronometerPanel extends JPanel implements ActionListener {
         else
             getDisplay().setState(ClockState.NONE);
 
-        if (t >= getMaxSecs() && getMaxSecs() > 0)
+        if (t >= getMaxSecs() && getMaxSecs() > 0) {
             getDisplay().setBackground(COLOR_NOK);
-        else
+            if (audioAlertOnZero && !alreadyReported)
+                SpeechUtil.readSimpleText("Chronometer Alarm");
+            alreadyReported = true;
+        }
+        else {
             getDisplay().setBackground(COLOR_OK);
+        }
     }
 
     public class HMSFormatter extends DefaultFormatter {
@@ -666,9 +676,24 @@ public class ChronometerPanel extends JPanel implements ActionListener {
 
         return time;
     }
+
+    /**
+     * @return the audioAlertOnZero
+     */
+    public boolean isAudioAlertOnZero() {
+        return audioAlertOnZero;
+    }
+    
+    /**
+     * @param audioAlertOnZero the audioAlertOnZero to set
+     */
+    public void setAudioAlertOnZero(boolean audioAlertOnZero) {
+        this.audioAlertOnZero = audioAlertOnZero;
+    }
     
     public static void main(String[] args) {
         ChronometerPanel chronometerPanel = new ChronometerPanel();
+        chronometerPanel.setAudioAlertOnZero(true);
         GuiUtils.testFrame(chronometerPanel, ChronometerPanel.class.getSimpleName(), 400, 204);
     }
 }
