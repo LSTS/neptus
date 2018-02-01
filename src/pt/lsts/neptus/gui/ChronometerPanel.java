@@ -155,7 +155,7 @@ public class ChronometerPanel extends JPanel implements ActionListener {
                 .addGroup(
                         layout.createSequentialGroup().addComponent(getStartStopToggleButton())
                                 .addComponent(getPauseResumeToggleButton()).addComponent(getAlarmValueButton())
-                                .addComponent(getCountdownToggleButton())
+                                .addComponent(getCountdownToggleButton()).addGap(10)
                                 .addComponent(getLabelPanel())));
 
         layout.setVerticalGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addGroup(
