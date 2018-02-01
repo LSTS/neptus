@@ -76,13 +76,13 @@ public class SoiPlanRenderer implements Renderer2DPainter {
                 }
                 lastLoc = loc;
 
-                if (wpt.getArrivalTime().before(new Date())) {
+                if (wpt.getArrivalTime() != null && wpt.getArrivalTime().before(new Date())) {
                     g.setColor(Color.gray);
                     g.fill(new Ellipse2D.Double(pt2d.getX() - 4, pt2d.getY() - 4, 8, 8));
                 }
                 else {
                     String minsToEta = "ETA: ?";
-                    if (wpt.getArrivalTime() != null)
+                    if (wpt.getArrivalTime() != null && wpt.getArrivalTime() != null)
                         minsToEta = "ETA: " + DateTimeUtil
                                 .milliSecondsToFormatedString(wpt.getArrivalTime().getTime() - System.currentTimeMillis());
 
