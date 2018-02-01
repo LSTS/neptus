@@ -35,6 +35,7 @@ package pt.lsts.neptus.endurance;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Vector;
 
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonArray;
@@ -160,7 +161,7 @@ public class Plan {
     public SoiPlan asImc() {
         SoiPlan plan = new SoiPlan();
         if (waypoints != null) {
-
+            Vector<SoiWaypoint> wps = new Vector<>(waypoints.size());
             for (Waypoint wpt : waypoints) {
                 SoiWaypoint waypoint = new SoiWaypoint();
                 if (wpt.getArrivalTime() != null)
@@ -170,8 +171,10 @@ public class Plan {
                 waypoint.setLat(wpt.getLatitude());
                 waypoint.setLon(wpt.getLongitude());
                 waypoint.setDuration(wpt.getDuration());
-                plan.getWaypoints().add(waypoint);
+                
+                wps.add(waypoint);
             }
+            plan.setWaypoints(wps);
         }
         
         ByteBuffer destination = ByteBuffer.allocate(plan.getPayloadSize());

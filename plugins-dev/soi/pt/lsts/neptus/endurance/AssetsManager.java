@@ -33,7 +33,6 @@
 package pt.lsts.neptus.endurance;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -108,6 +107,7 @@ public class AssetsManager {
     public void sendCommand(String systemName, SoiCommand cmd, CommMean commMean, ConsoleLayout console) {
         if (commMean == CommMean.WiFi) {
             ImcMsgManager.getManager().sendMessageToSystem(cmd, systemName, createMessageDeliveryListener(console, systemName));
+            NeptusLog.pub().warn("Command sent " + cmd.getCommandStr() + " sent over UDP to " + systemName + " :: " + cmd.asJSON());
             if (console != null)
                 console.post(Notification.success(I18n.text("Command sent"),
                     I18n.textf("%cmd sent over UDP to %vehicle.", cmd.getCommandStr(), systemName)));
