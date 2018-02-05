@@ -57,6 +57,7 @@ import pt.lsts.neptus.plugins.PluginProperty;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
+import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.GuiUtils;
 
 /**
@@ -142,35 +143,37 @@ public class AssetsManager {
             public void deliveryUnreacheable(IMCMessage message) {
                 if (console != null)
                     console.post(Notification.error(I18n.text("Command Delivery Unreacheable"),
-                        I18n.textf("%cmd sent over Wi-Fi to %system.", message, systemName)));
+                        I18n.textf("%cmd sent over Wi-Fi to %system.", message.asJSON(), systemName)));
             }
             
             @Override
             public void deliveryUncertain(IMCMessage message, Object msg) {
                 if (console != null)
                     console.post(Notification.success(I18n.text("Command Delivery Uncertain"),
-                        I18n.textf("%cmd sent over Wi-Fi to %system with reason: %reason.", message, systemName, msg)));
+                        I18n.textf("%cmd sent over Wi-Fi to %system with reason: %reason.", message.asJSON(),
+                        systemName, msg)));
             }
             
             @Override
             public void deliveryTimeOut(IMCMessage message) {
                 if (console != null)
                     console.post(Notification.error(I18n.text("Command Delivery TimeOut"),
-                        I18n.textf("%cmd sent over Wi-Fi to %system.", message, systemName)));
+                        I18n.textf("%cmd sent over Wi-Fi to %system.", message.asJSON(), systemName)));
             }
             
             @Override
             public void deliverySuccess(IMCMessage message) {
                 if (console != null)
                     console.post(Notification.success(I18n.text("Command Delivery Success"),
-                        I18n.textf("%cmd sent over Wi-Fi to %system.", message, systemName)));
+                        I18n.textf("%cmd sent over Wi-Fi to %system.", message.asJSON(), systemName)));
             }
             
             @Override
             public void deliveryError(IMCMessage message, Object error) {
                 if (console != null)
-                    console.post(Notification.success(I18n.text("Command Delivery Error"),
-                        I18n.textf("%cmd sent over Wi-Fi to %system with reason: %reason.", message, systemName, error)));
+                    console.post(Notification.error(I18n.text("Command Delivery Error"),
+                        I18n.textf("%cmd sent over Wi-Fi to %system with reason: %reason.", message.asJSON(),
+                        systemName, error)));
             }
         };
         return listener;
@@ -181,20 +184,24 @@ public class AssetsManager {
             return;
 
         NeptusLog.pub().info("Processing SoiCommand: " + cmd.asJSON() + ", " + Thread.currentThread().getName() + ", "
-                + cmd.hashCode());
+                + cmd.hashCode() + " (" + DateTimeUtil.milliSecondsToFormatedString((long) cmd.getAgeInSeconds(), true) + " old)");
 
         switch (cmd.getCommand()) {
             case GET_PARAMS:
                 if (console != null)
                     console.post(Notification.success(I18n.text("SOI Settings"),
-                            I18n.textf("Received settings from %vehicle.", cmd.getSourceName())));
+                            I18n.textf("Received settings from %vehicle (%time old).", cmd.getSourceName(),
+                            DateTimeUtil.milliSecondsToFormatedString((long) cmd.getAgeInSeconds(), true)))
+                            .requireHumanAction(true));
                 setParams(cmd.getSourceName(), cmd.getSettings());
                 break;
             case GET_PLAN:
             case EXEC:
                 if (console != null)
                     console.post(Notification.success(I18n.text("SOI Plan"),
-                            I18n.textf("Received plan from %vehicle.", cmd.getSourceName())));
+                            I18n.textf("Received plan from %vehicle (%time old).", cmd.getSourceName(),
+                            DateTimeUtil.milliSecondsToFormatedString((long) cmd.getAgeInSeconds(), true)))
+                            .requireHumanAction(true));
                 plans.put(cmd.getSourceName(), Plan.parse(cmd.getPlan()));
                 break;
             case RESUME:
