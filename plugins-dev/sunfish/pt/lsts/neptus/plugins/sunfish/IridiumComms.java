@@ -161,7 +161,9 @@ public class IridiumComms extends SimpleRendererInteraction {
             IridiumMessage m = IridiumMessage.deserialize(data);
 
             getConsole().post(Notification.info("Iridium Comms",
-                    "Received message of type " + m.getClass().getSimpleName() + " from " + m.getSource()));
+                    "Received message of type " + m.getClass().getSimpleName() + " from "
+                            + IMCDefinition.getInstance().getResolver().resolve(m.getSource())
+                            + " (0x" + String.format("%04X", m.getSource()) + ")"));
 
             if (m instanceof ExtendedDeviceUpdate) {
                 ExtendedDeviceUpdate upd = (ExtendedDeviceUpdate) m;
