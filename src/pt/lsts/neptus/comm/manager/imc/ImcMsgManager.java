@@ -902,7 +902,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         }
 
         pcsMsg.setPlanEta(-1);
-        pcsMsg.setPlanProgress(execState >=0 ? execState : -1);
+        pcsMsg.setPlanProgress(execState >= 0 ? execState : -1);
         pcsMsg.setManId("");
         pcsMsg.setManEta(-1);
         pcsMsg.setManType(0xFFFF);
@@ -1054,11 +1054,12 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                     NeptusLog.pub().trace(
                             this.getClass().getSimpleName() + ": Message redirected for system comm. "
                                     + vci.getSystemCommId() + ".");
-                    vci.onMessage(info, msg);
-                    
+
                     for (IMCMessage imcMsg : messagesCreatedToFoward) {
                         vci.onMessage(info, imcMsg);
                     }
+                    
+                    vci.onMessage(info, msg);
                     
                     return true;
                 }
