@@ -32,6 +32,8 @@
  */
 package pt.lsts.neptus.endurance;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Date;
@@ -42,7 +44,9 @@ import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
 
 import pt.lsts.imc.Goto;
+import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.IMCOutputStream;
 import pt.lsts.imc.Maneuver;
 import pt.lsts.imc.PlanSpecification;
 import pt.lsts.imc.ScheduledGoto;
@@ -184,10 +188,18 @@ public class Plan {
     }
 
     public int checksum() {
-        SoiPlan plan = asImc();
-        ByteBuffer destination = ByteBuffer.allocate(plan.getPayloadSize());
-        int dataLength = plan.serializePayload(destination, 0);
-        return CRC16Util.crc16(destination, 2, dataLength - 2);
+        try {
+            SoiPlan plan = asImc();
+            // ByteBuffer destination = ByteBuffer.allocate(plan.getPayloadSize() * 4);
+            ByteArrayOutputStream bfos = new ByteArrayOutputStream(plan.getPayloadSize());
+            IMCOutputStream out = new IMCOutputStream(bfos);
+            int dataLength = IMCDefinition.getInstance().serializeFields(plan, out);
+            return CRC16Util.crc16(bfos.toByteArray(), 2, dataLength - 2);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }// plan.serializePayload(destination, 0);
+        return 0;
     }
 
     public void addWaypoint(Waypoint waypoint) {

@@ -429,11 +429,13 @@ public class SoiInteraction extends SimpleRendererInteraction {
                     fuel = fuelLevel.getInteger("value") + "%" + voltageStr;
                 
                 if (stateReport != null) {
-                    matchPlan = "";
                     int pcsum = ((StateReport) stateReport).getPlanChecksum();
+                    matchPlan = "";
                     for (String pl : getConsole().getMission().getIndividualPlansList().keySet()) {
-                        byte[] bytes = pl.getBytes();
-                        if (IMCUtil.computeCrc16(bytes , 0, bytes.length) == pcsum) {
+                        PlanType planType = getConsole().getMission().getIndividualPlansList().get(pl);
+                        PlanSpecification pSpec = (PlanSpecification) planType.asIMCPlan();
+                        int localPcsum = Plan.parse(pSpec).checksum();
+                        if (localPcsum == pcsum) {
                             matchPlan = plan + " (CS::" + pcsum + ")";
                             break;
                         }
