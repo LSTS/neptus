@@ -32,10 +32,13 @@
  */
 package pt.lsts.neptus.endurance;
 
+import java.text.SimpleDateFormat;
 import java.util.Collections;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -57,7 +60,6 @@ import pt.lsts.neptus.plugins.PluginProperty;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
-import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.GuiUtils;
 
 /**
@@ -66,6 +68,9 @@ import pt.lsts.neptus.util.GuiUtils;
  */
 public class AssetsManager {
 
+    @SuppressWarnings("serial")
+    public static final SimpleDateFormat dateFormatterXMLNoMillisUTC = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'") {{setTimeZone(TimeZone.getTimeZone("UTC"));}};  // This one should be UTC (Zulu)
+    
     private static AssetsManager instance = null;
     
     private Map<String, SoiSettings> settings = (Map<String, SoiSettings>) Collections
@@ -184,14 +189,14 @@ public class AssetsManager {
             return;
 
         NeptusLog.pub().info("Processing SoiCommand: " + cmd.asJSON() + ", " + Thread.currentThread().getName() + ", "
-                + cmd.hashCode() + " (" + DateTimeUtil.milliSecondsToFormatedString((long) cmd.getAgeInSeconds(), true) + " old)");
+                + cmd.hashCode() + " (at " + dateFormatterXMLNoMillisUTC.format(new Date(cmd.getTimestampMillis())) + ")");
 
         switch (cmd.getCommand()) {
             case GET_PARAMS:
                 if (console != null)
                     console.post(Notification.success(I18n.text("SOI Settings"),
-                            I18n.textf("Received settings from %vehicle (%time old).", cmd.getSourceName(),
-                            DateTimeUtil.milliSecondsToFormatedString((long) cmd.getAgeInSeconds(), true)))
+                            I18n.textf("Received settings from %vehicle (at %time).", cmd.getSourceName(),
+                                    dateFormatterXMLNoMillisUTC.format(new Date(cmd.getTimestampMillis()))))
                             .requireHumanAction(true));
                 setParams(cmd.getSourceName(), cmd.getSettings());
                 break;
@@ -199,8 +204,8 @@ public class AssetsManager {
             case EXEC:
                 if (console != null)
                     console.post(Notification.success(I18n.text("SOI Plan"),
-                            I18n.textf("Received plan from %vehicle (%time old).", cmd.getSourceName(),
-                            DateTimeUtil.milliSecondsToFormatedString((long) cmd.getAgeInSeconds(), true)))
+                            I18n.textf("Received plan from %vehicle (at %time).", cmd.getSourceName(),
+                                    dateFormatterXMLNoMillisUTC.format(new Date(cmd.getTimestampMillis()))))
                             .requireHumanAction(true));
                 plans.put(cmd.getSourceName(), Plan.parse(cmd.getPlan()));
                 break;
