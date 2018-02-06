@@ -55,12 +55,16 @@ import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Arrays;
 import com.google.common.eventbus.Subscribe;
 
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.IMCUtil;
 import pt.lsts.imc.PlanSpecification;
 import pt.lsts.imc.SoiCommand;
 import pt.lsts.imc.SoiCommand.COMMAND;
 import pt.lsts.imc.SoiCommand.TYPE;
+import pt.lsts.imc.StateReport;
+import pt.lsts.imc.Voltage;
 import pt.lsts.imc.state.ImcSystemState;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
@@ -75,6 +79,7 @@ import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mystate.MyState;
 import pt.lsts.neptus.plugins.NeptusMenuItem;
 import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginProperty;
 import pt.lsts.neptus.plugins.PluginUtils;
@@ -85,6 +90,7 @@ import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.MathMiscUtils;
 
 /**
  * @author zp
@@ -95,7 +101,7 @@ public class SoiInteraction extends SimpleRendererInteraction {
 
     private static final long serialVersionUID = 477322168507708457L;
 
-    @NeptusProperty(name = "Communication Mean", description = "Communication mean to use to send commands")
+    @NeptusProperty(name = "Communication Mean", description = "Communication mean to use to send commands", userLevel = LEVEL.REGULAR)
     public CommMean commMean = CommMean.WiFi;
 
     @NeptusProperty(name = "Schedule plan waypoints", description = "Schedule plan before transmission")
@@ -106,6 +112,9 @@ public class SoiInteraction extends SimpleRendererInteraction {
 
     @NeptusProperty(name = "Hide layer if inactive")
     public boolean hideIfInactive = true;
+
+    @NeptusProperty(name = "Battery Entity Name", description = "Vehicle Battery entity name")
+    public String batteryEntityName = "Batteries";
 
     private LinkedHashMap<String, Plan> plans = new LinkedHashMap<>();
     private LinkedHashMap<String, SoiSettings> settings = new LinkedHashMap<>();
@@ -365,7 +374,7 @@ public class SoiInteraction extends SimpleRendererInteraction {
      public String infoHtml(ImcSystem[] vehicles) {
         StringBuilder html = new StringBuilder();
         html.append("<html><table>");
-        html.append("<tr><th>Vehicle</th><th>Distance</th><th>Last Comm.</th><th>Next Comm.</th><th>Fuel</th></tr>\n");
+        html.append("<tr><th>Vehicle</th><th>Distance</th><th>Last Comm.</th><th>Next Comm.</th><th>Fuel</th><th>Match Plan</th></tr>\n");
 
         for (ImcSystem vehicle : vehicles) {
             if (vehicle.getLocation() == null)
@@ -386,6 +395,7 @@ public class SoiInteraction extends SimpleRendererInteraction {
             String lastComm = "?";
             String nextComm = "?";
             String fuel = "?";
+            String matchPlan = "?";
 
             if (estimatedState != null)
                 distance = String.format(Locale.US, "%.0f m",
@@ -402,21 +412,37 @@ public class SoiInteraction extends SimpleRendererInteraction {
             if (state != null) {
                 IMCMessage fuelLevel = state.get("FuelLevel");
                 IMCMessage stateReport = state.get("StateReport");
+                IMCMessage voltage = state.get(Voltage.ID_STATIC, EntitiesResolver.resolveId(vehicle.getName(), batteryEntityName));
+                String voltageStr = "";
+                if (voltage != null)
+                    voltageStr = " (Batt: " + MathMiscUtils.round(((Voltage) voltage).getValue(), 1) + "V)";
+                
                 if (stateReport != null && fuelLevel != null) {
                     if (stateReport.getTimestampMillis() > fuelLevel.getTimestampMillis())
-                        fuel = stateReport.getInteger("fuel") + "%";
+                        fuel = stateReport.getInteger("fuel") + "%" + voltageStr;
                     else
-                        fuel = fuelLevel.getInteger("value") + "%";
+                        fuel = fuelLevel.getInteger("value") + "%" + voltageStr;
                 }
                 else if (stateReport != null)
-                    fuel = stateReport.getInteger("fuel") + "%";
+                    fuel = stateReport.getInteger("fuel") + "%" + voltageStr;
                 else if (fuelLevel != null)
-                    fuel = fuelLevel.getInteger("value") + "%";
-
+                    fuel = fuelLevel.getInteger("value") + "%" + voltageStr;
+                
+                if (stateReport != null) {
+                    matchPlan = "";
+                    int pcsum = ((StateReport) stateReport).getPlanChecksum();
+                    for (String pl : getConsole().getMission().getIndividualPlansList().keySet()) {
+                        byte[] bytes = pl.getBytes();
+                        if (IMCUtil.computeCrc16(bytes , 0, bytes.length) == pcsum) {
+                            matchPlan = plan + " (CS::" + pcsum + ")";
+                            break;
+                        }
+                    }
+                }
             }
 
             html.append("<tr><td>" + vehicle.getName() + "</td><td>" + distance + "</td><td>" + lastComm + "</td><td>"
-                    + nextComm + "</td><td>" + fuel + "</td></tr>\n");
+                    + nextComm + "</td><td>" + fuel + "</td><td>" + matchPlan + "</td></tr>\n");
         }
 
         html.append("</table></html>");
