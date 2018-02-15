@@ -83,10 +83,12 @@ public class Asset implements Comparable<Asset>{
 		AssetState past = receivedState();
 		AssetState future = futureState();
 		
+		if (past == null || future == null)
+		    return past;
+		
 		double deltaTime = (future.getTimestamp().getTime() - past.getTimestamp().getTime()) / 1000.0;
 		
-		
-		if (deltaTime < 0)
+		if (deltaTime <= 0)
 			return past;
 		
 		double timeSince = (System.currentTimeMillis() - past.getTimestamp().getTime()) / 1000.0;

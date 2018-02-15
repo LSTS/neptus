@@ -55,11 +55,11 @@ import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Arrays;
 import com.google.common.eventbus.Subscribe;
 
 import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.IMCUtil;
 import pt.lsts.imc.PlanSpecification;
 import pt.lsts.imc.SoiCommand;
 import pt.lsts.imc.SoiCommand.COMMAND;
 import pt.lsts.imc.SoiCommand.TYPE;
+import pt.lsts.imc.SoiPlan;
 import pt.lsts.imc.StateReport;
 import pt.lsts.imc.Voltage;
 import pt.lsts.imc.state.ImcSystemState;
@@ -207,6 +207,7 @@ public class SoiInteraction extends SimpleRendererInteraction {
         SoiCommand cmd = new SoiCommand();
         cmd.setCommand(COMMAND.EXEC);
         cmd.setType(TYPE.REQUEST);
+        cmd.setPlan(new SoiPlan());
         sendCommand(cmd);
     }
 

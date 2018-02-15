@@ -401,7 +401,6 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
             return;
         }
         else {
-            System.out.println("Set simulation state to x");
             PlanSimulator sim = setSimulationState(src, plan, null);
             if (sim != null) {
                 EstimatedState current = sim.getState().toEstimatedState();
