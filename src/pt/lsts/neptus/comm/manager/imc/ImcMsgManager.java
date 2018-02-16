@@ -1009,7 +1009,8 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                         sameIdErrorDetectedTimeMillis = System.currentTimeMillis();
                     }
                 }
-                return false;
+                postToBus(msg);
+                return true;
             }
 
             vci = getCommInfoById(id);
@@ -1122,9 +1123,19 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
             vciRedirect.onMessage(info, msg);
             sentToBus = true;
         }
+        if (!sentToBus) 
+        {
+            postToBus(msg);
+        }
 
+        return true;
+    }
+
+    /**
+     * @param msg
+     */
+    private void postToBus(IMCMessage msg) {
         try {
-            if (!sentToBus)
                 bus.post(msg);
         }
         catch (Exception e) {
@@ -1133,8 +1144,6 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         catch (Error e) {
             e.printStackTrace();
         }
-
-        return true;
     }
 
     /**
