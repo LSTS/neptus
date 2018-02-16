@@ -36,30 +36,22 @@ import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
-import javax.swing.JOptionPane;
-import javax.swing.JPopupMenu;
+import javax.swing.*;
 
 import org.apache.commons.codec.binary.Hex;
 
 import com.google.common.eventbus.Subscribe;
 
-import pt.lsts.imc.EstimatedState;
-import pt.lsts.imc.IMCDefinition;
-import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.IridiumMsgRx;
-import pt.lsts.imc.IridiumMsgTx;
-import pt.lsts.imc.IridiumTxStatus;
-import pt.lsts.imc.LogBookEntry;
-import pt.lsts.imc.PlanControl;
+import pt.lsts.imc.*;
 import pt.lsts.imc.PlanControl.OP;
 import pt.lsts.imc.PlanControl.TYPE;
-import pt.lsts.imc.RemoteSensorInfo;
-import pt.lsts.imc.TextMessage;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.iridium.ActivateSubscription;
 import pt.lsts.neptus.comm.iridium.DeactivateSubscription;
@@ -114,6 +106,11 @@ public class IridiumComms extends SimpleRendererInteraction {
 
     @NeptusProperty(name = "Remote Neptus", description = "Imc id of neptus console operating remotely", category = "IMC id", userLevel = NeptusProperty.LEVEL.REGULAR)
     public int neptusOpImcId = 0;
+
+    /** System restart types **/
+    final String targetMainDUNE = "Main CPU: DUNE";
+    final String targetMainCpu = "Main CPU";
+    final String targetAuxCpu = "Auxiliary CPU";
 
     public void setPosition(Position p) {
         String name = IMCDefinition.getInstance().getResolver().resolve(p.id);
@@ -377,6 +374,49 @@ public class IridiumComms extends SimpleRendererInteraction {
         }
     }
 
+    private void sendSystemRestart(String selectedSysName, String restartType) {
+        int sysId = ImcSystemsHolder.lookupSystemByName(selectedSysName).getId().intValue();
+
+        final RestartSystem msg = new RestartSystem();
+        final ImcIridiumMessage iridiumMsg = new ImcIridiumMessage();
+
+        msg.setDst(sysId);
+        iridiumMsg.setSource(ImcMsgManager.getManager().getLocalId().intValue());
+        iridiumMsg.setDestination(sysId);
+        iridiumMsg.timestampMillis = msg.getTimestampMillis();
+        iridiumMsg.setMsg(msg);
+
+        boolean valid = false;
+        switch (restartType) {
+            case targetMainDUNE:
+                msg.setType(RestartSystem.TYPE.DUNE);
+                valid = true;
+                break;
+            case targetMainCpu:
+                msg.setType(RestartSystem.TYPE.SYSTEM);
+                valid = true;
+                break;
+            default:
+                NeptusLog.pub().warn("Restart type " + restartType + " not supported");
+        }
+
+        if (!valid) {
+            getConsole().post(Notification.warning("Restart system command", "Could not send system restart"));
+            return;
+        }
+
+        try {
+            IridiumManager.getManager().send(iridiumMsg);
+            getConsole().post(Notification.success("Restart system command",
+                    "Sent following system restart -> id: " +
+                    selectedSysName + "(" + sysId + ") " +
+                    "Type: " + restartType));
+        } catch (Exception e) {
+            GuiUtils.errorMessage(getConsole(), e);
+            NeptusLog.pub().warn("Failed to send system restart");
+        }
+    }
+
     @Override
     public void mouseClicked(MouseEvent event, StateRenderer2D source) {
         if (event.getButton() != MouseEvent.BUTTON3) {
@@ -498,6 +538,35 @@ public class IridiumComms extends SimpleRendererInteraction {
                 drifters.add(d);
                 update();
             }
+        });
+
+        popup.add("Restart system").addActionListener(e -> {
+            JComboBox<String> availableVehicles = new JComboBox<>();
+            Arrays.stream(ImcSystemsHolder.lookupSystemByType(SystemTypeEnum.VEHICLE))
+                    .filter(s -> s.getTypeVehicle() == VehicleType.VehicleTypeEnum.UUV)
+                    .forEach(s -> availableVehicles.addItem(s.getName()));
+
+
+            JComboBox<String> restartTypes = new JComboBox<>(new String[]{
+                    targetMainDUNE,
+                    targetMainCpu,
+                    targetAuxCpu});
+
+            final JComponent[] inputs = new JComponent[] {
+                    new JLabel("System"),
+                    availableVehicles,
+                    new JLabel("Type"),
+                    restartTypes};
+
+            int res = JOptionPane.showConfirmDialog(null, inputs, "System restart", JOptionPane.OK_CANCEL_OPTION);
+            if (res != JOptionPane.OK_OPTION)
+                return;
+
+
+            String selectedSysName = ((String) availableVehicles.getSelectedItem());
+            String restartType = (String) restartTypes.getSelectedItem();
+
+            sendSystemRestart(selectedSysName, restartType);
         });
 
         popup.show(source, event.getX(), event.getY());
