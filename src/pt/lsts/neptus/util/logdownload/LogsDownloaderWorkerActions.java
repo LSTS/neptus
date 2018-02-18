@@ -46,6 +46,7 @@ import java.util.LinkedList;
 import javax.swing.AbstractAction;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
+import javax.swing.JToggleButton;
 import javax.swing.SwingUtilities;
 
 import org.apache.commons.net.ftp.FTPFile;
@@ -148,16 +149,25 @@ class LogsDownloaderWorkerActions {
                     gui.popupErrorConfigurationDialog();
                     return;
                 }
+                
+                JToggleButton button = (JToggleButton) e.getSource();
+                boolean stopByButton = !button.isSelected();
+
                 AsyncTask task = new AsyncTask() {
                     @Override
                     public Object run() throws Exception {
+                        if (stopByButton) {
+                            stopLogListProcessing = true;
+                            return null;
+                        }
+
                         if (stopLogListProcessing)
                             stopLogListProcessing = false;
 
                         long time = System.currentTimeMillis();
                         showInGuiStarting();
 
-                        gui.downloadListButton.setEnabled(false);
+                        // gui.downloadListButton.setEnabled(false);
                         // logFolderList.setEnabled(false);
                         gui.logFolderList.setValueIsAdjusting(true);
                         // logFilesList.setEnabled(false);
@@ -245,7 +255,8 @@ class LogsDownloaderWorkerActions {
 
                     @Override
                     public void finish() {
-                        stopLogListProcessing = false;
+                        if (!stopByButton)
+                            stopLogListProcessing = false;
 
                         gui.logFolderList.setValueIsAdjusting(false);
                         gui.logFolderList.invalidate();
@@ -260,6 +271,7 @@ class LogsDownloaderWorkerActions {
                         gui.listHandlingProgressBar.setString("");
                         gui.logFilesList.setEnabled(true);
                         gui.downloadListButton.setEnabled(true);
+                        gui.downloadListButton.setState(false);
                         try {
                             this.getResultOrThrow();
                         }

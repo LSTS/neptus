@@ -263,6 +263,7 @@ class LogsDownloaderWorkerGUI {
 //        cameraButton.addActionListener(turnCameraOn);
 
         downloadListButton = new MiniButton();
+        downloadListButton.setToggle(true);
         downloadListButton.setToolTipText(I18n.text("Synchronize List of Log Folders"));
         downloadListButton.setIcon(ICON_DOWNLOAD_LIST);
         // downloadListButton.addActionListener(downloadListAction);
