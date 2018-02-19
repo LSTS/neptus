@@ -147,6 +147,10 @@ class LogsDownloaderWorkerActions {
             public void actionPerformed(ActionEvent e) {
                 if (!gui.validateAndSetUI()) {
                     gui.popupErrorConfigurationDialog();
+                    
+                    gui.downloadListButton.setIcon(LogsDownloaderWorkerGUI.ICON_DOWNLOAD_LIST);
+                    gui.downloadListButton.setState(false);
+                    
                     return;
                 }
                 
