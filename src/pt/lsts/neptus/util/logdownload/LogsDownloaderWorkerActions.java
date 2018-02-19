@@ -152,6 +152,9 @@ class LogsDownloaderWorkerActions {
                 
                 JToggleButton button = (JToggleButton) e.getSource();
                 boolean stopByButton = !button.isSelected();
+                
+                gui.downloadListButton.setIcon(!stopByButton ? LogsDownloaderWorkerGUI.ICON_DOWNLOAD_LIST_STOP
+                        : LogsDownloaderWorkerGUI.ICON_DOWNLOAD_LIST);
 
                 AsyncTask task = new AsyncTask() {
                     @Override
