@@ -36,10 +36,7 @@ import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Vector;
+import java.util.*;
 
 import javax.swing.*;
 
@@ -71,6 +68,8 @@ import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.params.ConfigurationManager;
+import pt.lsts.neptus.params.SystemProperty;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.SimpleRendererInteraction;
@@ -377,33 +376,55 @@ public class IridiumComms extends SimpleRendererInteraction {
     private void sendSystemRestart(String selectedSysName, String restartType) {
         int sysId = ImcSystemsHolder.lookupSystemByName(selectedSysName).getId().intValue();
 
-        final RestartSystem msg = new RestartSystem();
+        IMCMessage msg = null;
         final ImcIridiumMessage iridiumMsg = new ImcIridiumMessage();
+
+        switch (restartType) {
+            case targetMainDUNE:
+                msg = new RestartSystem();
+                ((RestartSystem) msg).setType(RestartSystem.TYPE.DUNE);
+                break;
+            case targetMainCpu:
+                msg = new RestartSystem();
+                ((RestartSystem) msg).setType(RestartSystem.TYPE.SYSTEM);
+                break;
+            case targetAuxCpu:
+                ArrayList<SystemProperty> props = ConfigurationManager.getInstance()
+                        .getPropertiesByEntity(selectedSysName,
+                                "Power Supply",
+                                SystemProperty.Visibility.DEVELOPER,
+                                SystemProperty.Scope.GLOBAL);
+
+                Optional<SystemProperty> res = props.stream()
+                        .filter(p -> p.getValueType() == SystemProperty.ValueTypeEnum.STRING
+                                && ((String) p.getValue()).contains("Auxiliary CPU"))
+                        .findFirst();
+
+                if(!res.isPresent()) {
+                    getConsole().post(Notification.warning("Restart System", "Could not find Auxiliary Cpu"));
+                    return;
+                }
+
+                msg = new PowerChannelControl();
+                PowerChannelControl pcc = (PowerChannelControl) msg;
+                pcc.setOp(PowerChannelControl.OP.RESTART);
+                pcc.setName((String) res.get().getValue());
+
+                break;
+            default:
+                NeptusLog.pub().warn("Restart type " + restartType + " not supported");
+        }
+
+        if (msg == null) {
+            getConsole().post(Notification.warning("Restart system command", "Could not send system restart"));
+            return;
+        }
 
         msg.setDst(sysId);
         iridiumMsg.setSource(ImcMsgManager.getManager().getLocalId().intValue());
         iridiumMsg.setDestination(sysId);
         iridiumMsg.timestampMillis = msg.getTimestampMillis();
         iridiumMsg.setMsg(msg);
-
-        boolean valid = false;
-        switch (restartType) {
-            case targetMainDUNE:
-                msg.setType(RestartSystem.TYPE.DUNE);
-                valid = true;
-                break;
-            case targetMainCpu:
-                msg.setType(RestartSystem.TYPE.SYSTEM);
-                valid = true;
-                break;
-            default:
-                NeptusLog.pub().warn("Restart type " + restartType + " not supported");
-        }
-
-        if (!valid) {
-            getConsole().post(Notification.warning("Restart system command", "Could not send system restart"));
-            return;
-        }
 
         try {
             IridiumManager.getManager().send(iridiumMsg);
