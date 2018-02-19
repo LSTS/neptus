@@ -263,11 +263,11 @@ public class AssetsManager {
         return ret;
     }
     
-    @Periodic(millisBetweenUpdates = 1000)
+    @Periodic(millisBetweenUpdates = 60_000)
     private void updatePos() {
         Future<List<Asset>> sts = EnduranceWebApi.getSoiState();
         try {
-            List<Asset> assetLst = sts.get(750, TimeUnit.MILLISECONDS);
+            List<Asset> assetLst = sts.get(5000, TimeUnit.MILLISECONDS);
             StringBuilder sb = new StringBuilder();
             for (Asset asset : assetLst) {
                 sb.append(asset.getAssetName());

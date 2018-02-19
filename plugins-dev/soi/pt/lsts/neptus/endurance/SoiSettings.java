@@ -61,6 +61,10 @@ public class SoiSettings {
 
     @NeptusProperty(description = "SOI plan identifier")
     public String soi_plan_id = "soi_plan";
+    
+    @NeptusProperty(description = "Watchdog timeout, in minutes")
+    public int mins_timeout = 600;
+    
 
     @NeptusProperty(description = "Cyclic execution")
     public boolean cycle = false;
