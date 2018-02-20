@@ -164,6 +164,8 @@ public class HubIridiumMessenger implements IridiumMessenger {
         os.write(data);
         os.close();
 
+        NeptusLog.pub().info(messagesUrl+" : "+conn.getResponseCode()+" "+conn.getResponseMessage());
+        
         InputStream is = conn.getInputStream();
         ByteArrayOutputStream incoming = new ByteArrayOutputStream();
         IOUtils.copy(is, incoming);
