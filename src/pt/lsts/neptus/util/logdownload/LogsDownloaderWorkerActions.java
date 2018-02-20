@@ -38,6 +38,7 @@ import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -45,6 +46,7 @@ import java.util.LinkedList;
 import javax.swing.AbstractAction;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
+import javax.swing.JToggleButton;
 import javax.swing.SwingUtilities;
 
 import org.apache.commons.net.ftp.FTPFile;
@@ -84,6 +86,7 @@ class LogsDownloaderWorkerActions {
 
     boolean stopLogListProcessing = false;
     boolean resetting = false;
+    boolean showActiveLog = false;
 
     /**
      * This will initialize the actions and set them up on the GUI
@@ -144,18 +147,34 @@ class LogsDownloaderWorkerActions {
             public void actionPerformed(ActionEvent e) {
                 if (!gui.validateAndSetUI()) {
                     gui.popupErrorConfigurationDialog();
+                    
+                    gui.downloadListButton.setIcon(LogsDownloaderWorkerGUI.ICON_DOWNLOAD_LIST);
+                    gui.downloadListButton.setState(false);
+                    
                     return;
                 }
+                
+                JToggleButton button = (JToggleButton) e.getSource();
+                boolean stopByButton = !button.isSelected();
+                
+                gui.downloadListButton.setIcon(!stopByButton ? LogsDownloaderWorkerGUI.ICON_DOWNLOAD_LIST_STOP
+                        : LogsDownloaderWorkerGUI.ICON_DOWNLOAD_LIST);
+
                 AsyncTask task = new AsyncTask() {
                     @Override
                     public Object run() throws Exception {
+                        if (stopByButton) {
+                            stopLogListProcessing = true;
+                            return null;
+                        }
+
                         if (stopLogListProcessing)
                             stopLogListProcessing = false;
 
                         long time = System.currentTimeMillis();
                         showInGuiStarting();
 
-                        gui.downloadListButton.setEnabled(false);
+                        // gui.downloadListButton.setEnabled(false);
                         // logFolderList.setEnabled(false);
                         gui.logFolderList.setValueIsAdjusting(true);
                         // logFilesList.setEnabled(false);
@@ -181,7 +200,7 @@ class LogsDownloaderWorkerActions {
                         long timeS1 = System.currentTimeMillis();
                         
                         // Added in order not to show the active log (the last one)
-                        orderAndFilterOutTheActiveLog(retList);
+                        orderAndFilterOutTheActiveLog(retList, !showActiveLog);
                         showInGuiNumberOfLogsFromServers(retList);
                         if (retList.size() == 0) // Abort the rest of processing
                             return null;
@@ -204,24 +223,35 @@ class LogsDownloaderWorkerActions {
 
                         // ->Getting Log files list from server
                         showInGuiProcessingLogList();
-                        LinkedList<LogFolderInfo> tmpLogFolderList = getFromServersCompleteLogList(serversLogPresenceList);
-
-                        showInGuiUpdatingLogsInfo();
-
-                        // Testing for log files from each log folder
-                        testingForLogFilesFromEachLogFolderAndFillInfo(tmpLogFolderList);
-
-                        if (stopLogListProcessing)
-                            return null;
                         
-                        // Updating new and existent log folders
-                        testNewReportedLogFoldersForLocalCorrespondent(newLogFoldersFromServer);
-                        updateLogFoldersState(existentLogFoldersFromServer);
+                        ArrayList<String> logFoldersNames = new ArrayList<>();
+                        logFoldersNames.addAll(serversLogPresenceList.keySet());
+                        logFoldersNames.sort(Comparator.reverseOrder());
+                        LinkedHashMap<String, String> partialServersLogPresenceList = new LinkedHashMap<>();
+                        for (String logKey : logFoldersNames) {
+                            partialServersLogPresenceList.clear();
+                            partialServersLogPresenceList.put(logKey, serversLogPresenceList.get(logKey));
+                            
+                            LinkedList<LogFolderInfo> tmpLogFolderList = getFromServersCompleteLogList(partialServersLogPresenceList);
+                            
+                            showInGuiUpdatingLogsInfo();
+                            
+                            // Testing for log files from each log folder
+                            testingForLogFilesFromEachLogFolderAndFillInfo(tmpLogFolderList);
+                            
+                            if (stopLogListProcessing)
+                                return null;
+                            
+                            // Updating new and existent log folders
+                            testNewReportedLogFoldersForLocalCorrespondent(newLogFoldersFromServer);
 
-                        // Updating Files for selected folders
-                        updateFilesListGUIForFolderSelectedNonBlocking();
-
-                        NeptusLog.pub().warn("....process list from all servers " + (System.currentTimeMillis() - timeS1) + "ms");                        
+                            updateLogFoldersState(existentLogFoldersFromServer);
+                            
+                            // Updating Files for selected folders
+                            updateFilesListGUIForFolderSelectedNonBlocking();
+                        }
+                        
+                        NeptusLog.pub().warn("....process list from all servers " + (System.currentTimeMillis() - timeS1) + "ms");
 
                         showInGuiUpdatingGui();
                         
@@ -232,7 +262,8 @@ class LogsDownloaderWorkerActions {
 
                     @Override
                     public void finish() {
-                        stopLogListProcessing = false;
+                        if (!stopByButton)
+                            stopLogListProcessing = false;
 
                         gui.logFolderList.setValueIsAdjusting(false);
                         gui.logFolderList.invalidate();
@@ -247,6 +278,7 @@ class LogsDownloaderWorkerActions {
                         gui.listHandlingProgressBar.setString("");
                         gui.logFilesList.setEnabled(true);
                         gui.downloadListButton.setEnabled(true);
+                        gui.downloadListButton.setState(false);
                         try {
                             this.getResultOrThrow();
                         }
@@ -351,13 +383,13 @@ class LogsDownloaderWorkerActions {
         }
     }
 
-    private void orderAndFilterOutTheActiveLog(LinkedHashMap<FTPFile, String> retList) {
+    private void orderAndFilterOutTheActiveLog(LinkedHashMap<FTPFile, String> retList, boolean filterOutActiveLog) {
         if (retList.size() > 0) {
             String[] ordList = retList.values().toArray(new String[retList.size()]);
             Arrays.sort(ordList);
             String activeLogName = ordList[ordList.length - 1];
             for (FTPFile fFile : retList.keySet().toArray(new FTPFile[retList.size()])) {
-                if (retList.get(fFile).equals(activeLogName)) {
+                if (filterOutActiveLog && retList.get(fFile).equals(activeLogName)) {
                     retList.remove(fFile);
                     break;
                 }
@@ -525,7 +557,8 @@ class LogsDownloaderWorkerActions {
                                 logFileTmp.setSize(allSize);
                             }
                             lFolder.addFile(logFileTmp);
-                            tmpLogFolders.add(lFolder);
+                            if (!tmpLogFolders.contains(lFolder))
+                                tmpLogFolders.add(lFolder);
                         }
                     }
                     catch (Exception e) {
@@ -560,8 +593,10 @@ class LogsDownloaderWorkerActions {
                 LogFolderInfo logFolder = (LogFolderInfo) comp;
 
                 int indexLFolder = tmpLogFolderList.indexOf(logFolder);
-                LinkedHashSet<LogFileInfo> logFilesTmp = (indexLFolder != -1) ? tmpLogFolderList.get(
-                        indexLFolder).getLogFiles() : new LinkedHashSet<LogFileInfo>();
+                if (indexLFolder == -1)
+                    continue;
+
+                LinkedHashSet<LogFileInfo> logFilesTmp = tmpLogFolderList.get(indexLFolder).getLogFiles();
                 for (LogFileInfo logFx : logFilesTmp) {
                     if (stopLogListProcessing)
                         break;
@@ -676,7 +711,7 @@ class LogsDownloaderWorkerActions {
         NeptusLog.pub().warn(".......Testing for log files from each log folder " +
                 (System.currentTimeMillis() - timeF1) + "ms");
     }
-    
+
     private void testNewReportedLogFoldersForLocalCorrespondent(LinkedList<LogFolderInfo> newLogFoldersFromServer) {
         long timeF1 = System.currentTimeMillis();
 
