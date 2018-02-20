@@ -82,6 +82,9 @@ public class SystemsInteraction extends ConsoleInteraction {
     @NeptusProperty(name = "Minutes to Show Distress Signal", category = "Test", userLevel = LEVEL.ADVANCED)
     private int minutesToShowDistress = 5; 
 
+    @NeptusProperty(name = "Allow main vehicle selection by clicking on the console map", userLevel = LEVEL.REGULAR)
+    private boolean selectSystemByClick = false; 
+    
     private short counterShow = 0;
     private ArrayList<ImcSystem> imcSystems = new ArrayList<>();
     private ArrayList<ExternalSystem> extSystems = new ArrayList<>();
@@ -443,8 +446,11 @@ public class SystemsInteraction extends ConsoleInteraction {
             LocationType loc = sys.getLocation();
             Point2D locScreenXY = source.getScreenPosition(loc);
             double dist = locScreenXY.distance(event.getPoint());
-            if (dist <= PIXEL_DISTANCE_TO_SELECT)
+            if (dist <= PIXEL_DISTANCE_TO_SELECT) {
                 imcSystems.add(sys);
+                if (selectSystemByClick)
+                    getConsole().setMainSystem(sys.getName());
+            }
         }
         
         if (considerExternalSystemsIcons) {
