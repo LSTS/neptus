@@ -249,9 +249,9 @@ class LogsDownloaderWorkerActions {
                             
                             // Updating Files for selected folders
                             updateFilesListGUIForFolderSelectedNonBlocking();
-                            
-                            NeptusLog.pub().warn("....process list from all servers " + (System.currentTimeMillis() - timeS1) + "ms");
                         }
+                        
+                        NeptusLog.pub().warn("....process list from all servers " + (System.currentTimeMillis() - timeS1) + "ms");
 
                         showInGuiUpdatingGui();
                         
