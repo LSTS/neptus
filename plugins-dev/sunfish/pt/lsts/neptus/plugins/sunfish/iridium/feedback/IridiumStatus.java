@@ -33,18 +33,14 @@
 package pt.lsts.neptus.plugins.sunfish.iridium.feedback;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JEditorPane;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.PopupFactory;
-import javax.swing.border.Border;
+import javax.swing.JTextArea;
 
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
@@ -84,10 +80,9 @@ public class IridiumStatus extends ConsolePanel {
     public void initSubPanel() {
         removeAll();
         
-        //setDefaultCloseOperation(ConsolePanel.);
         iridiumCommsStatus =  new IridiumStatusTableModel();
 
-        JButton filter =  new JButton("Filter");
+        //JButton filter =  new JButton("Filter");
         table = new JTable(iridiumCommsStatus){
             /**
              * 
@@ -115,7 +110,7 @@ public class IridiumStatus extends ConsolePanel {
         scroll.setPreferredSize(new Dimension(350, 150));
         
         add(scroll,BorderLayout.CENTER);
-        add(filter,BorderLayout.SOUTH);
+        //add(filter,BorderLayout.SOUTH);
         
         table.addMouseListener(new MouseAdapter() {
             @Override
@@ -130,21 +125,16 @@ public class IridiumStatus extends ConsolePanel {
     public void displayMessage(){
         
         try {
-            JEditorPane data = new JEditorPane();
-            data.setEditable(false);
-            data.setContentType("text/plain");
-            data.setBackground(Color.white);
-            data.setOpaque(true);
             String msg = iridiumCommsStatus.getMessageData(table.getSelectedRow());
+            JTextArea data = new JTextArea();
+            data.setEditable(false);
+            data.setOpaque(true);
+            data.setMaximumSize(new Dimension(500,350));
             data.setText(msg);
-            JScrollPane jscroll = new JScrollPane(data);
-            jscroll.setPreferredSize(new Dimension(250, 250));
-            Border title = BorderFactory.createTitledBorder("Iridium Message DATA:");
-            jscroll.setBorder(title);
-            javax.swing.Popup popup = PopupFactory.getSharedInstance().getPopup(this, jscroll, 300, 300);
-            popup.show();
-            //GuiUtils.htmlMessage(this, "", "", msg, ModalityType.MODELESS);
-
+            JScrollPane jscroll = new JScrollPane(data); 
+            jscroll.setPreferredSize(new Dimension(400,400));
+            String title = "Iridium Message Data";
+            JOptionPane.showMessageDialog(this, jscroll, title, JOptionPane.PLAIN_MESSAGE);          
         }
         catch (Exception ex) {
             GuiUtils.errorMessage(getConsole(), ex);
