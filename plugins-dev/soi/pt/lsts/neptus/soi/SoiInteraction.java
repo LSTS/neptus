@@ -369,7 +369,9 @@ public class SoiInteraction extends SimpleRendererInteraction {
     }
 
     private void sendCommand(SoiCommand cmd) {
-        assetsManager.sendCommand(getConsole().getMainSystem(), cmd, commMean, getConsole());
+        new Thread(() -> {
+            assetsManager.sendCommand(getConsole().getMainSystem(), cmd, commMean, getConsole());
+        }).start();        
     }
 
      public String infoHtml(ImcSystem[] vehicles) {
