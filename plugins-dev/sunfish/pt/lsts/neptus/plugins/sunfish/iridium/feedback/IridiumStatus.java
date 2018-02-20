@@ -49,7 +49,7 @@ import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.util.GuiUtils;
 
 @PluginDescription(name = "Iridium Communications Status",description="Iridium Communications Feedback Panel")
-@Popup(pos = Popup.POSITION.BOTTOM_RIGHT, width=350, height=205)
+@Popup(pos = Popup.POSITION.BOTTOM_RIGHT, width=355, height=215)
 public class IridiumStatus extends ConsolePanel {
     
     private static final long serialVersionUID = 1L;
@@ -107,7 +107,7 @@ public class IridiumStatus extends ConsolePanel {
             
         };
         scroll = new JScrollPane(table);
-        scroll.setPreferredSize(new Dimension(350, 150));
+        scroll.setPreferredSize(new Dimension(350, 200));
         
         add(scroll,BorderLayout.CENTER);
         //add(filter,BorderLayout.SOUTH);
