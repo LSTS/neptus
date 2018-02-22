@@ -1123,8 +1123,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
             vciRedirect.onMessage(info, msg);
             sentToBus = true;
         }
-        if (!sentToBus) 
-        {
+        if (!sentToBus) {
             postToBus(msg);
         }
 
@@ -1136,7 +1135,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
      */
     private void postToBus(IMCMessage msg) {
         try {
-                bus.post(msg);
+            bus.post(msg);
         }
         catch (Exception e) {
             e.printStackTrace();

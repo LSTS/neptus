@@ -79,19 +79,14 @@ public class IridiumStatus extends ConsolePanel {
     @Override
     public void initSubPanel() {
         removeAll();
+        setLayout(new BorderLayout());
         
         iridiumCommsStatus =  new IridiumStatusTableModel();
 
         //JButton filter =  new JButton("Filter");
         table = new JTable(iridiumCommsStatus){
-            /**
-             * 
-             */
             private static final long serialVersionUID = 1L;
 
-            /* (non-Javadoc)
-             * @see javax.swing.JTable#getToolTipText(java.awt.event.MouseEvent)
-             */
             @Override
             public String getToolTipText(MouseEvent event) {
                 java.awt.Point p = event.getPoint();
@@ -102,9 +97,6 @@ public class IridiumStatus extends ConsolePanel {
                 }
                 return super.getToolTipText();
             }
-            
-            
-            
         };
         scroll = new JScrollPane(table);
         scroll.setPreferredSize(new Dimension(350, 200));
@@ -123,7 +115,6 @@ public class IridiumStatus extends ConsolePanel {
       }
     
     public void displayMessage(){
-        
         try {
             String msg = iridiumCommsStatus.getMessageData(table.getSelectedRow());
             JTextArea data = new JTextArea();
@@ -139,7 +130,5 @@ public class IridiumStatus extends ConsolePanel {
         catch (Exception ex) {
             GuiUtils.errorMessage(getConsole(), ex);
         }
-        
     }
-    
 }
