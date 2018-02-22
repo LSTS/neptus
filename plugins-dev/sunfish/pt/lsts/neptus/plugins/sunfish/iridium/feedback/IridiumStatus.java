@@ -125,7 +125,7 @@ public class IridiumStatus extends ConsolePanel {
             JScrollPane jscroll = new JScrollPane(data); 
             jscroll.setPreferredSize(new Dimension(400,400));
             String title = "Iridium Message Data";
-            JOptionPane.showMessageDialog(this, jscroll, title, JOptionPane.PLAIN_MESSAGE);          
+            JOptionPane.showMessageDialog(this, jscroll, title, JOptionPane.PLAIN_MESSAGE);
         }
         catch (Exception ex) {
             GuiUtils.errorMessage(getConsole(), ex);
