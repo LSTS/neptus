@@ -228,13 +228,18 @@ class LogsDownloaderWorkerActions {
                         logFoldersNames.addAll(serversLogPresenceList.keySet());
                         logFoldersNames.sort(Comparator.reverseOrder());
                         LinkedHashMap<String, String> partialServersLogPresenceList = new LinkedHashMap<>();
+                        long countLFolders = 0;
                         for (String logKey : logFoldersNames) {
                             partialServersLogPresenceList.clear();
                             partialServersLogPresenceList.put(logKey, serversLogPresenceList.get(logKey));
                             
+                            countLFolders++;
+
+                            showInGuiProcessingLogList(logKey, countLFolders, logFoldersNames.size());
+
                             LinkedList<LogFolderInfo> tmpLogFolderList = getFromServersCompleteLogList(partialServersLogPresenceList);
                             
-                            showInGuiUpdatingLogsInfo();
+                            showInGuiUpdatingLogsInfo(logKey);
                             
                             // Testing for log files from each log folder
                             testingForLogFilesFromEachLogFolderAndFillInfo(tmpLogFolderList);
@@ -251,11 +256,11 @@ class LogsDownloaderWorkerActions {
                             updateFilesListGUIForFolderSelectedNonBlocking();
                         }
                         
-                        NeptusLog.pub().warn("....process list from all servers " + (System.currentTimeMillis() - timeS1) + "ms");
+                        NeptusLog.pub().debug("....process list from all servers " + (System.currentTimeMillis() - timeS1) + "ms");
 
                         showInGuiUpdatingGui();
                         
-                        NeptusLog.pub().warn("....all downloadListAction " + (System.currentTimeMillis() - time) + "ms");
+                        NeptusLog.pub().debug("....all downloadListAction " + (System.currentTimeMillis() - time) + "ms");
                         showInGuiDone();
                         return true;
                     }
@@ -309,10 +314,10 @@ class LogsDownloaderWorkerActions {
             long timeD2 = System.currentTimeMillis();
             LinkedHashMap<FTPFile, String> ret = getBaseLogListFrom(serverKey);
             fillServerPresenceList(serverKey, ret, baselogFolderList, serversLogPresenceList);
-            NeptusLog.pub().warn(".......get list from '" + serverKey + "' server "
+            NeptusLog.pub().debug(".......get list from '" + serverKey + "' server "
                     + (System.currentTimeMillis() - timeD2) + "ms");
         }
-        NeptusLog.pub().warn(".......get list from all servers " + (System.currentTimeMillis() - timeD1) + "ms");                        
+        NeptusLog.pub().debug(".......get list from all servers " + (System.currentTimeMillis() - timeD1) + "ms");                        
     }
 
     /**
@@ -423,7 +428,7 @@ class LogsDownloaderWorkerActions {
                 NeptusLog.pub().debug(e.getMessage());
             }
         }
-        NeptusLog.pub().warn(".......Removing from already existing LogFolders to LOCAL state "
+        NeptusLog.pub().debug(".......Removing from already existing LogFolders to LOCAL state "
                 + (System.currentTimeMillis() - timeC1) + "ms");
     }
 
@@ -572,7 +577,7 @@ class LogsDownloaderWorkerActions {
             e.printStackTrace();
         }
 
-        NeptusLog.pub().warn(".......Contacting remote systems for complete log file list " +
+        NeptusLog.pub().debug(".......Contacting remote systems for complete log file list " +
                 (System.currentTimeMillis() - timeF0) + "ms");
 
         return tmpLogFolders;
@@ -708,7 +713,7 @@ class LogsDownloaderWorkerActions {
             }
         }
         
-        NeptusLog.pub().warn(".......Testing for log files from each log folder " +
+        NeptusLog.pub().debug(".......Testing for log files from each log folder " +
                 (System.currentTimeMillis() - timeF1) + "ms");
     }
 
@@ -748,7 +753,7 @@ class LogsDownloaderWorkerActions {
 
         LogsDownloaderWorkerGUIUtil.updateLogStateIconForAllLogFolders(gui.logFolderList, gui.logFoldersListLabel);
         
-        NeptusLog.pub().warn(".......Updating LogFolders State new for local correspondent" +
+        NeptusLog.pub().debug(".......Updating LogFolders State new for local correspondent" +
                 (System.currentTimeMillis() - timeF1) + "ms");
     }
 
@@ -761,7 +766,7 @@ class LogsDownloaderWorkerActions {
         LogsDownloaderWorkerGUIUtil.updateLogStateIconForAllLogFolders(gui.logFolderList,
                 gui.logFoldersListLabel);
 
-        NeptusLog.pub().warn(".......Updating LogFolders State " +
+        NeptusLog.pub().debug(".......Updating LogFolders State " +
                 (System.currentTimeMillis() - timeF1) + "ms");
     }
 
@@ -840,22 +845,33 @@ class LogsDownloaderWorkerActions {
                 gui.listHandlingProgressBar.setValue(30);
                 gui.listHandlingProgressBar.setIndeterminate(true);
                 gui.listHandlingProgressBar.setString(I18n
-                        .text("Contacting remote system for complete log file list..."));
+                        .text("Contacting remote system for log file list..."));
 
-                gui.listHandlingProgressBar.setValue(40);
-                gui.listHandlingProgressBar.setIndeterminate(false);
-                gui.listHandlingProgressBar.setString(I18n.text("Processing log list..."));
             }
         });
     }
 
-    private void showInGuiUpdatingLogsInfo() throws InterruptedException, InvocationTargetException {
+    private void showInGuiProcessingLogList(String logName, long countCur, long countSize) throws InterruptedException, InvocationTargetException {
         SwingUtilities.invokeAndWait(new Runnable() {
             @Override
             public void run() {
-                gui.listHandlingProgressBar.setValue(70);
+                double cc = countCur / (double) countSize;
+                int perc = (int) ((98 - 30) * cc); 
+                gui.listHandlingProgressBar.setValue(30 + perc);
                 gui.listHandlingProgressBar.setIndeterminate(false);
-                gui.listHandlingProgressBar.setString(I18n.text("Updating logs info..."));
+                gui.listHandlingProgressBar.setString(I18n
+                        .textf("Contacting remote system for log \"%log\" file list...", logName));
+
+            }
+        });
+    }
+
+    private void showInGuiUpdatingLogsInfo(String logName) throws InterruptedException, InvocationTargetException {
+        SwingUtilities.invokeAndWait(new Runnable() {
+            @Override
+            public void run() {
+                gui.listHandlingProgressBar.setIndeterminate(false);
+                gui.listHandlingProgressBar.setString(I18n.textf("Updating logs info for \"%log\"...", logName));
             }
         });
     }
@@ -864,7 +880,7 @@ class LogsDownloaderWorkerActions {
         SwingUtilities.invokeAndWait(new Runnable() {
             @Override
             public void run() {
-                gui.listHandlingProgressBar.setValue(90);
+                gui.listHandlingProgressBar.setValue(98);
                 gui.listHandlingProgressBar.setIndeterminate(false);
                 gui.listHandlingProgressBar.setString(I18n.text("Updating GUI..."));
             }
