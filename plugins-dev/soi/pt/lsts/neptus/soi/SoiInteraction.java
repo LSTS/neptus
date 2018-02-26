@@ -179,14 +179,8 @@ public class SoiInteraction extends SimpleRendererInteraction {
                 
             PlanType ptype = getConsole().getMission().getIndividualPlansList().get(""+selection);
             plan = Plan.parse((PlanSpecification) ptype.asIMCPlan());
-            SoiCommand cmd = new SoiCommand();
-            cmd.setCommand(COMMAND.EXEC);
-            cmd.setType(TYPE.REQUEST);
-            cmd.setPlan(plan.asImc());
-            sendCommand(cmd);
 
             if (scheduleWaypoints) {
-
                 if (!settings.containsKey(system)) {
                     settings.put(system, new SoiSettings());
                 }
@@ -194,6 +188,13 @@ public class SoiInteraction extends SimpleRendererInteraction {
                 plan.scheduleWaypoints(System.currentTimeMillis() + (long) (timeToFirstWaypoint * 1000l),
                         vehicleSettings.speed);
             }
+
+            SoiCommand cmd = new SoiCommand();
+            cmd.setCommand(COMMAND.EXEC);
+            cmd.setType(TYPE.REQUEST);
+            cmd.setPlan(plan.asImc());
+            sendCommand(cmd);
+
 
             plans.put(system, plan);
         }
