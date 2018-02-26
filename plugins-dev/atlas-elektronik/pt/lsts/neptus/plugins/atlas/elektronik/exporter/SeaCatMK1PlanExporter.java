@@ -968,10 +968,14 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                 }
             }
             else if (m instanceof StationKeeping) {
+                if (Double.isNaN(speedMS))
+                    continue;
+
                 processHeaderCommentAndPayloadForManeuver(sb, m);
 
                 ManeuverLocation wp = ((StationKeeping) m).getManeuverLocation();
                 wp.convertToAbsoluteLatLonDepth();
+                sb.append(getCommandGoto(wp.getLatitudeDegs(), wp.getLongitudeDegs(), wp.getZ(), wp.getZUnits(), speedMS));
                 sb.append(getCommandKeepPosition(wp.getLatitudeDegs(), wp.getLongitudeDegs(), wp.getZ(), wp.getZUnits(),
                         ((StationKeeping) m).getDuration()));
                 if (debug) {
