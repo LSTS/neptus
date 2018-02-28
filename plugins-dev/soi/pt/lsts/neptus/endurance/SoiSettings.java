@@ -32,40 +32,57 @@
  */
 package pt.lsts.neptus.endurance;
 
+import java.lang.reflect.Field;
+
 import pt.lsts.neptus.plugins.NeptusProperty;
 
 public class SoiSettings {
-    @NeptusProperty(description = "Nominal Speed")
+    @NeptusProperty(name = "Nominal Speed", description="Speed to used when planning (nominal)", units="m/s")
     public double speed = 1;
 
-    @NeptusProperty(description = "Maximum Depth")
-    public double max_depth = 10;
+    @NeptusProperty(name = "Maximum Depth", description="Maximum depth for yoyo behavior", units="m")
+    public double maxDepth = 10;
 
-    @NeptusProperty(description = "Minimum Depth")
-    public double min_depth = 0.0;
+    @NeptusProperty(name = "Minimum Depth", description="Minimum depth for yoyo behavior. 0 will require vehicle to acquire GPS.", units="m")
+    public double minDepth = 0.0;
 
-    @NeptusProperty(description = "Maximum Speed")
-    public double max_speed = 1.5;
+    @NeptusProperty(name = "Maximum Speed", description="Maximum speed allowed for the vehicle", units="m/s")
+    public double maxSpeed = 1.5;
 
-    @NeptusProperty(description = "Minimum Speed")
-    public double min_speed = 0.7;
+    @NeptusProperty(name = "Minimum Speed", description="Minimum speed allowed for the vehicle", units="m/s")
+    public double minSpeed = 0.7;
 
-    @NeptusProperty(description = "Maximum time underwater")
-    public int mins_under = 10;
+    @NeptusProperty(name = "Waypoint Wait Time", description = "Seconds to idle at each vertex", units="s")
+    public int wptSecs = 60;
 
-    @NeptusProperty(description = "Number where to send reports")
-    public String sms_number = "+351914785889";
+    @NeptusProperty(name = "Deadline", description = "Minutes before termination", units="minutes")
+    int timeout = 600;
 
-    @NeptusProperty(description = "Seconds to idle at each vertex")
-    public int wait_secs = 60;
-
-    @NeptusProperty(description = "SOI plan identifier")
-    public String soi_plan_id = "soi_plan";
+    @NeptusProperty(name = "Connection timeout", description = "Maximum time without reporting position", units="minutes")
+    int minsOff = 15;
     
-    @NeptusProperty(description = "Watchdog timeout, in minutes")
-    public int mins_timeout = 600;
-    
+    @NeptusProperty(name = "GPS timeout", description = "Maximum time without GPS", units="minutes")
+    int minsUnder = 3;  
 
-    @NeptusProperty(description = "Cyclic execution")
-    public boolean cycle = false;
+    @NeptusProperty(name = "Cyclic execution", description = "If selected, after plan completion the same plan is executed again (repeatedly)")
+    boolean cycle = false;
+    
+    @NeptusProperty(name = "Diving speed", description = "Speed to use when diving", units="RPM")
+    int descRpm = 1300;
+    
+    @NeptusProperty(name = "Upload Temperature", description = "Upload temperature profiles when idle")
+    boolean upTemp = false;
+    
+    @NeptusProperty(name = "Align before diving", description = "Align with destination waypoint before going underwater")
+    boolean align = true;
+    
+    public static String abbrev(String name) {
+        for (Field f : SoiSettings.class.getDeclaredFields()) {
+            NeptusProperty np = f.getAnnotation(NeptusProperty.class);
+            if (np == null || !np.name().equals(name))
+                continue;
+            return f.getName();
+        }
+        return null;
+    }
 }

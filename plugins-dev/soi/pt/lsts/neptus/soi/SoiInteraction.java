@@ -246,7 +246,7 @@ public class SoiInteraction extends SimpleRendererInteraction {
         cmd.setCommand(COMMAND.SET_PARAMS);
         String settingsStr = "";
         for (PluginProperty p : after) {
-            settingsStr += p.getName() + "=" + p.getValue() + ";";
+            settingsStr += SoiSettings.abbrev(p.getName()) + "=" + p.getValue() + ";";
         }
         cmd.setSettings(settingsStr.substring(0, settingsStr.length() - 1));
         sendCommand(cmd);
