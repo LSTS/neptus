@@ -446,14 +446,14 @@ public class PlanUtil {
                 //+ PlanUtil.estimatedTime(mans, speedRpmRatioSpeed, speedRpmRatioRpms) + ""
                 + estDelay + ""
                 + (simpleTextOrHTML ? "\n" : "</li>");
-        ret += (simpleTextOrHTML ? "" : "<li><b>") + I18n.text("Max. Depth") + ":"
-                + (simpleTextOrHTML ? " " : "</b> ")
-                + format.format(PlanUtil.getMaxPlannedDepth(mans)) + "m"
-                + (simpleTextOrHTML ? "\n" : "</li>");
-        ret += (simpleTextOrHTML ? "" : "<li><b>") + I18n.text("Min. Depth") + ":"
-                + (simpleTextOrHTML ? " " : "</b> ")
-                + format.format(PlanUtil.getMinPlannedDepth(mans)) + "m"
-                + (simpleTextOrHTML ? "\n" : "</li>");
+//        ret += (simpleTextOrHTML ? "" : "<li><b>") + I18n.text("Max. Depth") + ":"
+//                + (simpleTextOrHTML ? " " : "</b> ")
+//                + format.format(PlanUtil.getMaxPlannedDepth(mans)) + "m"
+//                + (simpleTextOrHTML ? "\n" : "</li>");
+//        ret += (simpleTextOrHTML ? "" : "<li><b>") + I18n.text("Min. Depth") + ":"
+//                + (simpleTextOrHTML ? " " : "</b> ")
+//                + format.format(PlanUtil.getMinPlannedDepth(mans)) + "m"
+//                + (simpleTextOrHTML ? "\n" : "</li>");
         ret += (simpleTextOrHTML ? "" : "<li><b>") + I18n.text("# Maneuvers") + ":"
                 + (simpleTextOrHTML ? " " : "</b> ")
                 + PlanUtil.numManeuvers(plan) + ""
