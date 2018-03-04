@@ -319,13 +319,6 @@ public class SLADataVisualization extends ConsoleLayer implements IPeriodicUpdat
                     if (ftpDownloader != null) {
                         try {
                             if (!ftpDownloader.isConnected()) {
-                                ftpDownloader.renewClient();
-                                
-                                int rpc = ftpDownloader.getClient().getReplyCode();
-                                if(!FTPReply.isPositiveCompletion(rpc)) {
-                                    NeptusLog.pub().warn(ftpDownloader.getClient().getReplyString());
-                                }
-                                
                                 if (forceCMEMSPassShow || cmemsPassword == null) {
                                     String[] ret = SSHConnectionDialog.showConnectionDialog(cmemsHost, cmemsUsername, cmemsPassword == null ? ""
                                             : cmemsPassword, 21, "SLA Data", SwingUtilities.windowForComponent(getConsole()), false, false, true, true);
@@ -340,12 +333,13 @@ public class SLADataVisualization extends ConsoleLayer implements IPeriodicUpdat
                                 else {
                                     forceCMEMSPassShow = false;
                                 }
-                                if (!forceCMEMSPassShow) {
-                                    forceCMEMSPassShow = !ftpDownloader.getClient().login(cmemsUsername, cmemsPassword);
-                                    rpc = ftpDownloader.getClient().getReplyCode();
-                                    if(!FTPReply.isPositiveCompletion(rpc))
-                                        NeptusLog.pub().warn(ftpDownloader.getClient().getReplyString());
-                                }
+
+                                ftpDownloader.renewClient(cmemsUsername, cmemsPassword);
+                                
+                                int rpc = ftpDownloader.getClient().getReplyCode();
+                                if(!FTPReply.isPositiveCompletion(rpc)) {
+                                    NeptusLog.pub().warn(ftpDownloader.getClient().getReplyString());
+                                }                                
                             }
 
                             String fileName = new String(cmemsFile.getBytes(), "ISO-8859-1");
