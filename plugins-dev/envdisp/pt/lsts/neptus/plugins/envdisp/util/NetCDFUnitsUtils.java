@@ -287,7 +287,28 @@ public class NetCDFUnitsUtils {
     
         return ret;
     }
+
+    public static double getValueForMetterFromTempUnits(double value, String units) {
+        double ret = value;
+        switch (units.trim()) {
+            case "km":
+            case "Km":
+                ret = value * 1E3;
+                break;
+            case "dm":
+                ret = value / 1E1;
+                break;
+            case "cm":
+                ret = value / 1E2;
+                break;
+            case "mm":
+                ret = value / 1E3;
+                break;
+        }
     
+        return ret;
+    }
+
     public static void main(String[] args) throws Exception {
         try {
             double[] val = getMultiplierAndMillisOffsetFromTimeUnits("days since 00-01-00 00:00:00");
