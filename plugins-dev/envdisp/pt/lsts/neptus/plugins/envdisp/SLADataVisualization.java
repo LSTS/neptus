@@ -112,8 +112,9 @@ public class SLADataVisualization extends ConsoleLayer implements IPeriodicUpdat
             description = "The folder to look for SLA data. Admissible files '*.nc or *.nc.gz'. NetCDF variables used: lat, lon, time, sla.",
             editorClass = FolderPropertyEditor.class)
     public File baseFolderForSLANetCDFFiles = new File("IHData/SLA");
-    @NeptusProperty(name = "Request SLA_data from ???", userLevel = LEVEL.REGULAR, category = CATEGORY_DATA_UPDATE)
-    public boolean requestSLAFromFTP = false;
+    @NeptusProperty(name = "Request AVISO SLA_data from Copernicus.eu", userLevel = LEVEL.REGULAR, category = CATEGORY_DATA_UPDATE,
+            description = "You need an account from http://marine.copernicus.eu/services-portfolio/access-to-products/")
+    public boolean requestSLAFromFTP = true;
     
     @NeptusProperty(name = "Show visible data date-time interval", userLevel = LEVEL.ADVANCED, category = CATEGORY_TEST, 
             description = "Draws the string with visible curents data date-time interval.")
@@ -126,7 +127,7 @@ public class SLADataVisualization extends ConsoleLayer implements IPeriodicUpdat
 
     @NeptusProperty(name = "CMEMS Copernicus.eu host", userLevel = LEVEL.REGULAR, category = CATEGORY_DATA_UPDATE, editable = false)
     private String cmemsHost = "ftp.sltac.cls.fr";
-    @NeptusProperty(name = "CMEMS Copernicus.eu SLA file", userLevel = LEVEL.REGULAR, category = CATEGORY_DATA_UPDATE, editable = false)
+    @NeptusProperty(name = "CMEMS Copernicus.eu AVISO SLA file", userLevel = LEVEL.REGULAR, category = CATEGORY_DATA_UPDATE, editable = false)
     private String cmemsFile = "/Core/SEALEVEL_GLO_PHY_L4_NRT_OBSERVATIONS_008_046/dataset-duacs-nrt-global-merged-allsat-phy-l4-v3/nrt_global_allsat_phy_l4_latest.nc.gz";
     private String cmemsFileName = "nrt_global_allsat_phy_l4_latest.nc.gz";
     
@@ -277,8 +278,8 @@ public class SLADataVisualization extends ConsoleLayer implements IPeriodicUpdat
     }
 
     public String validateDateLimitHours(int value) {
-        if (value < 3 && value > 24 * 5)
-            return "Keep it between 3 and 24*5=120";
+        if (value < 3 && value > 24 * 40)
+            return "Keep it between 3 and 24*40=960";
         return null;
     }
 
