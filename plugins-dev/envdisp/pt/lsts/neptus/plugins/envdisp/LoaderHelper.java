@@ -46,6 +46,7 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.plugins.envdisp.datapoints.ChlorophyllDataPoint;
 import pt.lsts.neptus.plugins.envdisp.datapoints.HFRadarDataPoint;
+import pt.lsts.neptus.plugins.envdisp.datapoints.SLADataPoint;
 import pt.lsts.neptus.plugins.envdisp.datapoints.SSTDataPoint;
 import pt.lsts.neptus.plugins.envdisp.datapoints.WavesDataPoint;
 import pt.lsts.neptus.plugins.envdisp.datapoints.WindDataPoint;
@@ -935,6 +936,149 @@ public class LoaderHelper {
         return chlorophylldp;
     }
 
+    public static final HashMap<String, SLADataPoint> processSLAFile(String fileName, Date dateLimit) {
+        boolean ignoreDateLimitToLoad = false;
+        if (dateLimit == null)
+            ignoreDateLimitToLoad = true;
+        
+        NeptusLog.pub().info("Starting processing SLAnetCDF file '" + fileName + "'."
+                + (ignoreDateLimitToLoad ? " ignoring dateTime limit" : " Accepting data after " + dateLimit + "."));
+
+        HashMap<String, SLADataPoint> sladp = new HashMap<>();
+
+        NetcdfFile dataFile = null;
+        
+        Date fromDate = null;
+        Date toDate = null;
+        
+        try {
+          dataFile = NetcdfFile.open(fileName, null);
+
+          // Get the latitude and longitude Variables.
+          Pair<String, Variable> searchPair = NetCDFUtils.findVariableForStandardNameOrName(dataFile, fileName, true, "latitude", "lat");
+          String latName = searchPair.first();
+          Variable latVar = searchPair.second(); 
+
+          searchPair = NetCDFUtils.findVariableForStandardNameOrName(dataFile, fileName, true, "longitude", "lon");
+          String lonName = searchPair.first();
+          Variable lonVar = searchPair.second();
+
+          searchPair = NetCDFUtils.findVariableForStandardNameOrName(dataFile, fileName, true, "time");
+          String timeName = searchPair == null ? null : searchPair.first();
+          Variable timeVar = searchPair == null ? null : searchPair.second();
+
+          // Get the SLA Variable.
+          searchPair = NetCDFUtils.findVariableForStandardNameOrName(dataFile, fileName, true, "sea_surface_height_above_sea_level", "sla");
+          @SuppressWarnings("unused")
+          String slaName = searchPair == null ? null : searchPair.first();
+          Variable slaVar = searchPair == null ? null : searchPair.second();
+
+          // Get the lat/lon data from the file.
+          Array latArray;  // ArrayFloat.D1
+          Array lonArray;  // ArrayFloat.D1
+          Array timeArray; //ArrayFloat.D1
+          Array slaArray;    // ArrayFloat.D?
+
+          latArray = latVar.read();
+          lonArray = lonVar.read();
+          timeArray = timeVar.read();
+          slaArray = slaVar == null ? null : slaVar.read();
+          
+          double[] multAndOffset = NetCDFUtils.getTimeMultiplierAndOffset(timeVar, fileName);
+          double timeMultiplier = multAndOffset[0];
+          double timeOffset = multAndOffset[1];
+          
+          // Let us process
+          if (slaVar != null) {
+              try {
+                  String slaUnits = "m";
+                  Attribute slaUnitsAtt = slaVar == null ? null : slaVar.findAttribute(NetCDFUtils.NETCDF_ATT_UNITS);
+                  if (slaUnitsAtt != null)
+                      slaUnits = (String) slaUnitsAtt.getValue(0);
+
+                  double slaFillValue = NetCDFUtils.findFillValue(slaVar);
+                  Pair<Double, Double> slaValidRange = NetCDFUtils.findValidRange(slaVar);
+                  
+                  int[] shape = slaVar.getShape();
+                  int[] counter = new int[shape.length];
+                  Arrays.fill(counter, 0);
+                  String dimStr = slaVar.getDimensionsString();
+                  Map<String, Integer> collumsIndexMap = NetCDFUtils.getIndexesForVar(dimStr, timeName, latName, lonName);
+
+                  do {
+                      Date dateValue = null;
+                      Date[] timeVals = NetCDFUtils.getTimeValues(timeArray, counter[0], timeMultiplier, timeOffset, fromDate,
+                              toDate, ignoreDateLimitToLoad, dateLimit);
+                      if (timeVals == null) {
+                          continue;
+                      }
+                      else {
+                          dateValue = timeVals[0];
+                          fromDate = timeVals[1];
+                          toDate = timeVals[2];
+                      }
+
+                      double lat = AngleUtils.nomalizeAngleDegrees180(latArray.getDouble(counter[collumsIndexMap.get(latName)]));
+                      double lon = AngleUtils.nomalizeAngleDegrees180(lonArray.getDouble(counter[collumsIndexMap.get(lonName)]));
+
+                      Index index = slaArray.getIndex();
+                      index.set(counter);
+
+                      double sla = slaArray == null ? Double.NaN : slaArray.getDouble(index);
+
+                      if (NetCDFUtils.isValueValid(sla, slaFillValue, slaValidRange)) {
+                          SLADataPoint dp = new SLADataPoint(lat, lon);
+                          
+                          sla = NetCDFUnitsUtils.getValueForMilliGPerM3FromTempUnits(sla, slaUnits);
+                          
+                          dp.setSLA(sla);
+                          dp.setDateUTC(dateValue);
+
+                          SLADataPoint dpo = sladp.get(SLADataPoint.getId(dp));
+                          if (dpo == null) {
+                              dpo = dp.getACopyWithoutHistory();
+                              sladp.put(ChlorophyllDataPoint.getId(dp), dp);
+                          }
+
+                          ArrayList<SLADataPoint> lst = dpo.getHistoricalData();
+                          boolean alreadyIn = false;
+                          for (SLADataPoint tmpDp : lst) {
+                              if (tmpDp.getDateUTC().equals(dp.getDateUTC())) {
+                                  alreadyIn = true;
+                                  break;
+                              }
+                          }
+                          if (!alreadyIn) {
+                              dpo.getHistoricalData().add(dp);
+                          }
+                      }
+                  } while (NetCDFUtils.advanceLoopCounter(shape, counter) != null);
+              }
+              catch (Exception e) {
+                  e.printStackTrace();
+              }
+          }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        } 
+        finally {
+            if (dataFile != null) {
+                try {
+                    dataFile.close();
+                }
+                catch (IOException ioe) {
+                    ioe.printStackTrace();
+                }
+            }
+            NeptusLog.pub().info("Ending processing SLA netCDF file '" + fileName
+                    + "'. Reading from date '" + fromDate + "' till '" + toDate + "'.");
+        }
+
+        return sladp;
+    }
+
     /**
      * @param args
      * @throws Exception 
@@ -950,7 +1094,7 @@ public class LoaderHelper {
             try {
                 // String sstFileName = "../../Lab/MBARI/SST/erdATssta3day_9c53_2021_f180.nc";
                 System.out.println("\n-----------------------------------");
-                HashMap<?, ?>[] dataRet = processMeteo(sstFileName, new java.sql.Date(0));
+                HashMap<?, ?>[] dataRet = processMeteo(sstFileName, new Date(0));
                 for (HashMap<?, ?> hashMap : dataRet) {
                     System.out.println("Size=" + hashMap.size());
 //                for (Object nO : hashMap.keySet()) {
@@ -968,7 +1112,7 @@ public class LoaderHelper {
                 "plugins" + "-dev/envdisp/pt/lsts/neptus/plugins/envdisp/waves_SW_20130704.nc"}) {
             try {
                 System.out.println("\n-----------------------------------");
-                HashMap<String, WavesDataPoint> hashMap = processWavesFile(sstFileName, new java.sql.Date(0));
+                HashMap<String, WavesDataPoint> hashMap = processWavesFile(sstFileName, new Date(0));
                 System.out.println("Size=" + hashMap.size());
             }
             catch (Exception e) {
@@ -980,7 +1124,18 @@ public class LoaderHelper {
             try {
                 // String sstFileName = "../../Lab/MBARI/SST/erdATssta3day_9c53_2021_f180.nc";
                 System.out.println("\n-----------------------------------");
-                HashMap<String, ChlorophyllDataPoint> hashMap = processChlorophyllFile(sstFileName, new java.sql.Date(0));
+                HashMap<String, ChlorophyllDataPoint> hashMap = processChlorophyllFile(sstFileName, new Date(0));
+                System.out.println("Size=" + hashMap.size());
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        for (String sstFileName : new String[] {"/media/pdias/DATA/SOI-Data/nrt_global_allsat_phy_l4_latest.nc.gz"}) {
+            try {
+                System.out.println("\n-----------------------------------");
+                HashMap<String, SLADataPoint> hashMap = processSLAFile(sstFileName, new Date(0));
                 System.out.println("Size=" + hashMap.size());
             }
             catch (Exception e) {

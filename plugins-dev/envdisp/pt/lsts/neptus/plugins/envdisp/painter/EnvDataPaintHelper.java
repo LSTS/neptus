@@ -55,6 +55,7 @@ import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.plugins.envdisp.datapoints.ChlorophyllDataPoint;
 import pt.lsts.neptus.plugins.envdisp.datapoints.HFRadarDataPoint;
+import pt.lsts.neptus.plugins.envdisp.datapoints.SLADataPoint;
 import pt.lsts.neptus.plugins.envdisp.datapoints.SSTDataPoint;
 import pt.lsts.neptus.plugins.envdisp.datapoints.WavesDataPoint;
 import pt.lsts.neptus.plugins.envdisp.datapoints.WindDataPoint;
@@ -638,6 +639,89 @@ public class EnvDataPaintHelper {
             
             int offset = OFFSET_REND_TXT_DATE_RANGES + OFFSET_REND_TXT_DATE_RANGES_DELTA * 4;
             String typeName = "Chlorophyll";
+            paintDatesRange(g2, toDatePts.longValue(), fromDatePts.longValue(), offset, typeName, showDataDebugLegend,
+                    font8Pt);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void paintSLAInGraphics(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit,
+            HashMap<String, SLADataPoint> dataPointsSLA, boolean ignoreDateLimitToLoad, int offScreenBufferPixel,
+            ColorMap colorMapSLA, double minSLA, double maxSLA,
+            boolean showSLALegend, int showSLALegendFromZoomLevel, Font font8Pt, boolean showDataDebugLegend) {
+        try {
+            List<SLADataPoint> dest = new ArrayList<>(dataPointsSLA.values());
+            long stMillis = System.currentTimeMillis();
+            DataCollector<SLADataPoint> dataCollector = new DataCollector<SLADataPoint>(ignoreDateLimitToLoad, dateLimit, renderer, 
+                    offScreenBufferPixel, EnvDataShapesHelper.CIRCLE_RADIUS, dp -> dp.getAllDataValues(), (vals, ovals) -> {
+                        // sla
+                        double v = (double) vals.get(0);
+                        double o = (double) ovals.get(0);
+                        double r = (v + o) / 2.;
+                        vals.add(0, r);
+                        return vals;
+                    });
+            LongAccumulator visiblePts = dataCollector.visiblePts;
+            LongAccumulator toDatePts = dataCollector.toDatePts;
+            LongAccumulator fromDatePts = dataCollector.fromDatePts;
+            ArrayList<Map<Point2D, Pair<ArrayList<Object>, Date>>> ptFilt = dest.parallelStream()
+                    .collect(dataCollector);
+            
+            if (ptFilt.isEmpty()) {
+                ptFilt.add(new HashMap<Point2D, Pair<ArrayList<Object>, Date>>());
+                ptFilt.add(new HashMap<Point2D, Pair<ArrayList<Object>, Date>>());
+            }
+            double usePercent = (ptFilt.get(0).size() * 1. / visiblePts.longValue()) * 100;
+            final int idx;
+            if (renderer.getLevelOfDetail() > filterUseLOD) {
+                if (usePercent <= 90)
+                    idx = 0;
+                else
+                    idx = 1;
+            }
+            else {
+                idx = 0;
+            }
+            debugOut(showDataDebugLegend, String.format("SLA stg 1 took %ss :: %d of %d from %d (%f%%) %d %d",
+                    MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1), ptFilt.get(0).size(), visiblePts.longValue(), dest.size(),
+                    usePercent , ptFilt.get(1).size(), idx));
+            stMillis = System.currentTimeMillis();
+
+            ptFilt.get(idx).keySet().parallelStream().forEach(pt -> {
+                Graphics2D gt = null;
+                try {
+                    Pair<ArrayList<Object>, Date> pVal = ptFilt.get(idx).get(pt);
+                    double sla = (double) pVal.first().get(0);
+                    gt = (Graphics2D) g2.create();
+                    gt.translate(pt.getX(), pt.getY());
+                    Color color = Color.WHITE;
+                    color = colorMapSLA.getColor((sla - minSLA) / (maxSLA - minSLA));
+                    if (pVal.second().before(dateColorLimit)) //if (dp.getDateUTC().before(dateColorLimit))
+                        color = ColorUtils.setTransparencyToColor(color, 128);
+                    gt.setColor(color);
+                    //gt.draw(EnvDataShapesHelper.rectangle);
+                    gt.fill(EnvDataShapesHelper.rectangle);
+                    
+                    if (showSLALegend && renderer.getLevelOfDetail() >= showSLALegendFromZoomLevel) {
+                        gt.setFont(font8Pt);
+                        gt.setColor(Color.WHITE);
+                        gt.drawString(MathMiscUtils.round(sla, 1) + "m", -15, 15);
+                    }
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().trace(e);
+                }
+                
+                if (gt != null)
+                    gt.dispose();
+            });
+            debugOut(showDataDebugLegend, String.format("SLA stg 2 took %ss",
+                    MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1)));
+            
+            int offset = OFFSET_REND_TXT_DATE_RANGES + OFFSET_REND_TXT_DATE_RANGES_DELTA * 1;
+            String typeName = "SST";
             paintDatesRange(g2, toDatePts.longValue(), fromDatePts.longValue(), offset, typeName, showDataDebugLegend,
                     font8Pt);
         }
