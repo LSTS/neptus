@@ -57,6 +57,8 @@ public class NetCDFUtils {
     public static final String NETCDF_ATT_VALID_MIN = "valid_min";
     public static final String NETCDF_ATT_VALID_MAX = "valid_max";
     public static final String NETCDF_ATT_UNITS = "units";
+    public static final String NETCDF_ATT_SCALE_FACTOR = "scale_factor";
+    public static final String NETCDF_ATT_ADD_OFFSET = "add_offset";
 
     /**
      * Counts the evolution of a multi-for loop variables counters.
@@ -212,6 +214,64 @@ public class NetCDFUtils {
             }
         }
         return null;
+    }
+
+    /**
+     * Check and return the {@link #NETCDF_ATT_SCALE_FACTOR} and the {@link #NETCDF_ATT_ADD_OFFSET}.
+     * 
+     * The final value is: UV = V * SCALE_FACTOR + ADD_OFFSET
+     * 
+     * @param var
+     * @return A pair with scale factor and add offset.
+     */
+    public static Pair<Double, Double> findScaleFactorAnfAddOffset(Variable var) {
+        Attribute scaleFactorValueAtt = var == null ? null : var.findAttribute(NETCDF_ATT_SCALE_FACTOR);
+        Attribute addOffsetValueAtt = var == null ? null : var.findAttribute(NETCDF_ATT_ADD_OFFSET);
+
+        double scaleFactor = 1;
+        double addOffset = 0;
+        
+        if (scaleFactorValueAtt != null) {
+            try {
+                scaleFactor = ((Number) scaleFactorValueAtt.getValue(0)).doubleValue();
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (addOffsetValueAtt != null) {
+            try {
+                addOffset = ((Number) addOffsetValueAtt.getValue(0)).doubleValue();
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            if (!Double.isFinite(scaleFactor)) {
+                throw new NumberFormatException(
+                        String.format("Scale factor is not finite (%d)", scaleFactor));
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            scaleFactor = 1;
+        }
+
+        try {
+            if (!Double.isFinite(addOffset)) {
+                throw new NumberFormatException(
+                        String.format("Add offset is not finite (%d)", addOffset));
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            addOffset = 0;
+        }
+
+        return new Pair<Double, Double>(scaleFactor, addOffset);
     }
 
     /**
