@@ -494,11 +494,30 @@ public class SLADataVisualization extends ConsoleLayer implements IPeriodicUpdat
         File[] fileList = FileUtil.getFilesFromDisk(baseFolderForSLANetCDFFiles, slaFilePattern);
         if (fileList == null)
             return;
-
+        
         for (File fx : fileList) {
-            HashMap<String, SLADataPoint> sladp = processSLAFile(fx.getAbsolutePath());
-            if (sladp != null && sladp.size() > 0)
-                EnvironmentalDataVisualization.mergeDataToInternalDataList(dataPointsSLA, sladp);
+            try {
+                HashMap<String, SLADataPoint> sladp = processSLAFile(fx.getAbsolutePath());
+                if (sladp != null && sladp.size() > 0)
+                    EnvironmentalDataVisualization.mergeDataToInternalDataList(dataPointsSLA, sladp);
+            }
+            catch (Exception e) {
+                NeptusLog.pub().warn(e.getMessage());
+            }
+            
+            if ("gz".equalsIgnoreCase(FileUtil.getFileExtension(fx))) {
+                String absPath = fx.getAbsolutePath();
+                absPath = absPath.replaceAll("\\.gz$", "");
+                File unzipedFile = new File(absPath);
+                if (unzipedFile.exists()) {
+                    try {
+                        FileUtils.forceDelete(unzipedFile);
+                    }
+                    catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
         }
     }
     
