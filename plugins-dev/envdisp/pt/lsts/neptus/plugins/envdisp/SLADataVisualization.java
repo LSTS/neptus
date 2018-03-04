@@ -120,9 +120,9 @@ public class SLADataVisualization extends ConsoleLayer implements IPeriodicUpdat
     public boolean showDataDebugLegend = false;
 
     @NeptusProperty(name = "SLA min m", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY_SLA)
-    private double minSLA = 0.0;
+    private double minSLA = -1.0;
     @NeptusProperty(name = "SLA max m", userLevel = LEVEL.REGULAR, category = CATEGORY_VISIBILITY_SLA)
-    private double maxSLA = 6000;
+    private double maxSLA = 1.0;
 
     @NeptusProperty(name = "CMEMS Copernicus.eu host", userLevel = LEVEL.REGULAR, category = CATEGORY_DATA_UPDATE, editable = false)
     private String cmemsHost = "ftp.sltac.cls.fr";
