@@ -216,19 +216,39 @@ public class SLADataVisualization extends ConsoleLayer implements IPeriodicUpdat
     public void paintWorker(Graphics2D go, StateRenderer2D renderer) {
         boolean recreateImage = offScreen.paintPhaseStartTestRecreateImageAndRecreate(go, renderer);
         if (recreateImage) {
-            Graphics2D g2 = offScreen.getImageGraphics();
-
-            Date dateColorLimit = new Date(System.currentTimeMillis() - 3 * DateTimeUtil.HOUR);
-            Date dateLimit = new Date(System.currentTimeMillis() - dateLimitHours * DateTimeUtil.HOUR);
-            
-            if (showSLA)
-                EnvDataPaintHelper.paintSLAInGraphics(renderer, g2, dateColorLimit, dateLimit, dataPointsSLA, ignoreDateLimitToLoad,
-                        offScreen.getOffScreenBufferPixel(), colorMapSLA, minSLA, maxSLA, showSLALegend,
-                        showSLALegendFromZoomLevel, font8Pt, showDataDebugLegend);
-
-            g2.dispose();
+            Thread t = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Graphics2D g2 = offScreen.getImageGraphics();
+                        
+                        Date dateColorLimit = new Date(System.currentTimeMillis() - 3 * DateTimeUtil.HOUR);
+                        Date dateLimit = new Date(System.currentTimeMillis() - dateLimitHours * DateTimeUtil.HOUR);
+                        
+                        if (showSLA) {
+                            try {
+                                EnvDataPaintHelper.paintSLAInGraphics(renderer, g2, dateColorLimit, dateLimit, dataPointsSLA, ignoreDateLimitToLoad,
+                                        offScreen.getOffScreenBufferPixel(), colorMapSLA, minSLA, maxSLA, showSLALegend,
+                                        showSLALegendFromZoomLevel, font8Pt, showDataDebugLegend);
+                            }
+                            catch (Exception e) {
+                                e.printStackTrace();
+                                offScreen.triggerImageRebuild();
+                            }
+                        }
+                        
+                        g2.dispose();
+                    }
+                    catch (Exception e) {
+                        e.printStackTrace();
+                        offScreen.triggerImageRebuild();
+                    }
+                }
+            }, "SLA::Painter");
+            t.setDaemon(true);
+            t.start();
         }            
-        offScreen.paintPhaseEndFinishImageRecreateAndPaintImageCacheToRenderer(go, renderer);
+        offScreen.paintPhaseEndFinishImageRecreateAndPaintImageCacheToRendererNoGraphicDispose(go, renderer);
         
         paintColorbars(go, renderer);
     }
