@@ -230,7 +230,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
     private double maxChlorophyll = 60; //mg/m3
 
     private static final String tuvFilePattern = ".\\.tuv$";
-    private static final String netCDFFilePattern = ".\\.nc$";
+    private static final String netCDFFilePattern = ".\\.nc(\\.gz)?$";
     private static final String currentsFilePatternTUV = tuvFilePattern; // "^TOTL_TRAD_\\d{4}_\\d{2}_\\d{2}_\\d{4}\\.tuv$";
     private static final String currentsFilePatternNetCDF = netCDFFilePattern; // "^CODAR_TRAD_\\d{4}_\\d{2}_\\d{2}_\\d{4}\\.nc$";
     private static final String meteoFilePattern = netCDFFilePattern; // "^meteo_\\d{8}\\.nc$";
@@ -528,7 +528,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
         BaseDataPoint.cleanDataPointsBeforeDate(dataPointsChlorophyll, dateLimit);
     }
 
-    private <Bp extends BaseDataPoint<?>> void mergeDataToInternalDataList(HashMap<String, Bp> originalData,
+    static <Bp extends BaseDataPoint<?>> void mergeDataToInternalDataList(HashMap<String, Bp> originalData,
             HashMap<String, Bp> toMergeData) {
         for (String dpId : toMergeData.keySet()) {
             Bp dp = toMergeData.get(dpId);
@@ -541,14 +541,14 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
                 mergeDataPointsWorker(dp, dpo);
             }
         }
-        debugOut(toMergeData.size() + " vs " + originalData.size());
+        System.out.println(toMergeData.size() + " vs " + originalData.size());
     }
 
     /**
      * @param dpToMerge
      * @param dpOriginal
      */
-    private static void mergeDataPointsWorker(BaseDataPoint<?> dpToMerge, BaseDataPoint<?> dpOriginal) {
+    static void mergeDataPointsWorker(BaseDataPoint<?> dpToMerge, BaseDataPoint<?> dpOriginal) {
         @SuppressWarnings("unchecked")
         ArrayList<BaseDataPoint<?>> histToMergeData = (ArrayList<BaseDataPoint<?>>) dpToMerge.getHistoricalData();
         @SuppressWarnings("unchecked")
