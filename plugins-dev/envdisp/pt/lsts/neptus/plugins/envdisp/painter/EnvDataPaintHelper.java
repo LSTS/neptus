@@ -707,7 +707,7 @@ public class EnvDataPaintHelper {
                     if (showSLALegend && renderer.getLevelOfDetail() >= showSLALegendFromZoomLevel) {
                         gt.setFont(font8Pt);
                         gt.setColor(Color.WHITE);
-                        gt.drawString(MathMiscUtils.round(sla, 1) + "m", -15, 15);
+                        gt.drawString(MathMiscUtils.round(sla, 2) + "m", -15, 15);
                     }
                 }
                 catch (Exception e) {
@@ -721,7 +721,7 @@ public class EnvDataPaintHelper {
                     MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1)));
             
             int offset = OFFSET_REND_TXT_DATE_RANGES + OFFSET_REND_TXT_DATE_RANGES_DELTA * 1;
-            String typeName = "SST";
+            String typeName = "SLA";
             paintDatesRange(g2, toDatePts.longValue(), fromDatePts.longValue(), offset, typeName, showDataDebugLegend,
                     font8Pt);
         }
