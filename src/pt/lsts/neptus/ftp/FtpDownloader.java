@@ -57,6 +57,9 @@ public class FtpDownloader {
 
     private String host;
     private int port;
+
+    private String username = null;
+    private String password = null;
     
     public FtpDownloader(String host, int port) throws Exception {
         this.host = host;
@@ -64,11 +67,15 @@ public class FtpDownloader {
 //        renewClient();
     }
 
+    public void renewClient() throws SocketException, IOException {
+        renewClient(username, password);
+    }
+
     /**
      * @throws SocketException
      * @throws IOException
      */
-    public void renewClient() throws SocketException, IOException {
+    public void renewClient(String username, String password) throws SocketException, IOException {
         if (client != null) {
             try {
                 if (client.isConnected())
@@ -98,7 +105,13 @@ public class FtpDownloader {
         client.configure(conf);
 
         client.enterLocalPassiveMode();
-        client.login("anonymous", "");
+        
+        if (username != null)
+            this.username = username;
+        if (password != null)
+            this.password = password;
+        
+        client.login(username == null ? "anonymous" : username, password == null ? "" : password);
 
         client.setFileType(FTP.BINARY_FILE_TYPE);
         client.setControlEncoding("UTF-8");
