@@ -312,106 +312,7 @@ public class SLADataVisualization extends ConsoleLayer implements IPeriodicUpdat
             outTmpFile = new File(baseFolderForSLANetCDFFiles, cmemsFileName + ".dpart");
             try {
                 if (requestSLAFromFTP) {
-                    if (ftpDownloader == null) {
-                        createNewCMEMSConection();
-                    }
-                    
-                    if (ftpDownloader != null) {
-                        try {
-                            if (!ftpDownloader.isConnected()) {
-                                if (forceCMEMSPassShow || cmemsPassword == null) {
-                                    String[] ret = SSHConnectionDialog.showConnectionDialog(cmemsHost, cmemsUsername, cmemsPassword == null ? ""
-                                            : cmemsPassword, 21, "SLA Data", SwingUtilities.windowForComponent(getConsole()), false, false, true, true);
-                                    if (ret.length == 0)
-                                        forceCMEMSPassShow = true;
-                                    else
-                                        forceCMEMSPassShow = false;
-
-                                    cmemsUsername = ret[1];
-                                    cmemsPassword = ret[2];
-                                }
-                                else {
-                                    forceCMEMSPassShow = false;
-                                }
-
-                                ftpDownloader.renewClient(cmemsUsername, cmemsPassword);
-                                
-                                int rpc = ftpDownloader.getClient().getReplyCode();
-                                if(!FTPReply.isPositiveCompletion(rpc)) {
-                                    NeptusLog.pub().warn(ftpDownloader.getClient().getReplyString());
-                                }                                
-                            }
-
-                            String fileName = new String(cmemsFile.getBytes(), "ISO-8859-1");
-                            FTPFile[] filesLsit = ftpDownloader.getClient().listFiles(fileName);
-                            cmemsFTPFile = filesLsit[0];
-                            stream = ftpDownloader.getClient().retrieveFileStream(fileName);
-
-                            fullSize = cmemsFTPFile.getSize();
-                            downloadedSize = 0;
-
-                            outTmpFile.getParentFile().mkdirs();
-
-                            try {
-                                outTmpFile.createNewFile();
-                            } 
-                            catch (IOException e) {
-                                e.printStackTrace();
-                            }
-
-                            FilterInputStream ioS = new FilterInputStream(stream) {
-                                @Override
-                                public int read() throws IOException {
-                                    int tmp = super.read();
-                                    downloadedSize += (tmp == -1) ? 0 : 1;
-                                    return tmp;
-                                }
-
-                                /*This one just calls "read(byte[] b, int off, int len)",
-                                 * so no need to implemented
-                                 */
-                                //public int read(byte[] b) throws IOException {
-
-                                @Override
-                                public int read(byte[] b, int off, int len) throws IOException {
-                                    int tmp = super.read(b, off, len);
-                                    downloadedSize += (tmp == -1) ? 0 : tmp;
-                                    return tmp;
-                                }
-                            };
-                            boolean streamRes = true; //StreamUtil.copyStreamToFile(ioS, outTmpFile, false);
-                            try {
-                                FileUtils.copyInputStreamToFile(ioS, outTmpFile);
-                            }
-                            catch (Exception e) {
-                                e.printStackTrace();
-                                streamRes = false;
-                            }
-                            outTmpFile.setLastModified(Math.max(cmemsFTPFile.getTimestamp().getTimeInMillis(), 0));
-
-                            NeptusLog.pub().info("To receive / received: " + fullSize + "/" + downloadedSize);
-
-                            if (streamRes && fullSize == downloadedSize) {
-                                if (outFile.exists())
-                                    outFile.delete();
-                                FileUtils.moveFile(outTmpFile, outFile);
-                            }
-                            else {
-                                try {
-                                    if (outTmpFile.exists())
-                                        outTmpFile.delete();
-                                }
-                                catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        }
-                        catch (Exception e) {
-                            e.printStackTrace();
-                            if (outFile.exists())
-                                outTmpFile.delete();
-                        }
-                    }
+                    downloadSLADataFromCMEMSFTP();
                 }
 
                 loadSLAFromFiles();
@@ -420,7 +321,6 @@ public class SLADataVisualization extends ConsoleLayer implements IPeriodicUpdat
                 NeptusLog.pub().warn(e);
             }
 
-            
             try {
                 cleanUpData();
             }
@@ -430,6 +330,133 @@ public class SLADataVisualization extends ConsoleLayer implements IPeriodicUpdat
         }
 
         return true;
+    }
+
+    /**
+     * 
+     */
+    private void downloadSLADataFromCMEMSFTP() {
+        if (ftpDownloader == null) {
+            createNewCMEMSConection();
+        }
+        
+        if (ftpDownloader != null) {
+            try {
+                if (!ftpDownloader.isConnected()) {
+                    if (forceCMEMSPassShow || cmemsPassword == null) {
+                        String[] ret = SSHConnectionDialog.showConnectionDialog(cmemsHost, cmemsUsername, cmemsPassword == null ? ""
+                                : cmemsPassword, 21, "SLA Data", SwingUtilities.windowForComponent(getConsole()), false, false, true, true);
+                        if (ret.length == 0)
+                            forceCMEMSPassShow = true;
+                        else
+                            forceCMEMSPassShow = false;
+
+                        cmemsUsername = ret[1];
+                        cmemsPassword = ret[2];
+                    }
+                    else {
+                        forceCMEMSPassShow = false;
+                    }
+
+                    ftpDownloader.renewClient(cmemsUsername, cmemsPassword);
+                    
+                    int rpc = ftpDownloader.getClient().getReplyCode();
+                    if(!FTPReply.isPositiveCompletion(rpc)) {
+                        NeptusLog.pub().warn(ftpDownloader.getClient().getReplyString());
+                        forceCMEMSPassShow = true;
+                    }                                
+                }
+
+                String fileName = new String(cmemsFile.getBytes(), "ISO-8859-1");
+                FTPFile[] filesLsit = ftpDownloader.getClient().listFiles(fileName);
+                cmemsFTPFile = filesLsit[0];
+                
+                // Check size and date-time match
+                if (outFile.exists()) {
+                    if (outFile.lastModified() == cmemsFTPFile.getTimestamp().getTimeInMillis() &&
+                            FileUtils.sizeOf(outFile) == cmemsFTPFile.getSize()) {
+                        NeptusLog.pub().warn("Skip download of " + outFile.getName());
+                        return; // skipDownload 
+                    }
+                }
+                
+                stream = ftpDownloader.getClient().retrieveFileStream(fileName);
+
+                fullSize = cmemsFTPFile.getSize();
+                downloadedSize = 0;
+
+                outTmpFile.getParentFile().mkdirs();
+
+                try {
+                    outTmpFile.createNewFile();
+                } 
+                catch (IOException e) {
+                    NeptusLog.pub().warn(e.getMessage());
+                }
+
+                FilterInputStream ioS = new FilterInputStream(stream) {
+                    @Override
+                    public int read() throws IOException {
+                        int tmp = super.read();
+                        downloadedSize += (tmp == -1) ? 0 : 1;
+                        return tmp;
+                    }
+
+                    /*This one just calls "read(byte[] b, int off, int len)",
+                     * so no need to implemented
+                     */
+                    //public int read(byte[] b) throws IOException {
+
+                    @Override
+                    public int read(byte[] b, int off, int len) throws IOException {
+                        int tmp = super.read(b, off, len);
+                        downloadedSize += (tmp == -1) ? 0 : tmp;
+                        return tmp;
+                    }
+                };
+                boolean streamRes = true; //StreamUtil.copyStreamToFile(ioS, outTmpFile, false);
+                try {
+                    FileUtils.copyInputStreamToFile(ioS, outTmpFile);
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().warn(e.getMessage());
+                    streamRes = false;
+                }
+                outTmpFile.setLastModified(Math.max(cmemsFTPFile.getTimestamp().getTimeInMillis(), 0));
+
+                NeptusLog.pub().info("To receive / received: " + fullSize + "/" + downloadedSize);
+
+                if (streamRes && fullSize == downloadedSize) {
+                    if (outFile.exists())
+                        outFile.delete();
+                    FileUtils.moveFile(outTmpFile, outFile);
+                }
+                else {
+                    try {
+                        if (outTmpFile.exists())
+                            outTmpFile.delete();
+                    }
+                    catch (Exception e) {
+                        NeptusLog.pub().warn(e.getMessage());
+                    }
+                }
+            }
+            catch (Exception e) {
+                NeptusLog.pub().warn(e.getMessage());
+                if (outFile.exists())
+                    outTmpFile.delete();
+            }
+            finally {
+                if (ftpDownloader != null && ftpDownloader.isConnected()) {
+                    try {
+                        ftpDownloader.close();
+                    }
+                    catch (IOException e) {
+                        NeptusLog.pub().warn(e.getMessage());
+                    }
+                }
+            }
+        }
     }
     
     /* (non-Javadoc)
