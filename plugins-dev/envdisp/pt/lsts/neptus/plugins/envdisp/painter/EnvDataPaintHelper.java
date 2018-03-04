@@ -673,7 +673,7 @@ public class EnvDataPaintHelper {
                 ptFilt.add(new HashMap<Point2D, Pair<ArrayList<Object>, Date>>());
                 ptFilt.add(new HashMap<Point2D, Pair<ArrayList<Object>, Date>>());
             }
-            double usePercent = (ptFilt.get(0).size() * 1. / visiblePts.longValue()) * 100;
+            double usePercent = (ptFilt.get(0) == null ? -1 : ptFilt.get(0).size() * 1. / visiblePts.longValue()) * 100;
             final int idx;
             if (renderer.getLevelOfDetail() > filterUseLOD) {
                 if (usePercent <= 90)
