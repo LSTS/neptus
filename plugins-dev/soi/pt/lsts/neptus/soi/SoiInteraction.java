@@ -38,6 +38,7 @@ import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -253,33 +254,45 @@ public class SoiInteraction extends SimpleRendererInteraction {
     }
 
     protected void setParams(String vehicle, LinkedHashMap<String, String> params) {
-        assetsManager.setParams(vehicle, params);
+      try {
+          assetsManager.setParams(vehicle, params);
+      
         
         if (!settings.containsKey(vehicle))
             settings.put(vehicle, new SoiSettings());
 
         PluginProperty[] props = PluginUtils.getPluginProperties(settings.get(vehicle));
 
+        LinkedHashMap<String, String> fieldToName = new LinkedHashMap<>();
+        
+        // Translate between field names and property names
+        for (Field f : SoiSettings.class.getDeclaredFields()) {
+            NeptusProperty prop = f.getAnnotation(NeptusProperty.class);
+            if (prop != null)
+                fieldToName.put(prop.name(), f.getName());            
+        }
+        
         for (PluginProperty p : props) {
 
-            if (!params.containsKey(p.getName()))
+            String name = fieldToName.get(p.getName());
+            if (name == null || !params.containsKey(name))
                 continue;
 
             switch (p.getType().getSimpleName()) {
                 case "String":
-                    p.setValue(params.get(p.getName()));
+                    p.setValue(params.get(name));
                     break;
                 case "double":
-                    p.setValue(Double.parseDouble(params.get(p.getName())));
+                    p.setValue(Double.parseDouble(params.get(name)));
                     break;
                 case "float":
-                    p.setValue(Float.parseFloat(params.get(p.getName())));
+                    p.setValue(Float.parseFloat(params.get(name)));
                     break;
                 case "int":
-                    p.setValue(Integer.parseInt(params.get(p.getName())));
+                    p.setValue(Integer.parseInt(params.get(name)));
                     break;
                 case "boolean":
-                    p.setValue(Boolean.parseBoolean(params.get(p.getName())));
+                    p.setValue(Boolean.parseBoolean(params.get(name)));
                     break;
                 default:
                     System.out.println("Class not recognized: " + p.getType());
@@ -288,6 +301,10 @@ public class SoiInteraction extends SimpleRendererInteraction {
         }
 
         PluginUtils.setPluginProperties(settings.get(vehicle), props);
+      }
+      catch (Exception e) {
+          e.printStackTrace();
+      }
     }
 
     @Subscribe
