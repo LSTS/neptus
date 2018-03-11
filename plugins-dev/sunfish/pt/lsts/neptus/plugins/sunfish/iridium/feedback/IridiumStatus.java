@@ -33,22 +33,36 @@
 package pt.lsts.neptus.plugins.sunfish.iridium.feedback;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
-
+import javax.swing.RowSorter;
+import javax.swing.SortOrder;
+import javax.swing.SwingUtilities;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 import com.l2fprod.common.propertysheet.Property;
-
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
@@ -57,24 +71,27 @@ import pt.lsts.neptus.util.GuiUtils;
 @PluginDescription(name = "Iridium Communications Status",description="Iridium Communications Feedback Panel")
 @Popup(pos = Popup.POSITION.BOTTOM_RIGHT, width=355, height=215)
 public class IridiumStatus extends ConsolePanel {
-    
+
     private static final long serialVersionUID = 1L;
     private IridiumStatusTableModel iridiumCommsStatus;
     private JTable table; 
     private JScrollPane scroll;
     private JButton clear;
-    
+    private DefaultTableCellRenderer highlightRenderer,defaultRenderer;
+    private TableRowSorter<TableModel> rowSorter;
+    private TableModelListener changes;
+
     @NeptusProperty(name = "Clear button", description = "Clear button parameter to cleanup old messages. (seconds)", userLevel = NeptusProperty.LEVEL.REGULAR)
     public long secs = 3600;
-    
+
     /**
      * @param console
      */
     public IridiumStatus(ConsoleLayout console) {
         super(console);
-     
+
     }
-    
+
     /* (non-Javadoc)
      * @see pt.lsts.neptus.console.ConsolePanel#cleanSubPanel()
      */
@@ -90,16 +107,83 @@ public class IridiumStatus extends ConsolePanel {
     public void initSubPanel() {
         removeAll();
         setLayout(new BorderLayout());
-        
+
         clear =  new JButton(cleanup);
         clear.setToolTipText("Cleanup old messages after "+secs+" seconds");
         clear.setText("Clear");
-        
-        iridiumCommsStatus =  new IridiumStatusTableModel();
 
-        //JButton filter =  new JButton("Filter");
-        table = new JTable(iridiumCommsStatus){
+        initTableFields();
+        configureTable();
+
+        scroll = new JScrollPane(table);
+        scroll.setPreferredSize(new Dimension(350, 200));
+        add(scroll,BorderLayout.CENTER);
+        add(clear,BorderLayout.SOUTH);
+    }
+
+    public void initTableFields() {
+        iridiumCommsStatus =  new IridiumStatusTableModel();
+        defaultRenderer = new DefaultTableCellRenderer();
+        highlightRenderer = new DefaultTableCellRenderer() {
+
             private static final long serialVersionUID = 1L;
+
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int col) {
+
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
+                if(table.convertRowIndexToModel(row) == table.getRowCount()-1)
+                    c.setBackground(Color.GREEN.brighter().darker().darker());
+                else 
+                    return defaultRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
+                return c;
+            }
+        };
+
+        changes = new TableModelListener() {
+            @Override
+            public void tableChanged(TableModelEvent e) {
+                SwingUtilities.invokeLater(new Runnable() {
+                    public void run() {
+                        if(e.getType() == TableModelEvent.INSERT){
+                            int row = table.convertRowIndexToView(table.getRowCount()-1);
+                            table.scrollRectToVisible(table.getCellRect(row, 0, true));
+                        }
+                    }
+                });
+            }
+        };
+
+        rowSorter = new TableRowSorter<TableModel>(iridiumCommsStatus);
+        List<RowSorter.SortKey> sortKeys = new ArrayList<RowSorter.SortKey>(); 
+        sortKeys.add(new RowSorter.SortKey(IridiumStatusTableModel.TIMESTAMP, SortOrder.ASCENDING));
+        rowSorter.setComparator(IridiumStatusTableModel.TIMESTAMP, new Comparator <String>() {
+
+            @Override
+            public int compare(String sdf1, String sdf2) {
+                SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SSS dd-MM-YYYY");
+                try {
+                    return sdf.parse(sdf1).compareTo(sdf.parse(sdf2));
+                }
+                catch (ParseException e) {
+                    NeptusLog.pub().error(I18n.text("Error parsing dates sorting table"), e);
+                    e.printStackTrace();
+                }
+
+                return 0;
+            }});
+
+        rowSorter.setSortKeys(sortKeys);
+    }
+
+    /**
+     * Configure JTable sorters, listeners and others settings
+     */
+    private void configureTable() {
+
+        table = new JTable(iridiumCommsStatus){
+
+            private static final long serialVersionUID = -6458618477278894325L;
 
             @Override
             public String getToolTipText(MouseEvent event) {
@@ -109,15 +193,15 @@ public class IridiumStatus extends ConsolePanel {
                     int row = rowAtPoint(p);
                     return iridiumCommsStatus.getToolTipText(row);
                 }
+
                 return super.getToolTipText();
             }
         };
-        scroll = new JScrollPane(table);
-        scroll.setPreferredSize(new Dimension(350, 200));
-        
-        add(scroll,BorderLayout.CENTER);
-        //add(filter,BorderLayout.SOUTH);
-        
+        table.getModel().addTableModelListener(changes);
+        table.setFillsViewportHeight(true);
+        table.setDefaultRenderer(Object.class,highlightRenderer);
+        table.setAutoCreateRowSorter(false);
+        table.setRowSorter(rowSorter);
         table.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -126,11 +210,12 @@ public class IridiumStatus extends ConsolePanel {
                 }
             }
         });
-      }
-    
+    }
+
     public void displayMessage(){
         try {
-            String msg = iridiumCommsStatus.getMessageData(table.getSelectedRow());
+            int index = table.convertRowIndexToModel(table.getSelectedRow());
+            String msg = iridiumCommsStatus.getMessageData(index); 
             JTextArea data = new JTextArea();
             data.setEditable(false);
             data.setOpaque(true);
@@ -145,7 +230,7 @@ public class IridiumStatus extends ConsolePanel {
             GuiUtils.errorMessage(getConsole(), ex);
         }
     }
-    
+
     @SuppressWarnings("serial")
     AbstractAction cleanup = new AbstractAction("Clear") {
         @Override
@@ -154,7 +239,7 @@ public class IridiumStatus extends ConsolePanel {
             iridiumCommsStatus.cleanupAfter(millis);
         }
     };
-    
+
     /**
      * Update cleanup button tooltip
      */
