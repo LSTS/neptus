@@ -34,16 +34,22 @@ package pt.lsts.neptus.plugins.sunfish.iridium.feedback;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import javax.swing.AbstractAction;
+import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.util.GuiUtils;
@@ -56,6 +62,10 @@ public class IridiumStatus extends ConsolePanel {
     private IridiumStatusTableModel iridiumCommsStatus;
     private JTable table; 
     private JScrollPane scroll;
+    private JButton clear;
+    
+    @NeptusProperty(name = "Clear button", description = "Clear button parameter to cleanup old messages. (seconds)", userLevel = NeptusProperty.LEVEL.REGULAR)
+    public long secs = 3600;
     
     /**
      * @param console
@@ -80,6 +90,10 @@ public class IridiumStatus extends ConsolePanel {
     public void initSubPanel() {
         removeAll();
         setLayout(new BorderLayout());
+        
+        clear =  new JButton(cleanup);
+        clear.setToolTipText("Cleanup old messages after "+secs+" seconds");
+        clear.setText("Clear");
         
         iridiumCommsStatus =  new IridiumStatusTableModel();
 
@@ -130,5 +144,27 @@ public class IridiumStatus extends ConsolePanel {
         catch (Exception ex) {
             GuiUtils.errorMessage(getConsole(), ex);
         }
+    }
+    
+    @SuppressWarnings("serial")
+    AbstractAction cleanup = new AbstractAction("Clear") {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            long millis = 1000*secs;
+            iridiumCommsStatus.cleanupAfter(millis);
+        }
+    };
+    
+    /**
+     * Update cleanup button tooltip
+     */
+    @Override
+    public void setProperties(Property[] properties) {
+        if((long)properties[0].getValue()!= secs)
+        {
+            secs = (long)properties[0].getValue();
+            clear.setToolTipText("Cleanup old messages after "+secs+" seconds");
+        }
+        super.setProperties(properties);
     }
 }

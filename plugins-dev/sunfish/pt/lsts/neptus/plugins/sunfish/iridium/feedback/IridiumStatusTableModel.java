@@ -254,6 +254,17 @@ public class IridiumStatusTableModel extends AbstractTableModel implements Messa
         return statusTooltips[statusEnum];
     }
 
+    /**
+     * @param milis - milliseconds 
+     */
+    public void cleanupAfter(long millis) {
+        for(int i=0;i<msgs.size();i++){
+           if((System.currentTimeMillis() - msgs.get(i).timestampMillis) >  millis){
+               msgs.remove(i);
+               fireTableRowsDeleted(i, i);
+           }
+        }
+    }
 }
 
 /**
