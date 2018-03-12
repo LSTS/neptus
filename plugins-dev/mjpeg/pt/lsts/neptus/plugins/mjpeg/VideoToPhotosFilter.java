@@ -30,7 +30,7 @@
  * Author: diegues
  * Feb 27, 2018
  */
-package pt.lsts.neptus.plugins.hmapping;
+package pt.lsts.neptus.plugins.mjpeg;
 
 import java.awt.image.RenderedImage;
 import java.io.BufferedWriter;
@@ -50,8 +50,7 @@ import pt.lsts.neptus.mra.exporters.MRAExporter;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.mjpeg.FrameDecoderMotionJPEG;
-import pt.lsts.neptus.plugins.mjpeg.VideoFrame;
+import pt.lsts.neptus.plugins.PluginUtils;
 
 /**
  * @author andrediegues
@@ -63,13 +62,13 @@ public class VideoToPhotosFilter implements MRAExporter{
     private FrameDecoderMotionJPEG frameDecoder; 
 
     @NeptusProperty(name="Max Roll", description="Maximum acceptable value of Roll of the vehicle.")
-    public double maxRoll = 4;
+    public double maxRoll = 5;
 
     @NeptusProperty(name="Max Pitch", description="Maximum acceptable value of Pitch of the vehicle.")
-    public double maxPitch = 4;
+    public double maxPitch = 5;
 
     @NeptusProperty(name="Max Altitude", description="Maximum acceptable value of Altitude of the vehicle.")
-    public double maxAltitude = 6;
+    public double maxAltitude = 10;
 
 
     public VideoToPhotosFilter(IMraLogGroup source) {
@@ -82,7 +81,11 @@ public class VideoToPhotosFilter implements MRAExporter{
         return frameDecoder.folderContainsFrames(source.getDir());
     }
     @Override
-    public String process(IMraLogGroup source, ProgressMonitor pmonitor) {       
+    public String process(IMraLogGroup source, ProgressMonitor pmonitor) {      
+        boolean cancel = PluginUtils.editPluginProperties(this, true);
+        if (cancel) {
+            return I18n.text("Cancelled by user");
+        }
         frameDecoder.load(source.getDir());
         int numberOfFrames = frameDecoder.getFrameCount();  
         int numberOfPhotos = 0;  
