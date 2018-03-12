@@ -37,6 +37,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 
 import javax.swing.JButton;
@@ -62,6 +63,7 @@ public class PhotoToolbar extends JPanel {
     protected JButton nextButton, prevButton;
     protected File[] allFiles;
     protected double startTime, endTime;
+    protected SimpleDateFormat fmt = new SimpleDateFormat("HH:mm:ss.SSS");
     
     protected static boolean hasOcv = false;
     
