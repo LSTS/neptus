@@ -32,7 +32,6 @@
  */
 package pt.lsts.neptus.plugins;
 
-import java.awt.Window;
 import java.beans.PropertyEditor;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -358,11 +357,10 @@ public class PluginUtils {
         }
         return null;
     }
-    
     /**     
      * @return <b>true</b> if cancelled or <b>false</b> otherwise.
-     */    
-    public static boolean editPluginProperties(final Object obj, Window owner, boolean editable) {
+     */
+    public static boolean editPluginProperties(final Object obj, boolean editable) {
         PropertiesProvider provider = new PropertiesProvider() {
             
             @Override
@@ -386,14 +384,7 @@ public class PluginUtils {
             }
         };
         
-        return PropertiesEditor.editProperties(provider, owner, editable);
-    }
-    
-    /**     
-     * @return <b>true</b> if cancelled or <b>false</b> otherwise.
-     */
-    public static boolean editPluginProperties(final Object obj, boolean editable) {
-        return editPluginProperties(obj, null, editable);
+        return PropertiesEditor.editProperties(provider, editable);
     }
 
     /**

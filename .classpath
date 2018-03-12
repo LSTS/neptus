@@ -69,7 +69,6 @@
 	<classpathentry kind="src" path="plugins-dev/mvplanner"/>
 	<classpathentry kind="src" path="plugins-dev/transas-maps"/>
 	<classpathentry kind="src" path="plugins-dev/uav-parameters"/>
-	<classpathentry kind="src" path="plugins-dev/soi"/>
 	<classpathentry kind="src" path="plugins-dev/hmapping"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.17.jar"/>
 	<classpathentry kind="lib" path="lib/xerces-2.7.1/xml-apis.jar"/>
@@ -243,7 +242,6 @@
 	<classpathentry kind="lib" path="plugins-dev/necsave/lib/minimal-json-0.9.4.jar"/>
 	<classpathentry kind="lib" path="lib/jtransform_thin.jar"/>
 	<classpathentry kind="lib" path="lib/commons-httpclient-3.1-deprecation.jar"/>
-	<classpathentry kind="lib" path="lib/AisContactManager.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="lib/ini4j-0.5.2.jar"/>

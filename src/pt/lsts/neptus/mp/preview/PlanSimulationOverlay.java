@@ -196,20 +196,14 @@ public class PlanSimulationOverlay implements Renderer2DPainter {
         for (int i = 0; i < simStates.size(); i++) {
             LocationType center = states.get(i).getPosition();
             
-            double dist;
-            
-            if (minDistThreshold > 0)
-                dist = center.getHorizontalDistanceInMeters(state.getPosition()) + 100 * Math.abs(state.getYaw() - states.get(i).getYaw());
-            else
-                dist = center.getHorizontalDistanceInMeters(state.getPosition());
-            
+            double dist = center.getHorizontalDistanceInMeters(state.getPosition()) + 100 * Math.abs(state.getYaw() - states.get(i).getYaw());
             if (dist < nearestDistance) {
                 nearestDistance = dist;
                 nearest = i;
             }
         }
 
-        if (minDistThreshold <= 0 || nearestDistance < minDistThreshold)
+        if (nearestDistance < minDistThreshold)
             return new Pair<Integer, SimulationState>(nearest, simStates.get(nearest));
         else
             return null;

@@ -42,13 +42,10 @@ import com.google.common.eventbus.Subscribe;
 
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.IMCDefinition;
-import pt.lsts.imc.IMCUtil;
 import pt.lsts.imc.PlanControlState;
-import pt.lsts.imc.PlanControlState.STATE;
 import pt.lsts.imc.PlanDB;
 import pt.lsts.imc.PlanDB.OP;
 import pt.lsts.imc.PlanDB.TYPE;
-import pt.lsts.imc.StateReport;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
@@ -150,36 +147,6 @@ public class PlanControlStatePanel extends ConsolePanel {
         }
     }
 
-    @Subscribe
-    public void consume(StateReport message) {
-        if (!message.getSourceName().equals(getConsole().getMainSystem()))
-            return;
-        
-        for (String plan : getConsole().getMission().getIndividualPlansList().keySet()) {
-            byte[] bytes = plan.getBytes();
-            if (IMCUtil.computeCrc16(bytes , 0, bytes.length) == message.getPlanChecksum()) {
-                planId = plan;
-                break;
-            }            
-        }
-        
-        switch (message.getExecState()) {
-            case -1:
-                state = STATE.READY;    
-                break;
-            case -2:
-            case -3:
-                state = STATE.INITIALIZING;
-                break;            
-            case -4:
-                state = STATE.BLOCKED;
-                break;
-            default:
-                state = STATE.EXECUTING;
-                break;
-        }
-    }
-    
     @Subscribe
     public void consume(PlanControlState message) {
         if (!message.getSourceName().equals(getConsole().getMainSystem()))

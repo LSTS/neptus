@@ -32,11 +32,6 @@
  */
 package pt.lsts.neptus.types.coord;
 
-import java.awt.Toolkit;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.ClipboardOwner;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.Transferable;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.io.Serializable;
@@ -1289,31 +1284,6 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
         "OffsetEast: "+getOffsetEast()+", OffsetWest: "+getOffsetWest()+"\n"+
         "OffsetDistance: "+getOffsetDistance()+", Azimuth: "+getAzimuth()+"\n"+
         "Zenith: "+getZenith()+", Absolut XY: ("+abs[0]+", "+abs[1]+")";
-    }
-    
-    public static LocationType clipboardLocation() {
-        @SuppressWarnings({ "unused" })
-        ClipboardOwner owner = new ClipboardOwner() {
-            public void lostOwnership(Clipboard clipboard, Transferable contents) {};                       
-        };
-        
-        Transferable contents = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
-        
-        boolean hasTransferableText = (contents != null)
-                && contents.isDataFlavorSupported(DataFlavor.stringFlavor);
-        
-        if ( hasTransferableText ) {
-            try {
-                String text = (String)contents.getTransferData(DataFlavor.stringFlavor);
-                LocationType lt = new LocationType();
-                lt.fromClipboardText(text);
-                return lt;
-            }
-            catch (Exception e) {
-                NeptusLog.pub().error(e);
-            }
-        }
-        return null;
     }
 
     public static void LocationTypeTest() {

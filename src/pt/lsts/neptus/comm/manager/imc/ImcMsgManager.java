@@ -63,15 +63,11 @@ import com.google.common.eventbus.AsyncEventBus;
 import pt.lsts.imc.Announce;
 import pt.lsts.imc.EntityInfo;
 import pt.lsts.imc.EntityList;
-import pt.lsts.imc.FuelLevel;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.MessagePart;
-import pt.lsts.imc.PlanControlState;
-import pt.lsts.imc.PlanControlState.STATE;
 import pt.lsts.imc.RemoteSensorInfo;
 import pt.lsts.imc.ReportedState;
-import pt.lsts.imc.StateReport;
 import pt.lsts.imc.lsf.LsfMessageLogger;
 import pt.lsts.imc.net.IMCFragmentHandler;
 import pt.lsts.imc.state.ImcSystemState;
@@ -103,9 +99,7 @@ import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
-import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.NetworkInterfacesUtil;
 import pt.lsts.neptus.util.NetworkInterfacesUtil.NInterface;
 import pt.lsts.neptus.util.StringUtils;
@@ -321,15 +315,18 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
      * @param message The message to be sent
      */
     public void postInternalMessage(String srcName, IMCMessage message) {
-        
         MessageInfoImpl minfo = new MessageInfoImpl();
         minfo.setPublisher(srcName);
         minfo.setPublisherInetAddress("127.0.0.1");
         minfo.setPublisherPort(6001);
         minfo.setTimeReceivedSec(System.currentTimeMillis() / 1000.0);
         checkAndSetMessageSrcEntity(message);
-        NeptusLog.pub().debug("Posting internal msg: "+message.getAbbrev()+" from "+srcName);        
+        
+        //message.setSrc(ImcMsgManager.getManager().getLocalId().intValue());
+        //message.setSrcEnt(255);
+        
         onMessage(minfo, message);
+        bus.post(message);
     }
 
     private void updateUdpOnIpMapper() {
@@ -833,83 +830,6 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         }
     }
 
-    private void processStateReport(MessageInfo info, StateReport msg, ArrayList<IMCMessage> messagesCreatedToFoward) {
-        String sysId = msg.getSourceName();
-        
-        long dataTimeMillis = msg.getStime() * 1000;
-        
-        double lat = msg.getLatitude();
-        double lon = msg.getLongitude();
-        double depth = msg.getDepth() == 0xFFFF ? -1 : msg.getDepth() / 10.0;
-        // double altitude = msg.getAltitude() == 0xFFFF ? -1 : msg.getAltitude() / 10.0;
-        double heading = ((double)msg.getHeading() / 65535.0) * 360;
-        double speedMS = msg.getSpeed() / 100.;
-        NeptusLog.pub().info("Received report from "+msg.getSourceName());
-        
-        ImcSystem imcSys = ImcSystemsHolder.lookupSystemByName(sysId);
-        if (imcSys == null) {
-            NeptusLog.pub().error("Could not find system with id "+sysId);
-            return;
-        }        
-        
-        LocationType loc = new LocationType(lat, lon);
-        loc.setDepth(depth);
-        imcSys.setLocation(loc, dataTimeMillis);
-        imcSys.setAttitudeDegrees(heading, dataTimeMillis);
-        
-        imcSys.storeData(SystemUtils.GROUND_SPEED_KEY, speedMS, dataTimeMillis, true);
-        imcSys.storeData(SystemUtils.COURSE_DEGS_KEY,
-                (int) AngleUtils.nomalizeAngleDegrees360(MathMiscUtils.round(heading, 0)),
-                dataTimeMillis, true);
-        imcSys.storeData(
-                SystemUtils.HEADING_DEGS_KEY,
-                (int) AngleUtils.nomalizeAngleDegrees360(MathMiscUtils.round(heading, 0)),
-                dataTimeMillis, true);
-        
-        int fuelPerc = msg.getFuel();
-        if (fuelPerc > 0) {
-            FuelLevel fuelLevelMsg = new FuelLevel();
-            IMCUtils.copyHeader(msg, fuelLevelMsg);
-            fuelLevelMsg.setTimestampMillis(dataTimeMillis);
-            fuelLevelMsg.setValue(fuelPerc);
-            fuelLevelMsg.setConfidence(0);
-            imcSys.storeData(SystemUtils.FUEL_LEVEL_KEY, fuelLevelMsg, dataTimeMillis, true);
-            
-            messagesCreatedToFoward.add(fuelLevelMsg);
-        }
-        
-        int execState = msg.getExecState();
-        PlanControlState pcsMsg = new PlanControlState();
-        IMCUtils.copyHeader(msg, pcsMsg);
-        pcsMsg.setTimestampMillis(dataTimeMillis);
-        switch (execState) {
-            case -1:
-                pcsMsg.setState(STATE.READY);
-                break;
-            case -3:
-                pcsMsg.setState(STATE.INITIALIZING);
-                break;
-            case -2:
-            case -4:
-                pcsMsg.setState(STATE.BLOCKED);
-                break;
-            default:
-                if (execState > 0)
-                    pcsMsg.setState(STATE.EXECUTING);
-                else
-                    pcsMsg.setState(STATE.BLOCKED);
-                break;
-        }
-
-        pcsMsg.setPlanEta(-1);
-        pcsMsg.setPlanProgress(execState >=0 ? execState : -1);
-        pcsMsg.setManId("");
-        pcsMsg.setManEta(-1);
-        pcsMsg.setManType(0xFFFF);
-        
-        messagesCreatedToFoward.add(pcsMsg);
-    }
-    
     private void processRemoteSensorInfo(MessageInfo info, RemoteSensorInfo msg) {
         // Process pos. state reported from other system
         String sysId = msg.getId();
@@ -958,7 +878,6 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         SystemTypeEnum type = SystemUtils.getSystemTypeFrom(sensorClass);
         VehicleTypeEnum typeVehicle = SystemUtils.getVehicleTypeFrom(sensorClass);
         ExternalTypeEnum typeExternal = SystemUtils.getExternalTypeFrom(sensorClass);
-        
         if (imcSys != null) {
             imcSys.setType(type);
             imcSys.setTypeVehicle(typeVehicle);
@@ -1016,8 +935,6 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
             if (!ImcId16.NULL_ID.equals(id) && !ImcId16.BROADCAST_ID.equals(id) && !ImcId16.ANNOUNCE.equals(id)
                     && !localId.equals(id)) {
                 
-                ArrayList<IMCMessage> messagesCreatedToFoward = new ArrayList<>();
-                
                 switch (msg.getMgid()) {
                     case Announce.ID_STATIC:
                         announceLastArriveTime = System.currentTimeMillis();
@@ -1038,8 +955,6 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                     case RemoteSensorInfo.ID_STATIC:
                         processRemoteSensorInfo(info, (RemoteSensorInfo) msg);
                         break;
-                    case StateReport.ID_STATIC:
-                        processStateReport(info, new StateReport(msg), messagesCreatedToFoward);
                     default:
                         break;
                 }
@@ -1055,11 +970,6 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                             this.getClass().getSimpleName() + ": Message redirected for system comm. "
                                     + vci.getSystemCommId() + ".");
                     vci.onMessage(info, msg);
-                    
-                    for (IMCMessage imcMsg : messagesCreatedToFoward) {
-                        vci.onMessage(info, imcMsg);
-                    }
-                    
                     return true;
                 }
             }

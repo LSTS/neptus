@@ -51,9 +51,7 @@ import com.google.gson.stream.JsonReader;
 import pt.lsts.colormap.ColorMap;
 import pt.lsts.colormap.ColorMapFactory;
 import pt.lsts.imc.IMCDefinition;
-import pt.lsts.imc.RemoteSensorInfo;
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.plugins.NeptusProperty;
@@ -178,26 +176,11 @@ public class RipplesPositions extends ConsoleLayer {
                 update.timestamp = time;
                 update.location = new LocationType(latDegs, lonDegs);
                 synchronized (lastPositions) {
-                    
-                    PositionUpdate lastUpdate = lastPositions.get(update.id);
-                    
                     if (!lastPositions.containsKey(update.id) || lastPositions.get(update.id).timestamp.before(update.timestamp))
                         lastPositions.put(update.id, update);
                     if (!positions.containsKey(update.id))
                         positions.put(update.id, new ArrayList<>());
                     positions.get(update.id).add(update);
-                    
-                    if (lastUpdate == null || lastUpdate.timestamp.before(update.timestamp)) {
-                        NeptusLog.pub().info("Publishing RemoteSensorInfo synthesized from Ripples position of system "+update.id);
-                        RemoteSensorInfo rsi = new RemoteSensorInfo();
-                        rsi.setSrc(id);
-                        rsi.setTimestamp(time.getTime()/1000.0);
-                        rsi.setLat(update.location.getLatitudeRads());
-                        rsi.setLon(update.location.getLongitudeRads());
-                        rsi.setSensorClass("UUV");
-                        System.out.println(rsi);
-                        ImcMsgManager.getManager().postInternalMessage(update.id, rsi);    
-                    }                    
                 }
                 
             }

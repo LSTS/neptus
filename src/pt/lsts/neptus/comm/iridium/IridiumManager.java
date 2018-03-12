@@ -48,7 +48,7 @@ import org.apache.commons.codec.binary.Hex;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCUtil;
-import pt.lsts.imc.IridiumMsgRx;
+import pt.lsts.imc.IridiumMsgTx;
 import pt.lsts.imc.MessagePart;
 import pt.lsts.imc.net.IMCFragmentHandler;
 import pt.lsts.neptus.NeptusLog;
@@ -103,17 +103,15 @@ public class IridiumManager {
     }
     
     private Runnable pollMessages = new Runnable() {
-        Date lastTime = new Date(System.currentTimeMillis() - 3600 * 1000);
         
+        Date lastTime = new Date(System.currentTimeMillis() - 3600 * 1000);
         @Override
         public void run() {
-        
             try {
                 Date now = new Date();
-                NeptusLog.pub().info("Polling iridium messages using "+getCurrentMessenger().getName());
                 Collection<IridiumMessage> msgs = getCurrentMessenger().pollMessages(lastTime);
                 for (IridiumMessage m : msgs)
-                    incoming(m);
+                    processMessage(m);
                 
                 lastTime = now;
             }
@@ -133,19 +131,27 @@ public class IridiumManager {
         return service != null;
     }
     
-    public void incoming(IridiumMessage msg) {
+    public void processMessage(IridiumMessage msg) {
         
-        try {
-            IridiumMsgRx transmission = new IridiumMsgRx();
-            transmission.setData(msg.serialize());
-            transmission.setSrc(msg.getSource());
-            transmission.setDst(msg.getDestination());
-            transmission.setTimestamp(msg.timestampMillis/1000.0);
-            ImcMsgManager.getManager().postInternalMessage("IridiumManager", transmission);
+        //if (msg.getSource() != ImcMsgManager.getManager().getLocalId().intValue()) {
+            try {
+                IridiumMsgTx transmission = new IridiumMsgTx();
+                transmission.setData(msg.serialize());
+                transmission.setSrc(msg.getSource());
+                transmission.setDst(msg.getDestination());
+                transmission.setTimestamp(msg.timestampMillis/1000.0);
+                ImcMsgManager.getManager().postInternalMessage("IridiumManager", transmission);
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(e);
+            }
+        //}
+        
+        Collection<IMCMessage> msgs = msg.asImc();
+        
+        for (IMCMessage m : msgs) {
+            ImcMsgManager.getManager().postInternalMessage("iridium", m);            
         }
-        catch (Exception e) {
-            NeptusLog.pub().error(e);
-        }       
     }
 
     public void selectMessenger(Component parent) {
@@ -165,7 +171,7 @@ public class IridiumManager {
         
         ImcMsgManager.getManager().registerBusListener(this);        
         service = Executors.newScheduledThreadPool(1);
-        service.scheduleAtFixedRate(pollMessages, 0, 1, TimeUnit.MINUTES);
+        service.scheduleAtFixedRate(pollMessages, 0, 5, TimeUnit.MINUTES);
     }
     
     public synchronized void stop() {
