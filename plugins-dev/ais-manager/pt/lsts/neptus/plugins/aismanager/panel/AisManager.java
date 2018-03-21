@@ -30,7 +30,7 @@
  * Author: tsm
  * Mar 20, 2018
  */
-package pt.lsts.neptus.plugins.aismanager;
+package pt.lsts.neptus.plugins.aismanager.panel;
 
 import pt.lsts.aismanager.ShipAisSnapshot;
 import pt.lsts.aismanager.api.AisContactManager;

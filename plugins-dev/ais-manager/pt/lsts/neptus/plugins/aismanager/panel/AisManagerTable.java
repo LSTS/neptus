@@ -30,7 +30,7 @@
  * Author: tsm
  * Mar 21, 2018
  */
-package pt.lsts.neptus.plugins.aismanager;
+package pt.lsts.neptus.plugins.aismanager.panel;
 
 import javax.swing.JComponent;
 import javax.swing.JTable;
