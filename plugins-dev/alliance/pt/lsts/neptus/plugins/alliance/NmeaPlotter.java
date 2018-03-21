@@ -67,7 +67,6 @@ import de.baderjene.aistoolkit.aisparser.message.Message05;
 import jssc.SerialPort;
 import jssc.SerialPortEvent;
 import jssc.SerialPortEventListener;
-import pt.lsts.aismanager.NeptusAisManager;
 import pt.lsts.aismanager.api.AisContactManager;
 import pt.lsts.imc.DevDataText;
 import pt.lsts.imc.lsf.LsfMessageLogger;
@@ -191,7 +190,7 @@ public class NmeaPlotter extends ConsoleLayer {
     private HashSet<NmeaListener> listeners = new HashSet<>();
     private AisContactDb contactDb = new AisContactDb();
     private AISParser parser = new AISParser();
-    private final AisContactManager aisManager = new NeptusAisManager();
+    private final AisContactManager aisManager = AisContactManager.getInstance();
 
     private LinkedHashMap<String, LocationType> lastLocs = new LinkedHashMap<>();
     private LinkedHashMap<String, ScatterPointsElement> tracks = new LinkedHashMap<>();
