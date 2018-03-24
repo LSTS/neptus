@@ -148,18 +148,21 @@ public class DataCollector<T extends BaseDataPoint<?>> implements
                     fromDatePts.accumulate(dateV.getTime());
                     
                     ArrayList<Point2D> pts = new ArrayList<>();
-                    if (renderer.getLevelOfDetail() >= EnvDataPaintHelper.filterUseLOD)
+                    //if (true || renderer.getLevelOfDetail() >= EnvDataPaintHelper.filterUseLOD)
                         pts.add((Point2D) pt.clone());
 
                     double x = pt.getX();
                     double y = pt.getY();
-                    x = ((int) x) / gridSpacing * gridSpacing;
-                    y = ((int) y) / gridSpacing * gridSpacing;
+                    x =  Math.round(x / gridSpacing) * gridSpacing;
+                    y =  Math.round(y / gridSpacing) * gridSpacing;
                     pt.setLocation(x, y);
                     pts.add(0, pt);
 
                     for (int idx = 0; idx < pts.size(); idx++) {
                         Point2D ptI = pts.get(idx);
+                        
+//                        System.out.println(Thread.currentThread().getName() + " :: DataCollector::idx-" + idx + " :: " + res.get(idx).containsKey(ptI));
+                        
                         if (!res.get(idx).containsKey(ptI)) {
                             res.get(idx).put(ptI, new Pair<>(vals, dateV));
                         }
