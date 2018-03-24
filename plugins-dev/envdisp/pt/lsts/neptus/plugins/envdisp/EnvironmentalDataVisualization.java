@@ -272,6 +272,8 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
     private final HashMap<String, WavesDataPoint> dataPointsWaves = new HashMap<>();
     private final HashMap<String, ChlorophyllDataPoint> dataPointsChlorophyll = new HashMap<>();
 
+    private Thread painterThread = null;
+
     @PluginDescription(name="Environmental Data Visualization Layer", icon="pt/lsts/neptus/plugins/envdisp/hf-radar.png")
     @LayerPriority(priority = -300)
     private class EnvironmentalDataConsoleLayer extends ConsoleLayer {
@@ -737,36 +739,97 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
     public void paintWorker(Graphics2D go, StateRenderer2D renderer) {
         boolean recreateImage = offScreen.paintPhaseStartTestRecreateImageAndRecreate(go, renderer);
         if (recreateImage) {
-            Graphics2D g2 = offScreen.getImageGraphics();
+            if (painterThread != null) {
+                try {
+                    painterThread.interrupt();
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
 
-            Date dateColorLimit = new Date(System.currentTimeMillis() - 3 * DateTimeUtil.HOUR);
-            Date dateLimit = new Date(System.currentTimeMillis() - dateLimitHours * DateTimeUtil.HOUR);
-            
-            if (showCurrents)
-                EnvDataPaintHelper.paintHFRadarInGraphics(renderer, g2, dateColorLimit, dateLimit, dataPointsCurrents,
-                        ignoreDateLimitToLoad, offScreen.getOffScreenBufferPixel(), colorMapCurrents, 0, maxCurrentCmS,
-                        showCurrentsLegend, showCurrentsLegendFromZoomLevel, font8Pt, showDataDebugLegend);
-            if (showSST)
-                EnvDataPaintHelper.paintSSTInGraphics(renderer, g2, dateColorLimit, dateLimit, dataPointsSST, ignoreDateLimitToLoad,
-                        offScreen.getOffScreenBufferPixel(), colorMapSST, minSST, maxSST, showSSTLegend,
-                        showSSTLegendFromZoomLevel, font8Pt, showDataDebugLegend);
-            if (showChlorophyll)
-                EnvDataPaintHelper.paintChlorophyllInGraphics(renderer, g2, dateColorLimit, dateLimit, dataPointsChlorophyll, ignoreDateLimitToLoad,
-                        offScreen.getOffScreenBufferPixel(), colorMapChlorophyll, minChlorophyll, maxChlorophyll, showChlorophyllLegend,
-                        showChlorophyllLegendFromZoomLevel, font8Pt, showDataDebugLegend);
-            if (showWind)
-                EnvDataPaintHelper.paintWindInGraphics(renderer, g2, dateColorLimit, dateLimit, dataPointsWind, ignoreDateLimitToLoad,
-                        offScreen.getOffScreenBufferPixel(), useColorMapForWind, colorMapWind, 0, maxWind, font8Pt,
-                        showDataDebugLegend);
-            if (showWaves)
-                EnvDataPaintHelper.paintWavesInGraphics(renderer, g2, dateColorLimit, dateLimit, dataPointsWaves, ignoreDateLimitToLoad,
-                        offScreen.getOffScreenBufferPixel(), colorMapWaves, 0, maxWaves, showWavesLegend,
-                        showWavesLegendFromZoomLevel, font8Pt, showDataDebugLegend);
+            painterThread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Graphics2D g2 = offScreen.getImageGraphics();
 
-            g2.dispose();
-        }            
-        offScreen.paintPhaseEndFinishImageRecreateAndPaintImageCacheToRenderer(go, renderer);
-        
+                        Date dateColorLimit = new Date(System.currentTimeMillis() - 3 * DateTimeUtil.HOUR);
+                        Date dateLimit = new Date(System.currentTimeMillis() - dateLimitHours * DateTimeUtil.HOUR);
+
+                        if (showCurrents) {
+                            try {
+                                EnvDataPaintHelper.paintHFRadarInGraphics(renderer, g2, dateColorLimit, dateLimit, dataPointsCurrents,
+                                        ignoreDateLimitToLoad, offScreen.getOffScreenBufferPixel(), colorMapCurrents, 0, maxCurrentCmS,
+                                        showCurrentsLegend, showCurrentsLegendFromZoomLevel, font8Pt, showDataDebugLegend);
+                            }
+                            catch (Exception e) {
+                                e.printStackTrace();
+                                offScreen.triggerImageRebuild();
+                            }
+                        }
+                        if (showSST) {
+                            try {
+                                EnvDataPaintHelper.paintSSTInGraphics(renderer, g2, dateColorLimit, dateLimit, dataPointsSST, ignoreDateLimitToLoad,
+                                        offScreen.getOffScreenBufferPixel(), colorMapSST, minSST, maxSST, showSSTLegend,
+                                        showSSTLegendFromZoomLevel, font8Pt, showDataDebugLegend);
+                            }
+                            catch (Exception e) {
+                                e.printStackTrace();
+                                offScreen.triggerImageRebuild();
+                            }
+                        }
+                        if (showChlorophyll) {
+                            try {
+                                EnvDataPaintHelper.paintChlorophyllInGraphics(renderer, g2, dateColorLimit, dateLimit, dataPointsChlorophyll, ignoreDateLimitToLoad,
+                                        offScreen.getOffScreenBufferPixel(), colorMapChlorophyll, minChlorophyll, maxChlorophyll, showChlorophyllLegend,
+                                        showChlorophyllLegendFromZoomLevel, font8Pt, showDataDebugLegend);
+                            }
+                            catch (Exception e) {
+                                e.printStackTrace();
+                                offScreen.triggerImageRebuild();
+                            }
+                        }
+                        if (showWind) {
+                            try {
+                                EnvDataPaintHelper.paintWindInGraphics(renderer, g2, dateColorLimit, dateLimit, dataPointsWind, ignoreDateLimitToLoad,
+                                        offScreen.getOffScreenBufferPixel(), useColorMapForWind, colorMapWind, 0, maxWind, font8Pt,
+                                        showDataDebugLegend);
+                            }
+                            catch (Exception e) {
+                                e.printStackTrace();
+                                offScreen.triggerImageRebuild();
+                            }
+                        }
+                        if (showWaves) {
+                            try {
+                                EnvDataPaintHelper.paintWavesInGraphics(renderer, g2, dateColorLimit, dateLimit, dataPointsWaves, ignoreDateLimitToLoad,
+                                        offScreen.getOffScreenBufferPixel(), colorMapWaves, 0, maxWaves, showWavesLegend,
+                                        showWavesLegendFromZoomLevel, font8Pt, showDataDebugLegend);
+                            }
+                            catch (Exception e) {
+                                e.printStackTrace();
+                                offScreen.triggerImageRebuild();
+                            }
+                        }
+
+                        g2.dispose();
+                    }
+                    catch (Exception e) {
+                        e.printStackTrace();
+                        offScreen.triggerImageRebuild();
+                    }
+                    catch (Error e) {
+                        e.printStackTrace();
+                        offScreen.triggerImageRebuild();
+                    }
+                }
+            }, "EnvironDisp::Painter");
+            painterThread.setDaemon(true);
+            painterThread.start();
+        }
+        offScreen.paintPhaseEndFinishImageRecreateAndPaintImageCacheToRendererNoGraphicDispose(go, renderer);
+
         paintColorbars(go, renderer);
     }
 
