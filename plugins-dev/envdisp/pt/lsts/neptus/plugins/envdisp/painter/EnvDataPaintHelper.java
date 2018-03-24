@@ -674,19 +674,10 @@ public class EnvDataPaintHelper {
                 ptFilt.add(new HashMap<Point2D, Pair<ArrayList<Object>, Date>>());
             }
             double usePercent = (ptFilt.get(0) == null ? -1 : ptFilt.get(0).size() * 1. / visiblePts.longValue()) * 100;
-            final int idx;
-            if (renderer.getLevelOfDetail() > filterUseLOD) {
-                if (usePercent <= 90)
-                    idx = 0;
-                else
-                    idx = 1;
-            }
-            else {
-                idx = 0;
-            }
-            debugOut(showDataDebugLegend, String.format("SLA stg 1 took %ss :: %d of %d from %d (%f%%) %d %d",
+            final int idx = getIndexForData(renderer.getLevelOfDetail(), usePercent);
+            debugOut(showDataDebugLegend, String.format("SLA stg 1 took %ss :: using %d of %d visible from oriinal %d (%.1f%% of visible) | %d not gridded %sused",
                     MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1), ptFilt.get(0).size(), visiblePts.longValue(), dest.size(),
-                    usePercent , ptFilt.get(1).size(), idx));
+                    usePercent, ptFilt.get(1).size(), idx == 0 ? "not " : ""));
             stMillis = System.currentTimeMillis();
 
             ptFilt.get(idx).keySet().parallelStream().forEach(pt -> {
@@ -728,6 +719,25 @@ public class EnvDataPaintHelper {
         catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * @param loDetail
+     * @param usePercent
+     * @return
+     */
+    private static int getIndexForData(int loDetail, double usePercent) {
+        int idx = 0;
+//        if (loDetail >= filterUseLOD) {
+            if (usePercent <= 90)
+                idx = 0;
+            else
+                idx = 1;
+//        }
+//        else {
+//            idx = 0;
+//        }
+        return idx;
     }
 
     /**
