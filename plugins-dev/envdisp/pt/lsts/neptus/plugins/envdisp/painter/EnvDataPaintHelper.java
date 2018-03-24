@@ -64,6 +64,7 @@ import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.ColorUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.UnitsUtil;
+import pt.lsts.neptus.util.coord.MapTileRendererCalculator;
 
 /**
  * @author pdias
@@ -105,6 +106,17 @@ public class EnvDataPaintHelper {
      */
     static boolean isVisibleInRender(Point2D sPos, StateRenderer2D renderer, int offScreenBufferPixel) {
         Dimension rendDim = renderer.getSize();
+        return isVisibleInRender(sPos, rendDim, offScreenBufferPixel);
+    }
+
+    /**
+     * @param sPos
+     * @param rendererSize
+     * @param offScreenBufferPixel The off screen buffer that might exist
+     * @return
+     */
+    static boolean isVisibleInRender(Point2D sPos, Dimension rendererSize, int offScreenBufferPixel) {
+        Dimension rendDim = rendererSize;
         if (sPos.getX() < 0 - offScreenBufferPixel
                 || sPos.getY() < 0 - offScreenBufferPixel)
             return false;
@@ -155,14 +167,14 @@ public class EnvDataPaintHelper {
      * @param font8Pt
      * @param showDataDebugLegend
      */
-    public static void paintHFRadarInGraphics(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit,
+    public static void paintHFRadarInGraphics(MapTileRendererCalculator rendererCalculator, Graphics2D g2, Date dateColorLimit, Date dateLimit,
             HashMap<String, HFRadarDataPoint> dataPointsCurrents, boolean ignoreDateLimitToLoad, int offScreenBufferPixel,
             ColorMap colorMapCurrents, double minCurrentCmS, double maxCurrentCmS,
             boolean showCurrentsLegend, int showCurrentsLegendFromZoomLevel, Font font8Pt, boolean showDataDebugLegend) {
         try {
             List<HFRadarDataPoint> dest = new ArrayList<>(dataPointsCurrents.values());
             long stMillis = System.currentTimeMillis();
-            DataCollector<HFRadarDataPoint> dataCollector = new DataCollector<HFRadarDataPoint>(ignoreDateLimitToLoad, dateLimit, renderer, 
+            DataCollector<HFRadarDataPoint> dataCollector = new DataCollector<HFRadarDataPoint>(ignoreDateLimitToLoad, dateLimit, rendererCalculator, 
                     offScreenBufferPixel, EnvDataShapesHelper.ARROW_RADIUS, dp -> dp.getAllDataValues(), (vals, ovals) -> {
                         // speedCmS, headingDegrees, resolutionKm, info(String)
                         for (int i = 0; i < 3; i++) {
@@ -186,7 +198,7 @@ public class EnvDataPaintHelper {
                 ptFilt.add(new HashMap<Point2D, Pair<ArrayList<Object>, Date>>());
             }
             double usePercent = (ptFilt.get(0).size() * 1. / visiblePts.longValue()) * 100;
-            final int idx = getIndexForData(renderer.getLevelOfDetail(), usePercent);
+            final int idx = getIndexForData(rendererCalculator.getLevelOfDetail(), usePercent);
             debugOut(showDataDebugLegend, String.format("Currents stg 1 took %ss :: using %d of %d visible from oriinal %d (%.1f%% of visible) | %d not gridded %sused",
                     MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1), ptFilt.get(0).size(), visiblePts.longValue(), dest.size(),
                     usePercent, ptFilt.get(1).size(), idx == 0 ? "not " : ""));
@@ -209,12 +221,12 @@ public class EnvDataPaintHelper {
                     if (dateV.before(dateColorLimit))
                         color = ColorUtils.setTransparencyToColor(color, 128);
                     gt.setColor(color);
-                    double rot = Math.toRadians(-headingV + 90) - renderer.getRotation();
+                    double rot = Math.toRadians(-headingV + 90) - rendererCalculator.getRotation();
                     gt.rotate(rot);
                     gt.fill(EnvDataShapesHelper.arrow);
                     gt.rotate(-rot);
                     
-                    if (showCurrentsLegend && renderer.getLevelOfDetail() >= showCurrentsLegendFromZoomLevel) {
+                    if (showCurrentsLegend && rendererCalculator.getLevelOfDetail() >= showCurrentsLegendFromZoomLevel) {
                         gt.setFont(font8Pt);
                         gt.setColor(Color.WHITE);
                         gt.drawString(MathMiscUtils.round(speedCmSV, 1) + "cm/s", 10, 2);
@@ -257,14 +269,14 @@ public class EnvDataPaintHelper {
      * @param font8Pt
      * @param showDataDebugLegend
      */
-    public static void paintSSTInGraphics(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit,
+    public static void paintSSTInGraphics(MapTileRendererCalculator rendererCalculator, Graphics2D g2, Date dateColorLimit, Date dateLimit,
             HashMap<String, SSTDataPoint> dataPointsSST, boolean ignoreDateLimitToLoad, int offScreenBufferPixel,
             ColorMap colorMapSST, double minSST, double maxSST,
             boolean showSSTLegend, int showSSTLegendFromZoomLevel, Font font8Pt, boolean showDataDebugLegend) {
         try {
             List<SSTDataPoint> dest = new ArrayList<>(dataPointsSST.values());
             long stMillis = System.currentTimeMillis();
-            DataCollector<SSTDataPoint> dataCollector = new DataCollector<SSTDataPoint>(ignoreDateLimitToLoad, dateLimit, renderer, 
+            DataCollector<SSTDataPoint> dataCollector = new DataCollector<SSTDataPoint>(ignoreDateLimitToLoad, dateLimit, rendererCalculator, 
                     offScreenBufferPixel, EnvDataShapesHelper.CIRCLE_RADIUS, dp -> dp.getAllDataValues(), (vals, ovals) -> {
                         // sst
                         double v = (double) vals.get(0);
@@ -284,7 +296,7 @@ public class EnvDataPaintHelper {
                 ptFilt.add(new HashMap<Point2D, Pair<ArrayList<Object>, Date>>());
             }
             double usePercent = (ptFilt.get(0).size() * 1. / visiblePts.longValue()) * 100;
-            final int idx = getIndexForData(renderer.getLevelOfDetail(), usePercent);
+            final int idx = getIndexForData(rendererCalculator.getLevelOfDetail(), usePercent);
             debugOut(showDataDebugLegend, String.format("SST stg 1 took %ss :: using %d of %d visible from oriinal %d (%.1f%% of visible) | %d not gridded %sused",
                     MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1), ptFilt.get(0).size(), visiblePts.longValue(), dest.size(),
                     usePercent, ptFilt.get(1).size(), idx == 0 ? "not " : ""));
@@ -305,7 +317,7 @@ public class EnvDataPaintHelper {
                     //gt.draw(EnvDataShapesHelper.circle);
                     gt.fill(EnvDataShapesHelper.rectangle);
                     
-                    if (showSSTLegend && renderer.getLevelOfDetail() >= showSSTLegendFromZoomLevel) {
+                    if (showSSTLegend && rendererCalculator.getLevelOfDetail() >= showSSTLegendFromZoomLevel) {
                         gt.setFont(font8Pt);
                         gt.setColor(Color.WHITE);
                         gt.drawString(MathMiscUtils.round(sst, 1) + "\u00B0C", -15, 15);
@@ -346,14 +358,14 @@ public class EnvDataPaintHelper {
      * @param font8Pt
      * @param showDataDebugLegend
      */
-    public static void paintWindInGraphics(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit,
+    public static void paintWindInGraphics(MapTileRendererCalculator rendererCalculator, Graphics2D g2, Date dateColorLimit, Date dateLimit,
             HashMap<String, WindDataPoint> dataPointsWind, boolean ignoreDateLimitToLoad, int offScreenBufferPixel,
             boolean useColorMapForWind, ColorMap colorMapWind, double minWind, double maxWind,
             Font font8Pt, boolean showDataDebugLegend) {
         try {
             List<WindDataPoint> dest = new ArrayList<>(dataPointsWind.values());
             long stMillis = System.currentTimeMillis();
-            DataCollector<WindDataPoint> dataCollector = new DataCollector<WindDataPoint>(ignoreDateLimitToLoad, dateLimit, renderer, 
+            DataCollector<WindDataPoint> dataCollector = new DataCollector<WindDataPoint>(ignoreDateLimitToLoad, dateLimit, rendererCalculator, 
                     offScreenBufferPixel, EnvDataShapesHelper.WIND_BARB_RADIUS, dp -> dp.getAllDataValues(), (vals, ovals) -> {
                         // u, v
                         for (int i = 0; i < 2; i++) {
@@ -375,7 +387,7 @@ public class EnvDataPaintHelper {
                 ptFilt.add(new HashMap<Point2D, Pair<ArrayList<Object>, Date>>());
             }
             double usePercent = (ptFilt.get(0).size() * 1. / visiblePts.longValue()) * 100;
-            final int idx = getIndexForData(renderer.getLevelOfDetail(), usePercent);
+            final int idx = getIndexForData(rendererCalculator.getLevelOfDetail(), usePercent);
             debugOut(showDataDebugLegend, String.format("Wind stg 1 took %ss :: using %d of %d visible from oriinal %d (%.1f%% of visible) | %d not gridded %sused",
                     MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1), ptFilt.get(0).size(), visiblePts.longValue(), dest.size(),
                     usePercent, ptFilt.get(1).size(), idx == 0 ? "not " : ""));
@@ -402,7 +414,7 @@ public class EnvDataPaintHelper {
                         color = ColorUtils.setTransparencyToColor(color, 128);
                     gt.setColor(color);
                     
-                    gt.rotate(Math.toRadians(headingV) - renderer.getRotation());
+                    gt.rotate(Math.toRadians(headingV) - rendererCalculator.getRotation());
                     
                     double speedKnots = speedV * UnitsUtil.MS_TO_KNOT;
                     EnvDataShapesHelper.paintWindBarb(gt, speedKnots);
@@ -443,14 +455,14 @@ public class EnvDataPaintHelper {
      * @param font8Pt
      * @param showDataDebugLegend
      */
-    public static void paintWavesInGraphics(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit,
+    public static void paintWavesInGraphics(MapTileRendererCalculator rendererCalculator, Graphics2D g2, Date dateColorLimit, Date dateLimit,
             HashMap<String, WavesDataPoint> dataPointsWaves, boolean ignoreDateLimitToLoad, int offScreenBufferPixel,
             ColorMap colorMapWaves, double minWaves, double maxWaves, boolean showWavesLegend,
             int showWavesLegendFromZoomLevel, Font font8Pt, boolean showDataDebugLegend) {
         try {
             List<WavesDataPoint> dest = new ArrayList<>(dataPointsWaves.values());
             long stMillis = System.currentTimeMillis();
-            DataCollector<WavesDataPoint> dataCollector = new DataCollector<WavesDataPoint>(ignoreDateLimitToLoad, dateLimit, renderer, 
+            DataCollector<WavesDataPoint> dataCollector = new DataCollector<WavesDataPoint>(ignoreDateLimitToLoad, dateLimit, rendererCalculator, 
                     offScreenBufferPixel, EnvDataShapesHelper.ARROW_RADIUS, dp -> dp.getAllDataValues(), (vals, ovals) -> {
                         //significantHeight, peakPeriod, peakDirection
                         for (int i = 0; i < 3; i++) {
@@ -472,7 +484,7 @@ public class EnvDataPaintHelper {
                 ptFilt.add(new HashMap<Point2D, Pair<ArrayList<Object>, Date>>());
             }
             double usePercent = (ptFilt.get(0).size() * 1. / visiblePts.longValue()) * 100;
-            final int idx = getIndexForData(renderer.getLevelOfDetail(), usePercent);
+            final int idx = getIndexForData(rendererCalculator.getLevelOfDetail(), usePercent);
             debugOut(showDataDebugLegend, String.format("Waves stg 1 took %ss :: using %d of %d visible from oriinal %d (%.1f%% of visible) | %d not gridded %sused",
                     MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1), ptFilt.get(0).size(), visiblePts.longValue(), dest.size(),
                     usePercent, ptFilt.get(1).size(), idx == 0 ? "not " : ""));
@@ -497,12 +509,12 @@ public class EnvDataPaintHelper {
                     if (dateV.before(dateColorLimit))
                         color = ColorUtils.setTransparencyToColor(color, 128);
                     gt.setColor(color);
-                    double rot = Math.toRadians(headingV) - renderer.getRotation();
+                    double rot = Math.toRadians(headingV) - rendererCalculator.getRotation();
                     gt.rotate(rot);
                     gt.fill(EnvDataShapesHelper.arrow);
                     gt.rotate(-rot);
                     
-                    if (showWavesLegend && renderer.getLevelOfDetail() >= showWavesLegendFromZoomLevel) {
+                    if (showWavesLegend && rendererCalculator.getLevelOfDetail() >= showWavesLegendFromZoomLevel) {
                         gt.setFont(font8Pt);
                         gt.setColor(Color.WHITE);
                         gt.drawString(MathMiscUtils.round(sigHeightV, 1) + "m", 10, -8);
@@ -528,14 +540,14 @@ public class EnvDataPaintHelper {
         }
     }
 
-    public static void paintChlorophyllInGraphics(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit,
+    public static void paintChlorophyllInGraphics(MapTileRendererCalculator rendererCalculator, Graphics2D g2, Date dateColorLimit, Date dateLimit,
             HashMap<String, ChlorophyllDataPoint> dataPointsChlorophyll, boolean ignoreDateLimitToLoad, int offScreenBufferPixel,
             ColorMap colorMapChlorophyll, double minChlorophyll, double maxChlorophyll,
             boolean showChlorophyllLegend, int showChlorophyllLegendFromZoomLevel, Font font8Pt, boolean showDataDebugLegend) {
         try {
             List<ChlorophyllDataPoint> dest = new ArrayList<>(dataPointsChlorophyll.values());
             long stMillis = System.currentTimeMillis();
-            DataCollector<ChlorophyllDataPoint> dataCollector = new DataCollector<ChlorophyllDataPoint>(ignoreDateLimitToLoad, dateLimit, renderer, 
+            DataCollector<ChlorophyllDataPoint> dataCollector = new DataCollector<ChlorophyllDataPoint>(ignoreDateLimitToLoad, dateLimit, rendererCalculator, 
                     offScreenBufferPixel, EnvDataShapesHelper.CIRCLE_RADIUS, dp -> dp.getAllDataValues(), (vals, ovals) -> {
                         double v = (double) vals.get(0);
                         double o = (double) ovals.get(0);
@@ -554,7 +566,7 @@ public class EnvDataPaintHelper {
                 ptFilt.add(new HashMap<Point2D, Pair<ArrayList<Object>, Date>>());
             }
             double usePercent = (ptFilt.get(0).size() * 1. / visiblePts.longValue()) * 100;
-            final int idx = getIndexForData(renderer.getLevelOfDetail(), usePercent);
+            final int idx = getIndexForData(rendererCalculator.getLevelOfDetail(), usePercent);
             debugOut(showDataDebugLegend, String.format("Chlorophyll stg 1 took %ss :: using %d of %d visible from oriinal %d (%.1f%% of visible) | %d not gridded %sused",
                     MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1), ptFilt.get(0).size(), visiblePts.longValue(), dest.size(),
                     usePercent, ptFilt.get(1).size(), idx == 0 ? "not " : ""));
@@ -576,7 +588,7 @@ public class EnvDataPaintHelper {
                     gt.draw(EnvDataShapesHelper.circle);
                     gt.fill(EnvDataShapesHelper.circle);
                     
-                    if (showChlorophyllLegend && renderer.getLevelOfDetail() >= showChlorophyllLegendFromZoomLevel) {
+                    if (showChlorophyllLegend && rendererCalculator.getLevelOfDetail() >= showChlorophyllLegendFromZoomLevel) {
                         gt.setFont(font8Pt);
                         gt.setColor(Color.WHITE);
                         gt.drawString(MathMiscUtils.round(val, 1) + "mg/m\u00B3", -15, 15);
@@ -602,14 +614,14 @@ public class EnvDataPaintHelper {
         }
     }
 
-    public static void paintSLAInGraphics(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit,
+    public static void paintSLAInGraphics(MapTileRendererCalculator rendererCalculator, Graphics2D g2, Date dateColorLimit, Date dateLimit,
             HashMap<String, SLADataPoint> dataPointsSLA, boolean ignoreDateLimitToLoad, int offScreenBufferPixel,
             ColorMap colorMapSLA, double minSLA, double maxSLA,
             boolean showSLALegend, int showSLALegendFromZoomLevel, Font font8Pt, boolean showDataDebugLegend) {
         try {
             List<SLADataPoint> dest = new ArrayList<>(dataPointsSLA.values());
             long stMillis = System.currentTimeMillis();
-            DataCollector<SLADataPoint> dataCollector = new DataCollector<SLADataPoint>(ignoreDateLimitToLoad, dateLimit, renderer, 
+            DataCollector<SLADataPoint> dataCollector = new DataCollector<SLADataPoint>(ignoreDateLimitToLoad, dateLimit, rendererCalculator, 
                     offScreenBufferPixel, EnvDataShapesHelper.CIRCLE_RADIUS, dp -> dp.getAllDataValues(), (vals, ovals) -> {
                         // sla
                         double v = (double) vals.get(0);
@@ -629,7 +641,7 @@ public class EnvDataPaintHelper {
                 ptFilt.add(new HashMap<Point2D, Pair<ArrayList<Object>, Date>>());
             }
             double usePercent = (ptFilt.get(0) == null ? -1 : ptFilt.get(0).size() * 1. / visiblePts.longValue()) * 100;
-            final int idx = getIndexForData(renderer.getLevelOfDetail(), usePercent);
+            final int idx = getIndexForData(rendererCalculator.getLevelOfDetail(), usePercent);
             debugOut(showDataDebugLegend, String.format("SLA stg 1 took %ss :: using %d of %d visible from oriinal %d (%.1f%% of visible) | %d not gridded %sused",
                     MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1), ptFilt.get(0).size(), visiblePts.longValue(), dest.size(),
                     usePercent, ptFilt.get(1).size(), idx == 0 ? "not " : ""));
@@ -651,7 +663,7 @@ public class EnvDataPaintHelper {
                     //gt.draw(EnvDataShapesHelper.rectangle);
                     gt.fill(EnvDataShapesHelper.rectangle);
                     
-                    if (showSLALegend && renderer.getLevelOfDetail() >= showSLALegendFromZoomLevel) {
+                    if (showSLALegend && rendererCalculator.getLevelOfDetail() >= showSLALegendFromZoomLevel) {
                         gt.setFont(font8Pt);
                         gt.setColor(Color.WHITE);
                         gt.drawString(MathMiscUtils.round(sla, 2) + "m", -15, 15);

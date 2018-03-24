@@ -51,13 +51,15 @@ import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.plugins.envdisp.datapoints.BaseDataPoint;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.coord.MapTileRendererCalculator;
 
 public class DataCollector<T extends BaseDataPoint<?>> implements
         Collector<T, ArrayList<Map<Point2D, Pair<ArrayList<Object>, Date>>>, ArrayList<Map<Point2D, Pair<ArrayList<Object>, Date>>>> {
     
     public boolean ignoreDateLimitToLoad = false;
     public Date dateLimit;
-    public StateRenderer2D renderer;
+    // public StateRenderer2D renderer;
+    public MapTileRendererCalculator rendererCalculator; 
     public int offScreenBufferPixel;
     
     public int gridSpacing = 8;
@@ -84,15 +86,34 @@ public class DataCollector<T extends BaseDataPoint<?>> implements
     public DataCollector(boolean ignoreDateLimitToLoad, Date dateLimit, StateRenderer2D renderer, 
             int offScreenBufferPixel, int gridSpacing, Function<T, ArrayList<Object>> extractor,
             BinaryOperator<ArrayList<Object>> merger) {
+        this(ignoreDateLimitToLoad, dateLimit, new MapTileRendererCalculator(renderer), offScreenBufferPixel,
+                gridSpacing, extractor, merger);
+    }
+
+    /**
+     * Data collector class, see {@link java.util.stream.Collector}, to process data
+     * for painting.
+     * 
+     * @param ignoreDateLimitToLoad To ignore data limit filtering.
+     * @param dateLimit Data limit for filtering is enabled.
+     * @param rendererCalculator The renderer calculator where it will be painted.
+     * @param offScreenBufferPixel The off-screen pixels to consider.
+     * @param gridSpacing The grid spacing to use, in pixels.
+     * @param extractor This will be called to extract data from the data point.
+     * @param merger This will be called to merge 2 data points data.
+     */
+    public DataCollector(boolean ignoreDateLimitToLoad, Date dateLimit, MapTileRendererCalculator rendererCalculator, 
+            int offScreenBufferPixel, int gridSpacing, Function<T, ArrayList<Object>> extractor,
+            BinaryOperator<ArrayList<Object>> merger) {
         this.ignoreDateLimitToLoad = ignoreDateLimitToLoad;
         this.dateLimit = dateLimit;
-        this.renderer = renderer; 
+        this.rendererCalculator = rendererCalculator;
         this.offScreenBufferPixel = offScreenBufferPixel;
         this.gridSpacing = gridSpacing;
         this.extractor = extractor;
         this.merger = merger;
     }
-    
+
     @Override
     public Supplier<ArrayList<Map<Point2D, Pair<ArrayList<Object>, Date>>>> supplier() {
         return new Supplier<ArrayList<Map<Point2D, Pair<ArrayList<Object>, Date>>>>() {
@@ -137,9 +158,9 @@ public class DataCollector<T extends BaseDataPoint<?>> implements
                     loc.setLatitudeDegs(latV);
                     loc.setLongitudeDegs(lonV);
                     
-                    Point2D pt = renderer.getScreenPosition(loc);
+                    Point2D pt = rendererCalculator.getScreenPosition(loc);
                     
-                    if (!EnvDataPaintHelper.isVisibleInRender(pt, renderer, offScreenBufferPixel))
+                    if (!EnvDataPaintHelper.isVisibleInRender(pt, rendererCalculator.getSize(), offScreenBufferPixel))
                         return;
                     
                     visiblePts.accumulate(1);

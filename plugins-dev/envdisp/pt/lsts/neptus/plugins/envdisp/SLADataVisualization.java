@@ -73,6 +73,7 @@ import pt.lsts.neptus.renderer2d.OffScreenLayerImageControl;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.coord.MapTileRendererCalculator;
 
 /**
  * @author pdias
@@ -226,7 +227,8 @@ public class SLADataVisualization extends ConsoleLayer implements IPeriodicUpdat
                     e.printStackTrace();
                 }
             }
-                
+            
+            final MapTileRendererCalculator rendererCalculator = new MapTileRendererCalculator(renderer);
             painterThread = new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -238,7 +240,7 @@ public class SLADataVisualization extends ConsoleLayer implements IPeriodicUpdat
                         
                         if (showSLA) {
                             try {
-                                EnvDataPaintHelper.paintSLAInGraphics(renderer, g2, dateColorLimit, dateLimit, dataPointsSLA, ignoreDateLimitToLoad,
+                                EnvDataPaintHelper.paintSLAInGraphics(rendererCalculator, g2, dateColorLimit, dateLimit, dataPointsSLA, ignoreDateLimitToLoad,
                                         offScreen.getOffScreenBufferPixel(), colorMapSLA, minSLA, maxSLA, showSLALegend,
                                         showSLALegendFromZoomLevel, font8Pt, showDataDebugLegend);
                             }

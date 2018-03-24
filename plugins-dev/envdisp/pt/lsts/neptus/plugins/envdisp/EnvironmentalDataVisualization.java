@@ -91,6 +91,7 @@ import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.StreamUtil;
 import pt.lsts.neptus.util.UnitsUtil;
+import pt.lsts.neptus.util.coord.MapTileRendererCalculator;
 import pt.lsts.neptus.util.http.client.HttpClientConnectionHelper;
 
 /**
@@ -748,6 +749,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
                 }
             }
 
+            final MapTileRendererCalculator rendererCalculator = new MapTileRendererCalculator(renderer);
             painterThread = new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -759,7 +761,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
 
                         if (showCurrents) {
                             try {
-                                EnvDataPaintHelper.paintHFRadarInGraphics(renderer, g2, dateColorLimit, dateLimit, dataPointsCurrents,
+                                EnvDataPaintHelper.paintHFRadarInGraphics(rendererCalculator, g2, dateColorLimit, dateLimit, dataPointsCurrents,
                                         ignoreDateLimitToLoad, offScreen.getOffScreenBufferPixel(), colorMapCurrents, 0, maxCurrentCmS,
                                         showCurrentsLegend, showCurrentsLegendFromZoomLevel, font8Pt, showDataDebugLegend);
                             }
@@ -770,7 +772,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
                         }
                         if (showSST) {
                             try {
-                                EnvDataPaintHelper.paintSSTInGraphics(renderer, g2, dateColorLimit, dateLimit, dataPointsSST, ignoreDateLimitToLoad,
+                                EnvDataPaintHelper.paintSSTInGraphics(rendererCalculator, g2, dateColorLimit, dateLimit, dataPointsSST, ignoreDateLimitToLoad,
                                         offScreen.getOffScreenBufferPixel(), colorMapSST, minSST, maxSST, showSSTLegend,
                                         showSSTLegendFromZoomLevel, font8Pt, showDataDebugLegend);
                             }
@@ -781,7 +783,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
                         }
                         if (showChlorophyll) {
                             try {
-                                EnvDataPaintHelper.paintChlorophyllInGraphics(renderer, g2, dateColorLimit, dateLimit, dataPointsChlorophyll, ignoreDateLimitToLoad,
+                                EnvDataPaintHelper.paintChlorophyllInGraphics(rendererCalculator, g2, dateColorLimit, dateLimit, dataPointsChlorophyll, ignoreDateLimitToLoad,
                                         offScreen.getOffScreenBufferPixel(), colorMapChlorophyll, minChlorophyll, maxChlorophyll, showChlorophyllLegend,
                                         showChlorophyllLegendFromZoomLevel, font8Pt, showDataDebugLegend);
                             }
@@ -792,7 +794,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
                         }
                         if (showWind) {
                             try {
-                                EnvDataPaintHelper.paintWindInGraphics(renderer, g2, dateColorLimit, dateLimit, dataPointsWind, ignoreDateLimitToLoad,
+                                EnvDataPaintHelper.paintWindInGraphics(rendererCalculator, g2, dateColorLimit, dateLimit, dataPointsWind, ignoreDateLimitToLoad,
                                         offScreen.getOffScreenBufferPixel(), useColorMapForWind, colorMapWind, 0, maxWind, font8Pt,
                                         showDataDebugLegend);
                             }
@@ -803,7 +805,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
                         }
                         if (showWaves) {
                             try {
-                                EnvDataPaintHelper.paintWavesInGraphics(renderer, g2, dateColorLimit, dateLimit, dataPointsWaves, ignoreDateLimitToLoad,
+                                EnvDataPaintHelper.paintWavesInGraphics(rendererCalculator, g2, dateColorLimit, dateLimit, dataPointsWaves, ignoreDateLimitToLoad,
                                         offScreen.getOffScreenBufferPixel(), colorMapWaves, 0, maxWaves, showWavesLegend,
                                         showWavesLegendFromZoomLevel, font8Pt, showDataDebugLegend);
                             }
