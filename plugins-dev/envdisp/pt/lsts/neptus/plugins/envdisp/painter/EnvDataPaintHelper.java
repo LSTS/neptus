@@ -186,19 +186,10 @@ public class EnvDataPaintHelper {
                 ptFilt.add(new HashMap<Point2D, Pair<ArrayList<Object>, Date>>());
             }
             double usePercent = (ptFilt.get(0).size() * 1. / visiblePts.longValue()) * 100;
-            final int idx;
-            if (renderer.getLevelOfDetail() > filterUseLOD) {
-                if (usePercent <= 90)
-                    idx = 0;
-                else
-                    idx = 1;
-            }
-            else {
-                idx = 0;
-            }
-            debugOut(showDataDebugLegend, String.format("Currents stg 1 took %ss :: %d of %d from %d (%f%%) %d %d",
+            final int idx = getIndexForData(renderer.getLevelOfDetail(), usePercent);
+            debugOut(showDataDebugLegend, String.format("Currents stg 1 took %ss :: using %d of %d visible from oriinal %d (%.1f%% of visible) | %d not gridded %sused",
                     MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1), ptFilt.get(0).size(), visiblePts.longValue(), dest.size(),
-                    usePercent , ptFilt.get(1).size(), idx));
+                    usePercent, ptFilt.get(1).size(), idx == 0 ? "not " : ""));
             stMillis = System.currentTimeMillis();
             
             ptFilt.get(idx).keySet().parallelStream().forEach(pt -> {
@@ -293,19 +284,10 @@ public class EnvDataPaintHelper {
                 ptFilt.add(new HashMap<Point2D, Pair<ArrayList<Object>, Date>>());
             }
             double usePercent = (ptFilt.get(0).size() * 1. / visiblePts.longValue()) * 100;
-            final int idx;
-            if (renderer.getLevelOfDetail() > filterUseLOD) {
-                if (usePercent <= 90)
-                    idx = 0;
-                else
-                    idx = 1;
-            }
-            else {
-                idx = 0;
-            }
-            debugOut(showDataDebugLegend, String.format("SST stg 1 took %ss :: %d of %d from %d (%f%%) %d %d",
+            final int idx = getIndexForData(renderer.getLevelOfDetail(), usePercent);
+            debugOut(showDataDebugLegend, String.format("SST stg 1 took %ss :: using %d of %d visible from oriinal %d (%.1f%% of visible) | %d not gridded %sused",
                     MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1), ptFilt.get(0).size(), visiblePts.longValue(), dest.size(),
-                    usePercent , ptFilt.get(1).size(), idx));
+                    usePercent, ptFilt.get(1).size(), idx == 0 ? "not " : ""));
             stMillis = System.currentTimeMillis();
 
             ptFilt.get(idx).keySet().parallelStream().forEach(pt -> {
@@ -320,8 +302,8 @@ public class EnvDataPaintHelper {
                     if (pVal.second().before(dateColorLimit)) //if (dp.getDateUTC().before(dateColorLimit))
                         color = ColorUtils.setTransparencyToColor(color, 128);
                     gt.setColor(color);
-                    gt.draw(EnvDataShapesHelper.circle);
-                    gt.fill(EnvDataShapesHelper.circle);
+                    //gt.draw(EnvDataShapesHelper.circle);
+                    gt.fill(EnvDataShapesHelper.rectangle);
                     
                     if (showSSTLegend && renderer.getLevelOfDetail() >= showSSTLegendFromZoomLevel) {
                         gt.setFont(font8Pt);
@@ -393,19 +375,10 @@ public class EnvDataPaintHelper {
                 ptFilt.add(new HashMap<Point2D, Pair<ArrayList<Object>, Date>>());
             }
             double usePercent = (ptFilt.get(0).size() * 1. / visiblePts.longValue()) * 100;
-            final int idx;
-            if (renderer.getLevelOfDetail() > filterUseLOD) {
-                if (usePercent <= 90)
-                    idx = 0;
-                else
-                    idx = 1;
-            }
-            else {
-                idx = 0;
-            }
-            debugOut(showDataDebugLegend, String.format("Wind stg 1 took %ss :: %d of %d from %d (%f%%) %d %d",
+            final int idx = getIndexForData(renderer.getLevelOfDetail(), usePercent);
+            debugOut(showDataDebugLegend, String.format("Wind stg 1 took %ss :: using %d of %d visible from oriinal %d (%.1f%% of visible) | %d not gridded %sused",
                     MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1), ptFilt.get(0).size(), visiblePts.longValue(), dest.size(),
-                    usePercent , ptFilt.get(1).size(), idx));
+                    usePercent, ptFilt.get(1).size(), idx == 0 ? "not " : ""));
             stMillis = System.currentTimeMillis();
             
             ptFilt.get(idx).keySet().parallelStream().forEach(pt -> {
@@ -499,19 +472,10 @@ public class EnvDataPaintHelper {
                 ptFilt.add(new HashMap<Point2D, Pair<ArrayList<Object>, Date>>());
             }
             double usePercent = (ptFilt.get(0).size() * 1. / visiblePts.longValue()) * 100;
-            final int idx;
-            if (renderer.getLevelOfDetail() > filterUseLOD) {
-                if (usePercent <= 90)
-                    idx = 0;
-                else
-                    idx = 1;
-            }
-            else {
-                idx = 0;
-            }
-            debugOut(showDataDebugLegend, String.format("Waves stg 1 took %ss :: %d of %d from %d (%f%%) %d %d",
+            final int idx = getIndexForData(renderer.getLevelOfDetail(), usePercent);
+            debugOut(showDataDebugLegend, String.format("Waves stg 1 took %ss :: using %d of %d visible from oriinal %d (%.1f%% of visible) | %d not gridded %sused",
                     MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1), ptFilt.get(0).size(), visiblePts.longValue(), dest.size(),
-                    usePercent , ptFilt.get(1).size(), idx));
+                    usePercent, ptFilt.get(1).size(), idx == 0 ? "not " : ""));
             stMillis = System.currentTimeMillis();
             
             ptFilt.get(idx).keySet().parallelStream().forEach(pt -> {
@@ -590,19 +554,10 @@ public class EnvDataPaintHelper {
                 ptFilt.add(new HashMap<Point2D, Pair<ArrayList<Object>, Date>>());
             }
             double usePercent = (ptFilt.get(0).size() * 1. / visiblePts.longValue()) * 100;
-            final int idx;
-            if (renderer.getLevelOfDetail() > filterUseLOD) {
-                if (usePercent <= 90)
-                    idx = 0;
-                else
-                    idx = 1;
-            }
-            else {
-                idx = 0;
-            }
-            debugOut(showDataDebugLegend, String.format("Chlorophyll stg 1 took %ss :: %d of %d from %d (%f%%) %d %d",
+            final int idx = getIndexForData(renderer.getLevelOfDetail(), usePercent);
+            debugOut(showDataDebugLegend, String.format("Chlorophyll stg 1 took %ss :: using %d of %d visible from oriinal %d (%.1f%% of visible) | %d not gridded %sused",
                     MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1), ptFilt.get(0).size(), visiblePts.longValue(), dest.size(),
-                    usePercent , ptFilt.get(1).size(), idx));
+                    usePercent, ptFilt.get(1).size(), idx == 0 ? "not " : ""));
             stMillis = System.currentTimeMillis();
             
             ptFilt.get(idx).keySet().parallelStream().forEach(pt -> {
@@ -687,6 +642,7 @@ public class EnvDataPaintHelper {
                     double sla = (double) pVal.first().get(0);
                     gt = (Graphics2D) g2.create();
                     gt.translate(pt.getX(), pt.getY());
+                    //System.out.println(pt);
                     Color color = Color.WHITE;
                     color = colorMapSLA.getColor((sla - minSLA) / (maxSLA - minSLA));
                     if (pVal.second().before(dateColorLimit)) //if (dp.getDateUTC().before(dateColorLimit))
