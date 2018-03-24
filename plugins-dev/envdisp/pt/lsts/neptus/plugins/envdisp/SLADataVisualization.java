@@ -161,6 +161,7 @@ public class SLADataVisualization extends ConsoleLayer implements IPeriodicUpdat
     
     // ID is lat/lon
     private final HashMap<String, SLADataPoint> dataPointsSLA = new HashMap<>();
+    private Thread painterThread = null;
 
     public SLADataVisualization() {
     }
@@ -217,12 +218,21 @@ public class SLADataVisualization extends ConsoleLayer implements IPeriodicUpdat
     public void paintWorker(Graphics2D go, StateRenderer2D renderer) {
         boolean recreateImage = offScreen.paintPhaseStartTestRecreateImageAndRecreate(go, renderer);
         if (recreateImage) {
-            Thread t = new Thread(new Runnable() {
+            if (painterThread != null) {
+                try {
+                    painterThread.interrupt();
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+                
+            painterThread = new Thread(new Runnable() {
                 @Override
                 public void run() {
                     try {
                         Graphics2D g2 = offScreen.getImageGraphics();
-                        
+
                         Date dateColorLimit = new Date(System.currentTimeMillis() - 3 * DateTimeUtil.HOUR);
                         Date dateLimit = new Date(System.currentTimeMillis() - dateLimitHours * DateTimeUtil.HOUR);
                         
@@ -244,10 +254,14 @@ public class SLADataVisualization extends ConsoleLayer implements IPeriodicUpdat
                         e.printStackTrace();
                         offScreen.triggerImageRebuild();
                     }
+                    catch (Error e) {
+                        e.printStackTrace();
+                        offScreen.triggerImageRebuild();
+                    }
                 }
             }, "SLA::Painter");
-            t.setDaemon(true);
-            t.start();
+            painterThread.setDaemon(true);
+            painterThread.start();
         }            
         offScreen.paintPhaseEndFinishImageRecreateAndPaintImageCacheToRendererNoGraphicDispose(go, renderer);
         
