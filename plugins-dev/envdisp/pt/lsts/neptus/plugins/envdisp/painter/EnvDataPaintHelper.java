@@ -44,6 +44,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.LongAccumulator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -617,7 +618,7 @@ public class EnvDataPaintHelper {
     public static void paintSLAInGraphics(MapTileRendererCalculator rendererCalculator, Graphics2D g2, Date dateColorLimit, Date dateLimit,
             HashMap<String, SLADataPoint> dataPointsSLA, boolean ignoreDateLimitToLoad, int offScreenBufferPixel,
             ColorMap colorMapSLA, double minSLA, double maxSLA,
-            boolean showSLALegend, int showSLALegendFromZoomLevel, Font font8Pt, boolean showDataDebugLegend) {
+            boolean showSLALegend, int showSLALegendFromZoomLevel, Font font8Pt, boolean showDataDebugLegend, AtomicBoolean abortIndicator) {
         try {
             List<SLADataPoint> dest = new ArrayList<>(dataPointsSLA.values());
             long stMillis = System.currentTimeMillis();
@@ -629,7 +630,7 @@ public class EnvDataPaintHelper {
                         double r = (v + o) / 2.;
                         vals.add(0, r);
                         return vals;
-                    });
+                    }, abortIndicator);
             LongAccumulator visiblePts = dataCollector.visiblePts;
             LongAccumulator toDatePts = dataCollector.toDatePts;
             LongAccumulator fromDatePts = dataCollector.fromDatePts;
@@ -648,6 +649,9 @@ public class EnvDataPaintHelper {
             stMillis = System.currentTimeMillis();
 
             ptFilt.get(idx).keySet().parallelStream().forEach(pt -> {
+                if (abortIndicator.get())
+                    return;
+                
                 Graphics2D gt = null;
                 try {
                     Pair<ArrayList<Object>, Date> pVal = ptFilt.get(idx).get(pt);

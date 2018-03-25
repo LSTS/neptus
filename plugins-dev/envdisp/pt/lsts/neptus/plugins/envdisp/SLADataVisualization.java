@@ -44,6 +44,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.TimeZone;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.SwingUtilities;
 
@@ -163,6 +164,7 @@ public class SLADataVisualization extends ConsoleLayer implements IPeriodicUpdat
     // ID is lat/lon
     private final HashMap<String, SLADataPoint> dataPointsSLA = new HashMap<>();
     private Thread painterThread = null;
+    private AtomicBoolean abortIndicator = null;
 
     public SLADataVisualization() {
     }
@@ -221,6 +223,7 @@ public class SLADataVisualization extends ConsoleLayer implements IPeriodicUpdat
         if (recreateImage) {
             if (painterThread != null) {
                 try {
+                    abortIndicator.set(true);
                     painterThread.interrupt();
                 }
                 catch (Exception e) {
@@ -229,6 +232,7 @@ public class SLADataVisualization extends ConsoleLayer implements IPeriodicUpdat
             }
             
             final MapTileRendererCalculator rendererCalculator = new MapTileRendererCalculator(renderer);
+            abortIndicator = new AtomicBoolean();
             painterThread = new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -240,9 +244,9 @@ public class SLADataVisualization extends ConsoleLayer implements IPeriodicUpdat
                         
                         if (showSLA) {
                             try {
-                                EnvDataPaintHelper.paintSLAInGraphics(rendererCalculator, g2, dateColorLimit, dateLimit, dataPointsSLA, ignoreDateLimitToLoad,
-                                        offScreen.getOffScreenBufferPixel(), colorMapSLA, minSLA, maxSLA, showSLALegend,
-                                        showSLALegendFromZoomLevel, font8Pt, showDataDebugLegend);
+                                EnvDataPaintHelper.paintSLAInGraphics(rendererCalculator, g2, dateColorLimit, dateLimit, dataPointsSLA,
+                                        ignoreDateLimitToLoad, offScreen.getOffScreenBufferPixel(), colorMapSLA, minSLA, maxSLA, showSLALegend,
+                                        showSLALegendFromZoomLevel, font8Pt, showDataDebugLegend, abortIndicator);
                             }
                             catch (Exception e) {
                                 e.printStackTrace();
