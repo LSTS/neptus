@@ -198,7 +198,7 @@ public class EnvDataPaintHelper {
                 ptFilt.add(new HashMap<Point2D, Pair<ArrayList<Object>, Date>>());
                 ptFilt.add(new HashMap<Point2D, Pair<ArrayList<Object>, Date>>());
             }
-            double usePercent = (ptFilt.get(0).size() * 1. / visiblePts.longValue()) * 100;
+            double usePercent = (ptFilt.get(0) == null ? -1 : ptFilt.get(0).size() * 1. / visiblePts.longValue()) * 100;
             final int idx = getIndexForData(rendererCalculator.getLevelOfDetail(), usePercent);
             debugOut(showDataDebugLegend, String.format("Currents stg 1 took %ss :: using %d of %d visible from oriinal %d (%.1f%% of visible) | %d not gridded %sused",
                     MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1), ptFilt.get(0).size(), visiblePts.longValue(), dest.size(),
@@ -299,7 +299,7 @@ public class EnvDataPaintHelper {
                 ptFilt.add(new HashMap<Point2D, Pair<ArrayList<Object>, Date>>());
                 ptFilt.add(new HashMap<Point2D, Pair<ArrayList<Object>, Date>>());
             }
-            double usePercent = (ptFilt.get(0).size() * 1. / visiblePts.longValue()) * 100;
+            double usePercent = (ptFilt.get(0) == null ? -1 : ptFilt.get(0).size() * 1. / visiblePts.longValue()) * 100;
             final int idx = getIndexForData(rendererCalculator.getLevelOfDetail(), usePercent);
             debugOut(showDataDebugLegend, String.format("SST stg 1 took %ss :: using %d of %d visible from oriinal %d (%.1f%% of visible) | %d not gridded %sused",
                     MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1), ptFilt.get(0).size(), visiblePts.longValue(), dest.size(),
@@ -393,7 +393,7 @@ public class EnvDataPaintHelper {
                 ptFilt.add(new HashMap<Point2D, Pair<ArrayList<Object>, Date>>());
                 ptFilt.add(new HashMap<Point2D, Pair<ArrayList<Object>, Date>>());
             }
-            double usePercent = (ptFilt.get(0).size() * 1. / visiblePts.longValue()) * 100;
+            double usePercent = (ptFilt.get(0) == null ? -1 : ptFilt.get(0).size() * 1. / visiblePts.longValue()) * 100;
             final int idx = getIndexForData(rendererCalculator.getLevelOfDetail(), usePercent);
             debugOut(showDataDebugLegend, String.format("Wind stg 1 took %ss :: using %d of %d visible from oriinal %d (%.1f%% of visible) | %d not gridded %sused",
                     MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1), ptFilt.get(0).size(), visiblePts.longValue(), dest.size(),
@@ -493,7 +493,7 @@ public class EnvDataPaintHelper {
                 ptFilt.add(new HashMap<Point2D, Pair<ArrayList<Object>, Date>>());
                 ptFilt.add(new HashMap<Point2D, Pair<ArrayList<Object>, Date>>());
             }
-            double usePercent = (ptFilt.get(0).size() * 1. / visiblePts.longValue()) * 100;
+            double usePercent = (ptFilt.get(0) == null ? -1 : ptFilt.get(0).size() * 1. / visiblePts.longValue()) * 100;
             final int idx = getIndexForData(rendererCalculator.getLevelOfDetail(), usePercent);
             debugOut(showDataDebugLegend, String.format("Waves stg 1 took %ss :: using %d of %d visible from oriinal %d (%.1f%% of visible) | %d not gridded %sused",
                     MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1), ptFilt.get(0).size(), visiblePts.longValue(), dest.size(),
@@ -578,7 +578,7 @@ public class EnvDataPaintHelper {
                 ptFilt.add(new HashMap<Point2D, Pair<ArrayList<Object>, Date>>());
                 ptFilt.add(new HashMap<Point2D, Pair<ArrayList<Object>, Date>>());
             }
-            double usePercent = (ptFilt.get(0).size() * 1. / visiblePts.longValue()) * 100;
+            double usePercent = (ptFilt.get(0) == null ? -1 : ptFilt.get(0).size() * 1. / visiblePts.longValue()) * 100;
             final int idx = getIndexForData(rendererCalculator.getLevelOfDetail(), usePercent);
             debugOut(showDataDebugLegend, String.format("Chlorophyll stg 1 took %ss :: using %d of %d visible from oriinal %d (%.1f%% of visible) | %d not gridded %sused",
                     MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1), ptFilt.get(0).size(), visiblePts.longValue(), dest.size(),
