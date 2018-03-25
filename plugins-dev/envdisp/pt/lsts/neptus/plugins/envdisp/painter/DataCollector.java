@@ -36,9 +36,9 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.LongAccumulator;
 import java.util.function.BiConsumer;
@@ -150,8 +150,8 @@ public class DataCollector<T extends BaseDataPoint<?>> implements
             public void accept(ArrayList<Map<Point2D, Pair<ArrayList<Object>, Date>>> res, T dp) {
                 try {
                     if (res.isEmpty()) {
-                        res.add(new HashMap<Point2D, Pair<ArrayList<Object>, Date>>());
-                        res.add(new HashMap<Point2D, Pair<ArrayList<Object>, Date>>());
+                        res.add(new ConcurrentHashMap<Point2D, Pair<ArrayList<Object>, Date>>());
+                        res.add(new ConcurrentHashMap<Point2D, Pair<ArrayList<Object>, Date>>());
                     }
                     
                     if (abortIndicator.get() || !ignoreDateLimitToLoad && dp.getDateUTC().before(dateLimit))
