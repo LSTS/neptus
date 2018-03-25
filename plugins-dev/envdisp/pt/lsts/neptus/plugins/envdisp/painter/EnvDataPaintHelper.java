@@ -170,8 +170,8 @@ public class EnvDataPaintHelper {
      */
     public static void paintHFRadarInGraphics(MapTileRendererCalculator rendererCalculator, Graphics2D g2, Date dateColorLimit, Date dateLimit,
             HashMap<String, HFRadarDataPoint> dataPointsCurrents, boolean ignoreDateLimitToLoad, int offScreenBufferPixel,
-            ColorMap colorMapCurrents, double minCurrentCmS, double maxCurrentCmS,
-            boolean showCurrentsLegend, int showCurrentsLegendFromZoomLevel, Font font8Pt, boolean showDataDebugLegend) {
+            ColorMap colorMapCurrents, double minCurrentCmS, double maxCurrentCmS, boolean showCurrentsLegend, int showCurrentsLegendFromZoomLevel,
+            Font font8Pt, boolean showDataDebugLegend, AtomicBoolean abortIndicator) {
         try {
             List<HFRadarDataPoint> dest = new ArrayList<>(dataPointsCurrents.values());
             long stMillis = System.currentTimeMillis();
@@ -187,7 +187,7 @@ public class EnvDataPaintHelper {
                         String str = (String) vals.get(3); //mergeStrings((String) vals.get(3), (String) ovals.get(3));
                         vals.add(3, str);
                         return vals;
-                    });
+                    }, abortIndicator);
             LongAccumulator visiblePts = dataCollector.visiblePts;
             LongAccumulator toDatePts = dataCollector.toDatePts;
             LongAccumulator fromDatePts = dataCollector.fromDatePts;
@@ -206,6 +206,9 @@ public class EnvDataPaintHelper {
             stMillis = System.currentTimeMillis();
             
             ptFilt.get(idx).keySet().parallelStream().forEach(pt -> {
+                if (abortIndicator.get())
+                    return;
+                
                 Graphics2D gt = null;
                 try {
                     Pair<ArrayList<Object>, Date> pVal = ptFilt.get(idx).get(pt);
@@ -273,7 +276,7 @@ public class EnvDataPaintHelper {
     public static void paintSSTInGraphics(MapTileRendererCalculator rendererCalculator, Graphics2D g2, Date dateColorLimit, Date dateLimit,
             HashMap<String, SSTDataPoint> dataPointsSST, boolean ignoreDateLimitToLoad, int offScreenBufferPixel,
             ColorMap colorMapSST, double minSST, double maxSST,
-            boolean showSSTLegend, int showSSTLegendFromZoomLevel, Font font8Pt, boolean showDataDebugLegend) {
+            boolean showSSTLegend, int showSSTLegendFromZoomLevel, Font font8Pt, boolean showDataDebugLegend, AtomicBoolean abortIndicator) {
         try {
             List<SSTDataPoint> dest = new ArrayList<>(dataPointsSST.values());
             long stMillis = System.currentTimeMillis();
@@ -285,7 +288,7 @@ public class EnvDataPaintHelper {
                         double r = (v + o) / 2.;
                         vals.add(0, r);
                         return vals;
-                    });
+                    }, abortIndicator);
             LongAccumulator visiblePts = dataCollector.visiblePts;
             LongAccumulator toDatePts = dataCollector.toDatePts;
             LongAccumulator fromDatePts = dataCollector.fromDatePts;
@@ -304,6 +307,9 @@ public class EnvDataPaintHelper {
             stMillis = System.currentTimeMillis();
 
             ptFilt.get(idx).keySet().parallelStream().forEach(pt -> {
+                if (abortIndicator.get())
+                    return;
+                
                 Graphics2D gt = null;
                 try {
                     Pair<ArrayList<Object>, Date> pVal = ptFilt.get(idx).get(pt);
@@ -362,7 +368,7 @@ public class EnvDataPaintHelper {
     public static void paintWindInGraphics(MapTileRendererCalculator rendererCalculator, Graphics2D g2, Date dateColorLimit, Date dateLimit,
             HashMap<String, WindDataPoint> dataPointsWind, boolean ignoreDateLimitToLoad, int offScreenBufferPixel,
             boolean useColorMapForWind, ColorMap colorMapWind, double minWind, double maxWind,
-            Font font8Pt, boolean showDataDebugLegend) {
+            Font font8Pt, boolean showDataDebugLegend, AtomicBoolean abortIndicator) {
         try {
             List<WindDataPoint> dest = new ArrayList<>(dataPointsWind.values());
             long stMillis = System.currentTimeMillis();
@@ -376,7 +382,7 @@ public class EnvDataPaintHelper {
                             vals.add(i, r);
                         }
                         return vals;
-                    });
+                    }, abortIndicator);
             LongAccumulator visiblePts = dataCollector.visiblePts;
             LongAccumulator toDatePts = dataCollector.toDatePts;
             LongAccumulator fromDatePts = dataCollector.fromDatePts;
@@ -395,6 +401,9 @@ public class EnvDataPaintHelper {
             stMillis = System.currentTimeMillis();
             
             ptFilt.get(idx).keySet().parallelStream().forEach(pt -> {
+                if (abortIndicator.get())
+                    return;
+                
                 Graphics2D gt = null;
                 try {
                     // u, v
@@ -459,7 +468,7 @@ public class EnvDataPaintHelper {
     public static void paintWavesInGraphics(MapTileRendererCalculator rendererCalculator, Graphics2D g2, Date dateColorLimit, Date dateLimit,
             HashMap<String, WavesDataPoint> dataPointsWaves, boolean ignoreDateLimitToLoad, int offScreenBufferPixel,
             ColorMap colorMapWaves, double minWaves, double maxWaves, boolean showWavesLegend,
-            int showWavesLegendFromZoomLevel, Font font8Pt, boolean showDataDebugLegend) {
+            int showWavesLegendFromZoomLevel, Font font8Pt, boolean showDataDebugLegend, AtomicBoolean abortIndicator) {
         try {
             List<WavesDataPoint> dest = new ArrayList<>(dataPointsWaves.values());
             long stMillis = System.currentTimeMillis();
@@ -473,7 +482,7 @@ public class EnvDataPaintHelper {
                             vals.add(i, r);
                         }
                         return vals;
-                    });
+                    }, abortIndicator);
             LongAccumulator visiblePts = dataCollector.visiblePts;
             LongAccumulator toDatePts = dataCollector.toDatePts;
             LongAccumulator fromDatePts = dataCollector.fromDatePts;
@@ -492,6 +501,9 @@ public class EnvDataPaintHelper {
             stMillis = System.currentTimeMillis();
             
             ptFilt.get(idx).keySet().parallelStream().forEach(pt -> {
+                if (abortIndicator.get())
+                    return;
+                
                 Graphics2D gt = null;
                 try {
                     // significantHeight, peakPeriod, peakDirection
@@ -543,8 +555,8 @@ public class EnvDataPaintHelper {
 
     public static void paintChlorophyllInGraphics(MapTileRendererCalculator rendererCalculator, Graphics2D g2, Date dateColorLimit, Date dateLimit,
             HashMap<String, ChlorophyllDataPoint> dataPointsChlorophyll, boolean ignoreDateLimitToLoad, int offScreenBufferPixel,
-            ColorMap colorMapChlorophyll, double minChlorophyll, double maxChlorophyll,
-            boolean showChlorophyllLegend, int showChlorophyllLegendFromZoomLevel, Font font8Pt, boolean showDataDebugLegend) {
+            ColorMap colorMapChlorophyll, double minChlorophyll, double maxChlorophyll, boolean showChlorophyllLegend,
+            int showChlorophyllLegendFromZoomLevel, Font font8Pt, boolean showDataDebugLegend, AtomicBoolean abortIndicator) {
         try {
             List<ChlorophyllDataPoint> dest = new ArrayList<>(dataPointsChlorophyll.values());
             long stMillis = System.currentTimeMillis();
@@ -555,7 +567,7 @@ public class EnvDataPaintHelper {
                         double r = (v + o) / 2.;
                         vals.add(0, r);
                         return vals;
-                    });
+                    }, abortIndicator);
             LongAccumulator visiblePts = dataCollector.visiblePts;
             LongAccumulator toDatePts = dataCollector.toDatePts;
             LongAccumulator fromDatePts = dataCollector.fromDatePts;
@@ -574,6 +586,9 @@ public class EnvDataPaintHelper {
             stMillis = System.currentTimeMillis();
             
             ptFilt.get(idx).keySet().parallelStream().forEach(pt -> {
+                if (abortIndicator.get())
+                    return;
+                
                 Graphics2D gt = null;
                 try {
                     Pair<ArrayList<Object>, Date> pVal = ptFilt.get(idx).get(pt);

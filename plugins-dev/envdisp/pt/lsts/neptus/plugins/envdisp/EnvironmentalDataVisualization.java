@@ -51,6 +51,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -274,6 +275,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
     private final HashMap<String, ChlorophyllDataPoint> dataPointsChlorophyll = new HashMap<>();
 
     private Thread painterThread = null;
+    private AtomicBoolean abortIndicator = null;
 
     @PluginDescription(name="Environmental Data Visualization Layer", icon="pt/lsts/neptus/plugins/envdisp/hf-radar.png")
     @LayerPriority(priority = -300)
@@ -742,6 +744,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
         if (recreateImage) {
             if (painterThread != null) {
                 try {
+                    abortIndicator.set(true);
                     painterThread.interrupt();
                 }
                 catch (Exception e) {
@@ -750,6 +753,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
             }
 
             final MapTileRendererCalculator rendererCalculator = new MapTileRendererCalculator(renderer);
+            abortIndicator = new AtomicBoolean();
             painterThread = new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -763,7 +767,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
                             try {
                                 EnvDataPaintHelper.paintHFRadarInGraphics(rendererCalculator, g2, dateColorLimit, dateLimit, dataPointsCurrents,
                                         ignoreDateLimitToLoad, offScreen.getOffScreenBufferPixel(), colorMapCurrents, 0, maxCurrentCmS,
-                                        showCurrentsLegend, showCurrentsLegendFromZoomLevel, font8Pt, showDataDebugLegend);
+                                        showCurrentsLegend, showCurrentsLegendFromZoomLevel, font8Pt, showDataDebugLegend, abortIndicator);
                             }
                             catch (Exception e) {
                                 e.printStackTrace();
@@ -774,7 +778,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
                             try {
                                 EnvDataPaintHelper.paintSSTInGraphics(rendererCalculator, g2, dateColorLimit, dateLimit, dataPointsSST, ignoreDateLimitToLoad,
                                         offScreen.getOffScreenBufferPixel(), colorMapSST, minSST, maxSST, showSSTLegend,
-                                        showSSTLegendFromZoomLevel, font8Pt, showDataDebugLegend);
+                                        showSSTLegendFromZoomLevel, font8Pt, showDataDebugLegend, abortIndicator);
                             }
                             catch (Exception e) {
                                 e.printStackTrace();
@@ -785,7 +789,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
                             try {
                                 EnvDataPaintHelper.paintChlorophyllInGraphics(rendererCalculator, g2, dateColorLimit, dateLimit, dataPointsChlorophyll, ignoreDateLimitToLoad,
                                         offScreen.getOffScreenBufferPixel(), colorMapChlorophyll, minChlorophyll, maxChlorophyll, showChlorophyllLegend,
-                                        showChlorophyllLegendFromZoomLevel, font8Pt, showDataDebugLegend);
+                                        showChlorophyllLegendFromZoomLevel, font8Pt, showDataDebugLegend, abortIndicator);
                             }
                             catch (Exception e) {
                                 e.printStackTrace();
@@ -796,7 +800,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
                             try {
                                 EnvDataPaintHelper.paintWindInGraphics(rendererCalculator, g2, dateColorLimit, dateLimit, dataPointsWind, ignoreDateLimitToLoad,
                                         offScreen.getOffScreenBufferPixel(), useColorMapForWind, colorMapWind, 0, maxWind, font8Pt,
-                                        showDataDebugLegend);
+                                        showDataDebugLegend, abortIndicator);
                             }
                             catch (Exception e) {
                                 e.printStackTrace();
@@ -807,7 +811,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
                             try {
                                 EnvDataPaintHelper.paintWavesInGraphics(rendererCalculator, g2, dateColorLimit, dateLimit, dataPointsWaves, ignoreDateLimitToLoad,
                                         offScreen.getOffScreenBufferPixel(), colorMapWaves, 0, maxWaves, showWavesLegend,
-                                        showWavesLegendFromZoomLevel, font8Pt, showDataDebugLegend);
+                                        showWavesLegendFromZoomLevel, font8Pt, showDataDebugLegend, abortIndicator);
                             }
                             catch (Exception e) {
                                 e.printStackTrace();
