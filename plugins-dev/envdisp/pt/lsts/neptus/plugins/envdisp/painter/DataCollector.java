@@ -202,8 +202,8 @@ public class DataCollector<T extends BaseDataPoint<?>> implements
                         Point2D ptI = pts.get(idx);
                         
 //                        System.out.println(Thread.currentThread().getName() + " :: DataCollector::idx-" + idx + " :: " + res.get(idx).containsKey(ptI));
-                        if (abortIndicator.get())
-                            System.out.println("abortIndicator " + abortIndicator.get());
+//                        if (abortIndicator.get())
+//                            System.out.println("abortIndicator " + abortIndicator.get());
                         Map<Point2D, Pair<ArrayList<Object>, Date>> rd = res.get(idx);
                         if (!rd.containsKey(ptI)) {
                             rd.put(ptI, new Pair<>(vals, dateV));
