@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2017.01.0 (mission/soi,2024cc8,dirty)" system="lauv-noptilus-3-aux" i18n="en_US">
+<config format="1" version="2016.05.0 (feature/historic_data,2c2e6b2)" system="lauv-noptilus-3-aux" i18n="en_US">
   <section name="Power Supervisor" name-i18n="Power Supervisor">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -380,16 +380,14 @@
       <type>integer</type>
       <visibility>user</visibility>
       <scope>global</scope>
-      <default>4</default>
+      <default>15</default>
       <units/>
       <desc>Frames per second</desc>
-      <min>2</min>
-      <max>7</max>
     </param>
     <param name="Auto Exposure">
       <name-i18n>Auto Exposure</name-i18n>
       <type>boolean</type>
-      <visibility>developer</visibility>
+      <visibility>user</visibility>
       <scope>global</scope>
       <default>true</default>
       <units/>
@@ -398,34 +396,34 @@
     <param name="Exposure Value">
       <name-i18n>Exposure Value</name-i18n>
       <type>real</type>
-      <visibility>developer</visibility>
+      <visibility>user</visibility>
       <scope>global</scope>
-      <default>8</default>
-      <units>ms</units>
+      <default>0.008</default>
+      <units/>
       <desc>Exposure value if auto exposure is disabled</desc>
     </param>
     <param name="Autoexposure Knee">
       <name-i18n>Autoexposure Knee</name-i18n>
       <type>real</type>
-      <visibility>developer</visibility>
+      <visibility>user</visibility>
       <scope>global</scope>
       <default>5</default>
-      <units>ms</units>
-      <desc>Exposure limit before increasing the gain</desc>
+      <units/>
+      <desc>Exposure limit before increasing the gain (in miliseconds)</desc>
     </param>
     <param name="Maximum Exposure">
       <name-i18n>Maximum Exposure</name-i18n>
       <type>real</type>
-      <visibility>developer</visibility>
+      <visibility>user</visibility>
       <scope>global</scope>
       <default>10</default>
-      <units>ms</units>
-      <desc>Maximum exposure</desc>
+      <units/>
+      <desc>Maximum exposure in miliseconds</desc>
     </param>
     <param name="Auto Gain">
       <name-i18n>Auto Gain</name-i18n>
       <type>boolean</type>
-      <visibility>developer</visibility>
+      <visibility>user</visibility>
       <scope>global</scope>
       <default>true</default>
       <units/>
@@ -434,7 +432,7 @@
     <param name="Gain Value">
       <name-i18n>Gain Value</name-i18n>
       <type>real</type>
-      <visibility>developer</visibility>
+      <visibility>user</visibility>
       <scope>global</scope>
       <default>1.0</default>
       <units/>
@@ -443,7 +441,7 @@
     <param name="Autogain Knee">
       <name-i18n>Autogain Knee</name-i18n>
       <type>real</type>
-      <visibility>developer</visibility>
+      <visibility>user</visibility>
       <scope>global</scope>
       <default>2.0</default>
       <units/>
@@ -452,7 +450,7 @@
     <param name="Maximum Gain">
       <name-i18n>Maximum Gain</name-i18n>
       <type>real</type>
-      <visibility>developer</visibility>
+      <visibility>user</visibility>
       <scope>global</scope>
       <default>4.0</default>
       <units/>
@@ -461,16 +459,16 @@
     <param name="Gamma">
       <name-i18n>Gamma</name-i18n>
       <type>real</type>
-      <visibility>developer</visibility>
+      <visibility>user</visibility>
       <scope>global</scope>
       <default>1.4</default>
       <units/>
-      <desc>Gamma value which affects the mid-tone brightness in the images</desc>
+      <desc>Gamma Value</desc>
     </param>
     <param name="Median Filter">
       <name-i18n>Median Filter</name-i18n>
       <type>boolean</type>
-      <visibility>developer</visibility>
+      <visibility>user</visibility>
       <scope>global</scope>
       <default>false</default>
       <units/>
@@ -479,7 +477,7 @@
     <param name="Auto White Balance">
       <name-i18n>Auto White Balance</name-i18n>
       <type>boolean</type>
-      <visibility>developer</visibility>
+      <visibility>user</visibility>
       <scope>global</scope>
       <default>true</default>
       <units/>
@@ -488,7 +486,7 @@
     <param name="White Balance Gain Red">
       <name-i18n>White Balance Gain Red</name-i18n>
       <type>real</type>
-      <visibility>developer</visibility>
+      <visibility>user</visibility>
       <scope>global</scope>
       <default>2.0</default>
       <units/>
@@ -497,7 +495,7 @@
     <param name="White Balance Gain Green">
       <name-i18n>White Balance Gain Green</name-i18n>
       <type>real</type>
-      <visibility>developer</visibility>
+      <visibility>user</visibility>
       <scope>global</scope>
       <default>1.0</default>
       <units/>
@@ -506,7 +504,7 @@
     <param name="White Balance Gain Blue">
       <name-i18n>White Balance Gain Blue</name-i18n>
       <type>real</type>
-      <visibility>developer</visibility>
+      <visibility>user</visibility>
       <scope>global</scope>
       <default>2.0</default>
       <units/>
@@ -515,7 +513,7 @@
     <param name="LED Type">
       <name-i18n>LED Type</name-i18n>
       <type>string</type>
-      <visibility>developer</visibility>
+      <visibility>user</visibility>
       <scope>global</scope>
       <default>STROBE</default>
       <units/>
