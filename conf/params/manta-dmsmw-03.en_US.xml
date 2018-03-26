@@ -1,5 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2016.05.0 (HEAD,5a841ca)" system="manta-dmsmw-03" i18n="en_US">
+<config format="1" version="2017.01.0 (mission/soi,2024cc8,dirty)" system="manta-dmsmw-03" i18n="en_US">
+  <section name="Text Message Parser" name-i18n="Text Message Parser">
+    <param name="Entity Label">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Text Message Parser</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Activation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+  </section>
   <section name="Navigation" name-i18n="Navigation">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -468,7 +517,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>N/C (Bat_Out)</default>
+      <default>Acoustic Modem</default>
       <units/>
       <desc/>
     </param>
@@ -477,7 +526,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0</default>
+      <default>1</default>
       <units/>
       <desc/>
     </param>
@@ -1053,7 +1102,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>/dev/uart/1</default>
+      <default>tcp://10.0.50.101:5000</default>
       <units/>
       <desc>Serial port device used to communicate with the sensor</desc>
     </param>
@@ -1747,7 +1796,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Chlorophyll, Conductivity, CpuUsage, Current, Depth, Distance, EntityState, Fluorescein, FuelLevel, GpsFix, Heartbeat, LblConfig, LblRange, LblRangeAcceptance, Phycocyanin, Phycoerythrin, PowerChannelState, Pressure, RhodamineDye, RSSI, Rpm, Salinity, SoundSpeed, StorageUsage, Temperature, Voltage</default>
+      <default>Chlorophyll, Conductivity, CpuUsage, Current, Depth, Distance, EntityState, Fluorescein, FuelLevel, GpsFix, Heartbeat, LblConfig, LblRange, LblRangeAcceptance, Phycocyanin, Phycoerythrin, PowerChannelState, Pressure, RhodamineDye, RSSI, Rpm, Salinity, SoundSpeed, StorageUsage, Temperature, Turbidity, Voltage, PH, Redox</default>
       <units/>
       <desc>List of messages to transport</desc>
     </param>
@@ -1935,9 +1984,18 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>AT\^SYSCFG=2,2,3fffffff,0,1</default>
+      <default>AT\^SYSCFG=2,2,3fffffff,1,1</default>
       <units/>
       <desc>GSM/GPRS mode.</desc>
+    </param>
+    <param name="Code Presentation Mode">
+      <name-i18n>Code Presentation Mode</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Code Presentation Mode</desc>
     </param>
     <param name="PPP - Interface">
       <name-i18n>PPP - Interface</name-i18n>
@@ -1956,6 +2014,33 @@
       <default>true</default>
       <units/>
       <desc>Enable or disable IP forward</desc>
+    </param>
+    <param name="Enable Dynamic DNS">
+      <name-i18n>Enable Dynamic DNS</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Enable or disable Dynamic DNS</desc>
+    </param>
+    <param name="DynDNS Update Periodicity">
+      <name-i18n>DynDNS Update Periodicity</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>60</default>
+      <units>s</units>
+      <desc>Number of seconds between dynamic DNS updates</desc>
+    </param>
+    <param name="DynDNS URL">
+      <name-i18n>DynDNS URL</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>URL used to update dynamic DNS</desc>
     </param>
   </section>
   <section name="UDP" name-i18n="UDP">
@@ -2110,7 +2195,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Abort, AcousticOperation, AcousticSystemsQuery, AcousticSystems, CpuUsage, Current, Depth, Distance, EntityList, EntityParameters, EntityState, EstimatedState, FuelLevel, GpsFix, Heartbeat, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblRange, LblRangeAcceptance, LogBookControl, LoggingControl, NavigationUncertainty, PlanControl, PlanControlState, RemoteSensorInfo, RSSI, StorageUsage, Temperature, Voltage</default>
+      <default>Abort, AcousticOperation, AcousticSystemsQuery, AcousticSystems, CpuUsage, Current, Depth, Distance, EntityList, EntityParameters, EntityState, EstimatedState, FuelLevel, GpsFix, Heartbeat, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblRange, LblRangeAcceptance, LogBookControl, LoggingControl, NavigationUncertainty, PlanControl, PlanControlState, RemoteSensorInfo, RSSI, StateReport, StorageUsage, Temperature, TextMessage, UsblAnglesExtended, UsblPositionExtended, UsblFixExtended, UsblModem, UsblConfig, Voltage</default>
       <units/>
       <desc>List of messages to transport</desc>
     </param>
@@ -2343,7 +2428,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>lauv-seacon-1, lauv-seacon-2, lauv-seacon-3, benthos1, benthos2, benthos3, benthos4, benthos5</default>
+      <default>lauv-seacon-1, lauv-seacon-2, lauv-seacon-3, benthos1, benthos2, benthos3, benthos4, benthos5, benthos6</default>
       <units/>
       <desc>Array of supported system names</desc>
     </param>
