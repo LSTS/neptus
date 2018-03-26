@@ -232,7 +232,7 @@ public class NmeaPlotter extends ConsoleLayer {
         long timestamp = System.currentTimeMillis();
         String label = contact.getLabel();
 
-        aisManager.setShipPosition(mmsi, cog, sog, hdg, latRads, lonRads, timestamp, label);
+        aisManager.setShipPosition(mmsi, sog, cog, hdg, latRads, lonRads, timestamp, label);
     }
 
     private void connectToSerial() throws Exception {
