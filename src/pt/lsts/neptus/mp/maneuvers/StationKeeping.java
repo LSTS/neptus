@@ -49,6 +49,7 @@ import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.StationKeepingExtended;
 import pt.lsts.imc.def.SpeedUnits;
 import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.NeptusLog;
@@ -355,6 +356,7 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, Maneuve
 
     @Override
     public void parseIMCMessage(IMCMessage message) {
+        
         setMaxTime((int)message.getDouble("timeout"));
         setSpeed(message.getDouble("speed"));
 
@@ -377,16 +379,53 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, Maneuve
         }
 
         setDuration((int)message.getDouble("duration"));
-        setPopupDuration(message.getInteger("popup_duration"));
-        setPopupPeriod(message.getInteger("popup_period"));
-        setKeepSafe((message.getInteger("flags") & pt.lsts.imc.StationKeeping.FLG_KEEP_SAFE) != 0);
         setRadius(message.getDouble("radius"));
         setCustomSettings(message.getTupleList("custom"));
+
+        if (message.getMgid() == StationKeepingExtended.ID_STATIC) {
+            setPopupDuration(message.getInteger("popup_duration"));
+            setPopupPeriod(message.getInteger("popup_period"));
+            setKeepSafe(true);
+        }                
     }
 
-    @Override
-    public IMCMessage serializeToIMC() {
+    
+    public pt.lsts.imc.StationKeeping serializetoRegularSKeeping() {
         pt.lsts.imc.StationKeeping message = new pt.lsts.imc.StationKeeping();
+        LocationType loc = getManeuverLocation();
+        loc.convertToAbsoluteLatLonDepth();
+        message.setLat(loc.getLatitudeRads());
+        message.setLon(loc.getLongitudeRads());
+        message.setZ(getManeuverLocation().getZ());
+        message.setZUnits(ZUnits.valueOf(getManeuverLocation().getZUnits().toString()));
+        message.setDuration(getDuration());
+        message.setSpeed(this.getSpeed());
+        try {
+            switch (this.getSpeedUnits()) {
+                case METERS_PS:
+                    message.setSpeedUnits(SpeedUnits.METERS_PS);
+                    break;
+                case PERCENTAGE:
+                    message.setSpeedUnits(SpeedUnits.PERCENTAGE);
+                    break;
+                case RPM:
+                default:
+                    message.setSpeedUnits(SpeedUnits.RPM);
+                    break;
+            }
+        }
+        catch (Exception ex) {
+            NeptusLog.pub().error(this, ex);                     
+        }
+
+        message.setRadius(this.getRadius());
+        message.setCustom(getCustomSettings());
+        return message;
+    }
+    
+    public pt.lsts.imc.StationKeepingExtended serializetoSafeSKeeping() {
+        pt.lsts.imc.StationKeepingExtended message = new pt.lsts.imc.StationKeepingExtended();
+  
         LocationType loc = getManeuverLocation();
         loc.convertToAbsoluteLatLonDepth();
         message.setLat(loc.getLatitudeRads());
@@ -396,11 +435,6 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, Maneuve
         message.setDuration(getDuration());
         message.setPopupDuration(getPopupDuration());
         message.setPopupPeriod(getPopupPeriod());
-        
-        if (isKeepSafe())
-            message.setFlags(pt.lsts.imc.StationKeeping.FLG_KEEP_SAFE);
-        else
-            message.setFlags((short)0);
         
         message.setSpeed(this.getSpeed());
         try {
@@ -424,12 +458,20 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, Maneuve
         message.setRadius(this.getRadius());
         message.setCustom(getCustomSettings());
 
-        return message;
+        return message;        
+    }
+    
+    
+    
+    @Override
+    public IMCMessage serializeToIMC() {
+        if (isKeepSafe())
+            return serializetoSafeSKeeping();
+        else
+            return serializetoRegularSKeeping();
+        
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.mp.maneuvers.StatisticsProvider#getCompletionTime(pt.lsts.neptus.types.coord.LocationType)
-     */
     @Override
     public double getCompletionTime(LocationType initialPosition) {
         double speed = this.speed;
