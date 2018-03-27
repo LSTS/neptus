@@ -60,19 +60,19 @@ public class AisPathMonitor extends ConsoleInteraction {
                 g2.setTransform(transform);
 
                 g2.translate(aisPoint.getX(), aisPoint.getY());
-                g2.rotate(Math.toRadians(ais.getHeading()) - source.getRotation());
 
-                paintFuturePositions(ais, g, source);
+                paintFuturePositions(ais, aisPoint, g, source);
 
                 g2.dispose();
             }
         }
     }
 
-    private void paintFuturePositions(ShipAisSnapshot ais, Graphics2D g, StateRenderer2D source) {
+    private void paintFuturePositions(ShipAisSnapshot ais, Point2D aisPoint, Graphics2D g, StateRenderer2D source) {
         List<ShipAisSnapshot> future = aisManager.getFutureSnapshot(ais.getMmsi(), Arrays.stream(timeOffsetsMinutes)
                 .map(v -> v*60*1000).parallel().toArray());
 
+        boolean first = true;
         for(ShipAisSnapshot f : future) {
             LocationType loc = new LocationType(f.getLatDegs(), f.getLonDegs());
             Point2D p = source.getScreenPosition(loc);
@@ -80,7 +80,7 @@ public class AisPathMonitor extends ConsoleInteraction {
             AffineTransform transform = new AffineTransform();
             g.setTransform(transform);
             g.translate(p.getX(), p.getY());
-            g.rotate(Math.toRadians(ais.getHeading()) - source.getRotation());
+            g.rotate(Math.PI + ais.getCog() - source.getRotation());
 
             g.setColor(Color.GREEN.darker());
             g.drawOval(-5, -5, 10, 10);
