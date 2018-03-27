@@ -30,7 +30,7 @@
  * Author: pdias
  * 23/11/2017
  */
-package pt.lsts.neptus.plugins.envdisp.util;
+package pt.lsts.neptus.util.netcdf;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -40,8 +40,8 @@ import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import pt.lsts.neptus.plugins.envdisp.datapoints.SSTDataPoint;
 import pt.lsts.neptus.util.DateTimeUtil;
+import pt.lsts.neptus.util.UnitsUtil;
 
 /**
  * @author pdias
@@ -258,7 +258,7 @@ public class NetCDFUnitsUtils {
         double ret = value;
         switch (units.trim()) {
             case "K":
-                ret = value + SSTDataPoint.KELVIN_TO_CELSIUS;
+                ret = value - UnitsUtil.CELSIUS_TO_KELVIN;
                 break;
             case "\u00B0F":
             case "ºF":
@@ -287,7 +287,28 @@ public class NetCDFUnitsUtils {
     
         return ret;
     }
+
+    public static double getValueForMetterFromTempUnits(double value, String units) {
+        double ret = value;
+        switch (units.trim()) {
+            case "km":
+            case "Km":
+                ret = value * 1E3;
+                break;
+            case "dm":
+                ret = value / 1E1;
+                break;
+            case "cm":
+                ret = value / 1E2;
+                break;
+            case "mm":
+                ret = value / 1E3;
+                break;
+        }
     
+        return ret;
+    }
+
     public static void main(String[] args) throws Exception {
         try {
             double[] val = getMultiplierAndMillisOffsetFromTimeUnits("days since 00-01-00 00:00:00");

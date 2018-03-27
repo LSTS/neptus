@@ -28,7 +28,7 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: pdias
- * 6 de Jul de 2013
+ * 03/03/2018
  */
 package pt.lsts.neptus.plugins.envdisp.datapoints;
 
@@ -41,64 +41,61 @@ import pt.lsts.neptus.NeptusLog;
  * @author pdias
  *
  */
-public class SSTDataPoint extends BaseDataPoint<SSTDataPoint> {
+public class SLADataPoint extends BaseDataPoint<SLADataPoint> {
 
-    private double sst = 0;
+    private double sla = 0;
     
     /**
      * @param lat
      * @param lon
      */
-    public SSTDataPoint(double lat, double lon) {
+    public SLADataPoint(double lat, double lon) {
         super(lat, lon);
     }
 
     /**
-     * @return the sst
+     * @return the SLA
      */
-    public double getSst() {
-        return sst;
+    public double getSLA() {
+        return sla;
     }
     
     /**
-     * @param sst the sst to set
+     * @param sla the SLA to set
      */
-    public void setSst(double sst) {
-        this.sst = sst;
+    public void setSLA(double sla) {
+        this.sla = sla;
     }
     
     /* (non-Javadoc)
      * @see pt.lsts.neptus.plugins.envdisp.BaseDataPoint#getACopyWithoutHistory()
      */
     @Override
-    public SSTDataPoint getACopyWithoutHistory() {
-        SSTDataPoint copy = new SSTDataPoint(getLat(), getLon());
-        copy.setSst(getSst());
+    public SLADataPoint getACopyWithoutHistory() {
+        SLADataPoint copy = new SLADataPoint(getLat(), getLon());
+        copy.setSLA(getSLA());
         return copy;
     }
     
-    public SSTDataPoint copyToWithoutHistory(SSTDataPoint copy) {
-        // no Lat/Lon copy
-        
+    public SLADataPoint copyToWithoutHistory(SLADataPoint copy) {
         copy.setDateUTC(getDateUTC());
-        
-        copy.setSst(getSst());
+        copy.setSLA(getSLA());
         return copy;
     }
 
     @Override
     public String toString() {
         return super.toString() +
-                "\tSST:\t" + sst;
+                "\tSLA:\t" + sla;
     }
 
     public boolean useMostRecent(Date currentDate) {
         if (historicalData.size() == 0)
             return false;
         Date mostRecentDate = null;
-        double mRecentSST = 0;
+        double mRecentVal = 0;
         int size = historicalData.size();
-        for (SSTDataPoint dp : historicalData) {
+        for (SLADataPoint dp : historicalData) {
             if (currentDate.before(dp.dateUTC)) {
                 size--;
                 continue;
@@ -110,32 +107,32 @@ public class SSTDataPoint extends BaseDataPoint<SSTDataPoint> {
                 size--;
                 continue;
             }
-            mRecentSST = dp.sst;
+            mRecentVal = dp.sla;
         }
         
         if (size < 1) {
-            setSst(Double.NaN);
+            setSLA(Double.NaN);
             setDateUTC(new Date(0));
             return false;
         }
         
-        setSst(mRecentSST);
+        setSLA(mRecentVal);
         setDateUTC(mostRecentDate);
         
         return true;
     }
-
+    
     @Override
     public ArrayList<Object> getAllDataValues() {
         ArrayList<Object> ret = new ArrayList<>();
-        ret.add(sst);
+        ret.add(sla);
         return ret;
     }
     
     @Override
     public boolean setAllDataValues(ArrayList<Object> newValues) {
         try {
-            sst = (double) newValues.get(0);
+            sla = (double) newValues.get(0);
         }
         catch (Exception e) {
             NeptusLog.pub().warn(e);
