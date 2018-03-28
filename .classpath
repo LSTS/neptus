@@ -10,6 +10,7 @@
 	<classpathentry kind="src" path="plugins-dev/acoustic"/>
 	<classpathentry kind="src" path="plugins-dev/actions"/>
 	<classpathentry kind="src" path="plugins-dev/ais"/>
+	<classpathentry kind="src" path="plugins-dev/aismanager"/>
 	<classpathentry kind="src" path="plugins-dev/alarms"/>
 	<classpathentry kind="src" path="plugins-dev/blue-eye"/>
 	<classpathentry kind="src" path="plugins-dev/dev-calibration"/>
