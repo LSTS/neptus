@@ -431,17 +431,6 @@
       <default>false</default>
       <units/>
     </param>
-    <param name="Cam_Mode">
-      <name-i18n>Cam-Mode</name-i18n>
-      <type>string</type>
-      <visibility>user</visibility>
-      <scope>maneuver</scope>
-      <default>Image</default>
-      <units/>
-      <desc>Camera will always record still images</desc>
-      <values>Image, Video</values>
-      <values-i18n>Still Images, Video</values-i18n>
-    </param>
     <param name="Framerate">
       <name-i18n>Framerate</name-i18n>
       <type>integer</type>
@@ -450,18 +439,8 @@
       <default>4</default>
       <units>fps</units>
       <desc>Framerate for high resolution image capturing</desc>
-      <min>-1</min>
-      <max>4</max>
-      <values-if>
-        <param>Cam_Mode</param>
-        <equals>Image</equals>
-        <values>1..4</values>
-      </values-if>
-      <values-if>
-        <param>Cam_Mode</param>
-        <equals>Video</equals>
-        <values>-1</values>
-      </values-if>
+      <min>1</min>
+      <max>5</max>
     </param>
     <param name="Show_Video">
       <name-i18n>Show Video</name-i18n>
@@ -492,8 +471,8 @@
       <default>JPG</default>
       <units/>
       <desc></desc>
-      <values>JPG, PBM, PGM, PNG, RAW, TIFF</values>
-      <values-i18n>JPEG, PBM, PGM, PNG, RAW, TIFF</values-i18n>
+      <values>JPG, TIFF, PNG, PGM</values>
+      <values-i18n>JPEG, TIFF, PNG, PGM</values-i18n>
     </param>
     <param name="Image_Compr">
       <name-i18n>Image Compression</name-i18n>
