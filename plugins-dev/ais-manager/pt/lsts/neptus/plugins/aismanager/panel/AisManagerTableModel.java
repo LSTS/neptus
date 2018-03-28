@@ -33,6 +33,7 @@
 package pt.lsts.neptus.plugins.aismanager.panel;
 
 import pt.lsts.neptus.util.DateTimeUtil;
+import pt.lsts.neptus.util.MathMiscUtils;
 
 import javax.swing.table.DefaultTableModel;
 
@@ -57,15 +58,23 @@ public class AisManagerTableModel extends DefaultTableModel {
     public int updateTable(String aisLabel, int mmsi, double[] navInfo, long timestampMs) {
         boolean found = false;
         int i = 0;
+
+        double sogMps = MathMiscUtils.round(knotsToMps(navInfo[1]), 2);
+        double cogDegs = MathMiscUtils.round(Math.toDegrees(navInfo[0]), 2);
+        double hdgDegs = MathMiscUtils.round(Math.toDegrees(navInfo[2]), 2);
+        double latDegs = Math.toDegrees(navInfo[3]);
+        double lonDegs = Math.toDegrees(navInfo[4]);
+        String timestamp = DateTimeUtil.formatTime(timestampMs);
+
         while(!found && i < this.getRowCount()) {
             if(this.getValueAt(i, 0).equals(aisLabel)) {
                 this.setValueAt(mmsi, i, MMSI_COL);
-                this.setValueAt(navInfo[0], i, COG_COL);
-                this.setValueAt(navInfo[1], i, SOG_COL);
-                this.setValueAt(navInfo[2], i, HDG_COL);
-                this.setValueAt(navInfo[3], i, LAT_COL);
-                this.setValueAt(navInfo[4], i, LON_COL);
-                this.setValueAt(DateTimeUtil.formatTime(timestampMs), i, TIMESTAMP_COL);
+                this.setValueAt(sogMps, i, SOG_COL);
+                this.setValueAt(cogDegs, i, COG_COL);
+                this.setValueAt(hdgDegs, i, HDG_COL);
+                this.setValueAt(latDegs, i, LAT_COL);
+                this.setValueAt(lonDegs, i, LON_COL);
+                this.setValueAt(timestamp, i, TIMESTAMP_COL);
                 found = true;
             }
             i++;
@@ -78,13 +87,17 @@ public class AisManagerTableModel extends DefaultTableModel {
         this.insertRow(0, new Object[]{
                 aisLabel,
                 mmsi,
-                navInfo[0],
-                navInfo[1],
-                navInfo[2],
-                navInfo[3],
-                navInfo[4],
-                DateTimeUtil.formatTime(timestampMs)});
+                sogMps,
+                cogDegs,
+                hdgDegs,
+                latDegs,
+                lonDegs,
+                timestamp});
 
         return i;
+    }
+
+    private double knotsToMps(double knots) {
+        return knots * 0.514444444;
     }
 }

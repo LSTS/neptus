@@ -43,10 +43,10 @@ public class AisManagerTable extends JTable {
     private final String[] COLUMN_NAMES = {
             "Label",
             "MMSI",
-            "SOG",
-            "COG",
-            "HDG",
-            "Lat (rad)",
+            "SOG (m/s)",
+            "COG (º)",
+            "HDG (º)",
+            "Lat(º)",
             "Lon (rad)",
             "Time (s)",
     };

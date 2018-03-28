@@ -53,7 +53,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @PluginDescription(name = "Ais Contact Manager", description = "Table showing known Ais contacts", author = "tsm")
-@Popup(name = "Ais Contact Manager", width = 650, height = 550)
+@Popup(name = "Ais Contact Manager", width = 750, height = 550)
 public class AisManager extends ConsolePanel {
     @NeptusProperty(name = "Danger Zone (Meters)", description = "49206665656c20746865206e6565642c20746865206e65656420666f72207370656564")
     public double dangerZone = 100;
