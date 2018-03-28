@@ -39,6 +39,7 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.Date;
 
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.endurance.Plan;
 import pt.lsts.neptus.endurance.Waypoint;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
@@ -54,20 +55,26 @@ public class SoiPlanRenderer implements Renderer2DPainter {
 
     private Plan plan;
     private Color color;
+    private String vehicle;
 
     public SoiPlanRenderer() {
         plan = null;
         color = Color.white;
+        vehicle = null;
     }
 
     @Override
     public void paint(Graphics2D g0, StateRenderer2D renderer) {
         if (plan != null && !plan.waypoints().isEmpty()) {
             LocationType lastLoc = null;
+            if (getVehicle() != null && !plan.waypoints().isEmpty() && plan.waypoint(0).getArrivalTime().after(new Date())) {
+                lastLoc = ImcSystemsHolder.getSystemWithName(getVehicle()).getLocation();
+            }
             Graphics2D g = (Graphics2D) g0.create();
             for (Waypoint wpt : plan.waypoints()) {
                 LocationType loc = new LocationType(wpt.getLatitude(), wpt.getLongitude());
                 Point2D pt2d = renderer.getScreenPosition(loc);
+                //
 
                 if (lastLoc != null) {
                     Point2D lastPT = renderer.getScreenPosition(lastLoc);
@@ -117,6 +124,20 @@ public class SoiPlanRenderer implements Renderer2DPainter {
      */
     public void setColor(Color color) {
         this.color = color;
+    }
+
+    /**
+     * @return the vehicle
+     */
+    public String getVehicle() {
+        return vehicle;
+    }
+
+    /**
+     * @param vehicle the vehicle to set
+     */
+    public void setVehicle(String vehicle) {
+        this.vehicle = vehicle;
     }
 
 }

@@ -137,7 +137,6 @@ public class SoiUtils {
         ret.getPosition().setLatitudeDegs(pos[0]);
         ret.getPosition().setLongitudeDegs(pos[1]);
         ret.setTime(now.getTime());
-        
         ret.setYaw(Math.toDegrees(Math.atan2(offsets[1], offsets[0])));
         
         return ret;
