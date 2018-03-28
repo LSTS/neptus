@@ -104,7 +104,7 @@ public class IridiumStatusTableModel extends AbstractTableModel implements Messa
                 ((IridiumCommand) m).setCommand(new String(((IridiumMsgRx) msg).getData()));
                 msgs.add(m);
                 fireTableRowsInserted(msgs.size()-1, msgs.size()-1);
-                
+
             }
         }
         else if (msg.getMgid() == IridiumMsgTx.ID_STATIC) {
@@ -249,21 +249,20 @@ public class IridiumStatusTableModel extends AbstractTableModel implements Messa
      * @return
      */
     public String getToolTipText(int row) {
-        IridiumCommsStatus s = (IridiumCommsStatus) getValueAt(row, 2);
-        int statusEnum = s.ordinal();
-        return statusTooltips[statusEnum];
+        if(getValueAt(row, 2) != null) {
+            IridiumCommsStatus s = (IridiumCommsStatus) getValueAt(row, 2);
+            int statusEnum = s.ordinal();
+            return statusTooltips[statusEnum];
+        }
+        return "";
     }
 
     /**
      * @param milis - milliseconds 
      */
     public void cleanupAfter(long millis) {
-        for(int i=0;i<msgs.size();i++){
-           if((System.currentTimeMillis() - msgs.get(i).timestampMillis) >  millis){
-               msgs.remove(i);
-               fireTableRowsDeleted(i, i);
-           }
-        }
+        msgs.removeIf(msg -> (System.currentTimeMillis() - msg.timestampMillis) >  millis);
+        fireTableDataChanged();
     }
 }
 
