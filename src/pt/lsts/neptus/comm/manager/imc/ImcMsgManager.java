@@ -902,7 +902,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         }
 
         pcsMsg.setPlanEta(-1);
-        pcsMsg.setPlanProgress(execState >=0 ? execState : -1);
+        pcsMsg.setPlanProgress(execState >= 0 ? execState : -1);
         pcsMsg.setManId("");
         pcsMsg.setManEta(-1);
         pcsMsg.setManType(0xFFFF);
@@ -1009,7 +1009,8 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                         sameIdErrorDetectedTimeMillis = System.currentTimeMillis();
                     }
                 }
-                return false;
+                postToBus(msg);
+                return true;
             }
 
             vci = getCommInfoById(id);
@@ -1054,11 +1055,12 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                     NeptusLog.pub().trace(
                             this.getClass().getSimpleName() + ": Message redirected for system comm. "
                                     + vci.getSystemCommId() + ".");
-                    vci.onMessage(info, msg);
-                    
+
                     for (IMCMessage imcMsg : messagesCreatedToFoward) {
                         vci.onMessage(info, imcMsg);
                     }
+                    
+                    vci.onMessage(info, msg);
                     
                     return true;
                 }
@@ -1121,10 +1123,19 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
             vciRedirect.onMessage(info, msg);
             sentToBus = true;
         }
+        if (!sentToBus) {
+            postToBus(msg);
+        }
 
+        return true;
+    }
+
+    /**
+     * @param msg
+     */
+    private void postToBus(IMCMessage msg) {
         try {
-            if (!sentToBus)
-                bus.post(msg);
+            bus.post(msg);
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -1132,8 +1143,6 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         catch (Error e) {
             e.printStackTrace();
         }
-
-        return true;
     }
 
     /**

@@ -315,7 +315,7 @@ public class NmeaPlotter extends ConsoleLayer {
     private void retransmit(String sentence) {
         DevDataText ddt = new DevDataText(sentence);
         for (ImcSystem s : ImcSystemsHolder.lookupSystemByType(SystemTypeEnum.CCU)) {
-            ImcMsgManager.getManager().sendMessageToSystem(ddt, s.getName());
+            ImcMsgManager.getManager().sendMessageToSystem(ddt.cloneMessage(), s.getName());
         }
     }
 

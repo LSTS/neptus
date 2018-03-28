@@ -150,6 +150,11 @@ altitude: ${EstimatedState.alt};
           <entry key="Communication Mean">WiFi</entry>
         </properties>
       </child>
+      <child class="pt.lsts.neptus.plugins.sunfish.iridium.feedback.IridiumStatus" x="0" y="0" width="367" height="103">
+         <properties>
+          <entry key="Clear button">3600</entry>
+         </properties>
+     </child>
     </subpanel>
   </mainpanel>
   <mainpanel name="console alarm panel"/>

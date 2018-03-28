@@ -42,13 +42,16 @@ import com.google.common.eventbus.Subscribe;
 
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.IMCDefinition;
+import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCUtil;
+import pt.lsts.imc.PlanControl;
 import pt.lsts.imc.PlanControlState;
 import pt.lsts.imc.PlanControlState.STATE;
 import pt.lsts.imc.PlanDB;
 import pt.lsts.imc.PlanDB.OP;
 import pt.lsts.imc.PlanDB.TYPE;
 import pt.lsts.imc.StateReport;
+import pt.lsts.imc.state.ImcSystemState;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
@@ -158,11 +161,12 @@ public class PlanControlStatePanel extends ConsolePanel {
         for (String plan : getConsole().getMission().getIndividualPlansList().keySet()) {
             byte[] bytes = plan.getBytes();
             if (IMCUtil.computeCrc16(bytes , 0, bytes.length) == message.getPlanChecksum()) {
-                planId = plan;
+                planId = plan + " (CS::" + message.getPlanChecksum() + ")";
                 break;
             }            
         }
         
+        int progress = -1;
         switch (message.getExecState()) {
             case -1:
                 state = STATE.READY;    
@@ -176,8 +180,15 @@ public class PlanControlStatePanel extends ConsolePanel {
                 break;
             default:
                 state = STATE.EXECUTING;
+                progress = message.getExecState();
                 break;
         }
+        
+        outcomeTitleLabel.setText("<html><b>" + I18n.text("Progress") + ": ");
+        if (progress != -1)
+            lastOutcome = GuiUtils.getNeptusDecimalFormat(0).format(progress) + " %";
+        else
+            lastOutcome = "<html><font color='#666666'>" + I18n.text("N/A") + "</font>";
     }
     
     @Subscribe
@@ -233,7 +244,7 @@ public class PlanControlStatePanel extends ConsolePanel {
             }
 
             outcomeLabel.setText(lastOutcome);
-            lastUpdated = System.currentTimeMillis();
+            lastUpdated = message.getTimestampMillis();
             state = message.getState();
             update();
         }
@@ -288,6 +299,33 @@ public class PlanControlStatePanel extends ConsolePanel {
         nodeId = "";
         nodeStarTimeMillisUTC = -1;
         nodeTypeImcId = 0xFFFF;
+        
+        ImcSystemState state = getConsole().getImcMsgManager().getState(getMainVehicleId());
+        if (state != null) {
+            PlanControlState pcsMsg = null;
+            StateReport srMsg = null;
+            
+            IMCMessage msg = state.get(PlanControl.ID_STATIC);
+            if (msg != null)
+                pcsMsg = (PlanControlState) msg;
+            
+            msg = state.get(PlanControlState.ID_STATIC);
+            if (msg != null)
+                srMsg = (StateReport) msg;
+            
+            if (pcsMsg != null && srMsg != null) {
+                if (srMsg.getAgeInSeconds() <= pcsMsg.getAgeInSeconds())
+                  consume(srMsg); 
+                else
+                    consume(pcsMsg); 
+            }
+            else if (pcsMsg != null) {
+                consume(pcsMsg); 
+            }
+            else if (srMsg != null) {
+                consume(srMsg); 
+            }
+        }
     }
 
     @Override

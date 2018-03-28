@@ -37,6 +37,9 @@ import java.awt.BorderLayout;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.gui.ChronometerPanel;
+import pt.lsts.neptus.plugins.ConfigurationListener;
+import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
@@ -48,8 +51,11 @@ import pt.lsts.neptus.plugins.Popup.POSITION;
 @SuppressWarnings("serial")
 @Popup(pos = POSITION.BOTTOM_LEFT, width = 300, height = 150, accelerator = 'K')
 @PluginDescription(name = "Chronometer", description = "This is a chronometer that counts up and down", author = "Paulo Dias", icon = "images/buttons/clocksync2.png", documentation = "chronometer/chronometer.html")
-public class ChronometerPlugin extends ConsolePanel {
+public class ChronometerPlugin extends ConsolePanel implements ConfigurationListener {
 
+    @NeptusProperty(name = "Audio Alarm on Zero", userLevel = LEVEL.REGULAR, description = "Play an audio alarm on passing on alarm value defined.")
+    private boolean audioAlarmOnZero = false;
+    
     private ChronometerPanel chronoPanel = null;
 
     public ChronometerPlugin(ConsoleLayout console) {
@@ -66,6 +72,14 @@ public class ChronometerPlugin extends ConsolePanel {
         this.add(getChronoPanel(), BorderLayout.CENTER);
     }
 
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.plugins.ConfigurationListener#propertiesChanged()
+     */
+    @Override
+    public void propertiesChanged() {
+        chronoPanel.setAudioAlertOnZero(audioAlarmOnZero);
+    }
+    
     /**
      * @return the chronoPanel
      */

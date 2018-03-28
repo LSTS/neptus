@@ -1235,6 +1235,14 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
                     + StringUtils.wrapEveryNChars(sys.getOnErrorStateStr(), (short) 30, 30, true);
         }
 
+        SystemImcMsgCommInfo commS = ImcMsgManager.getManager().getCommInfoById(sys.getId());
+        long deltaMillis = System.currentTimeMillis() - (long) commS.getArrivalTimeMillisLastMsg();
+        if (deltaMillis > 10000) {
+            txtInfo += (txtInfo.length() != 0 ? lineSep + "" : "");
+            txtInfo += I18n.textf("%deltaTime with no messages",
+                    DateTimeUtil.milliSecondsToFormatedString(deltaMillis, true));
+        }
+        
         // Update Loc info
         LocationType loc = sys.getLocation();
         if (loc != null && !loc.isLocationEqual(LocationType.ABSOLUTE_ZERO)) {
