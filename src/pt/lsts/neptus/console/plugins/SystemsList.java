@@ -257,6 +257,10 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
             category = "Renderer", userLevel = LEVEL.REGULAR)
     public boolean drawSystemLabel = true;
 
+    @NeptusProperty(name = "Draw System Location Age", description = "Configures if this component will draw the system location age on the renderer",
+            category = "Renderer", userLevel = LEVEL.REGULAR)
+    public boolean drawSystemLocAge = true;
+
     @NeptusProperty(name = "Use Mil Std 2525 Like Symbols", description = "This configures if the location symbols to draw on the renderer will use the MIL-STD-2525 standard", 
             category = "MilStd-2525", userLevel = LEVEL.REGULAR)
     public boolean useMilStd2525LikeSymbols = false;
@@ -1872,9 +1876,11 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
         }
 
         // To paint the system name on the render
-        if (drawLabel /* !viewInfoOSDSwitch.isSelected() && !viewExtendedOSDSwitch.isSelected() */&& drawSystemLabel) {
+        if (drawLabel /* !viewInfoOSDSwitch.isSelected() && !viewExtendedOSDSwitch.isSelected() */&& drawSystemLabel)
             SystemPainterHelper.drawSystemNameLabel(g2, sys.getName(), color, iconWidth, isLocationKnownUpToDate);
-        }
+        
+        if (drawSystemLocAge)
+            SystemPainterHelper.drawSystemLocationAge(g2, sys.getLocationTimeMillis(), color, iconWidth, isLocationKnownUpToDate);
 
         // To draw the course/speed vector
         SystemPainterHelper.drawCourseSpeedVectorForSystem(renderer, g2, sys, iconWidth, isLocationKnownUpToDate,
@@ -2029,9 +2035,12 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
         // }
 
         // To paint the system name on the render
-        if (/* !viewInfoOSDSwitch.isSelected() && !viewExtendedOSDSwitch.isSelected() && */drawSystemLabel) {
+        if (/* !viewInfoOSDSwitch.isSelected() && !viewExtendedOSDSwitch.isSelected() && */drawSystemLabel)
             SystemPainterHelper.drawSystemNameLabel(g2, sys.getName(), color, iconWidth, isLocationKnownUpToDate);
-        }
+        
+        if (drawSystemLocAge)
+            SystemPainterHelper.drawSystemLocationAge(g2, sys.getLocationTimeMillis(), color, iconWidth, isLocationKnownUpToDate);
+
 
         // To draw the course/speed vector
         Object obj = sys.retrieveData(SystemUtils.COURSE_DEGS_KEY);
