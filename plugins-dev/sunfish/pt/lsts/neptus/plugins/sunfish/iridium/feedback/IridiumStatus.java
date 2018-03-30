@@ -146,8 +146,8 @@ public class IridiumStatus extends ConsolePanel {
                 SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
                         if(e.getType() == TableModelEvent.INSERT){
-                            int row = table.convertRowIndexToView(table.getRowCount()-1);
-                            table.scrollRectToVisible(table.getCellRect(row, 0, true));
+                            int row = e.getLastRow();//table.convertRowIndexToView(table.getRowCount()-1);
+                            table.scrollRectToVisible(table.getCellRect(row, 0, false));
                         }
                     }
                 });
@@ -161,7 +161,7 @@ public class IridiumStatus extends ConsolePanel {
 
             @Override
             public int compare(String sdf1, String sdf2) {
-                SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SSS dd-MM-YYYY");
+                SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SSS dd-MM-yyyy z");
                 try {
                     return sdf.parse(sdf1).compareTo(sdf.parse(sdf2));
                 }
