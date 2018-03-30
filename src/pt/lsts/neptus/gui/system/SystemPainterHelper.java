@@ -41,6 +41,7 @@ import java.awt.Stroke;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
+import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
 
 import pt.lsts.neptus.comm.SystemUtils;
@@ -53,6 +54,7 @@ import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
+import pt.lsts.neptus.util.DateTimeUtil;
 
 /**
  * @author pdias
@@ -247,6 +249,27 @@ public class SystemPainterHelper {
         g2.drawString(sysName, (int) (12 * safetyOffset / 20) + 1, 1);
         g2.setColor(color);
         g2.drawString(sysName, (int) (12 * safetyOffset / 20), 0);
+        g2.dispose();
+    }
+
+    public static final void drawSystemLocationAge(Graphics2D g, long locAgeMillis, Color color, double safetyOffset, boolean isLocationKnownUpToDate) {
+        if (isLocationKnownUpToDate)
+            return;
+        
+        Graphics2D g2 = (Graphics2D) g.create();
+
+        int useTransparency = (isLocationKnownUpToDate ? 255 : AGE_TRANSPARENCY);
+        if (useTransparency != 255)
+            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, useTransparency / 255f));
+
+        StringBuilder timeSB = new StringBuilder("\u231B ");
+        timeSB.append(DateTimeUtil.milliSecondsToFormatedString(System.currentTimeMillis() - locAgeMillis, true));
+        String timeStr = timeSB.toString();
+        Rectangle2D stringBounds = g2.getFontMetrics().getStringBounds(timeStr, g2);
+        g2.setColor(Color.BLACK);
+        g2.drawString(timeStr, (int) (12 * safetyOffset / 20) + 1, (int) (1 + stringBounds.getHeight() + 2));
+        g2.setColor(color);
+        g2.drawString(timeStr, (int) (12 * safetyOffset / 20), (int) (stringBounds.getHeight() + 2));
         g2.dispose();
     }
 

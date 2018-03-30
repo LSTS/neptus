@@ -38,6 +38,8 @@ import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.awt.geom.GeneralPath;
+import java.awt.geom.Point2D;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Collection;
@@ -119,7 +121,7 @@ public class SoiInteraction extends SimpleRendererInteraction {
 
     private LinkedHashMap<String, Plan> plans = new LinkedHashMap<>();
     private LinkedHashMap<String, SoiSettings> settings = new LinkedHashMap<>();
-    
+
     private AssetsManager assetsManager = AssetsManager.getInstance();
 
     /**
@@ -132,11 +134,11 @@ public class SoiInteraction extends SimpleRendererInteraction {
     @Override
     public void initSubPanel() {
     }
-    
+
     @Override
     public void cleanSubPanel() {
     }
-    
+
     @Override
     public boolean isExclusive() {
         return true;
@@ -163,22 +165,23 @@ public class SoiInteraction extends SimpleRendererInteraction {
         String system = getConsole().getMainSystem();
         Plan plan;
         try {
-            
+
             Collection<PlanType> pps = getConsole().getMission().getIndividualPlansList().values();
             List<String> ps = pps.stream().map(p -> p.getId()).collect(Collectors.toList());
-            
+
             if (ps.isEmpty()) {
                 GuiUtils.errorMessage(getConsole(), "Send SOI plan", "Create a plan to define the SOI waypoints.");
                 return;
             }
-            
+
             String p = getConsole().getPlan() != null ? getConsole().getPlan().getId() : ps.get(0);
-            final Object selection = JOptionPane.showInputDialog(getConsole(), "Select plan to be sent as SOI waypoints",
-                    "Start plan", JOptionPane.QUESTION_MESSAGE, null, ps.toArray(), p);
+            final Object selection = JOptionPane.showInputDialog(getConsole(),
+                    "Select plan to be sent as SOI waypoints", "Start plan", JOptionPane.QUESTION_MESSAGE, null,
+                    ps.toArray(), p);
             if (selection == null)
                 return;
-                
-            PlanType ptype = getConsole().getMission().getIndividualPlansList().get(""+selection);
+
+            PlanType ptype = getConsole().getMission().getIndividualPlansList().get("" + selection);
             plan = Plan.parse((PlanSpecification) ptype.asIMCPlan());
 
             if (scheduleWaypoints) {
@@ -196,12 +199,11 @@ public class SoiInteraction extends SimpleRendererInteraction {
             cmd.setPlan(plan.asImc());
             sendCommand(cmd);
 
-
             plans.put(system, plan);
         }
         catch (Exception e) {
             NeptusLog.pub().error("Error translating plan", e);
-        }                
+        }
     }
 
     @NeptusMenuItem("Tools>SOI>Clear Plan")
@@ -254,63 +256,62 @@ public class SoiInteraction extends SimpleRendererInteraction {
     }
 
     protected void setParams(String vehicle, LinkedHashMap<String, String> params) {
-      try {
-          assetsManager.setParams(vehicle, params);
-      
-        
-        if (!settings.containsKey(vehicle))
-            settings.put(vehicle, new SoiSettings());
+        try {
+            assetsManager.setParams(vehicle, params);
 
-        PluginProperty[] props = PluginUtils.getPluginProperties(settings.get(vehicle));
+            if (!settings.containsKey(vehicle))
+                settings.put(vehicle, new SoiSettings());
 
-        LinkedHashMap<String, String> fieldToName = new LinkedHashMap<>();
-        
-        // Translate between field names and property names
-        for (Field f : SoiSettings.class.getDeclaredFields()) {
-            NeptusProperty prop = f.getAnnotation(NeptusProperty.class);
-            if (prop != null)
-                fieldToName.put(prop.name(), f.getName());            
-        }
-        
-        for (PluginProperty p : props) {
+            PluginProperty[] props = PluginUtils.getPluginProperties(settings.get(vehicle));
 
-            String name = fieldToName.get(p.getName());
-            if (name == null || !params.containsKey(name))
-                continue;
+            LinkedHashMap<String, String> fieldToName = new LinkedHashMap<>();
 
-            switch (p.getType().getSimpleName()) {
-                case "String":
-                    p.setValue(params.get(name));
-                    break;
-                case "double":
-                    p.setValue(Double.parseDouble(params.get(name)));
-                    break;
-                case "float":
-                    p.setValue(Float.parseFloat(params.get(name)));
-                    break;
-                case "int":
-                    p.setValue(Integer.parseInt(params.get(name)));
-                    break;
-                case "boolean":
-                    p.setValue(Boolean.parseBoolean(params.get(name)));
-                    break;
-                default:
-                    System.out.println("Class not recognized: " + p.getType());
-                    break;
+            // Translate between field names and property names
+            for (Field f : SoiSettings.class.getDeclaredFields()) {
+                NeptusProperty prop = f.getAnnotation(NeptusProperty.class);
+                if (prop != null)
+                    fieldToName.put(prop.name(), f.getName());
             }
-        }
 
-        PluginUtils.setPluginProperties(settings.get(vehicle), props);
-      }
-      catch (Exception e) {
-          e.printStackTrace();
-      }
+            for (PluginProperty p : props) {
+
+                String name = fieldToName.get(p.getName());
+                if (name == null || !params.containsKey(name))
+                    continue;
+
+                switch (p.getType().getSimpleName()) {
+                    case "String":
+                        p.setValue(params.get(name));
+                        break;
+                    case "double":
+                        p.setValue(Double.parseDouble(params.get(name)));
+                        break;
+                    case "float":
+                        p.setValue(Float.parseFloat(params.get(name)));
+                        break;
+                    case "int":
+                        p.setValue(Integer.parseInt(params.get(name)));
+                        break;
+                    case "boolean":
+                        p.setValue(Boolean.parseBoolean(params.get(name)));
+                        break;
+                    default:
+                        System.out.println("Class not recognized: " + p.getType());
+                        break;
+                }
+            }
+
+            PluginUtils.setPluginProperties(settings.get(vehicle), props);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Subscribe
     public void on(SoiCommand cmd) {
         assetsManager.process(cmd, getConsole());
-        
+
         if (cmd.getType() != SoiCommand.TYPE.SUCCESS)
             return;
 
@@ -336,34 +337,55 @@ public class SoiInteraction extends SimpleRendererInteraction {
 
     private void paintPlans(Graphics2D g, StateRenderer2D renderer) {
         for (Entry<String, Plan> p : plans.entrySet()) {
-            SoiPlanRenderer prenderer = new SoiPlanRenderer();
             try {
-                prenderer.setColor(VehiclesHolder.getVehicleById(p.getKey()).getIconColor());
+                String vehicle = p.getKey();
+                Color c = VehiclesHolder.getVehicleById(p.getKey()).getIconColor();
+                SystemPositionAndAttitude estimatedState = SoiUtils
+                        .estimatedState(ImcSystemsHolder.getSystemWithName(vehicle), p.getValue());
+                SoiPlanRenderer prenderer = new SoiPlanRenderer();
+
+                prenderer.setColor(c);
                 prenderer.setPlan(p.getValue());
                 prenderer.paint(g, renderer);
+                if (estimatedState != null && estimatedState.getPosition() != null) {
+                    Point2D pt = renderer.getScreenPosition(estimatedState.getPosition());
+                    Graphics2D copy = (Graphics2D) g.create();
+                    copy.setColor(c);
+                    copy.translate(pt.getX(), pt.getY());
+                    copy.rotate(Math.toRadians(estimatedState.getYaw()));
+                    GeneralPath gp = new GeneralPath();
+                    gp.moveTo(-7, 4);
+                    gp.lineTo(0, -12);
+                    gp.lineTo(7, 4);
+                    gp.lineTo(0, 0);
+                    gp.closePath();
+                    copy.fill(gp);
+                    copy.setColor(Color.white);
+                    copy.draw(gp);
+                }
             }
             catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
-    
+
     @Override
     public void mouseClicked(MouseEvent event, StateRenderer2D source) {
         if (event.getButton() == MouseEvent.BUTTON3) {
             JPopupMenu popup = new JPopupMenu();
-            
+
             for (final Method m : getClass().getDeclaredMethods()) {
                 if (m.getAnnotation(NeptusMenuItem.class) != null) {
                     String path = m.getAnnotation(NeptusMenuItem.class).value();
-                    String name = path.substring(path.lastIndexOf(">")+1);
-                    
+                    String name = path.substring(path.lastIndexOf(">") + 1);
+
                     popup.add(name).addActionListener(new ActionListener() {
-                        
+
                         @Override
                         public void actionPerformed(ActionEvent e) {
                             try {
-                                m.invoke(SoiInteraction.this);                   
+                                m.invoke(SoiInteraction.this);
                             }
                             catch (Exception ex) {
                                 ex.printStackTrace();
@@ -372,16 +394,16 @@ public class SoiInteraction extends SimpleRendererInteraction {
                     });
                 }
             }
-            
+
             popup.addSeparator();
-            
+
             popup.add("Change plug-in settings").addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     PluginUtils.editPluginProperties(SoiInteraction.this, true);
                 }
             });
-            
+
             popup.show(source, event.getX(), event.getY());
         }
     }
@@ -389,13 +411,14 @@ public class SoiInteraction extends SimpleRendererInteraction {
     private void sendCommand(SoiCommand cmd) {
         new Thread(() -> {
             assetsManager.sendCommand(getConsole().getMainSystem(), cmd, commMean, getConsole());
-        }).start();        
+        }).start();
     }
 
-     public String infoHtml(ImcSystem[] vehicles) {
+    public String infoHtml(ImcSystem[] vehicles) {
         StringBuilder html = new StringBuilder();
         html.append("<html><table>");
-        html.append("<tr><th>Vehicle</th><th>Distance</th><th>Last Comm.</th><th>Next Comm.</th><th>Fuel</th><th>Match Plan</th></tr>\n");
+        html.append(
+                "<tr><th>Vehicle</th><th>Distance</th><th>Last Comm.</th><th>Next Comm.</th><th>Fuel</th><th>Match Plan</th></tr>\n");
 
         for (ImcSystem vehicle : vehicles) {
             if (vehicle.getLocation() == null)
@@ -433,11 +456,12 @@ public class SoiInteraction extends SimpleRendererInteraction {
             if (state != null) {
                 IMCMessage fuelLevel = state.get("FuelLevel");
                 IMCMessage stateReport = state.get("StateReport");
-                IMCMessage voltage = state.get(Voltage.ID_STATIC, EntitiesResolver.resolveId(vehicle.getName(), batteryEntityName));
+                IMCMessage voltage = state.get(Voltage.ID_STATIC,
+                        EntitiesResolver.resolveId(vehicle.getName(), batteryEntityName));
                 String voltageStr = "";
                 if (voltage != null)
                     voltageStr = " (Batt: " + MathMiscUtils.round(((Voltage) voltage).getValue(), 1) + "V)";
-                
+
                 if (stateReport != null && fuelLevel != null) {
                     if (stateReport.getTimestampMillis() > fuelLevel.getTimestampMillis())
                         fuel = stateReport.getInteger("fuel") + "%" + voltageStr;
@@ -448,7 +472,7 @@ public class SoiInteraction extends SimpleRendererInteraction {
                     fuel = stateReport.getInteger("fuel") + "%" + voltageStr;
                 else if (fuelLevel != null)
                     fuel = fuelLevel.getInteger("value") + "%" + voltageStr;
-                
+
                 if (stateReport != null) {
                     int pcsum = ((StateReport) stateReport).getPlanChecksum();
                     matchPlan = "";
