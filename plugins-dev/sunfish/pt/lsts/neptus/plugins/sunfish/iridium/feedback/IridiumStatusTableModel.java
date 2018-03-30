@@ -64,7 +64,7 @@ import pt.lsts.neptus.plugins.sunfish.iridium.feedback.IridiumStatusTableModel.I
 public class IridiumStatusTableModel extends AbstractTableModel implements MessageListener<MessageInfo, IMCMessage> {
 
     private static final long serialVersionUID = 1L;
-    private SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SSS dd-MM-YYYY");
+    private SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SSS dd-MM-yyyy z");
     private Map<Integer, TransmissionStatus> status = Collections.synchronizedMap(new HashMap<>());
     List<IridiumMessage> msgs =  Collections.synchronizedList(new ArrayList<>());
     protected static final int TIMESTAMP = 0, SYSTEM = 1, STATUS = 2, MSG_TYPE = 3;
