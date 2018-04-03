@@ -77,7 +77,8 @@ public class AisManagerTableModel extends DefaultTableModel {
                 this.setValueAt(timestamp, i, TIMESTAMP_COL);
                 found = true;
             }
-            i++;
+            else
+                i++;
         }
 
         if(found)

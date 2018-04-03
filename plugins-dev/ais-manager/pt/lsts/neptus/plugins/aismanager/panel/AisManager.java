@@ -95,7 +95,7 @@ public class AisManager extends ConsolePanel {
                     knownSnapshots.put(aisLabel, aisTimestamp);
 
                     double[] navInfo = {ais.getSog(), ais.getCog(), ais.getHeading(), ais.getLatRads(), ais.getLonRads()};
-                    Color status = computeStatus(ais.getLatRads(), ais.getLonRads());
+                    Color status = computeStatus(ais.getLatDegs(), ais.getLonDegs());
                     table.update(aisLabel, ais.getMmsi(), navInfo, ais.getTimestampMs(), status);
                 }
             }
@@ -105,12 +105,12 @@ public class AisManager extends ConsolePanel {
     /**
      * Compute if given AIS System is endangering any IMC system
      * */
-    private Color computeStatus(double aisLatRads, double aisLonRads) {
-        LocationType loc = new LocationType(Math.toDegrees(aisLatRads), Math.toDegrees(aisLonRads));
+    private Color computeStatus(double aisLatDegs, double aisLonDegs) {
+        LocationType loc = new LocationType(aisLatDegs, aisLonDegs);
 
         // check if too close
         Optional<ImcSystem> ret = Arrays.stream(ImcSystemsHolder.lookupAllActiveSystems())
-                .filter(sys -> loc.getDistanceInMeters(sys.getLocation()) <= dangerZone)
+                .filter(sys -> loc.getHorizontalDistanceInMeters(sys.getLocation().convertToAbsoluteLatLonDepth()) <= dangerZone)
                 .findAny();
 
         if (ret.isPresent())
