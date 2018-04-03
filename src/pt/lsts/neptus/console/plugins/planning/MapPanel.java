@@ -118,7 +118,10 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
 
     @NeptusProperty(name = "Show world map", userLevel = LEVEL.ADVANCED)
     public boolean worldMapShown = true;
-
+    
+    @NeptusProperty(name = "World Map Transparency", userLevel = LEVEL.ADVANCED)
+    public boolean useWorldMapTransparency = true;
+    
     @NeptusProperty(userLevel = LEVEL.ADVANCED)
     public int updateMillis = 100;
 
@@ -267,6 +270,8 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
                 getConsole().post(event);
             }
         });
+        
+        renderer.getWorldMapPainter().setUseTransparency(useWorldMapTransparency);
     }
 
     @Override
@@ -415,7 +420,7 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
         renderer.setFixedVehicleWidth(fixedSize);
         renderer.setWorldMapShown(worldMapShown);
         renderer.setRespondToRendererChangeEvents(isSyncronizeAllMapsMovements);
-        
+        renderer.getWorldMapPainter().setUseTransparency(useWorldMapTransparency);
         setToolbarPlacement(); // Refresh toolbar position
         
         tailSwitch.setVisible(showTailButton);
