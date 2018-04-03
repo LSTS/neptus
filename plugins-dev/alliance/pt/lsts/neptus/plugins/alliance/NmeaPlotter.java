@@ -222,9 +222,9 @@ public class NmeaPlotter extends ConsoleLayer {
      * */
     private void updateAisManager(AisContact contact) {
         int mmsi = contact.getMmsi();
-        double cog = contact.getCog();
+        double cog = Math.toRadians(contact.getCog());
         double sog = contact.getSog();
-        double hdg = contact.getHdg();
+        double hdg = Math.toRadians(contact.getHdg());
 
         LocationType loc = contact.getLocation().getNewAbsoluteLatLonDepth();
         double latRads = loc.getLatitudeRads();
