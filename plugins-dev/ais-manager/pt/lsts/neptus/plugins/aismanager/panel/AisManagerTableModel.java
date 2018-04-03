@@ -59,8 +59,8 @@ public class AisManagerTableModel extends DefaultTableModel {
         boolean found = false;
         int i = 0;
 
-        double sogMps = MathMiscUtils.round(knotsToMps(navInfo[1]), 2);
-        double cogDegs = MathMiscUtils.round(Math.toDegrees(navInfo[0]), 2);
+        double sogMps = MathMiscUtils.round(knotsToMps(navInfo[0]), 2);
+        double cogDegs = MathMiscUtils.round(Math.toDegrees(navInfo[1]), 2);
         double hdgDegs = MathMiscUtils.round(Math.toDegrees(navInfo[2]), 2);
         double latDegs = Math.toDegrees(navInfo[3]);
         double lonDegs = Math.toDegrees(navInfo[4]);
