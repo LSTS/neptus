@@ -140,8 +140,6 @@
 	<classpathentry kind="lib" path="lib/speech/en_us.jar"/>
 	<classpathentry kind="lib" path="lib/speech/freetts.jar"/>
 	<classpathentry kind="lib" path="lib/speech/jsapi.jar"/>
-	<classpathentry kind="lib" path="lib/jfreechart-1.0.6.jar" sourcepath="/jfreechart"/>
-	<classpathentry kind="lib" path="lib/jcommon-1.0.10.jar"/>
 	<classpathentry kind="lib" path="lib/standby.jar" sourcepath="/WinStandBy"/>
 	<classpathentry kind="lib" path="lib/jetty/jetty-util-6.0.2.jar"/>
 	<classpathentry kind="lib" path="lib/jetty/servlet-api-2.5-6.0.2.jar"/>
@@ -244,6 +242,8 @@
 	<classpathentry kind="lib" path="lib/jtransform_thin.jar"/>
 	<classpathentry kind="lib" path="lib/commons-httpclient-3.1-deprecation.jar"/>
 	<classpathentry kind="lib" path="lib/AisContactManager.jar"/>
+	<classpathentry kind="lib" path="lib/jcommon-1.0.24.jar"/>
+	<classpathentry kind="lib" path="lib/jfreechart-1.5.0.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="lib/ini4j-0.5.2.jar"/>
