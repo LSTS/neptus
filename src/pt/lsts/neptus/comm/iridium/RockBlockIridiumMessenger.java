@@ -38,6 +38,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -60,6 +61,7 @@ import javax.mail.NoSuchProviderException;
 import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.internet.MimeMultipart;
+import javax.net.ssl.SSLContext;
 import javax.xml.bind.DatatypeConverter;
 
 import org.apache.commons.codec.binary.StringUtils;
@@ -69,8 +71,15 @@ import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.config.Registry;
+import org.apache.http.config.RegistryBuilder;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
+import org.apache.http.conn.socket.PlainConnectionSocketFactory;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicNameValuePair;
 
 import pt.lsts.neptus.NeptusLog;
@@ -208,10 +217,35 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
         }
     }
 
+    static final SSLConnectionSocketFactory sslsf;
+    static final Registry<ConnectionSocketFactory> registry;
+    static final PoolingHttpClientConnectionManager cm;
+    
+    static {
+        
+        try {
+            sslsf = new SSLConnectionSocketFactory(SSLContext.getDefault(),
+                    NoopHostnameVerifier.INSTANCE);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+
+        registry = RegistryBuilder.<ConnectionSocketFactory>create()
+                .register("http", new PlainConnectionSocketFactory())
+                .register("https", sslsf)
+                .build();
+        cm = new PoolingHttpClientConnectionManager(registry);
+        cm.setMaxTotal(100);
+    }
+    
     public static String sendToRockBlockHttp(String destImei, String username, String password, byte[] data)
             throws HttpException, IOException {
 
-        CloseableHttpClient client = HttpClientBuilder.create().build();
+        CloseableHttpClient client = HttpClients.custom()
+                .setSSLSocketFactory(sslsf)
+                .setConnectionManager(cm)
+                .build();
+                
 
         HttpPost post = new HttpPost("https://secure.rock7mobile.com/rockblock/MT");
         List<NameValuePair> urlParameters = new ArrayList<NameValuePair>();
@@ -219,6 +253,8 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
         urlParameters.add(new BasicNameValuePair("username", username));
         urlParameters.add(new BasicNameValuePair("password", password));
         urlParameters.add(new BasicNameValuePair("data", ByteUtil.encodeToHex(data)));
+        
+        
 
         post.setEntity(new UrlEncodedFormEntity(urlParameters));
         post.setHeader("Content-Type", "application/x-www-form-urlencoded");
