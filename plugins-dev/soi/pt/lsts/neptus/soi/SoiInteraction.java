@@ -64,6 +64,7 @@ import pt.lsts.imc.SoiCommand.COMMAND;
 import pt.lsts.imc.SoiCommand.TYPE;
 import pt.lsts.imc.SoiPlan;
 import pt.lsts.imc.StateReport;
+import pt.lsts.imc.VerticalProfile;
 import pt.lsts.imc.Voltage;
 import pt.lsts.imc.state.ImcSystemState;
 import pt.lsts.neptus.NeptusLog;
@@ -121,7 +122,8 @@ public class SoiInteraction extends SimpleRendererInteraction {
 
     private LinkedHashMap<String, Plan> plans = new LinkedHashMap<>();
     private LinkedHashMap<String, SoiSettings> settings = new LinkedHashMap<>();
-
+    private VerticalProfileViewer profileView = new VerticalProfileViewer();
+    
     private AssetsManager assetsManager = AssetsManager.getInstance();
 
     /**
@@ -309,6 +311,12 @@ public class SoiInteraction extends SimpleRendererInteraction {
     }
 
     @Subscribe
+    public void on(VerticalProfile msg) {
+        profileView.addProfile(msg);
+        getConsole().post(Notification.success(I18n.text("SOI Settings"),
+                I18n.textf("Received %param profile from %vehicle.", msg.getParameter().name().toLowerCase(), msg.getSourceName())));
+    }
+    @Subscribe
     public void on(SoiCommand cmd) {
         assetsManager.process(cmd, getConsole());
 
@@ -406,6 +414,11 @@ public class SoiInteraction extends SimpleRendererInteraction {
 
             popup.show(source, event.getX(), event.getY());
         }
+    }
+    
+    @Override
+    public void mouseMoved(MouseEvent event, StateRenderer2D source) {
+        profileView.mouseMoved(event, source);
     }
 
     private void sendCommand(SoiCommand cmd) {
@@ -521,5 +534,7 @@ public class SoiInteraction extends SimpleRendererInteraction {
         g.translate(-x, 0);
 
         paintPlans(g, renderer);
+        
+        profileView.paint(g, renderer);
     }
 }
