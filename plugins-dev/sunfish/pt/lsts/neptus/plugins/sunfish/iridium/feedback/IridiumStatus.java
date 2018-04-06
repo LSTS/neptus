@@ -36,6 +36,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -147,7 +148,11 @@ public class IridiumStatus extends ConsolePanel {
                     public void run() {
                         if(e.getType() == TableModelEvent.INSERT){
                             int row = e.getLastRow();//table.convertRowIndexToView(table.getRowCount()-1);
-                            table.scrollRectToVisible(table.getCellRect(row, 0, false));
+                            if(row < table.getRowCount()){
+                                Rectangle rect = table.getCellRect(row, 0, false);
+                                if(rect != null)
+                                    table.scrollRectToVisible(rect);
+                            }
                         }
                     }
                 });
