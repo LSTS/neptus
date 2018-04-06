@@ -48,6 +48,7 @@ public class Asset implements Comparable<Asset>{
 	private Plan plan = null;
 	private Hashtable<String, String> config = new Hashtable<>();
 	private AssetState received = null;
+	private AssetTrack track = new AssetTrack();
 	
 	public Asset(String assetName) {
 		this.assetName = assetName;		
@@ -63,6 +64,7 @@ public class Asset implements Comparable<Asset>{
 	
 	public void setPlan(Plan plan) {
 		this.plan = plan;
+		track.setPlan(plan);
 	}
 
 	public AssetState receivedState() {
@@ -73,6 +75,12 @@ public class Asset implements Comparable<Asset>{
 		if (received == null || state.getTimestamp().after(received.getTimestamp())) {
 			received = state;
 		}
+		
+		track.setState(state);
+	}
+	
+	public AssetState stateAt(Date d) {
+	    return track.synthesize(d);
 	}
 	
 	public AssetState currentState() {

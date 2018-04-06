@@ -100,8 +100,8 @@ public class MraPositionAccuracyPlot extends MRA2DPlot {
         gp.lineTo(-2.5, -2.5);
         gp.closePath();
         
-        ((XYLineAndShapeRenderer) chart.getXYPlot().getRenderer()).setShapesVisible(true);
-        ((XYLineAndShapeRenderer) chart.getXYPlot().getRenderer()).setLinesVisible(false);
+        //((XYLineAndShapeRenderer) chart.getXYPlot().getRenderer()).setShapesVisible(true);
+        //((XYLineAndShapeRenderer) chart.getXYPlot().getRenderer()).setLinesVisible(false);
         for (int i = 0; i < chart.getXYPlot().getSeriesCount(); i++)
             ((XYLineAndShapeRenderer) chart.getXYPlot().getRenderer()).setSeriesShape(i, ellis);
         
