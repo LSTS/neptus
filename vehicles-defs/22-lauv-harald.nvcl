@@ -326,10 +326,10 @@
         <protocols>gsm iridium</protocols>
         <protocols-args>
             <gsm>
-                <number>missing</number>
+                <number>+4790681767</number>
             </gsm>
             <iridium>
-                <imei>missing</imei>
+                <imei>300234064427600</imei>
             </iridium>
         </protocols-args>
     </protocols-supported>
