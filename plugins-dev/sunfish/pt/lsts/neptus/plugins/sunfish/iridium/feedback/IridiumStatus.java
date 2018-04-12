@@ -81,6 +81,7 @@ public class IridiumStatus extends ConsolePanel {
     private DefaultTableCellRenderer highlightRenderer,defaultRenderer;
     private TableRowSorter<TableModel> rowSorter;
     private TableModelListener changes;
+    private int highlight_init,highlight_block_size;
 
     @NeptusProperty(name = "Clear button", description = "Clear button parameter to cleanup old messages. (seconds)", userLevel = NeptusProperty.LEVEL.REGULAR)
     public long secs = 3600;
@@ -113,6 +114,9 @@ public class IridiumStatus extends ConsolePanel {
         clear.setToolTipText("Cleanup old messages after "+secs+" seconds");
         clear.setText("Clear");
 
+        highlight_init = 0;
+        highlight_block_size = 0;
+        
         initTableFields();
         configureTable();
 
@@ -133,8 +137,10 @@ public class IridiumStatus extends ConsolePanel {
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int col) {
 
                 Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
-                if(table.convertRowIndexToModel(row) == table.getRowCount()-1)
-                    c.setBackground(Color.GREEN.brighter().darker().darker());
+                if(table.convertRowIndexToModel(row) >= highlight_init && 
+                        table.convertRowIndexToModel(row) <=  highlight_init+highlight_block_size){//== table.getRowCount()-1)
+                    c.setBackground(Color.GREEN.darker());
+                }
                 else 
                     return defaultRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
                 return c;
@@ -147,11 +153,16 @@ public class IridiumStatus extends ConsolePanel {
                 SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
                         if(e.getType() == TableModelEvent.INSERT){
-                            int row = e.getLastRow();//table.convertRowIndexToView(table.getRowCount()-1);
-                            if(row < table.getRowCount()){
-                                Rectangle rect = table.getCellRect(row, 0, false);
-                                if(rect != null)
-                                    table.scrollRectToVisible(rect);
+                            highlight_block_size++;
+                            synchronized (IridiumStatus.this) {
+                                int index = table.getModel().getRowCount()-1;
+                                if(index < table.getRowCount()) {
+                                    int row   = table.convertRowIndexToView(index);
+                                    Rectangle rect = table.getCellRect(row, 0, false);
+                                    if(rect != null)
+                                        table.scrollRectToVisible(rect);
+                                    table.repaint();
+                                }
                             }
                         }
                     }
@@ -194,9 +205,14 @@ public class IridiumStatus extends ConsolePanel {
             public String getToolTipText(MouseEvent event) {
                 java.awt.Point p = event.getPoint();
                 int column = columnAtPoint(p);
-                if(column == IridiumStatusTableModel.STATUS){
-                    int row = rowAtPoint(p);
-                    return iridiumCommsStatus.getToolTipText(row);
+                if(column == IridiumStatusTableModel.STATUS) {
+                    if( rowAtPoint(p)> 0 && rowAtPoint(p) < table.getRowCount()) {
+                        int row = table.convertRowIndexToModel(rowAtPoint(p));
+                        if(row > 0 && row < table.getRowCount())
+                            return iridiumCommsStatus.getToolTipText(row);
+                   }
+                    else 
+                        return "";
                 }
 
                 return super.getToolTipText();
@@ -213,6 +229,10 @@ public class IridiumStatus extends ConsolePanel {
                 if (e.getClickCount() == 2) {
                     displayMessage();
                 }
+                //reset count to last inserted row
+                highlight_init = table.getRowCount() > 0 ? table.getRowCount()-1 : 0;
+                highlight_block_size = 0;
+                table.repaint();
             }
         });
     }
