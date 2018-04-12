@@ -39,6 +39,7 @@
       <child class="pt.lsts.neptus.console.plugins.planning.MapPanel" x="0" y="0" width="1048" height="632">
         <properties>
           <entry key="Focus Use My Location">false</entry>
+          <entry key="World Map Transparency">false</entry>
           <entry key="Focus Use Vehicles and Systems">false</entry>
           <entry key="Show Vehicles' Tail Button">false</entry>
         </properties>
