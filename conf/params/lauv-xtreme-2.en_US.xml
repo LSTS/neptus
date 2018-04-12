@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2017.01.0 (master,6686c4f)" system="lauv-xtreme-2" i18n="en_US">
+<config format="1" version="2017.01.0 (feature/pointgrey,956645e,dirty)" system="lauv-xtreme-2" i18n="en_US">
   <section name="Motor Controller" name-i18n="Motor Controller">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -5188,7 +5188,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Communications Board</default>
+      <default>Camera CPU</default>
       <units/>
       <desc/>
     </param>
@@ -5278,7 +5278,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Private (Auxiliary CPU)</default>
+      <default>Auxiliary CPU</default>
       <units/>
       <desc/>
     </param>
@@ -6687,7 +6687,7 @@
       <desc>Entity label of 'GpsFix' messages</desc>
     </param>
   </section>
-  <section name="Sidescan" name-i18n="Sidescan">
+  <section name="Sidescan" name-i18n="Sidescan" editor="Klein3500">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
       <type>string</type>
@@ -7727,7 +7727,7 @@
       <type>boolean</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>false</default>
+      <default>true</default>
       <units/>
       <desc>Instruct slave CPU to power down</desc>
     </param>
@@ -9048,7 +9048,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>LoggingControl, EstimatedState, QueryEntityParameters, SetEntityParameters, PopEntityParameters, PushEntityParameters, EntityParameters, PowerOperation, PowerChannelState, QueryEntityInfo, SoundSpeed</default>
+      <default>LoggingControl, EstimatedState, QueryEntityParameters, SetEntityParameters, PopEntityParameters, PushEntityParameters, EntityParameters, QueryEntityInfo, GpsFix</default>
       <units/>
       <desc>Messages to transport</desc>
     </param>
@@ -9563,6 +9563,241 @@
       <default>1, 1, 1, 1, 100, 0, 0, 0, 0, 50, 1, 1, 1, 1, 100, 0, 0, 0, 0, 500</default>
       <units/>
       <desc/>
+    </param>
+  </section>
+  <section name="Camera" name-i18n="Camera">
+    <param name="Entity Label">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Camera</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Activation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Active - Scope">
+      <name-i18n>Active - Scope</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>maneuver</default>
+      <units/>
+      <desc>Scoped of the 'Active' parameter</desc>
+    </param>
+    <param name="Active - Visibility">
+      <name-i18n>Active - Visibility</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>user</default>
+      <units/>
+      <desc>Visibility of the 'Active' parameter</desc>
+    </param>
+    <param name="Active">
+      <name-i18n>Active</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>0</default>
+      <units/>
+      <desc>True to activate task, false otherwise</desc>
+    </param>
+    <param name="Power Channel - Strobe">
+      <name-i18n>Power Channel - Strobe</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Camera - Strobe</default>
+      <units/>
+      <desc>Power Channel of Strobe.</desc>
+    </param>
+    <param name="Master Name">
+      <name-i18n>Master Name</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>lauv-xtreme-2</default>
+      <units/>
+      <desc>Master Name.</desc>
+    </param>
+    <param name="Master Mode">
+      <name-i18n>Master Mode</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Load task in master mode.</desc>
+    </param>
+    <param name="Slave Name">
+      <name-i18n>Slave Name</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>lauv-xtreme-2-cam</default>
+      <units/>
+      <desc>Slave Name.</desc>
+    </param>
+    <param name="Led Mode">
+      <name-i18n>Led Mode</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>OFF</default>
+      <units/>
+      <desc>Led type mode.</desc>
+    </param>
+    <param name="Copyright">
+      <name-i18n>Copyright</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>LSTS-FEUP</default>
+      <units/>
+      <desc>Copyright of Image.</desc>
+    </param>
+    <param name="Lens Model">
+      <name-i18n>Lens Model</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1/2 4mm F1.2-F11 - 4mm UC</default>
+      <units/>
+      <desc>Lens Model of camera.</desc>
+    </param>
+    <param name="Lens Make">
+      <name-i18n>Lens Make</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>www.edmundoptics.eu</default>
+      <units/>
+      <desc>Lens builder/maker.</desc>
+    </param>
+    <param name="Saved Images Dir">
+      <name-i18n>Saved Images Dir</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Photos</default>
+      <units/>
+      <desc>Saved Images Dir.</desc>
+    </param>
+    <param name="Number Frames/s">
+      <name-i18n>Number Frames/s</name-i18n>
+      <type>integer</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>3</default>
+      <units/>
+      <desc>Number Frames/s.</desc>
+      <min>1</min>
+      <max>5</max>
+    </param>
+    <param name="Split Photos">
+      <name-i18n>Split Photos</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Split photos by folder.</desc>
+    </param>
+    <param name="Number of photos to divide">
+      <name-i18n>Number of photos to divide</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1000</default>
+      <units/>
+      <desc>Split photos by folder.</desc>
+      <min>500</min>
+      <max>3000</max>
+    </param>
+    <param name="GPIO Driver Power">
+      <name-i18n>GPIO Driver Power</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>17</default>
+      <units/>
+      <desc>GPIO of RPI2 for driver power.</desc>
+    </param>
+    <param name="GPIO Strobe">
+      <name-i18n>GPIO Strobe</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>27</default>
+      <units/>
+      <desc>GPIO of RPI2 for strobe.</desc>
+    </param>
+    <param name="Strobe Delay (us)">
+      <name-i18n>Strobe Delay (us)</name-i18n>
+      <type>integer</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>10000</default>
+      <units/>
+      <desc>Strobe Delay in us.</desc>
+    </param>
+    <param name="Shutter Value (ms)">
+      <name-i18n>Shutter Value (ms)</name-i18n>
+      <type>real</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>8</default>
+      <units/>
+      <desc>Shutter Value time in ms.</desc>
+      <min>1</min>
+      <max>300</max>
+    </param>
+    <param name="Slave Entities">
+      <name-i18n>Slave Entities</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Slave CPU, lauv-xtreme-2-cam:Camera</default>
+      <units/>
+      <desc>Slave entities to activate/deactivate</desc>
     </param>
   </section>
 </config>
