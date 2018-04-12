@@ -221,6 +221,13 @@ desired_roll: ${DesiredRoll.value} * 180 / Math.PI</entry>
       <child class="pt.lsts.neptus.plugins.uavs.panels.UavStatusOverlay" x="0" y="0" width="0" height="0">
         <properties/>
       </child>
+     <child class="pt.lsts.neptus.firers.saop.SAOPConnectionHandler" x="0" y="0" width="0" height="0">
+        <properties>
+          <entry key="IP ADDRESS">127.0.0.1</entry>
+          <entry key="PORT">8888</entry>
+          <entry key="Bind PORT">8000</entry>
+        </properties>
+      </child>
     </subpanel>
   </mainpanel>
   <mainpanel name="console alarm panel"/>
