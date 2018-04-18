@@ -119,15 +119,7 @@ public class SimulatedMessenger implements IridiumMessenger {
         is.close();
 
         NeptusLog.pub().info("Sent " + msg.getClass().getSimpleName() + " through HTTP: " + conn.getResponseCode() + " " + conn.getResponseMessage());
-
-        //todo
-   /*     try {
-            logHubInteraction(msg.getClass().getSimpleName()+" ("+msg.getMessageType()+")", messagesUrl, conn.getRequestMethod(), ""+conn.getResponseCode(), ByteUtil.encodeToHex(msg.serialize()), new String(incoming.toByteArray()));
-        }
-        catch (Exception e) {
-            NeptusLog.pub().error(e);
-        }*/
-
+        
         if (conn.getResponseCode() != 200) {
             throw new Exception("Server returned " + conn.getResponseCode() + ": " + conn.getResponseMessage());
         }
