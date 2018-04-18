@@ -114,15 +114,17 @@ public class AssetsManager {
         if (commMean == CommMean.WiFi) {
             ImcMsgManager.getManager().sendMessageToSystem(cmd, systemName, createMessageDeliveryListener(console, systemName));
             NeptusLog.pub().warn("Command sent " + cmd.getCommandStr() + " sent over UDP to " + systemName + " :: " + cmd.asJSON());
-            if (console != null)
-                console.post(Notification.success(I18n.text("Command sent"),
-                    I18n.textf("%cmd sent over UDP to %vehicle.", cmd.getCommandStr(), systemName)));
+            //if (console != null)
+                //console.post(Notification.success(I18n.text("Command sent"),
+                //    I18n.textf("%cmd sent over UDP to %vehicle.", cmd.getCommandStr(), systemName)));
         }
         else if (commMean == CommMean.Iridium) {
             try {
                 ImcSystem system = ImcSystemsHolder.lookupSystemByName(systemName);
                 ImcIridiumMessage msg = new ImcIridiumMessage();
                 msg.setSource(ImcMsgManager.getManager().getLocalId().intValue());
+                cmd.setSrc(ImcMsgManager.getManager().getLocalId().intValue());
+                cmd.setDst(system.getId().intValue());
                 msg.setMsg(cmd);
                 msg.setDestination(system.getId().intValue());
                 IridiumManager.getManager().send(msg);
@@ -144,41 +146,52 @@ public class AssetsManager {
     private MessageDeliveryListener createMessageDeliveryListener(ConsoleLayout console, String systemName) {
         MessageDeliveryListener listener = new MessageDeliveryListener() {
             
+            private String msgName(IMCMessage msg) {
+                String ret = msg.getAbbrev();
+                if (msg.getMgid() == SoiCommand.ID_STATIC) {
+                    ret = "SOI / "+msg.getString("command");
+                }
+                return ret;
+            }
+            
             @Override
             public void deliveryUnreacheable(IMCMessage message) {
                 if (console != null)
-                    console.post(Notification.error(I18n.text("Command Delivery Unreacheable"),
-                        I18n.textf("%cmd sent over Wi-Fi to %system.", message.asJSON(), systemName)));
+                    console.post(Notification.error(I18n.text("System is Unreacheable"),
+                        I18n.textf("%cmd to %system failed.", msgName(message), systemName)));
             }
             
             @Override
             public void deliveryUncertain(IMCMessage message, Object msg) {
                 if (console != null)
-                    console.post(Notification.success(I18n.text("Command Delivery Uncertain"),
-                        I18n.textf("%cmd sent over Wi-Fi to %system with reason: %reason.", message.asJSON(),
-                        systemName, msg)));
+                    console.post(Notification.warning(I18n.text("Delivery Uncertain"),
+                        I18n.textf("Delivery of %cmd is uncertain (%reason)", msgName(message),
+                                ((Exception)msg).getMessage())));
+                
+                NeptusLog.pub().error(msg);
             }
             
             @Override
             public void deliveryTimeOut(IMCMessage message) {
                 if (console != null)
-                    console.post(Notification.error(I18n.text("Command Delivery TimeOut"),
-                        I18n.textf("%cmd sent over Wi-Fi to %system.", message.asJSON(), systemName)));
+                    console.post(Notification.error(I18n.text("Delivery Timed Out"),
+                        I18n.textf("%cmd sent over Wi-Fi to %system.", msgName(message), systemName)));
             }
             
             @Override
             public void deliverySuccess(IMCMessage message) {
                 if (console != null)
-                    console.post(Notification.success(I18n.text("Command Delivery Success"),
-                        I18n.textf("%cmd sent over Wi-Fi to %system.", message.asJSON(), systemName)));
+                    console.post(Notification.success(I18n.text("Successfull Delivery"),
+                        I18n.textf("Delivery of %cmd was successfull.", msgName(message), systemName)));
             }
             
             @Override
             public void deliveryError(IMCMessage message, Object error) {
                 if (console != null)
-                    console.post(Notification.error(I18n.text("Command Delivery Error"),
-                        I18n.textf("%cmd sent over Wi-Fi to %system with reason: %reason.", message.asJSON(),
-                        systemName, error)));
+                    console.post(Notification.error(I18n.text("Delivery Error"),
+                        I18n.textf("%cmd to %system failed: %reason.", msgName(message),
+                        systemName, ((Exception)error).getMessage())));
+                NeptusLog.pub().error(error);
             }
         };
         return listener;
