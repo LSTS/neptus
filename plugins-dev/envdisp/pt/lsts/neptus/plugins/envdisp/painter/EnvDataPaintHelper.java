@@ -36,7 +36,14 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.awt.RenderingHints;
+import java.awt.Transparency;
 import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -44,13 +51,17 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.LongAccumulator;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import javax.imageio.ImageIO;
 
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -544,37 +555,187 @@ public class EnvDataPaintHelper {
                     vals.add(0, r);
                     return vals;
                 },
-                (pt, dataMap) -> {
-                    Graphics2D gt = null;
-                    try {
-                        Pair<ArrayList<Object>, Date> pVal = dataMap.get(pt);
-                        double sla = (double) pVal.first().get(0);
-                        gt = (Graphics2D) g2.create();
-                        gt.translate(pt.getX(), pt.getY());
-                        //System.out.println(pt);
-                        Color color = Color.WHITE;
-                        color = colorMapSLA.getColor((sla - minSLA) / (maxSLA - minSLA));
-                        if (pVal.second().before(dateColorLimit)) //if (dp.getDateUTC().before(dateColorLimit))
-                            color = ColorUtils.setTransparencyToColor(color, 128);
-                        gt.setColor(color);
-                        //gt.draw(EnvDataShapesHelper.rectangle);
-                        gt.fill(EnvDataShapesHelper.rectangle);
-                        
-                        if (showSLALegend && rendererCalculator.getLevelOfDetail() >= showSLALegendFromZoomLevel) {
-                            gt.setFont(font8Pt);
-                            gt.setColor(Color.WHITE);
-                            gt.drawString(MathMiscUtils.round(sla, 2) + "m", -15, 15);
+//                (pt, dataMap) -> {
+//                    Graphics2D gt = null;
+//                    try {
+//                        Pair<ArrayList<Object>, Date> pVal = dataMap.get(pt);
+//                        double sla = (double) pVal.first().get(0);
+//                        gt = (Graphics2D) g2.create();
+//                        gt.translate(pt.getX(), pt.getY());
+//                        //System.out.println(pt);
+//                        Color color = Color.WHITE;
+//                        color = colorMapSLA.getColor((sla - minSLA) / (maxSLA - minSLA));
+//                        if (pVal.second().before(dateColorLimit)) //if (dp.getDateUTC().before(dateColorLimit))
+//                            color = ColorUtils.setTransparencyToColor(color, 128);
+//                        gt.setColor(color);
+//                        //gt.draw(EnvDataShapesHelper.rectangle);
+//                        gt.fill(EnvDataShapesHelper.rectangle);
+//                        
+//                        if (showSLALegend && rendererCalculator.getLevelOfDetail() >= showSLALegendFromZoomLevel) {
+//                            gt.setFont(font8Pt);
+//                            gt.setColor(Color.WHITE);
+//                            gt.drawString(MathMiscUtils.round(sla, 2) + "m", -15, 15);
+//                        }
+//                    }
+//                    catch (Exception e) {
+//                        NeptusLog.pub().trace(e);
+//                    }
+//                    
+//                    if (gt != null)
+//                        gt.dispose();
+//                },
+                (ptDataMap) -> {
+                    
+                    Set<Point2D> points = ptDataMap.keySet();
+                    
+                    ArrayList<Point2D> pointsXSorted = new ArrayList<>();
+                    pointsXSorted.addAll(points);
+                    pointsXSorted.sort((p, o) -> Double.compare(p.getX(), o.getX()));
+
+                    ArrayList<Point2D> pointsYSorted = new ArrayList<>();
+                    pointsYSorted.addAll(points);
+                    pointsYSorted.sort((p, o) -> Double.compare(p.getY(), o.getY()));
+                    
+                    double xMin = rendererCalculator.getSize().getWidth() + offScreenBufferPixel * 2.;
+                    double yMin = rendererCalculator.getSize().getHeight() + offScreenBufferPixel * 2.;
+                    
+                    Point2D po = null;
+                    for (Point2D p : pointsXSorted) {
+                        if (po == null) {
+                            po = p;
+                            continue;
                         }
+                        
+                        if (po.getX() == p.getX())
+                            continue;
+                        
+                        double d = Math.abs(po.getX() - p.getX());
+                        xMin = d < xMin ? d : xMin;
+                    }
+
+                    po = null;
+                    for (Point2D p : pointsYSorted) {
+                        if (po == null) {
+                            po = p;
+                            continue;
+                        }
+                        
+                        if (po.getY() == p.getY())
+                            continue;
+                        
+                        double d = Math.abs(po.getY() - p.getY());
+                        yMin = d < yMin ? d : yMin;
+                    }
+
+                    System.out.println(String.format("xMin=%f   yMin=%f", xMin, yMin));
+                    
+                    double cacheImgScaleX = 1. / xMin;
+                    double cacheImgScaleY = 1. / yMin;
+                    
+                    GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+                    GraphicsDevice gs = ge.getDefaultScreenDevice();
+                    GraphicsConfiguration gc = gs.getDefaultConfiguration();
+                    double cacheImgWidth = rendererCalculator.getSize().getWidth() + offScreenBufferPixel * 2.;
+                    double cacheImgHeight = rendererCalculator.getSize().getHeight() + offScreenBufferPixel * 2.;
+                    cacheImgWidth *= cacheImgScaleX;
+                    cacheImgHeight *= cacheImgScaleY;
+                    BufferedImage cacheImg = gc.createCompatibleImage((int) cacheImgWidth , (int) cacheImgHeight , Transparency.TRANSLUCENT);
+                    
+                    points.parallelStream().forEach(pt -> {
+                        try {
+                            Pair<ArrayList<Object>, Date> pVal = ptDataMap.get(pt);
+                            double sla = (double) pVal.first().get(0);
+                            Color color = Color.WHITE;
+                            color = colorMapSLA.getColor((sla - minSLA) / (maxSLA - minSLA));
+                            if (pVal.second().before(dateColorLimit)) //if (dp.getDateUTC().before(dateColorLimit))
+                                color = ColorUtils.setTransparencyToColor(color, 128);
+                            cacheImg.setRGB((int) ((pt.getX() + offScreenBufferPixel) * cacheImgScaleX),
+                                    (int) ((pt.getY() + offScreenBufferPixel) * cacheImgScaleY), color.getRGB());
+                      }
+                      catch (Exception e) {
+                          NeptusLog.pub().trace(e);
+                      }
+                    });
+
+                    Graphics2D gt = (Graphics2D) g2.create();
+                    try {
+                        gt.translate(rendererCalculator.getWidth() / 2., rendererCalculator.getHeight() / 2.);
+                        gt.rotate(-rendererCalculator.getRotation());
+                        // gt.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 145));
+                        gt.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+                        //gt.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+//                        gt.drawImage(cacheImg, (int) (-rendererCalculator.getWidth() / 2. - offScreenBufferPixel), 
+//                                (int) (-rendererCalculator.getHeight() / 2. - offScreenBufferPixel), 
+//                                (int) (rendererCalculator.getWidth() + offScreenBufferPixel * 2), 
+//                                (int) (rendererCalculator.getHeight() + offScreenBufferPixel * 2), null, null);
+                        gt.drawImage(cacheImg, -(int) (cacheImg.getWidth() / cacheImgScaleX / 2.), 
+                                -(int) (cacheImg.getHeight() / cacheImgScaleY / 2.), 
+                                (int) (cacheImg.getWidth() / cacheImgScaleX), 
+                                (int) (cacheImg.getHeight() / cacheImgScaleY), null, null);
                     }
                     catch (Exception e) {
                         NeptusLog.pub().trace(e);
                     }
-                    
                     if (gt != null)
                         gt.dispose();
-                }, abortIndicator);
+                    
+                    points.parallelStream().forEach(pt -> {
+                        Graphics2D gt1 = null;
+                        try {
+                            if (showSLALegend && rendererCalculator.getLevelOfDetail() >= showSLALegendFromZoomLevel) {
+                                Pair<ArrayList<Object>, Date> pVal = ptDataMap.get(pt);
+                                double sla = (double) pVal.first().get(0);
+                                gt1 = (Graphics2D) g2.create();
+                                gt1.translate(pt.getX(), pt.getY());
+
+                                gt1.setFont(font8Pt);
+                                gt1.setColor(Color.WHITE);
+                                gt1.drawString(MathMiscUtils.round(sla, 2) + "m", -15, 15);
+                            }
+                        }
+                        catch (Exception e) {
+                            NeptusLog.pub().trace(e);
+                        }
+                        if (gt1 != null)
+                            gt1.dispose();
+                    });
+                },
+                abortIndicator);
     }
-    
+
+    private static <Dp extends BaseDataPoint<?>> void paintWorkerInGraphics(String varName, 
+            MapTileRendererCalculator rendererCalculator,  Graphics2D g2,  Date dateColorLimit, 
+            Date dateLimit, HashMap<String, Dp> dataPoints, int gridSpacing, boolean ignoreDateLimitToLoad, 
+            int offScreenBufferPixel, ColorMap colorMap, double minVal, double maxVal, 
+            boolean showVarLegend, int showVarLegendFromZoomLevel, Font font8Pt, 
+            boolean showDataDebugLegend, int debugPainterForDatesOffserIndex, 
+            Function<Dp, ArrayList<Object>> extractor, BinaryOperator<ArrayList<Object>> merger,
+            BiConsumer<Point2D, Map<Point2D, Pair<ArrayList<Object>, Date>>> eachPointerpainter,
+            AtomicBoolean abortIndicator) {
+
+        paintWorkerInGraphics(varName, rendererCalculator, g2, dateColorLimit, dateLimit, dataPoints, gridSpacing,
+                ignoreDateLimitToLoad, offScreenBufferPixel, colorMap, minVal, maxVal, showVarLegend,
+                showVarLegendFromZoomLevel, font8Pt, showDataDebugLegend, debugPainterForDatesOffserIndex, extractor,
+                merger, eachPointerpainter, null, abortIndicator);
+    }
+
+    @SuppressWarnings("unused")
+    private static <Dp extends BaseDataPoint<?>> void paintWorkerInGraphics(String varName, 
+            MapTileRendererCalculator rendererCalculator,  Graphics2D g2,  Date dateColorLimit, 
+            Date dateLimit, HashMap<String, Dp> dataPoints, int gridSpacing, boolean ignoreDateLimitToLoad, 
+            int offScreenBufferPixel, ColorMap colorMap, double minVal, double maxVal, 
+            boolean showVarLegend, int showVarLegendFromZoomLevel, Font font8Pt, 
+            boolean showDataDebugLegend, int debugPainterForDatesOffserIndex, 
+            Function<Dp, ArrayList<Object>> extractor, BinaryOperator<ArrayList<Object>> merger,
+            Consumer<Map<Point2D, Pair<ArrayList<Object>, Date>>> painter,
+            AtomicBoolean abortIndicator) {
+
+        paintWorkerInGraphics(varName, rendererCalculator, g2, dateColorLimit, dateLimit, dataPoints, gridSpacing,
+                ignoreDateLimitToLoad, offScreenBufferPixel, colorMap, minVal, maxVal, showVarLegend,
+                showVarLegendFromZoomLevel, font8Pt, showDataDebugLegend, debugPainterForDatesOffserIndex, extractor,
+                merger, null, painter, abortIndicator);
+    }
+
     /**
      * @param varName
      * @param rendererCalculator
@@ -595,6 +756,7 @@ public class EnvDataPaintHelper {
      * @param debugPainterForDatesOffserIndex
      * @param extractor See {@link DataCollector}
      * @param merger See {@link DataCollector}
+     * @param eachPointPainter if null painter is used
      * @param painter
      * @param abortIndicator
      */
@@ -605,7 +767,8 @@ public class EnvDataPaintHelper {
             boolean showVarLegend, int showVarLegendFromZoomLevel, Font font8Pt, 
             boolean showDataDebugLegend, int debugPainterForDatesOffserIndex, 
             Function<Dp, ArrayList<Object>> extractor, BinaryOperator<ArrayList<Object>> merger,
-            BiConsumer<Point2D, Map<Point2D, Pair<ArrayList<Object>, Date>>> painter, 
+            BiConsumer<Point2D, Map<Point2D, Pair<ArrayList<Object>, Date>>> eachPointPainter,
+            Consumer<Map<Point2D, Pair<ArrayList<Object>, Date>>> painter,
             AtomicBoolean abortIndicator) {
         
         try {
@@ -630,17 +793,27 @@ public class EnvDataPaintHelper {
                     visiblePts.longValue(), dest.size(), usePercent, ptFilt.get(1).size(), idx == 0 ? "not " : ""));
             stMillis = System.currentTimeMillis();
 
-            ptFilt.get(idx).keySet().parallelStream().forEach(pt -> {
-                if (abortIndicator.get())
-                    return;
-                
+            if (eachPointPainter != null) {
+                ptFilt.get(idx).keySet().parallelStream().forEach(pt -> {
+                    if (abortIndicator.get())
+                        return;
+                    
+                    try {
+                        eachPointPainter.accept(pt, ptFilt.get(idx));
+                    }
+                    catch (Exception e) {
+                        NeptusLog.pub().trace(e);
+                    }
+                });                
+            }
+            else {
                 try {
-                    painter.accept(pt, ptFilt.get(idx));
+                    painter.accept(ptFilt.get(idx));
                 }
                 catch (Exception e) {
                     NeptusLog.pub().trace(e);
                 }
-            });
+            }
             debugOut(showDataDebugLegend, String.format("%s stg 2 took %ss", varName,
                     MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1)));
             
