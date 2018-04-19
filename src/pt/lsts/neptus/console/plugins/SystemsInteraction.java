@@ -58,7 +58,9 @@ import pt.lsts.neptus.systems.external.ExternalSystem;
 import pt.lsts.neptus.systems.external.ExternalSystemsHolder;
 import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
+import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.MathMiscUtils;
 
@@ -82,6 +84,9 @@ public class SystemsInteraction extends ConsoleInteraction {
     @NeptusProperty(name = "Minutes to Show Distress Signal", category = "Test", userLevel = LEVEL.ADVANCED)
     private int minutesToShowDistress = 5; 
 
+    @NeptusProperty(name = "Allow main vehicle selection by clicking on the console map", userLevel = LEVEL.REGULAR)
+    private boolean selectSystemByClick = false; 
+    
     private short counterShow = 0;
     private ArrayList<ImcSystem> imcSystems = new ArrayList<>();
     private ArrayList<ExternalSystem> extSystems = new ArrayList<>();
@@ -426,7 +431,6 @@ public class SystemsInteraction extends ConsoleInteraction {
      */
     @Override
     public void mouseClicked(MouseEvent event, StateRenderer2D source) {
-        super.mouseClicked(event, source);
         
         if (!SwingUtilities.isLeftMouseButton(event))
             return;
@@ -435,6 +439,7 @@ public class SystemsInteraction extends ConsoleInteraction {
         
         ArrayList<ImcSystem> imcSystems = new ArrayList<>();
         ArrayList<ExternalSystem> extSystems = new ArrayList<>();
+        ImcSystem sel = null;
         
         for (ImcSystem sys : ImcSystemsHolder.lookupAllSystems()) {
             if (minutesToConsiderSystemsWithoutKnownLocation > 0 && System.currentTimeMillis()
@@ -443,8 +448,19 @@ public class SystemsInteraction extends ConsoleInteraction {
             LocationType loc = sys.getLocation();
             Point2D locScreenXY = source.getScreenPosition(loc);
             double dist = locScreenXY.distance(event.getPoint());
-            if (dist <= PIXEL_DISTANCE_TO_SELECT)
+            if (dist <= PIXEL_DISTANCE_TO_SELECT) {
                 imcSystems.add(sys);
+                if (VehiclesHolder.getVehicleById(sys.getName()) != null)
+                    sel = sys;
+            }
+        }
+
+        if (event.getClickCount() == 2 && !event.isConsumed()) {
+            event.consume();
+            if (selectSystemByClick && sel != null)
+                getConsole().setMainSystem(sel.getName());
+            else
+                super.mouseClicked(event, source);
         }
         
         if (considerExternalSystemsIcons) {

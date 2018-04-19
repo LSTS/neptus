@@ -77,6 +77,7 @@ import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
+import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.renderer2d.CustomInteractionSupport;
 import pt.lsts.neptus.renderer2d.FeatureFocuser;
 import pt.lsts.neptus.renderer2d.ILayerPainter;
@@ -117,7 +118,10 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
 
     @NeptusProperty(name = "Show world map", userLevel = LEVEL.ADVANCED)
     public boolean worldMapShown = true;
-
+    
+    @NeptusProperty(name = "World Map Transparency", userLevel = LEVEL.ADVANCED)
+    public boolean useWorldMapTransparency = true;
+    
     @NeptusProperty(userLevel = LEVEL.ADVANCED)
     public int updateMillis = 100;
 
@@ -266,6 +270,8 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
                 getConsole().post(event);
             }
         });
+        
+        renderer.getWorldMapPainter().setUseTransparency(useWorldMapTransparency);
     }
 
     @Override
@@ -364,7 +370,8 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
     }
 
     @Override
-    public boolean update() {
+    @Periodic(millisBetweenUpdates=500)
+    public synchronized boolean update() {
         try {
             for (VehicleType vt : vehicles.keySet()) {
                 renderer.vehicleStateChanged(vt.getId(), vehicles.get(vt), false);
@@ -376,7 +383,8 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
         }
         return true;
     }
-
+    
+    
     public void setMission(MissionType mission) {
         if (mission == null)
             return;
@@ -412,7 +420,7 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
         renderer.setFixedVehicleWidth(fixedSize);
         renderer.setWorldMapShown(worldMapShown);
         renderer.setRespondToRendererChangeEvents(isSyncronizeAllMapsMovements);
-        
+        renderer.getWorldMapPainter().setUseTransparency(useWorldMapTransparency);
         setToolbarPlacement(); // Refresh toolbar position
         
         tailSwitch.setVisible(showTailButton);

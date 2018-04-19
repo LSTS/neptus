@@ -235,22 +235,12 @@ public class PlanSimulationLayer extends ConsoleLayer implements PlanSimulationL
         return checks;
     }
 
-    // private List<Pair<PlanCheck, String>> validateVehicle() {
-    // ArrayList<Pair<PlanCheck, String>> checks = new ArrayList<>();
-    // if (!mainPlan.getVehicle().equals(getConsole().getMainSystem())) {
-    // checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Warning,
-    // "Console and plan vehicles differ"));
-    // }
-    //
-    // return checks;
-    // }
-    //
     private List<Pair<PlanCheck, String>> validateCollisions() {
         ArrayList<Pair<PlanCheck, String>> checks = new ArrayList<>();
         Vector<AbstractElement> obstacles = MapGroup.getMapGroupInstance(getConsole().getMission()).getObstacles();
 
         synchronized (PlanSimulationLayer.this) {
-            for (SystemPositionAndAttitude s : simOverlay.getStates()) {
+            for (SystemPositionAndAttitude s : simOverlay.getStates().toArray(new SystemPositionAndAttitude[0])) {
                 for (AbstractElement a : obstacles) {
                     if (a.containsPoint(s.getPosition(), null)) {
                         checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Warning,
