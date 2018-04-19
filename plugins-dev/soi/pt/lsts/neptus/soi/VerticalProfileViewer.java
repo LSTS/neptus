@@ -32,13 +32,20 @@
  */
 package pt.lsts.neptus.soi;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
+import java.util.concurrent.ConcurrentHashMap;
+
+import javax.swing.JDialog;
+import javax.swing.SwingUtilities;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -48,8 +55,11 @@ import org.jfree.chart.renderer.xy.XYSplineRenderer;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.knowm.xchart.XChartPanel;
+import org.knowm.xchart.XYChart;
+import org.knowm.xchart.XYChartBuilder;
+import org.knowm.xchart.style.Styler.ChartTheme;
 
-import pt.lsts.imc.ProfileSample;
 import pt.lsts.imc.VerticalProfile;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
@@ -87,15 +97,26 @@ public class VerticalProfileViewer implements Renderer2DPainter {
 
     public void paintProfileDetails(VerticalProfile p, Graphics2D g, StateRenderer2D renderer) {
         
-        XYSeries series = new XYSeries(p.getParameterStr());
-        for (ProfileSample sample : p.getSamples()) {
-            series.add(sample.getAvg(), -sample.getDepth() / 10.0);                   
-        }
-        XYDataset dataset = new XYSeriesCollection(series);
-        JFreeChart chart = ChartFactory.createXYLineChart(""+p.getDate(),
-                p.getParameterStr().toLowerCase(), "Depth", dataset, PlotOrientation.VERTICAL, false, false, false);        
-        chart.getXYPlot().setRenderer(new XYSplineRenderer(1));
-        chart.draw(g, new Rectangle2D.Double(renderer.getWidth() - 520, renderer.getHeight() - 520, 500, 500));
+        Point2D pt = renderer.getScreenPosition(new LocationType(p.getLat(), p.getLon()));
+        g.drawString(p.getSourceName(), (int)pt.getX()+10, (int)pt.getY()+20);
+        g.drawString(p.getDate().toString(), (int)pt.getX()+10, (int)pt.getY()+35);
+    }
+    
+    XYChart getChart(VerticalProfile p) {
+
+        ArrayList<Double> depths = new ArrayList<>();
+        ArrayList<Double> values = new ArrayList<>();
+
+        p.getSamples().forEach(s -> {
+            depths.add(-s.getDepth() / 10.0);
+            values.add(s.getAvg());
+        });
+
+        XYChart chart = new XYChartBuilder().title(p.getDate().toString()).theme(ChartTheme.GGPlot2).width(500)
+                .height(500).yAxisTitle("depth").xAxisTitle(p.getParameterStr().toLowerCase()).build();
+        chart.addSeries(p.getParameterStr().substring(0, 1), values, depths);
+        
+        return chart;
     }
 
     public void paintProfileIcon(VerticalProfile p, Graphics2D g, StateRenderer2D renderer) {
@@ -140,7 +161,65 @@ public class VerticalProfileViewer implements Renderer2DPainter {
             }
             selected = null;
         }
-
+    }
+    
+    private ConcurrentHashMap<VerticalProfile, JDialog> openedWindows = new ConcurrentHashMap<>();
+    
+    /**
+     * @param event
+     * @param source
+     */
+    public void mouseClicked(MouseEvent event, StateRenderer2D source) {
+        final VerticalProfile sel = selected;
+        
+        System.out.println("Mouse Clicked");
+        if (sel != null && event.getClickCount() == 2) {
+            JDialog opened = openedWindows.get(selected);
+            if (opened != null) {
+                opened.toFront();
+            }
+            else {
+                JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(source), sel.getDate().toString());
+                openedWindows.put(sel, dialog);
+                dialog.getContentPane().setLayout(new BorderLayout());
+                XChartPanel<XYChart> panel = new XChartPanel<XYChart>(getChart(sel)); 
+                dialog.getContentPane().add(panel, BorderLayout.CENTER);
+                dialog.setSize(700, 500);
+                dialog.setLocationRelativeTo(null);
+                panel.addMouseMotionListener(new MouseMotionListener() {
+                    
+                    @Override
+                    public void mouseMoved(MouseEvent e) {
+                        selected = sel;                        
+                    }
+                    
+                    @Override
+                    public void mouseDragged(MouseEvent e) {
+                        selected = sel;
+                    }
+                });
+                
+                dialog.addWindowListener(new WindowAdapter() {
+                    @Override
+                    public void windowClosing(WindowEvent e) {
+                        super.windowClosing(e);
+                        openedWindows.remove(sel);
+                    }
+                    
+                    @Override
+                    public void windowActivated(WindowEvent e) {
+                        selected = sel;
+                        super.windowActivated(e);
+                    }
+                });
+                
+                
+                
+                dialog.setVisible(true);
+                
+                
+            }
+        }
     }
     
     public static void main(String[] args) {

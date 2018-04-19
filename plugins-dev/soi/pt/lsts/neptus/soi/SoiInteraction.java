@@ -120,8 +120,8 @@ public class SoiInteraction extends SimpleRendererInteraction {
     @NeptusProperty(name = "Battery Entity Name", description = "Vehicle Battery entity name")
     public String batteryEntityName = "Batteries";
 
-    private LinkedHashMap<String, Plan> plans = new LinkedHashMap<>();
-    private LinkedHashMap<String, SoiSettings> settings = new LinkedHashMap<>();
+    //private LinkedHashMap<String, Plan> plans = new LinkedHashMap<>();
+    //private LinkedHashMap<String, SoiSettings> settings = new LinkedHashMap<>();
     private VerticalProfileViewer profileView = new VerticalProfileViewer();
     
     private AssetsManager assetsManager = AssetsManager.getInstance();
@@ -187,10 +187,7 @@ public class SoiInteraction extends SimpleRendererInteraction {
             plan = Plan.parse((PlanSpecification) ptype.asIMCPlan());
 
             if (scheduleWaypoints) {
-                if (!settings.containsKey(system)) {
-                    settings.put(system, new SoiSettings());
-                }
-                SoiSettings vehicleSettings = settings.get(system);
+                SoiSettings vehicleSettings = assetsManager.getSettings().getOrDefault(system, new SoiSettings());
                 plan.scheduleWaypoints(System.currentTimeMillis() + (long) (timeToFirstWaypoint * 1000l),
                         vehicleSettings.speed);
             }
@@ -201,7 +198,7 @@ public class SoiInteraction extends SimpleRendererInteraction {
             cmd.setPlan(plan.asImc());
             sendCommand(cmd);
 
-            plans.put(system, plan);
+            assetsManager.getPlans().put(system, plan);
         }
         catch (Exception e) {
             NeptusLog.pub().error("Error translating plan", e);
@@ -238,14 +235,12 @@ public class SoiInteraction extends SimpleRendererInteraction {
 
         String system = getConsole().getMainSystem();
 
-        if (!settings.containsKey(system)) {
-            settings.put(system, new SoiSettings());
-        }
+        assetsManager.getSettings().putIfAbsent(system, new SoiSettings());
 
-        if (PluginUtils.editPluginProperties(settings.get(system), getConsole(), true))
+        if (PluginUtils.editPluginProperties(assetsManager.getSettings(), getConsole(), true))
             return;
         @SuppressWarnings("unchecked")
-        List<PluginProperty> after = Arrays.asList(PluginUtils.getPluginProperties(settings.get(system)));
+        List<PluginProperty> after = Arrays.asList(PluginUtils.getPluginProperties(assetsManager.getSettings().get(system)));
         SoiCommand cmd = new SoiCommand();
         cmd.setType(TYPE.REQUEST);
         cmd.setCommand(COMMAND.SET_PARAMS);
@@ -261,10 +256,9 @@ public class SoiInteraction extends SimpleRendererInteraction {
         try {
             assetsManager.setParams(vehicle, params);
 
-            if (!settings.containsKey(vehicle))
-                settings.put(vehicle, new SoiSettings());
+            assetsManager.getSettings().putIfAbsent(vehicle, new SoiSettings());
 
-            PluginProperty[] props = PluginUtils.getPluginProperties(settings.get(vehicle));
+            PluginProperty[] props = PluginUtils.getPluginProperties(assetsManager.getSettings().get(vehicle));
 
             LinkedHashMap<String, String> fieldToName = new LinkedHashMap<>();
 
@@ -303,7 +297,7 @@ public class SoiInteraction extends SimpleRendererInteraction {
                 }
             }
 
-            PluginUtils.setPluginProperties(settings.get(vehicle), props);
+            PluginUtils.setPluginProperties(assetsManager.getSettings().get(vehicle), props);
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -316,6 +310,7 @@ public class SoiInteraction extends SimpleRendererInteraction {
         getConsole().post(Notification.success(I18n.text("SOI Settings"),
                 I18n.textf("Received %param profile from %vehicle.", msg.getParameter().name().toLowerCase(), msg.getSourceName())));
     }
+    
     @Subscribe
     public void on(SoiCommand cmd) {
         assetsManager.process(cmd, getConsole());
@@ -328,15 +323,11 @@ public class SoiInteraction extends SimpleRendererInteraction {
 
         switch (cmd.getCommand()) {
             case GET_PARAMS:
-                getConsole().post(Notification.success(I18n.text("SOI Settings"),
-                        I18n.textf("Received settings from %vehicle.", cmd.getSourceName())));
                 setParams(cmd.getSourceName(), cmd.getSettings());
                 break;
             case GET_PLAN:
             case EXEC:
-                getConsole().post(Notification.success(I18n.text("SOI Plan"),
-                        I18n.textf("Received plan from %vehicle.", cmd.getSourceName())));
-                plans.put(cmd.getSourceName(), Plan.parse(cmd.getPlan()));
+                assetsManager.getPlans().put(cmd.getSourceName(), Plan.parse(cmd.getPlan()));
                 break;
             default:
                 break;
@@ -344,7 +335,38 @@ public class SoiInteraction extends SimpleRendererInteraction {
     }
 
     private void paintPlans(Graphics2D g, StateRenderer2D renderer) {
-        for (Entry<String, Plan> p : plans.entrySet()) {
+        assetsManager.getPlans().forEach( (vehicle, plan) -> {
+            try {
+                Color c = VehiclesHolder.getVehicleById(vehicle).getIconColor();
+                SystemPositionAndAttitude estimatedState = SoiUtils
+                        .estimatedState(ImcSystemsHolder.getSystemWithName(vehicle), plan);
+                SoiPlanRenderer prenderer = new SoiPlanRenderer();
+
+                prenderer.setColor(c);
+                prenderer.setPlan(plan);
+                prenderer.paint(g, renderer);
+                if (estimatedState != null && estimatedState.getPosition() != null) {
+                    Point2D pt = renderer.getScreenPosition(estimatedState.getPosition());
+                    Graphics2D copy = (Graphics2D) g.create();
+                    copy.setColor(c);
+                    copy.translate(pt.getX(), pt.getY());
+                    copy.rotate(Math.toRadians(estimatedState.getYaw()));
+                    GeneralPath gp = new GeneralPath();
+                    gp.moveTo(-7, 4);
+                    gp.lineTo(0, -12);
+                    gp.lineTo(7, 4);
+                    gp.lineTo(0, 0);
+                    gp.closePath();
+                    copy.fill(gp);
+                    copy.setColor(Color.white);
+                    copy.draw(gp);
+                }
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        for (Entry<String, Plan> p : assetsManager.getPlans().entrySet()) {
             try {
                 String vehicle = p.getKey();
                 Color c = VehiclesHolder.getVehicleById(p.getKey()).getIconColor();
@@ -414,6 +436,9 @@ public class SoiInteraction extends SimpleRendererInteraction {
 
             popup.show(source, event.getX(), event.getY());
         }
+        else {
+            profileView.mouseClicked(event, source);
+        }
     }
     
     @Override
@@ -437,7 +462,8 @@ public class SoiInteraction extends SimpleRendererInteraction {
             if (vehicle.getLocation() == null)
                 continue;
 
-            Plan plan = plans.get(vehicle.getName());
+            Plan plan = assetsManager.getPlans().getOrDefault(vehicle.getName(), null);
+            
             if (plan == null)
                 continue;
 

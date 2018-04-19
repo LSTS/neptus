@@ -33,16 +33,14 @@
 package pt.lsts.neptus.endurance;
 
 import java.text.SimpleDateFormat;
-import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.TimeZone;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.locks.ReentrantLock;
 
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.SoiCommand;
@@ -64,7 +62,7 @@ import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * @author pdias
- *
+ * @author zp
  */
 public class AssetsManager {
 
@@ -73,14 +71,9 @@ public class AssetsManager {
     
     private static AssetsManager instance = null;
     
-    private Map<String, SoiSettings> settings = (Map<String, SoiSettings>) Collections
-            .synchronizedMap(new LinkedHashMap<String, SoiSettings>());
-    private Map<String, Plan> plans = (Map<String, Plan>) Collections
-            .synchronizedMap(new LinkedHashMap<String, Plan>());
-    private Map<String, Asset> assetsMap = (Map<String, Asset>) Collections
-            .synchronizedMap(new LinkedHashMap<String, Asset>());
-    
-    private ReentrantLock lockAssets = new ReentrantLock();
+    private ConcurrentHashMap<String, SoiSettings> settings = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, Plan> plans = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, Asset> assetsMap = new ConcurrentHashMap<>();
 
     /**
      * @param console
@@ -99,14 +92,14 @@ public class AssetsManager {
     /**
      * @return the plans
      */
-    public Map<String, Plan> getPlans() {
+    public ConcurrentHashMap<String, Plan> getPlans() {
         return plans;
     }
     
     /**
      * @return the settings
      */
-    public Map<String, SoiSettings> getSettings() {
+    public ConcurrentHashMap<String, SoiSettings> getSettings() {
         return settings;
     }
     
@@ -114,9 +107,6 @@ public class AssetsManager {
         if (commMean == CommMean.WiFi) {
             ImcMsgManager.getManager().sendMessageToSystem(cmd, systemName, createMessageDeliveryListener(console, systemName));
             NeptusLog.pub().warn("Command sent " + cmd.getCommandStr() + " sent over UDP to " + systemName + " :: " + cmd.asJSON());
-            //if (console != null)
-                //console.post(Notification.success(I18n.text("Command sent"),
-                //    I18n.textf("%cmd sent over UDP to %vehicle.", cmd.getCommandStr(), systemName)));
         }
         else if (commMean == CommMean.Iridium) {
             try {
@@ -207,7 +197,7 @@ public class AssetsManager {
         switch (cmd.getCommand()) {
             case GET_PARAMS:
                 if (console != null)
-                    console.post(Notification.success(I18n.text("SOI Settings"),
+                    console.post(Notification.success(I18n.text("Received Settings"),
                             I18n.textf("Received settings from %vehicle (at %time).", cmd.getSourceName(),
                                     dateFormatterXMLNoMillisUTC.format(new Date(cmd.getTimestampMillis()))))
                             .requireHumanAction(true));
@@ -216,7 +206,7 @@ public class AssetsManager {
             case GET_PLAN:
             case EXEC:
                 if (console != null)
-                    console.post(Notification.success(I18n.text("SOI Plan"),
+                    console.post(Notification.success(I18n.text("Received Plan"),
                             I18n.textf("Received plan from %vehicle (at %time).", cmd.getSourceName(),
                                     dateFormatterXMLNoMillisUTC.format(new Date(cmd.getTimestampMillis()))))
                             .requireHumanAction(true));
@@ -261,7 +251,7 @@ public class AssetsManager {
                     p.setValue(Boolean.parseBoolean(params.get(p.getName())));
                     break;
                 default:
-                    System.out.println("Class not recognized: " + p.getType());
+                    NeptusLog.pub().error("Class not recognized: " + p.getType());
                     break;
             }
         }
@@ -270,43 +260,35 @@ public class AssetsManager {
     }
 
     public Asset getAssetFor(String systemName) {
-        lockAssets.lock();
-        Asset ret = assetsMap.get(systemName);
-        lockAssets.unlock();
+        Asset ret = assetsMap.getOrDefault(systemName, null);
         return ret;
     }
     
     @Periodic(millisBetweenUpdates = 60_000)
-    private void updatePos() {
+    private void updateState() {
         Future<List<Asset>> sts = EnduranceWebApi.getSoiState();
         try {
             List<Asset> assetLst = sts.get(5000, TimeUnit.MILLISECONDS);
             StringBuilder sb = new StringBuilder();
-            for (Asset asset : assetLst) {
-                sb.append(asset.getAssetName());
+            for (Asset received : assetLst) {
+                sb.append(received.getAssetName());
                 sb.append(" :: ");
-                sb.append(asset.toString());
+                sb.append(received.toString());
                 sb.append("\n");
                 
-                String id = asset.getAssetName();
+                String id = received.getAssetName();
                 
-                lockAssets.lock();
-                if (assetsMap.containsKey(id)) {
-                    assetsMap.put(id, asset);
-                }
-                else {
-                    Asset curAsset = assetsMap.get(id);
-                    curAsset.setState(asset.currentState());
-                    curAsset.setPlan(asset.getPlan());
-                    curAsset.getConfig().clear();
-                    curAsset.getConfig().putAll(asset.getConfig());
-                }
-                lockAssets.unlock();
-                
-                plans.put(id, asset.getPlan());
+                Asset updated = assetsMap.getOrDefault(id, received);
+                updated.setPlan(received.getPlan());
+                updated.setState(received.currentState());
+                updated.getConfig().clear();
+                updated.getConfig().putAll(received.getConfig());
+                assetsMap.put(id, updated);
+                plans.put(id, received.getPlan());
             }
-            if (sb.length() > 0)
-                System.out.println(sb.toString());
+            if (sb.length() > 0) {
+                NeptusLog.pub().info(sb);
+            }
         }
         catch (TimeoutException e) {
             e.printStackTrace();
