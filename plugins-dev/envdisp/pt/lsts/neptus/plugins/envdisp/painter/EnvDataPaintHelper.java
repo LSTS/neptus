@@ -167,6 +167,7 @@ public class EnvDataPaintHelper {
     /**
      * @param rendererCalculator
      * @param g2
+     * @param transparency
      * @param dateColorLimit
      * @param dateLimit
      * @param dataPointsCurrents
@@ -181,7 +182,8 @@ public class EnvDataPaintHelper {
      * @param showDataDebugLegend
      * @param abortIndicator
      */
-    public static void paintHFRadarInGraphics(MapTileRendererCalculator rendererCalculator, Graphics2D g2, Date dateColorLimit, Date dateLimit,
+    public static void paintHFRadarInGraphics(MapTileRendererCalculator rendererCalculator, Graphics2D g2,
+            int transparency, Date dateColorLimit, Date dateLimit,
             HashMap<String, HFRadarDataPoint> dataPointsCurrents, boolean ignoreDateLimitToLoad, int offScreenBufferPixel,
             ColorMap colorMapCurrents, double minCurrentCmS, double maxCurrentCmS, boolean showCurrentsLegend, int showCurrentsLegendFromZoomLevel,
             Font font8Pt, boolean showDataDebugLegend, AtomicBoolean abortIndicator) {
@@ -218,7 +220,9 @@ public class EnvDataPaintHelper {
                         Color color = Color.WHITE;
                         color = colorMapCurrents.getColor(speedCmSV / maxCurrentCmS);
                         if (dateV.before(dateColorLimit))
-                            color = ColorUtils.setTransparencyToColor(color, 128);
+                            color = ColorUtils.setTransparencyToColor(color, transparency / 2);
+                        else
+                            color = ColorUtils.setTransparencyToColor(color, transparency);
                         gt.setColor(color);
                         double rot = Math.toRadians(-headingV + 90) - rendererCalculator.getRotation();
                         gt.rotate(rot);
@@ -243,6 +247,7 @@ public class EnvDataPaintHelper {
     /**
      * @param rendererCalculator
      * @param g2
+     * @param transparency
      * @param dateColorLimit
      * @param dateLimit
      * @param dataPointsSST
@@ -257,7 +262,8 @@ public class EnvDataPaintHelper {
      * @param showDataDebugLegend
      * @param abortIndicator
      */
-    public static void paintSSTInGraphics(MapTileRendererCalculator rendererCalculator, Graphics2D g2, Date dateColorLimit, Date dateLimit,
+    public static void paintSSTInGraphics(MapTileRendererCalculator rendererCalculator, Graphics2D g2, 
+            int transparency, Date dateColorLimit, Date dateLimit,
             HashMap<String, SSTDataPoint> dataPointsSST, boolean ignoreDateLimitToLoad, int offScreenBufferPixel,
             ColorMap colorMapSST, double minSST, double maxSST,
             boolean showSSTLegend, int showSSTLegendFromZoomLevel, Font font8Pt, boolean showDataDebugLegend, AtomicBoolean abortIndicator) {
@@ -285,7 +291,9 @@ public class EnvDataPaintHelper {
                         Color color = Color.WHITE;
                         color = colorMapSST.getColor((sst - minSST) / (maxSST - minSST));
                         if (pVal.second().before(dateColorLimit)) //if (dp.getDateUTC().before(dateColorLimit))
-                            color = ColorUtils.setTransparencyToColor(color, 128);
+                            color = ColorUtils.setTransparencyToColor(color, transparency / 2);
+                        else
+                            color = ColorUtils.setTransparencyToColor(color, transparency);
                         gt.setColor(color);
                         //gt.draw(EnvDataShapesHelper.circle);
                         gt.fill(EnvDataShapesHelper.rectangle);
@@ -308,6 +316,7 @@ public class EnvDataPaintHelper {
     /**
      * @param rendererCalculator
      * @param g2
+     * @param transparency
      * @param dateColorLimit
      * @param dateLimit
      * @param dataPointsWind
@@ -321,7 +330,8 @@ public class EnvDataPaintHelper {
      * @param showDataDebugLegend
      * @param abortIndicator
      */
-    public static void paintWindInGraphics(MapTileRendererCalculator rendererCalculator, Graphics2D g2, Date dateColorLimit, Date dateLimit,
+    public static void paintWindInGraphics(MapTileRendererCalculator rendererCalculator, Graphics2D g2,
+            int transparency, Date dateColorLimit, Date dateLimit,
             HashMap<String, WindDataPoint> dataPointsWind, boolean ignoreDateLimitToLoad, int offScreenBufferPixel,
             boolean useColorMapForWind, ColorMap colorMapWind, double minWind, double maxWind,
             Font font8Pt, boolean showDataDebugLegend, AtomicBoolean abortIndicator) {
@@ -359,7 +369,9 @@ public class EnvDataPaintHelper {
                         if (useColorMapForWind)
                             color = colorMapWind.getColor(speedV / maxWind);
                         if (dateV.before(dateColorLimit))
-                            color = ColorUtils.setTransparencyToColor(color, 128);
+                            color = ColorUtils.setTransparencyToColor(color, transparency / 2);
+                        else
+                            color = ColorUtils.setTransparencyToColor(color, transparency);
                         gt.setColor(color);
                         
                         gt.rotate(Math.toRadians(headingV) - rendererCalculator.getRotation());
@@ -379,6 +391,7 @@ public class EnvDataPaintHelper {
     /**
      * @param rendererCalculator
      * @param g2
+     * @param trasparency
      * @param dateColorLimit
      * @param dateLimit
      * @param dataPointsWaves
@@ -393,7 +406,8 @@ public class EnvDataPaintHelper {
      * @param showDataDebugLegend
      * @param abortIndicator
      */
-    public static void paintWavesInGraphics(MapTileRendererCalculator rendererCalculator, Graphics2D g2, Date dateColorLimit, Date dateLimit,
+    public static void paintWavesInGraphics(MapTileRendererCalculator rendererCalculator, Graphics2D g2, 
+            int transparency, Date dateColorLimit, Date dateLimit,
             HashMap<String, WavesDataPoint> dataPointsWaves, boolean ignoreDateLimitToLoad, int offScreenBufferPixel,
             ColorMap colorMapWaves, double minWaves, double maxWaves, boolean showWavesLegend,
             int showWavesLegendFromZoomLevel, Font font8Pt, boolean showDataDebugLegend, AtomicBoolean abortIndicator) {
@@ -430,7 +444,9 @@ public class EnvDataPaintHelper {
                         Color color = Color.WHITE;
                         color = colorMapWaves.getColor(sigHeightV / maxWaves);
                         if (dateV.before(dateColorLimit))
-                            color = ColorUtils.setTransparencyToColor(color, 128);
+                            color = ColorUtils.setTransparencyToColor(color, transparency / 2);
+                        else
+                            color = ColorUtils.setTransparencyToColor(color, transparency);
                         gt.setColor(color);
                         double rot = Math.toRadians(headingV) - rendererCalculator.getRotation();
                         gt.rotate(rot);
@@ -455,6 +471,7 @@ public class EnvDataPaintHelper {
     /**
      * @param rendererCalculator
      * @param g2
+     * @param transparency
      * @param dateColorLimit
      * @param dateLimit
      * @param dataPointsChlorophyll
@@ -469,7 +486,8 @@ public class EnvDataPaintHelper {
      * @param showDataDebugLegend
      * @param abortIndicator
      */
-    public static void paintChlorophyllInGraphics(MapTileRendererCalculator rendererCalculator, Graphics2D g2, Date dateColorLimit, Date dateLimit,
+    public static void paintChlorophyllInGraphics(MapTileRendererCalculator rendererCalculator, Graphics2D g2, 
+            int transparency, Date dateColorLimit, Date dateLimit,
             HashMap<String, ChlorophyllDataPoint> dataPointsChlorophyll, boolean ignoreDateLimitToLoad, int offScreenBufferPixel,
             ColorMap colorMapChlorophyll, double minChlorophyll, double maxChlorophyll, boolean showChlorophyllLegend,
             int showChlorophyllLegendFromZoomLevel, Font font8Pt, boolean showDataDebugLegend, AtomicBoolean abortIndicator) {
@@ -497,7 +515,9 @@ public class EnvDataPaintHelper {
                         Color color = Color.WHITE;
                         color = colorMapChlorophyll.getColor((val - minChlorophyll) / (maxChlorophyll - minChlorophyll));
                         if (pVal.second().before(dateColorLimit)) //if (dp.getDateUTC().before(dateColorLimit))
-                            color = ColorUtils.setTransparencyToColor(color, 128);
+                            color = ColorUtils.setTransparencyToColor(color, transparency / 2);
+                        else
+                            color = ColorUtils.setTransparencyToColor(color, transparency);
                         gt.setColor(color);
                         gt.draw(EnvDataShapesHelper.circle);
                         gt.fill(EnvDataShapesHelper.circle);
@@ -520,6 +540,7 @@ public class EnvDataPaintHelper {
     /**
      * @param rendererCalculator
      * @param g2
+     * @param transparency
      * @param dateColorLimit
      * @param dateLimit
      * @param dataPointsSLA
@@ -534,8 +555,8 @@ public class EnvDataPaintHelper {
      * @param showDataDebugLegend
      * @param abortIndicator
      */
-    public static void paintSLAInGraphics(MapTileRendererCalculator rendererCalculator, Graphics2D g2, 
-            Date dateColorLimit, Date dateLimit, HashMap<String, SLADataPoint> dataPointsSLA, 
+    public static void paintSLAInGraphics(MapTileRendererCalculator rendererCalculator, Graphics2D g2,
+            int transparency, Date dateColorLimit, Date dateLimit, HashMap<String, SLADataPoint> dataPointsSLA, 
             boolean ignoreDateLimitToLoad, int offScreenBufferPixel, ColorMap colorMapSLA,
             double minSLA, double maxSLA, boolean showSLALegend, int showSLALegendFromZoomLevel, 
             Font font8Pt, boolean showDataDebugLegend, AtomicBoolean abortIndicator) {
@@ -564,7 +585,9 @@ public class EnvDataPaintHelper {
 //                        Color color = Color.WHITE;
 //                        color = colorMapSLA.getColor((sla - minSLA) / (maxSLA - minSLA));
 //                        if (pVal.second().before(dateColorLimit)) //if (dp.getDateUTC().before(dateColorLimit))
-//                            color = ColorUtils.setTransparencyToColor(color, 128);
+//                            color = ColorUtils.setTransparencyToColor(color, transparency / 2);
+//                        else
+//                            color = ColorUtils.setTransparencyToColor(color, transparency);
 //                        gt.setColor(color);
 //                        //gt.draw(EnvDataShapesHelper.rectangle);
 //                        gt.fill(EnvDataShapesHelper.rectangle);
@@ -583,7 +606,6 @@ public class EnvDataPaintHelper {
 //                        gt.dispose();
 //                },
                 (ptDataMap) -> {
-                    
                     Set<Point2D> points = ptDataMap.keySet();
 
                     double fullImgWidth = rendererCalculator.getSize().getWidth() + offScreenBufferPixel * 2.;
@@ -612,7 +634,9 @@ public class EnvDataPaintHelper {
                             double sla = (double) pVal.first().get(0);
                             Color color = colorMapSLA.getColor((sla - minSLA) / (maxSLA - minSLA));
                             if (pVal.second().before(dateColorLimit)) //if (dp.getDateUTC().before(dateColorLimit))
-                                color = ColorUtils.setTransparencyToColor(color, 128);
+                                color = ColorUtils.setTransparencyToColor(color, transparency);
+                            else
+                                color = ColorUtils.setTransparencyToColor(color, transparency / 2);
                             cacheImg.setRGB((int) ((pt.getX() + offScreenBufferPixel) * cacheImgScaleX),
                                     (int) ((pt.getY() + offScreenBufferPixel) * cacheImgScaleY), color.getRGB());
                         }

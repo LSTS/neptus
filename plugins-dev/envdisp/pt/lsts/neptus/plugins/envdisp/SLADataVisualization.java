@@ -244,7 +244,7 @@ public class SLADataVisualization extends ConsoleLayer implements IPeriodicUpdat
                         
                         if (showSLA) {
                             try {
-                                EnvDataPaintHelper.paintSLAInGraphics(rendererCalculator, g2, dateColorLimit, dateLimit, dataPointsSLA,
+                                EnvDataPaintHelper.paintSLAInGraphics(rendererCalculator, g2, 128, dateColorLimit, dateLimit, dataPointsSLA,
                                         ignoreDateLimitToLoad, offScreen.getOffScreenBufferPixel(), colorMapSLA, minSLA, maxSLA, showSLALegend,
                                         showSLALegendFromZoomLevel, font8Pt, showDataDebugLegend, abortIndicator);
                             }

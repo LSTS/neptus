@@ -765,7 +765,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
 
                         if (showCurrents) {
                             try {
-                                EnvDataPaintHelper.paintHFRadarInGraphics(rendererCalculator, g2, dateColorLimit, dateLimit, dataPointsCurrents,
+                                EnvDataPaintHelper.paintHFRadarInGraphics(rendererCalculator, g2, 128, dateColorLimit, dateLimit, dataPointsCurrents,
                                         ignoreDateLimitToLoad, offScreen.getOffScreenBufferPixel(), colorMapCurrents, 0, maxCurrentCmS,
                                         showCurrentsLegend, showCurrentsLegendFromZoomLevel, font8Pt, showDataDebugLegend, abortIndicator);
                             }
@@ -776,7 +776,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
                         }
                         if (showSST) {
                             try {
-                                EnvDataPaintHelper.paintSSTInGraphics(rendererCalculator, g2, dateColorLimit, dateLimit, dataPointsSST, ignoreDateLimitToLoad,
+                                EnvDataPaintHelper.paintSSTInGraphics(rendererCalculator, g2, 128, dateColorLimit, dateLimit, dataPointsSST, ignoreDateLimitToLoad,
                                         offScreen.getOffScreenBufferPixel(), colorMapSST, minSST, maxSST, showSSTLegend,
                                         showSSTLegendFromZoomLevel, font8Pt, showDataDebugLegend, abortIndicator);
                             }
@@ -787,7 +787,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
                         }
                         if (showChlorophyll) {
                             try {
-                                EnvDataPaintHelper.paintChlorophyllInGraphics(rendererCalculator, g2, dateColorLimit, dateLimit, dataPointsChlorophyll, ignoreDateLimitToLoad,
+                                EnvDataPaintHelper.paintChlorophyllInGraphics(rendererCalculator, g2, 128, dateColorLimit, dateLimit, dataPointsChlorophyll, ignoreDateLimitToLoad,
                                         offScreen.getOffScreenBufferPixel(), colorMapChlorophyll, minChlorophyll, maxChlorophyll, showChlorophyllLegend,
                                         showChlorophyllLegendFromZoomLevel, font8Pt, showDataDebugLegend, abortIndicator);
                             }
@@ -798,7 +798,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
                         }
                         if (showWind) {
                             try {
-                                EnvDataPaintHelper.paintWindInGraphics(rendererCalculator, g2, dateColorLimit, dateLimit, dataPointsWind, ignoreDateLimitToLoad,
+                                EnvDataPaintHelper.paintWindInGraphics(rendererCalculator, g2, 128, dateColorLimit, dateLimit, dataPointsWind, ignoreDateLimitToLoad,
                                         offScreen.getOffScreenBufferPixel(), useColorMapForWind, colorMapWind, 0, maxWind, font8Pt,
                                         showDataDebugLegend, abortIndicator);
                             }
@@ -809,7 +809,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
                         }
                         if (showWaves) {
                             try {
-                                EnvDataPaintHelper.paintWavesInGraphics(rendererCalculator, g2, dateColorLimit, dateLimit, dataPointsWaves, ignoreDateLimitToLoad,
+                                EnvDataPaintHelper.paintWavesInGraphics(rendererCalculator, g2, 128, dateColorLimit, dateLimit, dataPointsWaves, ignoreDateLimitToLoad,
                                         offScreen.getOffScreenBufferPixel(), colorMapWaves, 0, maxWaves, showWavesLegend,
                                         showWavesLegendFromZoomLevel, font8Pt, showDataDebugLegend, abortIndicator);
                             }
