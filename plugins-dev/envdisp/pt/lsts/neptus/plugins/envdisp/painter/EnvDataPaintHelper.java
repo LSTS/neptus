@@ -43,10 +43,10 @@ import java.awt.RenderingHints;
 import java.awt.Transparency;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -60,8 +60,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import javax.imageio.ImageIO;
 
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -587,74 +585,40 @@ public class EnvDataPaintHelper {
                 (ptDataMap) -> {
                     
                     Set<Point2D> points = ptDataMap.keySet();
-                    
-                    ArrayList<Point2D> pointsXSorted = new ArrayList<>();
-                    pointsXSorted.addAll(points);
-                    pointsXSorted.sort((p, o) -> Double.compare(p.getX(), o.getX()));
 
-                    ArrayList<Point2D> pointsYSorted = new ArrayList<>();
-                    pointsYSorted.addAll(points);
-                    pointsYSorted.sort((p, o) -> Double.compare(p.getY(), o.getY()));
-                    
-                    double xMin = rendererCalculator.getSize().getWidth() + offScreenBufferPixel * 2.;
-                    double yMin = rendererCalculator.getSize().getHeight() + offScreenBufferPixel * 2.;
-                    
-                    Point2D po = null;
-                    for (Point2D p : pointsXSorted) {
-                        if (po == null) {
-                            po = p;
-                            continue;
-                        }
-                        
-                        if (po.getX() == p.getX())
-                            continue;
-                        
-                        double d = Math.abs(po.getX() - p.getX());
-                        xMin = d < xMin ? d : xMin;
-                    }
+                    double fullImgWidth = rendererCalculator.getSize().getWidth() + offScreenBufferPixel * 2.;
+                    double fullImgHeight = rendererCalculator.getSize().getHeight() + offScreenBufferPixel * 2.;
 
-                    po = null;
-                    for (Point2D p : pointsYSorted) {
-                        if (po == null) {
-                            po = p;
-                            continue;
-                        }
-                        
-                        if (po.getY() == p.getY())
-                            continue;
-                        
-                        double d = Math.abs(po.getY() - p.getY());
-                        yMin = d < yMin ? d : yMin;
-                    }
+                    double xMin = fullImgWidth;
+                    double yMin = fullImgHeight;
+                    Pair<Double, Double> minXY = calculateMinimumPointDistanceXY(points, xMin, yMin);
+                    xMin = minXY.first();
+                    yMin = minXY.second();
 
                     System.out.println(String.format("xMin=%f   yMin=%f", xMin, yMin));
-                    
+
                     double cacheImgScaleX = 1. / xMin;
                     double cacheImgScaleY = 1. / yMin;
-                    
-                    GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-                    GraphicsDevice gs = ge.getDefaultScreenDevice();
-                    GraphicsConfiguration gc = gs.getDefaultConfiguration();
-                    double cacheImgWidth = rendererCalculator.getSize().getWidth() + offScreenBufferPixel * 2.;
-                    double cacheImgHeight = rendererCalculator.getSize().getHeight() + offScreenBufferPixel * 2.;
+
+                    double cacheImgWidth = fullImgWidth;
+                    double cacheImgHeight = fullImgHeight;
                     cacheImgWidth *= cacheImgScaleX;
                     cacheImgHeight *= cacheImgScaleY;
-                    BufferedImage cacheImg = gc.createCompatibleImage((int) cacheImgWidth , (int) cacheImgHeight , Transparency.TRANSLUCENT);
                     
+                    BufferedImage cacheImg = createBufferedImage((int) cacheImgWidth, (int) cacheImgHeight, Transparency.TRANSLUCENT);
                     points.parallelStream().forEach(pt -> {
                         try {
                             Pair<ArrayList<Object>, Date> pVal = ptDataMap.get(pt);
                             double sla = (double) pVal.first().get(0);
-                            Color color = Color.WHITE;
-                            color = colorMapSLA.getColor((sla - minSLA) / (maxSLA - minSLA));
+                            Color color = colorMapSLA.getColor((sla - minSLA) / (maxSLA - minSLA));
                             if (pVal.second().before(dateColorLimit)) //if (dp.getDateUTC().before(dateColorLimit))
                                 color = ColorUtils.setTransparencyToColor(color, 128);
                             cacheImg.setRGB((int) ((pt.getX() + offScreenBufferPixel) * cacheImgScaleX),
                                     (int) ((pt.getY() + offScreenBufferPixel) * cacheImgScaleY), color.getRGB());
-                      }
-                      catch (Exception e) {
-                          NeptusLog.pub().trace(e);
-                      }
+                        }
+                        catch (Exception e) {
+                            NeptusLog.pub().trace(e);
+                        }
                     });
 
                     Graphics2D gt = (Graphics2D) g2.create();
@@ -679,10 +643,10 @@ public class EnvDataPaintHelper {
                     if (gt != null)
                         gt.dispose();
                     
-                    points.parallelStream().forEach(pt -> {
-                        Graphics2D gt1 = null;
-                        try {
-                            if (showSLALegend && rendererCalculator.getLevelOfDetail() >= showSLALegendFromZoomLevel) {
+                    if (showSLALegend && rendererCalculator.getLevelOfDetail() >= showSLALegendFromZoomLevel) {
+                        points.parallelStream().forEach(pt -> {
+                            Graphics2D gt1 = null;
+                            try {
                                 Pair<ArrayList<Object>, Date> pVal = ptDataMap.get(pt);
                                 double sla = (double) pVal.first().get(0);
                                 gt1 = (Graphics2D) g2.create();
@@ -692,13 +656,13 @@ public class EnvDataPaintHelper {
                                 gt1.setColor(Color.WHITE);
                                 gt1.drawString(MathMiscUtils.round(sla, 2) + "m", -15, 15);
                             }
-                        }
-                        catch (Exception e) {
-                            NeptusLog.pub().trace(e);
-                        }
-                        if (gt1 != null)
-                            gt1.dispose();
-                    });
+                            catch (Exception e) {
+                                NeptusLog.pub().trace(e);
+                            }
+                            if (gt1 != null)
+                                gt1.dispose();
+                        });
+                    }
                 },
                 abortIndicator);
     }
@@ -864,5 +828,66 @@ public class EnvDataPaintHelper {
         String[] both = ArrayUtils.addAll(strVTk1, strVTk2);
         List<String> distinct = Stream.of(both).distinct().collect(Collectors.toList());
         return distinct.stream().map(i -> i.toString()) .collect(Collectors.joining(", "));
+    }
+    
+    /**
+     * @param points
+     * @param xMin
+     * @param yMin
+     * @return
+     */
+    private static Pair<Double, Double> calculateMinimumPointDistanceXY(Collection<Point2D> points,
+            double xMinStartValue, double yMinStartValue) {
+        double xMin = xMinStartValue;
+        double yMin = yMinStartValue;
+        
+        ArrayList<Point2D> pointsXSorted = new ArrayList<>(points);
+        pointsXSorted.sort((p, o) -> Double.compare(p.getX(), o.getX()));
+
+        ArrayList<Point2D> pointsYSorted = new ArrayList<>(points);
+        pointsYSorted.sort((p, o) -> Double.compare(p.getY(), o.getY()));
+        
+        Point2D po = null;
+        for (Point2D p : pointsXSorted) {
+            if (po == null) {
+                po = p;
+                continue;
+            }
+            
+            if (po.getX() == p.getX())
+                continue;
+            
+            double d = Math.abs(po.getX() - p.getX());
+            xMin = d < xMin ? d : xMin;
+        }
+
+        po = null;
+        for (Point2D p : pointsYSorted) {
+            if (po == null) {
+                po = p;
+                continue;
+            }
+            
+            if (po.getY() == p.getY())
+                continue;
+            
+            double d = Math.abs(po.getY() - p.getY());
+            yMin = d < yMin ? d : yMin;
+        }
+        
+        return new Pair<Double, Double>(xMin, yMin);
+    }
+    
+    /**
+     * @param cacheImgWidth
+     * @param cacheImgHeight
+     * @param translucent
+     * @return
+     */
+    private static BufferedImage createBufferedImage(int cacheImgWidth, int cacheImgHeight, int translucent) {
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsDevice gs = ge.getDefaultScreenDevice();
+        GraphicsConfiguration gc = gs.getDefaultConfiguration();
+        return gc.createCompatibleImage((int) cacheImgWidth , (int) cacheImgHeight , Transparency.TRANSLUCENT);
     }
 }
