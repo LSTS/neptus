@@ -67,6 +67,7 @@ import de.baderjene.aistoolkit.aisparser.message.Message05;
 import jssc.SerialPort;
 import jssc.SerialPortEvent;
 import jssc.SerialPortEventListener;
+import pt.lsts.aismanager.api.AisContactManager;
 import pt.lsts.imc.DevDataText;
 import pt.lsts.imc.lsf.LsfMessageLogger;
 import pt.lsts.neptus.NeptusLog;
@@ -189,6 +190,7 @@ public class NmeaPlotter extends ConsoleLayer {
     private HashSet<NmeaListener> listeners = new HashSet<>();
     private AisContactDb contactDb = new AisContactDb();
     private AISParser parser = new AISParser();
+    private final AisContactManager aisManager = AisContactManager.getInstance();
 
     private LinkedHashMap<String, LocationType> lastLocs = new LinkedHashMap<>();
     private LinkedHashMap<String, ScatterPointsElement> tracks = new LinkedHashMap<>();
@@ -208,8 +210,27 @@ public class NmeaPlotter extends ConsoleLayer {
                     tracks.put(name, sc);
                 }
                 tracks.get(name).addPoint(l);
+                updateAisManager(c);
             }
         }
+    }
+
+    /**
+     * Set/Update AIS contact's new information on AIS Manager
+     * */
+    private void updateAisManager(AisContact contact) {
+        int mmsi = contact.getMmsi();
+        double cog = Math.toRadians(contact.getCog());
+        double sog = contact.getSog();
+        double hdg = Math.toRadians(contact.getHdg());
+
+        LocationType loc = contact.getLocation().getNewAbsoluteLatLonDepth();
+        double latRads = loc.getLatitudeRads();
+        double lonRads = loc.getLongitudeRads();
+        long timestamp = System.currentTimeMillis();
+        String label = contact.getLabel();
+
+        aisManager.setShipPosition(mmsi, sog, cog, hdg, latRads, lonRads, timestamp, label);
     }
 
     private void connectToSerial() throws Exception {
