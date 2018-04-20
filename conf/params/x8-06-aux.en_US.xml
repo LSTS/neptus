@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<config format="1" version="2017.01.0 (project/fire-rs,d313d43,dirty)" system="x8-06-aux" i18n="en_US">
+<section name="FTP Server" name-i18n="FTP Server">
+<param name="Entity Label">
+<name-i18n>Entity Label</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>FTP Server</default><units></units><desc>Main entity label</desc></param>
+<param name="Execution Priority">
+<name-i18n>Execution Priority</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>10</default><units></units><desc>Execution priority</desc></param>
+<param name="Activation Time">
+<name-i18n>Activation Time</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>0</default><units></units><desc></desc></param>
+<param name="Deactivation Time">
+<name-i18n>Deactivation Time</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>0</default><units></units><desc></desc></param>
+<param name="Debug Level">
+<name-i18n>Debug Level</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>None</default><units></units><desc></desc><values>None, Debug, Trace, Spew</values><values-i18n>None, Debug, Trace, Spew</values-i18n></param>
+<param name="Data Port">
+<name-i18n>Data Port</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>30020</default><units></units><desc>Data Port</desc></param>
+<param name="Control Port">
+<name-i18n>Control Port</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>30021</default><units></units><desc>Control Port</desc></param>
+<param name="Session Timeout">
+<name-i18n>Session Timeout</name-i18n><type>real</type><visibility>developer</visibility><scope>global</scope><default>120</default><units>s</units><desc>Timeout period of a session</desc></param>
+</section>
+<section name="TCP to Master" name-i18n="TCP to Master">
+<param name="Entity Label">
+<name-i18n>Entity Label</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>TCP to Master</default><units></units><desc>Main entity label</desc></param>
+<param name="Execution Priority">
+<name-i18n>Execution Priority</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>10</default><units></units><desc>Execution priority</desc></param>
+<param name="Activation Time">
+<name-i18n>Activation Time</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>0</default><units></units><desc></desc></param>
+<param name="Deactivation Time">
+<name-i18n>Deactivation Time</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>0</default><units></units><desc></desc></param>
+<param name="Debug Level">
+<name-i18n>Debug Level</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>None</default><units></units><desc></desc><values>None, Debug, Trace, Spew</values><values-i18n>None, Debug, Trace, Spew</values-i18n></param>
+<param name="Transports">
+<name-i18n>Transports</name-i18n><type>list:string</type><visibility>developer</visibility><scope>global</scope><default>Acceleration, AngularVelocity, ApmStatus, AutopilotMode, CpuUsage, Current, DesiredPath, DesiredRoll, DesiredSpeed, DesiredVerticalRate, DesiredZ, DevDataBinary, DevDataText, EntityActivationState, EntityInfo, EntityList, EntityParameters, EntityState, EstimatedState, EstimatedStreamVelocity, FollowRefState, FuelLevel, GpsFix, Heartbeat, IndicatedSpeed, LeaderState, LinkLevel, LogBookControl, LoggingControl, MagneticField, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, PowerChannelControl, PowerChannelState, Pressure, QueryEntityParameters, RemoteActionsRequest, Rpm, RSSI, SaveEntityParameters, ServoPosition, SetEntityParameters, SetServoPosition, SimulatedState, StorageUsage, Target, Temperature, Throttle, TrexOperation, TrueSpeed, VehicleMedium, VehicleState, Voltage</default><units></units><desc>Messages to transport</desc></param>
+<param name="Rate Limiters">
+<name-i18n>Rate Limiters</name-i18n><type>list:string</type><visibility>developer</visibility><scope>global</scope><default></default><units></units><desc>List of &lt;Message&gt;:&lt;Frequency&gt;</desc></param>
+<param name="Filtered Entities">
+<name-i18n>Filtered Entities</name-i18n><type>list:string</type><visibility>developer</visibility><scope>global</scope><default></default><units></units><desc>List of &lt;Message&gt;:&lt;Entity&gt;+&lt;Entity&gt; that define the source entities allowed to pass message of a specific message type.</desc></param>
+<param name="Trace - Incoming Messages">
+<name-i18n>Trace - Incoming Messages</name-i18n><type>boolean</type><visibility>developer</visibility><scope>global</scope><default>false</default><units></units><desc>Enable verbose output regarding incoming messages</desc></param>
+<param name="Trace - Outgoing Messages">
+<name-i18n>Trace - Outgoing Messages</name-i18n><type>boolean</type><visibility>developer</visibility><scope>global</scope><default>false</default><units></units><desc>Enable verbose output regarding outgoing messages</desc></param>
+<param name="Server - Address">
+<name-i18n>Server - Address</name-i18n><type>ipv4-address</type><visibility>developer</visibility><scope>global</scope><default>127.0.0.1</default><units></units><desc>Remote server address</desc></param>
+<param name="Server - Port">
+<name-i18n>Server - Port</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>9999</default><units></units><desc>Remote server port</desc></param>
+</section>
+<section name="FireMapper" name-i18n="FireMapper">
+<param name="Entity Label">
+<name-i18n>Entity Label</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>FireMapper</default><units></units><desc>Main entity label</desc></param>
+<param name="Execution Priority">
+<name-i18n>Execution Priority</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>10</default><units></units><desc>Execution priority</desc></param>
+<param name="Activation Time">
+<name-i18n>Activation Time</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>0</default><units></units><desc></desc></param>
+<param name="Deactivation Time">
+<name-i18n>Deactivation Time</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>0</default><units></units><desc></desc></param>
+<param name="Debug Level">
+<name-i18n>Debug Level</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>None</default><units></units><desc></desc><values>None, Debug, Trace, Spew</values><values-i18n>None, Debug, Trace, Spew</values-i18n></param>
+<param name="Active - Scope">
+<name-i18n>Active - Scope</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>maneuver</default><units></units><desc>Scoped of the &apos;Active&apos; parameter</desc></param>
+<param name="Active - Visibility">
+<name-i18n>Active - Visibility</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>user</default><units></units><desc>Visibility of the &apos;Active&apos; parameter</desc></param>
+<param name="Active">
+<name-i18n>Active</name-i18n><type>boolean</type><visibility>user</visibility><scope>maneuver</scope><default>true</default><units></units><desc>True to activate task, false otherwise</desc></param>
+<param name="Main System ID">
+<name-i18n>Main System ID</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>x8-06</default><units></units><desc>Main CPU IMC address.</desc></param>
+</section>
+<section name="Photo Trigger Flir" name-i18n="Photo Trigger Flir">
+<param name="Entity Label">
+<name-i18n>Entity Label</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>Photo Trigger Flir</default><units></units><desc>Main entity label</desc></param>
+<param name="Execution Priority">
+<name-i18n>Execution Priority</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>10</default><units></units><desc>Execution priority</desc></param>
+<param name="Activation Time">
+<name-i18n>Activation Time</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>0</default><units></units><desc></desc></param>
+<param name="Deactivation Time">
+<name-i18n>Deactivation Time</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>0</default><units></units><desc></desc></param>
+<param name="Debug Level">
+<name-i18n>Debug Level</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>None</default><units></units><desc></desc><values>None, Debug, Trace, Spew</values><values-i18n>None, Debug, Trace, Spew</values-i18n></param>
+<param name="Active - Scope">
+<name-i18n>Active - Scope</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>maneuver</default><units></units><desc>Scoped of the &apos;Active&apos; parameter</desc></param>
+<param name="Active - Visibility">
+<name-i18n>Active - Visibility</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>user</default><units></units><desc>Visibility of the &apos;Active&apos; parameter</desc></param>
+<param name="Active">
+<name-i18n>Active</name-i18n><type>boolean</type><visibility>user</visibility><scope>maneuver</scope><default>0</default><units></units><desc>True to activate task, false otherwise</desc></param>
+<param name="Camera Url">
+<name-i18n>Camera Url</name-i18n><type>string</type><visibility>user</visibility><scope>maneuver</scope><default>http://10.0.20.113/mjpg/video.mjpg</default><units></units><desc>Camera Url.</desc></param>
+<param name="FrameGrabber Fps">
+<name-i18n>FrameGrabber Fps</name-i18n><type>integer</type><visibility>user</visibility><scope>global</scope><default>25</default><units></units><desc>Number frames/s of FrameGrabber.</desc><min>1</min><max>25</max></param>
+<param name="Copyright">
+<name-i18n>Copyright</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>LSTS-FEUP</default><units></units><desc>Copyright of Image.</desc></param>
+<param name="Lens Model">
+<name-i18n>Lens Model</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>1.25F Trans:68%</default><units></units><desc>Lens Model of camera.</desc></param>
+<param name="Saved Images Dir">
+<name-i18n>Saved Images Dir</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>Photos</default><units></units><desc>Saved Images Dir.</desc></param>
+<param name="Number Frames/s">
+<name-i18n>Number Frames/s</name-i18n><type>integer</type><visibility>user</visibility><scope>maneuver</scope><default>5</default><units></units><desc>Number Frames/s.</desc><min>1</min><max>5</max></param>
+<param name="Split Photos">
+<name-i18n>Split Photos</name-i18n><type>boolean</type><visibility>developer</visibility><scope>global</scope><default>true</default><units></units><desc>Split photos by folder.</desc></param>
+<param name="Number of photos to divide">
+<name-i18n>Number of photos to divide</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>1000</default><units></units><desc>Split photos by folder.</desc><min>500</min><max>3000</max></param>
+</section>
+<section name="UAVCamera" name-i18n="UAVCamera">
+<param name="Entity Label">
+<name-i18n>Entity Label</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>UAVCamera</default><units></units><desc>Main entity label</desc></param>
+<param name="Execution Priority">
+<name-i18n>Execution Priority</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>10</default><units></units><desc>Execution priority</desc></param>
+<param name="Activation Time">
+<name-i18n>Activation Time</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>0</default><units></units><desc></desc></param>
+<param name="Deactivation Time">
+<name-i18n>Deactivation Time</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>0</default><units></units><desc></desc></param>
+<param name="Debug Level">
+<name-i18n>Debug Level</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>None</default><units></units><desc></desc><values>None, Debug, Trace, Spew</values><values-i18n>None, Debug, Trace, Spew</values-i18n></param>
+<param name="Active - Scope">
+<name-i18n>Active - Scope</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>maneuver</default><units></units><desc>Scoped of the &apos;Active&apos; parameter</desc></param>
+<param name="Active - Visibility">
+<name-i18n>Active - Visibility</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>user</default><units></units><desc>Visibility of the &apos;Active&apos; parameter</desc></param>
+<param name="Active">
+<name-i18n>Active</name-i18n><type>boolean</type><visibility>user</visibility><scope>maneuver</scope><default>0</default><units></units><desc>True to activate task, false otherwise</desc></param>
+<param name="Onboard Camera">
+<name-i18n>Onboard Camera</name-i18n><type>string</type><visibility>user</visibility><scope>maneuver</scope><default>AXIS</default><units></units><desc>Onboard camera.</desc><values>AXIS, FLIR</values><values-i18n>AXIS, FLIR</values-i18n></param>
+<param name="Power Channel Name">
+<name-i18n>Power Channel Name</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>48V C</default><units></units><desc>Default power channel name</desc></param>
+<param name="(AXIS) Horizontal AOV">
+<name-i18n>(AXIS) Horizontal AOV</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>80</default><units></units><desc>Cross-Track Angle of View, in degrees.</desc></param>
+<param name="(AXIS) Vertical AOV">
+<name-i18n>(AXIS) Vertical AOV</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>53</default><units></units><desc>Along-Track Angle of View, in degrees.</desc></param>
+<param name="(AXIS) Tilt Angle">
+<name-i18n>(AXIS) Tilt Angle</name-i18n><type>real</type><visibility>developer</visibility><scope>global</scope><default>-27.5</default><units></units><desc>Camera mount tilt angle, in degrees.</desc></param>
+<param name="(FLIR) Horizontal AOV">
+<name-i18n>(FLIR) Horizontal AOV</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>45</default><units></units><desc>Cross-Track Angle of View, in degrees.</desc></param>
+<param name="(FLIR) Vertical AOV">
+<name-i18n>(FLIR) Vertical AOV</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>37</default><units></units><desc>Along-Track Angle of View, in degrees.</desc></param>
+<param name="(FLIR) Tilt Angle">
+<name-i18n>(FLIR) Tilt Angle</name-i18n><type>real</type><visibility>developer</visibility><scope>global</scope><default>-27.5</default><units></units><desc>Camera mount tilt angle, in degrees.</desc></param>
+</section>
+</config>
