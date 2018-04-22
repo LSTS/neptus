@@ -71,7 +71,7 @@ import ucar.nc2.Variable;
  * @author pdias
  *
  */
-@PluginDescription(name = "netCDF Data Visualization")
+@PluginDescription(name = "netCDF Data Visualization", icon = "pt/lsts/neptus/plugins/envdisp/netcdf-radar.png")
 public class NetCDFDataVisualization extends ConsoleLayer implements ConfigurationListener {
     
     private static final String CATEGORY_TEST = "Test";
