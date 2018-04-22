@@ -68,6 +68,8 @@ import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.plugins.envdisp.datapoints.BaseDataPoint;
 import pt.lsts.neptus.plugins.envdisp.datapoints.ChlorophyllDataPoint;
+import pt.lsts.neptus.plugins.envdisp.datapoints.GenericDataPoint;
+import pt.lsts.neptus.plugins.envdisp.datapoints.GenericDataPoint.Info;
 import pt.lsts.neptus.plugins.envdisp.datapoints.HFRadarDataPoint;
 import pt.lsts.neptus.plugins.envdisp.datapoints.SLADataPoint;
 import pt.lsts.neptus.plugins.envdisp.datapoints.SSTDataPoint;
@@ -690,6 +692,192 @@ public class EnvDataPaintHelper {
                 abortIndicator);
     }
 
+    public enum PointPaintEnum {
+        POINT,
+        ARROW,
+        BARB,
+        INTERPOLATE
+    }
+    
+    public static void paintGenericInGraphics(MapTileRendererCalculator rendererCalculator, Graphics2D g2,
+            int transparency, Date dateColorLimit, Date dateLimit, Map<String, GenericDataPoint> dataPointsVar, 
+            boolean ignoreDateLimitToLoad, int offScreenBufferPixel, ColorMap colorMapVar,
+            double minVar, double maxVar, boolean showVarLegend, int showVarLegendFromZoomLevel, 
+            Font font8Pt, boolean showDataDebugLegend, AtomicBoolean abortIndicator,
+            PointPaintEnum paintType) {
+        
+        if (dataPointsVar == null || dataPointsVar.isEmpty())
+            return;
+        
+        Info info = dataPointsVar.values().iterator().next().getInfo();
+        
+        final int pointSize;
+        switch (paintType) {
+            case ARROW:
+                pointSize = EnvDataShapesHelper.ARROW_RADIUS;
+                break;
+            case BARB:
+                pointSize = EnvDataShapesHelper.WIND_BARB_RADIUS;
+                break;
+            case INTERPOLATE:
+            case POINT:
+            default:
+                pointSize = EnvDataShapesHelper.CIRCLE_RADIUS;
+                break;
+        }
+        
+        paintWorkerInGraphics(info.fullName, rendererCalculator, g2, dateColorLimit, dateLimit, 
+                dataPointsVar, pointSize, ignoreDateLimitToLoad, 
+                offScreenBufferPixel, colorMapVar, minVar, maxVar, showVarLegend, 
+                showVarLegendFromZoomLevel, font8Pt, showDataDebugLegend, 1, 
+                dp -> dp.getAllDataValues(), 
+                (vals, ovals) -> {
+                    // sla
+                    double v = (double) vals.get(0);
+                    double o = (double) ovals.get(0);
+                    double r = (v + o) / 2.;
+                    vals.add(0, r);
+                    return vals;
+                },
+                paintType == PointPaintEnum.INTERPOLATE ? null : (pt, dataMap) -> {
+                    Graphics2D gt = null;
+                    try {
+                        Pair<ArrayList<Object>, Date> pVal = dataMap.get(pt);
+                        double sla = (double) pVal.first().get(0);
+                        gt = (Graphics2D) g2.create();
+                        gt.translate(pt.getX(), pt.getY());
+                        //System.out.println(pt);
+                        Color color = Color.WHITE;
+                        color = colorMapVar.getColor((sla - minVar) / (maxVar - minVar));
+                        if (pVal.second().before(dateColorLimit)) //if (dp.getDateUTC().before(dateColorLimit))
+                            color = ColorUtils.setTransparencyToColor(color, transparency / 2);
+                        else
+                            color = ColorUtils.setTransparencyToColor(color, transparency);
+                        gt.setColor(color);
+                        switch (paintType) {
+                            case ARROW:
+//                                double rot = Math.toRadians(headingV) - rendererCalculator.getRotation();
+//                                gt.rotate(rot);
+                                gt.fill(EnvDataShapesHelper.arrow);
+//                                gt.rotate(-rot);
+                                break;
+                            case BARB:
+//                              double rot = Math.toRadians(headingV) - rendererCalculator.getRotation();
+//                              gt.rotate(rot);
+//                                double speedKnots = speedV * UnitsUtil.MS_TO_KNOT;
+                                double speedKnots = 5;
+                                EnvDataShapesHelper.paintWindBarb(gt, speedKnots);
+//                              gt.rotate(-rot);
+                                break;
+                            case POINT:
+                            case INTERPOLATE:
+                            default:
+                                //gt.draw(EnvDataShapesHelper.rectangle);
+                                gt.fill(EnvDataShapesHelper.rectangle);
+                                break;
+                        }
+                        
+                        if (showVarLegend && rendererCalculator.getLevelOfDetail() >= showVarLegendFromZoomLevel) {
+                            gt.setFont(font8Pt);
+                            gt.setColor(Color.WHITE);
+                            gt.drawString(MathMiscUtils.round(sla, 2) + info.unit, -15, 15);
+                        }
+                    }
+                    catch (Exception e) {
+                        NeptusLog.pub().trace(e);
+                    }
+                    
+                    if (gt != null)
+                        gt.dispose();
+                },
+                (ptDataMap) -> {
+                    Set<Point2D> points = ptDataMap.keySet();
+
+                    double fullImgWidth = rendererCalculator.getSize().getWidth() + offScreenBufferPixel * 2.;
+                    double fullImgHeight = rendererCalculator.getSize().getHeight() + offScreenBufferPixel * 2.;
+
+                    double xMin = fullImgWidth;
+                    double yMin = fullImgHeight;
+                    Pair<Double, Double> minXY = calculateMinimumPointDistanceXY(points, xMin, yMin);
+                    xMin = minXY.first();
+                    yMin = minXY.second();
+
+                    System.out.println(String.format("xMin=%f   yMin=%f", xMin, yMin));
+                    xMin = Math.max(pointSize, xMin);
+                    yMin = Math.max(pointSize, yMin);
+                    System.out.println(String.format("fixed xMin=%f   yMin=%f", xMin, yMin));
+
+                    double cacheImgScaleX = 1. / xMin;
+                    double cacheImgScaleY = 1. / yMin;
+
+                    double cacheImgWidth = fullImgWidth;
+                    double cacheImgHeight = fullImgHeight;
+                    cacheImgWidth *= cacheImgScaleX;
+                    cacheImgHeight *= cacheImgScaleY;
+                    
+                    BufferedImage cacheImg = createBufferedImage((int) cacheImgWidth, (int) cacheImgHeight, Transparency.TRANSLUCENT);
+                    points.parallelStream().forEach(pt -> {
+                        try {
+                            Pair<ArrayList<Object>, Date> pVal = ptDataMap.get(pt);
+                            double sla = (double) pVal.first().get(0);
+                            Color color = colorMapVar.getColor((sla - minVar) / (maxVar - minVar));
+                            if (pVal.second().before(dateColorLimit)) //if (dp.getDateUTC().before(dateColorLimit))
+                                color = ColorUtils.setTransparencyToColor(color, transparency);
+                            else
+                                color = ColorUtils.setTransparencyToColor(color, transparency / 2);
+                            cacheImg.setRGB((int) ((pt.getX() + offScreenBufferPixel) * cacheImgScaleX),
+                                    (int) ((pt.getY() + offScreenBufferPixel) * cacheImgScaleY), color.getRGB());
+                        }
+                        catch (Exception e) {
+                            NeptusLog.pub().trace(e);
+                        }
+                    });
+
+                    Graphics2D gt = (Graphics2D) g2.create();
+                    try {
+                        gt.translate(rendererCalculator.getWidth() / 2., rendererCalculator.getHeight() / 2.);
+                        // gt.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 145));
+                        gt.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+                        //gt.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+//                        gt.drawImage(cacheImg, (int) (-rendererCalculator.getWidth() / 2. - offScreenBufferPixel), 
+//                                (int) (-rendererCalculator.getHeight() / 2. - offScreenBufferPixel), 
+//                                (int) (rendererCalculator.getWidth() + offScreenBufferPixel * 2), 
+//                                (int) (rendererCalculator.getHeight() + offScreenBufferPixel * 2), null, null);
+                        gt.drawImage(cacheImg, -(int) (cacheImg.getWidth() / cacheImgScaleX / 2.), 
+                                -(int) (cacheImg.getHeight() / cacheImgScaleY / 2.), 
+                                (int) (cacheImg.getWidth() / cacheImgScaleX), 
+                                (int) (cacheImg.getHeight() / cacheImgScaleY), null, null);
+                    }
+                    catch (Exception e) {
+                        NeptusLog.pub().trace(e);
+                    }
+                    if (gt != null)
+                        gt.dispose();
+                    
+                    if (showVarLegend && rendererCalculator.getLevelOfDetail() >= showVarLegendFromZoomLevel) {
+                        points.parallelStream().forEach(pt -> {
+                            Graphics2D gt1 = null;
+                            try {
+                                Pair<ArrayList<Object>, Date> pVal = ptDataMap.get(pt);
+                                double sla = (double) pVal.first().get(0);
+                                gt1 = (Graphics2D) g2.create();
+                                gt1.translate(pt.getX(), pt.getY());
+
+                                gt1.setFont(font8Pt);
+                                gt1.setColor(Color.WHITE);
+                                gt1.drawString(MathMiscUtils.round(sla, 2) + info.unit, -15, 15);
+                            }
+                            catch (Exception e) {
+                                NeptusLog.pub().trace(e);
+                            }
+                            if (gt1 != null)
+                                gt1.dispose();
+                        });
+                    }
+                },
+                abortIndicator);
+    }
+
     private static <Dp extends BaseDataPoint<?>> void paintWorkerInGraphics(String varName, 
             MapTileRendererCalculator rendererCalculator,  Graphics2D g2,  Date dateColorLimit, 
             Date dateLimit, HashMap<String, Dp> dataPoints, int gridSpacing, boolean ignoreDateLimitToLoad, 
@@ -749,7 +937,7 @@ public class EnvDataPaintHelper {
      */
     private static <Dp extends BaseDataPoint<?>> void paintWorkerInGraphics(String varName, 
             MapTileRendererCalculator rendererCalculator,  Graphics2D g2,  Date dateColorLimit, 
-            Date dateLimit, HashMap<String, Dp> dataPoints, int gridSpacing, boolean ignoreDateLimitToLoad, 
+            Date dateLimit, Map<String, Dp> dataPoints, int gridSpacing, boolean ignoreDateLimitToLoad, 
             int offScreenBufferPixel, ColorMap colorMap, double minVal, double maxVal, 
             boolean showVarLegend, int showVarLegendFromZoomLevel, Font font8Pt, 
             boolean showDataDebugLegend, int debugPainterForDatesOffserIndex, 
