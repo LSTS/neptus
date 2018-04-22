@@ -403,6 +403,9 @@ public class AnnounceWorker {
                                         // e.printStackTrace();
                                     }
                                 }
+                                catch (IOException e) {
+                                    NeptusLog.pub().debug(e + " :: " + sys.getHostAddress() + "@" + port);
+                                }
                                 catch (Exception e1) {
                                     e1.printStackTrace();
                                 }
