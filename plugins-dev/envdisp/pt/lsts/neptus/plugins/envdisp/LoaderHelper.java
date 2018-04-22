@@ -1068,7 +1068,7 @@ public class LoaderHelper {
                           SLADataPoint dpo = sladp.get(SLADataPoint.getId(dp));
                           if (dpo == null) {
                               dpo = dp.getACopyWithoutHistory();
-                              sladp.put(ChlorophyllDataPoint.getId(dp), dp);
+                              sladp.put(SLADataPoint.getId(dp), dp);
                           }
 
                           ArrayList<SLADataPoint> lst = dpo.getHistoricalData();
