@@ -35,6 +35,7 @@ package pt.lsts.neptus.util.netcdf;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import pt.lsts.neptus.NeptusLog;
@@ -51,14 +52,18 @@ import ucar.nc2.Variable;
 public class NetCDFUtils {
 
     public static final String NETCDF_ATT_STANDARD_NAME = "standard_name";
+    public static final String NETCDF_ATT_LONG_NAME = "long_name";
     public static final String NETCDF_ATT_FILL_VALUE = "_FillValue";
     public static final String NETCDF_ATT_MISSING_VALUE = "missing_value";
     public static final String NETCDF_ATT_VALID_RANGE = "valid_range";
     public static final String NETCDF_ATT_VALID_MIN = "valid_min";
     public static final String NETCDF_ATT_VALID_MAX = "valid_max";
     public static final String NETCDF_ATT_UNITS = "units";
+    public static final String NETCDF_ATT_UNIT_LONG = "unit_long";
     public static final String NETCDF_ATT_SCALE_FACTOR = "scale_factor";
     public static final String NETCDF_ATT_ADD_OFFSET = "add_offset";
+    public static final String NETCDF_ATT_COMMENT = "comment";
+    public static final String NETCDF_ATT_STEP = "step";
 
     /**
      * Counts the evolution of a multi-for loop variables counters.
@@ -322,6 +327,13 @@ public class NetCDFUtils {
         return new Pair<String, Variable>(name, latVar);
     }
 
+    /**
+     * @param dataFile
+     * @param fileNameForErrorString
+     * @param failIfNotFound
+     * @param varName
+     * @return
+     */
     public static Pair<String, Variable> findVariableForStandardName(NetcdfFile dataFile, String fileNameForErrorString,
             boolean failIfNotFound, String... varName) {
         String name = "";
@@ -345,6 +357,33 @@ public class NetCDFUtils {
             }
         }
         return new Pair<String, Variable>(name, latVar);
+    }
+
+    /**
+     * @param dataFile
+     * @param minDimension
+     * @return
+     */
+    public static Map<String, Variable> getVariables(NetcdfFile dataFile, int minDimension) {
+        Map<String, Variable> ret = new HashMap<>();
+        List<Variable> vars = dataFile.getVariables();
+        for (Variable v : vars) {
+            if (v.getDimensions().size() >= minDimension) {
+                String name = v.getShortName();
+                ret.put(name, v);
+            }
+        }
+        return ret;
+    }
+
+    /**
+     * Returns the variables with dimension at least 2.
+     * 
+     * @param dataFile
+     * @return
+     */
+    public static Map<String, Variable> getMultiDimensionalVariables(NetcdfFile dataFile) {
+        return getVariables(dataFile, 2);
     }
 
     /**
