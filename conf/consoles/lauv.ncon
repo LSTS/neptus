@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<console name="Neptus Console" width="1366" height="727" resizable="true" mission-file="../../missions/Sesimbra/sesimbra.nmisz" main-vehicle="lauv-xplore-4">
+<console name="Neptus Console" width="1366" height="727" resizable="true" mission-file="../../missions/APDL/missao-apdl.nmisz" main-vehicle="lauv-xplore-1">
   <!-- Data saved on 2018-04-07T11:57:44.0Z with Neptus version 2018.01.1-dev (compiled on 2018-04-05, gtag/20170721-rep17-arpao-337-gd346a79-dirty). -->
   <mainpanel name="console main panel">
     <subpanel class="pt.lsts.neptus.console.plugins.containers.MigLayoutContainer" x="0" y="0" width="1360" height="643">
