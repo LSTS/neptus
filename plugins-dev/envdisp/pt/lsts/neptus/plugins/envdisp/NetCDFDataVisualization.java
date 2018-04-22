@@ -72,7 +72,7 @@ import ucar.nc2.Variable;
  *
  */
 @PluginDescription(name = "netCDF Data Visualization")
-public class GenericNetCDFDataVisualization extends ConsoleLayer implements ConfigurationListener {
+public class NetCDFDataVisualization extends ConsoleLayer implements ConfigurationListener {
     
     private static final String CATEGORY_TEST = "Test";
     private static final String CATEGORY_DATA_UPDATE = "Data Update";
@@ -123,7 +123,7 @@ public class GenericNetCDFDataVisualization extends ConsoleLayer implements Conf
     
     private GenericNetCDFDataPainter gDataViz = null;
     
-    public GenericNetCDFDataVisualization() {
+    public NetCDFDataVisualization() {
     }
 
     /* (non-Javadoc)
