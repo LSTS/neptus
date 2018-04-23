@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -38,11 +38,11 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Path2D;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
@@ -656,8 +656,8 @@ public class BathymetryPlotter extends SimpleMRAVisualization {
             AffineTransform transfS = g2S.getTransform();
             g2S.dispose();
 
-            ArrayList<Point> points = dd.computeConvexHull();
-            ArrayList<Point> pointsGrow = MathMiscUtils.dilatePolygonPoint(points, 10);
+            ArrayList<Point2D> points = dd.computeConvexHull();
+            ArrayList<Point2D> pointsGrow = MathMiscUtils.dilatePolygon(points, 10.0);
             GeneralPath cHullShapeS = new GeneralPath();
             cHullShapeS.setWindingRule(Path2D.WIND_EVEN_ODD);
             cHullShapeS.moveTo(minX1, minY1);
@@ -667,12 +667,12 @@ public class BathymetryPlotter extends SimpleMRAVisualization {
             cHullShapeS.lineTo(minX1, minY1);
             for (int i = 0; i < pointsGrow.size(); i++) {
                 if (i == 0)
-                    cHullShapeS.moveTo(pointsGrow.get(i).x, pointsGrow.get(i).y);
+                    cHullShapeS.moveTo(pointsGrow.get(i).getX(), pointsGrow.get(i).getY());
                 else
-                    cHullShapeS.lineTo(pointsGrow.get(i).x, pointsGrow.get(i).y);
+                    cHullShapeS.lineTo(pointsGrow.get(i).getX(), pointsGrow.get(i).getY());
 
                 if (i == pointsGrow.size() - 1)
-                    cHullShapeS.lineTo(pointsGrow.get(0).x, pointsGrow.get(0).y);
+                    cHullShapeS.lineTo(pointsGrow.get(0).getX(), pointsGrow.get(0).getY());
             }
 
             // clear

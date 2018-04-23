@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -56,8 +56,8 @@ import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
+import pt.lsts.neptus.types.coord.BaseOrientations;
 import pt.lsts.neptus.types.coord.LocationType;
-import pt.lsts.neptus.util.AngleUtils;
 
 /**
  * @author zp
@@ -70,14 +70,7 @@ import pt.lsts.neptus.util.AngleUtils;
 public class FindVehicle extends ConsolePanel implements ConfigurationListener, IPeriodicUpdates,
         MainVehicleChangeListener {
 
-    public enum BaseOrientations {
-        North, NorthEast, East, SouthEast, South, SouthWest, West, NorthWest;
-        public String getAbbrev() {
-            return this.name().replaceAll("[a-z]", "");
-        }
-    }
-
-	private final DecimalFormat formatter = new DecimalFormat("0.00");
+    private final DecimalFormat formatter = new DecimalFormat("0.00");
 
 	@NeptusProperty(name="Use My Heading", editable = true, description="Use My Heading for the base location. Don't forget to set it first.")
 	public boolean useMyHeading = true;
@@ -175,7 +168,7 @@ public class FindVehicle extends ConsolePanel implements ConfigurationListener, 
 		}
 		if (useMyHeading) {
 			baseOrientationRadians = MyState.getAxisAnglesRadians()[2];
-			baseOrientation = convertToBaseOrientation(baseOrientationRadians);
+			baseOrientation = BaseOrientations.convertToBaseOrientationFromRadians(baseOrientationRadians);
 		}
 		double distance = baseLocation.getHorizontalDistanceInMeters(lt);
 		double angleRads = baseLocation.getXYAngle(lt);
@@ -189,32 +182,7 @@ public class FindVehicle extends ConsolePanel implements ConfigurationListener, 
 		return true;
 	}
 	
-	/**
-	 * @param baseOrientationRadians2
-	 */
-	public static BaseOrientations convertToBaseOrientation(double baseOrientationRadians) {
-		double headingDegrees = Math.toDegrees(baseOrientationRadians);
-		headingDegrees = AngleUtils.nomalizeAngleDegrees360(headingDegrees);
-		if(headingDegrees >= -22.5 && headingDegrees <= 22.5)
-			return BaseOrientations.North;
-		else if(headingDegrees > 22.5 && headingDegrees < 67.5)
-			return BaseOrientations.NorthEast;
-		else if(headingDegrees >= 67.5 && headingDegrees <= 112.5)
-			return BaseOrientations.East;
-		else if(headingDegrees > 112.5 && headingDegrees < 157.5)
-			return BaseOrientations.SouthEast;
-		else if(headingDegrees >= 157.5 && headingDegrees <= 202.5)
-			return BaseOrientations.South;
-		else if(headingDegrees > 202.5 && headingDegrees < 247.5)
-			return BaseOrientations.SouthWest;
-		else if(headingDegrees >= 247.5 && headingDegrees <= 292.5)
-			return BaseOrientations.West;
-		else if(headingDegrees > 292.5 && headingDegrees < 337.5)
-			return BaseOrientations.NorthWest;
-		return BaseOrientations.North;
-	}
-
-	@Subscribe
+    @Subscribe
 	public void mainVehicleChangeNotification(ConsoleEventMainSystemChange evt) {
 		display.setTitle(evt.getCurrent());
 	}

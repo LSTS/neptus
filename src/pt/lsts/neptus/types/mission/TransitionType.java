@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -186,7 +186,7 @@ public class TransitionType implements XmlOutputMethods {
         root.addElement("source").setText(getSourceManeuver());
         root.addElement("target").setText(getTargetManeuver());
         root.addElement("guard").setText(getCondition().toString());
-        if (!"".equalsIgnoreCase(getAction().toString()))
+        if (getAction() != null && !"".equalsIgnoreCase(getAction().toString()))
             root.addElement("actions").setText(getAction().toString());
 
         return document;
@@ -195,6 +195,44 @@ public class TransitionType implements XmlOutputMethods {
     @Override
     public String toString() {
         return "[" + getId() + "] " + sourceManeuver + " -> " + targetManeuver + " (" + condition
-                + (!"".equalsIgnoreCase(getAction().toString())?" / " + action:"") + ")";
+                + (getAction() != null && !"".equalsIgnoreCase(getAction().toString())?" / " + action:"") + ")";
+    }
+    
+    /* (non-Javadoc)
+     * @see java.lang.Object#clone()
+     */
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        TransitionType clone = new TransitionType(this.sourceManeuver, this.targetManeuver);
+        clone.id = this.id;
+        clone.condition = (ConditionType) this.condition.clone();
+        if (getAction() != null)
+            clone.action = (ActionType) this.action.clone();
+        else
+            clone.action = this.action;
+        return clone;
+    }
+    
+    /* (non-Javadoc)
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof TransitionType))
+            return super.equals(obj);
+        TransitionType other = (TransitionType) obj;
+        
+        if (!this.getId().equals(other.getId()))
+            return false;
+        if (!this.getSourceManeuver().equals(other.getSourceManeuver()))
+            return false;
+        if (!this.getTargetManeuver().equals(other.getTargetManeuver()))
+            return false;
+        if (!this.getCondition().toString().equals(other.getCondition().toString()))
+            return false;
+        if (!this.getAction().toString().equals(other.getAction().toString()))
+            return false;
+
+        return true;
     }
 }

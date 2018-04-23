@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -50,6 +50,8 @@ import com.l2fprod.common.propertysheet.Property;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.Loiter.DIRECTION;
 import pt.lsts.imc.Loiter.TYPE;
+import pt.lsts.imc.def.SpeedUnits;
+import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.editor.AngleEditorRads;
@@ -157,7 +159,7 @@ public class Loiter extends Maneuver implements LocatedManeuver, ManeuverWithSpe
 	}
 
 	@Override
-	public void loadFromXML(String XML) {
+	public void loadManeuverFromXML(String XML) {
 		try {
 	        Document doc = DocumentHelper.parseText(XML);
 	        
@@ -230,39 +232,39 @@ public class Loiter extends Maneuver implements LocatedManeuver, ManeuverWithSpe
 		Vector<DefaultProperty> props = new Vector<DefaultProperty>();
 		
 		DefaultProperty duration = PropertiesEditor.getPropertyInstance("Duration", Integer.class, this.loiterDuration, true);
-		duration.setShortDescription("The Loiter's duration, in seconds (0 means +Infinity)");		
+		duration.setShortDescription(I18n.text("The Loiter's duration, in seconds (0 means +Infinity).") + "<br/>(s)");
 		props.add(duration);
 		
 		DefaultProperty direction = PropertiesEditor.getPropertyInstance("Direction", String.class, this.direction, true);
-		direction.setShortDescription("The direction the vehicle should take when performing this maneuver");		
+		direction.setShortDescription(I18n.text("The direction the vehicle should take when performing this maneuver"));		
 		PropertiesEditor.getPropertyEditorRegistry().registerEditor(direction, new ComboEditor<String>(loiterDirectionConstantsMap.values().toArray(new String[]{})));
 		PropertiesEditor.getPropertyRendererRegistry().registerRenderer(direction, new I18nCellRenderer());
 		props.add(direction);
 		
 		DefaultProperty type = PropertiesEditor.getPropertyInstance("Loiter Type", String.class, this.loiterType, true);
-		type.setShortDescription("How to perform this maneuver. Note that some parameters only make sense in some Loiter types.");
+		type.setShortDescription(I18n.text("How to perform this maneuver. Note that some parameters only make sense in some Loiter types."));
 		PropertiesEditor.getPropertyEditorRegistry().registerEditor(type, new ComboEditor<String>(wpLoiterTypeConstantsMap.values().toArray(new String[]{})));
 		PropertiesEditor.getPropertyRendererRegistry().registerRenderer(type, new I18nCellRenderer());
 		props.add(type);
 		
 		DefaultProperty speed = PropertiesEditor.getPropertyInstance("Speed", Double.class, this.speed, true);
-		speed.setShortDescription("The vehicle's desired speed when loitering");
+		speed.setShortDescription(I18n.text("The vehicle's desired speed when loitering"));
 		props.add(speed);
 		
 		DefaultProperty speedUnits = PropertiesEditor.getPropertyInstance("Speed Units", Maneuver.SPEED_UNITS.class, this.speedUnits, true);
-		speedUnits.setShortDescription("The units to consider in the speed parameters");
+		speedUnits.setShortDescription(I18n.text("The units to consider in the speed parameters"));
 		props.add(speedUnits);
 		
 		DefaultProperty radius = PropertiesEditor.getPropertyInstance("Radius", Double.class, this.radius, true);
-		radius.setShortDescription("If its not a hover loiter, sets the radius of the trajectory");
+		radius.setShortDescription(I18n.text("If its not a hover loiter, sets the radius of the trajectory") + "<br/>(m)");
 		props.add(radius);
 		
 		DefaultProperty length = PropertiesEditor.getPropertyInstance("Length", Double.class, this.length, true);
-		length.setShortDescription("If it is 'figure8' loiter, sets the distance between the focuses");
+		length.setShortDescription(I18n.text("If it is 'figure8' loiter, sets the distance between the focuses") + "<br/>(m)");
 		props.add(length);
 		
 		DefaultProperty bearing = PropertiesEditor.getPropertyInstance("Bearing", Double.class, this.bearing, true);
-		bearing.setShortDescription("The angle to bear when loitering. 0 = Absolute North");
+		bearing.setShortDescription(I18n.text("The angle to bear when loitering. 0 = Absolute North"));
 		PropertiesEditor.getPropertyEditorRegistry().registerEditor(bearing, AngleEditorRads.class);
 		props.add(bearing);
 		
@@ -514,21 +516,21 @@ public class Loiter extends Maneuver implements LocatedManeuver, ManeuverWithSpe
         loiter.setLat(loc.getLatitudeRads());
         loiter.setLon(loc.getLongitudeRads());
         loiter.setZ(getManeuverLocation().getZ());
-        loiter.setZUnits(pt.lsts.imc.Loiter.Z_UNITS.valueOf(getManeuverLocation().getZUnits().name()));
+        loiter.setZUnits(ZUnits.valueOf(getManeuverLocation().getZUnits().name()));
         loiter.setSpeed(this.getSpeed());
         loiter.setDuration(getLoiterDuration());
        
         try {
             switch (this.getSpeedUnits()) {
                 case METERS_PS:
-                    loiter.setSpeedUnits(pt.lsts.imc.Loiter.SPEED_UNITS.METERS_PS);
+                    loiter.setSpeedUnits(SpeedUnits.METERS_PS);
                     break;
                 case PERCENTAGE:
-                    loiter.setSpeedUnits(pt.lsts.imc.Loiter.SPEED_UNITS.PERCENTAGE);
+                    loiter.setSpeedUnits(SpeedUnits.PERCENTAGE);
                     break;
                 case RPM:
                 default:
-                    loiter.setSpeedUnits(pt.lsts.imc.Loiter.SPEED_UNITS.RPM);
+                    loiter.setSpeedUnits(SpeedUnits.RPM);
                     break;
             }
         }

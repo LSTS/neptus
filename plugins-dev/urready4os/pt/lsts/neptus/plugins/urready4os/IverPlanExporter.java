@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -44,11 +44,13 @@ import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.mp.maneuvers.ManeuversUtil;
+import pt.lsts.neptus.mp.maneuvers.StationKeeping;
 import pt.lsts.neptus.mp.maneuvers.YoYo;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.types.mission.plan.IPlanFileExporter;
 import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.util.UnitsUtil;
 
 /**
  * @author zp
@@ -57,8 +59,10 @@ import pt.lsts.neptus.types.mission.plan.PlanType;
 @PluginDescription
 public class IverPlanExporter implements IPlanFileExporter {
 
-    private String iverWaypoint(int wptNum, double speedMps, /*double prevLength,*/ double yoyoAmplitude, double pitchDegs,
-            ManeuverLocation prev, ManeuverLocation dst) {
+    private static final int INFINITE_PARKING_MINUTES = 3600;
+
+    private String iverWaypoint(int wptNum, double speedMps, double yoyoAmplitude, double pitchDegs,
+            int parkingTimeMinutes, ManeuverLocation prev, ManeuverLocation dst) {
 
         StringBuilder sb = new StringBuilder();
         sb.append(wptNum + "; ");
@@ -93,7 +97,10 @@ public class IverPlanExporter implements IPlanFileExporter {
                     metersToFeet((dst.getZ() + yoyoAmplitude)), pitchDegs));
         }
 
-        sb.append(String.format(Locale.US, "P0 VC1,0,0,1000,0,VC2,0,0,1000,0 S%.1f; 0;-1\r\n", mpsToKnots(speedMps)));
+        int parkMinutes = parkingTimeMinutes < 0 ? 0 : parkingTimeMinutes;
+        
+        sb.append(String.format(Locale.US, "P%d VC1,0,0,1000,0,VC2,0,0,1000,0 S%.1f; 0;-1\r\n", parkMinutes,
+                mpsToKnots(speedMps)));
 
         return sb.toString();
     }
@@ -104,11 +111,11 @@ public class IverPlanExporter implements IPlanFileExporter {
     }
 
     public double metersToFeet(double meters) {
-        return meters * 3.2808399;
+        return meters * UnitsUtil.METER_TO_FEET;
     }
 
     public double mpsToKnots(double mps) {
-        return mps * 1.943844492;
+        return mps * UnitsUtil.MS_TO_KNOT;
     }
 
     @Override
@@ -144,8 +151,8 @@ public class IverPlanExporter implements IPlanFileExporter {
                 minLon = Math.min(minLon, loc.getLongitudeDegs());
                 maxLon = Math.max(maxLon, loc.getLongitudeDegs());
 
-                wpts.append(iverWaypoint(count, speed, /*distance,*/ ((YoYo) m).getAmplitude(),
-                        Math.toDegrees(((YoYo) m).getPitchAngle()), previousLoc, ((YoYo) m).getManeuverLocation()));
+                wpts.append(iverWaypoint(count, speed, ((YoYo) m).getAmplitude(),
+                        Math.toDegrees(((YoYo) m).getPitchAngle()), 0, previousLoc, ((YoYo) m).getManeuverLocation()));
                 timeSum += time;
                 distanceSum += distance;
                 if (distanceSum == 0)
@@ -156,6 +163,21 @@ public class IverPlanExporter implements IPlanFileExporter {
             }
             else if (m instanceof LocatedManeuver) {
                 for (ManeuverLocation wpt : ((LocatedManeuver) m).getWaypoints()) {
+                    int parkTimeMinutes = 0;
+                    if (m instanceof StationKeeping) {
+                        if (((StationKeeping) m).getDuration() < 0) {
+                            parkTimeMinutes = 0;
+                        }
+                        else if (((StationKeeping) m).getDuration() == 0) {
+                            parkTimeMinutes = INFINITE_PARKING_MINUTES;
+                        }
+                        else {
+                            parkTimeMinutes = ((StationKeeping) m).getDuration(); // seconds
+                            parkTimeMinutes = Math.max(0, parkTimeMinutes); // seconds
+                            parkTimeMinutes = (int) Math.round(parkTimeMinutes / 60.); // minutes
+                        }
+                        timeSum += parkTimeMinutes * 60;
+                    }
                     wpt.convertToAbsoluteLatLonDepth();
                     double depth = wpt.getDepth();
                     double distance = 0;
@@ -169,11 +191,11 @@ public class IverPlanExporter implements IPlanFileExporter {
                     minLon = Math.min(minLon, wpt.getLongitudeDegs());
                     maxLon = Math.max(maxLon, wpt.getLongitudeDegs());
 
-                    wpts.append(iverWaypoint(count, speed, /*distance,*/ 0, 0, previousLoc, wpt));
+                    wpts.append(iverWaypoint(count, speed, 0, 0, parkTimeMinutes, previousLoc, wpt));
                     timeSum += time;
                     distanceSum += distance;
                     if (distanceSum == 0)
-                        wpt_times.append(String.format(Locale.US, "WP%d;Time=0;Dist=0\r\n", count++));
+                        wpt_times.append(String.format(Locale.US, "WP%d;Time=%.11f;Dist=0\r\n", count++, parkTimeMinutes * 60.));
                     else
                         wpt_times.append(String.format(Locale.US, "WP%d;Time=%.11f;Dist=%.11f\r\n", count++, timeSum, distanceSum));
                     previousLoc = wpt;
@@ -204,6 +226,6 @@ public class IverPlanExporter implements IPlanFileExporter {
 
     @Override
     public String[] validExtensions() {
-        return new String[] { "mis" };
+        return new String[] { "mis", "srp" };
     }
 }

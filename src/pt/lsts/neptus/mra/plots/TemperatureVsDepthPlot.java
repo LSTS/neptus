@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -34,6 +34,7 @@ package pt.lsts.neptus.mra.plots;
 
 import org.jfree.data.xy.XYSeries;
 
+import pt.lsts.imc.Conductivity;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.Temperature;
 import pt.lsts.imc.lsf.LsfIndex;
@@ -74,11 +75,14 @@ public class TemperatureVsDepthPlot extends XYPlot {
 
     @Override
     public void process(LsfIndex source) {
+        int ctdId;
+        try {
+            ctdId = source.getFirst(Conductivity.class).getSrcEnt();    
+        }
+        catch (Exception e) {
+            ctdId = 255;
+        }
         
-        String depthEntity = MRAProperties.depthEntity.toString().replaceAll("_", " ");
-        
-        int ctdId = source.getEntityId(depthEntity);
-
         if (ctdId == 255) {
             for (depthEntities e : MRAProperties.depthEntities.values()) {
                 String ent = e.toString().replaceAll("_", " ");
@@ -88,20 +92,27 @@ public class TemperatureVsDepthPlot extends XYPlot {
             }
         }
             
-
+        System.out.println("CTD entity: "+ctdId);
+        //CorrectedPosition positions = new CorrectedPosition(source);
+        
         LsfIterator<Temperature> tempIt = source.getIterator(Temperature.class);
         for (Temperature temp : tempIt) {
+            
             if (temp.getSrcEnt() != ctdId)
                 continue;
 
+            
             IMCMessage msg = source.getMessageAt("EstimatedState", temp.getTimestamp());
             if (msg != null) {
-                addValue(temp.getTimestampMillis(), - msg.getDouble("depth"), temp.getValue(), temp.getSourceName(),
+                double val = msg.getDouble("depth");
+                if (Double.isNaN(val))
+                    val = 0;
+                addValue(temp.getTimestampMillis(), - val, temp.getValue(), temp.getSourceName(),
                         "Temperature");
             }
         }
     }
-
+    
     @Override
     public void addLogMarker(LogMarker marker) {
 

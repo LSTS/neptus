@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -138,7 +138,7 @@ public class PluginsLoader {
      * Loads core plugins inside the src folder in the "pt.lsts.neptus.console.plugins" package
      */
     private static void loadCorePlugins() {
-        for (String pkg : new String[] {"pt.lsts.neptus.console.plugins", "pt.lsts.neptus.mra"}) {
+        for (String pkg : new String[] {"pt.lsts.neptus.console.plugins", "pt.lsts.neptus.mra", "pt.lsts.neptus.controllers"}) {
             Reflections reflections = new Reflections(pkg);
             for (Class<?> c : reflections.getTypesAnnotatedWith(PluginDescription.class)) {
                 PluginsRepository.addPlugin(c.getCanonicalName());

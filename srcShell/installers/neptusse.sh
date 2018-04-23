@@ -1,6 +1,6 @@
 #!/bin/bash
 #############################################################################
-# Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia   #
+# Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia   #
 # Laboratório de Sistemas e Tecnologia Subaquática (LSTS)                   #
 # All rights reserved.                                                      #
 # Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal            #
@@ -28,11 +28,11 @@
 #                                                                           #
 # For more information please see <http://lsts.fe.up.pt/neptus>.            #
 #############################################################################
-# Author: Paulo Dias, Jos� Pinto                                            #
+# Author: Paulo Dias, José Pinto                                            #
 #############################################################################
 
 PROGNAME=$0
-NEPTUS_HOME=`dirname $PROGNAME`
+NEPTUS_HOME=`dirname $(readlink -f $PROGNAME)`
 cd $NEPTUS_HOME
 
 CLASSPATH=".:bin/neptus.jar:conf@NEPTUS_LIBS@":$CLASSPATH
@@ -65,4 +65,4 @@ fi
 export VMFLAGS="-XX:+HeapDumpOnOutOfMemoryError"
 
 export LD_LIBRARY_PATH=$LIBS:$LD_LIBRARY_PATH
-$JAVA_BIN_FOLDER"java" -Xms10m -Xmx1024m $VMFLAGS -Djava.library.path=$LIBS $VTKPROP -cp $CLASSPATH pt.lsts.neptus.mc.lauvconsole.LAUVConsole "$@"
+$JAVA_BIN_FOLDER"java" -Xms10m -Xmx1024m $VMFLAGS -Djava.library.path=$LIBS $VTKPROP -cp $CLASSPATH @MAIN_CLASS@ "$@"

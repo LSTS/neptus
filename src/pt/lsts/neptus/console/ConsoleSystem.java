@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -378,7 +378,7 @@ public class ConsoleSystem implements MissionChangeListener, PreferencesListener
         if (VehicleStateListener.class.isAssignableFrom(panelChange.getPanel().getClass())) {
 
             if (panelChange.removed()) {
-                feedRenders.remove(panelChange.getPanel());
+                feedRenders.remove((VehicleStateListener) panelChange.getPanel());
             }
             if (panelChange.added()) {
                 feedRenders.add((VehicleStateListener) panelChange.getPanel());

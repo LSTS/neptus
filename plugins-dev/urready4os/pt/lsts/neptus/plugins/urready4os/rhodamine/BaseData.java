@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -38,6 +38,8 @@ package pt.lsts.neptus.plugins.urready4os.rhodamine;
  *
  */
 public class BaseData  implements Comparable<BaseData> {
+    protected String sourceSystem = "";
+    
     protected double lat;
     protected double lon;
     protected long timeMillis;
@@ -55,6 +57,20 @@ public class BaseData  implements Comparable<BaseData> {
         this.lon = lon;
         this.depth = depth;
         this.timeMillis = timeMillis;
+    }
+    
+    /**
+     * @return the sourceSystem
+     */
+    public String getSourceSystem() {
+        return sourceSystem;
+    }
+    
+    /**
+     * @param sourceSystem the sourceSystem to set
+     */
+    public void setSourceSystem(String sourceSystem) {
+        this.sourceSystem = sourceSystem;
     }
     
     /**

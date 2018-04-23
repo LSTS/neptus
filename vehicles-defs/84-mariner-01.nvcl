@@ -123,7 +123,7 @@
             </FollowPath>
         </maneuver>
         <maneuver>
-            <RowsManeuver kind="automatic">
+            <Rows kind="automatic">
                 <basePoint type="pointType">
                     <point>
                         <id/>
@@ -146,7 +146,7 @@
                     <documentation>No documentation available</documentation>
                     <implementation-class>pt.lsts.neptus.mp.maneuvers.RowsManeuver</implementation-class>
                 </annotation>
-            </RowsManeuver>
+            </Rows>
         </maneuver>
         <maneuver>
             <CrossHatchPattern kind="automatic">
@@ -171,6 +171,30 @@
                     <implementation-class>pt.lsts.neptus.mp.maneuvers.CrossHatchPattern</implementation-class>
                 </annotation>
             </CrossHatchPattern>
+        </maneuver>
+        <maneuver>
+            <Sample kind="automatic">
+                <finalPoint type="pointType">
+                    <point>
+                        <id>SampleDestination</id>
+                        <name>SampleDestination</name>
+                        <coordinate>
+                            <latitude>0N</latitude>
+                            <longitude>0E</longitude>
+                            <height>0</height>
+                        </coordinate>
+                    </point>
+                    <radiusTolerance>5</radiusTolerance>
+                </finalPoint>
+                <velocity tolerance="10" type="float" unit="m/s">5</velocity>
+                <trajectoryTolerance>
+                    <radiusTolerance type="float">5</radiusTolerance>
+                </trajectoryTolerance>
+                <annotation>
+                    <documentation>Move to a given point and take a sample</documentation>
+                    <implementation-class>pt.lsts.neptus.mp.maneuvers.Sample</implementation-class>
+                </annotation>
+            </Sample>
         </maneuver>
         <maneuver>
             <Drop kind="automatic">
@@ -243,7 +267,7 @@
                 <implementation-class>pt.lsts.neptus.mp.maneuvers.Land</implementation-class>
               </annotation>
             </Land>
-        </maneuver>        
+        </maneuver>
     </feasibleManeuvers>
     <communication-means>
         <comm-mean>
@@ -258,7 +282,7 @@
                     <port-tcp>6002</port-tcp>
                     <udp-on>true</udp-on>
                     <tcp-on>false</tcp-on>
-                    <imc-id>0c:09</imc-id>
+                    <imc-id>0c:20</imc-id>
                 </imc>
             </protocols-args>
         </comm-mean>
@@ -271,4 +295,4 @@
             <xml-file>../conf/consoles/ntnu/copter.ncon</xml-file>
         </console>
     </consoles>
-</system>     
+</system>

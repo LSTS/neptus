@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -50,6 +50,8 @@ import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.def.SpeedUnits;
+import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.editor.SpeedUnitsEnumEditor;
 import pt.lsts.neptus.i18n.I18n;
@@ -82,15 +84,13 @@ public class Elevator extends Maneuver implements LocatedManeuver, ManeuverWithS
     @NeptusProperty(name="Start from current position", description="Start from current position or use the location field")
     public boolean startFromCurrentPosition = false;
     
-    @NeptusProperty(name="Start Z (m)")
+    @NeptusProperty(name="Start Z", units = "m")
     public float startZ = 0;
     
     @NeptusProperty(name="Start Z Units")
     public ManeuverLocation.Z_UNITS startZUnits = ManeuverLocation.Z_UNITS.NONE;
 
-//    protected ManeuverLocation.Z_UNITS startZUnits = pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS.NONE;
-    
-    @NeptusProperty(name="Radius (m)")
+    @NeptusProperty(name="Radius", units = "m")
     public float radius = 5;
 
     double speedTolerance = 5, radiusTolerance = 2;
@@ -139,7 +139,7 @@ public class Elevator extends Maneuver implements LocatedManeuver, ManeuverWithS
      * @see pt.lsts.neptus.mp.Maneuver#loadFromXML(java.lang.String)
      */
     @Override
-    public void loadFromXML(String xml) {
+    public void loadManeuverFromXML(String xml) {
         try {
             Document doc = DocumentHelper.parseText(xml);
             Node node = doc.selectSingleNode(DEFAULT_ROOT_ELEMENT+ "/finalPoint/point");
@@ -274,10 +274,10 @@ public class Elevator extends Maneuver implements LocatedManeuver, ManeuverWithS
         elevator.setLat(getManeuverLocation().getLatitudeRads());
         elevator.setLon(getManeuverLocation().getLongitudeRads());
         elevator.setStartZ(startZ);
-        elevator.setStartZUnits(pt.lsts.imc.Elevator.START_Z_UNITS.valueOf(
+        elevator.setStartZUnits(ZUnits.valueOf(
                 startZUnits.toString()));
         elevator.setEndZ(getManeuverLocation().getZ());
-        elevator.setEndZUnits(pt.lsts.imc.Elevator.END_Z_UNITS.valueOf(
+        elevator.setEndZUnits(ZUnits.valueOf(
                 getManeuverLocation().getZUnits().toString()));
         elevator.setRadius(getRadius());
         elevator.setSpeed(getSpeed());
@@ -286,14 +286,14 @@ public class Elevator extends Maneuver implements LocatedManeuver, ManeuverWithS
         try {
             switch (this.getSpeedUnits()) {
                 case METERS_PS:
-                    elevator.setSpeedUnits(pt.lsts.imc.Elevator.SPEED_UNITS.METERS_PS);
+                    elevator.setSpeedUnits(SpeedUnits.METERS_PS);
                     break;
                 case PERCENTAGE:
-                    elevator.setSpeedUnits(pt.lsts.imc.Elevator.SPEED_UNITS.PERCENTAGE);
+                    elevator.setSpeedUnits(SpeedUnits.PERCENTAGE);
                     break;
                 case RPM:
                 default:
-                    elevator.setSpeedUnits(pt.lsts.imc.Elevator.SPEED_UNITS.RPM);
+                    elevator.setSpeedUnits(SpeedUnits.RPM);
                     break;
             }
         }

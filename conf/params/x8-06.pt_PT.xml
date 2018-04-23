@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2016.05.0 (master,cae2b98)" system="x8-06" i18n="pt_PT">
+<config format="1" version="2017.01.0 (master,6686c4f0)" system="x8-06" i18n="pt_PT">
   <section name="Height Control" name-i18n="Controlo de Altitude">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -431,6 +431,15 @@
       <default>true</default>
       <units/>
       <desc>Loiter when in idle.</desc>
+    </param>
+    <param name="Use External Nav Data">
+      <name-i18n>Use External Nav Data</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Dispatch ExternalNavData instead of EstimatedState</desc>
     </param>
   </section>
   <section name="Path Control" name-i18n="Controlo de Caminho">
@@ -2263,7 +2272,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>5V C.1</default>
+      <default>5V C.1 (Photo Trigger)</default>
       <units/>
       <desc/>
     </param>
@@ -2317,7 +2326,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>12V C.1</default>
+      <default>12V C.1 (Wifi Board)</default>
       <units/>
       <desc/>
     </param>
@@ -2335,7 +2344,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>12V C.2</default>
+      <default>12V C.2 (Switch ETH)</default>
       <units/>
       <desc/>
     </param>
@@ -2389,7 +2398,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>48V C</default>
+      <default>48V C (Axis/FLIR Camera)</default>
       <units/>
       <desc/>
     </param>
@@ -3585,8 +3594,17 @@
       <units/>
       <desc>Distance to surface (sea or ground)</desc>
     </param>
+    <param name="PhotoTrigger PCC">
+      <name-i18n>PhotoTrigger PCC</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5V C.1 (Photo Trigger)</default>
+      <units/>
+      <desc>PhotoTrigger PowerChannelControl name.</desc>
+    </param>
   </section>
-  <section name="UAVCamera" name-i18n="UAVCamera">
+  <section name="UAVCamera" name-i18n="Câmara UAV">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
       <type>string</type>

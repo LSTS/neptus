@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -149,9 +149,6 @@ public class LblRangesPlot extends MRATimeSeriesPlot {
     @Override
     public JFreeChart createChart() {
         JFreeChart chart = super.createChart();
-
-        ((XYLineAndShapeRenderer) chart.getXYPlot().getRenderer()).setShapesVisible(true);
-        ((XYLineAndShapeRenderer) chart.getXYPlot().getRenderer()).setLinesVisible(false);
 
         for (int i : beaconColors.keySet())
             ((XYLineAndShapeRenderer) chart.getXYPlot().getRenderer()).setSeriesPaint(i, beaconColors.get(i));

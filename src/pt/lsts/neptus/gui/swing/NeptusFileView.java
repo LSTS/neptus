@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -145,13 +145,19 @@ public class NeptusFileView extends FileView {
     public Icon getIcon(File f) {
         if (isNeptusFile(f)) {
             String fex = FileUtil.getFileExtension(f);
+            if (fex != null)
+                fex = fex.toLowerCase();
+            
             if ("gz".equalsIgnoreCase(fex)) {
                 fex = FileUtil.getFileExtension(f.getName().substring(0, f.getName().length() - 3)) + "." + fex;
             }
             if ("bz2".equalsIgnoreCase(fex)) {
                 fex = FileUtil.getFileExtension(f.getName().substring(0, f.getName().length() - 4)) + "." + fex;
             }
-            return new ImageIcon(iconSet.get(fex));
+            
+            Image ic = iconSet.get(fex);
+            if (ic != null)
+                return new ImageIcon(ic);
         }
         return super.getIcon(f);
     }

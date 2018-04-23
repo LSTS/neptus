@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -718,7 +718,6 @@ public abstract class AbstractElement
      */
     @Override
     public void actionPerformed(ActionEvent action) {
-        
         if ("add".equals(action.getActionCommand())) {
             
             if (!NameNormalizer.isNeptusValidIdentifier(objName.getText())) {
@@ -739,7 +738,6 @@ public abstract class AbstractElement
                     }
                 }
             }
-        
                         
             if (paramsPanel.getErrors() != null) {
                 JOptionPane.showMessageDialog(paramsPanel, paramsPanel.getErrors());
@@ -751,6 +749,10 @@ public abstract class AbstractElement
             setObstacle(obstacleCheck.isSelected());
             transparency = hiddenCheck.isSelected() ? 100 : 0;
             initialize(paramsPanel);
+
+            // We need to recheck the transparency for images
+            if (hiddenCheck.isSelected())
+                transparency = 100;
             
             dialog.setVisible(false);
             dialog.dispose();
@@ -781,7 +783,6 @@ public abstract class AbstractElement
      * @param takenNames
      */
     protected void showParametersDialog(Component parentComp, String[] takenNames, MapType map, boolean editable, boolean idEditable) {
-        
         this.takenNames = takenNames;
         this.parentMap = map;
         
@@ -789,7 +790,10 @@ public abstract class AbstractElement
         objName = new JTextField(8);
         objName.setEditable(editable ? idEditable : editable);
         objName.setText(id);
-
+        objName.setToolTipText("<html>" + I18n.text(
+                "Names must begin with a letter ([A-Za-z]) and may be followed by any number of letters,"
+                + "<br>digits ([0-9]), hyphens (\"-\"), underscores (\"_\"), colons (\":\"), and periods (\".\")."));
+        
         paramsPanel = getParametersPanel(editable,map);
         
         if (parentComp == null || SwingUtilities.getWindowAncestor(parentComp) == null) {
@@ -813,7 +817,6 @@ public abstract class AbstractElement
         idPanel.add(objName);
         idPanel.add(obstacleCheck);
         idPanel.add(hiddenCheck);
-        
         
         if (takenNames == null) {
             objName.setEnabled(false);

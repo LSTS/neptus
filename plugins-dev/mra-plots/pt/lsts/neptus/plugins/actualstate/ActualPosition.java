@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -40,10 +40,10 @@ import java.util.Vector;
 
 import org.jfree.data.xy.XYSeries;
 
+import pt.lsts.imc.Announce;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.Announce;
-import pt.lsts.imc.Announce.SYS_TYPE;
+import pt.lsts.imc.def.SystemType;
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.imc.lsf.LsfIterator;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
@@ -106,7 +106,7 @@ public class ActualPosition extends MRA2DPlot {
         LsfIterator<EstimatedState> it = source.getIterator(EstimatedState.class);
         long stepTime = (long) (timestep * 1000);
         
-         Vector<Announce> uuvSys = source.getSystemsOfType(SYS_TYPE.UUV);
+         Vector<Announce> uuvSys = source.getSystemsOfType(SystemType.UUV);
          Collection<Integer> systemsLst = new ArrayList<>();
          uuvSys.forEach(an -> systemsLst.add(an.getSrc()));
          

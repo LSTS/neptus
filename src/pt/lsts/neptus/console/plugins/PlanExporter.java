@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -36,6 +36,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 
+import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.ProgressMonitor;
@@ -95,6 +96,9 @@ public class PlanExporter extends ConsolePanel {
                                 exp.validExtensions());
                         chooser.setSelectedFile(new File(plan.getDisplayName()));
                         chooser.setDialogTitle(I18n.text("Select destination file"));
+                        JComponent accessory = exp.createFileChooserAccessory(chooser);
+                        if (accessory != null)
+                            chooser.setAccessory(accessory);
                         int op = chooser.showSaveDialog(getConsole());
                         if (op != JFileChooser.APPROVE_OPTION)
                             return;

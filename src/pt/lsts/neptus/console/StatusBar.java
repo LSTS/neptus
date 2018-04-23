@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -128,26 +128,28 @@ public class StatusBar extends JPanel {
 
         this.add(Box.createRigidArea(new Dimension(5, 0)));
 
-        notificationButton = new JButton(I18n.text("Notifications"));
-        notificationButton.setName("notification");
-        notificationButton.setFont(new Font("Arial", Font.PLAIN, FONT_SIZE));
-        notificationButton.setAction(new AbstractAction(I18n.text("Notifications")) {
-            private static final long serialVersionUID = 1L;
-            private boolean show = false;
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                this.show = !show;
-                if (this.show == false && notificationsDialog.isVisible() == false) {
-                    this.show = true;
+        if (notificationsDialog != null) {
+            notificationButton = new JButton(I18n.text("Notifications"));
+            notificationButton.setName("notification");
+            notificationButton.setFont(new Font("Arial", Font.PLAIN, FONT_SIZE));
+            notificationButton.setAction(new AbstractAction(I18n.text("Notifications")) {
+                private static final long serialVersionUID = 1L;
+                private boolean show = false;
+                
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    this.show = !show;
+                    if (this.show == false && notificationsDialog.isVisible() == false) {
+                        this.show = true;
+                    }
+                    notificationsDialog.visible(this.show);
+                    notificationCount = 0;
+                    notificationButton.setText(I18n.text("Notifications"));
+                    notificationButton.setFont(new Font("Arial", Font.PLAIN, FONT_SIZE));
                 }
-                notificationsDialog.visible(this.show);
-                notificationCount = 0;
-                notificationButton.setText(I18n.text("Notifications"));
-                notificationButton.setFont(new Font("Arial", Font.PLAIN, FONT_SIZE));
-            }
-        });
-        this.add(notificationButton);
+            });
+            this.add(notificationButton);
+        }
         
         if (mainSystemSelectionCombo != null)
             this.add(mainSystemSelectionCombo);
@@ -195,6 +197,9 @@ public class StatusBar extends JPanel {
 
     @Subscribe
     public void onNewNotification(ConsoleEventNewNotification e) {
+        if (notificationButton == null)
+            return;
+        
         notificationCount++;
         notificationButton.setText(I18n.textf("%n Notifications", notificationCount));
         notificationButton.setFont(new Font("Arial", Font.BOLD, FONT_SIZE));

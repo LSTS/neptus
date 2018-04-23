@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -102,6 +102,7 @@ public class RealTimePlot extends ConsolePanel implements IPeriodicUpdates, Conf
     public String traceScripts = "roll: ${EstimatedState.phi} * 180 / Math.PI;\npitch: ${EstimatedState.theta} * 180 / Math.PI;\nyaw: ${EstimatedState.psi} * 180 / Math.PI";
 
     private String traceScriptsBefore = "";
+    private int numPointsBefore = numPoints;
 
     public RealTimePlot(ConsoleLayout c) {
         super(c);
@@ -187,7 +188,7 @@ public class RealTimePlot extends ConsolePanel implements IPeriodicUpdates, Conf
 
     @Override
     public void propertiesChanged() {
-        if (!traceScripts.equals(traceScriptsBefore)) {
+        if (!traceScripts.equals(traceScriptsBefore) || numPoints != numPointsBefore) {
             tsc.removeAllSeries();
             scripts.clear();
 
@@ -200,6 +201,7 @@ public class RealTimePlot extends ConsolePanel implements IPeriodicUpdates, Conf
         }
 
         traceScriptsBefore = traceScripts;
+        numPointsBefore = numPoints;
     }
 
     protected void parseScript() throws Exception {

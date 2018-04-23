@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -34,6 +34,7 @@ package pt.lsts.neptus.mra.plots;
 
 import org.jfree.data.xy.XYSeries;
 
+import pt.lsts.imc.Conductivity;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.Salinity;
 import pt.lsts.imc.lsf.LsfIndex;
@@ -61,9 +62,15 @@ public class SalinityVsDepthPlot extends XYPlot {
 
     @Override
     public void process(LsfIndex source) {
-        int ctdId = source.getEntityId("CTD");
-        LsfIterator<Salinity> tempIt = source.getIterator(Salinity.class);
-        for (Salinity temp : tempIt) {
+        int ctdId;
+        try {
+            ctdId = source.getFirst(Conductivity.class).getSrcEnt();    
+        }
+        catch (Exception e) {
+            ctdId = 255;
+        }        
+        LsfIterator<Salinity> salIter = source.getIterator(Salinity.class);
+        for (Salinity temp : salIter) {
             if (temp.getSrcEnt() != ctdId)
                 continue;
 
@@ -72,6 +79,16 @@ public class SalinityVsDepthPlot extends XYPlot {
                 addValue(temp.getTimestampMillis(), -msg.getDouble("depth"), temp.getValue(),temp.getSourceName(), "Salinity");
             }
         }
+    }
+    
+    @Override
+    public String getXAxisName() {
+        return "Depth (meters)";
+    }
+    
+    @Override
+    public String getYAxisName() {
+        return "Salinity";
     }
 
     public void addLogMarker(LogMarker marker) {

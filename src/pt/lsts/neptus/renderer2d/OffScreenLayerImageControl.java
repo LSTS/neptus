@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -32,6 +32,7 @@
  */
 package pt.lsts.neptus.renderer2d;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
@@ -125,9 +126,71 @@ public class OffScreenLayerImageControl {
     }
     
     /**
+     * @return the lastCenter
+     */
+    public LocationType getLastCenter() {
+        return lastCenter == null ? null : lastCenter.getNewAbsoluteLatLonDepth();
+    }
+    
+    /**
+     * Calculates the corner locations, clockwise from top left (4 points), or null if some error occurs.
+     * 
+     * @return
+     */
+    public LocationType[] getLastCorners() {
+        try {
+            Dimension dim = new Dimension(this.dim);
+            int lastLod = this.lastLod;
+            LocationType lastCenter = this.lastCenter.getNewAbsoluteLatLonDepth();
+            double lastRotation = this.lastRotation;
+
+            double topY = -dim.getHeight() / 2d;
+            double bottomY = dim.getHeight() / 2d;
+            double leftX = -dim.getWidth() / 2d;
+            double rightX = dim.getWidth() / 2d;
+            double[] topLeftPts = AngleUtils.rotate(lastRotation, leftX, topY, true);
+            double[] topRightPts = AngleUtils.rotate(lastRotation, rightX, topY, true);
+            double[] bottomRightPts = AngleUtils.rotate(lastRotation, rightX, bottomY, true);
+            double[] bottomLeftPts = AngleUtils.rotate(lastRotation, leftX, bottomY, true);
+            
+            LocationType lTopLeft = lastCenter.getNewAbsoluteLatLonDepth();
+            lTopLeft.translateInPixel(topLeftPts[0], topLeftPts[1], lastLod);
+            LocationType lTopRight = lastCenter.getNewAbsoluteLatLonDepth();
+            lTopRight.translateInPixel(topRightPts[0], topRightPts[1], lastLod);
+            LocationType lBottomRight = lastCenter.getNewAbsoluteLatLonDepth();
+            lBottomRight.translateInPixel(bottomRightPts[0], bottomRightPts[1], lastLod);
+            LocationType lBottomLeft = lastCenter.getNewAbsoluteLatLonDepth();
+            lBottomLeft.translateInPixel(bottomLeftPts[0], bottomLeftPts[1], lastLod);
+            
+            return new LocationType[] {lTopLeft, lTopRight, lBottomRight, lBottomLeft};
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    
+    public Dimension getCurDimentions(Dimension rv) {
+        int newWidth = (int) dim.getWidth() + offScreenBufferPixel * 2;
+        int newHeight = (int) dim.getHeight() + offScreenBufferPixel * 2;
+
+        if (rv == null) {
+            return new Dimension(newWidth, newHeight);
+        }
+        else {
+            rv.setSize(newWidth, newHeight);
+            return rv;
+        }
+    }
+    
+    /**
      * 
      */
     public boolean paintPhaseStartTestRecreateImageAndRecreate(Graphics2D g, StateRenderer2D renderer) {
+        BufferedImage prevCache = cacheImg;
+        int prevWidth = cacheImg != null ? cacheImg.getWidth() : -1;
+        int prevHeight = cacheImg != null ? cacheImg.getHeight() : -1;
+        
         if (!clearImgCacheRqst) {
             if (isToRegenerateCache(renderer)) {
                 cacheImg = null;
@@ -139,34 +202,50 @@ public class OffScreenLayerImageControl {
         }
         
         if (cacheImg == null) {
+            if (imageGraphics != null) {
+                try {
+                    imageGraphics.dispose();
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
             dim = renderer.getSize(new Dimension());
             lastLod = renderer.getLevelOfDetail();
             lastCenter = renderer.getCenter();
             lastRotation = renderer.getRotation();
 
-            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-            GraphicsDevice gs = ge.getDefaultScreenDevice();
-            GraphicsConfiguration gc = gs.getDefaultConfiguration();
-            cacheImg = gc.createCompatibleImage((int) dim.getWidth() + offScreenBufferPixel * 2, (int) dim.getHeight()
-                    + offScreenBufferPixel * 2, imageTransparencyType);
-            Graphics2D g2 = cacheImg.createGraphics();
+            int newWidth = (int) dim.getWidth() + offScreenBufferPixel * 2;
+            int newHeight = (int) dim.getHeight() + offScreenBufferPixel * 2;
+            Graphics2D g2;
+            if (prevCache == null || prevWidth != newWidth && prevHeight != newHeight) {
+                GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+                GraphicsDevice gs = ge.getDefaultScreenDevice();
+                GraphicsConfiguration gc = gs.getDefaultConfiguration();
+                cacheImg = gc.createCompatibleImage(newWidth , newHeight , imageTransparencyType);
+            }
+            else { // Let us reuse the image
+                cacheImg = prevCache;
+                Graphics2D gc = (Graphics2D) cacheImg.createGraphics().create();
+                gc.setBackground(new Color(0, 0, 0, 0));
+                gc.clearRect(0, 0, cacheImg.getWidth(), cacheImg.getHeight());
+                gc.dispose();
+            }
+            g2 = cacheImg.createGraphics();
             
             g2.translate(offScreenBufferPixel, offScreenBufferPixel);
             
-//            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-//            g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
-            g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
-            
-//            paintData(renderer, g2);
-//            
-//            g2.dispose();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+            // g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+            // g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
             
             imageGraphics = g2;
             return true;
         }
         else {
-            imageGraphics = null;
+            // imageGraphics = null;
             return false;
         }
     }
@@ -183,6 +262,10 @@ public class OffScreenLayerImageControl {
             imageGraphics.dispose();
             imageGraphics = null;
         }
+        paintPhaseEndFinishImageRecreateAndPaintImageCacheToRendererNoGraphicDispose(g, renderer);
+    }
+    
+    public void paintPhaseEndFinishImageRecreateAndPaintImageCacheToRendererNoGraphicDispose(Graphics2D g, StateRenderer2D renderer) {
         
         if (cacheImg != null) {
             Graphics2D g3 = (Graphics2D) g.create();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -65,7 +65,7 @@ public class AboutAction extends ConsoleAction {
     @Override
     public void actionPerformed(ActionEvent e) {
         if (aboutPanel == null) {
-            final AboutPanel ap = new AboutPanel();
+            final AboutPanel ap = createNewAboutPanel();
             aboutPanel = ap;
             ap.setVisible(true);
             console.addWindowToOppenedList(ap);
@@ -81,5 +81,12 @@ public class AboutAction extends ConsoleAction {
             aboutPanel.setVisible(true);
             aboutPanel.requestFocusInWindow();
         }
+    }
+
+    /**
+     * @return
+     */
+    protected AboutPanel createNewAboutPanel() {
+        return new AboutPanel(console);
     }
 }

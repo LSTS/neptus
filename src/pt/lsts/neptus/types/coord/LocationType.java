@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -129,19 +129,11 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
     // offsets are in meters (m)
     private boolean isOffsetNorthUsed = true;
     private double offsetNorth = 0;
-    //    private double offsetSouth = 0;
     private boolean isOffsetEastUsed = true;
     private double offsetEast = 0;
-    //    private double offsetWest = 0;
     private boolean isOffsetUpUsed = true;
-    //    private double offsetUp = 0;
     private double offsetDown = 0;
 
-    //    protected Document doc;
-
-    /**
-     * 
-     */
     public LocationType() {
         super();
     }
@@ -285,7 +277,6 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
      * @return Returns the latitude.
      */
     public String getLatitudeStr() {
-        //        return latitudeStr;
         return CoordinateUtil.dmsToLatString(CoordinateUtil.decimalDegreesToDMS(Math.toDegrees(latitudeRads)));
     }
 
@@ -332,7 +323,6 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
      * @return Returns the longitude.
      */
     public String getLongitudeStr() {
-        //        return longitudeStr;
         return CoordinateUtil.dmsToLonString(CoordinateUtil.decimalDegreesToDMS(getLongitudeDegs()));
     }
 
@@ -465,9 +455,6 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
      */
     public void setOffsetNorth(double offsetNorth) {
         this.offsetNorth = offsetNorth;
-        //        this.offsetSouth = -offsetNorth;
-        //        if (this.offsetSouth == 0)
-        //            this.offsetSouth = 0;
     }
 
     /**
@@ -485,7 +472,6 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
      * @return Returns the offsetSouth.
      */
     public double getOffsetSouth() {
-        //        return offsetSouth;
         if (this.offsetNorth == 0)
             return offsetNorth;
         else
@@ -497,7 +483,6 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
      *            The offsetSouth to set.
      */
     public void setOffsetSouth(double offsetSouth) {
-        //        this.offsetSouth = offsetSouth;
         this.offsetNorth = -offsetSouth;
         if (this.offsetNorth == 0)
             this.offsetNorth = 0;
@@ -527,9 +512,6 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
      */
     public void setOffsetEast(double offsetEast) {
         this.offsetEast = offsetEast;
-        //        this.offsetWest = -offsetEast;
-        //        if (this.offsetWest == 0)
-        //            this.offsetWest = 0;
     }
 
     /**
@@ -547,7 +529,6 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
      * @return Returns the offsetWest.
      */
     public double getOffsetWest() {
-        //        return offsetWest;
         if (this.offsetEast == 0)
             return offsetEast;
         else
@@ -559,7 +540,6 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
      *            The offsetWest to set.
      */
     public void setOffsetWest(double offsetWest) {
-        //        this.offsetWest = offsetWest;
         this.offsetEast = -offsetWest;
         if (this.offsetEast == 0)
             this.offsetEast = 0;
@@ -580,7 +560,6 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
      * @return Returns the offsetUp.
      */
     public double getOffsetUp() {
-        //        return offsetUp;
         if (this.offsetDown == 0)
             return this.offsetDown;
         else
@@ -592,7 +571,6 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
      *            The offsetUp to set.
      */
     public void setOffsetUp(double offsetUp) {
-        //        this.offsetUp = offsetUp;
         this.offsetDown = -offsetUp;
         if (this.offsetDown == 0)
             this.offsetDown = 0;
@@ -685,8 +663,6 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
      */
     @Override
     public String toString() {
-        // NumberFormat nf7 = GuiUtils.getNeptusDecimalFormat(7);
-
         double[] absLoc = getAbsoluteLatLonDepth();
 
         double lat = absLoc[0];
@@ -719,25 +695,6 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
         return loc;
     }
     
-    //    /**
-    //     * @param divider The separator between Lat/Lon/Depth. 
-    //     * @return The absolute Lat/Lon/Depth as String separated by the divider.
-    //     */
-    //    public String getLatLonStr(String divider) {
-    //        double[] absLoc = getAbsoluteLatLonDepth();
-    //        double lat = absLoc[0];
-    //        double lon = absLoc[1];
-    //        return CoordinateUtil.latitudeAsPrettyString(lat, false) + divider + CoordinateUtil.longitudeAsPrettyString(lon, false);
-    //    }
-    //    
-    //    /**
-    //     * see {@link #getLatLonStr(String)}
-    //     * @return The absolute Lat/Lon/Depth as String separated by ', '.
-    //     */
-    //    public String getLatLonStr() {
-    //        return getLatLonStr(", ");
-    //    }
-
     /*
      * (non-Javadoc)
      * 
@@ -854,7 +811,6 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
         return CoordinateUtil.WGS84displacement(otherLocation, this);
     }
 
-
     /**
      * Returns the distance relative to other location, in meters
      * 
@@ -863,7 +819,6 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
      * @return The distance, in meters, to the location given
      */
     public double getDistanceInMeters(LocationType anotherLocation) {
-
         // NeptusLog.pub().info("<###>distance in meters from "+getLatitude()+","+getLongitude()+" to "+anotherLocation.getLatitude()+","+getLongitude());
         double[] offsets = getOffsetFrom(anotherLocation);
         double sum = offsets[0] * offsets[0] + offsets[1] * offsets[1] + offsets[2] * offsets[2];
@@ -902,7 +857,6 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
      * @param anotherPoint
      */
     public void setLocation(LocationType anotherPoint) {
-
         if (anotherPoint == null)
             return;
 
@@ -921,7 +875,6 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
         this.setOffsetEastUsed(anotherPoint.isOffsetEastUsed());
         this.setOffsetNorthUsed(anotherPoint.isOffsetNorthUsed());
         this.setOffsetUpUsed(anotherPoint.isOffsetUpUsed());
-
     }
 
     /**
@@ -931,14 +884,15 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
      * @param offsetDown
      * @return This location.
      */
-    public LocationType translatePosition(double offsetNorth, double offsetEast,
+    @SuppressWarnings("unchecked")
+    public <L extends LocationType> L translatePosition(double offsetNorth, double offsetEast,
             double offsetDown) {
 
         setOffsetNorth(getOffsetNorth() + offsetNorth);
         setOffsetEast(getOffsetEast() + offsetEast);
         setOffsetDown(getOffsetDown() + offsetDown);
 
-        return this;
+        return (L) this;
     }
 
     /**
@@ -946,11 +900,12 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
      * @param nedOffsets
      * @return This location.
      */
-    public LocationType translatePosition(double[] nedOffsets) {
+    @SuppressWarnings("unchecked")
+    public <L extends LocationType> L translatePosition(double[] nedOffsets) {
         if (nedOffsets.length < 3) {
             NeptusLog.pub().error("Invalid offsets length: found " + nedOffsets.length
                     + " values, expecting 3");
-            return this;
+            return (L) this;
         }
         return translatePosition(nedOffsets[0], nedOffsets[1], nedOffsets[2]);
     }
@@ -960,7 +915,6 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
      * @return The total Lat(degrees), Lon(degrees) and Depth(m)
      */
     public double[] getAbsoluteLatLonDepth() {
-
         double[] totalLatLonDepth = new double[] { 0d, 0d, 0d };
         totalLatLonDepth[0] = getLatitudeDegs();
         totalLatLonDepth[1] = getLongitudeDegs();
@@ -990,19 +944,20 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
      * Converts this Location to absolute (Lat/Lon/Depth without offsets). 
      * @return The Location itself. 
      */
-    public LocationType convertToAbsoluteLatLonDepth() {
+    @SuppressWarnings("unchecked")
+    public <L extends LocationType> L convertToAbsoluteLatLonDepth() {
         if (offsetNorth == 0 && offsetEast == 0 && offsetDown == 0 && offsetDistance == 0) {
-            return this;
+            return (L) this;
         }
         
         double latlondepth[] = getAbsoluteLatLonDepth();
 
-        setLocation(new LocationType());
+        setLocation(ABSOLUTE_ZERO);
         setLatitudeDegs(latlondepth[0]);
         setLongitudeDegs(latlondepth[1]);
         setDepth(latlondepth[2]);
 
-        return this;
+        return (L) this;
     }
 
     /**
@@ -1018,7 +973,7 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
         }
         catch (Exception e) {
             loc = (L) new LocationType();
-        } //new LocationType();
+        }
         loc.setLatitudeDegs(latlondepth[0]);
         loc.setLongitudeDegs(latlondepth[1]);
         loc.setDepth(latlondepth[2]);
@@ -1317,12 +1272,6 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
     @Override
     public int compareTo(LocationType o) {
         return (int) getDistanceInMeters(o);
-        //        boolean ret = isLocationEqual(new LocationType(o));
-        //        if (ret)
-        //            return 0;
-        //        else {
-        //            return 1;
-        //        }
     }
 
     public String getDebugString() {

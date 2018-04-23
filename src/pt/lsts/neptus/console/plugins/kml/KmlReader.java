@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -44,6 +44,7 @@ import java.util.zip.ZipInputStream;
 import de.micromata.opengis.kml.v_2_2_0.Document;
 import de.micromata.opengis.kml.v_2_2_0.Feature;
 import de.micromata.opengis.kml.v_2_2_0.Folder;
+import de.micromata.opengis.kml.v_2_2_0.GroundOverlay;
 import de.micromata.opengis.kml.v_2_2_0.Kml;
 import de.micromata.opengis.kml.v_2_2_0.Placemark;
 
@@ -95,45 +96,60 @@ public class KmlReader {
         return url.getPath().toString().endsWith(".kmz");
     }
 
-    public TreeMap<String, Placemark> extractFeatures() {       
-        List<Placemark> features = listPlacemarks("", kml.getFeature());
-        TreeMap<String, Placemark> f = new TreeMap<>();
+    public TreeMap<String, Feature> extractFeatures() {       
+        List<Feature> features = listSupportedFearures("", kml.getFeature());
+        TreeMap<String, Feature> f = new TreeMap<>();
 
-        for (Placemark pm : features) {
+        for (Feature pm : features) {
             String featureName = parseFeatureName(pm);
-            f.put(featureName, pm);
+            if (!f.containsKey(featureName)) {
+                f.put(featureName, pm);
+            }
+            else {
+                int maxTries = 100;
+                for (int i = 1; i < maxTries; i++) {
+                    String alternative = featureName + "_" + i;
+                    if (!f.containsKey(alternative)) {
+                        f.put(alternative, pm);
+                        break;
+                    }
+                }
+            }
         }
 
         return f;
     }
     
-    private String parseFeatureName(Placemark pm) {
-        String str = pm.getName().substring(pm.getName().lastIndexOf("/")+1);
+    private String parseFeatureName(Feature pm) {
+        String str = pm.getName().substring(pm.getName().lastIndexOf("/") + 1);
         String featName = str.split(",")[0];
+        featName = featName.trim();
+        
+        if (featName.isEmpty())
+            featName = "id" + pm.getId();
         
         return featName;
     }
 
-    private List<Placemark> listPlacemarks(String path, Feature f) {
-        if (f instanceof Placemark) {
-            Placemark mark = (Placemark) f;
-            mark.setName(path+mark.getName());
-            return Arrays.asList((Placemark)f);
+    private List<Feature> listSupportedFearures(String path, Feature f) {
+        if (f instanceof Placemark || f instanceof GroundOverlay) {
+            f.setName(path + f.getName());
+            return Arrays.asList(f);
         }
 
         else if (f instanceof Folder) {
-            ArrayList<Placemark> ret = new ArrayList<>();
+            ArrayList<Feature> ret = new ArrayList<>();
             Folder folder = (Folder)f;
             for (Feature j : folder.getFeature())
-                ret.addAll(listPlacemarks(path+folder.getName()+"/", j));  
+                ret.addAll(listSupportedFearures(path+folder.getName()+"/", j));  
             return ret;
         }
 
         else if (f instanceof Document) {
-            ArrayList<Placemark> ret = new ArrayList<>();
+            ArrayList<Feature> ret = new ArrayList<>();
             Document d = (Document)f;
             for (Feature j : d.getFeature())
-                ret.addAll(listPlacemarks("/", j));
+                ret.addAll(listSupportedFearures("/", j));
             return ret;
         }
         else 

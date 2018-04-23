@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -61,11 +61,11 @@ import pt.lsts.neptus.util.MathMiscUtils;
  */
 public class ExpandingSquarePattern extends FollowPath {
 
-    @NeptusProperty(name = "Width", description = "Width of the volume to cover, in meters")
+    @NeptusProperty(name = "Width", description = "Width of the volume to cover, in meters", units = "m")
     private double width = 100;
-    @NeptusProperty(name = "Horizontal Step", description = "Horizontal distance between rows, in meters")
+    @NeptusProperty(name = "Horizontal Step", description = "Horizontal distance between rows, in meters", units = "m")
     private double hstep = 50;
-    @NeptusProperty(name = "Bearing", description = "The outgoing bearing (from starting location) in degrees")
+    @NeptusProperty(name = "Bearing", description = "The outgoing bearing (from starting location) in degrees", units = "\u00B0")
     private double bearingDeg = 0;
     @NeptusProperty(name = "First Curve Right", description = "If the first curve should be to the right or left")
     private boolean firstCurveRight = true;
@@ -204,7 +204,7 @@ public class ExpandingSquarePattern extends FollowPath {
     }
 
     @Override
-    public void loadFromXML(String xml) {
+    public void loadManeuverFromXML(String xml) {
         try {
             Document doc = DocumentHelper.parseText(xml);
             Node node = doc.selectSingleNode("//basePoint/point");

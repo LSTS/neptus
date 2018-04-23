@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -34,12 +34,12 @@ package pt.lsts.neptus.mra.plots;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.Locale;
 import java.util.TimeZone;
 import java.util.Vector;
 
@@ -76,21 +76,20 @@ public abstract class MRATimeSeriesPlot implements LLFChart, LogMarkerListener {
     protected TimeSeriesCollection tsc = new TimeSeriesCollection();
     protected LinkedHashMap<String, TimeSeries> series = new LinkedHashMap<>();
     protected JFreeChart chart;
-    protected MRAPanel mraPanel;
 
-    protected static final long localTimeOffset = Calendar.getInstance().get(Calendar.DST_OFFSET)
-            + Calendar.getInstance().get(Calendar.ZONE_OFFSET);
+    protected long localTimeOffset = 0;
+    
+    protected MRAPanel mraPanel;
 
     protected static Color[] seriesColors = new Color[] { Color.red.darker(), Color.blue.darker(),
             Color.green.darker(), Color.orange, Color.cyan.darker(), Color.gray.darker(), Color.magenta.darker(),
             Color.blue.brighter().brighter(), Color.red.brighter().brighter(), Color.green.brighter().brighter(),
             Color.black, Color.pink, Color.yellow.darker(), Color.cyan, Color.magenta };
 
-    /**
-     * 
-     */
     public MRATimeSeriesPlot(MRAPanel panel) {
         this.mraPanel = panel;
+        this.localTimeOffset = LogLocalTimeOffset.getLocalTimeOffset((long) 
+                mraPanel.getSource().getLsfIndex().getStartTime()*1000);
     }
 
     public Vector<String> getForbiddenSeries() {
@@ -129,8 +128,7 @@ public abstract class MRATimeSeriesPlot implements LLFChart, LogMarkerListener {
         if (!series.containsKey(trace)) {
             addTrace(trace);
         }
-        series.get(trace).addOrUpdate(new Millisecond(new Date(timeMillis), TimeZone.getTimeZone("UTC")), value);
-
+        series.get(trace).addOrUpdate(new Millisecond(new Date(timeMillis), TimeZone.getTimeZone("UTC"), Locale.getDefault()), value);
     }
 
     @Override
@@ -241,6 +239,5 @@ public abstract class MRATimeSeriesPlot implements LLFChart, LogMarkerListener {
 
     @Override
     public void goToMarker(LogMarker marker) {
-
     }
 }

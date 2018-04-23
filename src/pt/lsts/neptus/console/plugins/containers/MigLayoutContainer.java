@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -32,19 +32,26 @@
  */
 package pt.lsts.neptus.console.plugins.containers;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
+import java.awt.event.HierarchyEvent;
+import java.awt.event.HierarchyListener;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.AbstractAction;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JMenu;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.WindowConstants;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -75,7 +82,7 @@ import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
  * @author pdias
  */
 @SuppressWarnings("serial")
-@PluginDescription(author = "José Quadrado", version = "1.0.1", name = "Console Layout: MigLayout", description = "This container uses MigLayout manager", icon = "pt/lsts/neptus/plugins/containers/layout.png", category = CATEGORY.INTERFACE)
+@PluginDescription(author = "José Quadrado, Paulo Dias", version = "2.0.0", name = "Console Layout: MigLayout", description = "This container uses MigLayout manager", icon = "pt/lsts/neptus/plugins/containers/layout.png", category = CATEGORY.INTERFACE)
 public class MigLayoutContainer extends ContainerSubPanel implements ConfigurationListener, LayoutProfileProvider {
 
     public static final String LAYOUT_SCHEMA = "miglayout-container.xsd";
@@ -90,6 +97,9 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
 
     private JMenu profilesMenu;
 
+    private Map<String, JDialog> windowMap = new HashMap<>();
+    private ArrayList<String> usedWindows = new ArrayList<>();
+    
     public MigLayoutContainer(ConsoleLayout console) {
         super(console);
         NeptusEvents.register(this);
@@ -105,15 +115,24 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
             applyLayout(this.xmlDef);
         }
         else {
-            if(currentProfile!="")
+            if(currentProfile != "")
                 changeProfile(currentProfile); // This call maybe redundant but is needed for profile menu update
             applyLayout(this.xmlDef);
         }
         super.init();
+        
+        // To allow the windows not to appear before the console is visible
+        addHierarchyListener(new HierarchyListener() {
+            @Override
+            public void hierarchyChanged(HierarchyEvent e) {
+                if ((e.getChangeFlags() & HierarchyEvent.SHOWING_CHANGED) != 0 && e.getChanged() == getConsole())
+                    setVisibilityToWindows();
+            }
+        });
     }
 
     private void loadProfiles() {
-        this.removeAll();
+        removeAllComponentsFromPanelAndWindows();
         if (xmlDef.isEmpty())
             return;
 
@@ -160,6 +179,12 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
         }
     }
 
+    private void removeAllComponentsFromPanelAndWindows() {
+        this.removeAll();
+        for (JDialog w : windowMap.values())
+            w.getContentPane().removeAll();
+    }
+
     public void changeProfile(String profileName) {
         currentProfile = profileName;
         NeptusLog.pub().info("currentProfile: "+currentProfile);
@@ -183,7 +208,7 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
     }
 
     private void removeProfilesMenu() {
-        if (profilesMenu != null) {
+        if (profilesMenu != null && profilesMenu.getParent() != null) {
             profilesMenu.getParent().remove(profilesMenu);
             profilesMenu = null;
         }
@@ -204,13 +229,15 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
     }
 
     public void applyLayout(String xml) {
-        this.removeAll();
+        removeAllComponentsFromPanelAndWindows();
         if (xml.isEmpty())
             return;
         SAXReader reader = new SAXReader();
         InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(xml));
 
+        usedWindows.clear();
+        
         // Parse new XML layout definition
         try {
             Document doc = reader.read(is);
@@ -227,8 +254,25 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
             NeptusLog.pub().error("reading inner xml", e);
         }
         
+        setVisibilityToWindows();
+
         getConsole().revalidate();
         getConsole().repaint();
+    }
+
+    private void setVisibilityToWindows() {
+        for (String name : windowMap.keySet()) {
+            JDialog w = windowMap.get(name);
+            if (!usedWindows.contains(name)) {
+                w.setVisible(false);
+            }
+            else {
+                // To allow the windows not to appear before the console is visible
+                w.setVisible(getConsole().isVisible());
+            }
+            w.revalidate();
+            w.repaint();
+        }
     }
 
     public void parse(Node node, JComponent parent) {
@@ -241,12 +285,12 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
             List<Element> elements = e.elements();
             for (Element element : elements) {
                 if ("container".equals(element.getName())) {
-                    String layoutparam = element.attributeValue("layoutparam");
-                    String colparam = element.attributeValue("colparam");
-                    String rowparam = element.attributeValue("rowparam");
-                    String addParam = element.attributeValue("param");
+                    String layoutparam = element.attributeValue("layoutparam"); // optional
+                    String colparam = element.attributeValue("colparam"); // optional
+                    String rowparam = element.attributeValue("rowparam"); // optional
+                    String addParam = element.attributeValue("param"); // optional
                     String type = element.attributeValue("type") == null ? "" : element.attributeValue("type");
-                    // Let us try the tab type
+                    // Let us try the tab type, his is deprecated, the tab element should be used
                     if (element.selectSingleNode("tab") != null || "tabcontainer".equals(type)) {
                         JTabbedPane tabbedPane = new JTabbedPane();
                         parent.add(tabbedPane, addParam);
@@ -269,24 +313,70 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
                         parse(element, container);
                     }
                 }
-                if ("child".equals(element.getName())) {
+                else if ("child".equals(element.getName())) {
                     String name = element.attributeValue("name");
-                    String param = element.attributeValue("param");
+                    String param = element.attributeValue("param"); // optional
                     ConsolePanel child = this.getSubPanelByName(name);
                     if (child != null) {
                         parent.add(child, param);
                     }
                 }
-                if ("tab".equals(element.getName())) {
+                else if ("tab".equals(element.getName())) {
                     JTabbedPane tabsPane = (JTabbedPane) parent;
                     String name = element.attributeValue("tabname");
-                    String layoutparam = element.attributeValue("layoutparam");
-                    String colparam = element.attributeValue("colparam");
-                    String rowparam = element.attributeValue("rowparam");
+                    String layoutparam = element.attributeValue("layoutparam"); // optional
+                    String colparam = element.attributeValue("colparam"); // optional
+                    String rowparam = element.attributeValue("rowparam"); // optional
                     JPanel tab = new JPanel();
                     tab.setLayout(new MigLayout(layoutparam, colparam, rowparam));
                     tabsPane.addTab(name, null, tab, name);
                     parse(element, tab);
+                }
+                else if ("window".equals(element.getName())) {
+                    String nameparam = element.attributeValue("name");
+                    if (nameparam == null || nameparam.length() <= 0) {
+                        NeptusLog.pub().warn("Invalid window name, ignoring.");
+                        continue;
+                    }
+                    nameparam = nameparam.trim();
+                    String layoutparam = element.attributeValue("layoutparam"); // optional
+                    String colparam = element.attributeValue("colparam"); // optional
+                    String rowparam = element.attributeValue("rowparam"); // optional
+
+                    ConsolePanel container = new ConsolePanel(getConsole()) {
+                        private static final long serialVersionUID = 8543725153078587308L;
+
+                        @Override
+                        public void cleanSubPanel() {
+                        }
+
+                        @Override
+                        public void initSubPanel() {
+                        }
+                    };
+                    
+                    container.setLayout(new MigLayout(layoutparam, colparam, rowparam));
+
+                    JDialog window;
+                    if (windowMap.containsKey(nameparam)) {
+                        window = windowMap.get(nameparam);
+                        window.getContentPane().removeAll();
+                        window.revalidate();
+                        window.repaint();
+                    }
+                    else {
+                        window = new JDialog(getConsole());
+                        window.setVisible(false);
+                        window.setSize(getConsole().getWidth(), getConsole().getHeight());
+                        window.setTitle(nameparam);
+                        window.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+                        windowMap.put(nameparam, window);
+                    }
+                    window.setLayout(new BorderLayout());
+                    window.getContentPane().add(container, BorderLayout.CENTER);
+                    usedWindows.add(nameparam);
+
+                    parse(element, container);
                 }
             }
             return;
@@ -300,9 +390,18 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
     
     @Override
     protected void addSubPanelFinishUp() {
-        applyLayout(this.xmlDef);
+        if (!isChildsBulkLoad())
+            applyLayout(this.xmlDef);
     }
 
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.console.ContainerSubPanel#addSubPanelBulkFinishUp()
+     */
+    @Override
+    protected void addSubPanelBulkFinishUp() {
+        applyLayout(this.xmlDef);
+    }
+    
     @Override
     public void removeSubPanelExtra(ConsolePanel sp) {
         applyLayout(this.xmlDef);
@@ -310,8 +409,15 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
 
     @Override
     public void clean() {
+        removeAllComponentsFromPanelAndWindows();
         super.clean();
         removeProfilesMenu();
+        for (JDialog window : windowMap.values()) {
+            window.removeAll();
+            window.dispose();
+        }
+        windowMap.clear();
+        usedWindows.clear();
     }
 
     /*

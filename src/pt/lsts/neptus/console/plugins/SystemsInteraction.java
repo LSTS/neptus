@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -56,8 +56,11 @@ import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.systems.external.ExternalSystem;
 import pt.lsts.neptus.systems.external.ExternalSystemsHolder;
+import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
+import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.MathMiscUtils;
 
@@ -76,11 +79,14 @@ public class SystemsInteraction extends ConsoleInteraction {
     
     @NeptusProperty(name = "Consider External Systems Icons", userLevel = LEVEL.REGULAR)
     public boolean considerExternalSystemsIcons = true;
-    @NeptusProperty(name = "Minutes To Consider Systems Without Known Location", userLevel = LEVEL.REGULAR)
+    @NeptusProperty(name = "Minutes To Consider Systems Without Known Location", description = "0 to disable", userLevel = LEVEL.REGULAR)
     public int minutesToConsiderSystemsWithoutKnownLocation = 5;
     @NeptusProperty(name = "Minutes to Show Distress Signal", category = "Test", userLevel = LEVEL.ADVANCED)
     private int minutesToShowDistress = 5; 
 
+    @NeptusProperty(name = "Allow main vehicle selection by clicking on the console map", userLevel = LEVEL.REGULAR)
+    private boolean selectSystemByClick = false; 
+    
     private short counterShow = 0;
     private ArrayList<ImcSystem> imcSystems = new ArrayList<>();
     private ArrayList<ExternalSystem> extSystems = new ArrayList<>();
@@ -219,9 +225,17 @@ public class SystemsInteraction extends ConsoleInteraction {
 
                     sb.append("<br/>").append("<b>").append(I18n.text("Type")).append(": ").append("</b>")
                         .append(sys.getType() == SystemTypeEnum.VEHICLE ? sys.getTypeVehicle() : sys.getType());
-                
+
                     sb.append("<br/>").append("<b>").append("IMC: ").append("</b>").append(sys.getId().toPrettyString().toUpperCase());
                     
+                    LocationType loc = sys.getLocation();
+                    sb.append("<br/>").append("<b>").append(I18n.text("Pos")).append(": ").append("</b>");
+                    sb.append(CoordinateUtil.latitudeAsPrettyString(loc.getLatitudeDegs()))
+                        .append(" ")
+                        .append(CoordinateUtil.longitudeAsPrettyString(loc.getLongitudeDegs()));
+                    if (Math.round(loc.getHeight()) != 0)
+                        sb.append(" H").append(Math.round(loc.getHeight())).append("m");
+
                     Object speed = sys.retrieveData(SystemUtils.GROUND_SPEED_KEY);
                     Object course = sys.retrieveData(SystemUtils.COURSE_DEGS_KEY);
                     Object rateOfturn = sys.retrieveData(SystemUtils.RATE_OF_TURN_DEGS_PER_MIN_KEY);
@@ -269,6 +283,14 @@ public class SystemsInteraction extends ConsoleInteraction {
                             sb.append("<b>").append("MMSI: ").append("</b>").append(mmsi);
                         if (callSign != null)
                             sb.append(" ").append("<b>").append(I18n.text("Call-Sign")).append(": ").append("</b>").append(callSign);
+
+                        LocationType loc = sys.getLocation();
+                        sb.append("<br/>").append("<b>").append(I18n.text("Pos")).append(": ").append("</b>");
+                        sb.append(CoordinateUtil.latitudeAsPrettyString(loc.getLatitudeDegs()))
+                            .append(" ")
+                            .append(CoordinateUtil.longitudeAsPrettyString(loc.getLongitudeDegs()));
+                        if (Math.round(loc.getHeight()) != 0)
+                            sb.append(" H").append(Math.round(loc.getHeight())).append("m");
 
                         Object speed = sys.retrieveData(SystemUtils.GROUND_SPEED_KEY);
                         Object course = sys.retrieveData(SystemUtils.COURSE_DEGS_KEY);
@@ -409,7 +431,6 @@ public class SystemsInteraction extends ConsoleInteraction {
      */
     @Override
     public void mouseClicked(MouseEvent event, StateRenderer2D source) {
-        super.mouseClicked(event, source);
         
         if (!SwingUtilities.isLeftMouseButton(event))
             return;
@@ -418,21 +439,33 @@ public class SystemsInteraction extends ConsoleInteraction {
         
         ArrayList<ImcSystem> imcSystems = new ArrayList<>();
         ArrayList<ExternalSystem> extSystems = new ArrayList<>();
+        ImcSystem sel = null;
         
         for (ImcSystem sys : ImcSystemsHolder.lookupAllSystems()) {
-            if (System.currentTimeMillis() - sys.getLocationTimeMillis() > minutesToConsiderSystemsWithoutKnownLocation
-                    * DateTimeUtil.MINUTE)
+            if (minutesToConsiderSystemsWithoutKnownLocation > 0 && System.currentTimeMillis()
+                    - sys.getLocationTimeMillis() > minutesToConsiderSystemsWithoutKnownLocation * DateTimeUtil.MINUTE)
                 continue;
             LocationType loc = sys.getLocation();
             Point2D locScreenXY = source.getScreenPosition(loc);
             double dist = locScreenXY.distance(event.getPoint());
-            if (dist <= PIXEL_DISTANCE_TO_SELECT)
+            if (dist <= PIXEL_DISTANCE_TO_SELECT) {
                 imcSystems.add(sys);
+                if (VehiclesHolder.getVehicleById(sys.getName()) != null)
+                    sel = sys;
+            }
+        }
+
+        if (event.getClickCount() == 2 && !event.isConsumed()) {
+            event.consume();
+            if (selectSystemByClick && sel != null)
+                getConsole().setMainSystem(sel.getName());
+            else
+                super.mouseClicked(event, source);
         }
         
         if (considerExternalSystemsIcons) {
             for (ExternalSystem sys : ExternalSystemsHolder.lookupAllSystems()) {
-                if (System.currentTimeMillis()
+                if (minutesToConsiderSystemsWithoutKnownLocation > 0 && System.currentTimeMillis()
                         - sys.getLocationTimeMillis() > minutesToConsiderSystemsWithoutKnownLocation
                                 * DateTimeUtil.MINUTE)
                     continue;

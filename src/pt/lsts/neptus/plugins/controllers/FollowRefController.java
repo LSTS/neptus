@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -36,6 +36,7 @@ import pt.lsts.imc.DesiredZ;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.FollowRefState;
 import pt.lsts.imc.Reference;
+import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
@@ -66,9 +67,9 @@ public abstract class FollowRefController implements IController {
         ref.setLon(dest.getLongitudeRads());
         DesiredZ z;
         if (dest.getDepth() >= 0)
-            z = new DesiredZ((float)dest.getDepth(), DesiredZ.Z_UNITS.DEPTH);
+            z = new DesiredZ((float)dest.getDepth(), ZUnits.DEPTH);
         else
-            z = new DesiredZ((float)-dest.getDepth(), DesiredZ.Z_UNITS.ALTITUDE);
+            z = new DesiredZ((float)-dest.getDepth(), ZUnits.ALTITUDE);
         
         ref.setZ(z);        
         ref.setFlags((short)(Reference.FLAG_Z | Reference.FLAG_LOCATION));

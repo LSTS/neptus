@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -116,12 +116,18 @@ public class TidePredictionFactory {
             return cached.getTidePrediction(date, false);
         }
         catch (NullPointerException e) {
-            NeptusLog.pub().debug("Error geting tide for date " + date + ". Caller " + ReflectionUtil.getCallerStamp()
+            if (cached == null) {
+                NeptusLog.pub().debug("Nullpointer error getting tide data. Caller " + ReflectionUtil.getCallerStamp()
                     + ". " + e.getMessage() + " " + e);
+            }
+            else {
+                NeptusLog.pub().debug("Nullpointer error getting tide for date " + date + ". Caller " + ReflectionUtil.getCallerStamp()
+                    + ". " + e.getMessage() + " " + e);
+            }
             return 0;
         }
         catch (Exception e) {
-            NeptusLog.pub().error("Error geting tide for date " + date + ". Caller " + ReflectionUtil.getCallerStamp()
+            NeptusLog.pub().error("Error getting tide for date " + date + ". Caller " + ReflectionUtil.getCallerStamp()
                     + ". " + e.getMessage() + " " + e);
             return 0;
         }

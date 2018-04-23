@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -50,6 +50,8 @@ import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.CompassCalibration.DIRECTION;
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.def.SpeedUnits;
+import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.editor.SpeedUnitsEnumEditor;
 import pt.lsts.neptus.i18n.I18n;
@@ -80,16 +82,16 @@ public class CompassCalibration extends Maneuver
     @NeptusProperty(name="Speed units", description="The speed units", editorClass=SpeedUnitsEnumEditor.class)
     public Maneuver.SPEED_UNITS speedUnits = SPEED_UNITS.METERS_PS;
 
-    @NeptusProperty(name="Pitch", description="The Pitch angle used to perform the maneuver.")
+    @NeptusProperty(name="Pitch", description="The Pitch angle used to perform the maneuver.", units = "\u00B0")
     public double pitchDegs = 15;
 
-    @NeptusProperty(name="Amplitude", description="Yoyo motion amplitude.")
+    @NeptusProperty(name="Amplitude", description="Yoyo motion amplitude.", units = "m")
     public double amplitude = 1;
 
-    @NeptusProperty(name="Duration (s)", description="The duration in seconds of this maneuver. Use '0' for unlimited duration time.")
+    @NeptusProperty(name="Duration", description="The duration in seconds of this maneuver. Use '0' for unlimited duration time.", units = "s")
     public int duration = 300;
 
-    @NeptusProperty(name="Radius (m)", description="Radius of the maneuver.")
+    @NeptusProperty(name="Radius", description="Radius of the maneuver.", units = "m")
     public float radius = 5;
 
     @NeptusProperty(name="Direction", description="Direction of the maneuver.")
@@ -167,7 +169,7 @@ public class CompassCalibration extends Maneuver
      * @see pt.lsts.neptus.mp.Maneuver#loadFromXML(java.lang.String)
      */
     @Override
-    public void loadFromXML(String xml) {
+    public void loadManeuverFromXML(String xml) {
         try {
             Document doc = DocumentHelper.parseText(xml);
             Node node = doc.selectSingleNode(DEFAULT_ROOT_ELEMENT+ "/finalPoint/point");
@@ -272,7 +274,7 @@ public class CompassCalibration extends Maneuver
         man.setLat(loc.getLatitudeRads());
         man.setLon(loc.getLongitudeRads());
         man.setZ(getManeuverLocation().getZ());
-        man.setZUnits(pt.lsts.imc.CompassCalibration.Z_UNITS.valueOf(getManeuverLocation().getZUnits().toString()));
+        man.setZUnits(ZUnits.valueOf(getManeuverLocation().getZUnits().toString()));
         man.setPitch(Math.toRadians(pitchDegs));
         man.setAmplitude(amplitude);
         man.setDuration(duration);
@@ -284,14 +286,14 @@ public class CompassCalibration extends Maneuver
         try {
             switch (speedUnits) {
                 case METERS_PS:
-                    man.setSpeedUnits(pt.lsts.imc.CompassCalibration.SPEED_UNITS.METERS_PS);
+                    man.setSpeedUnits(SpeedUnits.METERS_PS);
                     break;
                 case PERCENTAGE:
-                    man.setSpeedUnits(pt.lsts.imc.CompassCalibration.SPEED_UNITS.PERCENTAGE);
+                    man.setSpeedUnits(SpeedUnits.PERCENTAGE);
                     break;
                 case RPM:
                 default:
-                    man.setSpeedUnits(pt.lsts.imc.CompassCalibration.SPEED_UNITS.RPM);
+                    man.setSpeedUnits(SpeedUnits.RPM);
                     break;
             }
         }
@@ -446,7 +448,7 @@ public class CompassCalibration extends Maneuver
         String ccmanXML = compc.getManeuverAsDocument("CompassCalibration").asXML();
         System.out.println(ccmanXML);
         CompassCalibration compc1 = new CompassCalibration();
-        compc1.loadFromXML(ccmanXML);
+        compc1.loadManeuverFromXML(ccmanXML);
         ccmanXML = compc.getManeuverAsDocument("CompassCalibration").asXML();
         System.out.println(ccmanXML);
         

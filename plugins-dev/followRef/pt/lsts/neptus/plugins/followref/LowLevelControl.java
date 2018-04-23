@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -49,6 +49,8 @@ import pt.lsts.imc.FollowReference;
 import pt.lsts.imc.PlanControl;
 import pt.lsts.imc.PlanControlState;
 import pt.lsts.imc.Reference;
+import pt.lsts.imc.def.SpeedUnits;
+import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
@@ -213,7 +215,7 @@ public class LowLevelControl extends ConsolePanel {
 
         }
 
-        referenceToSend.setSpeed(new DesiredSpeed(desiredSpeed, DesiredSpeed.SPEED_UNITS.METERS_PS));
+        referenceToSend.setSpeed(new DesiredSpeed(desiredSpeed, SpeedUnits.METERS_PS));
 
         if (vehicleLocation == null)
             return;
@@ -231,10 +233,10 @@ public class LowLevelControl extends ConsolePanel {
 
         if (vehicle != null) {
             if (vehicle.getType().equals("AUV")) {
-                referenceToSend.setZ(new DesiredZ((float) desiredDepth, DesiredZ.Z_UNITS.DEPTH));
+                referenceToSend.setZ(new DesiredZ((float) desiredDepth, ZUnits.DEPTH));
             }
             else if (vehicle.getType().equals("AUV")) {
-                referenceToSend.setZ(new DesiredZ((float) desiredDepth, DesiredZ.Z_UNITS.ALTITUDE));
+                referenceToSend.setZ(new DesiredZ((float) desiredDepth, ZUnits.ALTITUDE));
             }
             else {
                 referenceToSend.setZ(null);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -67,6 +67,7 @@ import de.baderjene.aistoolkit.aisparser.message.Message05;
 import jssc.SerialPort;
 import jssc.SerialPortEvent;
 import jssc.SerialPortEventListener;
+import pt.lsts.aismanager.api.AisContactManager;
 import pt.lsts.imc.DevDataText;
 import pt.lsts.imc.lsf.LsfMessageLogger;
 import pt.lsts.neptus.NeptusLog;
@@ -109,41 +110,42 @@ public class NmeaPlotter extends ConsoleLayer {
     private static final Color COLOR_GREEN_DARK_100 = new Color(155, 255, 155, 250);
     private static final Color COLOR_RED_DARK_100 = new Color(255, 155, 155, 250);
 
-    @NeptusProperty(name = "Connect to the serial port", category = "Serial Port")
+    @NeptusProperty(name = "Connect to the serial port", category = "Serial Port", userLevel = LEVEL.REGULAR)
     public boolean serialListen = false;
 
-    @NeptusProperty(name = "Serial Port Device", category = "Serial Port")
+    @NeptusProperty(name = "Serial Port Device", category = "Serial Port", userLevel = LEVEL.REGULAR)
     public String uartDevice = "/dev/ttyUSB0";
 
-    @NeptusProperty(name = "Serial Port Baud Rate", category = "Serial Port")
+    @NeptusProperty(name = "Serial Port Baud Rate", category = "Serial Port", userLevel = LEVEL.ADVANCED)
     public int uartBaudRate = 38400;
 
-    @NeptusProperty(name = "Serial Port Data Bits", category = "Serial Port")
+    @NeptusProperty(name = "Serial Port Data Bits", category = "Serial Port", userLevel = LEVEL.ADVANCED)
     public int dataBits = 8;
 
-    @NeptusProperty(name = "Serial Port Stop Bits", category = "Serial Port")
+    @NeptusProperty(name = "Serial Port Stop Bits", category = "Serial Port", userLevel = LEVEL.ADVANCED)
     public int stopBits = 1;
 
-    @NeptusProperty(name = "Serial Port Parity Bits", category = "Serial Port")
+    @NeptusProperty(name = "Serial Port Parity Bits", category = "Serial Port", userLevel = LEVEL.ADVANCED)
     public int parity = 0;
 
-    @NeptusProperty(name = "UDP port to bind", category = "UDP")
+    @NeptusProperty(name = "UDP port to bind", category = "UDP", userLevel = LEVEL.REGULAR)
     public int udpPort = 7878;
 
-    @NeptusProperty(name = "Listen for incoming UDP packets", category = "UDP")
+    @NeptusProperty(name = "Listen for incoming UDP packets", category = "UDP", userLevel = LEVEL.REGULAR)
     public boolean udpListen = true;
 
-    @NeptusProperty(name = "Connect via TCP", category = "TCP Client")
+    @NeptusProperty(name = "Connect via TCP", category = "TCP Client", userLevel = LEVEL.REGULAR)
     public boolean tcpConnect = false;
 
-    @NeptusProperty(name = "TCP Host", category = "TCP Client")
+    @NeptusProperty(name = "TCP Host", category = "TCP Client", userLevel = LEVEL.REGULAR)
     public String tcpHost = "127.0.0.1";
 
-    @NeptusProperty(name = "TCP Port", category = "TCP Client")
+    @NeptusProperty(name = "TCP Port", category = "TCP Client", userLevel = LEVEL.REGULAR)
     public int tcpPort = 13000;
 
-    @NeptusProperty(name = "Maximum age in for AIS contacts (seconds)")
-    public int maximumAisAge = 600;
+    @NeptusProperty(name = "Maximum age in for AIS contacts (minutes)", userLevel = LEVEL.REGULAR,
+            description = "0 for disable filter")
+    public int maximumAisAgeMinutes = 10;
 
     @NeptusProperty(name = "Retransmit to other Neptus consoles", userLevel = LEVEL.ADVANCED)
     public boolean retransmitToNeptus = true;
@@ -188,6 +190,7 @@ public class NmeaPlotter extends ConsoleLayer {
     private HashSet<NmeaListener> listeners = new HashSet<>();
     private AisContactDb contactDb = new AisContactDb();
     private AISParser parser = new AISParser();
+    private final AisContactManager aisManager = AisContactManager.getInstance();
 
     private LinkedHashMap<String, LocationType> lastLocs = new LinkedHashMap<>();
     private LinkedHashMap<String, ScatterPointsElement> tracks = new LinkedHashMap<>();
@@ -207,8 +210,27 @@ public class NmeaPlotter extends ConsoleLayer {
                     tracks.put(name, sc);
                 }
                 tracks.get(name).addPoint(l);
+                updateAisManager(c);
             }
         }
+    }
+
+    /**
+     * Set/Update AIS contact's new information on AIS Manager
+     * */
+    private void updateAisManager(AisContact contact) {
+        int mmsi = contact.getMmsi();
+        double cog = Math.toRadians(contact.getCog());
+        double sog = contact.getSog();
+        double hdg = Math.toRadians(contact.getHdg());
+
+        LocationType loc = contact.getLocation().getNewAbsoluteLatLonDepth();
+        double latRads = loc.getLatitudeRads();
+        double lonRads = loc.getLongitudeRads();
+        long timestamp = System.currentTimeMillis();
+        String label = contact.getLabel();
+
+        aisManager.setShipPosition(mmsi, sog, cog, hdg, latRads, lonRads, timestamp, label);
     }
 
     private void connectToSerial() throws Exception {
@@ -291,7 +313,7 @@ public class NmeaPlotter extends ConsoleLayer {
     private void retransmit(String sentence) {
         DevDataText ddt = new DevDataText(sentence);
         for (ImcSystem s : ImcSystemsHolder.lookupSystemByType(SystemTypeEnum.CCU)) {
-            ImcMsgManager.getManager().sendMessageToSystem(ddt, s.getName());
+            ImcMsgManager.getManager().sendMessageToSystem(ddt.cloneMessage(), s.getName());
         }
     }
 
@@ -309,15 +331,15 @@ public class NmeaPlotter extends ConsoleLayer {
             String nmeaType = NMEAUtils.nmeaType(s);
             if (nmeaType.equals("$B-TLL") || nmeaType.equals("$A-TLL"))
                 contactDb.processBtll(s);
-            else if (nmeaType.equals("$GPGGA"))
+            else if (nmeaType.startsWith("GGA", 3)) // GP or GN
                 contactDb.processGGA(s);
-            else if (nmeaType.equals("$RATTM"))
+            else if (nmeaType.startsWith("TTM", 3)) // RA
                 contactDb.processRattm(s);
-            else if (nmeaType.equals("$GPHDT"))
+            else if (nmeaType.startsWith("HDT", 3)) // GP
                 contactDb.processGPHDT(s);
             else {
                 synchronized (parser) {
-                    parser.process(s);
+                    parser.process(s); // Is AIS
                 }
             }
         }
@@ -547,7 +569,8 @@ public class NmeaPlotter extends ConsoleLayer {
 
     @Periodic(millisBetweenUpdates = 60000)
     public void purgeOldContacts() {
-        contactDb.purge(maximumAisAge * 1000);
+        if (maximumAisAgeMinutes >= 0)
+            contactDb.purge(maximumAisAgeMinutes * 60 * 1000);
     }
 
     @Periodic(millisBetweenUpdates = 120000)

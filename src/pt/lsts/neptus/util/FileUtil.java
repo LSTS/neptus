@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -1029,13 +1029,34 @@ public class FileUtil {
     }
     
     /**
-     * Return a resource path as a path. The name of the file DOES NOT match the resource name.
+     * Return a resource path as a path. 
+     * It can be a absolute path of a relative path to the caller.
      * The resource is extracted as a temporary file.
      * 
      * @param name
      * @return
      */
     public static String getResourceAsFile(String name) {
+        InputStream inStream = getResourceAsStream(name);
+        if (inStream == null)
+                return null;
+
+        try {
+            return StreamUtil.copyStreamToTempFile(inStream).getPath();
+        }
+        catch (RuntimeException e) {
+            return null;
+        }
+    }
+
+    /**
+     * Return a resource path as a input stream. 
+     * It can be a absolute path of a relative path to the caller.
+     * 
+     * @param name
+     * @return
+     */
+    public static InputStream getResourceAsStream(String name) {
         InputStream inStream = FileUtil.class.getResourceAsStream(name.replace('\\', '/'));
         if (inStream == null) {
             Class<?> clazz = getCallerClass();
@@ -1045,12 +1066,8 @@ public class FileUtil {
             if (inStream == null)
                 return null;
         }
-        try {
-            return StreamUtil.copyStreamToTempFile(inStream).getPath();
-        }
-        catch (RuntimeException e) {
-            return null;
-        }
+        
+        return inStream;
     }
 
     /**

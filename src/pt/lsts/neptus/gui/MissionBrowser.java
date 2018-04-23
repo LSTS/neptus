@@ -1,10 +1,31 @@
 /*
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
+ * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
- * Faculdade de Engenharia da Universidade do Porto
- * Departamento de Engenharia Electrotécnica e de Computadores
- * Rua Dr. Roberto Frias s/n, 4200-465 Porto, Portugal
+ * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
  *
- * For more information please see <http://whale.fe.up.pt/neptus>.
+ * This file is part of Neptus, Command and Control Framework.
+ *
+ * Commercial Licence Usage
+ * Licencees holding valid commercial Neptus licences may use this file
+ * in accordance with the commercial licence agreement provided with the
+ * Software or, alternatively, in accordance with the terms contained in a
+ * written agreement between you and Universidade do Porto. For licensing
+ * terms, conditions, and further information contact lsts@fe.up.pt.
+ *
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
+ * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
+ * included in the packaging of this file. You may not use this work
+ * except in compliance with the Licence. Unless required by applicable
+ * law or agreed to in writing, software distributed under the Licence is
+ * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
+ * ANY KIND, either express or implied. See the Licence for the specific
+ * language governing permissions and limitations at
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
+ *
+ * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: José Pinto, Margarida Faria
  * 22/03/2005, 19/03/2013
@@ -75,9 +96,6 @@ import pt.lsts.neptus.util.ByteUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 
-
-
-
 /**
  * This is a visual class that displays the various items contained in a mission like transponders and plans.
  * 
@@ -114,6 +132,8 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
     final private MissionTreeModel treeModel;
 
     private final ArrayList<String> transToMerge;
+    
+    private boolean ignoreConsolePlanUpdate = false;
 
     /**
      * Creates a new mission browser which will display the items contained in the given mission type
@@ -136,6 +156,20 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         transToMerge = new ArrayList<String>();
     }
 
+    /**
+     * @return the hideTransponder
+     */
+    public boolean isHideTransponder() {
+        return treeModel.isHideTransponder();
+    }
+    
+    /**
+     * @param hideTransponder the hideTransponder to set
+     */
+    public void setHideTransponder(boolean hideTransponder) {
+        treeModel.setHideTransponder(hideTransponder);
+    }
+    
     /**
      * Returns the currently selected item (may be a directory, map, vehicle, ...)
      * 
@@ -334,8 +368,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
      * @param mission
      * @param mainVehicleId
      */
-    public void refreshBrowser(final MissionType mission,
- final String mainVehicleId, ConsoleLayout console) {
+    public void refreshBrowser(final MissionType mission, final String mainVehicleId, ConsoleLayout console) {
         // Selected nodes
         TreePath[] selectedNodes = getSelectionPath();
         // Home ref
@@ -555,20 +588,19 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
 
                     if (node.getUserObject() instanceof PlanType) {
                         PlanType selectedPlan = (PlanType) node.getUserObject();
-                        if (console2 != null)
+                        if (console2 != null && !ignoreConsolePlanUpdate)
                             console2.setPlan(selectedPlan);
                     }
-                    else if (console2 != null) {
+                    else if (console2 != null && !ignoreConsolePlanUpdate) {
                         console2.setPlan(null);
                     }
-
             }
 
         });
     }
 
     public void setSelectedPlan(PlanType plan) {
-        if (getSelectedItem() == null || plan == null || getSelectedItem() == plan) {
+        if (plan == null || getSelectedItem() == plan) {
             return;
         }
 
@@ -585,6 +617,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                     // setNodeSyncState(planNode, State.SYNC);
                     break;
                 }
+                planNode = null;
             }
             // for (planNode = planIt.next(); planIt.hasNext(); planNode = planIt.next()) {
             // NameId tmpPlan = (NameId) planNode.getUserObject();
@@ -602,14 +635,16 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             }
 
             selPath = new TreePath(treeModel.getPathToRoot(planNode));
+            ignoreConsolePlanUpdate = true;
             elementTree.setSelectionPath(selPath);
+            ignoreConsolePlanUpdate = false;
             elementTree.scrollPathToVisible(selPath);
         }
         catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
+    
     public ArrayList<ExtendedTreeNode> getSelectedNodes() {
         ArrayList<ExtendedTreeNode> nodes = new ArrayList<ExtendedTreeNode>();
         TreePath[] selectionPaths = elementTree.getSelectionPaths();
@@ -654,8 +689,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
      */
     public void updatePlansStateEDT(final TreeMap<String, PlanType> localPlans, final String sysName) {
         final Map<String, PlanDBInfo> remotePlans = getRemotePlans(sysName);
-        SwingUtilities.invokeLater(new Runnable() {
-
+        Runnable runnble = new Runnable() {
             @Override
             public void run() {
                 // NeptusLog.pub().error("--> updatePlansStateEDT ");
@@ -674,7 +708,18 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 revalidate();
                 repaint();
             }
-        });
+        };
+        if (SwingUtilities.isEventDispatchThread()) {
+            runnble.run();
+        }
+        else {
+            try {
+                SwingUtilities.invokeAndWait(runnble);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     /**
@@ -1285,3 +1330,4 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         return trans;
     }
 }
+

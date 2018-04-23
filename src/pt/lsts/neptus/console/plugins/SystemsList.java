@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -130,6 +130,7 @@ import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.renderer2d.StateRendererInteraction;
 import pt.lsts.neptus.renderer2d.SystemPainterProvider;
 import pt.lsts.neptus.systems.external.ExternalSystem;
+import pt.lsts.neptus.systems.external.ExternalSystem.ExternalTypeEnum;
 import pt.lsts.neptus.systems.external.ExternalSystemsHolder;
 import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -255,6 +256,10 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
     @NeptusProperty(name = "Draw System Label", description = "Configures if this component will draw the system label on the renderer",
             category = "Renderer", userLevel = LEVEL.REGULAR)
     public boolean drawSystemLabel = true;
+
+    @NeptusProperty(name = "Draw System Location Age", description = "Configures if this component will draw the system location age on the renderer",
+            category = "Renderer", userLevel = LEVEL.REGULAR)
+    public boolean drawSystemLocAge = true;
 
     @NeptusProperty(name = "Use Mil Std 2525 Like Symbols", description = "This configures if the location symbols to draw on the renderer will use the MIL-STD-2525 standard", 
             category = "MilStd-2525", userLevel = LEVEL.REGULAR)
@@ -896,6 +901,9 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
                 sd = createSystemElement(sys);
                 isToAdd = true;
             }
+            else {
+                sd.updateId(sys.getName());
+            }
 
             sd.setActive(sys.isActive());
             try {
@@ -1231,6 +1239,14 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
                     + StringUtils.wrapEveryNChars(sys.getOnErrorStateStr(), (short) 30, 30, true);
         }
 
+        SystemImcMsgCommInfo commS = ImcMsgManager.getManager().getCommInfoById(sys.getId());
+        long deltaMillis = System.currentTimeMillis() - (long) commS.getArrivalTimeMillisLastMsg();
+        if (deltaMillis > 10000) {
+            txtInfo += (txtInfo.length() != 0 ? lineSep + "" : "");
+            txtInfo += I18n.textf("%deltaTime with no messages",
+                    DateTimeUtil.milliSecondsToFormatedString(deltaMillis, true));
+        }
+        
         // Update Loc info
         LocationType loc = sys.getLocation();
         if (loc != null && !loc.isLocationEqual(LocationType.ABSOLUTE_ZERO)) {
@@ -1802,8 +1818,8 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
             // Choose main color
             Color color = new Color(210, 176, 106); // KHAKI
 
-            if (SystemPainterHelper.getLocationAge(sys.getLocation(), sys.getLocationTimeMillis()) < DateTimeUtil.MINUTE
-                    * minutesToHideSystemsWithoutKnownLocation
+            if (minutesToHideSystemsWithoutKnownLocation <= 0 || SystemPainterHelper.getLocationAge(sys.getLocation(),
+                    sys.getLocationTimeMillis()) < DateTimeUtil.MINUTE * minutesToHideSystemsWithoutKnownLocation
                     || sys.isActive())
                 drawImcSystem(renderer, g2, sys, color, true);
 
@@ -1823,8 +1839,8 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
             // Choose main color
             Color color = new Color(255, 0, 255); // PLUM_RED
 
-            if (System.currentTimeMillis() - sys.getLocationTimeMillis() < DateTimeUtil.MINUTE
-                    * minutesToHideSystemsWithoutKnownLocation)
+            if (minutesToHideSystemsWithoutKnownLocation <= 0 || System.currentTimeMillis()
+                    - sys.getLocationTimeMillis() < DateTimeUtil.MINUTE * minutesToHideSystemsWithoutKnownLocation)
                 drawExternalSystem(renderer, g2, sys, color);
 
             g2.dispose();
@@ -1854,50 +1870,109 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
         // To draw the circle around the system position (if not using useMilStd2525LikeSymbols)
         if (!useMilStd2525LikeSymbols) {
             if (drawCircleInRenderDependentOfSystemType) { // Now the circle is not painted unless for type indicator
-                CircleTypeBySystemType circleType = CircleTypeBySystemType.DEFAULT;
-                switch (sys.getType()) {
-                    case CCU:
-                        circleType = CircleTypeBySystemType.SURFACE_UNIT;
-                        break;
-                    case MOBILESENSOR:
-                    case STATICSENSOR:
-                        circleType = CircleTypeBySystemType.DEFAULT;
-                        break;
-                    case VEHICLE:
-                        switch (sys.getTypeVehicle()) {
-                            case UAV:
-                                circleType = CircleTypeBySystemType.AIR;
-                                break;
-                            case UUV:
-                                circleType = CircleTypeBySystemType.SUBSURFACE;
-                                break;
-                            case USV:
-                            case UGV:
-                                circleType = CircleTypeBySystemType.SURFACE;
-                                break;
-                            default:
-                                circleType = CircleTypeBySystemType.DEFAULT;
-                                break;
-                        }
-                        break;
-                    default:
-                        circleType = CircleTypeBySystemType.DEFAULT;
-                        break;
-                }
+                CircleTypeBySystemType circleType = getCircleTypeForSystem(sys);
                 SystemPainterHelper.drawCircleForSystem(g2, color, iconWidth, circleType, isLocationKnownUpToDate);
             }
         }
 
         // To paint the system name on the render
-        if (drawLabel /* !viewInfoOSDSwitch.isSelected() && !viewExtendedOSDSwitch.isSelected() */&& drawSystemLabel) {
+        if (drawLabel /* !viewInfoOSDSwitch.isSelected() && !viewExtendedOSDSwitch.isSelected() */&& drawSystemLabel)
             SystemPainterHelper.drawSystemNameLabel(g2, sys.getName(), color, iconWidth, isLocationKnownUpToDate);
-        }
+        
+        if (drawSystemLocAge)
+            SystemPainterHelper.drawSystemLocationAge(g2, sys.getLocationTimeMillis(), color, iconWidth, isLocationKnownUpToDate);
 
         // To draw the course/speed vector
         SystemPainterHelper.drawCourseSpeedVectorForSystem(renderer, g2, sys, iconWidth, isLocationKnownUpToDate,
                 minimumSpeedToBeStopped);
 
         g2.dispose();
+    }
+
+    /**
+     * @param sys
+     * @return
+     */
+    private CircleTypeBySystemType getCircleTypeForSystem(ImcSystem sys) {
+        CircleTypeBySystemType circleType = CircleTypeBySystemType.DEFAULT;
+        SystemTypeEnum sysType = sys.getType();
+        VehicleTypeEnum sysVehicleType = sys.getTypeVehicle();
+        circleType = getCircleTypeWorker(sysType, sysVehicleType, null);
+        return circleType;
+    }
+
+    private CircleTypeBySystemType getCircleTypeForSystem(ExternalSystem sys) {
+        CircleTypeBySystemType circleType = CircleTypeBySystemType.DEFAULT;
+        SystemTypeEnum sysType = sys.getType();
+        VehicleTypeEnum sysVehicleType = sys.getTypeVehicle();
+        ExternalTypeEnum sysExternalType = sys.getTypeExternal();
+        circleType = getCircleTypeWorker(sysType, sysVehicleType, sysExternalType);
+        return circleType;
+    }
+
+    /**
+     * @param sysType
+     * @param sysVehicleType
+     * @param sysExternalType
+     * @return
+     */
+    private CircleTypeBySystemType getCircleTypeWorker(SystemTypeEnum sysType, VehicleTypeEnum sysVehicleType,
+            ExternalTypeEnum sysExternalType) {
+        CircleTypeBySystemType circleType;
+        switch (sysType) {
+            case CCU:
+                circleType = CircleTypeBySystemType.SURFACE_UNIT;
+                break;
+            case MOBILESENSOR:
+            case STATICSENSOR:
+                circleType = CircleTypeBySystemType.DEFAULT;
+                break;
+            case VEHICLE:
+                switch (sysVehicleType) {
+                    case UAV:
+                        circleType = CircleTypeBySystemType.AIR;
+                        break;
+                    case UUV:
+                        circleType = CircleTypeBySystemType.SUBSURFACE;
+                        break;
+                    case USV:
+                    case UGV:
+                        circleType = CircleTypeBySystemType.SURFACE;
+                        break;
+                    default:
+                        circleType = CircleTypeBySystemType.DEFAULT;
+                        break;
+                }
+                break;
+            default:
+                circleType = CircleTypeBySystemType.DEFAULT;
+                break;
+        }
+        
+        if (sysExternalType != null) {
+            switch (sysExternalType) {
+                case MANNED_AIRPLANE:
+                    circleType = CircleTypeBySystemType.AIR;
+                    break;
+                case MANNED_CAR:
+                case MANNED_SHIP:
+                case PERSON:
+                    circleType = CircleTypeBySystemType.SURFACE_UNIT;
+                    break;
+                case UNKNOWN:
+                case ALL:
+                    circleType = null;
+                    break;
+                case VEHICLE:
+                case CCU:
+                case MOBILESENSOR:
+                case STATICSENSOR:
+                default:
+                    break;
+            }
+        }
+        
+        return circleType;
     }
 
     private void drawExternalSystem(StateRenderer2D renderer, Graphics2D g, ExternalSystem sys, Color color) {
@@ -1946,10 +2021,13 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
                     isLocationKnownUpToDate);
         }
 
-        // // To draw the circle around the system position (if not using useMilStd2525LikeSymbols)
-        // if (!useMilStd2525LikeSymbols) {
-        // drawCircleForSystem(g2, color, iconWidth, isLocationKnownUpToDate);
-        // }
+         // To draw the circle around the system position (if not using useMilStd2525LikeSymbols)
+         if (!useMilStd2525LikeSymbols) {
+             if (drawCircleInRenderDependentOfSystemType) { // Now the circle is not painted unless for type indicator
+                 CircleTypeBySystemType circleType = getCircleTypeForSystem(sys);
+                 SystemPainterHelper.drawCircleForSystem(g2, color, iconWidth, circleType, isLocationKnownUpToDate);
+             }
+         }
 
         // // To draw a box with error state of the system
         // if (!useMilStd2525LikeSymbols) {
@@ -1957,9 +2035,12 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
         // }
 
         // To paint the system name on the render
-        if (/* !viewInfoOSDSwitch.isSelected() && !viewExtendedOSDSwitch.isSelected() && */drawSystemLabel) {
+        if (/* !viewInfoOSDSwitch.isSelected() && !viewExtendedOSDSwitch.isSelected() && */drawSystemLabel)
             SystemPainterHelper.drawSystemNameLabel(g2, sys.getName(), color, iconWidth, isLocationKnownUpToDate);
-        }
+        
+        if (drawSystemLocAge)
+            SystemPainterHelper.drawSystemLocationAge(g2, sys.getLocationTimeMillis(), color, iconWidth, isLocationKnownUpToDate);
+
 
         // To draw the course/speed vector
         Object obj = sys.retrieveData(SystemUtils.COURSE_DEGS_KEY);

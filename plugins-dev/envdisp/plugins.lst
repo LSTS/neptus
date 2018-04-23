@@ -1,6 +1,2 @@
-# DATE=@DATE@
-# TIME=@TIME@
-# COMPILED BY=@COMPILED BY@
-# LEGAL_COPY=@LEGAL_COPY@
-
-pt.lsts.neptus.plugins.envdisp.HFRadarVisualization
+pt.lsts.neptus.plugins.envdisp.EnvironmentalDataVisualization
+pt.lsts.neptus.plugins.envdisp.SLADataVisualization

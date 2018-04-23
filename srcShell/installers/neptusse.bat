@@ -1,6 +1,6 @@
 @echo off
 rem #############################################################################
-rem # Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia   #
+rem # Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia   #
 rem # Laboratório de Sistemas e Tecnologia Subaquática (LSTS)                   #
 rem # All rights reserved.                                                      #
 rem # Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal            #
@@ -97,14 +97,14 @@ if %JAVA_MACHINE_TYPE%==windows-x86 (
 )
 
 if %JAVA_MACHINE_TYPE%==windows-x86 (
-  set LIBRARYPATH=.;libJNI\x86;libJNI;%VTKLIB%;%OPENCVLIB%
+  set LIBRARYPATH=.;libJNI\x86;libJNI\gdal\win\x86;libJNI;%VTKLIB%;%OPENCVLIB%
 ) else (
-  set LIBRARYPATH=.;libJNI\x64;libJNI;%VTKLIB%;%OPENCVLIB%
+  set LIBRARYPATH=.;libJNI\x64;libJNI\gdal\win\x64;libJNI;%VTKLIB%;%OPENCVLIB%
 )
 
 set VMFLAGS="-XX:+HeapDumpOnOutOfMemoryError"
 
 set OLDPATH=%PATH%
 set PATH=%LIBRARYPATH%;%PATH%
-start %JAVA_BIN_FOLDER%javaw.exe -Xms10m -Xmx912m -Dj3d.rend=d3d -Dsun.java2d.d3d=true %VMFLAGS% -Djava.library.path="%LIBRARYPATH%" -cp %CLASSPATH% pt.lsts.neptus.mc.lauvconsole.LAUVConsole %1 %2 %3 %4 %5 %6 %7 %8 %9
+start %JAVA_BIN_FOLDER%javaw.exe -Xms10m -Xmx912m -Dj3d.rend=d3d -Dsun.java2d.d3d=true %VMFLAGS% -Djava.library.path="%LIBRARYPATH%" -cp %CLASSPATH% @MAIN_CLASS@ %1 %2 %3 %4 %5 %6 %7 %8 %9
 set PATH=%OLDPATH%

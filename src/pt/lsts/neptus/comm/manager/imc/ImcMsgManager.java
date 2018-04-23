@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -63,11 +63,15 @@ import com.google.common.eventbus.AsyncEventBus;
 import pt.lsts.imc.Announce;
 import pt.lsts.imc.EntityInfo;
 import pt.lsts.imc.EntityList;
+import pt.lsts.imc.FuelLevel;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.MessagePart;
+import pt.lsts.imc.PlanControlState;
+import pt.lsts.imc.PlanControlState.STATE;
 import pt.lsts.imc.RemoteSensorInfo;
 import pt.lsts.imc.ReportedState;
+import pt.lsts.imc.StateReport;
 import pt.lsts.imc.lsf.LsfMessageLogger;
 import pt.lsts.imc.net.IMCFragmentHandler;
 import pt.lsts.imc.state.ImcSystemState;
@@ -99,7 +103,9 @@ import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
+import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.NetworkInterfacesUtil;
 import pt.lsts.neptus.util.NetworkInterfacesUtil.NInterface;
 import pt.lsts.neptus.util.StringUtils;
@@ -371,6 +377,8 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         SystemImcMsgCommInfo vsci = new SystemImcMsgCommInfo();
         vsci.setMessageBus(bus);
         vsci.setSystemCommId(vIdS);
+        
+        boolean sysNameSet = false;
 
         VehicleType vehTmp = VehiclesHolder.getVehicleWithImc(vIdS);
         if (vehTmp == null) {
@@ -380,6 +388,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
             // VehicleType vehicle = vehTmp;
             NeptusLog.pub().debug("Found the Vehicle: " + vehTmp.getId());
             vsci.setSystemIdName(vehTmp.getId());
+            sysNameSet = true;
         }
 
         ImcSystem resSys = ImcSystemsHolder.lookupSystem(vIdS);
@@ -406,6 +415,16 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
             }
         }
 
+        if (!sysNameSet) {
+            if (resSys.getName().equalsIgnoreCase(resSys.getId().toHexString())) {
+                String name = imcDefinition.getResolver().resolve(resSys.getId().intValue());
+                if (!name.contains("unknown")) {
+                    vsci.setSystemIdName(name);
+                    resSys.setName(name);
+                }
+            }
+        }
+        
         if (vsci.initSystemComms()) {
             if (!vsci.startSystemComms()) {
                 NeptusLog.pub().error("Error starting " + vsci.getSystemIdName());
@@ -419,13 +438,6 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
 
         commInfo.put(vIdS, vsci);
 
-        // pdias 14/3/2009 new to VehicleImcMsgCommInfo.createNewPrivateNode
-        // if (vsci.isUdpOn())
-        // udpOnIpMapper.put(vsci.getIpAddress()+(isFilterByPort?":"+vsci.getIpRemotePort():""),
-        // vsci.getVehicleCommId());
-        // else
-        // udpOnIpMapper.remove(vsci.getIpAddress()+(isFilterByPort?":"+vsci.getIpRemotePort():""));
-
         if (vehTmp != null) {
             sendManagerVehicleAdded(vehTmp);
             sendManagerVehicleStatusChanged(vehTmp, SYS_COMM_ON);
@@ -436,20 +448,6 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         }
         return vsci;
     }
-
-    /**
-     * @param vsci
-     */
-//    void mapUdpIpPort(SystemImcMsgCommInfo vsci) {
-//        if (vsci == null)
-//            return;
-//
-//        if (isUdpOn())
-//            udpOnIpMapper.put(vsci.getIpAddress() + (isFilterByPort ? ":" + vsci.getIpRemotePort() : ""),
-//                    vsci.getSystemCommId());
-//        else
-//            udpOnIpMapper.remove(vsci.getIpAddress() + (isFilterByPort ? ":" + vsci.getIpRemotePort() : ""));
-//    }
 
     protected String getAnnounceServicesList() {
         String ret = "";
@@ -838,6 +836,83 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         }
     }
 
+    private void processStateReport(MessageInfo info, StateReport msg, ArrayList<IMCMessage> messagesCreatedToFoward) {
+        String sysId = msg.getSourceName();
+        
+        long dataTimeMillis = msg.getStime() * 1000;
+        
+        double lat = msg.getLatitude();
+        double lon = msg.getLongitude();
+        double depth = msg.getDepth() == 0xFFFF ? -1 : msg.getDepth() / 10.0;
+        // double altitude = msg.getAltitude() == 0xFFFF ? -1 : msg.getAltitude() / 10.0;
+        double heading = ((double)msg.getHeading() / 65535.0) * 360;
+        double speedMS = msg.getSpeed() / 100.;
+        NeptusLog.pub().info("Received report from "+msg.getSourceName());
+        
+        ImcSystem imcSys = ImcSystemsHolder.lookupSystemByName(sysId);
+        if (imcSys == null) {
+            NeptusLog.pub().error("Could not find system with id "+sysId);
+            return;
+        }        
+        
+        LocationType loc = new LocationType(lat, lon);
+        loc.setDepth(depth);
+        imcSys.setLocation(loc, dataTimeMillis);
+        imcSys.setAttitudeDegrees(heading, dataTimeMillis);
+        
+        imcSys.storeData(SystemUtils.GROUND_SPEED_KEY, speedMS, dataTimeMillis, true);
+        imcSys.storeData(SystemUtils.COURSE_DEGS_KEY,
+                (int) AngleUtils.nomalizeAngleDegrees360(MathMiscUtils.round(heading, 0)),
+                dataTimeMillis, true);
+        imcSys.storeData(
+                SystemUtils.HEADING_DEGS_KEY,
+                (int) AngleUtils.nomalizeAngleDegrees360(MathMiscUtils.round(heading, 0)),
+                dataTimeMillis, true);
+        
+        int fuelPerc = msg.getFuel();
+        if (fuelPerc > 0) {
+            FuelLevel fuelLevelMsg = new FuelLevel();
+            IMCUtils.copyHeader(msg, fuelLevelMsg);
+            fuelLevelMsg.setTimestampMillis(dataTimeMillis);
+            fuelLevelMsg.setValue(fuelPerc);
+            fuelLevelMsg.setConfidence(0);
+            imcSys.storeData(SystemUtils.FUEL_LEVEL_KEY, fuelLevelMsg, dataTimeMillis, true);
+            
+            messagesCreatedToFoward.add(fuelLevelMsg);
+        }
+        
+        int execState = msg.getExecState();
+        PlanControlState pcsMsg = new PlanControlState();
+        IMCUtils.copyHeader(msg, pcsMsg);
+        pcsMsg.setTimestampMillis(dataTimeMillis);
+        switch (execState) {
+            case -1:
+                pcsMsg.setState(STATE.READY);
+                break;
+            case -3:
+                pcsMsg.setState(STATE.INITIALIZING);
+                break;
+            case -2:
+            case -4:
+                pcsMsg.setState(STATE.BLOCKED);
+                break;
+            default:
+                if (execState > 0)
+                    pcsMsg.setState(STATE.EXECUTING);
+                else
+                    pcsMsg.setState(STATE.BLOCKED);
+                break;
+        }
+
+        pcsMsg.setPlanEta(-1);
+        pcsMsg.setPlanProgress(execState >= 0 ? execState : -1);
+        pcsMsg.setManId("");
+        pcsMsg.setManEta(-1);
+        pcsMsg.setManType(0xFFFF);
+        
+        messagesCreatedToFoward.add(pcsMsg);
+    }
+    
     private void processRemoteSensorInfo(MessageInfo info, RemoteSensorInfo msg) {
         // Process pos. state reported from other system
         String sysId = msg.getId();
@@ -936,12 +1011,15 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                         sameIdErrorDetectedTimeMillis = System.currentTimeMillis();
                     }
                 }
-                return false;
+                postToBus(msg);
+                return true;
             }
 
             vci = getCommInfoById(id);
             if (!ImcId16.NULL_ID.equals(id) && !ImcId16.BROADCAST_ID.equals(id) && !ImcId16.ANNOUNCE.equals(id)
                     && !localId.equals(id)) {
+                
+                ArrayList<IMCMessage> messagesCreatedToFoward = new ArrayList<>();
                 
                 switch (msg.getMgid()) {
                     case Announce.ID_STATIC:
@@ -963,6 +1041,8 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                     case RemoteSensorInfo.ID_STATIC:
                         processRemoteSensorInfo(info, (RemoteSensorInfo) msg);
                         break;
+                    case StateReport.ID_STATIC:
+                        processStateReport(info, new StateReport(msg), messagesCreatedToFoward);
                     default:
                         break;
                 }
@@ -971,18 +1051,19 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                     if (VehiclesHolder.getVehicleWithImc(id) != null) {
                         vci = initSystemCommInfo(id, "");
                     }
-                    else{
-                        return false;
-                    }
                 }
                 
                 if (vci != null) {
                     NeptusLog.pub().trace(
                             this.getClass().getSimpleName() + ": Message redirected for system comm. "
                                     + vci.getSystemCommId() + ".");
+
+                    for (IMCMessage imcMsg : messagesCreatedToFoward) {
+                        vci.onMessage(info, imcMsg);
+                    }
+                    
                     vci.onMessage(info, msg);
-                    //                    bus.post(msg);
-                    //NeptusLog.pub().info("<###> "+msg.hashCode());
+                    
                     return true;
                 }
             }
@@ -991,15 +1072,38 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
             e.printStackTrace();
         }
 
+        ImcId16 id = new ImcId16(msg.getSrc());
+        if (!ImcId16.isValidIdForSource(id)) {
+            // Let us just log the message and return
+            NeptusLog.pub().debug("Message \"" + msg.getAbbrev() + "\" received from \"" + info.getPublisher()
+                    + "\" with improper src id \"" + id.toPrettyString() + "\" logged but droped!");
+            logMessage(msg);
+            return true;
+        }
+        
+        // If we got here the system is not known
+        
         String inetAddress = info.getPublisherInetAddress();
         String remotePortAddress = "" + info.getPublisherPort();
 
         NeptusLog.pub().info(
-                this.getClass().getSimpleName() + ": No IMC system found. trying to redirected " + "by IP/Port info. "
+                this.getClass().getSimpleName() + ": No IMC "
+                        + "0x" + Integer.toUnsignedString((msg.getSrc()), 16)
+                        + " system found. trying to redirected " + "by IP/Port info. "
                         + (vci != null ? vci.getSystemCommId() + ">" : "") + inetAddress + ":" + remotePortAddress
                         + ".");
 
         boolean sentToBus = false;
+
+        // Lets us create a new system 
+        try {
+            vci = initSystemCommInfo(id, inetAddress + ":" + remotePortAddress);
+            vci.onMessage(info, msg);
+            sentToBus = true;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
 
         if (udpOnIpMapper.containsKey(inetAddress + (isFilterByPort ? ":" + remotePortAddress : ""))) {
             ImcId16 systemId = udpOnIpMapper.get(inetAddress + (isFilterByPort ? ":" + remotePortAddress : ""));
@@ -1012,23 +1116,28 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                 sentToBus = true;
             }
         }
-        else {
-            if (isRedirectToFirst) {
-                if (!getCommInfo().keySet().isEmpty()) {
-                    ImcId16 vehicleId = getCommInfo().keySet().iterator().next();
-                    SystemImcMsgCommInfo vciRedirect = getCommInfoById(vehicleId);
-                    NeptusLog.pub().debug(
-                            this.getClass().getSimpleName() + ": Message redirected for system comm. "
-                                    + vciRedirect.getSystemCommId() + ".");
-                    vciRedirect.onMessage(info, msg);
-                    sentToBus = true;
-                }
-            }
+        else if (isRedirectToFirst && !getCommInfo().keySet().isEmpty()) {
+            ImcId16 vehicleId = getCommInfo().keySet().iterator().next();
+            SystemImcMsgCommInfo vciRedirect = getCommInfoById(vehicleId);
+            NeptusLog.pub().debug(
+                    this.getClass().getSimpleName() + ": Message redirected for system comm. "
+                            + vciRedirect.getSystemCommId() + ".");
+            vciRedirect.onMessage(info, msg);
+            sentToBus = true;
+        }
+        if (!sentToBus) {
+            postToBus(msg);
         }
 
+        return true;
+    }
+
+    /**
+     * @param msg
+     */
+    private void postToBus(IMCMessage msg) {
         try {
-            if (!sentToBus)
-                bus.post(msg);
+            bus.post(msg);
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -1036,8 +1145,6 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         catch (Error e) {
             e.printStackTrace();
         }
-
-        return true;
     }
 
     /**

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -32,10 +32,12 @@
  */
 package pt.lsts.neptus.mp;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.GradientPaint;
 import java.awt.Graphics2D;
+import java.awt.Stroke;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
@@ -160,8 +162,6 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
     private Hashtable<String, String> transitions = new Hashtable<String, String>();
     private MissionType missionType = null;
     
-    public abstract void loadFromXML(String xml);
-
     // JDialog dialog;
     protected static final String DEFAULT_ROOT_ELEMENT = "node";
 
@@ -276,11 +276,20 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
             ManeuverLocation loc = ((LocatedManeuver) this).getManeuverLocation();
             // g2d.setPaint(paint1);
             g2d.setColor(Color.black);
+            double zVal = loc.getZ();
             switch (loc.getZUnits()) {
                 case ALTITUDE:
                     g2d.fill(new Rectangle2D.Double(-8, 5, 16, 3));
                     g2d.setColor(Color.orange);
                     g2d.draw(new Line2D.Double(-6, 6, 6, 6));
+                    if (zVal <= 0) {
+                        Stroke st = g2d.getStroke();
+                        g2d.setStroke(new BasicStroke(2));
+                        g2d.setColor(Color.orange.brighter());
+                        g2d.draw(new Line2D.Double(-6, -6, 6, 6));
+                        g2d.draw(new Line2D.Double(-6, 6, 6, -6));
+                        g2d.setStroke(st);
+                    }
                     break;
                 case DEPTH:
                     if (loc.getZ() == 0) {
@@ -291,12 +300,21 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
                     else {
                         g2d.fill(new Rectangle2D.Double(-8, -8, 16, 3));
                         g2d.setColor(Color.cyan.brighter());
-                        g2d.draw(new Line2D.Double(-6, -6, 6, -6));    
+                        g2d.draw(new Line2D.Double(-6, -6, 6, -6));
+                        if (zVal <= 0) {
+                            Stroke st = g2d.getStroke();
+                            g2d.setStroke(new BasicStroke(2));
+                            g2d.setColor(Color.orange.brighter());
+                            g2d.draw(new Line2D.Double(-6, -6, 6, 6));
+                            g2d.draw(new Line2D.Double(-6, 6, 6, -6));
+                            g2d.setStroke(st);
+                        }
                     }
                     break;
                 case HEIGHT:
                     g2d.setColor(Color.white);
                     g2d.draw(new Line2D.Double(-6, 0, 6, 0));
+                    g2d.draw(new Line2D.Double(0, -6, 0, 6));
                     break;
                 default:
                     break;
@@ -361,36 +379,14 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
     }
 
     public static Maneuver createFromXML(String xml) {
-        Random rnd = new Random(GregorianCalendar.getInstance().getTimeInMillis());
-        new LinkedHashMap<String, String>();
-        new LinkedHashMap<String, String>();
-        int xPos = rnd.nextInt(300), yPos = rnd.nextInt(250);
         Maneuver man = null;
         try {
-
             Document doc = DocumentHelper.parseText(xml);
-
-            String id = doc.selectSingleNode("./node/id").getText();
-
-            Node nd = doc.selectSingleNode("./node/@xPos");
-            if (nd != null)
-                xPos = Integer.parseInt(nd.getText());
-
-            nd = doc.selectSingleNode("./node/@yPos");
-            if (nd != null)
-                yPos = Integer.parseInt(nd.getText());
-
-            boolean isInitial = false;
-            nd = doc.selectSingleNode("./node/@start");
-
-            if (nd != null && nd.getText().equals("true"))
-                isInitial = true;
 
             Element maneuver = doc.getRootElement().element("maneuver");
             Iterator<?> elementIterator = maneuver.elementIterator();
 
             while (elementIterator.hasNext()) {
-
                 Element element = (Element) elementIterator.next();
                 if (element.getName().equals("custom-settings") ||
                         element.getName().equals("minTime") ||
@@ -409,21 +405,7 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
                 if (man == null)
                     return null;
 
-                man.setId(id);
-                man.setInitialManeuver(isInitial);
-                man.setXPosition(xPos);
-                man.setYPosition(yPos);
-                man.loadFromXML(element.asXML());
-                man.loadFromXMLExtraParameters(element.getParent());
-
-                nd = doc.selectSingleNode("./node/actions/start-actions");
-                if (nd != null) {
-                    man.startActions.load((Element) nd);
-                }
-                nd = doc.selectSingleNode("./node/actions/end-actions");
-                if (nd != null) {
-                    man.endActions.load((Element) nd);
-                }
+                man.loadXMLWithSettings(doc);
             }
         }
         catch (Exception e) {
@@ -431,6 +413,99 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
         }
 
         return man;
+    }
+
+    /**
+     * Load XML from {@link #asXML()}
+     * 
+     * @param xml
+     * @return
+     */
+    public boolean loadXMLWithSettings(String xml) {
+        try {
+            Document doc = DocumentHelper.parseText(xml);
+            return loadXMLWithSettings(doc.getRootElement());
+        }
+        catch (DocumentException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * Load XML from {@link #asDocument()}
+     * 
+     * @param doc
+     * @return
+     */
+    public boolean loadXMLWithSettings(Document doc) {
+        return loadXMLWithSettings(doc.getRootElement());
+    }
+
+    /**
+     * Load XML from {@link #asElement()}
+     * 
+     * @param rootElm
+     * @return
+     */
+    public boolean loadXMLWithSettings(Element rootElm) {
+        Random rnd = new Random(GregorianCalendar.getInstance().getTimeInMillis());
+        int xPos = rnd.nextInt(300), yPos = rnd.nextInt(250);
+        Maneuver man = this;
+        try {
+            Document doc = rootElm.getDocument();
+
+            String id = doc.selectSingleNode("./node()/id").getText();
+
+            Node nd = doc.selectSingleNode("./node()/@xPos");
+            if (nd != null)
+                xPos = Integer.parseInt(nd.getText());
+
+            nd = doc.selectSingleNode("./node()/@yPos");
+            if (nd != null)
+                yPos = Integer.parseInt(nd.getText());
+
+            boolean isInitial = false;
+            nd = doc.selectSingleNode("./node()/@start");
+
+            if (nd != null && nd.getText().equals("true"))
+                isInitial = true;
+
+            Element maneuver = doc.getRootElement().element("maneuver");
+            Iterator<?> elementIterator = maneuver.elementIterator();
+
+            while (elementIterator.hasNext()) {
+                Element element = (Element) elementIterator.next();
+                if (element.getName().equals("custom-settings") ||
+                        element.getName().equals("minTime") ||
+                        element.getName().equals("maxTime"))
+                    continue;
+
+                // String manType = element.getName();
+
+                man.setId(id);
+                man.setInitialManeuver(isInitial);
+                man.setXPosition(xPos);
+                man.setYPosition(yPos);
+                man.loadManeuverFromXML(element.asXML());
+                man.loadFromXMLExtraParameters(element.getParent());
+
+                nd = doc.selectSingleNode("./node()/actions/start-actions");
+                if (nd != null) {
+                    man.startActions.load((Element) nd);
+                }
+                nd = doc.selectSingleNode("./node()/actions/end-actions");
+                if (nd != null) {
+                    man.endActions.load((Element) nd);
+                }
+            }
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error(System.err, e);
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -447,6 +522,9 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
     }
 
     /**
+     * Loads data excepts maneuver specific data (this is the parent note from maneuver
+     * specific data from {@link #loadManeuverFromXML(String)})
+     * 
      * @param maneuver
      */
     public void loadFromXMLExtraParameters(Element maneuver) {
@@ -528,10 +606,9 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
             return null;
         }
         clone(m);
-        m.loadFromXML(getManeuverXml());
+        m.loadManeuverFromXML(getManeuverXml());
         return m;
     }
-    
 
     public Object clone(Maneuver clone) {
         clone.setMaxTime(getMaxTime());
@@ -587,20 +664,26 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
         return (String) transitions.get(targetManeuver);
     }
 
+    /**
+     * @return Only the maneuver specific part the XML (no extra data output).
+     */
     public String getManeuverXml() {
         return getManeuverAsDocument(getType()).asXML();
     }
 
+    /**
+     * @see #loadManeuverFromXML(String)
+     * 
+     * @param manXml
+     */
     public void loadManeuverXml(String manXml) {
-        loadFromXML(manXml);
+        loadManeuverFromXML(manXml);
     }
-
 
     public String asXML() {
         String rootElementName = getType();
         return asXML(rootElementName);
     }
-
 
     public String asXML(String rootElementName) {
         String result = "";
@@ -614,7 +697,6 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
         return asElement(rootElementName);
     }
 
-
     public Element asElement(String rootElementName) {
         return (Element) asDocument(rootElementName).getRootElement().detach();
     }
@@ -624,6 +706,12 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
         return asDocument(rootElementName);
     }
 
+    /**
+     * Get all maneuver data as XML document. Calls {@link #getManeuverAsDocument(String)}
+     * and integrates it in the document.
+     * 
+     * @see pt.lsts.neptus.types.XmlOutputMethods#asDocument(java.lang.String)
+     */
     public Document asDocument(String rootElementName) {
         Document document = DocumentHelper.createDocument();
         Element root = document.addElement(rootElementName);
@@ -676,7 +764,20 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
         return document;
     }
 
+    /**
+     * Get each maneuver specific data. 
+     * 
+     * @param rootElementName
+     * @return
+     */
     public abstract Document getManeuverAsDocument(String rootElementName);
+    
+    /**
+     * Expects only maneuver specific data.
+     * 
+     * @param xml
+     */
+    public abstract void loadManeuverFromXML(String xml);
 
     /**
      * By default the class name is returned, redefine it if that is not the desired thing.

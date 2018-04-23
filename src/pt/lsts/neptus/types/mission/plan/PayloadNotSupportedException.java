@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -37,7 +37,7 @@ public class PayloadNotSupportedException extends Exception {
     private static final long serialVersionUID = 1L;
 
     public PayloadNotSupportedException(String payload) {
-        super("Payload '" + payload + " is not supported");
+        super("Payload '" + payload + " is not supported by this vehicle.");
     }
 
 }

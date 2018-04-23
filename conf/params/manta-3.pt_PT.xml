@@ -1,5 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2016.05.0 (master,126112c)" system="manta-3" i18n="pt_PT">
+<config format="1" version="2017.01.0 (mission/soi,2024cc8,dirty)" system="manta-3" i18n="pt_PT">
+  <section name="Text Message Parser" name-i18n="Processador de Mensagens de Texto">
+    <param name="Entity Label">
+      <name-i18n>Nome da Entidade</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Text Message Parser</default>
+      <units/>
+      <desc>Nome principal da entidade</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Prioridade de Execução</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Prioridade de execução</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Tempo de Ativação</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Tempo de Desativação</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Nível de Depuração</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+  </section>
   <section name="Navigation" name-i18n="Navegação">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -522,7 +571,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>OS4000-T</default>
+      <default>Iridium</default>
       <units/>
       <desc/>
     </param>
@@ -531,7 +580,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1</default>
+      <default>0</default>
       <units/>
       <desc/>
     </param>
@@ -648,7 +697,7 @@
       <type>boolean</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>false</default>
+      <default>true</default>
       <units/>
       <desc>LCD is controlled by MCB</desc>
     </param>
@@ -1053,7 +1102,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>/dev/uart/1</default>
+      <default>/dev/ttyUSB0</default>
       <units/>
       <desc>Serial port device used to communicate with the sensor</desc>
     </param>
@@ -1669,7 +1718,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Chlorophyll, Conductivity, CpuUsage, Current, Depth, Distance, EntityState, Fluorescein, FuelLevel, GpsFix, Heartbeat, LblConfig, LblRange, LblRangeAcceptance, Phycocyanin, Phycoerythrin, PowerChannelState, Pressure, RhodamineDye, RSSI, Rpm, Salinity, SoundSpeed, StorageUsage, Temperature, Voltage, PH, Redox</default>
+      <default>Chlorophyll, Conductivity, CpuUsage, Current, Depth, Distance, EntityState, Fluorescein, FuelLevel, GpsFix, Heartbeat, LblConfig, LblRange, LblRangeAcceptance, Phycocyanin, Phycoerythrin, PowerChannelState, Pressure, RhodamineDye, RSSI, Rpm, Salinity, SoundSpeed, StorageUsage, Temperature, Turbidity, Voltage, PH, Redox</default>
       <units/>
       <desc>List of messages to transport</desc>
     </param>
@@ -1812,7 +1861,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Abort, Announce, CpuUsage, Current, EntityList, EntityState, EstimatedState, EulerAngles, GpsFix, Heartbeat, LogBookControl, LogBookEntry, LoggingControl, MagneticField, SetControlSurfaceDeflection, StorageUsage, Temperature, Voltage</default>
+      <default>Abort, Announce, CpuUsage, Current, EntityList, EntityState, EstimatedState, EulerAngles, GpsFix, Heartbeat, LogBookControl, LogBookEntry, LoggingControl, MagneticField, SetControlSurfaceDeflection, StorageUsage, Temperature, TextMessage, Voltage</default>
       <units/>
       <desc/>
     </param>
@@ -1951,9 +2000,18 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>AT\^SYSCFG=2,2,3fffffff,0,1</default>
+      <default>AT\^SYSCFG=2,2,3fffffff,1,1</default>
       <units/>
       <desc>GSM/GPRS mode.</desc>
+    </param>
+    <param name="Code Presentation Mode">
+      <name-i18n>Code Presentation Mode</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Code Presentation Mode</desc>
     </param>
     <param name="PPP - Interface">
       <name-i18n>PPP - Interface</name-i18n>
@@ -1972,6 +2030,33 @@
       <default>true</default>
       <units/>
       <desc>Enable or disable IP forward</desc>
+    </param>
+    <param name="Enable Dynamic DNS">
+      <name-i18n>Enable Dynamic DNS</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Enable or disable Dynamic DNS</desc>
+    </param>
+    <param name="DynDNS Update Periodicity">
+      <name-i18n>DynDNS Update Periodicity</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>60</default>
+      <units>s</units>
+      <desc>Number of seconds between dynamic DNS updates</desc>
+    </param>
+    <param name="DynDNS URL">
+      <name-i18n>DynDNS URL</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>URL used to update dynamic DNS</desc>
     </param>
   </section>
   <section name="UDP" name-i18n="UDP">
@@ -2126,7 +2211,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Abort, CpuUsage, Current, EntityList, EstimatedState, EulerAngles, GpsFix, Heartbeat, LogBookControl, LoggingControl, MagneticField, PlanControl, SetControlSurfaceDeflection, StorageUsage, Temperature, Voltage</default>
+      <default>Abort, CpuUsage, Current, EntityList, EstimatedState, EulerAngles, GpsFix, Heartbeat, LogBookControl, LoggingControl, MagneticField, PlanControl, SetControlSurfaceDeflection, StorageUsage, Temperature, TextMessage, Voltage</default>
       <units/>
       <desc>List of messages to transport</desc>
     </param>
