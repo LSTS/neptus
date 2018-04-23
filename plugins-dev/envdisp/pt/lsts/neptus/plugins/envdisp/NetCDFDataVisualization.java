@@ -261,7 +261,7 @@ public class NetCDFDataVisualization extends ConsoleLayer implements Configurati
                         try {
                             GenericNetCDFDataPainter viz = get();
                             if (viz != null) {
-                                PluginUtils.editPluginProperties(viz, true);
+                                PluginUtils.editPluginProperties(viz, getConsole(), true);
                                 NetCDFDataVisualization.this.gDataViz = viz;
                             }
                         }
