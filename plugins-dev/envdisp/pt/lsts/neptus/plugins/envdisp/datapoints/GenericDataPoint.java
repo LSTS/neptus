@@ -207,7 +207,7 @@ public class GenericDataPoint extends BaseDataPoint<GenericDataPoint> {
         @Override
         public String toString() {
             StringBuilder sb = new StringBuilder();
-            sb.append("[");
+            sb.append("Info [");
             sb.append("name:'");
             sb.append(name);
             sb.append("'; ");
