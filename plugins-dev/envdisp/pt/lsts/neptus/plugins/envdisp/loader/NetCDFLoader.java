@@ -94,7 +94,8 @@ public class NetCDFLoader {
           String timeName = searchPair == null ? null : searchPair.first();
           Variable timeVar = searchPair == null ? null : searchPair.second();
 
-          searchPair = NetCDFUtils.findVariableForStandardNameOrName(dataFile, fileName, true, "depth");
+          // If varName is already depth, no need to use it
+          searchPair = "depth".equalsIgnoreCase(varName) ? null : NetCDFUtils.findVariableForStandardNameOrName(dataFile, fileName, true, "depth");
           String depthName = searchPair == null ? null : searchPair.first();;
           Variable depthVar = searchPair == null ? null : searchPair.second(); 
 
