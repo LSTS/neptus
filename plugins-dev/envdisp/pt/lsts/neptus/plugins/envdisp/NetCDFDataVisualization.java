@@ -46,9 +46,11 @@ import java.util.concurrent.atomic.AtomicLong;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.SwingWorker;
 
 import org.apache.commons.io.FileUtils;
 
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.console.ConsoleLayer;
@@ -226,26 +228,65 @@ public class NetCDFDataVisualization extends ConsoleLayer implements Configurati
                 };
                 choicesVarsLbl.add(l);
             }
+            if (choicesVarsLbl.isEmpty()) {
+                GuiUtils.infoMessage(getConsole(), I18n.text("Info"),
+                        I18n.textf("No valid variables in data with dimentions (%s)", "<time>; lat; lon; <depth>"));
+                return;
+            }
             Object choiceOpt = JOptionPane.showInputDialog(getConsole(), I18n.text("Choose one of the vars"),
                     I18n.text("Chooser"), JOptionPane.QUESTION_MESSAGE, null,
                     choicesVarsLbl.toArray(new JLabel[choicesVarsLbl.size()]), 0);
             
             if (choiceOpt != null) {
-                String vn = ((JLabel) choiceOpt).getText();
-                varToConsider.get(vn);
-                HashMap<String, GenericDataPoint> dataPoints = NetCDFLoader.processFileForVariable(dataFile, vn, null);
-                GenericNetCDFDataPainter gDataViz = new GenericNetCDFDataPainter(plotCounter.getAndIncrement(), dataPoints);
-                this.gDataViz = gDataViz;
-                
-                PluginUtils.editPluginProperties(gDataViz, true);
+                final NetcdfFile df = dataFile;
+                SwingWorker<GenericNetCDFDataPainter, Void> sw = new SwingWorker<GenericNetCDFDataPainter, Void>() {
+                    @Override
+                    protected GenericNetCDFDataPainter doInBackground() throws Exception {
+                        try {
+                            String vn = ((JLabel) choiceOpt).getText();
+                            varToConsider.get(vn);
+                            HashMap<String, GenericDataPoint> dataPoints = NetCDFLoader.processFileForVariable(df, vn, null);
+                            GenericNetCDFDataPainter gDataViz = new GenericNetCDFDataPainter(plotCounter.getAndIncrement(), dataPoints);
+                            return gDataViz;
+                        }
+                        catch (Exception e) {
+                            NeptusLog.pub().error(e.getMessage(), e);
+                            return null;
+                        }
+                    }
+                    
+                    @Override
+                    protected void done() {
+                        try {
+                            GenericNetCDFDataPainter viz = get();
+                            if (viz != null) {
+                                PluginUtils.editPluginProperties(viz, true);
+                                NetCDFDataVisualization.this.gDataViz = viz;
+                            }
+                        }
+                        catch (Exception e) {
+                            NeptusLog.pub().error(e.getMessage(), e);
+                        }
+                        deleteNetCDFUnzippedFile(fx);
+                    }
+                };
+                sw.execute();
             }
             
             recentFolder = fx;
         }
         catch (Exception e) {
             e.printStackTrace();
+            deleteNetCDFUnzippedFile(fx);
         }
         
+        deleteNetCDFUnzippedFile(fx);
+    }
+
+    /**
+     * @param fx
+     */
+    private void deleteNetCDFUnzippedFile(File fx) {
         // Deleting the unzipped file
         if ("gz".equalsIgnoreCase(FileUtil.getFileExtension(fx))) {
             String absPath = fx.getAbsolutePath();
@@ -260,8 +301,6 @@ public class NetCDFDataVisualization extends ConsoleLayer implements Configurati
                 }
             }
         }
-
-        
     }
     
     /* (non-Javadoc)
