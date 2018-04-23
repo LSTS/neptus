@@ -436,6 +436,22 @@ public class NetCDFUtils {
         return multAndOffset;
     }
 
+
+    /**
+     * @param varToConsider
+     * @param varNames
+     */
+    public static void filterForVarsWithDimentionsWith(Map<String, Variable> varToConsider, String... varNames) {
+        for (String k : varToConsider.keySet().toArray(new String[varToConsider.size()])) {
+            Variable var = varToConsider.get(k);
+            String dimStr = var.getDimensionsString();
+            for (String nm : varNames) {
+                if (!dimStr.contains(nm))
+                    varToConsider.remove(k);
+            }
+        }
+    }
+
     public static void main(String[] args) throws Exception {
         { // Test #advanceLoopCounter
             int[] shape = {2, 1, 2, 3};

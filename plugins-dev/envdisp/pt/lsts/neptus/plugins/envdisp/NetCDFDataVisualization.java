@@ -37,11 +37,13 @@ import java.awt.Graphics2D;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
 
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
 import org.apache.commons.io.FileUtils;
@@ -49,6 +51,7 @@ import org.apache.commons.io.FileUtils;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.console.ConsoleLayer;
+import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.gui.editor.FolderPropertyEditor;
 import pt.lsts.neptus.gui.swing.NeptusFileView;
 import pt.lsts.neptus.i18n.I18n;
@@ -58,11 +61,13 @@ import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.envdisp.datapoints.GenericDataPoint;
+import pt.lsts.neptus.plugins.envdisp.datapoints.GenericDataPoint.Info;
 import pt.lsts.neptus.plugins.envdisp.loader.NetCDFLoader;
 import pt.lsts.neptus.plugins.envdisp.painter.GenericNetCDFDataPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.StringUtils;
 import pt.lsts.neptus.util.netcdf.NetCDFUtils;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
@@ -148,14 +153,15 @@ public class NetCDFDataVisualization extends ConsoleLayer implements Configurati
     public void cleanLayer() {
     }
 
-    @NeptusMenuItem("Tools>netCDF Data Visualization")
+    @NeptusMenuItem("Tools > netCDF Data Visualization > Add new")
     public void configMenuAction() {
         if (recentFolder == null)
             recentFolder = baseFolderForVarNetCDFFiles;
+        
         final JFileChooser chooser = new JFileChooser();
         chooser.setFileView(new NeptusFileView());
         chooser.setCurrentDirectory(recentFolder);
-        chooser.setFileFilter(GuiUtils.getCustomFileFilter("netCDF files", "nc", "nc.gz"));
+        chooser.setFileFilter(GuiUtils.getCustomFileFilter(I18n.text("netCDF files"), "nc", "nc.gz"));
         chooser.setApproveButtonText(I18n.text("Open file"));
         chooser.showOpenDialog(getConsole());
         if (chooser.getSelectedFile() == null)
@@ -169,12 +175,62 @@ public class NetCDFDataVisualization extends ConsoleLayer implements Configurati
             dataFile = NetcdfFile.open(fx.getPath());
             
             Map<String, Variable> varToConsider = NetCDFUtils.getMultiDimensionalVariables(dataFile);
-            Object choiceOpt = JOptionPane.showInputDialog(getConsole(), "Choose one of the vars", "Chooser", JOptionPane.QUESTION_MESSAGE,
-                    null, varToConsider.keySet().toArray(new String[0]), 0);
+            
+            Pair<String, Variable> searchPair = NetCDFUtils.findVariableForStandardNameOrName(dataFile, fx.getName(), true, "latitude", "lat");
+            String latName = searchPair.first();
+            searchPair = NetCDFUtils.findVariableForStandardNameOrName(dataFile, fx.getName(), true, "longitude", "lon");
+            String lonName = searchPair.first();
+            // searchPair = NetCDFUtils.findVariableForStandardNameOrName(dataFile, fx.getName(), false, "time");
+            // String timeName = searchPair == null ? null : searchPair.first();
+            if (latName == null || lonName == null /*|| timeName == null*/) {
+                GuiUtils.infoMessage(getConsole(), I18n.text("Error loading"), I18n.textf("Missing variables in data (%s)", "lat; lon"));
+                return;
+            }
+            
+            // Removing the ones that don't have location info
+            NetCDFUtils.filterForVarsWithDimentionsWith(varToConsider, latName, lonName/*, timeName*/);
+            
+            ArrayList<JLabel> choicesVarsLbl = new ArrayList<>();
+            for (String vName : varToConsider.keySet()) {
+                Variable var = varToConsider.get(vName);
+                StringBuilder sb = new StringBuilder("<html>");
+                Info info = NetCDFLoader.createInfoBase(var);
+                sb.append(vName);
+                sb.append(" :: ");
+                sb.append(info.fullName);
+                sb.append("<br/>");
+                sb.append("std='");
+                sb.append(info.standardName);
+                sb.append("'");
+                sb.append("<br/>");
+                sb.append("unit='");
+                sb.append(info.unit);
+                sb.append("'");
+                sb.append("<br/>");
+                sb.append("comment='");
+                String cmt = StringUtils.wrapEveryNChars(info.comment, (short) 60);
+                cmt = cmt.replaceAll("\n", "<br/>");
+                sb.append(cmt);
+                sb.append("'");
+                sb.append("<html>");
+
+                @SuppressWarnings("serial")
+                JLabel l = new JLabel(vName) {
+                    @Override
+                    public String toString() {
+                        return sb.toString();
+                    }
+                };
+                choicesVarsLbl.add(l);
+            }
+            Object choiceOpt = JOptionPane.showInputDialog(getConsole(), I18n.text("Choose one of the vars"),
+                    I18n.text("Chooser"), JOptionPane.QUESTION_MESSAGE, null,
+                    choicesVarsLbl.toArray(new JLabel[choicesVarsLbl.size()]), 0);
             
             if (choiceOpt != null) {
-                varToConsider.get(choiceOpt);
-                HashMap<String, GenericDataPoint> dataPoints = NetCDFLoader.processFileForVariable(dataFile, (String) choiceOpt, null);
+                String vn = ((JLabel) choiceOpt).getText();
+                varToConsider.get(vn);
+                HashMap<String, GenericDataPoint> dataPoints = NetCDFLoader.processFileForVariable(dataFile, vn, null);
                 GenericNetCDFDataPainter gDataViz = new GenericNetCDFDataPainter(dataPoints);
                 this.gDataViz = gDataViz;
             }
@@ -185,7 +241,6 @@ public class NetCDFDataVisualization extends ConsoleLayer implements Configurati
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-
         
         // Deleting the unzipped file
         if ("gz".equalsIgnoreCase(FileUtil.getFileExtension(fx))) {
