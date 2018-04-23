@@ -280,8 +280,6 @@ public class NetCDFDataVisualization extends ConsoleLayer implements Configurati
             e.printStackTrace();
             deleteNetCDFUnzippedFile(fx);
         }
-        
-        deleteNetCDFUnzippedFile(fx);
     }
 
     /**
