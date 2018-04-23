@@ -1660,7 +1660,7 @@ public class MarkerManagement extends JDialog {
                 RowFilter<Object, Object> locFilter = new RowFilter<Object,Object>() {
                     public boolean include(Entry<? extends Object, ? extends Object> entry) {
                         LogMarkerItemModel model = (LogMarkerItemModel) entry.getModel();
-                        LocationType l = (LocationType) model.getValueAt((int) entry.getIdentifier(), LogMarkerItemModel.COLUMN_LOCATION);
+                        LocationType l = (LocationType) model.getValueAt((Integer) entry.getIdentifier(), LogMarkerItemModel.COLUMN_LOCATION);
                         if (l.getDistanceInMeters(location) <= Double.parseDouble(radiusValue)) {
                             return true;
                         }
