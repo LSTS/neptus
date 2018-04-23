@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -60,6 +61,7 @@ import pt.lsts.neptus.plugins.NeptusMenuItem;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.envdisp.datapoints.GenericDataPoint;
 import pt.lsts.neptus.plugins.envdisp.datapoints.GenericDataPoint.Info;
 import pt.lsts.neptus.plugins.envdisp.loader.NetCDFLoader;
@@ -123,6 +125,7 @@ public class NetCDFDataVisualization extends ConsoleLayer implements Configurati
     @SuppressWarnings("serial")
     static final SimpleDateFormat dateTimeFormaterSpacesUTC = new SimpleDateFormat("yyyy MM dd  HH mm ss") {{setTimeZone(TimeZone.getTimeZone("UTC"));}};
 
+    private AtomicLong plotCounter = new AtomicLong();
     
     private File recentFolder = null;
     
@@ -193,12 +196,12 @@ public class NetCDFDataVisualization extends ConsoleLayer implements Configurati
             ArrayList<JLabel> choicesVarsLbl = new ArrayList<>();
             for (String vName : varToConsider.keySet()) {
                 Variable var = varToConsider.get(vName);
-                StringBuilder sb = new StringBuilder("<html>");
+                StringBuilder sb = new StringBuilder("<html><b>");
                 Info info = NetCDFLoader.createInfoBase(var);
                 sb.append(vName);
                 sb.append(" :: ");
                 sb.append(info.fullName);
-                sb.append("<br/>");
+                sb.append("</b><br/>");
                 sb.append("std='");
                 sb.append(info.standardName);
                 sb.append("'");
@@ -231,14 +234,15 @@ public class NetCDFDataVisualization extends ConsoleLayer implements Configurati
                 String vn = ((JLabel) choiceOpt).getText();
                 varToConsider.get(vn);
                 HashMap<String, GenericDataPoint> dataPoints = NetCDFLoader.processFileForVariable(dataFile, vn, null);
-                GenericNetCDFDataPainter gDataViz = new GenericNetCDFDataPainter(dataPoints);
+                GenericNetCDFDataPainter gDataViz = new GenericNetCDFDataPainter(plotCounter.getAndIncrement(), dataPoints);
                 this.gDataViz = gDataViz;
+                
+                PluginUtils.editPluginProperties(gDataViz, true);
             }
             
             recentFolder = fx;
         }
         catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         

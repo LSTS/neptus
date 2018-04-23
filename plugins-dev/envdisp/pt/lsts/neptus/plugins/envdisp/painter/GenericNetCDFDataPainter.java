@@ -67,9 +67,14 @@ public class GenericNetCDFDataPainter {
     private Thread painterThread = null;
     private AtomicBoolean abortIndicator = null;
 
+    private long plotUniqueId = 0;
+    
     @NeptusProperty
+    private String plotName = "";
+
+    @NeptusProperty(editable = false)
     private String netCDFFile = null;;
-    @NeptusProperty
+    @NeptusProperty(editable = false)
     private String varName = "";
 
     @NeptusProperty
@@ -96,7 +101,7 @@ public class GenericNetCDFDataPainter {
     @NeptusProperty
     private double maxValue = Double.MAX_VALUE;
     
-    public GenericNetCDFDataPainter(Map<String, GenericDataPoint> dataPointsVar) throws Exception {
+    public GenericNetCDFDataPainter(long plotUniqueId, Map<String, GenericDataPoint> dataPointsVar) throws Exception {
         if (dataPointsVar == null || dataPointsVar.isEmpty())
             throw new Exception("Empty data set found!");
         
@@ -105,6 +110,20 @@ public class GenericNetCDFDataPainter {
         
         this.minValue = this.info.minVal;
         this.maxValue = this.info.maxVal;
+    }
+    
+    /**
+     * @return the offScreen
+     */
+    public OffScreenLayerImageControl getOffScreenLayer() {
+        return offScreen;
+    }
+    
+    /**
+     * @return the plotUniqueId
+     */
+    public long getPlotUniqueId() {
+        return plotUniqueId;
     }
     
     /**
@@ -119,6 +138,20 @@ public class GenericNetCDFDataPainter {
      */
     public void setFont(Font font) {
         this.font = font;
+    }
+    
+    /**
+     * @return the plotName
+     */
+    public String getPlotName() {
+        return plotName;
+    }
+    
+    /**
+     * @param plotName the plotName to set
+     */
+    public void setPlotName(String plotName) {
+        this.plotName = plotName;
     }
     
     /**
