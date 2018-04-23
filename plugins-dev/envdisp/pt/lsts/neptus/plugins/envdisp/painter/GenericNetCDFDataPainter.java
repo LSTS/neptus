@@ -108,6 +108,9 @@ public class GenericNetCDFDataPainter {
         this.dataPointsVar = dataPointsVar;
         this.info = this.dataPointsVar.values().iterator().next().getInfo();
         
+        this.varName = this.info.name;
+        this.plotName = this.varName + " :: " + this.info.fullName;
+        
         this.minValue = this.info.minVal;
         this.maxValue = this.info.maxVal;
     }
