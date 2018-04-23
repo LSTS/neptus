@@ -90,12 +90,12 @@ public class NetCDFLoader {
           String lonName = searchPair.first();
           Variable lonVar = searchPair.second();
 
-          searchPair = NetCDFUtils.findVariableForStandardNameOrName(dataFile, fileName, true, "time");
+          searchPair = NetCDFUtils.findVariableForStandardNameOrName(dataFile, fileName, false, "time");
           String timeName = searchPair == null ? null : searchPair.first();
           Variable timeVar = searchPair == null ? null : searchPair.second();
 
           // If varName is already depth, no need to use it
-          searchPair = "depth".equalsIgnoreCase(varName) ? null : NetCDFUtils.findVariableForStandardNameOrName(dataFile, fileName, true, "depth");
+          searchPair = "depth".equalsIgnoreCase(varName) ? null : NetCDFUtils.findVariableForStandardNameOrName(dataFile, fileName, false, "depth");
           String depthName = searchPair == null ? null : searchPair.first();;
           Variable depthVar = searchPair == null ? null : searchPair.second(); 
 
@@ -122,15 +122,7 @@ public class NetCDFLoader {
           double timeMultiplier = timeVar != null ? multAndOffset[0] : 1;
           double timeOffset = timeVar != null ? multAndOffset[1] : 0;
           
-          Info info = new Info();
-          info.name = vVar.getShortName();
-          Attribute vAtt = vVar.findAttribute(NetCDFUtils.NETCDF_ATT_LONG_NAME);
-          info.fullName = vAtt == null ? vVar.getFullName() : vAtt.getStringValue();
-          vAtt = vVar.findAttribute(NetCDFUtils.NETCDF_ATT_STANDARD_NAME);
-          info.standardName = vAtt == null ? "" : vAtt.getStringValue();
-          info.unit = vVar.getUnitsString();
-          vAtt = vVar.findAttribute(NetCDFUtils.NETCDF_ATT_COMMENT);
-          info.comment = vAtt == null ? "" : vAtt.getStringValue();
+          Info info = createInfoBase(vVar);
           
           // Let us process
           if (vVar != null) {
@@ -235,6 +227,23 @@ public class NetCDFLoader {
         }
 
         return dataDp;
+    }
+
+    /**
+     * @param vVar
+     * @return
+     */
+    public static Info createInfoBase(Variable vVar) {
+        Info info = new Info();
+        info.name = vVar.getShortName();
+        Attribute vAtt = vVar.findAttribute(NetCDFUtils.NETCDF_ATT_LONG_NAME);
+        info.fullName = vAtt == null ? vVar.getFullName() : vAtt.getStringValue();
+        vAtt = vVar.findAttribute(NetCDFUtils.NETCDF_ATT_STANDARD_NAME);
+        info.standardName = vAtt == null ? "" : vAtt.getStringValue();
+        info.unit = vVar.getUnitsString();
+        vAtt = vVar.findAttribute(NetCDFUtils.NETCDF_ATT_COMMENT);
+        info.comment = vAtt == null ? "" : vAtt.getStringValue();
+        return info;
     }
 
     public static void main(String[] args) throws Exception {
