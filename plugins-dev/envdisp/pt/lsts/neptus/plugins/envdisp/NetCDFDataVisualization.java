@@ -247,6 +247,7 @@ public class NetCDFDataVisualization extends ConsoleLayer implements Configurati
                             varToConsider.get(vn);
                             HashMap<String, GenericDataPoint> dataPoints = NetCDFLoader.processFileForVariable(df, vn, null);
                             GenericNetCDFDataPainter gDataViz = new GenericNetCDFDataPainter(plotCounter.getAndIncrement(), dataPoints);
+                            gDataViz.setNetCDFFile(fx.getPath());
                             return gDataViz;
                         }
                         catch (Exception e) {
