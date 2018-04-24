@@ -268,7 +268,7 @@ public class NetCDFDataVisualization extends ConsoleLayer implements Configurati
                         catch (Exception e) {
                             NeptusLog.pub().error(e.getMessage(), e);
                         }
-                        deleteNetCDFUnzippedFile(fx);
+                        NetCDFLoader.deleteNetCDFUnzippedFile(fx);
                     }
                 };
                 sw.execute();
@@ -278,30 +278,10 @@ public class NetCDFDataVisualization extends ConsoleLayer implements Configurati
         }
         catch (Exception e) {
             e.printStackTrace();
-            deleteNetCDFUnzippedFile(fx);
+            NetCDFLoader.deleteNetCDFUnzippedFile(fx);
         }
     }
 
-    /**
-     * @param fx
-     */
-    private void deleteNetCDFUnzippedFile(File fx) {
-        // Deleting the unzipped file
-        if ("gz".equalsIgnoreCase(FileUtil.getFileExtension(fx))) {
-            String absPath = fx.getAbsolutePath();
-            absPath = absPath.replaceAll("\\.gz$", "");
-            File unzipedFile = new File(absPath);
-            if (unzipedFile.exists()) {
-                try {
-                    FileUtils.forceDelete(unzipedFile);
-                }
-                catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-    
     /* (non-Javadoc)
      * @see pt.lsts.neptus.console.ConsoleLayer#paint(java.awt.Graphics2D, pt.lsts.neptus.renderer2d.StateRenderer2D)
      */

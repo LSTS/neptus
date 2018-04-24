@@ -32,6 +32,8 @@
  */
 package pt.lsts.neptus.plugins.envdisp.loader;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -39,11 +41,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
+
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.plugins.envdisp.datapoints.GenericDataPoint;
 import pt.lsts.neptus.plugins.envdisp.datapoints.GenericDataPoint.Info;
 import pt.lsts.neptus.util.AngleUtils;
+import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.netcdf.NetCDFUtils;
 import ucar.ma2.Array;
 import ucar.ma2.Index;
@@ -246,6 +251,28 @@ public class NetCDFLoader {
         return info;
     }
 
+    /**
+     * Deletes the netCDF unzipped file if any. The file passed has to be of the form "*.nc.gz".
+     * 
+     * @param fx
+     */
+    public static void deleteNetCDFUnzippedFile(File fx) {
+        // Deleting the unzipped file
+        if ("gz".equalsIgnoreCase(FileUtil.getFileExtension(fx))) {
+            String absPath = fx.getAbsolutePath();
+            absPath = absPath.replaceAll("\\.gz$", "");
+            File unzipedFile = new File(absPath);
+            if (unzipedFile.exists()) {
+                try {
+                    FileUtils.forceDelete(unzipedFile);
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+    
     public static void main(String[] args) throws Exception {
         NetcdfFile dataFile = null;
         
