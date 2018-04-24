@@ -35,28 +35,18 @@ package pt.lsts.neptus.plugins.envdisp;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.io.File;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.TimeZone;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
 
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
-
-import org.apache.commons.io.FileUtils;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.console.ConsoleLayer;
-import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.gui.editor.FolderPropertyEditor;
-import pt.lsts.neptus.gui.swing.NeptusFileView;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusMenuItem;
@@ -64,15 +54,10 @@ import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.plugins.envdisp.datapoints.GenericDataPoint;
-import pt.lsts.neptus.plugins.envdisp.datapoints.GenericDataPoint.Info;
 import pt.lsts.neptus.plugins.envdisp.loader.NetCDFLoader;
 import pt.lsts.neptus.plugins.envdisp.painter.GenericNetCDFDataPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
-import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.StringUtils;
-import pt.lsts.neptus.util.netcdf.NetCDFUtils;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
@@ -163,97 +148,21 @@ public class NetCDFDataVisualization extends ConsoleLayer implements Configurati
         if (recentFolder == null)
             recentFolder = baseFolderForVarNetCDFFiles;
         
-        final JFileChooser chooser = new JFileChooser();
-        chooser.setFileView(new NeptusFileView());
-        chooser.setCurrentDirectory(recentFolder);
-        chooser.setFileFilter(GuiUtils.getCustomFileFilter(I18n.text("netCDF files"), "nc", "nc.gz"));
-        chooser.setApproveButtonText(I18n.text("Open file"));
-        chooser.showOpenDialog(getConsole());
-        if (chooser.getSelectedFile() == null)
+        File fx = NetCDFLoader.showChooseANetCDFToOpen(getConsole(), recentFolder);
+        if (fx == null)
             return;
-
-        File fx = chooser.getSelectedFile();
-        
-        NetcdfFile dataFile = null;
         
         try {
-            dataFile = NetcdfFile.open(fx.getPath());
+            NetcdfFile dataFile = NetcdfFile.open(fx.getPath());
             
-            Map<String, Variable> varToConsider = NetCDFUtils.getMultiDimensionalVariables(dataFile);
-            
-            Pair<String, Variable> searchPair = NetCDFUtils.findVariableForStandardNameOrName(dataFile, fx.getName(), true, "latitude", "lat");
-            String latName = searchPair.first();
-            searchPair = NetCDFUtils.findVariableForStandardNameOrName(dataFile, fx.getName(), true, "longitude", "lon");
-            String lonName = searchPair.first();
-            // searchPair = NetCDFUtils.findVariableForStandardNameOrName(dataFile, fx.getName(), false, "time");
-            // String timeName = searchPair == null ? null : searchPair.first();
-            if (latName == null || lonName == null /*|| timeName == null*/) {
-                GuiUtils.infoMessage(getConsole(), I18n.text("Error loading"), I18n.textf("Missing variables in data (%s)", "lat; lon"));
-                return;
-            }
-            
-            // Removing the ones that don't have location info
-            NetCDFUtils.filterForVarsWithDimentionsWith(varToConsider, latName, lonName/*, timeName*/);
-            
-            ArrayList<JLabel> choicesVarsLbl = new ArrayList<>();
-            for (String vName : varToConsider.keySet()) {
-                Variable var = varToConsider.get(vName);
-                StringBuilder sb = new StringBuilder("<html><b>");
-                Info info = NetCDFLoader.createInfoBase(var);
-                sb.append(vName);
-                sb.append(" :: ");
-                sb.append(info.fullName);
-                sb.append("</b><br/>");
-                sb.append("std='");
-                sb.append(info.standardName);
-                sb.append("'");
-                sb.append("<br/>");
-                sb.append("unit='");
-                sb.append(info.unit);
-                sb.append("'");
-                sb.append("<br/>");
-                sb.append("comment='");
-                String cmt = StringUtils.wrapEveryNChars(info.comment, (short) 60);
-                cmt = cmt.replaceAll("\n", "<br/>");
-                sb.append(cmt);
-                sb.append("'");
-                sb.append("<html>");
-
-                @SuppressWarnings("serial")
-                JLabel l = new JLabel(vName) {
-                    @Override
-                    public String toString() {
-                        return sb.toString();
-                    }
-                };
-                choicesVarsLbl.add(l);
-            }
-            if (choicesVarsLbl.isEmpty()) {
-                GuiUtils.infoMessage(getConsole(), I18n.text("Info"),
-                        I18n.textf("No valid variables in data with dimentions (%s)", "<time>; lat; lon; <depth>"));
-                return;
-            }
-            Object choiceOpt = JOptionPane.showInputDialog(getConsole(), I18n.text("Choose one of the vars"),
-                    I18n.text("Chooser"), JOptionPane.QUESTION_MESSAGE, null,
-                    choicesVarsLbl.toArray(new JLabel[choicesVarsLbl.size()]), 0);
-            
-            if (choiceOpt != null) {
-                final NetcdfFile df = dataFile;
+            Variable choiceVarOpt = NetCDFLoader.showChooseVar(fx.getName(), dataFile, getConsole());
+            if (choiceVarOpt != null) {
+                Future<GenericNetCDFDataPainter> fTask = NetCDFLoader.loadNetCDFPainterFor(fx.getPath(), dataFile,
+                        choiceVarOpt.getShortName(), plotCounter.getAndIncrement());
                 SwingWorker<GenericNetCDFDataPainter, Void> sw = new SwingWorker<GenericNetCDFDataPainter, Void>() {
                     @Override
                     protected GenericNetCDFDataPainter doInBackground() throws Exception {
-                        try {
-                            String vn = ((JLabel) choiceOpt).getText();
-                            varToConsider.get(vn);
-                            HashMap<String, GenericDataPoint> dataPoints = NetCDFLoader.processFileForVariable(df, vn, null);
-                            GenericNetCDFDataPainter gDataViz = new GenericNetCDFDataPainter(plotCounter.getAndIncrement(), dataPoints);
-                            gDataViz.setNetCDFFile(fx.getPath());
-                            return gDataViz;
-                        }
-                        catch (Exception e) {
-                            NeptusLog.pub().error(e.getMessage(), e);
-                            return null;
-                        }
+                        return fTask.get();
                     }
                     
                     @Override
@@ -267,6 +176,9 @@ public class NetCDFDataVisualization extends ConsoleLayer implements Configurati
                         }
                         catch (Exception e) {
                             NeptusLog.pub().error(e.getMessage(), e);
+                            GuiUtils.errorMessage(getConsole(),
+                                    I18n.textf("Loading netCDF variable %s", choiceVarOpt.getShortName()),
+                                    e.getMessage());
                         }
                         NetCDFLoader.deleteNetCDFUnzippedFile(fx);
                     }
