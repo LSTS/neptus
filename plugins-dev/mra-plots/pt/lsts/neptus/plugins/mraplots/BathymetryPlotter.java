@@ -192,7 +192,7 @@ public class BathymetryPlotter extends SimpleMRAVisualization {
     }
 
     private void commonSetup() {
-        cmapCombo = new JComboBox<Object>(ColorMap.cmaps);
+        cmapCombo = new JComboBox<Object>(ColorMap.cmaps.toArray(new ColorMap[ColorMap.cmaps.size()]));
         cmapCombo.setSelectedItem(ColorMapFactory.createJetColorMap());
         cmapCombo.setRenderer(new ColorMapListRenderer());
         toolbar.add(cmapCombo);

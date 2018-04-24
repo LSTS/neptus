@@ -99,18 +99,23 @@ public class InterpolationColorMap implements ColorMap, PropertyType {
         Vector<Color> colorsV = new Vector<Color>();
 
         while ((line = br.readLine()) != null) {
-            if (line.charAt(0) == '#')
+            if (line.trim().charAt(0) == '#')
                 continue;
 
             String[] parts = line.trim().split("[ \t,]+");
 
             if (parts.length < 3)
                 continue;
-            int r = (int)(Double.parseDouble(parts[parts.length - 3])* (is255 ? 1 : 255));
-            int g = (int)(Double.parseDouble(parts[parts.length - 2])*(is255 ? 1 : 255));
-            int b = (int)(Double.parseDouble(parts[parts.length - 1])*(is255 ? 1 : 255));
-
-            colorsV.add(new Color(r,g,b));
+            try {
+                int r = (int)(Double.parseDouble(parts[parts.length - 3]) * (is255 ? 1 : 255));
+                int g = (int)(Double.parseDouble(parts[parts.length - 2]) * (is255 ? 1 : 255));
+                int b = (int)(Double.parseDouble(parts[parts.length - 1]) * (is255 ? 1 : 255));
+                
+                colorsV.add(new Color(r,g,b));
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         
         this.colors = colorsV.toArray(new Color[0]);        
