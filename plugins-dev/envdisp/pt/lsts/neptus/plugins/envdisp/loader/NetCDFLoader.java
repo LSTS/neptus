@@ -260,7 +260,7 @@ public class NetCDFLoader {
         // Deleting the unzipped file
         if ("gz".equalsIgnoreCase(FileUtil.getFileExtension(fx))) {
             String absPath = fx.getAbsolutePath();
-            absPath = absPath.replaceAll("\\.gz$", "");
+            absPath = absPath.replaceAll("\\.nc\\.gz$", ".nc");
             File unzipedFile = new File(absPath);
             if (unzipedFile.exists()) {
                 try {
