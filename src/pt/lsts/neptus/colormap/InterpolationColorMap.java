@@ -90,7 +90,12 @@ public class InterpolationColorMap implements ColorMap, PropertyType {
     }
 
     public InterpolationColorMap(Reader reader) throws IOException {
-        this(reader, false);        
+        this(reader, false);
+    }       
+
+    public InterpolationColorMap(String name, Reader reader) throws IOException {
+        this(reader, false);
+        this.name = name;
     }       
 
     public InterpolationColorMap(Reader reader, boolean is255) throws IOException {

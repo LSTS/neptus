@@ -33,13 +33,16 @@
 package pt.lsts.neptus.colormap;
 
 import java.awt.Color;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * @author pdias
@@ -48,6 +51,41 @@ import org.apache.commons.lang3.ArrayUtils;
 class ColorMapParser {
     
      static boolean debug = false;
+     
+     /**
+      * @see #loadRGBColorTable(String, InputStream).      
+      * * 
+      * @param name
+      * @param file
+      * @return
+      */
+     public static InterpolationColorMap loadRGBColorTable(String name, File file) {
+         try (FileInputStream fis = new FileInputStream(file)) {
+             return loadRGBColorTable(name, fis);
+         }
+         catch (Exception e) {
+             e.printStackTrace();
+         }
+         return null;
+     }
+
+     /**
+      * Loads RGB Color Table files.
+      * 
+      * @param name
+      * @param inStream
+      * @return
+      */
+     public static InterpolationColorMap loadRGBColorTable(String name, InputStream inStream) {
+         try {
+             InputStreamReader reader = new InputStreamReader(inStream);
+             return new InterpolationColorMap(name, reader);
+         }
+         catch (Exception e) {
+             e.printStackTrace();
+             return null;
+         }
+     }
 
     /**
      * @see #loadAdobeColorTable(String, InputStream).
@@ -178,11 +216,191 @@ class ColorMapParser {
     }
     
     /**
+     * @see #loadCPTColorTable(String, InputStream).
+     * 
+     * @param name
+     * @param file
+     * @return
+     */
+    public static InterpolationColorMap loadCPTColorTable(String name, File file) {
+        try (FileInputStream fis = new FileInputStream(file)) {
+            return loadCPTColorTable(name, fis);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * Loads CPT Color Table files.
+     * 
+     * CPT indicates a color palette format used by the Generic Mapping Tools program. The format defines a number of
+     * solid color and/or gradient bands between the colorbar extrema rather than a finite number of distinct colors.
+     * 
+     * <code>
+     * <br/>
+     * # COLOR_MODEL = RGB <br/>
+     * z0   R0    G0    B0    z1 R1a G1a B1a [A] [;label] <br/>
+     * z1   R1b   G1b   B1b   z2 R2a G2a B2a [A] [;label] <br/>
+     * ... <br/>
+     * zn-1 Rn-1b Gn-1b Bn-1b zn Rn  Gn  Bn [A] [;label] <br/> 
+     * B Rb Gb Bb <br/>
+     * F Rf Gf Bf <br/>
+     * N Rn Gn Bn <br/>
+     * <br/>
+     * </code>
+     * 
+     * Comments in the color palette file are marked by lines starting with a #. The only comment that isn’t ignored is
+     * a comment line that specifies the color model: RGB, CMYK, or HSV. The example above shows the RGB format.
+     * 
+     * The main color definition section of the file has 8 (RGB, HSV) or 10 (CMYK) columns, plus two optional columns.
+     * Each color block is assigned a lower and upper data value (z), and color values to match these bounds. If the
+     * lower and upper colors are the same, then that color is assigned to the full range. If the colors are different,
+     * then a linear gradient between the two colors results. The optional A flag and semicolon-plus-text column tell
+     * GMT how to annotate the color scale. This function ignores those optional columns.
+     * 
+     * The lines beginning with B, F, and N indicate the colors used to shade background data values (z < z0), foreground
+     * data values (z > zn), and NaN data values, respectively. These three colors aren’t used  when creating a
+     * colormap, but they can be returned as optional output values.
+     * 
+     * @param name
+     * @param inStream
+     * @return
+     */
+    public static InterpolationColorMap loadCPTColorTable(String name, InputStream inStream) {
+        InputStreamReader reader = new InputStreamReader(inStream); 
+        BufferedReader br = new BufferedReader(reader);
+        String line;
+        List<Pair<Double, Color>> colorsPairV = new ArrayList<>();;
+
+        Color cOutMin = null;
+        Color cOutMax = null;
+        Color cOutNaN = null;
+
+        try {
+            while ((line = br.readLine()) != null) {
+                if (line.trim().charAt(0) == '#') {
+                    String l = line.trim();
+                    l = l.replace("#", "").trim();
+                    l = l.replace(" ", "").trim();
+                    if (l.startsWith("COLOR_MODEL") && !"COLOR_MODEL=RGB".equalsIgnoreCase(l)) {
+                        if (debug)
+                            System.out.println(name + " is not a valid CPT RGB colormap.");
+                        return null;
+                    }
+                    
+                    continue;
+                }
+                
+                line = line.trim();
+                if (!line.matches("^[BFN].*")) {
+                    String[] parts = line.split("[ \t,]+");
+                    if (parts.length < 8)
+                        continue;
+                    try {
+                        double v1 = Double.parseDouble(parts[0]);
+                        int r1 = Integer.parseInt(parts[1]);
+                        int g1 = Integer.parseInt(parts[2]);
+                        int b1 = Integer.parseInt(parts[3]);
+                        colorsPairV.add(Pair.of(v1, new Color(r1, g1, b1)));
+
+                        double v2 = Double.parseDouble(parts[4]);
+                        int r2 = Integer.parseInt(parts[5]);
+                        int g2 = Integer.parseInt(parts[6]);
+                        int b2 = Integer.parseInt(parts[7]);
+                        colorsPairV.add(Pair.of(v2, new Color(r2, g2, b2)));
+                    }
+                    catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                else {
+                    String[] parts = line.split("[ \t,]+");
+                    if (parts.length < 4)
+                        continue;
+                    try {
+                        String bfn = parts[0];
+                        int r = Integer.parseInt(parts[1]);
+                        int g = Integer.parseInt(parts[2]);
+                        int b = Integer.parseInt(parts[3]);
+                        Color c = new Color(r, g, b);
+                        switch (bfn.trim()) {
+                            case "B":
+                            case "b":
+                                cOutMin = c;
+                                break;
+                            case "F":
+                            case "f":
+                                cOutMax = c;
+                                break;
+                            case "N":
+                            case "n":
+                                cOutNaN = c;
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                    catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+
+            }
+            
+            if (debug)
+                System.out.println(colorsPairV.size() + " colors");
+            if (debug) {
+                System.out.println("B  " + cOutMin);
+                System.out.println("F  " + cOutMax);
+                System.out.println("N  " + cOutNaN);
+            }
+            
+            double minV = colorsPairV.stream().reduce((r, e) -> r.getLeft() < e.getLeft() ? r : e).get().getLeft();
+            double maxV = colorsPairV.stream().reduce((r, e) -> r.getLeft() > e.getLeft() ? r : e).get().getLeft();;
+            if (debug)
+                System.out.println("minV=" + minV + "  maxV=" + maxV);
+            List<Double> valuesV = new ArrayList<>();
+            colorsPairV.stream().forEach(e -> {
+                double v = (e.getLeft() - minV) / (maxV - minV);
+                valuesV.add(v);
+            });
+            if (cOutMin != null && cOutMax != null) {
+                valuesV.add(0, 0 - Double.MIN_NORMAL);
+                valuesV.add(1 + Double.MIN_NORMAL * 2);
+            }
+            
+            List<Color> colorsV = new ArrayList<>();
+            colorsPairV.forEach(e -> colorsV.add(e.getRight()));
+            if (cOutMin != null && cOutMax != null) {
+                colorsV.add(0, cOutMin);
+                colorsV.add(cOutMax);
+            }
+            
+            Color[] colors = colorsV.toArray(new Color[colorsV.size()]);
+            double[] values = ArrayUtils.toPrimitive(valuesV.toArray(new Double[valuesV.size()]));
+            
+            System.out.println(ArrayUtils.toString(values));
+            
+            return new InterpolationColorMap(name, values, colors);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        return null;
+    }
+    
+    /**
      * @param args
      */
     public static void main(String[] args) {
         loadAdobeColorTable("ACT", new File("conf/colormaps/NEO_amsre_sst.act"));
         loadAdobeColorTable("ACT", new File("conf/colormaps/NEO_wind_spd_anom.act"));
         loadAdobeColorTable("GCT", new File("conf/colormaps/NCDC_temp_anom.gct"));
+        loadRGBColorTable("RGB", new File("conf/colormaps/MPL_ocean.rgb"));
+        loadCPTColorTable("CPT", new File("conf/colormaps/GMT_globe.cpt"));
+        loadCPTColorTable("CPT", new File("conf/colormaps/GIST_heat.cpt"));
     }
 }

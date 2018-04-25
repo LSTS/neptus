@@ -487,10 +487,16 @@ public class ColorMapFactory {
                 cmPathAndStreams.forEach(p -> {
                     String ext = FilenameUtils.getExtension(p.getLeft().getFileName().toString());
                     InterpolationColorMap cm = null;
-                    switch (ext) {
+                    switch (ext.toLowerCase()) {
                         case "act":
                         case "gct":
                             cm = ColorMapParser.loadAdobeColorTable(p.getLeft().getFileName().toString(), p.getRight());
+                            break;
+                        case "rgb":
+                            cm = ColorMapParser.loadRGBColorTable(p.getLeft().getFileName().toString(), p.getRight());
+                            break;
+                        case "cpt":
+                            cm = ColorMapParser.loadCPTColorTable(p.getLeft().getFileName().toString(), p.getRight());
                             break;
                         default:
                             break;
