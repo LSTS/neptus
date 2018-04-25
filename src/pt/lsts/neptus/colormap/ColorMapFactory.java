@@ -442,6 +442,7 @@ public class ColorMapFactory {
                         switch (ext) {
                             case "rgb":
                             case "act":
+                            case "gct":
                                 return true;
                             default:
                                 break;
@@ -488,6 +489,7 @@ public class ColorMapFactory {
                     InterpolationColorMap cm = null;
                     switch (ext) {
                         case "act":
+                        case "gct":
                             cm = ColorMapParser.loadAdobeColorTable(p.getLeft().getFileName().toString(), p.getRight());
                             break;
                         default:
