@@ -30,7 +30,7 @@
  * Author: nachito
  * 23/04/2018
  */
-package pt.lsts.neptus.plugins.datacdf;
+package pt.lsts.neptus.plugins.gebcoimport;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -58,7 +58,7 @@ import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
 @PluginDescription(name = "NetCDF Tools")
-public class Datacdf extends ConsolePanel {
+public class GebcoBathymetryImport extends ConsolePanel {
 
     /**
      * 
@@ -77,7 +77,7 @@ public class Datacdf extends ConsolePanel {
 
     // TODO Auto-generated method stub
 
-    public Datacdf(ConsoleLayout console) {
+    public GebcoBathymetryImport(ConsoleLayout console) {
 
         super(console);
     }
@@ -243,6 +243,6 @@ public class Datacdf extends ConsolePanel {
 
 
     public static void main(String[] args) {
-        ConsoleParse.testSubPanel(Datacdf.class);
+        ConsoleParse.testSubPanel(GebcoBathymetryImport.class);
     }
 }
