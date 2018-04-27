@@ -4,11 +4,11 @@
         <id>vtol-01</id>
         <name>vtol-01</name>
         <type>UAV</type>
-        <model>Cularis</model>
+        <model>VTOL</model>
         <appearance>
             <x-size>1.26</x-size>
             <y-size>2.61</y-size>
-            <z-size>0.50</z-size>
+            <z-size>0.50</z-size>            
             <top-image-2D>../vehicles-files/cularis/cularis-top.png</top-image-2D>
             <side-image-2D>../vehicles-files/cularis/cularis-side.png</side-image-2D>
             <back-image-2D>../vehicles-files/cularis/cularis-back.png</back-image-2D>
@@ -235,7 +235,7 @@
                     <udp-on>true</udp-on>
                     <tcp-on>false</tcp-on>
                     <imc-id>0c:2c</imc-id>
-                </imc
+                </imc>
             </protocols-args>
         </comm-mean>
     </communication-means>

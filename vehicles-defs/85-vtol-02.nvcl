@@ -4,7 +4,7 @@
         <id>vtol-01</id>
         <name>vtol-01</name>
         <type>UAV</type>
-        <model>Cularis</model>
+        <model>VTOL</model>
         <appearance>
             <x-size>1.26</x-size>
             <y-size>2.61</y-size>
