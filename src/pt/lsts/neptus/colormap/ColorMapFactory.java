@@ -443,6 +443,7 @@ public class ColorMapFactory {
                             case "rgb":
                             case "act":
                             case "gct":
+                            case "cpt":
                                 return true;
                             default:
                                 break;
