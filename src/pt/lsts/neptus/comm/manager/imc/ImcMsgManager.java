@@ -33,6 +33,7 @@ package pt.lsts.neptus.comm.manager.imc;
 
 import java.io.IOException;
 import java.net.Inet4Address;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URL;
@@ -1264,6 +1265,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                     resSys.setRemoteUDPPort(DEFAULT_UDP_VEH_PORT);
             }
             if (!"".equalsIgnoreCase(hostUdp) && !AnnounceWorker.NONE_IP.equalsIgnoreCase(hostUdp)) {
+                hostWasGuessed = true;
                 if (AnnounceWorker.USE_REMOTE_IP.equalsIgnoreCase(hostUdp)) {
                     if (dontIgnoreIpSourceRequest)
                         resSys.setHostAddress(info.getPublisherInetAddress());
@@ -1273,25 +1275,71 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                         resSys.setHostAddress(hostUdp);
                     }
                     else if (hostWasGuessed) {
-                        String curHostAddr = resSys.getHostAddress();
-                        boolean currIsInAnnounce = false;
-                        for (InetSocketAddress inetSAddr : retId) {
-                            if (curHostAddr.equalsIgnoreCase(inetSAddr.getAddress().getHostAddress())) {
-                                currIsInAnnounce = true;
-                                break;
+                        boolean alreadyFound = false;
+                        try {
+                            Map<InetSocketAddress, Integer> fAddr = new LinkedHashMap<>();
+                            InetAddress publisherIAddr = InetAddress.getByName(sia);
+                            byte[] pba = publisherIAddr.getAddress();
+                            int i = 0;
+                            for (InetSocketAddress inetSAddr : retId) {
+                                byte[] lta = inetSAddr.getAddress().getAddress();
+                                if (lta.length != pba.length)
+                                    continue;
+                                i = 0;
+                                for (; i < lta.length; i++) {
+                                    if (pba[i] != lta[i])
+                                        break;
+                                }
+                                if (i > 0 && i <= pba.length)
+                                    fAddr.put(inetSAddr, i);
+                            }
+                            for (InetSocketAddress inetSAddr : retIdT) {
+                                if (fAddr.containsKey(inetSAddr))
+                                    continue;
+                                byte[] lta = inetSAddr.getAddress().getAddress();
+                                if (lta.length != pba.length)
+                                    continue;
+                                i = 0;
+                                for (; i < lta.length; i++) {
+                                    if (pba[i] != lta[i])
+                                        break;
+                                }
+                                if (i > 0 && i <= pba.length)
+                                    fAddr.put(inetSAddr, i);
+                            }
+                            
+                            InetSocketAddress foundCandidateAddr = fAddr.keySet().stream().max((a1, a2) -> {
+                                    return fAddr.get(a1) - fAddr.get(a2);
+                                }).orElse(null);
+                            if (foundCandidateAddr != null) {
+                                resSys.setHostAddress(foundCandidateAddr.getAddress().getHostAddress());
+                                alreadyFound = true;
                             }
                         }
-                        if (!currIsInAnnounce) {
-                            for (InetSocketAddress inetSAddr : retIdT) {
+                        catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        
+                        if (!alreadyFound) {
+                            String curHostAddr = resSys.getHostAddress();
+                            boolean currIsInAnnounce = false;
+                            for (InetSocketAddress inetSAddr : retId) {
                                 if (curHostAddr.equalsIgnoreCase(inetSAddr.getAddress().getHostAddress())) {
                                     currIsInAnnounce = true;
                                     break;
                                 }
                             }
-                        }
-                        
-                        if (!currIsInAnnounce) {
-                            resSys.setHostAddress(hostUdp);
+                            if (!currIsInAnnounce) {
+                                for (InetSocketAddress inetSAddr : retIdT) {
+                                    if (curHostAddr.equalsIgnoreCase(inetSAddr.getAddress().getHostAddress())) {
+                                        currIsInAnnounce = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            
+                            if (!currIsInAnnounce)
+                                resSys.setHostAddress(hostUdp);
                         }
                     }
                 }
