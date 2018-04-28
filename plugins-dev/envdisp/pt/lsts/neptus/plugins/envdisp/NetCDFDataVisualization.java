@@ -32,6 +32,8 @@
  */
 package pt.lsts.neptus.plugins.envdisp;
 
+import java.awt.BorderLayout;
+import java.awt.Dialog.ModalityType;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.io.File;
@@ -40,6 +42,7 @@ import java.util.TimeZone;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
 
+import javax.swing.JDialog;
 import javax.swing.SwingWorker;
 
 import pt.lsts.neptus.NeptusLog;
@@ -54,6 +57,7 @@ import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
+import pt.lsts.neptus.plugins.envdisp.gui.LayersListPanel;
 import pt.lsts.neptus.plugins.envdisp.loader.NetCDFLoader;
 import pt.lsts.neptus.plugins.envdisp.painter.GenericNetCDFDataPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
@@ -118,6 +122,9 @@ public class NetCDFDataVisualization extends ConsoleLayer implements Configurati
     
     private GenericNetCDFDataPainter gDataViz = null;
     
+    private LayersListPanel layerList;
+    private JDialog dialog = null;
+    
     public NetCDFDataVisualization() {
     }
 
@@ -134,6 +141,7 @@ public class NetCDFDataVisualization extends ConsoleLayer implements Configurati
      */
     @Override
     public void initLayer() {
+        layerList = new LayersListPanel(getConsole());
     }
 
     /* (non-Javadoc)
@@ -141,10 +149,24 @@ public class NetCDFDataVisualization extends ConsoleLayer implements Configurati
      */
     @Override
     public void cleanLayer() {
+        if (dialog != null)
+            dialog.dispose();
+    }
+
+    @NeptusMenuItem("Tools > netCDF Data Visualization > Config")
+    public void configMenuAction() {
+        if (dialog == null) {
+            dialog = new JDialog(getConsole());
+            dialog.setModalityType(ModalityType.MODELESS);
+            dialog.setLayout(new BorderLayout());
+            dialog.add(layerList);
+            dialog.setSize(layerList.getPreferredSize());
+        }
+        dialog.setVisible(true);
     }
 
     @NeptusMenuItem("Tools > netCDF Data Visualization > Add new")
-    public void configMenuAction() {
+    public void configMenuAction1() {
         if (recentFolder == null)
             recentFolder = baseFolderForVarNetCDFFiles;
         
@@ -202,5 +224,14 @@ public class NetCDFDataVisualization extends ConsoleLayer implements Configurati
         super.paint(g, renderer);
         if (gDataViz != null)
             gDataViz.paint(g, renderer, ignoreDateLimitToLoad, dateLimitHours, showDataDebugLegend);
+        
+        for (GenericNetCDFDataPainter l : layerList.getVarLayersList()) {
+            if (!l.isShowVar())
+                continue;
+            
+            Graphics2D g2 = (Graphics2D) g.create();
+            l.paint(g2, renderer, ignoreDateLimitToLoad, dateLimitHours, showDataDebugLegend);
+            g2.dispose();
+        }
     }
 }
