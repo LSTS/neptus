@@ -406,7 +406,7 @@ public class GenericNetCDFDataPainter {
         if (showVar && showVarColorbar) {
             Graphics2D gl = (Graphics2D) go.create();
             gl.translate(offsetWidth, offsetHeight);
-            ColorBarPainterUtil.paintColorBar(gl, renderer, colorMapVar, I18n.text(info.name), info.unit, minValue, maxValue);
+            ColorBarPainterUtil.paintColorBar(gl, colorMapVar, I18n.text(info.name), info.unit, minValue, maxValue);
             gl.dispose();
             offsetHeight += offsetDelta;
         }

@@ -852,7 +852,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
             counter--;
             Graphics2D gl = (Graphics2D) go.create();
             gl.translate(offsetWidth, offsetHeight);
-            ColorBarPainterUtil.paintColorBar(gl, renderer, colorMapCurrents, I18n.text("Currents"), "cm/s", 0, maxCurrentCmS);
+            ColorBarPainterUtil.paintColorBar(gl, colorMapCurrents, I18n.text("Currents"), "cm/s", 0, maxCurrentCmS);
             gl.dispose();
             offsetHeight += offsetDelta;
         }
@@ -860,7 +860,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
             counter--;
             Graphics2D gl = (Graphics2D) go.create();
             gl.translate(offsetWidth, offsetHeight);
-            ColorBarPainterUtil.paintColorBar(gl, renderer, colorMapSST, I18n.text("SST"), "\u00B0C", minSST, maxSST);
+            ColorBarPainterUtil.paintColorBar(gl, colorMapSST, I18n.text("SST"), "\u00B0C", minSST, maxSST);
             gl.dispose();
             offsetHeight += offsetDelta;
         }
@@ -868,7 +868,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
             counter--;
             Graphics2D gl = (Graphics2D) go.create();
             gl.translate(offsetWidth, offsetHeight);
-            ColorBarPainterUtil.paintColorBar(gl, renderer, colorMapWind, I18n.text("Wind"), "kn", 0, maxWind);
+            ColorBarPainterUtil.paintColorBar(gl, colorMapWind, I18n.text("Wind"), "kn", 0, maxWind);
             gl.dispose();
             offsetHeight += offsetDelta;
         }
@@ -876,7 +876,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
             counter--;
             Graphics2D gl = (Graphics2D) go.create();
             gl.translate(offsetWidth, offsetHeight);
-            ColorBarPainterUtil.paintColorBar(gl, renderer, colorMapWaves, I18n.text("Waves"), "m", 0, maxWaves);
+            ColorBarPainterUtil.paintColorBar(gl, colorMapWaves, I18n.text("Waves"), "m", 0, maxWaves);
             gl.dispose();
             offsetHeight += offsetDelta;
         }
@@ -884,7 +884,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
             counter--;
             Graphics2D gl = (Graphics2D) go.create();
             gl.translate(offsetWidth, offsetHeight);
-            ColorBarPainterUtil.paintColorBar(gl, renderer, colorMapChlorophyll, I18n.text("Chlorophyll"), "mg/m\u00B3", minChlorophyll, maxChlorophyll);
+            ColorBarPainterUtil.paintColorBar(gl, colorMapChlorophyll, I18n.text("Chlorophyll"), "mg/m\u00B3", minChlorophyll, maxChlorophyll);
             gl.dispose();
             offsetHeight += offsetDelta;
         }

@@ -285,7 +285,7 @@ public class SLADataVisualization extends ConsoleLayer implements IPeriodicUpdat
         if (showSLA && showSLAColorbar) {
             Graphics2D gl = (Graphics2D) go.create();
             gl.translate(offsetWidth, offsetHeight);
-            ColorBarPainterUtil.paintColorBar(gl, renderer, colorMapSLA, I18n.text("SLA"), "m", minSLA, maxSLA);
+            ColorBarPainterUtil.paintColorBar(gl, colorMapSLA, I18n.text("SLA"), "m", minSLA, maxSLA);
             gl.dispose();
             offsetHeight += offsetDelta;
         }
