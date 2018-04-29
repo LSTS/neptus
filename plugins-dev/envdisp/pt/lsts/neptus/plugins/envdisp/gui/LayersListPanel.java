@@ -52,6 +52,7 @@ import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -67,8 +68,8 @@ import javax.swing.event.ChangeListener;
 
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.colormap.ColorBarPainter;
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.envdisp.loader.NetCDFLoader;
 import pt.lsts.neptus.plugins.envdisp.painter.GenericNetCDFDataPainter;
 import pt.lsts.neptus.util.GuiUtils;
@@ -165,7 +166,7 @@ public class LayersListPanel extends JPanel {
                                 try {
                                     GenericNetCDFDataPainter viz = get();
                                     if (viz != null) {
-                                        PluginUtils.editPluginProperties(viz, parentWindow, true);
+                                        // PluginUtils.editPluginProperties(viz, parentWindow, true);
                                         addVisualizationLayer(viz);
                                     }
                                 }
@@ -216,7 +217,8 @@ public class LayersListPanel extends JPanel {
     }
     
     private void addVisualizationLayer(GenericNetCDFDataPainter viz) {
-        JPanel hdr = new JPanel(new MigLayout("ins 5"));
+        JPanel hdr = new JPanel(new MigLayout("debug, ins 5"));
+        ColorBarPainter cbp = new ColorBarPainter();
         
         JToggleButton vOneButton = new JRadioButton();
         vOneButton.setSelected(viz.isShowVar());
@@ -229,7 +231,6 @@ public class LayersListPanel extends JPanel {
             }
         });
         // visibleOneButtonGroup.add(vOneButton);
-        hdr.add(vOneButton, "sg radio");
 
         JLabel lbl = new JLabel(viz.getPlotName());
         lbl.addMouseListener(new MouseAdapter() {
@@ -247,8 +248,8 @@ public class LayersListPanel extends JPanel {
                 pum.show(lbl, me.getX(), me.getY());
             }
         });
-        hdr.add(lbl, "sg name");
-
+        
+        // Min/Max section
         JSpinner spinnerMin = new JSpinner(new SpinnerNumberModel(viz.getMinValue(), -1E200, 1E200, 0.5));
         spinnerMin.setValue(viz.getMinValue());
         spinnerMin.setSize(new Dimension(100, 20));
@@ -261,9 +262,9 @@ public class LayersListPanel extends JPanel {
                 double val = (double) spinnerMin.getValue();
                 viz.setMinValue(val);
                 viz.getOffScreenLayer().triggerImageRebuild();
+                cbp.setMinVal(val);
             }
         });
-        hdr.add(spinnerMin, "sg minmax, w 100:100:");
 
         JSpinner spinnerMax = new JSpinner(new SpinnerNumberModel(viz.getMaxValue(), -1E200, 1E200, 0.5));
         spinnerMax.setValue(viz.getMaxValue());
@@ -277,22 +278,111 @@ public class LayersListPanel extends JPanel {
                 double val = (double) spinnerMax.getValue();
                 viz.setMaxValue(val);
                 viz.getOffScreenLayer().triggerImageRebuild();
+                cbp.setMaxVal(val);
             }
         });
-        hdr.add(spinnerMax, "sg minmax, w 100:100:");
+        JButton fitRangesToDataButton = new JButton(I18n.text("Fit"));
+        fitRangesToDataButton.addActionListener(new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                spinnerMin.setValue(viz.getInfo().minVal);
+                spinnerMax.setValue(viz.getInfo().maxVal);
+            }
+        });
+        
+        // ColorBar
+//        cbp.setPreferredSize(new Dimension(200, 50));
+//        cbp.setSize(new Dimension(100, 70));
+        cbp.setColormap(viz.getColorMapVar());
+        cbp.setMinVal(viz.getMinValue());
+        cbp.setMaxVal(viz.getMaxValue());
+        cbp.setLog10(viz.isLogColorMap());
 
-        JButton remButton = new JButton(I18n.text("Remove"));
+        JButton colormapButton = new JButton(I18n.text("Change"));
+        colormapButton.addActionListener(new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+            }
+        });
+        
+        JButton remButton = new JButton(I18n.text("\u2573"));
         remButton.addActionListener(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 holder.remove(hdr);
+                holder.invalidate();
+                holder.revalidate();
                 holder.repaint();
                 varLayersList.remove(viz);
             }
         });
-        hdr.add(remButton, "sg btn");
+
+        JButton upButton = new JButton("\u2206");
+        upButton.addActionListener(new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // TODO
+                holder.invalidate();
+                holder.revalidate();
+                holder.repaint();
+            }
+        });
+        JButton downButton = new JButton("\u2207");
+        downButton.addActionListener(new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // TODO
+                holder.invalidate();
+                holder.revalidate();
+                holder.repaint();
+            }
+        });
+
+        JCheckBox interpolateButton = new JCheckBox(I18n.text("Interpolate"));
+        interpolateButton.setSelected(viz.isInterpolate());
+        interpolateButton.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                viz.setInterpolate(interpolateButton.isSelected());
+            }
+        });
+
+        JCheckBox useLog10Button = new JCheckBox("log10");
+        useLog10Button.setSelected(viz.isLogColorMap());
+        useLog10Button.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                viz.setLogColorMap(useLog10Button.isSelected());
+                cbp.setLog10(viz.isLogColorMap());
+            }
+        });
+
+        // Layout
+        hdr.add(vOneButton, "sg radio");
+        hdr.add(lbl, "sg name, spanx 4, grow");
+        hdr.add(remButton, "align right, sg btnSmall, wrap");
+
+        hdr.add(new JLabel(I18n.text("Min") + ":"), "sg minMaxLbl");
+        hdr.add(spinnerMin, "sg minmax, w 100:100:");
+        hdr.add(new JLabel(I18n.text("Max") + ":"), "sg minMaxLbl");
+        hdr.add(spinnerMax, "sg minmax, w 100:100:");
+        hdr.add(fitRangesToDataButton, "sg btn");
+        hdr.add(upButton, "align right, sg btnSmall, wrap");
+        
+        hdr.add(cbp, "w 100:200:, h :40:, spanx 4, grow");
+        hdr.add(colormapButton, "sg btn");
+        hdr.add(downButton, "align right, sg btnSmall, wrap");
+        
+        hdr.add(new JLabel(I18n.text("Unit") + ":"), "spanx, split");
+        hdr.add(new JLabel(viz.getInfo().unit), "w 100:100:, grow");
+        hdr.add(useLog10Button, "align right");
+        hdr.add(interpolateButton, "align right, split");
+        
 
         holder.add(hdr, "h :30px:");
+        
+        this.invalidate();
+        this.revalidate();
         this.repaint();
         
         varLayersList.add(viz);
