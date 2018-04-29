@@ -217,20 +217,22 @@ public class LayersListPanel extends JPanel {
     }
     
     private void addVisualizationLayer(GenericNetCDFDataPainter viz) {
-        JPanel hdr = new JPanel(new MigLayout("debug, ins 5"));
+        viz.setShowVarColorbar(false);
+        viz.setShowVarLegend(false);
+        viz.setShowVarLegendFromZoomLevel(0);
+        
+        JPanel hdr = new JPanel(new MigLayout("ins 10, fillx"));
+
         ColorBarPainter cbp = new ColorBarPainter();
         
         JToggleButton vOneButton = new JRadioButton();
         vOneButton.setSelected(viz.isShowVar());
-        // rButton.setActionCommand(ms);
-        // rButton.setSelected(true);
         vOneButton.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
                 viz.setShowVar(vOneButton.isSelected());
             }
         });
-        // visibleOneButtonGroup.add(vOneButton);
 
         JLabel lbl = new JLabel(viz.getPlotName());
         lbl.addMouseListener(new MouseAdapter() {
@@ -291,8 +293,6 @@ public class LayersListPanel extends JPanel {
         });
         
         // ColorBar
-//        cbp.setPreferredSize(new Dimension(200, 50));
-//        cbp.setSize(new Dimension(100, 70));
         cbp.setColormap(viz.getColorMapVar());
         cbp.setMinVal(viz.getMinValue());
         cbp.setMaxVal(viz.getMaxValue());
@@ -302,10 +302,17 @@ public class LayersListPanel extends JPanel {
         colormapButton.addActionListener(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                JPopupMenu pum = new JPopupMenu();
+                pum.add(new AbstractAction(I18n.text("Edit")) {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                    }
+                });
+                pum.show(lbl, colormapButton.getX(), colormapButton.getY());
             }
         });
         
-        JButton remButton = new JButton(I18n.text("\u2573"));
+        JButton remButton = new JButton(I18n.text("\u00D7"));
         remButton.addActionListener(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -344,6 +351,7 @@ public class LayersListPanel extends JPanel {
             @Override
             public void itemStateChanged(ItemEvent e) {
                 viz.setInterpolate(interpolateButton.isSelected());
+                viz.getOffScreenLayer().triggerImageRebuild();
             }
         });
 
@@ -354,12 +362,39 @@ public class LayersListPanel extends JPanel {
             public void itemStateChanged(ItemEvent e) {
                 viz.setLogColorMap(useLog10Button.isSelected());
                 cbp.setLog10(viz.isLogColorMap());
+                viz.getOffScreenLayer().triggerImageRebuild();
             }
         });
 
+        JSpinner spinnerTrans = new JSpinner(new SpinnerNumberModel(50, 5, 100, 1));
+        spinnerTrans.setValue((int) (viz.getTransparency() / 255. * 100));
+        spinnerTrans.setSize(new Dimension(50, 20));
+        spinnerTrans.setToolTipText(I18n.text("This sets min scale value."));
+        ((JSpinner.NumberEditor) spinnerTrans.getEditor()).getTextField().setEditable(false);
+        ((JSpinner.NumberEditor) spinnerTrans.getEditor()).getTextField().setBackground(Color.WHITE);
+        spinnerTrans.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                int val = ((Integer) spinnerTrans.getValue()).intValue();
+                viz.setTransparency((int) (255 * (val / 100.)));
+                viz.getOffScreenLayer().triggerImageRebuild();
+            }
+        });
+
+        JCheckBox showNumbersButton = new JCheckBox("Show values");
+        showNumbersButton.setSelected(viz.isLogColorMap());
+        showNumbersButton.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                viz.setShowVarLegend(showNumbersButton.isSelected());
+                viz.getOffScreenLayer().triggerImageRebuild();
+            }
+        });
+        showNumbersButton.setEnabled(false);
+
         // Layout
         hdr.add(vOneButton, "sg radio");
-        hdr.add(lbl, "sg name, spanx 4, grow");
+        hdr.add(lbl, "sg name, spanx 5, grow");
         hdr.add(remButton, "align right, sg btnSmall, wrap");
 
         hdr.add(new JLabel(I18n.text("Min") + ":"), "sg minMaxLbl");
@@ -367,17 +402,19 @@ public class LayersListPanel extends JPanel {
         hdr.add(new JLabel(I18n.text("Max") + ":"), "sg minMaxLbl");
         hdr.add(spinnerMax, "sg minmax, w 100:100:");
         hdr.add(fitRangesToDataButton, "sg btn");
+        hdr.add(showNumbersButton, "align right");
         hdr.add(upButton, "align right, sg btnSmall, wrap");
         
         hdr.add(cbp, "w 100:200:, h :40:, spanx 4, grow");
         hdr.add(colormapButton, "sg btn");
+        hdr.add(new JLabel(I18n.text("Transp") + ":"), "split 2, align right");
+        hdr.add(spinnerTrans, "align right");
         hdr.add(downButton, "align right, sg btnSmall, wrap");
         
         hdr.add(new JLabel(I18n.text("Unit") + ":"), "spanx, split");
         hdr.add(new JLabel(viz.getInfo().unit), "w 100:100:, grow");
         hdr.add(useLog10Button, "align right");
         hdr.add(interpolateButton, "align right, split");
-        
 
         holder.add(hdr, "h :30px:");
         
