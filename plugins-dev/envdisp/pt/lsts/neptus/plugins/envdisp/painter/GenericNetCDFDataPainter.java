@@ -172,6 +172,13 @@ public class GenericNetCDFDataPainter {
     }
 
     /**
+     * @return the info
+     */
+    public Info getInfo() {
+        return info;
+    }
+    
+    /**
      * @return the varName
      */
     public String getVarName() {
