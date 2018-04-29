@@ -381,7 +381,8 @@ class ColorMapParser {
             Color[] colors = colorsV.toArray(new Color[colorsV.size()]);
             double[] values = ArrayUtils.toPrimitive(valuesV.toArray(new Double[valuesV.size()]));
             
-            System.out.println(ArrayUtils.toString(values));
+            if (debug)
+                System.out.println(ArrayUtils.toString(values));
             
             return new InterpolationColorMap(name, values, colors);
         }
