@@ -65,6 +65,7 @@ import org.apache.commons.lang3.ArrayUtils;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorMap;
+import pt.lsts.neptus.colormap.ColorMapUtils;
 import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.plugins.envdisp.datapoints.BaseDataPoint;
 import pt.lsts.neptus.plugins.envdisp.datapoints.ChlorophyllDataPoint;
@@ -704,7 +705,7 @@ public class EnvDataPaintHelper {
             boolean ignoreDateLimitToLoad, int offScreenBufferPixel, ColorMap colorMapVar,
             double minVar, double maxVar, boolean showVarLegend, int showVarLegendFromZoomLevel, 
             Font font8Pt, boolean showDataDebugLegend, AtomicBoolean abortIndicator,
-            PointPaintEnum paintType) {
+            PointPaintEnum paintType, boolean isLogColorMap) {
         
         if (dataPointsVar == null || dataPointsVar.isEmpty())
             return;
@@ -748,7 +749,10 @@ public class EnvDataPaintHelper {
                         gt.translate(pt.getX(), pt.getY());
                         //System.out.println(pt);
                         Color color = Color.WHITE;
-                        color = colorMapVar.getColor((sla - minVar) / (maxVar - minVar));
+                        if (!isLogColorMap)
+                            color = colorMapVar.getColor(ColorMapUtils.getColorIndexZeroToOne(sla, minVar, maxVar));
+                        else
+                            color = colorMapVar.getColor(ColorMapUtils.getColorIndexZeroToOneLog10(sla, minVar, maxVar));
                         if (pVal.second().before(dateColorLimit)) //if (dp.getDateUTC().before(dateColorLimit))
                             color = ColorUtils.setTransparencyToColor(color, transparency / 2);
                         else
@@ -820,7 +824,11 @@ public class EnvDataPaintHelper {
                         try {
                             Pair<ArrayList<Object>, Date> pVal = ptDataMap.get(pt);
                             double sla = (double) pVal.first().get(0);
-                            Color color = colorMapVar.getColor((sla - minVar) / (maxVar - minVar));
+                            Color color = Color.WHITE;
+                            if (!isLogColorMap)
+                                color = colorMapVar.getColor(ColorMapUtils.getColorIndexZeroToOne(sla, minVar, maxVar));
+                            else
+                                color = colorMapVar.getColor(ColorMapUtils.getColorIndexZeroToOneLog10(sla, minVar, maxVar));
                             if (pVal.second().before(dateColorLimit)) //if (dp.getDateUTC().before(dateColorLimit))
                                 color = ColorUtils.setTransparencyToColor(color, transparency);
                             else

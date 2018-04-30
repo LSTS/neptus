@@ -367,7 +367,7 @@ public class GenericNetCDFDataPainter {
                                 EnvDataPaintHelper.paintGenericInGraphics(rendererCalculator, g2, (int) MathMiscUtils.clamp(transparency, 10, 255),
                                         dateColorLimit, dateLimit, dataPointsVar, ignoreDateLimitToLoad, 
                                         offScreen.getOffScreenBufferPixel(), colorMapVar, minValue, maxValue, showVarLegend, 
-                                        showVarLegendFromZoomLevel, font, showDataDebugLegend, abortIndicator, paintType);
+                                        showVarLegendFromZoomLevel, font, showDataDebugLegend, abortIndicator, paintType, isLogColorMap);
                             }
                             catch (Exception e) {
                                 e.printStackTrace();
