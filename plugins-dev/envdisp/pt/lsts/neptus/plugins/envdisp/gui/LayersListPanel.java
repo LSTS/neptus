@@ -184,6 +184,10 @@ public class LayersListPanel extends JPanel {
                         };
                         sw.execute();
                     }
+                    else {
+                        source.setEnabled(true);
+                        NetCDFLoader.deleteNetCDFUnzippedFile(fx);
+                    }
                     
                     recentFolder = fx;
                 }
