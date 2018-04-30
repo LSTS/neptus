@@ -413,7 +413,7 @@ public class LayersListPanel extends JPanel {
 
         // Layout
         hdr.add(vOneButton, "sg radio, spanx 6, split 2");
-        hdr.add(lbl, "sg name, spanx 5, grow, split");
+        hdr.add(lbl, "sg name, spanx 5, grow");
         hdr.add(remButton, "align right, sg btnSmall, wrap");
 
         hdr.add(new JLabel(I18n.text("Min") + ":"), "sg minMaxLbl");
@@ -426,14 +426,15 @@ public class LayersListPanel extends JPanel {
         
         hdr.add(cbp, "w 100:200:, h :40:, spanx 4, grow");
         hdr.add(colormapButton, "sg btn");
-        hdr.add(new JLabel(I18n.text("Transp") + ":"), "split 2, align right");
+        hdr.add(new JLabel(I18n.text("Transp") + ":"), "split 3, align right");
         hdr.add(spinnerTrans, "align right");
+        hdr.add(new JLabel("%"), "align right");
         hdr.add(downButton, "align right, sg btnSmall, wrap");
         
         hdr.add(new JLabel(I18n.text("Unit") + ":"), "spanx, split");
         hdr.add(new JLabel(viz.getInfo().unit), "w 100:100:, grow");
         hdr.add(useLog10Button, "align right");
-        hdr.add(interpolateButton, "align right, split");
+        hdr.add(interpolateButton, "align right");
 
         holder.add(hdr, "h :30px:");
         
