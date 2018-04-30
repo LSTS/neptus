@@ -390,7 +390,6 @@ public class LayersListPanel extends JPanel {
                 viz.getOffScreenLayer().triggerImageRebuild();
             }
         });
-        showNumbersButton.setEnabled(false);
 
         // Layout
         hdr.add(vOneButton, "sg radio");
