@@ -34,6 +34,7 @@ package pt.lsts.neptus.plugins.envdisp.gui;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
@@ -49,10 +50,10 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import javax.swing.AbstractAction;
 import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -69,6 +70,8 @@ import javax.swing.event.ChangeListener;
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorBarPainter;
+import pt.lsts.neptus.colormap.ColorMap;
+import pt.lsts.neptus.gui.ColorMapListRenderer;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.envdisp.loader.NetCDFLoader;
 import pt.lsts.neptus.plugins.envdisp.painter.GenericNetCDFDataPainter;
@@ -98,7 +101,6 @@ public class LayersListPanel extends JPanel {
     private JScrollPane scrollHolder;
     private JButton addButton;
     private AbstractAction addAction;
-    private ButtonGroup visibleOneButtonGroup = new ButtonGroup();
 
     public LayersListPanel() {
         this(null);
@@ -303,11 +305,29 @@ public class LayersListPanel extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 JPopupMenu pum = new JPopupMenu();
-                pum.add(new AbstractAction(I18n.text("Edit")) {
+                JComboBox<ColorMap> combo = new JComboBox<ColorMap>(
+                        ColorMap.cmaps.toArray(new ColorMap[ColorMap.cmaps.size()])) {
                     @Override
-                    public void actionPerformed(ActionEvent e) {
+                    public Point getLocationOnScreen() {
+                        return colormapButton.getLocationOnScreen();
+                    }
+                };
+                combo.setRenderer(new ColorMapListRenderer());
+                combo.setSelectedIndex(1);
+                ColorMap match = ColorMap.cmaps.stream()
+                        .filter(c -> viz.getColorMapVar().toString().equalsIgnoreCase(c.toString())).findFirst()
+                        .orElse(null);
+                if (match != null)
+                    combo.setSelectedItem(viz.getColorMapVar());
+                combo.addActionListener(ae -> {
+                    if ((ColorMap) combo.getSelectedItem() != viz.getColorMapVar()) {
+                        viz.setColorMapVar((ColorMap) combo.getSelectedItem());
+                        cbp.setColormap(viz.getColorMapVar());
+                        viz.getOffScreenLayer().triggerImageRebuild();
                     }
                 });
+                combo.showPopup();
+                pum.add(combo);
                 pum.show(lbl, colormapButton.getX(), colormapButton.getY());
             }
         });
