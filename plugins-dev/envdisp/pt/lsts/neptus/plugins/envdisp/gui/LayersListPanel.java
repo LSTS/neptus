@@ -412,8 +412,8 @@ public class LayersListPanel extends JPanel {
         });
 
         // Layout
-        hdr.add(vOneButton, "sg radio");
-        hdr.add(lbl, "sg name, spanx 5, grow");
+        hdr.add(vOneButton, "sg radio, spanx 6, split 2");
+        hdr.add(lbl, "sg name, spanx 5, grow, split");
         hdr.add(remButton, "align right, sg btnSmall, wrap");
 
         hdr.add(new JLabel(I18n.text("Min") + ":"), "sg minMaxLbl");
