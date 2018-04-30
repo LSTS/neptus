@@ -33,6 +33,7 @@ package pt.lsts.neptus.comm.manager.imc;
 
 import java.io.IOException;
 import java.net.Inet4Address;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URL;
@@ -1161,6 +1162,8 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         String sia = info.getPublisherInetAddress();
         NeptusLog.pub().debug("processAnnounceMessage for " + ann.getSysName() + "@" + id + " :: publisher host address " + sia);
         
+        boolean hostWasGuessed = true;
+        
         InetSocketAddress[] retId = announceWorker.getImcIpsPortsFromMessageImcUdp(ann);
         int portUdp = 0;
         String hostUdp = "";
@@ -1175,6 +1178,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                     udpIpPortFound = true;
                     portUdp = add.getPort();
                     hostUdp = add.getAddress().getHostAddress();
+                    hostWasGuessed = false;
                     NeptusLog.pub().debug("processAnnounceMessage for " + ann.getSysName() + "@" + id + " :: " + "UDP reachable @ " + hostUdp + ":" + portUdp);
                     break;
                 }
@@ -1183,6 +1187,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         if (!udpIpPortFound) {
             // Lets try to see if we received a message from any of the IPs
             String ipReceived = hostUdp.isEmpty() ? info.getPublisherInetAddress() : hostUdp;
+            hostWasGuessed = hostUdp.isEmpty() ? hostWasGuessed : true;
             hostUdp = ipReceived;
             udpIpPortFound = true;
             NeptusLog.pub().debug("processAnnounceMessage for " + ann.getSysName() + "@" + id + " :: " + "no UDP reachable using " + hostUdp + ":" + portUdp);
@@ -1202,6 +1207,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                     if (add.getAddress().isReachable(10)) {
                         tcpIpPortFound = true;
                         hostUdp = add.getAddress().getHostAddress();
+                        hostWasGuessed = false;
                         portTcp = add.getPort();
                         NeptusLog.pub().debug("processAnnounceMessage for " + ann.getSysName() + "@" + id + " :: " + "TCP reachable @ " + hostUdp + ":" + portTcp);
                         break;
@@ -1216,7 +1222,9 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
             }
         }
 
-        NeptusLog.pub().debug("processAnnounceMessage for " + ann.getSysName() + "@" + id + " :: " + "using UDP@" + hostUdp + ":" + portUdp + " and using TCP@" + hostUdp + ":" + portTcp);
+        NeptusLog.pub().debug("processAnnounceMessage for " + ann.getSysName() + "@" + id + " :: " + "using UDP@" + hostUdp
+                        + ":" + portUdp + " and using TCP@" + hostUdp + ":" + portTcp + "  with host "
+                        + (hostWasGuessed ? "guessed" : "found"));
 
         boolean requestEntityList = false;
         if (vci == null) {
@@ -1257,13 +1265,83 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                     resSys.setRemoteUDPPort(DEFAULT_UDP_VEH_PORT);
             }
             if (!"".equalsIgnoreCase(hostUdp) && !AnnounceWorker.NONE_IP.equalsIgnoreCase(hostUdp)) {
+                hostWasGuessed = true;
                 if (AnnounceWorker.USE_REMOTE_IP.equalsIgnoreCase(hostUdp)) {
                     if (dontIgnoreIpSourceRequest)
                         resSys.setHostAddress(info.getPublisherInetAddress());
                 }
                 else {
-                    if (udpIpPortFound || tcpIpPortFound)
+                    if ((udpIpPortFound || tcpIpPortFound) && !hostWasGuessed) {
                         resSys.setHostAddress(hostUdp);
+                    }
+                    else if (hostWasGuessed) {
+                        boolean alreadyFound = false;
+                        try {
+                            Map<InetSocketAddress, Integer> fAddr = new LinkedHashMap<>();
+                            InetAddress publisherIAddr = InetAddress.getByName(sia);
+                            byte[] pba = publisherIAddr.getAddress();
+                            int i = 0;
+                            for (InetSocketAddress inetSAddr : retId) {
+                                byte[] lta = inetSAddr.getAddress().getAddress();
+                                if (lta.length != pba.length)
+                                    continue;
+                                i = 0;
+                                for (; i < lta.length; i++) {
+                                    if (pba[i] != lta[i])
+                                        break;
+                                }
+                                if (i > 0 && i <= pba.length)
+                                    fAddr.put(inetSAddr, i);
+                            }
+                            for (InetSocketAddress inetSAddr : retIdT) {
+                                if (fAddr.containsKey(inetSAddr))
+                                    continue;
+                                byte[] lta = inetSAddr.getAddress().getAddress();
+                                if (lta.length != pba.length)
+                                    continue;
+                                i = 0;
+                                for (; i < lta.length; i++) {
+                                    if (pba[i] != lta[i])
+                                        break;
+                                }
+                                if (i > 0 && i <= pba.length)
+                                    fAddr.put(inetSAddr, i);
+                            }
+                            
+                            InetSocketAddress foundCandidateAddr = fAddr.keySet().stream().max((a1, a2) -> {
+                                    return fAddr.get(a1) - fAddr.get(a2);
+                                }).orElse(null);
+                            if (foundCandidateAddr != null) {
+                                resSys.setHostAddress(foundCandidateAddr.getAddress().getHostAddress());
+                                alreadyFound = true;
+                            }
+                        }
+                        catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        
+                        if (!alreadyFound) {
+                            String curHostAddr = resSys.getHostAddress();
+                            boolean currIsInAnnounce = false;
+                            for (InetSocketAddress inetSAddr : retId) {
+                                if (curHostAddr.equalsIgnoreCase(inetSAddr.getAddress().getHostAddress())) {
+                                    currIsInAnnounce = true;
+                                    break;
+                                }
+                            }
+                            if (!currIsInAnnounce) {
+                                for (InetSocketAddress inetSAddr : retIdT) {
+                                    if (curHostAddr.equalsIgnoreCase(inetSAddr.getAddress().getHostAddress())) {
+                                        currIsInAnnounce = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            
+                            if (!currIsInAnnounce)
+                                resSys.setHostAddress(hostUdp);
+                        }
+                    }
                 }
             }
             if (portTcp != 0 && tcpIpPortFound) {
@@ -1280,6 +1358,9 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
             else {
                 resSys.setUDPOn(true);
             }
+
+            NeptusLog.pub().debug("processAnnounceMessage for " + ann.getSysName() + "@" + id + " :: " + "final setup UDP@" + resSys.getHostAddress()
+                    + ":" + resSys.getRemoteUDPPort() + " and using TCP@" + resSys.getHostAddress() + ":" + resSys.getRemoteTCPPort());
 
             resSys.setOnAnnounceState(true);
 
