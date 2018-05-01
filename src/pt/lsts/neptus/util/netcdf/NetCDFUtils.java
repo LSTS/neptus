@@ -41,6 +41,7 @@ import java.util.Map;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.data.Pair;
 import ucar.ma2.Array;
+import ucar.ma2.Index;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
@@ -111,7 +112,26 @@ public class NetCDFUtils {
      */
     public static Date[] getTimeValues(Array timeArray, int timeIdx, double timeMultiplier, double timeOffset,
             Date fromDate, Date toDate, boolean ignoreDateLimitToLoad, Date dateLimit) {
-        double timeVal = timeArray.getDouble(timeIdx); // get(timeIdx);
+        return getTimeValues(timeArray, new int[] { timeIdx }, timeMultiplier, timeOffset, fromDate, toDate,
+                ignoreDateLimitToLoad, dateLimit);
+    }
+
+    /**
+     * @param timeArray
+     * @param timeIdx
+     * @param timeMultiplier
+     * @param timeOffset
+     * @param fromDate
+     * @param toDate
+     * @param ignoreDateLimitToLoad
+     * @param dateLimit
+     * @return
+     */
+    public static Date[] getTimeValues(Array timeArray, int[] timeIdx, double timeMultiplier, double timeOffset,
+            Date fromDate, Date toDate, boolean ignoreDateLimitToLoad, Date dateLimit) {
+        Index index = timeArray.getIndex();
+        index.set(timeIdx);
+        double timeVal = timeArray.getDouble(index); // get(timeIdx);
         Date dateValue = new Date((long) (timeVal * timeMultiplier + timeOffset));
         
         if (!ignoreDateLimitToLoad && dateValue.before(dateLimit))
