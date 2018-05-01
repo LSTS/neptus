@@ -63,7 +63,11 @@ public class NetCDFUtils {
     public static final String NETCDF_ATT_SCALE_FACTOR = "scale_factor";
     public static final String NETCDF_ATT_ADD_OFFSET = "add_offset";
     public static final String NETCDF_ATT_COMMENT = "comment";
+    public static final String NETCDF_ATT_AXIS = "axis";
     public static final String NETCDF_ATT_STEP = "step";
+    
+    public static final String NETCDF_GRP_NAVIGATION_DATA = "navigation_data";
+    public static final String NETCDF_GRP_GEOPHYSICAL_DATA = "geophysical_data";
 
     /**
      * Counts the evolution of a multi-for loop variables counters.

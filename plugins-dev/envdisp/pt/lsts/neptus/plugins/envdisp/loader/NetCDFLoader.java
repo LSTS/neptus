@@ -35,10 +35,13 @@ package pt.lsts.neptus.plugins.envdisp.loader;
 import java.awt.Window;
 import java.io.File;
 import java.io.IOException;
+import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
@@ -65,6 +68,8 @@ import pt.lsts.neptus.util.netcdf.NetCDFUtils;
 import ucar.ma2.Array;
 import ucar.ma2.Index;
 import ucar.nc2.Attribute;
+import ucar.nc2.Dimension;
+import ucar.nc2.Group;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
@@ -313,7 +318,7 @@ public class NetCDFLoader {
      * @param parentWindow
      * @return The variable chosen or null if cancelled.
      */
-    public static <W extends Window> Variable showChooseVar(String fileName, NetcdfFile dataFile, W parentWindow) {
+    public static <W extends Window> Variable showChooseVarOld(String fileName, NetcdfFile dataFile, W parentWindow) {
         Map<String, Variable> varToConsider = NetCDFUtils.getMultiDimensionalVariables(dataFile);
         
         Pair<String, Variable> searchPair = NetCDFUtils.findVariableForStandardNameOrName(dataFile, fileName, true, "latitude", "lat");
@@ -374,7 +379,128 @@ public class NetCDFLoader {
     
         return choiceOpt == null ? null : varToConsider.get(((JLabel) choiceOpt).getText());
     }
+
+    public static <W extends Window> Variable showChooseVar(String fileName, NetcdfFile dataFile, W parentWindow) {
+        List<Dimension> dimsRoot = dataFile.getDimensions();
+        
+        Map<String, Group> groupList = new HashMap<>();
+        
+        Map<String, Variable> varToConsider = NetCDFUtils.getVariables(dataFile, 2); // Choose variables with dim > 2
+        
+        for (String varStr : varToConsider.keySet().toArray(new String[varToConsider.size()])) {
+            boolean isRemoved = false;
+
+            // Remove vars that are root dimensions
+            for (Dimension dimStr : dimsRoot) {
+                if (varStr.equalsIgnoreCase(dimStr.getShortName())) {
+                    varToConsider.remove(varStr);
+                    isRemoved = true;
+                    break;
+                }
+            }
+            
+            if (isRemoved)
+                continue;
+
+            // Collect groups
+            Variable var = varToConsider.get(varStr);
+            Group grp = var.getGroup();
+            if (grp != null && !grp.getShortName().isEmpty() && !groupList.containsKey(grp.getShortName()))
+                groupList.put(grp.getShortName(), grp);
+
+            // Remove if an axis attribute
+            if (var.findAttribute(NetCDFUtils.NETCDF_ATT_AXIS) != null) {
+                varToConsider.remove(varStr);
+                continue;
+            }
+
+            for (String sn : new String[] {"lat", "latitude", "lon", "longitude", "time", "lat_bnds", "lon_bnds"}) {
+                if (sn.equalsIgnoreCase(var.getShortName())) {
+                    varToConsider.remove(varStr);
+                    isRemoved = true;
+                    break;
+                }
+            }
+
+            Attribute stdName = var.findAttribute(NetCDFUtils.NETCDF_ATT_STANDARD_NAME);
+            if (stdName != null) {
+                for (String sn : new String[] {"latitude", "longitude", "time"}) {
+                    if (sn.equalsIgnoreCase(stdName.getStringValue())) {
+                        varToConsider.remove(varStr);
+                        isRemoved = true;
+                        break;
+                    }
+                }
+            }
+        }
+        
+        boolean geoVarGroupExist = groupList.keySet().stream()
+                .anyMatch(s -> s.equalsIgnoreCase(NetCDFUtils.NETCDF_GRP_GEOPHYSICAL_DATA));
+        if (geoVarGroupExist) {
+            // Remove all that not on the group
+            for (String varStr : varToConsider.keySet().toArray(new String[varToConsider.size()])) {
+                Variable v = varToConsider.get(varStr);
+                if (!NetCDFUtils.NETCDF_GRP_GEOPHYSICAL_DATA.equalsIgnoreCase(v.getGroup().getShortName()))
+                    varToConsider.remove(varStr);
+            }
+        }
+        
+        if (varToConsider.isEmpty()) {
+            GuiUtils.infoMessage(parentWindow, I18n.text("Error loading"), I18n.text("Missing variables in data"));
+            return null;
+        }
+        
+        // Removing the ones that don't have location info
+        // TODO
+        
+        ArrayList<JLabel> choicesVarsLbl = new ArrayList<>();
+        ArrayList<String> keys = new ArrayList<>(varToConsider.keySet());
+        Collections.sort(keys, (e1, e2) -> Collator.getInstance().compare(varToConsider.get(e1).getFullName(),
+                varToConsider.get(e2).getFullName()));
+        for (String vName : keys) {
+            Variable var = varToConsider.get(vName);
+            StringBuilder sb = new StringBuilder("<html><b>");
+            Info info = NetCDFLoader.createInfoBase(var);
+            sb.append(vName);
+            sb.append(" :: ");
+            sb.append(info.fullName);
+            sb.append("</b><br/>");
+            sb.append("std='");
+            sb.append(info.standardName);
+            sb.append("'");
+            sb.append("<br/>");
+            sb.append("unit='");
+            sb.append(info.unit);
+            sb.append("'");
+            sb.append("<br/>");
+            sb.append("comment='");
+            String cmt = StringUtils.wrapEveryNChars(info.comment, (short) 60);
+            cmt = cmt.replaceAll("\n", "<br/>");
+            sb.append(cmt);
+            sb.append("'");
+            sb.append("<html>");
+
+            @SuppressWarnings("serial")
+            JLabel l = new JLabel(vName) {
+                @Override
+                public String toString() {
+                    return sb.toString();
+                }
+            };
+            choicesVarsLbl.add(l);
+        }
+        if (choicesVarsLbl.isEmpty()) {
+            GuiUtils.infoMessage(parentWindow, I18n.text("Info"),
+                    I18n.textf("No valid variables in data with dimentions (%s)", "<time>; lat; lon; <depth>"));
+            return null;
+        }
+        Object choiceOpt = JOptionPane.showInputDialog(parentWindow, I18n.text("Choose one of the vars"),
+                I18n.text("Chooser"), JOptionPane.QUESTION_MESSAGE, null,
+                choicesVarsLbl.toArray(new JLabel[choicesVarsLbl.size()]), 0);
     
+        return choiceOpt == null ? null : varToConsider.get(((JLabel) choiceOpt).getText());
+    }
+
     /**
      * This method will load a varName into a {@link GenericNetCDFDataPainter} and fill in the properties of it.
      * 
@@ -405,24 +531,84 @@ public class NetCDFLoader {
         return fTask;
     }
     
+    @SuppressWarnings("unused")
     public static void main(String[] args) throws Exception {
-        NetcdfFile dataFile = null;
         
-        String fileName = "../nrt_global_allsat_phy_l4_latest.nc.gz";
-        dataFile = NetcdfFile.open(fileName, null);
-        
-        List<Variable> vars = dataFile.getVariables();
-        for (Variable v : vars) {
-            System.out.println(String.format("'%s'  '%s' '%s' '%d' '%s'  '%s'", v.getShortName(), v.getFullName(), v.getDescription(), v.getDimensions().size(),
-                    v.getDimensionsString(), v.getRanges()));
+        if (false) {
+            NetcdfFile dataFile = null;
+            
+            String fileName = "../nrt_global_allsat_phy_l4_latest.nc.gz";
+            dataFile = NetcdfFile.open(fileName, null);
+            
+            List<Variable> vars = dataFile.getVariables();
+            for (Variable v : vars) {
+                System.out.println(String.format("'%s'  '%s' '%s' '%d' '%s'  '%s'", v.getShortName(), v.getFullName(), v.getDescription(), v.getDimensions().size(),
+                        v.getDimensionsString(), v.getRanges()));
+            }
+            System.out.println();
+            
+            HashMap<String, GenericDataPoint> data = processFileForVariable(dataFile, "sla", null);
+            // data.keySet().stream().forEachOrdered(k -> System.out.println(data.get(k)));
+            String[] keys = data.keySet().toArray(new String[0]);
+            for (int i = 0; i < Math.min(10, data.size()); i++) {
+                System.out.println(keys[i] + " -> " + data.get(keys[i]));
+            }
         }
-        System.out.println();
         
-        HashMap<String, GenericDataPoint> data = processFileForVariable(dataFile, "sla", null);
-        // data.keySet().stream().forEachOrdered(k -> System.out.println(data.get(k)));
-        String[] keys = data.keySet().toArray(new String[0]);
-        for (int i = 0; i < Math.min(10, data.size()); i++) {
-            System.out.println(keys[i] + " -> " + data.get(keys[i]));
+        if (true) {
+            NetcdfFile dataFile = null;
+            
+//            String fileName = "../A2018116215500.L2_LAC.S3160_SOI.nc";
+            String fileName = "../nrt_global_allsat_phy_l4_latest.nc.gz";
+            dataFile = NetcdfFile.open(fileName, null);
+            
+            List<Dimension> dims = dataFile.getDimensions();
+            for (Dimension d : dims) {
+                System.out.println("dim " + d.getShortName() + "   " + d.getLength());
+            }
+            
+           Group rootGroup = dataFile.getRootGroup();
+           System.out.println(String.format("root group: ", rootGroup.getShortName()));
+           
+           List<Attribute> globalAtt = dataFile.getGlobalAttributes();
+           for (Attribute att : globalAtt) {
+//               System.out.println(String.format("Global Att: %s == %s", att.getShortName(), att.getValues()));
+           }
+           
+           System.out.println(dataFile.getDetailInfo());
+           
+           List<Variable> varsL = dataFile.getVariables();
+           for (Variable v : varsL) {
+                System.out.println(String.format("Variable: %s :: %s >> Group='%s'::'%s' ParentGroup='%s'  Dim='%s'::'%s'", v.getShortName(), v.getFullName(),
+                        v.getGroup().getShortName(), v.getGroup().getFullName(), v.getParentGroup().getShortName(),
+                        v.getDimensions(), v.getDimensionsString()));
+            }
+           
+                      
+           fileName = "../A2018116215500.L2_LAC.S3160_SOI.nc";
+           Variable choiceVar = showChooseVar(fileName, dataFile, null);
+           System.out.println(String.format("Choice is '%s'", choiceVar.getShortName()));
+           
+           fileName = "../nrt_global_allsat_phy_l4_latest.nc.gz";
+           dataFile = NetcdfFile.open(fileName, null);
+           choiceVar = showChooseVar(fileName, dataFile, null);
+           System.out.println(String.format("Choice is '%s'", choiceVar.getShortName()));
+           
+           fileName = "../20180416184057-MAR-L2P_GHRSST-SSTskin-SLSTRA-20180416204859-v02.0-fv01.0.nc";
+           dataFile = NetcdfFile.open(fileName, null);
+           choiceVar = showChooseVar(fileName, dataFile, null);
+           System.out.println(String.format("Choice is '%s'", choiceVar.getShortName()));
+
+           fileName = "../marmenor_his.nc";
+           dataFile = NetcdfFile.open(fileName, null);
+           choiceVar = showChooseVar(fileName, dataFile, null);
+           System.out.println(String.format("Choice is '%s'", choiceVar.getShortName()));
+           
+           fileName = "../temperature_salinity_STF_10042018.nc";
+           dataFile = NetcdfFile.open(fileName, null);
+           choiceVar = showChooseVar(fileName, dataFile, null);
+           System.out.println(String.format("Choice is '%s'", choiceVar.getShortName()));
+
         }
     }
 }
