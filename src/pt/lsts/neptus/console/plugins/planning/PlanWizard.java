@@ -53,9 +53,12 @@ import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.MissionChangeListener;
 import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
+import pt.lsts.neptus.mp.maneuvers.FollowPath;
 import pt.lsts.neptus.mp.maneuvers.FollowTrajectory;
+import pt.lsts.neptus.mp.maneuvers.Goto;
 import pt.lsts.neptus.mp.maneuvers.PopUp;
 import pt.lsts.neptus.mp.maneuvers.ScheduledGoto;
 import pt.lsts.neptus.plugins.NeptusProperty;
@@ -236,18 +239,28 @@ public class PlanWizard extends ConsolePanel implements MissionChangeListener {
         
         PlanType generated = new PlanType(getConsole().getMission());
         
-        ScheduledGoto man1 = new ScheduledGoto();
+        Maneuver man1;
         int manId = 1;
-        man1.setId(""+manId++);
-        
-        man1.setManeuverLocation(createLoc(coverage.remove(0)));
-        
-        long lastPopup = System.currentTimeMillis();
+        LocationType lastLoc;
         long curTime = System.currentTimeMillis() + options.getSelection().startInMins * 60_000;
-        man1.setArrivalTime(new Date(curTime));
-        generated.getGraph().addManeuverAtEnd(man1);
-        
-        LocationType lastLoc = new LocationType(man1.getManeuverLocation());
+        if (options.getSelection().timedPlan) {
+            ScheduledGoto m1 = new ScheduledGoto();
+            man1 = m1;
+            m1.setId(""+manId++);
+            m1.setManeuverLocation(createLoc(coverage.remove(0)));            
+            m1.setArrivalTime(new Date(curTime));
+            generated.getGraph().addManeuverAtEnd(man1);
+            lastLoc = new LocationType(m1.getManeuverLocation());        
+        }
+        else {
+            Goto m1 = new Goto();
+            man1 = m1;
+            m1.setId(""+manId++);
+            m1.setManeuverLocation(createLoc(coverage.remove(0)));
+            generated.getGraph().addManeuverAtEnd(man1);
+            lastLoc = new LocationType(m1.getManeuverLocation());
+        }
+        long lastPopup = System.currentTimeMillis();
         
         FollowTrajectory traj = null;
         
@@ -275,11 +288,16 @@ public class PlanWizard extends ConsolePanel implements MissionChangeListener {
             }
             
             if (traj == null) {
-                traj = new FollowTrajectory();
+                if (options.getSelection().timedPlan)
+                    traj = new FollowTrajectory();
+                else
+                    traj = new FollowPath();
+                
                 traj.setManeuverLocation(createLoc(lastLoc));
                 Vector<double[]> curPath = new Vector<>();
                 curPath.add(new double[] {0, 0, 0, 0});
                 traj.setOffsets(curPath);            
+                traj.setId(""+manId++);
             }
             
             Vector<double[]> curPath = new Vector<>();
