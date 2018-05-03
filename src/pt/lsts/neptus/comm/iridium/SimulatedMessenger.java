@@ -36,21 +36,18 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Vector;
 
+import com.amazonaws.util.IOUtils;
 import com.google.common.eventbus.Subscribe;
 
 import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.io.IOUtils;
 import pt.lsts.imc.IridiumMsgRx;
 import pt.lsts.imc.IridiumMsgTx;
-import pt.lsts.imc.TextMessage;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.events.NeptusEvents;
@@ -58,7 +55,7 @@ import pt.lsts.neptus.util.ByteUtil;
 
 /**
  * @author zp
- * 
+ *
  */
 @IridiumProvider(id = "sim", name = "Simulated Messenger", description = "This messenger posts the Iridium message "
         + "directly in the bus of the destination via IMC. Used only for debug / simulation purposes")
@@ -69,8 +66,12 @@ public class SimulatedMessenger implements IridiumMessenger {
     protected HashSet<IridiumMessageListener> listeners = new HashSet<>();
 
     protected String serverUrl = "http://ripples.lsts.pt/api/v1/";
-    protected String messagesUrl = serverUrl+"iridium";
+    protected String messagesUrl = serverUrl+"irsim";
     protected int timeoutMillis = 10000;
+
+    public SimulatedMessenger() {
+        ImcMsgManager.getManager().registerBusListener(this);
+    }
 
     @Override
     public void addListener(IridiumMessageListener listener) {
@@ -82,47 +83,38 @@ public class SimulatedMessenger implements IridiumMessenger {
         listeners.remove(listener);
     }
 
-    public SimulatedMessenger() {
-        ImcMsgManager.getManager().registerBusListener(this);
-    }
-
     @Subscribe
     public void on(IridiumMsgTx tx) throws Exception {
 
-        ImcIridiumMessage msg = new ImcIridiumMessage();
-        msg.setSource(tx.getSrc());
-        msg.setDestination(tx.getDst());
-        msg.timestampMillis = tx.getTimestampMillis();
-        msg.msg = tx;
-        msg.serialize();
+            IridiumMessage m = IridiumMessage.deserialize(tx.getData());
 
-        byte[] data = msg.serialize();
-        data = new String(Hex.encodeHex(data)).getBytes();
+            byte[] data = m.serialize();
+            data = new String(Hex.encodeHex(data)).getBytes();
 
-        URL u = new URL(messagesUrl);
-        HttpURLConnection conn = (HttpURLConnection) u.openConnection();
-        conn.setDoOutput(true);
-        conn.setRequestMethod( "POST" );
-        conn.setRequestProperty( "Content-Type", "application/hub" );
-        conn.setRequestProperty( "Content-Length", String.valueOf(data.length * 2) );
-        conn.setConnectTimeout(timeoutMillis);
+            URL u = new URL(messagesUrl);
+            HttpURLConnection conn = (HttpURLConnection) u.openConnection();
+            conn.setDoOutput(true);
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/hub");
+            conn.setRequestProperty("Content-Length", String.valueOf(data.length * 2));
+            conn.setConnectTimeout(timeoutMillis);
 
-        OutputStream os = conn.getOutputStream();
-        os.write(data);
-        os.close();
+            OutputStream os = conn.getOutputStream();
+            os.write(data);
+            os.close();
 
-        NeptusLog.pub().info(messagesUrl + " : " + conn.getResponseCode() + " " + conn.getResponseMessage());
+            NeptusLog.pub().info(messagesUrl + " : " + conn.getResponseCode() + " " + conn.getResponseMessage());
 
-        InputStream is = conn.getInputStream();
-        ByteArrayOutputStream incoming = new ByteArrayOutputStream();
-        IOUtils.copy(is, incoming);
-        is.close();
+            InputStream is = conn.getInputStream();
+            ByteArrayOutputStream incoming = new ByteArrayOutputStream();
+            IOUtils.copy(is, incoming);
+            is.close();
 
-        NeptusLog.pub().info("Sent " + msg.getClass().getSimpleName() + " through HTTP: " + conn.getResponseCode() + " " + conn.getResponseMessage());
-        
-        if (conn.getResponseCode() != 200) {
-            throw new Exception("Server returned " + conn.getResponseCode() + ": " + conn.getResponseMessage());
-        }
+            NeptusLog.pub().info("Sent " + m.getClass().getSimpleName() + " through HTTP: " + conn.getResponseCode() + " " + conn.getResponseMessage());
+
+            if (conn.getResponseCode() != 200) {
+                throw new Exception("Server returned " + conn.getResponseCode() + ": " + conn.getResponseMessage());
+            }
     }
 
     @Override
@@ -150,7 +142,7 @@ public class SimulatedMessenger implements IridiumMessenger {
     public String getName() {
         return "Simulated messenger";
     }
-    
+
     @Override
     public String toString() {
         return getName();
