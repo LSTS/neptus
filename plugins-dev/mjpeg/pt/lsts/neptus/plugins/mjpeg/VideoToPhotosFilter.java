@@ -91,7 +91,7 @@ public class VideoToPhotosFilter implements MRAExporter{
         int numberOfPhotos = 0;  
         File dir;
         File positions;
-        String header = "timestamp,latitude,longitude\n";
+        String header = "filename,timestamp,latitude,longitude,altitude,roll,pitch,depth\n";
 
         if(pmonitor != null) {
             pmonitor.setMinimum(0);
@@ -117,10 +117,10 @@ public class VideoToPhotosFilter implements MRAExporter{
                     pmonitor.setProgress(i);                    
                 }
                 if(isValid(frameTimeStamp)) {
-                    File outputfile = new File(dir ,frame.getTimeStamp() + ".jpg");
-                    ImageIO.write((RenderedImage) frame.getImage(), "JPG", outputfile);
-                    bw.write(getPosition(frameTimeStamp));
                     numberOfPhotos++;
+                    File outputfile = new File(dir ,"frame" + numberOfPhotos + ".jpg");
+                    ImageIO.write((RenderedImage) frame.getImage(), "JPG", outputfile);
+                    bw.write("frame" + numberOfPhotos + ".jpg," + getPosition(frameTimeStamp) + "," + getVehicleData(frameTimeStamp) + "\n");
                 }
             }
             bw.close();
@@ -134,14 +134,17 @@ public class VideoToPhotosFilter implements MRAExporter{
         return I18n.textf("Filtering Video frames resulted in %num1 images in %num2 possible. Images were exported to %path.", numberOfPhotos, numberOfFrames, dir.getAbsolutePath());
     }
 
-    public boolean isValid(double time) {
+    private boolean isValid(double time) {
         SystemPositionAndAttitude pose = positions.getPosition(time / 1000);
         return (Math.abs(pose.getAltitude()) <= maxAltitude && Math.abs(Math.toDegrees(pose.getPitch())) <= maxPitch && Math.abs(Math.toDegrees(pose.getRoll())) <= maxRoll);
     }
 
-    public String getPosition(double time) {
+    private String getPosition(double time) {
         SystemPositionAndAttitude pose = positions.getPosition(time / 1000);
-        return String.format(Locale.US, "%.4f, %.5f, %.5f\n", time, pose.getPosition().getLatitudeDegs(), pose.getPosition().getLongitudeDegs());
+        return String.format(Locale.US, "%.4f, %.5f, %.5f", time / 1000, pose.getPosition().getLatitudeDegs(), pose.getPosition().getLongitudeDegs());
     }
-
+    private String getVehicleData(double time) {
+        SystemPositionAndAttitude pose = positions.getPosition(time / 1000);
+        return String.format(Locale.US, "%.2f, %.2f, %.2f, %.2f", pose.getAltitude(), Math.toDegrees(pose.getRoll()), Math.toDegrees(pose.getPitch()), pose.getDepth());
+    }
 }
