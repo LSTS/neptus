@@ -486,7 +486,7 @@ public class NetCDFLoader {
                     Index index = vArray.getIndex();
                     index.set(counter);
 
-                    double v = vArray == null ? Double.NaN : vArray.getDouble(index);
+                    double v = vArray.getDouble(index);
 
                     if (NetCDFUtils.isValueValid(v, varFillValue, varValidRange)) {
                         GenericDataPoint dp = new GenericDataPoint(lat, lon);
