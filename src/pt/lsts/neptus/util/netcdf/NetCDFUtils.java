@@ -35,6 +35,7 @@ package pt.lsts.neptus.util.netcdf;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -476,7 +477,7 @@ public class NetCDFUtils {
      * @return
      */
     public static Map<String, Integer> getIndexesForVar(String dimStr, String... name) {
-        HashMap<String, Integer> ret = new HashMap<>();
+        Map<String, Integer> ret = new LinkedHashMap<>();
         if (dimStr == null || dimStr.length() == 0)
             return ret;
         
