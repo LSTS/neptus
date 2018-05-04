@@ -406,6 +406,22 @@ public class NetCDFLoader {
             try {
                 double varFillValue = NetCDFUtils.findFillValue(vVar);
                 Pair<Double, Double> varValidRange = NetCDFUtils.findValidRange(vVar);
+                Pair<Double, Double> varScaleFactorAndAddOffset = NetCDFUtils.findScaleFactorAnfAddOffset(vVar);
+
+                double latFillValue = NetCDFUtils.findFillValue(latVar);
+                Pair<Double, Double> latValidRange = NetCDFUtils.findValidRange(latVar);
+                Pair<Double, Double> latScaleFactorAndAddOffset = NetCDFUtils.findScaleFactorAnfAddOffset(latVar);
+
+                double lonFillValue = NetCDFUtils.findFillValue(lonVar);
+                Pair<Double, Double> lonValidRange = NetCDFUtils.findValidRange(lonVar);
+                Pair<Double, Double> lonScaleFactorAndAddOffset = NetCDFUtils.findScaleFactorAnfAddOffset(lonVar);
+
+                double depthFillValue = depthVar != null ? NetCDFUtils.findFillValue(depthVar) : 0;
+                Pair<Double, Double> depthValidRange = depthVar != null ? NetCDFUtils.findValidRange(depthVar)
+                        : new Pair<Double, Double>(0., 0.);
+                Pair<Double, Double> depthScaleFactorAndAddOffset = depthVar != null
+                        ? NetCDFUtils.findScaleFactorAnfAddOffset(depthVar)
+                        : new Pair<Double, Double>(1., 0.);
 
                 int[] shape = vVar.getShape();
                 int[] counter = new int[shape.length];
@@ -450,9 +466,22 @@ public class NetCDFLoader {
                     double lon = AngleUtils.nomalizeAngleDegrees180(
                             lonArray.getDouble(buildIndexFrom(lonArray, counter, lonCollumsIndexMap)));
 
+                    if (!NetCDFUtils.isValueValid(lat, latFillValue, latValidRange)
+                            || !NetCDFUtils.isValueValid(lon, lonFillValue, lonValidRange)) {
+                        NeptusLog.pub().debug(
+                                String.format("While processing %s found invalid values for lat or lon!", varName));
+                        continue;
+                    }
+                    
+                    lat = lat * latScaleFactorAndAddOffset.first() + latScaleFactorAndAddOffset.second();
+                    lon = lon * lonScaleFactorAndAddOffset.first() + lonScaleFactorAndAddOffset.second();
+                    
                     double depth = !depthCollumsIndexMap.isEmpty()
                             ? depthArray.getDouble(buildIndexFrom(depthArray, counter, depthCollumsIndexMap))
                             : Double.NaN;
+                    if (!Double.isNaN(depth) && NetCDFUtils.isValueValid(depth, depthFillValue, depthValidRange)) {
+                        depth = depth * depthScaleFactorAndAddOffset.first() + depthScaleFactorAndAddOffset.second();
+                    }
 
                     Index index = vArray.getIndex();
                     index.set(counter);
@@ -464,8 +493,7 @@ public class NetCDFLoader {
                         dp.setInfo(info);
                         dp.setDepth(depth); // See better this!!
 
-                        Pair<Double, Double> scaleFactorAndAddOffset = NetCDFUtils.findScaleFactorAnfAddOffset(vVar);
-                        v = v * scaleFactorAndAddOffset.first() + scaleFactorAndAddOffset.second();
+                        v = v * varScaleFactorAndAddOffset.first() + varScaleFactorAndAddOffset.second();
 
                         // Not doing nothing with units, just using what it is
                         // sla = NetCDFUnitsUtils.getValueForMetterFromTempUnits(sla, slaUnits);
