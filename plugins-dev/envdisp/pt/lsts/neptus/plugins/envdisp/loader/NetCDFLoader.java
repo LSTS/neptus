@@ -386,10 +386,10 @@ public class NetCDFLoader {
             }
             
             // Get the lat/lon data from the file.
-            Array latArray;  // ArrayFloat.D1
-            Array lonArray;  // ArrayFloat.D1
-            Array timeArray; //ArrayFloat.D1
-            Array depthArray; //ArrayFloat.D1
+            Array latArray;  // ArrayFloat.D?
+            Array lonArray;  // ArrayFloat.D?
+            Array timeArray; //ArrayFloat.D?
+            Array depthArray; //ArrayFloat.D?
             Array vArray;    // ArrayFloat.D?
 
             latArray = latVar.read();
@@ -457,8 +457,7 @@ public class NetCDFLoader {
                             lonArray.getDouble(buildIndexFrom(lonArray, counter, lonCollumsIndexMap)));
 
                     double depth = !depthCollumsIndexMap.isEmpty()
-                            ? AngleUtils.nomalizeAngleDegrees180(
-                                    depthArray.getDouble(buildIndexFrom(depthArray, counter, depthCollumsIndexMap)))
+                            ? depthArray.getDouble(buildIndexFrom(depthArray, counter, depthCollumsIndexMap))
                             : Double.NaN;
 
                     Index index = vArray.getIndex();
