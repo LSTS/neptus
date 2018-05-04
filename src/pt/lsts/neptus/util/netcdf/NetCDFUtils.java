@@ -32,6 +32,10 @@
  */
 package pt.lsts.neptus.util.netcdf;
 
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -139,6 +143,57 @@ public class NetCDFUtils {
         if (!ignoreDateLimitToLoad && dateValue.before(dateLimit))
             return null;
         
+        return getDatesAndDateLimits(dateValue, fromDate, toDate);
+    }
+    
+    /**
+     * @param dataFile
+     * @return
+     */
+    public static Date[] getTimeValuesByGlobalAttributes(NetcdfFile dataFile, Date fromDate, Date toDate,
+            boolean ignoreDateLimitToLoad, Date dateLimit) {
+        List<String> candidateAtts = new ArrayList<>();
+        candidateAtts.add("date_created");
+        candidateAtts.add("time_coverage_end");
+        candidateAtts.add("creation_time");
+        candidateAtts.add("stop_time");
+        candidateAtts.add("end_time");
+        candidateAtts.add("time_coverage_start");
+        candidateAtts.add("start_time");
+        
+        for (String str : candidateAtts) {
+            Attribute dateCreatedAtt = dataFile.findAttribute(str);
+            if (dateCreatedAtt != null) {
+                String dateStr = dateCreatedAtt.getStringValue();
+                try {
+                    DateTimeFormatter timeFormatter = DateTimeFormatter.ISO_DATE_TIME;
+                    TemporalAccessor ta = timeFormatter.parse(dateStr);
+                    Date date = Date.from(Instant.from(ta));
+                    if (date == null)
+                        continue;
+                    
+                    if (!ignoreDateLimitToLoad && date.before(dateLimit))
+                        return null;
+                    Date[] timeVals = NetCDFUtils.getDatesAndDateLimits(date, fromDate, toDate);
+                    return timeVals;
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().debug(e.getMessage());
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Takes the dateValue and adjusts the from and to date with this date.
+     * 
+     * @param dateValue
+     * @param fromDate
+     * @param toDate
+     * @return A date array [dateValue, fromDate, toDate]
+     */
+    public static Date[] getDatesAndDateLimits(Date dateValue, Date fromDate, Date toDate) {
         if (fromDate == null) {
             fromDate = dateValue;
         }
