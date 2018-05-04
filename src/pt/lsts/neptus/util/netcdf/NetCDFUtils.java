@@ -43,6 +43,7 @@ import pt.lsts.neptus.data.Pair;
 import ucar.ma2.Array;
 import ucar.ma2.Index;
 import ucar.nc2.Attribute;
+import ucar.nc2.Group;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
@@ -331,7 +332,15 @@ public class NetCDFUtils {
         String name = "";
         Variable latVar = null;
         for (String st : varName) {
-            latVar = dataFile.findVariable(st);
+            latVar = dataFile.findVariable(null, st);
+            if (latVar == null) {
+                Group rootGroup = dataFile.getRootGroup();
+                latVar = dataFile.findVariable(rootGroup, st);
+                if (latVar == null) {
+                    latVar = findVariableForGroup(rootGroup, st);
+                }
+            }
+
             if (latVar != null) {
                 name = st;
                 break;
@@ -352,6 +361,26 @@ public class NetCDFUtils {
     }
 
     /**
+     * @param group
+     * @param varName
+     * @return
+     */
+    private static Variable findVariableForGroup(Group group, String varName) {
+        Variable vVar = group.findVariable(varName);
+        if (vVar != null)
+            return vVar;
+        List<Group> groups = group.getGroups();
+        if (groups == null || groups.isEmpty())
+            return null;
+        for (Group g : groups) {
+            vVar = findVariableForGroup(g, varName);
+            if (vVar != null)
+                return vVar;
+        }
+        return null;
+    }
+
+    /**
      * @param dataFile
      * @param fileNameForErrorString
      * @param failIfNotFound
@@ -364,6 +393,13 @@ public class NetCDFUtils {
         Variable latVar = null;
         for (String st : varName) {
             latVar = dataFile.findVariableByAttribute(null, NETCDF_ATT_STANDARD_NAME, st);
+            if (latVar == null) {
+                Group rootGroup = dataFile.getRootGroup();
+                latVar = dataFile.findVariableByAttribute(rootGroup, NETCDF_ATT_STANDARD_NAME, st);
+                if (latVar == null) {
+                    latVar = findVariableWithAttributeForGroup(dataFile, rootGroup, NETCDF_ATT_STANDARD_NAME, st);
+                }
+            }
             if (latVar != null) {
                 name = latVar.getShortName();
                 break;
@@ -381,6 +417,30 @@ public class NetCDFUtils {
             }
         }
         return new Pair<String, Variable>(name, latVar);
+    }
+
+    /**
+     * @param dataFile
+     * @param group
+     * @param attName
+     * @param varName
+     * @return
+     */
+    private static Variable findVariableWithAttributeForGroup(NetcdfFile dataFile, Group group,
+            String attName, String varName) {
+        Variable vVar = dataFile.findVariableByAttribute(group, attName, varName);;
+        if (vVar != null)
+            return vVar;
+        List<Group> groups = group.getGroups();
+        if (groups == null || groups.isEmpty())
+            return null;
+        for (Group g : groups) {
+            vVar = findVariableWithAttributeForGroup(dataFile, g, attName, varName);
+            if (vVar != null)
+                return vVar;
+        }
+        return null;
+
     }
 
     /**
