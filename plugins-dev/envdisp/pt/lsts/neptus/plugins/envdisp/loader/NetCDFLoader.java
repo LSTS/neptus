@@ -278,8 +278,6 @@ public class NetCDFLoader {
                 return null;
             }
 
-            List<Dimension> dimsRoot = dataFile.getDimensions();
-            
             String dimStr = vVar.getDimensionsString();
             List<Dimension> dimDim = vVar.getDimensions();
 
@@ -439,17 +437,13 @@ public class NetCDFLoader {
                     
                     if (timeVals == null)
                         timeVals = NetCDFUtils.getTimeValuesByGlobalAttributes(dataFile, fromDate, toDate, ignoreDateLimitToLoad, dateLimit);
+                    
                     if (timeVals == null)
                         timeVals = NetCDFUtils.getDatesAndDateLimits(new Date(0), fromDate, toDate);
 
-                    if (timeVals == null) {
-                      continue; // Check if we bail if no time exists                    }
-                    }
-                    else {
-                        dateValue = timeVals[0];
-                        fromDate = timeVals[1];
-                        toDate = timeVals[2];
-                    }
+                    dateValue = timeVals[0];
+                    fromDate = timeVals[1];
+                    toDate = timeVals[2];
 
                     double lat = AngleUtils.nomalizeAngleDegrees180(
                             latArray.getDouble(buildIndexFrom(latArray, counter, latCollumsIndexMap)));
