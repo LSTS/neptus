@@ -972,8 +972,8 @@ public class EnvDataPaintHelper {
             double usePercent = (ptFilt.get(0) == null ? -1 : ptFilt.get(0).size() * 1. / visiblePts.longValue()) * 100;
             final int idx = getIndexForData(rendererCalculator.getLevelOfDetail(), usePercent);
             debugOut(showDataDebugLegend, String.format("%s stg 1 took %ss :: using %d of %d visible from original %d (%.1f%% of visible) | %d not gridded %sused",
-                    varName, MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1), ptFilt.get(0).size(), 
-                    visiblePts.longValue(), dest.size(), usePercent, ptFilt.get(1).size(), idx == 0 ? "not " : ""));
+                    varName, MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1), (ptFilt.get(0) == null ? -1 : ptFilt.get(0).size()), 
+                    visiblePts.longValue(), dest.size(), usePercent, (ptFilt.get(1) == null ? -1 : ptFilt.get(1).size()), idx == 0 ? "not " : ""));
             stMillis = System.currentTimeMillis();
 
             if (eachPointPainter != null) {
