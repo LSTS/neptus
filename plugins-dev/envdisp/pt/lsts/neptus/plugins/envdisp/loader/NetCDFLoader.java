@@ -41,6 +41,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -87,7 +88,7 @@ public class NetCDFLoader {
      * @param dateLimit If null no filter for time is done
      * @return
      */
-    public static final HashMap<String, GenericDataPoint> processFileForVariable(NetcdfFile dataFile, String varName, Date dateLimit) {
+    public static final HashMap<String, GenericDataPoint> processFileForVariableOld(NetcdfFile dataFile, String varName, Date dateLimit) {
         boolean ignoreDateLimitToLoad = false;
         if (dateLimit == null)
             ignoreDateLimitToLoad = true;
@@ -251,6 +252,304 @@ public class NetCDFLoader {
         return dataDp;
     }
 
+    public static final HashMap<String, GenericDataPoint> processFileForVariable(NetcdfFile dataFile, String varName, Date dateLimit) {
+        boolean ignoreDateLimitToLoad = false;
+        if (dateLimit == null)
+            ignoreDateLimitToLoad = true;
+        
+        String fileName = dataFile.getLocation();
+        
+        NeptusLog.pub().info("Starting processing " + varName + " file '" + dataFile.getLocation() + "'."
+                + (ignoreDateLimitToLoad ? " ignoring dateTime limit" : " Accepting data after " + dateLimit + "."));
+
+        HashMap<String, GenericDataPoint> dataDp = new HashMap<>();
+
+        Date fromDate = null;
+        Date toDate = null;
+        
+        try {
+            // Get the Variable.
+            Pair<String, Variable> searchPair = NetCDFUtils.findVariableForStandardNameOrName(dataFile, fileName, true, varName);
+            String vName = searchPair == null ? null : searchPair.first();
+            Variable vVar = searchPair == null ? null : searchPair.second();
+
+            if (vName == null || vVar == null) {
+                NeptusLog.pub().debug(String.format("Variable %s not found in data fiel %s", varName, fileName));
+                return null;
+            }
+
+            List<Dimension> dimsRoot = dataFile.getDimensions();
+            
+            String dimStr = vVar.getDimensionsString();
+            List<Dimension> dimDim = vVar.getDimensions();
+
+            @SuppressWarnings("unused")
+            String latName = null;
+            Variable latVar = null;
+            @SuppressWarnings("unused")
+            String lonName = null;
+            Variable lonVar = null;
+            @SuppressWarnings("unused")
+            String timeName = null;
+            Variable timeVar = null;
+            @SuppressWarnings("unused")
+            String depthName = null;
+            Variable depthVar = null;
+
+            // Find the vars for dims
+            Map<String, Variable> dimVars = new LinkedHashMap<>();
+            for (Dimension d : dimDim) {
+                Pair<String, Variable> sPair = NetCDFUtils.findVariableFor(dataFile, fileName, false, d.getShortName());
+                if (sPair == null || sPair.second() == null) {
+                    dimVars.put(d.getShortName(), null);
+                }
+                else {
+                    dimVars.put(d.getShortName(), sPair.second());
+                    Variable v = sPair.second();
+                    Attribute vSNAtt = v.findAttribute(NetCDFUtils.NETCDF_ATT_STANDARD_NAME);
+                    if (vSNAtt != null) {
+                        switch (vSNAtt.getStringValue().toLowerCase()) {
+                            case "latitude":
+                                latName = v.getShortName();
+                                latVar = v;
+                                continue;
+                            case "longitude":
+                                lonName = v.getShortName();
+                                lonVar = v;
+                                continue;
+                            case "time":
+                                timeName = v.getShortName();
+                                timeVar = v;
+                                continue;
+                            case "depth":
+                                depthName = v.getShortName();
+                                depthVar = v;
+                                continue;
+                            default:
+                                break;
+                        }
+                    }
+                    switch (v.getShortName().toLowerCase()) {
+                        case "latitude":
+                        case "lat":
+                            latName = v.getShortName();
+                            latVar = v;
+                            continue;
+                        case "longitude":
+                        case "lon":
+                            lonName = v.getShortName();
+                            lonVar = v;
+                            continue;
+                        case "time":
+                            timeName = v.getShortName();
+                            timeVar = v;
+                            continue;
+                        case "depth":
+                            depthName = v.getShortName();
+                            depthVar = v;
+                            continue;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+            // Get the latitude and longitude Variables.
+            if (latVar == null) {
+                searchPair = NetCDFUtils.findVariableForStandardNameOrName(dataFile, fileName, true, "latitude", "lat");
+                latName = searchPair.first();
+                latVar = searchPair.second(); 
+            }
+
+            if (lonVar == null) {
+                searchPair = NetCDFUtils.findVariableForStandardNameOrName(dataFile, fileName, true, "longitude", "lon");
+                lonName = searchPair.first();
+                lonVar = searchPair.second();
+            }
+
+            if (timeVar == null) {
+                searchPair = NetCDFUtils.findVariableForStandardNameOrName(dataFile, fileName, false, "time");
+                timeName = searchPair == null ? null : searchPair.first();
+                timeVar = searchPair == null ? null : searchPair.second();
+            }
+
+            if (depthVar == null) {
+                // If varName is already depth, no need to use it
+                searchPair = "depth".equalsIgnoreCase(varName) ? null : NetCDFUtils.findVariableForStandardNameOrName(dataFile, fileName, false, "depth");
+                depthName = searchPair == null ? null : searchPair.first();;
+                depthVar = searchPair == null ? null : searchPair.second(); 
+            }
+
+            if (latVar == null || lonVar == null) {
+                NeptusLog.pub().debug(String.format("Variable %s IS NOT georeference in data fiel %s", varName, fileName));
+                return null;
+            }
+            
+            // Get the lat/lon data from the file.
+            Array latArray;  // ArrayFloat.D1
+            Array lonArray;  // ArrayFloat.D1
+            Array timeArray; //ArrayFloat.D1
+            Array depthArray; //ArrayFloat.D1
+            Array vArray;    // ArrayFloat.D?
+
+            latArray = latVar.read();
+            lonArray = lonVar.read();
+            timeArray = timeVar != null ? timeVar.read() : null;
+            depthArray = depthVar != null ? depthVar.read() : null;
+            vArray = vVar.read();
+          
+            double[] multAndOffset = timeVar != null ? NetCDFUtils.getTimeMultiplierAndOffset(timeVar, fileName) : null;
+            double timeMultiplier = timeVar != null ? multAndOffset[0] : 1;
+            double timeOffset = timeVar != null ? multAndOffset[1] : 0;
+
+            Info info = createInfoBase(vVar);
+          
+            // Let us process
+            try {
+                double varFillValue = NetCDFUtils.findFillValue(vVar);
+                Pair<Double, Double> varValidRange = NetCDFUtils.findValidRange(vVar);
+
+                int[] shape = vVar.getShape();
+                int[] counter = new int[shape.length];
+                Arrays.fill(counter, 0);
+
+                // The null values are ignored
+                Map<String, Integer> timeCollumsIndexMap = timeVar == null ? new HashMap<>()
+                        : NetCDFUtils.getIndexesForVar(dimStr, timeVar.getDimensionsString().split(" "));
+                Map<String, Integer> latCollumsIndexMap = NetCDFUtils.getIndexesForVar(dimStr, latVar.getDimensionsString().split(" "));
+                Map<String, Integer> lonCollumsIndexMap = NetCDFUtils.getIndexesForVar(dimStr, lonVar.getDimensionsString().split(" "));
+                Map<String, Integer> depthCollumsIndexMap = depthVar == null ? new HashMap<>()
+                        : NetCDFUtils.getIndexesForVar(dimStr, depthVar.getDimensionsString().split(" "));
+
+                if (timeCollumsIndexMap.values().stream().anyMatch(i -> i < 0))
+                    timeCollumsIndexMap.clear();
+                if (latCollumsIndexMap.values().stream().anyMatch(i -> i < 0))
+                    latCollumsIndexMap.clear();
+                if (lonCollumsIndexMap.values().stream().anyMatch(i -> i < 0))
+                    lonCollumsIndexMap.clear();
+                if (depthCollumsIndexMap.values().stream().anyMatch(i -> i < 0))
+                    depthCollumsIndexMap.clear();
+
+                do {
+                    Date dateValue = null;
+                    Date[] timeVals = !timeCollumsIndexMap.isEmpty()
+                            ? NetCDFUtils.getTimeValues(timeArray, buildConterFrom(counter, timeCollumsIndexMap),
+                                    timeMultiplier, timeOffset, fromDate, toDate, ignoreDateLimitToLoad, dateLimit)
+                            : null;
+                    
+                    if (timeVals == null)
+                        timeVals = NetCDFUtils.getTimeValuesByGlobalAttributes(dataFile, fromDate, toDate, ignoreDateLimitToLoad, dateLimit);
+                    if (timeVals == null)
+                        timeVals = NetCDFUtils.getDatesAndDateLimits(new Date(0), fromDate, toDate);
+
+                    if (timeVals == null) {
+                      continue; // Check if we bail if no time exists                    }
+                    }
+                    else {
+                        dateValue = timeVals[0];
+                        fromDate = timeVals[1];
+                        toDate = timeVals[2];
+                    }
+
+                    double lat = AngleUtils.nomalizeAngleDegrees180(
+                            latArray.getDouble(buildIndexFrom(latArray, counter, latCollumsIndexMap)));
+                    double lon = AngleUtils.nomalizeAngleDegrees180(
+                            lonArray.getDouble(buildIndexFrom(lonArray, counter, lonCollumsIndexMap)));
+
+                    double depth = !depthCollumsIndexMap.isEmpty()
+                            ? AngleUtils.nomalizeAngleDegrees180(
+                                    depthArray.getDouble(buildIndexFrom(depthArray, counter, depthCollumsIndexMap)))
+                            : Double.NaN;
+
+                    Index index = vArray.getIndex();
+                    index.set(counter);
+
+                    double v = vArray == null ? Double.NaN : vArray.getDouble(index);
+
+                    if (NetCDFUtils.isValueValid(v, varFillValue, varValidRange)) {
+                        GenericDataPoint dp = new GenericDataPoint(lat, lon);
+                        dp.setInfo(info);
+                        dp.setDepth(depth); // See better this!!
+
+                        Pair<Double, Double> scaleFactorAndAddOffset = NetCDFUtils.findScaleFactorAnfAddOffset(vVar);
+                        v = v * scaleFactorAndAddOffset.first() + scaleFactorAndAddOffset.second();
+
+                        // Not doing nothing with units, just using what it is
+                        // sla = NetCDFUnitsUtils.getValueForMetterFromTempUnits(sla, slaUnits);
+
+                        dp.setValue(v);
+                        if (dp.getInfo().minVal == Double.MIN_VALUE || v < dp.getInfo().minVal)
+                            dp.getInfo().minVal = v;
+                        if (dp.getInfo().maxVal == Double.MAX_VALUE || v > dp.getInfo().maxVal)
+                            dp.getInfo().maxVal = v;
+                        dp.setDateUTC(dateValue);
+                        if (dp.getInfo().minDate.getTime() == 0 || dp.getInfo().minDate.after(dateValue))
+                            dp.getInfo().minDate = dateValue;
+                        if (dp.getInfo().maxDate.getTime() == 0 || dp.getInfo().maxDate.before(dateValue))
+                            dp.getInfo().maxDate = dateValue;
+
+                        GenericDataPoint dpo = dataDp.get(GenericDataPoint.getId(dp));
+                        if (dpo == null) {
+                            dpo = dp.getACopyWithoutHistory();
+                            dataDp.put(GenericDataPoint.getId(dp), dp);
+                        }
+
+                        ArrayList<GenericDataPoint> lst = dpo.getHistoricalData();
+                        boolean alreadyIn = false;
+                        for (GenericDataPoint tmpDp : lst) {
+                            if (tmpDp.getDateUTC().equals(dp.getDateUTC()) && tmpDp.getDepth() == dp.getDepth()) { // Check also depth and see if no time
+                                alreadyIn = true;
+                                break;
+                            }
+                        }
+                        if (!alreadyIn) {
+                            dpo.getHistoricalData().add(dp);
+                        }
+                    }
+                } while (NetCDFUtils.advanceLoopCounter(shape, counter) != null);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        } 
+        finally {
+            NeptusLog.pub().info("Ending processing " + varName + " netCDF file '" + fileName
+                    + "'. Reading from date '" + fromDate + "' till '" + toDate + "'.");
+        }
+
+        return dataDp;
+    }
+
+    /**
+     * @param varArray
+     * @param counter
+     * @param collumsIndexMap
+     * @return
+     */
+    private static Index buildIndexFrom(Array varArray, int[] counter, Map<String, Integer> collumsIndexMap) {
+        int[] idxCounter = buildConterFrom(counter, collumsIndexMap);
+        Index ret = varArray.getIndex();
+        ret.set(idxCounter);
+        return ret;
+    }
+
+    /**
+     * @param counter
+     * @param collumsIndexMap
+     * @return
+     */
+    private static int[] buildConterFrom(int[] counter, Map<String, Integer> collumsIndexMap) {
+        int[] ret = new int[collumsIndexMap.size()];
+        Iterator<Integer> ci = collumsIndexMap.values().iterator();
+        for (int i = 0; i < ret.length; i++)
+            ret[i] = counter[ci.next()];
+        return ret;
+    }
+
     /**
      * @param vVar
      * @return
@@ -318,74 +617,12 @@ public class NetCDFLoader {
      * @param parentWindow
      * @return The variable chosen or null if cancelled.
      */
-    public static <W extends Window> Variable showChooseVarOld(String fileName, NetcdfFile dataFile, W parentWindow) {
-        Map<String, Variable> varToConsider = NetCDFUtils.getMultiDimensionalVariables(dataFile);
-        
-        Pair<String, Variable> searchPair = NetCDFUtils.findVariableForStandardNameOrName(dataFile, fileName, true, "latitude", "lat");
-        String latName = searchPair.first();
-        searchPair = NetCDFUtils.findVariableForStandardNameOrName(dataFile, fileName, true, "longitude", "lon");
-        String lonName = searchPair.first();
-        // searchPair = NetCDFUtils.findVariableForStandardNameOrName(dataFile, fx.getName(), false, "time");
-        // String timeName = searchPair == null ? null : searchPair.first();
-        if (varToConsider.isEmpty() || latName == null || lonName == null /*|| timeName == null*/) {
-            GuiUtils.infoMessage(parentWindow, I18n.text("Error loading"), I18n.textf("Missing variables in data (%s)", "lat; lon"));
-            return null;
-        }
-        
-        // Removing the ones that don't have location info
-        NetCDFUtils.filterForVarsWithDimentionsWith(varToConsider, latName, lonName/*, timeName*/);
-        
-        ArrayList<JLabel> choicesVarsLbl = new ArrayList<>();
-        for (String vName : varToConsider.keySet()) {
-            Variable var = varToConsider.get(vName);
-            StringBuilder sb = new StringBuilder("<html><b>");
-            Info info = NetCDFLoader.createInfoBase(var);
-            sb.append(vName);
-            sb.append(" :: ");
-            sb.append(info.fullName);
-            sb.append("</b><br/>");
-            sb.append("std='");
-            sb.append(info.standardName);
-            sb.append("'");
-            sb.append("<br/>");
-            sb.append("unit='");
-            sb.append(info.unit);
-            sb.append("'");
-            sb.append("<br/>");
-            sb.append("comment='");
-            String cmt = StringUtils.wrapEveryNChars(info.comment, (short) 60);
-            cmt = cmt.replaceAll("\n", "<br/>");
-            sb.append(cmt);
-            sb.append("'");
-            sb.append("<html>");
-
-            @SuppressWarnings("serial")
-            JLabel l = new JLabel(vName) {
-                @Override
-                public String toString() {
-                    return sb.toString();
-                }
-            };
-            choicesVarsLbl.add(l);
-        }
-        if (choicesVarsLbl.isEmpty()) {
-            GuiUtils.infoMessage(parentWindow, I18n.text("Info"),
-                    I18n.textf("No valid variables in data with dimentions (%s)", "<time>; lat; lon; <depth>"));
-            return null;
-        }
-        Object choiceOpt = JOptionPane.showInputDialog(parentWindow, I18n.text("Choose one of the vars"),
-                I18n.text("Chooser"), JOptionPane.QUESTION_MESSAGE, null,
-                choicesVarsLbl.toArray(new JLabel[choicesVarsLbl.size()]), 0);
-    
-        return choiceOpt == null ? null : varToConsider.get(((JLabel) choiceOpt).getText());
-    }
-
     public static <W extends Window> Variable showChooseVar(String fileName, NetcdfFile dataFile, W parentWindow) {
         List<Dimension> dimsRoot = dataFile.getDimensions();
         
         Map<String, Group> groupList = new HashMap<>();
         
-        Map<String, Variable> varToConsider = NetCDFUtils.getVariables(dataFile, 2); // Choose variables with dim > 2
+        Map<String, Variable> varToConsider = NetCDFUtils.getVariables(dataFile, 1); // Choose variables with dim > 2
         
         for (String varStr : varToConsider.keySet().toArray(new String[varToConsider.size()])) {
             boolean isRemoved = false;
@@ -558,8 +795,11 @@ public class NetCDFLoader {
         if (true) {
             NetcdfFile dataFile = null;
             
-//            String fileName = "../A2018116215500.L2_LAC.S3160_SOI.nc";
-            String fileName = "../nrt_global_allsat_phy_l4_latest.nc.gz";
+            String baseFolder = "../";
+            baseFolder = "../../../netCDF/";
+            
+//            String fileName = baseFolder + "A2018116215500.L2_LAC.S3160_SOI.nc";
+            String fileName = baseFolder + "nrt_global_allsat_phy_l4_latest.nc.gz";
             dataFile = NetcdfFile.open(fileName, null);
             
             List<Dimension> dims = dataFile.getDimensions();
@@ -572,7 +812,7 @@ public class NetCDFLoader {
            
            List<Attribute> globalAtt = dataFile.getGlobalAttributes();
            for (Attribute att : globalAtt) {
-//               System.out.println(String.format("Global Att: %s == %s", att.getShortName(), att.getValues()));
+               System.out.println(String.format("Global Att: %s == %s", att.getShortName(), att.getValues()));
            }
            
            System.out.println(dataFile.getDetailInfo());
@@ -582,29 +822,32 @@ public class NetCDFLoader {
                 System.out.println(String.format("Variable: %s :: %s >> Group='%s'::'%s' ParentGroup='%s'  Dim='%s'::'%s'", v.getShortName(), v.getFullName(),
                         v.getGroup().getShortName(), v.getGroup().getFullName(), v.getParentGroup().getShortName(),
                         v.getDimensions(), v.getDimensionsString()));
-            }
+                for (Attribute att : v.getAttributes()) {
+                    System.out.println(String.format("     Var Att: %s == %s", att.getShortName(), att.getValues()));
+                }
+           }
            
                       
-           fileName = "../A2018116215500.L2_LAC.S3160_SOI.nc";
+           fileName = baseFolder + "A2018116215500.L2_LAC.S3160_SOI.nc";
            Variable choiceVar = showChooseVar(fileName, dataFile, null);
            System.out.println(String.format("Choice is '%s'", choiceVar.getShortName()));
            
-           fileName = "../nrt_global_allsat_phy_l4_latest.nc.gz";
+           fileName = baseFolder + "nrt_global_allsat_phy_l4_latest.nc.gz";
            dataFile = NetcdfFile.open(fileName, null);
            choiceVar = showChooseVar(fileName, dataFile, null);
            System.out.println(String.format("Choice is '%s'", choiceVar.getShortName()));
            
-           fileName = "../20180416184057-MAR-L2P_GHRSST-SSTskin-SLSTRA-20180416204859-v02.0-fv01.0.nc";
+           fileName = baseFolder + "20180416184057-MAR-L2P_GHRSST-SSTskin-SLSTRA-20180416204859-v02.0-fv01.0.nc";
            dataFile = NetcdfFile.open(fileName, null);
            choiceVar = showChooseVar(fileName, dataFile, null);
            System.out.println(String.format("Choice is '%s'", choiceVar.getShortName()));
 
-           fileName = "../marmenor_his.nc";
+           fileName = baseFolder + "marmenor_his.nc";
            dataFile = NetcdfFile.open(fileName, null);
            choiceVar = showChooseVar(fileName, dataFile, null);
            System.out.println(String.format("Choice is '%s'", choiceVar.getShortName()));
            
-           fileName = "../temperature_salinity_STF_10042018.nc";
+           fileName = baseFolder + "temperature_salinity_STF_10042018.nc";
            dataFile = NetcdfFile.open(fileName, null);
            choiceVar = showChooseVar(fileName, dataFile, null);
            System.out.println(String.format("Choice is '%s'", choiceVar.getShortName()));
