@@ -47,6 +47,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -60,6 +62,7 @@ import pt.lsts.neptus.gui.swing.NeptusFileView;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.envdisp.datapoints.GenericDataPoint;
 import pt.lsts.neptus.plugins.envdisp.datapoints.GenericDataPoint.Info;
+import pt.lsts.neptus.plugins.envdisp.datapoints.GenericDataPoint.Info.ScalarOrLogPreference;
 import pt.lsts.neptus.plugins.envdisp.painter.GenericNetCDFDataPainter;
 import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.FileUtil;
@@ -494,6 +497,8 @@ public class NetCDFLoader {
                         dp.setDepth(depth); // See better this!!
 
                         v = v * varScaleFactorAndAddOffset.first() + varScaleFactorAndAddOffset.second();
+                        if (info.scalarOrLogPreference == ScalarOrLogPreference.LOG10)
+                            v = Math.pow(10, v); // let us unlog
 
                         // Not doing nothing with units, just using what it is
                         // sla = NetCDFUnitsUtils.getValueForMetterFromTempUnits(sla, slaUnits);
@@ -582,7 +587,20 @@ public class NetCDFLoader {
         info.fullName = vAtt == null ? vVar.getFullName() : vAtt.getStringValue();
         vAtt = vVar.findAttribute(NetCDFUtils.NETCDF_ATT_STANDARD_NAME);
         info.standardName = vAtt == null ? "" : vAtt.getStringValue();
+
         info.unit = vVar.getUnitsString();
+        if (info.unit == null) {
+            info.unit = "";
+        }
+        else {
+            Pattern pattern = Pattern.compile("^ *?lo?g\\((.*)\\) *?$");
+            Matcher matcher = pattern.matcher(info.unit);
+            if (matcher.matches()) {
+                info.unit = matcher.group(1);
+                info.scalarOrLogPreference = ScalarOrLogPreference.LOG10;
+            }
+        }
+        
         vAtt = vVar.findAttribute(NetCDFUtils.NETCDF_ATT_COMMENT);
         info.comment = vAtt == null ? "" : vAtt.getStringValue();
         return info;
@@ -814,6 +832,13 @@ public class NetCDFLoader {
         }
         
         if (true) {
+
+            Pattern pattern = Pattern.compile("^ *?lo?g\\((.*)\\) *?$");
+            Matcher matcher = pattern.matcher("log(re mg.m-3)");
+            if (matcher.matches()) {
+                System.out.println(matcher.group(1));
+            }
+
             NetcdfFile dataFile = null;
             
             String baseFolder = "../";

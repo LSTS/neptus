@@ -113,6 +113,15 @@ public class GenericNetCDFDataPainter {
         
         this.minValue = this.info.minVal;
         this.maxValue = this.info.maxVal;
+        
+        switch (this.info.scalarOrLogPreference) {
+            case LOG10:
+                this.isLogColorMap = true;
+                break;
+            case SCALAR:
+            default:
+                break;
+        }
     }
     
     /**

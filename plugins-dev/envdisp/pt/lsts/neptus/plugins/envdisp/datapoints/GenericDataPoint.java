@@ -189,6 +189,11 @@ public class GenericDataPoint extends BaseDataPoint<GenericDataPoint> {
     }
     
     public static class Info {
+        public enum ScalarOrLogPreference {
+            SCALAR,
+            LOG10
+        }
+        
         public String name;
         public String fullName;
         public String unit;
@@ -200,6 +205,8 @@ public class GenericDataPoint extends BaseDataPoint<GenericDataPoint> {
 
         public Date minDate = new Date(0);
         public Date maxDate = new Date(0);
+        
+        public ScalarOrLogPreference scalarOrLogPreference = ScalarOrLogPreference.SCALAR;
         
         /* (non-Javadoc)
          * @see java.lang.Object#toString()
