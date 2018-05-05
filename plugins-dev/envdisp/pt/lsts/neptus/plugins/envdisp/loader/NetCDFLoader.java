@@ -494,7 +494,6 @@ public class NetCDFLoader {
                     if (NetCDFUtils.isValueValid(v, varFillValue, varValidRange)) {
                         GenericDataPoint dp = new GenericDataPoint(lat, lon);
                         dp.setInfo(info);
-                        dp.setDepth(depth); // See better this!!
 
                         v = v * varScaleFactorAndAddOffset.first() + varScaleFactorAndAddOffset.second();
                         if (info.scalarOrLogPreference == ScalarOrLogPreference.LOG10)
@@ -508,11 +507,20 @@ public class NetCDFLoader {
                             dp.getInfo().minVal = v;
                         if (dp.getInfo().maxVal == Double.MAX_VALUE || v > dp.getInfo().maxVal)
                             dp.getInfo().maxVal = v;
+                        
                         dp.setDateUTC(dateValue);
                         if (dp.getInfo().minDate.getTime() == 0 || dp.getInfo().minDate.after(dateValue))
                             dp.getInfo().minDate = dateValue;
                         if (dp.getInfo().maxDate.getTime() == 0 || dp.getInfo().maxDate.before(dateValue))
                             dp.getInfo().maxDate = dateValue;
+
+                        dp.setDepth(depth); // See better this!!
+                        if (Double.isFinite(depth)) {
+                            if (dp.getInfo().minDepth == Double.MIN_VALUE || depth < dp.getInfo().minDepth)
+                                dp.getInfo().minDepth = depth;
+                            if (dp.getInfo().maxDepth == Double.MAX_VALUE || depth > dp.getInfo().maxDepth)
+                                dp.getInfo().maxDepth = depth;
+                        }
 
                         GenericDataPoint dpo = dataDp.get(GenericDataPoint.getId(dp));
                         if (dpo == null) {
@@ -603,6 +611,7 @@ public class NetCDFLoader {
         
         vAtt = vVar.findAttribute(NetCDFUtils.NETCDF_ATT_COMMENT);
         info.comment = vAtt == null ? "" : vAtt.getStringValue();
+        
         return info;
     }
 
@@ -842,7 +851,7 @@ public class NetCDFLoader {
             NetcdfFile dataFile = null;
             
             String baseFolder = "../";
-            baseFolder = "../../../netCDF/";
+//            baseFolder = "../../../netCDF/";
             
 //            String fileName = baseFolder + "A2018116215500.L2_LAC.S3160_SOI.nc";
             String fileName = baseFolder + "nrt_global_allsat_phy_l4_latest.nc.gz";

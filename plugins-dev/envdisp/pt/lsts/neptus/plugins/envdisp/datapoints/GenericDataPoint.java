@@ -206,6 +206,9 @@ public class GenericDataPoint extends BaseDataPoint<GenericDataPoint> {
         public Date minDate = new Date(0);
         public Date maxDate = new Date(0);
         
+        public double minDepth = Double.NaN;
+        public double maxDepth = Double.NaN;
+        
         public ScalarOrLogPreference scalarOrLogPreference = ScalarOrLogPreference.SCALAR;
         
         /* (non-Javadoc)
@@ -232,6 +235,9 @@ public class GenericDataPoint extends BaseDataPoint<GenericDataPoint> {
             sb.append("'; ");
             sb.append("date_range:'");
             sb.append("[").append(minDate).append("; ").append(maxDate).append("]");
+            sb.append("'; ");
+            sb.append("depth_range:'");
+            sb.append("[").append(minDepth).append("; ").append(maxDepth).append("]");
             sb.append("'; ");
             sb.append("comment:'");
             sb.append(comment);
