@@ -237,7 +237,7 @@ public class SoiInteraction extends SimpleRendererInteraction {
 
         assetsManager.getSettings().putIfAbsent(system, new SoiSettings());
 
-        if (PluginUtils.editPluginProperties(assetsManager.getSettings(), true))
+        if (PluginUtils.editPluginProperties(assetsManager.getSettings().get(system), true))
             return;
         @SuppressWarnings("unchecked")
         List<PluginProperty> after = Arrays.asList(PluginUtils.getPluginProperties(assetsManager.getSettings().get(system)));
