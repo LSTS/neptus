@@ -247,7 +247,7 @@ public class NetCDFUtils {
      * @param validRange
      * @return
      */
-    public static boolean isValueValid(double value, double fillValue,Pair<Double, Double> validRange) {
+    public static boolean isValueValid(double value, double fillValue, Pair<Double, Double> validRange) {
         if (!Double.isNaN(value) && value != fillValue) {
             if (validRange != null && !Double.isNaN(validRange.first()) && !Double.isNaN(validRange.second())) {
                 if (value >= validRange.first() && value <= validRange.second())
