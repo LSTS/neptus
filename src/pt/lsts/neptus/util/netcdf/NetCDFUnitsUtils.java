@@ -226,6 +226,8 @@ public class NetCDFUnitsUtils {
     // FIXME better control of unit for speed
     public static double getMultiplierForCmPerSecondsFromSpeedUnits(String speedUnits) {
         double mult = 1;
+        if (speedUnits == null || speedUnits.isEmpty())
+            return mult;
         switch (speedUnits.trim().toLowerCase()) {
             case "cm/s":
             case "cm s-1":
@@ -255,6 +257,8 @@ public class NetCDFUnitsUtils {
      * @return
      */
     public static double getValueForDegreesCelciusFromTempUnits(double value, String units) {
+        if (units == null || units.isEmpty())
+            return value;
         double ret = value;
         switch (units.trim()) {
             case "K":
@@ -270,6 +274,8 @@ public class NetCDFUnitsUtils {
     }
 
     public static double getValueForMilliGPerM3FromTempUnits(double value, String units) {
+        if (units == null || units.isEmpty())
+            return value;
         double ret = value;
         switch (units.trim()) {
             case "kg m-3":
@@ -289,6 +295,8 @@ public class NetCDFUnitsUtils {
     }
 
     public static double getValueForMetterFromTempUnits(double value, String units) {
+        if (units == null || units.isEmpty())
+            return value;
         double ret = value;
         switch (units.trim()) {
             case "km":
