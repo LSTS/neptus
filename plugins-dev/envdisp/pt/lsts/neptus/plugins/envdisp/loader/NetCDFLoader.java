@@ -700,7 +700,7 @@ public class NetCDFLoader {
 
             NetcdfFile dataFile = null;
             
-            String baseFolder = "../";
+            String baseFolder = "../NetCDF/";
 //            baseFolder = "../../../netCDF/";
             
 //            String fileName = baseFolder + "A2018116215500.L2_LAC.S3160_SOI.nc";
