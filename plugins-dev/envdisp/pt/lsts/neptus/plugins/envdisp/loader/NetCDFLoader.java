@@ -304,10 +304,8 @@ public class NetCDFLoader {
                     fromDate = timeVals[1];
                     toDate = timeVals[2];
 
-                    double lat = AngleUtils.nomalizeAngleDegrees180(
-                            latArray.getDouble(buildIndexFrom(latArray, counter, latCollumsIndexMap)));
-                    double lon = AngleUtils.nomalizeAngleDegrees180(
-                            lonArray.getDouble(buildIndexFrom(lonArray, counter, lonCollumsIndexMap)));
+                    double lat = latArray.getDouble(buildIndexFrom(latArray, counter, latCollumsIndexMap));
+                    double lon = lonArray.getDouble(buildIndexFrom(lonArray, counter, lonCollumsIndexMap));
 
                     if (!NetCDFUtils.isValueValid(lat, latFillValue, latValidRange)
                             || !NetCDFUtils.isValueValid(lon, lonFillValue, lonValidRange)) {
@@ -318,6 +316,8 @@ public class NetCDFLoader {
                     
                     lat = lat * latScaleFactorAndAddOffset.first() + latScaleFactorAndAddOffset.second();
                     lon = lon * lonScaleFactorAndAddOffset.first() + lonScaleFactorAndAddOffset.second();
+                    lat = AngleUtils.nomalizeAngleDegrees180(lat);
+                    lon = AngleUtils.nomalizeAngleDegrees180(lon);
                     
                     double depth = !depthCollumsIndexMap.isEmpty()
                             ? depthArray.getDouble(buildIndexFrom(depthArray, counter, depthCollumsIndexMap))
