@@ -48,6 +48,7 @@ import pt.lsts.neptus.data.Pair;
 import ucar.ma2.Array;
 import ucar.ma2.Index;
 import ucar.nc2.Attribute;
+import ucar.nc2.Dimension;
 import ucar.nc2.Group;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
@@ -369,9 +370,22 @@ public class NetCDFUtils {
      */
     public static Pair<String, Variable> findVariableForStandardNameOrName(NetcdfFile dataFile, String fileNameForErrorString,
             boolean failIfNotFound, String... varStName) {
-        Pair<String, Variable> ret = findVariableForStandardName(dataFile, fileNameForErrorString, false, varStName);
+        return findVariableForStandardNameOrName(dataFile, fileNameForErrorString, failIfNotFound, null, varStName);
+    }
+
+    /**
+     * @param dataFile
+     * @param fileNameForErrorString
+     * @param failIfNotFound
+     * @param dimStringList A list of dimensions that the dimensions of var must be contain in (null or empty list for don't care).
+     * @param varStName
+     * @return
+     */
+    public static Pair<String, Variable> findVariableForStandardNameOrName(NetcdfFile dataFile, String fileNameForErrorString,
+            boolean failIfNotFound, List<String> dimStringList, String... varStName) {
+        Pair<String, Variable> ret = findVariableForStandardName(dataFile, fileNameForErrorString, false, dimStringList, varStName);
         if (ret == null)
-            ret = findVariableFor(dataFile, fileNameForErrorString, failIfNotFound, varStName);
+            ret = findVariableFor(dataFile, fileNameForErrorString, failIfNotFound, dimStringList, varStName);
         
         return ret;
     }
@@ -385,24 +399,43 @@ public class NetCDFUtils {
      */
     public static Pair<String, Variable> findVariableFor(NetcdfFile dataFile, String fileNameForErrorString,
             boolean failIfNotFound, String... varName) {
+        return findVariableFor(dataFile, fileNameForErrorString, failIfNotFound, null, varName);
+    }
+    
+    /**
+     * @param dataFile
+     * @param fileNameForErrorString
+     * @param failIfNotFound
+     * @param dimStringList A list of dimensions that the dimensions of var must be contain in (null or empty list for don't care).
+     * @param varName
+     * @return
+     */
+    public static Pair<String, Variable> findVariableFor(NetcdfFile dataFile, String fileNameForErrorString,
+            boolean failIfNotFound, List<String> dimStringList, String... varName) {
         String name = "";
-        Variable latVar = null;
+        Variable vVar = null;
         for (String st : varName) {
-            latVar = dataFile.findVariable(null, st);
-            if (latVar == null) {
+            vVar = dataFile.findVariable(null, st);
+            if (vVar != null && !dimentionsContainedIn(vVar, dimStringList))
+                vVar = null;
+            if (vVar == null) {
                 Group rootGroup = dataFile.getRootGroup();
-                latVar = dataFile.findVariable(rootGroup, st);
-                if (latVar == null) {
-                    latVar = findVariableForGroup(rootGroup, st);
+                vVar = dataFile.findVariable(rootGroup, st);
+                if (vVar != null && !dimentionsContainedIn(vVar, dimStringList))
+                    vVar = null;
+                if (vVar == null) {
+                    vVar = findVariableForGroup(rootGroup, dimStringList, st);
+                    if (vVar != null && !dimentionsContainedIn(vVar, dimStringList))
+                        vVar = null;
                 }
             }
 
-            if (latVar != null) {
+            if (vVar != null) {
                 name = st;
                 break;
             }
         }
-        if (latVar == null) {
+        if (vVar == null) {
             String message = "Can't find variable '" + Arrays.toString(varName) + "' for netCDF file '"
                     + fileNameForErrorString + "'.";
             if (failIfNotFound) {
@@ -413,23 +446,48 @@ public class NetCDFUtils {
                 return null;
             }
         }
-        return new Pair<String, Variable>(name, latVar);
+        return new Pair<String, Variable>(name, vVar);
+    }
+
+    /**
+     * @param vVar
+     * @param dimStringList
+     * @return
+     */
+    private static boolean dimentionsContainedIn(Variable vVar, List<String> dimStringList) {
+        if (dimStringList == null || dimStringList.isEmpty())
+            return true;
+        if (vVar == null)
+            return false;
+        
+        List<Dimension> vDimsLst = vVar.getDimensions();
+        for (Dimension d : vDimsLst) {
+            if(!dimStringList.stream().anyMatch(s -> s.equalsIgnoreCase(d.getShortName())))
+                return false;
+        }
+        
+        return true;
     }
 
     /**
      * @param group
+     * @param dimStringList A list of dimensions that the dimensions of var must be contain in (null or empty list for don't care).
      * @param varName
      * @return
      */
-    private static Variable findVariableForGroup(Group group, String varName) {
+    private static Variable findVariableForGroup(Group group, List<String> dimStringList, String varName) {
         Variable vVar = group.findVariable(varName);
+        if (vVar != null && !dimentionsContainedIn(vVar, dimStringList))
+            vVar = null;
         if (vVar != null)
             return vVar;
         List<Group> groups = group.getGroups();
         if (groups == null || groups.isEmpty())
             return null;
         for (Group g : groups) {
-            vVar = findVariableForGroup(g, varName);
+            vVar = findVariableForGroup(g, dimStringList, varName);
+            if (vVar != null && !dimentionsContainedIn(vVar, dimStringList))
+                vVar = null;
             if (vVar != null)
                 return vVar;
         }
@@ -445,23 +503,42 @@ public class NetCDFUtils {
      */
     public static Pair<String, Variable> findVariableForStandardName(NetcdfFile dataFile, String fileNameForErrorString,
             boolean failIfNotFound, String... varName) {
+        return findVariableForStandardName(dataFile, fileNameForErrorString, failIfNotFound, null, varName);
+    }
+    
+    /**
+     * @param dataFile
+     * @param fileNameForErrorString
+     * @param failIfNotFound
+     * @param dimStringList A list of dimensions that the dimensions of var must be contain in (null or empty list for don't care).
+     * @param varName
+     * @return
+     */
+    public static Pair<String, Variable> findVariableForStandardName(NetcdfFile dataFile, String fileNameForErrorString,
+            boolean failIfNotFound, List<String> dimStringList, String... varName) {
         String name = "";
-        Variable latVar = null;
+        Variable vVar = null;
         for (String st : varName) {
-            latVar = dataFile.findVariableByAttribute(null, NETCDF_ATT_STANDARD_NAME, st);
-            if (latVar == null) {
+            vVar = dataFile.findVariableByAttribute(null, NETCDF_ATT_STANDARD_NAME, st);
+            if (vVar != null && !dimentionsContainedIn(vVar, dimStringList))
+                vVar = null;
+            if (vVar == null) {
                 Group rootGroup = dataFile.getRootGroup();
-                latVar = dataFile.findVariableByAttribute(rootGroup, NETCDF_ATT_STANDARD_NAME, st);
-                if (latVar == null) {
-                    latVar = findVariableWithAttributeForGroup(dataFile, rootGroup, NETCDF_ATT_STANDARD_NAME, st);
+                vVar = dataFile.findVariableByAttribute(rootGroup, NETCDF_ATT_STANDARD_NAME, st);
+                if (vVar != null && !dimentionsContainedIn(vVar, dimStringList))
+                    vVar = null;
+                if (vVar == null) {
+                    vVar = findVariableWithAttributeForGroup(dataFile, rootGroup, dimStringList, NETCDF_ATT_STANDARD_NAME, st);
+                    if (vVar != null && !dimentionsContainedIn(vVar, dimStringList))
+                        vVar = null;
                 }
             }
-            if (latVar != null) {
-                name = latVar.getShortName();
+            if (vVar != null) {
+                name = vVar.getShortName();
                 break;
             }
         }
-        if (latVar == null) {
+        if (vVar == null) {
             String message = "Can't find variable standard name '" + Arrays.toString(varName) + "' for netCDF file '"
                     + fileNameForErrorString + "'.";
             if (failIfNotFound) {
@@ -472,26 +549,31 @@ public class NetCDFUtils {
                 return null;
             }
         }
-        return new Pair<String, Variable>(name, latVar);
+        return new Pair<String, Variable>(name, vVar);
     }
 
     /**
      * @param dataFile
      * @param group
+     * @param dimStringList A list of dimensions that the dimensions of var must be contain in (null or empty list for don't care).
      * @param attName
      * @param varName
      * @return
      */
     private static Variable findVariableWithAttributeForGroup(NetcdfFile dataFile, Group group,
-            String attName, String varName) {
-        Variable vVar = dataFile.findVariableByAttribute(group, attName, varName);;
+            List<String> dimStringList, String attName, String varName) {
+        Variable vVar = dataFile.findVariableByAttribute(group, attName, varName);
+        if (vVar != null && !dimentionsContainedIn(vVar, dimStringList))
+            vVar = null;
         if (vVar != null)
             return vVar;
         List<Group> groups = group.getGroups();
         if (groups == null || groups.isEmpty())
             return null;
         for (Group g : groups) {
-            vVar = findVariableWithAttributeForGroup(dataFile, g, attName, varName);
+            vVar = findVariableWithAttributeForGroup(dataFile, g, dimStringList, attName, varName);
+            if (vVar != null && !dimentionsContainedIn(vVar, dimStringList))
+                vVar = null;
             if (vVar != null)
                 return vVar;
         }
