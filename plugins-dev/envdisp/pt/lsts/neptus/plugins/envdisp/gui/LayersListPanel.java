@@ -67,11 +67,14 @@ import javax.swing.SwingWorker;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.jdesktop.swingx.JXBusyLabel;
+
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorBarPainter;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.gui.ColorMapListRenderer;
+import pt.lsts.neptus.gui.InfiniteProgressPanel;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.envdisp.loader.NetCDFLoader;
 import pt.lsts.neptus.plugins.envdisp.painter.GenericNetCDFDataPainter;
@@ -100,7 +103,10 @@ public class LayersListPanel extends JPanel {
     private JPanel buttonBarPanel;
     private JScrollPane scrollHolder;
     private JButton addButton;
+    private JXBusyLabel busyPanel;
+    
     private AbstractAction addAction;
+    
 
     public LayersListPanel() {
         this(null);
@@ -125,9 +131,13 @@ public class LayersListPanel extends JPanel {
         addButton = new JButton(addAction);
         addButton.setSize(buttonDimension);
         buttonBarPanel.add(addButton);
+
+        busyPanel = InfiniteProgressPanel.createBusyAnimationInfiniteBeans(20);
+        busyPanel.setVisible(false);
+        buttonBarPanel.add(busyPanel);
         
         add(buttonBarPanel, "w 100%");
-        
+
         holder = new JPanel();
         holder.setLayout(new BoxLayout(holder, BoxLayout.PAGE_AXIS));
         holder.setSize(400, 600);
@@ -149,6 +159,7 @@ public class LayersListPanel extends JPanel {
                 
                 JButton source = (JButton) e.getSource();
                 source.setEnabled(false);
+                setBusy(true);
                 
                 try {
                     NetcdfFile dataFile = NetcdfFile.open(fx.getPath());
@@ -180,6 +191,7 @@ public class LayersListPanel extends JPanel {
                                 }
                                 NetCDFLoader.deleteNetCDFUnzippedFile(fx);
                                 source.setEnabled(true);
+                                setBusy(false);
                             }
                         };
                         sw.execute();
@@ -187,6 +199,7 @@ public class LayersListPanel extends JPanel {
                     else {
                         source.setEnabled(true);
                         NetCDFLoader.deleteNetCDFUnzippedFile(fx);
+                        setBusy(false);
                     }
                     
                     recentFolder = fx;
@@ -195,10 +208,16 @@ public class LayersListPanel extends JPanel {
                     e1.printStackTrace();
                     source.setEnabled(true);
                     NetCDFLoader.deleteNetCDFUnzippedFile(fx);
+                    setBusy(false);
                 }
             }
         };
 
+    }
+
+    private void setBusy(boolean busy) {
+        busyPanel.setVisible(busy);
+        busyPanel.setBusy(busy);;
     }
 
     /**
