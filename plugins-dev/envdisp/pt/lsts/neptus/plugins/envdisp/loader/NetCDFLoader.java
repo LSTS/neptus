@@ -66,7 +66,6 @@ import pt.lsts.neptus.plugins.envdisp.datapoints.GenericDataPoint.Info;
 import pt.lsts.neptus.plugins.envdisp.datapoints.GenericDataPoint.Info.ScalarOrLogPreference;
 import pt.lsts.neptus.plugins.envdisp.painter.GenericNetCDFDataPainter;
 import pt.lsts.neptus.util.AngleUtils;
-import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.StringUtils;
 import pt.lsts.neptus.util.netcdf.NetCDFUnitsUtils;
@@ -85,7 +84,7 @@ import ucar.nc2.Variable;
  */
 public class NetCDFLoader {
     
-    public static final String NETCDF_FILE_PATTERN = ".\\.nc(\\.gz)?$";
+    public static final String NETCDF_FILE_PATTERN = ".+\\.nc(\\.gz)?$";
     
     /**
      * @param dataFile
@@ -464,9 +463,18 @@ public class NetCDFLoader {
      */
     public static void deleteNetCDFUnzippedFile(File fx) {
         // Deleting the unzipped file
-        if ("gz".equalsIgnoreCase(FileUtil.getFileExtension(fx))) {
-            String absPath = fx.getAbsolutePath();
+        String absPath = fx.getAbsolutePath();
+        if (absPath.matches(".+\\.nc\\.gz$")) {
             absPath = absPath.replaceAll("\\.nc\\.gz$", ".nc");
+        }
+        else if (absPath.matches(".+\\.nc\\.zip$")) {
+            absPath = absPath.replaceAll("\\.nc\\.zip$", ".nc");
+        }
+        else {
+            absPath = null;
+        }
+
+        if (absPath != null) {
             File unzipedFile = new File(absPath);
             if (unzipedFile.exists()) {
                 try {
