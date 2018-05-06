@@ -43,6 +43,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.Collections;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Future;
@@ -59,9 +60,11 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
+import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.JToggleButton;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.event.ChangeEvent;
@@ -75,11 +78,13 @@ import pt.lsts.neptus.colormap.ColorBarPainter;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.gui.ColorMapListRenderer;
 import pt.lsts.neptus.gui.InfiniteProgressPanel;
+import pt.lsts.neptus.gui.swing.RangeSlider;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.envdisp.loader.NetCDFLoader;
 import pt.lsts.neptus.plugins.envdisp.painter.GenericNetCDFDataPainter;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.MathMiscUtils;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
@@ -433,6 +438,64 @@ public class LayersListPanel extends JPanel {
                 viz.getOffScreenLayer().triggerImageRebuild();
             }
         });
+        
+        long minMs = viz.getInfo().minDate.getTime();
+        long maxMs = viz.getInfo().maxDate.getTime();
+        JLabel timeSliderMinLabel = new JLabel(viz.getInfo().minDate.toString());
+        JLabel timeSliderMaxLabel = new JLabel(viz.getInfo().maxDate.toString(), SwingConstants.RIGHT);
+        double timeScale = 0.01;
+        boolean validTime = viz.getInfo().minDate.getTime() != 0 && viz.getInfo().maxDate.getTime() != 0;
+        RangeSlider timeSlider = !validTime ? new RangeSlider(0, 0) : new RangeSlider(0, (int) ((maxMs - minMs) * timeScale));
+        if (!validTime)
+            timeSlider.setEnabled(false);
+        timeSlider.setUpperValue(timeSlider.getMaximum());
+        timeSlider.setValue(timeSlider.getMinimum());
+        timeSlider.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                double selMin = minMs + timeSlider.getValue() / timeScale;
+                double selMax = minMs + timeSlider.getUpperValue() / timeScale;
+                timeSliderMinLabel.setText(new Date((long) selMin).toString());
+                timeSliderMaxLabel.setText(new Date((long) selMax).toString());
+                if (!((JSlider) e.getSource()).getValueIsAdjusting()) {
+//                    updateTimeSliderTime();
+//                    invalidateCache();
+//                    oldestTimestampSelection = timeSlider.getValue() * timeStampSliderScale;
+//                    newestTimestampSelection = (timeSlider.getValue() + timeSlider.getExtent()) * timeStampSliderScale;
+//                    triggerRhodPredMinMaxValuesCalc();
+                }
+            }
+        });
+
+        double minDepth = viz.getInfo().minDepth;
+        double maxDepth = viz.getInfo().maxDepth;
+//        double minDepth = 0.001;
+//        double maxDepth = 22.399956;
+        JLabel depthSliderMinLabel = new JLabel("" + (Double.isFinite(minDepth) ? MathMiscUtils.round(minDepth, 1) : "n/a"));
+        JLabel depthSliderMaxLabel = new JLabel("" + (Double.isFinite(maxDepth) ? MathMiscUtils.round(maxDepth, 1) : "n/a"), SwingConstants.RIGHT);
+        double depthScale = 10;
+        boolean validDepth = Double.isFinite(minDepth) && Double.isFinite(maxDepth);
+        RangeSlider depthSlider = !validDepth ? new RangeSlider(0, 0) : new RangeSlider(0, (int) ((maxDepth - minDepth) * depthScale));
+        if (!validDepth)
+            depthSlider.setEnabled(false);
+        depthSlider.setUpperValue(depthSlider.getMaximum());
+        depthSlider.setValue(depthSlider.getMinimum());
+        depthSlider.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                double selMin = minDepth + depthSlider.getValue() / depthScale;
+                double selMax = minDepth + depthSlider.getUpperValue() / depthScale;
+                depthSliderMinLabel.setText("" + MathMiscUtils.round(selMin, 1));
+                depthSliderMaxLabel.setText("" + MathMiscUtils.round(selMax, 1));
+                if (!((JSlider) e.getSource()).getValueIsAdjusting()) {
+//                    updateDepthSliderTime();
+//                    invalidateCache();
+//                    oldestDepthSelection = depthSlider.getValue() * depthSliderScale;
+//                    newestDepthSelection = (depthSlider.getValue() + depthSlider.getExtent()) * depthSliderScale;
+//                    triggerRhodPredMinMaxValuesCalc();
+                }
+            }
+        });
 
         // Layout
         hdr.add(vOneButton, "sg radio, spanx 6, split 2");
@@ -457,8 +520,24 @@ public class LayersListPanel extends JPanel {
         hdr.add(new JLabel(I18n.text("Unit") + ":"), "spanx, split");
         hdr.add(new JLabel(viz.getInfo().unit), "w 100:100:, grow");
         hdr.add(useLog10Button, "align right");
-        hdr.add(interpolateButton, "align right");
+        hdr.add(interpolateButton, "align right, wrap");
 
+        if (validTime && false) {
+            hdr.add(new JLabel(I18n.text("Time") + ":"), "sg slabel, spanx, split");
+            hdr.add(timeSlider, "sg sslider, growx, wrap");
+            hdr.add(new JLabel(""), "sg slabel, spanx, split");
+            hdr.add(timeSliderMinLabel, "sg sminmax, grow");
+            hdr.add(timeSliderMaxLabel, "sg sminmax, align right, wrap");
+        }
+        
+        if (validDepth && false) {
+            hdr.add(new JLabel(I18n.text("Depth") + ":"), "sg slabel, spanx, split");
+            hdr.add(depthSlider, "sg sslider, growx, wrap");
+            hdr.add(new JLabel(""), "sg slabel, spanx, split");
+            hdr.add(depthSliderMinLabel, "sg sminmax, grow");
+            hdr.add(depthSliderMaxLabel, "sg sminmax, align right, wrap");
+        }
+        
         holder.add(hdr, "h :30px:");
         
         this.invalidate();
