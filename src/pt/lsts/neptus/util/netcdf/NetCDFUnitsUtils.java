@@ -260,12 +260,14 @@ public class NetCDFUnitsUtils {
         if (units == null || units.isEmpty())
             return value;
         double ret = value;
-        switch (units.trim()) {
+        switch (units.toLowerCase().trim()) {
             case "K":
+            case "kelvin":
                 ret = value - UnitsUtil.CELSIUS_TO_KELVIN;
                 break;
             case "\u00B0F":
             case "ºF":
+            case "degree_F":
                 ret = (value - 32) / 1.8;
                 break;
         }
@@ -277,7 +279,7 @@ public class NetCDFUnitsUtils {
         if (units == null || units.isEmpty())
             return value;
         double ret = value;
-        switch (units.trim()) {
+        switch (units.toLowerCase().trim()) {
             case "kg m-3":
             case "Kg m-3":
                 ret = value * 1E3 * 1E3;
@@ -298,7 +300,7 @@ public class NetCDFUnitsUtils {
         if (units == null || units.isEmpty())
             return value;
         double ret = value;
-        switch (units.trim()) {
+        switch (units.toLowerCase().trim()) {
             case "km":
             case "Km":
                 ret = value * 1E3;
