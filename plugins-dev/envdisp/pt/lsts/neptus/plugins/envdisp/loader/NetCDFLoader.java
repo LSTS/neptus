@@ -321,6 +321,7 @@ public class NetCDFLoader {
                                 lonVar = v;
                                 continue;
                             case "time":
+                            case "ocean_time":
                                 timeName = v.getShortName();
                                 timeVar = v;
                                 continue;
@@ -344,6 +345,7 @@ public class NetCDFLoader {
                             lonVar = v;
                             continue;
                         case "time":
+                        case "ocean_time":
                             timeName = v.getShortName();
                             timeVar = v;
                             continue;
@@ -371,7 +373,7 @@ public class NetCDFLoader {
             }
 
             if (timeVar == null) {
-                searchPair = NetCDFUtils.findVariableForStandardNameOrName(dataFile, fileName, false, dimDimStrLst, "time");
+                searchPair = NetCDFUtils.findVariableForStandardNameOrName(dataFile, fileName, false, dimDimStrLst, "time", "ocean_time");
                 timeName = searchPair == null ? null : searchPair.first();
                 timeVar = searchPair == null ? null : searchPair.second();
             }
