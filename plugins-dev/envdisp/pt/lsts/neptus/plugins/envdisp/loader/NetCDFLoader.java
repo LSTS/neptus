@@ -49,6 +49,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -298,9 +299,10 @@ public class NetCDFLoader {
             Variable depthVar = null;
 
             // Find the vars for dims
+            List<String> dimDimStrLst = Arrays.asList(dimDim.stream().flatMap(d -> Stream.of(d.getShortName())).toArray(String[]::new));
             Map<String, Variable> dimVars = new LinkedHashMap<>();
             for (Dimension d : dimDim) {
-                Pair<String, Variable> sPair = NetCDFUtils.findVariableFor(dataFile, fileName, false, d.getShortName());
+                Pair<String, Variable> sPair = NetCDFUtils.findVariableFor(dataFile, fileName, false, dimDimStrLst, d.getShortName());
                 if (sPair == null || sPair.second() == null) {
                     dimVars.put(d.getShortName(), null);
                 }
@@ -357,26 +359,26 @@ public class NetCDFLoader {
 
             // Get the latitude and longitude Variables.
             if (latVar == null) {
-                searchPair = NetCDFUtils.findVariableForStandardNameOrName(dataFile, fileName, true, "latitude", "lat");
+                searchPair = NetCDFUtils.findVariableForStandardNameOrName(dataFile, fileName, true, dimDimStrLst, "latitude", "lat");
                 latName = searchPair.first();
                 latVar = searchPair.second(); 
             }
 
             if (lonVar == null) {
-                searchPair = NetCDFUtils.findVariableForStandardNameOrName(dataFile, fileName, true, "longitude", "lon");
+                searchPair = NetCDFUtils.findVariableForStandardNameOrName(dataFile, fileName, true, dimDimStrLst, "longitude", "lon");
                 lonName = searchPair.first();
                 lonVar = searchPair.second();
             }
 
             if (timeVar == null) {
-                searchPair = NetCDFUtils.findVariableForStandardNameOrName(dataFile, fileName, false, "time");
+                searchPair = NetCDFUtils.findVariableForStandardNameOrName(dataFile, fileName, false, dimDimStrLst, "time");
                 timeName = searchPair == null ? null : searchPair.first();
                 timeVar = searchPair == null ? null : searchPair.second();
             }
 
             if (depthVar == null) {
                 // If varName is already depth, no need to use it
-                searchPair = "depth".equalsIgnoreCase(varName) ? null : NetCDFUtils.findVariableForStandardNameOrName(dataFile, fileName, false, "depth");
+                searchPair = "depth".equalsIgnoreCase(varName) ? null : NetCDFUtils.findVariableForStandardNameOrName(dataFile, fileName, false, dimDimStrLst, "depth");
                 depthName = searchPair == null ? null : searchPair.first();;
                 depthVar = searchPair == null ? null : searchPair.second(); 
             }
