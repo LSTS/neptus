@@ -100,7 +100,17 @@ public class GenericNetCDFDataPainter {
     private double minValue = Double.MIN_VALUE;
     @NeptusProperty
     private double maxValue = Double.MAX_VALUE;
-    
+
+    @NeptusProperty
+    private Date minDate = new Date(0);
+    @NeptusProperty
+    private Date maxDate = new Date(Long.MAX_VALUE);;
+
+    @NeptusProperty
+    private double minDepth = Double.MIN_VALUE;
+    @NeptusProperty
+    private double maxDepth = Double.MAX_VALUE;
+
     public GenericNetCDFDataPainter(long plotUniqueId, Map<String, GenericDataPoint> dataPointsVar) throws Exception {
         if (dataPointsVar == null || dataPointsVar.isEmpty())
             throw new Exception("Empty data set found!");
@@ -113,7 +123,13 @@ public class GenericNetCDFDataPainter {
         
         this.minValue = this.info.minVal;
         this.maxValue = this.info.maxVal;
-        
+
+        this.minDepth = Double.isFinite(this.info.minDepth) ? this.info.minDepth : this.minDepth;
+        this.maxDepth = Double.isFinite(this.info.maxDepth) ? this.info.maxDepth : this.maxDepth;
+
+        this.minDate = this.info.minDate.getTime() != 0 ? this.info.minDate : this.minDate;
+        this.maxDate = this.info.maxDate.getTime() != 0 ? this.info.maxDate : this.maxDate;
+
         switch (this.info.scalarOrLogPreference) {
             case LOG10:
                 this.isLogColorMap = true;
@@ -325,6 +341,62 @@ public class GenericNetCDFDataPainter {
      */
     public void setMaxValue(double maxValue) {
         this.maxValue = maxValue;
+    }
+
+    /**
+     * @return the minDate
+     */
+    public Date getMinDate() {
+        return minDate;
+    }
+
+    /**
+     * @param minDate the minDate to set
+     */
+    public void setMinDate(Date minDate) {
+        this.minDate = minDate;
+    }
+
+    /**
+     * @return the maxDate
+     */
+    public Date getMaxDate() {
+        return maxDate;
+    }
+
+    /**
+     * @param maxDate the maxDate to set
+     */
+    public void setMaxDate(Date maxDate) {
+        this.maxDate = maxDate;
+    }
+
+    /**
+     * @return the minDepth
+     */
+    public double getMinDepth() {
+        return minDepth;
+    }
+
+    /**
+     * @param minDepth the minDepth to set
+     */
+    public void setMinDepth(double minDepth) {
+        this.minDepth = minDepth;
+    }
+
+    /**
+     * @return the maxDepth
+     */
+    public double getMaxDepth() {
+        return maxDepth;
+    }
+
+    /**
+     * @param maxDepth the maxDepth to set
+     */
+    public void setMaxDepth(double maxDepth) {
+        this.maxDepth = maxDepth;
     }
 
     /**

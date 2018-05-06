@@ -458,11 +458,9 @@ public class LayersListPanel extends JPanel {
                 timeSliderMinLabel.setText(new Date((long) selMin).toString());
                 timeSliderMaxLabel.setText(new Date((long) selMax).toString());
                 if (!((JSlider) e.getSource()).getValueIsAdjusting()) {
-//                    updateTimeSliderTime();
-//                    invalidateCache();
-//                    oldestTimestampSelection = timeSlider.getValue() * timeStampSliderScale;
-//                    newestTimestampSelection = (timeSlider.getValue() + timeSlider.getExtent()) * timeStampSliderScale;
-//                    triggerRhodPredMinMaxValuesCalc();
+                    viz.setMinDate(new Date((long) selMin));
+                    viz.setMaxDate(new Date((long) selMax));
+                    viz.getOffScreenLayer().triggerImageRebuild();
                 }
             }
         });
@@ -488,11 +486,9 @@ public class LayersListPanel extends JPanel {
                 depthSliderMinLabel.setText("" + MathMiscUtils.round(selMin, 1));
                 depthSliderMaxLabel.setText("" + MathMiscUtils.round(selMax, 1));
                 if (!((JSlider) e.getSource()).getValueIsAdjusting()) {
-//                    updateDepthSliderTime();
-//                    invalidateCache();
-//                    oldestDepthSelection = depthSlider.getValue() * depthSliderScale;
-//                    newestDepthSelection = (depthSlider.getValue() + depthSlider.getExtent()) * depthSliderScale;
-//                    triggerRhodPredMinMaxValuesCalc();
+                    viz.setMinDepth(selMin);
+                    viz.setMaxDepth(selMax);
+                    viz.getOffScreenLayer().triggerImageRebuild();
                 }
             }
         });
