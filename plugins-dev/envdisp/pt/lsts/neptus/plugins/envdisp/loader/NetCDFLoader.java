@@ -69,6 +69,7 @@ import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.StringUtils;
+import pt.lsts.neptus.util.netcdf.NetCDFUnitsUtils;
 import pt.lsts.neptus.util.netcdf.NetCDFUtils;
 import ucar.ma2.Array;
 import ucar.ma2.Index;
@@ -324,6 +325,7 @@ public class NetCDFLoader {
                             : Double.NaN;
                     if (!Double.isNaN(depth) && NetCDFUtils.isValueValid(depth, depthFillValue, depthValidRange)) {
                         depth = depth * depthScaleFactorAndAddOffset.first() + depthScaleFactorAndAddOffset.second();
+                        depth = NetCDFUnitsUtils.getValueForMetterFromTempUnits(depth, depthVar.getUnitsString());
                     }
 
                     Index index = vArray.getIndex();
