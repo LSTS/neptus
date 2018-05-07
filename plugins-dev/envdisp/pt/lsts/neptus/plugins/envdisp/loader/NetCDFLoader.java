@@ -363,10 +363,10 @@ public class NetCDFLoader {
                                 dp.getInfo().maxDepth = depth;
                         }
 
-                        GenericDataPoint dpo = dataDp.get(GenericDataPoint.getId(dp));
+                        GenericDataPoint dpo = dataDp.get(dp.getId());
                         if (dpo == null) {
                             dpo = dp.getACopyWithoutHistory();
-                            dataDp.put(GenericDataPoint.getId(dp), dp);
+                            dataDp.put(dp.getId(), dp);
                         }
 
                         ArrayList<GenericDataPoint> lst = dpo.getHistoricalData();
