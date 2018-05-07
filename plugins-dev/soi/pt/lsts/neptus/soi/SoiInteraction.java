@@ -127,12 +127,19 @@ public class SoiInteraction extends SimpleRendererInteraction {
     private VerticalProfileViewer profileView = new VerticalProfileViewer();
     
     private AssetsManager assetsManager = AssetsManager.getInstance();
-
+    GeneralPath gp = new GeneralPath();
+    
     /**
      * @param console
      */
     public SoiInteraction(ConsoleLayout console) {
         super(console);
+        
+        gp.moveTo(-7, 4);
+        gp.lineTo(0, -12);
+        gp.lineTo(7, 4);
+        gp.lineTo(0, 0);
+        gp.closePath();
     }
 
     @Override
@@ -356,49 +363,14 @@ public class SoiInteraction extends SimpleRendererInteraction {
                 break;
         }
     }
-
+    
     private void paintPlans(Graphics2D g, StateRenderer2D renderer) {
-        assetsManager.getPlans().forEach( (vehicle, plan) -> {
-            try {
-                VehicleType v = VehiclesHolder.getVehicleById(vehicle);
-                if (v == null)
-                    return;
-                Color c = VehiclesHolder.getVehicleById(vehicle).getIconColor();
-                SystemPositionAndAttitude estimatedState = SoiUtils
-                        .estimatedState(ImcSystemsHolder.getSystemWithName(vehicle), plan);
-                SoiPlanRenderer prenderer = new SoiPlanRenderer();
-
-                prenderer.setColor(c);
-                prenderer.setPlan(plan);
-                prenderer.paint(g, renderer);
-                if (estimatedState != null && estimatedState.getPosition() != null) {
-                    Point2D pt = renderer.getScreenPosition(estimatedState.getPosition());
-                    Graphics2D copy = (Graphics2D) g.create();
-                    copy.setColor(c);
-                    copy.translate(pt.getX(), pt.getY());
-                    copy.rotate(Math.toRadians(estimatedState.getYaw()));
-                    GeneralPath gp = new GeneralPath();
-                    gp.moveTo(-7, 4);
-                    gp.lineTo(0, -12);
-                    gp.lineTo(7, 4);
-                    gp.lineTo(0, 0);
-                    gp.closePath();
-                    copy.fill(gp);
-                    copy.setColor(Color.white);
-                    copy.draw(gp);
-                }
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
         for (Entry<String, Plan> p : assetsManager.getPlans().entrySet()) {
             try {
                 String vehicle = p.getKey();
                 VehicleType v = VehiclesHolder.getVehicleById(vehicle);
                 if (v == null)
                     continue;
-                
                 
                 Color c = VehiclesHolder.getVehicleById(vehicle).getIconColor();
                 SystemPositionAndAttitude estimatedState = SoiUtils
@@ -413,13 +385,8 @@ public class SoiInteraction extends SimpleRendererInteraction {
                     Graphics2D copy = (Graphics2D) g.create();
                     copy.setColor(c);
                     copy.translate(pt.getX(), pt.getY());
-                    copy.rotate(Math.toRadians(estimatedState.getYaw()));
-                    GeneralPath gp = new GeneralPath();
-                    gp.moveTo(-7, 4);
-                    gp.lineTo(0, -12);
-                    gp.lineTo(7, 4);
-                    gp.lineTo(0, 0);
-                    gp.closePath();
+                    copy.rotate(Math.toRadians(estimatedState.getYaw())-renderer.getRotation());
+                    
                     copy.fill(gp);
                     copy.setColor(Color.white);
                     copy.draw(gp);

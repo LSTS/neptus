@@ -1837,7 +1837,7 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
             g2.translate(pt.getX(), pt.getY());
 
             // Choose main color
-            Color color = new Color(255, 0, 255); // PLUM_RED
+            Color color = SystemPainterHelper.EXTERNAL_SYSTEM_COLOR;
 
             if (minutesToHideSystemsWithoutKnownLocation <= 0 || System.currentTimeMillis()
                     - sys.getLocationTimeMillis() < DateTimeUtil.MINUTE * minutesToHideSystemsWithoutKnownLocation)

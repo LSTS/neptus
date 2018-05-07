@@ -32,6 +32,7 @@
  */
 package pt.lsts.neptus.endurance;
 
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
@@ -59,6 +60,7 @@ import javax.swing.event.ChangeEvent;
 import pt.lsts.aismanager.ShipAisSnapshot;
 import pt.lsts.aismanager.api.AisContactManager;
 import pt.lsts.neptus.console.ConsoleInteraction;
+import pt.lsts.neptus.gui.system.SystemPainterHelper;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.update.Periodic;
@@ -128,9 +130,9 @@ public class SoiAwareness extends ConsoleInteraction {
         vehShape.lineTo(0, 0);
         vehShape.closePath();
         
-        shipShape.moveTo(-10, 4);
+        shipShape.moveTo(-12, 5);
         shipShape.lineTo(0, -12);
-        shipShape.lineTo(10, 4);
+        shipShape.lineTo(12, 5);
         shipShape.lineTo(0, 0);
         shipShape.closePath();
         
@@ -188,7 +190,7 @@ public class SoiAwareness extends ConsoleInteraction {
             return;
         
         Graphics2D g = (Graphics2D)g2.create();
-        g.setColor(new Color(64, 64, 64, 128));
+        g.setColor(new Color(0, 0, 0, 128));
         g.fillRect(0, 0, source.getWidth(), source.getHeight());        
          
         g.setFont(dateFont);
@@ -228,13 +230,15 @@ public class SoiAwareness extends ConsoleInteraction {
 
         if (shipTrackSize > 0) {
             g.setColor(Color.RED.darker());
-            g.setPaint(new GradientPaint(0f, 0f, Color.red.darker(), 0f, (float)(-renderer.getZoom() * shipTrackSize * state.getSogMps()), new Color(255,0,0,0)));
+            g.setStroke(new BasicStroke(2f));
+            g.setPaint(new GradientPaint(0f, 0f, SystemPainterHelper.EXTERNAL_SYSTEM_COLOR, 0f, (float)(-renderer.getZoom() * shipTrackSize * state.getSogMps()), new Color(255,0,0,0)));
             g.draw(new Line2D.Double(0,-renderer.getZoom() * shipTrackSize * state.getSogMps(), 0, 0));
         }
         
-        g.setColor(Color.red.darker());
+        g.setColor(SystemPainterHelper.EXTERNAL_SYSTEM_COLOR);
         g.fill(shipShape);
         g.setColor(Color.black);
+        g.setStroke(new BasicStroke(1f));
         g.draw(shipShape);
     }
     
@@ -245,7 +249,7 @@ public class SoiAwareness extends ConsoleInteraction {
         if (vehicle != null)
             g.setColor(vehicle.getIconColor());
         else
-            g.setColor(Color.red);
+            g.setColor(SystemPainterHelper.EXTERNAL_SYSTEM_COLOR);
         
         g.translate(pt.getX(), pt.getY());        
         g.rotate(Math.toRadians(state.getHeading())-renderer.getRotation());

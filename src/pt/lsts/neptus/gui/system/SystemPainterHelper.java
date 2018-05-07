@@ -66,6 +66,8 @@ public class SystemPainterHelper {
 
     public static final int AGE_TRANSPARENCY = 128;
     
+    public static final Color EXTERNAL_SYSTEM_COLOR = new Color(255, 0, 255); // PLUM_RED
+    
     protected static GeneralPath shipShape = new GeneralPath();
     static {
         shipShape.moveTo(0, -5);

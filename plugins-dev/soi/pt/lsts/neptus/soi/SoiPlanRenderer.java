@@ -32,7 +32,9 @@
  */
 package pt.lsts.neptus.soi;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.GradientPaint;
 import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
@@ -63,6 +65,15 @@ public class SoiPlanRenderer implements Renderer2DPainter {
         vehicle = null;
     }
 
+    private void paintCircle(Point2D pt2d, Color color, int radius, Graphics2D g) {
+        g.setPaint(new GradientPaint((float) pt2d.getX() - radius, (float) pt2d.getY(), color,
+                (float) pt2d.getX() + radius, (float) pt2d.getY()+radius, color.darker().darker().darker()));
+        g.fill(new Ellipse2D.Double(pt2d.getX() - radius, pt2d.getY() - radius, radius*2, radius*2));
+        g.setStroke(new BasicStroke(0.5f));
+        g.setColor(Color.black);
+        g.draw(new Ellipse2D.Double(pt2d.getX() - radius, pt2d.getY() - radius, radius*2, radius*2));
+    }
+    
     @Override
     public void paint(Graphics2D g0, StateRenderer2D renderer) {
         if (plan != null && !plan.waypoints().isEmpty()) {
@@ -74,31 +85,37 @@ public class SoiPlanRenderer implements Renderer2DPainter {
             for (Waypoint wpt : plan.waypoints()) {
                 LocationType loc = new LocationType(wpt.getLatitude(), wpt.getLongitude());
                 Point2D pt2d = renderer.getScreenPosition(loc);
-                //
 
                 if (lastLoc != null) {
                     Point2D lastPT = renderer.getScreenPosition(lastLoc);
-                    g.setColor(color);
+                    g.setColor(color.darker());
+                    g.setStroke(new BasicStroke(2.5f));
                     g.draw(new Line2D.Double(lastPT.getX(), lastPT.getY(), pt2d.getX(), pt2d.getY()));
                 }
                 lastLoc = loc;
-
+            }
+            
+            for (Waypoint wpt : plan.waypoints()) {
+                LocationType loc = new LocationType(wpt.getLatitude(), wpt.getLongitude());
+                Point2D pt2d = renderer.getScreenPosition(loc);
+                
                 if (wpt.getArrivalTime() != null && wpt.getArrivalTime().before(new Date())) {
-                    g.setColor(Color.gray);
-                    g.fill(new Ellipse2D.Double(pt2d.getX() - 4, pt2d.getY() - 4, 8, 8));
+                    paintCircle(pt2d, color, 8, g);
+                    g.setColor(Color.black);
+                    String minsToEta = "ETA: -" + DateTimeUtil
+                            .milliSecondsToFormatedString(-wpt.getArrivalTime().getTime() + System.currentTimeMillis());
+                    g.drawString(minsToEta, (int) pt2d.getX() + 6, (int) pt2d.getY() - 3);
                 }
                 else {
                     String minsToEta = "ETA: ?";
-                    if (wpt.getArrivalTime() != null && wpt.getArrivalTime() != null)
+                    if (wpt.getArrivalTime() != null)
                         minsToEta = "ETA: " + DateTimeUtil
                                 .milliSecondsToFormatedString(wpt.getArrivalTime().getTime() - System.currentTimeMillis());
 
-                    g.setColor(Color.green.darker());
-                    g.fill(new Ellipse2D.Double(pt2d.getX() - 4, pt2d.getY() - 4, 8, 8));
+                    paintCircle(pt2d, Color.green.darker(), 8, g);
+                    g.setColor(Color.black);
                     g.drawString(minsToEta, (int) pt2d.getX() + 6, (int) pt2d.getY() - 3);
                 }
-                g.setColor(color);
-                g.draw(new Ellipse2D.Double(pt2d.getX() - 4, pt2d.getY() - 4, 8, 8));
             }
             g.dispose();
         }
