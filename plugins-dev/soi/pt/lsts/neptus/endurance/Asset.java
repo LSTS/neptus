@@ -76,7 +76,7 @@ public class Asset implements Comparable<Asset>{
 			received = state;
 		}
 		
-		track.setState(state);
+		track.setState(received);
 	}
 	
 	public AssetState stateAt(Date d) {

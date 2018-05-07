@@ -90,6 +90,7 @@ import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.SimpleRendererInteraction;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.DateTimeUtil;
@@ -337,6 +338,9 @@ public class SoiInteraction extends SimpleRendererInteraction {
     private void paintPlans(Graphics2D g, StateRenderer2D renderer) {
         assetsManager.getPlans().forEach( (vehicle, plan) -> {
             try {
+                VehicleType v = VehiclesHolder.getVehicleById(vehicle);
+                if (v == null)
+                    return;
                 Color c = VehiclesHolder.getVehicleById(vehicle).getIconColor();
                 SystemPositionAndAttitude estimatedState = SoiUtils
                         .estimatedState(ImcSystemsHolder.getSystemWithName(vehicle), plan);
@@ -369,7 +373,12 @@ public class SoiInteraction extends SimpleRendererInteraction {
         for (Entry<String, Plan> p : assetsManager.getPlans().entrySet()) {
             try {
                 String vehicle = p.getKey();
-                Color c = VehiclesHolder.getVehicleById(p.getKey()).getIconColor();
+                VehicleType v = VehiclesHolder.getVehicleById(vehicle);
+                if (v == null)
+                    continue;
+                
+                
+                Color c = VehiclesHolder.getVehicleById(vehicle).getIconColor();
                 SystemPositionAndAttitude estimatedState = SoiUtils
                         .estimatedState(ImcSystemsHolder.getSystemWithName(vehicle), p.getValue());
                 SoiPlanRenderer prenderer = new SoiPlanRenderer();

@@ -75,8 +75,10 @@ public class AssetTrack {
      * @param state The state to add to the track
      */
     public void setState(AssetState state) {
+        
         synchronized (states) {
-            states.put(state.getTimestamp(), state);
+            if (state.getTimestamp() != null)
+                states.put(state.getTimestamp(), state);
         }
     }
 
