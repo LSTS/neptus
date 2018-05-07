@@ -57,6 +57,7 @@ import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Arrays;
 
 import com.google.common.eventbus.Subscribe;
 
+import pt.lsts.imc.Announce;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.PlanSpecification;
 import pt.lsts.imc.SoiCommand;
@@ -101,7 +102,7 @@ import pt.lsts.neptus.util.MathMiscUtils;
  * @author zp
  *
  */
-@PluginDescription(name = "SoiInteraction")
+@PluginDescription(name = "SOI Interaction")
 public class SoiInteraction extends SimpleRendererInteraction {
 
     private static final long serialVersionUID = 477322168507708457L;
@@ -312,6 +313,27 @@ public class SoiInteraction extends SimpleRendererInteraction {
                 I18n.textf("Received %param profile from %vehicle.", msg.getParameter().name().toLowerCase(), msg.getSourceName())));
     }
     
+    @Subscribe
+    public void on(StateReport cmd) {
+        try {
+            assetsManager.process(cmd);    
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+    }
+    
+    @Subscribe
+    public void on(Announce cmd) {
+        try {
+            assetsManager.process(cmd);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     @Subscribe
     public void on(SoiCommand cmd) {
         assetsManager.process(cmd, getConsole());

@@ -33,6 +33,7 @@
 package pt.lsts.neptus.endurance;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -42,8 +43,10 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import pt.lsts.imc.Announce;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.SoiCommand;
+import pt.lsts.imc.StateReport;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.iridium.ImcIridiumMessage;
 import pt.lsts.neptus.comm.iridium.IridiumManager;
@@ -58,6 +61,7 @@ import pt.lsts.neptus.plugins.PluginProperty;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
+import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.GuiUtils;
 
 /**
@@ -87,6 +91,12 @@ public class AssetsManager {
             instance = new AssetsManager();
         
         return instance;
+    }
+    
+    public List<Asset> getAssets() {
+        ArrayList<Asset> ret = new ArrayList<>();
+        ret.addAll(assetsMap.values());
+        return ret;
     }
     
     /**
@@ -187,6 +197,40 @@ public class AssetsManager {
         return listener;
     }
 
+    public void process(StateReport cmd) {
+        Asset asset = getAssetFor(cmd.getSourceName());
+        
+        if (asset == null)
+            asset = new Asset(cmd.getSourceName());
+        
+        AssetState state = AssetState.builder()
+                .withLatitude(cmd.getLatitude())
+                .withLongitude(cmd.getLongitude())
+                .withTimestamp(cmd.getDate())
+                .withHeading((cmd.getHeading()/65535.0)*Math.PI * 2)
+                .build();
+        
+        asset.setState(state);        
+    }
+    
+    public void process(Announce ann) {
+        Asset asset = getAssetFor(ann.getSourceName());
+        
+        if (asset == null && VehiclesHolder.getVehicleById(ann.getSysName()) != null)
+            asset = new Asset(ann.getSysName());
+        
+        if (asset == null)
+            return;
+        
+        AssetState state = AssetState.builder()
+                .withLatitude(Math.toDegrees(ann.getLat()))
+                .withLongitude(Math.toDegrees(ann.getLon()))
+                .withTimestamp(ann.getDate())
+                .build();
+        
+        asset.setState(state);
+    }
+    
     public void process(SoiCommand cmd, ConsoleLayout console) {
         if (cmd.getType() != SoiCommand.TYPE.SUCCESS)
             return;

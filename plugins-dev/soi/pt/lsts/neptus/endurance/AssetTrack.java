@@ -114,13 +114,14 @@ public class AssetTrack {
 
         if (nextOne == null && previousOne == null) {
             System.err.println("Could not synthesize state for " + d);
+            return null;
         }
 
-        if (nextOne == null) {
+        if (nextOne == null && previousOne != null) {
             return previousOne.getValue();
         }
 
-        if (previousOne == null) {
+        if (previousOne == null && nextOne != null) {
             return nextOne.getValue();
         }
 
@@ -132,7 +133,7 @@ public class AssetTrack {
         LocationType loc = new LocationType(prevLoc);
         double ratio = (d.getTime() - previousOne.getKey().getTime()) / timeDiff;
         loc.translatePosition(offsets[0] * ratio, offsets[1] * ratio, 0).convertToAbsoluteLatLonDepth();
-        double heading = Math.atan2(offsets[0], offsets[1]);
+        double heading = Math.atan2(offsets[1], offsets[0]);
 
         return AssetState.builder().withHeading(Math.toDegrees(heading)).withLatitude(loc.getLatitudeDegs())
                 .withLongitude(loc.getLongitudeDegs()).withTimestamp(d).build();
