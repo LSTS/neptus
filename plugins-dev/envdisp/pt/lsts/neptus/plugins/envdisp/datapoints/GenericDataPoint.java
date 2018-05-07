@@ -57,6 +57,15 @@ public class GenericDataPoint extends BaseDataPoint<GenericDataPoint> {
         super(lat, lon);
     }
 
+    public static String getId(GenericDataPoint hfrdp) {
+        return hfrdp.getId();
+    }
+
+    @Override
+    public String getId() {
+        return super.getId() + (Double.isFinite(depth) ?  ":" + depth : "");
+    }
+
     /**
      * @return the value
      */
