@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <system xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="..\schemas\neptus-vehicle.xsd">
     <properties>
-        <id>vtol-01</id>
-        <name>vtol-01</name>
+        <id>vtol-03</id>
+        <name>vtol-03</name>
         <type>UAV</type>
         <model>VTOL</model>
         <appearance>
             <x-size>1.26</x-size>
             <y-size>2.61</y-size>
-            <z-size>0.50</z-size>            
+            <z-size>0.50</z-size>
             <top-image-2D>../vehicles-files/cularis/cularis-top.png</top-image-2D>
             <side-image-2D>../vehicles-files/cularis/cularis-side.png</side-image-2D>
             <back-image-2D>../vehicles-files/cularis/cularis-back.png</back-image-2D>

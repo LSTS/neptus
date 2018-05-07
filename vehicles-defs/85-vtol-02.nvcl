@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <system xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="..\schemas\neptus-vehicle.xsd">
     <properties>
-        <id>vtol-01</id>
-        <name>vtol-01</name>
+        <id>vtol-02</id>
+        <name>vtol-02</name>
         <type>UAV</type>
         <model>VTOL</model>
         <appearance>
