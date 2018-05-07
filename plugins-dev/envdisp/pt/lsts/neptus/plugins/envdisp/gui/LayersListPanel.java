@@ -519,6 +519,10 @@ public class LayersListPanel extends JPanel {
         hdr.add(interpolateButton, "align right, wrap");
 
         if (validTime && false) {
+            if (timeSlider.getMinimum() == timeSlider.getMaximum()) {
+                timeSlider.setEnabled(false);
+                timeSliderMaxLabel.setVisible(false);
+            }
             hdr.add(new JLabel(I18n.text("Time") + ":"), "sg slabel, spanx, split");
             hdr.add(timeSlider, "sg sslider, growx, wrap");
             hdr.add(new JLabel(""), "sg slabel, spanx, split");
@@ -527,6 +531,10 @@ public class LayersListPanel extends JPanel {
         }
         
         if (validDepth && false) {
+            if (depthSlider.getMinimum() == depthSlider.getMaximum()) {
+                depthSlider.setEnabled(false);
+                depthSliderMaxLabel.setVisible(false);
+            }
             hdr.add(new JLabel(I18n.text("Depth") + ":"), "sg slabel, spanx, split");
             hdr.add(depthSlider, "sg sslider, growx, wrap");
             hdr.add(new JLabel(""), "sg slabel, spanx, split");
