@@ -195,7 +195,7 @@ public class RipplesPositions extends ConsoleLayer {
                         rsi.setLat(update.location.getLatitudeRads());
                         rsi.setLon(update.location.getLongitudeRads());
                         rsi.setSensorClass("UUV");
-                        System.out.println("RemoteSensorInfo::" + rsi.asJSON());
+                        NeptusLog.pub().info("RemoteSensorInfo::" + rsi.asJSON());
                         ImcMsgManager.getManager().postInternalMessage(update.id, rsi);    
                     }                    
                 }

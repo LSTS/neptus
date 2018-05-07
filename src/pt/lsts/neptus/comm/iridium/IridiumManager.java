@@ -137,24 +137,22 @@ public class IridiumManager {
     }
     
     public void processMessage(IridiumMessage msg) {
-        
-        //if (msg.getSource() != ImcMsgManager.getManager().getLocalId().intValue()) {
-            try {
-                IridiumMsgTx transmission = new IridiumMsgTx();
-                transmission.setData(msg.serialize());
-                transmission.setSrc(msg.getSource());
-                transmission.setDst(msg.getDestination());
-                transmission.setTimestamp(msg.timestampMillis/1000.0);
-                ImcMsgManager.getManager().postInternalMessage("IridiumManager", transmission);
-            }
-            catch (Exception e) {
-                NeptusLog.pub().error(e);
-            }
-        //}
+        try {
+            IridiumMsgTx transmission = new IridiumMsgTx();
+            transmission.setData(msg.serialize());
+            transmission.setSrc(msg.getSource());
+            transmission.setDst(msg.getDestination());
+            transmission.setTimestamp(msg.timestampMillis/1000.0);
+            ImcMsgManager.getManager().postInternalMessage("IridiumManager", transmission);
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error(e);
+        }
         
         Collection<IMCMessage> msgs = msg.asImc();
         
         for (IMCMessage m : msgs) {
+            NeptusLog.pub().info("Posting resulting "+m.getAbbrev()+" message to bus.");
             ImcMsgManager.getManager().postInternalMessage("iridium", m);            
         }
     }
