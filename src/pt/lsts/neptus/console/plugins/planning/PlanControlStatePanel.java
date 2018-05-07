@@ -42,9 +42,7 @@ import com.google.common.eventbus.Subscribe;
 
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.IMCDefinition;
-import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCUtil;
-import pt.lsts.imc.PlanControl;
 import pt.lsts.imc.PlanControlState;
 import pt.lsts.imc.PlanControlState.STATE;
 import pt.lsts.imc.PlanDB;
@@ -299,33 +297,30 @@ public class PlanControlStatePanel extends ConsolePanel {
         nodeId = "";
         nodeStarTimeMillisUTC = -1;
         nodeTypeImcId = 0xFFFF;
-        
-        ImcSystemState state = getConsole().getImcMsgManager().getState(getMainVehicleId());
-        if (state != null) {
-            PlanControlState pcsMsg = null;
-            StateReport srMsg = null;
-            
-            IMCMessage msg = state.get(PlanControl.ID_STATIC);
-            if (msg != null)
-                pcsMsg = (PlanControlState) msg;
-            
-            msg = state.get(PlanControlState.ID_STATIC);
-            if (msg != null)
-                srMsg = (StateReport) msg;
-            
-            if (pcsMsg != null && srMsg != null) {
-                if (srMsg.getAgeInSeconds() <= pcsMsg.getAgeInSeconds())
-                  consume(srMsg); 
-                else
+        try {
+            ImcSystemState state = getConsole().getImcMsgManager().getState(getMainVehicleId());
+            if (state != null) {
+                PlanControlState pcsMsg = state.last(PlanControlState.class);
+                StateReport srMsg = state.last(StateReport.class);
+                
+                if (pcsMsg != null && srMsg != null) {
+                    if (srMsg.getAgeInSeconds() <= pcsMsg.getAgeInSeconds())
+                        consume(srMsg); 
+                    else
+                        consume(pcsMsg); 
+                }
+                else if (pcsMsg != null) {
                     consume(pcsMsg); 
-            }
-            else if (pcsMsg != null) {
-                consume(pcsMsg); 
-            }
-            else if (srMsg != null) {
-                consume(srMsg); 
+                }
+                else if (srMsg != null) {
+                    consume(srMsg); 
+                }
             }
         }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        
     }
 
     @Override
