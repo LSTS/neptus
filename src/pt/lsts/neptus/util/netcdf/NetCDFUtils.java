@@ -475,21 +475,23 @@ public class NetCDFUtils {
      * @param varName
      * @return
      */
-    private static Variable findVariableForGroup(Group group, List<String> dimStringList, String varName) {
-        Variable vVar = group.findVariable(varName);
-        if (vVar != null && !dimentionsContainedIn(vVar, dimStringList))
-            vVar = null;
-        if (vVar != null)
-            return vVar;
-        List<Group> groups = group.getGroups();
-        if (groups == null || groups.isEmpty())
-            return null;
-        for (Group g : groups) {
-            vVar = findVariableForGroup(g, dimStringList, varName);
+    public static Variable findVariableForGroup(Group group, List<String> dimStringList, String... varName) {
+        for (String vN : varName) {
+            Variable vVar = group.findVariable(vN);
             if (vVar != null && !dimentionsContainedIn(vVar, dimStringList))
                 vVar = null;
             if (vVar != null)
                 return vVar;
+            List<Group> groups = group.getGroups();
+            if (groups == null || groups.isEmpty())
+                continue;
+            for (Group g : groups) {
+                vVar = findVariableForGroup(g, dimStringList, vN);
+                if (vVar != null && !dimentionsContainedIn(vVar, dimStringList))
+                    vVar = null;
+                if (vVar != null)
+                    return vVar;
+            }
         }
         return null;
     }
@@ -560,25 +562,26 @@ public class NetCDFUtils {
      * @param varName
      * @return
      */
-    private static Variable findVariableWithAttributeForGroup(NetcdfFile dataFile, Group group,
-            List<String> dimStringList, String attName, String varName) {
-        Variable vVar = dataFile.findVariableByAttribute(group, attName, varName);
-        if (vVar != null && !dimentionsContainedIn(vVar, dimStringList))
-            vVar = null;
-        if (vVar != null)
-            return vVar;
-        List<Group> groups = group.getGroups();
-        if (groups == null || groups.isEmpty())
-            return null;
-        for (Group g : groups) {
-            vVar = findVariableWithAttributeForGroup(dataFile, g, dimStringList, attName, varName);
+    public static Variable findVariableWithAttributeForGroup(NetcdfFile dataFile, Group group,
+            List<String> dimStringList, String attName, String... varName) {
+        for (String vN : varName) {
+            Variable vVar = dataFile.findVariableByAttribute(group, attName, vN);
             if (vVar != null && !dimentionsContainedIn(vVar, dimStringList))
                 vVar = null;
             if (vVar != null)
                 return vVar;
+            List<Group> groups = group.getGroups();
+            if (groups == null || groups.isEmpty())
+                continue;
+            for (Group g : groups) {
+                vVar = findVariableWithAttributeForGroup(dataFile, g, dimStringList, attName, vN);
+                if (vVar != null && !dimentionsContainedIn(vVar, dimStringList))
+                    vVar = null;
+                if (vVar != null)
+                    return vVar;
+            }
         }
         return null;
-
     }
 
     /**
