@@ -42,6 +42,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.data.Pair;
@@ -634,6 +635,41 @@ public class NetCDFUtils {
         }
     
         return ret;
+    }
+
+    /**
+     * @param varCollumsIndexMap
+     * @param dimensionsBase
+     * @param dimensionsVar
+     * @return
+     */
+    public static Map<String, Integer> getMissingIndexesForVarTryMatchDimSize(Map<String, Integer> varCollumsIndexMap,
+            List<Dimension> dimensionsBase, List<Dimension> dimensionsVar) {
+        List<Dimension> dimBaseNotUsed = dimensionsBase.stream()
+                .filter(d -> !dimensionsVar.stream().anyMatch(o -> d.getShortName().equalsIgnoreCase(o.getShortName())))
+                .collect(Collectors.toList());
+
+        for (String dimStr : varCollumsIndexMap.keySet()) {
+            if (varCollumsIndexMap.get(dimStr) >= 0)
+                continue;
+            
+            Dimension dimForStr = dimensionsVar.stream().filter(d -> dimStr.equalsIgnoreCase(d.getShortName()))
+                    .findFirst().orElse(null);
+            
+            if (dimForStr == null)
+                continue;
+            
+            Dimension dimCandidateFound = dimBaseNotUsed.stream().filter(d -> d.getLength() == dimForStr.getLength())
+                    .findFirst().orElse(null);
+            
+            if (dimCandidateFound != null) {
+                int idx = dimensionsBase.indexOf(dimCandidateFound);
+                varCollumsIndexMap.put(dimStr, idx);
+                dimBaseNotUsed.remove(dimCandidateFound);
+            }
+        }
+        
+        return varCollumsIndexMap;
     }
 
     /**
