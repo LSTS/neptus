@@ -33,6 +33,7 @@
 package pt.lsts.neptus.plugins.envdisp.gui;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Window;
@@ -41,7 +42,9 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.File;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
@@ -67,6 +70,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.plaf.SpinnerUI;
+import javax.swing.plaf.basic.BasicSpinnerUI;
 
 import org.jdesktop.swingx.JXBusyLabel;
 
@@ -283,6 +288,8 @@ public class LayersListPanel extends JPanel {
         
         // Min/Max section
         JSpinner spinnerMin = new JSpinner(new SpinnerNumberModel(viz.getMinValue(), -1E200, 1E200, 0.5));
+        SpinnerIsAdjustingUI spinnerMinUIIsAdjustingUI = new SpinnerIsAdjustingUI();
+        spinnerMin.setUI(spinnerMinUIIsAdjustingUI);
         spinnerMin.setValue(viz.getMinValue());
         spinnerMin.setSize(new Dimension(100, 20));
         spinnerMin.setToolTipText(I18n.text("This sets min scale value."));
@@ -292,13 +299,17 @@ public class LayersListPanel extends JPanel {
             @Override
             public void stateChanged(ChangeEvent e) {
                 double val = (double) spinnerMin.getValue();
-                viz.setMinValue(val);
-                viz.getOffScreenLayer().triggerImageRebuild();
+                if (!spinnerMinUIIsAdjustingUI.getValueIsAdjusting()) {
+                    viz.setMinValue(val);
+                    viz.getOffScreenLayer().triggerImageRebuild();
+                }
                 cbp.setMinVal(val);
             }
         });
 
         JSpinner spinnerMax = new JSpinner(new SpinnerNumberModel(viz.getMaxValue(), -1E200, 1E200, 0.5));
+        SpinnerIsAdjustingUI spinnerMaxUIIsAdjustingUI = new SpinnerIsAdjustingUI();
+        spinnerMax.setUI(spinnerMaxUIIsAdjustingUI);
         spinnerMax.setValue(viz.getMaxValue());
         spinnerMax.setSize(new Dimension(100, 20));
         spinnerMax.setToolTipText(I18n.text("This sets max scale value."));
@@ -308,8 +319,10 @@ public class LayersListPanel extends JPanel {
             @Override
             public void stateChanged(ChangeEvent e) {
                 double val = (double) spinnerMax.getValue();
-                viz.setMaxValue(val);
-                viz.getOffScreenLayer().triggerImageRebuild();
+                if (!spinnerMaxUIIsAdjustingUI.getValueIsAdjusting()) {
+                    viz.setMaxValue(val);
+                    viz.getOffScreenLayer().triggerImageRebuild();
+                }
                 cbp.setMaxVal(val);
             }
         });
@@ -415,6 +428,8 @@ public class LayersListPanel extends JPanel {
         });
 
         JSpinner spinnerTrans = new JSpinner(new SpinnerNumberModel(50, 5, 100, 1));
+        SpinnerIsAdjustingUI spinnerTransUIIsAdjustingUI = new SpinnerIsAdjustingUI();
+        spinnerTrans.setUI(spinnerTransUIIsAdjustingUI);
         spinnerTrans.setValue((int) (viz.getTransparency() / 255. * 100));
         spinnerTrans.setSize(new Dimension(50, 20));
         spinnerTrans.setToolTipText(I18n.text("This sets the transparency value."));
@@ -423,6 +438,9 @@ public class LayersListPanel extends JPanel {
         spinnerTrans.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
+                if (spinnerTransUIIsAdjustingUI.getValueIsAdjusting())
+                    return;
+                
                 int val = ((Integer) spinnerTrans.getValue()).intValue();
                 viz.setTransparency((int) (255 * (val / 100.)));
                 viz.getOffScreenLayer().triggerImageRebuild();
@@ -467,8 +485,6 @@ public class LayersListPanel extends JPanel {
 
         double minDepth = viz.getInfo().minDepth;
         double maxDepth = viz.getInfo().maxDepth;
-//        double minDepth = 0.001;
-//        double maxDepth = 22.399956;
         JLabel depthSliderMinLabel = new JLabel("" + (Double.isFinite(minDepth) ? MathMiscUtils.round(minDepth, 1) : "n/a"));
         JLabel depthSliderMaxLabel = new JLabel("" + (Double.isFinite(maxDepth) ? MathMiscUtils.round(maxDepth, 1) : "n/a"), SwingConstants.RIGHT);
         double depthScale = 10;
@@ -552,7 +568,54 @@ public class LayersListPanel extends JPanel {
         varLayersList.add(viz);
     }
 
+    private class SpinnerIsAdjustingUI extends BasicSpinnerUI {
+        private boolean valueIsAdjusting = false;;
+
+        public boolean getValueIsAdjusting() {
+            return valueIsAdjusting;
+        }
+        
+        @Override
+        protected Component createNextButton() {
+            JButton nextbutton = (JButton) super.createNextButton();
+            MouseListener[] ml = nextbutton.getMouseListeners();
+            for (MouseListener l : ml)
+                nextbutton.removeMouseListener(l);
+            nextbutton.addMouseListener(new MouseAdapter() {
+                public void mousePressed(MouseEvent me) {
+                    valueIsAdjusting = true;
+                }
+                public void mouseReleased(MouseEvent me) {
+                    valueIsAdjusting = false;
+                }
+            });
+            for (MouseListener l : ml)
+                nextbutton.addMouseListener(l);
+            return nextbutton;
+        }
+
+        @Override
+        protected Component createPreviousButton() {
+            JButton previousButton = (JButton) super.createPreviousButton();
+            MouseListener[] ml = previousButton.getMouseListeners();
+            for (MouseListener l : ml)
+                previousButton.removeMouseListener(l);
+            previousButton.addMouseListener(new MouseAdapter() {
+                public void mousePressed(MouseEvent me) {
+                    valueIsAdjusting = true;
+                }
+
+                public void mouseReleased(MouseEvent me) {
+                    valueIsAdjusting = false;
+                }
+            });
+            for (MouseListener l : ml)
+                previousButton.addMouseListener(l);
+            return previousButton;
+        }
+    }
+
     public static void main(String[] args) {
-        GuiUtils.testFrame(new LayersListPanel(), "", 400, 300);
+        GuiUtils.testFrame(new LayersListPanel(), "", 600, 300);
     }
 }
