@@ -196,14 +196,37 @@ public class NetCDFLoader {
             }
 
             // Get the latitude and longitude Variables.
+            Group navDataGroup = dataFile.findGroup("navigation_data");
             if (latVar == null) {
-                searchPair = NetCDFUtils.findVariableForStandardNameOrName(dataFile, fileName, true, dimDimStrLst, "latitude", "lat");
+                searchPair = null;
+                if (navDataGroup != null) {
+                    Variable varL = NetCDFUtils.findVariableForGroup(navDataGroup, null, "latitude", "lat");
+                    if (varL == null)
+                        varL = NetCDFUtils.findVariableWithAttributeForGroup(dataFile, navDataGroup, null,
+                                NetCDFUtils.NETCDF_ATT_STANDARD_NAME, "latitude", "lat");
+                    if (varL != null)
+                        searchPair = new Pair<String, Variable>(varL.getShortName(), varL);
+                }
+                if (searchPair == null)
+                    searchPair = NetCDFUtils.findVariableForStandardNameOrName(dataFile, fileName, true, dimDimStrLst,
+                            "latitude", "lat");
                 latName = searchPair.first();
                 latVar = searchPair.second(); 
             }
 
             if (lonVar == null) {
-                searchPair = NetCDFUtils.findVariableForStandardNameOrName(dataFile, fileName, true, dimDimStrLst, "longitude", "lon");
+                searchPair = null;
+                if (navDataGroup != null) {
+                    Variable varL = NetCDFUtils.findVariableForGroup(navDataGroup, null, "longitude", "lon");
+                    if (varL == null)
+                        varL = NetCDFUtils.findVariableWithAttributeForGroup(dataFile, navDataGroup, null,
+                                NetCDFUtils.NETCDF_ATT_STANDARD_NAME, "longitude", "lon");
+                    if (varL != null)
+                        searchPair = new Pair<String, Variable>(varL.getShortName(), varL);
+                }
+                if (searchPair == null)
+                    searchPair = NetCDFUtils.findVariableForStandardNameOrName(dataFile, fileName, true, dimDimStrLst,
+                            "longitude", "lon");
                 lonName = searchPair.first();
                 lonVar = searchPair.second();
             }
@@ -280,10 +303,18 @@ public class NetCDFLoader {
 
                 if (timeCollumsIndexMap.values().stream().anyMatch(i -> i < 0))
                     timeCollumsIndexMap.clear();
-                if (latCollumsIndexMap.values().stream().anyMatch(i -> i < 0))
-                    latCollumsIndexMap.clear();
-                if (lonCollumsIndexMap.values().stream().anyMatch(i -> i < 0))
-                    lonCollumsIndexMap.clear();
+                if (latCollumsIndexMap.values().stream().anyMatch(i -> i < 0)) {
+                    latCollumsIndexMap = NetCDFUtils.getMissingIndexesForVarTryMatchDimSize(latCollumsIndexMap,
+                            vVar.getDimensions(), latVar.getDimensions());
+                    if (latCollumsIndexMap.values().stream().anyMatch(i -> i < 0))
+                        latCollumsIndexMap.clear();
+                }
+                if (lonCollumsIndexMap.values().stream().anyMatch(i -> i < 0)) {
+                    lonCollumsIndexMap = NetCDFUtils.getMissingIndexesForVarTryMatchDimSize(lonCollumsIndexMap,
+                            vVar.getDimensions(), lonVar.getDimensions());
+                    if (lonCollumsIndexMap.values().stream().anyMatch(i -> i < 0))
+                        lonCollumsIndexMap.clear();
+                }
                 if (depthCollumsIndexMap.values().stream().anyMatch(i -> i < 0))
                     depthCollumsIndexMap.clear();
 
