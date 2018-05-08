@@ -54,11 +54,18 @@ public class Pair<First, Second> {
         return second;
     }
     
-    /* (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
     @Override
     public String toString() {
         return first.toString()+"->"+second.toString();
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        return hashCode() == obj.hashCode();
+    }
+    
+    @Override
+    public int hashCode() {
+        return (first.hashCode()+"_"+second.hashCode()).hashCode();        
     }
 }
