@@ -135,7 +135,7 @@ public class Asset implements Comparable<Asset>{
 		Date arrivalTime = now;
 		
 		for (Waypoint wpt : wpts) {
-			if (wpt.getArrivalTime().after(now)) {
+			if (wpt.getArrivalTime() != null && wpt.getArrivalTime().after(now)) {
 				next = wpt;
 				arrivalTime = wpt.getArrivalTime();
 				break;
