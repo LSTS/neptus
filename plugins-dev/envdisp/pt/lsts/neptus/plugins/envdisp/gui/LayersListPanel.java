@@ -58,11 +58,9 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
-import javax.swing.JToggleButton;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
@@ -94,8 +92,10 @@ import ucar.nc2.Variable;
  */
 @SuppressWarnings("serial")
 public class LayersListPanel extends JPanel {
-    
-    private ImageIcon logoImage = new ImageIcon(ImageUtils.getScaledImage("pt/lsts/neptus/plugins/envdisp/netcdf-radar.png", 32, 32));
+
+    private static final ImageIcon LOGOIMAGE_ICON = new ImageIcon(
+            ImageUtils.getScaledImage("pt/lsts/neptus/plugins/envdisp/netcdf-radar.png", 32, 32));
+    private static final ImageIcon VIEW_IMAGE_ICON = ImageUtils.createImageIcon("images/menus/view.png");
     
     private AtomicLong plotCounter = new AtomicLong();
     private File recentFolder = new File(".");
@@ -129,7 +129,7 @@ public class LayersListPanel extends JPanel {
 
         buttonBarPanel = new JPanel(new MigLayout("ins 10"));
         
-        JLabel logoLabel = new JLabel(logoImage);
+        JLabel logoLabel = new JLabel(LOGOIMAGE_ICON);
         buttonBarPanel.add(logoLabel);
         
         Dimension buttonDimension = new Dimension(80, 30);
@@ -255,7 +255,7 @@ public class LayersListPanel extends JPanel {
 
         ColorBarPainter cbp = new ColorBarPainter();
         
-        JToggleButton vOneButton = new JRadioButton();
+        JCheckBox vOneButton = new JCheckBox();
         vOneButton.setSelected(viz.isShowVar());
         vOneButton.addItemListener(new ItemListener() {
             @Override
@@ -494,7 +494,8 @@ public class LayersListPanel extends JPanel {
         });
 
         // Layout
-        hdr.add(vOneButton, "sg radio, spanx 6, split 2");
+        hdr.add(vOneButton, "sg radio, spanx 6, split 3");
+        hdr.add(new JLabel(VIEW_IMAGE_ICON), "");
         hdr.add(lbl, "sg name, spanx 5, grow");
         hdr.add(remButton, "align right, sg btnSmall, wrap");
 
