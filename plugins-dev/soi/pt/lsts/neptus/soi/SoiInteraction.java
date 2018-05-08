@@ -104,7 +104,7 @@ import pt.lsts.neptus.util.speech.SpeechUtil;
  * @author zp
  *
  */
-@PluginDescription(name = "SOI Interaction")
+@PluginDescription(name = "SOI Interaction", icon="pt/lsts/neptus/soi/icons/soi_interaction.png")
 public class SoiInteraction extends SimpleRendererInteraction {
 
     private static final long serialVersionUID = 477322168507708457L;

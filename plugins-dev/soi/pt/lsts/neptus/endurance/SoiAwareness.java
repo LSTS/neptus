@@ -53,8 +53,6 @@ import java.util.Map.Entry;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
-import javax.swing.LookAndFeel;
-import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 
 import pt.lsts.aismanager.ShipAisSnapshot;
@@ -74,7 +72,7 @@ import pt.lsts.neptus.util.GuiUtils;
  * @author zp
  *
  */
-@PluginDescription(name="SOI Situation Awareness")
+@PluginDescription(name="SOI Situation Awareness", icon="pt/lsts/neptus/soi/icons/soi_awareness.png")
 public class SoiAwareness extends ConsoleInteraction {
 
     @NeptusProperty(name="Future ship track size", units="s")
@@ -82,8 +80,6 @@ public class SoiAwareness extends ConsoleInteraction {
         
     @NeptusProperty(name="Paint ship names")
     public boolean paintShipNames = true;
-    
-    
     
     private JSlider timeSlider;
     private Date curTime = new Date();
@@ -93,8 +89,8 @@ public class SoiAwareness extends ConsoleInteraction {
     private GeneralPath vehShape = new GeneralPath();
     
     public SoiAwareness() {
-        LookAndFeel prev = UIManager.getLookAndFeel();
-        GuiUtils.setLookAndFeelNimbus();
+       // LookAndFeel prev = UIManager.getLookAndFeel();
+       // GuiUtils.setLookAndFeelNimbus();
         this.timeSlider = new JSlider(-timeDiff * hourParts, timeDiff * hourParts, 0);
         Dictionary<Integer, JLabel> labels = new Hashtable<>();
         for (int i = -timeDiff; i <= timeDiff; i++)
@@ -107,12 +103,12 @@ public class SoiAwareness extends ConsoleInteraction {
         timeSlider.setSnapToTicks(false);
         timeSlider.repaint();
         timeSlider.addChangeListener(this::timeChanged);
-        try {
-            UIManager.setLookAndFeel(prev);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
+//        try {
+//            UIManager.setLookAndFeel(prev);
+//        }
+//        catch (Exception e) {
+//            e.printStackTrace();
+//        }
         
         timeSlider.addMouseListener(new MouseAdapter() {
             @Override

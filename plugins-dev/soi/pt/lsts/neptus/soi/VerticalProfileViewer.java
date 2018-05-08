@@ -172,7 +172,6 @@ public class VerticalProfileViewer implements Renderer2DPainter {
     public void mouseClicked(MouseEvent event, StateRenderer2D source) {
         final VerticalProfile sel = selected;
         
-        System.out.println("Mouse Clicked");
         if (sel != null && event.getClickCount() == 2) {
             JDialog opened = openedWindows.get(selected);
             if (opened != null) {
