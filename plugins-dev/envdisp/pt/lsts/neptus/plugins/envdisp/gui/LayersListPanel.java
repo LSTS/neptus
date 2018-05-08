@@ -417,8 +417,8 @@ public class LayersListPanel extends JPanel {
         JSpinner spinnerTrans = new JSpinner(new SpinnerNumberModel(50, 5, 100, 1));
         spinnerTrans.setValue((int) (viz.getTransparency() / 255. * 100));
         spinnerTrans.setSize(new Dimension(50, 20));
-        spinnerTrans.setToolTipText(I18n.text("This sets min scale value."));
-        ((JSpinner.NumberEditor) spinnerTrans.getEditor()).getTextField().setEditable(false);
+        spinnerTrans.setToolTipText(I18n.text("This sets the transparency value."));
+        ((JSpinner.NumberEditor) spinnerTrans.getEditor()).getTextField().setEditable(true);
         ((JSpinner.NumberEditor) spinnerTrans.getEditor()).getTextField().setBackground(Color.WHITE);
         spinnerTrans.addChangeListener(new ChangeListener() {
             @Override
