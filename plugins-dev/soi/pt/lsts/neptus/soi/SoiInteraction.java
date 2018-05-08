@@ -315,6 +315,16 @@ public class SoiInteraction extends SimpleRendererInteraction {
         profileView.addProfile(msg);
         getConsole().post(Notification.success(I18n.text("SOI Settings"),
                 I18n.textf("Received %param profile from %vehicle.", msg.getParameter().name().toLowerCase(), msg.getSourceName())));
+        
+        if (audioNotifications) {
+            VehicleType v = VehiclesHolder.getVehicleById(msg.getSourceName());
+            String vName = "Vehicle";
+            if (v != null)
+                vName = v.getNickname();
+            
+            say(vName+ " profile");
+            
+        }
     }
     
     private void say(String text) {
@@ -340,7 +350,7 @@ public class SoiInteraction extends SimpleRendererInteraction {
             if (v != null)
                 vName = v.getNickname();
             
-            say(vName+ " updated");
+            say(vName+ " update");
             
         }
         
@@ -374,12 +384,12 @@ public class SoiInteraction extends SimpleRendererInteraction {
         switch (cmd.getCommand()) {
             case GET_PARAMS:
                 setParams(cmd.getSourceName(), cmd.getSettings());
-                say(vName+" params received");
+                say(vName+" params");
                 break;
             case GET_PLAN:
             case EXEC:
                 assetsManager.getPlans().put(cmd.getSourceName(), Plan.parse(cmd.getPlan()));
-                say(vName+" plan received");
+                say(vName+" plan");
                 break;
             default:
                 break;
