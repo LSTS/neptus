@@ -84,35 +84,38 @@ public class SimulatedMessenger implements IridiumMessenger {
     @Subscribe
     public void on(IridiumMsgTx tx) throws Exception {
 
-            IridiumMessage m = IridiumMessage.deserialize(tx.getData());
+        if (IridiumManager.getManager().getCurrentMessenger() != this)
+            return;
 
-            byte[] data = m.serialize();
-            data = new String(Hex.encodeHex(data)).getBytes();
+        IridiumMessage m = IridiumMessage.deserialize(tx.getData());
 
-            URL u = new URL(messagesUrl);
-            HttpURLConnection conn = (HttpURLConnection) u.openConnection();
-            conn.setDoOutput(true);
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Content-Type", "application/hub");
-            conn.setRequestProperty("Content-Length", String.valueOf(data.length * 2));
-            conn.setConnectTimeout(timeoutMillis);
+        byte[] data = m.serialize();
+        data = new String(Hex.encodeHex(data)).getBytes();
 
-            OutputStream os = conn.getOutputStream();
-            os.write(data);
-            os.close();
+        URL u = new URL(messagesUrl);
+        HttpURLConnection conn = (HttpURLConnection) u.openConnection();
+        conn.setDoOutput(true);
+        conn.setRequestMethod("POST");
+        conn.setRequestProperty("Content-Type", "application/hub");
+        conn.setRequestProperty("Content-Length", String.valueOf(data.length * 2));
+        conn.setConnectTimeout(timeoutMillis);
 
-            NeptusLog.pub().info(messagesUrl + " : " + conn.getResponseCode() + " " + conn.getResponseMessage());
+        OutputStream os = conn.getOutputStream();
+        os.write(data);
+        os.close();
 
-            InputStream is = conn.getInputStream();
-            ByteArrayOutputStream incoming = new ByteArrayOutputStream();
-            IOUtils.copy(is, incoming);
-            is.close();
+        NeptusLog.pub().info(messagesUrl + " : " + conn.getResponseCode() + " " + conn.getResponseMessage());
 
-            NeptusLog.pub().info("Sent " + m.getClass().getSimpleName() + " through HTTP: " + conn.getResponseCode() + " " + conn.getResponseMessage());
+        InputStream is = conn.getInputStream();
+        ByteArrayOutputStream incoming = new ByteArrayOutputStream();
+        IOUtils.copy(is, incoming);
+        is.close();
 
-            if (conn.getResponseCode() != 200) {
-                throw new Exception("Server returned " + conn.getResponseCode() + ": " + conn.getResponseMessage());
-            }
+        NeptusLog.pub().info("Sent " + m.getClass().getSimpleName() + " through HTTP: " + conn.getResponseCode() + " " + conn.getResponseMessage());
+
+        if (conn.getResponseCode() != 200) {
+            throw new Exception("Server returned " + conn.getResponseCode() + ": " + conn.getResponseMessage());
+        }
     }
 
     @Override
