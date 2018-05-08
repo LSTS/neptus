@@ -91,7 +91,6 @@ public class SoiAwareness extends ConsoleInteraction {
     private int timeDiff = 12;
     private Font dateFont = new Font("Helvetica", Font.BOLD, 18);
     private GeneralPath vehShape = new GeneralPath();
-    private GeneralPath shipShape = new GeneralPath();
     
     public SoiAwareness() {
         LookAndFeel prev = UIManager.getLookAndFeel();
@@ -124,18 +123,11 @@ public class SoiAwareness extends ConsoleInteraction {
             
         });        
         
-        vehShape.moveTo(-7, 4);
+        vehShape.moveTo(-12, 5);
         vehShape.lineTo(0, -12);
-        vehShape.lineTo(7, 4);
+        vehShape.lineTo(12, 5);
         vehShape.lineTo(0, 0);
-        vehShape.closePath();
-        
-        shipShape.moveTo(-12, 5);
-        shipShape.lineTo(0, -12);
-        shipShape.lineTo(12, 5);
-        shipShape.lineTo(0, 0);
-        shipShape.closePath();
-        
+        vehShape.closePath();        
     }
     
     public void timeChanged(ChangeEvent evt) {        
@@ -236,26 +228,32 @@ public class SoiAwareness extends ConsoleInteraction {
         }
         
         g.setColor(SystemPainterHelper.EXTERNAL_SYSTEM_COLOR);
-        g.fill(shipShape);
+        g.fill(vehShape);
         g.setColor(Color.black);
         g.setStroke(new BasicStroke(1f));
-        g.draw(shipShape);
+        g.draw(vehShape);
     }
     
     private void paintAssetState(VehicleType vehicle, AssetState state, Graphics2D g, StateRenderer2D renderer) {
         LocationType loc = new LocationType(state.getLatitude(), state.getLongitude());
         Point2D pt = renderer.getScreenPosition(loc);
         
-        if (vehicle != null)
+        if (vehicle != null) {
             g.setColor(vehicle.getIconColor());
+        }
         else
             g.setColor(SystemPainterHelper.EXTERNAL_SYSTEM_COLOR);
         
-        g.translate(pt.getX(), pt.getY());        
+        g.translate(pt.getX(), pt.getY());       
+        if (vehicle != null) {
+            g.setFont(new Font("Arial", Font.BOLD, 12));
+            g.drawString(vehicle.getNickname().toUpperCase(), 10, 0);
+        }
+        
         g.rotate(Math.toRadians(state.getHeading())-renderer.getRotation());
         
         g.fill(vehShape);
-        g.setColor(Color.white);
+        g.setColor(Color.black);
         g.draw(vehShape);
     }
     

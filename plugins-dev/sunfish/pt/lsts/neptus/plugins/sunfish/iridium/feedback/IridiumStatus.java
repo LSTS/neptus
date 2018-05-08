@@ -156,13 +156,18 @@ public class IridiumStatus extends ConsolePanel {
                             highlight_block_size++;
                             synchronized (IridiumStatus.this) {
                                 int index = table.getModel().getRowCount()-1;
-                                if(index < table.getRowCount()) {
-                                    int row   = table.convertRowIndexToView(index);
-                                    Rectangle rect = table.getCellRect(row, 0, false);
-                                    if(rect != null)
-                                        table.scrollRectToVisible(rect);
-                                    table.repaint();
+                                try {
+                                    if(index < table.getRowCount()) {
+                                        int row   = table.convertRowIndexToView(index);
+                                        Rectangle rect = table.getCellRect(row, 0, false);
+                                        if(rect != null)
+                                            table.scrollRectToVisible(rect);                                        
+                                    }
                                 }
+                                catch (Exception e) {
+                                    NeptusLog.pub().error(e);
+                                }
+                                table.repaint();
                             }
                         }
                     }

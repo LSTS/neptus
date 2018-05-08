@@ -34,6 +34,7 @@ package pt.lsts.neptus.soi;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -97,6 +98,7 @@ import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
+import pt.lsts.neptus.util.speech.SpeechUtil;
 
 /**
  * @author zp
@@ -122,24 +124,19 @@ public class SoiInteraction extends SimpleRendererInteraction {
     @NeptusProperty(name = "Battery Entity Name", description = "Vehicle Battery entity name")
     public String batteryEntityName = "Batteries";
 
-    //private LinkedHashMap<String, Plan> plans = new LinkedHashMap<>();
-    //private LinkedHashMap<String, SoiSettings> settings = new LinkedHashMap<>();
-    private VerticalProfileViewer profileView = new VerticalProfileViewer();
+    @NeptusProperty(name = "Audio Notifications")
+    public boolean audioNotifications = true;
     
+    private VerticalProfileViewer profileView = new VerticalProfileViewer();
     private AssetsManager assetsManager = AssetsManager.getInstance();
-    GeneralPath gp = new GeneralPath();
+    private GeneralPath vehShape;
     
     /**
      * @param console
      */
     public SoiInteraction(ConsoleLayout console) {
         super(console);
-        
-        gp.moveTo(-7, 4);
-        gp.lineTo(0, -12);
-        gp.lineTo(7, 4);
-        gp.lineTo(0, 0);
-        gp.closePath();
+       
     }
 
     @Override
@@ -320,6 +317,14 @@ public class SoiInteraction extends SimpleRendererInteraction {
                 I18n.textf("Received %param profile from %vehicle.", msg.getParameter().name().toLowerCase(), msg.getSourceName())));
     }
     
+    private void say(String text) {
+        if (audioNotifications) {
+            SpeechUtil.removeStringsFromQueue(text);
+            SpeechUtil.readSimpleText(text);
+            NeptusLog.pub().info("Saying \""+text+"\"");
+        }
+    }
+    
     @Subscribe
     public void on(StateReport cmd) {
         try {
@@ -327,6 +332,16 @@ public class SoiInteraction extends SimpleRendererInteraction {
         }
         catch (Exception e) {
             e.printStackTrace();
+        }
+        
+        if (audioNotifications) {
+            VehicleType v = VehiclesHolder.getVehicleById(cmd.getSourceName());
+            String vName = "Vehicle";
+            if (v != null)
+                vName = v.getNickname();
+            
+            say(vName+ " updated");
+            
         }
         
     }
@@ -351,13 +366,20 @@ public class SoiInteraction extends SimpleRendererInteraction {
         NeptusLog.pub().info("Processing SoiCommand: " + cmd.asJSON() + ", " + Thread.currentThread().getName() + ", "
                 + cmd.hashCode());
 
+        VehicleType v = VehiclesHolder.getVehicleById(cmd.getSourceName());
+        String vName = "Vehicle";
+        if (v != null)
+            vName = v.getNickname();
+        
         switch (cmd.getCommand()) {
             case GET_PARAMS:
                 setParams(cmd.getSourceName(), cmd.getSettings());
+                say(vName+" params received");
                 break;
             case GET_PLAN:
             case EXEC:
                 assetsManager.getPlans().put(cmd.getSourceName(), Plan.parse(cmd.getPlan()));
+                say(vName+" plan received");
                 break;
             default:
                 break;
@@ -383,13 +405,26 @@ public class SoiInteraction extends SimpleRendererInteraction {
                 if (estimatedState != null && estimatedState.getPosition() != null) {
                     Point2D pt = renderer.getScreenPosition(estimatedState.getPosition());
                     Graphics2D copy = (Graphics2D) g.create();
-                    copy.setColor(c);
+                    
                     copy.translate(pt.getX(), pt.getY());
+                    copy.setColor(new Color(0,0,0,128));
+                    copy.setFont(new Font("Arial", Font.BOLD, 12));
+                    copy.drawString(v.getNickname().toUpperCase(), 10, 0);                    
+                    
                     copy.rotate(Math.toRadians(estimatedState.getYaw())-renderer.getRotation());
                     
-                    copy.fill(gp);
-                    copy.setColor(Color.white);
-                    copy.draw(gp);
+                    vehShape = new GeneralPath();
+                    vehShape.moveTo(-12, 5);
+                    vehShape.lineTo(0, -12);
+                    vehShape.lineTo(12, 5);
+                    vehShape.lineTo(0, 0);
+                    vehShape.closePath();
+                    
+                    copy.setColor(new Color(c.getRed(), c.getGreen(), c.getBlue(), 180));
+                    copy.fill(vehShape);
+                    
+                    copy.setColor(new Color(0,0,0,128));
+                    copy.draw(vehShape);
                 }
             }
             catch (Exception e) {
