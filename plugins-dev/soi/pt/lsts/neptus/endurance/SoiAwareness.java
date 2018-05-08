@@ -193,13 +193,15 @@ public class SoiAwareness extends ConsoleInteraction {
         
         g = (Graphics2D)g2.create();
         g.setFont(dateFont);
-        g.setColor(Color.white);
+        
+        if(curTime.after(new Date()))
+            g.setColor(Color.green.brighter().brighter());
+        else
+            g.setColor(Color.yellow.brighter().brighter());
+        
         String text = fmt.format(curTime)+" UTC"; 
         int w = g.getFontMetrics().stringWidth(text);
         g.drawString(text , (source.getWidth()/2) - w/2, source.getHeight()-10);
-
-
-       
     }
 
     private void paintShipState(String name, ShipAisSnapshot state, Graphics2D g, StateRenderer2D renderer) {
