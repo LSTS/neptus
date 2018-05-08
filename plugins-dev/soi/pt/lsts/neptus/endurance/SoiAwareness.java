@@ -44,11 +44,13 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map.Entry;
+import java.util.TimeZone;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -77,77 +79,72 @@ public class SoiAwareness extends ConsoleInteraction {
 
     @NeptusProperty(name="Future ship track size", units="s")
     public int shipTrackSize = 1200;
-        
+
     @NeptusProperty(name="Paint ship names")
     public boolean paintShipNames = true;
-    
+
     private JSlider timeSlider;
     private Date curTime = new Date();
     private int hourParts = 60;
     private int timeDiff = 12;
     private Font dateFont = new Font("Helvetica", Font.BOLD, 18);
     private GeneralPath vehShape = new GeneralPath();
+    private SimpleDateFormat fmt = new SimpleDateFormat("MM/dd  HH:mm");
     
     public SoiAwareness() {
-       // LookAndFeel prev = UIManager.getLookAndFeel();
-       // GuiUtils.setLookAndFeelNimbus();
         this.timeSlider = new JSlider(-timeDiff * hourParts, timeDiff * hourParts, 0);
         Dictionary<Integer, JLabel> labels = new Hashtable<>();
         for (int i = -timeDiff; i <= timeDiff; i++)
             labels.put(i*hourParts, new JLabel(""+i));
         timeSlider.setMajorTickSpacing(hourParts);        
         timeSlider.setPaintTicks(true);
-        
+
         timeSlider.setLabelTable(labels);
         timeSlider.setPaintLabels(true);
         timeSlider.setSnapToTicks(false);
         timeSlider.repaint();
         timeSlider.addChangeListener(this::timeChanged);
-//        try {
-//            UIManager.setLookAndFeel(prev);
-//        }
-//        catch (Exception e) {
-//            e.printStackTrace();
-//        }
-        
+
         timeSlider.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
                 timeSlider.setValue(0);
             }
-            
+
         });        
-        
+
         vehShape.moveTo(-12, 5);
         vehShape.lineTo(0, -12);
         vehShape.lineTo(12, 5);
         vehShape.lineTo(0, 0);
-        vehShape.closePath();        
+        vehShape.closePath();
+        
+        fmt.setTimeZone(TimeZone.getTimeZone("UTC"));        
     }
-    
+
     public void timeChanged(ChangeEvent evt) {        
         update();
     }
-    
+
     @Periodic(millisBetweenUpdates=1000)
     public void update() {
         long timeDiff = (long) (3600 * 1000.0 *(timeSlider.getValue() / (float)hourParts));
         this.curTime = new Date(System.currentTimeMillis() + timeDiff);        
-        
+
     }
-    
+
     @Override
     public void initInteraction() {
-        
+
     }
 
     @Override
     public void cleanInteraction() {
 
     }
-    
-  
+
+
     @Override
     public void setActive(boolean active, StateRenderer2D source) {
         super.setActive(active, source);
@@ -167,53 +164,55 @@ public class SoiAwareness extends ConsoleInteraction {
         parent.validate();
         parent.repaint();
     }
-    
+
     @Override
     public void paintInteraction(Graphics2D g2, StateRenderer2D source) {
         super.paintInteraction(g2, source);
         if (!isActive())
             return;
-        
+
         if (timeSlider.getValue() == 0)
             return;
-        
+
         Graphics2D g = (Graphics2D)g2.create();
         g.setColor(new Color(0, 0, 0, 128));
         g.fillRect(0, 0, source.getWidth(), source.getHeight());        
-         
-        g.setFont(dateFont);
-        g.setColor(Color.white);
-        
-        String text = ""+curTime; 
-        int w = g.getFontMetrics().stringWidth(text);
-        g.drawString(text , (source.getWidth()/2) - w/2, source.getHeight()-10);
-        
         
         for (Asset asset : AssetsManager.getInstance().getAssets()) {
             AssetState state = asset.stateAt(curTime);
-            
+
             VehicleType vehicle = VehiclesHolder.getVehicleById(asset.getAssetName());
             if (state != null)
                 paintAssetState(vehicle, state, (Graphics2D)g2.create(), source);
         }
         HashMap<String, ShipAisSnapshot> ships = AisContactManager.getInstance().getFutureSnapshots(curTime.getTime() - System.currentTimeMillis());
-        
+
         for (Entry<String, ShipAisSnapshot> entry : ships.entrySet()) {
             paintShipState(entry.getKey(), entry.getValue(), (Graphics2D)g2.create(), source);
         }
+        
+        g = (Graphics2D)g2.create();
+        g.setFont(dateFont);
+        g.setColor(Color.white);
+        String text = fmt.format(curTime)+" UTC"; 
+        int w = g.getFontMetrics().stringWidth(text);
+        g.drawString(text , (source.getWidth()/2) - w/2, source.getHeight()-10);
+
+
+       
     }
-    
+
     private void paintShipState(String name, ShipAisSnapshot state, Graphics2D g, StateRenderer2D renderer) {
         LocationType loc = new LocationType(state.getLatDegs(), state.getLonDegs());
         Point2D pt = renderer.getScreenPosition(loc);
-        
+
         g.translate(pt.getX(), pt.getY());  
-        
+
         if (paintShipNames) {
             g.setColor(new Color(0, 0, 0));
             g.drawString(name, 5, 5);
         }        
-        
+
         g.rotate(state.getCog()-renderer.getRotation());
 
         if (shipTrackSize > 0) {
@@ -222,37 +221,37 @@ public class SoiAwareness extends ConsoleInteraction {
             g.setPaint(new GradientPaint(0f, 0f, SystemPainterHelper.EXTERNAL_SYSTEM_COLOR, 0f, (float)(-renderer.getZoom() * shipTrackSize * state.getSogMps()), new Color(255,0,0,0)));
             g.draw(new Line2D.Double(0,-renderer.getZoom() * shipTrackSize * state.getSogMps(), 0, 0));
         }
-        
+
         g.setColor(SystemPainterHelper.EXTERNAL_SYSTEM_COLOR);
         g.fill(vehShape);
         g.setColor(Color.black);
         g.setStroke(new BasicStroke(1f));
         g.draw(vehShape);
     }
-    
+
     private void paintAssetState(VehicleType vehicle, AssetState state, Graphics2D g, StateRenderer2D renderer) {
         LocationType loc = new LocationType(state.getLatitude(), state.getLongitude());
         Point2D pt = renderer.getScreenPosition(loc);
-        
+
         if (vehicle != null) {
             g.setColor(vehicle.getIconColor());
         }
         else
             g.setColor(SystemPainterHelper.EXTERNAL_SYSTEM_COLOR);
-        
+
         g.translate(pt.getX(), pt.getY());       
         if (vehicle != null) {
             g.setFont(new Font("Arial", Font.BOLD, 12));
             g.drawString(vehicle.getNickname().toUpperCase(), 10, 0);
         }
-        
+
         g.rotate(Math.toRadians(state.getHeading())-renderer.getRotation());
-        
+
         g.fill(vehShape);
         g.setColor(Color.black);
         g.draw(vehShape);
     }
-    
+
     public static void main(String[] args) {
         GuiUtils.setLookAndFeelNimbus();
         JSlider slider = new JSlider(-240, 240, 0);
