@@ -44,7 +44,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
@@ -53,7 +52,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.swing.AbstractAction;
-import javax.swing.BoxLayout;
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -68,9 +67,9 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
+import javax.swing.border.EtchedBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.plaf.SpinnerUI;
 import javax.swing.plaf.basic.BasicSpinnerUI;
 
 import org.jdesktop.swingx.JXBusyLabel;
@@ -149,14 +148,11 @@ public class LayersListPanel extends JPanel {
         add(buttonBarPanel, "w 100%");
 
         holder = new JPanel();
-        holder.setLayout(new BoxLayout(holder, BoxLayout.PAGE_AXIS));
+        holder.setLayout(new MigLayout("ins 5, flowy", "grow, fill", ""));
         holder.setSize(400, 600);
         
         scrollHolder = new JScrollPane(holder);
         add(scrollHolder, "w 100%, h 100%");
-        
-
-
     }
     
     private void initializeActions() {
@@ -257,6 +253,7 @@ public class LayersListPanel extends JPanel {
         viz.setShowVarLegendFromZoomLevel(0);
         
         JPanel hdr = new JPanel(new MigLayout("ins 10, fillx"));
+        hdr.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
 
         ColorBarPainter cbp = new ColorBarPainter();
         
