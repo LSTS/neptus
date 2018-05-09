@@ -61,6 +61,9 @@ public class AssetTrack {
      */
     public void setPlan(Plan plan) {
         this.plan.clear();
+        if (plan == null)
+            return;
+        
         for (Waypoint wpt : plan.waypoints()) {
             if (wpt.getArrivalTime() != null && wpt.getArrivalTime().after(new Date())) {
                 AssetState state = AssetState.builder().withLatitude(wpt.getLatitude())

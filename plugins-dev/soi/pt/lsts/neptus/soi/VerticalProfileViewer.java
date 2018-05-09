@@ -41,6 +41,10 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -60,7 +64,13 @@ import org.knowm.xchart.XYChart;
 import org.knowm.xchart.XYChartBuilder;
 import org.knowm.xchart.style.Styler.ChartTheme;
 
+import com.eclipsesource.json.Json;
+import com.eclipsesource.json.JsonArray;
+import com.eclipsesource.json.JsonValue;
+import com.google.common.io.Files;
+
 import pt.lsts.imc.VerticalProfile;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -74,10 +84,47 @@ public class VerticalProfileViewer implements Renderer2DPainter {
 
     private ArrayList<VerticalProfile> profiles = new ArrayList<>();
     private VerticalProfile selected = null;
-
+    private File store = new File("conf/profiles.json");
+    
+    
+    public VerticalProfileViewer() {
+        synchronized (profiles) {
+            try {
+               JsonArray arr = Json.parse(new FileReader(store)).asArray();         
+               
+               for (JsonValue v : arr.values()) {
+                   profiles.add((VerticalProfile)VerticalProfile.parseJson(v.toString()));                   
+               }
+               NeptusLog.pub().info("Read "+profiles.size()+" profiles from "+store.getAbsolutePath());
+               
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(e);
+            }
+        }
+    }
+    
+    
     public void addProfile(VerticalProfile prof) {
         synchronized (profiles) {
             profiles.add(prof);
+            
+            StringBuilder sb = new StringBuilder("[");
+            if (profiles.size() >= 1)
+                sb.append(profiles.get(0).asJSON());
+            
+            for (int i = 1; i < profiles.size(); i++)
+                sb.append(",\n"+profiles.get(i).asJSON());
+            
+            sb.append("]\n");
+            
+            try {
+                Files.write(sb.toString(), store, Charset.defaultCharset());
+                NeptusLog.pub().info("Wrote "+profiles.size()+" profiles to "+store.getAbsolutePath());
+            }
+            catch (IOException e) {
+                NeptusLog.pub().error(e);
+            }
         }
     }
 
@@ -96,7 +143,6 @@ public class VerticalProfileViewer implements Renderer2DPainter {
     }
 
     public void paintProfileDetails(VerticalProfile p, Graphics2D g, StateRenderer2D renderer) {
-        
         Point2D pt = renderer.getScreenPosition(new LocationType(p.getLat(), p.getLon()));
         g.drawString(p.getSourceName(), (int)pt.getX()+10, (int)pt.getY()+20);
         g.drawString(p.getDate().toString(), (int)pt.getX()+10, (int)pt.getY()+35);

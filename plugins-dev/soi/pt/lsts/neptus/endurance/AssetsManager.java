@@ -254,7 +254,8 @@ public class AssetsManager {
                             I18n.textf("Received plan from %vehicle (at %time).", cmd.getSourceName(),
                                     dateFormatterXMLNoMillisUTC.format(new Date(cmd.getTimestampMillis()))))
                             .requireHumanAction(true));
-                plans.put(cmd.getSourceName(), Plan.parse(cmd.getPlan()));
+                if (cmd.getPlan() != null)
+                    plans.put(cmd.getSourceName(), Plan.parse(cmd.getPlan()));
                 break;
             case RESUME:
                 break;
@@ -329,7 +330,8 @@ public class AssetsManager {
                 updated.getConfig().clear();
                 updated.getConfig().putAll(received.getConfig());
                 assetsMap.put(id, updated);
-                plans.put(id, received.getPlan());
+                if (received.getPlan() != null)
+                    plans.put(id, received.getPlan());
             }
             if (sb.length() > 0) {
                 NeptusLog.pub().info(sb);

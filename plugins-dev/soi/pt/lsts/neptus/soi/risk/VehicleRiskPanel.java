@@ -33,6 +33,7 @@
 package pt.lsts.neptus.soi.risk;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
@@ -53,7 +54,7 @@ import pt.lsts.neptus.util.DateTimeUtil;
 public class VehicleRiskPanel extends JPanel {
     private static final long serialVersionUID = 1L;
     private JLabel lblName, lblNextComm, lblLastComm, lblFuel, lblDistance, lblCollisions, lblErrors;
-    private VehicleRiskAnalysis analysis = null;
+    private VehicleRiskAnalysis analysis = new VehicleRiskAnalysis();
     
     public VehicleRiskPanel(String vehicle) {
         setLayout(new GridLayout(1, 7));
@@ -66,6 +67,7 @@ public class VehicleRiskPanel extends JPanel {
         lblErrors = createLabel("N/D");
         setBackground(Color.WHITE);
         
+        setMaximumSize(new Dimension(4000, 100));
         add(lblName);
         add(lblLastComm);
         add(lblNextComm);

@@ -368,31 +368,36 @@ public class SoiInteraction extends SimpleRendererInteraction {
 
     @Subscribe
     public void on(SoiCommand cmd) {
-        assetsManager.process(cmd, getConsole());
-
-        if (cmd.getType() != SoiCommand.TYPE.SUCCESS)
-            return;
-
-        NeptusLog.pub().info("Processing SoiCommand: " + cmd.asJSON() + ", " + Thread.currentThread().getName() + ", "
-                + cmd.hashCode());
-
-        VehicleType v = VehiclesHolder.getVehicleById(cmd.getSourceName());
-        String vName = "Vehicle";
-        if (v != null)
-            vName = v.getNickname();
-        
-        switch (cmd.getCommand()) {
-            case GET_PARAMS:
-                setParams(cmd.getSourceName(), cmd.getSettings());
-                say(vName+" params");
-                break;
-            case GET_PLAN:
-            case EXEC:
-                assetsManager.getPlans().put(cmd.getSourceName(), Plan.parse(cmd.getPlan()));
-                say(vName+" plan");
-                break;
-            default:
-                break;
+        try {
+            assetsManager.process(cmd, getConsole());
+    
+            if (cmd.getType() != SoiCommand.TYPE.SUCCESS)
+                return;
+    
+            NeptusLog.pub().info("Processing SoiCommand: " + cmd.asJSON() + ", " + Thread.currentThread().getName() + ", "
+                    + cmd.hashCode());
+    
+            VehicleType v = VehiclesHolder.getVehicleById(cmd.getSourceName());
+            String vName = "Vehicle";
+            if (v != null)
+                vName = v.getNickname();
+            
+            switch (cmd.getCommand()) {
+                case GET_PARAMS:
+                    setParams(cmd.getSourceName(), cmd.getSettings());
+                    say(vName+" params");
+                    break;
+                case GET_PLAN:
+                case EXEC:
+                    assetsManager.getPlans().put(cmd.getSourceName(), Plan.parse(cmd.getPlan()));
+                    say(vName+" plan");
+                    break;
+                default:
+                    break;
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
         }
     }
     

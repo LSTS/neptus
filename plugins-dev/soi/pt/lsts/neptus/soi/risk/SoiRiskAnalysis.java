@@ -49,7 +49,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import info.necsave.proto.parser.WGS84Utilities;
 import pt.lsts.aismanager.ShipAisSnapshot;
 import pt.lsts.aismanager.api.AisContactManager;
 import pt.lsts.neptus.NeptusLog;
@@ -67,6 +66,7 @@ import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
+import pt.lsts.util.WGS84Utilities;
 
 /**
  * @author zp
