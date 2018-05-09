@@ -247,6 +247,9 @@ public class LayersListPanel extends JPanel {
     }
     
     /**
+     * This list is ordered by paint in most foreground to the less.
+     * (So painting in reverse order is necessary.)
+     * 
      * @return the varLayersList
      */
     public List<GenericNetCDFDataPainter> getVarLayersList() {
@@ -392,14 +395,14 @@ public class LayersListPanel extends JPanel {
         upButton.addActionListener(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                movePanel(hdr, UpOrDown.UP);
+                movePanel(hdr, viz, UpOrDown.UP);
             }
         });
         JButton downButton = new JButton("\u2207");
         downButton.addActionListener(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                movePanel(hdr, UpOrDown.DOWN);
+                movePanel(hdr, viz, UpOrDown.DOWN);
             }
         });
 
@@ -567,19 +570,22 @@ public class LayersListPanel extends JPanel {
 
     /**
      * @param hdr
+     * @param viz 
      * @param upOrDown
      */
-    protected void movePanel(JPanel hdr, UpOrDown upOrDown) {
+    protected void movePanel(JPanel hdr, GenericNetCDFDataPainter viz, UpOrDown upOrDown) {
         int hCount = holder.getComponentCount();
         int idxHrd = Arrays.asList(holder.getComponents()).indexOf(hdr);
         if (idxHrd < 0)
             return;
         int offsetIdx = upOrDown == UpOrDown.UP ? -1 : 1;
         holder.remove(hdr);
+        varLayersList.remove(viz);
         int idxToReAdd = idxHrd + offsetIdx;
         idxToReAdd = Math.min(hCount - 1, idxToReAdd);
         idxToReAdd = Math.max(0, idxToReAdd);
         holder.add(hdr, idxToReAdd);
+        varLayersList.add(idxToReAdd, viz);
         holder.invalidate();
         holder.revalidate();
         holder.repaint();

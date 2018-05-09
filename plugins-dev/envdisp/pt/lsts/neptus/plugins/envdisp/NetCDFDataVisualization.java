@@ -117,13 +117,19 @@ public class NetCDFDataVisualization extends ConsoleLayer implements Configurati
      */
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
-        for (GenericNetCDFDataPainter l : layerList.getVarLayersList()) {
-            if (!l.isShowVar())
-                continue;
-            
-            Graphics2D g2 = (Graphics2D) g.create();
-            l.paint(g2, renderer, ignoreDateLimitToLoad, dateLimitHours, showDataDebugLegend);
-            g2.dispose();
+        try {
+            for (int i = layerList.getVarLayersList().size() - 1; i >= 0 ; i--) {
+                GenericNetCDFDataPainter l = layerList.getVarLayersList().get(i);
+                if (!l.isShowVar())
+                    continue;
+                
+                Graphics2D g2 = (Graphics2D) g.create();
+                l.paint(g2, renderer, ignoreDateLimitToLoad, dateLimitHours, showDataDebugLegend);
+                g2.dispose();
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }
