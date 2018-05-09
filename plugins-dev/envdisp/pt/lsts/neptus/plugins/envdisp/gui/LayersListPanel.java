@@ -44,6 +44,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
@@ -100,7 +101,12 @@ public class LayersListPanel extends JPanel {
     private static final ImageIcon LOGOIMAGE_ICON = new ImageIcon(
             ImageUtils.getScaledImage("pt/lsts/neptus/plugins/envdisp/netcdf-radar.png", 32, 32));
     private static final ImageIcon VIEW_IMAGE_ICON = ImageUtils.createImageIcon("images/menus/view.png");
-    
+
+    private static enum UpOrDown {
+        UP,
+        DOWN
+    }
+
     private AtomicLong plotCounter = new AtomicLong();
     private File recentFolder = new File(".");
 
@@ -386,20 +392,14 @@ public class LayersListPanel extends JPanel {
         upButton.addActionListener(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO
-                holder.invalidate();
-                holder.revalidate();
-                holder.repaint();
+                movePanel(hdr, UpOrDown.UP);
             }
         });
         JButton downButton = new JButton("\u2207");
         downButton.addActionListener(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO
-                holder.invalidate();
-                holder.revalidate();
-                holder.repaint();
+                movePanel(hdr, UpOrDown.DOWN);
             }
         });
 
@@ -563,6 +563,26 @@ public class LayersListPanel extends JPanel {
         this.repaint();
         
         varLayersList.add(viz);
+    }
+
+    /**
+     * @param hdr
+     * @param upOrDown
+     */
+    protected void movePanel(JPanel hdr, UpOrDown upOrDown) {
+        int hCount = holder.getComponentCount();
+        int idxHrd = Arrays.asList(holder.getComponents()).indexOf(hdr);
+        if (idxHrd < 0)
+            return;
+        int offsetIdx = upOrDown == UpOrDown.UP ? -1 : 1;
+        holder.remove(hdr);
+        int idxToReAdd = idxHrd + offsetIdx;
+        idxToReAdd = Math.min(hCount - 1, idxToReAdd);
+        idxToReAdd = Math.max(0, idxToReAdd);
+        holder.add(hdr, idxToReAdd);
+        holder.invalidate();
+        holder.revalidate();
+        holder.repaint();
     }
 
     private class SpinnerIsAdjustingUI extends BasicSpinnerUI {
