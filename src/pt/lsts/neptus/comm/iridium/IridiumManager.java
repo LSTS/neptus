@@ -137,6 +137,7 @@ public class IridiumManager {
     }
     
     public void processMessage(IridiumMessage msg) {
+        
         try {
             IridiumMsgTx transmission = new IridiumMsgTx();
             transmission.setData(msg.serialize());

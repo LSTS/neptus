@@ -333,6 +333,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         //message.setSrcEnt(255);
         
         onMessage(minfo, message);
+        
         bus.post(message);
     }
 

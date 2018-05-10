@@ -40,12 +40,12 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import pt.lsts.neptus.mystate.MyState;
@@ -53,7 +53,7 @@ import pt.lsts.neptus.util.DateTimeUtil;
 
 public class VehicleRiskPanel extends JPanel {
     private static final long serialVersionUID = 1L;
-    private JLabel lblName, lblNextComm, lblLastComm, lblFuel, lblDistance, lblCollisions, lblErrors;
+    private JStatusLabel lblName, lblNextComm, lblLastComm, lblFuel, lblDistance, lblCollisions, lblErrors;
     private VehicleRiskAnalysis analysis = new VehicleRiskAnalysis();
     
     public VehicleRiskPanel(String vehicle) {
@@ -75,7 +75,7 @@ public class VehicleRiskPanel extends JPanel {
         add(lblDistance);
         add(lblCollisions);
         add(lblErrors);          
-        setTextSize(24);
+        setTextSize(18);
     }
     
     @Override
@@ -93,20 +93,16 @@ public class VehicleRiskPanel extends JPanel {
         super.paint(g);
     }
     
-    private JLabel createLabel(String text) {
-        JLabel lbl = new JLabel(text);
+    private JStatusLabel createLabel(String text) {
+        Font font = new Font("Arial", Font.BOLD, 18);
+        JStatusLabel lbl = new JStatusLabel(text, font);       
+        lbl.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, Color.gray.brighter()));
         return lbl;
     }
     
-    private void setTextSize(int size) {
-        List<JLabel> labels = Arrays.asList(lblCollisions, lblDistance, lblErrors, lblFuel, lblLastComm, lblName, lblNextComm);
-        Font font = new Font("Arial", Font.BOLD, size);
-        
-        for (JLabel l : labels) {
-            l.setFont(font);
-            l.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, Color.gray.brighter()));
-            l.setHorizontalAlignment(JLabel.CENTER);
-        }
+    public void setTextSize(int size) {
+        List<JStatusLabel> labels = Arrays.asList(lblCollisions, lblDistance, lblErrors, lblFuel, lblLastComm, lblName, lblNextComm);
+        labels.forEach(l -> l.setFontSize(size));
     }
     
     public void setRiskAnalysis(VehicleRiskAnalysis analysis) {
@@ -117,51 +113,38 @@ public class VehicleRiskPanel extends JPanel {
         else
             setBackground(new Color(255, 180, 180));
         
-        if (analysis.lastCommunication == null) {
-            lblLastComm.setText("N/D");
-            lblLastComm.setToolTipText("No message has been received");
-            lblLastComm.setForeground(Color.gray.darker());
-        }
+        if (analysis.lastCommunication == null)
+            lblLastComm.setState("N/D", false, "No message has been received");
         else {                
             long ellapsed = System.currentTimeMillis() - analysis.lastCommunication.getTime();
-            lblLastComm.setText(DateTimeUtil.milliSecondsToFormatedString(ellapsed));
-            if (ellapsed / 60_000 < 30)
-                lblLastComm.setForeground(Color.green.darker());
-            else
-                lblLastComm.setForeground(Color.red.darker());
+            String strEllapsed = DateTimeUtil.milliSecondsToFormatedString(ellapsed);
+            lblLastComm.setState(strEllapsed, ellapsed / 60_000 > 30, "");
         }
         
-        if (analysis.nextCommunication == null) {
-            lblNextComm.setText("N/D");
-            lblNextComm.setToolTipText("No future communications scheduled");
+        if (analysis.nextCommunication == null || analysis.nextCommunication.before(new Date())) {
+            lblNextComm.setState("N/D", false, "No future communications scheduled");
         }
         else {
             long timeDiff = analysis.nextCommunication.getTime() - System.currentTimeMillis();
-            lblNextComm.setText(DateTimeUtil.milliSecondsToFormatedString(timeDiff));
-            lblNextComm.setToolTipText("ETA: "+analysis.nextCommunication);
-            lblNextComm.setForeground(Color.green.darker());                
+            lblNextComm.setState(DateTimeUtil.milliSecondsToFormatedString(timeDiff), false, "ETA: "+analysis.nextCommunication);
         }
         
         if (analysis.collisions == null || analysis.collisions.isEmpty()) {
-            lblCollisions.setText("0");
-            lblCollisions.setForeground(Color.green.darker());
-            lblCollisions.setToolTipText("No collisions have been detected");
+            lblCollisions.setState("No", false, "No collisions have been detected");
         }
         else {
-            lblCollisions.setText(""+analysis.collisions.size());
-            lblCollisions.setForeground(Color.red.darker());
-            String text = analysis.collisions.values().stream().collect(Collectors.joining("\n"));
-            lblCollisions.setToolTipText(text);
+            String text = analysis.collisions.values().stream().collect(Collectors.joining("<br>"));
+            lblCollisions.setState(analysis.collisions.size()+"!", true, "<html>"+text);
         }
                     
         if (analysis.location != null) {
             double dist = MyState.getLocation().getDistanceInMeters(analysis.location);
             String distance = String.format(Locale.US, "%.0f m",
                     dist);
-            lblDistance.setText(distance);                
+            lblDistance.setState(distance, false, "distance to home location");
         }
         else {
-            lblDistance.setText("N/D"); 
+            lblDistance.setState("N/D", true, "No home location has been set");            
         }
         repaint();
     }

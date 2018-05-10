@@ -237,10 +237,13 @@ public class IridiumComms extends SimpleRendererInteraction {
     public void on(IridiumMsgTx msg) {
         try {
             byte[] data = msg.getData();
-            NeptusLog.pub().info(msg.getSourceName() + " request sending of iridium message with data "
-                    + new String(Hex.encodeHex(data)));
             IridiumMessage m = IridiumMessage.deserialize(data);
-            NeptusLog.pub().info("Encoded message: " + m);
+            NeptusLog.pub().info(msg.getSourceName() + " request sending of "+m.getClass().getSimpleName()+" message with data "
+                    + new String(Hex.encodeHex(data)));
+            m.setSource(msg.getSrc());
+            m.setDestination(msg.getDst());
+            m.timestampMillis = msg.getTimestampMillis();
+            NeptusLog.pub().debug("Encoded message: " + m);
         }
         catch (Exception e) {
             NeptusLog.pub().info(

@@ -85,7 +85,7 @@ public class VerticalProfileViewer implements Renderer2DPainter {
     private ArrayList<VerticalProfile> profiles = new ArrayList<>();
     private VerticalProfile selected = null;
     private File store = new File("conf/profiles.json");
-    
+    private int oldestProfiles = 24;
     
     public VerticalProfileViewer() {
         synchronized (profiles) {
@@ -131,8 +131,10 @@ public class VerticalProfileViewer implements Renderer2DPainter {
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         synchronized (profiles) {
-            for (VerticalProfile vp : profiles)
-                paintProfileIcon(vp, g, renderer);
+            for (VerticalProfile vp : profiles) {
+                if (vp.getAgeInSeconds() < oldestProfiles * 3600)
+                    paintProfileIcon(vp, g, renderer);
+            }
         }
 
         VerticalProfile sel = selected;
@@ -267,6 +269,22 @@ public class VerticalProfileViewer implements Renderer2DPainter {
         }
     }
     
+    /**
+     * @return the oldestProfiles
+     */
+    public int getOldestProfiles() {
+        return oldestProfiles;
+    }
+
+
+    /**
+     * @param oldestProfiles the oldestProfiles to set
+     */
+    public void setOldestProfiles(int oldestProfiles) {
+        this.oldestProfiles = oldestProfiles;
+    }
+
+
     public static void main(String[] args) {
         
         XYSeries series = new XYSeries("temp");

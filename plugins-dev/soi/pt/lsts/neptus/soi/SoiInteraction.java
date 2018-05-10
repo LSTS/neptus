@@ -33,7 +33,6 @@
 package pt.lsts.neptus.soi;
 
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
@@ -46,20 +45,18 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 
 import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Arrays;
 
 import com.google.common.eventbus.Subscribe;
+import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.Announce;
-import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.PlanSpecification;
 import pt.lsts.imc.SoiCommand;
 import pt.lsts.imc.SoiCommand.COMMAND;
@@ -67,12 +64,7 @@ import pt.lsts.imc.SoiCommand.TYPE;
 import pt.lsts.imc.SoiPlan;
 import pt.lsts.imc.StateReport;
 import pt.lsts.imc.VerticalProfile;
-import pt.lsts.imc.Voltage;
-import pt.lsts.imc.state.ImcSystemState;
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
-import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
-import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.notifications.Notification;
@@ -82,7 +74,6 @@ import pt.lsts.neptus.endurance.Plan;
 import pt.lsts.neptus.endurance.SoiSettings;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
-import pt.lsts.neptus.mystate.MyState;
 import pt.lsts.neptus.plugins.NeptusMenuItem;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
@@ -93,11 +84,8 @@ import pt.lsts.neptus.plugins.SimpleRendererInteraction;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
-import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
-import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.speech.SpeechUtil;
 
 /**
@@ -121,12 +109,12 @@ public class SoiInteraction extends SimpleRendererInteraction {
     @NeptusProperty(name = "Hide layer if inactive")
     public boolean hideIfInactive = true;
 
-    @NeptusProperty(name = "Battery Entity Name", description = "Vehicle Battery entity name")
-    public String batteryEntityName = "Batteries";
-
     @NeptusProperty(name = "Audio Notifications")
     public boolean audioNotifications = true;
     
+    @NeptusProperty(name = "Maximum profile age (hours)", description = "Profiles older than this age will be hidden")
+    public int oldestProfiles = 24;
+        
     private VerticalProfileViewer profileView = new VerticalProfileViewer();
     private AssetsManager assetsManager = AssetsManager.getInstance();
     private GeneralPath vehShape;
@@ -256,6 +244,12 @@ public class SoiInteraction extends SimpleRendererInteraction {
         }
         cmd.setSettings(settingsStr.substring(0, settingsStr.length() - 1));
         sendCommand(cmd);
+    }
+    
+    @Override
+    public void setProperties(Property[] properties) {
+        super.setProperties(properties);
+        profileView.setOldestProfiles(oldestProfiles);
     }
 
     protected void setParams(String vehicle, LinkedHashMap<String, String> params) {
@@ -499,113 +493,13 @@ public class SoiInteraction extends SimpleRendererInteraction {
             assetsManager.sendCommand(getConsole().getMainSystem(), cmd, commMean, getConsole());
         }).start();
     }
-
-    public String infoHtml(ImcSystem[] vehicles) {
-        StringBuilder html = new StringBuilder();
-        html.append("<html><table>");
-        html.append(
-                "<tr><th>Vehicle</th><th>Distance</th><th>Last Comm.</th><th>Next Comm.</th><th>Fuel</th><th>Match Plan</th></tr>\n");
-
-        for (ImcSystem vehicle : vehicles) {
-            if (vehicle.getLocation() == null)
-                continue;
-
-            Plan plan = assetsManager.getPlans().getOrDefault(vehicle.getName(), null);
-            
-            if (plan == null)
-                continue;
-
-            SystemPositionAndAttitude lastState = new SystemPositionAndAttitude(vehicle.getLocation(), 0, 0, 0);
-            lastState.setTime(vehicle.getLocationTimeMillis());
-
-            SystemPositionAndAttitude estimatedState = SoiUtils.estimatedState(vehicle, plan);
-
-            SystemPositionAndAttitude futureState = SoiUtils.futureState(vehicle, plan);
-
-            String distance = "?";
-            String lastComm = "?";
-            String nextComm = "?";
-            String fuel = "?";
-            String matchPlan = "?";
-
-            if (estimatedState != null)
-                distance = String.format(Locale.US, "%.0f m",
-                        MyState.getLocation().getDistanceInMeters(estimatedState.getPosition()));
-
-            if (lastState != null)
-                lastComm = DateTimeUtil.milliSecondsToFormatedString(System.currentTimeMillis() - lastState.getTime());
-
-            if (futureState != null)
-                nextComm = DateTimeUtil
-                        .milliSecondsToFormatedString(futureState.getTime() - System.currentTimeMillis());
-
-            ImcSystemState state = ImcMsgManager.getManager().getState(vehicle.getName());
-            if (state != null) {
-                IMCMessage fuelLevel = state.get("FuelLevel");
-                IMCMessage stateReport = state.get("StateReport");
-                IMCMessage voltage = state.get(Voltage.ID_STATIC,
-                        EntitiesResolver.resolveId(vehicle.getName(), batteryEntityName));
-                String voltageStr = "";
-                if (voltage != null)
-                    voltageStr = " (Batt: " + MathMiscUtils.round(((Voltage) voltage).getValue(), 1) + "V)";
-
-                if (stateReport != null && fuelLevel != null) {
-                    if (stateReport.getTimestampMillis() > fuelLevel.getTimestampMillis())
-                        fuel = stateReport.getInteger("fuel") + "%" + voltageStr;
-                    else
-                        fuel = fuelLevel.getInteger("value") + "%" + voltageStr;
-                }
-                else if (stateReport != null)
-                    fuel = stateReport.getInteger("fuel") + "%" + voltageStr;
-                else if (fuelLevel != null)
-                    fuel = fuelLevel.getInteger("value") + "%" + voltageStr;
-
-                if (stateReport != null) {
-                    int pcsum = ((StateReport) stateReport).getPlanChecksum();
-                    matchPlan = "";
-                    for (String pl : getConsole().getMission().getIndividualPlansList().keySet()) {
-                        PlanType planType = getConsole().getMission().getIndividualPlansList().get(pl);
-                        PlanSpecification pSpec = (PlanSpecification) planType.asIMCPlan();
-                        int localPcsum = Plan.parse(pSpec).checksum();
-                        if (localPcsum == pcsum) {
-                            matchPlan = plan + " (CS::" + pcsum + ")";
-                            break;
-                        }
-                    }
-                }
-            }
-
-            html.append("<tr><td>" + vehicle.getName() + "</td><td>" + distance + "</td><td>" + lastComm + "</td><td>"
-                    + nextComm + "</td><td>" + fuel + "</td><td>" + matchPlan + "</td></tr>\n");
-        }
-
-        html.append("</table></html>");
-
-        return html.toString();
-    }
-
+    
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         super.paint(g, renderer);
 
         if (!active && hideIfInactive)
             return;
-
-        // String sys = getConsole().getMainSystem();
-
-        JLabel label = new JLabel(infoHtml(ImcSystemsHolder.lookupSystemByType(SystemTypeEnum.VEHICLE)));
-        Dimension d = label.getPreferredSize();
-
-        int x = (int) ((renderer.getWidth() - d.getWidth()) / 2.0);
-
-        label.setBounds(x, 0, (int) d.getWidth(), (int) d.getHeight());
-        label.setBackground(new Color(255, 255, 255, 128));
-        label.setForeground(Color.BLACK);
-        label.setOpaque(true);
-
-        g.translate(x, 0);
-        label.paint(g);
-        g.translate(-x, 0);
 
         paintPlans(g, renderer);
         

@@ -35,12 +35,17 @@ package pt.lsts.neptus.soi.risk;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GridLayout;
+import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.BorderFactory;
@@ -48,6 +53,8 @@ import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+
+import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.aismanager.ShipAisSnapshot;
 import pt.lsts.aismanager.api.AisContactManager;
@@ -79,6 +86,9 @@ public class SoiRiskAnalysis extends ConsolePanel {
     @NeptusProperty(name = "Minimum distance allowed between AUVs and Ships (meters)")
     int collisionDistance = 100;
     
+    @NeptusProperty(name = "Font Size")
+    int fontSize = 18;
+    
     private static final long serialVersionUID = -3929616332138737684L;
     private ConcurrentHashMap<String, VehicleRiskAnalysis> state = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, VehicleRiskPanel> panels = new ConcurrentHashMap<>();
@@ -100,7 +110,7 @@ public class SoiRiskAnalysis extends ConsolePanel {
 
     @Override
     public void cleanSubPanel() {
-
+        
     }
 
     @Override
@@ -126,9 +136,24 @@ public class SoiRiskAnalysis extends ConsolePanel {
         top.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.gray));
         add(top);
     }
+    
+    @Override
+    public void setProperties(Property[] properties) {
+        super.setProperties(properties);
+        panels.forEachValue(1, p -> p.setTextSize(fontSize));
+        repaint();
+    }
 
     private JLabel createLabel(String text, Font font) {
-        JLabel lbl = new JLabel(text);
+        JLabel lbl = new JLabel(text) {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public void paint(Graphics g) {
+                ((Graphics2D)g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                super.paint(g);
+            }
+        };
         lbl.setHorizontalAlignment(JLabel.CENTER);
         lbl.setFont(font);
         return lbl;
@@ -141,7 +166,7 @@ public class SoiRiskAnalysis extends ConsolePanel {
         // (vehicle, ship) -> (distance, timestamp)
         final ConcurrentHashMap<Pair<String, String>, Pair<Double, Date>> collisions = new ConcurrentHashMap<>();
 
-        for (long timeOffset = 0; timeOffset < 3_600 * 3_000; timeOffset += 1_000 * collisionDistance/2) {
+        for (long timeOffset = 0; timeOffset < 3_600 * 3_000; timeOffset += 1_000 * collisionDistance/4) {
             final long time = timeOffset;
             HashMap<String, ShipAisSnapshot> ships = AisContactManager.getInstance().getFutureSnapshots(time);
 
@@ -164,15 +189,21 @@ public class SoiRiskAnalysis extends ConsolePanel {
             s.collisions.clear();
         });
         
+        SimpleDateFormat sdf = new SimpleDateFormat();
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+        
         collisions.forEach((systems, info) -> {
             String vehicle = systems.first();
             String ship = systems.second();
             Date when = info.second();
+            
+            
+            
             double distance = info.first();
             
             VehicleRiskAnalysis analysis = state.get(vehicle);
             if (analysis != null) {
-                analysis.collisions.put(when, ship+" within "+(int)distance+"m @ "+when);
+                analysis.collisions.put(when, ship+" within "+(int)distance+"m @ "+sdf.format(when));
             }
         });
                 
@@ -214,6 +245,7 @@ public class SoiRiskAnalysis extends ConsolePanel {
                 
                 VehicleRiskPanel panel = new VehicleRiskPanel(nickname);
                 doLayout = true;
+                panel.setTextSize(fontSize);
                 add(panel);
                 panels.put(name, panel);                
             }
