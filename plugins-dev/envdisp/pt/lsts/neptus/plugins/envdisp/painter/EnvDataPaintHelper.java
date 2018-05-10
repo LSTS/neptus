@@ -191,10 +191,11 @@ public class EnvDataPaintHelper {
             ColorMap colorMapCurrents, double minCurrentCmS, double maxCurrentCmS, boolean showCurrentsLegend, int showCurrentsLegendFromZoomLevel,
             Font font8Pt, boolean showDataDebugLegend, AtomicBoolean abortIndicator) {
 
-        paintWorkerInGraphics("Currents", rendererCalculator, g2, dateColorLimit, dateLimit, 
-                dataPointsCurrents, EnvDataShapesHelper.ARROW_RADIUS, ignoreDateLimitToLoad, 
+        paintWorkerInGraphics("Currents", rendererCalculator, g2, 
+                dataPointsCurrents, EnvDataShapesHelper.ARROW_RADIUS, 
                 offScreenBufferPixel, colorMapCurrents, minCurrentCmS, maxCurrentCmS, showCurrentsLegend, 
-                showCurrentsLegendFromZoomLevel, font8Pt, showDataDebugLegend, 0, 
+                showCurrentsLegendFromZoomLevel, font8Pt, showDataDebugLegend, 0,
+                dp -> ignoreDateLimitToLoad || !dp.getDateUTC().before(dateLimit),
                 dp -> dp.getAllDataValues(), 
                 (vals, ovals) -> {
                     // speedCmS, headingDegrees, resolutionKm, info(String)
@@ -271,11 +272,12 @@ public class EnvDataPaintHelper {
             ColorMap colorMapSST, double minSST, double maxSST,
             boolean showSSTLegend, int showSSTLegendFromZoomLevel, Font font8Pt, boolean showDataDebugLegend, AtomicBoolean abortIndicator) {
 
-        paintWorkerInGraphics("SST", rendererCalculator, g2, dateColorLimit, dateLimit, 
-                dataPointsSST, EnvDataShapesHelper.CIRCLE_RADIUS, ignoreDateLimitToLoad, 
+        paintWorkerInGraphics("SST", rendererCalculator, g2, 
+                dataPointsSST, EnvDataShapesHelper.CIRCLE_RADIUS,
                 offScreenBufferPixel, colorMapSST, minSST, maxSST, showSSTLegend, 
                 showSSTLegendFromZoomLevel, font8Pt, showDataDebugLegend, 1, 
-                dp -> dp.getAllDataValues(), 
+                dp -> ignoreDateLimitToLoad || !dp.getDateUTC().before(dateLimit),
+                dp -> dp.getAllDataValues(),
                 (vals, ovals) -> {
                     // sst
                     double v = (double) vals.get(0);
@@ -339,10 +341,11 @@ public class EnvDataPaintHelper {
             boolean useColorMapForWind, ColorMap colorMapWind, double minWind, double maxWind,
             Font font8Pt, boolean showDataDebugLegend, AtomicBoolean abortIndicator) {
 
-        paintWorkerInGraphics("Wind", rendererCalculator, g2, dateColorLimit, dateLimit, 
-                dataPointsWind, EnvDataShapesHelper.WIND_BARB_RADIUS, ignoreDateLimitToLoad, 
+        paintWorkerInGraphics("Wind", rendererCalculator, g2, 
+                dataPointsWind, EnvDataShapesHelper.WIND_BARB_RADIUS, 
                 offScreenBufferPixel, colorMapWind, minWind, maxWind, false, 
-                0, font8Pt, showDataDebugLegend, 2, 
+                0, font8Pt, showDataDebugLegend, 2,
+                dp -> ignoreDateLimitToLoad || !dp.getDateUTC().before(dateLimit),
                 dp -> dp.getAllDataValues(), 
                 (vals, ovals) -> {
                     // u, v
@@ -415,11 +418,12 @@ public class EnvDataPaintHelper {
             ColorMap colorMapWaves, double minWaves, double maxWaves, boolean showWavesLegend,
             int showWavesLegendFromZoomLevel, Font font8Pt, boolean showDataDebugLegend, AtomicBoolean abortIndicator) {
 
-        paintWorkerInGraphics("Waves", rendererCalculator, g2, dateColorLimit, dateLimit, 
-                dataPointsWaves, EnvDataShapesHelper.ARROW_RADIUS, ignoreDateLimitToLoad, 
+        paintWorkerInGraphics("Waves", rendererCalculator, g2, 
+                dataPointsWaves, EnvDataShapesHelper.ARROW_RADIUS, 
                 offScreenBufferPixel, colorMapWaves, minWaves, maxWaves, showWavesLegend, 
                 showWavesLegendFromZoomLevel, font8Pt, showDataDebugLegend, 3, 
-                dp -> dp.getAllDataValues(), 
+                dp -> ignoreDateLimitToLoad || !dp.getDateUTC().before(dateLimit),
+                dp -> dp.getAllDataValues(),
                 (vals, ovals) -> {
                     // significantHeight, peakPeriod, peakDirection
                     for (int i = 0; i < 3; i++) {
@@ -495,10 +499,11 @@ public class EnvDataPaintHelper {
             ColorMap colorMapChlorophyll, double minChlorophyll, double maxChlorophyll, boolean showChlorophyllLegend,
             int showChlorophyllLegendFromZoomLevel, Font font8Pt, boolean showDataDebugLegend, AtomicBoolean abortIndicator) {
         
-        paintWorkerInGraphics("Chlorophyll", rendererCalculator, g2, dateColorLimit, dateLimit, 
-                dataPointsChlorophyll, EnvDataShapesHelper.CIRCLE_RADIUS, ignoreDateLimitToLoad, 
+        paintWorkerInGraphics("Chlorophyll", rendererCalculator, g2, 
+                dataPointsChlorophyll, EnvDataShapesHelper.CIRCLE_RADIUS, 
                 offScreenBufferPixel, colorMapChlorophyll, minChlorophyll, maxChlorophyll, showChlorophyllLegend, 
-                showChlorophyllLegendFromZoomLevel, font8Pt, showDataDebugLegend, 4, 
+                showChlorophyllLegendFromZoomLevel, font8Pt, showDataDebugLegend, 4,
+                dp -> ignoreDateLimitToLoad || !dp.getDateUTC().before(dateLimit),
                 dp -> dp.getAllDataValues(), 
                 (vals, ovals) -> {
                     double v = (double) vals.get(0);
@@ -564,10 +569,11 @@ public class EnvDataPaintHelper {
             double minSLA, double maxSLA, boolean showSLALegend, int showSLALegendFromZoomLevel, 
             Font font8Pt, boolean showDataDebugLegend, AtomicBoolean abortIndicator) {
         
-        paintWorkerInGraphics("SLA", rendererCalculator, g2, dateColorLimit, dateLimit, 
-                dataPointsSLA, EnvDataShapesHelper.CIRCLE_RADIUS, ignoreDateLimitToLoad, 
+        paintWorkerInGraphics("SLA", rendererCalculator, g2,
+                dataPointsSLA, EnvDataShapesHelper.CIRCLE_RADIUS, 
                 offScreenBufferPixel, colorMapSLA, minSLA, maxSLA, showSLALegend, 
-                showSLALegendFromZoomLevel, font8Pt, showDataDebugLegend, 1, 
+                showSLALegendFromZoomLevel, font8Pt, showDataDebugLegend, 1,
+                dp -> ignoreDateLimitToLoad || !dp.getDateUTC().before(dateLimit),
                 dp -> dp.getAllDataValues(), 
                 (vals, ovals) -> {
                     // sla
@@ -727,10 +733,10 @@ public class EnvDataPaintHelper {
                 break;
         }
         
-        paintWorkerInGraphics(info.fullName, rendererCalculator, g2, dateColorLimit, dateLimit, 
-                dataPointsVar, pointSize, ignoreDateLimitToLoad, 
-                offScreenBufferPixel, colorMapVar, minVar, maxVar, showVarLegend, 
-                showVarLegendFromZoomLevel, font8Pt, showDataDebugLegend, 1, 
+        paintWorkerInGraphics(info.fullName, rendererCalculator, g2, dataPointsVar, 
+                pointSize, offScreenBufferPixel, colorMapVar, minVar, maxVar, showVarLegend, 
+                showVarLegendFromZoomLevel, font8Pt, showDataDebugLegend, 1,
+                dp -> ignoreDateLimitToLoad || !dp.getDateUTC().before(dateLimit),
                 dp -> dp.getAllDataValues(), 
                 (vals, ovals) -> {
                     // sla
@@ -887,47 +893,44 @@ public class EnvDataPaintHelper {
     }
 
     private static <Dp extends BaseDataPoint<?>> void paintWorkerInGraphics(String varName, 
-            MapTileRendererCalculator rendererCalculator,  Graphics2D g2,  Date dateColorLimit, 
-            Date dateLimit, HashMap<String, Dp> dataPoints, int gridSpacing, boolean ignoreDateLimitToLoad, 
+            MapTileRendererCalculator rendererCalculator,  Graphics2D g2, 
+            HashMap<String, Dp> dataPoints, int gridSpacing, 
             int offScreenBufferPixel, ColorMap colorMap, double minVal, double maxVal, 
             boolean showVarLegend, int showVarLegendFromZoomLevel, Font font8Pt, 
-            boolean showDataDebugLegend, int debugPainterForDatesOffserIndex, 
+            boolean showDataDebugLegend, int debugPainterForDatesOffserIndex, Function<Dp, Boolean> acceptor,
             Function<Dp, ArrayList<Object>> extractor, BinaryOperator<ArrayList<Object>> merger,
             BiConsumer<Point2D, Map<Point2D, Pair<ArrayList<Object>, Date>>> eachPointerpainter,
             AtomicBoolean abortIndicator) {
 
-        paintWorkerInGraphics(varName, rendererCalculator, g2, dateColorLimit, dateLimit, dataPoints, gridSpacing,
-                ignoreDateLimitToLoad, offScreenBufferPixel, colorMap, minVal, maxVal, showVarLegend,
-                showVarLegendFromZoomLevel, font8Pt, showDataDebugLegend, debugPainterForDatesOffserIndex, extractor,
-                merger, eachPointerpainter, null, abortIndicator);
+        paintWorkerInGraphics(varName, rendererCalculator, g2, dataPoints, gridSpacing,
+                offScreenBufferPixel, colorMap, minVal, maxVal, showVarLegend,
+                showVarLegendFromZoomLevel, font8Pt, showDataDebugLegend, debugPainterForDatesOffserIndex,
+                acceptor, extractor, merger, eachPointerpainter, null, abortIndicator);
     }
 
     @SuppressWarnings("unused")
     private static <Dp extends BaseDataPoint<?>> void paintWorkerInGraphics(String varName, 
-            MapTileRendererCalculator rendererCalculator,  Graphics2D g2,  Date dateColorLimit, 
-            Date dateLimit, HashMap<String, Dp> dataPoints, int gridSpacing, boolean ignoreDateLimitToLoad, 
+            MapTileRendererCalculator rendererCalculator, Graphics2D g2, 
+            HashMap<String, Dp> dataPoints, int gridSpacing, 
             int offScreenBufferPixel, ColorMap colorMap, double minVal, double maxVal, 
             boolean showVarLegend, int showVarLegendFromZoomLevel, Font font8Pt, 
-            boolean showDataDebugLegend, int debugPainterForDatesOffserIndex, 
+            boolean showDataDebugLegend, int debugPainterForDatesOffserIndex, Function<Dp, Boolean> acceptor,
             Function<Dp, ArrayList<Object>> extractor, BinaryOperator<ArrayList<Object>> merger,
             Consumer<Map<Point2D, Pair<ArrayList<Object>, Date>>> painter,
             AtomicBoolean abortIndicator) {
 
-        paintWorkerInGraphics(varName, rendererCalculator, g2, dateColorLimit, dateLimit, dataPoints, gridSpacing,
-                ignoreDateLimitToLoad, offScreenBufferPixel, colorMap, minVal, maxVal, showVarLegend,
-                showVarLegendFromZoomLevel, font8Pt, showDataDebugLegend, debugPainterForDatesOffserIndex, extractor,
-                merger, null, painter, abortIndicator);
+        paintWorkerInGraphics(varName, rendererCalculator, g2, dataPoints, gridSpacing,
+                offScreenBufferPixel, colorMap, minVal, maxVal, showVarLegend,
+                showVarLegendFromZoomLevel, font8Pt, showDataDebugLegend, debugPainterForDatesOffserIndex,
+                acceptor, extractor, merger, null, painter, abortIndicator);
     }
 
     /**
      * @param varName
      * @param rendererCalculator
      * @param g2
-     * @param dateColorLimit
-     * @param dateLimit
      * @param dataPoints
      * @param gridSpacing
-     * @param ignoreDateLimitToLoad
      * @param offScreenBufferPixel
      * @param colorMap
      * @param minVal
@@ -937,6 +940,7 @@ public class EnvDataPaintHelper {
      * @param font8Pt
      * @param showDataDebugLegend
      * @param debugPainterForDatesOffserIndex
+     * @param acceptor See {@link DataCollector}
      * @param extractor See {@link DataCollector}
      * @param merger See {@link DataCollector}
      * @param eachPointPainter if null painter is used
@@ -944,11 +948,11 @@ public class EnvDataPaintHelper {
      * @param abortIndicator
      */
     private static <Dp extends BaseDataPoint<?>> void paintWorkerInGraphics(String varName, 
-            MapTileRendererCalculator rendererCalculator,  Graphics2D g2,  Date dateColorLimit, 
-            Date dateLimit, Map<String, Dp> dataPoints, int gridSpacing, boolean ignoreDateLimitToLoad, 
+            MapTileRendererCalculator rendererCalculator, Graphics2D g2, 
+            Map<String, Dp> dataPoints, int gridSpacing, 
             int offScreenBufferPixel, ColorMap colorMap, double minVal, double maxVal, 
             boolean showVarLegend, int showVarLegendFromZoomLevel, Font font8Pt, 
-            boolean showDataDebugLegend, int debugPainterForDatesOffserIndex, 
+            boolean showDataDebugLegend, int debugPainterForDatesOffserIndex, Function<Dp, Boolean> acceptor, 
             Function<Dp, ArrayList<Object>> extractor, BinaryOperator<ArrayList<Object>> merger,
             BiConsumer<Point2D, Map<Point2D, Pair<ArrayList<Object>, Date>>> eachPointPainter,
             Consumer<Map<Point2D, Pair<ArrayList<Object>, Date>>> painter,
@@ -957,8 +961,8 @@ public class EnvDataPaintHelper {
         try {
             List<Dp> dest = new ArrayList<>(dataPoints.values());
             long stMillis = System.currentTimeMillis();
-            DataCollector<Dp> dataCollector = new DataCollector<Dp>(ignoreDateLimitToLoad, dateLimit, rendererCalculator, 
-                    offScreenBufferPixel, gridSpacing, extractor, merger, abortIndicator);
+            DataCollector<Dp> dataCollector = new DataCollector<Dp>(rendererCalculator, 
+                    offScreenBufferPixel, gridSpacing, acceptor, extractor, merger, abortIndicator);
             LongAccumulator visiblePts = dataCollector.visiblePts;
             LongAccumulator toDatePts = dataCollector.toDatePts;
             LongAccumulator fromDatePts = dataCollector.fromDatePts;

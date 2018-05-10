@@ -57,14 +57,12 @@ import pt.lsts.neptus.util.coord.MapTileRendererCalculator;
 public class DataCollector<T extends BaseDataPoint<?>> implements
         Collector<T, ArrayList<Map<Point2D, Pair<ArrayList<Object>, Date>>>, ArrayList<Map<Point2D, Pair<ArrayList<Object>, Date>>>> {
     
-    public boolean ignoreDateLimitToLoad = false;
-    public Date dateLimit;
-    // public StateRenderer2D renderer;
     public MapTileRendererCalculator rendererCalculator; 
     public int offScreenBufferPixel;
     
     public int gridSpacing = 8;
     
+    public Function<T, Boolean> acceptor;
     public Function<T, ArrayList<Object>> extractor;
     public BinaryOperator<ArrayList<Object>> merger;
 
@@ -78,56 +76,55 @@ public class DataCollector<T extends BaseDataPoint<?>> implements
      * Data collector class, see {@link java.util.stream.Collector}, to process data
      * for painting.
      * 
-     * @param ignoreDateLimitToLoad To ignore data limit filtering.
-     * @param dateLimit Data limit for filtering is enabled.
      * @param renderer The renderer where it will be painted.
      * @param offScreenBufferPixel The off-screen pixels to consider.
      * @param gridSpacing The grid spacing to use, in pixels.
+     * @param acceptor This will be called to decide if data point is accepted or not for processing.
      * @param extractor This will be called to extract data from the data point.
      * @param merger This will be called to merge 2 data points data.
      */
-    public DataCollector(boolean ignoreDateLimitToLoad, Date dateLimit, StateRenderer2D renderer, 
-            int offScreenBufferPixel, int gridSpacing, Function<T, ArrayList<Object>> extractor,
-            BinaryOperator<ArrayList<Object>> merger) {
-        this(ignoreDateLimitToLoad, dateLimit, new MapTileRendererCalculator(renderer), offScreenBufferPixel,
-                gridSpacing, extractor, merger, null);
+    public DataCollector(StateRenderer2D renderer, 
+            int offScreenBufferPixel, int gridSpacing, Function<T, Boolean> acceptor,
+            Function<T, ArrayList<Object>> extractor, BinaryOperator<ArrayList<Object>> merger) {
+        this(new MapTileRendererCalculator(renderer), offScreenBufferPixel,
+                gridSpacing, acceptor, extractor, merger, null);
     }
 
-    public DataCollector(boolean ignoreDateLimitToLoad, Date dateLimit, StateRenderer2D renderer, 
-            int offScreenBufferPixel, int gridSpacing, Function<T, ArrayList<Object>> extractor,
-            BinaryOperator<ArrayList<Object>> merger, AtomicBoolean abortIndicator) {
-        this(ignoreDateLimitToLoad, dateLimit, new MapTileRendererCalculator(renderer), offScreenBufferPixel,
-                gridSpacing, extractor, merger, abortIndicator);
+    public DataCollector(StateRenderer2D renderer, 
+            int offScreenBufferPixel, int gridSpacing, Function<T, Boolean> acceptor,
+            Function<T, ArrayList<Object>> extractor, BinaryOperator<ArrayList<Object>> merger,
+            AtomicBoolean abortIndicator) {
+        this(new MapTileRendererCalculator(renderer), offScreenBufferPixel,
+                gridSpacing, acceptor, extractor, merger, abortIndicator);
     }
 
-    public DataCollector(boolean ignoreDateLimitToLoad, Date dateLimit, MapTileRendererCalculator rendererCalculator, 
-            int offScreenBufferPixel, int gridSpacing, Function<T, ArrayList<Object>> extractor,
-            BinaryOperator<ArrayList<Object>> merger) {
-        this(ignoreDateLimitToLoad, dateLimit, rendererCalculator, offScreenBufferPixel, gridSpacing, extractor, merger,
-                null);
+    public DataCollector(MapTileRendererCalculator rendererCalculator, 
+            int offScreenBufferPixel, int gridSpacing, Function<T, Boolean> acceptor,
+            Function<T, ArrayList<Object>> extractor, BinaryOperator<ArrayList<Object>> merger) {
+        this(rendererCalculator, offScreenBufferPixel, gridSpacing, acceptor,
+                extractor, merger, null);
     }
 
     /**
      * Data collector class, see {@link java.util.stream.Collector}, to process data
      * for painting.
      * 
-     * @param ignoreDateLimitToLoad To ignore data limit filtering.
-     * @param dateLimit Data limit for filtering is enabled.
      * @param rendererCalculator The renderer calculator where it will be painted.
      * @param offScreenBufferPixel The off-screen pixels to consider.
      * @param gridSpacing The grid spacing to use, in pixels.
+     * @param acceptor This will be called to decide if data point is accepted or not for processing.
      * @param extractor This will be called to extract data from the data point.
      * @param merger This will be called to merge 2 data points data.
      * @param abortIndicator
      */
-    public DataCollector(boolean ignoreDateLimitToLoad, Date dateLimit, MapTileRendererCalculator rendererCalculator, 
-            int offScreenBufferPixel, int gridSpacing, Function<T, ArrayList<Object>> extractor,
-            BinaryOperator<ArrayList<Object>> merger, AtomicBoolean abortIndicator) {
-        this.ignoreDateLimitToLoad = ignoreDateLimitToLoad;
-        this.dateLimit = dateLimit;
+    public DataCollector(MapTileRendererCalculator rendererCalculator, 
+            int offScreenBufferPixel, int gridSpacing, Function<T, Boolean> acceptor,
+            Function<T, ArrayList<Object>> extractor, BinaryOperator<ArrayList<Object>> merger,
+            AtomicBoolean abortIndicator) {
         this.rendererCalculator = rendererCalculator;
         this.offScreenBufferPixel = offScreenBufferPixel;
         this.gridSpacing = gridSpacing;
+        this.acceptor = acceptor;
         this.extractor = extractor;
         this.merger = merger;
         this.abortIndicator = abortIndicator != null ? abortIndicator : new AtomicBoolean();
@@ -154,7 +151,7 @@ public class DataCollector<T extends BaseDataPoint<?>> implements
                         res.add(new ConcurrentHashMap<Point2D, Pair<ArrayList<Object>, Date>>());
                     }
                     
-                    if (abortIndicator.get() || !ignoreDateLimitToLoad && dp.getDateUTC().before(dateLimit))
+                    if (abortIndicator.get() || !acceptor.apply(dp))
                         return;
                     
                     double latV = dp.getLat();
