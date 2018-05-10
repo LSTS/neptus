@@ -131,7 +131,7 @@ public class SoiRiskAnalysis extends ConsolePanel {
         top.add(createLabel("Distance", headerFont));
         top.add(createLabel("Collisions", headerFont));
         top.add(createLabel("Errors", headerFont));
-        top.setMaximumSize(new Dimension(4000,100));
+        top.setMaximumSize(new Dimension(4000,60));
         top.setBackground(Color.WHITE);
         top.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.gray));
         add(top);
@@ -155,6 +155,7 @@ public class SoiRiskAnalysis extends ConsolePanel {
             }
         };
         lbl.setHorizontalAlignment(JLabel.CENTER);
+        lbl.setVerticalAlignment(JLabel.BOTTOM);
         lbl.setFont(font);
         return lbl;
     }
@@ -189,7 +190,7 @@ public class SoiRiskAnalysis extends ConsolePanel {
             s.collisions.clear();
         });
         
-        SimpleDateFormat sdf = new SimpleDateFormat();
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
         
         collisions.forEach((systems, info) -> {
@@ -203,7 +204,7 @@ public class SoiRiskAnalysis extends ConsolePanel {
             
             VehicleRiskAnalysis analysis = state.get(vehicle);
             if (analysis != null) {
-                analysis.collisions.put(when, ship+" within "+(int)distance+"m @ "+sdf.format(when));
+                analysis.collisions.put(when, ship+" within "+(int)distance+"m @ "+sdf.format(when)+" UTC");
             }
         });
                 

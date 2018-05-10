@@ -54,7 +54,6 @@ import javax.swing.JPopupMenu;
 import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Arrays;
 
 import com.google.common.eventbus.Subscribe;
-import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.Announce;
 import pt.lsts.imc.PlanSpecification;
@@ -124,7 +123,6 @@ public class SoiInteraction extends SimpleRendererInteraction {
      */
     public SoiInteraction(ConsoleLayout console) {
         super(console);
-       
     }
 
     @Override
@@ -246,12 +244,6 @@ public class SoiInteraction extends SimpleRendererInteraction {
         sendCommand(cmd);
     }
     
-    @Override
-    public void setProperties(Property[] properties) {
-        super.setProperties(properties);
-        profileView.setOldestProfiles(oldestProfiles);
-    }
-
     protected void setParams(String vehicle, LinkedHashMap<String, String> params) {
         try {
             assetsManager.setParams(vehicle, params);
@@ -473,6 +465,7 @@ public class SoiInteraction extends SimpleRendererInteraction {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     PluginUtils.editPluginProperties(SoiInteraction.this, true);
+                    profileView.setOldestProfiles(oldestProfiles);
                 }
             });
 

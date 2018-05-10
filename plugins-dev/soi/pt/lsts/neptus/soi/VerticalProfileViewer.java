@@ -259,12 +259,7 @@ public class VerticalProfileViewer implements Renderer2DPainter {
                         super.windowActivated(e);
                     }
                 });
-                
-                
-                
                 dialog.setVisible(true);
-                
-                
             }
         }
     }

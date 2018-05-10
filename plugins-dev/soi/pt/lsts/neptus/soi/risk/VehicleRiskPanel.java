@@ -122,7 +122,7 @@ public class VehicleRiskPanel extends JPanel {
         }
         
         if (analysis.nextCommunication == null || analysis.nextCommunication.before(new Date())) {
-            lblNextComm.setState("N/D", false, "No future communications scheduled");
+            lblNextComm.setState("N/D", true, "No future communications scheduled");
         }
         else {
             long timeDiff = analysis.nextCommunication.getTime() - System.currentTimeMillis();
