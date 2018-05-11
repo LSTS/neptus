@@ -1071,7 +1071,8 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
             }
         }
 
-        activeInteraction.paintInteraction(g2d, this);
+        if (activeInteraction != null)
+            activeInteraction.paintInteraction(g2d, this);
 
         if (isGridShown())
             drawGrid(g2d, getGridSize());
