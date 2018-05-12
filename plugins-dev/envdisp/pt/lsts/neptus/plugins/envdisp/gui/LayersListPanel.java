@@ -533,7 +533,7 @@ public class LayersListPanel extends JPanel {
         hdr.add(useLog10Button, "align right");
         hdr.add(interpolateButton, "align right, wrap");
 
-        if (validTime && false) {
+        if (validTime) {
             if (timeSlider.getMinimum() == timeSlider.getMaximum()) {
                 timeSlider.setEnabled(false);
                 timeSliderMaxLabel.setVisible(false);

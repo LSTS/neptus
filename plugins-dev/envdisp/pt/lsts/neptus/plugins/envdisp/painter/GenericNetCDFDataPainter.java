@@ -41,6 +41,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import pt.lsts.neptus.colormap.ColorBarPainterUtil;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
+import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.envdisp.datapoints.GenericDataPoint;
@@ -448,7 +449,8 @@ public class GenericNetCDFDataPainter {
                                 EnvDataPaintHelper.paintGenericInGraphics(rendererCalculator, g2, (int) MathMiscUtils.clamp(transparency, 10, 255),
                                         dateColorLimit, dateLimit, dataPointsVar, ignoreDateLimitToLoad, 
                                         offScreen.getOffScreenBufferPixel(), colorMapVar, minValue, maxValue, showVarLegend, 
-                                        showVarLegendFromZoomLevel, font, showDataDebugLegend, abortIndicator, paintType, isLogColorMap);
+                                        showVarLegendFromZoomLevel, font, showDataDebugLegend, abortIndicator, paintType, isLogColorMap,
+                                        new Pair<Date, Date>(minDate, maxDate), new Pair<Double, Double>(minDepth, maxDepth));
                             }
                             catch (Exception e) {
                                 e.printStackTrace();

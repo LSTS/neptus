@@ -711,7 +711,8 @@ public class EnvDataPaintHelper {
             boolean ignoreDateLimitToLoad, int offScreenBufferPixel, ColorMap colorMapVar,
             double minVar, double maxVar, boolean showVarLegend, int showVarLegendFromZoomLevel, 
             Font font8Pt, boolean showDataDebugLegend, AtomicBoolean abortIndicator,
-            PointPaintEnum paintType, boolean isLogColorMap) {
+            PointPaintEnum paintType, boolean isLogColorMap, Pair<Date, Date> dateLimits,
+            Pair<Double, Double> depthLimits) {
         
         if (dataPointsVar == null || dataPointsVar.isEmpty())
             return;
@@ -736,8 +737,56 @@ public class EnvDataPaintHelper {
         paintWorkerInGraphics(info.fullName, rendererCalculator, g2, dataPointsVar, 
                 pointSize, offScreenBufferPixel, colorMapVar, minVar, maxVar, showVarLegend, 
                 showVarLegendFromZoomLevel, font8Pt, showDataDebugLegend, 1,
-                dp -> ignoreDateLimitToLoad || !dp.getDateUTC().before(dateLimit),
-                dp -> dp.getAllDataValues(), 
+                dp -> {
+                    if (dateLimits.first().getTime() == 0 && dateLimits.second().getTime() == 0)
+                        return true;
+                    
+                    boolean dateOk = true;
+                    boolean depthOk = true;
+                    // return ignoreDateLimitToLoad || !dp.getDateUTC().before(dateLimit);
+                    GenericDataPoint maxDateDp = (GenericDataPoint) dp.getHistoricalData().stream().max((p1, p2) -> {
+                        if (p1.getDateUTC() != null && p2.getDateUTC() != null)
+                            return p1.getDateUTC().compareTo(p2.getDateUTC());
+                        else if (p2.getDateUTC() != null)
+                            return -1;
+                        else
+                            return 1;
+                    }).get();
+                    GenericDataPoint minDateDp = (GenericDataPoint) dp.getHistoricalData().stream().min((p1, p2) -> { 
+                        if (p1.getDateUTC() != null && p2.getDateUTC() != null)
+                            return p1.getDateUTC().compareTo(p2.getDateUTC());
+                        else if (p2.getDateUTC() != null)
+                            return -1;
+                        else
+                            return 1;
+                    }).get();
+                    
+                    Date minDate = dateLimits.first();
+                    Date maxDate = dateLimits.second();
+                    if (minDateDp.getDateUTC().compareTo(maxDate) <= 0
+                            && maxDateDp.getDateUTC().compareTo(minDate) >= 0)
+                        dateOk = true;
+                    else
+                        dateOk = false;
+                    
+                    return dateOk;
+                },
+                dp -> {
+                    Date minDate = dateLimits.first();
+                    Date maxDate = dateLimits.second();
+                    if (minDate.getTime() == 0 && maxDate.getTime() == 0)
+                        return dp.getAllDataValues();
+                    
+                    GenericDataPoint ret = null;
+                    for (GenericDataPoint elm : dp.getHistoricalData()) {
+                        if (elm.getDateUTC().compareTo(maxDate) <= 0
+                                && elm.getDateUTC().compareTo(minDate) >= 0) {
+                            if (ret == null || !elm.getDateUTC().before(ret.getDateUTC()))
+                                ret = elm;
+                        }
+                    }
+                    return ret.getAllDataValues();
+                },
                 (vals, ovals) -> {
                     // sla
                     double v = (double) vals.get(0);
