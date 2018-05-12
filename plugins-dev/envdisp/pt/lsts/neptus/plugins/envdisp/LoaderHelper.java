@@ -126,7 +126,7 @@ public class LoaderHelper {
                     HFRadarDataPoint dpo = hfdp.get(HFRadarDataPoint.getId(dp));
                     if (dpo == null) {
                         dpo = dp.getACopyWithoutHistory();
-                        hfdp.put(HFRadarDataPoint.getId(dp), dp);
+                        hfdp.put(HFRadarDataPoint.getId(dpo), dpo);
                     }
 
                     ArrayList<HFRadarDataPoint> lst = dpo.getHistoricalData();
@@ -312,7 +312,7 @@ public class LoaderHelper {
                   HFRadarDataPoint dpo = hfdp.get(HFRadarDataPoint.getId(dp));
                   if (dpo == null) {
                       dpo = dp.getACopyWithoutHistory();
-                      hfdp.put(HFRadarDataPoint.getId(dp), dp);
+                      hfdp.put(HFRadarDataPoint.getId(dpo), dpo);
                   }
 
                   ArrayList<HFRadarDataPoint> lst = dpo.getHistoricalData();
@@ -484,7 +484,7 @@ public class LoaderHelper {
                           SSTDataPoint dpo = sstdp.get(SSTDataPoint.getId(dp));
                           if (dpo == null) {
                               dpo = dp.getACopyWithoutHistory();
-                              sstdp.put(SSTDataPoint.getId(dp), dp);
+                              sstdp.put(SSTDataPoint.getId(dpo), dpo);
                           }
 
                           ArrayList<SSTDataPoint> lst = dpo.getHistoricalData();
@@ -578,7 +578,7 @@ public class LoaderHelper {
                           WindDataPoint dpo = winddp.get(WindDataPoint.getId(dp));
                           if (dpo == null) {
                               dpo = dp.getACopyWithoutHistory();
-                              winddp.put(HFRadarDataPoint.getId(dp), dp);
+                              winddp.put(HFRadarDataPoint.getId(dpo), dpo);
                           }
 
                           ArrayList<WindDataPoint> lst = dpo.getHistoricalData();
@@ -763,7 +763,7 @@ public class LoaderHelper {
                   WavesDataPoint dpo = wavesdp.get(WavesDataPoint.getId(dp));
                   if (dpo == null) {
                       dpo = dp.getACopyWithoutHistory();
-                      wavesdp.put(HFRadarDataPoint.getId(dp), dp);
+                      wavesdp.put(HFRadarDataPoint.getId(dpo), dpo);
                   }
 
                   ArrayList<WavesDataPoint> lst = dpo.getHistoricalData();
@@ -922,7 +922,7 @@ public class LoaderHelper {
                           ChlorophyllDataPoint dpo = chlorophylldp.get(ChlorophyllDataPoint.getId(dp));
                           if (dpo == null) {
                               dpo = dp.getACopyWithoutHistory();
-                              chlorophylldp.put(ChlorophyllDataPoint.getId(dp), dp);
+                              chlorophylldp.put(ChlorophyllDataPoint.getId(dpo), dpo);
                           }
 
                           ArrayList<ChlorophyllDataPoint> lst = dpo.getHistoricalData();
@@ -1068,7 +1068,7 @@ public class LoaderHelper {
                           SLADataPoint dpo = sladp.get(SLADataPoint.getId(dp));
                           if (dpo == null) {
                               dpo = dp.getACopyWithoutHistory();
-                              sladp.put(SLADataPoint.getId(dp), dp);
+                              sladp.put(SLADataPoint.getId(dpo), dpo);
                           }
 
                           ArrayList<SLADataPoint> lst = dpo.getHistoricalData();
