@@ -296,8 +296,10 @@ public class NetCDFLoader {
                 // The null values are ignored
                 Map<String, Integer> timeCollumsIndexMap = timeVar == null ? new HashMap<>()
                         : NetCDFUtils.getIndexesForVar(dimStr, timeVar.getDimensionsString().split(" "));
-                Map<String, Integer> latCollumsIndexMap = NetCDFUtils.getIndexesForVar(dimStr, latVar.getDimensionsString().split(" "));
-                Map<String, Integer> lonCollumsIndexMap = NetCDFUtils.getIndexesForVar(dimStr, lonVar.getDimensionsString().split(" "));
+                Map<String, Integer> latCollumsIndexMap = NetCDFUtils.getIndexesForVar(dimStr,
+                        latVar.getDimensionsString().split(" "));
+                Map<String, Integer> lonCollumsIndexMap = NetCDFUtils.getIndexesForVar(dimStr,
+                        lonVar.getDimensionsString().split(" "));
                 Map<String, Integer> depthCollumsIndexMap = depthVar == null ? new HashMap<>()
                         : NetCDFUtils.getIndexesForVar(dimStr, depthVar.getDimensionsString().split(" "));
 
@@ -326,7 +328,8 @@ public class NetCDFLoader {
                             : null;
                     
                     if (timeVals == null)
-                        timeVals = NetCDFUtils.getTimeValuesByGlobalAttributes(dataFile, fromDate, toDate, ignoreDateLimitToLoad, dateLimit);
+                        timeVals = NetCDFUtils.getTimeValuesByGlobalAttributes(dataFile, fromDate, toDate,
+                                ignoreDateLimitToLoad, dateLimit);
                     
                     if (timeVals == null)
                         timeVals = NetCDFUtils.getDatesAndDateLimits(new Date(0), fromDate, toDate);
@@ -371,8 +374,8 @@ public class NetCDFLoader {
                         if (info.scalarOrLogPreference == ScalarOrLogPreference.LOG10)
                             v = Math.pow(10, v); // let us unlog
 
-                        // Not doing nothing with units, just using what it is
-                        // sla = NetCDFUnitsUtils.getValueForMetterFromTempUnits(sla, slaUnits);
+                        // Doing nothing with units, just using what it is
+                        // v = NetCDFUnitsUtils.getValueForMetterFromTempUnits(v, vUnits);
 
                         dp.setValue(v);
                         if (dp.getInfo().minVal == Double.MIN_VALUE || v < dp.getInfo().minVal)
@@ -388,9 +391,11 @@ public class NetCDFLoader {
 
                         dp.setDepth(depth); // See better this!!
                         if (Double.isFinite(depth)) {
-                            if (!Double.isFinite(dp.getInfo().minDepth) || dp.getInfo().minDepth == Double.MIN_VALUE || depth < dp.getInfo().minDepth)
+                            if (!Double.isFinite(dp.getInfo().minDepth) || dp.getInfo().minDepth == Double.MIN_VALUE
+                                    || depth < dp.getInfo().minDepth)
                                 dp.getInfo().minDepth = depth;
-                            if (!Double.isFinite(dp.getInfo().maxDepth) || dp.getInfo().maxDepth == Double.MAX_VALUE || depth > dp.getInfo().maxDepth)
+                            if (!Double.isFinite(dp.getInfo().maxDepth) || dp.getInfo().maxDepth == Double.MAX_VALUE
+                                    || depth > dp.getInfo().maxDepth)
                                 dp.getInfo().maxDepth = depth;
                         }
 
@@ -403,14 +408,14 @@ public class NetCDFLoader {
                         ArrayList<GenericDataPoint> lst = dpo.getHistoricalData();
                         boolean alreadyIn = false;
                         for (GenericDataPoint tmpDp : lst) {
-                            if (tmpDp.getDateUTC().equals(dp.getDateUTC()) && tmpDp.getDepth() == dp.getDepth()) { // Check also depth and see if no time
+                            // Check also depth and see if no time
+                            if (tmpDp.getDateUTC().equals(dp.getDateUTC()) && tmpDp.getDepth() == dp.getDepth()) {
                                 alreadyIn = true;
                                 break;
                             }
                         }
-                        if (!alreadyIn) {
+                        if (!alreadyIn)
                             dpo.getHistoricalData().add(dp);
-                        }
                     }
                 } while (NetCDFUtils.advanceLoopCounter(shape, counter) != null);
             }
