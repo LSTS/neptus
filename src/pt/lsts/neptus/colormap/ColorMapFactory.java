@@ -40,21 +40,27 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.file.DirectoryStream;
 import java.nio.file.DirectoryStream.Filter;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.security.CodeSource;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.tuple.Pair;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 
@@ -438,8 +444,8 @@ public class ColorMapFactory {
                 Filter<Path> filter = new DirectoryStream.Filter<Path>() {
                     @Override
                     public boolean accept(Path entry) throws IOException {
-                        String ext = FilenameUtils.getExtension(entry.toFile().getName());
-                        switch (ext) {
+                        String ext = FilenameUtils.getExtension(entry.toString());
+                        switch (ext.toLowerCase()) {
                             case "rgb":
                             case "act":
                             case "gct":
@@ -452,66 +458,68 @@ public class ColorMapFactory {
                     }
                 };
                 
-                List<Pair<Path, InputStream>> cmPathAndStreams = new ArrayList<>();
-                
-                DirectoryStream<Path> ds = Files
-                        .newDirectoryStream(Paths.get(URI.create(jar.toURI().toString() + "colormaps/")), filter);
-                ds.forEach(p -> {
-                    System.out.println(p.toUri());
-                    try {
-                        InputStream colomapStream = FileUtil
-                                .getResourceAsStream("/colormaps/" + p.getFileName().toString());
-                        cmPathAndStreams.add(Pair.of(p, colomapStream));
+                // Load jar colormaps
+                List<InterpolationColorMap> cmJarColormaps = new ArrayList<>();
+                boolean isJar = jar.getPath().endsWith(".jar");
+                URI uri = isJar ? URI.create("jar:" + jar.toURI().toString()) : URI.create(jar.toURI().toString());
+                Map<String, String> env = new HashMap<>();
+                env.put("create", "false");
+                try (FileSystem fs = isJar ? FileSystems.newFileSystem(uri, env) : FileSystems.getDefault()) {
+                    Path cmp = fs.getPath(isJar ? "/" : uri.getPath() + "colormaps");
+                    try (Stream<Path> walk = Files.walk(cmp, 2)) {
+                        for (Iterator<Path> it = walk.iterator(); it.hasNext();){
+                            Path p = it.next();
+                            if (!filter.accept(p))
+                                continue;
+                            try (InputStream colomapStream = Files.newInputStream(p, StandardOpenOption.READ)) {
+                                InterpolationColorMap cm = loadColorMap(p, colomapStream);
+                                if (cm != null)
+                                    cmJarColormaps.add(cm);
+                            }
+                            catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
                     }
                     catch (Exception e) {
                         e.printStackTrace();
                     }
-                    
-                });
-                
-                Path localFolderColormaps = Paths.get(ConfigFetch.getConfFolder() + "/colormaps/");
-                if (localFolderColormaps.toFile().exists()) {
-                    DirectoryStream<Path> fds = Files
-                            .newDirectoryStream(localFolderColormaps, filter);
-                    fds.forEach(p -> {
-                        System.out.println(p.toUri());
-                        try {
-                            InputStream colomapStream = Files.newInputStream(p);
-                            cmPathAndStreams.add(Pair.of(p, colomapStream));
-                        }
-                        catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    });
+                }
+                catch (UnsupportedOperationException e) {
+                    if (isJar)
+                        e.printStackTrace();
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
                 }
 
-                cmPathAndStreams.forEach(p -> {
-                    String ext = FilenameUtils.getExtension(p.getLeft().getFileName().toString());
-                    InterpolationColorMap cm = null;
-                    switch (ext.toLowerCase()) {
-                        case "act":
-                        case "gct":
-                            cm = ColorMapParser.loadAdobeColorTable(p.getLeft().getFileName().toString(), p.getRight());
-                            break;
-                        case "rgb":
-                            cm = ColorMapParser.loadRGBColorTable(p.getLeft().getFileName().toString(), p.getRight());
-                            break;
-                        case "cpt":
-                            cm = ColorMapParser.loadCPTColorTable(p.getLeft().getFileName().toString(), p.getRight());
-                            break;
-                        default:
-                            break;
+                // Load external colormaps
+                List<InterpolationColorMap> cmFolderColormaps = new ArrayList<>();
+                try {
+                    Path localFolderColormaps = Paths.get(ConfigFetch.getConfFolder() + "/colormaps/");
+                    if (localFolderColormaps.toFile().exists()) {
+                        DirectoryStream<Path> fds = Files
+                                .newDirectoryStream(localFolderColormaps, filter);
+                        fds.forEach(p -> {
+                            try (InputStream colomapStream = Files.newInputStream(p)) {
+                                InterpolationColorMap cm = loadColorMap(p, colomapStream);
+                                if (cm != null)
+                                    cmFolderColormaps.add(cm);
+                            }
+                            catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        });
                     }
-                    if (cm != null)
-                        loadedColormaps.add(cm);
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
 
-                    try {
-                        p.getRight().close();
-                    }
-                    catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                });
+                loadedColormaps.addAll(cmJarColormaps.stream().sorted((c1, c2) -> c1.getName().compareTo(c2.getName()))
+                        .collect(Collectors.toList()));
+                loadedColormaps.addAll(cmFolderColormaps.stream()
+                        .sorted((c1, c2) -> c1.getName().compareTo(c2.getName())).collect(Collectors.toList()));
             }
             catch (Exception e) {
                 e.printStackTrace();
@@ -525,6 +533,38 @@ public class ColorMapFactory {
         }
     }
 
+    private static InterpolationColorMap loadColorMap(Path path, InputStream inputStream) {
+        String ext = FilenameUtils.getExtension(path.toString());
+        InterpolationColorMap cm = null;
+        String name = path.getName(path.getNameCount() - 1).toString();
+        try {
+            switch (ext.toLowerCase()) {
+                case "act":
+                case "gct":
+                    cm = ColorMapParser.loadAdobeColorTable(name, inputStream);
+                    break;
+                case "rgb":
+                    cm = ColorMapParser.loadRGBColorTable(name, inputStream);
+                    break;
+                case "cpt":
+                    cm = ColorMapParser.loadCPTColorTable(name, inputStream);
+                    break;
+                default:
+                    break;
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (cm != null)
+            NeptusLog.pub().info(String.format("Loaded '%s' colormap", name));
+        else
+            NeptusLog.pub().warn(String.format("Error loading '%s' colormap", name));
+
+        return cm;
+    }
+    
     public static void main(String[] args) {
         ColorBar bar = new ColorBar(ColorBar.HORIZONTAL_ORIENTATION,
                 ColorMapFactory.createInvertedColorMap((InterpolationColorMap) ColorMapFactory.createAutumnColorMap()));
