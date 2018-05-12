@@ -63,6 +63,7 @@ import pt.lsts.neptus.gui.swing.NeptusFileView;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.envdisp.datapoints.GenericDataPoint;
 import pt.lsts.neptus.plugins.envdisp.datapoints.GenericDataPoint.Info;
+import pt.lsts.neptus.plugins.envdisp.datapoints.GenericDataPoint.Type;
 import pt.lsts.neptus.plugins.envdisp.datapoints.GenericDataPoint.Info.ScalarOrLogPreference;
 import pt.lsts.neptus.plugins.envdisp.painter.GenericNetCDFDataPainter;
 import pt.lsts.neptus.util.AngleUtils;
@@ -401,6 +402,18 @@ public class NetCDFLoader {
 
                         GenericDataPoint dpo = dataDp.get(dp.getId());
                         if (dpo == null) {
+                            switch (info.type) {
+                                case GEO_TRAJECTORY:
+                                    dp.setIndexesXY(Arrays.copyOf(counter, counter.length));
+                                    break;
+                                case GEO_2D:
+                                    dp.setIndexesXY(Arrays.copyOfRange(counter, counter.length - 2, counter.length));
+                                    break;
+                                case UNKNOWN:
+                                default:
+                                    break;
+                            }
+
                             dpo = dp.getACopyWithoutHistory();
                             dataDp.put(dpo.getId(), dpo);
                         }
@@ -488,6 +501,13 @@ public class NetCDFLoader {
         
         vAtt = vVar.findAttribute(NetCDFUtils.NETCDF_ATT_COMMENT);
         info.comment = vAtt == null ? "" : vAtt.getStringValue();
+        
+        if (vVar.getDimensions().size() == 1)
+            info.type = Type.GEO_TRAJECTORY;
+        else if (vVar.getDimensions().size() >= 2)
+            info.type = Type.GEO_2D;
+        else
+            info.type = Type.UNKNOWN;
         
         return info;
     }

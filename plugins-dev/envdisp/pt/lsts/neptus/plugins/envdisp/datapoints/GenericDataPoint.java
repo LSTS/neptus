@@ -44,6 +44,14 @@ import scala.collection.mutable.StringBuilder;
  */
 public class GenericDataPoint extends BaseDataPoint<GenericDataPoint> {
 
+    public enum Type {
+        UNKNOWN,
+        GEO_TRAJECTORY,
+        GEO_2D
+    }
+    
+    private int[] indexesXY = null;
+    
     private double value = 0;
     private double depth = Double.NaN;
 
@@ -85,6 +93,27 @@ public class GenericDataPoint extends BaseDataPoint<GenericDataPoint> {
      */
     public double getDepth() {
         return depth;
+    }
+    
+    /**
+     * @return the type
+     */
+    public Type getType() {
+        return info.type;
+    }
+    
+    /**
+     * @return the indexesXY
+     */
+    public int[] getIndexesXY() {
+        return indexesXY;
+    }
+    
+    /**
+     * @param indexesXY the indexesXY to set
+     */
+    public void setIndexesXY(int[] indexesXY) {
+        this.indexesXY = indexesXY;
     }
     
     /**
@@ -219,7 +248,9 @@ public class GenericDataPoint extends BaseDataPoint<GenericDataPoint> {
         public double maxDepth = Double.NaN;
         
         public ScalarOrLogPreference scalarOrLogPreference = ScalarOrLogPreference.SCALAR;
-        
+
+        public Type type = Type.UNKNOWN;
+
         /* (non-Javadoc)
          * @see java.lang.Object#toString()
          */
