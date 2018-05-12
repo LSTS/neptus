@@ -33,7 +33,6 @@
 package pt.lsts.neptus.plugins.envdisp.gui;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Window;
@@ -42,7 +41,6 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
@@ -71,7 +69,6 @@ import javax.swing.SwingWorker;
 import javax.swing.border.EtchedBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.plaf.basic.BasicSpinnerUI;
 
 import org.jdesktop.swingx.JXBusyLabel;
 
@@ -82,6 +79,7 @@ import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.gui.ColorMapListRenderer;
 import pt.lsts.neptus.gui.InfiniteProgressPanel;
 import pt.lsts.neptus.gui.swing.RangeSlider;
+import pt.lsts.neptus.gui.swing.SpinnerIsAdjustingUI;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.envdisp.loader.NetCDFLoader;
 import pt.lsts.neptus.plugins.envdisp.painter.GenericNetCDFDataPainter;
@@ -589,53 +587,6 @@ public class LayersListPanel extends JPanel {
         holder.invalidate();
         holder.revalidate();
         holder.repaint();
-    }
-
-    private class SpinnerIsAdjustingUI extends BasicSpinnerUI {
-        private boolean valueIsAdjusting = false;;
-
-        public boolean getValueIsAdjusting() {
-            return valueIsAdjusting;
-        }
-        
-        @Override
-        protected Component createNextButton() {
-            JButton nextbutton = (JButton) super.createNextButton();
-            MouseListener[] ml = nextbutton.getMouseListeners();
-            for (MouseListener l : ml)
-                nextbutton.removeMouseListener(l);
-            nextbutton.addMouseListener(new MouseAdapter() {
-                public void mousePressed(MouseEvent me) {
-                    valueIsAdjusting = true;
-                }
-                public void mouseReleased(MouseEvent me) {
-                    valueIsAdjusting = false;
-                }
-            });
-            for (MouseListener l : ml)
-                nextbutton.addMouseListener(l);
-            return nextbutton;
-        }
-
-        @Override
-        protected Component createPreviousButton() {
-            JButton previousButton = (JButton) super.createPreviousButton();
-            MouseListener[] ml = previousButton.getMouseListeners();
-            for (MouseListener l : ml)
-                previousButton.removeMouseListener(l);
-            previousButton.addMouseListener(new MouseAdapter() {
-                public void mousePressed(MouseEvent me) {
-                    valueIsAdjusting = true;
-                }
-
-                public void mouseReleased(MouseEvent me) {
-                    valueIsAdjusting = false;
-                }
-            });
-            for (MouseListener l : ml)
-                previousButton.addMouseListener(l);
-            return previousButton;
-        }
     }
 
     public static void main(String[] args) {
