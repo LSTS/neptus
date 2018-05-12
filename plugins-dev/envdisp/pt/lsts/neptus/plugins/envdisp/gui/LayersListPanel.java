@@ -483,8 +483,10 @@ public class LayersListPanel extends JPanel {
 
         double minDepth = viz.getInfo().minDepth;
         double maxDepth = viz.getInfo().maxDepth;
-        JLabel depthSliderMinLabel = new JLabel("" + (Double.isFinite(minDepth) ? MathMiscUtils.round(minDepth, 1) : "n/a"));
-        JLabel depthSliderMaxLabel = new JLabel("" + (Double.isFinite(maxDepth) ? MathMiscUtils.round(maxDepth, 1) : "n/a"), SwingConstants.RIGHT);
+        JLabel depthSliderMinLabel = new JLabel(
+                (Double.isFinite(minDepth) ? MathMiscUtils.round(minDepth, 1) + " m" : "n/a"));
+        JLabel depthSliderMaxLabel = new JLabel(
+                (Double.isFinite(maxDepth) ? MathMiscUtils.round(maxDepth, 1) + " m" : "n/a"), SwingConstants.RIGHT);
         double depthScale = 10;
         boolean validDepth = Double.isFinite(minDepth) && Double.isFinite(maxDepth);
         RangeSlider depthSlider = !validDepth ? new RangeSlider(0, 0) : new RangeSlider(0, (int) ((maxDepth - minDepth) * depthScale));
@@ -497,8 +499,8 @@ public class LayersListPanel extends JPanel {
             public void stateChanged(ChangeEvent e) {
                 double selMin = minDepth + depthSlider.getValue() / depthScale;
                 double selMax = minDepth + depthSlider.getUpperValue() / depthScale;
-                depthSliderMinLabel.setText("" + MathMiscUtils.round(selMin, 1));
-                depthSliderMaxLabel.setText("" + MathMiscUtils.round(selMax, 1));
+                depthSliderMinLabel.setText(MathMiscUtils.round(selMin, 1) + " m");
+                depthSliderMaxLabel.setText(MathMiscUtils.round(selMax, 1) + " m");
                 if (!((JSlider) e.getSource()).getValueIsAdjusting()) {
                     viz.setMinDepth(selMin);
                     viz.setMaxDepth(selMax);
