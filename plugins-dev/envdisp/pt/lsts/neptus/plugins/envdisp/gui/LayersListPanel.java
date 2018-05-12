@@ -521,7 +521,7 @@ public class LayersListPanel extends JPanel {
         hdr.add(showNumbersButton, "align right");
         hdr.add(upButton, "align right, sg btnSmall, wrap");
         
-        hdr.add(cbp, "w 100:200:, h :40:, spanx 4, grow");
+        hdr.add(cbp, "w 100:200:, h 40:40:, spanx 4, grow");
         hdr.add(colormapButton, "sg btn");
         hdr.add(new JLabel(I18n.text("Transp") + ":"), "split 3, align right");
         hdr.add(spinnerTrans, "align right");
