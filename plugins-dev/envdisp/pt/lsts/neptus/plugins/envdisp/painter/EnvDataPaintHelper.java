@@ -94,6 +94,13 @@ public class EnvDataPaintHelper {
 
     static int filterUseLOD = 9;
 
+    public enum PointPaintEnum {
+        POINT,
+        ARROW,
+        BARB,
+        INTERPOLATE
+    }
+    
     private EnvDataPaintHelper() {
     }
 
@@ -699,13 +706,6 @@ public class EnvDataPaintHelper {
                 abortIndicator);
     }
 
-    public enum PointPaintEnum {
-        POINT,
-        ARROW,
-        BARB,
-        INTERPOLATE
-    }
-    
     public static void paintGenericInGraphics(MapTileRendererCalculator rendererCalculator, Graphics2D g2,
             int transparency, Date dateColorLimit, Date dateLimit, Map<String, GenericDataPoint> dataPointsVar, 
             boolean ignoreDateLimitToLoad, int offScreenBufferPixel, ColorMap colorMapVar,
@@ -737,6 +737,7 @@ public class EnvDataPaintHelper {
         paintWorkerInGraphics(info.fullName, rendererCalculator, g2, dataPointsVar, 
                 pointSize, offScreenBufferPixel, colorMapVar, minVar, maxVar, showVarLegend, 
                 showVarLegendFromZoomLevel, font8Pt, showDataDebugLegend, 1,
+                // Acceptor
                 dp -> {
                     if (dateLimits.first().getTime() == 0 && dateLimits.second().getTime() == 0)
                         return true;
@@ -771,6 +772,7 @@ public class EnvDataPaintHelper {
                     
                     return dateOk;
                 },
+                // Extractor
                 dp -> {
                     Date minDate = dateLimits.first();
                     Date maxDate = dateLimits.second();
@@ -787,6 +789,7 @@ public class EnvDataPaintHelper {
                     }
                     return ret.getAllDataValues();
                 },
+                // Merger
                 (vals, ovals) -> {
                     // sla
                     double v = (double) vals.get(0);
@@ -795,6 +798,7 @@ public class EnvDataPaintHelper {
                     vals.add(0, r);
                     return vals;
                 },
+                // Painter for points
                 paintType == PointPaintEnum.INTERPOLATE ? null : (pt, dataMap) -> {
                     Graphics2D gt = null;
                     try {
@@ -815,23 +819,15 @@ public class EnvDataPaintHelper {
                         gt.setColor(color);
                         switch (paintType) {
                             case ARROW:
-//                                double rot = Math.toRadians(headingV) - rendererCalculator.getRotation();
-//                                gt.rotate(rot);
                                 gt.fill(EnvDataShapesHelper.arrow);
-//                                gt.rotate(-rot);
                                 break;
                             case BARB:
-//                              double rot = Math.toRadians(headingV) - rendererCalculator.getRotation();
-//                              gt.rotate(rot);
-//                                double speedKnots = speedV * UnitsUtil.MS_TO_KNOT;
                                 double speedKnots = 5;
                                 EnvDataShapesHelper.paintWindBarb(gt, speedKnots);
-//                              gt.rotate(-rot);
                                 break;
                             case POINT:
                             case INTERPOLATE:
                             default:
-                                //gt.draw(EnvDataShapesHelper.rectangle);
                                 gt.fill(EnvDataShapesHelper.rectangle);
                                 break;
                         }
@@ -849,6 +845,7 @@ public class EnvDataPaintHelper {
                     if (gt != null)
                         gt.dispose();
                 },
+                // Painter for interpolation
                 (ptDataMap) -> {
                     Set<Point2D> points = ptDataMap.keySet();
 
@@ -899,13 +896,7 @@ public class EnvDataPaintHelper {
                     Graphics2D gt = (Graphics2D) g2.create();
                     try {
                         gt.translate(rendererCalculator.getWidth() / 2., rendererCalculator.getHeight() / 2.);
-                        // gt.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 145));
                         gt.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-                        //gt.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-//                        gt.drawImage(cacheImg, (int) (-rendererCalculator.getWidth() / 2. - offScreenBufferPixel), 
-//                                (int) (-rendererCalculator.getHeight() / 2. - offScreenBufferPixel), 
-//                                (int) (rendererCalculator.getWidth() + offScreenBufferPixel * 2), 
-//                                (int) (rendererCalculator.getHeight() + offScreenBufferPixel * 2), null, null);
                         gt.drawImage(cacheImg, -(int) (cacheImg.getWidth() / cacheImgScaleX / 2.), 
                                 -(int) (cacheImg.getHeight() / cacheImgScaleY / 2.), 
                                 (int) (cacheImg.getWidth() / cacheImgScaleX), 
@@ -957,7 +948,6 @@ public class EnvDataPaintHelper {
                 acceptor, extractor, merger, eachPointerpainter, null, abortIndicator);
     }
 
-    @SuppressWarnings("unused")
     private static <Dp extends BaseDataPoint<?>> void paintWorkerInGraphics(String varName, 
             MapTileRendererCalculator rendererCalculator, Graphics2D g2, 
             HashMap<String, Dp> dataPoints, int gridSpacing, 
