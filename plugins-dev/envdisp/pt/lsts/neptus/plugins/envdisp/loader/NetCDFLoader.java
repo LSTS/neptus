@@ -388,9 +388,9 @@ public class NetCDFLoader {
 
                         dp.setDepth(depth); // See better this!!
                         if (Double.isFinite(depth)) {
-                            if (dp.getInfo().minDepth == Double.MIN_VALUE || depth < dp.getInfo().minDepth)
+                            if (!Double.isFinite(dp.getInfo().minDepth) || dp.getInfo().minDepth == Double.MIN_VALUE || depth < dp.getInfo().minDepth)
                                 dp.getInfo().minDepth = depth;
-                            if (dp.getInfo().maxDepth == Double.MAX_VALUE || depth > dp.getInfo().maxDepth)
+                            if (!Double.isFinite(dp.getInfo().maxDepth) || dp.getInfo().maxDepth == Double.MAX_VALUE || depth > dp.getInfo().maxDepth)
                                 dp.getInfo().maxDepth = depth;
                         }
 
