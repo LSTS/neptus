@@ -397,7 +397,7 @@ public class NetCDFLoader {
                         GenericDataPoint dpo = dataDp.get(dp.getId());
                         if (dpo == null) {
                             dpo = dp.getACopyWithoutHistory();
-                            dataDp.put(dp.getId(), dp);
+                            dataDp.put(dpo.getId(), dpo);
                         }
 
                         ArrayList<GenericDataPoint> lst = dpo.getHistoricalData();
