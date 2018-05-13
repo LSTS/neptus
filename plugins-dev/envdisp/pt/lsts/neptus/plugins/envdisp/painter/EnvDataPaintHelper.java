@@ -739,38 +739,56 @@ public class EnvDataPaintHelper {
                 showVarLegendFromZoomLevel, font8Pt, showDataDebugLegend, 1,
                 // Acceptor
                 dp -> {
-                    if (dateLimits.first().getTime() == 0 && dateLimits.second().getTime() == 0)
-                        return true;
+                    boolean depthOk = true;
+                    if (!Double.isFinite(depthLimits.first()) && !Double.isFinite(depthLimits.second())
+                            || !Double.isFinite(dp.getDepth())) {
+                        depthOk = true;
+                    }
+                    else {
+                        // All historical data has the same depth
+                        double minDepth = depthLimits.first();
+                        double maxDepth = depthLimits.second();
+                        if (Double.compare(dp.getDepth(), maxDepth) <= 0
+                                && Double.compare(dp.getDepth(), minDepth) >= 0)
+                            depthOk = true;
+                        else
+                            depthOk = false;
+                    }
                     
                     boolean dateOk = true;
-                    boolean depthOk = true;
-                    // return ignoreDateLimitToLoad || !dp.getDateUTC().before(dateLimit);
-                    GenericDataPoint maxDateDp = (GenericDataPoint) dp.getHistoricalData().stream().max((p1, p2) -> {
-                        if (p1.getDateUTC() != null && p2.getDateUTC() != null)
-                            return p1.getDateUTC().compareTo(p2.getDateUTC());
-                        else if (p2.getDateUTC() != null)
-                            return -1;
-                        else
-                            return 1;
-                    }).get();
-                    GenericDataPoint minDateDp = (GenericDataPoint) dp.getHistoricalData().stream().min((p1, p2) -> { 
-                        if (p1.getDateUTC() != null && p2.getDateUTC() != null)
-                            return p1.getDateUTC().compareTo(p2.getDateUTC());
-                        else if (p2.getDateUTC() != null)
-                            return -1;
-                        else
-                            return 1;
-                    }).get();
+                    if (depthOk) {
+                        if (dateLimits.first().getTime() == 0 && dateLimits.second().getTime() == 0) {
+                            dateOk = true;
+                        }
+                        else {
+                            GenericDataPoint maxDateDp = (GenericDataPoint) dp.getHistoricalData().stream().max((p1, p2) -> {
+                                if (p1.getDateUTC() != null && p2.getDateUTC() != null)
+                                    return p1.getDateUTC().compareTo(p2.getDateUTC());
+                                else if (p2.getDateUTC() != null)
+                                    return -1;
+                                else
+                                    return 1;
+                            }).get();
+                            GenericDataPoint minDateDp = (GenericDataPoint) dp.getHistoricalData().stream().min((p1, p2) -> { 
+                                if (p1.getDateUTC() != null && p2.getDateUTC() != null)
+                                    return p1.getDateUTC().compareTo(p2.getDateUTC());
+                                else if (p2.getDateUTC() != null)
+                                    return -1;
+                                else
+                                    return 1;
+                            }).get();
+                            
+                            Date minDate = dateLimits.first();
+                            Date maxDate = dateLimits.second();
+                            if (minDateDp.getDateUTC().compareTo(maxDate) <= 0
+                                    && maxDateDp.getDateUTC().compareTo(minDate) >= 0)
+                                dateOk = true;
+                            else
+                                dateOk = false;
+                        }
+                    }
                     
-                    Date minDate = dateLimits.first();
-                    Date maxDate = dateLimits.second();
-                    if (minDateDp.getDateUTC().compareTo(maxDate) <= 0
-                            && maxDateDp.getDateUTC().compareTo(minDate) >= 0)
-                        dateOk = true;
-                    else
-                        dateOk = false;
-                    
-                    return dateOk;
+                    return dateOk && depthOk;
                 },
                 // Extractor
                 dp -> {

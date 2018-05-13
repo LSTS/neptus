@@ -547,7 +547,7 @@ public class LayersListPanel extends JPanel {
             hdr.add(timeSliderMaxLabel, "sg sminmax, align right, wrap");
         }
         
-        if (validDepth && false) {
+        if (validDepth) {
             if (depthSlider.getMinimum() == depthSlider.getMaximum()) {
                 depthSlider.setEnabled(false);
                 depthSliderMaxLabel.setVisible(false);
