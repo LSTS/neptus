@@ -431,8 +431,7 @@ public class GenericNetCDFDataPainter {
         this.transparency = transparency;
     }
     
-    public void paint(Graphics2D go, StateRenderer2D renderer, boolean ignoreDateLimitToLoad,
-            int dateLimitHours, boolean showDataDebugLegend) {
+    public void paint(Graphics2D go, StateRenderer2D renderer, boolean showDataDebugLegend) {
         boolean recreateImage = offScreen.paintPhaseStartTestRecreateImageAndRecreate(go, renderer);
         if (recreateImage) {
             if (painterThread != null) {
@@ -454,7 +453,6 @@ public class GenericNetCDFDataPainter {
                         Graphics2D g2 = offScreen.getImageGraphics();
 
                         Date dateColorLimit = new Date(System.currentTimeMillis() - 3 * DateTimeUtil.HOUR);
-                        Date dateLimit = new Date(System.currentTimeMillis() - dateLimitHours * DateTimeUtil.HOUR);
                         
                         if (showVar) {
                             try {
@@ -464,7 +462,7 @@ public class GenericNetCDFDataPainter {
                                 }
                                 
                                 EnvDataPaintHelper.paintGenericInGraphics(rendererCalculator, g2, (int) MathMiscUtils.clamp(transparency, 10, 255),
-                                        dateColorLimit, dateLimit, dataPointsVar, ignoreDateLimitToLoad, 
+                                        dateColorLimit, dataPointsVar, 
                                         offScreen.getOffScreenBufferPixel(), colorMapVar, minValue, maxValue, showVarLegend, 
                                         showVarLegendFromZoomLevel, font, showDataDebugLegend, abortIndicator, paintType, isLogColorMap, isClampToFit,
                                         new Pair<Date, Date>(minDate, maxDate), new Pair<Double, Double>(minDepth, maxDepth));

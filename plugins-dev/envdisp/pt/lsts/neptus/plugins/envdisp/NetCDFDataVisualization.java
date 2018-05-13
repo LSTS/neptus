@@ -56,14 +56,6 @@ import pt.lsts.neptus.renderer2d.StateRenderer2D;
 public class NetCDFDataVisualization extends ConsoleLayer implements ConfigurationListener {
     
     private static final String CATEGORY_TEST = "Test";
-    private static final String CATEGORY_DATA_UPDATE = "Data Update";
-
-    @NeptusProperty(name = "Data limit validity (hours)", userLevel = LEVEL.REGULAR, category = CATEGORY_DATA_UPDATE)
-    private int dateLimitHours = 30;
-    @NeptusProperty(name = "Use data x hour in the future (hours)", userLevel = LEVEL.REGULAR, category = CATEGORY_DATA_UPDATE)
-    private int dateHoursToUseForData = 1;
-    @NeptusProperty(name = "Ignore data limit validity to load data", userLevel=LEVEL.REGULAR, category = CATEGORY_DATA_UPDATE)
-    private boolean ignoreDateLimitToLoad = true;
 
     @NeptusProperty(name = "Show visible data date-time interval", userLevel = LEVEL.ADVANCED, category = CATEGORY_TEST, 
             description = "Draws the string with visible curents data date-time interval.")
@@ -124,7 +116,7 @@ public class NetCDFDataVisualization extends ConsoleLayer implements Configurati
                     continue;
                 
                 Graphics2D g2 = (Graphics2D) g.create();
-                l.paint(g2, renderer, ignoreDateLimitToLoad, dateLimitHours, showDataDebugLegend);
+                l.paint(g2, renderer, showDataDebugLegend);
                 g2.dispose();
             }
         }

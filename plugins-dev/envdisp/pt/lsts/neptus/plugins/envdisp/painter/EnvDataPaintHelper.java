@@ -707,8 +707,8 @@ public class EnvDataPaintHelper {
     }
 
     public static void paintGenericInGraphics(MapTileRendererCalculator rendererCalculator, Graphics2D g2,
-            int transparency, Date dateColorLimit, Date dateLimit, Map<String, GenericDataPoint> dataPointsVar, 
-            boolean ignoreDateLimitToLoad, int offScreenBufferPixel, ColorMap colorMapVar,
+            int transparency, Date dateColorLimit, Map<String, GenericDataPoint> dataPointsVar, 
+            int offScreenBufferPixel, ColorMap colorMapVar,
             double minVar, double maxVar, boolean showVarLegend, int showVarLegendFromZoomLevel, 
             Font font8Pt, boolean showDataDebugLegend, AtomicBoolean abortIndicator,
             PointPaintEnum paintType, boolean isLogColorMap, boolean isClampToFit, Pair<Date, Date> dateLimits,
