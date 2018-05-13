@@ -94,6 +94,9 @@ public class GenericNetCDFDataPainter {
     
     @NeptusProperty
     private boolean interpolate = true;
+    @NeptusProperty
+    private boolean isClampToFit = false;
+
     @NeptusProperty(description = "A value between 10 and 255 (the higher the more opaque)")
     private int transparency = 128;
 
@@ -317,6 +320,20 @@ public class GenericNetCDFDataPainter {
     }
     
     /**
+     * @return the clampToFit
+     */
+    public boolean isClampToFit() {
+        return isClampToFit;
+    }
+    
+    /**
+     * @param isClampToFit the isClampToFit to set
+     */
+    public void setClampToFit(boolean isClampToFit) {
+        this.isClampToFit = isClampToFit;
+    }
+    
+    /**
      * @return the minValue
      */
     public double getMinValue() {
@@ -449,7 +466,7 @@ public class GenericNetCDFDataPainter {
                                 EnvDataPaintHelper.paintGenericInGraphics(rendererCalculator, g2, (int) MathMiscUtils.clamp(transparency, 10, 255),
                                         dateColorLimit, dateLimit, dataPointsVar, ignoreDateLimitToLoad, 
                                         offScreen.getOffScreenBufferPixel(), colorMapVar, minValue, maxValue, showVarLegend, 
-                                        showVarLegendFromZoomLevel, font, showDataDebugLegend, abortIndicator, paintType, isLogColorMap,
+                                        showVarLegendFromZoomLevel, font, showDataDebugLegend, abortIndicator, paintType, isLogColorMap, isClampToFit,
                                         new Pair<Date, Date>(minDate, maxDate), new Pair<Double, Double>(minDepth, maxDepth));
                             }
                             catch (Exception e) {

@@ -711,7 +711,7 @@ public class EnvDataPaintHelper {
             boolean ignoreDateLimitToLoad, int offScreenBufferPixel, ColorMap colorMapVar,
             double minVar, double maxVar, boolean showVarLegend, int showVarLegendFromZoomLevel, 
             Font font8Pt, boolean showDataDebugLegend, AtomicBoolean abortIndicator,
-            PointPaintEnum paintType, boolean isLogColorMap, Pair<Date, Date> dateLimits,
+            PointPaintEnum paintType, boolean isLogColorMap, boolean isClampToFit, Pair<Date, Date> dateLimits,
             Pair<Double, Double> depthLimits) {
         
         if (dataPointsVar == null || dataPointsVar.isEmpty())
@@ -821,15 +821,21 @@ public class EnvDataPaintHelper {
                     Graphics2D gt = null;
                     try {
                         Pair<ArrayList<Object>, Date> pVal = dataMap.get(pt);
-                        double sla = (double) pVal.first().get(0);
+                        double v = (double) pVal.first().get(0);
+                        
+                        if (isClampToFit) {
+                            if (Double.compare(v, minVar) < 0 || Double.compare(v, maxVar) > 0)
+                                return;
+                        }
+                        
                         gt = (Graphics2D) g2.create();
                         gt.translate(pt.getX(), pt.getY());
                         //System.out.println(pt);
                         Color color = Color.WHITE;
                         if (!isLogColorMap)
-                            color = colorMapVar.getColor(ColorMapUtils.getColorIndexZeroToOne(sla, minVar, maxVar));
+                            color = colorMapVar.getColor(ColorMapUtils.getColorIndexZeroToOne(v, minVar, maxVar));
                         else
-                            color = colorMapVar.getColor(ColorMapUtils.getColorIndexZeroToOneLog10(sla, minVar, maxVar));
+                            color = colorMapVar.getColor(ColorMapUtils.getColorIndexZeroToOneLog10(v, minVar, maxVar));
                         if (pVal.second().before(dateColorLimit)) //if (dp.getDateUTC().before(dateColorLimit))
                             color = ColorUtils.setTransparencyToColor(color, transparency / 2);
                         else
@@ -853,7 +859,7 @@ public class EnvDataPaintHelper {
                         if (showVarLegend && rendererCalculator.getLevelOfDetail() >= showVarLegendFromZoomLevel) {
                             gt.setFont(font8Pt);
                             gt.setColor(Color.WHITE);
-                            gt.drawString(MathMiscUtils.round(sla, 2) + info.unit, -15, 15);
+                            gt.drawString(MathMiscUtils.round(v, 2) + info.unit, -15, 15);
                         }
                     }
                     catch (Exception e) {
@@ -893,12 +899,18 @@ public class EnvDataPaintHelper {
                     points.parallelStream().forEach(pt -> {
                         try {
                             Pair<ArrayList<Object>, Date> pVal = ptDataMap.get(pt);
-                            double sla = (double) pVal.first().get(0);
+                            double v = (double) pVal.first().get(0);
+                            
+                            if (isClampToFit) {
+                                if (Double.compare(v, minVar) < 0 || Double.compare(v, maxVar) > 0)
+                                    return;
+                            }
+
                             Color color = Color.WHITE;
                             if (!isLogColorMap)
-                                color = colorMapVar.getColor(ColorMapUtils.getColorIndexZeroToOne(sla, minVar, maxVar));
+                                color = colorMapVar.getColor(ColorMapUtils.getColorIndexZeroToOne(v, minVar, maxVar));
                             else
-                                color = colorMapVar.getColor(ColorMapUtils.getColorIndexZeroToOneLog10(sla, minVar, maxVar));
+                                color = colorMapVar.getColor(ColorMapUtils.getColorIndexZeroToOneLog10(v, minVar, maxVar));
                             if (pVal.second().before(dateColorLimit)) //if (dp.getDateUTC().before(dateColorLimit))
                                 color = ColorUtils.setTransparencyToColor(color, transparency);
                             else

@@ -426,6 +426,17 @@ public class LayersListPanel extends JPanel {
             }
         });
 
+        JCheckBox clampToFitButton = new JCheckBox("Clamp");
+        clampToFitButton.setSelected(viz.isClampToFit());
+        clampToFitButton.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                viz.setClampToFit(clampToFitButton.isSelected());
+                cbp.setOutliersBoxFill(!viz.isClampToFit());
+                viz.getOffScreenLayer().triggerImageRebuild();
+            }
+        });
+
         JSpinner spinnerTrans = new JSpinner(new SpinnerNumberModel(50, 5, 100, 1));
         SpinnerIsAdjustingUI spinnerTransUIIsAdjustingUI = new SpinnerIsAdjustingUI();
         spinnerTrans.setUI(spinnerTransUIIsAdjustingUI);
@@ -634,7 +645,8 @@ public class LayersListPanel extends JPanel {
         hdr.add(new JLabel(I18n.text("Unit") + ":"), "spanx, split");
         hdr.add(new JLabel(viz.getInfo().unit), "w 100:100:, grow");
         hdr.add(useLog10Button, "align right");
-        hdr.add(interpolateButton, "align right, wrap");
+        hdr.add(interpolateButton, "align right");
+        hdr.add(clampToFitButton, "align right, wrap");
 
         if (validTime) {
             if (timeSlider.getMinimum() == timeSlider.getMaximum()) {
