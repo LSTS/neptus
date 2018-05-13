@@ -39,6 +39,8 @@ import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
@@ -466,6 +468,52 @@ public class LayersListPanel extends JPanel {
             timeSlider.setEnabled(false);
         timeSlider.setUpperValue(timeSlider.getMaximum());
         timeSlider.setValue(timeSlider.getMinimum());
+        timeSlider.setMinorTickSpacing((int) ((maxMs - minMs) * timeScale * 0.02));
+        timeSlider.setMajorTickSpacing((int) ((maxMs - minMs) * timeScale * 0.1));
+        timeSlider.addKeyListener(new KeyAdapter() {
+            RangeSlider slider = timeSlider;
+            @Override
+            public void keyPressed(KeyEvent e) {
+                slider.setValueIsAdjusting(true);
+                switch (e.getKeyCode()) {
+                    case KeyEvent.VK_LEFT:
+                    case KeyEvent.VK_KP_LEFT:
+                    case KeyEvent.VK_DOWN:
+                    case KeyEvent.VK_KP_DOWN:
+                        if (e.isShiftDown())
+                            slider.setUpperValue(slider.getUpperValue() - slider.getMinorTickSpacing());
+                        else if (e.isControlDown()) {
+                            int delta = slider.getUpperValue() - slider.getValue();
+                            slider.setValue(slider.getValue() - slider.getMinorTickSpacing());
+                            slider.setUpperValue(slider.getValue() + delta);
+                        }
+                        else
+                            slider.setValue(slider.getValue() - slider.getMinorTickSpacing());
+                        break;
+                    case KeyEvent.VK_RIGHT:
+                    case KeyEvent.VK_KP_RIGHT:
+                    case KeyEvent.VK_UP:
+                    case KeyEvent.VK_KP_UP:
+                        if (e.isShiftDown())
+                            slider.setUpperValue(slider.getUpperValue() + slider.getMinorTickSpacing());
+                        else if (e.isControlDown()) {
+                            int delta = slider.getUpperValue() - slider.getValue();
+                            slider.setUpperValue(slider.getUpperValue() + slider.getMinorTickSpacing());
+                            slider.setValue(slider.getUpperValue() - delta);
+                        }
+                        else
+                            slider.setValue(slider.getValue() + slider.getMinorTickSpacing());
+                        break;
+                    default:
+                        break;
+                }
+                e.consume();
+                super.keyPressed(e);
+            }
+            public void keyReleased(KeyEvent e) {
+                slider.setValueIsAdjusting(false);
+            }
+        });
         timeSlider.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
@@ -494,6 +542,52 @@ public class LayersListPanel extends JPanel {
             depthSlider.setEnabled(false);
         depthSlider.setUpperValue(depthSlider.getMaximum());
         depthSlider.setValue(depthSlider.getMinimum());
+        depthSlider.setMinorTickSpacing((int) ((maxDepth - minDepth) * depthScale * 0.02));
+        depthSlider.setMajorTickSpacing((int) ((maxDepth - minDepth) * depthScale * 0.1));
+        depthSlider.addKeyListener(new KeyAdapter() {
+            RangeSlider slider = depthSlider;
+            @Override
+            public void keyPressed(KeyEvent e) {
+                slider.setValueIsAdjusting(true);
+                switch (e.getKeyCode()) {
+                    case KeyEvent.VK_LEFT:
+                    case KeyEvent.VK_KP_LEFT:
+                    case KeyEvent.VK_DOWN:
+                    case KeyEvent.VK_KP_DOWN:
+                        if (e.isShiftDown())
+                            slider.setUpperValue(slider.getUpperValue() - slider.getMinorTickSpacing());
+                        else if (e.isControlDown()) {
+                            int delta = slider.getUpperValue() - slider.getValue();
+                            slider.setValue(slider.getValue() - slider.getMinorTickSpacing());
+                            slider.setUpperValue(slider.getValue() + delta);
+                        }
+                        else
+                            slider.setValue(slider.getValue() - slider.getMinorTickSpacing());
+                        break;
+                    case KeyEvent.VK_RIGHT:
+                    case KeyEvent.VK_KP_RIGHT:
+                    case KeyEvent.VK_UP:
+                    case KeyEvent.VK_KP_UP:
+                        if (e.isShiftDown())
+                            slider.setUpperValue(slider.getUpperValue() + slider.getMinorTickSpacing());
+                        else if (e.isControlDown()) {
+                            int delta = slider.getUpperValue() - slider.getValue();
+                            slider.setUpperValue(slider.getUpperValue() + slider.getMinorTickSpacing());
+                            slider.setValue(slider.getUpperValue() - delta);
+                        }
+                        else
+                            slider.setValue(slider.getValue() + slider.getMinorTickSpacing());
+                        break;
+                    default:
+                        break;
+                }
+                e.consume();
+                super.keyPressed(e);
+            }
+            public void keyReleased(KeyEvent e) {
+                slider.setValueIsAdjusting(false);
+            }
+        });
         depthSlider.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
