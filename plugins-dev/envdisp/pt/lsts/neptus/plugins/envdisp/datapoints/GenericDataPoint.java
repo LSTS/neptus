@@ -234,6 +234,7 @@ public class GenericDataPoint extends BaseDataPoint<GenericDataPoint> {
         
         public String name;
         public String fullName;
+        public String fileName = "";
         public String unit;
         public String standardName = "";
         public String comment = "";

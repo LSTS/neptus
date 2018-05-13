@@ -268,6 +268,7 @@ public class NetCDFLoader {
             double timeOffset = timeVar != null ? multAndOffset[1] : 0;
 
             Info info = createInfoBase(vVar);
+            info.fileName = fileName;
           
             // Let us process
             try {
@@ -652,6 +653,7 @@ public class NetCDFLoader {
             Variable var = varToConsider.get(vName);
             StringBuilder sb = new StringBuilder("<html><b>");
             Info info = NetCDFLoader.createInfoBase(var);
+            info.fileName = fileName;
             sb.append(vName);
             sb.append(" :: ");
             sb.append(info.fullName);

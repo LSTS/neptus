@@ -41,8 +41,6 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
@@ -66,7 +64,6 @@ import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.border.EtchedBorder;
 import javax.swing.event.ChangeEvent;
@@ -88,6 +85,7 @@ import pt.lsts.neptus.plugins.envdisp.painter.GenericNetCDFDataPainter;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
+import pt.lsts.neptus.util.StringUtils;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
@@ -276,21 +274,22 @@ public class LayersListPanel extends JPanel {
         });
 
         JLabel lbl = new JLabel(viz.getPlotName());
-        lbl.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent me) {
-                if (!SwingUtilities.isRightMouseButton(me))
-                    return;
-                
-                JPopupMenu pum = new JPopupMenu();
-                pum.add(new AbstractAction(I18n.text("Edit")) {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                    }
-                });
-                pum.show(lbl, me.getX(), me.getY());
-            }
-        });
+        StringBuilder commentSb = new StringBuilder();
+        if (!viz.getInfo().comment.isEmpty()) {
+            commentSb.append("<b>");
+            commentSb.append(I18n.text("Comment"));
+            commentSb.append(":</b><br/>");
+            commentSb.append(StringUtils.wrapEveryNChars(viz.getInfo().comment, (short) 60).replaceAll("\n", "<br/>"));
+        }
+        if (viz.getInfo().fileName != null && !viz.getInfo().fileName.isEmpty()) {
+            commentSb.append(commentSb.length() > 0 ? "<br/>" : "");
+            commentSb.append("<b>");
+            commentSb.append(I18n.text("Source"));
+            commentSb.append(":</b><br/>");
+            commentSb.append(StringUtils.wrapEveryNChars(viz.getInfo().fileName, (short) 60).replaceAll("\n", "<br/>"));
+        }
+        if (commentSb.length() > 0)
+            lbl.setToolTipText("<html>" + commentSb.toString());
         
         // Min/Max section
         JSpinner spinnerMin = new JSpinner(new SpinnerNumberModel(viz.getMinValue(), -1E200, 1E200, 0.5));
@@ -466,6 +465,10 @@ public class LayersListPanel extends JPanel {
         RangeSlider timeSlider = !validTime ? new RangeSlider(0, 0) : new RangeSlider(0, (int) ((maxMs - minMs) * timeScale));
         if (!validTime)
             timeSlider.setEnabled(false);
+        timeSlider.setToolTipText(String.format("<html><p>%s</p><p>%s<br/>%s<br/>%s</p>", I18n.text("Time slider"),
+                I18n.text("Left/right keys for lower value change"),
+                I18n.text("Shift+left/right keys for upper value change"),
+                I18n.text("Control+left/right keys for window value change")));
         timeSlider.setUpperValue(timeSlider.getMaximum());
         timeSlider.setValue(timeSlider.getMinimum());
         timeSlider.setMinorTickSpacing((int) ((maxMs - minMs) * timeScale * 0.02));
@@ -540,6 +543,10 @@ public class LayersListPanel extends JPanel {
         RangeSlider depthSlider = !validDepth ? new RangeSlider(0, 0) : new RangeSlider(0, (int) ((maxDepth - minDepth) * depthScale));
         if (!validDepth)
             depthSlider.setEnabled(false);
+        depthSlider.setToolTipText(String.format("<html><p>%s</p><p>%s<br/>%s<br/>%s</p>", I18n.text("Depth slider"),
+                I18n.text("Left/right keys for lower value change"),
+                I18n.text("Shift+left/right keys for upper value change"),
+                I18n.text("Control+left/right keys for window value change")));
         depthSlider.setUpperValue(depthSlider.getMaximum());
         depthSlider.setValue(depthSlider.getMinimum());
         depthSlider.setMinorTickSpacing((int) ((maxDepth - minDepth) * depthScale * 0.02));
