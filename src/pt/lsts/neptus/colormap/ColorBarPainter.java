@@ -64,6 +64,8 @@ public class ColorBarPainter extends JPanel {
     private double maxVal = 1;
     private boolean isLog10 = false;
     
+    private boolean outliersBoxFill = true;
+    
     /**
      * 
      */
@@ -71,6 +73,11 @@ public class ColorBarPainter extends JPanel {
         this.setOpaque(false);
     }    
     
+    private void forceRepaint() {
+        invalidateCache = true;
+        repaint();
+    }
+
     /**
      * @return the colormap
      */
@@ -86,10 +93,9 @@ public class ColorBarPainter extends JPanel {
             return;
         this.colormap = colormap;
         this.colorBar.setCmap(colormap);
-        invalidateCache = true;
-        repaint();
+        forceRepaint();
     }
-    
+
     /**
      * @return the minVal
      */
@@ -102,8 +108,7 @@ public class ColorBarPainter extends JPanel {
      */
     public void setMinVal(double minVal) {
         this.minVal = minVal;
-        invalidateCache = true;
-        repaint();
+        forceRepaint();
     }
     
     /**
@@ -118,8 +123,7 @@ public class ColorBarPainter extends JPanel {
      */
     public void setMaxVal(double maxVal) {
         this.maxVal = maxVal;
-        invalidateCache = true;
-        repaint();
+        forceRepaint();
     }
     
     /**
@@ -134,8 +138,22 @@ public class ColorBarPainter extends JPanel {
      */
     public void setLog10(boolean isLog10) {
         this.isLog10 = isLog10;
-        repaint();
-        invalidateCache = true;
+        forceRepaint();
+    }
+    
+    /**
+     * @return the outliersBoxFill
+     */
+    public boolean isOutliersBoxFill() {
+        return outliersBoxFill;
+    }
+    
+    /**
+     * @param outliersBoxFill the outliersBoxFill to set
+     */
+    public void setOutliersBoxFill(boolean outliersBoxFill) {
+        this.outliersBoxFill = outliersBoxFill;
+        forceRepaint();
     }
     
     private static NumberFormat getDecimalFormat(int fractionDigits) {
@@ -160,7 +178,8 @@ public class ColorBarPainter extends JPanel {
             Graphics2D g = (Graphics2D) cachedImage.getGraphics();
             
             g.setColor(new Color(250, 250, 250, 100));
-            g.fillRoundRect(0, 0, (int) dim.getWidth(), (int) dim.getHeight(), (int) (dim.getWidth() * 0.05), (int) (dim.getHeight() * 0.05));
+            g.fillRoundRect(0, 0, (int) dim.getWidth(), (int) dim.getHeight(), (int) (dim.getWidth() * 0.05),
+                    (int) (dim.getHeight() * 0.05));
 
             Graphics2D g2 = (Graphics2D) g.create();
             g2.translate((dim.getWidth() * 0.02), (dim.getHeight() * 0.95));
@@ -175,23 +194,16 @@ public class ColorBarPainter extends JPanel {
                 }
                 
                 String minStr = getDecimalFormat(2).format(minVal);
-                Rectangle2D bdsMinTxt = g2.getFontMetrics().getStringBounds(minStr, g2);
-//                g2.setColor(Color.WHITE);
-//                g2.drawString(minStr, 0, -1);
                 g2.setColor(Color.BLACK);
                 g2.drawString(minStr, 0, 0);
 
                 String maxStr = getDecimalFormat(2).format(maxVal);
                 Rectangle2D bdsMaxTxt = g2.getFontMetrics().getStringBounds(maxStr, g2);
-//              g2.setColor(Color.WHITE);
-//                g2.drawString(maxStr, (int) (dim.getWidth() * 0.96 - bdsMaxTxt.getWidth()), -1);
                 g2.setColor(Color.BLACK);
                 g2.drawString(maxStr, (int) (dim.getWidth() * 0.96 - bdsMaxTxt.getWidth()), 0);
 
                 String medStr = getDecimalFormat(2).format(medValue);
                 Rectangle2D bdsMedTxt = g2.getFontMetrics().getStringBounds(medStr, g2);
-//                g2.setColor(Color.WHITE);
-//                g2.drawString(medStr, (int) (dim.getWidth() * 0.48 - bdsMedTxt.getWidth() / 2.), -1);
                 g2.setColor(Color.BLACK);
                 g2.drawString(medStr, (int) (dim.getWidth() * 0.48 - bdsMedTxt.getWidth() / 2.), 0);
             }
@@ -209,11 +221,23 @@ public class ColorBarPainter extends JPanel {
 
             g2 = (Graphics2D) g.create();
             g2.translate((dim.getWidth() * 0.02), (dim.getHeight() * 0.05));
-            g2.setColor(colormap.getColor(-0.1));
-            g2.fillRect(0, 0, (int) (dim.getWidth() * 0.02), (int) (dim.getHeight() * 0.55));
+            if (outliersBoxFill) {
+                g2.setColor(colormap.getColor(-0.1));
+                g2.fillRect(0, 0, (int) (dim.getWidth() * 0.02), (int) (dim.getHeight() * 0.55));
+            }
+            else {
+                g2.setColor(Color.BLACK);
+                g2.drawRect(0, 0, (int) (dim.getWidth() * 0.02), (int) (dim.getHeight() * 0.55));
+            }
             g2.translate((dim.getWidth() * 0.94), 0);
-            g2.setColor(colormap.getColor(1.1));
-            g2.fillRect(0, 0, (int) (dim.getWidth() * 0.02), (int) (dim.getHeight() * 0.55));
+            if (outliersBoxFill) {
+                g2.setColor(colormap.getColor(1.1));
+                g2.fillRect(0, 0, (int) (dim.getWidth() * 0.02), (int) (dim.getHeight() * 0.55));
+            }
+            else {
+                g2.setColor(Color.BLACK);
+                g2.drawRect(0, 0, (int) (dim.getWidth() * 0.02), (int) (dim.getHeight() * 0.55));
+            }
             g2.dispose();
         }
         
@@ -235,10 +259,14 @@ public class ColorBarPainter extends JPanel {
         Thread.sleep(2000);
         cb.setLog10(true);
         
+        cb.setOutliersBoxFill(false);
         for (String c : ColorMapFactory.colorMapNamesList) {
             Thread.sleep(2000);
             System.out.println(c);
+            cb.setOutliersBoxFill(false);
             cb.setColormap(ColorMapFactory.getColorMapByName(c));
+            Thread.sleep(1000);
+            cb.setOutliersBoxFill(true);
         }
     }
 }
