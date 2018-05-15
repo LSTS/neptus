@@ -91,6 +91,8 @@ public class EnvDataPaintHelper {
 
     static final int OFFSET_REND_TXT_DATE_RANGES = 52;
     static final int OFFSET_REND_TXT_DATE_RANGES_DELTA = 15;
+    
+    private static final double MIN_INTERPOLATION_POINT = 2;
 
     static int filterUseLOD = 9;
 
@@ -890,8 +892,8 @@ public class EnvDataPaintHelper {
                     yMin = minXY.second();
 
                     System.out.println(String.format("xMin=%f   yMin=%f", xMin, yMin));
-                    xMin = Math.max(pointSize, xMin);
-                    yMin = Math.max(pointSize, yMin);
+                    xMin = Math.max(MIN_INTERPOLATION_POINT, xMin);
+                    yMin = Math.max(MIN_INTERPOLATION_POINT, yMin);
                     System.out.println(String.format("fixed xMin=%f   yMin=%f", xMin, yMin));
 
                     double cacheImgScaleX = 1. / xMin;
@@ -933,6 +935,8 @@ public class EnvDataPaintHelper {
                     Graphics2D gt = (Graphics2D) g2.create();
                     try {
                         gt.translate(rendererCalculator.getWidth() / 2., rendererCalculator.getHeight() / 2.);
+                        gt.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+                        gt.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
                         gt.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
                         gt.drawImage(cacheImg, -(int) (cacheImg.getWidth() / cacheImgScaleX / 2.), 
                                 -(int) (cacheImg.getHeight() / cacheImgScaleY / 2.), 
@@ -1050,7 +1054,7 @@ public class EnvDataPaintHelper {
                 ptFilt.add(new HashMap<Point2D, Pair<ArrayList<Object>, Date>>());
             }
             double usePercent = (ptFilt.get(0) == null ? -1 : ptFilt.get(0).size() * 1. / visiblePts.longValue()) * 100;
-            final int idx = getIndexForData(rendererCalculator.getLevelOfDetail(), usePercent);
+            final int idx = 1; //getIndexForData(rendererCalculator.getLevelOfDetail(), usePercent);
             debugOut(showDataDebugLegend, String.format("%s stg 1 took %ss :: using %d of %d visible from original %d (%.1f%% of visible) | %d not gridded %sused",
                     varName, MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1), (ptFilt.get(0) == null ? -1 : ptFilt.get(0).size()), 
                     visiblePts.longValue(), dest.size(), usePercent, (ptFilt.get(1) == null ? -1 : ptFilt.get(1).size()), idx == 0 ? "not " : ""));
