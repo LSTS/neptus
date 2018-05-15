@@ -707,12 +707,11 @@ public class EnvDataPaintHelper {
     }
 
     public static void paintGenericInGraphics(MapTileRendererCalculator rendererCalculator, Graphics2D g2,
-            int transparency, Date dateColorLimit, Map<String, GenericDataPoint> dataPointsVar, 
-            int offScreenBufferPixel, ColorMap colorMapVar,
-            double minVar, double maxVar, boolean showVarLegend, int showVarLegendFromZoomLevel, 
-            Font font8Pt, boolean showDataDebugLegend, AtomicBoolean abortIndicator,
-            PointPaintEnum paintType, boolean isLogColorMap, boolean isClampToFit, Pair<Date, Date> dateLimits,
-            Pair<Double, Double> depthLimits) {
+            int transparency, Date dateColorLimit, Map<String, GenericDataPoint> dataPointsVar,
+            int offScreenBufferPixel, ColorMap colorMapVar, double minVar, double maxVar, boolean showVarLegend,
+            int showVarLegendFromZoomLevel, Font font8Pt, boolean showDataDebugLegend, AtomicBoolean abortIndicator,
+            PointPaintEnum paintType, boolean isLogColorMap, boolean isClampToFit, boolean showGradient,
+            Pair<Date, Date> dateLimits, Pair<Double, Double> depthLimits) {
         
         if (dataPointsVar == null || dataPointsVar.isEmpty())
             return;
@@ -805,6 +804,14 @@ public class EnvDataPaintHelper {
                                 ret = elm;
                         }
                     }
+                    
+                    if (showGradient) {
+                        ArrayList<Object> retGrad = new ArrayList<>();
+                        if (Double.isFinite(ret.getGradientValue()))
+                            retGrad.add(ret.getGradientValue());
+                        return retGrad;
+                    }
+                    
                     return ret.getAllDataValues();
                 },
                 // Merger

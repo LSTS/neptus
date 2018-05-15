@@ -49,6 +49,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.DoubleAccumulator;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
@@ -437,6 +438,40 @@ public class LayersListPanel extends JPanel {
             }
         });
 
+        DoubleAccumulator savedMinValue = new DoubleAccumulator((o, n) -> n, (double) spinnerMin.getValue());
+        DoubleAccumulator savedMaxValue = new DoubleAccumulator((o, n) -> n, (double) spinnerMax.getValue());
+        JCheckBox gradientButton = new JCheckBox(I18n.text("Gradient"));
+        gradientButton.setSelected(viz.isShowGradient());
+        gradientButton.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                int state = e.getStateChange();
+                if (viz.getInfo().validGradientData) {
+                    switch (state) {
+                        case ItemEvent.SELECTED:
+                            savedMinValue.accumulate((double) spinnerMin.getValue());
+                            savedMaxValue.accumulate((double) spinnerMax.getValue());
+                            spinnerMin.setValue(viz.getInfo().minGradient);
+                            spinnerMax.setValue(viz.getInfo().maxGradient);
+                            break;
+                        case ItemEvent.DESELECTED:
+                            spinnerMin.setValue(savedMinValue.doubleValue());
+                            spinnerMax.setValue(savedMaxValue.doubleValue());
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                if (viz.getInfo().validGradientData) {
+                    viz.setShowGradient(gradientButton.isSelected());
+                    viz.getOffScreenLayer().triggerImageRebuild();
+                }
+                else {
+                    gradientButton.setSelected(viz.isShowGradient());
+                }
+            }
+        });
+
         JSpinner spinnerTrans = new JSpinner(new SpinnerNumberModel(50, 5, 100, 1));
         SpinnerIsAdjustingUI spinnerTransUIIsAdjustingUI = new SpinnerIsAdjustingUI();
         spinnerTrans.setUI(spinnerTransUIIsAdjustingUI);
@@ -646,6 +681,7 @@ public class LayersListPanel extends JPanel {
         hdr.add(new JLabel(viz.getInfo().unit), "w 100:100:, grow");
         hdr.add(useLog10Button, "align right");
         hdr.add(interpolateButton, "align right");
+        hdr.add(gradientButton, "align right");
         hdr.add(clampToFitButton, "align right, wrap");
 
         if (validTime) {

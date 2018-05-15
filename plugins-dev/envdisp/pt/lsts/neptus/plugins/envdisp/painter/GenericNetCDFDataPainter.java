@@ -62,7 +62,7 @@ public class GenericNetCDFDataPainter {
     private Font font = new Font("Helvetica", Font.PLAIN, 9);
     
     private Info info = null;
-    // ID is lat/lon
+    // ID is lat/lon/<depth>
     private final Map<String, GenericDataPoint> dataPointsVar;
     
     private Thread painterThread = null;
@@ -96,6 +96,8 @@ public class GenericNetCDFDataPainter {
     private boolean interpolate = true;
     @NeptusProperty
     private boolean isClampToFit = false;
+    @NeptusProperty
+    private boolean showGradient = false;
 
     @NeptusProperty(description = "A value between 10 and 255 (the higher the more opaque)")
     private int transparency = 128;
@@ -142,6 +144,13 @@ public class GenericNetCDFDataPainter {
             default:
                 break;
         }
+    }
+    
+    /**
+     * @return the dataPointsVar
+     */
+    public Map<String, GenericDataPoint> getDataPointsVar() {
+        return dataPointsVar;
     }
     
     /**
@@ -418,6 +427,20 @@ public class GenericNetCDFDataPainter {
     }
 
     /**
+     * @return the showGradient
+     */
+    public boolean isShowGradient() {
+        return showGradient;
+    }
+    
+    /**
+     * @param showGradient the showGradient to set
+     */
+    public void setShowGradient(boolean showGradient) {
+        this.showGradient = showGradient;
+    }
+
+    /**
      * @return the transparency
      */
     public int getTransparency() {
@@ -461,11 +484,13 @@ public class GenericNetCDFDataPainter {
                                     paintType = EnvDataPaintHelper.PointPaintEnum.POINT;
                                 }
                                 
-                                EnvDataPaintHelper.paintGenericInGraphics(rendererCalculator, g2, (int) MathMiscUtils.clamp(transparency, 10, 255),
-                                        dateColorLimit, dataPointsVar, 
-                                        offScreen.getOffScreenBufferPixel(), colorMapVar, minValue, maxValue, showVarLegend, 
-                                        showVarLegendFromZoomLevel, font, showDataDebugLegend, abortIndicator, paintType, isLogColorMap, isClampToFit,
-                                        new Pair<Date, Date>(minDate, maxDate), new Pair<Double, Double>(minDepth, maxDepth));
+                                EnvDataPaintHelper.paintGenericInGraphics(rendererCalculator, g2,
+                                        (int) MathMiscUtils.clamp(transparency, 10, 255), dateColorLimit, dataPointsVar,
+                                        offScreen.getOffScreenBufferPixel(), colorMapVar, minValue, maxValue,
+                                        showVarLegend, showVarLegendFromZoomLevel, font, showDataDebugLegend,
+                                        abortIndicator, paintType, isLogColorMap, isClampToFit, showGradient,
+                                        new Pair<Date, Date>(minDate, maxDate),
+                                        new Pair<Double, Double>(minDepth, maxDepth));
                             }
                             catch (Exception e) {
                                 e.printStackTrace();

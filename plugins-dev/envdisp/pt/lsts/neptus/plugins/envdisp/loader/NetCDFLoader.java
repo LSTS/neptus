@@ -48,6 +48,7 @@ import java.util.Map;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.DoubleAccumulator;
+import java.util.concurrent.atomic.LongAccumulator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -68,7 +69,6 @@ import pt.lsts.neptus.plugins.envdisp.datapoints.GenericDataPoint.Info.ScalarOrL
 import pt.lsts.neptus.plugins.envdisp.datapoints.GenericDataPoint.Type;
 import pt.lsts.neptus.plugins.envdisp.painter.GenericNetCDFDataPainter;
 import pt.lsts.neptus.util.AngleUtils;
-import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.StringUtils;
 import pt.lsts.neptus.util.netcdf.NetCDFUnitsUtils;
@@ -271,6 +271,22 @@ public class NetCDFLoader {
 
             Info info = createInfoBase(vVar);
             info.fileName = fileName;
+            
+            // Gradient calc
+            boolean calculateGradient = true;
+            if (info.type == Type.GEO_2D)
+                calculateGradient = true;
+            LongAccumulator xyGrad3DimCounter = new LongAccumulator((o, i) -> i, 0);
+            ArrayList<GenericDataPoint> gradBuffer = new ArrayList<>();
+            int[] gradShape = null;
+            DoubleAccumulator minGradient = new DoubleAccumulator((o, n) -> Double.compare(n, o) < 0 ? n : o,
+                    Double.MAX_VALUE);
+            DoubleAccumulator maxGradient = new DoubleAccumulator((o, n) -> Double.compare(n, o) > 0 ? n : o,
+                    Double.MIN_VALUE);
+            DoubleAccumulator minLonXDelta = new DoubleAccumulator((o, n) -> Double.compare(n, o) < 0 ? n : o,
+                    Double.MAX_VALUE);
+            DoubleAccumulator minLatYDelta = new DoubleAccumulator((o, n) -> Double.compare(n, o) < 0 ? n : o,
+                    Double.MAX_VALUE);
           
             // Let us process
             try {
@@ -297,6 +313,28 @@ public class NetCDFLoader {
                 int[] counter = new int[shape.length];
                 Arrays.fill(counter, 0);
 
+                // Gradient calc
+                switch (info.type) {
+                    case GEO_TRAJECTORY:
+                        info.sizeXY = Arrays.copyOf(shape, shape.length);
+                        gradShape = Arrays.copyOfRange(shape, shape.length - 1, shape.length);
+                        for (int j = 0; j < gradShape[gradShape.length - 1]; j++)
+                            gradBuffer.add(null);
+                        Arrays.fill(gradShape, -1);
+                        break;
+                    case GEO_2D:
+                        info.sizeXY = Arrays.copyOfRange(shape, shape.length - 2, shape.length);
+                        gradShape = Arrays.copyOfRange(shape, shape.length - 2, shape.length);
+                        for (int j = 0; j < gradShape[gradShape.length - 1]; j++)
+                            gradBuffer.add(null);
+                        Arrays.fill(gradShape, -1);
+                        break;
+                    case UNKNOWN:
+                    default:
+                        break;
+                }
+
+                
                 // The null values are ignored
                 Map<String, Integer> timeCollumsIndexMap = timeVar == null ? new HashMap<>()
                         : NetCDFUtils.getIndexesForVar(dimStr, timeVar.getDimensionsString().split(" "));
@@ -349,6 +387,11 @@ public class NetCDFLoader {
                             || !NetCDFUtils.isValueValid(lon, lonFillValue, lonValidRange)) {
                         NeptusLog.pub().debug(
                                 String.format("While processing %s found invalid values for lat or lon!", varName));
+                        
+                        // Gradient calculation
+                        fillGradient(calculateGradient, gradBuffer, gradShape, xyGrad3DimCounter, minGradient,
+                                maxGradient, minLonXDelta, minLatYDelta, counter, null);
+                        
                         continue;
                     }
                     
@@ -408,11 +451,9 @@ public class NetCDFLoader {
                             switch (info.type) {
                                 case GEO_TRAJECTORY:
                                     dp.setIndexesXY(Arrays.copyOf(counter, counter.length));
-                                    info.sizeXY = Arrays.copyOf(shape, shape.length);
                                     break;
                                 case GEO_2D:
                                     dp.setIndexesXY(Arrays.copyOfRange(counter, counter.length - 2, counter.length));
-                                    info.sizeXY = Arrays.copyOfRange(shape, shape.length - 2, shape.length);
                                     break;
                                 case UNKNOWN:
                                 default:
@@ -437,11 +478,27 @@ public class NetCDFLoader {
                         }
                         if (!alreadyIn)
                             dpo.getHistoricalData().add(dp);
+
+                        // Gradient calculation
+                        fillGradient(calculateGradient, gradBuffer, gradShape, xyGrad3DimCounter, minGradient,
+                                maxGradient, minLonXDelta, minLatYDelta, counter, dp);
+                    }
+                    else {
+                        // Gradient calculation
+                        fillGradient(calculateGradient, gradBuffer, gradShape, xyGrad3DimCounter, minGradient,
+                                maxGradient, minLonXDelta, minLatYDelta, counter, null);
                     }
                 } while (NetCDFUtils.advanceLoopCounter(shape, counter) != null);
             }
             catch (Exception e) {
                 e.printStackTrace();
+            }
+
+            // Gradient calculation
+            if (minGradient.doubleValue() < Double.MAX_VALUE && maxGradient.doubleValue() > Double.MIN_VALUE) {
+                info.minGradient = minGradient.doubleValue();
+                info.maxGradient = maxGradient.doubleValue();
+                info.validGradientData = true;
             }
         }
         catch (Exception e) {
@@ -452,8 +509,64 @@ public class NetCDFLoader {
             NeptusLog.pub().info("Ending processing " + varName + " netCDF file '" + fileName
                     + "'. Reading from date '" + fromDate + "' till '" + toDate + "'.");
         }
-
         return dataDp;
+    }
+
+    /**
+     * @param calculateGradient
+     * @param gradBuffer
+     * @param gradShape
+     * @param xyGrad3DimCounter
+     * @param minGradient
+     * @param maxGradient
+     * @param minLonXDelta
+     * @param minLatYDelta
+     * @param counter
+     * @param dpY
+     */
+    private static void fillGradient(boolean calculateGradient, ArrayList<GenericDataPoint> gradBuffer, int[] gradShape,
+            LongAccumulator xyGrad3DimCounter, DoubleAccumulator minGradient, DoubleAccumulator maxGradient,
+            DoubleAccumulator minLonXDelta, DoubleAccumulator minLatYDelta, int[] counter, GenericDataPoint dpY) {
+        if (calculateGradient) {
+            if (counter.length > 2) {
+                int c = counter[counter.length - 3];
+                if (c != xyGrad3DimCounter.intValue()) {
+                    // Clear points buffer
+                    Collections.fill(gradBuffer, null);
+                }
+                xyGrad3DimCounter.accumulate(c);
+            }
+
+            GenericDataPoint dpUpX = gradBuffer.get(counter[counter.length -1]);
+            if (dpUpX != null) {
+                GenericDataPoint dpUpXNext = null;
+                if (counter[counter.length -1] + 1 < gradShape[gradShape.length -1])
+                    dpUpXNext = gradBuffer.get(counter[counter.length -1] + 1);
+                double vxNext = dpUpXNext != null ? dpUpXNext.getValue() : Double.NaN;
+                double vyNext = dpY != null ? dpY.getValue() : Double.NaN;
+                double dx = Double.isFinite(vxNext) ? vxNext - dpUpX.getValue() : 0;
+                double dy = Double.isFinite(vyNext) ? vyNext - dpUpX.getValue() : 0;
+                if (Double.isFinite(vxNext) || Double.isFinite(vyNext)) {
+                    double gradient = Math.sqrt(dx * dx + dy * dy);
+                    minGradient.accumulate(gradient);
+                    maxGradient.accumulate(gradient);
+                    dpUpX.setGradientValue(gradient);
+                }
+                
+                if (dpUpXNext != null) {
+                    double dist = Math.sqrt(Math.pow(dpUpX.getLat() - dpUpXNext.getLat(), 2)
+                            + Math.pow(dpUpX.getLon() - dpUpX.getLon(), 2));
+                    double angle = AngleUtils.calcAngle(dpUpX.getLon(), dpUpX.getLat(), dpUpXNext.getLon(),
+                            dpUpXNext.getLat());
+                    double distX = dist * Math.sin(angle);
+                    minLonXDelta.accumulate(distX);
+                    double distY = dist * Math.cos(angle);
+                    minLatYDelta.accumulate(distY);
+                }
+            }
+            
+        }
+        gradBuffer.set(counter[counter.length -1], dpY);
     }
 
     /**
@@ -718,7 +831,6 @@ public class NetCDFLoader {
                 Map<String, GenericDataPoint> dataPoints = NetCDFLoader.processFileForVariable(dataFile, varName, null);
                 GenericNetCDFDataPainter gDataViz = new GenericNetCDFDataPainter(plotUniqueId, dataPoints);
                 gDataViz.setNetCDFFile(filePath);
-                
                 return gDataViz;
             }
             catch (Exception e) {
@@ -730,141 +842,6 @@ public class NetCDFLoader {
         t.setDaemon(true);
         t.start();
         return fTask;
-    }
-    
-    /**
-     * @param gDataViz
-     */
-    public static void processForGradientCalculation(GenericNetCDFDataPainter gDataViz) {
-        long ffTime = System.currentTimeMillis();
-
-        Map<String, GenericDataPoint> dataPoints = gDataViz.getDataPointsVar();
-        GenericDataPoint fdp = dataPoints.values().stream().findFirst().orElse(null);
-        if (fdp == null)
-            return;
-        Info info = fdp.getInfo();
-        if (info.type != Type.GEO_2D)
-            return;
-        int[] fIdxs = fdp.getIndexesXY();
-        if (fIdxs == null)
-            return;
-        
-        int[] shape = info.sizeXY;
-        DoubleAccumulator minGradient = new DoubleAccumulator((o, n) -> Double.compare(n, o) < 0 ? n : o,
-                Double.MAX_VALUE);
-        DoubleAccumulator maxGradient = new DoubleAccumulator((o, n) -> Double.compare(n, o) > 0 ? n : o,
-                Double.MIN_VALUE);
-        Date future = new Date(Long.MAX_VALUE);
-        dataPoints.values().parallelStream().forEach(dp -> {
-            try {
-                long fTime = System.currentTimeMillis();
-                StringBuilder sb = new StringBuilder();
-                sb.append("Processing (of " + dataPoints.size() + ")" + dp.getId()  + "     " + Arrays.toString(dp.getIndexesXY())  + " of " + Arrays.toString(dp.getInfo().sizeXY) + "\n");
-                
-                // For each value in historical calculate gradient
-                int[] nextXIdx = Arrays.copyOf(dp.getIndexesXY(), dp.getIndexesXY().length);
-                nextXIdx[0]++;
-                int[] nextYIdx = Arrays.copyOf(dp.getIndexesXY(), dp.getIndexesXY().length);
-                nextYIdx[1]++;
-                if (nextXIdx[0] >= shape[0] || nextXIdx[1] >= shape[1])
-                    return; // end of matrix
-                
-                sb.append("  >> Indexes: nextX:" + Arrays.toString(nextXIdx) + " | nextY:" + Arrays.toString(nextYIdx) + "\n");
-                long dtime = System.currentTimeMillis();
-                
-                // Find next X neighbor if any
-                GenericDataPoint nextXDp = dataPoints.values().stream().filter(dpo -> {
-                    return (!Double.isFinite(dp.getDepth()) && !Double.isFinite(dpo.getDepth()) || dp.getDepth() == dpo.getDepth()) && Arrays.equals(nextXIdx, dpo.getIndexesXY())
-//                            && !dpo.getInfo().minDate.after(dp.getInfo().maxDate)
-//                            && !dpo.getInfo().maxDate.before(dp.getInfo().minDate)
-                            ;
-                }).findFirst().orElse(null);
-
-                sb.append("  >> Find next X neighbor in: " + DateTimeUtil.milliSecondsToFormatedString(System.currentTimeMillis() - dtime) + "   was " + nextXDp + "\n");
-                dtime = System.currentTimeMillis();
-                
-                GenericDataPoint nextYDp = dataPoints.values().stream().filter(dpo -> {
-                    return (!Double.isFinite(dp.getDepth()) && !Double.isFinite(dpo.getDepth()) || dp.getDepth() == dpo.getDepth()) && Arrays.equals(nextYIdx, dpo.getIndexesXY())
-//                            && !dpo.getInfo().minDate.after(dp.getInfo().maxDate)
-//                            && !dpo.getInfo().maxDate.before(dp.getInfo().minDate)
-                            ;
-                }).findFirst().orElse(null);
-
-                sb.append("  >> Find next Y neighbor in: " + DateTimeUtil.milliSecondsToFormatedString(System.currentTimeMillis() - dtime) + "   was " + nextYDp + "\n");
-                dtime = System.currentTimeMillis();
-
-                if (nextXDp != null || nextYDp != null) {
-                    sb.append("  >> Processing historical size: " + dp.getHistoricalData().size() + "\n");
-                    
-                    dp.getHistoricalData().stream().forEach(dph -> {
-                        sb.append("      >> Processing elm: " + dph.getDateUTC() + "\n");
-                        long dtime1 = System.currentTimeMillis();
-                        
-                        Date dateTimeTarget = dph.getDateUTC();
-                        double dX = 0;
-                        if (nextXDp != null) {
-                            try {
-                                GenericDataPoint elm = nextXDp.getHistoricalData().stream()
-                                        .filter(e -> e.getDateUTC().equals(dateTimeTarget)).findFirst().orElse(null);
-                                if (elm != null)
-                                    dX = elm.getValue() - dph.getValue();
-                            }
-                            catch (Exception e) {
-                                e.printStackTrace();
-                            }
-
-                            sb.append("      >> Calc elm X in: " + DateTimeUtil.milliSecondsToFormatedString(System.currentTimeMillis() - dtime1) + "\n");
-                            dtime1 = System.currentTimeMillis();
-                        }
-                        double dY = 0;
-                        if (nextYDp != null) {
-                            try {
-                                GenericDataPoint elm = nextYDp.getHistoricalData().stream()
-                                        .filter(e -> e.getDateUTC().equals(dateTimeTarget)).findFirst().orElse(null);
-                                if (elm != null)
-                                    dY = elm.getValue() - dph.getValue();
-                            }
-                            catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                            
-                            sb.append("      >> Calc elm Y in: " + DateTimeUtil.milliSecondsToFormatedString(System.currentTimeMillis() - dtime1) + "\n");
-                            dtime1 = System.currentTimeMillis();
-                        }
-                        double gradient = Math.sqrt(dX * dX + dY * dY);
-                        minGradient.accumulate(gradient);
-                        maxGradient.accumulate(gradient);
-                        dph.setGradientValue(gradient);
-                    });
-                    dp.useMostRecent(future);
-                    
-                }
-                sb.append("      >> END in: " + DateTimeUtil.milliSecondsToFormatedString(System.currentTimeMillis() - fTime) + "\n");
-                try {
-                    //FileUtils.write(new File("gradProcee.txt"), sb.toString(), true);
-                }
-                catch (Exception e2) {
-                }
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
-            
-            if (minGradient.doubleValue() < Double.MAX_VALUE && maxGradient.doubleValue() > Double.MIN_VALUE) {
-                info.minGradient = minGradient.doubleValue();
-                info.maxGradient = maxGradient.doubleValue();
-                info.validGradientData = true;
-            }
-            // Let us fill the borders of the matrix
-            // TODO
-        });
-        
-        try {
-            FileUtils.write(new File("gradProcee.txt"), ">> END in: " + DateTimeUtil.milliSecondsToFormatedString(System.currentTimeMillis() - ffTime) + "\n", true);
-        }
-        catch (Exception e2) {
-        }
-
     }
 
     @SuppressWarnings("unused")
