@@ -440,35 +440,50 @@ public class LayersListPanel extends JPanel {
 
         DoubleAccumulator savedMinValue = new DoubleAccumulator((o, n) -> n, (double) spinnerMin.getValue());
         DoubleAccumulator savedMaxValue = new DoubleAccumulator((o, n) -> n, (double) spinnerMax.getValue());
+        DoubleAccumulator savedGradMinValue = new DoubleAccumulator((o, n) -> n, viz.getInfo().minGradient);
+        DoubleAccumulator savedGradMaxValue = new DoubleAccumulator((o, n) -> n, viz.getInfo().maxGradient);
+        ColorMap[] valAndGradColorMap = new ColorMap[2];
+        Arrays.fill(valAndGradColorMap, null);
         JCheckBox gradientButton = new JCheckBox(I18n.text("Gradient"));
+        if (!viz.getInfo().validGradientData)
+            gradientButton.setEnabled(false);
         gradientButton.setSelected(viz.isShowGradient());
         gradientButton.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
                 int state = e.getStateChange();
-                if (viz.getInfo().validGradientData) {
-                    switch (state) {
-                        case ItemEvent.SELECTED:
-                            savedMinValue.accumulate((double) spinnerMin.getValue());
-                            savedMaxValue.accumulate((double) spinnerMax.getValue());
-                            spinnerMin.setValue(viz.getInfo().minGradient);
-                            spinnerMax.setValue(viz.getInfo().maxGradient);
-                            break;
-                        case ItemEvent.DESELECTED:
-                            spinnerMin.setValue(savedMinValue.doubleValue());
-                            spinnerMax.setValue(savedMaxValue.doubleValue());
-                            break;
-                        default:
-                            break;
-                    }
+                switch (state) {
+                    case ItemEvent.SELECTED:
+                        savedMinValue.accumulate((double) spinnerMin.getValue());
+                        savedMaxValue.accumulate((double) spinnerMax.getValue());
+                        spinnerMin.setValue(savedGradMinValue.get());
+                        spinnerMax.setValue(savedGradMaxValue.get());
+                        valAndGradColorMap[0] = viz.getColorMapVar();
+                        if (valAndGradColorMap[1]!= null) {
+                            viz.setColorMapVar(valAndGradColorMap[1]);
+                            cbp.setColormap(viz.getColorMapVar());
+                        }
+                        break;
+                    case ItemEvent.DESELECTED:
+                        savedGradMinValue.accumulate((double) spinnerMin.getValue());
+                        savedGradMaxValue.accumulate((double) spinnerMax.getValue());
+                        spinnerMin.setValue(savedMinValue.doubleValue());
+                        spinnerMax.setValue(savedMaxValue.doubleValue());
+                        if (valAndGradColorMap[0] != viz.getColorMapVar()) {
+                            valAndGradColorMap[1] = viz.getColorMapVar();
+                        }
+                        else {
+                            valAndGradColorMap[1] = null;
+                        }
+                        viz.setColorMapVar(valAndGradColorMap[0]);
+                        cbp.setColormap(viz.getColorMapVar());
+                        valAndGradColorMap[0] = null;
+                        break;
+                    default:
+                        break;
                 }
-                if (viz.getInfo().validGradientData) {
-                    viz.setShowGradient(gradientButton.isSelected());
-                    viz.getOffScreenLayer().triggerImageRebuild();
-                }
-                else {
-                    gradientButton.setSelected(viz.isShowGradient());
-                }
+                viz.setShowGradient(gradientButton.isSelected());
+                viz.getOffScreenLayer().triggerImageRebuild();
             }
         });
 
