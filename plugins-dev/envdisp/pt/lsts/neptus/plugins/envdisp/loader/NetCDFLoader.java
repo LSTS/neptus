@@ -47,6 +47,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.atomic.DoubleAccumulator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -63,10 +64,11 @@ import pt.lsts.neptus.gui.swing.NeptusFileView;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.envdisp.datapoints.GenericDataPoint;
 import pt.lsts.neptus.plugins.envdisp.datapoints.GenericDataPoint.Info;
-import pt.lsts.neptus.plugins.envdisp.datapoints.GenericDataPoint.Type;
 import pt.lsts.neptus.plugins.envdisp.datapoints.GenericDataPoint.Info.ScalarOrLogPreference;
+import pt.lsts.neptus.plugins.envdisp.datapoints.GenericDataPoint.Type;
 import pt.lsts.neptus.plugins.envdisp.painter.GenericNetCDFDataPainter;
 import pt.lsts.neptus.util.AngleUtils;
+import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.StringUtils;
 import pt.lsts.neptus.util.netcdf.NetCDFUnitsUtils;
@@ -93,7 +95,7 @@ public class NetCDFLoader {
      * @param dateLimit If null no filter for time is done
      * @return
      */
-    public static final HashMap<String, GenericDataPoint> processFileForVariable(NetcdfFile dataFile, String varName, Date dateLimit) {
+    public static final Map<String, GenericDataPoint> processFileForVariable(NetcdfFile dataFile, String varName, Date dateLimit) {
         boolean ignoreDateLimitToLoad = false;
         if (dateLimit == null)
             ignoreDateLimitToLoad = true;
@@ -103,7 +105,7 @@ public class NetCDFLoader {
         NeptusLog.pub().info("Starting processing " + varName + " file '" + dataFile.getLocation() + "'."
                 + (ignoreDateLimitToLoad ? " ignoring dateTime limit" : " Accepting data after " + dateLimit + "."));
 
-        HashMap<String, GenericDataPoint> dataDp = new HashMap<>();
+        Map<String, GenericDataPoint> dataDp = new LinkedHashMap<>();
 
         Date fromDate = null;
         Date toDate = null;
@@ -406,9 +408,11 @@ public class NetCDFLoader {
                             switch (info.type) {
                                 case GEO_TRAJECTORY:
                                     dp.setIndexesXY(Arrays.copyOf(counter, counter.length));
+                                    info.sizeXY = Arrays.copyOf(shape, shape.length);
                                     break;
                                 case GEO_2D:
                                     dp.setIndexesXY(Arrays.copyOfRange(counter, counter.length - 2, counter.length));
+                                    info.sizeXY = Arrays.copyOfRange(shape, shape.length - 2, shape.length);
                                     break;
                                 case UNKNOWN:
                                 default:
@@ -417,6 +421,9 @@ public class NetCDFLoader {
 
                             dpo = dp.getACopyWithoutHistory();
                             dataDp.put(dpo.getId(), dpo);
+                        }
+                        else {
+                            dp.setIndexesXY(dpo.getIndexesXY());
                         }
 
                         ArrayList<GenericDataPoint> lst = dpo.getHistoricalData();
@@ -708,9 +715,10 @@ public class NetCDFLoader {
     public static Future<GenericNetCDFDataPainter> loadNetCDFPainterFor(String filePath, NetcdfFile dataFile, String varName, long plotUniqueId) {
         FutureTask<GenericNetCDFDataPainter> fTask = new FutureTask<>(() -> {
             try {
-                HashMap<String, GenericDataPoint> dataPoints = NetCDFLoader.processFileForVariable(dataFile, varName, null);
+                Map<String, GenericDataPoint> dataPoints = NetCDFLoader.processFileForVariable(dataFile, varName, null);
                 GenericNetCDFDataPainter gDataViz = new GenericNetCDFDataPainter(plotUniqueId, dataPoints);
                 gDataViz.setNetCDFFile(filePath);
+                
                 return gDataViz;
             }
             catch (Exception e) {
@@ -724,6 +732,141 @@ public class NetCDFLoader {
         return fTask;
     }
     
+    /**
+     * @param gDataViz
+     */
+    public static void processForGradientCalculation(GenericNetCDFDataPainter gDataViz) {
+        long ffTime = System.currentTimeMillis();
+
+        Map<String, GenericDataPoint> dataPoints = gDataViz.getDataPointsVar();
+        GenericDataPoint fdp = dataPoints.values().stream().findFirst().orElse(null);
+        if (fdp == null)
+            return;
+        Info info = fdp.getInfo();
+        if (info.type != Type.GEO_2D)
+            return;
+        int[] fIdxs = fdp.getIndexesXY();
+        if (fIdxs == null)
+            return;
+        
+        int[] shape = info.sizeXY;
+        DoubleAccumulator minGradient = new DoubleAccumulator((o, n) -> Double.compare(n, o) < 0 ? n : o,
+                Double.MAX_VALUE);
+        DoubleAccumulator maxGradient = new DoubleAccumulator((o, n) -> Double.compare(n, o) > 0 ? n : o,
+                Double.MIN_VALUE);
+        Date future = new Date(Long.MAX_VALUE);
+        dataPoints.values().parallelStream().forEach(dp -> {
+            try {
+                long fTime = System.currentTimeMillis();
+                StringBuilder sb = new StringBuilder();
+                sb.append("Processing (of " + dataPoints.size() + ")" + dp.getId()  + "     " + Arrays.toString(dp.getIndexesXY())  + " of " + Arrays.toString(dp.getInfo().sizeXY) + "\n");
+                
+                // For each value in historical calculate gradient
+                int[] nextXIdx = Arrays.copyOf(dp.getIndexesXY(), dp.getIndexesXY().length);
+                nextXIdx[0]++;
+                int[] nextYIdx = Arrays.copyOf(dp.getIndexesXY(), dp.getIndexesXY().length);
+                nextYIdx[1]++;
+                if (nextXIdx[0] >= shape[0] || nextXIdx[1] >= shape[1])
+                    return; // end of matrix
+                
+                sb.append("  >> Indexes: nextX:" + Arrays.toString(nextXIdx) + " | nextY:" + Arrays.toString(nextYIdx) + "\n");
+                long dtime = System.currentTimeMillis();
+                
+                // Find next X neighbor if any
+                GenericDataPoint nextXDp = dataPoints.values().stream().filter(dpo -> {
+                    return (!Double.isFinite(dp.getDepth()) && !Double.isFinite(dpo.getDepth()) || dp.getDepth() == dpo.getDepth()) && Arrays.equals(nextXIdx, dpo.getIndexesXY())
+//                            && !dpo.getInfo().minDate.after(dp.getInfo().maxDate)
+//                            && !dpo.getInfo().maxDate.before(dp.getInfo().minDate)
+                            ;
+                }).findFirst().orElse(null);
+
+                sb.append("  >> Find next X neighbor in: " + DateTimeUtil.milliSecondsToFormatedString(System.currentTimeMillis() - dtime) + "   was " + nextXDp + "\n");
+                dtime = System.currentTimeMillis();
+                
+                GenericDataPoint nextYDp = dataPoints.values().stream().filter(dpo -> {
+                    return (!Double.isFinite(dp.getDepth()) && !Double.isFinite(dpo.getDepth()) || dp.getDepth() == dpo.getDepth()) && Arrays.equals(nextYIdx, dpo.getIndexesXY())
+//                            && !dpo.getInfo().minDate.after(dp.getInfo().maxDate)
+//                            && !dpo.getInfo().maxDate.before(dp.getInfo().minDate)
+                            ;
+                }).findFirst().orElse(null);
+
+                sb.append("  >> Find next Y neighbor in: " + DateTimeUtil.milliSecondsToFormatedString(System.currentTimeMillis() - dtime) + "   was " + nextYDp + "\n");
+                dtime = System.currentTimeMillis();
+
+                if (nextXDp != null || nextYDp != null) {
+                    sb.append("  >> Processing historical size: " + dp.getHistoricalData().size() + "\n");
+                    
+                    dp.getHistoricalData().stream().forEach(dph -> {
+                        sb.append("      >> Processing elm: " + dph.getDateUTC() + "\n");
+                        long dtime1 = System.currentTimeMillis();
+                        
+                        Date dateTimeTarget = dph.getDateUTC();
+                        double dX = 0;
+                        if (nextXDp != null) {
+                            try {
+                                GenericDataPoint elm = nextXDp.getHistoricalData().stream()
+                                        .filter(e -> e.getDateUTC().equals(dateTimeTarget)).findFirst().orElse(null);
+                                if (elm != null)
+                                    dX = elm.getValue() - dph.getValue();
+                            }
+                            catch (Exception e) {
+                                e.printStackTrace();
+                            }
+
+                            sb.append("      >> Calc elm X in: " + DateTimeUtil.milliSecondsToFormatedString(System.currentTimeMillis() - dtime1) + "\n");
+                            dtime1 = System.currentTimeMillis();
+                        }
+                        double dY = 0;
+                        if (nextYDp != null) {
+                            try {
+                                GenericDataPoint elm = nextYDp.getHistoricalData().stream()
+                                        .filter(e -> e.getDateUTC().equals(dateTimeTarget)).findFirst().orElse(null);
+                                if (elm != null)
+                                    dY = elm.getValue() - dph.getValue();
+                            }
+                            catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            
+                            sb.append("      >> Calc elm Y in: " + DateTimeUtil.milliSecondsToFormatedString(System.currentTimeMillis() - dtime1) + "\n");
+                            dtime1 = System.currentTimeMillis();
+                        }
+                        double gradient = Math.sqrt(dX * dX + dY * dY);
+                        minGradient.accumulate(gradient);
+                        maxGradient.accumulate(gradient);
+                        dph.setGradientValue(gradient);
+                    });
+                    dp.useMostRecent(future);
+                    
+                }
+                sb.append("      >> END in: " + DateTimeUtil.milliSecondsToFormatedString(System.currentTimeMillis() - fTime) + "\n");
+                try {
+                    //FileUtils.write(new File("gradProcee.txt"), sb.toString(), true);
+                }
+                catch (Exception e2) {
+                }
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+            
+            if (minGradient.doubleValue() < Double.MAX_VALUE && maxGradient.doubleValue() > Double.MIN_VALUE) {
+                info.minGradient = minGradient.doubleValue();
+                info.maxGradient = maxGradient.doubleValue();
+                info.validGradientData = true;
+            }
+            // Let us fill the borders of the matrix
+            // TODO
+        });
+        
+        try {
+            FileUtils.write(new File("gradProcee.txt"), ">> END in: " + DateTimeUtil.milliSecondsToFormatedString(System.currentTimeMillis() - ffTime) + "\n", true);
+        }
+        catch (Exception e2) {
+        }
+
+    }
+
     @SuppressWarnings("unused")
     public static void main(String[] args) throws Exception {
         
@@ -740,7 +883,7 @@ public class NetCDFLoader {
             }
             System.out.println();
             
-            HashMap<String, GenericDataPoint> data = processFileForVariable(dataFile, "sla", null);
+            Map<String, GenericDataPoint> data = processFileForVariable(dataFile, "sla", null);
             // data.keySet().stream().forEachOrdered(k -> System.out.println(data.get(k)));
             String[] keys = data.keySet().toArray(new String[0]);
             for (int i = 0; i < Math.min(10, data.size()); i++) {

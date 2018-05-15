@@ -50,11 +50,12 @@ public class GenericDataPoint extends BaseDataPoint<GenericDataPoint> {
         GEO_2D
     }
     
-    private int[] indexesXY = null;
-    
     private double value = 0;
     private double depth = Double.NaN;
 
+    private int[] indexesXY = null;
+    private double gradientValue = Double.NaN;
+    
     private Info info = new Info();
     
     /**
@@ -117,6 +118,20 @@ public class GenericDataPoint extends BaseDataPoint<GenericDataPoint> {
     }
     
     /**
+     * @return the gradientValue
+     */
+    public double getGradientValue() {
+        return gradientValue;
+    }
+    
+    /**
+     * @param gradientValue the gradientValue to set
+     */
+    public void setGradientValue(double gradientValue) {
+        this.gradientValue = gradientValue;
+    }
+    
+    /**
      * @param depth the depth to set
      */
     public void setDepth(double depth) {
@@ -154,6 +169,8 @@ public class GenericDataPoint extends BaseDataPoint<GenericDataPoint> {
         copy.setValue(getValue());
         copy.setDepth(getDepth());
         copy.setInfo(getInfo());
+        copy.setIndexesXY(getIndexesXY());
+        copy.setGradientValue(getGradientValue());
         return copy;
     }
     
@@ -163,6 +180,8 @@ public class GenericDataPoint extends BaseDataPoint<GenericDataPoint> {
         copy.setValue(getValue());
         copy.setDepth(getDepth());
         copy.setInfo(getInfo());
+        copy.setIndexesXY(getIndexesXY());
+        copy.setGradientValue(getGradientValue());
         return copy;
     }
 
@@ -179,6 +198,7 @@ public class GenericDataPoint extends BaseDataPoint<GenericDataPoint> {
             return false;
         Date mostRecentDate = null;
         double mRecentValue = 0;
+        double mRecentGradient = 0;
         int size = historicalData.size();
         for (GenericDataPoint dp : historicalData) {
             if (currentDate.before(dp.dateUTC)) {
@@ -193,16 +213,19 @@ public class GenericDataPoint extends BaseDataPoint<GenericDataPoint> {
                 continue;
             }
             mRecentValue = dp.value;
+            mRecentGradient = dp.gradientValue;
         }
         
         if (size < 1) {
             setValue(Double.NaN);
             setDateUTC(new Date(0));
+            setGradientValue(Double.NaN);
             return false;
         }
         
         setValue(mRecentValue);
         setDateUTC(mostRecentDate);
+        setGradientValue(mRecentGradient);
         
         return true;
     }
@@ -248,9 +271,14 @@ public class GenericDataPoint extends BaseDataPoint<GenericDataPoint> {
         public double minDepth = Double.NaN;
         public double maxDepth = Double.NaN;
         
+        public boolean validGradientData = false;
+        public double minGradient = Double.MIN_VALUE;
+        public double maxGradient = Double.MAX_VALUE;
+        
         public ScalarOrLogPreference scalarOrLogPreference = ScalarOrLogPreference.SCALAR;
 
         public Type type = Type.UNKNOWN;
+        public int[] sizeXY = null;
 
         /* (non-Javadoc)
          * @see java.lang.Object#toString()
