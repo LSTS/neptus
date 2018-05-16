@@ -935,8 +935,8 @@ public class EnvDataPaintHelper {
                     Graphics2D gt = (Graphics2D) g2.create();
                     try {
                         gt.translate(rendererCalculator.getWidth() / 2., rendererCalculator.getHeight() / 2.);
-                        gt.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-                        gt.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
+                        gt.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_DEFAULT);
+                        gt.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_DEFAULT);
                         gt.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
                         gt.drawImage(cacheImg, -(int) (cacheImg.getWidth() / cacheImgScaleX / 2.), 
                                 -(int) (cacheImg.getHeight() / cacheImgScaleY / 2.), 
