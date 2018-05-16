@@ -35,15 +35,21 @@ package pt.lsts.neptus.plugins.envdisp;
 import java.awt.BorderLayout;
 import java.awt.Dialog.ModalityType;
 import java.awt.Graphics2D;
+import java.util.Arrays;
 
 import javax.swing.JDialog;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.neptus.console.ConsoleLayer;
+import pt.lsts.neptus.gui.PropertiesProvider;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusMenuItem;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.envdisp.gui.LayersListPanel;
 import pt.lsts.neptus.plugins.envdisp.painter.GenericNetCDFDataPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
@@ -53,7 +59,7 @@ import pt.lsts.neptus.renderer2d.StateRenderer2D;
  *
  */
 @PluginDescription(name = "netCDF Data Visualization", icon = "pt/lsts/neptus/plugins/envdisp/netcdf-radar.png")
-public class NetCDFDataVisualization extends ConsoleLayer implements ConfigurationListener {
+public class NetCDFDataVisualization extends ConsoleLayer implements PropertiesProvider, ConfigurationListener {
     
     private static final String CATEGORY_TEST = "Test";
 
@@ -65,6 +71,7 @@ public class NetCDFDataVisualization extends ConsoleLayer implements Configurati
     private JDialog dialog = null;
     
     public NetCDFDataVisualization() {
+        layerList = new LayersListPanel(getConsole());
     }
 
     /* (non-Javadoc)
@@ -80,7 +87,6 @@ public class NetCDFDataVisualization extends ConsoleLayer implements Configurati
      */
     @Override
     public void initLayer() {
-        layerList = new LayersListPanel(getConsole());
     }
 
     /* (non-Javadoc)
@@ -123,5 +129,37 @@ public class NetCDFDataVisualization extends ConsoleLayer implements Configurati
         catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.console.AbstractConsolePlugin#getProperties()
+     */
+    @Override
+    public DefaultProperty[] getProperties() {
+        DefaultProperty[] superProps = super.getProperties();
+        DefaultProperty[] layerProps = PluginUtils.getPluginProperties(layerList);
+        DefaultProperty[] ret = Arrays.copyOf(superProps, superProps.length + layerProps.length);
+        for (int i = 0; i < layerProps.length; i++) {
+            ret[superProps.length + i] = layerProps[i]; 
+        }
+        return ret;
+    }
+    
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.console.AbstractConsolePlugin#setProperties(com.l2fprod.common.propertysheet.Property[])
+     */
+    @Override
+    public void setProperties(Property[] properties) {
+        PluginUtils.setPluginProperties(layerList, properties);
+        super.setProperties(properties);
+    }
+    
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.console.AbstractConsolePlugin#propertiesChanged()
+     */
+    @Override
+    public void propertiesChanged() {
+        layerList.propertiesChanged();
+        super.propertiesChanged();
     }
 }

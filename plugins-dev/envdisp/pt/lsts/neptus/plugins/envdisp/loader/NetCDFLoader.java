@@ -93,9 +93,13 @@ public class NetCDFLoader {
      * @param dataFile
      * @param varName
      * @param dateLimit If null no filter for time is done
+     * @param latDegMinMax If null no filter is applied
+     * @param lonDegMinMax If null no filter is applied
+     * @param depthMinMax If null no filter is applied
      * @return
      */
-    public static final Map<String, GenericDataPoint> processFileForVariable(NetcdfFile dataFile, String varName, Date dateLimit) {
+    public static final Map<String, GenericDataPoint> processFileForVariable(NetcdfFile dataFile, String varName, Date dateLimit,
+             Pair<Double, Double> latDegMinMax, Pair<Double, Double> lonDegMinMax, Pair<Double, Double> depthMinMax) {
         boolean ignoreDateLimitToLoad = false;
         if (dateLimit == null)
             ignoreDateLimitToLoad = true;
@@ -387,11 +391,8 @@ public class NetCDFLoader {
                             || !NetCDFUtils.isValueValid(lon, lonFillValue, lonValidRange)) {
                         NeptusLog.pub().debug(
                                 String.format("While processing %s found invalid values for lat or lon!", varName));
-                        
-                        // Gradient calculation
                         fillGradient(calculateGradient, gradBuffer, gradShape, xyGrad3DimCounter, minGradient,
                                 maxGradient, minLonXDelta, minLatYDelta, counter, null);
-                        
                         continue;
                     }
                     
@@ -408,6 +409,35 @@ public class NetCDFLoader {
                         depth = NetCDFUnitsUtils.getValueForMetterFromTempUnits(depth, depthVar.getUnitsString());
                     }
 
+                    // Check limits passed
+                    boolean checkLimitsLatOk = true;
+                    boolean checkLimitsLonOk = true;
+                    boolean checkLimitsDepthOk = true;
+                    if (latDegMinMax != null
+                            && (Double.isFinite(latDegMinMax.first()) && Double.compare(lat, latDegMinMax.first()) < 0
+                                    || Double.isFinite(latDegMinMax.second())
+                                            && Double.compare(lat, latDegMinMax.second()) > 0))
+                        checkLimitsLatOk = false;
+                    if (lonDegMinMax != null
+                            && (Double.isFinite(lonDegMinMax.first()) && Double.compare(lon, lonDegMinMax.first()) < 0
+                                    || Double.isFinite(lonDegMinMax.second())
+                                            && Double.compare(lon, lonDegMinMax.second()) > 0))
+                        checkLimitsLonOk = false;
+                    if (Double.isFinite(depth) && depthMinMax != null
+                            && (Double.isFinite(depthMinMax.first()) && Double.compare(depth, depthMinMax.first()) < 0
+                                    || Double.isFinite(depthMinMax.second())
+                                            && Double.compare(depth, depthMinMax.second()) > 0))
+                        checkLimitsDepthOk = false;
+                    if (!checkLimitsLatOk || !checkLimitsLonOk || !checkLimitsDepthOk) {
+                        NeptusLog.pub().debug(String.format(
+                                "While processing %s found a valid value outside passed limits (lat:%s, lon:%s, depth:%s)!",
+                                varName, checkLimitsLatOk ? "ok" : "rejected", checkLimitsLonOk ? "ok" : "rejected",
+                                checkLimitsDepthOk ? "ok" : "rejected"));
+                        fillGradient(calculateGradient, gradBuffer, gradShape, xyGrad3DimCounter, minGradient,
+                                maxGradient, minLonXDelta, minLatYDelta, counter, null);
+                        continue;
+                    }
+                    
                     Index index = vArray.getIndex();
                     index.set(counter);
 
@@ -479,12 +509,10 @@ public class NetCDFLoader {
                         if (!alreadyIn)
                             dpo.getHistoricalData().add(dp);
 
-                        // Gradient calculation
                         fillGradient(calculateGradient, gradBuffer, gradShape, xyGrad3DimCounter, minGradient,
                                 maxGradient, minLonXDelta, minLatYDelta, counter, dp);
                     }
                     else {
-                        // Gradient calculation
                         fillGradient(calculateGradient, gradBuffer, gradShape, xyGrad3DimCounter, minGradient,
                                 maxGradient, minLonXDelta, minLatYDelta, counter, null);
                     }
@@ -823,12 +851,19 @@ public class NetCDFLoader {
      * @param dataFile
      * @param varName
      * @param plotUniqueId
+     * @param dateLimit If null no filter is applied
+     * @param latDegMinMax If null no filter is applied
+     * @param lonDegMinMax If null no filter is applied
+     * @param depthMinMax If null no filter is applied
      * @return
      */
-    public static Future<GenericNetCDFDataPainter> loadNetCDFPainterFor(String filePath, NetcdfFile dataFile, String varName, long plotUniqueId) {
+    public static Future<GenericNetCDFDataPainter> loadNetCDFPainterFor(String filePath, NetcdfFile dataFile,
+            String varName, long plotUniqueId, Date dateLimit, Pair<Double, Double> latDegMinMax,
+            Pair<Double, Double> lonDegMinMax, Pair<Double, Double> depthMinMax) {
         FutureTask<GenericNetCDFDataPainter> fTask = new FutureTask<>(() -> {
             try {
-                Map<String, GenericDataPoint> dataPoints = NetCDFLoader.processFileForVariable(dataFile, varName, null);
+                Map<String, GenericDataPoint> dataPoints = NetCDFLoader.processFileForVariable(dataFile, varName,
+                        dateLimit, latDegMinMax, lonDegMinMax, depthMinMax);
                 GenericNetCDFDataPainter gDataViz = new GenericNetCDFDataPainter(plotUniqueId, dataPoints);
                 gDataViz.setNetCDFFile(filePath);
                 return gDataViz;
@@ -860,7 +895,7 @@ public class NetCDFLoader {
             }
             System.out.println();
             
-            Map<String, GenericDataPoint> data = processFileForVariable(dataFile, "sla", null);
+            Map<String, GenericDataPoint> data = processFileForVariable(dataFile, "sla", null, null, null, null);
             // data.keySet().stream().forEachOrdered(k -> System.out.println(data.get(k)));
             String[] keys = data.keySet().toArray(new String[0]);
             for (int i = 0; i < Math.min(10, data.size()); i++) {
