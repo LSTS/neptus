@@ -63,6 +63,7 @@ import javax.swing.event.ChangeListener;
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.colormap.ColorBarPainter;
 import pt.lsts.neptus.colormap.ColorMap;
+import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.gui.ColorMapListRenderer;
 import pt.lsts.neptus.gui.swing.RangeSlider;
 import pt.lsts.neptus.gui.swing.SpinnerIsAdjustingUI;
@@ -320,6 +321,7 @@ public class VizConfigPanel extends JPanel {
         DoubleAccumulator savedGradMaxValue = new DoubleAccumulator((o, n) -> n, viz.getInfo().maxGradient);
         ColorMap[] valAndGradColorMap = new ColorMap[2];
         Arrays.fill(valAndGradColorMap, null);
+        valAndGradColorMap[1] = ColorMapFactory.getColorMapByName("CMOCEAN_amp.cpt");
         gradientButton = new JCheckBox(I18n.text("Gradient"));
         if (!viz.getInfo().validGradientData)
             gradientButton.setEnabled(false);

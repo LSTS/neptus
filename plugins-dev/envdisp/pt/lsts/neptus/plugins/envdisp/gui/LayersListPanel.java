@@ -87,11 +87,12 @@ public class LayersListPanel extends JPanel {
     private JPanel holder;
     private JPanel buttonBarPanel;
     private JScrollPane scrollHolder;
-    private JButton addButton;
     private JXBusyLabel busyPanel;
     
+    private JButton addButton;
     private AbstractAction addAction;
-    
+    private JButton hideAllButton;
+    private AbstractAction hideAllAction;
 
     public LayersListPanel() {
         this(null);
@@ -112,14 +113,17 @@ public class LayersListPanel extends JPanel {
         JLabel logoLabel = new JLabel(LOGOIMAGE_ICON);
         buttonBarPanel.add(logoLabel);
         
-        Dimension buttonDimension = new Dimension(80, 30);
-        addButton = new JButton(addAction);
-        addButton.setSize(buttonDimension);
-        buttonBarPanel.add(addButton);
-
         busyPanel = InfiniteProgressPanel.createBusyAnimationInfiniteBeans(20);
         busyPanel.setVisible(false);
         buttonBarPanel.add(busyPanel);
+        
+        Dimension buttonDimension = new Dimension(80, 30);
+        addButton = new JButton(addAction);
+        addButton.setSize(buttonDimension);
+        buttonBarPanel.add(addButton, "sg button");
+
+        hideAllButton = new JButton(hideAllAction);
+        buttonBarPanel.add(hideAllButton, "sg button");
         
         add(buttonBarPanel, "w 100%");
 
@@ -195,6 +199,12 @@ public class LayersListPanel extends JPanel {
             }
         };
 
+        hideAllAction = new AbstractAction(I18n.text("Hide All")) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                getAllVizConfigPanels().forEach(p -> p.setVizVisible(false));
+            }
+        };
     }
 
     private void setBusy(boolean busy) {
@@ -223,15 +233,21 @@ public class LayersListPanel extends JPanel {
      * @return the varLayersList
      */
     public List<GenericNetCDFDataPainter> getVarLayersList() {
-        return Stream.of(holder.getComponents()).filter(c -> c instanceof VizConfigPanel)
-                .map(c -> ((VizConfigPanel) c).getViz()).collect(Collectors.toList());
+        return getAllVizConfigPanels().map(c -> c.getViz()).collect(Collectors.toList());
     }
     
+    /**
+     * @return
+     */
+    private Stream<VizConfigPanel> getAllVizConfigPanels() {
+        return Stream.of(holder.getComponents()).filter(c -> c instanceof VizConfigPanel).map(c -> (VizConfigPanel) c);
+    }
+
     private void addVisualizationLayer(GenericNetCDFDataPainter viz) {
         new VizConfigPanel(holder, viz);
     }
 
     public static void main(String[] args) {
-        GuiUtils.testFrame(new LayersListPanel(), "", 600, 300);
+        GuiUtils.testFrame(new LayersListPanel(), "", 620, 350);
     }
 }
