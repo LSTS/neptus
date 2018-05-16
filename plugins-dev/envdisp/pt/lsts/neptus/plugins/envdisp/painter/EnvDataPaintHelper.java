@@ -80,6 +80,7 @@ import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.ColorUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
+import pt.lsts.neptus.util.MovingAverage;
 import pt.lsts.neptus.util.UnitsUtil;
 import pt.lsts.neptus.util.coord.MapTileRendererCalculator;
 
@@ -1144,6 +1145,9 @@ public class EnvDataPaintHelper {
         double xMin = xMinStartValue;
         double yMin = yMinStartValue;
         
+        MovingAverage maX = new MovingAverage((short) (points.size() * 0.1));
+        MovingAverage maY = new MovingAverage((short) (points.size() * 0.1));
+        
         ArrayList<Point2D> pointsXSorted = new ArrayList<>(points);
         pointsXSorted.sort((p, o) -> Double.compare(p.getX(), o.getX()));
 
@@ -1161,7 +1165,9 @@ public class EnvDataPaintHelper {
                 continue;
             
             double d = Math.abs(po.getX() - p.getX());
+            maX.update(d);
             xMin = d < xMin ? d : xMin;
+            po = p;
         }
 
         po = null;
@@ -1175,10 +1181,15 @@ public class EnvDataPaintHelper {
                 continue;
             
             double d = Math.abs(po.getY() - p.getY());
+            maY.update(d);
             yMin = d < yMin ? d : yMin;
+            po = p;
         }
         
-        return new Pair<Double, Double>(xMin, yMin);
+        System.out.println(String.format("MinMax %f x %f   with avg %f x %f  stddev %f x %f", xMin, yMin, maX.mean(), maY.mean(), maX.stdev(), maY.stdev()));
+        
+        // return new Pair<Double, Double>(xMin, yMin);
+        return new Pair<Double, Double>(maX.mean() + maX.stdev(), maY.mean() + maY.stdev());
     }
     
     /**
