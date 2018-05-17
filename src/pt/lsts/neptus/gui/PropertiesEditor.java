@@ -119,15 +119,7 @@ public class PropertiesEditor {
         return editPropertiesWorker(provider, null, editable);
 	}
 	
-	public static boolean editProperties(PropertiesProvider provider, Dialog parent, boolean editable) {
-		 return editPropertiesWorker(provider, parent, editable);
-    }
-
-    public static boolean editProperties(PropertiesProvider provider, Frame parent, boolean editable) {
-    	 return editPropertiesWorker(provider, parent, editable);
-    }
-
-    public static boolean editProperties(PropertiesProvider provider, Window parent, boolean editable) {
+    public static <P extends Window> boolean editProperties(PropertiesProvider provider, P parent, boolean editable) {
     	 return editPropertiesWorker(provider, parent, editable);
     }
     

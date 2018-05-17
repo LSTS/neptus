@@ -765,7 +765,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
 
                         if (showCurrents) {
                             try {
-                                EnvDataPaintHelper.paintHFRadarInGraphics(rendererCalculator, g2, dateColorLimit, dateLimit, dataPointsCurrents,
+                                EnvDataPaintHelper.paintHFRadarInGraphics(rendererCalculator, g2, 128, dateColorLimit, dateLimit, dataPointsCurrents,
                                         ignoreDateLimitToLoad, offScreen.getOffScreenBufferPixel(), colorMapCurrents, 0, maxCurrentCmS,
                                         showCurrentsLegend, showCurrentsLegendFromZoomLevel, font8Pt, showDataDebugLegend, abortIndicator);
                             }
@@ -776,7 +776,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
                         }
                         if (showSST) {
                             try {
-                                EnvDataPaintHelper.paintSSTInGraphics(rendererCalculator, g2, dateColorLimit, dateLimit, dataPointsSST, ignoreDateLimitToLoad,
+                                EnvDataPaintHelper.paintSSTInGraphics(rendererCalculator, g2, 128, dateColorLimit, dateLimit, dataPointsSST, ignoreDateLimitToLoad,
                                         offScreen.getOffScreenBufferPixel(), colorMapSST, minSST, maxSST, showSSTLegend,
                                         showSSTLegendFromZoomLevel, font8Pt, showDataDebugLegend, abortIndicator);
                             }
@@ -787,7 +787,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
                         }
                         if (showChlorophyll) {
                             try {
-                                EnvDataPaintHelper.paintChlorophyllInGraphics(rendererCalculator, g2, dateColorLimit, dateLimit, dataPointsChlorophyll, ignoreDateLimitToLoad,
+                                EnvDataPaintHelper.paintChlorophyllInGraphics(rendererCalculator, g2, 128, dateColorLimit, dateLimit, dataPointsChlorophyll, ignoreDateLimitToLoad,
                                         offScreen.getOffScreenBufferPixel(), colorMapChlorophyll, minChlorophyll, maxChlorophyll, showChlorophyllLegend,
                                         showChlorophyllLegendFromZoomLevel, font8Pt, showDataDebugLegend, abortIndicator);
                             }
@@ -798,7 +798,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
                         }
                         if (showWind) {
                             try {
-                                EnvDataPaintHelper.paintWindInGraphics(rendererCalculator, g2, dateColorLimit, dateLimit, dataPointsWind, ignoreDateLimitToLoad,
+                                EnvDataPaintHelper.paintWindInGraphics(rendererCalculator, g2, 128, dateColorLimit, dateLimit, dataPointsWind, ignoreDateLimitToLoad,
                                         offScreen.getOffScreenBufferPixel(), useColorMapForWind, colorMapWind, 0, maxWind, font8Pt,
                                         showDataDebugLegend, abortIndicator);
                             }
@@ -809,7 +809,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
                         }
                         if (showWaves) {
                             try {
-                                EnvDataPaintHelper.paintWavesInGraphics(rendererCalculator, g2, dateColorLimit, dateLimit, dataPointsWaves, ignoreDateLimitToLoad,
+                                EnvDataPaintHelper.paintWavesInGraphics(rendererCalculator, g2, 128, dateColorLimit, dateLimit, dataPointsWaves, ignoreDateLimitToLoad,
                                         offScreen.getOffScreenBufferPixel(), colorMapWaves, 0, maxWaves, showWavesLegend,
                                         showWavesLegendFromZoomLevel, font8Pt, showDataDebugLegend, abortIndicator);
                             }
@@ -852,7 +852,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
             counter--;
             Graphics2D gl = (Graphics2D) go.create();
             gl.translate(offsetWidth, offsetHeight);
-            ColorBarPainterUtil.paintColorBar(gl, renderer, colorMapCurrents, I18n.text("Currents"), "cm/s", 0, maxCurrentCmS);
+            ColorBarPainterUtil.paintColorBar(gl, colorMapCurrents, I18n.text("Currents"), "cm/s", 0, maxCurrentCmS);
             gl.dispose();
             offsetHeight += offsetDelta;
         }
@@ -860,7 +860,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
             counter--;
             Graphics2D gl = (Graphics2D) go.create();
             gl.translate(offsetWidth, offsetHeight);
-            ColorBarPainterUtil.paintColorBar(gl, renderer, colorMapSST, I18n.text("SST"), "\u00B0C", minSST, maxSST);
+            ColorBarPainterUtil.paintColorBar(gl, colorMapSST, I18n.text("SST"), "\u00B0C", minSST, maxSST);
             gl.dispose();
             offsetHeight += offsetDelta;
         }
@@ -868,7 +868,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
             counter--;
             Graphics2D gl = (Graphics2D) go.create();
             gl.translate(offsetWidth, offsetHeight);
-            ColorBarPainterUtil.paintColorBar(gl, renderer, colorMapWind, I18n.text("Wind"), "kn", 0, maxWind);
+            ColorBarPainterUtil.paintColorBar(gl, colorMapWind, I18n.text("Wind"), "kn", 0, maxWind);
             gl.dispose();
             offsetHeight += offsetDelta;
         }
@@ -876,7 +876,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
             counter--;
             Graphics2D gl = (Graphics2D) go.create();
             gl.translate(offsetWidth, offsetHeight);
-            ColorBarPainterUtil.paintColorBar(gl, renderer, colorMapWaves, I18n.text("Waves"), "m", 0, maxWaves);
+            ColorBarPainterUtil.paintColorBar(gl, colorMapWaves, I18n.text("Waves"), "m", 0, maxWaves);
             gl.dispose();
             offsetHeight += offsetDelta;
         }
@@ -884,7 +884,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
             counter--;
             Graphics2D gl = (Graphics2D) go.create();
             gl.translate(offsetWidth, offsetHeight);
-            ColorBarPainterUtil.paintColorBar(gl, renderer, colorMapChlorophyll, I18n.text("Chlorophyll"), "mg/m\u00B3", minChlorophyll, maxChlorophyll);
+            ColorBarPainterUtil.paintColorBar(gl, colorMapChlorophyll, I18n.text("Chlorophyll"), "mg/m\u00B3", minChlorophyll, maxChlorophyll);
             gl.dispose();
             offsetHeight += offsetDelta;
         }

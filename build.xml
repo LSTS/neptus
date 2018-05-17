@@ -667,6 +667,10 @@ For simple use the main targets are:
 				<include name="totd.xml" />
 				<include name="**/*.properties" />
 				<include name="colormaps/**/*.colormap" />
+				<include name="colormaps/**/*.act" />
+				<include name="colormaps/**/*.gct" />
+				<include name="colormaps/**/*.rgb" />
+				<include name="colormaps/**/*.cpt" />
 				<include name="schemas/**/*.xsd" />
 				<include name="sounds/*" />
 				<include name="**/*.gz" />
@@ -714,6 +718,10 @@ For simple use the main targets are:
 				<include name="totd.xml" />
 				<include name="**/*.properties" />
 				<include name="colormaps/**/*.colormap" />
+				<include name="colormaps/**/*.act" />
+				<include name="colormaps/**/*.gct" />
+				<include name="colormaps/**/*.rgb" />
+				<include name="colormaps/**/*.cpt" />
 				<include name="schemas/**/*.xsd" />
 				<include name="sounds/*" />
 				<include name="**/*.gz" />

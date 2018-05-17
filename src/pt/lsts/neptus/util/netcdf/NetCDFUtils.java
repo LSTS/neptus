@@ -32,15 +32,25 @@
  */
 package pt.lsts.neptus.util.netcdf;
 
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.data.Pair;
 import ucar.ma2.Array;
+import ucar.ma2.Index;
 import ucar.nc2.Attribute;
+import ucar.nc2.Dimension;
+import ucar.nc2.Group;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
@@ -51,14 +61,22 @@ import ucar.nc2.Variable;
 public class NetCDFUtils {
 
     public static final String NETCDF_ATT_STANDARD_NAME = "standard_name";
+    public static final String NETCDF_ATT_LONG_NAME = "long_name";
     public static final String NETCDF_ATT_FILL_VALUE = "_FillValue";
     public static final String NETCDF_ATT_MISSING_VALUE = "missing_value";
     public static final String NETCDF_ATT_VALID_RANGE = "valid_range";
     public static final String NETCDF_ATT_VALID_MIN = "valid_min";
     public static final String NETCDF_ATT_VALID_MAX = "valid_max";
     public static final String NETCDF_ATT_UNITS = "units";
+    public static final String NETCDF_ATT_UNIT_LONG = "unit_long";
     public static final String NETCDF_ATT_SCALE_FACTOR = "scale_factor";
     public static final String NETCDF_ATT_ADD_OFFSET = "add_offset";
+    public static final String NETCDF_ATT_COMMENT = "comment";
+    public static final String NETCDF_ATT_AXIS = "axis";
+    public static final String NETCDF_ATT_STEP = "step";
+    
+    public static final String NETCDF_GRP_NAVIGATION_DATA = "navigation_data";
+    public static final String NETCDF_GRP_GEOPHYSICAL_DATA = "geophysical_data";
 
     /**
      * Counts the evolution of a multi-for loop variables counters.
@@ -102,12 +120,82 @@ public class NetCDFUtils {
      */
     public static Date[] getTimeValues(Array timeArray, int timeIdx, double timeMultiplier, double timeOffset,
             Date fromDate, Date toDate, boolean ignoreDateLimitToLoad, Date dateLimit) {
-        double timeVal = timeArray.getDouble(timeIdx); // get(timeIdx);
+        return getTimeValues(timeArray, new int[] { timeIdx }, timeMultiplier, timeOffset, fromDate, toDate,
+                ignoreDateLimitToLoad, dateLimit);
+    }
+
+    /**
+     * @param timeArray
+     * @param timeIdx
+     * @param timeMultiplier
+     * @param timeOffset
+     * @param fromDate
+     * @param toDate
+     * @param ignoreDateLimitToLoad
+     * @param dateLimit
+     * @return
+     */
+    public static Date[] getTimeValues(Array timeArray, int[] timeIdx, double timeMultiplier, double timeOffset,
+            Date fromDate, Date toDate, boolean ignoreDateLimitToLoad, Date dateLimit) {
+        Index index = timeArray.getIndex();
+        index.set(timeIdx);
+        double timeVal = timeArray.getDouble(index); // get(timeIdx);
         Date dateValue = new Date((long) (timeVal * timeMultiplier + timeOffset));
         
         if (!ignoreDateLimitToLoad && dateValue.before(dateLimit))
             return null;
         
+        return getDatesAndDateLimits(dateValue, fromDate, toDate);
+    }
+    
+    /**
+     * @param dataFile
+     * @return
+     */
+    public static Date[] getTimeValuesByGlobalAttributes(NetcdfFile dataFile, Date fromDate, Date toDate,
+            boolean ignoreDateLimitToLoad, Date dateLimit) {
+        List<String> candidateAtts = new ArrayList<>();
+        candidateAtts.add("date_created");
+        candidateAtts.add("time_coverage_end");
+        candidateAtts.add("creation_time");
+        candidateAtts.add("stop_time");
+        candidateAtts.add("end_time");
+        candidateAtts.add("time_coverage_start");
+        candidateAtts.add("start_time");
+        
+        for (String str : candidateAtts) {
+            Attribute dateCreatedAtt = dataFile.findAttribute(str);
+            if (dateCreatedAtt != null) {
+                String dateStr = dateCreatedAtt.getStringValue();
+                try {
+                    DateTimeFormatter timeFormatter = DateTimeFormatter.ISO_DATE_TIME;
+                    TemporalAccessor ta = timeFormatter.parse(dateStr);
+                    Date date = Date.from(Instant.from(ta));
+                    if (date == null)
+                        continue;
+                    
+                    if (!ignoreDateLimitToLoad && date.before(dateLimit))
+                        return null;
+                    Date[] timeVals = NetCDFUtils.getDatesAndDateLimits(date, fromDate, toDate);
+                    return timeVals;
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().debug(e.getMessage());
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Takes the dateValue and adjusts the from and to date with this date.
+     * 
+     * @param dateValue
+     * @param fromDate
+     * @param toDate
+     * @return A date array [dateValue, fromDate, toDate]
+     */
+    public static Date[] getDatesAndDateLimits(Date dateValue, Date fromDate, Date toDate) {
         if (fromDate == null) {
             fromDate = dateValue;
         }
@@ -160,7 +248,7 @@ public class NetCDFUtils {
      * @param validRange
      * @return
      */
-    public static boolean isValueValid(double value, double fillValue,Pair<Double, Double> validRange) {
+    public static boolean isValueValid(double value, double fillValue, Pair<Double, Double> validRange) {
         if (!Double.isNaN(value) && value != fillValue) {
             if (validRange != null && !Double.isNaN(validRange.first()) && !Double.isNaN(validRange.second())) {
                 if (value >= validRange.first() && value <= validRange.second())
@@ -283,9 +371,22 @@ public class NetCDFUtils {
      */
     public static Pair<String, Variable> findVariableForStandardNameOrName(NetcdfFile dataFile, String fileNameForErrorString,
             boolean failIfNotFound, String... varStName) {
-        Pair<String, Variable> ret = findVariableForStandardName(dataFile, fileNameForErrorString, false, varStName);
+        return findVariableForStandardNameOrName(dataFile, fileNameForErrorString, failIfNotFound, null, varStName);
+    }
+
+    /**
+     * @param dataFile
+     * @param fileNameForErrorString
+     * @param failIfNotFound
+     * @param dimStringList A list of dimensions that the dimensions of var must be contain in (null or empty list for don't care).
+     * @param varStName
+     * @return
+     */
+    public static Pair<String, Variable> findVariableForStandardNameOrName(NetcdfFile dataFile, String fileNameForErrorString,
+            boolean failIfNotFound, List<String> dimStringList, String... varStName) {
+        Pair<String, Variable> ret = findVariableForStandardName(dataFile, fileNameForErrorString, false, dimStringList, varStName);
         if (ret == null)
-            ret = findVariableFor(dataFile, fileNameForErrorString, failIfNotFound, varStName);
+            ret = findVariableFor(dataFile, fileNameForErrorString, failIfNotFound, dimStringList, varStName);
         
         return ret;
     }
@@ -299,16 +400,43 @@ public class NetCDFUtils {
      */
     public static Pair<String, Variable> findVariableFor(NetcdfFile dataFile, String fileNameForErrorString,
             boolean failIfNotFound, String... varName) {
+        return findVariableFor(dataFile, fileNameForErrorString, failIfNotFound, null, varName);
+    }
+    
+    /**
+     * @param dataFile
+     * @param fileNameForErrorString
+     * @param failIfNotFound
+     * @param dimStringList A list of dimensions that the dimensions of var must be contain in (null or empty list for don't care).
+     * @param varName
+     * @return
+     */
+    public static Pair<String, Variable> findVariableFor(NetcdfFile dataFile, String fileNameForErrorString,
+            boolean failIfNotFound, List<String> dimStringList, String... varName) {
         String name = "";
-        Variable latVar = null;
+        Variable vVar = null;
         for (String st : varName) {
-            latVar = dataFile.findVariable(st);
-            if (latVar != null) {
+            vVar = dataFile.findVariable(null, st);
+            if (vVar != null && !dimentionsContainedIn(vVar, dimStringList))
+                vVar = null;
+            if (vVar == null) {
+                Group rootGroup = dataFile.getRootGroup();
+                vVar = dataFile.findVariable(rootGroup, st);
+                if (vVar != null && !dimentionsContainedIn(vVar, dimStringList))
+                    vVar = null;
+                if (vVar == null) {
+                    vVar = findVariableForGroup(rootGroup, dimStringList, st);
+                    if (vVar != null && !dimentionsContainedIn(vVar, dimStringList))
+                        vVar = null;
+                }
+            }
+
+            if (vVar != null) {
                 name = st;
                 break;
             }
         }
-        if (latVar == null) {
+        if (vVar == null) {
             String message = "Can't find variable '" + Arrays.toString(varName) + "' for netCDF file '"
                     + fileNameForErrorString + "'.";
             if (failIfNotFound) {
@@ -319,21 +447,101 @@ public class NetCDFUtils {
                 return null;
             }
         }
-        return new Pair<String, Variable>(name, latVar);
+        return new Pair<String, Variable>(name, vVar);
     }
 
+    /**
+     * @param vVar
+     * @param dimStringList
+     * @return
+     */
+    private static boolean dimentionsContainedIn(Variable vVar, List<String> dimStringList) {
+        if (dimStringList == null || dimStringList.isEmpty())
+            return true;
+        if (vVar == null)
+            return false;
+        
+        List<Dimension> vDimsLst = vVar.getDimensions();
+        for (Dimension d : vDimsLst) {
+            if(!dimStringList.stream().anyMatch(s -> s.equalsIgnoreCase(d.getShortName())))
+                return false;
+        }
+        
+        return true;
+    }
+
+    /**
+     * @param group
+     * @param dimStringList A list of dimensions that the dimensions of var must be contain in (null or empty list for don't care).
+     * @param varName
+     * @return
+     */
+    public static Variable findVariableForGroup(Group group, List<String> dimStringList, String... varName) {
+        for (String vN : varName) {
+            Variable vVar = group.findVariable(vN);
+            if (vVar != null && !dimentionsContainedIn(vVar, dimStringList))
+                vVar = null;
+            if (vVar != null)
+                return vVar;
+            List<Group> groups = group.getGroups();
+            if (groups == null || groups.isEmpty())
+                continue;
+            for (Group g : groups) {
+                vVar = findVariableForGroup(g, dimStringList, vN);
+                if (vVar != null && !dimentionsContainedIn(vVar, dimStringList))
+                    vVar = null;
+                if (vVar != null)
+                    return vVar;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @param dataFile
+     * @param fileNameForErrorString
+     * @param failIfNotFound
+     * @param varName
+     * @return
+     */
     public static Pair<String, Variable> findVariableForStandardName(NetcdfFile dataFile, String fileNameForErrorString,
             boolean failIfNotFound, String... varName) {
+        return findVariableForStandardName(dataFile, fileNameForErrorString, failIfNotFound, null, varName);
+    }
+    
+    /**
+     * @param dataFile
+     * @param fileNameForErrorString
+     * @param failIfNotFound
+     * @param dimStringList A list of dimensions that the dimensions of var must be contain in (null or empty list for don't care).
+     * @param varName
+     * @return
+     */
+    public static Pair<String, Variable> findVariableForStandardName(NetcdfFile dataFile, String fileNameForErrorString,
+            boolean failIfNotFound, List<String> dimStringList, String... varName) {
         String name = "";
-        Variable latVar = null;
+        Variable vVar = null;
         for (String st : varName) {
-            latVar = dataFile.findVariableByAttribute(null, NETCDF_ATT_STANDARD_NAME, st);
-            if (latVar != null) {
-                name = latVar.getShortName();
+            vVar = dataFile.findVariableByAttribute(null, NETCDF_ATT_STANDARD_NAME, st);
+            if (vVar != null && !dimentionsContainedIn(vVar, dimStringList))
+                vVar = null;
+            if (vVar == null) {
+                Group rootGroup = dataFile.getRootGroup();
+                vVar = dataFile.findVariableByAttribute(rootGroup, NETCDF_ATT_STANDARD_NAME, st);
+                if (vVar != null && !dimentionsContainedIn(vVar, dimStringList))
+                    vVar = null;
+                if (vVar == null) {
+                    vVar = findVariableWithAttributeForGroup(dataFile, rootGroup, dimStringList, NETCDF_ATT_STANDARD_NAME, st);
+                    if (vVar != null && !dimentionsContainedIn(vVar, dimStringList))
+                        vVar = null;
+                }
+            }
+            if (vVar != null) {
+                name = vVar.getShortName();
                 break;
             }
         }
-        if (latVar == null) {
+        if (vVar == null) {
             String message = "Can't find variable standard name '" + Arrays.toString(varName) + "' for netCDF file '"
                     + fileNameForErrorString + "'.";
             if (failIfNotFound) {
@@ -344,7 +552,64 @@ public class NetCDFUtils {
                 return null;
             }
         }
-        return new Pair<String, Variable>(name, latVar);
+        return new Pair<String, Variable>(name, vVar);
+    }
+
+    /**
+     * @param dataFile
+     * @param group
+     * @param dimStringList A list of dimensions that the dimensions of var must be contain in (null or empty list for don't care).
+     * @param attName
+     * @param varName
+     * @return
+     */
+    public static Variable findVariableWithAttributeForGroup(NetcdfFile dataFile, Group group,
+            List<String> dimStringList, String attName, String... varName) {
+        for (String vN : varName) {
+            Variable vVar = dataFile.findVariableByAttribute(group, attName, vN);
+            if (vVar != null && !dimentionsContainedIn(vVar, dimStringList))
+                vVar = null;
+            if (vVar != null)
+                return vVar;
+            List<Group> groups = group.getGroups();
+            if (groups == null || groups.isEmpty())
+                continue;
+            for (Group g : groups) {
+                vVar = findVariableWithAttributeForGroup(dataFile, g, dimStringList, attName, vN);
+                if (vVar != null && !dimentionsContainedIn(vVar, dimStringList))
+                    vVar = null;
+                if (vVar != null)
+                    return vVar;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @param dataFile
+     * @param minDimension
+     * @return
+     */
+    public static Map<String, Variable> getVariables(NetcdfFile dataFile, int minDimension) {
+        Map<String, Variable> ret = new HashMap<>();
+        List<Variable> vars = dataFile.getVariables();
+        for (Variable v : vars) {
+            if (v.getDimensions().size() >= minDimension) {
+                String name = v.getShortName();
+                ret.put(name, v);
+            }
+        }
+        return ret;
+    }
+
+    /**
+     * Returns the variables with dimension at least 2.
+     * 
+     * @param dataFile
+     * @return
+     */
+    public static Map<String, Variable> getMultiDimensionalVariables(NetcdfFile dataFile) {
+        return getVariables(dataFile, 2);
     }
 
     /**
@@ -353,7 +618,7 @@ public class NetCDFUtils {
      * @return
      */
     public static Map<String, Integer> getIndexesForVar(String dimStr, String... name) {
-        HashMap<String, Integer> ret = new HashMap<>();
+        Map<String, Integer> ret = new LinkedHashMap<>();
         if (dimStr == null || dimStr.length() == 0)
             return ret;
         
@@ -370,6 +635,41 @@ public class NetCDFUtils {
         }
     
         return ret;
+    }
+
+    /**
+     * @param varCollumsIndexMap
+     * @param dimensionsBase
+     * @param dimensionsVar
+     * @return
+     */
+    public static Map<String, Integer> getMissingIndexesForVarTryMatchDimSize(Map<String, Integer> varCollumsIndexMap,
+            List<Dimension> dimensionsBase, List<Dimension> dimensionsVar) {
+        List<Dimension> dimBaseNotUsed = dimensionsBase.stream()
+                .filter(d -> !dimensionsVar.stream().anyMatch(o -> d.getShortName().equalsIgnoreCase(o.getShortName())))
+                .collect(Collectors.toList());
+
+        for (String dimStr : varCollumsIndexMap.keySet()) {
+            if (varCollumsIndexMap.get(dimStr) >= 0)
+                continue;
+            
+            Dimension dimForStr = dimensionsVar.stream().filter(d -> dimStr.equalsIgnoreCase(d.getShortName()))
+                    .findFirst().orElse(null);
+            
+            if (dimForStr == null)
+                continue;
+            
+            Dimension dimCandidateFound = dimBaseNotUsed.stream().filter(d -> d.getLength() == dimForStr.getLength())
+                    .findFirst().orElse(null);
+            
+            if (dimCandidateFound != null) {
+                int idx = dimensionsBase.indexOf(dimCandidateFound);
+                varCollumsIndexMap.put(dimStr, idx);
+                dimBaseNotUsed.remove(dimCandidateFound);
+            }
+        }
+        
+        return varCollumsIndexMap;
     }
 
     /**
@@ -395,6 +695,22 @@ public class NetCDFUtils {
                     + "') for netCDF file '" + fileNameForErrorString + "'.");
         }
         return multAndOffset;
+    }
+
+
+    /**
+     * @param varToConsider
+     * @param varNames
+     */
+    public static void filterForVarsWithDimentionsWith(Map<String, Variable> varToConsider, String... varNames) {
+        for (String k : varToConsider.keySet().toArray(new String[varToConsider.size()])) {
+            Variable var = varToConsider.get(k);
+            String dimStr = var.getDimensionsString();
+            for (String nm : varNames) {
+                if (!dimStr.contains(nm))
+                    varToConsider.remove(k);
+            }
+        }
     }
 
     public static void main(String[] args) throws Exception {

@@ -33,30 +33,33 @@
 package pt.lsts.neptus.colormap;
 
 import java.awt.Color;
+import java.util.ArrayList;
+import java.util.List;
 
 public interface ColorMap {
 	public Color getColor(double value);
 	public String toString();
 	
-	public static ColorMap[] cmaps = new ColorMap[] {
-		ColorMapFactory.createGrayScaleColorMap(),
-		ColorMapFactory.createJetColorMap(),
-		ColorMapFactory.createCoolColorMap(),
-		ColorMapFactory.createHotColorMap(),
-		ColorMapFactory.createCopperColorMap(),
-		ColorMapFactory.createBoneColorMap(),
-		ColorMapFactory.createSpringColorMap(),
-		ColorMapFactory.createSummerColorMap(),
-		ColorMapFactory.createAutumnColorMap(),
-		ColorMapFactory.createWinterColorMap(),
-		ColorMapFactory.createRedGreenBlueColorMap(),
-		ColorMapFactory.createBlueToRedColorMap(),
-		ColorMapFactory.createPinkColorMap(),
-		ColorMapFactory.createGreenRadarColorMap(),
-		ColorMapFactory.createRedYellowGreenColorMap(),
-		ColorMapFactory.createRainbowColormap(),
-		ColorMapFactory.createBronzeColormap(),
-		ColorMapFactory.createBrownToWhiteColormap(),
-        ColorMapFactory.createStoreDataColormap()
-	};
+	@SuppressWarnings("serial")
+    public static List<ColorMap> cmaps = new ArrayList<ColorMap>() {{
+	    add(ColorMapFactory.createGrayScaleColorMap());
+	    add(ColorMapFactory.createJetColorMap());
+	    add(ColorMapFactory.createCoolColorMap());
+	    add(ColorMapFactory.createHotColorMap());
+	    add(ColorMapFactory.createCopperColorMap());
+	    add(ColorMapFactory.createBoneColorMap());
+	    add(ColorMapFactory.createSpringColorMap());
+	    add(ColorMapFactory.createSummerColorMap());
+	    add(ColorMapFactory.createAutumnColorMap());
+	    add(ColorMapFactory.createWinterColorMap());
+	    add(ColorMapFactory.createRedGreenBlueColorMap());
+	    add(ColorMapFactory.createBlueToRedColorMap());
+	    add(ColorMapFactory.createPinkColorMap());
+	    add(ColorMapFactory.createGreenRadarColorMap());
+	    add(ColorMapFactory.createRedYellowGreenColorMap());
+	    add(ColorMapFactory.createRainbowColormap());
+	    add(ColorMapFactory.createBronzeColormap());
+	    add(ColorMapFactory.createBrownToWhiteColormap());
+	    add(ColorMapFactory.createStoreDataColormap());
+	}};
 }

@@ -226,6 +226,8 @@ public class NetCDFUnitsUtils {
     // FIXME better control of unit for speed
     public static double getMultiplierForCmPerSecondsFromSpeedUnits(String speedUnits) {
         double mult = 1;
+        if (speedUnits == null || speedUnits.isEmpty())
+            return mult;
         switch (speedUnits.trim().toLowerCase()) {
             case "cm/s":
             case "cm s-1":
@@ -255,13 +257,17 @@ public class NetCDFUnitsUtils {
      * @return
      */
     public static double getValueForDegreesCelciusFromTempUnits(double value, String units) {
+        if (units == null || units.isEmpty())
+            return value;
         double ret = value;
-        switch (units.trim()) {
+        switch (units.toLowerCase().trim()) {
             case "K":
+            case "kelvin":
                 ret = value - UnitsUtil.CELSIUS_TO_KELVIN;
                 break;
             case "\u00B0F":
             case "ºF":
+            case "degree_F":
                 ret = (value - 32) / 1.8;
                 break;
         }
@@ -270,8 +276,10 @@ public class NetCDFUnitsUtils {
     }
 
     public static double getValueForMilliGPerM3FromTempUnits(double value, String units) {
+        if (units == null || units.isEmpty())
+            return value;
         double ret = value;
-        switch (units.trim()) {
+        switch (units.toLowerCase().trim()) {
             case "kg m-3":
             case "Kg m-3":
                 ret = value * 1E3 * 1E3;
@@ -289,8 +297,10 @@ public class NetCDFUnitsUtils {
     }
 
     public static double getValueForMetterFromTempUnits(double value, String units) {
+        if (units == null || units.isEmpty())
+            return value;
         double ret = value;
-        switch (units.trim()) {
+        switch (units.toLowerCase().trim()) {
             case "km":
             case "Km":
                 ret = value * 1E3;

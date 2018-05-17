@@ -129,10 +129,21 @@ public class BaseDataPoint<T extends BaseDataPoint> implements Comparable<BaseDa
         return compareTo((BaseDataPoint) obj) == 0 ? true : false;
     }
     
+    /**
+     * @param hfrdp
+     * @return
+     */
     public static String getId(BaseDataPoint hfrdp) {
         return hfrdp.lat + ":" + hfrdp.lon;
     }
-    
+
+    /**
+     * @return
+     */
+    public String getId() {
+        return lat + ":" + lon;
+    }
+
     /**
      * This is supposed to get all data as an {@link ArrayList} in order to bulk processing.
      * 
