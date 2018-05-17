@@ -106,6 +106,13 @@ public class OffScreenLayerImageControl {
         this.imageTransparencyType = imageTransparencyType;
     }
 
+    /**
+     * @return the cacheImg
+     */
+    public BufferedImage getCacheImg() {
+        return cacheImg;
+    }
+    
     public void triggerImageRebuild() {
         clearImgCacheRqst = true;
     }

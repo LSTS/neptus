@@ -40,10 +40,14 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.concurrent.atomic.DoubleAccumulator;
 
+import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -273,6 +277,7 @@ public class VizConfigPanel extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 movePanel(VizConfigPanel.this, viz, UpOrDown.UP);
+                saveImage(viz);
             }
         });
         downButton = new JButton("\u2207");
@@ -608,6 +613,21 @@ public class VizConfigPanel extends JPanel {
         this.repaint();
     }
     
+    /**
+     * @param viz2
+     */
+    protected void saveImage(GenericNetCDFDataPainter viz2) {
+        BufferedImage image = viz.getOffScreenLayer().getCacheImg();
+        if (image != null) {
+            try {
+                ImageIO.write(image, "PNG", new File("imgs-tmp", viz.getPlotName() + ".png"));
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     /**
      * @param hdr
      * @param viz 
