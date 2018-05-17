@@ -33,10 +33,9 @@
 package pt.lsts.neptus.soi;
 
 import java.awt.Graphics2D;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
-
-import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Arrays;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
@@ -79,7 +78,6 @@ public class SoiAwarenessPanel extends SimpleMapPanel implements Renderer2DPaint
         
     }
     
-    @SuppressWarnings("unchecked")
     @Override
     public DefaultProperty[] getProperties() {
         List<DefaultProperty> props = Arrays.asList(interaction.getProperties());

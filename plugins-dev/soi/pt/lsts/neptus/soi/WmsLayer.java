@@ -40,7 +40,6 @@ import java.awt.image.BufferedImage;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import pt.lsts.neptus.app.tiles.WorldMapPanel;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -116,7 +115,7 @@ public class WmsLayer implements Renderer2DPainter {
 
     public static void main(String[] args) {
         StateRenderer2D renderer2d = new StateRenderer2D();
-        renderer2d.getRenderer().addPostRenderPainter(CMEMSLayers.Wind(), "wind");
+        renderer2d.getRenderer().addPostRenderPainter(WmsLayerFactory.Wind(), "wind");
         GuiUtils.testFrame(renderer2d, "gg");
     }
 }

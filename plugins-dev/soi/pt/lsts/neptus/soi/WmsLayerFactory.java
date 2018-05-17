@@ -38,7 +38,7 @@ import java.util.LinkedHashMap;
  * @author zp
  *
  */
-public class CMEMSLayers {
+public class WmsLayerFactory {
 
     public static WmsLayer Salinity() {
         LinkedHashMap<String, String> options = new LinkedHashMap<>();
