@@ -62,16 +62,6 @@ public class NetCDFExportWriter {
         return NetcdfFileWriter.createNew(NetcdfFileWriter.Version.netcdf3, location, null);
     }
     
-    public static void write(File destinaationFile) {
-        String location = destinaationFile.getAbsolutePath();
-        try (NetcdfFileWriter writer = NetcdfFileWriter.createNew(NetcdfFileWriter.Version.netcdf3, location, null)) {
-            
-        }
-        catch (Exception e) {
-            NeptusLog.pub().error(e.getMessage(), e);
-        }
-    }
-    
     public static void main(String[] args) throws Exception {
         String location = "testWrite.nc";
 

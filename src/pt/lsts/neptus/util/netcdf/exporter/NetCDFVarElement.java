@@ -32,7 +32,9 @@
  */
 package pt.lsts.neptus.util.netcdf.exporter;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import pt.lsts.neptus.NeptusLog;
 import ucar.ma2.Array;
@@ -81,6 +83,8 @@ public class NetCDFVarElement {
     private DataType dataType = null;
     private Group group = null;
     private List<Dimension> dimensions = null;
+
+    private Map<String, String> additionalAttrib = new LinkedHashMap<>(); 
     
     private Variable var = null;
     private Array dataArray = null;
@@ -169,6 +173,18 @@ public class NetCDFVarElement {
         return this;
     }
     
+    public NetCDFVarElement setAtribute(String name, String val) {
+        if (name != null && !name.isEmpty())
+            additionalAttrib.put(name, val);
+        return this;
+    }
+
+    public NetCDFVarElement removeAtribute(String name, String val) {
+        if (name != null && !name.isEmpty())
+            additionalAttrib.remove(name);
+        return this;
+    }
+
     /**
      * @return the dataType
      */
@@ -189,6 +205,9 @@ public class NetCDFVarElement {
      * @return
      */
     public Array createDataArray() {
+        if (dataArray != null)
+            return dataArray;
+        
         int[] dim = dimensions.stream().mapToInt(d -> d.getLength()).toArray();
         switch (dataType) {
             case BOOLEAN:
@@ -406,6 +425,13 @@ public class NetCDFVarElement {
                 var.addAttribute(new Attribute("units", units));
             if (coverageContentType != null)
                 var.addAttribute(new Attribute("coverage_content_type", coverageContentType.toString()));
+            
+            additionalAttrib.keySet().stream().forEach(name -> {
+                String val = additionalAttrib.get(name);
+                if (val == null)
+                    return;
+                var.addAttribute(new Attribute(name, val));
+            });
             
             if (dimensions == null || dimensions.size() == 0) {
                 // Create a scalar Variable named scalar of type double. Note that the empty ArrayList means that it is

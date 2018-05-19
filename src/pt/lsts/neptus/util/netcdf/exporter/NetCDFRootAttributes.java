@@ -38,6 +38,8 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -82,7 +84,9 @@ public class NetCDFRootAttributes {
 
     public String creatorName = "Neptus " + ConfigFetch.getNeptusVersion();
     public String creatorType = "group";
-
+    
+    private Map<String, String> additionalAttrib = new LinkedHashMap<>(); 
+    
     /**
      * @param title the title to set
      */
@@ -283,6 +287,18 @@ public class NetCDFRootAttributes {
         return this;
     }
 
+    public NetCDFRootAttributes setAtribute(String name, String val) {
+        if (name != null && !name.isEmpty())
+            additionalAttrib.put(name, val);
+        return this;
+    }
+
+    public NetCDFRootAttributes removeAtribute(String name, String val) {
+        if (name != null && !name.isEmpty())
+            additionalAttrib.remove(name);
+        return this;
+    }
+
     public boolean write(NetcdfFileWriter writer) {
         try {
             if (title != null)
@@ -326,6 +342,14 @@ public class NetCDFRootAttributes {
                 writer.addGroupAttribute(null, new Attribute("creator_name", creatorName));
             if (creatorType != null)
                 writer.addGroupAttribute(null, new Attribute("creator_type", creatorType));
+            
+            additionalAttrib.keySet().stream().forEach(name -> {
+                String val = additionalAttrib.get(name);
+                if (val == null)
+                    return;
+                writer.addGroupAttribute(null, new Attribute(name, val));
+            });
+
         }
         catch (Exception e) {
             NeptusLog.pub().error(e.getMessage(), e);
