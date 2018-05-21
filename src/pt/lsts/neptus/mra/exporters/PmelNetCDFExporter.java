@@ -196,7 +196,7 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
                     .setStandardName("platform_course").setUnits("degree_T").setDataType(DataType.FLOAT)
                     .setDimensions(dims).setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, "NaN")
                     .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, "NaN")
-                    .setAtribute("coordinates", "time lat lon depth").setAtribute("valid_min", "-180")
+                    .setAtribute("coordinates", "time depth lat lon").setAtribute("valid_min", "-180")
                     .setAtribute("valid_max", "180");
             varsList.add(cogVar);
 
@@ -204,7 +204,7 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
                     .setStandardName("platform_yaw_angle").setUnits("degree_T").setDataType(DataType.FLOAT)
                     .setDimensions(dims).setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, "NaN")
                     .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, "NaN")
-                    .setAtribute("coordinates", "time lat lon depth").setAtribute("valid_min", "-180")
+                    .setAtribute("coordinates", "time depth lat lon").setAtribute("valid_min", "-180")
                     .setAtribute("valid_max", "180");
             varsList.add(hdgVar);
 
@@ -212,7 +212,7 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
                     .setStandardName("platform_roll_angle").setUnits("degree").setDataType(DataType.FLOAT)
                     .setDimensions(dims).setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, "NaN")
                     .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, "NaN")
-                    .setAtribute("coordinates", "time lat lon depth").setAtribute("valid_min", "-180")
+                    .setAtribute("coordinates", "time depth lat lon").setAtribute("valid_min", "-180")
                     .setAtribute("valid_max", "180");
             varsList.add(rollVar);
 
@@ -220,7 +220,7 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
                     .setStandardName("platform_pitch_angle").setUnits("degree").setDataType(DataType.FLOAT)
                     .setDimensions(dims).setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, "NaN")
                     .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, "NaN")
-                    .setAtribute("coordinates", "time lat lon depth").setAtribute("valid_min", "-180")
+                    .setAtribute("coordinates", "time depth lat lon").setAtribute("valid_min", "-180")
                     .setAtribute("valid_max", "180");
             varsList.add(pitchVar);
 
@@ -228,7 +228,7 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
                     .setStandardName("latform_speed_wrt_ground").setUnits("m s-1").setDataType(DataType.FLOAT)
                     .setDimensions(dims).setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, "NaN")
                     .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, "NaN")
-                    .setAtribute("coordinates", "time lat lon depth");
+                    .setAtribute("coordinates", "time depth lat lon");
             varsList.add(sogVar);
 
             // pH sea_water_ph_reported_on_total_scale XP1 
@@ -267,7 +267,7 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
                         .setStandardName("sea_water_electrical_conductivity").setUnits("S m-1").setDataType(DataType.FLOAT)
                         .setDimensions(dims).setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, "NaN")
                         .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, "NaN")
-                        .setAtribute("coordinates", "time lat lon depth");
+                        .setAtribute("coordinates", "time depth lat lon");
                 varsList.add(condVar);
             }
             NetCDFVarElement tempVar =null;
@@ -276,7 +276,7 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
                         .setStandardName("sea_water_temperature").setUnits("degree_C").setDataType(DataType.FLOAT)
                         .setDimensions(dims).setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, "NaN")
                         .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, "NaN")
-                        .setAtribute("coordinates", "time lat lon depth");
+                        .setAtribute("coordinates", "time depth lat lon");
                 varsList.add(tempVar);
             }
             NetCDFVarElement salVar =null;
@@ -285,7 +285,7 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
                         .setStandardName("sea_water_practical_salinity").setUnits("PSU").setDataType(DataType.FLOAT)
                         .setDimensions(dims).setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, "NaN")
                         .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, "NaN")
-                        .setAtribute("coordinates", "time lat lon depth");
+                        .setAtribute("coordinates", "time depth lat lon");
                 varsList.add(salVar);
             }
             NetCDFVarElement waterDensityVar =null;
@@ -294,7 +294,7 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
                         .setStandardName("sea_water_density").setUnits("kg m-3").setDataType(DataType.FLOAT)
                         .setDimensions(dims).setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, "NaN")
                         .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, "NaN")
-                        .setAtribute("coordinates", "time lat lon depth");
+                        .setAtribute("coordinates", "time depth lat lon");
                 varsList.add(waterDensityVar);
             }
             NetCDFVarElement chlorophyllVar =null;
@@ -303,7 +303,7 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
                         .setStandardName("mass_concentration_of_chlorophyll_in_sea_water").setUnits("ug l-1").setDataType(DataType.FLOAT)
                         .setDimensions(dims).setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, "NaN")
                         .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, "NaN")
-                        .setAtribute("coordinates", "time lat lon depth");
+                        .setAtribute("coordinates", "time depth lat lon");
                 varsList.add(chlorophyllVar);
             }
             NetCDFVarElement turbidityVar =null;
@@ -312,7 +312,7 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
                         .setStandardName("sea_water_turbidity").setUnits("NTU").setDataType(DataType.FLOAT)
                         .setDimensions(dims).setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, "NaN")
                         .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, "NaN")
-                        .setAtribute("coordinates", "time lat lon depth");
+                        .setAtribute("coordinates", "time depth lat lon");
                 varsList.add(turbidityVar);
             }
             NetCDFVarElement phVar =null;
@@ -321,7 +321,7 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
                         .setStandardName("sea_water_ph_reported_on_total_scale").setUnits("").setDataType(DataType.FLOAT)
                         .setDimensions(dims).setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, "NaN")
                         .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, "NaN")
-                        .setAtribute("coordinates", "time lat lon depth");
+                        .setAtribute("coordinates", "time depth lat lon");
                 varsList.add(phVar);
             }
             NetCDFVarElement redoxVar =null;
@@ -330,7 +330,7 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
                         .setStandardName("").setUnits("V").setDataType(DataType.FLOAT)
                         .setDimensions(dims).setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, "NaN")
                         .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, "NaN")
-                        .setAtribute("coordinates", "time lat lon depth");
+                        .setAtribute("coordinates", "time depth lat lon");
                 varsList.add(redoxVar);
             }
             NetCDFVarElement soundSpeedVar =null;
@@ -339,7 +339,7 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
                         .setStandardName("speed_of_sound_in_sea_water").setUnits("m s-1").setDataType(DataType.FLOAT)
                         .setDimensions(dims).setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, "NaN")
                         .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, "NaN")
-                        .setAtribute("coordinates", "time lat lon depth");
+                        .setAtribute("coordinates", "time depth lat lon");
                 varsList.add(soundSpeedVar);
             }
             
