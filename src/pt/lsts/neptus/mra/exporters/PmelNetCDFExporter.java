@@ -369,7 +369,7 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
                     timeVar.insertData(idx, 0, idx);
                     latVar.insertData(loc.getLatitudeDegs(), 0, idx);
                     lonVar.insertData(loc.getLongitudeDegs(), 0, idx);
-                    depthVar.insertData(m.getDouble("depth") * 10, 0, idx);
+                    depthVar.insertData(m.getDouble("depth"), 0, idx);
                     
                     double vx = m.getDouble("vx");
                     double vy = m.getDouble("vy");
