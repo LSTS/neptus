@@ -33,21 +33,25 @@
 package pt.lsts.neptus.plugins.telemetrycontrol;
 
 import net.miginfocom.swing.MigLayout;
+import pt.lsts.imc.Announce;
 import pt.lsts.imc.IMCOutputStream;
 import pt.lsts.imc.PlanControl;
 import pt.lsts.imc.PlanDB;
 import pt.lsts.imc.TelemetryMsg;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.PlanChangeListener;
 import pt.lsts.neptus.gui.ToolbarButton;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 
@@ -62,11 +66,20 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Popup(width = 200, height = 150)
 @PluginDescription(name = "Telemetry Control", author = "Tiago Sá Marques", description = "Telemetry control panel")
 public class TelemetryControlPanel extends ConsolePanel implements PlanChangeListener {
+
+    @NeptusProperty(name = "Ack timeout", description = "Ack timeout in seconds", userLevel = NeptusProperty.LEVEL.REGULAR)
+    public long ackTimeoutSeconds = 2;
+
     private final ImageIcon ICON_UP = ImageUtils.getIcon("images/planning/up.png");
     private final ImageIcon ICON_START = ImageUtils.getIcon("images/planning/start.png");
     private final ImageIcon ICON_STOP = ImageUtils.getIcon("images/planning/stop.png");
@@ -74,15 +87,17 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
     private final Color COLOR_GREEN = new Color(0, 200, 125);
     private final Color COLOR_RED = Color.RED;
 
+    private final String announceRadioFormat = "radio/telemetry";
+
     private ToolbarButton sendPlan;
     private ToolbarButton startPlan;
     private ToolbarButton stopPlan;
 
     private final JToggleButton toggleTelemetry = new JToggleButton("OFF");
-    private final JLabel mantasLabel = new JLabel("Manta");
-    private final JLabel systemLabel = new JLabel("System");
-    private final JComboBox mantasList = new JComboBox(new String[]{"1"});
-    private final JComboBox systemsList = new JComboBox(new String[]{"1"});
+    private final JLabel sourcesLabel = new JLabel("From");
+    private final JLabel destinationLabel = new JLabel("To");
+    private final JComboBox sourcesList = new JComboBox();
+    private final JComboBox destinationsList = new JComboBox();
 
     private AbstractAction sendPlanAction;
     private AbstractAction startPlanAction;
@@ -90,9 +105,54 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
 
     private PlanType currSelectedPlan = null;
 
+    /** Known telemetry systems **/
+    private final HashSet<String> availableTelemetrySystems = new HashSet<>();
+
     public TelemetryControlPanel(ConsoleLayout console) {
         super(console);
         buildPlanel();
+        discoverTelemetrySystems();
+    }
+
+    /**
+     * Discover known telemetry systems
+     * */
+    private void discoverTelemetrySystems() {
+        ImcSystem[] telemetrySystems = ImcSystemsHolder.lookupSystemByService(announceRadioFormat, VehicleType.SystemTypeEnum.ALL, true);
+
+        synchronized (availableTelemetrySystems) {
+            List<String> newSystems = Arrays.stream(telemetrySystems)
+                    .filter(ts -> !availableTelemetrySystems.contains(ts.getName()))
+                    .map(ImcSystem::getName)
+                    .collect(Collectors.toList());
+
+            newSystems.stream().forEach(newSystem -> {
+                availableTelemetrySystems.add(newSystem);
+                destinationsList.addItem(newSystem);
+            });
+        }
+    }
+
+    /**
+     * Check announce for new telemetry systems
+     * */
+    public void consume(Announce msg) {
+        if (availableTelemetrySystems.contains(msg.getSysName()))
+            return;
+
+        String[] services = msg.getServices().split(";");
+
+        // no radio service
+        if (!Arrays.stream(services).anyMatch(s -> s.contains(announceRadioFormat)))
+            return;
+
+        String srcName = msg.getSysName();
+        NeptusLog.pub().info("Discovered " + srcName + " telemetry system");
+
+        synchronized (availableTelemetrySystems) {
+            availableTelemetrySystems.add(srcName);
+            sourcesList.addItem(srcName);
+        }
     }
 
     private void buildPlanel() {
@@ -100,10 +160,10 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
 
         setupButtons();
 
-        this.add(mantasLabel, "grow");
-        this.add(systemLabel, "grow,wrap");
-        this.add(mantasList, "grow");
-        this.add(systemsList, "grow");
+        this.add(sourcesLabel, "grow");
+        this.add(destinationLabel, "grow,wrap");
+        this.add(sourcesList, "grow");
+        this.add(destinationsList, "grow");
         this.add(toggleTelemetry, "grow,wrap");
         this.add(sendPlan);
         this.add(startPlan);
@@ -128,21 +188,21 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
         sendPlanAction = new AbstractAction("Send Plan", ICON_UP) {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                syncPlan((String) mantasList.getSelectedItem(), (String) systemsList.getSelectedItem());
+                syncPlan((String) sourcesList.getSelectedItem(), (String) destinationsList.getSelectedItem());
             }
         };
 
         startPlanAction = new AbstractAction("Start Plan", ICON_START) {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                sendPlanStart((String) mantasList.getSelectedItem(), (String) systemsList.getSelectedItem());
+                sendPlanStart((String) sourcesList.getSelectedItem(), (String) destinationsList.getSelectedItem());
             }
         };
 
         stopPlanAction = new AbstractAction("Stop plan", ICON_STOP) {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                sendPlanStop((String) mantasList.getSelectedItem(), (String) systemsList.getSelectedItem());
+                sendPlanStop((String) sourcesList.getSelectedItem(), (String) destinationsList.getSelectedItem());
             }
         };
 
