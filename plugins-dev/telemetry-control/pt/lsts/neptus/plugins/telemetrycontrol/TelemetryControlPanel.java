@@ -110,6 +110,9 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
     /** Known telemetry systems **/
     private final HashSet<String> availableTelemetrySystems = new HashSet<>();
 
+    /** Telemetry binds for known systems (Poin-to-Point and Client/Server)  **/
+    private final HashMap<String, HashSet<String>> telemetryBinds = new HashMap<>();
+
     public TelemetryControlPanel(ConsoleLayout console) {
         super(console);
         buildPlanel();
@@ -155,6 +158,25 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
             availableTelemetrySystems.add(srcName);
             sourcesList.addItem(srcName);
         }
+    }
+
+    @Subscribe
+    public void consume(CommSystemsQuery msg) {
+        if ((msg.getType() & CommSystemsQuery.CIQ_QUERY) != 0)
+            return;
+
+        if ((msg.getCommInterface() & CommSystemsQuery.CIQ_RADIO) != 0)
+            return;
+
+
+        // FIXME For now I assume Point-to-Point or Client/Server
+        String[] telemetryBinds = msg.getList().split(",");
+
+        if (telemetryBinds.length == 0)
+            return;
+
+        HashSet<String> binds = this.telemetryBinds.getOrDefault(msg.getSourceName(), new HashSet<>());
+        Arrays.stream(telemetryBinds).forEach(s -> binds.add(s));
     }
 
     @Subscribe
