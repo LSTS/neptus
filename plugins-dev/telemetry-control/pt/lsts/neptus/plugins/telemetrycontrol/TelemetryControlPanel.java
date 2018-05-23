@@ -270,7 +270,7 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
             return;
         }
 
-        dispatchTelemetry(telemetryTarget, TelemetryMsg.CODE.CODE_IMC, TelemetryMsg.STATUS.EMPTY, baos.toByteArray());
+        dispatchTelemetry(telemetryTarget, TelemetryMsg.CODE.CODE_IMC, TelemetryMsg.STATUS.EMPTY, true, baos.toByteArray());
     }
 
     private void sendPlanStart(String telemetryTarget, String imcTarget) {
@@ -298,7 +298,7 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
             return;
         }
 
-        dispatchTelemetry(telemetryTarget, TelemetryMsg.CODE.CODE_IMC, TelemetryMsg.STATUS.EMPTY, baos.toByteArray());
+        dispatchTelemetry(telemetryTarget, TelemetryMsg.CODE.CODE_IMC, TelemetryMsg.STATUS.EMPTY, true, baos.toByteArray());
     }
 
     private void sendPlanStop(String telemetryTarget, String imcTarget) {
@@ -326,18 +326,26 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
             return;
         }
 
-        dispatchTelemetry(telemetryTarget, TelemetryMsg.CODE.CODE_IMC, TelemetryMsg.STATUS.EMPTY, baos.toByteArray());
+        dispatchTelemetry(telemetryTarget, TelemetryMsg.CODE.CODE_IMC, TelemetryMsg.STATUS.EMPTY, true, baos.toByteArray());
     }
 
-    boolean dispatchTelemetry(String gatewaySystem, TelemetryMsg.CODE code, TelemetryMsg.STATUS status, byte[] data) {
+    /**
+     * Send a telemetry message to the given system.
+     * @param targetSystem Receiver of this message
+     * @param code Telemetry message code
+     * @param status Telemetry message status
+     * @param data Aditional raw data to send (e.g. IMC messages). Can be null
+     * */
+    boolean dispatchTelemetry(String targetSystem, TelemetryMsg.CODE code, TelemetryMsg.STATUS status, boolean requestAck, byte[] data) {
         TelemetryMsg msg = new TelemetryMsg();
         msg.setCode(code);
         msg.setStatus(status);
+        msg.setAcknowledge(requestAck ? TelemetryMsg.TM_AK : TelemetryMsg.TM_NAK);
 
         if (data != null)
             msg.setData(data);
 
-        boolean ret = IMCSendMessageUtils.sendMessage(msg, I18n.text("Error sending plan"), false, gatewaySystem);
+        boolean ret = IMCSendMessageUtils.sendMessage(msg, I18n.text("Error sending plan"), false, targetSystem);
 
         if (ret)
             ++requestId;
