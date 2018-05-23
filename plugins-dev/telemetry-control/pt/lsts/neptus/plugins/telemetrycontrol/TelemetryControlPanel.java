@@ -104,6 +104,8 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
     private AbstractAction startPlanAction;
     private AbstractAction stopPlanAction;
 
+    private long requestId = 0;
+
     private String currSys = null;
     private PlanType currSelectedPlan = null;
 
@@ -260,10 +262,6 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
         pdb.setArg(currSelectedPlan.asIMCPlan());
         pdb.setDst(ImcSystemsHolder.lookupSystemByName(imcTarget).getId().intValue());
 
-        TelemetryMsg msg = new TelemetryMsg();
-        msg.setCode(TelemetryMsg.CODE.CODE_IMC);
-        msg.setStatus(TelemetryMsg.STATUS.EMPTY);
-
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
             pdb.serialize(new IMCOutputStream(baos));
@@ -272,8 +270,7 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
             return;
         }
 
-        msg.setData(baos.toByteArray());
-        IMCSendMessageUtils.sendMessage(pdb, I18n.text("Error sending plan"), false, telemetryTarget);
+        dispatchTelemetry(telemetryTarget, TelemetryMsg.CODE.CODE_IMC, TelemetryMsg.STATUS.EMPTY, baos.toByteArray());
     }
 
     private void sendPlanStart(String telemetryTarget, String imcTarget) {
@@ -293,10 +290,6 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
         pc.setArg(currSelectedPlan.asIMCPlan());
         pc.setDst(ImcSystemsHolder.lookupSystemByName(imcTarget).getId().intValue());
 
-        TelemetryMsg msg = new TelemetryMsg();
-        msg.setCode(TelemetryMsg.CODE.CODE_IMC);
-        msg.setStatus(TelemetryMsg.STATUS.EMPTY);
-
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
             pc.serialize(new IMCOutputStream(baos));
@@ -305,8 +298,7 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
             return;
         }
 
-        msg.setData(baos.toByteArray());
-        IMCSendMessageUtils.sendMessage(pc, I18n.text("Error send plan start"), false, telemetryTarget);
+        dispatchTelemetry(telemetryTarget, TelemetryMsg.CODE.CODE_IMC, TelemetryMsg.STATUS.EMPTY, baos.toByteArray());
     }
 
     private void sendPlanStop(String telemetryTarget, String imcTarget) {
@@ -326,10 +318,6 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
         pc.setArg(currSelectedPlan.asIMCPlan());
         pc.setDst(ImcSystemsHolder.lookupSystemByName(imcTarget).getId().intValue());
 
-        TelemetryMsg msg = new TelemetryMsg();
-        msg.setCode(TelemetryMsg.CODE.CODE_IMC);
-        msg.setStatus(TelemetryMsg.STATUS.EMPTY);
-
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
             pc.serialize(new IMCOutputStream(baos));
@@ -338,8 +326,23 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
             return;
         }
 
-        msg.setData(baos.toByteArray());
-        IMCSendMessageUtils.sendMessage(pc, I18n.text("Error sending plan"), false, telemetryTarget);
+        dispatchTelemetry(telemetryTarget, TelemetryMsg.CODE.CODE_IMC, TelemetryMsg.STATUS.EMPTY, baos.toByteArray());
+    }
+
+    boolean dispatchTelemetry(String gatewaySystem, TelemetryMsg.CODE code, TelemetryMsg.STATUS status, byte[] data) {
+        TelemetryMsg msg = new TelemetryMsg();
+        msg.setCode(code);
+        msg.setStatus(status);
+
+        if (data != null)
+            msg.setData(data);
+
+        boolean ret = IMCSendMessageUtils.sendMessage(msg, I18n.text("Error sending plan"), false, gatewaySystem);
+
+        if (ret)
+            ++requestId;
+
+        return ret;
     }
 
     private void toogleTelemetry() {
