@@ -33,13 +33,22 @@
 package pt.lsts.neptus.plugins.telemetrycontrol;
 
 import net.miginfocom.swing.MigLayout;
+import pt.lsts.imc.IMCOutputStream;
+import pt.lsts.imc.PlanControl;
+import pt.lsts.imc.PlanDB;
+import pt.lsts.imc.TelemetryMsg;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.IMCSendMessageUtils;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.PlanChangeListener;
 import pt.lsts.neptus.gui.ToolbarButton;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 
 import javax.swing.AbstractAction;
@@ -51,7 +60,8 @@ import javax.swing.UIManager;
 import javax.swing.plaf.ColorUIResource;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
-import java.util.HashSet;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 
 @Popup(width = 200, height = 150)
@@ -77,9 +87,6 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
     private AbstractAction sendPlanAction;
     private AbstractAction startPlanAction;
     private AbstractAction stopPlanAction;
-
-    private final HashSet<String> mantas = new HashSet<>();
-    private final HashSet<String> systems = new HashSet<>();
 
     private PlanType currSelectedPlan = null;
 
@@ -121,21 +128,21 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
         sendPlanAction = new AbstractAction("Send Plan", ICON_UP) {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-
+                syncPlan((String) mantasList.getSelectedItem(), (String) systemsList.getSelectedItem());
             }
         };
 
         startPlanAction = new AbstractAction("Start Plan", ICON_START) {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-
+                sendPlanStart((String) mantasList.getSelectedItem(), (String) systemsList.getSelectedItem());
             }
         };
 
         stopPlanAction = new AbstractAction("Stop plan", ICON_STOP) {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-
+                sendPlanStop((String) mantasList.getSelectedItem(), (String) systemsList.getSelectedItem());
             }
         };
 
@@ -149,12 +156,111 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
         toggleTelemetry.addItemListener(itemEvent -> toogleTelemetry());
     }
 
+    private void syncPlan(String telemetryTarget, String imcTarget) {
+        if (currSelectedPlan == null) {
+            NeptusLog.pub().warn("Currently selected plan is null");
+            GuiUtils.infoMessage(this, "Send Plan Warning", "Currently selected plan is null");
+            return;
+        }
+
+        NeptusLog.pub().info("Send plan " + currSelectedPlan.getDisplayName() + " to " + imcTarget + " through " + telemetryTarget);
+
+        PlanDB pdb = new PlanDB();
+        pdb.setType(PlanDB.TYPE.REQUEST);
+        pdb.setOp(PlanDB.OP.SET);
+        pdb.setRequestId(IMCSendMessageUtils.getNextRequestId());
+        pdb.setPlanId(currSelectedPlan.getId());
+        pdb.setArg(currSelectedPlan.asIMCPlan());
+        pdb.setDst(ImcSystemsHolder.lookupSystemByName(imcTarget).getId().intValue());
+
+        TelemetryMsg msg = new TelemetryMsg();
+        msg.setCode(TelemetryMsg.CODE.CODE_IMC);
+        msg.setStatus(TelemetryMsg.STATUS.EMPTY);
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try {
+            pdb.serialize(new IMCOutputStream(baos));
+        } catch (IOException e) {
+            GuiUtils.errorMessage(I18n.text("Send Plan Error"), e.getMessage());
+            return;
+        }
+
+        msg.setData(baos.toByteArray());
+        IMCSendMessageUtils.sendMessage(pdb, I18n.text("Error sending plan"), false, telemetryTarget);
+    }
+
+    private void sendPlanStart(String telemetryTarget, String imcTarget) {
+        if (currSelectedPlan == null) {
+            NeptusLog.pub().warn("Currently selected plan is null");
+            GuiUtils.infoMessage(this, "Stop Plan Warning", "Currently selected plan is null");
+            return;
+        }
+
+        NeptusLog.pub().info("Start plan " + currSelectedPlan.getDisplayName() + " to " + imcTarget + " through " + telemetryTarget);
+
+        PlanControl pc = new PlanControl();
+        pc.setType(PlanControl.TYPE.REQUEST);
+        pc.setOp(PlanControl.OP.START);
+        pc.setRequestId(IMCSendMessageUtils.getNextRequestId());
+        pc.setPlanId(currSelectedPlan.getId());
+        pc.setArg(currSelectedPlan.asIMCPlan());
+        pc.setDst(ImcSystemsHolder.lookupSystemByName(imcTarget).getId().intValue());
+
+        TelemetryMsg msg = new TelemetryMsg();
+        msg.setCode(TelemetryMsg.CODE.CODE_IMC);
+        msg.setStatus(TelemetryMsg.STATUS.EMPTY);
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try {
+            pc.serialize(new IMCOutputStream(baos));
+        } catch (IOException e) {
+            GuiUtils.errorMessage(I18n.text("Start Plan Error"), e.getMessage());
+            return;
+        }
+
+        msg.setData(baos.toByteArray());
+        IMCSendMessageUtils.sendMessage(pc, I18n.text("Error send plan start"), false, telemetryTarget);
+    }
+
+    private void sendPlanStop(String telemetryTarget, String imcTarget) {
+        if (currSelectedPlan == null) {
+            NeptusLog.pub().warn("Currently selected plan is null");
+            GuiUtils.infoMessage(this, "Stop Plan Warning", "Currently selected plan is null");
+            return;
+        }
+
+        NeptusLog.pub().info("Send plan " + currSelectedPlan.getDisplayName() + " to " + imcTarget + " through " + telemetryTarget);
+
+        PlanControl pc = new PlanControl();
+        pc.setType(PlanControl.TYPE.REQUEST);
+        pc.setOp(PlanControl.OP.STOP);
+        pc.setRequestId(IMCSendMessageUtils.getNextRequestId());
+        pc.setPlanId(currSelectedPlan.getId());
+        pc.setArg(currSelectedPlan.asIMCPlan());
+        pc.setDst(ImcSystemsHolder.lookupSystemByName(imcTarget).getId().intValue());
+
+        TelemetryMsg msg = new TelemetryMsg();
+        msg.setCode(TelemetryMsg.CODE.CODE_IMC);
+        msg.setStatus(TelemetryMsg.STATUS.EMPTY);
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try {
+            pc.serialize(new IMCOutputStream(baos));
+        } catch (IOException e) {
+            GuiUtils.errorMessage(I18n.text("Send Plan Error"), e.getMessage());
+            return;
+        }
+
+        msg.setData(baos.toByteArray());
+        IMCSendMessageUtils.sendMessage(pc, I18n.text("Error sending plan"), false, telemetryTarget);
+    }
+
     private void toogleTelemetry() {
         if (toggleTelemetry.isSelected())
-            toggleTelemetry.setText("ON");
+            toggleTelemetry.setText(I18n.text("ON"));
         else {
             toggleTelemetry.setBackground(COLOR_RED);
-            toggleTelemetry.setText("OFF");
+            toggleTelemetry.setText(I18n.text("OFF"));
         }
     }
 
