@@ -32,7 +32,24 @@
 #############################################################################
 
 PROGNAME=$0
-NEPTUS_HOME=`dirname $(readlink -f $PROGNAME)`
+
+function command_exists {
+  type "$1" &> /dev/null
+}
+
+if command_exists readlink; then
+  NEPTUS_HOME=`dirname $(readlink -f $PROGNAME)`
+else
+  NEPTUS_HOME=`dirname $PROGNAME`
+  echo "No readlink found!"
+fi
+
+unameOut="$(uname -s)"
+case "${unameOut}" in
+    Darwin*)    echo "MacOS found!";;
+    *)          echo ""
+esac
+
 cd $NEPTUS_HOME
 
 CLASSPATH=".:bin/neptus.jar:conf@NEPTUS_LIBS@":$CLASSPATH
