@@ -271,6 +271,10 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
         }
 
         dispatchTelemetry(telemetryTarget, TelemetryMsg.CODE.CODE_IMC, TelemetryMsg.STATUS.EMPTY, true, baos.toByteArray());
+        long reqId = dispatchTelemetry(telemetryTarget, TelemetryMsg.CODE.CODE_IMC, TelemetryMsg.STATUS.EMPTY, true, baos.toByteArray());
+
+        if (reqId == -1)
+            return;
     }
 
     private void sendPlanStart(String telemetryTarget, String imcTarget) {
@@ -299,6 +303,10 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
         }
 
         dispatchTelemetry(telemetryTarget, TelemetryMsg.CODE.CODE_IMC, TelemetryMsg.STATUS.EMPTY, true, baos.toByteArray());
+        long reqId = dispatchTelemetry(telemetryTarget, TelemetryMsg.CODE.CODE_IMC, TelemetryMsg.STATUS.EMPTY, true, baos.toByteArray());
+
+        if (reqId == -1)
+            return;
     }
 
     private void sendPlanStop(String telemetryTarget, String imcTarget) {
@@ -327,6 +335,10 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
         }
 
         dispatchTelemetry(telemetryTarget, TelemetryMsg.CODE.CODE_IMC, TelemetryMsg.STATUS.EMPTY, true, baos.toByteArray());
+        long reqId = dispatchTelemetry(telemetryTarget, TelemetryMsg.CODE.CODE_IMC, TelemetryMsg.STATUS.EMPTY, true, baos.toByteArray());
+
+        if (reqId == -1)
+            return;
     }
 
     /**
@@ -336,12 +348,14 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
      * @param status Telemetry message status
      * @param data Aditional raw data to send (e.g. IMC messages). Can be null
      * */
-    boolean dispatchTelemetry(String targetSystem, TelemetryMsg.CODE code, TelemetryMsg.STATUS status, boolean requestAck, byte[] data) {
+    long dispatchTelemetry(String targetSystem, TelemetryMsg.CODE code, TelemetryMsg.STATUS status, boolean requestAck, byte[] data) {
         TelemetryMsg msg = new TelemetryMsg();
         msg.setType(TelemetryMsg.TYPE.TX);
         msg.setCode(code);
         msg.setStatus(status);
         msg.setAcknowledge(requestAck ? TelemetryMsg.TM_AK : TelemetryMsg.TM_NAK);
+        msg.setTtl((int) ackTimeoutSeconds);
+        msg.setReqId(requestId+1);
 
         if (data != null)
             msg.setData(data);
@@ -349,9 +363,9 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
         boolean ret = IMCSendMessageUtils.sendMessage(msg, I18n.text("Error sending plan"), false, targetSystem);
 
         if (ret)
-            ++requestId;
+            return ++requestId;
 
-        return ret;
+        return -1;
     }
 
     private void toogleTelemetry() {
