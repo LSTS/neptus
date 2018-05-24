@@ -79,12 +79,12 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 
-@Popup(width = 160, height = 100)
+@Popup(width = 200, height = 100)
 @PluginDescription(name = "Telemetry Control", author = "Tiago Sá Marques", description = "Telemetry control panel")
 public class TelemetryControlPanel extends ConsolePanel implements PlanChangeListener {
 
     @NeptusProperty(name = "Ack timeout", description = "Ack timeout in seconds", userLevel = NeptusProperty.LEVEL.REGULAR)
-    public int ackTimeoutSeconds = 2;
+    public int ackTimeoutSeconds = 3;
 
     private final ImageIcon ICON_UP = ImageUtils.getIcon("images/planning/up.png");
     private final ImageIcon ICON_START = ImageUtils.getIcon("images/planning/start.png");
@@ -115,7 +115,7 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
     /** Known telemetry systems **/
     private final HashSet<String> availableTelemetrySystems = new HashSet<>();
 
-    /** Telemetry binds for known systems (Poin-to-Point and Client/Server)  **/
+    /** Telemetry binds for known **/
     private final HashMap<String, HashSet<String>> telemetryBinds = new HashMap<>();
 
     /** Received acks **/
@@ -176,11 +176,12 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
         if ((msg.getCommInterface() & CommSystemsQuery.CIQ_RADIO) != 0)
             return;
 
-        // FIXME For now I assume Point-to-Point or Client/Server
         String[] telemetryBinds = msg.getList().split(",");
 
-        if (telemetryBinds.length == 0)
+        if (telemetryBinds.length == 0) {
+            NeptusLog.pub().info("There are no bindings for " + msg.getSourceName());
             return;
+        }
 
         HashSet<String> binds = this.telemetryBinds.getOrDefault(msg.getSourceName(), new HashSet<>());
         Arrays.stream(telemetryBinds).forEach(s -> binds.add(s));
@@ -309,7 +310,7 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
             return;
         }
 
-        NeptusLog.pub().info("Send plan " + currSelectedPlan.getDisplayName() + " to " + imcTarget + " through " + telemetryTarget);
+        NeptusLog.pub().info("Sync plan " + currSelectedPlan.getDisplayName() + " to " + imcTarget + " through " + telemetryTarget);
 
         PlanDB pdb = new PlanDB();
         pdb.setType(PlanDB.TYPE.REQUEST);
