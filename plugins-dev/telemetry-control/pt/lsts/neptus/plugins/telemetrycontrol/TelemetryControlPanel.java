@@ -368,7 +368,6 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
         pc.setOp(PlanControl.OP.START);
         pc.setRequestId(IMCSendMessageUtils.getNextRequestId());
         pc.setPlanId(currSelectedPlan.getId());
-        pc.setArg(currSelectedPlan.asIMCPlan());
         pc.setDst(ImcSystemsHolder.lookupSystemByName(imcTarget).getId().intValue());
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -403,7 +402,6 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
         pc.setOp(PlanControl.OP.STOP);
         pc.setRequestId(IMCSendMessageUtils.getNextRequestId());
         pc.setPlanId(currSelectedPlan.getId());
-        pc.setArg(currSelectedPlan.asIMCPlan());
         pc.setDst(ImcSystemsHolder.lookupSystemByName(imcTarget).getId().intValue());
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
