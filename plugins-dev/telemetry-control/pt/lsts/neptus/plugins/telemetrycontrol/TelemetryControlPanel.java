@@ -338,6 +338,7 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
      * */
     boolean dispatchTelemetry(String targetSystem, TelemetryMsg.CODE code, TelemetryMsg.STATUS status, boolean requestAck, byte[] data) {
         TelemetryMsg msg = new TelemetryMsg();
+        msg.setType(TelemetryMsg.TYPE.TX);
         msg.setCode(code);
         msg.setStatus(status);
         msg.setAcknowledge(requestAck ? TelemetryMsg.TM_AK : TelemetryMsg.TM_NAK);
