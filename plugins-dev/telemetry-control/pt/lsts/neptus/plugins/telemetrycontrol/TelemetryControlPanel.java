@@ -131,6 +131,7 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
     /** Send message to known systems requesting radio model, systems bound, etc **/
     private void requestTelemetryInfo(String targetSys) {
         CommSystemsQuery query = new CommSystemsQuery();
+        query.setCommInterface(CommSystemsQuery.CIQ_RADIO);
         query.setType(CommSystemsQuery.CIQ_QUERY);
 
         // TODO dispatch
@@ -187,7 +188,7 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
         if ((msg.getType() & CommSystemsQuery.CIQ_QUERY) != 0)
             return;
 
-        if ((msg.getCommInterface() & CommSystemsQuery.CIQ_RADIO) != 0)
+        if ((msg.getCommInterface() & CommSystemsQuery.CIQ_RADIO) == 0)
             return;
 
         String[] telemetryBinds = msg.getList().split(",");
