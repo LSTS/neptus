@@ -47,6 +47,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
+import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.console.plugins.PlanChangeListener;
 import pt.lsts.neptus.gui.ToolbarButton;
 import pt.lsts.neptus.i18n.I18n;
@@ -73,6 +74,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 
@@ -81,7 +84,7 @@ import java.util.stream.Collectors;
 public class TelemetryControlPanel extends ConsolePanel implements PlanChangeListener {
 
     @NeptusProperty(name = "Ack timeout", description = "Ack timeout in seconds", userLevel = NeptusProperty.LEVEL.REGULAR)
-    public long ackTimeoutSeconds = 2;
+    public int ackTimeoutSeconds = 2;
 
     private final ImageIcon ICON_UP = ImageUtils.getIcon("images/planning/up.png");
     private final ImageIcon ICON_START = ImageUtils.getIcon("images/planning/start.png");
@@ -114,6 +117,9 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
 
     /** Telemetry binds for known systems (Poin-to-Point and Client/Server)  **/
     private final HashMap<String, HashSet<String>> telemetryBinds = new HashMap<>();
+
+    /** Received acks **/
+    private final HashSet<Long> acks = new HashSet<>();
 
     public TelemetryControlPanel(ConsoleLayout console) {
         super(console);
@@ -170,7 +176,6 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
         if ((msg.getCommInterface() & CommSystemsQuery.CIQ_RADIO) != 0)
             return;
 
-
         // FIXME For now I assume Point-to-Point or Client/Server
         String[] telemetryBinds = msg.getList().split(",");
 
@@ -179,6 +184,18 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
 
         HashSet<String> binds = this.telemetryBinds.getOrDefault(msg.getSourceName(), new HashSet<>());
         Arrays.stream(telemetryBinds).forEach(s -> binds.add(s));
+    }
+
+    @Subscribe
+    public void consume(TelemetryMsg msg) {
+        if (msg.getType() == TelemetryMsg.TYPE.TX)
+            return;
+
+        // register successful sending of message
+        if (msg.getStatus() == TelemetryMsg.STATUS.DONE)
+            synchronized (acks) {
+                acks.add(msg.getReqId());
+            }
     }
 
     @Subscribe
@@ -270,11 +287,14 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
             return;
         }
 
-        dispatchTelemetry(telemetryTarget, TelemetryMsg.CODE.CODE_IMC, TelemetryMsg.STATUS.EMPTY, true, baos.toByteArray());
         long reqId = dispatchTelemetry(telemetryTarget, TelemetryMsg.CODE.CODE_IMC, TelemetryMsg.STATUS.EMPTY, true, baos.toByteArray());
 
         if (reqId == -1)
             return;
+
+        waitForAck(reqId,
+                () -> post(Notification.success("Telemetry Control", "Uploaded plan " + currSelectedPlan.getDisplayName())),
+                () -> post(Notification.error("Telemetry Control", "Failed to upload plan " + currSelectedPlan.getDisplayName())));
     }
 
     private void sendPlanStart(String telemetryTarget, String imcTarget) {
@@ -302,11 +322,14 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
             return;
         }
 
-        dispatchTelemetry(telemetryTarget, TelemetryMsg.CODE.CODE_IMC, TelemetryMsg.STATUS.EMPTY, true, baos.toByteArray());
         long reqId = dispatchTelemetry(telemetryTarget, TelemetryMsg.CODE.CODE_IMC, TelemetryMsg.STATUS.EMPTY, true, baos.toByteArray());
 
         if (reqId == -1)
             return;
+
+        waitForAck(reqId,
+                () -> post(Notification.success("Telemetry Control", "Sent plan start " + currSelectedPlan.getDisplayName())),
+                () -> post(Notification.error("Telemetry Control", "Failed to send plan start " + currSelectedPlan.getDisplayName())));
     }
 
     private void sendPlanStop(String telemetryTarget, String imcTarget) {
@@ -334,11 +357,14 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
             return;
         }
 
-        dispatchTelemetry(telemetryTarget, TelemetryMsg.CODE.CODE_IMC, TelemetryMsg.STATUS.EMPTY, true, baos.toByteArray());
         long reqId = dispatchTelemetry(telemetryTarget, TelemetryMsg.CODE.CODE_IMC, TelemetryMsg.STATUS.EMPTY, true, baos.toByteArray());
 
         if (reqId == -1)
             return;
+
+        waitForAck(reqId,
+                () -> post(Notification.success("Telemetry Control", "Sent plan stop " + currSelectedPlan.getDisplayName())),
+                () -> post(Notification.error("Telemetry Control", "Failed to send plan stop " + currSelectedPlan.getDisplayName())));
     }
 
     /**
@@ -354,7 +380,7 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
         msg.setCode(code);
         msg.setStatus(status);
         msg.setAcknowledge(requestAck ? TelemetryMsg.TM_AK : TelemetryMsg.TM_NAK);
-        msg.setTtl((int) ackTimeoutSeconds);
+        msg.setTtl(ackTimeoutSeconds);
         msg.setReqId(requestId+1);
 
         if (data != null)
@@ -391,5 +417,29 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
     public void planChange(PlanType plan) {
         currSelectedPlan = plan;
         toogleControolButtons();
+    }
+
+    /**
+     * Create thread to wait to ACK
+     * Execute onSuccess if ACK is received; onError otherwise
+     * */
+    private void waitForAck(long reqId, Runnable onSuccess, Runnable onError) {
+        new Thread(() -> {
+            try {
+                Thread.sleep(ackTimeoutSeconds * 1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                onError.run();
+            }
+
+            synchronized (acks) {
+                if (acks.contains(reqId))
+                    onSuccess.run();
+                else
+                    onError.run();
+
+                acks.remove(reqId);
+            }
+        }).start();
     }
 }
