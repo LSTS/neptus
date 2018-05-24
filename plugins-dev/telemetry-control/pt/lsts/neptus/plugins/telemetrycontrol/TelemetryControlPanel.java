@@ -343,7 +343,7 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
             return;
         }
 
-        long reqId = dispatchTelemetry(telemetryTarget, TelemetryMsg.CODE.CODE_IMC, TelemetryMsg.STATUS.EMPTY, true, baos.toByteArray());
+        long reqId = dispatchTelemetry(telemetryTarget, imcTarget, TelemetryMsg.CODE.CODE_IMC, TelemetryMsg.STATUS.EMPTY, true, baos.toByteArray());
 
         if (reqId == -1)
             return;
@@ -360,7 +360,7 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
             return;
         }
 
-        NeptusLog.pub().info("Start plan " + currSelectedPlan.getDisplayName() + " to " + imcTarget + " through " + telemetryTarget);
+        NeptusLog.pub().info("Start plan " + currSelectedPlan.getDisplayName() + " to " + imcTarget + "( " + ImcSystemsHolder.lookupSystemByName(imcTarget).getId().intValue() + ") through " + telemetryTarget);
 
         PlanControl pc = new PlanControl();
         pc.setType(PlanControl.TYPE.REQUEST);
@@ -378,7 +378,7 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
             return;
         }
 
-        long reqId = dispatchTelemetry(telemetryTarget, TelemetryMsg.CODE.CODE_IMC, TelemetryMsg.STATUS.EMPTY, true, baos.toByteArray());
+        long reqId = dispatchTelemetry(telemetryTarget, imcTarget, TelemetryMsg.CODE.CODE_IMC, TelemetryMsg.STATUS.EMPTY, true, baos.toByteArray());
 
         if (reqId == -1)
             return;
@@ -395,7 +395,7 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
             return;
         }
 
-        NeptusLog.pub().info("Send plan " + currSelectedPlan.getDisplayName() + " to " + imcTarget + " through " + telemetryTarget);
+        NeptusLog.pub().info("Send plan stop " + currSelectedPlan.getDisplayName() + " to " + imcTarget + " through " + telemetryTarget);
 
         PlanControl pc = new PlanControl();
         pc.setType(PlanControl.TYPE.REQUEST);
@@ -413,7 +413,7 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
             return;
         }
 
-        long reqId = dispatchTelemetry(telemetryTarget, TelemetryMsg.CODE.CODE_IMC, TelemetryMsg.STATUS.EMPTY, true, baos.toByteArray());
+        long reqId = dispatchTelemetry(telemetryTarget, imcTarget, TelemetryMsg.CODE.CODE_IMC, TelemetryMsg.STATUS.EMPTY, true, baos.toByteArray());
 
         if (reqId == -1)
             return;
@@ -430,9 +430,11 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
      * @param status Telemetry message status
      * @param data Aditional raw data to send (e.g. IMC messages). Can be null
      * */
-    long dispatchTelemetry(String targetSystem, TelemetryMsg.CODE code, TelemetryMsg.STATUS status, boolean requestAck, byte[] data) {
+    long dispatchTelemetry(String gatewaySystem, String targetSystem, TelemetryMsg.CODE code, TelemetryMsg.STATUS status, boolean requestAck, byte[] data) {
         TelemetryMsg msg = new TelemetryMsg();
         msg.setType(TelemetryMsg.TYPE.TX);
+        msg.setDestination(targetSystem);
+        msg.setDst(ImcSystemsHolder.lookupSystemByName(gatewaySystem).getId().intValue());
         msg.setCode(code);
         msg.setStatus(status);
         msg.setAcknowledge(requestAck ? TelemetryMsg.TM_AK : TelemetryMsg.TM_NAK);
@@ -442,7 +444,7 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
         if (data != null)
             msg.setData(data);
 
-        boolean ret = IMCSendMessageUtils.sendMessage(msg, I18n.text("Error sending plan"), false, targetSystem);
+        boolean ret = IMCSendMessageUtils.sendMessage(msg, I18n.text("Error sending plan"), false, gatewaySystem);
 
         if (ret)
             return ++requestId;
