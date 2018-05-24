@@ -37,18 +37,19 @@ function command_exists {
   type "$1" &> /dev/null
 }
 
-if command_exists readlink; then
-  NEPTUS_HOME=`dirname $(readlink -f $PROGNAME)`
-else
-  NEPTUS_HOME=`dirname $PROGNAME`
-  echo "No readlink found!"
-fi
-
 unameOut="$(uname -s)"
 case "${unameOut}" in
-    Darwin*)    echo "MacOS found!";;
-    *)          echo ""
+    Darwin*)    NEPTUS_HOME=`dirname $PROGNAME`;
+                echo "MacOS found!";;
+    *)          if command_exists readlink; then
+                  NEPTUS_HOME=`dirname $(readlink -f $PROGNAME)`
+                  echo "Readlink found!"
+                else
+                  NEPTUS_HOME=`dirname $PROGNAME`
+                  echo "No readlink found!"
+                fi
 esac
+
 cd $NEPTUS_HOME
 
 WORKSPACE="pt.lsts.neptus.loader.NeptusMain ws"
