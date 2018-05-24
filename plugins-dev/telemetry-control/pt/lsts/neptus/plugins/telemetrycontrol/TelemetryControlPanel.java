@@ -42,7 +42,6 @@ import pt.lsts.imc.PlanDB;
 import pt.lsts.imc.TelemetryMsg;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
-import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -52,6 +51,8 @@ import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.console.plugins.PlanChangeListener;
 import pt.lsts.neptus.gui.ToolbarButton;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.params.ConfigurationManager;
+import pt.lsts.neptus.params.SystemProperty;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
@@ -71,12 +72,7 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.function.Function;
-import java.util.function.Supplier;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -349,9 +345,15 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
         if (reqId == -1)
             return;
 
-        waitForAck(reqId,
-                () -> post(Notification.success("Telemetry Control", "Uploaded plan " + currSelectedPlan.getDisplayName())),
-                () -> post(Notification.error("Telemetry Control", "Failed to upload plan " + currSelectedPlan.getDisplayName())));
+        scheduleAction(() -> {
+            synchronized (acks) {
+                if (acks.contains(reqId))
+                    post(Notification.success("Telemetry Control", "Uploaded plan " + currSelectedPlan.getDisplayName()));
+                else
+                    post(Notification.error("Telemetry Control", "Failed to upload plan " + currSelectedPlan.getDisplayName()));
+                acks.remove(reqId);
+            }
+        }, ackTimeoutSeconds);
     }
 
     private void sendPlanStart(String telemetryTarget, String imcTarget) {
@@ -383,9 +385,15 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
         if (reqId == -1)
             return;
 
-        waitForAck(reqId,
-                () -> post(Notification.success("Telemetry Control", "Sent plan start " + currSelectedPlan.getDisplayName())),
-                () -> post(Notification.error("Telemetry Control", "Failed to send plan start " + currSelectedPlan.getDisplayName())));
+        scheduleAction(() -> {
+            synchronized (acks) {
+                if (acks.contains(reqId))
+                    post(Notification.success("Telemetry Control", "Sent plan start " + currSelectedPlan.getDisplayName()));
+                else
+                    post(Notification.error("Telemetry Control", "Failed to send plan start " + currSelectedPlan.getDisplayName()));
+                acks.remove(reqId);
+            }
+        }, ackTimeoutSeconds);
     }
 
     private void sendPlanStop(String telemetryTarget, String imcTarget) {
@@ -417,9 +425,15 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
         if (reqId == -1)
             return;
 
-        waitForAck(reqId,
-                () -> post(Notification.success("Telemetry Control", "Sent plan stop " + currSelectedPlan.getDisplayName())),
-                () -> post(Notification.error("Telemetry Control", "Failed to send plan stop " + currSelectedPlan.getDisplayName())));
+        scheduleAction(() -> {
+            synchronized (acks) {
+                if (acks.contains(reqId))
+                    post(Notification.success("Telemetry Control", "Sent plan stop " + currSelectedPlan.getDisplayName()));
+                else
+                    post(Notification.error("Telemetry Control", "Failed to send plan stop " + currSelectedPlan.getDisplayName()));
+                acks.remove(reqId);
+            }
+        }, ackTimeoutSeconds);
     }
 
     /**
@@ -477,26 +491,18 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
     }
 
     /**
-     * Create thread to wait to ACK
-     * Execute onSuccess if ACK is received; onError otherwise
+     * Schedule the given action to be started after timeoutSeconds
      * */
-    private void waitForAck(long reqId, Runnable onSuccess, Runnable onError) {
+    private void scheduleAction(Runnable action, int timeoutSeconds) {
         new Thread(() -> {
             try {
-                Thread.sleep(ackTimeoutSeconds * 1000);
+                Thread.sleep(timeoutSeconds * 1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
-                onError.run();
+                GuiUtils.errorMessage("TelemetryControl", "Failed to schedule action due to \n" + e.getMessage());
             }
 
-            synchronized (acks) {
-                if (acks.contains(reqId))
-                    onSuccess.run();
-                else
-                    onError.run();
-
-                acks.remove(reqId);
-            }
+            action.run();
         }).start();
     }
 }
