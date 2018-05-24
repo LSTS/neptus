@@ -236,6 +236,9 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
             public void actionPerformed(ActionEvent actionEvent) {
                 String sourceSys = (String) sourcesList.getSelectedItem();
 
+                if(sourceSys == null || sourceSys.equals(""))
+                    return;
+
                 if(!allowedCommunication(sourceSys, currSys)) {
                     GuiUtils.errorMessage("Telemetry Control", "There is no bind between " + sourceSys + " and " + currSys);
                     return;
@@ -250,6 +253,9 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
             public void actionPerformed(ActionEvent actionEvent) {
                 String sourceSys = (String) sourcesList.getSelectedItem();
 
+                if(sourceSys == null || sourceSys.equals(""))
+                    return;
+
                 if(!allowedCommunication(sourceSys, currSys)) {
                     GuiUtils.errorMessage("Telemetry Control", "There is no bind between " + sourceSys + " and " + currSys);
                     return;
@@ -263,6 +269,9 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 String sourceSys = (String) sourcesList.getSelectedItem();
+
+                if(sourceSys == null || sourceSys.equals(""))
+                    return;
 
                 if(!allowedCommunication(sourceSys, currSys)) {
                     GuiUtils.errorMessage("Telemetry Control", "There is no bind between " + sourceSys + " and " + currSys);
