@@ -32,8 +32,10 @@
  */
 package pt.lsts.neptus.plugins.telemetrycontrol;
 
+import com.google.common.eventbus.Subscribe;
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.Announce;
+import pt.lsts.imc.CommSystemsQuery;
 import pt.lsts.imc.IMCOutputStream;
 import pt.lsts.imc.PlanControl;
 import pt.lsts.imc.PlanDB;
@@ -44,6 +46,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.console.plugins.PlanChangeListener;
 import pt.lsts.neptus.gui.ToolbarButton;
 import pt.lsts.neptus.i18n.I18n;
@@ -73,7 +76,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 
-@Popup(width = 200, height = 150)
+@Popup(width = 160, height = 100)
 @PluginDescription(name = "Telemetry Control", author = "Tiago Sá Marques", description = "Telemetry control panel")
 public class TelemetryControlPanel extends ConsolePanel implements PlanChangeListener {
 
@@ -95,14 +98,13 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
 
     private final JToggleButton toggleTelemetry = new JToggleButton("OFF");
     private final JLabel sourcesLabel = new JLabel("From");
-    private final JLabel destinationLabel = new JLabel("To");
     private final JComboBox sourcesList = new JComboBox();
-    private final JComboBox destinationsList = new JComboBox();
 
     private AbstractAction sendPlanAction;
     private AbstractAction startPlanAction;
     private AbstractAction stopPlanAction;
 
+    private String currSys = null;
     private PlanType currSelectedPlan = null;
 
     /** Known telemetry systems **/
@@ -128,7 +130,6 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
 
             newSystems.stream().forEach(newSystem -> {
                 availableTelemetrySystems.add(newSystem);
-                destinationsList.addItem(newSystem);
             });
         }
     }
@@ -136,6 +137,7 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
     /**
      * Check announce for new telemetry systems
      * */
+    @Subscribe
     public void consume(Announce msg) {
         if (availableTelemetrySystems.contains(msg.getSysName()))
             return;
@@ -155,15 +157,18 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
         }
     }
 
+    @Subscribe
+    public void mainVehicleChangeNotification(ConsoleEventMainSystemChange ev) {
+        currSys = ev.getCurrent();
+    }
+
     private void buildPlanel() {
         setLayout(new MigLayout());
 
         setupButtons();
 
         this.add(sourcesLabel, "grow");
-        this.add(destinationLabel, "grow,wrap");
         this.add(sourcesList, "grow");
-        this.add(destinationsList, "grow");
         this.add(toggleTelemetry, "grow,wrap");
         this.add(sendPlan);
         this.add(startPlan);
@@ -188,21 +193,21 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
         sendPlanAction = new AbstractAction("Send Plan", ICON_UP) {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                syncPlan((String) sourcesList.getSelectedItem(), (String) destinationsList.getSelectedItem());
+                syncPlan((String) sourcesList.getSelectedItem(), currSys);
             }
         };
 
         startPlanAction = new AbstractAction("Start Plan", ICON_START) {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                sendPlanStart((String) sourcesList.getSelectedItem(), (String) destinationsList.getSelectedItem());
+                sendPlanStart((String) sourcesList.getSelectedItem(), currSys);
             }
         };
 
         stopPlanAction = new AbstractAction("Stop plan", ICON_STOP) {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                sendPlanStop((String) sourcesList.getSelectedItem(), (String) destinationsList.getSelectedItem());
+                sendPlanStop((String) sourcesList.getSelectedItem(), currSys);
             }
         };
 
