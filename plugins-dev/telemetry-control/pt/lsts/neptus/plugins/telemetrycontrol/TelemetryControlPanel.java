@@ -127,6 +127,16 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
         discoverTelemetrySystems();
     }
 
+    /** Send message to known systems requesting radio model, systems bound, etc **/
+    private void requestTelemetryInfo(String targetSys) {
+        CommSystemsQuery query = new CommSystemsQuery();
+        query.setType(CommSystemsQuery.CIQ_QUERY);
+
+        // TODO dispatch
+        NeptusLog.pub().info("Requesting telemetry info from " + targetSys);
+        IMCSendMessageUtils.sendMessage(query, I18n.text("Error querying info from " + targetSys), false, targetSys);
+    }
+
     /**
      * Discover known telemetry systems
      * */
@@ -141,6 +151,7 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
 
             newSystems.stream().forEach(newSystem -> {
                 availableTelemetrySystems.add(newSystem);
+                requestTelemetryInfo(newSystem);
             });
         }
     }
@@ -166,6 +177,8 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
             availableTelemetrySystems.add(srcName);
             sourcesList.addItem(srcName);
         }
+
+        requestTelemetryInfo(srcName);
     }
 
     @Subscribe
