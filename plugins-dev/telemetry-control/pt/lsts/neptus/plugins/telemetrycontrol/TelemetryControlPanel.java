@@ -234,21 +234,42 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
         sendPlanAction = new AbstractAction("Send Plan", ICON_UP) {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                syncPlan((String) sourcesList.getSelectedItem(), currSys);
+                String sourceSys = (String) sourcesList.getSelectedItem();
+
+                if(!allowedCommunication(sourceSys, currSys)) {
+                    GuiUtils.errorMessage("Telemetry Control", "There is no bind between " + sourceSys + " and " + currSys);
+                    return;
+                }
+
+                syncPlan(sourceSys, currSys);
             }
         };
 
         startPlanAction = new AbstractAction("Start Plan", ICON_START) {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                sendPlanStart((String) sourcesList.getSelectedItem(), currSys);
+                String sourceSys = (String) sourcesList.getSelectedItem();
+
+                if(!allowedCommunication(sourceSys, currSys)) {
+                    GuiUtils.errorMessage("Telemetry Control", "There is no bind between " + sourceSys + " and " + currSys);
+                    return;
+                }
+
+                sendPlanStart(sourceSys, currSys);
             }
         };
 
         stopPlanAction = new AbstractAction("Stop plan", ICON_STOP) {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                sendPlanStop((String) sourcesList.getSelectedItem(), currSys);
+                String sourceSys = (String) sourcesList.getSelectedItem();
+
+                if(!allowedCommunication(sourceSys, currSys)) {
+                    GuiUtils.errorMessage("Telemetry Control", "There is no bind between " + sourceSys + " and " + currSys);
+                    return;
+                }
+
+                sendPlanStop(sourceSys, currSys);
             }
         };
 
@@ -260,6 +281,16 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
         UIManager.put("ToggleButton.select", new ColorUIResource( COLOR_GREEN ));
         toggleTelemetry.setSelected(false);
         toggleTelemetry.addItemListener(itemEvent -> toogleTelemetry());
+    }
+
+    /**
+     * Check if there is a bind between sourceSys and targetSys
+     * */
+    private boolean allowedCommunication(String sourceSys, String targetSys) {
+        if (!telemetryBinds.containsKey(sourceSys))
+            return true;
+
+        return telemetryBinds.get(sourceSys).contains(targetSys);
     }
 
     private void syncPlan(String telemetryTarget, String imcTarget) {
