@@ -202,9 +202,10 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
 
     @Subscribe
     public void consume(TelemetryMsg msg) {
-        if (msg.getType() == TelemetryMsg.TYPE.TX)
+        if (msg.getType() != TelemetryMsg.TYPE.TXSTATUS)
             return;
 
+        NeptusLog.pub().info("Got ack from " + msg.getSourceName() + " for request " + msg.getReqId());
         // register successful sending of message
         if (msg.getStatus() == TelemetryMsg.STATUS.DONE)
             synchronized (acks) {
