@@ -101,7 +101,7 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
     private ToolbarButton startPlan;
     private ToolbarButton stopPlan;
 
-    private final JToggleButton toggleTelemetry = new JToggleButton("OFF");
+    private final JToggleButton decodeTelemetryButton = new JToggleButton("OFF");
     private final JLabel sourcesLabel = new JLabel("From");
     private final JComboBox sourcesList = new JComboBox();
 
@@ -151,28 +151,16 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
                     .map(ImcSystem::getName)
                     .collect(Collectors.toList());
 
-            newSystems.stream().forEach(newSystem -> requestTelemetryInfo(newSystem));
+            newSystems.stream().forEach(newSystem -> {
+                NeptusLog.pub().info("Discovered " + newSystem + " telemetry system");
+                requestTelemetryInfo(newSystem);
+            });
         }
     }
 
-    /**
-     * Check announce for new telemetry systems
-     * */
-    @Subscribe
-    public void consume(Announce msg) {
-        if (availableTelemetrySystems.contains(msg.getSysName()))
-            return;
-
-        String[] services = msg.getServices().split(";");
-
-        // no radio service
-        if (!Arrays.stream(services).anyMatch(s -> s.contains(announceRadioFormat)))
-            return;
-
-        String srcName = msg.getSysName();
-
-        NeptusLog.pub().info("Discovered " + srcName + " telemetry system");
-        requestTelemetryInfo(srcName);
+    @Periodic(millisBetweenUpdates = 10000)
+    public void onPeriodicUpdate() {
+        discoverTelemetrySystems();
     }
 
     /**
@@ -187,7 +175,7 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
         Optional<SystemProperty> res = params.stream().filter(param -> param.getName().equals(bindParamStr)).findAny();
 
         if (!res.isPresent()) {
-            post(Notification.error("Telemetry Control", "Could not find parameter \"" + bindParamStr + "\""));
+            post(Notification.error("Telemetry Control -- " + sys, "Could not find parameter \"" + bindParamStr + "\""));
             return false;
         }
 
@@ -285,7 +273,7 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
 
         this.add(sourcesLabel, "grow");
         this.add(sourcesList, "grow");
-        this.add(toggleTelemetry, "grow,wrap");
+        this.add(decodeTelemetryButton, "grow,wrap");
         this.add(sendPlan);
         this.add(startPlan);
         this.add(stopPlan);
@@ -363,8 +351,8 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
 
         // wtf java
         UIManager.put("ToggleButton.select", new ColorUIResource( COLOR_GREEN ));
-        toggleTelemetry.setSelected(false);
-        toggleTelemetry.addItemListener(itemEvent -> toogleTelemetry());
+        decodeTelemetryButton.setSelected(false);
+        decodeTelemetryButton.addItemListener(itemEvent -> toogleTelemetry());
     }
 
     /**
@@ -528,11 +516,11 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
     }
 
     private void toogleTelemetry() {
-        if (toggleTelemetry.isSelected())
-            toggleTelemetry.setText(I18n.text("ON"));
+        if (decodeTelemetryButton.isSelected())
+            decodeTelemetryButton.setText(I18n.text("ON"));
         else {
-            toggleTelemetry.setBackground(COLOR_RED);
-            toggleTelemetry.setText(I18n.text("OFF"));
+            decodeTelemetryButton.setBackground(COLOR_RED);
+            decodeTelemetryButton.setText(I18n.text("OFF"));
         }
     }
 
