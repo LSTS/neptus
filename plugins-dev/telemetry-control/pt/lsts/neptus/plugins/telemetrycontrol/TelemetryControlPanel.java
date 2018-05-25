@@ -110,8 +110,6 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
     private AbstractAction stopPlanAction;
 
     private long requestId = 0;
-
-    private String currSys = null;
     private PlanType currSelectedPlan = null;
 
     /** Known telemetry systems **/
@@ -261,10 +259,6 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
 
     }
 
-    @Subscribe
-    public void mainVehicleChangeNotification(ConsoleEventMainSystemChange ev) {
-        currSys = ev.getCurrent();
-    }
 
     private void buildPlanel() {
         setLayout(new MigLayout());
@@ -302,12 +296,12 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
                 if(sourceSys == null || sourceSys.equals(""))
                     return;
 
-                if(!allowedCommunication(sourceSys, currSys)) {
-                    GuiUtils.errorMessage("Telemetry Control", "There is no bind between " + sourceSys + " and " + currSys);
+                if(!allowedCommunication(sourceSys, getMainVehicleId())) {
+                    GuiUtils.errorMessage("Telemetry Control", "There is no bind between " + sourceSys + " and " + getMainVehicleId());
                     return;
                 }
 
-                syncPlan(sourceSys, currSys);
+                syncPlan(sourceSys, getMainVehicleId());
             }
         };
 
@@ -319,12 +313,12 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
                 if(sourceSys == null || sourceSys.equals(""))
                     return;
 
-                if(!allowedCommunication(sourceSys, currSys)) {
-                    GuiUtils.errorMessage("Telemetry Control", "There is no bind between " + sourceSys + " and " + currSys);
+                if(!allowedCommunication(sourceSys, getMainVehicleId())) {
+                    GuiUtils.errorMessage("Telemetry Control", "There is no bind between " + sourceSys + " and " + getMainVehicleId());
                     return;
                 }
 
-                sendPlanStart(sourceSys, currSys);
+                sendPlanStart(sourceSys, getMainVehicleId());
             }
         };
 
@@ -336,12 +330,12 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
                 if(sourceSys == null || sourceSys.equals(""))
                     return;
 
-                if(!allowedCommunication(sourceSys, currSys)) {
-                    GuiUtils.errorMessage("Telemetry Control", "There is no bind between " + sourceSys + " and " + currSys);
+                if(!allowedCommunication(sourceSys, getMainVehicleId())) {
+                    GuiUtils.errorMessage("Telemetry Control", "There is no bind between " + sourceSys + " and " + getMainVehicleId());
                     return;
                 }
 
-                sendPlanStop(sourceSys, currSys);
+                sendPlanStop(sourceSys, getMainVehicleId());
             }
         };
 
