@@ -247,15 +247,30 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
 
     @Subscribe
     public void consume(TelemetryMsg msg) {
-        if (msg.getType() != TelemetryMsg.TYPE.TXSTATUS)
-            return;
+        switch (msg.getType()) {
+            case TXSTATUS:
+                consumeTelemetryMsgTxStatus(msg);
+            case RX:
+                consumeTelemetryMsgRx(msg);
+            default:
+                NeptusLog.pub().debug("TelemetryMsg.TX no handled");
+        }
+    }
 
+    /**
+     * Handle TXSTATUS type TelemetryMsg
+     * */
+    public void consumeTelemetryMsgTxStatus(TelemetryMsg msg) {
         NeptusLog.pub().info("Got ack from " + msg.getSourceName() + " for request " + msg.getReqId());
         // register successful sending of message
         if (msg.getStatus() == TelemetryMsg.STATUS.DONE)
             synchronized (acks) {
                 acks.add(msg.getReqId());
             }
+    }
+
+    public void consumeTelemetryMsgRx(TelemetryMsg msg) {
+
     }
 
     @Subscribe
