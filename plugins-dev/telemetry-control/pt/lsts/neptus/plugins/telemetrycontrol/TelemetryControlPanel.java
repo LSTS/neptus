@@ -332,15 +332,15 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
         pdb.setArg(currSelectedPlan.asIMCPlan());
         pdb.setDst(ImcSystemsHolder.lookupSystemByName(imcTarget).getId().intValue());
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        try {
-            pdb.serialize(new IMCOutputStream(baos));
-        } catch (IOException e) {
-            GuiUtils.errorMessage(I18n.text("Send Plan Error"), e.getMessage());
+        ByteBuffer bfr = ByteBuffer.allocate(pdb.getPayloadSize());
+
+        int nbytes = pdb.serializePayload(bfr, 0);
+        if (nbytes != pdb.getPayloadSize()) {
+            GuiUtils.errorMessage(I18n.text("Send Plan Error"), "Wrong serialization size");
             return;
         }
 
-        long reqId = dispatchTelemetry(telemetryTarget, imcTarget, TelemetryMsg.CODE.CODE_IMC, TelemetryMsg.STATUS.EMPTY, true, baos.toByteArray());
+        long reqId = dispatchTelemetry(telemetryTarget, imcTarget, TelemetryMsg.CODE.CODE_IMC, TelemetryMsg.STATUS.EMPTY, true, bfr.array());
 
         if (reqId == -1)
             return;
@@ -372,15 +372,15 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
         pc.setPlanId(currSelectedPlan.getId());
         pc.setDst(ImcSystemsHolder.lookupSystemByName(imcTarget).getId().intValue());
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        try {
-            pc.serialize(new IMCOutputStream(baos));
-        } catch (IOException e) {
-            GuiUtils.errorMessage(I18n.text("Start Plan Error"), e.getMessage());
+        ByteBuffer bfr = ByteBuffer.allocate(pc.getPayloadSize());
+
+        int nbytes = pc.serializePayload(bfr, 0);
+        if (nbytes != pc.getPayloadSize()) {
+            GuiUtils.errorMessage(I18n.text("Start Plan Error"), "Wrong serialization size");
             return;
         }
 
-        long reqId = dispatchTelemetry(telemetryTarget, imcTarget, TelemetryMsg.CODE.CODE_IMC, TelemetryMsg.STATUS.EMPTY, true, baos.toByteArray());
+        long reqId = dispatchTelemetry(telemetryTarget, imcTarget, TelemetryMsg.CODE.CODE_IMC, TelemetryMsg.STATUS.EMPTY, true, bfr.array());
 
         if (reqId == -1)
             return;
@@ -412,15 +412,15 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
         pc.setPlanId(currSelectedPlan.getId());
         pc.setDst(ImcSystemsHolder.lookupSystemByName(imcTarget).getId().intValue());
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        try {
-            pc.serialize(new IMCOutputStream(baos));
-        } catch (IOException e) {
-            GuiUtils.errorMessage(I18n.text("Send Plan Error"), e.getMessage());
+        ByteBuffer bfr = ByteBuffer.allocate(pc.getPayloadSize());
+
+        int nbytes = pc.serializePayload(bfr, 0);
+        if (nbytes != pc.getPayloadSize()) {
+            GuiUtils.errorMessage(I18n.text("Stop Plan Error"), "Wrong serialization size");
             return;
         }
 
-        long reqId = dispatchTelemetry(telemetryTarget, imcTarget, TelemetryMsg.CODE.CODE_IMC, TelemetryMsg.STATUS.EMPTY, true, baos.toByteArray());
+        long reqId = dispatchTelemetry(telemetryTarget, imcTarget, TelemetryMsg.CODE.CODE_IMC, TelemetryMsg.STATUS.EMPTY, true, bfr.array());
 
         if (reqId == -1)
             return;
