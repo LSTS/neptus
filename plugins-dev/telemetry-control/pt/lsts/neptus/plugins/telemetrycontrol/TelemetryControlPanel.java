@@ -36,7 +36,6 @@ import com.google.common.eventbus.Subscribe;
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.Announce;
 import pt.lsts.imc.CommSystemsQuery;
-import pt.lsts.imc.IMCOutputStream;
 import pt.lsts.imc.PlanControl;
 import pt.lsts.imc.PlanDB;
 import pt.lsts.imc.TelemetryMsg;
@@ -70,9 +69,13 @@ import javax.swing.UIManager;
 import javax.swing.plaf.ColorUIResource;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.*;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -91,6 +94,8 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
     private final Color COLOR_RED = Color.RED;
 
     private final String announceRadioFormat = "radio/telemetry";
+    /** Name given to the DUNE parameter used for telemetry bind **/
+    private final String bindParamStr = "Vehicle to bind";
 
     private ToolbarButton sendPlan;
     private ToolbarButton startPlan;
@@ -130,7 +135,6 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
         query.setCommInterface(CommSystemsQuery.CIQ_RADIO);
         query.setType(CommSystemsQuery.CIQ_QUERY);
 
-        // TODO dispatch
         NeptusLog.pub().info("Requesting telemetry info from " + targetSys);
         IMCSendMessageUtils.sendMessage(query, I18n.text("Error querying info from " + targetSys), false, targetSys);
     }
@@ -147,10 +151,7 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
                     .map(ImcSystem::getName)
                     .collect(Collectors.toList());
 
-            newSystems.stream().forEach(newSystem -> {
-                availableTelemetrySystems.add(newSystem);
-                requestTelemetryInfo(newSystem);
-            });
+            newSystems.stream().forEach(newSystem -> requestTelemetryInfo(newSystem));
         }
     }
 
@@ -169,14 +170,52 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
             return;
 
         String srcName = msg.getSysName();
-        NeptusLog.pub().info("Discovered " + srcName + " telemetry system");
 
-        synchronized (availableTelemetrySystems) {
-            availableTelemetrySystems.add(srcName);
-            sourcesList.addItem(srcName);
+        NeptusLog.pub().info("Discovered " + srcName + " telemetry system");
+        requestTelemetryInfo(srcName);
+    }
+
+    /**
+     * Check given system's DUNE parameters for the system to bind
+     * and register it. Used when radio model is 3DR or RDFXXXXPTP
+     * @param sys System's name (e.g. manta-3)
+     * */
+    private boolean registerSystemBinds(String sys) {
+        ArrayList<SystemProperty> params = ConfigurationManager.getInstance().getProperties(sys,
+                SystemProperty.Visibility.USER, SystemProperty.Scope.GLOBAL);
+
+        Optional<SystemProperty> res = params.stream().filter(param -> param.getName().equals(bindParamStr)).findAny();
+
+        if (!res.isPresent()) {
+            post(Notification.error("Telemetry Control", "Could not find parameter \"" + bindParamStr + "\""));
+            return false;
         }
 
-        requestTelemetryInfo(srcName);
+        SystemProperty bindParam = res.get();
+        String systemToBind = (String) bindParam.getValue();
+        NeptusLog.pub().info("Binding " + sys + " to " + systemToBind);
+
+        // register bind
+        this.telemetryBinds.getOrDefault(sys, new HashSet<>()).add(systemToBind);
+        return true;
+    }
+
+    /**
+     * Register given mesh as system's bindings.
+     * Used when radio model "is mesh"
+     * @param sys System's name (e.g. manta-3)
+     * @param mesh The given system's bindings
+     * */
+    private boolean registerSystemMeshBindings(String sys, String[] mesh) {
+        if (mesh.length == 0) {
+            NeptusLog.pub().info("There are no bindings for " + sys);
+            return false;
+        }
+
+        HashSet<String> binds = this.telemetryBinds.getOrDefault(sys, new HashSet<>());
+        Arrays.stream(mesh).forEach(s -> binds.add(s));
+
+        return true;
     }
 
     @Subscribe
@@ -187,15 +226,23 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
         if ((msg.getCommInterface() & CommSystemsQuery.CIQ_RADIO) == 0)
             return;
 
-        String[] telemetryBinds = msg.getList().split(",");
+        NeptusLog.pub().info("Checking bindings for " + msg.getSourceName());
+        boolean ret;
+        // point to point
+        if (msg.getModel() == CommSystemsQuery.MODEL.M3DR || msg.getModel() == CommSystemsQuery.MODEL.RDFXXXXPTP)
+            ret = registerSystemBinds(msg.getSourceName());
+        // mesh
+        else
+            ret = registerSystemMeshBindings(msg.getSourceName(), msg.getList().split(","));
 
-        if (telemetryBinds.length == 0) {
-            NeptusLog.pub().info("There are no bindings for " + msg.getSourceName());
+        // failed to find bindings
+        if (!ret)
             return;
-        }
 
-        HashSet<String> binds = this.telemetryBinds.getOrDefault(msg.getSourceName(), new HashSet<>());
-        Arrays.stream(telemetryBinds).forEach(s -> binds.add(s));
+        synchronized (availableTelemetrySystems) {
+            availableTelemetrySystems.add(msg.getSourceName());
+            sourcesList.addItem(msg.getSourceName());
+        }
     }
 
     @Subscribe
