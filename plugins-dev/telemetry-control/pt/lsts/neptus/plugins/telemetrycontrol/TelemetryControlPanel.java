@@ -34,13 +34,10 @@ package pt.lsts.neptus.plugins.telemetrycontrol;
 
 import com.google.common.eventbus.Subscribe;
 import net.miginfocom.swing.MigLayout;
-import pt.lsts.imc.Announce;
-import pt.lsts.imc.CommSystemsQuery;
-import pt.lsts.imc.PlanControl;
-import pt.lsts.imc.PlanDB;
-import pt.lsts.imc.TelemetryMsg;
+import pt.lsts.imc.*;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -55,6 +52,7 @@ import pt.lsts.neptus.params.SystemProperty;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
+import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.util.GuiUtils;
@@ -69,13 +67,17 @@ import javax.swing.UIManager;
 import javax.swing.plaf.ColorUIResource;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Vector;
 import java.util.stream.Collectors;
 
 
@@ -247,12 +249,13 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
      * Handle TXSTATUS type TelemetryMsg
      * */
     public void consumeTelemetryMsgTxStatus(TelemetryMsg msg) {
-        NeptusLog.pub().info("Got ack from " + msg.getSourceName() + " for request " + msg.getReqId());
         // register successful sending of message
-        if (msg.getStatus() == TelemetryMsg.STATUS.DONE)
+        if (msg.getStatus() == TelemetryMsg.STATUS.DONE) {
+            NeptusLog.pub().info("Got ack from " + msg.getSourceName() + " for request " + msg.getReqId());
             synchronized (acks) {
                 acks.add(msg.getReqId());
             }
+        }
     }
 
     public void consumeTelemetryMsgRx(TelemetryMsg msg) {
@@ -359,6 +362,23 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
         return telemetryBinds.get(sourceSys).contains(targetSys);
     }
 
+    private byte[] serializeAsInlineMessage(IMCMessage msg) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        // serialize message fields
+        IMCDefinition def = IMCDefinition.getInstance();
+        int fieldsSize = def.serializeFields(msg, new IMCOutputStream(baos));
+
+        ByteBuffer bfr = ByteBuffer.allocate(2 + fieldsSize);
+        bfr.order(ByteOrder.LITTLE_ENDIAN);
+        // serialize message Id
+        bfr.putShort((short) msg.getMgid());
+
+        // serialize everything
+        bfr.put(baos.toByteArray());
+
+        return bfr.array();
+    }
+
     private void syncPlan(String telemetryTarget, String imcTarget) {
         if (currSelectedPlan == null) {
             NeptusLog.pub().warn("Currently selected plan is null");
@@ -376,15 +396,16 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
         pdb.setArg(currSelectedPlan.asIMCPlan());
         pdb.setDst(ImcSystemsHolder.lookupSystemByName(imcTarget).getId().intValue());
 
-        ByteBuffer bfr = ByteBuffer.allocate(pdb.getPayloadSize());
 
-        int nbytes = pdb.serializePayload(bfr, 0);
-        if (nbytes != pdb.getPayloadSize()) {
-            GuiUtils.errorMessage(I18n.text("Send Plan Error"), "Wrong serialization size");
+        byte[] bfr;
+        try {
+            bfr = serializeAsInlineMessage(pdb);
+        } catch (IOException e) {
+            GuiUtils.errorMessage(I18n.text("Send Plan Error"), e.getMessage());
             return;
         }
 
-        long reqId = dispatchTelemetry(telemetryTarget, imcTarget, TelemetryMsg.CODE.CODE_IMC, TelemetryMsg.STATUS.EMPTY, true, bfr.array());
+        long reqId = dispatchTelemetry(telemetryTarget, imcTarget, TelemetryMsg.CODE.CODE_IMC, TelemetryMsg.STATUS.EMPTY, true, bfr);
 
         if (reqId == -1)
             return;
@@ -416,15 +437,15 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
         pc.setPlanId(currSelectedPlan.getId());
         pc.setDst(ImcSystemsHolder.lookupSystemByName(imcTarget).getId().intValue());
 
-        ByteBuffer bfr = ByteBuffer.allocate(pc.getPayloadSize());
-
-        int nbytes = pc.serializePayload(bfr, 0);
-        if (nbytes != pc.getPayloadSize()) {
-            GuiUtils.errorMessage(I18n.text("Start Plan Error"), "Wrong serialization size");
+        byte[] bfr;
+        try {
+            bfr = serializeAsInlineMessage(pc);
+        } catch (IOException e) {
+            GuiUtils.errorMessage(I18n.text("Send Plan Error"), e.getMessage());
             return;
         }
 
-        long reqId = dispatchTelemetry(telemetryTarget, imcTarget, TelemetryMsg.CODE.CODE_IMC, TelemetryMsg.STATUS.EMPTY, true, bfr.array());
+        long reqId = dispatchTelemetry(telemetryTarget, imcTarget, TelemetryMsg.CODE.CODE_IMC, TelemetryMsg.STATUS.EMPTY, true, bfr);
 
         if (reqId == -1)
             return;
@@ -456,15 +477,15 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
         pc.setPlanId(currSelectedPlan.getId());
         pc.setDst(ImcSystemsHolder.lookupSystemByName(imcTarget).getId().intValue());
 
-        ByteBuffer bfr = ByteBuffer.allocate(pc.getPayloadSize());
-
-        int nbytes = pc.serializePayload(bfr, 0);
-        if (nbytes != pc.getPayloadSize()) {
-            GuiUtils.errorMessage(I18n.text("Stop Plan Error"), "Wrong serialization size");
+        byte[] bfr;
+        try {
+            bfr = serializeAsInlineMessage(pc);
+        } catch (IOException e) {
+            GuiUtils.errorMessage(I18n.text("Send Plan Error"), e.getMessage());
             return;
         }
 
-        long reqId = dispatchTelemetry(telemetryTarget, imcTarget, TelemetryMsg.CODE.CODE_IMC, TelemetryMsg.STATUS.EMPTY, true, bfr.array());
+        long reqId = dispatchTelemetry(telemetryTarget, imcTarget, TelemetryMsg.CODE.CODE_IMC, TelemetryMsg.STATUS.EMPTY, true, bfr);
 
         if (reqId == -1)
             return;
