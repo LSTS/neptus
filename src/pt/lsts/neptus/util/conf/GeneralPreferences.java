@@ -255,6 +255,12 @@ public class GeneralPreferences implements PropertiesProvider {
     public static LatLonFormatEnum latLonPrefFormat = LatLonFormatEnum.DM;
 
     // -------------------------------------------------------------------------
+
+    @NeptusProperty(name = "Show Local Time on Console", category = "Interface", userLevel = LEVEL.REGULAR, 
+            description = "Select this if you want also to show local time on console status bar.")
+    public static boolean localTimeOnConsoleOn = false;
+
+    // -------------------------------------------------------------------------
     // Constructor and initialize
 
     public GeneralPreferences() {

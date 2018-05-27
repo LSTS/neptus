@@ -69,6 +69,7 @@ public class DateTimeUtil {
     public static final SimpleDateFormat timeFormatterNoMillis2UTC = new SimpleDateFormat("HH'h'mm'm'ss's'") {{setTimeZone(TimeZone.getTimeZone("UTC"));}};
     public static final SimpleDateFormat timeFormatterNoSegs = new SimpleDateFormat("HH:mm");
     public static final SimpleDateFormat timeFormatterNoSegs2 = new SimpleDateFormat("HH'h'mm'm'");
+    public static final SimpleDateFormat timeFormatterNoSegs3 = new SimpleDateFormat("HH':'mm");
     public static final SimpleDateFormat timeUTCFormatterNoSegs2 = new SimpleDateFormat("HH'h'mm'm'") {{setTimeZone(TimeZone.getTimeZone("UTC"));}};
     public static final SimpleDateFormat timeUTCFormatterNoSegs3 = new SimpleDateFormat("HH':'mm") {{setTimeZone(TimeZone.getTimeZone("UTC"));}};
     public static final SimpleDateFormat dateTimeFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
