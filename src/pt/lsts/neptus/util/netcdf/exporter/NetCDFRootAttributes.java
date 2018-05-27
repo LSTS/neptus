@@ -39,12 +39,14 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.util.conf.ConfigFetch;
+import ucar.ma2.Array;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFileWriter;
 
@@ -85,7 +87,7 @@ public class NetCDFRootAttributes {
     public String creatorName = "Neptus " + ConfigFetch.getNeptusVersion();
     public String creatorType = "group";
     
-    private Map<String, String> additionalAttrib = new LinkedHashMap<>(); 
+    private Map<String, Object> additionalAttrib = new LinkedHashMap<>(); 
     
     /**
      * @param title the title to set
@@ -287,13 +289,19 @@ public class NetCDFRootAttributes {
         return this;
     }
 
-    public NetCDFRootAttributes setAtribute(String name, String val) {
+    public NetCDFRootAttributes setAtribute(String name, Object val) {
         if (name != null && !name.isEmpty())
             additionalAttrib.put(name, val);
         return this;
     }
 
-    public NetCDFRootAttributes removeAtribute(String name, String val) {
+    public NetCDFRootAttributes setAtribute(String name, Object[] val) {
+        if (name != null && !name.isEmpty())
+            additionalAttrib.put(name, val);
+        return this;
+    }
+
+    public NetCDFRootAttributes removeAtribute(String name) {
         if (name != null && !name.isEmpty())
             additionalAttrib.remove(name);
         return this;
@@ -344,10 +352,34 @@ public class NetCDFRootAttributes {
                 writer.addGroupAttribute(null, new Attribute("creator_type", creatorType));
             
             additionalAttrib.keySet().stream().forEach(name -> {
-                String val = additionalAttrib.get(name);
+                Object val = additionalAttrib.get(name);
                 if (val == null)
                     return;
-                writer.addGroupAttribute(null, new Attribute(name, val));
+
+                try {
+                    if (val.getClass().isArray())
+                        writer.addGroupAttribute(null, new Attribute(name, Array.factory(val)));
+                    else if (val.getClass().isAssignableFrom(String.class))
+                        writer.addGroupAttribute(null, new Attribute(name, (String) val));
+                    else if (val.getClass().isAssignableFrom(Attribute.class))
+                        writer.addGroupAttribute(null, new Attribute(name, (Attribute) val));
+                    else if (val.getClass().isAssignableFrom(Array.class))
+                        writer.addGroupAttribute(null, new Attribute(name, (Array) val));
+                    else if (val.getClass().isAssignableFrom(List.class))
+                        writer.addGroupAttribute(null, new Attribute(name, (List<?>) val));
+                    else {
+                        try {
+                            Number number = (Number) val;
+                            writer.addGroupAttribute(null, new Attribute(name, number));   
+                        }
+                        catch (Exception e) {
+                            throw new Exception("Not valid attribute type!");
+                        }
+                    }
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().error(String.format("Error while writting attribute '$s'!", name), e);
+                }
             });
 
         }

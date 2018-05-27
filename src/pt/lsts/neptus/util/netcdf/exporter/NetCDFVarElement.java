@@ -382,6 +382,21 @@ public class NetCDFVarElement {
         }
     }
 
+    public boolean insertData(char[] value) {
+        try {
+            if (dataArray == null)
+                createDataArray();
+            setindexAt(0);
+            for (int i = 0; i < value.length; i++)
+                dataArray.setChar(i, value[i]);
+            return true;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     private Index setindexAt(int... index) {
         Index idx = dataArray.getIndex();
         idx.set(index);
