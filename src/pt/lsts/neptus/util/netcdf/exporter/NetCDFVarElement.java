@@ -84,7 +84,7 @@ public class NetCDFVarElement {
     private Group group = null;
     private List<Dimension> dimensions = null;
 
-    private Map<String, String> additionalAttrib = new LinkedHashMap<>(); 
+    private Map<String, Object> additionalAttrib = new LinkedHashMap<>(); 
     
     private Variable var = null;
     private Array dataArray = null;
@@ -173,13 +173,19 @@ public class NetCDFVarElement {
         return this;
     }
     
-    public NetCDFVarElement setAtribute(String name, String val) {
+    public NetCDFVarElement setAtribute(String name, Object val) {
         if (name != null && !name.isEmpty())
             additionalAttrib.put(name, val);
         return this;
     }
 
-    public NetCDFVarElement removeAtribute(String name, String val) {
+    public NetCDFVarElement setAtribute(String name, Object[] val) {
+        if (name != null && !name.isEmpty())
+            additionalAttrib.put(name, val);
+        return this;
+    }
+
+    public NetCDFVarElement removeAtribute(String name) {
         if (name != null && !name.isEmpty())
             additionalAttrib.remove(name);
         return this;
@@ -427,16 +433,39 @@ public class NetCDFVarElement {
                 var.addAttribute(new Attribute("coverage_content_type", coverageContentType.toString()));
             
             additionalAttrib.keySet().stream().forEach(name -> {
-                String val = additionalAttrib.get(name);
+                Object val = additionalAttrib.get(name);
                 if (val == null)
                     return;
-                var.addAttribute(new Attribute(name, val));
+                
+                try {
+                    if (val.getClass().isArray())
+                        var.addAttribute(new Attribute(name, Array.factory(val)));
+                    else if (val.getClass().isAssignableFrom(String.class))
+                        var.addAttribute(new Attribute(name, (String) val));
+                    else if (val.getClass().isAssignableFrom(Attribute.class))
+                        var.addAttribute(new Attribute(name, (Attribute) val));
+                    else if (val.getClass().isAssignableFrom(Array.class))
+                        var.addAttribute(new Attribute(name, (Array) val));
+                    else if (val.getClass().isAssignableFrom(List.class))
+                        var.addAttribute(new Attribute(name, (List<?>) val));
+                    else {
+                        try {
+                            Number number = (Number) val;
+                            var.addAttribute(new Attribute(name, number));   
+                        }
+                        catch (Exception e) {
+                            throw new Exception("Not valid attribute type!");
+                        }
+                    }
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().error(String.format("Error while writting attribute '$s'!", name), e);
+                }
             });
             
             if (dimensions == null || dimensions.size() == 0) {
                 // Create a scalar Variable named scalar of type double. Note that the empty ArrayList means that it is
                 // a scalar, ie has no Dimensions.
-                
             }
         }
         catch (Exception e) {
@@ -457,5 +486,11 @@ public class NetCDFVarElement {
             return false;
         }
         return true;
+    }
+    
+    public static void main(String[] args) {
+        double[] arrayD = new double[] {};
+        System.out.println(arrayD.getClass().getComponentType());
+        
     }
 }

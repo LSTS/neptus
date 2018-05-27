@@ -164,24 +164,24 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
 
             NetCDFVarElement latVar = new NetCDFVarElement("lat").setLongName("latitude").setStandardName("latitude")
                     .setUnits("degrees_north").setDataType(DataType.DOUBLE).setDimensions(dims).setAtribute("axis", "Y")
-                    .setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, "-9999")
-                    .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, "-9999").setAtribute("valid_min", "-90")
-                    .setAtribute("valid_max", "90");
+                    .setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, -9999.)
+                    .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, -9999.).setAtribute("valid_min", -90.)
+                    .setAtribute("valid_max", 90.).setAtribute(NetCDFUtils.NETCDF_ATT_VALID_RANGE, new double[] {-90., 90.});
             varsList.add(latVar);
 
             NetCDFVarElement lonVar = new NetCDFVarElement("lon").setLongName("longitude").setStandardName("longitude")
                     .setUnits("degrees_east").setDataType(DataType.DOUBLE).setDimensions(dims).setAtribute("axis", "X")
-                    .setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, "-9999")
-                    .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, "-9999").setAtribute("valid_min", "-180")
-                    .setAtribute("valid_max", "180");
+                    .setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, -9999.)
+                    .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, -9999.).setAtribute("valid_min", -180.)
+                    .setAtribute("valid_max", 180.).setAtribute(NetCDFUtils.NETCDF_ATT_VALID_RANGE, new double[] {-180., 180.});
             varsList.add(lonVar);
 
             // scaled as 0.1
             NetCDFVarElement depthVar = new NetCDFVarElement("depth").setLongName("depth").setStandardName("depth")
                     .setUnits("m").setDataType(DataType.INT).setDimensions(dims).setAtribute("axis", "Z")
-                    .setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, "-9999")
-                    .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, "-9999").setAtribute("valid_min", "0")
-                    .setAtribute("scale_factor", "0.1").setAtribute("positive", "down")
+                    .setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, -9999)
+                    .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, -9999).setAtribute("valid_min", 0)
+                    .setAtribute("scale_factor", 0.1).setAtribute("positive", "down")
                     .setAtribute("_CoordinateAxisType", "Depth").setAtribute("_CoordinateZisPositive", "down")
                     .setAtribute("coordinates", "time lat lon");
             varsList.add(depthVar);
@@ -194,40 +194,40 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
 
             NetCDFVarElement cogVar = new NetCDFVarElement("cog").setLongName("course over ground")
                     .setStandardName("platform_course").setUnits("degree_T").setDataType(DataType.FLOAT)
-                    .setDimensions(dims).setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, "NaN")
-                    .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, "NaN")
-                    .setAtribute("coordinates", "time depth lat lon").setAtribute("valid_min", "-180")
-                    .setAtribute("valid_max", "180");
+                    .setDimensions(dims).setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, Float.NaN)
+                    .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, Float.NaN)
+                    .setAtribute("coordinates", "time depth lat lon").setAtribute("valid_min", -180f)
+                    .setAtribute("valid_max", 180f);
             varsList.add(cogVar);
 
             NetCDFVarElement hdgVar = new NetCDFVarElement("hdg").setLongName("Vehicle heading")
                     .setStandardName("platform_yaw_angle").setUnits("degree_T").setDataType(DataType.FLOAT)
-                    .setDimensions(dims).setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, "NaN")
-                    .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, "NaN")
-                    .setAtribute("coordinates", "time depth lat lon").setAtribute("valid_min", "-180")
-                    .setAtribute("valid_max", "180");
+                    .setDimensions(dims).setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, Float.NaN)
+                    .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, Float.NaN)
+                    .setAtribute("coordinates", "time depth lat lon").setAtribute("valid_min", -180f)
+                    .setAtribute("valid_max", 180f);
             varsList.add(hdgVar);
 
             NetCDFVarElement rollVar = new NetCDFVarElement("roll").setLongName("Vehicle roll")
                     .setStandardName("platform_roll_angle").setUnits("degree").setDataType(DataType.FLOAT)
-                    .setDimensions(dims).setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, "NaN")
-                    .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, "NaN")
-                    .setAtribute("coordinates", "time depth lat lon").setAtribute("valid_min", "-180")
-                    .setAtribute("valid_max", "180");
+                    .setDimensions(dims).setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, Float.NaN)
+                    .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, Float.NaN)
+                    .setAtribute("coordinates", "time depth lat lon").setAtribute("valid_min", -180f)
+                    .setAtribute("valid_max", 180f);
             varsList.add(rollVar);
 
             NetCDFVarElement pitchVar = new NetCDFVarElement("pitch").setLongName("Vehicle pitch")
                     .setStandardName("platform_pitch_angle").setUnits("degree").setDataType(DataType.FLOAT)
-                    .setDimensions(dims).setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, "NaN")
-                    .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, "NaN")
-                    .setAtribute("coordinates", "time depth lat lon").setAtribute("valid_min", "-180")
-                    .setAtribute("valid_max", "180");
+                    .setDimensions(dims).setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, Float.NaN)
+                    .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, Float.NaN)
+                    .setAtribute("coordinates", "time depth lat lon").setAtribute("valid_min", -180f)
+                    .setAtribute("valid_max", 180f);
             varsList.add(pitchVar);
 
             NetCDFVarElement sogVar = new NetCDFVarElement("sog").setLongName("Speed over ground")
                     .setStandardName("latform_speed_wrt_ground").setUnits("m s-1").setDataType(DataType.FLOAT)
-                    .setDimensions(dims).setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, "NaN")
-                    .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, "NaN")
+                    .setDimensions(dims).setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, Float.NaN)
+                    .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, Float.NaN)
                     .setAtribute("coordinates", "time depth lat lon");
             varsList.add(sogVar);
 
@@ -265,8 +265,8 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
             if (containsCondutivity) {
                 condVar = new NetCDFVarElement("cond").setLongName("Conductivity")
                         .setStandardName("sea_water_electrical_conductivity").setUnits("S m-1").setDataType(DataType.FLOAT)
-                        .setDimensions(dims).setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, "NaN")
-                        .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, "NaN")
+                        .setDimensions(dims).setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, Float.NaN)
+                        .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, Float.NaN)
                         .setAtribute("coordinates", "time depth lat lon");
                 varsList.add(condVar);
             }
@@ -274,8 +274,8 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
             if (containsTemperature) {
                 tempVar = new NetCDFVarElement("temp_cdt").setLongName("Temperature CTD")
                         .setStandardName("sea_water_temperature").setUnits("degree_C").setDataType(DataType.FLOAT)
-                        .setDimensions(dims).setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, "NaN")
-                        .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, "NaN")
+                        .setDimensions(dims).setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, Float.NaN)
+                        .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, Float.NaN)
                         .setAtribute("coordinates", "time depth lat lon");
                 varsList.add(tempVar);
             }
@@ -283,8 +283,8 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
             if (containsSalinity) {
                 salVar = new NetCDFVarElement("sal").setLongName("Salinity")
                         .setStandardName("sea_water_practical_salinity").setUnits("PSU").setDataType(DataType.FLOAT)
-                        .setDimensions(dims).setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, "NaN")
-                        .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, "NaN")
+                        .setDimensions(dims).setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, Float.NaN)
+                        .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, Float.NaN)
                         .setAtribute("coordinates", "time depth lat lon");
                 varsList.add(salVar);
             }
@@ -292,8 +292,8 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
             if (containsWaterDensity) {
                 waterDensityVar = new NetCDFVarElement("waterdensity").setLongName("Sea Water Density")
                         .setStandardName("sea_water_density").setUnits("kg m-3").setDataType(DataType.FLOAT)
-                        .setDimensions(dims).setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, "NaN")
-                        .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, "NaN")
+                        .setDimensions(dims).setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, Float.NaN)
+                        .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, Float.NaN)
                         .setAtribute("coordinates", "time depth lat lon");
                 varsList.add(waterDensityVar);
             }
@@ -301,8 +301,8 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
             if (containsChlorophyll) {
                 chlorophyllVar = new NetCDFVarElement("chlor").setLongName("Chlorophyll")
                         .setStandardName("mass_concentration_of_chlorophyll_in_sea_water").setUnits("ug l-1").setDataType(DataType.FLOAT)
-                        .setDimensions(dims).setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, "NaN")
-                        .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, "NaN")
+                        .setDimensions(dims).setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, Float.NaN)
+                        .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, Float.NaN)
                         .setAtribute("coordinates", "time depth lat lon");
                 varsList.add(chlorophyllVar);
             }
@@ -310,8 +310,8 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
             if (containsTurbidity) {
                 turbidityVar = new NetCDFVarElement("turbidity").setLongName("Turbidity")
                         .setStandardName("sea_water_turbidity").setUnits("NTU").setDataType(DataType.FLOAT)
-                        .setDimensions(dims).setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, "NaN")
-                        .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, "NaN")
+                        .setDimensions(dims).setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, Float.NaN)
+                        .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, Float.NaN)
                         .setAtribute("coordinates", "time depth lat lon");
                 varsList.add(turbidityVar);
             }
@@ -319,7 +319,7 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
             if (containsPH) {
                 phVar = new NetCDFVarElement("ph").setLongName("pH")
                         .setStandardName("sea_water_ph_reported_on_total_scale").setUnits("").setDataType(DataType.FLOAT)
-                        .setDimensions(dims).setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, "NaN")
+                        .setDimensions(dims).setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, Float.NaN)
                         .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, "NaN")
                         .setAtribute("coordinates", "time depth lat lon");
                 varsList.add(phVar);
@@ -328,8 +328,8 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
             if (containsRedox) {
                 redoxVar = new NetCDFVarElement("redox").setLongName("Redox")
                         .setStandardName("").setUnits("V").setDataType(DataType.FLOAT)
-                        .setDimensions(dims).setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, "NaN")
-                        .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, "NaN")
+                        .setDimensions(dims).setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, Float.NaN)
+                        .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, Float.NaN)
                         .setAtribute("coordinates", "time depth lat lon");
                 varsList.add(redoxVar);
             }
@@ -337,8 +337,8 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
             if (containsSoundSpeed) {
                 soundSpeedVar = new NetCDFVarElement("soundspeed").setLongName("Sound Speed in the Sea Water")
                         .setStandardName("speed_of_sound_in_sea_water").setUnits("m s-1").setDataType(DataType.FLOAT)
-                        .setDimensions(dims).setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, "NaN")
-                        .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, "NaN")
+                        .setDimensions(dims).setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, Float.NaN)
+                        .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, Float.NaN)
                         .setAtribute("coordinates", "time depth lat lon");
                 varsList.add(soundSpeedVar);
             }
