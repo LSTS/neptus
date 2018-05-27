@@ -133,7 +133,8 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
 
             NetCDFRootAttributes rootAttr = NetCDFRootAttributes.createDefault(location, location);
             rootAttr.setDateModified(new Date((long) (source.getLsfIndex().getEndTime() * 1E3)))
-                .setId(source.getSystemName(logVehicleId) + "-" + location);
+                    .setId(source.getSystemName(logVehicleId) + "-" + location)
+                    .setAtribute("featureType", "trajectory");
             
             // Min sample rate is 1s
             dataSamplePeriod = Math.max(1, dataSamplePeriod);
@@ -143,14 +144,15 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
             rootAttr.write(writer);
             
             // add dimensions
-            Dimension trajDim = writer.addDimension(null, "trajectory", 1);
+//             Dimension trajDim = writer.addDimension(null, "trajectory", 1);
             Dimension obsDim = writer.addDimension(null, "obs", obsNumber);
+            Dimension nameStrlenDim = writer.addDimension(null, "name_strlen", 30);
 
             List<Dimension> dimsTraj = new ArrayList<Dimension>();
-            dimsTraj.add(trajDim);
+            dimsTraj.add(nameStrlenDim);
 
             List<Dimension> dims = new ArrayList<Dimension>();
-            dims.add(trajDim);
+            //ndims.add(trajDim);
             dims.add(obsDim);
 
             List<NetCDFVarElement> varsList = new ArrayList<>();
@@ -182,12 +184,12 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
                     .setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, -9999)
                     .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, -9999).setAtribute("valid_min", 0)
                     .setAtribute("scale_factor", 0.1).setAtribute("positive", "down")
-                    .setAtribute("_CoordinateAxisType", "Depth").setAtribute("_CoordinateZisPositive", "down")
+                    .setAtribute("_CoordinateAxisType", "Depth").setAtribute("positive", "down")
                     .setAtribute("coordinates", "time lat lon");
             varsList.add(depthVar);
 
             NetCDFVarElement trajVar = new NetCDFVarElement("trajectory").setLongName("trajectory")
-                    .setDataType(DataType.INT).setDimensions(dimsTraj);
+                    .setDataType(DataType.CHAR).setDimensions(dimsTraj).setAtribute("cf_role", "trajectory_id");
             varsList.add(trajVar);
 
             trajVar.insertData(logVehicleId, 0);
@@ -225,7 +227,7 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
             varsList.add(pitchVar);
 
             NetCDFVarElement sogVar = new NetCDFVarElement("sog").setLongName("Speed over ground")
-                    .setStandardName("latform_speed_wrt_ground").setUnits("m s-1").setDataType(DataType.FLOAT)
+                    .setStandardName("platform_speed_wrt_ground").setUnits("m s-1").setDataType(DataType.FLOAT)
                     .setDimensions(dims).setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, Float.NaN)
                     .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, Float.NaN)
                     .setAtribute("coordinates", "time depth lat lon");
@@ -272,7 +274,7 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
             }
             NetCDFVarElement tempVar =null;
             if (containsTemperature) {
-                tempVar = new NetCDFVarElement("temp_cdt").setLongName("Temperature CTD")
+                tempVar = new NetCDFVarElement("temp_ctd").setLongName("Temperature CTD")
                         .setStandardName("sea_water_temperature").setUnits("degree_C").setDataType(DataType.FLOAT)
                         .setDimensions(dims).setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, Float.NaN)
                         .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, Float.NaN)
@@ -343,6 +345,8 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
                 varsList.add(soundSpeedVar);
             }
             
+            trajVar.insertData(source.getSystemName(logVehicleId).toCharArray());
+            
             int curIndex = 0;
             for (int idx = 0; startTimeSec + idx < endTimeSec; idx++) {
 
@@ -366,10 +370,10 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
                             loc = pos.getPosition().getNewAbsoluteLatLonDepth();
                     }
                     
-                    timeVar.insertData(idx, 0, idx);
-                    latVar.insertData(loc.getLatitudeDegs(), 0, idx);
-                    lonVar.insertData(loc.getLongitudeDegs(), 0, idx);
-                    depthVar.insertData(m.getDouble("depth"), 0, idx);
+                    timeVar.insertData(idx, idx);
+                    latVar.insertData(loc.getLatitudeDegs(), idx);
+                    lonVar.insertData(loc.getLongitudeDegs(), idx);
+                    depthVar.insertData(m.getDouble("depth"), idx);
                     
                     double vx = m.getDouble("vx");
                     double vy = m.getDouble("vy");
@@ -379,141 +383,141 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
                     double groundSpeed = Math.sqrt(vx * vx + vy * vy);
                     // double verticalSpeed = vz;
                     
-                    cogVar.insertData(AngleUtils.nomalizeAngleDegrees180(Math.toDegrees(courseRad)), 0, idx);
-                    hdgVar.insertData(AngleUtils.nomalizeAngleDegrees180(Math.toDegrees(m.getDouble("psi"))), 0, idx);
-                    rollVar.insertData(AngleUtils.nomalizeAngleDegrees180(Math.toDegrees(m.getDouble("phi"))), 0, idx);
-                    pitchVar.insertData(AngleUtils.nomalizeAngleDegrees180(Math.toDegrees(m.getDouble("theta"))), 0, idx);
+                    cogVar.insertData(AngleUtils.nomalizeAngleDegrees180(Math.toDegrees(courseRad)), idx);
+                    hdgVar.insertData(AngleUtils.nomalizeAngleDegrees180(Math.toDegrees(m.getDouble("psi"))), idx);
+                    rollVar.insertData(AngleUtils.nomalizeAngleDegrees180(Math.toDegrees(m.getDouble("phi"))), idx);
+                    pitchVar.insertData(AngleUtils.nomalizeAngleDegrees180(Math.toDegrees(m.getDouble("theta"))), idx);
                     
-                    sogVar.insertData(groundSpeed, 0, idx);
+                    sogVar.insertData(groundSpeed, idx);
                     
                     int entityForTemp = -1;
                     if (containsCondutivity) {
                         IMCMessage msg = getNextMessage(source, logVehicleId, curIndex, time, dataSamplePeriod, "Conductivity");
                         if (msg != null) {
-                            condVar.insertData(msg.getFloat("value"), 0, idx);
+                            condVar.insertData(msg.getFloat("value"), idx);
                             entityForTemp = entityForTemp >= 0 ? entityForTemp : msg.getSrcEnt();
                         }
                         else {
-                            condVar.insertData(Float.NaN, 0, idx);
+                            condVar.insertData(Float.NaN, idx);
                         }
                     }
                     if (containsSalinity) {
                         IMCMessage msg = getNextMessage(source, logVehicleId, curIndex, time, dataSamplePeriod, "Salinity");
                         if (msg != null) {
-                            salVar.insertData(msg.getFloat("value"), 0, idx);
+                            salVar.insertData(msg.getFloat("value"), idx);
                             entityForTemp = entityForTemp >= 0 ? entityForTemp : msg.getSrcEnt();
                         }
                         else {
-                            salVar.insertData(Float.NaN, 0, idx);
+                            salVar.insertData(Float.NaN, idx);
                         }
                     }
                     if (containsWaterDensity) {
                         IMCMessage msg = getNextMessage(source, logVehicleId, curIndex, time, dataSamplePeriod, "WaterDensity");
                         if (msg != null) {
-                            waterDensityVar.insertData(msg.getFloat("value"), 0, idx);
+                            waterDensityVar.insertData(msg.getFloat("value"), idx);
                             entityForTemp = entityForTemp >= 0 ? entityForTemp : msg.getSrcEnt();
                         }
                         else {
-                            waterDensityVar.insertData(Float.NaN, 0, idx);
+                            waterDensityVar.insertData(Float.NaN, idx);
                         }
                     }
                     if (containsChlorophyll) {
                         IMCMessage msg = getNextMessage(source, logVehicleId, curIndex, time, dataSamplePeriod, "Chlorophyll");
                         if (msg != null) {
-                            chlorophyllVar.insertData(msg.getFloat("value"), 0, idx);
+                            chlorophyllVar.insertData(msg.getFloat("value"), idx);
                             entityForTemp = entityForTemp >= 0 ? entityForTemp : msg.getSrcEnt();
                         }
                         else {
-                            chlorophyllVar.insertData(Float.NaN, 0, idx);
+                            chlorophyllVar.insertData(Float.NaN, idx);
                         }
                     }
                     if (containsTurbidity) {
                         IMCMessage msg = getNextMessage(source, logVehicleId, curIndex, time, dataSamplePeriod, "Turbidity");
                         if (msg != null) {
-                            turbidityVar.insertData(msg.getFloat("value"), 0, idx);
+                            turbidityVar.insertData(msg.getFloat("value"), idx);
                             entityForTemp = entityForTemp >= 0 ? entityForTemp : msg.getSrcEnt();
                         }
                         else {
-                            turbidityVar.insertData(Float.NaN, 0, idx);
+                            turbidityVar.insertData(Float.NaN, idx);
                         }
                     }
                     if (containsPH) {
                         IMCMessage msg = getNextMessage(source, logVehicleId, curIndex, time, dataSamplePeriod, "PH");
                         if (msg != null) {
-                            phVar.insertData(msg.getFloat("value"), 0, idx);
+                            phVar.insertData(msg.getFloat("value"), idx);
                             entityForTemp = entityForTemp >= 0 ? entityForTemp : msg.getSrcEnt();
                         }
                         else {
-                            phVar.insertData(Float.NaN, 0, idx);
+                            phVar.insertData(Float.NaN, idx);
                         }
                     }
                     if (containsRedox) {
                         IMCMessage msg = getNextMessage(source, logVehicleId, curIndex, time, dataSamplePeriod, "redox");
                         if (msg != null) {
-                            redoxVar.insertData(msg.getFloat("value"), 0, idx);
+                            redoxVar.insertData(msg.getFloat("value"), idx);
                             entityForTemp = entityForTemp >= 0 ? entityForTemp : msg.getSrcEnt();
                         }
                         else {
-                            redoxVar.insertData(Float.NaN, 0, idx);
+                            redoxVar.insertData(Float.NaN, idx);
                         }
                     }
                     if (containsSoundSpeed) {
                         IMCMessage msg = getNextMessage(source, logVehicleId, curIndex, time, dataSamplePeriod, "SoundSpeed");
                         if (msg != null) {
-                            soundSpeedVar.insertData(msg.getFloat("value"), 0, idx);
+                            soundSpeedVar.insertData(msg.getFloat("value"), idx);
                             entityForTemp = entityForTemp >= 0 ? entityForTemp : msg.getSrcEnt();
                         }
                         else {
-                            soundSpeedVar.insertData(Float.NaN, 0, idx);
+                            soundSpeedVar.insertData(Float.NaN, idx);
                         }
                     }
                     if (containsTemperature) {
                         if (entityForTemp >= 0) {
                             IMCMessage msg = getNextMessage(source, logVehicleId, entityForTemp, curIndex, time, dataSamplePeriod, "Temperature");
                             if (msg != null) {
-                                tempVar.insertData(msg.getFloat("value"), 0, idx);
+                                tempVar.insertData(msg.getFloat("value"), idx);
                                 entityForTemp = entityForTemp >= 0 ? entityForTemp : msg.getSrcEnt();
                             }
                             else {
-                                tempVar.insertData(Float.NaN, 0, idx);
+                                tempVar.insertData(Float.NaN, idx);
                             }
                         }
                         else {
-                            tempVar.insertData(Float.NaN, 0, idx);
+                            tempVar.insertData(Float.NaN, idx);
                         }
                     }
                 }
                 else {
-                    timeVar.insertData(idx, 0, idx);
-                    latVar.insertData(-9999, 0, idx);
-                    lonVar.insertData(-9999, 0, idx);
-                    depthVar.insertData(-9999, 0, idx);
+                    timeVar.insertData(idx, idx);
+                    latVar.insertData(-9999, idx);
+                    lonVar.insertData(-9999, idx);
+                    depthVar.insertData(-9999, idx);
 
-                    cogVar.insertData(Float.NaN, 0, idx);
-                    hdgVar.insertData(Float.NaN, 0, idx);
-                    rollVar.insertData(Float.NaN, 0, idx);
-                    pitchVar.insertData(Float.NaN, 0, idx);
+                    cogVar.insertData(Float.NaN, idx);
+                    hdgVar.insertData(Float.NaN, idx);
+                    rollVar.insertData(Float.NaN, idx);
+                    pitchVar.insertData(Float.NaN, idx);
 
-                    sogVar.insertData(Float.NaN, 0, idx);
+                    sogVar.insertData(Float.NaN, idx);
 
                     if (containsCondutivity)
-                        condVar.insertData(Float.NaN, 0, idx);
+                        condVar.insertData(Float.NaN, idx);
                     if (containsTemperature)
-                        tempVar.insertData(Float.NaN, 0, idx);
+                        tempVar.insertData(Float.NaN, idx);
                     if (containsSalinity)
-                        salVar.insertData(Float.NaN, 0, idx);
+                        salVar.insertData(Float.NaN, idx);
                     if (containsWaterDensity)
-                        waterDensityVar.insertData(Float.NaN, 0, idx);
+                        waterDensityVar.insertData(Float.NaN, idx);
                     if (containsChlorophyll)
-                        chlorophyllVar.insertData(Float.NaN, 0, idx);
+                        chlorophyllVar.insertData(Float.NaN, idx);
                     if (containsTurbidity)
-                        turbidityVar.insertData(Float.NaN, 0, idx);
+                        turbidityVar.insertData(Float.NaN, idx);
                     if (containsPH)
-                        phVar.insertData(Float.NaN, 0, idx);
+                        phVar.insertData(Float.NaN, idx);
                     if (containsRedox)
-                        redoxVar.insertData(Float.NaN, 0, idx);
+                        redoxVar.insertData(Float.NaN, idx);
                     if (containsSoundSpeed)
-                        soundSpeedVar.insertData(Float.NaN, 0, idx);
+                        soundSpeedVar.insertData(Float.NaN, idx);
                 }
             }
              
