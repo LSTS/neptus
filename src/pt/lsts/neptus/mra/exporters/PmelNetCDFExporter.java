@@ -192,8 +192,6 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
                     .setDataType(DataType.CHAR).setDimensions(dimsTraj).setAtribute("cf_role", "trajectory_id");
             varsList.add(trajVar);
 
-            trajVar.insertData(logVehicleId, 0);
-
             NetCDFVarElement cogVar = new NetCDFVarElement("cog").setLongName("course over ground")
                     .setStandardName("platform_course").setUnits("degree_T").setDataType(DataType.FLOAT)
                     .setDimensions(dims).setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, Float.NaN)

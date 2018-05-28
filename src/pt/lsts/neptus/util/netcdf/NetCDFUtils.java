@@ -282,7 +282,7 @@ public class NetCDFUtils {
                     minRange = ((Number) validRangeValueAtt.getValue(0)).doubleValue();
                     maxRange = ((Number) validRangeValueAtt.getValue(1)).doubleValue();
                 }
-                else if (validMinValueAtt != null && validMaxValueAtt != null) {
+                else if (validMinValueAtt != null || validMaxValueAtt != null) {
                     minRange = validMinValueAtt != null ? ((Number) validMinValueAtt.getValue(0)).doubleValue()
                             : Double.MIN_VALUE;
                     maxRange = validMaxValueAtt != null ? ((Number) validMaxValueAtt.getValue(0)).doubleValue()
