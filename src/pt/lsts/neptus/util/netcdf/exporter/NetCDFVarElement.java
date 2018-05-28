@@ -32,6 +32,7 @@
  */
 package pt.lsts.neptus.util.netcdf.exporter;
 
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -382,11 +383,17 @@ public class NetCDFVarElement {
         }
     }
 
-    public boolean insertData(char[] value) {
+    public boolean insertData(char[] value, int... index) {
         try {
             if (dataArray == null)
                 createDataArray();
-            setindexAt(0);
+            if (index.length > 0) {
+                int[] idxT = Arrays.copyOf(index, index.length + 1);
+                setindexAt(idxT);
+            }
+            else {
+                setindexAt(0);
+            }
             for (int i = 0; i < value.length; i++)
                 dataArray.setChar(i, value[i]);
             return true;
