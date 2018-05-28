@@ -428,7 +428,7 @@ public class NetCDFLoader {
                                     || Double.isFinite(depthMinMax.second())
                                             && Double.compare(depth, depthMinMax.second()) > 0))
                         checkLimitsDepthOk = false;
-                    if (!checkLimitsLatOk || !checkLimitsLonOk || !checkLimitsDepthOk) {
+                    if (!checkLimitsLatOk || !checkLimitsLonOk /* || !checkLimitsDepthOk*/) {
                         NeptusLog.pub().debug(String.format(
                                 "While processing %s found a valid value outside passed limits (lat:%s, lon:%s, depth:%s)!",
                                 varName, checkLimitsLatOk ? "ok" : "rejected", checkLimitsLonOk ? "ok" : "rejected",
@@ -437,6 +437,9 @@ public class NetCDFLoader {
                                 maxGradient, minLonXDelta, minLatYDelta, counter, null);
                         continue;
                     }
+                    
+                    if (!checkLimitsDepthOk)
+                        depth = Double.NaN;
                     
                     Index index = vArray.getIndex();
                     index.set(counter);
