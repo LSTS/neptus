@@ -149,7 +149,7 @@ public class SystemsInteraction extends ConsoleInteraction {
         
         // Pull up for lat/lon label
         g2.translate(0, renderer.getHeight() - (height + MARGIN));
-        g2.translate(0, -40);
+        g2.translate(10, -40);
 
         g2.setColor(new Color(0, 0, 0, 200));
 
