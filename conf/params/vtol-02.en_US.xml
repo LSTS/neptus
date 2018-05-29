@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2017.01.0 (master,8bf9206)" system="vtol-02" i18n="en_US">
+<config format="1" version="2017.01.0 (master,87921fb,dirty)" system="vtol-02" i18n="en_US">
   <section name="Autopilot" name-i18n="Autopilot">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -175,6 +175,33 @@
       <default>false</default>
       <units/>
       <desc>Produce GCS heartbeat (for debugging purposes).</desc>
+    </param>
+    <param name="Moving Home">
+      <name-i18n>Moving Home</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Enable/Disable moving basestation feature.</desc>
+    </param>
+    <param name="Basestation">
+      <name-i18n>Basestation</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>manta-3</default>
+      <units/>
+      <desc>System to consider as the basestation for moving home feature.</desc>
+    </param>
+    <param name="Home Position Update">
+      <name-i18n>Home Position Update</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>60</default>
+      <units/>
+      <desc>Period of home position update (if moving home enabled), in seconds</desc>
     </param>
   </section>
   <section name="Communications Relay Maneuver" name-i18n="Communications Relay Maneuver">
@@ -1133,7 +1160,7 @@
       <type>boolean</type>
       <visibility>developer</visibility>
       <scope>idle</scope>
-      <default>1</default>
+      <default>true</default>
       <units/>
       <desc>True to activate task, false otherwise</desc>
     </param>
@@ -1558,6 +1585,302 @@
       <default/>
       <units/>
       <desc>Set of commands for plans to generate at boot</desc>
+    </param>
+  </section>
+  <section name="DMS" name-i18n="DMS">
+    <param name="Entity Label">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>DMS</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Activation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Serial Port - Device">
+      <name-i18n>Serial Port - Device</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>/dev/ttyUSB0</default>
+      <units/>
+      <desc>Serial port device used to communicate with the sensor</desc>
+    </param>
+    <param name="Serial Port - Baud Rate">
+      <name-i18n>Serial Port - Baud Rate</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>57600</default>
+      <units/>
+      <desc>Serial port baud rate</desc>
+    </param>
+    <param name="Serial Port - TimeOut">
+      <name-i18n>Serial Port - TimeOut</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>2.0</default>
+      <units/>
+      <desc>Serial Port timeOut for reading.</desc>
+      <min>1.0</min>
+      <max>5.0</max>
+    </param>
+    <param name="ADC Reads - Entity Label">
+      <name-i18n>ADC Reads - Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>DMS</default>
+      <units/>
+      <desc>Label for ADC labels.</desc>
+    </param>
+    <param name="ADC Channels">
+      <name-i18n>ADC Channels</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>16</default>
+      <units/>
+      <desc>Number of Channels of ADC.</desc>
+      <min>1</min>
+      <max>16</max>
+    </param>
+    <param name="DMS CH1 Baseline">
+      <name-i18n>DMS CH1 Baseline</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.28</default>
+      <units/>
+      <desc>Baseline of channel.</desc>
+      <min>0</min>
+      <max>4.99</max>
+    </param>
+    <param name="DMS CH2 Baseline">
+      <name-i18n>DMS CH2 Baseline</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.22</default>
+      <units/>
+      <desc>Baseline of channel.</desc>
+      <min>0</min>
+      <max>4.99</max>
+    </param>
+    <param name="DMS CH3 Baseline">
+      <name-i18n>DMS CH3 Baseline</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.23</default>
+      <units/>
+      <desc>Baseline of channel.</desc>
+      <min>0</min>
+      <max>4.99</max>
+    </param>
+    <param name="DMS CH4 Baseline">
+      <name-i18n>DMS CH4 Baseline</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.52</default>
+      <units/>
+      <desc>Baseline of channel.</desc>
+      <min>0</min>
+      <max>4.99</max>
+    </param>
+    <param name="DMS CH5 Baseline">
+      <name-i18n>DMS CH5 Baseline</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.20</default>
+      <units/>
+      <desc>Baseline of channel.</desc>
+      <min>0</min>
+      <max>4.99</max>
+    </param>
+    <param name="DMS CH6 Baseline">
+      <name-i18n>DMS CH6 Baseline</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.33</default>
+      <units/>
+      <desc>Baseline of channel.</desc>
+      <min>0</min>
+      <max>4.99</max>
+    </param>
+    <param name="DMS CH7 Baseline">
+      <name-i18n>DMS CH7 Baseline</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.19</default>
+      <units/>
+      <desc>Baseline of channel.</desc>
+      <min>0</min>
+      <max>4.99</max>
+    </param>
+    <param name="DMS CH8 Baseline">
+      <name-i18n>DMS CH8 Baseline</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.26</default>
+      <units/>
+      <desc>Baseline of channel.</desc>
+      <min>0</min>
+      <max>4.99</max>
+    </param>
+    <param name="DMS CH9 Baseline">
+      <name-i18n>DMS CH9 Baseline</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.68</default>
+      <units/>
+      <desc>Baseline of channel.</desc>
+      <min>0</min>
+      <max>4.99</max>
+    </param>
+    <param name="DMS CH10 Baseline">
+      <name-i18n>DMS CH10 Baseline</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.21</default>
+      <units/>
+      <desc>Baseline of channel.</desc>
+      <min>0</min>
+      <max>4.99</max>
+    </param>
+    <param name="DMS CH11 Baseline">
+      <name-i18n>DMS CH11 Baseline</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.18</default>
+      <units/>
+      <desc>Baseline of channel.</desc>
+      <min>0</min>
+      <max>4.99</max>
+    </param>
+    <param name="DMS CH12 Baseline">
+      <name-i18n>DMS CH12 Baseline</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.18</default>
+      <units/>
+      <desc>Baseline of channel.</desc>
+      <min>0</min>
+      <max>4.99</max>
+    </param>
+    <param name="DMS CH13 Baseline">
+      <name-i18n>DMS CH13 Baseline</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.16</default>
+      <units/>
+      <desc>Baseline of channel.</desc>
+      <min>0</min>
+      <max>4.99</max>
+    </param>
+    <param name="DMS CH14 Baseline">
+      <name-i18n>DMS CH14 Baseline</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.13</default>
+      <units/>
+      <desc>Baseline of channel.</desc>
+      <min>0</min>
+      <max>4.99</max>
+    </param>
+    <param name="DMS CH15 Baseline">
+      <name-i18n>DMS CH15 Baseline</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.16</default>
+      <units/>
+      <desc>Baseline of channel.</desc>
+      <min>0</min>
+      <max>4.99</max>
+    </param>
+    <param name="DMS CH16 Baseline">
+      <name-i18n>DMS CH16 Baseline</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.12</default>
+      <units/>
+      <desc>Baseline of channel.</desc>
+      <min>0</min>
+      <max>4.99</max>
+    </param>
+    <param name="Scale Factor Positive">
+      <name-i18n>Scale Factor Positive</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>3.0</default>
+      <units/>
+      <desc>Scale Factor for Positive Detection.</desc>
+      <min>1</min>
+      <max>10</max>
+    </param>
+    <param name="Number Samples per s">
+      <name-i18n>Number Samples per s</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>16</default>
+      <units/>
+      <desc>Number of channels to read/s.</desc>
+      <min>1</min>
+      <max>16</max>
     </param>
   </section>
   <section name="Lost Comms Monitor" name-i18n="Lost Comms Monitor">

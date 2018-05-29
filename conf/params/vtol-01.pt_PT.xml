@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2017.01.0 (master,8bf9206)" system="vtol-01" i18n="pt_PT">
+<config format="1" version="2017.01.0 (master,87921fb,dirty)" system="vtol-01" i18n="pt_PT">
   <section name="Autopilot" name-i18n="Piloto Automático">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -175,6 +175,33 @@
       <default>false</default>
       <units/>
       <desc>Produce GCS heartbeat (for debugging purposes).</desc>
+    </param>
+    <param name="Moving Home">
+      <name-i18n>Moving Home</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Enable/Disable moving basestation feature.</desc>
+    </param>
+    <param name="Basestation">
+      <name-i18n>Basestation</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>manta-3</default>
+      <units/>
+      <desc>System to consider as the basestation for moving home feature.</desc>
+    </param>
+    <param name="Home Position Update">
+      <name-i18n>Home Position Update</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>60</default>
+      <units/>
+      <desc>Period of home position update (if moving home enabled), in seconds</desc>
     </param>
   </section>
   <section name="Communications Relay Maneuver" name-i18n="Manobra de Retransmissão de Comunicações">
@@ -1133,7 +1160,7 @@
       <type>boolean</type>
       <visibility>developer</visibility>
       <scope>idle</scope>
-      <default>1</default>
+      <default>true</default>
       <units/>
       <desc>Verdadeiro para ativar tarefa, falso caso contrário</desc>
     </param>
