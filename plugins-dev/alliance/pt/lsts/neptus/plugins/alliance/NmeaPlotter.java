@@ -346,6 +346,9 @@ public class NmeaPlotter extends ConsoleLayer {
         else {
             CmreAisCsvParser.process(s, contactDb);
         }
+        
+        for (NmeaListener l : listeners)
+            l.nmeaSentence(s);
     }
 
     private void connect() throws Exception {
