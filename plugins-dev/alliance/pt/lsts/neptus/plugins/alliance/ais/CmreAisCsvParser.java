@@ -109,7 +109,7 @@ public class CmreAisCsvParser {
             case "DISTRESS_STATUS":
                 return parseDistressStatus(sentence);
             default:
-                NeptusLog.pub().error("Type not known (" + type + ")");
+                NeptusLog.pub().debug("Type not known (" + type + ")");
                 return false;
         }
     }

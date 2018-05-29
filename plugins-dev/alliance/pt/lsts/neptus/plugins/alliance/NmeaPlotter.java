@@ -402,16 +402,20 @@ public class NmeaPlotter extends ConsoleLayer {
                             break;
                         if (sentence.isEmpty())
                             continue;
-                        try {
-                            parseSentence(sentence);
+
+                        String[] tks = sentence.split("\n");
+                        for (String tk : tks) {
+                            try {
+                                parseSentence(tk);
+                            }
+                            catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            if (retransmitToNeptus)
+                                retransmit(tk);
+                            if (logReceivedData)
+                                LsfMessageLogger.log(new DevDataText(tk));
                         }
-                        catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        if (retransmitToNeptus)
-                            retransmit(sentence);
-                        if (logReceivedData)
-                            LsfMessageLogger.log(new DevDataText(sentence));
                     }
                     catch (SocketTimeoutException e) {
                         continue;
@@ -470,6 +474,7 @@ public class NmeaPlotter extends ConsoleLayer {
                 }
                 NeptusLog.pub().info("Listening to NMEA messages over UDP.");
                 getConsole().post(Notification.success("NMEA Plotter", "Listening via UDP to port " + udpPort + "."));
+
                 while (connected && isUdpConnected) {
                     try {
                         DatagramPacket dp = new DatagramPacket(new byte[65507], 65507);
@@ -478,16 +483,20 @@ public class NmeaPlotter extends ConsoleLayer {
                         sentence = sentence.substring(0, sentence.indexOf(0));
                         if (sentence == null || sentence.isEmpty())
                             continue;
-                        try {
-                            parseSentence(sentence);
+
+                        String[] tks = sentence.split("\n");
+                        for (String tk : tks) {
+                            try {
+                                parseSentence(tk);
+                            }
+                            catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            if (retransmitToNeptus)
+                                retransmit(tk);
+                            if (logReceivedData)
+                                LsfMessageLogger.log(new DevDataText(tk));
                         }
-                        catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        if (retransmitToNeptus)
-                            retransmit(sentence);
-                        if (logReceivedData)
-                            LsfMessageLogger.log(new DevDataText(sentence));
                     }
                     catch (SocketTimeoutException e) {
                         continue;
