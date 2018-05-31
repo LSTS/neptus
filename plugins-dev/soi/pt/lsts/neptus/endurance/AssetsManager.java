@@ -325,8 +325,8 @@ public class AssetsManager {
                 
                 Asset updated = assetsMap.getOrDefault(id, received);
                 updated.setPlan(received.getPlan());
-                if (received.currentState() != null)
-                    updated.setState(received.currentState());
+                if (received.receivedState() != null)
+                    updated.setState(received.receivedState());
                 updated.getConfig().clear();
                 updated.getConfig().putAll(received.getConfig());
                 assetsMap.put(id, updated);
