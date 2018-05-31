@@ -35,92 +35,97 @@ package pt.lsts.neptus.endurance;
 import java.util.Date;
 
 import pt.lsts.imc.Maneuver;
+import pt.lsts.neptus.types.coord.LocationType;
 
 public class Waypoint implements Comparable<Waypoint> {
 
-	private int id, duration = 0;
-	private float latitude, longitude;
-	private Date arrivalTime = null;
-	
-	public Waypoint(int id, Maneuver man) throws Exception {
-		this.id = id;
-		this.latitude = (float) Math.toDegrees(man.getDouble("lat"));
-		this.longitude = (float )Math.toDegrees(man.getDouble("lon"));
-		
-		//if (man.getInteger("duration") != null)
-		this.duration = man.getInteger("duration"); 
-		
-		if (man.getInteger("arrival_time") != 0)
-			this.arrivalTime = new Date(man.getInteger("arrival_time") * 1000l); 	
-	}
+    private int id, duration = 0;
+    private float latitude, longitude;
+    private Date arrivalTime = null;
 
-	public Waypoint(int id, float lat, float lon) {
-		this.latitude = lat;
-		this.longitude = lon;
-		this.id = id;
-	}
-	
-	public Waypoint clone() {
-		Waypoint wpt = new Waypoint(id, latitude, longitude);
-		wpt.setDuration(duration);
-		if (arrivalTime != null)
-			wpt.setArrivalTime(new Date(arrivalTime.getTime()));
-		
-		return wpt;
-	}
-	
-	public int getDuration() {
-		return duration;
-	}
+    public static LocationType locationOf(Maneuver man) {
+        return new LocationType(Math.toDegrees(man.getDouble("lat")), Math.toDegrees(man.getDouble("lon")));
+    }
 
-	public void setDuration(int duration) {
-		this.duration = duration;
-	}
+    public Waypoint(int id, Maneuver man) throws Exception {
+        this.id = id;
+        this.latitude = (float) Math.toDegrees(man.getDouble("lat"));
+        this.longitude = (float) Math.toDegrees(man.getDouble("lon"));
 
-	public Date getArrivalTime() {
-		return arrivalTime;
-	}
+        // if (man.getInteger("duration") != null)
+        this.duration = man.getInteger("duration");
 
-	public void setArrivalTime(Date arrivalTime) {
-		this.arrivalTime = arrivalTime;
-	}
+        if (man.getInteger("arrival_time") != 0)
+            this.arrivalTime = new Date(man.getInteger("arrival_time") * 1000l);
+    }
 
-	public int getId() {
-		return id;
-	}
+    public Waypoint(int id, float lat, float lon) {
+        this.latitude = lat;
+        this.longitude = lon;
+        this.id = id;
+    }
 
-	public float getLatitude() {
-		return latitude;
-	}
+    public Waypoint clone() {
+        Waypoint wpt = new Waypoint(id, latitude, longitude);
+        wpt.setDuration(duration);
+        if (arrivalTime != null)
+            wpt.setArrivalTime(new Date(arrivalTime.getTime()));
 
-	public float getLongitude() {
-		return longitude;
-	}
+        return wpt;
+    }
 
-	@Override
-	public int compareTo(Waypoint o) {
-		
-		if (arrivalTime == null && o.arrivalTime == null)
-			return new Long(getId()).compareTo(new Long(o.getId()));
-		
-		if (arrivalTime == null && o.arrivalTime != null)
-			return 1;
+    public int getDuration() {
+        return duration;
+    }
 
-		if (arrivalTime != null && o.arrivalTime == null)
-			return -1;
+    public void setDuration(int duration) {
+        this.duration = duration;
+    }
 
-		return arrivalTime.compareTo(o.arrivalTime);
-	}
+    public Date getArrivalTime() {
+        return arrivalTime;
+    }
 
-	private Date nextSchedule() {
-		return arrivalTime;
-	}
+    public void setArrivalTime(Date arrivalTime) {
+        this.arrivalTime = arrivalTime;
+    }
 
-	@SuppressWarnings("deprecation")
-	public static void main(String[] args) {
-		Waypoint wpt = new Waypoint(0, 41, -8);
-		wpt.arrivalTime = new Date(17, 8, 24, 17, 42, 00);
-		System.out.println(wpt.nextSchedule());
-	}
+    public int getId() {
+        return id;
+    }
+
+    public float getLatitude() {
+        return latitude;
+    }
+
+    public float getLongitude() {
+        return longitude;
+    }
+
+    @Override
+    public int compareTo(Waypoint o) {
+
+        if (arrivalTime == null && o.arrivalTime == null)
+            return new Long(getId()).compareTo(new Long(o.getId()));
+
+        if (arrivalTime == null && o.arrivalTime != null)
+            return 1;
+
+        if (arrivalTime != null && o.arrivalTime == null)
+            return -1;
+
+        return arrivalTime.compareTo(o.arrivalTime);
+    }
+
+    private Date nextSchedule() {
+        return arrivalTime;
+    }
+
+    @SuppressWarnings("deprecation")
+    public static void main(String[] args) {
+        Waypoint wpt = new Waypoint(0, 41, -8);
+        wpt.arrivalTime = new Date(17, 8, 24, 17, 42, 00);
+        System.out.println(wpt.nextSchedule());
+    }
 
 }

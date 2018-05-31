@@ -54,6 +54,7 @@ import pt.lsts.imc.SoiPlan;
 import pt.lsts.imc.SoiWaypoint;
 import pt.lsts.neptus.soi.SoiUtils;
 import pt.lsts.neptus.types.coord.CoordinateUtil;
+import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.CRC16Util;
 import pt.lsts.util.PlanUtilities;
 
@@ -134,9 +135,27 @@ public class Plan {
     public static Plan parse(PlanSpecification spec) {
         Plan plan = new Plan(spec.getPlanId());
         int id = 1;
+        LocationType lastLocation = null;
+
         for (Maneuver m : SoiUtils.getFirstManeuverSequence(spec)) {
+            LocationType thisLocation = Waypoint.locationOf(m);
             try {
-                plan.addWaypoint(new Waypoint(id++, m));
+
+                if (lastLocation != null && lastLocation.getDistanceInMeters(thisLocation) > 40_000) {
+                    double times = Math.ceil(lastLocation.getDistanceInMeters(thisLocation) / 40_000);
+                    double intermediate = lastLocation.getDistanceInMeters(thisLocation) / times;
+                    double ang = lastLocation.getXYAngle(thisLocation);
+                    for (int i = 0; i <= times; i++) {
+                        LocationType loc = new LocationType(lastLocation);
+                        loc.translatePosition(Math.cos(ang) * intermediate * i, Math.sin(ang) * intermediate * i, 0);
+                        loc.convertToAbsoluteLatLonDepth();
+                        plan.addWaypoint(
+                                new Waypoint(id++, (float) loc.getLatitudeDegs(), (float) loc.getLongitudeDegs()));
+                    }
+                }
+                else
+                    plan.addWaypoint(new Waypoint(id++, m));
+                lastLocation = Waypoint.locationOf(m);
             }
             catch (Exception e) {
                 e.printStackTrace();
@@ -175,12 +194,12 @@ public class Plan {
                 waypoint.setLat(wpt.getLatitude());
                 waypoint.setLon(wpt.getLongitude());
                 waypoint.setDuration(wpt.getDuration());
-                
+
                 wps.add(waypoint);
             }
             plan.setWaypoints(wps);
         }
-        
+
         ByteBuffer destination = ByteBuffer.allocate(plan.getPayloadSize());
         int dataLength = plan.serializePayload(destination, 0);
         plan.setPlanId(CRC16Util.crc16(destination, 2, dataLength - 2));
@@ -198,7 +217,7 @@ public class Plan {
         }
         catch (IOException e) {
             e.printStackTrace();
-        }// plan.serializePayload(destination, 0);
+        } // plan.serializePayload(destination, 0);
         return 0;
     }
 
@@ -236,7 +255,7 @@ public class Plan {
                 double[] offsets = CoordinateUtil.WGS84displacement(lat, lon, 0,
                         Float.valueOf(waypoint.getLatitude()).doubleValue(),
                         Float.valueOf(waypoint.getLongitude()).doubleValue(), 0);
-                double distance = Math.hypot(offsets[0],offsets[1]);
+                double distance = Math.hypot(offsets[0], offsets[1]);
                 double timeToReach = distance / speed;
                 curTime += (long) (1000.0 * (timeToReach + waypoint.getDuration()));
                 waypoint.setArrivalTime(new Date(curTime));
