@@ -218,7 +218,6 @@ public class UnderwayDataPlotter extends ConsoleLayer implements NmeaListener, P
         int c = trigger.get();
         if (c != triggerCount) {
             recreateImage = true;
-            System.out.println("ssss  " + c + "   " + triggerCount);
             triggerCount = c;
         }
         
