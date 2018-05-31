@@ -61,7 +61,6 @@ import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 
 import com.google.common.eventbus.Subscribe;
-import com.google.gson.Gson;
 
 import de.baderjene.aistoolkit.aisparser.AISParser;
 import de.baderjene.aistoolkit.aisparser.message.Message05;
