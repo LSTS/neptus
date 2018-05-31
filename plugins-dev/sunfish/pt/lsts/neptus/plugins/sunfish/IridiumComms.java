@@ -162,8 +162,8 @@ public class IridiumComms extends SimpleRendererInteraction {
 
             getConsole().post(Notification.info("Iridium Comms",
                     "Received message of type " + m.getClass().getSimpleName() + " from "
-                            + IMCDefinition.getInstance().getResolver().resolve(m.getSource())
-                            + " (0x" + String.format("%04X", m.getSource()) + ")"));
+                            + IMCDefinition.getInstance().getResolver().resolve(m.getSource()) + " (0x"
+                            + String.format("%04X", m.getSource()) + ")"));
 
             if (m instanceof ExtendedDeviceUpdate) {
                 ExtendedDeviceUpdate upd = (ExtendedDeviceUpdate) m;
@@ -221,9 +221,11 @@ public class IridiumComms extends SimpleRendererInteraction {
                 IridiumCommand cmd = (IridiumCommand) m;
                 if (cmd.getCommand().toLowerCase().startsWith("error"))
                     getConsole()
-                            .post(Notification.warning("Iridium Report", msg.getSourceName() + ": " + cmd.getCommand()).requireHumanAction(true));
+                            .post(Notification.warning("Iridium Report", msg.getSourceName() + ": " + cmd.getCommand())
+                                    .requireHumanAction(true));
                 else
-                    getConsole().post(Notification.info("Iridium Text", msg.getSourceName() + ": " + cmd.getCommand()).requireHumanAction(true));
+                    getConsole().post(Notification.info("Iridium Text", msg.getSourceName() + ": " + cmd.getCommand())
+                            .requireHumanAction(true));
             }
             NeptusLog.pub().info("Resulting message: " + m);
         }
@@ -238,8 +240,8 @@ public class IridiumComms extends SimpleRendererInteraction {
         try {
             byte[] data = msg.getData();
             IridiumMessage m = IridiumMessage.deserialize(data);
-            NeptusLog.pub().info(msg.getSourceName() + " request sending of "+m.getClass().getSimpleName()+" message with data "
-                    + new String(Hex.encodeHex(data)));
+            NeptusLog.pub().info(msg.getSourceName() + " request sending of " + m.getClass().getSimpleName()
+                    + " message with data " + new String(Hex.encodeHex(data)));
             m.setSource(msg.getSrc());
             m.setDestination(msg.getDst());
             m.timestampMillis = msg.getTimestampMillis();
@@ -591,7 +593,12 @@ public class IridiumComms extends SimpleRendererInteraction {
     @Subscribe
     public void on(TextMessage msg) {
         NeptusLog.pub().info("Received text message");
-        post(Notification.info("Text message", msg.getSourceName() + ": " + msg.getText()));
+        if (msg.getText().startsWith("ERROR"))
+            post(Notification.error("Iridium Error", msg.getSourceName() + ": " + msg.getText())
+                    .requireHumanAction(true));
+        else
+            post(Notification.info("Text message", msg.getSourceName() + ": " + msg.getText())
+                    .requireHumanAction(true));
     }
 
     @Override
