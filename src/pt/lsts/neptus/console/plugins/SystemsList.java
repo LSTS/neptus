@@ -176,6 +176,8 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
             ICON_SIZE);
     private final Icon ICON_VIEW_SYMBOL = ImageUtils.getScaledIcon("images/systems/view-symbol.png", ICON_SIZE,
             ICON_SIZE);
+    private final Icon ICON_VIEW_EXT_SYMBOL = ImageUtils.getScaledIcon("images/systems/view-ext-symbol.png", ICON_SIZE,
+            ICON_SIZE);
     private final Icon ICON_VIEW_EXPAND = ImageUtils.getScaledIcon("images/systems/expand.png", ICON_SIZE,
             ICON_SIZE);
     private final Icon ICON_VIEW_RETREAT = ImageUtils.getScaledIcon("images/systems/retreat.png", ICON_SIZE,
@@ -292,9 +294,9 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
     private JScrollPane scrollPane;
     private JPanel toolbar;
     private ToolbarButton editConf, clearSelection, redoSelection, expandAll, retractAll;
-    private ToolbarSwitch viewInfoOSDSwitch, filterSwitch, viewExtendedOSDSwitch, viewIconsSwitch;
+    private ToolbarSwitch viewInfoOSDSwitch, filterSwitch, viewExtendedOSDSwitch, viewIconsSwitch, viewExternalSystemsSwitch;
     private AbstractAction editConfAction, clearSelectionAction, redoSelectionAction, viewInfoOSDAction,
-            filterSwitchAction, viewExtendedOSDAction, viewIconsAction;
+            filterSwitchAction, viewExtendedOSDAction, viewIconsAction, viewExternalSystemsAction;
 
     private boolean updateMainVehicle = true;
     private boolean updateOrdering = true;
@@ -358,6 +360,8 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
         viewIconsSwitch.setSelected(showSystemsIconsOnRenderer);
         filterSwitch = new ToolbarSwitch(filterSwitchAction);
         filterSwitch.setSelected(true);
+        viewExternalSystemsSwitch = new ToolbarSwitch(viewExternalSystemsAction);
+        viewExternalSystemsSwitch.setSelected(showExternalSystemsIcons);
         expandAll = new ToolbarButton(new AbstractAction(I18n.text("Expand extra info."), ICON_VIEW_EXPAND) {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -387,6 +391,7 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
         toolbar.add(viewInfoOSDSwitch);
         toolbar.add(viewExtendedOSDSwitch);
         toolbar.add(viewIconsSwitch);
+        toolbar.add(viewExternalSystemsSwitch);
         // toolbar.add(new JSeparator(SwingConstants.VERTICAL));
         toolbar.add(filterSwitch);
         toolbar.add(expandAll);
@@ -548,6 +553,13 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
             public void actionPerformed(ActionEvent e) {
                 updateMainVehicle = true;
                 updateOrdering = true;
+            }
+        };
+
+        viewExternalSystemsAction = new AbstractAction(I18n.text("View external systems icons in render"), ICON_VIEW_EXT_SYMBOL) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                showExternalSystemsIcons = viewExternalSystemsSwitch.isSelected();
             }
         };
     }
@@ -2137,6 +2149,7 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
             rendererIconsSize = 50;
 
         viewIconsSwitch.setSelected(showSystemsIconsOnRenderer);
+        viewExternalSystemsSwitch.setSelected(showExternalSystemsIcons);
 
         clearSelection.setEnabled(enableSelection);
         redoSelection.setEnabled(enableSelection);
