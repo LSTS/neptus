@@ -30,7 +30,7 @@
  * Author: zp
  * Jul 24, 2014
  */
-package pt.lsts.neptus.plugins.alliance;
+package pt.lsts.neptus.util.nmea;
 
 /**
  * @author zp
