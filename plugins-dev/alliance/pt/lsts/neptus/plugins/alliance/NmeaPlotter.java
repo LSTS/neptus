@@ -61,6 +61,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 
 import com.google.common.eventbus.Subscribe;
+import com.google.gson.Gson;
 
 import de.baderjene.aistoolkit.aisparser.AISParser;
 import de.baderjene.aistoolkit.aisparser.message.Message05;
@@ -344,6 +345,9 @@ public class NmeaPlotter extends ConsoleLayer implements NmeaProvider {
                     parser.process(s); // Is AIS
                 }
             }
+        }
+        else if (s.startsWith("{")) {
+            contactDb.processJson(s);
         }
         else {
             CmreAisCsvParser.process(s, contactDb);
@@ -983,5 +987,11 @@ public class NmeaPlotter extends ConsoleLayer implements NmeaProvider {
                     br.close();
             }
         }
+    }
+    
+    public static class MTShip{
+        double LAT, LON, SPEED, COURSE, HEADING, ELAPSED;
+        String SHIPNAME, TYPE_IMG, TYPE_NAME, STATUS_NAME;
+        long SHIP_ID;
     }
 }

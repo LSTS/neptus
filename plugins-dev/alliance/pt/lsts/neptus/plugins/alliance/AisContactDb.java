@@ -42,6 +42,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
+
+import com.google.gson.Gson;
+
 import java.util.Vector;
 
 import de.baderjene.aistoolkit.aisparser.AISObserver;
@@ -52,6 +55,7 @@ import de.baderjene.aistoolkit.aisparser.message.Message05;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.SystemUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.neptus.plugins.alliance.NmeaPlotter.MTShip;
 import pt.lsts.neptus.systems.external.ExternalSystem;
 import pt.lsts.neptus.systems.external.ExternalSystemsHolder;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -75,6 +79,8 @@ public class AisContactDb implements AISObserver {
     private String lastGGA = null;
     private String lastGPHDT = null;
 
+    Gson gson = new Gson();
+    
     public AisContactDb() {
         if (!cache.canRead())
             return;
@@ -261,6 +267,38 @@ public class AisContactDb implements AISObserver {
         contact.setLabel(id);
         if (ImcSystemsHolder.getSystemWithName(id) == null)
             updateSystem(mmsi, loc, heading);
+    }
+    
+    public void processJson(String sentence) {
+        MTShip ship = gson.fromJson(sentence, MTShip.class);
+        int mmsi = (int) ship.SHIP_ID;
+        if (!contacts.containsKey(mmsi)) {
+            AisContact contact = new AisContact(mmsi);
+            contacts.put(mmsi, contact);
+        }
+        AisContact contact = contacts.get(mmsi);
+        
+        String name = ship.SHIPNAME;
+        if (ship.SHIPNAME.equals("[SAT-AIS]")) {
+            name = "SAT_"+ship.SHIP_ID;
+        }
+        
+        contact.setLocation(new LocationType(ship.LAT, ship.LON));
+        contact.setCog(ship.COURSE);
+        contact.setLabel(name);
+        contact.setSog(ship.SPEED);
+        contacts.put((int)contact.getMmsi(), contact);
+        
+        updateSystem(mmsi, new LocationType(ship.LAT, ship.LON), ship.COURSE);
+        
+        ExternalSystem system = new ExternalSystem(name);
+        system.setLocation(new LocationType(ship.LAT, ship.LON));
+        system.setAttitudeDegrees(ship.COURSE);
+        system.setActive(true);
+        system.setLocationTimeMillis(System.currentTimeMillis() - (long) (60_000 * ship.ELAPSED));
+        system.setAttitudeTimeMillis(System.currentTimeMillis() - (long) (60_000 * ship.ELAPSED));
+        
+        ExternalSystemsHolder.registerSystem(system);
     }
 
     public void updateSystem(int mmsi, LocationType loc, double heading) {
