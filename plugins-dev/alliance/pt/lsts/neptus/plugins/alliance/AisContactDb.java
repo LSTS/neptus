@@ -284,16 +284,17 @@ public class AisContactDb implements AISObserver {
         }
         
         contact.setLocation(new LocationType(ship.LAT, ship.LON));
+        contact.setHdg(ship.HEADING);
         contact.setCog(ship.COURSE);
         contact.setLabel(name);
         contact.setSog(ship.SPEED);
         contacts.put((int)contact.getMmsi(), contact);
         
-        updateSystem(mmsi, new LocationType(ship.LAT, ship.LON), ship.COURSE);
+        updateSystem(mmsi, new LocationType(ship.LAT, ship.LON), ship.HEADING);
         
         ExternalSystem system = new ExternalSystem(name);
         system.setLocation(new LocationType(ship.LAT, ship.LON));
-        system.setAttitudeDegrees(ship.COURSE);
+        system.setAttitudeDegrees(ship.HEADING);
         system.setActive(true);
         system.setLocationTimeMillis(System.currentTimeMillis() - (long) (60_000 * ship.ELAPSED));
         system.setAttitudeTimeMillis(System.currentTimeMillis() - (long) (60_000 * ship.ELAPSED));

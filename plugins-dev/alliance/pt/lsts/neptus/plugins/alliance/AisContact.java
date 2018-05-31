@@ -166,6 +166,13 @@ public class AisContact {
     }
 
     /**
+     * @param hdg the hdg to set
+     */
+    public void setHdg(double hdg) {
+        this.hdg = hdg;
+    }
+    
+    /**
      * @param rateOfTurn the rateOfTurn to set
      */
     public void setRateOfTurn(double rateOfTurn) {
