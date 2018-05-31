@@ -3,3 +3,4 @@ pt.lsts.neptus.soi.SoiPlanning
 pt.lsts.neptus.soi.risk.SoiRiskAnalysis
 pt.lsts.neptus.endurance.SoiAwareness
 pt.lsts.neptus.soi.SoiAwarenessPanel
+pt.lsts.neptus.soi.underway.UnderwayDataPlotter

@@ -95,13 +95,15 @@ import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.NMEAUtils;
+import pt.lsts.neptus.util.nmea.NmeaListener;
+import pt.lsts.neptus.util.nmea.NmeaProvider;
 
 /**
  * @author zp
  * @author pdias
  */
 @PluginDescription(name = "NMEA Plotter", icon = "pt/lsts/neptus/plugins/alliance/nmea-ais.png")
-public class NmeaPlotter extends ConsoleLayer {
+public class NmeaPlotter extends ConsoleLayer implements NmeaProvider {
 
     private static final int RECT_WIDTH = 228;
     private static final int RECT_HEIGHT = 85;
@@ -553,10 +555,16 @@ public class NmeaPlotter extends ConsoleLayer {
         connected = isSerialConnected || isUdpConnected || isTcpConnected;
     }
 
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.util.nmea.NmeaProvider#addListener(pt.lsts.neptus.util.nmea.NmeaListener)
+     */
     public void addListener(NmeaListener listener) {
         listeners.add(listener);
     }
 
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.util.nmea.NmeaProvider#removeListener(pt.lsts.neptus.util.nmea.NmeaListener)
+     */
     public void removeListener(NmeaListener listener) {
         listeners.remove(listener);
     }
@@ -872,7 +880,7 @@ public class NmeaPlotter extends ConsoleLayer {
                 null, new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        PluginUtils.editPluginProperties(NmeaPlotter.this, true);
+                        PluginUtils.editPluginProperties(NmeaPlotter.this, getConsole(), true);
                     }
                 });
         parser.register(contactDb);
