@@ -47,9 +47,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-
-import com.xuggle.ferry.AtomicInteger;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorMap;
@@ -245,6 +244,8 @@ public class UnderwayDataPlotter extends ConsoleLayer implements NmeaListener, P
                         if (showSal || showTemp) {
                             pts = points.stream().collect(ArrayList<DataPointXY>::new,
                             (r, p) -> {
+                                if (abortIndicator.get())
+                                    return;
                                 Point2D pxy = rendererCalculator.getScreenPosition(p.location);
                                 DataPointXY dpxy = new DataPointXY();
                                 dpxy.point = pxy;
@@ -253,8 +254,12 @@ public class UnderwayDataPlotter extends ConsoleLayer implements NmeaListener, P
                                 r.add(dpxy);
                             }, (r1, r2) -> {
                                 for (DataPointXY d2 : r2) {
+                                    if (abortIndicator.get())
+                                        break;
                                     boolean found = false;
                                     for (DataPointXY d1 : r1) {
+                                        if (abortIndicator.get())
+                                            break;
                                         if (d2.point.equals(d1.point)) {
                                             d1.salinity = (d1.salinity + d2.salinity) / 2.;
                                             d1.temperature = (d1.temperature + d2.temperature) / 2.;
@@ -268,7 +273,7 @@ public class UnderwayDataPlotter extends ConsoleLayer implements NmeaListener, P
                             });
                         }
                         
-                        if (showTemp) {
+                        if (showTemp && !abortIndicator.get()) {
                             try {
                                 double fullImgWidth = rendererCalculator.getSize().getWidth() + offScreenTemperature.getOffScreenBufferPixel() * 2.;
                                 double fullImgHeight = rendererCalculator.getSize().getHeight() + offScreenTemperature.getOffScreenBufferPixel() * 2.;
@@ -289,6 +294,9 @@ public class UnderwayDataPlotter extends ConsoleLayer implements NmeaListener, P
                                 BufferedImage cacheImg = createBufferedImage((int) cacheImgWidth, (int) cacheImgHeight, Transparency.TRANSLUCENT);
                                 pts.parallelStream().forEach(pt -> {
                                     try {
+                                        if (abortIndicator.get())
+                                            return;
+
                                         double v = (double) pt.temperature;
 
                                         Color color = colormapSal.getColor(ColorMapUtils.getColorIndexZeroToOneLog10(v, minSal, maxSal));
@@ -323,7 +331,7 @@ public class UnderwayDataPlotter extends ConsoleLayer implements NmeaListener, P
                             }
                         }
                         
-                        if (showSal) {
+                        if (showSal && !abortIndicator.get()) {
                             try {
                                 double fullImgWidth = rendererCalculator.getSize().getWidth() + offScreenSalinity.getOffScreenBufferPixel() * 2.;
                                 double fullImgHeight = rendererCalculator.getSize().getHeight() + offScreenSalinity.getOffScreenBufferPixel() * 2.;
@@ -344,6 +352,9 @@ public class UnderwayDataPlotter extends ConsoleLayer implements NmeaListener, P
                                 BufferedImage cacheImg = createBufferedImage((int) cacheImgWidth, (int) cacheImgHeight, Transparency.TRANSLUCENT);
                                 pts.parallelStream().forEach(pt -> {
                                     try {
+                                        if (abortIndicator.get())
+                                            return;
+
                                         double v = (double) pt.salinity;
 
                                         Color color = colormapSal.getColor(ColorMapUtils.getColorIndexZeroToOneLog10(v, minSal, maxSal));
