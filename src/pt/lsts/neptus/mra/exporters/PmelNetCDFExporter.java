@@ -157,11 +157,11 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
 
             List<NetCDFVarElement> varsList = new ArrayList<>();
 
-            Date startDate = new Date((long) (startTimeSec * 1E3));
+            Date startDate =  DateTimeUtil.REF_DATE; //new Date((long) (startTimeSec * 1E3));
             NetCDFVarElement timeVar = new NetCDFVarElement("time").setLongName("time").setStandardName("time")
                     .setUnits("seconds since " + dateTimeFormatterISO8601NoMillis.format(startDate))
-                    .setDataType(DataType.INT).setDimensions(dims).setAtribute("axis", "T");
-            timeVar.createDataArray().setUnsigned(true);
+                    .setDataType(DataType.DOUBLE).setDimensions(dims).setAtribute("axis", "T");
+            // timeVar.createDataArray().setUnsigned(true);
             varsList.add(timeVar);
 
             NetCDFVarElement latVar = new NetCDFVarElement("lat").setLongName("latitude").setStandardName("latitude")
@@ -368,7 +368,7 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
                             loc = pos.getPosition().getNewAbsoluteLatLonDepth();
                     }
                     
-                    timeVar.insertData(idx, idx);
+                    timeVar.insertData((time * 1E3 - startDate.getTime()) / 1E3, idx);
                     latVar.insertData(loc.getLatitudeDegs(), idx);
                     lonVar.insertData(loc.getLongitudeDegs(), idx);
                     depthVar.insertData(m.getDouble("depth"), idx);

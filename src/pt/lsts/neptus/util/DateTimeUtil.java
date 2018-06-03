@@ -36,6 +36,7 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -51,6 +52,14 @@ import pt.lsts.neptus.i18n.I18n;
 @SuppressWarnings("serial")
 public class DateTimeUtil {
 
+    public static final Date REF_DATE;
+    static {
+        Calendar cal = Calendar.getInstance();
+        cal.set(2004, Calendar.SEPTEMBER, 1, 0, 0, 0);
+        cal.setTimeZone(TimeZone.getTimeZone("UTC"));
+        REF_DATE = cal.getTime();
+    }
+    
     public static final long DAY = 1000 * 60 * 60 * 24;
     public static final long HOUR = 1000 * 60 * 60;
     public static final long MINUTE = 1000 * 60;
