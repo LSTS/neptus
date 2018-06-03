@@ -56,13 +56,17 @@ public class MyState {
 	
     @XmlElement
 	private CoordinateSystem location = new CoordinateSystem();	
-    
     @XmlElement
     private double length = 0; 
-    
     @XmlElement
-    private double width = 0; 
-    
+    private double width = 0;
+    @XmlElement
+    private double widthOffsetFromCenter = 0;
+    @XmlElement
+    private double lengthOffsetFromCenter = 0;
+    @XmlElement
+    private double draught = 0;
+
     private long lastLocationUpdateTimeMillis = -1;
 	
 	/**
@@ -187,6 +191,52 @@ public class MyState {
      */
     public static void setWidth(double width) {
         instance.width = width < 0 ? 0 : width;
+        instance.saveXml();
+    }
+    
+    
+    /**
+     * @return the lengthOffsetFromCenter
+     */
+    public static double getLengthOffsetFromCenter() {
+        return instance.lengthOffsetFromCenter;
+    }
+    
+    /**
+     * @param lengthOffsetFromCenter the lengthOffsetFromCenter to set
+     */
+    public static void setLengthOffsetFromCenter(double lengthOffsetFromCenter) {
+        instance.lengthOffsetFromCenter = lengthOffsetFromCenter < 0 ? 0 : lengthOffsetFromCenter;
+        instance.saveXml();
+    }
+    
+    /**
+     * @return the widthOffsetFromCenter
+     */
+    public static double getWidthOffsetFromCenter() {
+        return instance.widthOffsetFromCenter;
+    }
+
+    /**
+     * @param widthOffsetFromCenter the widthOffsetFromCenter to set
+     */
+    public static void setWidthOffsetFromCenter(double widthOffsetFromCenter) {
+        instance.widthOffsetFromCenter = widthOffsetFromCenter < 0 ? 0 : widthOffsetFromCenter;
+        instance.saveXml();
+    }
+    
+    /**
+     * @return the draught
+     */
+    public static double getDraught() {
+        return instance.draught;
+    }
+    
+    /**
+     * @param draught the draught to set
+     */
+    public static void setDraught(double draught) {
+        instance.draught = draught < 0 ? 0 : draught;
         instance.saveXml();
     }
     
