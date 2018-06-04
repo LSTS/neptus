@@ -56,6 +56,7 @@ import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.console.events.ConsoleEventNewSystem;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged.STATE;
+import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.events.NeptusEvents;
 import pt.lsts.neptus.i18n.I18n;
 
@@ -113,6 +114,12 @@ public class MainSystemSelectionCombo extends JComboBox<String> implements ItemL
         systemState.put(e.getSystem().getVehicleId(), e.getSystem().getVehicleState());
         
         this.addItem(e.getSystem().getVehicleId());
+        
+        String msgTxt = "New system added to console: " + e.getSystem().getVehicleId();
+        console.post(Notification
+                .info("Console Vehicle Combo", msgTxt)
+                .requireHumanAction(false));
+        NeptusLog.pub().info(MainSystemSelectionCombo.this.getClass() + " :: " + msgTxt);
     }
 
     @Subscribe
