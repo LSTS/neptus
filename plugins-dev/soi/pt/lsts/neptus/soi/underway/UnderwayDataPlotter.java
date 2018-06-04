@@ -60,6 +60,7 @@ import pt.lsts.neptus.console.IConsoleLayer;
 import pt.lsts.neptus.messages.listener.Periodic;
 import pt.lsts.neptus.mystate.MyState;
 import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.renderer2d.OffScreenLayerImageControl;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
@@ -73,6 +74,7 @@ import pt.lsts.neptus.util.nmea.NmeaProvider;
  * @author pdias
  *
  */
+@PluginDescription(name = "Underway Data Plotter", description = "Plotter for Falkor underway data.")
 public class UnderwayDataPlotter extends ConsoleLayer implements NmeaListener, PreferencesListener {
 
     @NeptusProperty(name = "Show temperature", userLevel = LEVEL.REGULAR, category = "Temperaure")
@@ -98,6 +100,9 @@ public class UnderwayDataPlotter extends ConsoleLayer implements NmeaListener, P
     
     @NeptusProperty(name = "Max samples", userLevel = LEVEL.REGULAR)
     private int maxSamples = 5000;
+
+    @NeptusProperty(name = "Clamp to fit", userLevel = LEVEL.REGULAR)
+    private boolean clampToFit = false;
 
     private OffScreenLayerImageControl offScreenSalinity = new OffScreenLayerImageControl();
     private OffScreenLayerImageControl offScreenTemperature = new OffScreenLayerImageControl();
@@ -298,6 +303,10 @@ public class UnderwayDataPlotter extends ConsoleLayer implements NmeaListener, P
                                             return;
 
                                         double v = (double) pt.temperature;
+                                        
+                                        if (clampToFit
+                                                && (Double.compare(v, minTemp) < 0 || Double.compare(v, maxTemp) > 0))
+                                            return;
 
                                         Color color = colormapSal.getColor(ColorMapUtils.getColorIndexZeroToOneLog10(v, minSal, maxSal));
                                         cacheImg.setRGB((int) ((pt.point.getX() + offScreenSalinity.getOffScreenBufferPixel()) * cacheImgScaleX),
@@ -356,6 +365,10 @@ public class UnderwayDataPlotter extends ConsoleLayer implements NmeaListener, P
                                             return;
 
                                         double v = (double) pt.salinity;
+                                        
+                                        if (clampToFit
+                                                && (Double.compare(v, minSal) < 0 || Double.compare(v, maxSal) > 0))
+                                            return;
 
                                         Color color = colormapSal.getColor(ColorMapUtils.getColorIndexZeroToOneLog10(v, minSal, maxSal));
                                         cacheImg.setRGB((int) ((pt.point.getX() + offScreenSalinity.getOffScreenBufferPixel()) * cacheImgScaleX),
