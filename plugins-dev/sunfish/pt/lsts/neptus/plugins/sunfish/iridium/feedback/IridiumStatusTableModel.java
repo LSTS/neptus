@@ -50,6 +50,7 @@ import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IridiumMsgRx;
 import pt.lsts.imc.IridiumMsgTx;
 import pt.lsts.imc.IridiumTxStatus;
+import pt.lsts.imc.StateReport;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.iridium.ImcIridiumMessage;
 import pt.lsts.neptus.comm.iridium.IridiumCommand;
@@ -64,7 +65,7 @@ import pt.lsts.neptus.plugins.sunfish.iridium.feedback.IridiumStatusTableModel.I
 public class IridiumStatusTableModel extends AbstractTableModel implements MessageListener<MessageInfo, IMCMessage> {
 
     private static final long serialVersionUID = 1L;
-    private SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SSS dd-MM-yyyy z");
+    private SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SSS dd-MM-yyyy 'Z'");
     private Map<Integer, TransmissionStatus> status = Collections.synchronizedMap(new HashMap<>());
     List<IridiumMessage> msgs =  Collections.synchronizedList(new ArrayList<>());
     protected static final int TIMESTAMP = 0, SYSTEM = 1, STATUS = 2, MSG_TYPE = 3;
@@ -79,7 +80,8 @@ public class IridiumStatusTableModel extends AbstractTableModel implements Messa
     }
 
     public IridiumStatusTableModel() {
-        sdf.setTimeZone(TimeZone.getTimeZone(TimeZone.getDefault().getID())); // "UTC"
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC")); // TimeZone.getDefault().getID())
+        System.out.println("Set Timezone to: "+sdf.getTimeZone().getID());
         ImcMsgManager.getManager().addListener(this, new TypedMessageFilter(IridiumMsgRx.class.getSimpleName(),
                 IridiumTxStatus.class.getSimpleName(), IridiumMsgTx.class.getSimpleName()));
     }
@@ -210,25 +212,47 @@ public class IridiumStatusTableModel extends AbstractTableModel implements Messa
     public Object getValueAt(int rowIndex, int columnIndex) {
 
         IridiumMessage m = msgs.get(rowIndex);
+        
         String messageType = m.getMessageType() == 0 ? "Custom Iridium Message" : m.getClass().getSimpleName();
         int src = m.getSource();
         int dst = m.getDestination();
 
         switch (columnIndex) {
             case TIMESTAMP:
-                return sdf.format(new Date(m.timestampMillis));
+            {
+                if(messageType.equalsIgnoreCase("ImcIridiumMessage")) {
+                    IMCMessage msg = ((ImcIridiumMessage) m).getMsg();
+                    if(msg.getMgid() == StateReport.ID_STATIC) {
+                        long stime = ((StateReport) msg).getStime() * 1000;
+                        TimeZone.getTimeZone(TimeZone.getDefault().getID());
+                        StringBuilder sb = new StringBuilder("V ");
+                        sb.append(sdf.format(new Date(stime)));
+                        return sb.toString();
+                    }
+                }
+                StringBuilder sb = new StringBuilder("M ");
+                sb.append(sdf.format(new Date(m.timestampMillis)));
+                return sb.toString();
+            }
             case SYSTEM:
                 return IMCDefinition.getInstance().getResolver().resolve(src);
             case STATUS:
-                if (status.containsKey(rowIndex))
-                    return status.get(rowIndex).status;
-                else if (dst == 65535 || dst == ImcMsgManager.getManager().getLocalId().intValue()) // dst - 65535 - 255
-                    // - broadcast
-                    return IridiumCommsStatus.DELIVERED;
+                if (status.containsKey(rowIndex)) {
+                    return status.get(rowIndex)._status;
+                }
                 /*
                  * else if(src == ImcMsgManager.getManager().getLocalId().intValue()) return IridiumCommsStatus.SENT;
                  */
-                else
+                if(messageType.equalsIgnoreCase("IridiumCommand")) {
+                    IridiumCommand cmd = (IridiumCommand) m;
+                    String txt = cmd.getCommand();
+                    if(txt.startsWith("ERROR"))
+                        return IridiumCommsStatus.ERROR;
+
+                }
+                else if (dst == 65535 || dst == ImcMsgManager.getManager().getLocalId().intValue()) { // dst - 65535 - 255 // - broadcast
+                    return IridiumCommsStatus.DELIVERED;
+                }
                     return IridiumCommsStatus.UNCERTAIN;
             case MSG_TYPE:
                 if(messageType.equalsIgnoreCase("ImcIridiumMessage"))
@@ -248,11 +272,23 @@ public class IridiumStatusTableModel extends AbstractTableModel implements Messa
      * @param row of the status column on hover
      * @return
      */
-    public String getToolTipText(int row) {
-        if(getValueAt(row, 2) != null) {
-            IridiumCommsStatus s = (IridiumCommsStatus) getValueAt(row, 2);
-            int statusEnum = s.ordinal();
-            return statusTooltips[statusEnum];
+    public String getToolTipText(int row,int col) {
+        if(col == STATUS) {
+            if(getValueAt(row, col) != null) {
+                IridiumCommsStatus s = (IridiumCommsStatus) getValueAt(row, 2);
+                int statusEnum = s.ordinal();
+                return statusTooltips[statusEnum];
+            }
+        }
+        else if(col == TIMESTAMP) {
+            if(getValueAt(row, col) != null) {
+                String date = (String) getValueAt(row, col);
+                if(date.startsWith("V "))
+                    return "Timestamp from "+getValueAt(row,SYSTEM);
+                else if(date.startsWith("M ")) {
+                    return "Timestamp from Message Header";
+                }
+            }
         }
         return "";
     }
@@ -272,7 +308,7 @@ public class IridiumStatusTableModel extends AbstractTableModel implements Messa
  */
 class TransmissionStatus {
     int req_id;
-    IridiumCommsStatus status;
+    IridiumCommsStatus _status;
     String messageType;
 
     /**
@@ -284,7 +320,7 @@ class TransmissionStatus {
 
     TransmissionStatus(int r, IridiumCommsStatus s, String name) {
         this.req_id = r;
-        this.status = s;
+        this._status = s;
         this.messageType = name;
     }
 }

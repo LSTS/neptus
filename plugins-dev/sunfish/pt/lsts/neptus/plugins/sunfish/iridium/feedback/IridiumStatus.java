@@ -138,7 +138,7 @@ public class IridiumStatus extends ConsolePanel {
 
                 Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
                 if(table.convertRowIndexToModel(row) >= highlight_init && 
-                        table.convertRowIndexToModel(row) <=  highlight_init+highlight_block_size){//== table.getRowCount()-1)
+                        table.convertRowIndexToModel(row) <=  highlight_init+highlight_block_size-1){//== table.getRowCount()-1)
                     c.setBackground(Color.GREEN.darker());
                 }
                 else 
@@ -150,28 +150,31 @@ public class IridiumStatus extends ConsolePanel {
         changes = new TableModelListener() {
             @Override
             public void tableChanged(TableModelEvent e) {
-                SwingUtilities.invokeLater(new Runnable() {
-                    public void run() {
-                        if(e.getType() == TableModelEvent.INSERT){
-                            highlight_block_size++;
-                            synchronized (IridiumStatus.this) {
-                                int index = table.getModel().getRowCount()-1;
-                                try {
-                                    if(index < table.getRowCount()) {
-                                        int row   = table.convertRowIndexToView(index);
-                                        Rectangle rect = table.getCellRect(row, 0, false);
-                                        if(rect != null)
-                                            table.scrollRectToVisible(rect);                                        
+                if(e.getType()==TableModelEvent.UPDATE || e.getType()==TableModelEvent.INSERT){
+                    SwingUtilities.invokeLater(new Runnable() {
+                        public void run() {
+                            if(e.getType() == TableModelEvent.INSERT){
+                                highlight_block_size++;
+                                synchronized (IridiumStatus.this) {
+                                    int index = table.getModel().getRowCount()-1;
+                                    try {
+                                        if(index < table.getRowCount() && index > 0) {
+                                            int row   = table.convertRowIndexToView(index);
+                                            Rectangle rect = table.getCellRect(row, 0, false);
+                                            if(rect != null)
+                                                table.scrollRectToVisible(rect);                                        
+                                        }
                                     }
+                                    catch (Exception e) {
+                                        NeptusLog.pub().error(e.getCause());
+                                        e.printStackTrace();
+                                    }
+                                    table.repaint();
                                 }
-                                catch (Exception e) {
-                                    NeptusLog.pub().error(e);
-                                }
-                                table.repaint();
                             }
                         }
-                    }
-                });
+                    });
+                }
             }
         };
 
@@ -182,7 +185,12 @@ public class IridiumStatus extends ConsolePanel {
 
             @Override
             public int compare(String sdf1, String sdf2) {
-                SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SSS dd-MM-yyyy z");
+                SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SSS dd-MM-yyyy 'Z'");
+                sdf1 = sdf1.replaceAll("V ", "");
+                sdf2 = sdf2.replaceAll("V ", "");
+                
+                sdf1 = sdf1.replaceAll("M ", "");
+                sdf2 = sdf2.replaceAll("M ", "");
                 try {
                     return sdf.parse(sdf1).compareTo(sdf.parse(sdf2));
                 }
@@ -210,15 +218,12 @@ public class IridiumStatus extends ConsolePanel {
             public String getToolTipText(MouseEvent event) {
                 java.awt.Point p = event.getPoint();
                 int column = columnAtPoint(p);
-                if(column == IridiumStatusTableModel.STATUS) {
                     if( rowAtPoint(p)> 0 && rowAtPoint(p) < table.getRowCount()) {
                         int row = table.convertRowIndexToModel(rowAtPoint(p));
                         if(row > 0 && row < table.getRowCount())
-                            return iridiumCommsStatus.getToolTipText(row);
+                            return iridiumCommsStatus.getToolTipText(row,column);
                    }
-                    else 
-                        return "";
-                }
+
 
                 return super.getToolTipText();
             }
@@ -235,7 +240,7 @@ public class IridiumStatus extends ConsolePanel {
                     displayMessage();
                 }
                 //reset count to last inserted row
-                highlight_init = table.getRowCount() > 0 ? table.getRowCount()-1 : 0;
+                highlight_init = table.getRowCount() > 0 ? table.getRowCount() : 0;
                 highlight_block_size = 0;
                 table.repaint();
             }
