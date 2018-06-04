@@ -77,7 +77,7 @@ import pt.lsts.neptus.util.nmea.NmeaProvider;
 @PluginDescription(name = "Underway Data Plotter", description = "Plotter for Falkor underway data.")
 public class UnderwayDataPlotter extends ConsoleLayer implements NmeaListener, PreferencesListener {
 
-    @NeptusProperty(name = "Show temperature", userLevel = LEVEL.REGULAR, category = "Temperaure")
+    @NeptusProperty(name = "Show temperature", userLevel = LEVEL.REGULAR, category = "Temperature")
     private boolean showTemp = false;
     @NeptusProperty(name = "Show salinity", userLevel = LEVEL.REGULAR, category = "Salinity")
     private boolean showSal = true;
@@ -90,16 +90,16 @@ public class UnderwayDataPlotter extends ConsoleLayer implements NmeaListener, P
     @NeptusProperty(name = "Salinity color map", userLevel = LEVEL.REGULAR, category = "Salinity")
     private ColorMap colormapSal = ColorMapFactory.createJetColorMap();
 
-    @NeptusProperty(name = "Min temperature", userLevel = LEVEL.REGULAR, category = "Temperaure")
+    @NeptusProperty(name = "Min temperature", userLevel = LEVEL.REGULAR, category = "Temperature")
     private double minTemp = 15;
-    @NeptusProperty(name = "Max temperature", userLevel = LEVEL.REGULAR, category = "Temperaure")
+    @NeptusProperty(name = "Max temperature", userLevel = LEVEL.REGULAR, category = "Temperature")
     private double maxTemp = 35;
 
-    @NeptusProperty(name = "Temperature color map", userLevel = LEVEL.REGULAR, category = "Temperaure")
+    @NeptusProperty(name = "Temperature color map", userLevel = LEVEL.REGULAR, category = "Temperature")
     private ColorMap colormapTemp = ColorMapFactory.createJetColorMap();
     
     @NeptusProperty(name = "Max samples", userLevel = LEVEL.REGULAR)
-    private int maxSamples = 5000;
+    private int maxSamples = 35000;
 
     @NeptusProperty(name = "Clamp to fit", userLevel = LEVEL.REGULAR)
     private boolean clampToFit = false;
