@@ -714,7 +714,28 @@ public class NetCDFLoader {
         
         return chooser.getSelectedFile();
     }
-    
+
+    /**
+     * Shows a {@link JFileChooser} for the operator to choose a netCDF file.
+     * 
+     * @param parentWindow
+     * @param recentFolder
+     * @return The selected files or null if canceled.
+     */
+    public static <W extends Window> File[] showChooseANetCDFMultipleToOpen(W parentWindow, File recentFolder) {
+        final JFileChooser chooser = new JFileChooser();
+        chooser.setFileView(new NeptusFileView());
+        chooser.setCurrentDirectory(recentFolder);
+        chooser.setFileFilter(GuiUtils.getCustomFileFilter(I18n.text("netCDF files"), "nc", "nc.gz"));
+        chooser.setApproveButtonText(I18n.text("Open file"));
+        chooser.setMultiSelectionEnabled(true);
+        chooser.showOpenDialog(parentWindow);
+        if (chooser.getSelectedFiles() == null || chooser.getSelectedFiles().length == 0)
+            return null;
+        
+        return chooser.getSelectedFiles();
+    }
+
     /**
      * Shows a GUI for the operator to choose a variable to use. That variable needs to use lat, lon.
      * 
@@ -839,7 +860,7 @@ public class NetCDFLoader {
             return null;
         }
         Object choiceOpt = JOptionPane.showInputDialog(parentWindow, I18n.text("Choose one of the vars"),
-                I18n.text("Chooser"), JOptionPane.QUESTION_MESSAGE, null,
+                I18n.textf("Chooser for %f", fileName), JOptionPane.QUESTION_MESSAGE, null,
                 choicesVarsLbl.toArray(new JLabel[choicesVarsLbl.size()]), 0);
     
         return choiceOpt == null ? null : varToConsider.get(((JLabel) choiceOpt).getText());

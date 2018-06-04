@@ -245,65 +245,67 @@ public class LayersListPanel extends JPanel implements ConfigurationListener {
         addAction = new AbstractAction(I18n.text("Add")) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                File fx = NetCDFLoader.showChooseANetCDFToOpen(parentWindow, recentFolder);
-                if (fx == null)
+                File[] fxList = NetCDFLoader.showChooseANetCDFMultipleToOpen(parentWindow, recentFolder);
+                if (fxList == null)
                     return;
                 
                 JButton source = (JButton) e.getSource();
                 source.setEnabled(false);
                 setBusy(true);
                 
-                try {
-                    NetcdfFile dataFile = NetcdfFile.open(fx.getPath());
-                    
-                    Variable choiceVarOpt = NetCDFLoader.showChooseVar(fx.getName(), dataFile, parentWindow);
-                    if (choiceVarOpt != null) {
-                        Future<GenericNetCDFDataPainter> fTask = NetCDFLoader.loadNetCDFPainterFor(fx.getPath(),
-                                dataFile, choiceVarOpt.getShortName(), plotCounter.getAndIncrement(), dateLimit,
-                                new Pair<Double, Double>(latDegMin, latDegMax),
-                                new Pair<Double, Double>(lonDegMin, lonDegMax),
-                                new Pair<Double, Double>(depthMin, depthMax));
-                        SwingWorker<GenericNetCDFDataPainter, Void> sw = new SwingWorker<GenericNetCDFDataPainter, Void>() {
-                            @Override
-                            protected GenericNetCDFDataPainter doInBackground() throws Exception {
-                                return fTask.get();
-                            }
-                            
-                            @Override
-                            protected void done() {
-                                try {
-                                    GenericNetCDFDataPainter viz = get();
-                                    if (viz != null) {
-                                        // PluginUtils.editPluginProperties(viz, parentWindow, true);
-                                        addVisualizationLayer(viz);
+                for (File fx : fxList) {
+                    try {
+                        NetcdfFile dataFile = NetcdfFile.open(fx.getPath());
+                        
+                        Variable choiceVarOpt = NetCDFLoader.showChooseVar(fx.getName(), dataFile, parentWindow);
+                        if (choiceVarOpt != null) {
+                            Future<GenericNetCDFDataPainter> fTask = NetCDFLoader.loadNetCDFPainterFor(fx.getPath(),
+                                    dataFile, choiceVarOpt.getShortName(), plotCounter.getAndIncrement(), dateLimit,
+                                    new Pair<Double, Double>(latDegMin, latDegMax),
+                                    new Pair<Double, Double>(lonDegMin, lonDegMax),
+                                    new Pair<Double, Double>(depthMin, depthMax));
+                            SwingWorker<GenericNetCDFDataPainter, Void> sw = new SwingWorker<GenericNetCDFDataPainter, Void>() {
+                                @Override
+                                protected GenericNetCDFDataPainter doInBackground() throws Exception {
+                                    return fTask.get();
+                                }
+                                
+                                @Override
+                                protected void done() {
+                                    try {
+                                        GenericNetCDFDataPainter viz = get();
+                                        if (viz != null) {
+                                            // PluginUtils.editPluginProperties(viz, parentWindow, true);
+                                            addVisualizationLayer(viz);
+                                        }
                                     }
+                                    catch (Exception e) {
+                                        NeptusLog.pub().error(e.getMessage(), e);
+                                        GuiUtils.errorMessage(parentWindow,
+                                                I18n.textf("Loading netCDF variable %s", choiceVarOpt.getShortName()),
+                                                e.getMessage());
+                                    }
+                                    NetCDFLoader.deleteNetCDFUnzippedFile(fx);
+                                    source.setEnabled(true);
+                                    setBusy(false);
                                 }
-                                catch (Exception e) {
-                                    NeptusLog.pub().error(e.getMessage(), e);
-                                    GuiUtils.errorMessage(parentWindow,
-                                            I18n.textf("Loading netCDF variable %s", choiceVarOpt.getShortName()),
-                                            e.getMessage());
-                                }
-                                NetCDFLoader.deleteNetCDFUnzippedFile(fx);
-                                source.setEnabled(true);
-                                setBusy(false);
-                            }
-                        };
-                        sw.execute();
+                            };
+                            sw.execute();
+                        }
+                        else {
+                            source.setEnabled(true);
+                            NetCDFLoader.deleteNetCDFUnzippedFile(fx);
+                            setBusy(false);
+                        }
+                        
+                        recentFolder = fx;
                     }
-                    else {
+                    catch (Exception e1) {
+                        e1.printStackTrace();
                         source.setEnabled(true);
                         NetCDFLoader.deleteNetCDFUnzippedFile(fx);
                         setBusy(false);
                     }
-                    
-                    recentFolder = fx;
-                }
-                catch (Exception e1) {
-                    e1.printStackTrace();
-                    source.setEnabled(true);
-                    NetCDFLoader.deleteNetCDFUnzippedFile(fx);
-                    setBusy(false);
                 }
             }
         };
