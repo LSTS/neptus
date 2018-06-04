@@ -54,11 +54,15 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+import com.google.common.eventbus.Subscribe;
 import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.aismanager.ShipAisSnapshot;
 import pt.lsts.aismanager.api.AisContactManager;
+import pt.lsts.imc.TextMessage;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.data.Pair;
@@ -160,6 +164,16 @@ public class SoiRiskAnalysis extends ConsolePanel {
         return lbl;
     }
     
+    @Subscribe
+    public void on(TextMessage msg) {
+        if (msg.getText().startsWith("ERROR:")) {
+            NeptusLog.pub().error("Received error from "+msg.getSourceName());
+            if (state.containsKey(msg.getSourceName()))
+                state.get(msg.getSourceName()).errors.add(msg.getText());
+        }
+            
+    }
+    
     @Periodic(millisBetweenUpdates = 10_000)
     void updateCollisions() {
         long start = System.currentTimeMillis();
@@ -221,13 +235,25 @@ public class SoiRiskAnalysis extends ConsolePanel {
             String name = asset.getAssetName();
             VehicleRiskAnalysis risk = state.getOrDefault(name, new VehicleRiskAnalysis());
             
-            AssetState last = asset.receivedState();
             AssetState next = asset.futureState();
             AssetState current = asset.stateAt(new Date());
 
-            if (last != null)
-                risk.lastCommunication = last.getTimestamp();
-
+            System.out.println(asset.getAssetName()+" : : "+asset.receivedState().getTimestamp());
+            ImcSystem system = ImcSystemsHolder.lookupSystemByName(name);
+            if (system != null) {
+                risk.lastCommunication = new Date(system.getLocationTimeMillis()); 
+            }
+            
+            if (System.currentTimeMillis() - risk.lastCommunication.getTime() > 24 * 3600_000) {
+                // remove this panel
+                if (panels.containsKey(name)) {
+                    remove(panels.get(name));
+                    panels.remove(name);
+                    doLayout();
+                }
+                return;
+            }
+            
             if (next != null)
                 risk.nextCommunication = next.getTimestamp();
 

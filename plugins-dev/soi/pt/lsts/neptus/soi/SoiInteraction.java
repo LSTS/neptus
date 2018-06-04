@@ -39,6 +39,7 @@ import java.awt.event.MouseEvent;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Collection;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -134,7 +135,7 @@ public class SoiInteraction extends SimpleRendererInteraction {
         SoiCommand cmd = new SoiCommand();
         cmd.setCommand(COMMAND.RESUME);
         cmd.setType(TYPE.REQUEST);
-        sendCommand(cmd);
+        sendCommand(cmd, getConsole().getMainSystem());
     }
 
     @NeptusMenuItem("Tools>SOI>Send Stop")
@@ -142,7 +143,7 @@ public class SoiInteraction extends SimpleRendererInteraction {
         SoiCommand cmd = new SoiCommand();
         cmd.setCommand(COMMAND.STOP);
         cmd.setType(TYPE.REQUEST);
-        sendCommand(cmd);
+        sendCommand(cmd, getConsole().getMainSystem());
     }
 
     @NeptusMenuItem("Tools>SOI>Send Plan")
@@ -179,7 +180,7 @@ public class SoiInteraction extends SimpleRendererInteraction {
             cmd.setCommand(COMMAND.EXEC);
             cmd.setType(TYPE.REQUEST);
             cmd.setPlan(plan.asImc());
-            sendCommand(cmd);
+            sendCommand(cmd, system);
 
             AssetsManager.getInstance().getPlans().put(system, plan);
         }
@@ -194,7 +195,7 @@ public class SoiInteraction extends SimpleRendererInteraction {
         cmd.setCommand(COMMAND.EXEC);
         cmd.setType(TYPE.REQUEST);
         cmd.setPlan(new SoiPlan());
-        sendCommand(cmd);
+        sendCommand(cmd, getConsole().getMainSystem());
     }
 
     @NeptusMenuItem("Tools>SOI>Request Settings")
@@ -202,7 +203,7 @@ public class SoiInteraction extends SimpleRendererInteraction {
         SoiCommand cmd = new SoiCommand();
         cmd.setCommand(COMMAND.GET_PARAMS);
         cmd.setType(TYPE.REQUEST);
-        sendCommand(cmd);
+        sendCommand(cmd, getConsole().getMainSystem());
     }
 
     @NeptusMenuItem("Tools>SOI>Request Plan")
@@ -210,9 +211,10 @@ public class SoiInteraction extends SimpleRendererInteraction {
         SoiCommand cmd = new SoiCommand();
         cmd.setCommand(COMMAND.GET_PLAN);
         cmd.setType(TYPE.REQUEST);
-        sendCommand(cmd);
+        sendCommand(cmd, getConsole().getMainSystem());
     }
 
+    @SuppressWarnings("deprecation")
     @NeptusMenuItem("Tools>SOI>Change Settings")
     public void sendSettings() {
 
@@ -232,7 +234,7 @@ public class SoiInteraction extends SimpleRendererInteraction {
             settingsStr += SoiSettings.abbrev(p.getName()) + "=" + p.getValue() + ";";
         }
         cmd.setSettings(settingsStr.substring(0, settingsStr.length() - 1));
-        sendCommand(cmd);
+        sendCommand(cmd, system);
     }
     
     protected void setParams(String vehicle, LinkedHashMap<String, String> params) {
@@ -314,6 +316,7 @@ public class SoiInteraction extends SimpleRendererInteraction {
     
     @Subscribe
     public void on(StateReport cmd) {
+        System.out.println("Date for incoming SOI data: "+new Date(cmd.getTimestampMillis()));
         try {
             AssetsManager.getInstance().process(cmd);    
         }
@@ -335,7 +338,7 @@ public class SoiInteraction extends SimpleRendererInteraction {
     
     @Subscribe
     public void on(Announce cmd) {
-        try {
+        try { 
             AssetsManager.getInstance().process(cmd);
         }
         catch (Exception e) {
@@ -406,6 +409,7 @@ public class SoiInteraction extends SimpleRendererInteraction {
             popup.addSeparator();
 
             popup.add("Change plug-in settings").addActionListener(new ActionListener() {
+                @SuppressWarnings("deprecation")
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     PluginUtils.editPluginProperties(SoiInteraction.this, true);
@@ -425,9 +429,9 @@ public class SoiInteraction extends SimpleRendererInteraction {
         profileView.mouseMoved(event, source);
     }
 
-    private void sendCommand(SoiCommand cmd) {
+    private void sendCommand(SoiCommand cmd, final String system) {
         new Thread(() -> {
-            AssetsManager.getInstance().sendCommand(getConsole().getMainSystem(), cmd, commMean, getConsole());
+            AssetsManager.getInstance().sendCommand(system, cmd, commMean, getConsole());
         }).start();
     }
     

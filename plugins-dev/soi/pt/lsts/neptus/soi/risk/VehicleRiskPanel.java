@@ -108,11 +108,13 @@ public class VehicleRiskPanel extends JPanel {
     public void setRiskAnalysis(VehicleRiskAnalysis analysis) {
         this.analysis = analysis;
         
-        if (analysis.problems().isEmpty())
+        if (analysis.problems().isEmpty()) {
             setBackground(new Color(224,255,224));
-        else
+        }
+        else {
             setBackground(new Color(255, 180, 180));
-        
+            System.out.println("PROBLEMS: "+analysis.problems());
+        }
         if (analysis.lastCommunication == null)
             lblLastComm.setState("N/D", false, "No message has been received");
         else {                
@@ -135,6 +137,13 @@ public class VehicleRiskPanel extends JPanel {
         else {
             String text = analysis.collisions.values().stream().collect(Collectors.joining("<br>"));
             lblCollisions.setState(analysis.collisions.size()+"!", true, "<html>"+text);
+        }
+        
+        if (analysis.errors.isEmpty()) {
+            lblErrors.setState("N/D", false, "No reported errors");
+        }
+        else {
+            lblErrors.setState(""+analysis.errors.size(), true, ""+analysis.errors);
         }
                     
         if (analysis.location != null) {

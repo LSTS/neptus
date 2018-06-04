@@ -209,7 +209,7 @@ public class AssetsManager {
                 .withTimestamp(cmd.getDate())
                 .withHeading((cmd.getHeading()/65535.0)*Math.PI * 2)
                 .build();
-        
+        System.out.println("Received report from "+asset.getAssetName());
         asset.setState(state);        
     }
     
@@ -227,7 +227,7 @@ public class AssetsManager {
                 .withLongitude(Math.toDegrees(ann.getLon()))
                 .withTimestamp(ann.getDate())
                 .build();
-        
+        System.out.println("Received announce from "+asset.getAssetName());
         asset.setState(state);
     }
     

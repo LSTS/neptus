@@ -143,7 +143,7 @@ public class VehicleRiskAnalysis {
             ret.add("no communications for more than 30 minutes");
         
         
-        if (fuelLevel != null && fuelLevel > 0 && fuelLevel < 25)
+        if (fuelLevel != null && fuelLevel > 1 && fuelLevel < 25)
             ret.add("fuel is running low ("+fuelLevel+")");
         return ret;
     }
