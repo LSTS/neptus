@@ -42,9 +42,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.TimeZone;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
 
@@ -78,7 +80,10 @@ public class RipplesPositions extends ConsoleLayer {
 
     LinkedHashMap<String, PositionUpdate> lastPositions = new LinkedHashMap<>();
     LinkedHashMap<String, ArrayList<PositionUpdate> > positions = new LinkedHashMap<>();
-    SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd'T'HH:mm:ssZ");
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ"); 
+    {
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+    }
     Image pin = null;
     int pinWidth = 0, pinHeight = 0;
 
@@ -119,7 +124,7 @@ public class RipplesPositions extends ConsoleLayer {
                     continue;
 
                 double age = (System.currentTimeMillis() - update.timestamp.getTime()) / 3600.0 * 1000;
-
+                
                 String date = sdf.format(update.timestamp);
                 Point2D pt = renderer.getScreenPosition(update.location);
                 pt.setLocation(pt.getX() - pinWidth / 2, pt.getY() - pinHeight);
@@ -150,8 +155,6 @@ public class RipplesPositions extends ConsoleLayer {
         if (!isVisible())
             return;
 
-        sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
-        
         try {
             JsonParser parser = new JsonParser();
             URL url = new URL(positionsApiUrl);
@@ -162,16 +165,11 @@ public class RipplesPositions extends ConsoleLayer {
             
             
             for (JsonElement position : posArray) {
-                
-                //long updatedAt = asset.getValue().getAsJsonObject().get("updated_at").getAsLong();
-                //JsonElement position = asset.getValue().getAsJsonObject().get("position");
-                //if (position == null)
-                //    continue;
-
-                double latDegs = position.getAsJsonObject().get("lat").getAsDouble();
-                double lonDegs = position.getAsJsonObject().get("lon").getAsDouble();
-                Date time = sdf.parse(position.getAsJsonObject().get("timestamp").getAsString());
-                int id = position.getAsJsonObject().get("imc_id").getAsInt();
+                JsonObject obj = position.getAsJsonObject();
+                double latDegs = obj.get("lat").getAsDouble();
+                double lonDegs = obj.get("lon").getAsDouble();
+                Date time = sdf.parse(obj.get("timestamp").getAsString());
+                int id = obj.get("imc_id").getAsInt();
                 
                 PositionUpdate update = new PositionUpdate();
                 update.id = IMCDefinition.getInstance().getResolver().resolve(id);
@@ -189,11 +187,15 @@ public class RipplesPositions extends ConsoleLayer {
                     
                     if (lastUpdate == null || lastUpdate.timestamp.before(update.timestamp)) {
                         NeptusLog.pub().info("Publishing RemoteSensorInfo synthesized from Ripples position of system " + update.id);
+                        
                         RemoteSensorInfo rsi = new RemoteSensorInfo();
                         rsi.setSrc(id);
                         rsi.setTimestamp(time.getTime()/1000.0);
                         rsi.setLat(update.location.getLatitudeRads());
                         rsi.setLon(update.location.getLongitudeRads());
+                        
+                        System.out.println(rsi.getId()+" :: "+rsi.getDate());
+                        
                         rsi.setSensorClass("UUV");
                         NeptusLog.pub().info("RemoteSensorInfo::" + rsi.asJSON());
                         ImcMsgManager.getManager().postInternalMessage(update.id, rsi);    
@@ -221,6 +223,11 @@ public class RipplesPositions extends ConsoleLayer {
         public int compareTo(PositionUpdate o) {
             return timestamp.compareTo(o.timestamp);
         }
+    }
+    
+    public static void main(String[] args) {
+        RipplesPositions positions = new RipplesPositions();
+        positions.pollActiveSystems();
     }
 
 }
