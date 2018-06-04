@@ -227,7 +227,6 @@ public class AssetsManager {
                 .withLongitude(Math.toDegrees(ann.getLon()))
                 .withTimestamp(ann.getDate())
                 .build();
-        System.out.println("Received announce from "+asset.getAssetName());
         asset.setState(state);
     }
     
