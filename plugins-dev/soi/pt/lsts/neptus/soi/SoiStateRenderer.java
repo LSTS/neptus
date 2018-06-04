@@ -62,6 +62,8 @@ public class SoiStateRenderer implements Renderer2DPainter {
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         for (Entry<String, Plan> p : AssetsManager.getInstance().getPlans().entrySet()) {
             try {
+                
+                
                 String vehicle = p.getKey();
                 VehicleType v = VehiclesHolder.getVehicleById(vehicle);
                 if (v == null)

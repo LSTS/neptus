@@ -162,7 +162,7 @@ public class SoiInteraction extends SimpleRendererInteraction {
 
             String p = getConsole().getPlan() != null ? getConsole().getPlan().getId() : ps.get(0);
             final Object selection = JOptionPane.showInputDialog(getConsole(),
-                    "Select plan to be sent as SOI waypoints", "Start plan", JOptionPane.QUESTION_MESSAGE, null,
+                    "Select plan to be sent to "+system, "Send plan", JOptionPane.QUESTION_MESSAGE, null,
                     ps.toArray(), p);
             if (selection == null)
                 return;
@@ -292,7 +292,7 @@ public class SoiInteraction extends SimpleRendererInteraction {
     @Subscribe
     public void on(VerticalProfile msg) {
         profileView.addProfile(msg);
-        getConsole().post(Notification.success(I18n.text("SOI Settings"),
+        getConsole().post(Notification.success(I18n.text("Profile from "+msg.getSourceName()),
                 I18n.textf("Received %param profile from %vehicle.", msg.getParameter().name().toLowerCase(), msg.getSourceName())));
         
         if (audioNotifications) {
@@ -316,7 +316,6 @@ public class SoiInteraction extends SimpleRendererInteraction {
     
     @Subscribe
     public void on(StateReport cmd) {
-        System.out.println("Date for incoming SOI data: "+new Date(cmd.getTimestampMillis()));
         try {
             AssetsManager.getInstance().process(cmd);    
         }

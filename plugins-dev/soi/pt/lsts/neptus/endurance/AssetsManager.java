@@ -129,7 +129,7 @@ public class AssetsManager {
                 msg.setDestination(system.getId().intValue());
                 IridiumManager.getManager().send(msg);
                 if (console != null)
-                    console.post(Notification.success("Iridium message sent", "1 Iridium messages were sent using "
+                    console.post(Notification.success(cmd.getCommandStr()+" sent to "+systemName, cmd.getCommandStr()+" sent using "
                             + IridiumManager.getManager().getCurrentMessenger().getName()));
             }
             catch (Exception e) {

@@ -295,6 +295,13 @@ public class Plan {
         remove(waypoint.getId());
     }
 
+    
+    public Date planEta() {
+        if (waypoints == null || waypoints.size() == 0)
+            return null;
+        return  waypoints.get(waypoints.size()-1).getArrivalTime();
+    }
+    
     public boolean scheduledInTheFuture() {
         long present = System.currentTimeMillis();
         if (waypoints == null)

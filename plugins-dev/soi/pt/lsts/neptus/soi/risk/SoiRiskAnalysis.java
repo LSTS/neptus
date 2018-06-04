@@ -45,6 +45,7 @@ import java.awt.event.MouseEvent;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -231,7 +232,9 @@ public class SoiRiskAnalysis extends ConsolePanel {
     @Periodic(millisBetweenUpdates = 1_000)
     void update() {
         boolean doLayout = false;
-        for (Asset asset : AssetsManager.getInstance().getAssets()) {
+        List<Asset> assets = AssetsManager.getInstance().getAssets();
+        NeptusLog.pub().info("Processing "+assets.size()+" assets for risk analysis.");
+        for (Asset asset : assets) {
             String name = asset.getAssetName();
             VehicleRiskAnalysis risk = state.getOrDefault(name, new VehicleRiskAnalysis());
             
@@ -240,6 +243,7 @@ public class SoiRiskAnalysis extends ConsolePanel {
 
             System.out.println(asset.getAssetName()+" : : "+asset.receivedState().getTimestamp());
             ImcSystem system = ImcSystemsHolder.lookupSystemByName(name);
+            
             if (system != null) {
                 risk.lastCommunication = new Date(system.getLocationTimeMillis()); 
             }
