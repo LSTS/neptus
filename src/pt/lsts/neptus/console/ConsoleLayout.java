@@ -916,6 +916,10 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
             return;
         }
 
+        if (!systemName.equals(systemName.trim()))
+            NeptusLog.pub().fatal(">>>>>>>>>>>>>>>>> " + this.getClass().getSimpleName()
+                    + " :: Test for system name malformed '" + systemName + "' != '" + systemName.trim() + "'");
+        
         ConsoleSystem system;
         if (imcSystem == null) {
             NeptusLog.pub().warn("tried to add a vehicle from imc with comms disabled: " + systemName);
