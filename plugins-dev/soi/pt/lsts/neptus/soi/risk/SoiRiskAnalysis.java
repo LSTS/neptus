@@ -241,7 +241,6 @@ public class SoiRiskAnalysis extends ConsolePanel {
             AssetState next = asset.futureState();
             AssetState current = asset.stateAt(new Date());
 
-            System.out.println(asset.getAssetName()+" : : "+asset.receivedState().getTimestamp());
             ImcSystem system = ImcSystemsHolder.lookupSystemByName(name);
             
             if (system != null) {
