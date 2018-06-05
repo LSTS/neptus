@@ -115,7 +115,7 @@ public class MainSystemSelectionCombo extends JComboBox<String> implements ItemL
         
         this.addItem(e.getSystem().getVehicleId());
         
-        String msgTxt = "New system added to console: " + e.getSystem().getVehicleId();
+        String msgTxt = "New system added to console: '" + e.getSystem().getVehicleId() + "'";
         console.post(Notification
                 .info("Console Vehicle Combo", msgTxt)
                 .requireHumanAction(false));

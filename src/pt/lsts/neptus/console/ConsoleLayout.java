@@ -917,13 +917,15 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
             return;
         }
 
-        if (!systemName.equals(systemName.trim()))
+        if (!systemName.equals(systemName.trim())) {
             NeptusLog.pub().fatal(">>>>>>>>>>>>>>>>> " + this.getClass().getSimpleName()
                     + " :: Test for system name malformed '" + systemName + "' != '" + systemName.trim() + "'");
+            Thread.dumpStack();
+        }
         
         ConsoleSystem system;
         if (imcSystem == null) {
-            NeptusLog.pub().warn("tried to add a vehicle from imc with comms disabled: " + systemName);
+            NeptusLog.pub().warn("tried to add a vehicle from imc with comms disabled: '" + systemName + "'");
             return;
         }
         if (imcSystem.getType() != SystemTypeEnum.VEHICLE) {
@@ -940,9 +942,11 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
             system = new ConsoleSystem(systemName, this, imcSystem, imcMsgManager);
             consoleSystems.put(systemName, system);
             
+            consoleSystems.keySet().stream().forEach(s -> System.out.println(">>  " + s));
+            
             post(Notification.info("Console",
                     "New main system added to console: " + systemName).requireHumanAction(false));
-            String msgTxt = "New main system added to console: " + systemName;
+            String msgTxt = "New main system added to console: '" + systemName + "'";
             post(Notification
                     .info("Console", msgTxt)
                     .requireHumanAction(false));
@@ -1601,6 +1605,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
             system.clean();
         }
         consoleSystems.clear();
+        mainSystemCombo.removeAllItems();
 
         mainPanel.clean();
         
