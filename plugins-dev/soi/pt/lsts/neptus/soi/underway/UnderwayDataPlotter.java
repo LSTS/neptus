@@ -308,9 +308,9 @@ public class UnderwayDataPlotter extends ConsoleLayer implements NmeaListener, P
                                                 && (Double.compare(v, minTemp) < 0 || Double.compare(v, maxTemp) > 0))
                                             return;
 
-                                        Color color = colormapSal.getColor(ColorMapUtils.getColorIndexZeroToOneLog10(v, minSal, maxSal));
-                                        cacheImg.setRGB((int) ((pt.point.getX() + offScreenSalinity.getOffScreenBufferPixel()) * cacheImgScaleX),
-                                                (int) ((pt.point.getY() + offScreenSalinity.getOffScreenBufferPixel()) * cacheImgScaleY), color.getRGB());
+                                        Color color = colormapTemp.getColor(ColorMapUtils.getColorIndexZeroToOneLog10(v, minTemp, maxTemp));
+                                        cacheImg.setRGB((int) ((pt.point.getX() + offScreenTemperature.getOffScreenBufferPixel()) * cacheImgScaleX),
+                                                (int) ((pt.point.getY() + offScreenTemperature.getOffScreenBufferPixel()) * cacheImgScaleY), color.getRGB());
                                     }
                                     catch (Exception e) {
                                         NeptusLog.pub().trace(e);
