@@ -259,7 +259,22 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
     }
 
     public void consumeTelemetryMsgRx(TelemetryMsg msg) {
+        if (!decodeTelemetryButton.isSelected())
+            return;
 
+        switch (msg.getCode()) {
+            case CODE_REPORT:
+                IMCMessage inlineMsg = msg.getMessage("data");
+                inlineMsg.setTimestamp(msg.getTimestamp());
+                inlineMsg.setSrc(ImcSystemsHolder.lookupSystemByName(msg.getSource()).getId().intValue());
+                inlineMsg.setDst(ImcSystemsHolder.lookupSystemByName(msg.getDestination()).getId().intValue());
+
+                ImcMsgManager.getManager().postInternalMessage(msg.getSource(), inlineMsg);
+
+                NeptusLog.pub().info("Got report from " + msg.getSourceName() + " with mgid " + inlineMsg.getMgid());
+            case CODE_RAW:
+                post(Notification.warning("Unhandled message", "CODE_RAW not handled yet"));
+        }
     }
 
 
