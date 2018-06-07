@@ -69,7 +69,9 @@ import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonValue;
 import com.google.common.io.Files;
 
+import pt.lsts.colormap.ColorMapFactory;
 import pt.lsts.imc.VerticalProfile;
+import pt.lsts.imc.VerticalProfile.PARAMETER;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
@@ -86,6 +88,7 @@ public class VerticalProfileViewer implements Renderer2DPainter {
     private VerticalProfile selected = null;
     private File store = new File("conf/profiles.json");
     private int oldestProfiles = 24;
+    private boolean colorizeSalinity = true;
     
     public VerticalProfileViewer() {
         synchronized (profiles) {
@@ -166,14 +169,24 @@ public class VerticalProfileViewer implements Renderer2DPainter {
         
         return chart;
     }
+    
+    private Color getProfileColor(VerticalProfile p) {
+        if (isColorizeSalinity() && p.getParameter() == PARAMETER.SALINITY && p.getSamples().size() > 1) {
+            double val = (p.getSamples().get(1).getAvg() - 34.1d) / 0.65;
+            return ColorMapFactory.createJetColorMap().getColor(val);
+        }
+        return new Color(128, 128, 128, 128);
+    }
 
     public void paintProfileIcon(VerticalProfile p, Graphics2D g, StateRenderer2D renderer) {
 
         Point2D pt = renderer.getScreenPosition(new LocationType(p.getLat(), p.getLon()));
-        g.setColor(new Color(128, 128, 128, 128));
+        
         if (selected == p)
             g.setColor(new Color(128, 255, 128));
-
+        else
+            g.setColor(getProfileColor(p));
+        
         g.fill(new Ellipse2D.Double(pt.getX() - 8, pt.getY() - 8, 16, 16));
         g.setColor(Color.BLACK);
         switch (p.getParameter()) {
@@ -277,6 +290,22 @@ public class VerticalProfileViewer implements Renderer2DPainter {
      */
     public void setOldestProfiles(int oldestProfiles) {
         this.oldestProfiles = oldestProfiles;
+    }
+
+
+    /**
+     * @return the colorizeSalinity
+     */
+    public boolean isColorizeSalinity() {
+        return colorizeSalinity;
+    }
+
+
+    /**
+     * @param colorizeSalinity the colorizeSalinity to set
+     */
+    public void setColorizeSalinity(boolean colorizeSalinity) {
+        this.colorizeSalinity = colorizeSalinity;
     }
 
 
