@@ -39,7 +39,6 @@ import java.awt.event.MouseEvent;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Collection;
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -108,6 +107,9 @@ public class SoiInteraction extends SimpleRendererInteraction {
     @NeptusProperty(name = "Maximum profile age (hours)", description = "Profiles older than this age will be hidden")
     public int oldestProfiles = 24;
         
+    @NeptusProperty(name = "Use salinity colormap for profiles")
+    public boolean colorizeSalinity = false;
+    
     private VerticalProfileViewer profileView = new VerticalProfileViewer();
     
     /**
@@ -363,6 +365,7 @@ public class SoiInteraction extends SimpleRendererInteraction {
             
             switch (cmd.getCommand()) {
                 case GET_PARAMS:
+                case SET_PARAMS:
                     setParams(cmd.getSourceName(), cmd.getSettings());
                     say(vName+" params");
                     break;
@@ -442,6 +445,7 @@ public class SoiInteraction extends SimpleRendererInteraction {
             return;
 
         SoiStateRenderer.paintStatic(g, renderer);        
+        profileView.setColorizeSalinity(colorizeSalinity);
         profileView.paint(g, renderer);
     }
 }
