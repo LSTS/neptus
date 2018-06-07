@@ -296,6 +296,7 @@ public class IridiumComms extends SimpleRendererInteraction {
                 pc.setArg(msg);
                 pc.setOp(OP.START);
                 pc.setType(TYPE.REQUEST);
+                pc.setPlanId(selectedPlan.replaceAll("(_)*[^\\w\\d]*", ""));
                 pc.setPlanId(selectedPlan);
                 sendViaIridium(getMainVehicleId(), pc);
             };
@@ -406,15 +407,19 @@ public class IridiumComms extends SimpleRendererInteraction {
         final ImcIridiumMessage iridiumMsg = new ImcIridiumMessage();
 
         switch (restartType) {
-            case targetMainDUNE:
-                msg = new RestartSystem();
-                ((RestartSystem) msg).setType(RestartSystem.TYPE.DUNE);
+            case targetMainDUNE: {
+                RestartSystem m = new RestartSystem();
+                m.setType(RestartSystem.TYPE.DUNE);
+                msg = m;
                 break;
-            case targetMainCpu:
-                msg = new RestartSystem();
-                ((RestartSystem) msg).setType(RestartSystem.TYPE.SYSTEM);
+            }
+            case targetMainCpu: {
+                RestartSystem m = new RestartSystem();
+                m.setType(RestartSystem.TYPE.SYSTEM);
+                msg = m;
                 break;
-            case targetAuxCpu:
+            }
+            case targetAuxCpu: {
                 ArrayList<SystemProperty> props = ConfigurationManager.getInstance()
                         .getPropertiesByEntity(selectedSysName,
                                 "Power Supply",
@@ -431,12 +436,12 @@ public class IridiumComms extends SimpleRendererInteraction {
                     return;
                 }
 
-                msg = new PowerChannelControl();
-                PowerChannelControl pcc = (PowerChannelControl) msg;
+                PowerChannelControl pcc = new PowerChannelControl();
                 pcc.setOp(PowerChannelControl.OP.RESTART);
                 pcc.setName((String) res.get().getValue());
-
+                msg = pcc;
                 break;
+            }
             default:
                 NeptusLog.pub().warn("Restart type " + restartType + " not supported");
         }
@@ -703,6 +708,8 @@ public class IridiumComms extends SimpleRendererInteraction {
     }
 
     public static void main(String[] args) throws Exception {
+        String s = "sk_rendez-({;vous";
+        System.out.println(s.replaceAll("(_)*[^\\w\\d]*", ""));
         IridiumComms comms = new IridiumComms(ConsoleParse.dummyConsole());
         IridiumMsgRx rx = new IridiumMsgRx();
         String plan = "2100ffffd50738004552524f523a205061746820436f6e74726f6c3a206578706563746564206e6577207061746820636f6e74726f6c207265666572656e6365";
