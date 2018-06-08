@@ -389,7 +389,11 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
         bfr.putShort((short) msg.getMgid());
 
         // serialize everything
-        bfr.put(baos.toByteArray());
+        int index = 2;
+        for(byte b : baos.toByteArray()) {
+            bfr.put(index, b);
+            index++;
+        }
 
         return bfr.array();
     }
