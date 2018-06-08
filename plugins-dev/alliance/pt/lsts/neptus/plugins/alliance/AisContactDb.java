@@ -171,6 +171,10 @@ public class AisContactDb implements AISObserver {
             ExternalSystem es = new ExternalSystem("Ship");
             ExternalSystemsHolder.registerSystem(es);
         }
+        System.out.println(String.format(">>>>>>>>> GA >>>>>>> %s  :: %s :: %s :: %s", sentence, 
+                CoordinateUtil.latitudeAsPrettyString(myLoc.getLatitudeDegs()), CoordinateUtil.longitudeAsPrettyString(myLoc.getLongitudeDegs()),
+                dateTime == null ? System.currentTimeMillis() : DateTimeUtil.dateTimeFormatterISO8601.format(new Date(dateTime.getTime()))));
+
         ExternalSystem extSys = ExternalSystemsHolder.lookupSystem("Ship");
         extSys.setLocation(myLoc, dateTime == null ? System.currentTimeMillis() : dateTime.getTime());
     }
