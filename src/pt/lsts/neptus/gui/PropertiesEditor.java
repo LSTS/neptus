@@ -91,6 +91,7 @@ import pt.lsts.neptus.mp.Maneuver.SPEED_UNITS;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.ManeuverLocationEditor;
 import pt.lsts.neptus.mp.actions.PlanActions;
+import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.util.GuiUtils;
@@ -571,7 +572,9 @@ public class PropertiesEditor {
                         toolTip = loc.toString();
                         setToolTipText(toolTip);
                         // return "<html>" + loc.toString().replaceAll(",\\ ", ",<br>");
-                        return loc.toString();
+                        LocationType sLoc = loc.getNewAbsoluteLatLonDepth();
+                        return CoordinateUtil.latitudeAsPrettyString(sLoc.getLatitudeDegs()) + ", "
+                                + CoordinateUtil.longitudeAsPrettyString(sLoc.getLongitudeDegs());
                     }
                     catch (Exception e) {
                         return super.convertToString(value);
