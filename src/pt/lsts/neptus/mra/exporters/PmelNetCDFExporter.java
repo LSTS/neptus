@@ -130,7 +130,7 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
         String location = exportFile.getName();
         try (NetcdfFileWriter writer = NetCDFExportWriter.createWriter(exportFile)) {
             int logVehicleId = source.getVehicleSources().stream().findFirst().get();
-
+            
             NetCDFRootAttributes rootAttr = NetCDFRootAttributes.createDefault(location, location);
             rootAttr.setDateModified(new Date((long) (source.getLsfIndex().getEndTime() * 1E3)))
                     .setId(source.getSystemName(logVehicleId) + "-" + location)
@@ -260,8 +260,13 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
             boolean containsPH = source.getLsfIndex().containsMessagesOfType("PH");
             boolean containsRedox = source.getLsfIndex().containsMessagesOfType("Redox");
             boolean containsSoundSpeed = source.getLsfIndex().containsMessagesOfType("SoundSpeed");
+            
+            boolean containsDissolvedOrganicMatter = source.getLsfIndex().containsMessagesOfType("DissolvedOrganicMatter");
+            boolean containsDissolvedOxygen = source.getLsfIndex().containsMessagesOfType("DissolvedOxygen");
+            boolean containsAirSaturation = source.getLsfIndex().containsMessagesOfType("AirSaturation"); // %
+            boolean containsOpticalBackscatter = source.getLsfIndex().containsMessagesOfType("OpticalBackscatter"); // m^⁻1
 
-            NetCDFVarElement condVar =null;
+            NetCDFVarElement condVar = null;
             if (containsCondutivity) {
                 condVar = new NetCDFVarElement("cond").setLongName("Conductivity")
                         .setStandardName("sea_water_electrical_conductivity").setUnits("S m-1").setDataType(DataType.FLOAT)
@@ -270,7 +275,7 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
                         .setAtribute("coordinates", "time depth lat lon");
                 varsList.add(condVar);
             }
-            NetCDFVarElement tempVar =null;
+            NetCDFVarElement tempVar = null;
             if (containsTemperature) {
                 tempVar = new NetCDFVarElement("temp_ctd").setLongName("Temperature CTD")
                         .setStandardName("sea_water_temperature").setUnits("degree_C").setDataType(DataType.FLOAT)
@@ -279,7 +284,7 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
                         .setAtribute("coordinates", "time depth lat lon");
                 varsList.add(tempVar);
             }
-            NetCDFVarElement salVar =null;
+            NetCDFVarElement salVar = null;
             if (containsSalinity) {
                 salVar = new NetCDFVarElement("sal").setLongName("Salinity")
                         .setStandardName("sea_water_practical_salinity").setUnits("PSU").setDataType(DataType.FLOAT)
@@ -288,7 +293,7 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
                         .setAtribute("coordinates", "time depth lat lon");
                 varsList.add(salVar);
             }
-            NetCDFVarElement waterDensityVar =null;
+            NetCDFVarElement waterDensityVar = null;
             if (containsWaterDensity) {
                 waterDensityVar = new NetCDFVarElement("waterdensity").setLongName("Sea Water Density")
                         .setStandardName("sea_water_density").setUnits("kg m-3").setDataType(DataType.FLOAT)
@@ -297,7 +302,7 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
                         .setAtribute("coordinates", "time depth lat lon");
                 varsList.add(waterDensityVar);
             }
-            NetCDFVarElement chlorophyllVar =null;
+            NetCDFVarElement chlorophyllVar = null;
             if (containsChlorophyll) {
                 chlorophyllVar = new NetCDFVarElement("chlor").setLongName("Chlorophyll")
                         .setStandardName("mass_concentration_of_chlorophyll_in_sea_water").setUnits("ug l-1").setDataType(DataType.FLOAT)
@@ -306,7 +311,7 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
                         .setAtribute("coordinates", "time depth lat lon");
                 varsList.add(chlorophyllVar);
             }
-            NetCDFVarElement turbidityVar =null;
+            NetCDFVarElement turbidityVar = null;
             if (containsTurbidity) {
                 turbidityVar = new NetCDFVarElement("turbidity").setLongName("Turbidity")
                         .setStandardName("sea_water_turbidity").setUnits("NTU").setDataType(DataType.FLOAT)
@@ -315,7 +320,7 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
                         .setAtribute("coordinates", "time depth lat lon");
                 varsList.add(turbidityVar);
             }
-            NetCDFVarElement phVar =null;
+            NetCDFVarElement phVar = null;
             if (containsPH) {
                 phVar = new NetCDFVarElement("ph").setLongName("pH")
                         .setStandardName("sea_water_ph_reported_on_total_scale").setUnits("").setDataType(DataType.FLOAT)
@@ -324,7 +329,7 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
                         .setAtribute("coordinates", "time depth lat lon");
                 varsList.add(phVar);
             }
-            NetCDFVarElement redoxVar =null;
+            NetCDFVarElement redoxVar = null;
             if (containsRedox) {
                 redoxVar = new NetCDFVarElement("redox").setLongName("Redox")
                         .setStandardName("").setUnits("V").setDataType(DataType.FLOAT)
@@ -333,7 +338,7 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
                         .setAtribute("coordinates", "time depth lat lon");
                 varsList.add(redoxVar);
             }
-            NetCDFVarElement soundSpeedVar =null;
+            NetCDFVarElement soundSpeedVar = null;
             if (containsSoundSpeed) {
                 soundSpeedVar = new NetCDFVarElement("soundspeed").setLongName("Sound Speed in the Sea Water")
                         .setStandardName("speed_of_sound_in_sea_water").setUnits("m s-1").setDataType(DataType.FLOAT)
@@ -342,7 +347,49 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
                         .setAtribute("coordinates", "time depth lat lon");
                 varsList.add(soundSpeedVar);
             }
-            
+
+            NetCDFVarElement cdomVar = null;
+            if (containsDissolvedOrganicMatter) {
+                cdomVar = new NetCDFVarElement("cdom").setLongName("CDOM")
+                        .setStandardName("concentration_of_colored_dissolved_organic_matter_in_sea_water_expressed_as_equivalent_mass_fraction_of_quinine_sulfate_dihydrate")
+                        .setUnits("").setDataType(DataType.FLOAT)
+                        .setDimensions(dims).setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, Float.NaN)
+                        .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, Float.NaN)
+                        .setAtribute("coordinates", "time depth lat lon");
+                varsList.add(cdomVar);
+            }
+
+            NetCDFVarElement dissolvedOxygenVar = null;
+            if (containsDissolvedOxygen) {
+                dissolvedOxygenVar = new NetCDFVarElement("dissolved_oxygen").setLongName("Dissolved Oxygen")
+                        .setStandardName("mole_concentration_of_dissolved_molecular_oxygen_in_sea_water")
+                        .setUnits("\u00B5mol l-1").setDataType(DataType.FLOAT)
+                        .setDimensions(dims).setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, Float.NaN)
+                        .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, Float.NaN)
+                        .setAtribute("coordinates", "time depth lat lon");
+                varsList.add(dissolvedOxygenVar);
+            }
+            NetCDFVarElement airSaturationVar = null;
+            if (containsAirSaturation) {
+                airSaturationVar = new NetCDFVarElement("air_saturation").setLongName("Air Saturation")
+                        // .setStandardName("")
+                        .setUnits("%").setDataType(DataType.FLOAT)
+                        .setDimensions(dims).setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, Float.NaN)
+                        .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, Float.NaN)
+                        .setAtribute("coordinates", "time depth lat lon");
+                varsList.add(airSaturationVar);
+            }
+            NetCDFVarElement opticalBackscatterVar = null;
+            if (containsOpticalBackscatter) {
+                opticalBackscatterVar = new NetCDFVarElement("optical_backscatter").setLongName("Optical Backscatter")
+                        // .setStandardName("")
+                        .setUnits("m-1").setDataType(DataType.FLOAT)
+                        .setDimensions(dims).setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, Float.NaN)
+                        .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, Float.NaN)
+                        .setAtribute("coordinates", "time depth lat lon");
+                varsList.add(opticalBackscatterVar);
+            }
+
             trajVar.insertData(source.getSystemName(logVehicleId).toCharArray());
             
             int curIndex = 0;
@@ -484,6 +531,46 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
                             tempVar.insertData(Float.NaN, idx);
                         }
                     }
+                    if (containsDissolvedOrganicMatter) {
+                        IMCMessage msg = getNextMessage(source, logVehicleId, curIndex, time, dataSamplePeriod, "DissolvedOrganicMatter");
+                        if (msg != null) {
+                            cdomVar.insertData(msg.getFloat("value"), idx);
+                            entityForTemp = entityForTemp >= 0 ? entityForTemp : msg.getSrcEnt();
+                        }
+                        else {
+                            cdomVar.insertData(Float.NaN, idx);
+                        }
+                    }
+                    if (containsDissolvedOxygen) {
+                        IMCMessage msg = getNextMessage(source, logVehicleId, curIndex, time, dataSamplePeriod, "DissolvedOxygen");
+                        if (msg != null) {
+                            cdomVar.insertData(msg.getFloat("value"), idx);
+                            entityForTemp = entityForTemp >= 0 ? entityForTemp : msg.getSrcEnt();
+                        }
+                        else {
+                            cdomVar.insertData(Float.NaN, idx);
+                        }
+                    }
+                    if (containsAirSaturation) {
+                        IMCMessage msg = getNextMessage(source, logVehicleId, curIndex, time, dataSamplePeriod, "AirSaturation");
+                        if (msg != null) {
+                            cdomVar.insertData(msg.getFloat("value"), idx);
+                            entityForTemp = entityForTemp >= 0 ? entityForTemp : msg.getSrcEnt();
+                        }
+                        else {
+                            cdomVar.insertData(Float.NaN, idx);
+                        }
+                    }
+                    if (containsOpticalBackscatter) {
+                        IMCMessage msg = getNextMessage(source, logVehicleId, curIndex, time, dataSamplePeriod, "OpticalBackscatter");
+                        if (msg != null) {
+                            cdomVar.insertData(msg.getFloat("value"), idx);
+                            entityForTemp = entityForTemp >= 0 ? entityForTemp : msg.getSrcEnt();
+                        }
+                        else {
+                            cdomVar.insertData(Float.NaN, idx);
+                        }
+                    }
                 }
                 else {
                     timeVar.insertData(idx, idx);
@@ -516,6 +603,14 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
                         redoxVar.insertData(Float.NaN, idx);
                     if (containsSoundSpeed)
                         soundSpeedVar.insertData(Float.NaN, idx);
+                    if (containsDissolvedOrganicMatter)
+                        cdomVar.insertData(Float.NaN, idx);
+                    if (containsDissolvedOxygen)
+                        dissolvedOxygenVar.insertData(Float.NaN, idx);
+                    if (containsAirSaturation)
+                        airSaturationVar.insertData(Float.NaN, idx);
+                    if (containsOpticalBackscatter)
+                        opticalBackscatterVar.insertData(Float.NaN, idx);
                 }
             }
              
