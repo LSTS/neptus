@@ -107,25 +107,23 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
         double startTimeSec = Math.ceil(source.getLsfIndex().getStartTime());
         double endTimeSec = Math.floor(source.getLsfIndex().getEndTime());
         
+        String sysNameForFile = "";
+        try {
+            int logVehicleId = source.getVehicleSources().stream().findFirst().get();
+            sysNameForFile = "-" + source.getSystemName(logVehicleId);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
         File outFolder = new File(source.getFile("mra"), "netcdf");
         outFolder.mkdir();
-        exportFile = new File(outFolder, "pmel-" + DateTimeUtil.dateTimeFormatterISO8601_2.format(new Date((long) (endTimeSec * 1E3))) + ".nc");
+        exportFile = new File(outFolder,
+                "pmel-" + DateTimeUtil.dateTimeFormatterISO8601_2.format(new Date((long) (endTimeSec * 1E3)))
+                        + sysNameForFile + ".nc");
         
         if (PluginUtils.editPluginProperties(this, ConfigFetch.getSuperParentAsFrame(),  true))
             return I18n.text("Cancelled by the user.");
-
-//        String tmpList = msgList.trim();
-//        boolean includeList = true;
-//        if (tmpList.isEmpty() || tmpList.startsWith("!")) {
-//            includeList = false;
-//            if (!tmpList.isEmpty())
-//                tmpList = tmpList.replaceFirst("!", "");
-//        }
-//        String[] lst = tmpList.split(",");
-//        List<String> messagesList = Lists.newArrayList(lst);
-//
-//        Collection<String> logList = source.getLsfIndex().getDefinitions().getMessageNames();
-//        IMraLog parser;
 
         String location = exportFile.getName();
         try (NetcdfFileWriter writer = NetCDFExportWriter.createWriter(exportFile)) {
@@ -358,7 +356,6 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
                         .setAtribute("coordinates", "time depth lat lon");
                 varsList.add(cdomVar);
             }
-
             NetCDFVarElement dissolvedOxygenVar = null;
             if (containsDissolvedOxygen) {
                 dissolvedOxygenVar = new NetCDFVarElement("dissolved_oxygen").setLongName("Dissolved Oxygen")
