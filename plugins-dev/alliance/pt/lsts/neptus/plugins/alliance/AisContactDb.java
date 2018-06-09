@@ -279,7 +279,7 @@ public class AisContactDb implements AISObserver {
         MTShip ship = gson.fromJson(sentence, MTShip.class);
         int mmsi = (int) ship.SHIP_ID;
         if (!contacts.containsKey(mmsi)) {
-            AisContact contact = new AisContact(mmsi);
+            AisContact contact = new AisContact(mmsi,(long)ship.TIME);
             contacts.put(mmsi, contact);
         }
         AisContact contact = contacts.get(mmsi);
@@ -288,7 +288,6 @@ public class AisContactDb implements AISObserver {
         if (ship.SHIPNAME.equals("[SAT-AIS]")) {
             name = "SAT_"+ship.SHIP_ID;
         }
-        
         contact.setLocation(new LocationType(ship.LAT, ship.LON));
         contact.setHdg(ship.HEADING);
         contact.setCog(ship.COURSE);
@@ -296,15 +295,23 @@ public class AisContactDb implements AISObserver {
         contact.setSog(ship.SPEED);
         contacts.put((int)contact.getMmsi(), contact);
         
-        updateSystem(mmsi, new LocationType(ship.LAT, ship.LON), ship.HEADING);
-        
         ExternalSystem system = new ExternalSystem(name);
         system.setLocation(new LocationType(ship.LAT, ship.LON));
         system.setAttitudeDegrees(ship.HEADING);
         system.setActive(true);
-        system.setLocationTimeMillis(System.currentTimeMillis() - (long) (60_000 * ship.ELAPSED));
-        system.setAttitudeTimeMillis(System.currentTimeMillis() - (long) (60_000 * ship.ELAPSED));
+        system.setLocationTimeMillis((long)ship.TIME);
         
+        system.storeData(SystemUtils.NAV_STATUS_KEY, ship.STATUS_NAME);
+        system.storeData(SystemUtils.SHIP_TYPE_KEY, ship.TYPE_NAME);
+       
+        //system.storeData(SystemUtils.DRAUGHT_KEY, contact.getAdditionalProperties().getDraught());
+        system.storeData(SystemUtils.WIDTH_KEY, ship.WIDTH);
+        system.storeData(SystemUtils.LENGHT_KEY, ship.LENGTH);
+        system.storeData(SystemUtils.LENGHT_CENTER_OFFSET_KEY,ship.L_FORE);
+        system.storeData(SystemUtils.WIDTH_CENTER_OFFSET_KEY,ship.W_LEFT);
+        system.storeData(SystemUtils.RATE_OF_TURN_DEGS_PER_MIN_KEY,ship.ROT);
+        system.storeData(SystemUtils.COURSE_DEGS_KEY,ship.COURSE);
+        //if(ExternalSystemsHolder.lookupSystem(system.getId()) == null)
         ExternalSystemsHolder.registerSystem(system);
     }
 

@@ -66,6 +66,12 @@ public class AisContact {
         lastUpdate = System.currentTimeMillis();
     }
     
+    public AisContact(int mmsi,long timestamp) {
+        System.out.println("Created AIS contact for ship ID "+mmsi);
+        this.mmsi = mmsi;
+        lastUpdate = timestamp;
+    }
+    
     public void update(Message01 m) {
         lastUpdate = System.currentTimeMillis();
         loc.setLatitudeDegs(m.getLatitude());
