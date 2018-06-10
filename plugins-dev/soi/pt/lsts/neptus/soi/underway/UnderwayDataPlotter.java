@@ -50,6 +50,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import pt.lsts.imc.Salinity;
+import pt.lsts.imc.Temperature;
+import pt.lsts.imc.lsf.LsfMessageLogger;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
@@ -65,6 +68,7 @@ import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.renderer2d.OffScreenLayerImageControl;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 import pt.lsts.neptus.util.conf.PreferencesListener;
 import pt.lsts.neptus.util.coord.MapTileRendererCalculator;
 import pt.lsts.neptus.util.nmea.NmeaListener;
@@ -196,6 +200,20 @@ public class UnderwayDataPlotter extends ConsoleLayer implements NmeaListener, P
                 }
             }
             
+            try {
+                Salinity msgSal = new Salinity((float) pt.salinity);
+                msgSal.setSrc(GeneralPreferences.imcCcuId.intValue());
+                msgSal.setTimestampMillis(System.currentTimeMillis());
+                LsfMessageLogger.log(msgSal);
+                Temperature msgTemp = new Temperature((float) pt.temperature);
+                msgTemp.setSrc(GeneralPreferences.imcCcuId.intValue());
+                msgTemp.setTimestampMillis(System.currentTimeMillis());
+                LsfMessageLogger.log(msgTemp);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+
             points.add(pt);
             if (points.size() > maxSamples)
                 points.remove(0);
