@@ -42,10 +42,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
+import java.util.Vector;
 
 import com.google.gson.Gson;
-
-import java.util.Vector;
 
 import de.baderjene.aistoolkit.aisparser.AISObserver;
 import de.baderjene.aistoolkit.aisparser.message.Message;
@@ -169,27 +168,33 @@ public class AisContactDb implements AISObserver {
         lastGGA = sentence;
         LocationType myLoc = NMEAUtils.processGGASentence(lastGGA);
         Date dateTime = NMEAUtils.processGGATimeFromSentence(lastGGA);
-        if (ExternalSystemsHolder.lookupSystem("Ship") == null) {
-            ExternalSystem es = new ExternalSystem("Ship");
-            ExternalSystemsHolder.registerSystem(es);
-        }
-        System.out.println(String.format(">>>>>>>>> GA >>>>>>> %s  :: %s :: %s :: %s", sentence, 
-                CoordinateUtil.latitudeAsPrettyString(myLoc.getLatitudeDegs()), CoordinateUtil.longitudeAsPrettyString(myLoc.getLongitudeDegs()),
-                dateTime == null ? System.currentTimeMillis() : DateTimeUtil.dateTimeFormatterISO8601.format(new Date(dateTime.getTime()))));
-
         ExternalSystem extSys = ExternalSystemsHolder.lookupSystem("Ship");
+        if (extSys == null) {
+            ExternalSystem es = new ExternalSystem("Ship");
+            extSys = ExternalSystemsHolder.registerSystem(es);
+        }
+        LocationType oldLoc = extSys.getLocation();
         extSys.setLocation(myLoc, dateTime == null ? System.currentTimeMillis() : dateTime.getTime());
+        if (oldLoc.compareTo(myLoc) != 0) {
+            NeptusLog.pub().info((String.format(">>>>>>>>> Ship >>>>>>> %s  :: %s :: %s :: %s", sentence, 
+                    CoordinateUtil.latitudeAsPrettyString(myLoc.getLatitudeDegs()), CoordinateUtil.longitudeAsPrettyString(myLoc.getLongitudeDegs()),
+                    DateTimeUtil.dateTimeFormatterISO8601.format(new Date(extSys.getLocationTimeMillis())))));
+        }
     }
 
     public void processGPHDT(String sentence) {
         lastGPHDT = sentence;
         double myHeadingDegs = NMEAUtils.processGPHDTSentence(lastGPHDT);
-        if (ExternalSystemsHolder.lookupSystem("Ship") == null) {
-            ExternalSystem es = new ExternalSystem("Ship");
-            ExternalSystemsHolder.registerSystem(es);
-        }
         ExternalSystem extSys = ExternalSystemsHolder.lookupSystem("Ship");
+        if (extSys == null) {
+            ExternalSystem es = new ExternalSystem("Ship");
+            extSys = ExternalSystemsHolder.registerSystem(es);
+        }
+        double oldHdg = extSys.getYawDegrees();
         extSys.setAttitudeDegrees(myHeadingDegs, System.currentTimeMillis());
+        if (Double.compare(oldHdg, extSys.getYawDegrees()) != 0) {
+            NeptusLog.pub().info((String.format(">>>>>>>>> Ship HDG >>>>>>> %s  :: %s", sentence, "" + extSys.getYawDegrees())));
+        }
     }
 
     public void processRattm(String sentence) {
