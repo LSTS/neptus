@@ -51,6 +51,7 @@ import java.awt.geom.RoundRectangle2D;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Vector;
@@ -1852,8 +1853,22 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
             Color color = SystemPainterHelper.EXTERNAL_SYSTEM_COLOR;
 
             if (minutesToHideSystemsWithoutKnownLocation <= 0 || System.currentTimeMillis()
-                    - sys.getLocationTimeMillis() < DateTimeUtil.MINUTE * minutesToHideSystemsWithoutKnownLocation)
-                drawExternalSystem(renderer, g2, sys, color);
+                    - sys.getLocationTimeMillis() < DateTimeUtil.MINUTE * minutesToHideSystemsWithoutKnownLocation) {
+                try {
+                    drawExternalSystem(renderer, g2, sys, color);
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().error(String.format("Error while drawing external system '%s'", sys), e);
+                }
+            }
+            else {
+                if (sys.getName().equalsIgnoreCase("Ship")) {
+                    LocationType myLoc = sys.getLocation();
+                    NeptusLog.pub().debug((String.format(">>>>>>>>> NOT Paint Ship >>>>>>> %s  :: %s :: %s",
+                            CoordinateUtil.latitudeAsPrettyString(myLoc.getLatitudeDegs()), CoordinateUtil.longitudeAsPrettyString(myLoc.getLongitudeDegs()),
+                            DateTimeUtil.dateTimeFormatterISO8601.format(new Date(sys.getLocationTimeMillis())))));
+                }
+            }
 
             g2.dispose();
         }
@@ -1993,6 +2008,13 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
 
         boolean isLocationKnownUpToDate = SystemPainterHelper.isLocationKnown(sys.getLocation(),
                 sys.getLocationTimeMillis());
+        
+        if (sys.getName().equalsIgnoreCase("Ship")) {
+            LocationType myLoc = sys.getLocation();
+            NeptusLog.pub().debug((String.format(">>>>>>>>> Paint Ship >>>>>>> %s  :: %s :: %s",
+                    CoordinateUtil.latitudeAsPrettyString(myLoc.getLatitudeDegs()), CoordinateUtil.longitudeAsPrettyString(myLoc.getLongitudeDegs()),
+                    DateTimeUtil.dateTimeFormatterISO8601.format(new Date(sys.getLocationTimeMillis())))));
+        }
         
         {
             Object obj = sys.retrieveData(SystemUtils.WIDTH_KEY);
