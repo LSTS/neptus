@@ -39,10 +39,13 @@ import java.io.StringWriter;
 import javax.xml.bind.JAXB;
 import javax.xml.bind.annotation.XmlElement;
 
+import pt.lsts.imc.EstimatedState;
+import pt.lsts.imc.lsf.LsfMessageLogger;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.types.coord.CoordinateSystem;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**
  * @author pdias
@@ -92,7 +95,7 @@ public class MyState {
 		//instance.location.setRoll(0);
 		//instance.location.setPitch(0);
 		//instance.location.setYaw(0);
-        instance.saveXml();
+        instance.triggerChange();
 	}
 
 	public static void setLocationAndAxis(LocationType location, double roll,
@@ -102,7 +105,7 @@ public class MyState {
 		instance.location.setRoll(roll);
 		instance.location.setPitch(pitch);
 		instance.location.setYaw(yaw);
-        instance.saveXml();
+        instance.triggerChange();
 	}
 
 	public static void setLocationAndAxisRadians(LocationType location, double rollRadians,
@@ -112,7 +115,7 @@ public class MyState {
 		instance.location.setRoll(Math.toDegrees(rollRadians));
 		instance.location.setPitch(Math.toDegrees(pitchRadians));
 		instance.location.setYaw(Math.toDegrees(yawRadians));
-        instance.saveXml();
+        instance.triggerChange();
 	}
 
 	public static void setLocationAndAxis(LocationType location, double yaw) {
@@ -121,7 +124,7 @@ public class MyState {
 		instance.location.setRoll(0);
 		instance.location.setPitch(0);
 		instance.location.setYaw(yaw);
-        instance.saveXml();
+        instance.triggerChange();
 	}
 
 	public static void setLocationAndAxisRadians(LocationType location, double yawRadians) {
@@ -130,7 +133,7 @@ public class MyState {
 		instance.location.setRoll(0);
 		instance.location.setPitch(0);
 		instance.location.setYaw(Math.toDegrees(yawRadians));
-        instance.saveXml();
+        instance.triggerChange();
 	}
 
 	
@@ -152,7 +155,7 @@ public class MyState {
 
 	public static void setHeadingInRadians(double yawRadians) {
 	    instance.location.setYaw(Math.toDegrees(yawRadians));
-        instance.saveXml();
+        instance.triggerChange();
 	}
 
 	public static double getHeadingInDegrees() {
@@ -161,7 +164,7 @@ public class MyState {
 
 	public static void setHeadingInDegrees(double yawDegrees) {
 	    instance.location.setYaw(yawDegrees);
-	    instance.saveXml();
+	    instance.triggerChange();
 	}
 
 	/**
@@ -176,7 +179,7 @@ public class MyState {
      */
     public static void setLength(double length) {
         instance.length = length < 0 ? 0 : length;
-        instance.saveXml();
+        instance.triggerChange();
     }
 
     /**
@@ -191,7 +194,7 @@ public class MyState {
      */
     public static void setWidth(double width) {
         instance.width = width < 0 ? 0 : width;
-        instance.saveXml();
+        instance.triggerChange();
     }
     
     
@@ -207,7 +210,7 @@ public class MyState {
      */
     public static void setLengthOffsetFromCenter(double lengthOffsetFromCenter) {
         instance.lengthOffsetFromCenter = lengthOffsetFromCenter < 0 ? 0 : lengthOffsetFromCenter;
-        instance.saveXml();
+        instance.triggerChange();
     }
     
     /**
@@ -222,7 +225,7 @@ public class MyState {
      */
     public static void setWidthOffsetFromCenter(double widthOffsetFromCenter) {
         instance.widthOffsetFromCenter = widthOffsetFromCenter < 0 ? 0 : widthOffsetFromCenter;
-        instance.saveXml();
+        instance.triggerChange();
     }
     
     /**
@@ -237,7 +240,7 @@ public class MyState {
      */
     public static void setDraught(double draught) {
         instance.draught = draught < 0 ? 0 : draught;
-        instance.saveXml();
+        instance.triggerChange();
     }
     
 	private String asXml() {
@@ -267,11 +270,25 @@ public class MyState {
         }
     }
 
-	private void saveXml() {
-	    String ms = asXml();
-	    FileUtil.saveToFile(myStatePath, ms);
+	private void triggerChange() {
+	    logEstimatedState();
+	    saveXml();
 	}
 
+    private void logEstimatedState() {
+        LocationType loc = MyState.getLocation().getNewAbsoluteLatLonDepth();
+        EstimatedState es = new EstimatedState(loc.getLatitudeRads(), loc.getLongitudeRads(), (float) loc.getHeight(),
+                0f, 0f, 0f, 0f, 0f, (float) MyState.getHeadingInRadians(), 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f);
+        es.setSrc(GeneralPreferences.imcCcuId.intValue());
+        es.setTimestampMillis(MyState.getLastLocationUpdateTimeMillis());
+        LsfMessageLogger.log(es);
+    }
+
+    private void saveXml() {
+        String ms = asXml();
+        FileUtil.saveToFile(myStatePath, ms);
+    }
+	
 	/**
 	 * @param args
 	 */
