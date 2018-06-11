@@ -32,8 +32,31 @@
  */
 package pt.lsts.neptus.plugins.telemetrycontrol;
 
+import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import javax.swing.AbstractAction;
+import javax.swing.ImageIcon;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JToggleButton;
+import javax.swing.UIManager;
+import javax.swing.plaf.ColorUIResource;
+
 import com.google.common.eventbus.Subscribe;
 import com.google.zxing.common.detector.MathUtils;
+
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.CommSystemsQuery;
 import pt.lsts.imc.IMCDefinition;
@@ -63,28 +86,7 @@ import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 
-import javax.swing.AbstractAction;
-import javax.swing.ImageIcon;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JToggleButton;
-import javax.swing.UIManager;
-import javax.swing.plaf.ColorUIResource;
-import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-
+@SuppressWarnings("serial")
 @Popup(width = 200, height = 100)
 @PluginDescription(name = "Telemetry Control", author = "Tiago Sá Marques", description = "Telemetry control panel")
 public class TelemetryControlPanel extends ConsolePanel implements PlanChangeListener {
@@ -105,7 +107,7 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
 
     private final JToggleButton decodeTelemetryButton = new JToggleButton("OFF");
     private final JLabel sourcesLabel = new JLabel("From");
-    private final JComboBox sourcesList = new JComboBox();
+    private final JComboBox<String> sourcesList = new JComboBox<>();
 
     private AbstractAction sendPlanAction;
     private AbstractAction startPlanAction;
@@ -127,6 +129,14 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
         super(console);
         buildPlanel();
         discoverTelemetrySystems();
+    }
+
+    @Override
+    public void cleanSubPanel() {
+    }
+
+    @Override
+    public void initSubPanel() {
     }
 
     /** Send message to known systems requesting radio model, systems bound, etc **/
@@ -219,8 +229,7 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
         // point to point
         if (msg.getModel() == CommSystemsQuery.MODEL.M3DR || msg.getModel() == CommSystemsQuery.MODEL.RDFXXXXPTP)
             ret = registerSystemBinds(msg.getSourceName());
-        // mesh
-        else
+        else // mesh
             ret = registerSystemMeshBindings(msg.getSourceName(), msg.getList().split(","));
 
         // failed to find bindings
@@ -240,6 +249,7 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
                 consumeTelemetryMsgTxStatus(msg);
             case RX:
                 consumeTelemetryMsgRx(msg);
+            case TX:
             default:
                 NeptusLog.pub().debug("TelemetryMsg.TX no handled");
         }
@@ -281,9 +291,12 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
                 NeptusLog.pub().info("Got report from " + msg.getSourceName() + " with mgid " + inlineMsg.getMgid());
             case CODE_RAW:
                 post(Notification.warning("Unhandled message", "CODE_RAW not handled yet"));
+            case CODE_IMC:
+            case CODE_UNK:
+            default:
+                break;
         }
     }
-
 
     private void buildPlanel() {
         setLayout(new MigLayout());
@@ -430,11 +443,11 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
         pdb.setArg(currSelectedPlan.asIMCPlan());
         pdb.setDst(ImcSystemsHolder.lookupSystemByName(imcTarget).getId().intValue());
 
-
         byte[] bfr;
         try {
             bfr = serializeAsInlineMessage(pdb);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             GuiUtils.errorMessage(I18n.text("Send Plan Error"), e.getMessage());
             return;
         }
@@ -475,7 +488,8 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
         byte[] bfr;
         try {
             bfr = serializeAsInlineMessage(pc);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             GuiUtils.errorMessage(I18n.text("Send Plan Error"), e.getMessage());
             return;
         }
@@ -517,7 +531,8 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
         byte[] bfr;
         try {
             bfr = serializeAsInlineMessage(pc);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             GuiUtils.errorMessage(I18n.text("Send Plan Error"), e.getMessage());
             return;
         }
@@ -572,22 +587,13 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
     }
 
     private void toogleTelemetry() {
-        if (decodeTelemetryButton.isSelected())
+        if (decodeTelemetryButton.isSelected()) {
             decodeTelemetryButton.setText(I18n.text("ON"));
+        }
         else {
             decodeTelemetryButton.setBackground(COLOR_RED);
             decodeTelemetryButton.setText(I18n.text("OFF"));
         }
-    }
-
-    @Override
-    public void cleanSubPanel() {
-
-    }
-
-    @Override
-    public void initSubPanel() {
-
     }
 
     @Override
@@ -603,7 +609,8 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
         new Thread(() -> {
             try {
                 Thread.sleep(timeoutSeconds * 1000);
-            } catch (InterruptedException e) {
+            }
+            catch (InterruptedException e) {
                 e.printStackTrace();
                 GuiUtils.errorMessage("TelemetryControl", "Failed to schedule action due to \n" + e.getMessage());
             }
