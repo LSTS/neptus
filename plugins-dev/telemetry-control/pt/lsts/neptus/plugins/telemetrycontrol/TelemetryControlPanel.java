@@ -33,6 +33,8 @@
 package pt.lsts.neptus.plugins.telemetrycontrol;
 
 import com.google.common.eventbus.Subscribe;
+import com.google.zxing.common.detector.MathUtils;
+import info.monitorenter.util.MathUtil;
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.*;
 import pt.lsts.neptus.NeptusLog;
@@ -84,10 +86,6 @@ import java.util.stream.Collectors;
 @Popup(width = 200, height = 100)
 @PluginDescription(name = "Telemetry Control", author = "Tiago Sá Marques", description = "Telemetry control panel")
 public class TelemetryControlPanel extends ConsolePanel implements PlanChangeListener {
-
-    @NeptusProperty(name = "Ack timeout", description = "Ack timeout in seconds", userLevel = NeptusProperty.LEVEL.REGULAR)
-    public int ackTimeoutSeconds = 3;
-
     private final ImageIcon ICON_UP = ImageUtils.getIcon("images/planning/up.png");
     private final ImageIcon ICON_START = ImageUtils.getIcon("images/planning/start.png");
     private final ImageIcon ICON_STOP = ImageUtils.getIcon("images/planning/stop.png");
@@ -384,6 +382,14 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
         return telemetryBinds.get(sourceSys).contains(targetSys);
     }
 
+    /**
+     * Compute an estimate for timeout, for a given message
+     * */
+    private int getAckTimeoutSeconds(TelemetryMsg msg) {
+        float timeout = (float) (2.5 + (msg.getPayloadSize() / 52.0));
+        return MathUtils.round(timeout);
+    }
+
     private byte[] serializeAsInlineMessage(IMCMessage msg) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         // serialize message fields
@@ -431,11 +437,12 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
             return;
         }
 
-        long reqId = dispatchTelemetry(telemetryTarget, imcTarget, TelemetryMsg.CODE.CODE_IMC, TelemetryMsg.STATUS.EMPTY, true, bfr);
+        TelemetryMsg msg = dispatchTelemetry(telemetryTarget, imcTarget, TelemetryMsg.CODE.CODE_IMC, TelemetryMsg.STATUS.EMPTY, true, bfr);
 
-        if (reqId == -1)
+        if (msg == null)
             return;
 
+        long reqId = msg.getReqId();
         scheduleAction(() -> {
             synchronized (acks) {
                 if (acks.contains(reqId))
@@ -444,7 +451,7 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
                     post(Notification.error("Telemetry Control", "Failed to upload plan " + currSelectedPlan.getDisplayName()));
                 acks.remove(reqId);
             }
-        }, ackTimeoutSeconds);
+        }, msg.getTtl());
     }
 
     private void sendPlanStart(String telemetryTarget, String imcTarget) {
@@ -471,10 +478,12 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
             return;
         }
 
-        long reqId = dispatchTelemetry(telemetryTarget, imcTarget, TelemetryMsg.CODE.CODE_IMC, TelemetryMsg.STATUS.EMPTY, true, bfr);
+        TelemetryMsg msg = dispatchTelemetry(telemetryTarget, imcTarget, TelemetryMsg.CODE.CODE_IMC, TelemetryMsg.STATUS.EMPTY, true, bfr);
 
-        if (reqId == -1)
+        if (msg == null)
             return;
+
+        long reqId = msg.getReqId();
 
         scheduleAction(() -> {
             synchronized (acks) {
@@ -484,7 +493,7 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
                     post(Notification.error("Telemetry Control", "Failed to send plan start " + currSelectedPlan.getDisplayName()));
                 acks.remove(reqId);
             }
-        }, ackTimeoutSeconds);
+        }, msg.getTtl());
     }
 
     private void sendPlanStop(String telemetryTarget, String imcTarget) {
@@ -511,10 +520,12 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
             return;
         }
 
-        long reqId = dispatchTelemetry(telemetryTarget, imcTarget, TelemetryMsg.CODE.CODE_IMC, TelemetryMsg.STATUS.EMPTY, true, bfr);
+        TelemetryMsg msg = dispatchTelemetry(telemetryTarget, imcTarget, TelemetryMsg.CODE.CODE_IMC, TelemetryMsg.STATUS.EMPTY, true, bfr);
 
-        if (reqId == -1)
+        if (msg == null)
             return;
+
+        long reqId = msg.getReqId();
 
         scheduleAction(() -> {
             synchronized (acks) {
@@ -524,7 +535,7 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
                     post(Notification.error("Telemetry Control", "Failed to send plan stop " + currSelectedPlan.getDisplayName()));
                 acks.remove(reqId);
             }
-        }, ackTimeoutSeconds);
+        }, msg.getTtl());
     }
 
     /**
@@ -534,7 +545,7 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
      * @param status Telemetry message status
      * @param data Aditional raw data to send (e.g. IMC messages). Can be null
      * */
-    long dispatchTelemetry(String gatewaySystem, String targetSystem, TelemetryMsg.CODE code, TelemetryMsg.STATUS status, boolean requestAck, byte[] data) {
+    TelemetryMsg dispatchTelemetry(String gatewaySystem, String targetSystem, TelemetryMsg.CODE code, TelemetryMsg.STATUS status, boolean requestAck, byte[] data) {
         TelemetryMsg msg = new TelemetryMsg();
         msg.setType(TelemetryMsg.TYPE.TX);
         msg.setDestination(targetSystem);
@@ -542,18 +553,20 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
         msg.setCode(code);
         msg.setStatus(status);
         msg.setAcknowledge(requestAck ? TelemetryMsg.TM_AK : TelemetryMsg.TM_NAK);
-        msg.setTtl(ackTimeoutSeconds);
         msg.setReqId(requestId+1);
 
         if (data != null)
             msg.setData(data);
 
+        msg.setTtl(getAckTimeoutSeconds(msg));
         boolean ret = IMCSendMessageUtils.sendMessage(msg, I18n.text("Error sending plan"), false, gatewaySystem);
 
-        if (ret)
-            return ++requestId;
+        if (ret) {
+            requestId++;
+            return msg;
+        }
 
-        return -1;
+        return null;
     }
 
     private void toogleTelemetry() {
