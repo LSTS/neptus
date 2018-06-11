@@ -36,11 +36,12 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.TimeZone;
 
 import org.dinopolis.gpstool.gpsinput.nmea.NMEA0183Sentence;
 
@@ -189,13 +190,12 @@ public class NMEAUtils {
                 return null;
             
             List<?> data_fields = nmea.getDataFields();
-            
-            String timeUTC = (String) data_fields.get(fieldCount); // hhmmss.ss UTC
-            @SuppressWarnings("serial")
-            SimpleDateFormat dateFormatterUTC = new SimpleDateFormat("yyyyMMdd") {{setTimeZone(TimeZone.getTimeZone("UTC"));}};
-            @SuppressWarnings("serial")
-            SimpleDateFormat dateTimeFormatterUTC = new SimpleDateFormat("yyyyMMddHHmmss.SS") {{setTimeZone(TimeZone.getTimeZone("UTC"));}};
-            Date date = dateTimeFormatterUTC.parse(dateFormatterUTC.format(new Date()) + timeUTC.trim());
+            ZonedDateTime now = ZonedDateTime.now(ZoneId.of("UTC")).truncatedTo(ChronoUnit.DAYS);
+            String timeUTC = (String) data_fields.get(0); // hhmmss.ss UTC
+            now = now.plusHours(Long.parseLong(timeUTC.substring(0, 2)));
+            now = now.plusMinutes(Long.parseLong(timeUTC.substring(2, 4)));
+            now = now.plus(Double.valueOf(Double.parseDouble(timeUTC.substring(4)) * 1E6).longValue(), ChronoUnit.MICROS);
+            Date date = Date.from(now.toInstant());
             return date;
         }
         catch (Exception ex) {
@@ -359,6 +359,30 @@ public class NMEAUtils {
         return sys;
     }
     
+    public static void mainTimeTest(String[] args) {
+        String sentence = "$GPGGA,000843.8794,2953.44042676,N,13210.21690050,W,2,12,0.9,19.10,M,-37.38,M,0.4,0444*4B";
+        LocationType myLoc = NMEAUtils.processGGASentence(sentence);
+        Date dateTime = NMEAUtils.processGGATimeFromSentence(sentence);
+        
+        System.out.println(myLoc);
+        System.out.println(dateTime);
+        
+        ZonedDateTime now = ZonedDateTime.now(ZoneId.of("UTC")).truncatedTo(ChronoUnit.DAYS);
+        System.out.println(now);
+        
+        NMEA0183Sentence nmea = new NMEA0183Sentence(sentence);
+        List<?> data_fields = nmea.getDataFields();
+        String timeUTC = (String) data_fields.get(0); // hhmmss.ss UTC
+        
+        now = now.plusHours(Long.parseLong(timeUTC.substring(0, 2)));
+        now = now.plusMinutes(Long.parseLong(timeUTC.substring(2, 4)));
+        now = now.plus(Double.valueOf(Double.parseDouble(timeUTC.substring(4)) * 1E6).longValue(), ChronoUnit.MICROS);
+        System.out.println(now);
+        
+        Date date = Date.from(now.toInstant());
+        System.out.println(date);
+    }
+
 	public static void main(String[] args) {
 		String nmea = "$GPGGA,120602.476,4112.4827,N,00832.0861,W,1,03,3.4,-51.3,M,51.3,M,,0000*5C";
 		LocationType lt = NMEAUtils.processGGASentence(nmea);
@@ -380,5 +404,7 @@ public class NMEAUtils {
 		logGGASentenceAsGpsFix("+351914785889", nmea);
 		logGGASentenceAsGpsFix("+351914785887", nmea);
 		logGGASentenceAsGpsFix("+351914785889", nmea);
+		
+		mainTimeTest(args);
 	}
 }
