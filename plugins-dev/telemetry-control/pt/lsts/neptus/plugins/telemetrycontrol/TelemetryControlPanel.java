@@ -251,10 +251,17 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
     public void consumeTelemetryMsgTxStatus(TelemetryMsg msg) {
         // register successful sending of message
         if (msg.getStatus() == TelemetryMsg.STATUS.DONE) {
-            NeptusLog.pub().info("Got ack from " + msg.getSourceName() + " for request " + msg.getReqId());
-            synchronized (acks) {
-                acks.add(msg.getReqId());
+            if(msg.getAcknowledge() == TelemetryMsg.TM_AK) { // TODO check if gateway. For now it works
+                post(Notification.info("Telemetry Control", "Got acknowledge from " + msg.getSourceName() + " for request " + msg.getReqId()));
+                synchronized (acks) {
+                    acks.add(msg.getReqId());
+                }
             }
+        }
+        else if(msg.getStatus() == TelemetryMsg.STATUS.FAILED) {
+            String warnMsg = "Failed to send to " + msg.getSourceName() + " for request " + msg.getReqId();
+            post(Notification.error("Telemetry Status", warnMsg));
+            NeptusLog.pub().warn(warnMsg);
         }
     }
 
