@@ -66,12 +66,6 @@ public class AisContact {
         lastUpdate = System.currentTimeMillis();
     }
     
-    public AisContact(int mmsi,long timestamp) {
-        System.out.println("Created AIS contact for ship ID "+mmsi);
-        this.mmsi = mmsi;
-        lastUpdate = timestamp;
-    }
-    
     public void update(Message01 m) {
         lastUpdate = System.currentTimeMillis();
         loc.setLatitudeDegs(m.getLatitude());
@@ -150,6 +144,10 @@ public class AisContact {
         return rateOfTurn;
     }
     
+    public void setLastUpdate(long lastUpdate) {
+        this.lastUpdate = lastUpdate;
+    }
+
     /**
      * @param label the label to set
      */
@@ -178,6 +176,10 @@ public class AisContact {
         this.hdg = hdg;
     }
     
+    public void setNavStatus(String navStatus) {
+        this.navStatus = navStatus;
+    }
+
     /**
      * @param rateOfTurn the rateOfTurn to set
      */
