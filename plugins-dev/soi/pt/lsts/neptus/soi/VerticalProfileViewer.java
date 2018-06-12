@@ -34,6 +34,7 @@ package pt.lsts.neptus.soi;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
@@ -48,7 +49,9 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.swing.BorderFactory;
 import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
 
 import org.jfree.chart.ChartFactory;
@@ -89,41 +92,41 @@ public class VerticalProfileViewer implements Renderer2DPainter {
     private File store = new File("conf/profiles.json");
     private int oldestProfiles = 24;
     private boolean colorizeSalinity = true;
-    
+    private boolean valuesTable = true;
+
     public VerticalProfileViewer() {
         synchronized (profiles) {
             try {
-               JsonArray arr = Json.parse(new FileReader(store)).asArray();         
-               
-               for (JsonValue v : arr.values()) {
-                   profiles.add((VerticalProfile)VerticalProfile.parseJson(v.toString()));                   
-               }
-               NeptusLog.pub().info("Read "+profiles.size()+" profiles from "+store.getAbsolutePath());
-               
+                JsonArray arr = Json.parse(new FileReader(store)).asArray();
+
+                for (JsonValue v : arr.values()) {
+                    profiles.add((VerticalProfile) VerticalProfile.parseJson(v.toString()));
+                }
+                NeptusLog.pub().info("Read " + profiles.size() + " profiles from " + store.getAbsolutePath());
+
             }
             catch (Exception e) {
                 NeptusLog.pub().error(e);
             }
         }
     }
-    
-    
+
     public void addProfile(VerticalProfile prof) {
         synchronized (profiles) {
             profiles.add(prof);
-            
+
             StringBuilder sb = new StringBuilder("[");
             if (profiles.size() >= 1)
                 sb.append(profiles.get(0).asJSON());
-            
+
             for (int i = 1; i < profiles.size(); i++)
-                sb.append(",\n"+profiles.get(i).asJSON());
-            
+                sb.append(",\n" + profiles.get(i).asJSON());
+
             sb.append("]\n");
-            
+
             try {
                 Files.write(sb.toString(), store, Charset.defaultCharset());
-                NeptusLog.pub().info("Wrote "+profiles.size()+" profiles to "+store.getAbsolutePath());
+                NeptusLog.pub().info("Wrote " + profiles.size() + " profiles to " + store.getAbsolutePath());
             }
             catch (IOException e) {
                 NeptusLog.pub().error(e);
@@ -149,10 +152,28 @@ public class VerticalProfileViewer implements Renderer2DPainter {
 
     public void paintProfileDetails(VerticalProfile p, Graphics2D g, StateRenderer2D renderer) {
         Point2D pt = renderer.getScreenPosition(new LocationType(p.getLat(), p.getLon()));
-        g.drawString(p.getSourceName(), (int)pt.getX()+10, (int)pt.getY()+20);
-        g.drawString(p.getDate().toString(), (int)pt.getX()+10, (int)pt.getY()+35);
+        g.drawString(p.getSourceName(), (int) pt.getX() + 10, (int) pt.getY() + 20);
+        g.drawString(p.getDate().toString(), (int) pt.getX() + 10, (int) pt.getY() + 35);
+
+        if (valuesTable) {
+            StringBuilder html = new StringBuilder("<html><table><tr><th>Depth</th><th>Salinity</th>");
+            for (int i = 0; i < p.getSamples().size(); i++)
+                html.append("<tr><td>" + p.getSamples().get(i).getDepth()/10.0 + "</td><td>"
+                        + String.format("%.3f", p.getSamples().get(i).getAvg()) + "</td></tr>");
+            html.append("</table></html>");
+
+            JLabel lblHtml = new JLabel(html.toString());
+            lblHtml.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
+            Dimension dim = lblHtml.getPreferredSize();
+            lblHtml.setSize(dim);
+            lblHtml.setOpaque(true);
+            lblHtml.setBackground(new Color(255, 255, 255, 128));
+
+            g.translate(renderer.getWidth() - dim.getWidth() - 20, renderer.getHeight() - dim.getHeight() - 20);
+            lblHtml.paint(g); 
+        }
     }
-    
+
     XYChart getChart(VerticalProfile p) {
 
         ArrayList<Double> depths = new ArrayList<>();
@@ -166,10 +187,10 @@ public class VerticalProfileViewer implements Renderer2DPainter {
         XYChart chart = new XYChartBuilder().title(p.getDate().toString()).theme(ChartTheme.GGPlot2).width(500)
                 .height(500).yAxisTitle("depth").xAxisTitle(p.getParameterStr().toLowerCase()).build();
         chart.addSeries(p.getParameterStr().substring(0, 1), values, depths);
-        
+
         return chart;
     }
-    
+
     private Color getProfileColor(VerticalProfile p) {
         if (isColorizeSalinity() && p.getParameter() == PARAMETER.SALINITY && p.getSamples().size() > 1) {
             double val = (p.getSamples().get(1).getAvg() - 34.1d) / 0.65;
@@ -181,12 +202,12 @@ public class VerticalProfileViewer implements Renderer2DPainter {
     public void paintProfileIcon(VerticalProfile p, Graphics2D g, StateRenderer2D renderer) {
 
         Point2D pt = renderer.getScreenPosition(new LocationType(p.getLat(), p.getLon()));
-        
+
         if (selected == p)
             g.setColor(new Color(128, 255, 128));
         else
             g.setColor(getProfileColor(p));
-        
+
         g.fill(new Ellipse2D.Double(pt.getX() - 8, pt.getY() - 8, 16, 16));
         g.setColor(Color.BLACK);
         switch (p.getParameter()) {
@@ -223,16 +244,16 @@ public class VerticalProfileViewer implements Renderer2DPainter {
             selected = null;
         }
     }
-    
+
     private ConcurrentHashMap<VerticalProfile, JDialog> openedWindows = new ConcurrentHashMap<>();
-    
+
     /**
      * @param event
      * @param source
      */
     public void mouseClicked(MouseEvent event, StateRenderer2D source) {
         final VerticalProfile sel = selected;
-        
+
         if (sel != null && event.getClickCount() == 2) {
             JDialog opened = openedWindows.get(selected);
             if (opened != null) {
@@ -242,30 +263,30 @@ public class VerticalProfileViewer implements Renderer2DPainter {
                 JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(source), sel.getDate().toString());
                 openedWindows.put(sel, dialog);
                 dialog.getContentPane().setLayout(new BorderLayout());
-                XChartPanel<XYChart> panel = new XChartPanel<XYChart>(getChart(sel)); 
+                XChartPanel<XYChart> panel = new XChartPanel<XYChart>(getChart(sel));
                 dialog.getContentPane().add(panel, BorderLayout.CENTER);
                 dialog.setSize(700, 500);
                 dialog.setLocationRelativeTo(null);
                 panel.addMouseMotionListener(new MouseMotionListener() {
-                    
+
                     @Override
                     public void mouseMoved(MouseEvent e) {
-                        selected = sel;                        
+                        selected = sel;
                     }
-                    
+
                     @Override
                     public void mouseDragged(MouseEvent e) {
                         selected = sel;
                     }
                 });
-                
+
                 dialog.addWindowListener(new WindowAdapter() {
                     @Override
                     public void windowClosing(WindowEvent e) {
                         super.windowClosing(e);
                         openedWindows.remove(sel);
                     }
-                    
+
                     @Override
                     public void windowActivated(WindowEvent e) {
                         selected = sel;
@@ -276,14 +297,13 @@ public class VerticalProfileViewer implements Renderer2DPainter {
             }
         }
     }
-    
+
     /**
      * @return the oldestProfiles
      */
     public int getOldestProfiles() {
         return oldestProfiles;
     }
-
 
     /**
      * @param oldestProfiles the oldestProfiles to set
@@ -292,14 +312,12 @@ public class VerticalProfileViewer implements Renderer2DPainter {
         this.oldestProfiles = oldestProfiles;
     }
 
-
     /**
      * @return the colorizeSalinity
      */
     public boolean isColorizeSalinity() {
         return colorizeSalinity;
     }
-
 
     /**
      * @param colorizeSalinity the colorizeSalinity to set
@@ -308,17 +326,30 @@ public class VerticalProfileViewer implements Renderer2DPainter {
         this.colorizeSalinity = colorizeSalinity;
     }
 
+    /**
+     * @return the valuesTable
+     */
+    public boolean isValuesTable() {
+        return valuesTable;
+    }
+
+    /**
+     * @param valuesTable the valuesTable to set
+     */
+    public void setValuesTable(boolean valuesTable) {
+        this.valuesTable = valuesTable;
+    }
 
     public static void main(String[] args) {
-        
+
         XYSeries series = new XYSeries("temp");
         for (int i = 0; i < 20; i++) {
-            series.add(Math.random()*10, i / 10.0);                   
+            series.add(Math.random() * 10, i / 10.0);
         }
         XYDataset dataset = new XYSeriesCollection(series);
-        
-        JFreeChart chart = ChartFactory.createXYLineChart("test",
-               "test2", "Depth", dataset, PlotOrientation.VERTICAL, false, false, false);        
+
+        JFreeChart chart = ChartFactory.createXYLineChart("test", "test2", "Depth", dataset, PlotOrientation.VERTICAL,
+                false, false, false);
         chart.getXYPlot().setRenderer(new XYSplineRenderer());
         ChartPanel cp = new ChartPanel(chart);
         GuiUtils.testFrame(cp);

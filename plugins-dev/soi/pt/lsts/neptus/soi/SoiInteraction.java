@@ -110,6 +110,10 @@ public class SoiInteraction extends SimpleRendererInteraction {
     @NeptusProperty(name = "Use salinity colormap for profiles")
     public boolean colorizeSalinity = false;
     
+    @NeptusProperty(name = "Show profile values")
+    public boolean profileValues = true;
+    
+    
     private VerticalProfileViewer profileView = new VerticalProfileViewer();
     
     /**
@@ -446,6 +450,7 @@ public class SoiInteraction extends SimpleRendererInteraction {
 
         SoiStateRenderer.paintStatic(g, renderer);        
         profileView.setColorizeSalinity(colorizeSalinity);
+        profileView.setValuesTable(profileValues);
         profileView.paint(g, renderer);
     }
 }
