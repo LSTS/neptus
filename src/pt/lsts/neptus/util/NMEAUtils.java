@@ -36,6 +36,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.time.Duration;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
@@ -191,7 +193,21 @@ public class NMEAUtils {
             
             List<?> data_fields = nmea.getDataFields();
             ZonedDateTime now = ZonedDateTime.now(ZoneId.of("UTC")).truncatedTo(ChronoUnit.DAYS);
+            
             String timeUTC = (String) data_fields.get(0); // hhmmss.ss UTC
+
+            LocalTime ltNow = LocalTime.now(ZoneId.of("UTC"));
+            LocalTime tTime = LocalTime.MIDNIGHT.plusHours(Long.parseLong(timeUTC.substring(0, 2)))
+                    .plusMinutes(Long.parseLong(timeUTC.substring(2, 4)))
+                    .plus(Double.valueOf(Double.parseDouble(timeUTC.substring(4)) * 1E6).longValue(), ChronoUnit.MICROS);
+            Duration tSpan = Duration.between(ltNow, tTime);
+            if (tSpan.abs().toHours() > 12) {
+                if (tSpan.isNegative())
+                    now = now.plusDays(1);
+                else
+                    now = now.minusDays(1);
+            }
+            
             now = now.plusHours(Long.parseLong(timeUTC.substring(0, 2)));
             now = now.plusMinutes(Long.parseLong(timeUTC.substring(2, 4)));
             now = now.plus(Double.valueOf(Double.parseDouble(timeUTC.substring(4)) * 1E6).longValue(), ChronoUnit.MICROS);
@@ -361,6 +377,7 @@ public class NMEAUtils {
     
     public static void mainTimeTest(String[] args) {
         String sentence = "$GPGGA,000843.8794,2953.44042676,N,13210.21690050,W,2,12,0.9,19.10,M,-37.38,M,0.4,0444*4B";
+        sentence = "$GPGGA,235958.4569,2957.18648288,N,13145.90976826,W,2,12,1.1,20.04,M,-37.87,M,1.0,0444*4C";
         LocationType myLoc = NMEAUtils.processGGASentence(sentence);
         Date dateTime = NMEAUtils.processGGATimeFromSentence(sentence);
         
@@ -381,6 +398,57 @@ public class NMEAUtils {
         
         Date date = Date.from(now.toInstant());
         System.out.println(date);
+        
+        System.out.println("#############################");
+        LocalTime ltNow = LocalTime.now(ZoneId.of("UTC"));
+        ltNow = LocalTime.MIDNIGHT.plusHours(23).plusMinutes(59).plus(59059, ChronoUnit.MILLIS); // 23:59:59.059
+        System.out.println("local time: " + ltNow);
+        LocalTime tTime = LocalTime.MIDNIGHT.plusHours(Long.parseLong(timeUTC.substring(0, 2)))
+                .plusMinutes(Long.parseLong(timeUTC.substring(2, 4)))
+                .plus(Double.valueOf(Double.parseDouble(timeUTC.substring(4)) * 1E6).longValue(), ChronoUnit.MICROS);
+        System.out.println("gps time: " + tTime);
+        Duration tSpan = Duration.between(ltNow, tTime);
+        System.out.println(tSpan);
+        System.out.println(tSpan.abs().toHours() + "  " + (tSpan.isNegative() ? "-" : "+"));
+        
+        System.out.println("-----");
+        ltNow = LocalTime.MIDNIGHT.plusHours(Long.parseLong(timeUTC.substring(0, 2)))
+                .plusMinutes(Long.parseLong(timeUTC.substring(2, 4)))
+                .plus(Double.valueOf(Double.parseDouble(timeUTC.substring(4)) * 1E6).longValue(), ChronoUnit.MICROS);
+        System.out.println("local time: " + ltNow);
+        tTime = LocalTime.MIDNIGHT.plusHours(00).plusMinutes(00).plus(0, ChronoUnit.MILLIS); // 00:00:00.000
+        System.out.println("gps time: " + tTime);
+        tSpan = Duration.between(ltNow, tTime);
+        System.out.println(tSpan);
+        System.out.println(tSpan.abs().toHours() + "  " + (tSpan.isNegative() ? "-" : "+"));
+
+        System.out.println("-----");
+        ltNow = LocalTime.MIDNIGHT.plusHours(Long.parseLong(timeUTC.substring(0, 2)))
+                .plusMinutes(Long.parseLong(timeUTC.substring(2, 4)))
+                .plus(Double.valueOf(Double.parseDouble(timeUTC.substring(4)) * 1E6).longValue(), ChronoUnit.MICROS);
+        System.out.println("local time: " + ltNow);
+        tTime = LocalTime.MIDNIGHT.plusHours(23).plusMinutes(59).plus(59059, ChronoUnit.MILLIS); // 23:59:59.059
+        System.out.println("gps time: " + tTime);
+        tSpan = Duration.between(ltNow, tTime);
+        System.out.println(tSpan);
+        System.out.println(tSpan.abs().toHours() + "  " + (tSpan.isNegative() ? "-" : "+"));
+        
+        System.out.println("-----");
+        ltNow = LocalTime.MIDNIGHT.plusHours(00).plusMinutes(00).plus(0, ChronoUnit.MILLIS); // 00:00:00.000
+        System.out.println("local time: " + ltNow);
+        tTime = LocalTime.MIDNIGHT.plusHours(Long.parseLong(timeUTC.substring(0, 2)))
+                .plusMinutes(Long.parseLong(timeUTC.substring(2, 4)))
+                .plus(Double.valueOf(Double.parseDouble(timeUTC.substring(4)) * 1E6).longValue(), ChronoUnit.MICROS);
+        System.out.println("gps time: " + tTime);
+        tSpan = Duration.between(ltNow, tTime);
+        System.out.println(tSpan);
+        System.out.println(tSpan.abs().toHours() + "  " + (tSpan.isNegative() ? "-" : "+"));
+        
+        System.out.println(processTimeFromSentence("$GPGGA,000843.8794,2953.44042676,N,13210.21690050,W,2,12,0.9,19.10,M,-37.38,M,0.4,0444*4B", 0)
+                .toInstant().atZone(ZoneId.of("UTC")));
+        System.out.println(processTimeFromSentence("$GPGGA,235958.4569,2957.18648288,N,13145.90976826,W,2,12,1.1,20.04,M,-37.87,M,1.0,0444*4C", 0)
+                .toInstant().atZone(ZoneId.of("UTC")));
+
     }
 
 	public static void main(String[] args) {
