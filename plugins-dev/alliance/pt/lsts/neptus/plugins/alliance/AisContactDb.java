@@ -335,8 +335,7 @@ public class AisContactDb implements AISObserver {
         sys.storeData(SystemUtils.MMSI_KEY, mmsi);
 
         sys.storeData(SystemUtils.GROUND_SPEED_KEY, contact.getSog() / UnitsUtil.MS_TO_KNOT);
-        sys.storeData(SystemUtils.COURSE_DEGS_KEY, contact.getCog());
-        
+        sys.storeData(SystemUtils.COURSE_DEGS_KEY, contact.getCog() == 0 ? heading : contact.getCog());
         sys.storeData(SystemUtils.RATE_OF_TURN_DEGS_PER_MIN_KEY, contact.getRateOfTurn());
 
         sys.storeData(SystemUtils.NAV_STATUS_KEY, contact.getNavStatus());
