@@ -176,7 +176,7 @@ public class AisContactDb implements AISObserver {
         LocationType oldLoc = extSys.getLocation();
         extSys.setLocation(myLoc, dateTime == null ? System.currentTimeMillis() : dateTime.getTime());
         if (oldLoc.compareTo(myLoc) != 0) {
-            NeptusLog.pub().info((String.format(">>>>>>>>> Ship >>>>>>> %s  :: %s :: %s :: %s", sentence, 
+            NeptusLog.pub().debug((String.format(">>>>>>>>> Ship >>>>>>> %s  :: %s :: %s :: %s", sentence, 
                     CoordinateUtil.latitudeAsPrettyString(myLoc.getLatitudeDegs()), CoordinateUtil.longitudeAsPrettyString(myLoc.getLongitudeDegs()),
                     DateTimeUtil.dateTimeFormatterISO8601.format(new Date(extSys.getLocationTimeMillis())))));
         }
@@ -193,7 +193,7 @@ public class AisContactDb implements AISObserver {
         double oldHdg = extSys.getYawDegrees();
         extSys.setAttitudeDegrees(myHeadingDegs, System.currentTimeMillis());
         if (Double.compare(oldHdg, extSys.getYawDegrees()) != 0) {
-            NeptusLog.pub().info((String.format(">>>>>>>>> Ship HDG >>>>>>> %s  :: %s", sentence, "" + extSys.getYawDegrees())));
+            NeptusLog.pub().debug((String.format(">>>>>>>>> Ship HDG >>>>>>> %s  :: %s", sentence, "" + extSys.getYawDegrees())));
         }
     }
 
