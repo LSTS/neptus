@@ -413,8 +413,10 @@ public class VizConfigPanel extends JPanel {
                 I18n.text("Left/right keys for lower value change"),
                 I18n.text("Shift+left/right keys for upper value change"),
                 I18n.text("Control+left/right keys for window value change")));
-        timeSlider.setUpperValue(timeSlider.getMaximum());
-        timeSlider.setValue(timeSlider.getMinimum());
+        int timeMinV = (int) ((viz.getMinDate().getTime() - minMs) * timeScale);
+        int timeMaxV = (int) ((viz.getMaxDate().getTime() - minMs) * timeScale);
+        timeSlider.setUpperValue(timeMaxV);
+        timeSlider.setValue(timeMinV);
         timeSlider.setMinorTickSpacing((int) ((maxMs - minMs) * timeScale * 0.02));
         timeSlider.setMajorTickSpacing((int) ((maxMs - minMs) * timeScale * 0.1));
         timeSlider.addKeyListener(new KeyAdapter() {
@@ -479,9 +481,9 @@ public class VizConfigPanel extends JPanel {
         double minDepth = viz.getInfo().minDepth;
         double maxDepth = viz.getInfo().maxDepth;
         JLabel depthSliderMinLabel = new JLabel(
-                (Double.isFinite(minDepth) ? MathMiscUtils.round(minDepth, 1) + " m" : "n/a"));
+                (Double.isFinite(minDepth) ? MathMiscUtils.round(Math.max(minDepth, viz.getMinDepth()), 1) + " m" : "n/a"));
         JLabel depthSliderMaxLabel = new JLabel(
-                (Double.isFinite(maxDepth) ? MathMiscUtils.round(maxDepth, 1) + " m" : "n/a"), SwingConstants.RIGHT);
+                (Double.isFinite(maxDepth) ? MathMiscUtils.round(Math.min(maxDepth, viz.getMaxDepth()), 1) + " m" : "n/a"), SwingConstants.RIGHT);
         double depthScale = 10;
         boolean validDepth = Double.isFinite(minDepth) && Double.isFinite(maxDepth);
         depthSlider = !validDepth ? new RangeSlider(0, 0) : new RangeSlider(0, (int) ((maxDepth - minDepth) * depthScale));
@@ -491,8 +493,10 @@ public class VizConfigPanel extends JPanel {
                 I18n.text("Left/right keys for lower value change"),
                 I18n.text("Shift+left/right keys for upper value change"),
                 I18n.text("Control+left/right keys for window value change")));
-        depthSlider.setUpperValue(depthSlider.getMaximum());
-        depthSlider.setValue(depthSlider.getMinimum());
+        int depthMinV = (int) ((viz.getMinDepth() - minDepth) * depthScale);
+        int depthMaxV = (int) ((viz.getMaxDepth() - minDepth) * depthScale);
+        depthSlider.setUpperValue(depthMaxV);
+        depthSlider.setValue(depthMinV);
         depthSlider.setMinorTickSpacing((int) ((maxDepth - minDepth) * depthScale * 0.02));
         depthSlider.setMajorTickSpacing((int) ((maxDepth - minDepth) * depthScale * 0.1));
         depthSlider.addKeyListener(new KeyAdapter() {

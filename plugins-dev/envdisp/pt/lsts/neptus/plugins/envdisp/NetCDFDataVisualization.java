@@ -39,6 +39,8 @@ import java.util.Arrays;
 
 import javax.swing.JDialog;
 
+import org.dom4j.Element;
+
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
@@ -64,7 +66,7 @@ public class NetCDFDataVisualization extends ConsoleLayer implements PropertiesP
     private static final String CATEGORY_TEST = "Test";
 
     @NeptusProperty(name = "Show visible data date-time interval", userLevel = LEVEL.ADVANCED, category = CATEGORY_TEST, 
-            description = "Draws the string with visible curents data date-time interval.")
+            description = "Draws the string with visible currents data date-time interval.")
     private boolean showDataDebugLegend = false;
 
     private LayersListPanel layerList;
@@ -161,5 +163,26 @@ public class NetCDFDataVisualization extends ConsoleLayer implements PropertiesP
     public void propertiesChanged() {
         layerList.propertiesChanged();
         super.propertiesChanged();
+    }
+    
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.console.ConsoleLayer#asElement(java.lang.String)
+     */
+    @Override
+    public Element asElement(String rootElement) {
+        Element root = super.asElement(rootElement);
+        
+        Element auxElm = root.addElement("aux");
+        Element layersElm = layerList.asElement();
+        layersElm.detach();
+        auxElm.add(layersElm);
+
+        return root;
+    }
+    
+    @Override
+    public void parseXmlElement(Element elem) {
+        super.parseXmlElement(elem);
+        layerList.parseXmlElement(elem.element("aux").element("properties"));      
     }
 }
