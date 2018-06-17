@@ -110,7 +110,7 @@ public class GenericNetCDFDataPainter {
     @NeptusProperty
     private Date minDate = new Date(0);
     @NeptusProperty
-    private Date maxDate = new Date(Long.MAX_VALUE);;
+    private Date maxDate = new Date(Long.MAX_VALUE);
 
     @NeptusProperty
     private double minDepth = Double.MIN_VALUE;
@@ -533,5 +533,9 @@ public class GenericNetCDFDataPainter {
             gl.dispose();
             offsetHeight += offsetDelta;
         }
+    }
+    
+    public static void main(String[] args) {
+        
     }
 }
