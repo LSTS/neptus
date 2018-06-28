@@ -31,6 +31,11 @@
 # Author: Paulo Dias, José Pinto                                            #
 #############################################################################
 
+if [ -z "$BASH" ]
+then
+  bash $0 $@
+fi
+
 PROGNAME=$0
 
 function command_exists {
