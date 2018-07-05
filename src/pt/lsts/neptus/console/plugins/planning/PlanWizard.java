@@ -67,8 +67,8 @@ import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.coord.PolygonType;
+import pt.lsts.neptus.types.map.AbstractElement;
 import pt.lsts.neptus.types.map.AbstractElement.ELEMENT_TYPE;
-import pt.lsts.neptus.types.map.PathElement;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.GuiUtils;
@@ -127,7 +127,7 @@ public class PlanWizard extends ConsolePanel implements MissionChangeListener {
         lblTop.setFont(new Font("Helvetica", Font.BOLD, 18));
         add(lblTop, BorderLayout.NORTH);
         
-        elemSelection = new MapElementSelectionPage(console.getMission(), ELEMENT_TYPE.TYPE_PATH);
+        elemSelection = new MapElementSelectionPage(console.getMission(), ELEMENT_TYPE.TYPE_PATH, ELEMENT_TYPE.TYPE_PARALLELEPIPED);
         
         pages.add(elemSelection);
         pages.add(options);
@@ -231,7 +231,7 @@ public class PlanWizard extends ConsolePanel implements MissionChangeListener {
     private void generatePlan() throws Exception {
         
         PolygonType poly = new PolygonType();
-        PathElement path = (PathElement) elemSelection.getSelection();
+        AbstractElement path = elemSelection.getSelection();
         path.getShapePoints().forEach(p -> poly.addVertex(p));
         
         Pair<Double, Double> diamAngle = poly.getDiameterAndAngle();
