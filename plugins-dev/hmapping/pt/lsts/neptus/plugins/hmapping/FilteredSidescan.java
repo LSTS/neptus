@@ -30,6 +30,7 @@
  * Author: andrediegues
  * Jan 18, 2018
  */
+
 package pt.lsts.neptus.plugins.hmapping;
 
 import java.awt.image.BufferedImage;
@@ -49,6 +50,7 @@ import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.mra.api.CorrectedPosition;
 import pt.lsts.neptus.mra.api.SidescanLine;
 import pt.lsts.neptus.mra.api.SidescanParameters;
 import pt.lsts.neptus.mra.api.SidescanParser;
@@ -68,10 +70,10 @@ import pt.lsts.neptus.util.sidescan.SlantRangeImageFilter;
 public class FilteredSidescan implements MRAExporter {
     private SidescanParser parser = null;
     private IMraLogGroup source = null;
-    private final int subImageWidth = 100;    
-    private final int subImageHeight = 100;
+    private final int subImageWidth = 500;    
+    private final int subImageHeight = 500;
     private final int imageWidth = 2000;
-    private final int imageHeight = 1000;
+    private final int imageHeight = 1500;
     
     
     @NeptusProperty(name="Time Variable Gain")
@@ -82,9 +84,6 @@ public class FilteredSidescan implements MRAExporter {
 
     @NeptusProperty(name="Swath Length")
     public double swathLength = 1.0;
-    
-    @NeptusProperty(name="Image Overlap")
-    public int imageOverlap = 0;
     
     @NeptusProperty(name="Max Roll", description="Maximum value of Roll of the vehicle.")
     public double maxRoll = 5;
@@ -124,15 +123,15 @@ public class FilteredSidescan implements MRAExporter {
         File out;
         File positions;
         BufferedWriter bw = null;
-        String header = "timestamp,latitude,longitude,distance";
+        String header = "filename,timestamp,latitude,longitude,distance,depth,altitude,roll,pitch";
         int ypos = 0;
         int image_num = 1;
         ArrayList<SidescanLine> lines = new ArrayList<SidescanLine>();
         BufferedImage img = null;
         int width = imageWidth;
         int height = imageHeight;
-        long lastSSSLine = -1;
         int numberOfLinesInImg = 0;        
+        String filename = "";
         boolean cancel = PluginUtils.editPluginProperties(this, true);
         if (cancel)
             return I18n.text("Cancelled by user");
@@ -170,35 +169,25 @@ public class FilteredSidescan implements MRAExporter {
                 img.getGraphics().clearRect(0, 0, img.getWidth(), img.getHeight());
             }
             BufferedImage tmp;
+            filename = source.getDir().getName() + "-" + image_num;
             for (SidescanLine l : lines) {
-                lastSSSLine = l.getTimestampMillis();
-                SystemPositionAndAttitude pos = l.getState();
-                double altitude = pos.getAltitude();
-                double roll = pos.getRoll();
-                double pitch = pos.getPitch();
-                if (Math.abs(altitude) > maxAltitude || Math.abs(Math.toDegrees(pitch)) > maxPitch
-                        || Math.abs(Math.toDegrees(roll)) > maxRoll) {
-                    continue;
-                }
                 if(pmonitor != null) {
                     pmonitor.setNote(I18n.textf("Generating image %num",image_num));
                     pmonitor.setProgress((int)((time - start)/1000));                    
                 }
-
                 numberOfLinesInImg++;
                 applySlantCorrection(l);
                 if(numberOfLinesInImg % (subImageHeight/2) == 0 && numberOfLinesInImg % subImageHeight != 0) {
-                    writeToPositionsFile(bw, l);
+                    CorrectedPosition cp = new CorrectedPosition(source);
+                    double timestamp = l.getTimestampMillis() / 1000;
+                    SystemPositionAndAttitude pos = cp.getPosition(timestamp);
+                    writeToPositionsFile(bw, l, filename, pos);
                 }
                 if (ypos >= height || time == end) {
                     try {
-                        ImageIO.write(img, "PNG", new File(out, l.getTimestampMillis()+".png"));
-                        if (imageOverlap > 0) {
-                            img.getGraphics().drawImage(img, 0, 0, img.getWidth(), imageOverlap, 0,
-                                    img.getHeight() - imageOverlap, img.getWidth(), img.getHeight(), null);
-                        }
-                        img.getGraphics().clearRect(0, imageOverlap, img.getWidth(), img.getHeight()-imageOverlap);
-                        ypos = imageOverlap;
+                        ImageIO.write(img, "PNG", new File(out, filename+".png"));                        
+                        img.getGraphics().clearRect(0, 0, img.getWidth(), img.getHeight());
+                        ypos = 0;
                         image_num++;
                     }
                     catch (Exception e) {
@@ -213,7 +202,7 @@ public class FilteredSidescan implements MRAExporter {
         }
         
         try {
-            ImageIO.write(img, "PNG", new File(out, lastSSSLine+".png"));
+            ImageIO.write(img, "PNG", new File(out, filename+".png"));
             ypos = 0;
             bw.close();
         }
@@ -233,45 +222,29 @@ public class FilteredSidescan implements MRAExporter {
         return I18n.textf("%num images were exported to %path.", image_num, out.getAbsolutePath());
     }    
     
-    /**
-     * @param x 
-     * @param bw: BufferedWriter to write to file data
-     * @param l: SidescanLine wit the data to write
-     */
-    private void writeToPositionsFile(BufferedWriter bw, SidescanLine l) {
+    private void writeToPositionsFile(BufferedWriter bw, SidescanLine l, String filename, SystemPositionAndAttitude pos) {
         double timestamp = l.getTimestampMillis() / 1000;
-        double d = getStartingDistance(-l.getDistanceFromIndex(0, l.isImageWithSlantCorrection()));
-        while(d < Math.abs(l.getDistanceFromIndex(0, l.isImageWithSlantCorrection()))) {
-            if(d == 0) {
-                continue;
-            }
-            int i = l.getIndexFromDistance(d, l.isImageWithSlantCorrection());
-            double lat = l.calcPointFromIndex(i, l.isImageWithSlantCorrection()).location.getLatitudeDegs();
-            double lon = l.calcPointFromIndex(i, l.isImageWithSlantCorrection()).location.getLongitudeDegs();
-            double distance = l.getDistanceFromIndex(i, l.isImageWithSlantCorrection());
-            try {
-                bw.write(timestamp + "," + lat + "," + lon + "," + distance + '\n');
-            }
-            catch (IOException e) {
-                NeptusLog.pub().error(e);
-                return;
-            }
-            d += subImageWidth/10;
+        int d = imageWidth;
+        int i = subImageWidth/2;
+        while(i < d) {
+                double lat = l.calcPointFromIndex(i, l.isImageWithSlantCorrection()).location.getLatitudeDegs();
+                double lon = l.calcPointFromIndex(i, l.isImageWithSlantCorrection()).location.getLongitudeDegs();
+                double distance = l.getDistanceFromIndex(i, l.isImageWithSlantCorrection());
+                double depth = pos.getDepth();
+                double altitude = pos.getAltitude();
+                double roll = pos.getRoll();
+                double pitch = pos.getPitch();
+                try {
+                    bw.write(filename + "," + timestamp + "," + lat + "," + lon + "," + distance + "," + depth + "," + altitude + "," + 
+                roll + "," + pitch + '\n');
+                }
+                catch (IOException e) {
+                    NeptusLog.pub().error(e);
+                    return;
+                }
+            i += subImageWidth;
         }
     }
-
-    /**
-     * @param distanceFromIndex
-     * @return
-     */
-    private int getStartingDistance(double distanceFromIndex) {
-        int dist = 0;
-        while(dist < distanceFromIndex) {
-            dist += subImageWidth/20;
-        }
-        return -dist + subImageWidth/20;
-    }
-
     private void applySlantCorrection(SidescanLine sidescanLine) {
         sidescanLine.setImage(new BufferedImage(sidescanLine.getData().length, 1, BufferedImage.TYPE_INT_RGB),false);
         for (int c = 0; c < sidescanLine.getData().length; c++) {
