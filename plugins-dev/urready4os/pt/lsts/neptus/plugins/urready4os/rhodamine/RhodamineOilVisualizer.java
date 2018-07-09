@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -1383,7 +1383,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
             Graphics2D g2 = offScreenImageControlColorBar.getImageGraphics();
             g2 = (Graphics2D) g2.create();
             g2.translate(10 + ox, 50 + oy);
-            ColorBarPainterUtil.paintColorBar(g2, renderer, colorMap, varName, unit, minVal, maxVal);
+            ColorBarPainterUtil.paintColorBar(g2, colorMap, varName, unit, minVal, maxVal);
             g2.dispose();
         }
         offScreenImageControlColorBar.paintPhaseEndFinishImageRecreateAndPaintImageCacheToRenderer(g, renderer);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -93,21 +93,21 @@ IMCSerialization, StatisticsProvider, PathProvider {
     protected double speed = 1;
     @NeptusProperty(name = "Speed Units", editorClass = SpeedUnitsEnumEditor.class)
     protected SPEED_UNITS speedUnits = SPEED_UNITS.METERS_PS;
-    @NeptusProperty(name = "Bearing")
+    @NeptusProperty(name = "Bearing", units = "\u00B0")
     protected double bearingDegs = 0;
-    @NeptusProperty(name = "Width")
+    @NeptusProperty(name = "Width", units = "m")
     protected double width = 100;
-    @NeptusProperty(name = "Length")
+    @NeptusProperty(name = "Length", units = "m")
     protected double length = 200;
-    @NeptusProperty(name = "Cross Angle")
+    @NeptusProperty(name = "Cross Angle", units = "\u00B0")
     protected double crossAngleDegs = 0;
-    @NeptusProperty(name = "Curve Offset")
+    @NeptusProperty(name = "Curve Offset", units = "m")
     protected double curvOff = 15;
-    @NeptusProperty(name = "Angle Aperture")
+    @NeptusProperty(name = "Angle Aperture", units = "\u00B0")
     protected double angleApertureDegs = 120;
-    @NeptusProperty(name = "Max. Range")
+    @NeptusProperty(name = "Max. Range", units = "m")
     protected int range = 30;
-    @NeptusProperty(name = "Overlap Percentage")
+    @NeptusProperty(name = "Overlap Percentage", units = "%")
     protected short overlapPercentage = 0;
     @NeptusProperty(name = "Square Curve")
     protected boolean squareCurve = true;

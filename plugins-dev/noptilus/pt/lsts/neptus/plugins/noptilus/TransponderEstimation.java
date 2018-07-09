@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -218,7 +218,7 @@ public class TransponderEstimation extends ConsolePanel implements Renderer2DPai
 
         Random rand = new Random(System.currentTimeMillis());
 
-        for (long beacon : beaconNames.keySet()) {
+        for (short beacon : beaconNames.keySet()) {
             double[] estimate = Arrays.copyOf(beaconLocations.get(beacon), beaconLocations.get(beacon).length);
             double[] bestEstimate = Arrays.copyOf(estimate, estimate.length);
             
@@ -234,7 +234,6 @@ public class TransponderEstimation extends ConsolePanel implements Renderer2DPai
                 double r = 0;
 
                 for (int i = 0; i < measurements.size(); i++) {
-
                     double px = measurements.get(i)[X];
                     double py = measurements.get(i)[Y];
                     double pz = measurements.get(i)[Z];

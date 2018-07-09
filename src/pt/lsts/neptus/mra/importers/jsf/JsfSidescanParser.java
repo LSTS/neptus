@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -39,6 +39,7 @@ import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mra.api.SidescanLine;
 import pt.lsts.neptus.mra.api.SidescanParameters;
 import pt.lsts.neptus.mra.api.SidescanParser;
+import pt.lsts.neptus.mra.api.SidescanUtil;
 
 /**
  * @author jqcorreia
@@ -112,47 +113,20 @@ public class JsfSidescanParser implements SidescanParser {
             // From here portboard channel (pboard var) will be the reference
             double fData[] = new double[pboardNsamples + sboardNsamples];
             
-            double avgSboard = 0, avgPboard = 0;
-            
+            // Port side
             if (pboard != null) {
                 for (int i = 0; i < pboardNsamples; i++) {
-                    double r = pboard.getData()[i];
-                    avgPboard += r;
+                    fData[i] = pboard.getData()[i];
                 }
             }
             
+            // Starboard side
             if (sboard != null) {
                 for (int i = 0; i < sboardNsamples; i++) {
-                    double r = sboard.getData()[i];
-                    avgSboard += r;
+                    fData[i + pboardNsamples] = sboard.getData()[i];
                 }
             }
-            
-            avgPboard /= (double) pboardNsamples * params.getNormalization();
-            avgSboard /= (double) sboardNsamples * params.getNormalization();
-            
-            if (pboard != null) {
-                // Calculate Portboard
-                for (int i = 0; i < pboardNsamples; i++) {
-                    double r =  i / (double) pboardNsamples;
-                    double gain = Math.abs(30.0 * Math.log(r));
-                    
-                    double pb = pboard.getData()[i] * Math.pow(10, gain / params.getTvgGain());
-                    fData[i] = pb / avgPboard;
-                }
-            }
-            
-            if (sboard != null) {
-                // Calculate Starboard
-                for (int i = 0; i < sboardNsamples; i++) {
-                    double r = 1 - (i / (double) sboardNsamples);
-                    double gain = Math.abs(30.0 * Math.log(r));
-                    
-                    double sb = sboard.getData()[i] * Math.pow(10, gain / params.getTvgGain());
-                    fData[i + pboardNsamples] = sb / avgSboard;
-                }
-            }
-            
+
             if (pboard != null || sboard != null) {
                 if (pboard == null)
                     pboard = sboard;
@@ -164,6 +138,8 @@ public class JsfSidescanParser implements SidescanParser {
                 pose.setYaw(Math.toRadians(pboard.getHeading() / 100.0));
                 pose.setAltitude(pboard.getAltMillis() / 1000.0);
                 pose.setU(pboard.getSpeed() * 0.51444); // Convert knot-to-ms
+                
+                fData = SidescanUtil.applyNormalizationAndTVG(fData, pboard.getRange(), params);
                 
                 list.add(new SidescanLine(ping.get(0).getTimestamp(), ping.get(0).getRange(), pose, ping.get(0).getFrequency(), fData));
             }

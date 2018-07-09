@@ -104,7 +104,7 @@
             </StationKeeping>
         </maneuver>
         <maneuver>
-            <RowsManeuver kind="automatic">
+            <Rows kind="automatic">
                 <basePoint type="pointType">
                     <point>
                         <id/>
@@ -127,7 +127,7 @@
                     <documentation>No documentation available</documentation>
                     <implementation-class>pt.lsts.neptus.mp.maneuvers.RowsManeuver</implementation-class>
                 </annotation>
-            </RowsManeuver>
+            </Rows>
         </maneuver>
         <maneuver>
             <CompassCalibration>

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -252,6 +252,9 @@ SubPanelChangeListener, MainVehicleChangeListener {
 
         for (VehicleType v : avVehicles) {
             final ImcSystem sys = ImcSystemsHolder.lookupSystemByName(v.getId());
+            if (sys == null)
+                continue;
+            
             final String vid = v.getId();
             if (sys.getLocation() != null) {
                 AbstractAction actionSys = new AbstractAction(I18n.textf("Add a mark at %system's location", v.getId())) {

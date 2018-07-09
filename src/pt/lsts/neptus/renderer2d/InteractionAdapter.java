@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -39,6 +39,7 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.Stroke;
 import java.awt.Toolkit;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
@@ -94,6 +95,12 @@ public class InteractionAdapter extends ConsolePanel implements StateRendererInt
         image = ImageUtils.getImage("images/buttons/alarm.png");
     }
 
+    private static final float dash1[] = { 10.0f };
+    private static final BasicStroke dashed1 = new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER,
+            10.0f, dash1, 0.0f);
+    private static final BasicStroke dashed2 = new BasicStroke(2.5f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER,
+            10.0f, dash1, 0.0f);
+
     public void paintInteraction(Graphics2D g, StateRenderer2D source) {
         g.setTransform(source.identity);
         if (rotating) {
@@ -115,29 +122,46 @@ public class InteractionAdapter extends ConsolePanel implements StateRendererInt
                 String angleTxt = String.format("%dº", angle);
                 g.fillArc((int) start.getX() - 30, (int) start.getY() - 30, 60, 60,
                           (int) Math.toDegrees(Math.PI / 2 + source.getRotation()), -angle);
+                
+                Stroke origStroke = g.getStroke();
+                double diameter = distance * source.getZoom() * 2;
+                g.setColor(Color.black);
+                g.setStroke(dashed2);
+                g.drawOval((int) (start.getX() - diameter / 2), (int) (start.getY() - diameter / 2), (int) diameter, (int) diameter);
+                g.setStroke(dashed1);
+                g.setColor(Color.green.brighter().brighter());
+                g.drawOval((int) (start.getX() - diameter / 2), (int) (start.getY() - diameter / 2), (int) diameter, (int) diameter);
+
+                g.setColor(Color.black);
+                g.setStroke(origStroke);
                 g.draw(new Line2D.Double(start, lastDragPoint));
                 g.setColor(Color.black);
                 g.setStroke(new BasicStroke(2.5f));
                 g.setColor(Color.green.brighter().brighter());
                 g.draw(new Line2D.Double(start, lastDragPoint));
-                g.setFont(new Font("Arial", Font.BOLD, 16));
+                g.setStroke(origStroke);
+                
+                g.setFont(new Font("Arial", Font.BOLD, 17));
                 g.setColor(new Color(0, 0, 0, 100));
                 g.drawString(txt, (int) (lastDragPoint.getX() + 12), (int) (lastDragPoint.getY() + 11));
                 g.drawString(txt, (int) (lastDragPoint.getX() + 12), (int) (lastDragPoint.getY() + 12));
 
-                g.setFont(new Font("Arial", Font.BOLD, 14));
-                g.drawString(angleTxt, (int) (start.getX() + 7), (int) (start.getY() + 6));
-                g.drawString(angleTxt, (int) (start.getX() + 6), (int) (start.getY() + 6));
+                g.drawString(txt, (int) (lastDragPoint.getX() + 9), (int) (lastDragPoint.getY() + 8));
+                g.drawString(txt, (int) (lastDragPoint.getX() + 9), (int) (lastDragPoint.getY() + 9));
 
-                g.setFont(new Font("Arial", Font.BOLD, 14));
-//                g.setColor(Color.gray.brighter());
+                g.setFont(new Font("Arial", Font.BOLD, 15));
+                g.drawString(angleTxt, (int) (lastDragPoint.getX() + 12), (int) (lastDragPoint.getY() + 31));
+                g.drawString(angleTxt, (int) (lastDragPoint.getX() + 13), (int) (lastDragPoint.getY() + 31));
+                g.drawString(angleTxt, (int) (lastDragPoint.getX() + 9), (int) (lastDragPoint.getY() + 29));
+                g.drawString(angleTxt, (int) (lastDragPoint.getX() + 8), (int) (lastDragPoint.getY() + 29));
+
+                g.setFont(new Font("Arial", Font.BOLD, 15));
                 g.setColor(Color.white);
-                g.drawString(angleTxt, (int) (start.getX() + 5), (int) (start.getY() + 5));
+                g.drawString(angleTxt, (int) (lastDragPoint.getX() + 10), (int) (lastDragPoint.getY() + 30));
 
                 g.setColor(Color.white);
-                g.setFont(new Font("Arial", Font.BOLD, 16));
+                g.setFont(new Font("Arial", Font.BOLD, 17));
                 g.drawString(txt, (int) (lastDragPoint.getX() + 10), (int) (lastDragPoint.getY() + 10));
-
             }
             g.drawImage(rulerIcon, 20, 50, null);
         }

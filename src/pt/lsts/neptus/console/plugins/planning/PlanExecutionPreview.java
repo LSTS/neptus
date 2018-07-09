@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -47,8 +47,11 @@ import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.Announce;
 import pt.lsts.imc.EstimatedState;
+import pt.lsts.imc.IMCUtil;
 import pt.lsts.imc.PlanControlState;
+import pt.lsts.imc.PlanControlState.STATE;
 import pt.lsts.imc.RemoteSensorInfo;
+import pt.lsts.imc.StateReport;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -241,80 +244,115 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
         stopSimulator();
     }
 
+    public PlanSimulator setSimulationState(String vehicleId, String planId, String maneuverId) {
+        boolean main = vehicleId == getConsole().getMainSystem();
+        if (planId == null) {
+            if (forceSimVisualization && main)
+                return mainSimulator;
+            else {
+                if (simulators.containsKey(vehicleId)) {
+                    simulators.get(vehicleId).stopSimulation();
+                    simulators.remove(vehicleId);
+                    // remove future state...
+                    ConsoleEventFutureState futureState = new ConsoleEventFutureState(vehicleId, new Date(), null);
+                    getConsole().post(futureState);
+                }
+            }
+            return null;
+        }
+        else {
+            if (planId.equals("trex_plan")
+                    && getConsole().getMission().getIndividualPlansList()
+                    .containsKey("trex_" + vehicleId))
+                planId = "trex_" + vehicleId;
+
+            PlanSimulator simulator = simulators.get(vehicleId);
+
+            if (simulator == null || simulator.isFinished() || !planId.equals(simulator.getPlan().getId())) {
+                if (simulator != null)
+                    simulator.stopSimulation();
+                PlanType plan = getConsole().getMission().getIndividualPlansList().get(planId);
+                if (plan != null) {
+
+                    EstimatedState last = ImcMsgManager.getManager().getState(vehicleId).last(EstimatedState.class);
+                    if (last != null)
+                        simulator = new PlanSimulator(plan, new SystemPositionAndAttitude(last));
+                    else
+                        simulator = new PlanSimulator(plan, null);
+
+                    simulator.setVehicleId(vehicleId);
+                    simulator.setTimestep(timestep);
+                    if (activated)
+                        simulator.startSimulation();
+
+                    if (main) {
+                        mainSimulator = simulator;
+                    }
+                    lastStateTimes.put(vehicleId, System.currentTimeMillis());
+                    simulators.put(vehicleId, simulator);                    
+                }
+            }
+
+            if (simulator != null && maneuverId != null) {
+                try {
+                    simulator.setManId(maneuverId);                        
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().error("Could not select simulated maneuver: "+maneuverId, e);
+                }
+            }
+
+            return simulator;
+        }
+    }
+    
     @Subscribe
     public synchronized void consume(PlanControlState msg) {
         String src = msg.getSourceName();
-        boolean main = src == getConsole().getMainSystem();
+        String plan = msg.getPlanId();
+        String maneuver = (msg.getManId() == null || msg.getManId().isEmpty()) ? null : msg.getManId();
 
-        if (msg.getPlanId().isEmpty())
-            return;
+        if (msg.getState() == STATE.BLOCKED || msg.getState() == STATE.READY)
+            plan = maneuver = null;
 
-        if (msg.getState() != PlanControlState.STATE.EXECUTING) {
+        setSimulationState(src, plan, maneuver);
+    }
 
-            if (forceSimVisualization && main)
-                return;
-            else {
-                if (simulators.containsKey(src)) {
-                    simulators.get(src).stopSimulation();
-                    simulators.remove(src);
-                    // remove future state...
-                    ConsoleEventFutureState futureState = new ConsoleEventFutureState(src, new Date(), null);
-                    getConsole().post(futureState);
-                }
+    private String getPlanFromChecksum(int checksum) {
+        if (getConsole().getMission() == null)
+            return null;
 
-                if (main) {
-                    mainSimulator = null;
-                }
-            }
+        for (String planId : getConsole().getMission().getIndividualPlansList().keySet()) {
+            byte[] str = planId.getBytes();
+            if (IMCUtil.computeCrc16(str, 0, str.length) == checksum)
+                return planId;
         }
-        else {
-            try {
-                String planid = msg.getPlanId();
-
-                // T-REX plans are generated...
-                if (planid.equals("trex_plan")
-                        && getConsole().getMission().getIndividualPlansList()
-                                .containsKey("trex_" + msg.getSourceName()))
-                    planid = "trex_" + msg.getSourceName();
-                
-                PlanSimulator simulator = simulators.get(src);
-
-                if (simulator == null || simulator.isFinished() || !planid.equals(simulator.getPlan().getId())) {
-                    if (simulator != null)
-                        simulator.stopSimulation();
-                    PlanType plan = getConsole().getMission().getIndividualPlansList().get(planid);
-                    if (plan != null) {
-
-                        EstimatedState last = ImcMsgManager.getManager().getState(msg.getSourceName()).last(EstimatedState.class);
-                        if (last != null)
-                            simulator = new PlanSimulator(plan, new SystemPositionAndAttitude(last));
-                        else
-                            simulator = new PlanSimulator(plan, null);
-                        if (plan.getGraph().getManeuver(msg.getManId()) != null)
-                            simulator.setManId(msg.getManId());
-                        
-                        simulator.setVehicleId(src);
-                        simulator.setTimestep(timestep);
-                        if (activated)
-                            simulator.startSimulation();
-
-                        if (main) {
-                            mainSimulator = simulator;
-                        }
-                        simulators.put(src, simulator);
-                    }
-                }
-
-                if (simulator != null)
-                    simulator.setManId(msg.getManId());
-            }
-            catch (Exception e) {
-                NeptusLog.pub().error(e);
-            }
-        }
+        return null;
     }
 
     public void paintVerticalProfile(Graphics2D g, StateRenderer2D renderer) {
+        
+    }
+    
+    @Subscribe
+    public synchronized void consume(StateReport msg) {
+
+        String src = msg.getSourceName();
+        String plan = getPlanFromChecksum(msg.getPlanChecksum());
+        if (msg.getExecState() < -1) {
+            //setSimulationState(src, null, null);
+            return;
+        }
+        else {
+            PlanSimulator sim = setSimulationState(src, plan, null);
+            if (sim != null) {
+                EstimatedState current = sim.getState().toEstimatedState();
+                current.setLat(msg.getLatitude());
+                current.setLon(msg.getLongitude());
+                double ellapsedTime = Math.abs(System.currentTimeMillis()/1000.0 - msg.getStime()) * 3;
+                sim.setPositionEstimation(current, ellapsedTime);
+            }            
+        }
     }
 
     @Override

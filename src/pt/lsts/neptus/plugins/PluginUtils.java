@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -32,6 +32,7 @@
  */
 package pt.lsts.neptus.plugins;
 
+import java.awt.Window;
 import java.beans.PropertyEditor;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -68,6 +69,8 @@ import org.apache.commons.io.IOUtils;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
+import com.l2fprod.common.propertysheet.PropertyEditorRegistry;
+import com.l2fprod.common.propertysheet.PropertyRendererRegistry;
 import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
 
 import pt.lsts.neptus.NeptusLog;
@@ -237,8 +240,25 @@ public class PluginUtils {
      * @param defaultValueString or null if not known.
      * @return
      */    
-    @SuppressWarnings({ "unchecked", "serial" })
     public static PluginProperty createPluginProperty(Object obj, Field f, String defaultValueString, boolean forEdit) {
+        return createPluginProperty(obj, f, defaultValueString, forEdit, PropertiesEditor.getPropertyEditorRegistry(),
+                PropertiesEditor.getPropertyRendererRegistry());
+    }
+
+    /**
+     * NOTE: the forEdit is important because if we want to load properties for the {@link GeneralPreferences}
+     * we pass forEdit=false so we don't call I18n that loads {@link GeneralPreferences#language} while we are 
+     * loading {@link GeneralPreferences} properties from file.
+     * @param obj
+     * @param f
+     * @param defaultValueString or null if not known.
+     * @param propertyEditorRegistry
+     * @param propertyRendererRegistry
+     * @return
+     */
+    @SuppressWarnings({ "unchecked", "serial" })
+    public static PluginProperty createPluginProperty(Object obj, Field f, String defaultValueString, boolean forEdit,
+            PropertyEditorRegistry propertyEditorRegistry, PropertyRendererRegistry propertyRendererRegistry) {
         NeptusProperty a = f.getAnnotation(NeptusProperty.class);
 
         if (a != null) {
@@ -247,12 +267,18 @@ public class PluginUtils {
             //}
             String name = a.name();
             String desc = a.description();
-            String defaultStr = "";
+            String units = a.units();
+            String defaultAndUnitsStr = "";
             if (defaultValueString != null && forEdit) {
                 if (f.getType().getEnumConstants() != null)
                     defaultValueString = I18n.text(defaultValueString);
-                defaultStr = "<br><i>[[" + I18n.text("Default value:") + " \"<b><code>" + defaultValueString
-                        + "</code></b>\"]]</i>";
+                defaultAndUnitsStr = "<br>";
+                defaultAndUnitsStr += units.length() > 0 ? "(" + units + ") " : "";
+                defaultAndUnitsStr += "<i>(" + I18n.text("Default value:") + " \"<b><code>" + defaultValueString
+                        + "</code></b>\")</i>";
+            }
+            else {
+                defaultAndUnitsStr += units.length() > 0 ? "<br>(" + units + ") " : "";
             }
             Class<? extends PropertyEditor> editClass = null;
             Class<? extends TableCellRenderer> rendererClass = null;
@@ -261,9 +287,9 @@ public class PluginUtils {
             if (a.name().length() == 0) {
                 name = f.getName();
             }
-            if (a.description().length() == 0) {
-                desc = f.getName();
-            }
+            // if (a.description().length() == 0) {
+            //     desc = f.getName();
+            // }
 
             if (a.editorClass() != PropertyEditor.class) {
                 editClass = a.editorClass();
@@ -292,24 +318,24 @@ public class PluginUtils {
             }
 
             PluginProperty pp = new PluginProperty(name, f.getType(), o);
-            pp.setShortDescription((forEdit ? I18n.text(desc) : desc) + defaultStr);
+            pp.setShortDescription((forEdit ? I18n.text(desc) : desc) + defaultAndUnitsStr);
             pp.setEditable(a.editable());
-            pp.setDisplayName(forEdit ? I18n.text(name) : name);
+            pp.setDisplayName(forEdit ? (obj.getClass().equals(GeneralPreferences.class) ? "* " : "") + I18n.text(name) : name);
             if (category != null && category.length() > 0) {
                 pp.setCategory(category);
             }
 
             if (editClass != null) {
-                PropertiesEditor.getPropertyEditorRegistry().registerEditor(pp, editClass);
+                propertyEditorRegistry.registerEditor(pp, editClass);
             }
             else {
                 if (ReflectionUtil.hasInterface(f.getType(), PropertyType.class)) {
                     PropertyType pt = (PropertyType) o;
-                    PropertiesEditor.getPropertyEditorRegistry().registerEditor(pp, pt.getPropertyEditor());
+                    propertyEditorRegistry.registerEditor(pp, pt.getPropertyEditor());
                 }
                 if (f.getType().getEnumConstants() != null) {
                     if (o != null) {
-                        PropertiesEditor.getPropertyEditorRegistry().registerEditor(pp,
+                        propertyEditorRegistry.registerEditor(pp,
                                 new EnumEditor((Class<? extends Enum<?>>) o.getClass()));
                         PropertiesEditor.getPropertyRendererRegistry().registerRenderer(pp, new DefaultCellRenderer() {
                             {
@@ -326,16 +352,27 @@ public class PluginUtils {
             }
             
             if (rendererClass != null)
-                PropertiesEditor.getPropertyRendererRegistry().registerRenderer(pp, rendererClass);
+                propertyRendererRegistry.registerRenderer(pp, rendererClass);
 
             return pp;
         }
         return null;
     }
-    /**     
+    /**
+     * @deprecated Use {@link #editPluginProperties(Object, Window, boolean)} instead.
      * @return <b>true</b> if cancelled or <b>false</b> otherwise.
      */
-    public static boolean editPluginProperties(final Object obj, boolean editable) {
+    public static <P extends Window>  boolean editPluginProperties(final Object obj, boolean editable) {
+        return editPluginProperties(obj, null, editable);
+    }
+    
+    /**
+     * @param obj
+     * @param parent
+     * @param editable
+     * @return
+     */
+    public static <P extends Window> boolean editPluginProperties(final Object obj, P parent, boolean editable) {
         PropertiesProvider provider = new PropertiesProvider() {
             
             @Override
@@ -359,7 +396,7 @@ public class PluginUtils {
             }
         };
         
-        return PropertiesEditor.editProperties(provider, editable);
+        return PropertiesEditor.editProperties(provider, parent, editable);
     }
 
     /**
@@ -488,7 +525,7 @@ public class PluginUtils {
         return errors.toArray(new String[0]);
     }
     
-    private static Field[] getFields(Object o) {
+    public static Field[] getFields(Object o) {
         Class<?> c;
         if (o instanceof Class<?>)
             c = (Class<?>)o;
@@ -837,8 +874,37 @@ public class PluginUtils {
             return "<properties/>";
         }
         
-        // props.list(System.err);
+        return getConfigXmlWorker(addComment, props);
+    }
+
+    public static String getConfigXmlWithDefaults(Object... obj) {
+        return getConfigXmlWithDefaults(false, obj);
+    }
+
+    public static String getConfigXmlWithDefaults(boolean addComment, Object... obj) {
+        Properties props = null;
+        try {
+            for (Object o : obj) {
+                if (props == null) {
+                    props = saveProperties(o, false);
+                }
+                else {
+                    Properties propTmp = saveProperties(o, false);
+                    final Properties p = props;
+                    if (propTmp != null)
+                        propTmp.forEach((k, v) -> p.putIfAbsent(k, v));
+                }
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return "<properties/>";
+        }
         
+        return getConfigXmlWorker(addComment, props);
+    }
+
+    private static String getConfigXmlWorker(boolean addComment, Properties props) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
             props.storeToXML(baos, addComment ? "Generated by Neptus on " + (new Date()) : null, "UTF-8");
@@ -851,7 +917,7 @@ public class PluginUtils {
             return "<properties/>";
         }
     }
-
+    
     public static void setConfigXml(Object obj, String xml) {
         Properties props = new Properties();
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -213,9 +213,13 @@ public class CommsRelay extends DefaultManeuver implements IMCSerialization, Loc
     	properties.add(PropertiesEditor.getPropertyInstance("System A", String.class, getSystemA(), true));
     	properties.add(PropertiesEditor.getPropertyInstance("System B", String.class, getSystemB(), true));
     	
-    	properties.add(PropertiesEditor.getPropertyInstance("Duration", Integer.class, getDuration(), true));
-
-    	properties.add(PropertiesEditor.getPropertyInstance("Move threshold", Double.class, getMoveThreshold(), true));
+    	DefaultProperty durProp = PropertiesEditor.getPropertyInstance("Duration", Integer.class, getDuration(), true);
+    	durProp.setShortDescription("(s)");
+    	properties.add(durProp);
+    	
+    	DefaultProperty mvProp = PropertiesEditor.getPropertyInstance("Move threshold", Double.class, getMoveThreshold(), true);
+    	mvProp.setShortDescription("(m)");
+    	properties.add(mvProp);
 
     	DefaultProperty units = PropertiesEditor.getPropertyInstance("Speed units", Maneuver.SPEED_UNITS.class, getSpeedUnits(), true);
     	units.setShortDescription("The speed units");

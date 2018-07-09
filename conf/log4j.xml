@@ -5,13 +5,13 @@
 	<appender name="stdout" class="org.apache.log4j.ConsoleAppender">
 		<param name="Threshold" value="INFO"/>
 		<layout class="org.apache.log4j.PatternLayout">
-			<param name="ConversionPattern" value="[%d{YYYY/MM/dd HH:mm:ss.sss}] - %-5p - %m (%F:%L) {%t} {%c}%n"/>
+			<param name="ConversionPattern" value="[%d{YYYY-MM-dd HH:mm:ss.sssZ}] - %-5p - %m (%F:%L) {%t} {%c}%n"/>
 		</layout>
 	</appender>
 	<appender name="stdout.debug" class="org.apache.log4j.ConsoleAppender">
 		<param name="Threshold" value="DEBUG"/>
 		<layout class="org.apache.log4j.PatternLayout">
-			<param name="ConversionPattern" value="[%d{YYYY/MM/dd HH:mm:ss.sss}] - %-5p - %m (%F:%L) {%t} {%c}%n"/>
+			<param name="ConversionPattern" value="[%d{YYYY-MM-dd HH:mm:ss.sssZ}] - %-5p - %m (%F:%L) {%t} {%c}%n"/>
 		</layout>
 	</appender>
 	<appender name="debugLog" class="org.apache.log4j.RollingFileAppender">
@@ -20,7 +20,7 @@
 		<param name="MaxFileSize" value="5MB"/>
 		<param name="MaxBackupIndex" value="20"/>
 		<layout class="org.apache.log4j.PatternLayout">
-			<param name="ConversionPattern" value="[%d{YYYY/MM/dd HH:mm:ss.sss}] - %-5p - %m (%F:%L) {%t} {%c}%n"/>
+			<param name="ConversionPattern" value="[%d{YYYY-MM-dd HH:mm:ss.sssZ}] - %-5p - %m (%F:%L) {%t} {%c}%n"/>
 		</layout>
 	</appender>
 	<appender name="debugLogXML" class="org.apache.log4j.RollingFileAppender">
@@ -36,7 +36,7 @@
 		<param name="MaxFileSize" value="5MB"/>
 		<param name="MaxBackupIndex" value="20"/>
 		<layout class="org.apache.log4j.PatternLayout">
-			<param name="ConversionPattern" value="[%d{YYYY/MM/dd HH:mm:ss.sss}] - %-5p - %m (%F:%L) {%t} {%c}%n"/>
+			<param name="ConversionPattern" value="[%d{YYYY-MM-dd HH:mm:ss.sssZ}] - %-5p - %m (%F:%L) {%t} {%c}%n"/>
 		</layout>
 	</appender>
 	<appender name="debugLogChainsaw" class="org.apache.log4j.net.SocketAppender">

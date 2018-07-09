@@ -2,7 +2,7 @@
 <!-- ===================================================================
    Build file for Neptus
 
-Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
 Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
 All rights reserved.
 Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -56,8 +56,8 @@ For simple use the main targets are:
 	<!-- =================================================================== -->
 	<!-- Defines variables used by the other targets                         -->
 	<!-- =================================================================== -->
-	<property name="version.MAJOR" value="2017" />
-	<property name="version.MINOR" value="03" />
+	<property name="version.MAJOR" value="2018" />
+	<property name="version.MINOR" value="01" />
 	<property name="version.PATCH" value="1" />
 	<!-- Set this to '-dev' if a developer release; blank "" if maintenance release; or '-rcX' for release candidate X (X number) -->
 	<property name="version.DEVELOPER" value="-dev" />
@@ -74,7 +74,7 @@ For simple use the main targets are:
 
 	<property name="name" value="neptus" />
 	<property name="Name" value="Neptus" />
-	<property name="years" value="2004-2017" />
+	<property name="years" value="2004-2018" />
 	<property name="legal.copy" value="(c)${years} LSTS-FEUP and Neptus developers. All Rights Reserved."/>
 	<property name="legal.copy.html" value="Copyright &#169; ${years} FEUP-LSTS and Neptus developers. All Rights Reserved."/>
 
@@ -667,6 +667,10 @@ For simple use the main targets are:
 				<include name="totd.xml" />
 				<include name="**/*.properties" />
 				<include name="colormaps/**/*.colormap" />
+				<include name="colormaps/**/*.act" />
+				<include name="colormaps/**/*.gct" />
+				<include name="colormaps/**/*.rgb" />
+				<include name="colormaps/**/*.cpt" />
 				<include name="schemas/**/*.xsd" />
 				<include name="sounds/*" />
 				<include name="**/*.gz" />
@@ -714,6 +718,10 @@ For simple use the main targets are:
 				<include name="totd.xml" />
 				<include name="**/*.properties" />
 				<include name="colormaps/**/*.colormap" />
+				<include name="colormaps/**/*.act" />
+				<include name="colormaps/**/*.gct" />
+				<include name="colormaps/**/*.rgb" />
+				<include name="colormaps/**/*.cpt" />
 				<include name="schemas/**/*.xsd" />
 				<include name="sounds/*" />
 				<include name="**/*.gz" />

@@ -6,3 +6,4 @@
 pt.lsts.neptus.plugins.sunfish.IridiumComms
 pt.lsts.neptus.plugins.sunfish.awareness.SituationAwareness
 pt.lsts.neptus.plugins.sunfish.iridium.IridiumVisualization
+pt.lsts.neptus.plugins.sunfish.iridium.feedback.IridiumStatus

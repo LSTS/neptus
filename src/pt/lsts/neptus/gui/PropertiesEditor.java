@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -83,6 +83,7 @@ import pt.lsts.neptus.gui.editor.ScriptSelectionEditor;
 import pt.lsts.neptus.gui.editor.SpeedUnitsEnumEditor;
 import pt.lsts.neptus.gui.editor.VehicleSelectionEditor;
 import pt.lsts.neptus.gui.editor.renderer.SpeedUnitsEnumRenderer;
+import pt.lsts.neptus.gui.editor.renderer.ArrayAsStringRenderer;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.messages.Bitmask;
 import pt.lsts.neptus.messages.Enumerated;
@@ -90,6 +91,7 @@ import pt.lsts.neptus.mp.Maneuver.SPEED_UNITS;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.ManeuverLocationEditor;
 import pt.lsts.neptus.mp.actions.PlanActions;
+import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.util.GuiUtils;
@@ -118,15 +120,7 @@ public class PropertiesEditor {
         return editPropertiesWorker(provider, null, editable);
 	}
 	
-	public static boolean editProperties(PropertiesProvider provider, Dialog parent, boolean editable) {
-		 return editPropertiesWorker(provider, parent, editable);
-    }
-
-    public static boolean editProperties(PropertiesProvider provider, Frame parent, boolean editable) {
-    	 return editPropertiesWorker(provider, parent, editable);
-    }
-
-    public static boolean editProperties(PropertiesProvider provider, Window parent, boolean editable) {
+    public static <P extends Window> boolean editProperties(PropertiesProvider provider, P parent, boolean editable) {
     	 return editPropertiesWorker(provider, parent, editable);
     }
     
@@ -578,7 +572,9 @@ public class PropertiesEditor {
                         toolTip = loc.toString();
                         setToolTipText(toolTip);
                         // return "<html>" + loc.toString().replaceAll(",\\ ", ",<br>");
-                        return loc.toString();
+                        LocationType sLoc = loc.getNewAbsoluteLatLonDepth();
+                        return CoordinateUtil.latitudeAsPrettyString(sLoc.getLatitudeDegs()) + ", "
+                                + CoordinateUtil.longitudeAsPrettyString(sLoc.getLongitudeDegs());
                     }
                     catch (Exception e) {
                         return super.convertToString(value);
@@ -603,17 +599,26 @@ public class PropertiesEditor {
                     return I18n.text(value.toString());
                 }
             });
-            prr.registerRenderer(String[].class, new DefaultCellRenderer() {
-                {
-                    setOpaque(false);
-                }
 
-                @Override
-                protected String convertToString(Object value) {
-                    return I18n.text(Arrays.toString((String[]) value).toString());
-                }
-            });
             prr.registerRenderer(SPEED_UNITS.class, new SpeedUnitsEnumRenderer());
+
+            prr.registerRenderer(String[].class, new ArrayAsStringRenderer());
+            prr.registerRenderer(Long[].class, new ArrayAsStringRenderer());
+            prr.registerRenderer(long[].class, new ArrayAsStringRenderer());
+            prr.registerRenderer(Integer[].class, new ArrayAsStringRenderer());
+            prr.registerRenderer(int[].class, new ArrayAsStringRenderer());
+            prr.registerRenderer(Short[].class, new ArrayAsStringRenderer());
+            prr.registerRenderer(short[].class, new ArrayAsStringRenderer());
+            prr.registerRenderer(Double[].class, new ArrayAsStringRenderer());
+            prr.registerRenderer(double[].class, new ArrayAsStringRenderer());
+            prr.registerRenderer(Float[].class, new ArrayAsStringRenderer());
+            prr.registerRenderer(float[].class, new ArrayAsStringRenderer());
+            prr.registerRenderer(Boolean[].class, new ArrayAsStringRenderer());
+            prr.registerRenderer(boolean[].class, new ArrayAsStringRenderer());
+            prr.registerRenderer(Byte[].class, new ArrayAsStringRenderer());
+            prr.registerRenderer(byte[].class, new ArrayAsStringRenderer());
+            prr.registerRenderer(Character[].class, new ArrayAsStringRenderer());
+            prr.registerRenderer(char[].class, new ArrayAsStringRenderer());
         }
 	    return prr;
 	}

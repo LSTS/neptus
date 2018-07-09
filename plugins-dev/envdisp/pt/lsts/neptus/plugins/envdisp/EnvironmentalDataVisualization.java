@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -51,6 +51,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -72,6 +73,13 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
+import pt.lsts.neptus.plugins.envdisp.datapoints.BaseDataPoint;
+import pt.lsts.neptus.plugins.envdisp.datapoints.ChlorophyllDataPoint;
+import pt.lsts.neptus.plugins.envdisp.datapoints.HFRadarDataPoint;
+import pt.lsts.neptus.plugins.envdisp.datapoints.SSTDataPoint;
+import pt.lsts.neptus.plugins.envdisp.datapoints.WavesDataPoint;
+import pt.lsts.neptus.plugins.envdisp.datapoints.WindDataPoint;
+import pt.lsts.neptus.plugins.envdisp.painter.EnvDataPaintHelper;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.renderer2d.LayerPriority;
@@ -84,6 +92,7 @@ import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.StreamUtil;
 import pt.lsts.neptus.util.UnitsUtil;
+import pt.lsts.neptus.util.coord.MapTileRendererCalculator;
 import pt.lsts.neptus.util.http.client.HttpClientConnectionHelper;
 
 /**
@@ -102,9 +111,6 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
     private static final String CATEGORY_VISIBILITY_WIND = "Visibility Wind";
     private static final String CATEGORY_VISIBILITY_WAVES = "Visibility Waves";
     private static final String CATEGORY_VISIBILITY_CHLOROPHILL = "Visibility Chlorophyll";
-
-    static final int OFFSET_REND_TXT_DATE_RANGES = 52;
-    static final int OFFSET_REND_TXT_DATE_RANGES_DELTA = 15;
 
     /*
      * Currents, wind, waves, SST 
@@ -226,7 +232,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
     private double maxChlorophyll = 60; //mg/m3
 
     private static final String tuvFilePattern = ".\\.tuv$";
-    private static final String netCDFFilePattern = ".\\.nc$";
+    private static final String netCDFFilePattern = ".\\.nc(\\.gz)?$";
     private static final String currentsFilePatternTUV = tuvFilePattern; // "^TOTL_TRAD_\\d{4}_\\d{2}_\\d{2}_\\d{4}\\.tuv$";
     private static final String currentsFilePatternNetCDF = netCDFFilePattern; // "^CODAR_TRAD_\\d{4}_\\d{2}_\\d{2}_\\d{4}\\.nc$";
     private static final String meteoFilePattern = netCDFFilePattern; // "^meteo_\\d{8}\\.nc$";
@@ -267,6 +273,9 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
     private final HashMap<String, WindDataPoint> dataPointsWind = new HashMap<>();
     private final HashMap<String, WavesDataPoint> dataPointsWaves = new HashMap<>();
     private final HashMap<String, ChlorophyllDataPoint> dataPointsChlorophyll = new HashMap<>();
+
+    private Thread painterThread = null;
+    private AtomicBoolean abortIndicator = null;
 
     @PluginDescription(name="Environmental Data Visualization Layer", icon="pt/lsts/neptus/plugins/envdisp/hf-radar.png")
     @LayerPriority(priority = -300)
@@ -385,7 +394,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
                 if (requestFromNooaWeb) {
                     HashMap<String, HFRadarDataPoint> dpLts = getNoaaHFRadarData();
                     if (dpLts != null && dpLts.size() > 0) {
-                        mergeCurrentsDataToInternalDataList(dpLts);
+                        mergeDataToInternalDataList(dataPointsCurrents, dpLts);
                         System.out.println(dpLts.size() + " ------------------------------");
                     }
                 }
@@ -517,165 +526,34 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
     private void cleanDataPointsBeforeDate() {
         Date dateLimit = ignoreDateLimitToLoad ? null : createDateLimitToRemove();
         
-        cleanCurrentsDataPointsBeforeDate(dateLimit);
-        cleanSSTDataPointsBeforeDate(dateLimit);
-        cleanWindDataPointsBeforeDate(dateLimit);
-        cleanWavesDataPointsBeforeDate(dateLimit);
-        cleanChlorophyllDataPointsBeforeDate(dateLimit);
+        BaseDataPoint.cleanDataPointsBeforeDate(dataPointsCurrents, dateLimit);
+        BaseDataPoint.cleanDataPointsBeforeDate(dataPointsSST, dateLimit);
+        BaseDataPoint.cleanDataPointsBeforeDate(dataPointsWind, dateLimit);
+        BaseDataPoint.cleanDataPointsBeforeDate(dataPointsWaves, dateLimit);
+        BaseDataPoint.cleanDataPointsBeforeDate(dataPointsChlorophyll, dateLimit);
     }
 
-    private void cleanCurrentsDataPointsBeforeDate(Date dateLimit) {
-        if (dateLimit == null)
-            return;
-        
-        for (String dpID : dataPointsCurrents.keySet().toArray(new String[0])) {
-            HFRadarDataPoint dp = dataPointsCurrents.get(dpID);
-            if (dp == null)
-                continue;
-            
-            if (dp.getDateUTC().before(dateLimit))
-                dataPointsCurrents.remove(dpID);
-            else {
-                // Cleanup historicalData
-                dp.purgeAllBefore(dateLimit);
-            }
-        }
-    }
-
-    private void cleanSSTDataPointsBeforeDate(Date dateLimit) {
-        if (dateLimit == null)
-            return;
-        
-        for (String dpID : dataPointsSST.keySet().toArray(new String[0])) {
-            BaseDataPoint<?> dp = dataPointsSST.get(dpID);
-            if (dp == null)
-                continue;
-            
-            if (dp.getDateUTC().before(dateLimit))
-                dataPointsSST.remove(dpID);
-            else {
-                // Cleanup historicalData
-                dp.purgeAllBefore(dateLimit);
-            }
-        }
-    }
-
-    private void cleanWindDataPointsBeforeDate(Date dateLimit) {
-        if (dateLimit == null)
-            return;
-        
-        for (String dpID : dataPointsWind.keySet().toArray(new String[0])) {
-            BaseDataPoint<?> dp = dataPointsWind.get(dpID);
-            if (dp == null)
-                continue;
-            
-            if (dp.getDateUTC().before(dateLimit))
-                dataPointsWind.remove(dpID);
-            else {
-                // Cleanup historicalData
-                dp.purgeAllBefore(dateLimit);
-            }
-        }
-    }
-
-    private void cleanWavesDataPointsBeforeDate(Date dateLimit) {
-        if (dateLimit == null)
-            return;
-        
-        for (String dpID : dataPointsWaves.keySet().toArray(new String[0])) {
-            BaseDataPoint<?> dp = dataPointsWaves.get(dpID);
-            if (dp == null)
-                continue;
-            
-            if (dp.getDateUTC().before(dateLimit))
-                dataPointsWaves.remove(dpID);
-            else {
-                // Cleanup historicalData
-                dp.purgeAllBefore(dateLimit);
-            }
-        }
-    }
-
-    private void cleanChlorophyllDataPointsBeforeDate(Date dateLimit) {
-        if (dateLimit == null)
-            return;
-        
-        for (String dpID : dataPointsChlorophyll.keySet().toArray(new String[0])) {
-            BaseDataPoint<?> dp = dataPointsChlorophyll.get(dpID);
-            if (dp == null)
-                continue;
-            
-            if (dp.getDateUTC().before(dateLimit))
-                dataPointsChlorophyll.remove(dpID);
-            else {
-                // Cleanup historicalData
-                dp.purgeAllBefore(dateLimit);
-            }
-        }
-    }
-
-    public void mergeCurrentsDataToInternalDataList(HashMap<String, HFRadarDataPoint> toMergeData) {
+    static <Bp extends BaseDataPoint<?>> void mergeDataToInternalDataList(HashMap<String, Bp> originalData,
+            HashMap<String, Bp> toMergeData) {
         for (String dpId : toMergeData.keySet()) {
-            HFRadarDataPoint dp = toMergeData.get(dpId);
-            HFRadarDataPoint dpo = dataPointsCurrents.get(dpId);
+            Bp dp = toMergeData.get(dpId);
+            Bp dpo = originalData.get(dpId);
             if (dpo == null) {
-                dataPointsCurrents.put(dpId, dp);
+                originalData.put(dpId, dp);
                 dpo = dp;
             }
             else {
                 mergeDataPointsWorker(dp, dpo);
             }
         }
-    }
-    
-    public void mergeSSTDataToInternalDataList(HashMap<String, SSTDataPoint> toMergeData) {
-        for (String dpId : toMergeData.keySet()) {
-            SSTDataPoint dp = toMergeData.get(dpId);
-            SSTDataPoint dpo = dataPointsSST.get(dpId);
-            if (dpo == null) {
-                dataPointsSST.put(dpId, dp);
-                dpo = dp;
-            }
-            else {
-                mergeDataPointsWorker(dp, dpo);
-            }
-        }
-        debugOut(toMergeData.size() + " vs " + dataPointsSST.size());
+        System.out.println(toMergeData.size() + " vs " + originalData.size());
     }
 
-    public void mergeWindDataToInternalDataList(HashMap<String, WindDataPoint> toMergeData) {
-        for (String dpId : toMergeData.keySet()) {
-            WindDataPoint dp = toMergeData.get(dpId);
-            WindDataPoint dpo = dataPointsWind.get(dpId);
-            if (dpo == null) {
-                dataPointsWind.put(dpId, dp);
-                dpo = dp;
-            }
-            else {
-                mergeDataPointsWorker(dp, dpo);
-            }
-        }
-    }
-    
-    public void mergeWavesDataToInternalDataList(HashMap<String, WavesDataPoint> toMergeData) {
-        for (String dpId : toMergeData.keySet()) {
-            WavesDataPoint dp = toMergeData.get(dpId);
-            WavesDataPoint dpo = dataPointsWaves.get(dpId);
-            if (dpo == null) {
-                dataPointsWaves.put(dpId, dp);
-                dpo = dp;
-            }
-            else {
-                mergeDataPointsWorker(dp, dpo);
-            }
-        }
-    }
-    
     /**
      * @param dpToMerge
      * @param dpOriginal
      */
-    private void mergeDataPointsWorker(BaseDataPoint<?> dpToMerge, BaseDataPoint<?> dpOriginal) {
+    static void mergeDataPointsWorker(BaseDataPoint<?> dpToMerge, BaseDataPoint<?> dpOriginal) {
         @SuppressWarnings("unchecked")
         ArrayList<BaseDataPoint<?>> histToMergeData = (ArrayList<BaseDataPoint<?>>) dpToMerge.getHistoricalData();
         @SuppressWarnings("unchecked")
@@ -704,21 +582,6 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
             histOrigData.addAll(toAddDP);
     }
     
-    public void mergeChlorophyllDataToInternalDataList(HashMap<String, ChlorophyllDataPoint> toMergeData) {
-        for (String dpId : toMergeData.keySet()) {
-            ChlorophyllDataPoint dp = toMergeData.get(dpId);
-            ChlorophyllDataPoint dpo = dataPointsChlorophyll.get(dpId);
-            if (dpo == null) {
-                dataPointsChlorophyll.put(dpId, dp);
-                dpo = dp;
-            }
-            else {
-                mergeDataPointsWorker(dp, dpo);
-            }
-        }
-        debugOut(toMergeData.size() + " vs " + dataPointsChlorophyll.size());
-    }
-
     private void loadCurrentsFromFiles() {
         // TUV files
         File[] fileList = FileUtil.getFilesFromDisk(baseFolderForCurrentsTUVFiles, currentsFilePatternTUV);
@@ -728,7 +591,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
         for (File fx : fileList) {
             HashMap<String, HFRadarDataPoint> tdp = processTuvHFRadarTest(fx.getAbsolutePath());
             if (tdp != null && tdp.size() > 0)
-                mergeCurrentsDataToInternalDataList(tdp);
+                mergeDataToInternalDataList(dataPointsCurrents, tdp);
         }
 
         // NetCDF files
@@ -739,7 +602,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
         for (File fx : fileList) {
             HashMap<String, HFRadarDataPoint> tdp = processNetCDFHFRadarTest(fx.getAbsolutePath());
             if (tdp != null && tdp.size() > 0)
-                mergeCurrentsDataToInternalDataList(tdp);
+                mergeDataToInternalDataList(dataPointsCurrents, tdp);
         }
 
     }
@@ -755,11 +618,11 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
                 @SuppressWarnings("unchecked")
                 HashMap<String, SSTDataPoint> sstdp = (HashMap<String, SSTDataPoint>) meteodp[0];
                 if (sstdp != null && sstdp.size() > 0)
-                    mergeSSTDataToInternalDataList(sstdp);
+                    mergeDataToInternalDataList(dataPointsSST, sstdp);
                 @SuppressWarnings("unchecked")
                 HashMap<String, WindDataPoint> winddp = (HashMap<String, WindDataPoint>) meteodp[1];
                 if (winddp != null && winddp.size() > 0)
-                    mergeWindDataToInternalDataList(winddp);
+                    mergeDataToInternalDataList(dataPointsWind, winddp);
             }
             catch (Exception e) {
                 e.printStackTrace();
@@ -775,7 +638,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
         for (File fx : fileList) {
             HashMap<String, WavesDataPoint> wavesdp = processWavesFile(fx.getAbsolutePath());
             if (wavesdp != null && wavesdp.size() > 0)
-                mergeWavesDataToInternalDataList(wavesdp);
+                mergeDataToInternalDataList(dataPointsWaves, wavesdp);
         }
     }
 
@@ -787,7 +650,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
         for (File fx : fileList) {
             HashMap<String, ChlorophyllDataPoint> chlorophylldp = processChlorophyllFile(fx.getAbsolutePath());
             if (chlorophylldp != null && chlorophylldp.size() > 0)
-                mergeChlorophyllDataToInternalDataList(chlorophylldp);
+                mergeDataToInternalDataList(dataPointsChlorophyll, chlorophylldp);
         }
     }
 
@@ -879,36 +742,100 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
     public void paintWorker(Graphics2D go, StateRenderer2D renderer) {
         boolean recreateImage = offScreen.paintPhaseStartTestRecreateImageAndRecreate(go, renderer);
         if (recreateImage) {
-            Graphics2D g2 = offScreen.getImageGraphics();
+            if (painterThread != null) {
+                try {
+                    abortIndicator.set(true);
+                    painterThread.interrupt();
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
 
-            Date dateColorLimit = new Date(System.currentTimeMillis() - 3 * DateTimeUtil.HOUR);
-            Date dateLimit = new Date(System.currentTimeMillis() - dateLimitHours * DateTimeUtil.HOUR);
-            
-            if (showCurrents)
-                EnvDataPaintHelper.paintHFRadarInGraphics(renderer, g2, dateColorLimit, dateLimit, dataPointsCurrents,
-                        ignoreDateLimitToLoad, offScreen.getOffScreenBufferPixel(), colorMapCurrents, 0, maxCurrentCmS,
-                        showCurrentsLegend, showCurrentsLegendFromZoomLevel, font8Pt, showDataDebugLegend);
-            if (showSST)
-                EnvDataPaintHelper.paintSSTInGraphics(renderer, g2, dateColorLimit, dateLimit, dataPointsSST, ignoreDateLimitToLoad,
-                        offScreen.getOffScreenBufferPixel(), colorMapSST, minSST, maxSST, showSSTLegend,
-                        showSSTLegendFromZoomLevel, font8Pt, showDataDebugLegend);
-            if (showChlorophyll)
-                EnvDataPaintHelper.paintChlorophyllInGraphics(renderer, g2, dateColorLimit, dateLimit, dataPointsChlorophyll, ignoreDateLimitToLoad,
-                        offScreen.getOffScreenBufferPixel(), colorMapChlorophyll, minChlorophyll, maxChlorophyll, showChlorophyllLegend,
-                        showChlorophyllLegendFromZoomLevel, font8Pt, showDataDebugLegend);
-            if (showWind)
-                EnvDataPaintHelper.paintWindInGraphics(renderer, g2, dateColorLimit, dateLimit, dataPointsWind, ignoreDateLimitToLoad,
-                        offScreen.getOffScreenBufferPixel(), useColorMapForWind, colorMapWind, 0, maxWind, font8Pt,
-                        showDataDebugLegend);
-            if (showWaves)
-                EnvDataPaintHelper.paintWavesInGraphics(renderer, g2, dateColorLimit, dateLimit, dataPointsWaves, ignoreDateLimitToLoad,
-                        offScreen.getOffScreenBufferPixel(), colorMapWaves, 0, maxWaves, showWavesLegend,
-                        showWavesLegendFromZoomLevel, font8Pt, showDataDebugLegend);
+            final MapTileRendererCalculator rendererCalculator = new MapTileRendererCalculator(renderer);
+            abortIndicator = new AtomicBoolean();
+            painterThread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Graphics2D g2 = offScreen.getImageGraphics();
 
-            g2.dispose();
-        }            
-        offScreen.paintPhaseEndFinishImageRecreateAndPaintImageCacheToRenderer(go, renderer);
-        
+                        Date dateColorLimit = new Date(System.currentTimeMillis() - 3 * DateTimeUtil.HOUR);
+                        Date dateLimit = new Date(System.currentTimeMillis() - dateLimitHours * DateTimeUtil.HOUR);
+
+                        if (showCurrents) {
+                            try {
+                                EnvDataPaintHelper.paintHFRadarInGraphics(rendererCalculator, g2, 128, dateColorLimit, dateLimit, dataPointsCurrents,
+                                        ignoreDateLimitToLoad, offScreen.getOffScreenBufferPixel(), colorMapCurrents, 0, maxCurrentCmS,
+                                        showCurrentsLegend, showCurrentsLegendFromZoomLevel, font8Pt, showDataDebugLegend, abortIndicator);
+                            }
+                            catch (Exception e) {
+                                e.printStackTrace();
+                                offScreen.triggerImageRebuild();
+                            }
+                        }
+                        if (showSST) {
+                            try {
+                                EnvDataPaintHelper.paintSSTInGraphics(rendererCalculator, g2, 128, dateColorLimit, dateLimit, dataPointsSST, ignoreDateLimitToLoad,
+                                        offScreen.getOffScreenBufferPixel(), colorMapSST, minSST, maxSST, showSSTLegend,
+                                        showSSTLegendFromZoomLevel, font8Pt, showDataDebugLegend, abortIndicator);
+                            }
+                            catch (Exception e) {
+                                e.printStackTrace();
+                                offScreen.triggerImageRebuild();
+                            }
+                        }
+                        if (showChlorophyll) {
+                            try {
+                                EnvDataPaintHelper.paintChlorophyllInGraphics(rendererCalculator, g2, 128, dateColorLimit, dateLimit, dataPointsChlorophyll, ignoreDateLimitToLoad,
+                                        offScreen.getOffScreenBufferPixel(), colorMapChlorophyll, minChlorophyll, maxChlorophyll, showChlorophyllLegend,
+                                        showChlorophyllLegendFromZoomLevel, font8Pt, showDataDebugLegend, abortIndicator);
+                            }
+                            catch (Exception e) {
+                                e.printStackTrace();
+                                offScreen.triggerImageRebuild();
+                            }
+                        }
+                        if (showWind) {
+                            try {
+                                EnvDataPaintHelper.paintWindInGraphics(rendererCalculator, g2, 128, dateColorLimit, dateLimit, dataPointsWind, ignoreDateLimitToLoad,
+                                        offScreen.getOffScreenBufferPixel(), useColorMapForWind, colorMapWind, 0, maxWind, font8Pt,
+                                        showDataDebugLegend, abortIndicator);
+                            }
+                            catch (Exception e) {
+                                e.printStackTrace();
+                                offScreen.triggerImageRebuild();
+                            }
+                        }
+                        if (showWaves) {
+                            try {
+                                EnvDataPaintHelper.paintWavesInGraphics(rendererCalculator, g2, 128, dateColorLimit, dateLimit, dataPointsWaves, ignoreDateLimitToLoad,
+                                        offScreen.getOffScreenBufferPixel(), colorMapWaves, 0, maxWaves, showWavesLegend,
+                                        showWavesLegendFromZoomLevel, font8Pt, showDataDebugLegend, abortIndicator);
+                            }
+                            catch (Exception e) {
+                                e.printStackTrace();
+                                offScreen.triggerImageRebuild();
+                            }
+                        }
+
+                        g2.dispose();
+                    }
+                    catch (Exception e) {
+                        e.printStackTrace();
+                        offScreen.triggerImageRebuild();
+                    }
+                    catch (Error e) {
+                        e.printStackTrace();
+                        offScreen.triggerImageRebuild();
+                    }
+                }
+            }, "EnvironDisp::Painter");
+            painterThread.setDaemon(true);
+            painterThread.start();
+        }
+        offScreen.paintPhaseEndFinishImageRecreateAndPaintImageCacheToRendererNoGraphicDispose(go, renderer);
+
         paintColorbars(go, renderer);
     }
 
@@ -925,7 +852,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
             counter--;
             Graphics2D gl = (Graphics2D) go.create();
             gl.translate(offsetWidth, offsetHeight);
-            ColorBarPainterUtil.paintColorBar(gl, renderer, colorMapCurrents, I18n.text("Currents"), "cm/s", 0, maxCurrentCmS);
+            ColorBarPainterUtil.paintColorBar(gl, colorMapCurrents, I18n.text("Currents"), "cm/s", 0, maxCurrentCmS);
             gl.dispose();
             offsetHeight += offsetDelta;
         }
@@ -933,7 +860,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
             counter--;
             Graphics2D gl = (Graphics2D) go.create();
             gl.translate(offsetWidth, offsetHeight);
-            ColorBarPainterUtil.paintColorBar(gl, renderer, colorMapSST, I18n.text("SST"), "\u00B0C", minSST, maxSST);
+            ColorBarPainterUtil.paintColorBar(gl, colorMapSST, I18n.text("SST"), "\u00B0C", minSST, maxSST);
             gl.dispose();
             offsetHeight += offsetDelta;
         }
@@ -941,7 +868,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
             counter--;
             Graphics2D gl = (Graphics2D) go.create();
             gl.translate(offsetWidth, offsetHeight);
-            ColorBarPainterUtil.paintColorBar(gl, renderer, colorMapWind, I18n.text("Wind"), "kn", 0, maxWind);
+            ColorBarPainterUtil.paintColorBar(gl, colorMapWind, I18n.text("Wind"), "kn", 0, maxWind);
             gl.dispose();
             offsetHeight += offsetDelta;
         }
@@ -949,7 +876,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
             counter--;
             Graphics2D gl = (Graphics2D) go.create();
             gl.translate(offsetWidth, offsetHeight);
-            ColorBarPainterUtil.paintColorBar(gl, renderer, colorMapWaves, I18n.text("Waves"), "m", 0, maxWaves);
+            ColorBarPainterUtil.paintColorBar(gl, colorMapWaves, I18n.text("Waves"), "m", 0, maxWaves);
             gl.dispose();
             offsetHeight += offsetDelta;
         }
@@ -957,7 +884,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
             counter--;
             Graphics2D gl = (Graphics2D) go.create();
             gl.translate(offsetWidth, offsetHeight);
-            ColorBarPainterUtil.paintColorBar(gl, renderer, colorMapChlorophyll, I18n.text("Chlorophyll"), "mg/m\u00B3", minChlorophyll, maxChlorophyll);
+            ColorBarPainterUtil.paintColorBar(gl, colorMapChlorophyll, I18n.text("Chlorophyll"), "mg/m\u00B3", minChlorophyll, maxChlorophyll);
             gl.dispose();
             offsetHeight += offsetDelta;
         }
@@ -1291,7 +1218,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
         // Test update to the most recent
         HFRadarDataPoint dp = ret.values().iterator().next();
         System.out.println("" + dp);
-        Date newDate = new Date(dp.dateUTC.getTime() + DateTimeUtil.HOUR * 3 + DateTimeUtil.MINUTE * 30);
+        Date newDate = new Date(dp.getDateUTC().getTime() + DateTimeUtil.HOUR * 3 + DateTimeUtil.MINUTE * 30);
         System.out.println(newDate);
         dp.useMostRecent(newDate);
         System.out.println("" + dp);

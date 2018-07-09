@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -13,8 +13,8 @@
  * written agreement between you and Universidade do Porto. For licensing
  * terms, conditions, and further information contact lsts@fe.up.pt.
  *
- * European Union Public Licence - EUPL v.1.1 Usage
- * Alternatively, this file may be used under the terms of the EUPL,
+ * Modified European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the Modified EUPL,
  * Version 1.1 only (the "Licence"), appearing in the file LICENSE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
@@ -22,7 +22,8 @@
  * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the Licence for the specific
  * language governing permissions and limitations at
- * http://ec.europa.eu/idabc/eupl.html.
+ * https://github.com/LSTS/neptus/blob/develop/LICENSE.md
+ * and http://ec.europa.eu/idabc/eupl.html.
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
@@ -47,6 +48,7 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXB;
 import javax.xml.bind.annotation.XmlElement;
@@ -138,7 +140,6 @@ public class PolygonType implements Renderer2DPainter {
             vertices.clear();
         }
         recomputePath();
-
     }
 
     /**
@@ -283,7 +284,7 @@ public class PolygonType implements Renderer2DPainter {
 
     public void translate(double offsetNorth, double offsetEast) {
         synchronized (vertices) {
-            vertices.forEach(v -> v.getLocation().translatePosition(offsetNorth, offsetEast, 0));
+            vertices.forEach(v -> v.getLocation().translatePosition(offsetNorth, offsetEast, 0).convertToAbsoluteLatLonDepth());
         }
         recomputePath();
     }
@@ -440,16 +441,17 @@ public class PolygonType implements Renderer2DPainter {
     }
 
     public ArrayList<LocationType> getCoveragePath(double angle, double swathWidth, int corner) {
-        ArrayList<Point2D> points = new ArrayList<>();
+        List<Point2D> points = new ArrayList<>();
         coverage = new GeneralPath();
         synchronized (vertices) {
             if (vertices.isEmpty())
                 return new ArrayList<>();
-            Vertex pivot = vertices.get(0);
-            for (Vertex v : vertices) {
-                double[] offsets = v.getLocation().getOffsetFrom(pivot.getLocation());
-                points.add(new Point2D.Double(offsets[0], offsets[1]));
-            }
+            LocationType pivot = vertices.get(0).getLocation();
+            
+            points = vertices.stream()
+                .map(v -> v.getLocation().getOffsetFrom(pivot))
+                .map(offsets -> new Point2D.Double(offsets[0], offsets[1]))
+                .collect(Collectors.toList());
         }
 
         Point2D[] original = points.toArray(new Point2D[0]);
@@ -461,13 +463,10 @@ public class PolygonType implements Renderer2DPainter {
 
         GeneralPath path = new GeneralPath();
         path.moveTo(0, 0);
-        double xcoords[] = new double[dest.length];
-        double ycoords[] = new double[dest.length];
-        for (int i = 0; i < dest.length; i++) {
-            xcoords[i] = dest[i].getX();
-            ycoords[i] = dest[i].getY();
+        
+        for (int i = 0; i < dest.length; i++)
             path.lineTo(dest[i].getX(), dest[i].getY());
-        }
+        
         path.lineTo(0, 0);
         path.closePath();
         Rectangle2D rect = path.getBounds2D();
@@ -519,6 +518,7 @@ public class PolygonType implements Renderer2DPainter {
     public double getPathLength(double swathWidth, int corner) {
         ArrayList<LocationType> path = getCoveragePath(swathWidth, corner);
         double length = 0;
+        
         for (int i = 1; i < path.size(); i++) {
             length += path.get(i - 1).getHorizontalDistanceInMeters(path.get(i));
         }

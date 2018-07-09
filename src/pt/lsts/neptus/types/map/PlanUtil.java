@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -304,22 +304,60 @@ public class PlanUtil {
                     //e.printStackTrace();
                 }
             }
-            
+
             if (m instanceof LocatedManeuver) {
                 previousPos = ((LocatedManeuver) m).getEndLocation();
             }            
         }
-        
+
         return time;
     }
-    
+
+    public static double getEstimatedDelay(LocationType previousPos, Maneuver m) throws Exception {
+        double time = 0;
+
+        if (previousPos == null)
+            return 0;
+
+
+        if (m instanceof StatisticsProvider) {
+            time = ((StatisticsProvider)m).getCompletionTime(previousPos);
+        }
+        else {
+            try {
+                double speed = (Double) m.getClass().getMethod("getSpeed").invoke(m);
+                SPEED_UNITS units = (Maneuver.SPEED_UNITS) m.getClass().getMethod("getSpeedUnits").invoke(m);
+                switch (units) {
+                    case PERCENTAGE:
+                        speed = SpeedConversion.convertPercentageToMps(speed);
+                        break;
+                    case RPM:
+                        speed = SpeedConversion.convertRpmtoMps(speed);
+                    default:
+                        break;
+                }
+                if (m instanceof LocatedManeuver) {
+                    LocationType start = ((LocatedManeuver) m).getStartLocation();
+                    LocationType end = ((LocatedManeuver) m).getEndLocation();
+                    time += start.getDistanceInMeters(previousPos) / speed;
+                    time += end.getDistanceInMeters(start) / speed;
+                }
+            }
+            catch (Exception e) {
+                //e.printStackTrace();
+            }
+        }
+
+        return time;
+    }
+
     public static String getDelayStr(LocationType previousPos, PlanType plan) throws Exception {
         return DateTimeUtil.milliSecondsToFormatedString((long)(getEstimatedDelay(previousPos, plan) * 1000));
     }
-    
+
     public static String estimatedTime(Vector<LocatedManeuver> mans, double speedRpmRatioSpeed, double speedRpmRatioRpms) {
         double timeSecs = 0;
-        
+
         for (int i = 0; i < mans.size(); i++) {
             LocatedManeuver m = mans.get(i);
             LocationType previousPos = (i > 0)? new LocationType(mans.get(i-1).getManeuverLocation()) : new LocationType(m.getManeuverLocation());
@@ -520,7 +558,7 @@ public class PlanUtil {
             propertiesPanel.setProps();
         }
         
-        // System.out.println(String.format("ORIGINAL PLAN:\n%s\n\nNEW PLAN:\\n%s\n", originalPlan.asXML(), plan.asXML()));
+        NeptusLog.pub().debug(String.format("ORIGINAL PLAN:\n%s\n\nNEW PLAN:\\n%s\n", originalPlan.asXML(), plan.asXML()));
         
         return plan;
     }

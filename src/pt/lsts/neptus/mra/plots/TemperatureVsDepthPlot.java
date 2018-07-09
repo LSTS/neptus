@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -92,15 +92,22 @@ public class TemperatureVsDepthPlot extends XYPlot {
             }
         }
             
-
+        System.out.println("CTD entity: "+ctdId);
+        //CorrectedPosition positions = new CorrectedPosition(source);
+        
         LsfIterator<Temperature> tempIt = source.getIterator(Temperature.class);
         for (Temperature temp : tempIt) {
+            
             if (temp.getSrcEnt() != ctdId)
                 continue;
 
+            
             IMCMessage msg = source.getMessageAt("EstimatedState", temp.getTimestamp());
             if (msg != null) {
-                addValue(temp.getTimestampMillis(), - msg.getDouble("depth"), temp.getValue(), temp.getSourceName(),
+                double val = msg.getDouble("depth");
+                if (Double.isNaN(val))
+                    val = 0;
+                addValue(temp.getTimestampMillis(), - val, temp.getValue(), temp.getSourceName(),
                         "Temperature");
             }
         }

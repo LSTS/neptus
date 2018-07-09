@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -44,10 +44,10 @@ import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.gui.OrientationIcon;
 import pt.lsts.neptus.mystate.MyState;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.position.FindVehicle.BaseOrientations;
 import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.coord.BaseOrientations;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.ColorUtils;
@@ -157,7 +157,7 @@ public class FindMainSystemLayer extends ConsoleLayer {
             absDistanceToLook = baseLocation.getHorizontalDistanceInMeters(lt);
             double angleRads = baseLocation.getXYAngle(lt);
             absHeadingRadsToLook = AngleUtils.nomalizeAngleRads2Pi(angleRads);
-            absHeadingRadsToLookOrientation = FindVehicle.convertToBaseOrientation(absHeadingRadsToLook);
+            absHeadingRadsToLookOrientation = BaseOrientations.convertToBaseOrientationFromRadians(absHeadingRadsToLook);
             icon.setAngleRadians(angleRads - baseOrientationRadians);
         }
 
@@ -179,16 +179,22 @@ public class FindMainSystemLayer extends ConsoleLayer {
         
         Graphics2D g2 = (Graphics2D) g.create();
         
-        String txt = "<html><b>";
+        StringBuilder txt = new StringBuilder("<html><div align='center'><b>");
         if (!validData) {
-            txt += "?";
+            txt.append("?");
         }
         else {
-            txt += absHeadingRadsToLookOrientation.getAbbrev() + "<br/>"
-                    + (Math.round(Math.toDegrees(absHeadingRadsToLook))) + "\u00B0" + "<br/>"
-                    + MathMiscUtils.parseToEngineeringNotation(absDistanceToLook, 0) + "m";
+            txt.append(absHeadingRadsToLookOrientation.getAbbrev()).append("<br/>");
+            txt.append(Math.round(Math.toDegrees(absHeadingRadsToLook))).append("\u00B0<br/>");
+            int dc = 0;
+            if (absDistanceToLook >= 1E3)
+                dc = 2;
+            if (absDistanceToLook >= 100E3)
+                dc = 1;
+            txt.append(MathMiscUtils.parseToEngineeringNotation(absDistanceToLook, dc)).append("m");
         }
-        toDraw.setText(txt);
+        txt.append("</b></div></html>");
+        toDraw.setText(txt.toString());
 
         g2.setColor(COLOR_BLACK_200);
         g2.drawRoundRect(renderer.getWidth() - RECT_WIDTH - (MARGIN_INT + MARGIN_EXT), 300 - RECT_HEIGHT

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -72,12 +72,17 @@ import pt.lsts.neptus.planeditor.IEditorMenuExtension;
 import pt.lsts.neptus.planeditor.IMapPopup;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.NeptusProperty.DistributionEnum;
+import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
+import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.renderer2d.CustomInteractionSupport;
 import pt.lsts.neptus.renderer2d.FeatureFocuser;
 import pt.lsts.neptus.renderer2d.ILayerPainter;
+import pt.lsts.neptus.renderer2d.IMapRendererChangeEvent;
+import pt.lsts.neptus.renderer2d.IMapRendererChangeEvent.RendererChangeEvent;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.renderer2d.StateRendererInteraction;
@@ -95,36 +100,14 @@ import pt.lsts.neptus.util.ImageUtils;
  * @author zp
  * @author Paulo Dias
  */
-@PluginDescription(name = "Map Panel", icon = "images/planning/planning.png", author = "ZP, Paulo Dias", documentation = "planning/planning_panel.html", category = CATEGORY.INTERFACE)
+@SuppressWarnings("serial")
+@PluginDescription(name = "Map Panel", icon = "images/planning/planning.png", author = "ZP, Paulo Dias", category = CATEGORY.INTERFACE)
 public class MapPanel extends ConsolePanel implements MainVehicleChangeListener, MissionChangeListener,
 PlanChangeListener, IPeriodicUpdates, ILayerPainter, ConfigurationListener, IMapPopup,
 CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
 
-    private static final long serialVersionUID = 1L;
-
     private final ImageIcon TAIL_ICON = ImageUtils.getScaledIcon(
             "images/planning/tailOnOff.png", 16, 16);
-
-    @NeptusProperty(name = "Show world map")
-    public boolean worldMapShown = true;
-
-    @NeptusProperty
-    public int updateMillis = 100;
-
-    @NeptusProperty(name = "Save mission states", description = "Save the mission states whenever the mission is changed")
-    public boolean saveMissionStates = false;
-
-    @NeptusProperty(name = "Smooth image resizing")
-    public boolean smoothResize = false;
-
-    @NeptusProperty(name = "Antialiasing")
-    public boolean antialias = true;
-
-    @NeptusProperty(name = "Interpolate States")
-    public boolean interpolate = false;
-
-    @NeptusProperty(name = "Fixed Vehicle Size", description = "Vehicle icon size (0 for real size)")
-    public int fixedSize = 0;
 
     public enum PlacementEnum {
         Left,
@@ -133,10 +116,40 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
         Bottom
     }
 
-    @NeptusProperty(name = "Toolbar placement", description = "Where to place the toolbar")
+    @NeptusProperty(name = "Show world map", userLevel = LEVEL.ADVANCED)
+    public boolean worldMapShown = true;
+    
+    @NeptusProperty(name = "World Map Transparency", userLevel = LEVEL.ADVANCED)
+    public boolean useWorldMapTransparency = true;
+    
+    @NeptusProperty(userLevel = LEVEL.ADVANCED)
+    public int updateMillis = 100;
+
+    @NeptusProperty(name = "Smooth image resizing", userLevel = LEVEL.ADVANCED)
+    public boolean smoothResize = false;
+
+    @NeptusProperty(name = "Antialiasing", userLevel = LEVEL.ADVANCED)
+    public boolean antialias = true;
+
+    @NeptusProperty(name = "Fixed Vehicle Size", userLevel = LEVEL.ADVANCED, description = "Vehicle icon size (0 for real size)")
+    public int fixedSize = 0;
+
+    @NeptusProperty(name = "Show Vehicles' Tail Button", userLevel = LEVEL.ADVANCED)
+    public boolean showTailButton = true;
+
+    @NeptusProperty(name = "Toolbar placement", userLevel = LEVEL.ADVANCED, description = "Where to place the toolbar")
     public PlacementEnum toolbarPlacement = PlacementEnum.Left;
 
+    @NeptusProperty(name = "Focus Use My Location", category = "Feature Focuser", userLevel = LEVEL.ADVANCED, distribution = DistributionEnum.DEVELOPER)
+    protected boolean focusUseMyLocation = true;
+    @NeptusProperty(name = "Focus Use Vehicles and Systems", category = "Feature Focuser", userLevel = LEVEL.ADVANCED, distribution = DistributionEnum.DEVELOPER)
+    protected boolean focusUseVehiclesAndSystems = true;
+
+    @NeptusProperty(name = "Syncronize All Maps Movements", userLevel = LEVEL.REGULAR)
+    public boolean isSyncronizeAllMapsMovements = true;
+
     protected StateRenderer2D renderer = new StateRenderer2D();
+    protected FeatureFocuser featureFocuser = null; 
     protected String planId = null;
     protected boolean editing = false;
     protected ToolbarSwitch tailSwitch, dummySwitch;
@@ -162,17 +175,19 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
         super(console);
         removeAll();
         setLayout(new BorderLayout());
-        setBorder(BorderFactory.createEmptyBorder()); //        editor.setEditable(false);
+        setBorder(BorderFactory.createEmptyBorder()); // editor.setEditable(false);
 
         renderer.setMinDelay(0);
         renderer.setShowWorldMapOnScreenControls(false);
         add(renderer, BorderLayout.CENTER);
+        
         bottom.setFloatable(false);
         bottom.setAlignmentX(JToolBar.CENTER_ALIGNMENT);
-        renderer.addMenuExtension(new FeatureFocuser(console));
+        
+        featureFocuser = new FeatureFocuser(console, focusUseMyLocation, focusUseVehiclesAndSystems);
+        renderer.addMenuExtension(featureFocuser);
+        
         AbstractAction tmp = new AbstractAction("dummy", null) {
-            private static final long serialVersionUID = 1L;
-
             @Override
             public void actionPerformed(ActionEvent e) {
             }
@@ -225,7 +240,6 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
         bottom.add(status);
 
         setToolbarPlacement();
-
     }
     
     public void focusLocation(LocationType loc) {
@@ -247,6 +261,17 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
         for (ConsoleSystem v : getConsole().getSystems().values()) {
             v.addRenderFeed(this);
         }
+        
+        tailSwitch.setVisible(showTailButton);
+        
+        renderer.addRendererChangeEvent(new IMapRendererChangeEvent() {
+            @Override
+            public void mapRendererChangeEvent(RendererChangeEvent event) {
+                getConsole().post(event);
+            }
+        });
+        
+        renderer.getWorldMapPainter().setUseTransparency(useWorldMapTransparency);
     }
 
     @Override
@@ -255,6 +280,11 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
         getConsole().removeRenderAll(this);
     }
 
+    @Subscribe
+    public void on(RendererChangeEvent event) {
+        renderer.newRendererChangeEvent(event);
+    }
+    
     private void setToolbarPlacement() {
         // Orient and position the tab based on placement property (toolbarPlacement)
         String position = BorderLayout.SOUTH;
@@ -281,7 +311,6 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
 
     @Subscribe
     public void consume(PlanControlState message) {
-
         if(getConsole().getMainSystem() != null)
             if (!message.getSourceName().equals(getConsole().getMainSystem()))
                 return;
@@ -341,7 +370,8 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
     }
 
     @Override
-    public boolean update() {
+    @Periodic(millisBetweenUpdates=500)
+    public synchronized boolean update() {
         try {
             for (VehicleType vt : vehicles.keySet()) {
                 renderer.vehicleStateChanged(vt.getId(), vehicles.get(vt), false);
@@ -353,8 +383,8 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
         }
         return true;
     }
-
-
+    
+    
     public void setMission(MissionType mission) {
         if (mission == null)
             return;
@@ -389,15 +419,20 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
         renderer.setAntialiasing(antialias);
         renderer.setFixedVehicleWidth(fixedSize);
         renderer.setWorldMapShown(worldMapShown);
+        renderer.setRespondToRendererChangeEvents(isSyncronizeAllMapsMovements);
+        renderer.getWorldMapPainter().setUseTransparency(useWorldMapTransparency);
         setToolbarPlacement(); // Refresh toolbar position
+        
+        tailSwitch.setVisible(showTailButton);
+        
+        featureFocuser.setUseMyLocation(focusUseMyLocation);
+        featureFocuser.setUseVehiclesAndSystems(focusUseVehiclesAndSystems);
     }
 
     public void addLayer(final IConsoleLayer layer) {
         final String name = layer.getName();
         AbstractAction custom = new AbstractAction(layer.getName(), ImageUtils.getScaledIcon(
                 layer.getIcon(), 16, 16)) {
-            private static final long serialVersionUID = 1L;
-
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (((ToolbarSwitch) e.getSource()).isSelected()) {
@@ -434,7 +469,6 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
 
     @Override
     public void addInteraction(StateRendererInteraction interaction) {
-
         try {
             final String name = interaction.getName();
             if (!interactionModes.containsKey(name))
@@ -444,8 +478,6 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
 
             AbstractAction custom = new AbstractAction(interaction.getName(), ImageUtils.getScaledIcon(
                     interaction.getIconImage(), 16, 16)) {
-                private static final long serialVersionUID = 1L;
-
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     StateRendererInteraction ri = interactionModes.get(name);
@@ -551,10 +583,8 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
         renderer.removePreRenderPainter(painter);
     }
 
-
     @Override
     public boolean addPostRenderPainter(Renderer2DPainter painter, String name) {
-        // NeptusLog.pub().info("<###>Adding a post render painter: "+name);
         return renderer.addPostRenderPainter(painter, name);
     }
 

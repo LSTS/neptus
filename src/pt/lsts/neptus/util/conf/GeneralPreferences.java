@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -230,9 +230,17 @@ public class GeneralPreferences implements PropertiesProvider {
     // -------------------------------------------------------------------------
 
     @NeptusProperty(name = "Place Main Vehicle Combobox On Menu Or Status Bar", category="Console", userLevel = LEVEL.REGULAR,
-       description = "Place the console vehicle combobox on the menu bar or status bar (overcomes Utity hidding menus).")
+            description = "Place the console vehicle combobox on the menu bar or status bar (overcomes Unity hidding menus).")
     public static boolean placeMainVehicleComboOnMenuOrStatusBar = true;
-        
+
+    @NeptusProperty(name = "Use Main Vehicle Combo on Consoles", category="Console", userLevel = LEVEL.ADVANCED,
+            description = "Needs console retarts.")
+    public static boolean useMainVehicleComboOnConsoles = true;
+
+    @NeptusProperty(name = "Place Notification Button on Console Status Bar", category="Console", userLevel = LEVEL.ADVANCED,
+            description = "Needs console retarts.")
+    public static boolean placeNotificationButtonOnConsoleStatusBar = true;
+
     // -------------------------------------------------------------------------
 
     @NeptusProperty(name = "AIS MMSI Query Prefix", category = "AIS MMSI Query", userLevel = LEVEL.ADVANCED)
@@ -245,6 +253,12 @@ public class GeneralPreferences implements PropertiesProvider {
 
     @NeptusProperty(name = "Lat/Lon Preferable Display Format", category = "Location", userLevel = LEVEL.REGULAR)
     public static LatLonFormatEnum latLonPrefFormat = LatLonFormatEnum.DM;
+
+    // -------------------------------------------------------------------------
+
+    @NeptusProperty(name = "Show Local Time on Console", category = "Interface", userLevel = LEVEL.REGULAR, 
+            description = "Select this if you want also to show local time on console status bar.")
+    public static boolean localTimeOnConsoleOn = false;
 
     // -------------------------------------------------------------------------
     // Constructor and initialize

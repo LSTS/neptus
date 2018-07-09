@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -84,15 +84,13 @@ public class Elevator extends Maneuver implements LocatedManeuver, ManeuverWithS
     @NeptusProperty(name="Start from current position", description="Start from current position or use the location field")
     public boolean startFromCurrentPosition = false;
     
-    @NeptusProperty(name="Start Z (m)")
+    @NeptusProperty(name="Start Z", units = "m")
     public float startZ = 0;
     
     @NeptusProperty(name="Start Z Units")
     public ManeuverLocation.Z_UNITS startZUnits = ManeuverLocation.Z_UNITS.NONE;
 
-//    protected ManeuverLocation.Z_UNITS startZUnits = pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS.NONE;
-    
-    @NeptusProperty(name="Radius (m)")
+    @NeptusProperty(name="Radius", units = "m")
     public float radius = 5;
 
     double speedTolerance = 5, radiusTolerance = 2;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -69,6 +69,7 @@ public class IridiumManager {
     private RockBlockIridiumMessenger rockBlockMessenger;
     private HubIridiumMessenger hubMessenger;
     private SimulatedMessenger simMessenger;
+    private RipplesIridiumMessenger ripplesMessenger;
     private ScheduledExecutorService service = null;
     //private IridiumMessenger currentMessenger;
     
@@ -79,7 +80,8 @@ public class IridiumManager {
         DuneIridiumMessenger,
         RockBlockIridiumMessenger,
         HubIridiumMessenger,
-        SimulatedMessenger
+        SimulatedMessenger,
+        HerokuMessenger
     }
     
     private IridiumManager() {
@@ -87,6 +89,7 @@ public class IridiumManager {
         rockBlockMessenger = new RockBlockIridiumMessenger();
         hubMessenger = new HubIridiumMessenger();
         simMessenger = new SimulatedMessenger();
+        ripplesMessenger = new RipplesIridiumMessenger();
     }
     
     public IridiumMessenger getCurrentMessenger() {
@@ -97,6 +100,8 @@ public class IridiumManager {
                 return hubMessenger;
             case RockBlockIridiumMessenger:
                 return rockBlockMessenger;
+            case HerokuMessenger:
+                return ripplesMessenger;
             default:
                 return simMessenger;
         }
@@ -133,23 +138,22 @@ public class IridiumManager {
     
     public void processMessage(IridiumMessage msg) {
         
-        //if (msg.getSource() != ImcMsgManager.getManager().getLocalId().intValue()) {
-            try {
-                IridiumMsgTx transmission = new IridiumMsgTx();
-                transmission.setData(msg.serialize());
-                transmission.setSrc(msg.getSource());
-                transmission.setDst(msg.getDestination());
-                transmission.setTimestamp(msg.timestampMillis/1000.0);
-                ImcMsgManager.getManager().postInternalMessage("IridiumManager", transmission);
-            }
-            catch (Exception e) {
-                NeptusLog.pub().error(e);
-            }
-        //}
+        try {
+            IridiumMsgTx transmission = new IridiumMsgTx();
+            transmission.setData(msg.serialize());
+            transmission.setSrc(msg.getSource());
+            transmission.setDst(msg.getDestination());
+            transmission.setTimestamp(msg.timestampMillis/1000.0);
+            ImcMsgManager.getManager().postInternalMessage("IridiumManager", transmission);
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error(e);
+        }
         
         Collection<IMCMessage> msgs = msg.asImc();
         
         for (IMCMessage m : msgs) {
+            NeptusLog.pub().info("Posting resulting "+m.getAbbrev()+" message to bus.");
             ImcMsgManager.getManager().postInternalMessage("iridium", m);            
         }
     }

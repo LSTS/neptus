@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -361,7 +361,7 @@ public class TCPTransport {
 	        if (e instanceof NoRouteToHostException || e instanceof ConnectException) {
 //	            System.err.print(e.toString() + ": " + address + "  ");
 //	            System.err.flush();
-	            NeptusLog.pub().warn(e.toString() + ": " + address);
+	            NeptusLog.pub().debug(e.toString() + ": " + address);
 	        }
 	        else
 	            NeptusLog.pub().error(e);

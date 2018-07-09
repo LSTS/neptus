@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -39,6 +39,7 @@ import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
 
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.params.editor.custom.CustomSystemPropertyEditor;
 import pt.lsts.neptus.params.renderer.SystemPropertyRenderer;
@@ -346,12 +347,16 @@ public class SystemProperty extends DefaultProperty implements PropertyChangeLis
         if(!(evt.getSource() instanceof SystemProperty))
             return;
 
-        // SystemProperty sp = (SystemProperty) evt.getSource();
-        if (editor != null && editor instanceof PropertyChangeListener) {
-//            NeptusLog.pub().info("<###>-------------- 1");
-            ((PropertyChangeListener) editor).propertyChange(evt);
-            editor.setValue(getValue());
-            setValue(editor.getValue());
+        try {
+            if (editor != null && editor instanceof PropertyChangeListener) {
+                ((PropertyChangeListener) editor).propertyChange(evt);
+                editor.setValue(getValue());
+                setValue(editor.getValue());
+            }
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error(e.getMessage() + " :: valType='" + getValueType() + "' :: val='" + getValue()
+                    + "' :: defaultVal='" + defaultValue + "'", e);
         }
     }
 }

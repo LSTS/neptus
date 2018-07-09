@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -67,10 +67,10 @@ public class UnitsUtil {
     public static final double CELSIUS_TO_KELVIN = 274.15;
     
     // Speed
-    /** Conversion factor: m/s to knot. */
-    public static final double MS_TO_KNOT = 1.9438444924574;
+    /** Conversion factor: m/s to knot. http://www.bipm.org/en/publications/si-brochure/table8.html */
+    public static final double MS_TO_KNOT = 3.6 / 1.852; // 1.9438444924406047516198704103672
     /** Conversion factor: m/s to km/h. */
-    public static final double MS_TO_KMH = 3.5999712002;
+    public static final double MS_TO_KMH = 3.6;
     /** Conversion factor: m/s to miles/h. */
     public static final double MS_TO_MPH = 2.2369362921;
     

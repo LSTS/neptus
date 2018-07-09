@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -87,6 +87,13 @@ public @interface NeptusProperty {
 	 * @return The description of the field. If not set, the <b>name</b> parameter will be used.
 	 */
     String description() default "";
+    
+    /**
+     * The units will provide further information on the units (if any) for this field. 
+     * It will be used with {@link #description()} to show to the operator.
+     * @return The units of the field. It is optional.
+     */
+    String units() default "";
     
     /**
      * You can use categories to group various properties that are somehow related

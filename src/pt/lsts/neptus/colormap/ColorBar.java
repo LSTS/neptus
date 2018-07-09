@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -52,7 +52,8 @@ public class ColorBar extends JPanel{
 	int orientation = HORIZONTAL_ORIENTATION;
 	ColorMap cmap = ColorMapFactory.createGrayScaleColorMap();
 	BufferedImage cachedImage = new BufferedImage(1,1,BufferedImage.TYPE_INT_ARGB);
-	//boolean cached = false;
+	boolean colorMapChanged = false;
+
 	
 	public ColorBar() {
 		this.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
@@ -70,8 +71,11 @@ public class ColorBar extends JPanel{
 	}
 	
 	public void paint(Graphics g) {
-		
-		if (getWidth() != cachedImage.getWidth() || getHeight() != cachedImage.getHeight()) {
+		boolean cacheInvalidated = colorMapChanged ||
+				getWidth() != cachedImage.getWidth() ||
+				getHeight() != cachedImage.getHeight();
+
+		if (cacheInvalidated) {
 			cachedImage = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
 			
 			Graphics2D g2d = (Graphics2D) cachedImage.getGraphics(); 
@@ -91,6 +95,7 @@ public class ColorBar extends JPanel{
 					g2d.drawLine(0, cachedImage.getHeight()-i, cachedImage.getWidth(), cachedImage.getHeight()-i);
 				}
 			}
+			colorMapChanged = false;
 		}
 		g.drawImage(cachedImage, 0, 0, null);
 	}
@@ -101,6 +106,7 @@ public class ColorBar extends JPanel{
 
 	public void setCmap(ColorMap cmap) {
 		this.cmap = cmap;
+		colorMapChanged = true;
 	}
 	
 	public static void main(String args[]) {

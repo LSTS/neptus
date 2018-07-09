@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -49,27 +49,39 @@ import pt.lsts.imc.Announce;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
+import pt.lsts.neptus.comm.SystemUtils;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.update.Periodic;
+import pt.lsts.neptus.systems.external.ExternalSystem;
+import pt.lsts.neptus.systems.external.ExternalSystemsHolder;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.AngleUtils;
+import pt.lsts.neptus.util.UnitsUtil;
 
 /**
  * @author zp
- *
+ * @author pdias
  */
 @PluginDescription
 public class NMEAPositionSender extends ConsolePanel {
 
     private static final long serialVersionUID = 8057240981558832292L;
 
-    @NeptusProperty
+    @NeptusProperty(userLevel = LEVEL.REGULAR)
     public String hostAddress = "127.0.0.1";
 
-    @NeptusProperty
+    @NeptusProperty(userLevel = LEVEL.REGULAR)
     public int hostPort = 1234;
+
+    @NeptusProperty(userLevel = LEVEL.REGULAR)
+    public boolean publishExternalSystems = false;
+
+    @NeptusProperty(userLevel = LEVEL.ADVANCED)
+    public boolean debug = false;
 
     private LinkedHashMap<String, AISPosition> positions = new LinkedHashMap<>();
 
@@ -87,7 +99,9 @@ public class NMEAPositionSender extends ConsolePanel {
 
             pos.latitude = Math.toDegrees(announce.getLat());
             pos.longitude = Math.toDegrees(announce.getLon());
-        }        
+            
+            pos.timeMillis = announce.getTimestampMillis();
+        }
     }
 
     @Subscribe
@@ -103,9 +117,18 @@ public class NMEAPositionSender extends ConsolePanel {
             pos.latitude = loc.getLatitudeDegs();
             pos.longitude = loc.getLongitudeDegs();
             pos.heading = Math.toDegrees(state.getPsi());
-            pos.speed_knots = state.getU() * 1.94384449244;
+            
+            double vx = state.getVx();
+            double vy = state.getVy();
+            // double vz = state.getVz();
+            double courseRad = AngleUtils.calcAngle(0, 0, vy, vx);
+            double groundSpeedMS = Math.sqrt(vx * vx + vy * vy);
+            
+            pos.speed_knots = groundSpeedMS * UnitsUtil.MS_TO_KNOT;
             pos.turnRate = Math.toDegrees(state.getR());
-            pos.cog = pos.heading;
+            pos.cog = AngleUtils.nomalizeAngleDegrees360(Math.toDegrees(courseRad));
+            
+            pos.timeMillis = state.getTimestampMillis();
         }
     }
 
@@ -131,6 +154,83 @@ public class NMEAPositionSender extends ConsolePanel {
         }
     }
 
+    @Periodic(millisBetweenUpdates=1000)
+    public void sendExternalPositions() {
+        if (!publishExternalSystems)
+            return;
+        
+        ExternalSystem[] allExtSystems = ExternalSystemsHolder.lookupAllSystems();
+        for (ExternalSystem externalSystem : allExtSystems) {
+            try {
+                AISPosition pos = new AISPosition();
+                pos.name = externalSystem.getName();
+                try {
+                    int mmsi = (int) externalSystem.retrieveData(SystemUtils.MMSI_KEY);
+                    pos.mmsi = mmsi;
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().warn(e);;
+                    pos.mmsi = pos.name.hashCode();
+                }
+
+                LocationType loc = externalSystem.getLocation().getNewAbsoluteLatLonDepth();
+                pos.latitude = loc.getLatitudeDegs();
+                pos.longitude = loc.getLongitudeDegs();
+
+                pos.timeMillis = externalSystem.getLocationTimeMillis();
+                
+                pos.heading = externalSystem.getYawDegrees();
+
+                double groundSpeedMS = 0;
+                try {
+                    groundSpeedMS = (double) externalSystem.retrieveData(SystemUtils.GROUND_SPEED_KEY);
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().warn(e);;
+                }
+                pos.speed_knots = groundSpeedMS * UnitsUtil.MS_TO_KNOT;
+                        
+                double courseDeg = pos.heading;
+                try {
+                    courseDeg = (double) externalSystem.retrieveData(SystemUtils.COURSE_DEGS_KEY);
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().warn(e);;
+                }
+                
+                // pos.turnRate = Math.toDegrees(state.getR());
+                pos.cog = AngleUtils.nomalizeAngleDegrees360(courseDeg);
+
+                try {
+                    DatagramSocket socket = new DatagramSocket();
+                    String[] aisStrings = convert(pos);
+                    for (String s : aisStrings) {
+                        try {
+                            byte[] buff = s.toString().getBytes(Charset.forName("ASCII"));
+                            DatagramPacket packet = new DatagramPacket(buff, buff.length,
+                                    new InetSocketAddress(hostAddress, hostPort));
+                            socket.send(packet);
+                            if (debug)
+                                NeptusLog.pub().warn(String.format("Sent external system AIS: %s", s));
+                            socket.close();
+                        }
+                        catch (Exception e) {
+                            if (debug)
+                                NeptusLog.pub().warn(String.format("Error sending external system AIS: %s", s));
+                            NeptusLog.pub().error(e);
+                        }    
+                    }
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().error(e);
+                }
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     private String[] convert(AISPosition position) throws Exception {
         AisMessage1 msg1 = new AisMessage1();
         msg1.setRepeat(0);
@@ -143,7 +243,12 @@ public class NMEAPositionSender extends ConsolePanel {
         msg1.setPos(pos);
         msg1.setCog((int)position.cog);
         msg1.setTrueHeading((int)position.heading);
-        msg1.setUtcSec((int)(System.currentTimeMillis()/1000));
+        
+        if (position.timeMillis < 0)
+            msg1.setUtcSec((int) (System.currentTimeMillis() / 1000));
+        else
+            msg1.setUtcSec((int) (position.timeMillis / 1000));
+        
         msg1.setSpecialManIndicator(0);
         msg1.setSpare(0);
         msg1.setRaim(0);
@@ -173,7 +278,7 @@ public class NMEAPositionSender extends ConsolePanel {
     class AISPosition {
         String name;
         double latitude, longitude, speed_knots, heading, cog, turnRate;
-        long mmsi;        
+        long mmsi;
+        long timeMillis = -1;
     }
-
 }
