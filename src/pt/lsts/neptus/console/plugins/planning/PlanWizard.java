@@ -69,6 +69,7 @@ import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.coord.PolygonType;
 import pt.lsts.neptus.types.map.AbstractElement;
 import pt.lsts.neptus.types.map.AbstractElement.ELEMENT_TYPE;
+import pt.lsts.neptus.types.map.PlanUtil;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.GuiUtils;
@@ -290,6 +291,7 @@ public class PlanWizard extends ConsolePanel implements MissionChangeListener {
                 ManeuverLocation mloc = createLoc(lastLoc);
                 man.setManeuverLocation(mloc);
                 man.setDuration(options.getSelection().popupDuration);
+                man.setWaitAtSurface(options.getSelection().popupWaitAtSurface);
                 generated.getGraph().addManeuverAtEnd(man);
                 lastPopup = curTime + options.getSelection().popupDuration * 1_000;
                 targetEta += options.getSelection().popupDuration * 1_000;
@@ -335,6 +337,8 @@ public class PlanWizard extends ConsolePanel implements MissionChangeListener {
         generated.getGraph().addManeuverAtEnd(man);
         man.getManeuverLocation().setAbsoluteDepth(0);
         
+        PlanUtil.setPlanSpeed(generated, options.getSelection().speedMps);
+        
         generated.setId(options.getSelection().planId);
         getConsole().getMission().addPlan(generated);
         getConsole().getMission().save(true);
@@ -343,26 +347,28 @@ public class PlanWizard extends ConsolePanel implements MissionChangeListener {
 
     public static class MultiVehicleSurveyOptions {
         @NeptusProperty(name="Swath Width", description="Cross-track region covered by each vehicle")
-        public double swathWidth = 25;
+        public double swathWidth = 180;
         
         @NeptusProperty(name="Depth", description= "Depth at which to travel (negative for altitude)")
-        public double depth = 1;
+        public double depth = 4;
         
         @NeptusProperty(name="Speed (m/s)", description="Speed to use while travelling")
-        public double speedMps = 1.0;
+        public double speedMps = 1.2;
         
         @NeptusProperty(name="Minutes till first point", description="Amount of minutes to travel to the first waypoint")
         public int startInMins = 1;
         
         @NeptusProperty(name="Create timed plan", description="Opt to generate desired ETA for each waypoint")
-        public boolean timedPlan = true;
+        public boolean timedPlan = false;
         
         @NeptusProperty(name="Popup periodicity in minutes", description="Do not stay underwater more than this time (minutes)")
         public int popupMins = 30;
         
         @NeptusProperty(name="Popup duration in seconds", description="How long to stay at surface when the vehicle pops up")
-        public int popupDuration = 30;
+        public int popupDuration = 45;
         
+        @NeptusProperty(name="Popup Wait at surface", description="If set, the vehicle will wait <duration> seconds before diving, otherwise will dive after GPS fix.")
+        public boolean popupWaitAtSurface = true;
                 
         @NeptusProperty(name="Generated plan id", description="Name of the generated plan")
         public String planId = "plan_wiz";
