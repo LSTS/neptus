@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -15,7 +15,7 @@
  *
  * Modified European Union Public Licence - EUPL v.1.1 Usage
  * Alternatively, this file may be used under the terms of the Modified EUPL,
- * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
+ * Version 1.1 only (the "Licence"), appearing in the file LICENSE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
  * law or agreed to in writing, software distributed under the Licence is
@@ -27,26 +27,23 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: José Pinto
- * Oct 11, 2011
+ * Author: zp
+ * Oct 5, 2017
  */
-package pt.lsts.neptus.mp.preview;
+package pt.lsts.neptus.console.plugins.planning;
 
-import pt.lsts.neptus.mp.Maneuver;
-import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.types.coord.LocationType;
 
 /**
  * @author zp
  *
  */
-public interface IManeuverPreview<T extends Maneuver> {
+public class SimulationState {
 
-    public boolean init(String vehicleId, T man, SystemPositionAndAttitude state, Object maneuverState);
-    public SystemPositionAndAttitude step(SystemPositionAndAttitude state, double timestep, double totalTime);
-    public default void reset(SystemPositionAndAttitude state) {};
-    public boolean isFinished();
-    /**
-     * @return A clone or new instance of the man. state (important).
-     */
-    public Object getState();
+    @NeptusProperty
+    public String planId = "";
+    
+    @NeptusProperty
+    public LocationType location = new LocationType();
 }

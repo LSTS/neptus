@@ -64,11 +64,15 @@ import pt.lsts.neptus.mp.preview.PlanSimulationOverlay;
 import pt.lsts.neptus.mp.preview.PlanSimulator;
 import pt.lsts.neptus.mp.preview.SimulatedFutureState;
 import pt.lsts.neptus.plugins.ConfigurationListener;
+import pt.lsts.neptus.plugins.NeptusMenuItem;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
@@ -243,6 +247,37 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
     public void cleanSubPanel() {
         stopSimulator();
     }
+    
+    @NeptusMenuItem("Tools>Simulation>Set Simulator State")
+    public void forceSimulation() {
+        SimulationState state = new SimulationState();
+        state.location = LocationType.clipboardLocation();
+        if (state.location == null)
+            state.location = new LocationType(MapGroup.getMapGroupInstance(getConsole().getMission()).getCoordinateSystem());
+        
+        if (getConsole().getPlan() != null)
+            state.planId = getConsole().getPlan().getId();
+        
+        PluginUtils.editPluginProperties(state, getConsole(), true);
+        
+        PlanSimulator sim = setSimulationState(getConsole().getMainSystem(), state.planId, null);
+        
+        if (sim != null) {
+            EstimatedState current = sim.getState().toEstimatedState();
+            state.location.convertToAbsoluteLatLonDepth();
+            current.setLat(state.location.getLatitudeRads());
+            current.setLon(state.location.getLongitudeRads());            
+            System.out.println(current.asJSON());
+            sim.setPositionEstimation(current, 0);    
+        }        
+    }
+    
+    @NeptusMenuItem("Tools>Simulation>Stop Simulator")
+    public void stopSimulation() {
+        if (simulators.containsKey(getConsole().getMainSystem()))
+            simulators.get(getConsole().getMainSystem()).stopSimulation();                
+    }
+
 
     public PlanSimulator setSimulationState(String vehicleId, String planId, String maneuverId) {
         boolean main = vehicleId == getConsole().getMainSystem();

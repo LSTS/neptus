@@ -143,12 +143,10 @@ public class PlanSimulator {
         loc.setLongitudeRads(state.getLon());
         loc.setDepth(state.getDepth());
         loc.translatePosition(state.getX(), state.getY(), state.getZ());
-
         SystemPositionAndAttitude s = new SystemPositionAndAttitude(getState());
         s.setPosition(loc);
-
         Pair<Integer, SimulationState> nearest = simulatedPath.nearestState(s, distanceThreshold);
-
+        
         if (nearest != null) {
             engine.setSimulationState(state, nearest.second());
             simTime = nearest.first();
