@@ -942,8 +942,6 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
             system = new ConsoleSystem(systemName, this, imcSystem, imcMsgManager);
             consoleSystems.put(systemName, system);
             
-            consoleSystems.keySet().stream().forEach(s -> System.out.println(">>  " + s));
-            
             post(Notification.info("Console",
                     "New main system added to console: " + systemName).requireHumanAction(false));
             String msgTxt = "New main system added to console: '" + systemName + "'";
