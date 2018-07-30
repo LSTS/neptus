@@ -493,6 +493,9 @@ public class ColorMapFactory {
                     e.printStackTrace();
                 }
 
+                if (!cmJarColormaps.isEmpty())
+                    NeptusLog.pub().info("Loaded "+cmJarColormaps.size()+" colormaps from "+jar);
+                
                 // Load external colormaps
                 List<InterpolationColorMap> cmFolderColormaps = new ArrayList<>();
                 try {
@@ -516,6 +519,9 @@ public class ColorMapFactory {
                     e.printStackTrace();
                 }
 
+                if (!cmFolderColormaps.isEmpty())
+                    NeptusLog.pub().info("Loaded "+cmFolderColormaps.size()+" colormaps from "+ConfigFetch.getConfFolder() + "/colormaps/");
+                
                 loadedColormaps.addAll(cmJarColormaps.stream().sorted((c1, c2) -> c1.getName().compareTo(c2.getName()))
                         .collect(Collectors.toList()));
                 loadedColormaps.addAll(cmFolderColormaps.stream()
@@ -558,7 +564,7 @@ public class ColorMapFactory {
         }
 
         if (cm != null)
-            NeptusLog.pub().info(String.format("Loaded '%s' colormap", name));
+            NeptusLog.pub().debug(String.format("Loaded '%s' colormap", name));
         else
             NeptusLog.pub().warn(String.format("Error loading '%s' colormap", name));
 
