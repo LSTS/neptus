@@ -305,15 +305,13 @@ public class KMLExporter implements MRAExporter {
     }
     
     public String sidescanOverlay(File dir, double resolution, LocationType topLeft, LocationType bottomRight,
-            String fname, long startTime, long endTime, Ducer ducer) {
+            String fname, long startTime, long endTime, Ducer ducer, int sys) {
         SidescanParser ssParser = SidescanParserFactory.build(source);
 
         double totalProg = 100;
         double startProg = 100;
         // FIXME temporary fix
         boolean makeAbs = (ssParser instanceof JsfSidescanParser);
-
-        // System.out.println("makeAbs: "+makeAbs);
 
         if (ssParser == null || ssParser.getSubsystemList().isEmpty())
             return "";
@@ -344,8 +342,6 @@ public class KMLExporter implements MRAExporter {
         long start = Math.max(ssParser.firstPingTimestamp(), startTime);
         long end = Math.min(ssParser.lastPingTimestamp(), endTime);
         
-        
-        int sys = ssParser.getSubsystemList().get(0);
         SidescanParameters params = new SidescanParameters(normalization, timeVariableGain);
         String filename = fname;
 
@@ -491,8 +487,8 @@ public class KMLExporter implements MRAExporter {
     }
     
     public String sidescanOverlay(File dir, double resolution, LocationType topLeft, LocationType bottomRight,
-            Ducer ducer) {
-       return sidescanOverlay(dir, resolution, topLeft, bottomRight, "sidescan", 0, System.currentTimeMillis(), ducer);
+            Ducer ducer, int sys) {
+       return sidescanOverlay(dir, resolution, topLeft, bottomRight, "sidescan", 0, System.currentTimeMillis(), ducer, sys);
     }
 
     public String multibeamLegend(File dir) {
@@ -818,21 +814,28 @@ public class KMLExporter implements MRAExporter {
             if (exportSidescan) {
                 pmonitor.setNote(I18n.text("Generating sidescan overlay"));
                 
+                // if multiple ranges / frequencies were used, several images are created.
+                ArrayList<Integer> subsystems = SidescanParserFactory.build(source).getSubsystemList();
+                int count = 1;
+                
                 if (separateLineSegments) {
                     double lastTime = 0;
-                    int count = 1;
-                    for (Double seg : LogUtils.lineSegments(source)) {
-                        bw.write(sidescanOverlay(out.getParentFile(), 6, topLeft, bottomRight, "sss" + count,
-                                (long) (lastTime * 1000), (long) (seg * 1000), Ducer.both));
-                        lastTime = seg;
-                        count++;
+                    for (int sys : subsystems) {
+                        for (Double seg : LogUtils.lineSegments(source)) {
+                            bw.write(sidescanOverlay(out.getParentFile(), 6, topLeft, bottomRight, "sss" + count,
+                                    (long) (lastTime * 1000), (long) (seg * 1000), Ducer.both, sys));
+                            lastTime = seg;
+                            count++;
+                        }
                     }
                 }
                 else {
-                    bw.write(sidescanOverlay(out.getParentFile(), 6, topLeft, bottomRight, Ducer.both));
-                    if (separateTransducers) {
-                        bw.write(sidescanOverlay(out.getParentFile(), 6, topLeft, bottomRight, Ducer.board));
-                        bw.write(sidescanOverlay(out.getParentFile(), 6, topLeft, bottomRight, Ducer.starboard));
+                    for (int sys : subsystems) {
+                        bw.write(sidescanOverlay(out.getParentFile(), 6, topLeft, bottomRight, Ducer.both, sys));
+                        if (separateTransducers) {
+                            bw.write(sidescanOverlay(out.getParentFile(), 6, topLeft, bottomRight, Ducer.board, sys));
+                            bw.write(sidescanOverlay(out.getParentFile(), 6, topLeft, bottomRight, Ducer.starboard, sys));
+                        }
                     }
                 }
             }
