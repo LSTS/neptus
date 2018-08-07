@@ -1806,9 +1806,9 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         if (msg == null)
             return;
 
-        ImcSystem[] systems = ImcSystemsHolder.lookupActiveSystemCCUs();
+        ImcSystem[] systems = ImcSystemsHolder.lookupSystemCCUs();
         for (ImcSystem s : systems) {
-            NeptusLog.pub().info("<###>sending msg '" + msg.getAbbrev() + "' to '" + s.getName() + "'...");
+            NeptusLog.pub().info("sending msg '" + msg.getAbbrev() + "' to '" + s.getName() + "'...");
             ImcMsgManager.getManager().sendMessage(msg, s.getId(), null);
         }
     }

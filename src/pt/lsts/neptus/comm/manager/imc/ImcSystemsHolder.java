@@ -150,11 +150,7 @@ public class ImcSystemsHolder {
 	public static final ImcSystem[] lookupSystemCCUs () {
 		return lookupSystemByType(VehicleType.SystemTypeEnum.CCU);
 	}
-
-	public static final ImcSystem[] lookupActiveSystemCCUs () {
-		return lookupSystemByType(VehicleType.SystemTypeEnum.CCU, true);
-	}
-
+	
 	/**
 	 * @return
 	 */
