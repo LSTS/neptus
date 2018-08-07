@@ -1571,7 +1571,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
     }
 
     public boolean broadcastToCCUs(IMCMessage message) {
-        ImcSystem[] ccus = ImcSystemsHolder.lookupActiveSystemByType(SystemTypeEnum.CCU);
+        ImcSystem[] ccus = ImcSystemsHolder.lookupSystemCCUs();
 
         for (ImcSystem ccu : ccus)
             sendMessage(message, ccu.getId(), null);

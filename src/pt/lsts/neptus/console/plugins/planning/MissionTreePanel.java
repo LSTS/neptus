@@ -54,7 +54,6 @@ import javax.swing.SwingWorker;
 
 import com.google.common.eventbus.Subscribe;
 
-import info.necsave.msgs.Plan;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.LblBeacon;
 import pt.lsts.imc.LblConfig;
