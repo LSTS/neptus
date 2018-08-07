@@ -738,21 +738,23 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                 
                 plan.setId(planId);
                 plan.setMissionType(getConsole().getMission());
+                
+                plan.load(plan.asXML());
+                
                 getConsole().getMission().addPlan(plan);
-
-                // getConsole().getMission().save(true);
-                SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-                    @Override
-                    protected Void doInBackground() throws Exception {
-                        getConsole().getMission().save(true);
-                        return null;
-                    }
-                };
-                worker.execute();
+                
+ //               // getConsole().getMission().save(true);
+ //               SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+ //                   @Override
+ //                   protected Void doInBackground() throws Exception {
+                getConsole().getMission().save(true);
+ //                       return null;
+ //                   }
+ //               };
+ //               worker.execute();
 
                 boolean consolePlanSet = false;
                 PlanType tmpPlan = plan;
-
                 setPlan(null);
                 manager.discardAllEdits();
                 updateUndoRedo();

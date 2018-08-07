@@ -510,20 +510,8 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, NameId {
      * @return
      */
     public PlanType clonePlan() {
-
         PlanType plan = new PlanType(this.missionType);
-        plan.setId(getId());
-        Vector<VehicleType> vehicles = new Vector<VehicleType>();
-        vehicles.addAll(getVehicles());
-        plan.setVehicles(vehicles);
-
-        plan.graph = graph.clone();
-        
-        plan.startActions = new PlanActions();
-        plan.startActions.load(startActions.asElement("start-actions"));
-        plan.endActions = new PlanActions();
-        plan.endActions.load(endActions.asElement("end-actions"));
-
+        plan.load(asXML());
         return plan;		
     }
 
