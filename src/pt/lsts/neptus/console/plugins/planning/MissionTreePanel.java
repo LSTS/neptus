@@ -315,17 +315,20 @@ public class MissionTreePanel extends ConsolePanel
             if (!matchingPlans(local, msg)) {
                 int option = JOptionPane.showConfirmDialog(getConsole(),
                         I18n.text("Replace plan '"+plan.getId()+"' with version disseminated by "+msg.getSourceName()+"?"));
-                if (option == JOptionPane.CANCEL_OPTION)
+                if (option != JOptionPane.YES_OPTION)
                     return;
             }
         }
         
         getConsole().getMission().getIndividualPlansList().put(plan.getId(), plan);
-        getConsole().updateMissionListeners();
         getConsole().getMission().save(true);
-        
         getConsole().post(Notification.success(I18n.text("Plan Dissemination"),
                 I18n.textf("Received plan '%plan' from %ccu.", plan.getId(), msg.getSourceName())));
+        
+        if (alreadyLocal && getConsole().getPlan().getId().equals(plan.getId())) {
+            getConsole().setPlan(plan);
+        }
+        
     }
     
     @Subscribe
