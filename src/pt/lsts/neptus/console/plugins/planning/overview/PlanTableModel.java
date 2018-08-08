@@ -266,7 +266,8 @@ public class PlanTableModel extends AbstractTableModel {
                     if (!alreadyAdded(destManeuver))
                         list.add(e);
 
-                    if (!visited.contains(destManeuver)) visited.add(destManeuver);
+                    if (!visited.contains(destManeuver)) 
+                        visited.add(destManeuver);
 
                     it.remove();
 
