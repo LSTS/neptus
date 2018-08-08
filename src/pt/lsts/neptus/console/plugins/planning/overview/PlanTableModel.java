@@ -63,8 +63,8 @@ import pt.lsts.neptus.util.GuiUtils;
 public class PlanTableModel extends AbstractTableModel {
     private static final long serialVersionUID = 1L;
     public static final Color INIT_MANEUVER_COLOR = new Color(0x7BBD87);
-    public static final Color UNREACH_MANEUVER_COLOR = new Color(0x94959C);
-    public static final Color SELECTED_MANEUVER_COLOR = new Color(0x0077CC);
+    public static final Color UNREACH_MANEUVER_COLOR = new Color(0xB7B7BA);
+    public static final Color SELECTED_MANEUVER_COLOR = new Color(0x289CED);
     private PlanType plan;
     private ArrayList<ExtendedManeuver> list = new ArrayList<>();
     public static final int COLUMN_LABEL = 0;
