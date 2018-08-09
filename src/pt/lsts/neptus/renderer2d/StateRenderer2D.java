@@ -113,6 +113,7 @@ import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 import pt.lsts.neptus.util.conf.PreferencesListener;
+import pt.lsts.neptus.util.coord.MapTileRendererCalculator;
 import pt.lsts.neptus.util.coord.MapTileUtil;
 
 /**
@@ -467,34 +468,8 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
      * @return The renderer coordinates for the given location
      */
     public Point2D getScreenPosition(LocationType lt) {
-        // new code using Mercator projection
-        double x = getWidth() / 2.0;
-        double y = getHeight() / 2.0;
-
-        // double[] dxy = center.getDistanceInPixelTo(lt, levelOfDetail);
-        Point2D ltPix = lt.getPointInPixel(levelOfDetail);
-        double[] dxy = { -worldPixelXY.getX() + ltPix.getX(), -worldPixelXY.getY() + ltPix.getY() };
-        x += dxy[0];
-        y += dxy[1];
-
-        Point2D pt = new Point2D.Double(x, y);
-
-        double xc = getWidth() / 2.0;
-        double yc = getHeight() / 2.0;
-
-        if (rotationRads != 0) {
-            double dist = pt.distance(xc, yc);
-            double angle = Math.atan2(y - yc, x - xc);
-            angle -= rotationRads;
-
-            double newX = xc + dist * Math.cos(angle);
-            double newY = yc + dist * Math.sin(angle);
-
-            x = newX;
-            y = newY;
-        }
-        Point2D result = new Point2D.Double(x, y);
-        return result;
+        return MapTileRendererCalculator.getScreenPositionHelper(lt, worldPixelXY, getSize(), levelOfDetail,
+                rotationRads);
     }
 
     /**
@@ -1096,7 +1071,8 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
             }
         }
 
-        activeInteraction.paintInteraction(g2d, this);
+        if (activeInteraction != null)
+            activeInteraction.paintInteraction(g2d, this);
 
         if (isGridShown())
             drawGrid(g2d, getGridSize());
@@ -1346,27 +1322,8 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
      * @return The real world location of the given point (absolute)
      */
     public LocationType getRealWorldLocation(Point2D screenCoordinates) {
-        // distance to the center
-        double tx = screenCoordinates.getX() - getWidth() / 2;
-        double ty = screenCoordinates.getY() - getHeight() / 2;
-
-        if (rotationRads != 0) {
-            double angle = Math.atan2(ty, tx);
-            double dist = Math.sqrt((tx * tx + ty * ty));
-
-            angle += rotationRads;
-            tx = dist * Math.cos(angle);
-            ty = dist * Math.sin(angle);
-        }
-        Point2D centerXY = worldPixelXY;
-
-        double[] latLong = MapTileUtil.xyToDegrees(centerXY.getX() + tx, centerXY.getY() + ty, levelOfDetail);
-
-        LocationType loc = new LocationType();
-        loc.setLatitudeDegs(latLong[0]);
-        loc.setLongitudeDegs(latLong[1]);
-
-        return loc;
+        return MapTileRendererCalculator.getRealWorldLocationHelper(screenCoordinates, worldPixelXY, getSize(),
+                levelOfDetail, rotationRads);
     }
 
     /**
@@ -2189,7 +2146,7 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
         if (!respondToRendererChangeEvents || this == event.getSource())
             return false;
         
-        NeptusLog.pub().warn("Receiving " + event);
+        NeptusLog.pub().debug("Receiving " + event);
         processingRendererChangeEvents = true;
         try {
             setCenter(event.getCenterLoc());

@@ -38,7 +38,6 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
-import java.net.NoRouteToHostException;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
@@ -689,7 +688,7 @@ public class UDPTransport {
                             else
                                 throw new Exception(req.getAddress() + " port is not valid");
                         }
-                        catch (NoRouteToHostException e) {
+                        catch (IOException e) {
                             NeptusLog.pub().debug(e + " :: " + req.getAddress());
                             // e.printStackTrace();
                             informDeliveryListener(req, ResultEnum.Error, e);

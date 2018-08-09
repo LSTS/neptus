@@ -1383,7 +1383,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
             Graphics2D g2 = offScreenImageControlColorBar.getImageGraphics();
             g2 = (Graphics2D) g2.create();
             g2.translate(10 + ox, 50 + oy);
-            ColorBarPainterUtil.paintColorBar(g2, renderer, colorMap, varName, unit, minVal, maxVal);
+            ColorBarPainterUtil.paintColorBar(g2, colorMap, varName, unit, minVal, maxVal);
             g2.dispose();
         }
         offScreenImageControlColorBar.paintPhaseEndFinishImageRecreateAndPaintImageCacheToRenderer(g, renderer);

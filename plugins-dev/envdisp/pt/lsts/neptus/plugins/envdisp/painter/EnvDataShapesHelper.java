@@ -35,6 +35,7 @@ package pt.lsts.neptus.plugins.envdisp.painter;
 import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Path2D;
+import java.awt.geom.Rectangle2D;
 
 /**
  * @author pdias
@@ -55,6 +56,7 @@ class EnvDataShapesHelper {
 
     final static int CIRCLE_RADIUS = 8;
     final static Ellipse2D circle = new Ellipse2D.Double(-CIRCLE_RADIUS / 2., -CIRCLE_RADIUS / 2., CIRCLE_RADIUS, CIRCLE_RADIUS);
+    final static Rectangle2D rectangle = new Rectangle2D.Double(-CIRCLE_RADIUS / 2., -CIRCLE_RADIUS / 2., CIRCLE_RADIUS, CIRCLE_RADIUS);
     
     final static int WIND_BARB_RADIUS = 28;
     final static Path2D.Double windPoleKnots = new Path2D.Double();

@@ -753,21 +753,23 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                 
                 plan.setId(planId);
                 plan.setMissionType(getConsole().getMission());
+                
+                plan.load(plan.asXML());
+                
                 getConsole().getMission().addPlan(plan);
-
-                // getConsole().getMission().save(true);
-                SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-                    @Override
-                    protected Void doInBackground() throws Exception {
-                        getConsole().getMission().save(true);
-                        return null;
-                    }
-                };
-                worker.execute();
+                
+ //               // getConsole().getMission().save(true);
+ //               SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+ //                   @Override
+ //                   protected Void doInBackground() throws Exception {
+                getConsole().getMission().save(true);
+ //                       return null;
+ //                   }
+ //               };
+ //               worker.execute();
 
                 boolean consolePlanSet = false;
                 PlanType tmpPlan = plan;
-
                 setPlan(null);
                 manager.discardAllEdits();
                 updateUndoRedo();
@@ -1377,7 +1379,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                         planSettings.add(pVehicle);
                     }
 
-                    AbstractAction pTrans = new AbstractAction(I18n.text("Reverse plan transitions...")) {
+                    AbstractAction pTrans = new AbstractAction(I18n.text("Reverse plan transitions")) {
                         private static final long serialVersionUID = 1L;
 
                         @Override
@@ -1398,6 +1400,33 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                     pTrans.putValue(AbstractAction.SMALL_ICON,
                             new ImageIcon(ImageUtils.getScaledImage("images/buttons/wizard.png", 16, 16)));
                     planSettings.add(pTrans);
+                    
+                    // Remove all maneuvers with no incoming transitions
+                    AbstractAction pUnreach = new AbstractAction(I18n.text("Remove unreachable maneuvers")) {
+                        private static final long serialVersionUID = 1L;
+
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+
+                            Maneuver toRemove = null;
+                            do {
+                                toRemove = null;
+                                // keep removing one maneuver at a time until no more maneuvers are to be removed
+                                for (Maneuver man : plan.getGraph().getAllManeuvers()) {
+                                    if (plan.getGraph().getIncomingTransitions(man).isEmpty()
+                                            && !man.getId().equals(plan.getGraph().getInitialManeuverId())) {
+                                        toRemove = man;
+                                        break;
+                                    }
+                                }
+                                if (toRemove != null)
+                                    plan.getGraph().removeManeuver(toRemove);
+                            } while (toRemove != null);
+                        }
+                    };
+                    pUnreach.putValue(AbstractAction.SMALL_ICON,
+                            new ImageIcon(ImageUtils.getScaledImage("images/buttons/wizard.png", 16, 16)));
+                    planSettings.add(pUnreach);
 
 
                     planSettings.setIcon(new ImageIcon(ImageUtils.getScaledImage("images/buttons/wizard.png", 16, 16)));

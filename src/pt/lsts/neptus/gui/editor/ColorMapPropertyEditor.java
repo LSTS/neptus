@@ -47,7 +47,7 @@ import pt.lsts.neptus.gui.PropertiesProvider;
 
 public class ColorMapPropertyEditor extends AbstractPropertyEditor {
 
-	private JComboBox<?> combo = new JComboBox<Object>(ColorMap.cmaps);
+	private JComboBox<?> combo = new JComboBox<Object>(ColorMap.cmaps.toArray(new ColorMap[ColorMap.cmaps.size()]));
 	
 	public ColorMapPropertyEditor() {
 		combo.setRenderer(new ColorMapListRenderer());

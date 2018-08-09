@@ -34,6 +34,7 @@ package pt.lsts.neptus.console.plugins.planning;
 
 import java.awt.Image;
 import java.awt.event.ActionEvent;
+import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
@@ -76,6 +77,7 @@ import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
+import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * @author zp
@@ -216,9 +218,33 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
 
                 menu.setIcon(vicon);
 
+                String loiterSettings = "(";
+                String settings = "(";
+                NumberFormat nf = GuiUtils.getNeptusDecimalFormat(1);
+                switch (v.getType().toLowerCase()) {
+                    case "auv":
+                    case "uuv":
+                        loiterSettings += "D="+nf.format(auvLtDepth);
+                        loiterSettings += " / S="+auvSpeed.toStringAsDefaultUnits()+")";
+                        settings += "D="+nf.format(auvDepth);
+                        settings += " / S="+auvSpeed.toStringAsDefaultUnits()+")";                    
+                        break;
+                    case "asv":
+                    case "usv":
+                        settings += " / S="+asvSpeed.toStringAsDefaultUnits()+")";                    
+                        break;
+                    case "uav":
+                        settings += uavZUnits.name().substring(0, 1)+"="+nf.format(uavZ) ;
+                        settings += " S="+uavSpeed.toStringAsDefaultUnits()+")";     
+                        break;
+                    default:
+                        break;
+                }
+                
+                
                 boolean ok = false;
                 if (v.getFeasibleManeuvers().containsValue(Goto.class.getName())) {
-                    menu.add(new AbstractAction(I18n.text("Go here")) {
+                    menu.add(new AbstractAction(I18n.textf("Go here %settings", settings)) {
                         @Override
                         public void actionPerformed(final ActionEvent arg0) {
                             new Thread() {
@@ -226,7 +252,7 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
                                 public void run() {
                                     double z = 0;
                                     ManeuverLocation.Z_UNITS zunits = Z_UNITS.NONE;
-                                    
+
                                     PlanCreator creator = new PlanCreator(getConsole().getMission());
                                     creator.setLocation(target);
                                     if ("auv".equalsIgnoreCase(v.getType()) || "uuv".equalsIgnoreCase(v.getType())) {
@@ -266,7 +292,7 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
                 }
 
                 if (v.getFeasibleManeuvers().containsValue(StationKeeping.class.getName())) {
-                    menu.add(new AbstractAction(I18n.text("Surface here")) {
+                    menu.add(new AbstractAction(I18n.textf("Surface here %settings", settings)) {
                         @Override
                         public void actionPerformed(final ActionEvent arg0) {
                             new Thread() {
@@ -304,7 +330,7 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
                 }
 
                 if (v.getFeasibleManeuvers().containsValue(Loiter.class.getName())) {
-                    menu.add(new AbstractAction(I18n.text("Loiter here")) {
+                    menu.add(new AbstractAction(I18n.textf("Loiter here, %settings", loiterSettings)) {
                         @Override
                         public void actionPerformed(final ActionEvent arg0) {
                             new Thread() {

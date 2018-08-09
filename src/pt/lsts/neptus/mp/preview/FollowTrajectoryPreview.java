@@ -81,11 +81,6 @@ public class FollowTrajectoryPreview implements IManeuverPreview<FollowTrajector
         return finished;
     }
     
-    public void reset(SystemPositionAndAttitude state) {
-        //not supported for this maneuver
-    };
-
-
     @Override
     public SystemPositionAndAttitude step(SystemPositionAndAttitude state, double timestep, double ellapsedTime) {
         

@@ -453,6 +453,13 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
             for (MapPanel p : pp)
                 p.removePostRenderPainter((Renderer2DPainter) this);
         }
+        
+        if (this instanceof StateRendererInteraction) {
+            Vector<CustomInteractionSupport> panels = getConsole().getSubPanelsOfInterface(
+                    CustomInteractionSupport.class);
+            for (CustomInteractionSupport cis : panels)
+                cis.removeInteraction((StateRendererInteraction) this);
+        }
 
         cleanPopup();
         

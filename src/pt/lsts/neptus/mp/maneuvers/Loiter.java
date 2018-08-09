@@ -277,22 +277,22 @@ public class Loiter extends Maneuver implements LocatedManeuver, ManeuverWithSpe
 			}
 			
 			if (p.getName().equals("Radius")) {
-				setRadius((Double)p.getValue());
+				setRadius(Double.valueOf(""+p.getValue()));
 				continue;
 			}
 			
 			if (p.getName().equalsIgnoreCase("Radius Tolerance")) {
-				setRadiusTolerance((Double)p.getValue());
+				setRadiusTolerance(Double.valueOf(""+p.getValue()));
 				continue;
 			}
 			
 			if (p.getName().equals("Length")) {
-				setLength((Double)p.getValue());
+				setLength(Double.valueOf(""+p.getValue()));
 				continue;
 			}
 			
 			if (p.getName().equals("Bearing")) {
-				setBearing((Double)p.getValue());
+				setBearing(Double.valueOf(""+p.getValue()));
 				continue;
 			}			
 		}

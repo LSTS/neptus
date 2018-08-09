@@ -68,9 +68,10 @@ public class ControllerManager {
 
 		// Create new controllerMap
 		for (Controller c : controllers) {
+		    if( null!=c && null!=c.getName() ) // Protect from rare case where a Controller has a null name
 			if(!c.getName().toLowerCase().contains("keyboard") && !c.getName().toLowerCase().contains("mouse"))
 			    if(c.getType() == Controller.Type.GAMEPAD || c.getType() == Controller.Type.STICK)
-			        controllerList.put(c.getName(), c);
+				controllerList.put(c.getName(), c);
 		}
 
 		// Look for changes

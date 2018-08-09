@@ -63,16 +63,15 @@ public abstract class AbstractConsolePlugin implements PropertiesProvider {
     private ImageIcon icon;
     
     @Override
-    public final DefaultProperty[] getProperties() {
+    public DefaultProperty[] getProperties() {
         return PluginUtils.getPluginProperties(this);
     }
 
     @Override
-    public final void setProperties(Property[] properties) {
+    public void setProperties(Property[] properties) {
         PluginUtils.setPluginProperties(this, properties);
         propertiesChanged();
     }
-
 
     @Override
     public final String getPropertiesDialogTitle() {

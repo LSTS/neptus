@@ -597,7 +597,12 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
     }
     
     public String getNickname() {
-        return getId().replaceFirst("lauv-", "").replaceAll("-", "");
+        if (getId().startsWith("lauv-xplore-"))
+            return getId().replaceFirst("lauv-xplore-", "xp");
+        if (getId().startsWith("lauv-noptilus-"))
+            return getId().replaceFirst("lauv-noptilus-", "np");
+        else
+            return getId().replaceFirst("lauv-", "").replaceAll("-", "");
     }
 
     /**

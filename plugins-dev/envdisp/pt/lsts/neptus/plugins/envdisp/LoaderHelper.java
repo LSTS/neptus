@@ -46,12 +46,13 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.plugins.envdisp.datapoints.ChlorophyllDataPoint;
 import pt.lsts.neptus.plugins.envdisp.datapoints.HFRadarDataPoint;
+import pt.lsts.neptus.plugins.envdisp.datapoints.SLADataPoint;
 import pt.lsts.neptus.plugins.envdisp.datapoints.SSTDataPoint;
 import pt.lsts.neptus.plugins.envdisp.datapoints.WavesDataPoint;
 import pt.lsts.neptus.plugins.envdisp.datapoints.WindDataPoint;
-import pt.lsts.neptus.plugins.envdisp.util.NetCDFUnitsUtils;
-import pt.lsts.neptus.plugins.envdisp.util.NetCDFUtils;
 import pt.lsts.neptus.util.AngleUtils;
+import pt.lsts.neptus.util.netcdf.NetCDFUnitsUtils;
+import pt.lsts.neptus.util.netcdf.NetCDFUtils;
 import ucar.ma2.Array;
 import ucar.ma2.Index;
 import ucar.nc2.Attribute;
@@ -125,7 +126,7 @@ public class LoaderHelper {
                     HFRadarDataPoint dpo = hfdp.get(HFRadarDataPoint.getId(dp));
                     if (dpo == null) {
                         dpo = dp.getACopyWithoutHistory();
-                        hfdp.put(HFRadarDataPoint.getId(dp), dp);
+                        hfdp.put(HFRadarDataPoint.getId(dpo), dpo);
                     }
 
                     ArrayList<HFRadarDataPoint> lst = dpo.getHistoricalData();
@@ -292,6 +293,11 @@ public class LoaderHelper {
 
                 if (NetCDFUtils.isValueValid(u, uFillValue, uValidRange)
                         && NetCDFUtils.isValueValid(v, vFillValue, vValidRange)) {
+
+                  Pair<Double, Double> scaleFactorAndAddOffset = NetCDFUtils.findScaleFactorAnfAddOffset(uVar);
+                  u = u * scaleFactorAndAddOffset.first() + scaleFactorAndAddOffset.second();
+                  scaleFactorAndAddOffset = NetCDFUtils.findScaleFactorAnfAddOffset(vVar);
+                  v = v * scaleFactorAndAddOffset.first() + scaleFactorAndAddOffset.second();
                   
                   u = u * NetCDFUnitsUtils.getMultiplierForCmPerSecondsFromSpeedUnits(uUnits);
                   v = v * NetCDFUnitsUtils.getMultiplierForCmPerSecondsFromSpeedUnits(vUnits);
@@ -306,7 +312,7 @@ public class LoaderHelper {
                   HFRadarDataPoint dpo = hfdp.get(HFRadarDataPoint.getId(dp));
                   if (dpo == null) {
                       dpo = dp.getACopyWithoutHistory();
-                      hfdp.put(HFRadarDataPoint.getId(dp), dp);
+                      hfdp.put(HFRadarDataPoint.getId(dpo), dpo);
                   }
 
                   ArrayList<HFRadarDataPoint> lst = dpo.getHistoricalData();
@@ -467,6 +473,10 @@ public class LoaderHelper {
 
                       if (NetCDFUtils.isValueValid(sst, sstFillValue, sstValidRange)) {
                           SSTDataPoint dp = new SSTDataPoint(lat, lon);
+                          
+                          Pair<Double, Double> scaleFactorAndAddOffset = NetCDFUtils.findScaleFactorAnfAddOffset(sstVar);
+                          sst = sst * scaleFactorAndAddOffset.first() + scaleFactorAndAddOffset.second();
+                          
                           sst = NetCDFUnitsUtils.getValueForDegreesCelciusFromTempUnits(sst, sstUnits);
                           dp.setSst(sst);
                           dp.setDateUTC(dateValue);
@@ -474,7 +484,7 @@ public class LoaderHelper {
                           SSTDataPoint dpo = sstdp.get(SSTDataPoint.getId(dp));
                           if (dpo == null) {
                               dpo = dp.getACopyWithoutHistory();
-                              sstdp.put(SSTDataPoint.getId(dp), dp);
+                              sstdp.put(SSTDataPoint.getId(dpo), dpo);
                           }
 
                           ArrayList<SSTDataPoint> lst = dpo.getHistoricalData();
@@ -554,6 +564,11 @@ public class LoaderHelper {
                       if (!Double.isNaN(u) && !Double.isNaN(v)
                               && u != uFillValue && v != vFillValue) {
                           WindDataPoint dp = new WindDataPoint(lat, lon);
+                          Pair<Double, Double> scaleFactorAndAddOffset = NetCDFUtils.findScaleFactorAnfAddOffset(uVar);
+                          u = u * scaleFactorAndAddOffset.first() + scaleFactorAndAddOffset.second();
+                          scaleFactorAndAddOffset = NetCDFUtils.findScaleFactorAnfAddOffset(vVar);
+                          v = v * scaleFactorAndAddOffset.first() + scaleFactorAndAddOffset.second();
+                          
                           u = u * NetCDFUnitsUtils.getMultiplierForCmPerSecondsFromSpeedUnits(uUnits);
                           v = v * NetCDFUnitsUtils.getMultiplierForCmPerSecondsFromSpeedUnits(vUnits);
                           dp.setU(u);
@@ -563,7 +578,7 @@ public class LoaderHelper {
                           WindDataPoint dpo = winddp.get(WindDataPoint.getId(dp));
                           if (dpo == null) {
                               dpo = dp.getACopyWithoutHistory();
-                              winddp.put(HFRadarDataPoint.getId(dp), dp);
+                              winddp.put(HFRadarDataPoint.getId(dpo), dpo);
                           }
 
                           ArrayList<WindDataPoint> lst = dpo.getHistoricalData();
@@ -725,19 +740,30 @@ public class LoaderHelper {
               double pdir = pdirArray.getDouble(index);
 
 
-                if (NetCDFUtils.isValueValid(hs, hsFillValue, hsValidRange)
-                        && NetCDFUtils.isValueValid(tp, tpFillValue, tpValidRange)
-                        && NetCDFUtils.isValueValid(pdir, pdirFillValue, pdirValidRange)) {
-                    WavesDataPoint dp = new WavesDataPoint(lat, lon);
+              if (NetCDFUtils.isValueValid(hs, hsFillValue, hsValidRange)
+                      && NetCDFUtils.isValueValid(tp, tpFillValue, tpValidRange)
+                      && NetCDFUtils.isValueValid(pdir, pdirFillValue, pdirValidRange)) {
+
+                  WavesDataPoint dp = new WavesDataPoint(lat, lon);
+
+                  Pair<Double, Double> scaleFactorAndAddOffset = NetCDFUtils.findScaleFactorAnfAddOffset(hsVar);
+                  hs = hs * scaleFactorAndAddOffset.first() + scaleFactorAndAddOffset.second();
                   dp.setSignificantHeight(hs);
+
+                  scaleFactorAndAddOffset = NetCDFUtils.findScaleFactorAnfAddOffset(tpVar);
+                  tp = tp * scaleFactorAndAddOffset.first() + scaleFactorAndAddOffset.second();
                   dp.setPeakPeriod(tp);
+
+                  scaleFactorAndAddOffset = NetCDFUtils.findScaleFactorAnfAddOffset(pdirVar);
+                  pdir = pdir * scaleFactorAndAddOffset.first() + scaleFactorAndAddOffset.second();
                   dp.setPeakDirection(pdir);
+                  
                   dp.setDateUTC(dateValue);
 
                   WavesDataPoint dpo = wavesdp.get(WavesDataPoint.getId(dp));
                   if (dpo == null) {
                       dpo = dp.getACopyWithoutHistory();
-                      wavesdp.put(HFRadarDataPoint.getId(dp), dp);
+                      wavesdp.put(HFRadarDataPoint.getId(dpo), dpo);
                   }
 
                   ArrayList<WavesDataPoint> lst = dpo.getHistoricalData();
@@ -834,7 +860,7 @@ public class LoaderHelper {
           double timeMultiplier = multAndOffset[0];
           double timeOffset = multAndOffset[1];
           
-          // Let us process SST
+          // Let us process
           if (chlorophyllVar != null) {
               try {
                   String chlorophyllUnits = "kg m-3";
@@ -885,6 +911,9 @@ public class LoaderHelper {
                       if (NetCDFUtils.isValueValid(chlorophyll, chlorophyllFillValue, chlorophyllValidRange)) {
                           ChlorophyllDataPoint dp = new ChlorophyllDataPoint(lat, lon);
                           
+                          Pair<Double, Double> scaleFactorAndAddOffset = NetCDFUtils.findScaleFactorAnfAddOffset(chlorophyllVar);
+                          chlorophyll = chlorophyll * scaleFactorAndAddOffset.first() + scaleFactorAndAddOffset.second();
+                          
                           chlorophyll = NetCDFUnitsUtils.getValueForMilliGPerM3FromTempUnits(chlorophyll, chlorophyllUnits);
                           
                           dp.setChlorophyll(chlorophyll);
@@ -893,7 +922,7 @@ public class LoaderHelper {
                           ChlorophyllDataPoint dpo = chlorophylldp.get(ChlorophyllDataPoint.getId(dp));
                           if (dpo == null) {
                               dpo = dp.getACopyWithoutHistory();
-                              chlorophylldp.put(ChlorophyllDataPoint.getId(dp), dp);
+                              chlorophylldp.put(ChlorophyllDataPoint.getId(dpo), dpo);
                           }
 
                           ArrayList<ChlorophyllDataPoint> lst = dpo.getHistoricalData();
@@ -935,6 +964,152 @@ public class LoaderHelper {
         return chlorophylldp;
     }
 
+    public static final HashMap<String, SLADataPoint> processSLAFile(String fileName, Date dateLimit) {
+        boolean ignoreDateLimitToLoad = false;
+        if (dateLimit == null)
+            ignoreDateLimitToLoad = true;
+        
+        NeptusLog.pub().info("Starting processing SLAnetCDF file '" + fileName + "'."
+                + (ignoreDateLimitToLoad ? " ignoring dateTime limit" : " Accepting data after " + dateLimit + "."));
+
+        HashMap<String, SLADataPoint> sladp = new HashMap<>();
+
+        NetcdfFile dataFile = null;
+        
+        Date fromDate = null;
+        Date toDate = null;
+        
+        try {
+          dataFile = NetcdfFile.open(fileName, null);
+
+          // Get the latitude and longitude Variables.
+          Pair<String, Variable> searchPair = NetCDFUtils.findVariableForStandardNameOrName(dataFile, fileName, true, "latitude", "lat");
+          String latName = searchPair.first();
+          Variable latVar = searchPair.second(); 
+
+          searchPair = NetCDFUtils.findVariableForStandardNameOrName(dataFile, fileName, true, "longitude", "lon");
+          String lonName = searchPair.first();
+          Variable lonVar = searchPair.second();
+
+          searchPair = NetCDFUtils.findVariableForStandardNameOrName(dataFile, fileName, true, "time");
+          String timeName = searchPair == null ? null : searchPair.first();
+          Variable timeVar = searchPair == null ? null : searchPair.second();
+
+          // Get the SLA Variable.
+          searchPair = NetCDFUtils.findVariableForStandardNameOrName(dataFile, fileName, true, "sea_surface_height_above_sea_level", "sla");
+          @SuppressWarnings("unused")
+          String slaName = searchPair == null ? null : searchPair.first();
+          Variable slaVar = searchPair == null ? null : searchPair.second();
+
+          // Get the lat/lon data from the file.
+          Array latArray;  // ArrayFloat.D1
+          Array lonArray;  // ArrayFloat.D1
+          Array timeArray; //ArrayFloat.D1
+          Array slaArray;    // ArrayFloat.D?
+
+          latArray = latVar.read();
+          lonArray = lonVar.read();
+          timeArray = timeVar.read();
+          slaArray = slaVar == null ? null : slaVar.read();
+          
+          double[] multAndOffset = NetCDFUtils.getTimeMultiplierAndOffset(timeVar, fileName);
+          double timeMultiplier = multAndOffset[0];
+          double timeOffset = multAndOffset[1];
+          
+          // Let us process
+          if (slaVar != null) {
+              try {
+                  String slaUnits = "m";
+                  Attribute slaUnitsAtt = slaVar == null ? null : slaVar.findAttribute(NetCDFUtils.NETCDF_ATT_UNITS);
+                  if (slaUnitsAtt != null)
+                      slaUnits = (String) slaUnitsAtt.getValue(0);
+
+                  double slaFillValue = NetCDFUtils.findFillValue(slaVar);
+                  Pair<Double, Double> slaValidRange = NetCDFUtils.findValidRange(slaVar);
+                  
+                  int[] shape = slaVar.getShape();
+                  int[] counter = new int[shape.length];
+                  Arrays.fill(counter, 0);
+                  String dimStr = slaVar.getDimensionsString();
+                  Map<String, Integer> collumsIndexMap = NetCDFUtils.getIndexesForVar(dimStr, timeName, latName, lonName);
+
+                  do {
+                      Date dateValue = null;
+                      Date[] timeVals = NetCDFUtils.getTimeValues(timeArray, counter[0], timeMultiplier, timeOffset, fromDate,
+                              toDate, ignoreDateLimitToLoad, dateLimit);
+                      if (timeVals == null) {
+                          continue;
+                      }
+                      else {
+                          dateValue = timeVals[0];
+                          fromDate = timeVals[1];
+                          toDate = timeVals[2];
+                      }
+
+                      double lat = AngleUtils.nomalizeAngleDegrees180(latArray.getDouble(counter[collumsIndexMap.get(latName)]));
+                      double lon = AngleUtils.nomalizeAngleDegrees180(lonArray.getDouble(counter[collumsIndexMap.get(lonName)]));
+
+                      Index index = slaArray.getIndex();
+                      index.set(counter);
+
+                      double sla = slaArray == null ? Double.NaN : slaArray.getDouble(index);
+
+                      if (NetCDFUtils.isValueValid(sla, slaFillValue, slaValidRange)) {
+                          SLADataPoint dp = new SLADataPoint(lat, lon);
+                          
+                          Pair<Double, Double> scaleFactorAndAddOffset = NetCDFUtils.findScaleFactorAnfAddOffset(slaVar);
+                          sla = sla * scaleFactorAndAddOffset.first() + scaleFactorAndAddOffset.second();
+                          
+                          sla = NetCDFUnitsUtils.getValueForMetterFromTempUnits(sla, slaUnits);
+                          
+                          dp.setSLA(sla);
+                          dp.setDateUTC(dateValue);
+
+                          SLADataPoint dpo = sladp.get(SLADataPoint.getId(dp));
+                          if (dpo == null) {
+                              dpo = dp.getACopyWithoutHistory();
+                              sladp.put(SLADataPoint.getId(dpo), dpo);
+                          }
+
+                          ArrayList<SLADataPoint> lst = dpo.getHistoricalData();
+                          boolean alreadyIn = false;
+                          for (SLADataPoint tmpDp : lst) {
+                              if (tmpDp.getDateUTC().equals(dp.getDateUTC())) {
+                                  alreadyIn = true;
+                                  break;
+                              }
+                          }
+                          if (!alreadyIn) {
+                              dpo.getHistoricalData().add(dp);
+                          }
+                      }
+                  } while (NetCDFUtils.advanceLoopCounter(shape, counter) != null);
+              }
+              catch (Exception e) {
+                  e.printStackTrace();
+              }
+          }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        } 
+        finally {
+            if (dataFile != null) {
+                try {
+                    dataFile.close();
+                }
+                catch (IOException ioe) {
+                    ioe.printStackTrace();
+                }
+            }
+            NeptusLog.pub().info("Ending processing SLA netCDF file '" + fileName
+                    + "'. Reading from date '" + fromDate + "' till '" + toDate + "'.");
+        }
+
+        return sladp;
+    }
+
     /**
      * @param args
      * @throws Exception 
@@ -950,7 +1125,7 @@ public class LoaderHelper {
             try {
                 // String sstFileName = "../../Lab/MBARI/SST/erdATssta3day_9c53_2021_f180.nc";
                 System.out.println("\n-----------------------------------");
-                HashMap<?, ?>[] dataRet = processMeteo(sstFileName, new java.sql.Date(0));
+                HashMap<?, ?>[] dataRet = processMeteo(sstFileName, new Date(0));
                 for (HashMap<?, ?> hashMap : dataRet) {
                     System.out.println("Size=" + hashMap.size());
 //                for (Object nO : hashMap.keySet()) {
@@ -968,7 +1143,7 @@ public class LoaderHelper {
                 "plugins" + "-dev/envdisp/pt/lsts/neptus/plugins/envdisp/waves_SW_20130704.nc"}) {
             try {
                 System.out.println("\n-----------------------------------");
-                HashMap<String, WavesDataPoint> hashMap = processWavesFile(sstFileName, new java.sql.Date(0));
+                HashMap<String, WavesDataPoint> hashMap = processWavesFile(sstFileName, new Date(0));
                 System.out.println("Size=" + hashMap.size());
             }
             catch (Exception e) {
@@ -980,7 +1155,18 @@ public class LoaderHelper {
             try {
                 // String sstFileName = "../../Lab/MBARI/SST/erdATssta3day_9c53_2021_f180.nc";
                 System.out.println("\n-----------------------------------");
-                HashMap<String, ChlorophyllDataPoint> hashMap = processChlorophyllFile(sstFileName, new java.sql.Date(0));
+                HashMap<String, ChlorophyllDataPoint> hashMap = processChlorophyllFile(sstFileName, new Date(0));
+                System.out.println("Size=" + hashMap.size());
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        for (String sstFileName : new String[] {"IHData/SLA/nrt_global_allsat_phy_l4_latest.nc.gz"}) {
+            try {
+                System.out.println("\n-----------------------------------");
+                HashMap<String, SLADataPoint> hashMap = processSLAFile(sstFileName, new Date(0));
                 System.out.println("Size=" + hashMap.size());
             }
             catch (Exception e) {

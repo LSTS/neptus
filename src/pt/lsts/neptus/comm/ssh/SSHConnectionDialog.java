@@ -105,7 +105,12 @@ public class SSHConnectionDialog extends JPanel {
     private JButton cancelButton = null;
 
     private Window parentWindow = null;
-
+    
+    private boolean hostEnable = true;
+    private boolean portEnable = true;
+    private boolean userEnable = true;
+    private boolean passwordEnable = true;
+    
     /**
      * This is the default constructor
      */
@@ -129,6 +134,27 @@ public class SSHConnectionDialog extends JPanel {
             this.port = port;
         else
             this.port = 22;
+        initialize();
+    }
+
+    public SSHConnectionDialog(String host, String username, String password, int port, String title,
+            boolean hostEnable, boolean portEnable, boolean userEnable, boolean passwordEnable) {
+        super();
+        if (title != null)
+            this.title = title;
+        this.host = host;
+        this.username = username;
+        this.password = password;
+        if (port > 0)
+            this.port = port;
+        else
+            this.port = 22;
+        
+        this.hostEnable = hostEnable;
+        this.portEnable = portEnable;
+        this.userEnable = userEnable;
+        this.passwordEnable = passwordEnable;
+        
         initialize();
     }
 
@@ -206,6 +232,11 @@ public class SSHConnectionDialog extends JPanel {
         layout.setAutoCreateContainerGaps(true);
 
         this.setLayout(layout);
+        
+        getHostField().setEnabled(hostEnable);
+        getPortField().setEditable(portEnable);
+        getUsernameField().setEnabled(userEnable);
+        getPasswordField().setEnabled(passwordEnable);
     }
 
     /**
@@ -476,6 +507,12 @@ public class SSHConnectionDialog extends JPanel {
         return showConnectionDialog(host, username, password, port, (Window) null);
     }
 
+    public static String[] showConnectionDialog(String host, String username, String password, int port,
+            boolean hostEnable, boolean portEnable, boolean usernameEnable, boolean passwordEnable) {
+        return showConnectionDialog(host, username, password, port, (Window) null,
+                hostEnable, portEnable, usernameEnable, passwordEnable);
+    }
+
     /**
      * @param host
      * @param username
@@ -486,6 +523,12 @@ public class SSHConnectionDialog extends JPanel {
      */
     public static String[] showConnectionDialog(String host, String username, String password, int port, String title) {
         return showConnectionDialog(host, username, password, port, title, null);
+    }
+
+    public static String[] showConnectionDialog(String host, String username, String password, int port, String title,
+            boolean hostEnable, boolean portEnable, boolean usernameEnable, boolean passwordEnable) {
+        return showConnectionDialog(host, username, password, port, title, null,
+                hostEnable, portEnable, usernameEnable, passwordEnable);
     }
 
     /**
@@ -501,6 +544,12 @@ public class SSHConnectionDialog extends JPanel {
         return showConnectionDialog(host, username, password, port, null, parentWindow);
     }
 
+    public static String[] showConnectionDialog(String host, String username, String password, int port,
+            Window parentWindow, boolean hostEnable, boolean portEnable, boolean usernameEnable, boolean passwordEnable) {
+        return showConnectionDialog(host, username, password, port, null, parentWindow,
+                hostEnable, portEnable, usernameEnable, passwordEnable);
+    }
+
     /**
      * @param host
      * @param username
@@ -513,7 +562,15 @@ public class SSHConnectionDialog extends JPanel {
     public static String[] showConnectionDialog(String host, String username, String password, int port,
             String title, Window parentWindow) {
 
-        SSHConnectionDialog scd = new SSHConnectionDialog(host, username, password, port, title);
+        return showConnectionDialog(host, username, password, port, title, parentWindow, true, true, true,true);
+    }
+
+    public static String[] showConnectionDialog(String host, String username, String password, int port,
+            String title, Window parentWindow, boolean hostEnable, boolean portEnable, boolean usernameEnable,
+            boolean passwordEnable) {
+
+        SSHConnectionDialog scd = new SSHConnectionDialog(host, username, password, port, title,
+                hostEnable, portEnable, usernameEnable, passwordEnable);
         scd.setParentWindow(parentWindow);
         scd.getJDialog();
         if (scd.isCanceled) {

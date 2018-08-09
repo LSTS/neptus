@@ -150,9 +150,6 @@ public class LblRangesPlot extends MRATimeSeriesPlot {
     public JFreeChart createChart() {
         JFreeChart chart = super.createChart();
 
-        ((XYLineAndShapeRenderer) chart.getXYPlot().getRenderer()).setShapesVisible(true);
-        ((XYLineAndShapeRenderer) chart.getXYPlot().getRenderer()).setLinesVisible(false);
-
         for (int i : beaconColors.keySet())
             ((XYLineAndShapeRenderer) chart.getXYPlot().getRenderer()).setSeriesPaint(i, beaconColors.get(i));
 
