@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -106,6 +106,13 @@ public class OffScreenLayerImageControl {
         this.imageTransparencyType = imageTransparencyType;
     }
 
+    /**
+     * @return the cacheImg
+     */
+    public BufferedImage getCacheImg() {
+        return cacheImg;
+    }
+    
     public void triggerImageRebuild() {
         clearImgCacheRqst = true;
     }
@@ -202,6 +209,15 @@ public class OffScreenLayerImageControl {
         }
         
         if (cacheImg == null) {
+            if (imageGraphics != null) {
+                try {
+                    imageGraphics.dispose();
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
             dim = renderer.getSize(new Dimension());
             lastLod = renderer.getLevelOfDetail();
             lastCenter = renderer.getCenter();
@@ -236,7 +252,7 @@ public class OffScreenLayerImageControl {
             return true;
         }
         else {
-            imageGraphics = null;
+            // imageGraphics = null;
             return false;
         }
     }
@@ -253,6 +269,10 @@ public class OffScreenLayerImageControl {
             imageGraphics.dispose();
             imageGraphics = null;
         }
+        paintPhaseEndFinishImageRecreateAndPaintImageCacheToRendererNoGraphicDispose(g, renderer);
+    }
+    
+    public void paintPhaseEndFinishImageRecreateAndPaintImageCacheToRendererNoGraphicDispose(Graphics2D g, StateRenderer2D renderer) {
         
         if (cacheImg != null) {
             Graphics2D g3 = (Graphics2D) g.create();

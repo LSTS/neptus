@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -49,6 +49,7 @@ import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.StationKeepingExtended;
 import pt.lsts.imc.def.SpeedUnits;
 import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.NeptusLog;
@@ -62,99 +63,123 @@ import pt.lsts.neptus.types.map.PlanElement;
 
 public class StationKeeping extends Maneuver implements LocatedManeuver, ManeuverWithSpeed, IMCSerialization, StatisticsProvider {
 
-	public static final int INFINITY_DURATION = 0;
-	public static final double MINIMUM_SK_RADIUS = 10;
-	
-	private int duration = 60;
-	private double radius = 10, speed = 30;
-	private Maneuver.SPEED_UNITS speedUnits = Maneuver.SPEED_UNITS.METERS_PS;
-	private ManeuverLocation location = new ManeuverLocation();	 
+    public static final int INFINITY_DURATION = 0;
+    public static final double MINIMUM_SK_RADIUS = 10;
 
-	@Override
-	public Object clone() {
-		StationKeeping l = new StationKeeping();
-		super.clone(l);
-		l.setDuration(getDuration());
-		l.setManeuverLocation(getManeuverLocation().clone());
-		l.setRadius(getRadius());
-		l.setSpeed(getSpeed());
-		l.setSpeedUnits(getSpeedUnits());
-		return l;		
-	}
+    private int duration = 60;
+    private double radius = 10, speed = 30;
+    private boolean keepSafe = false;
+    private int popupPeriod = 120;
+    private int popupDuration = 60;    
+    private Maneuver.SPEED_UNITS speedUnits = Maneuver.SPEED_UNITS.METERS_PS;
+    private ManeuverLocation location = new ManeuverLocation();	 
 
-	@Override
-	public Document getManeuverAsDocument(String rootElementName) {
-		Document document = DocumentHelper.createDocument();
-	    Element root = document.addElement( rootElementName );
-	    root.addAttribute("kind", "automatic");
-	    
-	    //basePoint
-	    Element basePoint = root.addElement("basePoint");
-	    Element point = getManeuverLocation().asElement("point");
-	    basePoint.add(point);
-	    Element radTolerance = basePoint.addElement("radiusTolerance");
-	    radTolerance.setText("0");	   
-	    basePoint.addAttribute("type", "pointType");
-	    
-	    //duration
-	    root.addElement("duration").setText(""+getDuration());
-	    
-	    //trajectory
-	    Element trajectory = root.addElement("trajectory");	    
-	    Element trajRadius = trajectory.addElement("radius");
-	    trajRadius.setText(String.valueOf(getRadius()));
-	    trajRadius.addAttribute("type", "float");	    
+    @Override
+    public Object clone() {
+        StationKeeping l = new StationKeeping();
+        super.clone(l);
+        l.setDuration(getDuration());
+        l.setManeuverLocation(getManeuverLocation().clone());
+        l.setRadius(getRadius());
+        l.setSpeed(getSpeed());
+        l.setSpeedUnits(getSpeedUnits());
+        l.setKeepSafe(isKeepSafe());
+        l.setPopupDuration(getPopupDuration());
+        l.setPopupPeriod(getPopupPeriod());
+        return l;		
+    }
 
-	    //speed
-	    Element velocity = root.addElement("speed");
-	    //velocity.addAttribute("tolerance", String.valueOf(getSpeedTolerance()));
-	    velocity.addAttribute("type", "float");
-	    velocity.addAttribute("unit", getSpeedUnits().getString());
-	    velocity.setText(String.valueOf(getSpeed()));
-	    
-	    return document;
-	}
-	
-	@Override
-	public String getType() {
-		return "StationKeeping";
-	}
+    @Override
+    public Document getManeuverAsDocument(String rootElementName) {
+        Document document = DocumentHelper.createDocument();
+        Element root = document.addElement( rootElementName );
+        root.addAttribute("kind", "automatic");
 
-	@Override
-	public void loadManeuverFromXML(String XML) {
-		try {
-	        Document doc = DocumentHelper.parseText(XML);
-	        
-	        // basePoint
-	        Node node = doc.selectSingleNode("StationKeeping/basePoint/point");
-	        ManeuverLocation loc = new ManeuverLocation();
+        //basePoint
+        Element basePoint = root.addElement("basePoint");
+        Element point = getManeuverLocation().asElement("point");
+        basePoint.add(point);
+        Element radTolerance = basePoint.addElement("radiusTolerance");
+        radTolerance.setText("0");	   
+        basePoint.addAttribute("type", "pointType");
+
+        //duration
+        root.addElement("duration").setText(""+getDuration());
+
+        //popup duration
+        root.addElement("popupDuration").setText(""+getPopupDuration());
+
+        //popup period
+        root.addElement("popupPeriod").setText(""+getPopupPeriod());
+
+        //keep safe
+        root.addElement("keepSafe").setText(""+isKeepSafe());
+
+        //trajectory
+        Element trajectory = root.addElement("trajectory");	    
+        Element trajRadius = trajectory.addElement("radius");
+        trajRadius.setText(String.valueOf(getRadius()));
+        trajRadius.addAttribute("type", "float");	    
+
+        //speed
+        Element velocity = root.addElement("speed");
+        //velocity.addAttribute("tolerance", String.valueOf(getSpeedTolerance()));
+        velocity.addAttribute("type", "float");
+        velocity.addAttribute("unit", getSpeedUnits().getString());
+        velocity.setText(String.valueOf(getSpeed()));
+
+        return document;
+    }
+
+    @Override
+    public String getType() {
+        return "StationKeeping";
+    }
+
+    @Override
+    public void loadManeuverFromXML(String XML) {
+        try {
+            Document doc = DocumentHelper.parseText(XML);
+
+            // basePoint
+            Node node = doc.selectSingleNode("StationKeeping/basePoint/point");
+            ManeuverLocation loc = new ManeuverLocation();
             loc.load(node.asXML());
             setManeuverLocation(loc);	       
-	        
-	        // Speed
-	        Node speedNode = doc.selectSingleNode("StationKeeping/speed");
-	        setSpeed(Double.parseDouble(speedNode.getText()));
-//	        setSpeedUnits(speedNode.valueOf("@unit"));
-	        SPEED_UNITS sUnits = ManeuversXMLUtil.parseSpeedUnits((Element) speedNode);
+
+            // Speed
+            Node speedNode = doc.selectSingleNode("StationKeeping/speed");
+            setSpeed(Double.parseDouble(speedNode.getText()));
+            //	        setSpeedUnits(speedNode.valueOf("@unit"));
+            SPEED_UNITS sUnits = ManeuversXMLUtil.parseSpeedUnits((Element) speedNode);
             setSpeedUnits(sUnits);
-	        
-	        // Duration
-	        setDuration(Integer.parseInt(doc.selectSingleNode("StationKeeping/duration").getText()));
-	        
-	        // Trajectory
-	        setRadius(Double.parseDouble(doc.selectSingleNode("StationKeeping/trajectory/radius").getText()));
-	    }
-	    catch (Exception e) {
-	        NeptusLog.pub().error(this, e);
-	        return;
-	    }
-	}
-	
-	@Override
-	public ManeuverLocation getManeuverLocation() {
-		return location.clone();
-	}
-	
+
+            // Duration
+            setDuration(Integer.parseInt(doc.selectSingleNode("StationKeeping/duration").getText()));
+            try {
+                setPopupDuration(Integer.parseInt(doc.selectSingleNode("StationKeeping/popupDuration").getText()));
+                setPopupPeriod(Integer.parseInt(doc.selectSingleNode("StationKeeping/popupPeriod").getText()));
+                setKeepSafe(Boolean.parseBoolean(doc.selectSingleNode("StationKeeping/keepSafe").getText()));    
+            }
+            catch (Exception e) {
+                NeptusLog.pub().warn("Vehicle does not have defaults for keepSafe parameters.");
+            }
+            
+
+            // Trajectory
+            setRadius(Double.parseDouble(doc.selectSingleNode("StationKeeping/trajectory/radius").getText()));
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error(this, e);
+            return;
+        }
+    }
+
+    @Override
+    public ManeuverLocation getManeuverLocation() {
+        return location.clone();
+    }
+
     /* (non-Javadoc)
      * @see pt.lsts.neptus.mp.maneuvers.LocationProvider#getFirstPosition()
      */
@@ -163,166 +188,188 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, Maneuve
         return location.clone();
     }
 
-	@Override
-	public ManeuverLocation getEndLocation() {
-	    return location.clone();
-	}
-	
-	public void setManeuverLocation(ManeuverLocation location) {
-		this.location = location.clone();
-	}
-	
-	public void translate(double offsetNorth, double offsetEast, double offsetDown) {
-		location.translatePosition(offsetNorth, offsetEast, offsetDown);		
-	}
-	
-	@Override
-	protected Vector<DefaultProperty> additionalProperties() {
-		Vector<DefaultProperty> props = new Vector<DefaultProperty>();
-		
-		if (radius < MINIMUM_SK_RADIUS)
-		    radius = MINIMUM_SK_RADIUS;
-		
-		DefaultProperty duration = PropertiesEditor.getPropertyInstance("Duration", Integer.class, this.duration, true);
-		duration.setShortDescription(I18n.text("The Station Keeping's duration, in seconds (0 means +Infinity)") + "<br/>(s)");		
-		props.add(duration);
-				
-		DefaultProperty speed = PropertiesEditor.getPropertyInstance("Speed", Double.class, this.speed, true);
-		speed.setShortDescription(I18n.text("The vehicle's desired speed when Station Keeping"));
-		props.add(speed);
-		
-		DefaultProperty speedUnits = PropertiesEditor.getPropertyInstance("Speed Units", Maneuver.SPEED_UNITS.class, this.speedUnits, true);
-		speedUnits.setShortDescription(I18n.text("The units to consider in the speed parameters"));
-		props.add(speedUnits);
-		
-		DefaultProperty radius = PropertiesEditor.getPropertyInstance("Radius", Double.class, this.radius, true);
-        radius.setShortDescription(
-                I18n.textf("Radius of the Station Keeping circle. Lower values default to %radius meters.",
-                        MINIMUM_SK_RADIUS) + "<br/>(m)");
-		props.add(radius);
-		
-		return props;
-	}
-	
-	@Override
-	public void setProperties(Property[] properties) {
-		super.setProperties(properties);
-	
-		for (Property p : properties) {
-			
-			if (p.getName().equals("Duration")) {
-				setDuration((Integer)p.getValue());
-				continue;
-			}
-			
-			if (p.getName().equals("Speed")) {
-				setSpeed((Double)p.getValue());
-				continue;
-			}
-			
-//			if (p.getName().equalsIgnoreCase("Speed Units")) {
-//				setSpeedUnits((String)p.getValue());
-//				continue;
-//			}
-			
-			if (p.getName().equals("Radius")) {
-				setRadius(Math.max(MINIMUM_SK_RADIUS, (Double)p.getValue()));
-				continue;
-			}
-			
-			// "Speed Units" parsing
+    @Override
+    public ManeuverLocation getEndLocation() {
+        return location.clone();
+    }
+
+    public void setManeuverLocation(ManeuverLocation location) {
+        this.location = location.clone();
+    }
+
+    public void translate(double offsetNorth, double offsetEast, double offsetDown) {
+        location.translatePosition(offsetNorth, offsetEast, offsetDown);		
+    }
+
+    @Override
+    protected Vector<DefaultProperty> additionalProperties() {
+        Vector<DefaultProperty> props = new Vector<DefaultProperty>();
+
+        if (radius < MINIMUM_SK_RADIUS)
+            radius = MINIMUM_SK_RADIUS;
+
+        DefaultProperty duration = PropertiesEditor.getPropertyInstance("Duration", Integer.class, this.duration, true);
+        duration.setShortDescription("The Station Keeping's duration, in seconds (0 means +Infinity)");		
+        props.add(duration);
+
+        DefaultProperty speed = PropertiesEditor.getPropertyInstance("Speed", Double.class, this.speed, true);
+        speed.setShortDescription("The vehicle's desired speed when Station Keeping");
+        props.add(speed);
+
+        DefaultProperty speedUnits = PropertiesEditor.getPropertyInstance("Speed Units", Maneuver.SPEED_UNITS.class, this.speedUnits, true);
+        speedUnits.setShortDescription("The units to consider in the speed parameters");
+        props.add(speedUnits);
+
+        DefaultProperty radius = PropertiesEditor.getPropertyInstance("Radius", Double.class, this.radius, true);
+        radius.setShortDescription("Radius of the Station Keeping circle. Lower values default to "+MINIMUM_SK_RADIUS+" meters.");
+        props.add(radius);
+
+        DefaultProperty popDuration = PropertiesEditor.getPropertyInstance("Popup Duration", Integer.class, this.popupDuration, true);
+        popDuration.setShortDescription("The duration of the station keeping at surface level when it pops up. Only used if flag KEEP_SAFE is on.");     
+        props.add(popDuration);
+
+        DefaultProperty popPeriod = PropertiesEditor.getPropertyInstance("Popup Period", Integer.class, this.popupPeriod, true);
+        popPeriod.setShortDescription("The period at which the vehicle will popup to report its position. Only used if flag KEEP_SAFE is on.");     
+        props.add(popPeriod);
+
+        DefaultProperty keepSafeOption = PropertiesEditor.getPropertyInstance("KEEP_SAFE", Boolean.class, this.keepSafe, true);
+        keepSafeOption.setShortDescription(
+                "If this flag is set, the vehicle will hold position underwater, loitering at z reference. It will popup periodically to report position. When it pops up, it will stay at surface in \"normal\" station keeping behaviour for a certain time (popup_duration).");     
+        props.add(keepSafeOption);        
+
+        return props;
+    }
+
+    @Override
+    public void setProperties(Property[] properties) {
+        super.setProperties(properties);
+
+        for (Property p : properties) {
+
+            if (p.getName().equals("Duration")) {
+                setDuration((Integer)p.getValue());
+                continue;
+            }
+
+            if (p.getName().equals("Speed")) {
+                setSpeed((Double)p.getValue());
+                continue;
+            }
+
+            if (p.getName().equals("Popup Duration")) {
+                setPopupDuration((Integer)p.getValue());
+                continue;
+            }
+
+            if (p.getName().equals("Popup Period")) {
+                setPopupPeriod((Integer)p.getValue());
+                continue;
+            }
+            
+            if (p.getName().equals("KEEP_SAFE")) {
+                setKeepSafe((Boolean)p.getValue());
+                continue;
+            }
+            
+            if (p.getName().equals("Radius")) {
+                setRadius(Math.max(MINIMUM_SK_RADIUS, (Double)p.getValue()));
+                continue;
+            }
+
+            // "Speed Units" parsing
             SPEED_UNITS speedUnits = ManeuversUtil.getSpeedUnitsFromPropertyOrNullIfInvalidName(p);
             if (speedUnits != null)
                 setSpeedUnits(speedUnits);
-		}
-	}
-	
-	@Override
-	public String getTooltipText() {
-		return super.getTooltipText()+"<hr>"+
-		"<br>" + I18n.text("speed") + ": <b>"+(int)speed+" "+I18n.text(speedUnits.getString())+"</b>"+
-		"<br>" + I18n.text("radius") + ": <b>"+radius+" " + I18n.textc("m", "meters") + "</b>"+
-		"<br>" + I18n.text("duration") + ": <b>"+duration+" " + I18n.textc("s", "seconds") + "</b><br>";
-	}
+        }
+    }
 
-	public LocationType getLocation() {
-		return location;
-	}
+    @Override
+    public String getTooltipText() {
+        return super.getTooltipText()+"<hr>"+
+                "<br>" + I18n.text("speed") + ": <b>"+(int)speed+" "+I18n.text(speedUnits.getString())+"</b>"+
+                "<br>" + I18n.text("radius") + ": <b>"+radius+" " + I18n.textc("m", "meters") + "</b>"+
+                "<br>" + I18n.text("duration") + ": <b>"+duration+" " + I18n.textc("s", "seconds") + "</b><br>";
+    }
 
-	public int getDuration() {
-		return duration;
-	}
+    public LocationType getLocation() {
+        return location;
+    }
 
-	public void setDuration(int duration) {
-		this.duration = duration;
-	}
+    public int getDuration() {
+        return duration;
+    }
 
-	public double getRadius() {
-		return radius;
-	}
+    public void setDuration(int duration) {
+        this.duration = duration;
+    }
 
-	public void setRadius(double radius) {
-		this.radius = Math.max(MINIMUM_SK_RADIUS, radius);
-	}
+    public double getRadius() {
+        return radius;
+    }
 
-	public double getSpeed() {
-		return speed;
-	}
+    public void setRadius(double radius) {
+        this.radius = Math.max(MINIMUM_SK_RADIUS, radius);
+    }
 
-	public void setSpeed(double speed) {
-		this.speed = speed;
-	}
+    public double getSpeed() {
+        return speed;
+    }
 
-	public SPEED_UNITS getSpeedUnits() {
-		return speedUnits;
-	}
+    public void setSpeed(double speed) {
+        this.speed = speed;
+    }
 
-	public void setSpeedUnits(SPEED_UNITS speedUnits) {
-		this.speedUnits = speedUnits;
-	}
-	
-//	protected double getVelocityInMetersPerSeconds() {
-//		if (speedUnits == Maneuver.SPEED_UNITS.METERS_PS)
-//			return speed;
-//		if (speedUnits.equalsIgnoreCase("Km/h"))
-//			return speed * (1.0/3.6);
-//		if (speedUnits.equalsIgnoreCase("MPH"))
-//			return speed * 0.4471;
-//		
-//		return 0;		
-//	}
-	
-	
-	@Override
-	public void paintOnMap(Graphics2D g2d, PlanElement planElement, StateRenderer2D renderer) {
-    	super.paintOnMap(g2d, planElement, renderer);
-    	AffineTransform at = g2d.getTransform();
-    	// x marks the spot...
-		g2d.drawLine(-4, -4, 4, 4);
-		g2d.drawLine(-4, 4, 4, -4);
-    	double radius = Math.max(MINIMUM_SK_RADIUS, this.getRadius()) * renderer.getZoom();
-		g2d.setColor(new Color(255,255,255,100));
-		g2d.fill(new Ellipse2D.Double(-radius,-radius,radius*2, radius*2));
-		g2d.setColor(Color.blue.darker());
-		g2d.draw(new Ellipse2D.Double(-radius,-radius,radius*2, radius*2));
-    	g2d.setTransform(at);
-	}
+    public SPEED_UNITS getSpeedUnits() {
+        return speedUnits;
+    }
 
-	@Override
-	public void parseIMCMessage(IMCMessage message) {
-		setMaxTime((int)message.getDouble("timeout"));
-    	setSpeed(message.getDouble("speed"));
-    	
-    	ManeuverLocation pos = new ManeuverLocation();
-    	pos.setLatitudeRads(message.getDouble("lat"));
-    	pos.setLongitudeRads(message.getDouble("lon"));
-    	pos.setZ(message.getDouble("z"));
-    	String zunits = message.getString("z_units");
-    	if (zunits != null)
-    	    pos.setZUnits(ManeuverLocation.Z_UNITS.valueOf(zunits));
-    	setManeuverLocation(pos);
-    	
-		try {
+    public void setSpeedUnits(SPEED_UNITS speedUnits) {
+        this.speedUnits = speedUnits;
+    }
+
+    //	protected double getVelocityInMetersPerSeconds() {
+    //		if (speedUnits == Maneuver.SPEED_UNITS.METERS_PS)
+    //			return speed;
+    //		if (speedUnits.equalsIgnoreCase("Km/h"))
+    //			return speed * (1.0/3.6);
+    //		if (speedUnits.equalsIgnoreCase("MPH"))
+    //			return speed * 0.4471;
+    //		
+    //		return 0;		
+    //	}
+
+
+    @Override
+    public void paintOnMap(Graphics2D g2d, PlanElement planElement, StateRenderer2D renderer) {
+        super.paintOnMap(g2d, planElement, renderer);
+        AffineTransform at = g2d.getTransform();
+        // x marks the spot...
+        g2d.drawLine(-4, -4, 4, 4);
+        g2d.drawLine(-4, 4, 4, -4);
+        double radius = Math.max(MINIMUM_SK_RADIUS, this.getRadius()) * renderer.getZoom();
+        g2d.setColor(new Color(255,255,255,100));
+        g2d.fill(new Ellipse2D.Double(-radius,-radius,radius*2, radius*2));
+        g2d.setColor(Color.blue.darker());
+        g2d.draw(new Ellipse2D.Double(-radius,-radius,radius*2, radius*2));
+        g2d.setTransform(at);
+    }
+
+    @Override
+    public void parseIMCMessage(IMCMessage message) {
+        
+        setMaxTime((int)message.getDouble("timeout"));
+        setSpeed(message.getDouble("speed"));
+
+        ManeuverLocation pos = new ManeuverLocation();
+        pos.setLatitudeRads(message.getDouble("lat"));
+        pos.setLongitudeRads(message.getDouble("lon"));
+        pos.setZ(message.getDouble("z"));
+        String zunits = message.getString("z_units");
+        if (zunits != null)
+            pos.setZUnits(ManeuverLocation.Z_UNITS.valueOf(zunits));
+        setManeuverLocation(pos);
+
+        try {
             String speedUnits = message.getString("speed_units");
             setSpeedUnits(Maneuver.SPEED_UNITS.parse(speedUnits));
         }
@@ -330,24 +377,30 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, Maneuve
             setSpeedUnits(Maneuver.SPEED_UNITS.RPM);
             e.printStackTrace();
         }
-		
-		setDuration((int)message.getDouble("duration"));
-		setRadius(message.getDouble("radius"));
-		setCustomSettings(message.getTupleList("custom"));
-	}
-	
-	@Override
-	public IMCMessage serializeToIMC() {
-	    pt.lsts.imc.StationKeeping message = new pt.lsts.imc.StationKeeping();
-		LocationType loc = getManeuverLocation();
-		loc.convertToAbsoluteLatLonDepth();
-		message.setLat(loc.getLatitudeRads());
-		message.setLon(loc.getLongitudeRads());
-		message.setZ(getManeuverLocation().getZ());
-		message.setZUnits(ZUnits.valueOf(getManeuverLocation().getZUnits().toString()));
-		message.setDuration(getDuration());
-		message.setSpeed(this.getSpeed());
-		try {
+
+        setDuration((int)message.getDouble("duration"));
+        setRadius(message.getDouble("radius"));
+        setCustomSettings(message.getTupleList("custom"));
+
+        if (message.getMgid() == StationKeepingExtended.ID_STATIC) {
+            setPopupDuration(message.getInteger("popup_duration"));
+            setPopupPeriod(message.getInteger("popup_period"));
+            setKeepSafe(true);
+        }                
+    }
+
+    
+    public pt.lsts.imc.StationKeeping serializetoRegularSKeeping() {
+        pt.lsts.imc.StationKeeping message = new pt.lsts.imc.StationKeeping();
+        LocationType loc = getManeuverLocation();
+        loc.convertToAbsoluteLatLonDepth();
+        message.setLat(loc.getLatitudeRads());
+        message.setLon(loc.getLongitudeRads());
+        message.setZ(getManeuverLocation().getZ());
+        message.setZUnits(ZUnits.valueOf(getManeuverLocation().getZUnits().toString()));
+        message.setDuration(getDuration());
+        message.setSpeed(this.getSpeed());
+        try {
             switch (this.getSpeedUnits()) {
                 case METERS_PS:
                     message.setSpeedUnits(SpeedUnits.METERS_PS);
@@ -364,16 +417,61 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, Maneuve
         catch (Exception ex) {
             NeptusLog.pub().error(this, ex);                     
         }
+
+        message.setRadius(this.getRadius());
+        message.setCustom(getCustomSettings());
+        return message;
+    }
+    
+    public pt.lsts.imc.StationKeepingExtended serializetoSafeSKeeping() {
+        pt.lsts.imc.StationKeepingExtended message = new pt.lsts.imc.StationKeepingExtended();
+  
+        LocationType loc = getManeuverLocation();
+        loc.convertToAbsoluteLatLonDepth();
+        message.setLat(loc.getLatitudeRads());
+        message.setLon(loc.getLongitudeRads());
+        message.setZ(getManeuverLocation().getZ());
+        message.setZUnits(ZUnits.valueOf(getManeuverLocation().getZUnits().toString()));
+        message.setDuration(getDuration());
+        message.setPopupDuration(getPopupDuration());
+        message.setPopupPeriod(getPopupPeriod());
         
-		message.setRadius(this.getRadius());
-		message.setCustom(getCustomSettings());
+        message.setSpeed(this.getSpeed());
+        try {
+            switch (this.getSpeedUnits()) {
+                case METERS_PS:
+                    message.setSpeedUnits(SpeedUnits.METERS_PS);
+                    break;
+                case PERCENTAGE:
+                    message.setSpeedUnits(SpeedUnits.PERCENTAGE);
+                    break;
+                case RPM:
+                default:
+                    message.setSpeedUnits(SpeedUnits.RPM);
+                    break;
+            }
+        }
+        catch (Exception ex) {
+            NeptusLog.pub().error(this, ex);                     
+        }
+
+        message.setRadius(this.getRadius());
+        message.setCustom(getCustomSettings());
+
+        return message;        
+    }
+    
+    
+    
+    @Override
+    public IMCMessage serializeToIMC() {
+        if (isKeepSafe())
+            return serializetoSafeSKeeping();
+        else
+            return serializetoRegularSKeeping();
         
-		return message;
-	}
-	  
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.mp.maneuvers.StatisticsProvider#getCompletionTime(pt.lsts.neptus.types.coord.LocationType)
-     */
+    }
+
     @Override
     public double getCompletionTime(LocationType initialPosition) {
         double speed = this.speed;
@@ -413,7 +511,49 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, Maneuve
     public double getMinDepth() {
         return getManeuverLocation().getAllZ();
     }   
-    
+
+    /**
+     * @return the keepSafe
+     */
+    public boolean isKeepSafe() {
+        return keepSafe;
+    }
+
+    /**
+     * @param keepSafe the keepSafe to set
+     */
+    public void setKeepSafe(boolean keepSafe) {
+        this.keepSafe = keepSafe;
+    }
+
+    /**
+     * @return the popupPeriod
+     */
+    public int getPopupPeriod() {
+        return popupPeriod;
+    }
+
+    /**
+     * @param popupPeriod the popupPeriod to set
+     */
+    public void setPopupPeriod(int popupPeriod) {
+        this.popupPeriod = popupPeriod;
+    }
+
+    /**
+     * @return the popupDuration
+     */
+    public int getPopupDuration() {
+        return popupDuration;
+    }
+
+    /**
+     * @param popupDuration the popupDuration to set
+     */
+    public void setPopupDuration(int popupDuration) {
+        this.popupDuration = popupDuration;
+    }
+
     @Override
     public Collection<ManeuverLocation> getWaypoints() {
         return Collections.singleton(getStartLocation());

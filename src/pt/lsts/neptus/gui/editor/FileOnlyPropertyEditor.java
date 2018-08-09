@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -32,10 +32,13 @@
  */
 package pt.lsts.neptus.gui.editor;
 
+import java.io.File;
+
 import javax.swing.JFileChooser;
 
 import com.l2fprod.common.beans.editor.FilePropertyEditor;
 
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.swing.NeptusFileView;
 
 /**
@@ -46,6 +49,13 @@ public class FileOnlyPropertyEditor extends FilePropertyEditor {
 
     public FileOnlyPropertyEditor() {
     }
+    
+    /**
+     * @param asTableEditor
+     */
+    public FileOnlyPropertyEditor(boolean asTableEditor) {
+        super(asTableEditor);
+    }
 
     /* (non-Javadoc)
      * @see com.l2fprod.common.beans.editor.FilePropertyEditor#customizeFileChooser(javax.swing.JFileChooser)
@@ -54,12 +64,14 @@ public class FileOnlyPropertyEditor extends FilePropertyEditor {
     protected void customizeFileChooser(JFileChooser chooser) {
         chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
         chooser.setFileView(new NeptusFileView());
-    }
-    
-    /**
-     * @param asTableEditor
-     */
-    public FileOnlyPropertyEditor(boolean asTableEditor) {
-        super(asTableEditor);
+        
+        File fxSel = null;
+        try {
+            fxSel = (File) getValue();
+            chooser.setSelectedFile(fxSel);
+        }
+        catch (Exception e) {
+            NeptusLog.pub().debug(e);
+        }
     }
 }

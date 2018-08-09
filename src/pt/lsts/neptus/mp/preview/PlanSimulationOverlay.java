@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -195,15 +195,14 @@ public class PlanSimulationOverlay implements Renderer2DPainter {
         
         for (int i = 0; i < simStates.size(); i++) {
             LocationType center = states.get(i).getPosition();
-            
-            double dist = center.getHorizontalDistanceInMeters(state.getPosition()) + 100 * Math.abs(state.getYaw() - states.get(i).getYaw());
+            double dist = center.getHorizontalDistanceInMeters(state.getPosition()) + 10 * Math.abs(state.getYaw() - states.get(i).getYaw());
             if (dist < nearestDistance) {
                 nearestDistance = dist;
                 nearest = i;
             }
         }
 
-        if (nearestDistance < minDistThreshold)
+        if (minDistThreshold == 0 || nearestDistance < minDistThreshold)
             return new Pair<Integer, SimulationState>(nearest, simStates.get(nearest));
         else
             return null;

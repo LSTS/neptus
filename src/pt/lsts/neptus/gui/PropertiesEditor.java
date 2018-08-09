@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -91,6 +91,7 @@ import pt.lsts.neptus.mp.Maneuver.SPEED_UNITS;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.ManeuverLocationEditor;
 import pt.lsts.neptus.mp.actions.PlanActions;
+import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.util.GuiUtils;
@@ -119,15 +120,7 @@ public class PropertiesEditor {
         return editPropertiesWorker(provider, null, editable);
 	}
 	
-	public static boolean editProperties(PropertiesProvider provider, Dialog parent, boolean editable) {
-		 return editPropertiesWorker(provider, parent, editable);
-    }
-
-    public static boolean editProperties(PropertiesProvider provider, Frame parent, boolean editable) {
-    	 return editPropertiesWorker(provider, parent, editable);
-    }
-
-    public static boolean editProperties(PropertiesProvider provider, Window parent, boolean editable) {
+    public static <P extends Window> boolean editProperties(PropertiesProvider provider, P parent, boolean editable) {
     	 return editPropertiesWorker(provider, parent, editable);
     }
     
@@ -579,7 +572,9 @@ public class PropertiesEditor {
                         toolTip = loc.toString();
                         setToolTipText(toolTip);
                         // return "<html>" + loc.toString().replaceAll(",\\ ", ",<br>");
-                        return loc.toString();
+                        LocationType sLoc = loc.getNewAbsoluteLatLonDepth();
+                        return CoordinateUtil.latitudeAsPrettyString(sLoc.getLatitudeDegs()) + ", "
+                                + CoordinateUtil.longitudeAsPrettyString(sLoc.getLongitudeDegs());
                     }
                     catch (Exception e) {
                         return super.convertToString(value);

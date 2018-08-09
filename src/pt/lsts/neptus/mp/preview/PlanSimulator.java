@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -143,12 +143,10 @@ public class PlanSimulator {
         loc.setLongitudeRads(state.getLon());
         loc.setDepth(state.getDepth());
         loc.translatePosition(state.getX(), state.getY(), state.getZ());
-
         SystemPositionAndAttitude s = new SystemPositionAndAttitude(getState());
         s.setPosition(loc);
-
         Pair<Integer, SimulationState> nearest = simulatedPath.nearestState(s, distanceThreshold);
-
+        
         if (nearest != null) {
             engine.setSimulationState(state, nearest.second());
             simTime = nearest.first();

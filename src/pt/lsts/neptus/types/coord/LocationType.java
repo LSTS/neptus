@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -32,6 +32,11 @@
  */
 package pt.lsts.neptus.types.coord;
 
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.ClipboardOwner;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.io.Serializable;
@@ -48,7 +53,6 @@ import pt.lsts.neptus.types.XmlOutputMethods;
 import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.Dom4JUtil;
 import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.NameNormalizer;
 import pt.lsts.neptus.util.coord.MapTileUtil;
 
@@ -758,44 +762,34 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
         Element coordinate = root.addElement("coordinate");
 
         if (getLatitudeStr() != null)
-            coordinate.addElement("latitude").addText(getLatitudeStr());
+            coordinate.addElement("latitude").addText(String.valueOf(getLatitudeDegs()));
 
         if (getLongitudeStr() != null)
-            coordinate.addElement("longitude").addText(getLongitudeStr());
+            coordinate.addElement("longitude").addText(String.valueOf(getLongitudeDegs()));
 
-        coordinate.addElement("height").addText(
-                String.valueOf(MathMiscUtils.round(getHeight(), 3)));
+        coordinate.addElement("height").addText(String.valueOf(getHeight()));
 
         if (getOffsetDistance() != 0d) {
-            coordinate.addElement("azimuth").addText(
-                    String.valueOf(MathMiscUtils.round(getAzimuth(), 3)));
-            coordinate.addElement("offset-distance").addText(
-                    String.valueOf(MathMiscUtils.round(getOffsetDistance(), 3)));
-            coordinate.addElement("zenith").addText(
-                    String.valueOf(MathMiscUtils.round(getZenith(), 3)));
+            coordinate.addElement("azimuth").addText(String.valueOf(getAzimuth()));
+            coordinate.addElement("offset-distance").addText(String.valueOf(getOffsetDistance()));
+            coordinate.addElement("zenith").addText(String.valueOf(getZenith()));
         }
 
         if (!((getOffsetNorth() == 0) && (getOffsetEast() == 0) && (getOffsetUp() == 0))) {
             if (isOffsetNorthUsed)
-                coordinate.addElement("offset-north").addText(
-                        String.valueOf(MathMiscUtils.round(getOffsetNorth(), 3)));
+                coordinate.addElement("offset-north").addText(String.valueOf(getOffsetNorth()));
             else
-                coordinate.addElement("offset-south").addText(
-                        String.valueOf(MathMiscUtils.round(getOffsetSouth(), 3)));
+                coordinate.addElement("offset-south").addText(String.valueOf(getOffsetSouth()));
 
             if (isOffsetEastUsed)
-                coordinate.addElement("offset-east").addText(
-                        String.valueOf(MathMiscUtils.round(getOffsetEast(), 3)));
+                coordinate.addElement("offset-east").addText(String.valueOf(getOffsetEast()));
             else
-                coordinate.addElement("offset-west").addText(
-                        String.valueOf(MathMiscUtils.round(getOffsetWest(), 3)));
+                coordinate.addElement("offset-west").addText(String.valueOf(getOffsetWest()));
 
             if (isOffsetUpUsed)
-                coordinate.addElement("offset-up").addText(
-                        String.valueOf(MathMiscUtils.round(getOffsetUp(), 3)));
+                coordinate.addElement("offset-up").addText(String.valueOf(getOffsetUp()));
             else
-                coordinate.addElement("offset-down").addText(
-                        String.valueOf(MathMiscUtils.round(getOffsetDown(), 3)));
+                coordinate.addElement("offset-down").addText(String.valueOf(getOffsetDown()));
         }
 
         return document;
@@ -1181,6 +1175,32 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
         double[] offsets =  getDistanceInPixelTo(target, levelOfDetail);        
         return Math.sqrt(offsets[0] * offsets[0] + offsets[1] * offsets[1]);
     }
+    
+    public static LocationType clipboardLocation() {
+        @SuppressWarnings({ "unused" })
+        ClipboardOwner owner = new ClipboardOwner() {
+            public void lostOwnership(Clipboard clipboard, Transferable contents) {};                       
+        };
+        
+        Transferable contents = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
+        
+        boolean hasTransferableText = (contents != null)
+                && contents.isDataFlavorSupported(DataFlavor.stringFlavor);
+        
+        if ( hasTransferableText ) {
+            try {
+                String text = (String)contents.getTransferData(DataFlavor.stringFlavor);
+                LocationType lt = new LocationType();
+                lt.fromClipboardText(text);
+                return lt;
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(e);
+            }
+        }
+        return null;
+    }
+
     
 
     /**

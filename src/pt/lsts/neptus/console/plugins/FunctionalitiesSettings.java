@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -33,7 +33,6 @@
 package pt.lsts.neptus.console.plugins;
 
 import java.awt.Component;
-import java.beans.PropertyEditor;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.text.Collator;
@@ -55,7 +54,6 @@ import javax.swing.JSplitPane;
 import javax.swing.JTree;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
-import javax.swing.table.TableCellRenderer;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
@@ -79,7 +77,6 @@ import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.gui.PropertiesProvider;
 import pt.lsts.neptus.gui.editor.BitmaskPropertyEditor;
 import pt.lsts.neptus.gui.editor.ColorMapPropertyEditor;
-import pt.lsts.neptus.gui.editor.EnumEditor;
 import pt.lsts.neptus.gui.editor.EnumeratedPropertyEditor;
 import pt.lsts.neptus.gui.editor.FileOnlyPropertyEditor;
 import pt.lsts.neptus.gui.editor.ImcId16Editor;
@@ -102,11 +99,9 @@ import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginProperty;
 import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.plugins.PropertyType;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.ReflectionUtil;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**
@@ -576,10 +571,10 @@ public class FunctionalitiesSettings extends JPanel {
         propertiesPanel.setSorting(true);
         propertiesPanel.setToolBarVisible(false);
 
+        Map<String, PluginProperty> defaults = PluginUtils.getDefaultsValues(funcClass);
         NeptusProperty neptusProperty = null;
         LEVEL userLevel;
-//        for (Field f : funcClass.getClass().getFields()) {
-        for (Field f : funcClass.getClass().getDeclaredFields()) {
+        for (Field f : PluginUtils.getFields(funcClass)) {
             neptusProperty = f.getAnnotation(NeptusProperty.class);
             if (neptusProperty == null)
                 continue;
@@ -595,7 +590,14 @@ public class FunctionalitiesSettings extends JPanel {
                 continue;
             PluginProperty pp;
             try {
-                pp = extractPluginProperty(f, funcClass);
+                // pp = extractPluginProperty(f, funcClass);
+                String defaultStr = null;
+                if (defaults.containsKey(f.getName()))
+                    defaultStr = defaults.get(f.getName()).serialize();
+                
+                pp = PluginUtils.createPluginProperty(funcClass, f, defaultStr, true, pEditorRegistry,
+                        pRenderRegistry);
+
             }
             catch (Exception e) {
                 NeptusLog.pub().error(funcClass.getClass().getSimpleName() + "." + f.getName(), e);
@@ -604,126 +606,13 @@ public class FunctionalitiesSettings extends JPanel {
             if (pp != null)
                 propertiesPanel.addProperty(pp);
         }
+        
+//        LinkedHashMap<String, PluginProperty> props = PluginUtils.getProperties(funcClass, true, pEditorRegistry, pRenderRegistry);
+//        for (PluginProperty pp : props.values()) {
+//            if (pp != null)
+//                propertiesPanel.addProperty(pp);
+//        }
         return propertiesPanel;
-    }
-
-    @SuppressWarnings("unchecked")
-    private <T> PluginProperty extractPluginProperty(Field f, T class1) {
-        NeptusProperty neptusProperty = f.getAnnotation(NeptusProperty.class);
-        Object fieldValue = null;
-        try {
-            fieldValue = f.get(class1);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-        
-        // Name
-        String nameRaw = neptusProperty.name();
-        String displayName;
-        if (nameRaw == null || nameRaw.length() == 0) {
-            nameRaw = f.getName();
-            char firstLetter = Character.toUpperCase(nameRaw.charAt(0));
-            displayName = firstLetter + nameRaw.substring(1);
-        }
-        else {
-            displayName = nameRaw;
-        }
-        // Type
-        Class<?> type = f.getType();
-
-        PluginProperty pp = new PluginProperty(nameRaw, type, fieldValue);
-        pp.setValue(fieldValue);
-
-        // Editable
-        if (neptusProperty.editable() == false) {
-            pp.setEditable(false);
-        }
-        else {
-            pp.setEditable(true);
-        }
-        // Display name
-        // signal the scope is the whole Neptus
-        if (class1.getClass().equals(GeneralPreferences.class))
-            displayName = "* " + I18n.text(displayName);
-        else
-            displayName = I18n.text(displayName);
-        pp.setDisplayName(displayName);
-        // Category
-        if (neptusProperty.category() != null) {
-            pp.setCategory(I18n.text(neptusProperty.category()));
-        }
-        // Short description
-        Map<String, PluginProperty> hashMap = PluginUtils.getDefaultsValues(class1);
-        StringBuilder description = new StringBuilder();
-        description.append(I18n.text(neptusProperty.description()));
-        
-        if (neptusProperty.units() != null && neptusProperty.units().length() > 0) {
-            description.append(" (");
-            description.append(neptusProperty.units());
-            description.append(")");
-        }
-        
-        String defaultValue;
-        if (hashMap == null) {
-            // no value!
-            defaultValue = I18n.textf("No default found for class %className", class1.getClass().getSimpleName());
-        }
-        else {
-            PluginProperty pluginProperty = hashMap.get(f.getName());
-            if (pluginProperty == null) {
-                // no value!
-                defaultValue = I18n.textf("No default found for field %fieldName", f.getName());
-            }
-            else {
-                Object defaultPropValue = pluginProperty.getValue();
-                String defaultStr = null;
-                if (defaultPropValue == null) {
-                    defaultValue = I18n.text("Absence of value");
-                }
-                else {
-                    if (hashMap.containsKey(f.getName()))
-                        defaultStr = hashMap.get(f.getName()).serialize();
-                    defaultValue = defaultStr;
-                }
-            }
-        }
-        description.append(" (");
-        description.append(I18n.text("Default value"));
-        description.append(": ");
-        description.append(defaultValue);
-        description.append(")");
-        pp.setShortDescription(description.toString());
-
-        // Editor class - ATTENTION must be the last or wont work!
-        Class<? extends PropertyEditor> editClass = null;
-        if (neptusProperty.editorClass() != PropertyEditor.class) {
-            editClass = neptusProperty.editorClass();
-        }
-        if (editClass != null) {
-            pEditorRegistry.registerEditor(pp, editClass);
-        }
-        else {
-            if (ReflectionUtil.hasInterface(f.getType(), PropertyType.class)) {
-                PropertyType pt = (PropertyType) fieldValue;
-                pEditorRegistry.registerEditor(pp, pt.getPropertyEditor());
-            }
-            if (f.getType().getEnumConstants() != null) {
-                if (fieldValue != null) {
-                    pEditorRegistry
-                            .registerEditor(pp, new EnumEditor((Class<? extends Enum<?>>) fieldValue.getClass()));
-                }
-            }
-        }
-        Class<? extends TableCellRenderer> rendererClass = null;
-        if (neptusProperty.rendererClass() != TableCellRenderer.class) {
-            rendererClass = neptusProperty.rendererClass();
-        }
-        if (rendererClass != null)
-            pRenderRegistry.registerRenderer(pp, rendererClass);
-
-        return pp;
     }
 
     private void initEditorRegistry() {

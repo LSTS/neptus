@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -35,6 +35,7 @@ package pt.lsts.neptus.console.plugins;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
@@ -49,6 +50,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleInteraction;
 import pt.lsts.neptus.console.ConsoleSystem;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mystate.MyState;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -59,8 +61,10 @@ import pt.lsts.neptus.systems.external.ExternalSystemsHolder;
 import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
+import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.MathMiscUtils;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**
  * @author pdias
@@ -82,11 +86,17 @@ public class SystemsInteraction extends ConsoleInteraction {
     @NeptusProperty(name = "Minutes to Show Distress Signal", category = "Test", userLevel = LEVEL.ADVANCED)
     private int minutesToShowDistress = 5; 
 
+    @NeptusProperty(name = "Allow main vehicle selection by clicking on the console map", userLevel = LEVEL.ADVANCED)
+    private boolean selectSystemByClick = false; 
+    
     private short counterShow = 0;
+    private boolean meShow = false;
     private ArrayList<ImcSystem> imcSystems = new ArrayList<>();
     private ArrayList<ExternalSystem> extSystems = new ArrayList<>();
     
     private JLabel labelToPaint = new JLabel();
+    
+    private boolean shiftCtrlAlt = false;;
     
     public SystemsInteraction() {
     }
@@ -124,8 +134,10 @@ public class SystemsInteraction extends ConsoleInteraction {
     public void paintInteraction(Graphics2D g, StateRenderer2D renderer) {
         String txt = collectTextToPaint();
         
-        if (txt == null || txt.isEmpty())
+        if (txt == null || txt.isEmpty()) {
+            super.paintInteraction(g, renderer);
             return;
+        }
         
         labelToPaint.setText(txt);
         labelToPaint.setForeground(Color.BLACK);
@@ -144,7 +156,7 @@ public class SystemsInteraction extends ConsoleInteraction {
         
         // Pull up for lat/lon label
         g2.translate(0, renderer.getHeight() - (height + MARGIN));
-        g2.translate(0, -40);
+        g2.translate(10, -40);
 
         g2.setColor(new Color(0, 0, 0, 200));
 
@@ -197,6 +209,8 @@ public class SystemsInteraction extends ConsoleInteraction {
         }
         
         g2.dispose();
+
+        super.paintInteraction(g, renderer);
     }
     
     /**
@@ -206,7 +220,7 @@ public class SystemsInteraction extends ConsoleInteraction {
         String ret = null;
         
         synchronized (this.imcSystems) {
-            int allCount = imcSystems.size() + extSystems.size();
+            int allCount = imcSystems.size() + extSystems.size() + (meShow ? 1 : 0);
             if (allCount > 0) {
                 StringBuilder sb = new StringBuilder("<html>");
                 int idx = counterShow % allCount;
@@ -258,7 +272,7 @@ public class SystemsInteraction extends ConsoleInteraction {
 
                     sb.append("</font>");
                 }
-                else {
+                else if (idx < imcSystems.size() + extSystems.size()) {
                     ExternalSystem sys = extSystems.get(idx - imcSystems.size());
                     sb.append("<font color=\"").append(String.format("#%02X%02X%02X", 28, 37, 58)).append("\">");
                     sb.append("<b>").append(sys.getName()).append("</b>");
@@ -319,6 +333,36 @@ public class SystemsInteraction extends ConsoleInteraction {
 
                     sb.append("</font>");
                 }
+                else {
+                    sb.append("<font color=\"").append(String.format("#%02X%02X%02X", 28, 37, 58)).append("\">");
+                    sb.append("<b>").append(GeneralPreferences.imcCcuName.toUpperCase()).append("</b>");
+                    sb.append("</font>");
+                    
+                    sb.append("<font size=\"2\">");
+
+                    sb.append("<br/>").append("<b>").append(I18n.text("Type")).append(": ").append("</b>")
+                        .append(SystemTypeEnum.CCU);
+
+                    sb.append("<br/>").append("<b>").append("IMC: ").append("</b>").append(GeneralPreferences.imcCcuId.toPrettyString().toUpperCase());
+                    
+                    LocationType loc = MyState.getLocation();
+                    sb.append("<br/>").append("<b>").append(I18n.text("Pos")).append(": ").append("</b>");
+                    sb.append(CoordinateUtil.latitudeAsPrettyString(loc.getLatitudeDegs()))
+                        .append(" ")
+                        .append(CoordinateUtil.longitudeAsPrettyString(loc.getLongitudeDegs()));
+                    if (Math.round(loc.getHeight()) != 0)
+                        sb.append(" H").append(Math.round(loc.getHeight())).append("m");
+
+                    double draught = MyState.getDraught();
+                    sb.append("<br/>").append("<b>").append(I18n.text("Draught")).append(": ").append("</b>")
+                        .append(draught <= 0 ? "- " : MathMiscUtils.round(((Number) draught).doubleValue(), 1)).append("m");
+                    double width = MyState.getWidth();
+                    double lenght = MyState.getLength();
+                    sb.append(" ").append("<b>").append(I18n.textc("Size W/L", "Size width/lenght")).append(": ").append("</b>")
+                        .append(width <= 0 ? "- " : (int) MathMiscUtils.round(((Number) width).doubleValue(), 0)).append("m")
+                        .append("<b> | </b>")
+                        .append(lenght <= 0 ? "- " : (int) MathMiscUtils.round(((Number) lenght).doubleValue(), 0)).append("m");
+                }
                 
                 sb.append("</html>");
 
@@ -340,7 +384,7 @@ public class SystemsInteraction extends ConsoleInteraction {
         LocationType loc = null;
 
         synchronized (this.imcSystems) {
-            int allCount = imcSystems.size() + extSystems.size();
+            int allCount = imcSystems.size() + extSystems.size() + (meShow ? 1 : 0);
             if (allCount > 0) {
                 int idx = counterShow % allCount;
                 if (idx < imcSystems.size()) {
@@ -352,7 +396,7 @@ public class SystemsInteraction extends ConsoleInteraction {
                         loc = sys.getLocation();
                     }
                 }
-                else {
+                else if (idx < imcSystems.size() + extSystems.size()) {
                     ExternalSystem sys = extSystems.get(idx - imcSystems.size());
                     if (sys != null) {
                         distress = sys.retrieveData(SystemUtils.DISTRESS_MSG_KEY,
@@ -360,6 +404,9 @@ public class SystemsInteraction extends ConsoleInteraction {
                         distressTimeMillis = sys.retrieveDataTimeMillis(SystemUtils.DISTRESS_MSG_KEY);
                         loc = sys.getLocation();
                     }
+                }
+                else {
+                    loc = MyState.getLocation().getNewAbsoluteLatLonDepth();
                 }
             }
         }
@@ -394,7 +441,7 @@ public class SystemsInteraction extends ConsoleInteraction {
     }
     
     private LocationType collectLocation() {
-        int allCount = imcSystems.size() + extSystems.size();
+        int allCount = imcSystems.size() + extSystems.size() + (meShow ? 1 : 0);
         LocationType loc = null;
         if (allCount > 0) {
             int idx = counterShow % allCount;
@@ -402,9 +449,12 @@ public class SystemsInteraction extends ConsoleInteraction {
                 ImcSystem sys = imcSystems.get(idx);
                 loc = sys.getLocation();
             }
-            else {
+            else  if (idx < imcSystems.size() + extSystems.size()) {
                 ExternalSystem sys = extSystems.get(idx - imcSystems.size());
                 loc = sys.getLocation();
+            }
+            else {
+                loc = MyState.getLocation();
             }
             
             return loc;
@@ -426,16 +476,29 @@ public class SystemsInteraction extends ConsoleInteraction {
      */
     @Override
     public void mouseClicked(MouseEvent event, StateRenderer2D source) {
-        super.mouseClicked(event, source);
         
         if (!SwingUtilities.isLeftMouseButton(event))
+            return;
+        
+        if (shiftCtrlAlt)
             return;
         
         counterShow++;
         
         ArrayList<ImcSystem> imcSystems = new ArrayList<>();
         ArrayList<ExternalSystem> extSystems = new ArrayList<>();
+        ImcSystem sel = null;
         
+        {
+            LocationType loc = MyState.getLocation();
+            Point2D locScreenXY = source.getScreenPosition(loc);
+            double dist = locScreenXY.distance(event.getPoint());
+            if (dist <= PIXEL_DISTANCE_TO_SELECT)
+                meShow = true;
+            else
+                meShow = false;
+        }
+
         for (ImcSystem sys : ImcSystemsHolder.lookupAllSystems()) {
             if (minutesToConsiderSystemsWithoutKnownLocation > 0 && System.currentTimeMillis()
                     - sys.getLocationTimeMillis() > minutesToConsiderSystemsWithoutKnownLocation * DateTimeUtil.MINUTE)
@@ -443,8 +506,19 @@ public class SystemsInteraction extends ConsoleInteraction {
             LocationType loc = sys.getLocation();
             Point2D locScreenXY = source.getScreenPosition(loc);
             double dist = locScreenXY.distance(event.getPoint());
-            if (dist <= PIXEL_DISTANCE_TO_SELECT)
+            if (dist <= PIXEL_DISTANCE_TO_SELECT) {
                 imcSystems.add(sys);
+                if (VehiclesHolder.getVehicleById(sys.getName()) != null)
+                    sel = sys;
+            }
+        }
+
+        if (event.getClickCount() == 2 && !event.isConsumed()) {
+            event.consume();
+            if (selectSystemByClick && sel != null)
+                getConsole().setMainSystem(sel.getName());
+            else
+                super.mouseClicked(event, source);
         }
         
         if (considerExternalSystemsIcons) {
@@ -470,5 +544,37 @@ public class SystemsInteraction extends ConsoleInteraction {
         
 //        System.out.println(" >> " + imcSystems.stream().map(ImcSystem::getName).collect(Collectors.joining())
 //                + " :: " + extSystems.stream().map(ExternalSystem::getId).collect(Collectors.joining()));
+    }
+    
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.console.ConsoleInteraction#keyPressed(java.awt.event.KeyEvent, pt.lsts.neptus.renderer2d.StateRenderer2D)
+     */
+    @Override
+    public void keyPressed(KeyEvent event, StateRenderer2D source) {
+        switch (event.getKeyCode()) {
+            case (KeyEvent.VK_SHIFT):
+            case (KeyEvent.VK_CONTROL):
+            case (KeyEvent.VK_ALT):
+            case (KeyEvent.VK_ALT_GRAPH):
+                shiftCtrlAlt  = true;
+                break;
+        }
+        super.keyPressed(event, source);
+    }
+    
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.console.ConsoleInteraction#keyReleased(java.awt.event.KeyEvent, pt.lsts.neptus.renderer2d.StateRenderer2D)
+     */
+    @Override
+    public void keyReleased(KeyEvent event, StateRenderer2D source) {
+        switch (event.getKeyCode()) {
+            case (KeyEvent.VK_SHIFT):
+            case (KeyEvent.VK_CONTROL):
+            case (KeyEvent.VK_ALT):
+            case (KeyEvent.VK_ALT_GRAPH):
+                shiftCtrlAlt  = false;
+                break;
+        }
+        super.keyReleased(event, source);
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -253,6 +253,12 @@ public class GeneralPreferences implements PropertiesProvider {
 
     @NeptusProperty(name = "Lat/Lon Preferable Display Format", category = "Location", userLevel = LEVEL.REGULAR)
     public static LatLonFormatEnum latLonPrefFormat = LatLonFormatEnum.DM;
+
+    // -------------------------------------------------------------------------
+
+    @NeptusProperty(name = "Show Local Time on Console", category = "Interface", userLevel = LEVEL.REGULAR, 
+            description = "Select this if you want also to show local time on console status bar.")
+    public static boolean localTimeOnConsoleOn = false;
 
     // -------------------------------------------------------------------------
     // Constructor and initialize

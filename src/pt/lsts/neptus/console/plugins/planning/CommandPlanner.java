@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -34,6 +34,7 @@ package pt.lsts.neptus.console.plugins.planning;
 
 import java.awt.Image;
 import java.awt.event.ActionEvent;
+import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
@@ -75,6 +76,7 @@ import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
+import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * @author zp
@@ -223,9 +225,33 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
 
             menu.setIcon(vicon);
 
+            String loiterSettings = "(";
+            String settings = "(";
+            NumberFormat nf = GuiUtils.getNeptusDecimalFormat(1);
+            switch (v.getType().toLowerCase()) {
+                case "auv":
+                case "uuv":
+                    loiterSettings += "D="+nf.format(auvLtDepth);
+                    loiterSettings += " / S="+nf.format(auvSpeed)+" "+auvSpeedUnits+")";
+                    settings += "D="+nf.format(auvDepth);
+                    settings += " / S="+nf.format(auvSpeed)+" "+auvSpeedUnits+")";                    
+                    break;
+                case "asv":
+                case "usv":
+                    settings += " / S="+nf.format(asvSpeed)+" "+asvSpeedUnits+")";                    
+                    break;
+                case "uav":
+                    settings += uavZUnits.name().substring(0, 1)+"="+nf.format(uavZ) ;
+                    settings += " S="+nf.format(uavSpeed)+" "+uavSpeedUnits+")";     
+                    break;
+                default:
+                    break;
+            }
+            
+            
             boolean ok = false;
             if (v.getFeasibleManeuvers().containsValue(Goto.class.getName())) {
-                menu.add(new AbstractAction(I18n.text("Go here")) {
+                menu.add(new AbstractAction(I18n.textf("Go here %settings", settings)) {
                     @Override
                     public void actionPerformed(final ActionEvent arg0) {
                         new Thread() {
@@ -278,7 +304,7 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
             }
 
             if (v.getFeasibleManeuvers().containsValue(StationKeeping.class.getName())) {
-                menu.add(new AbstractAction(I18n.text("Surface here")) {
+                menu.add(new AbstractAction(I18n.textf("Surface here %settings", settings)) {
                     @Override
                     public void actionPerformed(final ActionEvent arg0) {
                         new Thread() {
@@ -321,7 +347,7 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
             }
 
             if (v.getFeasibleManeuvers().containsValue(Loiter.class.getName())) {
-                menu.add(new AbstractAction(I18n.text("Loiter here")) {
+                menu.add(new AbstractAction(I18n.textf("Loiter here, %settings", loiterSettings)) {
                     @Override
                     public void actionPerformed(final ActionEvent arg0) {
                         new Thread() {

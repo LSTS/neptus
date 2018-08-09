@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -528,7 +528,12 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
     }
     
     public String getNickname() {
-        return getId().replaceFirst("lauv-", "").replaceAll("-", "");
+        if (getId().startsWith("lauv-xplore-"))
+            return getId().replaceFirst("lauv-xplore-", "xp");
+        if (getId().startsWith("lauv-noptilus-"))
+            return getId().replaceFirst("lauv-noptilus-", "np");
+        else
+            return getId().replaceFirst("lauv-", "").replaceAll("-", "");
     }
 
     /**

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -94,6 +94,7 @@ public class FerryScheduler extends ConsolePanel {
     double depth = 3;
 
     private Long startTime = null;
+    @SuppressWarnings("unused")
     private int minutesEllapsed = 0;
     private JEditorPane editor = new JEditorPane("text/plain", "");
     private JButton btnStart = new JButton(I18n.text("Start"));

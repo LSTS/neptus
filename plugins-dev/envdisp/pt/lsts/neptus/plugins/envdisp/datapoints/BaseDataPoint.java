@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -129,10 +129,21 @@ public class BaseDataPoint<T extends BaseDataPoint> implements Comparable<BaseDa
         return compareTo((BaseDataPoint) obj) == 0 ? true : false;
     }
     
+    /**
+     * @param hfrdp
+     * @return
+     */
     public static String getId(BaseDataPoint hfrdp) {
         return hfrdp.lat + ":" + hfrdp.lon;
     }
-    
+
+    /**
+     * @return
+     */
+    public String getId() {
+        return lat + ":" + lon;
+    }
+
     /**
      * This is supposed to get all data as an {@link ArrayList} in order to bulk processing.
      * 

@@ -1,6 +1,6 @@
 @echo off
 rem #############################################################################
-rem # Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia   #
+rem # Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia   #
 rem # Laboratório de Sistemas e Tecnologia Subaquática (LSTS)                   #
 rem # All rights reserved.                                                      #
 rem # Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal            #
@@ -146,5 +146,5 @@ set VMFLAGS="-XX:+HeapDumpOnOutOfMemoryError"
 
 set OLDPATH=%PATH%
 set PATH=%LIBRARYPATH%;%PATH%
-%JAVA_BIN_FOLDER%java -Xms10m -Xmx912m -Dj3d.rend=d3d -Dsun.java2d.d3d=true %VMFLAGS% -Djava.library.path="%LIBRARYPATH%" -cp %CLASSPATH% %DEFAULT% %1 %2 %3 %4 %5 %6 %7 %8 %9
+%JAVA_BIN_FOLDER%java -Xms10m -Xmx3072m -Dj3d.rend=d3d -Dsun.java2d.d3d=true %VMFLAGS% -Djava.library.path="%LIBRARYPATH%" -cp %CLASSPATH% %DEFAULT% %1 %2 %3 %4 %5 %6 %7 %8 %9
 set PATH=%OLDPATH%

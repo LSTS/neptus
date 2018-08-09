@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -35,6 +35,8 @@ package pt.lsts.neptus.console.plugins.containers;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
+import java.awt.event.HierarchyEvent;
+import java.awt.event.HierarchyListener;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -118,6 +120,15 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
             applyLayout(this.xmlDef);
         }
         super.init();
+        
+        // To allow the windows not to appear before the console is visible
+        addHierarchyListener(new HierarchyListener() {
+            @Override
+            public void hierarchyChanged(HierarchyEvent e) {
+                if ((e.getChangeFlags() & HierarchyEvent.SHOWING_CHANGED) != 0 && e.getChanged() == getConsole())
+                    setVisibilityToWindows();
+            }
+        });
     }
 
     private void loadProfiles() {
@@ -243,18 +254,25 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
             NeptusLog.pub().error("reading inner xml", e);
         }
         
-        for (String name : windowMap.keySet()) {
-            JDialog w = windowMap.get(name);
-            if (!usedWindows.contains(name))
-                w.setVisible(false);
-            else
-                w.setVisible(true);
-            w.revalidate();
-            w.repaint();
-        }
+        setVisibilityToWindows();
 
         getConsole().revalidate();
         getConsole().repaint();
+    }
+
+    private void setVisibilityToWindows() {
+        for (String name : windowMap.keySet()) {
+            JDialog w = windowMap.get(name);
+            if (!usedWindows.contains(name)) {
+                w.setVisible(false);
+            }
+            else {
+                // To allow the windows not to appear before the console is visible
+                w.setVisible(getConsole().isVisible());
+            }
+            w.revalidate();
+            w.repaint();
+        }
     }
 
     public void parse(Node node, JComponent parent) {
@@ -348,20 +366,17 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
                     }
                     else {
                         window = new JDialog(getConsole());
+                        window.setVisible(false);
                         window.setSize(getConsole().getWidth(), getConsole().getHeight());
                         window.setTitle(nameparam);
                         window.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
                         windowMap.put(nameparam, window);
                     }
                     window.setLayout(new BorderLayout());
-
                     window.getContentPane().add(container, BorderLayout.CENTER);
-                    window.setVisible(true);
                     usedWindows.add(nameparam);
 
                     parse(element, container);
-
-                    // window.pack();
                 }
             }
             return;
@@ -375,9 +390,18 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
     
     @Override
     protected void addSubPanelFinishUp() {
-        applyLayout(this.xmlDef);
+        if (!isChildsBulkLoad())
+            applyLayout(this.xmlDef);
     }
 
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.console.ContainerSubPanel#addSubPanelBulkFinishUp()
+     */
+    @Override
+    protected void addSubPanelBulkFinishUp() {
+        applyLayout(this.xmlDef);
+    }
+    
     @Override
     public void removeSubPanelExtra(ConsolePanel sp) {
         applyLayout(this.xmlDef);

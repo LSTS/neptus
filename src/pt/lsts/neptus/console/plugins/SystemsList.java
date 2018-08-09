@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -51,6 +51,7 @@ import java.awt.geom.RoundRectangle2D;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Vector;
@@ -176,6 +177,8 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
             ICON_SIZE);
     private final Icon ICON_VIEW_SYMBOL = ImageUtils.getScaledIcon("images/systems/view-symbol.png", ICON_SIZE,
             ICON_SIZE);
+    private final Icon ICON_VIEW_EXT_SYMBOL = ImageUtils.getScaledIcon("images/systems/view-ext-symbol.png", ICON_SIZE,
+            ICON_SIZE);
     private final Icon ICON_VIEW_EXPAND = ImageUtils.getScaledIcon("images/systems/expand.png", ICON_SIZE,
             ICON_SIZE);
     private final Icon ICON_VIEW_RETREAT = ImageUtils.getScaledIcon("images/systems/retreat.png", ICON_SIZE,
@@ -257,6 +260,10 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
             category = "Renderer", userLevel = LEVEL.REGULAR)
     public boolean drawSystemLabel = true;
 
+    @NeptusProperty(name = "Draw System Location Age", description = "Configures if this component will draw the system location age on the renderer",
+            category = "Renderer", userLevel = LEVEL.REGULAR)
+    public boolean drawSystemLocAge = true;
+
     @NeptusProperty(name = "Use Mil Std 2525 Like Symbols", description = "This configures if the location symbols to draw on the renderer will use the MIL-STD-2525 standard", 
             category = "MilStd-2525", userLevel = LEVEL.REGULAR)
     public boolean useMilStd2525LikeSymbols = false;
@@ -288,9 +295,9 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
     private JScrollPane scrollPane;
     private JPanel toolbar;
     private ToolbarButton editConf, clearSelection, redoSelection, expandAll, retractAll;
-    private ToolbarSwitch viewInfoOSDSwitch, filterSwitch, viewExtendedOSDSwitch, viewIconsSwitch;
+    private ToolbarSwitch viewInfoOSDSwitch, filterSwitch, viewExtendedOSDSwitch, viewIconsSwitch, viewExternalSystemsSwitch;
     private AbstractAction editConfAction, clearSelectionAction, redoSelectionAction, viewInfoOSDAction,
-            filterSwitchAction, viewExtendedOSDAction, viewIconsAction;
+            filterSwitchAction, viewExtendedOSDAction, viewIconsAction, viewExternalSystemsAction;
 
     private boolean updateMainVehicle = true;
     private boolean updateOrdering = true;
@@ -354,6 +361,8 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
         viewIconsSwitch.setSelected(showSystemsIconsOnRenderer);
         filterSwitch = new ToolbarSwitch(filterSwitchAction);
         filterSwitch.setSelected(true);
+        viewExternalSystemsSwitch = new ToolbarSwitch(viewExternalSystemsAction);
+        viewExternalSystemsSwitch.setSelected(showExternalSystemsIcons);
         expandAll = new ToolbarButton(new AbstractAction(I18n.text("Expand extra info."), ICON_VIEW_EXPAND) {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -383,6 +392,7 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
         toolbar.add(viewInfoOSDSwitch);
         toolbar.add(viewExtendedOSDSwitch);
         toolbar.add(viewIconsSwitch);
+        toolbar.add(viewExternalSystemsSwitch);
         // toolbar.add(new JSeparator(SwingConstants.VERTICAL));
         toolbar.add(filterSwitch);
         toolbar.add(expandAll);
@@ -544,6 +554,13 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
             public void actionPerformed(ActionEvent e) {
                 updateMainVehicle = true;
                 updateOrdering = true;
+            }
+        };
+
+        viewExternalSystemsAction = new AbstractAction(I18n.text("View external systems icons in render"), ICON_VIEW_EXT_SYMBOL) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                showExternalSystemsIcons = viewExternalSystemsSwitch.isSelected();
             }
         };
     }
@@ -1235,6 +1252,14 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
                     + StringUtils.wrapEveryNChars(sys.getOnErrorStateStr(), (short) 30, 30, true);
         }
 
+        SystemImcMsgCommInfo commS = ImcMsgManager.getManager().getCommInfoById(sys.getId());
+        long deltaMillis = System.currentTimeMillis() - (long) commS.getArrivalTimeMillisLastMsg();
+        if (deltaMillis > 10000) {
+            txtInfo += (txtInfo.length() != 0 ? lineSep + "" : "");
+            txtInfo += I18n.textf("%deltaTime with no messages",
+                    DateTimeUtil.milliSecondsToFormatedString(deltaMillis, true));
+        }
+        
         // Update Loc info
         LocationType loc = sys.getLocation();
         if (loc != null && !loc.isLocationEqual(LocationType.ABSOLUTE_ZERO)) {
@@ -1825,11 +1850,25 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
             g2.translate(pt.getX(), pt.getY());
 
             // Choose main color
-            Color color = new Color(255, 0, 255); // PLUM_RED
+            Color color = SystemPainterHelper.EXTERNAL_SYSTEM_COLOR;
 
             if (minutesToHideSystemsWithoutKnownLocation <= 0 || System.currentTimeMillis()
-                    - sys.getLocationTimeMillis() < DateTimeUtil.MINUTE * minutesToHideSystemsWithoutKnownLocation)
-                drawExternalSystem(renderer, g2, sys, color);
+                    - sys.getLocationTimeMillis() < DateTimeUtil.MINUTE * minutesToHideSystemsWithoutKnownLocation) {
+                try {
+                    drawExternalSystem(renderer, g2, sys, color);
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().error(String.format("Error while drawing external system '%s'", sys), e);
+                }
+            }
+            else {
+                if (sys.getName().equalsIgnoreCase("Ship")) {
+                    LocationType myLoc = sys.getLocation();
+                    NeptusLog.pub().debug((String.format(">>>>>>>>> NOT Paint Ship >>>>>>> %s  :: %s :: %s",
+                            CoordinateUtil.latitudeAsPrettyString(myLoc.getLatitudeDegs()), CoordinateUtil.longitudeAsPrettyString(myLoc.getLongitudeDegs()),
+                            DateTimeUtil.dateTimeFormatterISO8601.format(new Date(sys.getLocationTimeMillis())))));
+                }
+            }
 
             g2.dispose();
         }
@@ -1864,9 +1903,11 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
         }
 
         // To paint the system name on the render
-        if (drawLabel /* !viewInfoOSDSwitch.isSelected() && !viewExtendedOSDSwitch.isSelected() */&& drawSystemLabel) {
+        if (drawLabel /* !viewInfoOSDSwitch.isSelected() && !viewExtendedOSDSwitch.isSelected() */&& drawSystemLabel)
             SystemPainterHelper.drawSystemNameLabel(g2, sys.getName(), color, iconWidth, isLocationKnownUpToDate);
-        }
+        
+        if (drawSystemLocAge)
+            SystemPainterHelper.drawSystemLocationAge(g2, sys.getLocationTimeMillis(), color, iconWidth, isLocationKnownUpToDate);
 
         // To draw the course/speed vector
         SystemPainterHelper.drawCourseSpeedVectorForSystem(renderer, g2, sys, iconWidth, isLocationKnownUpToDate,
@@ -1968,6 +2009,13 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
         boolean isLocationKnownUpToDate = SystemPainterHelper.isLocationKnown(sys.getLocation(),
                 sys.getLocationTimeMillis());
         
+        if (sys.getName().equalsIgnoreCase("Ship")) {
+            LocationType myLoc = sys.getLocation();
+            NeptusLog.pub().debug((String.format(">>>>>>>>> Paint Ship >>>>>>> %s  :: %s :: %s",
+                    CoordinateUtil.latitudeAsPrettyString(myLoc.getLatitudeDegs()), CoordinateUtil.longitudeAsPrettyString(myLoc.getLongitudeDegs()),
+                    DateTimeUtil.dateTimeFormatterISO8601.format(new Date(sys.getLocationTimeMillis())))));
+        }
+        
         {
             Object obj = sys.retrieveData(SystemUtils.WIDTH_KEY);
             if (obj != null) {
@@ -2021,9 +2069,12 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
         // }
 
         // To paint the system name on the render
-        if (/* !viewInfoOSDSwitch.isSelected() && !viewExtendedOSDSwitch.isSelected() && */drawSystemLabel) {
+        if (/* !viewInfoOSDSwitch.isSelected() && !viewExtendedOSDSwitch.isSelected() && */drawSystemLabel)
             SystemPainterHelper.drawSystemNameLabel(g2, sys.getName(), color, iconWidth, isLocationKnownUpToDate);
-        }
+        
+        if (drawSystemLocAge)
+            SystemPainterHelper.drawSystemLocationAge(g2, sys.getLocationTimeMillis(), color, iconWidth, isLocationKnownUpToDate);
+
 
         // To draw the course/speed vector
         Object obj = sys.retrieveData(SystemUtils.COURSE_DEGS_KEY);
@@ -2120,6 +2171,7 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
             rendererIconsSize = 50;
 
         viewIconsSwitch.setSelected(showSystemsIconsOnRenderer);
+        viewExternalSystemsSwitch.setSelected(showExternalSystemsIcons);
 
         clearSelection.setEnabled(enableSelection);
         redoSelection.setEnabled(enableSelection);

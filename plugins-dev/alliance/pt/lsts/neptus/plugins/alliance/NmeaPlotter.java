@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -67,6 +67,7 @@ import de.baderjene.aistoolkit.aisparser.message.Message05;
 import jssc.SerialPort;
 import jssc.SerialPortEvent;
 import jssc.SerialPortEventListener;
+import pt.lsts.aismanager.api.AisContactManager;
 import pt.lsts.imc.DevDataText;
 import pt.lsts.imc.lsf.LsfMessageLogger;
 import pt.lsts.neptus.NeptusLog;
@@ -94,13 +95,15 @@ import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.NMEAUtils;
+import pt.lsts.neptus.util.nmea.NmeaListener;
+import pt.lsts.neptus.util.nmea.NmeaProvider;
 
 /**
  * @author zp
  * @author pdias
  */
 @PluginDescription(name = "NMEA Plotter", icon = "pt/lsts/neptus/plugins/alliance/nmea-ais.png")
-public class NmeaPlotter extends ConsoleLayer {
+public class NmeaPlotter extends ConsoleLayer implements NmeaProvider {
 
     private static final int RECT_WIDTH = 228;
     private static final int RECT_HEIGHT = 85;
@@ -189,6 +192,7 @@ public class NmeaPlotter extends ConsoleLayer {
     private HashSet<NmeaListener> listeners = new HashSet<>();
     private AisContactDb contactDb = new AisContactDb();
     private AISParser parser = new AISParser();
+    private final AisContactManager aisManager = AisContactManager.getInstance();
 
     private LinkedHashMap<String, LocationType> lastLocs = new LinkedHashMap<>();
     private LinkedHashMap<String, ScatterPointsElement> tracks = new LinkedHashMap<>();
@@ -208,8 +212,27 @@ public class NmeaPlotter extends ConsoleLayer {
                     tracks.put(name, sc);
                 }
                 tracks.get(name).addPoint(l);
+                updateAisManager(c);
             }
         }
+    }
+
+    /**
+     * Set/Update AIS contact's new information on AIS Manager
+     * */
+    private void updateAisManager(AisContact contact) {
+        int mmsi = contact.getMmsi();
+        double cog = Math.toRadians(contact.getCog());
+        double sog = contact.getSog();
+        double hdg = Math.toRadians(contact.getHdg());
+
+        LocationType loc = contact.getLocation().getNewAbsoluteLatLonDepth();
+        double latRads = loc.getLatitudeRads();
+        double lonRads = loc.getLongitudeRads();
+        long timestamp = System.currentTimeMillis();
+        String label = contact.getLabel();
+
+        aisManager.setShipPosition(mmsi, sog, cog, hdg, latRads, lonRads, timestamp, label);
     }
 
     private void connectToSerial() throws Exception {
@@ -292,7 +315,7 @@ public class NmeaPlotter extends ConsoleLayer {
     private void retransmit(String sentence) {
         DevDataText ddt = new DevDataText(sentence);
         for (ImcSystem s : ImcSystemsHolder.lookupSystemByType(SystemTypeEnum.CCU)) {
-            ImcMsgManager.getManager().sendMessageToSystem(ddt, s.getName());
+            ImcMsgManager.getManager().sendMessageToSystem(ddt.cloneMessage(), s.getName());
         }
     }
 
@@ -322,9 +345,15 @@ public class NmeaPlotter extends ConsoleLayer {
                 }
             }
         }
+        else if (s.startsWith("{")) {
+            contactDb.processJson(s);
+        }
         else {
             CmreAisCsvParser.process(s, contactDb);
         }
+        
+        for (NmeaListener l : listeners)
+            l.nmeaSentence(s);
     }
 
     private void connect() throws Exception {
@@ -381,16 +410,20 @@ public class NmeaPlotter extends ConsoleLayer {
                             break;
                         if (sentence.isEmpty())
                             continue;
-                        try {
-                            parseSentence(sentence);
+
+                        String[] tks = sentence.split("\n");
+                        for (String tk : tks) {
+                            try {
+                                parseSentence(tk);
+                            }
+                            catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            if (retransmitToNeptus)
+                                retransmit(tk);
+                            if (logReceivedData)
+                                LsfMessageLogger.log(new DevDataText(tk));
                         }
-                        catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        if (retransmitToNeptus)
-                            retransmit(sentence);
-                        if (logReceivedData)
-                            LsfMessageLogger.log(new DevDataText(sentence));
                     }
                     catch (SocketTimeoutException e) {
                         continue;
@@ -449,6 +482,7 @@ public class NmeaPlotter extends ConsoleLayer {
                 }
                 NeptusLog.pub().info("Listening to NMEA messages over UDP.");
                 getConsole().post(Notification.success("NMEA Plotter", "Listening via UDP to port " + udpPort + "."));
+
                 while (connected && isUdpConnected) {
                     try {
                         DatagramPacket dp = new DatagramPacket(new byte[65507], 65507);
@@ -457,16 +491,20 @@ public class NmeaPlotter extends ConsoleLayer {
                         sentence = sentence.substring(0, sentence.indexOf(0));
                         if (sentence == null || sentence.isEmpty())
                             continue;
-                        try {
-                            parseSentence(sentence);
+
+                        String[] tks = sentence.split("\n");
+                        for (String tk : tks) {
+                            try {
+                                parseSentence(tk);
+                            }
+                            catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            if (retransmitToNeptus)
+                                retransmit(tk);
+                            if (logReceivedData)
+                                LsfMessageLogger.log(new DevDataText(tk));
                         }
-                        catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        if (retransmitToNeptus)
-                            retransmit(sentence);
-                        if (logReceivedData)
-                            LsfMessageLogger.log(new DevDataText(sentence));
                     }
                     catch (SocketTimeoutException e) {
                         continue;
@@ -520,10 +558,16 @@ public class NmeaPlotter extends ConsoleLayer {
         connected = isSerialConnected || isUdpConnected || isTcpConnected;
     }
 
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.util.nmea.NmeaProvider#addListener(pt.lsts.neptus.util.nmea.NmeaListener)
+     */
     public void addListener(NmeaListener listener) {
         listeners.add(listener);
     }
 
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.util.nmea.NmeaProvider#removeListener(pt.lsts.neptus.util.nmea.NmeaListener)
+     */
     public void removeListener(NmeaListener listener) {
         listeners.remove(listener);
     }
@@ -839,7 +883,7 @@ public class NmeaPlotter extends ConsoleLayer {
                 null, new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        PluginUtils.editPluginProperties(NmeaPlotter.this, true);
+                        PluginUtils.editPluginProperties(NmeaPlotter.this, getConsole(), true);
                     }
                 });
         parser.register(contactDb);
@@ -942,5 +986,12 @@ public class NmeaPlotter extends ConsoleLayer {
                     br.close();
             }
         }
+    }
+    
+    public static class MTShip{
+        double LAT, LON, SPEED, COURSE, HEADING, TIME;
+        String SHIPNAME, TYPE_IMG, TYPE_NAME, STATUS_NAME,DESTINATION;
+        long SHIP_ID,ELAPSED;
+        int LENGTH,WIDTH,L_FORE,W_LEFT,ROT,SHIPTYPE,TYPE;
     }
 }

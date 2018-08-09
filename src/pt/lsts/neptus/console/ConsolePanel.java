@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -256,8 +256,8 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         root.addAttribute("height", "" + this.getHeight());
 
         Element properties = root.addElement("properties");
-        XML_PropertiesWrite(properties);
-        XML_ChildsWrite(root);
+        writePropertiesToXml(properties);
+        writeChildToXml(root);
 
         return doc;
     }
@@ -306,12 +306,9 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
             }
         }
         // Build menu
-        JMenu menu = getConsole().getOrCreateJMenu(new String[] { I18n.text("View") });
         ImageIcon icon = ImageUtils.getIcon(iconPath);
         menuItem = createMenuItem(popupPosition, name2, icon);
-//        if (accelerator != null)
-//            menuItem.setAccelerator(accelerator);
-        menu.add(menuItem);
+        getConsole().addJMenuIntoViewMenu(menuItem);
 
         // Build Dialog
         dialog = new JDialog(getConsole());
@@ -456,6 +453,13 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
             for (MapPanel p : pp)
                 p.removePostRenderPainter((Renderer2DPainter) this);
         }
+        
+        if (this instanceof StateRendererInteraction) {
+            Vector<CustomInteractionSupport> panels = getConsole().getSubPanelsOfInterface(
+                    CustomInteractionSupport.class);
+            for (CustomInteractionSupport cis : panels)
+                cis.removeInteraction((StateRendererInteraction) this);
+        }
 
         cleanPopup();
         
@@ -547,8 +551,8 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
     }
 
     public void inElement(Element e) {
-        XML_PropertiesRead(e.element("properties")); // propriedades
-        XML_ChildsRead(e); // resto que possa haver tipo mainpanels dentro...
+        readPropertiesFromXml(e.element("properties"));
+        readChildFromXml(e);
     }
 
     /**
@@ -911,21 +915,45 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         this.visibility = visibility;
     }
 
-    
-    
-    public void XML_ChildsRead(Element e) {
-
+    /**
+     * Used to process the child elements of the configuration of node.
+     * 
+     * Empty implementation.
+     * 
+     * @param e
+     */
+    protected void readChildFromXml(Element e) {
     }
 
-    public void XML_ChildsWrite(Element e) {
-
+    /**
+     * Used to write the child elements for the configuration of node.
+     * 
+     * Empty implementation.
+     * 
+     * @param e
+     */
+    protected void writeChildToXml(Element e) {
     }
 
-    public void XML_PropertiesRead(Element e) {
+    /**
+     * Used to process the properties for this component from the configuration of node.
+     * 
+     * If overridden call this super implementation.
+     * 
+     * @param e
+     */
+    protected void readPropertiesFromXml(Element e) {
         PluginUtils.setConfigXml(this, e.asXML());
     }
 
-    public void XML_PropertiesWrite(Element e) {
+    /**
+     * Used to process the properties for this component from the configuration of node.
+     * 
+     * If overridden call this super implementation.
+     * 
+     * @param e
+     */
+    protected void writePropertiesToXml(Element e) {
         String xml = PluginUtils.getConfigXml(this);
         try {
             Element el = DocumentHelper.parseText(xml).getRootElement();

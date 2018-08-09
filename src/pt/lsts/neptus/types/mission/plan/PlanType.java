@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -510,20 +510,8 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, NameId {
      * @return
      */
     public PlanType clonePlan() {
-
         PlanType plan = new PlanType(this.missionType);
-        plan.setId(getId());
-        Vector<VehicleType> vehicles = new Vector<VehicleType>();
-        vehicles.addAll(getVehicles());
-        plan.setVehicles(vehicles);
-
-        plan.graph = graph.clone();
-        
-        plan.startActions = new PlanActions();
-        plan.startActions.load(startActions.asElement("start-actions"));
-        plan.endActions = new PlanActions();
-        plan.endActions.load(endActions.asElement("end-actions"));
-
+        plan.load(asXML());
         return plan;		
     }
 

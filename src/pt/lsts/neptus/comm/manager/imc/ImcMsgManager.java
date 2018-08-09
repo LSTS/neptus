@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -33,6 +33,7 @@ package pt.lsts.neptus.comm.manager.imc;
 
 import java.io.IOException;
 import java.net.Inet4Address;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URL;
@@ -63,11 +64,15 @@ import com.google.common.eventbus.AsyncEventBus;
 import pt.lsts.imc.Announce;
 import pt.lsts.imc.EntityInfo;
 import pt.lsts.imc.EntityList;
+import pt.lsts.imc.FuelLevel;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.MessagePart;
+import pt.lsts.imc.PlanControlState;
+import pt.lsts.imc.PlanControlState.STATE;
 import pt.lsts.imc.RemoteSensorInfo;
 import pt.lsts.imc.ReportedState;
+import pt.lsts.imc.StateReport;
 import pt.lsts.imc.lsf.LsfMessageLogger;
 import pt.lsts.imc.net.IMCFragmentHandler;
 import pt.lsts.imc.state.ImcSystemState;
@@ -99,7 +104,9 @@ import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
+import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.NetworkInterfacesUtil;
 import pt.lsts.neptus.util.NetworkInterfacesUtil.NInterface;
 import pt.lsts.neptus.util.StringUtils;
@@ -326,6 +333,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         //message.setSrcEnt(255);
         
         onMessage(minfo, message);
+        
         bus.post(message);
     }
 
@@ -830,6 +838,84 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         }
     }
 
+    private void processStateReport(MessageInfo info, StateReport msg, ArrayList<IMCMessage> messagesCreatedToFoward) {
+        
+        String sysId = msg.getSourceName();
+        
+        long dataTimeMillis = msg.getStime() * 1000;
+        
+        double lat = msg.getLatitude();
+        double lon = msg.getLongitude();
+        double depth = msg.getDepth() == 0xFFFF ? -1 : msg.getDepth() / 10.0;
+        // double altitude = msg.getAltitude() == 0xFFFF ? -1 : msg.getAltitude() / 10.0;
+        double heading = ((double)msg.getHeading() / 65535.0) * 360;
+        double speedMS = msg.getSpeed() / 100.;
+        NeptusLog.pub().info("Received report from "+msg.getSourceName());
+        
+        ImcSystem imcSys = ImcSystemsHolder.lookupSystemByName(sysId);
+        if (imcSys == null) {
+            NeptusLog.pub().error("Could not find system with id "+sysId);
+            return;
+        }        
+        
+        LocationType loc = new LocationType(lat, lon);
+        loc.setDepth(depth);
+        imcSys.setLocation(loc, dataTimeMillis);
+        imcSys.setAttitudeDegrees(heading, dataTimeMillis);
+        
+        imcSys.storeData(SystemUtils.GROUND_SPEED_KEY, speedMS, dataTimeMillis, true);
+        imcSys.storeData(SystemUtils.COURSE_DEGS_KEY,
+                (int) AngleUtils.nomalizeAngleDegrees360(MathMiscUtils.round(heading, 0)),
+                dataTimeMillis, true);
+        imcSys.storeData(
+                SystemUtils.HEADING_DEGS_KEY,
+                (int) AngleUtils.nomalizeAngleDegrees360(MathMiscUtils.round(heading, 0)),
+                dataTimeMillis, true);
+        
+        int fuelPerc = msg.getFuel();
+        if (fuelPerc > 0) {
+            FuelLevel fuelLevelMsg = new FuelLevel();
+            IMCUtils.copyHeader(msg, fuelLevelMsg);
+            fuelLevelMsg.setTimestampMillis(dataTimeMillis);
+            fuelLevelMsg.setValue(fuelPerc);
+            fuelLevelMsg.setConfidence(0);
+            imcSys.storeData(SystemUtils.FUEL_LEVEL_KEY, fuelLevelMsg, dataTimeMillis, true);
+            
+            messagesCreatedToFoward.add(fuelLevelMsg);
+        }
+        
+        int execState = msg.getExecState();
+        PlanControlState pcsMsg = new PlanControlState();
+        IMCUtils.copyHeader(msg, pcsMsg);
+        pcsMsg.setTimestampMillis(dataTimeMillis);
+        switch (execState) {
+            case -1:
+                pcsMsg.setState(STATE.READY);
+                break;
+            case -3:
+                pcsMsg.setState(STATE.INITIALIZING);
+                break;
+            case -2:
+            case -4:
+                pcsMsg.setState(STATE.BLOCKED);
+                break;
+            default:
+                if (execState > 0)
+                    pcsMsg.setState(STATE.EXECUTING);
+                else
+                    pcsMsg.setState(STATE.BLOCKED);
+                break;
+        }
+
+        pcsMsg.setPlanEta(-1);
+        pcsMsg.setPlanProgress(execState >= 0 ? execState : -1);
+        pcsMsg.setManId("");
+        pcsMsg.setManEta(-1);
+        pcsMsg.setManType(0xFFFF);
+        
+        messagesCreatedToFoward.add(pcsMsg);
+    }
+    
     private void processRemoteSensorInfo(MessageInfo info, RemoteSensorInfo msg) {
         // Process pos. state reported from other system
         String sysId = msg.getId();
@@ -928,12 +1014,15 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                         sameIdErrorDetectedTimeMillis = System.currentTimeMillis();
                     }
                 }
-                return false;
+                postToBus(msg);
+                return true;
             }
 
             vci = getCommInfoById(id);
             if (!ImcId16.NULL_ID.equals(id) && !ImcId16.BROADCAST_ID.equals(id) && !ImcId16.ANNOUNCE.equals(id)
                     && !localId.equals(id)) {
+                
+                ArrayList<IMCMessage> messagesCreatedToFoward = new ArrayList<>();
                 
                 switch (msg.getMgid()) {
                     case Announce.ID_STATIC:
@@ -955,6 +1044,8 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                     case RemoteSensorInfo.ID_STATIC:
                         processRemoteSensorInfo(info, (RemoteSensorInfo) msg);
                         break;
+                    case StateReport.ID_STATIC:
+                        processStateReport(info, new StateReport(msg), messagesCreatedToFoward);
                     default:
                         break;
                 }
@@ -969,7 +1060,13 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                     NeptusLog.pub().trace(
                             this.getClass().getSimpleName() + ": Message redirected for system comm. "
                                     + vci.getSystemCommId() + ".");
+
+                    for (IMCMessage imcMsg : messagesCreatedToFoward) {
+                        vci.onMessage(info, imcMsg);
+                    }
+                    
                     vci.onMessage(info, msg);
+                    
                     return true;
                 }
             }
@@ -1031,10 +1128,19 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
             vciRedirect.onMessage(info, msg);
             sentToBus = true;
         }
+        if (!sentToBus) {
+            postToBus(msg);
+        }
 
+        return true;
+    }
+
+    /**
+     * @param msg
+     */
+    private void postToBus(IMCMessage msg) {
         try {
-            if (!sentToBus)
-                bus.post(msg);
+            bus.post(msg);
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -1042,8 +1148,6 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         catch (Error e) {
             e.printStackTrace();
         }
-
-        return true;
     }
 
     /**
@@ -1060,6 +1164,8 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         String sia = info.getPublisherInetAddress();
         NeptusLog.pub().debug("processAnnounceMessage for " + ann.getSysName() + "@" + id + " :: publisher host address " + sia);
         
+        boolean hostWasGuessed = true;
+        
         InetSocketAddress[] retId = announceWorker.getImcIpsPortsFromMessageImcUdp(ann);
         int portUdp = 0;
         String hostUdp = "";
@@ -1074,6 +1180,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                     udpIpPortFound = true;
                     portUdp = add.getPort();
                     hostUdp = add.getAddress().getHostAddress();
+                    hostWasGuessed = false;
                     NeptusLog.pub().debug("processAnnounceMessage for " + ann.getSysName() + "@" + id + " :: " + "UDP reachable @ " + hostUdp + ":" + portUdp);
                     break;
                 }
@@ -1082,6 +1189,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         if (!udpIpPortFound) {
             // Lets try to see if we received a message from any of the IPs
             String ipReceived = hostUdp.isEmpty() ? info.getPublisherInetAddress() : hostUdp;
+            hostWasGuessed = hostUdp.isEmpty() ? hostWasGuessed : true;
             hostUdp = ipReceived;
             udpIpPortFound = true;
             NeptusLog.pub().debug("processAnnounceMessage for " + ann.getSysName() + "@" + id + " :: " + "no UDP reachable using " + hostUdp + ":" + portUdp);
@@ -1101,6 +1209,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                     if (add.getAddress().isReachable(10)) {
                         tcpIpPortFound = true;
                         hostUdp = add.getAddress().getHostAddress();
+                        hostWasGuessed = false;
                         portTcp = add.getPort();
                         NeptusLog.pub().debug("processAnnounceMessage for " + ann.getSysName() + "@" + id + " :: " + "TCP reachable @ " + hostUdp + ":" + portTcp);
                         break;
@@ -1115,7 +1224,9 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
             }
         }
 
-        NeptusLog.pub().debug("processAnnounceMessage for " + ann.getSysName() + "@" + id + " :: " + "using UDP@" + hostUdp + ":" + portUdp + " and using TCP@" + hostUdp + ":" + portTcp);
+        NeptusLog.pub().debug("processAnnounceMessage for " + ann.getSysName() + "@" + id + " :: " + "using UDP@" + hostUdp
+                        + ":" + portUdp + " and using TCP@" + hostUdp + ":" + portTcp + "  with host "
+                        + (hostWasGuessed ? "guessed" : "found"));
 
         boolean requestEntityList = false;
         if (vci == null) {
@@ -1156,13 +1267,83 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                     resSys.setRemoteUDPPort(DEFAULT_UDP_VEH_PORT);
             }
             if (!"".equalsIgnoreCase(hostUdp) && !AnnounceWorker.NONE_IP.equalsIgnoreCase(hostUdp)) {
+                hostWasGuessed = true;
                 if (AnnounceWorker.USE_REMOTE_IP.equalsIgnoreCase(hostUdp)) {
                     if (dontIgnoreIpSourceRequest)
                         resSys.setHostAddress(info.getPublisherInetAddress());
                 }
                 else {
-                    if (udpIpPortFound || tcpIpPortFound)
+                    if ((udpIpPortFound || tcpIpPortFound) && !hostWasGuessed) {
                         resSys.setHostAddress(hostUdp);
+                    }
+                    else if (hostWasGuessed) {
+                        boolean alreadyFound = false;
+                        try {
+                            Map<InetSocketAddress, Integer> fAddr = new LinkedHashMap<>();
+                            InetAddress publisherIAddr = InetAddress.getByName(sia);
+                            byte[] pba = publisherIAddr.getAddress();
+                            int i = 0;
+                            for (InetSocketAddress inetSAddr : retId) {
+                                byte[] lta = inetSAddr.getAddress().getAddress();
+                                if (lta.length != pba.length)
+                                    continue;
+                                i = 0;
+                                for (; i < lta.length; i++) {
+                                    if (pba[i] != lta[i])
+                                        break;
+                                }
+                                if (i > 0 && i <= pba.length)
+                                    fAddr.put(inetSAddr, i);
+                            }
+                            for (InetSocketAddress inetSAddr : retIdT) {
+                                if (fAddr.containsKey(inetSAddr))
+                                    continue;
+                                byte[] lta = inetSAddr.getAddress().getAddress();
+                                if (lta.length != pba.length)
+                                    continue;
+                                i = 0;
+                                for (; i < lta.length; i++) {
+                                    if (pba[i] != lta[i])
+                                        break;
+                                }
+                                if (i > 0 && i <= pba.length)
+                                    fAddr.put(inetSAddr, i);
+                            }
+                            
+                            InetSocketAddress foundCandidateAddr = fAddr.keySet().stream().max((a1, a2) -> {
+                                    return fAddr.get(a1) - fAddr.get(a2);
+                                }).orElse(null);
+                            if (foundCandidateAddr != null) {
+                                resSys.setHostAddress(foundCandidateAddr.getAddress().getHostAddress());
+                                alreadyFound = true;
+                            }
+                        }
+                        catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        
+                        if (!alreadyFound) {
+                            String curHostAddr = resSys.getHostAddress();
+                            boolean currIsInAnnounce = false;
+                            for (InetSocketAddress inetSAddr : retId) {
+                                if (curHostAddr.equalsIgnoreCase(inetSAddr.getAddress().getHostAddress())) {
+                                    currIsInAnnounce = true;
+                                    break;
+                                }
+                            }
+                            if (!currIsInAnnounce) {
+                                for (InetSocketAddress inetSAddr : retIdT) {
+                                    if (curHostAddr.equalsIgnoreCase(inetSAddr.getAddress().getHostAddress())) {
+                                        currIsInAnnounce = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            
+                            if (!currIsInAnnounce)
+                                resSys.setHostAddress(hostUdp);
+                        }
+                    }
                 }
             }
             if (portTcp != 0 && tcpIpPortFound) {
@@ -1179,6 +1360,9 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
             else {
                 resSys.setUDPOn(true);
             }
+
+            NeptusLog.pub().debug("processAnnounceMessage for " + ann.getSysName() + "@" + id + " :: " + "final setup UDP@" + resSys.getHostAddress()
+                    + ":" + resSys.getRemoteUDPPort() + " and using TCP@" + resSys.getHostAddress() + ":" + resSys.getRemoteTCPPort());
 
             resSys.setOnAnnounceState(true);
 
@@ -1387,7 +1571,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
     }
 
     public boolean broadcastToCCUs(IMCMessage message) {
-        ImcSystem[] ccus = ImcSystemsHolder.lookupActiveSystemByType(SystemTypeEnum.CCU);
+        ImcSystem[] ccus = ImcSystemsHolder.lookupSystemCCUs();
 
         for (ImcSystem ccu : ccus)
             sendMessage(message, ccu.getId(), null);
@@ -1622,9 +1806,9 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         if (msg == null)
             return;
 
-        ImcSystem[] systems = ImcSystemsHolder.lookupActiveSystemCCUs();
+        ImcSystem[] systems = ImcSystemsHolder.lookupSystemCCUs();
         for (ImcSystem s : systems) {
-            NeptusLog.pub().info("<###>sending msg '" + msg.getAbbrev() + "' to '" + s.getName() + "'...");
+            NeptusLog.pub().info("sending msg '" + msg.getAbbrev() + "' to '" + s.getName() + "'...");
             ImcMsgManager.getManager().sendMessage(msg, s.getId(), null);
         }
     }

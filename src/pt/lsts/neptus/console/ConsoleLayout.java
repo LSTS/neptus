@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -115,6 +115,7 @@ import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.console.events.ConsoleEventMissionChanged;
 import pt.lsts.neptus.console.events.ConsoleEventNewSystem;
 import pt.lsts.neptus.console.events.ConsoleEventPlanChange;
+import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.console.notifications.NotificationsCollection;
 import pt.lsts.neptus.console.notifications.NotificationsDialog;
 import pt.lsts.neptus.console.plugins.ComponentSelector;
@@ -143,6 +144,7 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.loader.NeptusMain;
 import pt.lsts.neptus.mp.MapChangeEvent;
 import pt.lsts.neptus.mp.MapChangeListener;
+import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.renderer2d.VehicleStateListener;
 import pt.lsts.neptus.types.XmlInOutMethods;
 import pt.lsts.neptus.types.XmlOutputMethods;
@@ -233,6 +235,8 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     
     protected PluginManager pluginManager = null;
     protected SettingsWindow settingsWindow = null;
+    protected String pluginManagerName = null;
+    protected String settingsWindowName = null;
 
     /**
      * Static factory method
@@ -325,6 +329,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
             manager.setSettingsWindow(settings);
         instance.settingsWindow = settings;
 
+        // @Deprecated
         if (!editable)
             instance.removeJMenuAction(LayoutEditConsoleAction.class);
 
@@ -507,6 +512,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
      * 
      * @param mode boolean to set editing off or on
      */
+    @Deprecated
     public void setModeEdit(boolean mode) {
         if (mode) {
             if (consolePluginSelector == null) {
@@ -631,9 +637,10 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
 
         advanced.addSeparator();
 
-        LayoutEditConsoleAction layoutEdit = new LayoutEditConsoleAction(this);
-        actions.put(LayoutEditConsoleAction.class, layoutEdit);
-        advanced.add(layoutEdit);
+        // @Deprecated
+        // LayoutEditConsoleAction layoutEdit = new LayoutEditConsoleAction(this);
+        // actions.put(LayoutEditConsoleAction.class, layoutEdit);
+        // advanced.add(layoutEdit);
 
         advanced.add(new SetMainVehicleConsoleAction(this));
 
@@ -695,33 +702,29 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         return null;
     }
 
-    // public void addSettingsWindowtiMenuBar() {
-    // Vector<SubPanel> pluginSubPanels = getSubPanelsOfClass(SubPanel.class);
-    // SettingsWindow settingsWindow = new SettingsWindow(pluginSubPanels, true);
-    // if (settingsWindow.existsSettingsToShow()) {
-    //
-    // }
-    //
-    // final String settings = "@Settings";
-    // MenuElement[] menuElements = menuBar.getSubElements();
-    // for (int i = 0; i < menuElements.length; i++) {
-    // JMenu menuElement = (JMenu) menuElements[i];
-    // String text = menuElement.getText();
-    // if (text.equals(settings)) {
-    // menuElement.add(new AbstractAction(I18n.text("All Settings"), ICON_SETTINGS) {
-    // private static final long serialVersionUID = 9145507092153218703L;
-    //
-    // @Override
-    // public void actionPerformed(ActionEvent e) {
-    // Vector<SubPanel> pluginSubPanels = getSubPanelsOfClass(SubPanel.class);
-    // SettingsWindow settingsWindow = new SettingsWindow(pluginSubPanels, mainPanel.isEditFlag());
-    // settingsWindow.showWindow();
-    // }
-    // });
-    //
-    // }
-    // }
-    // }
+    private void cleanEmptyJMenusOnMenuBar() {
+        for (Component comp : menuBar.getComponents()) {
+            if (!(comp instanceof JMenu))
+                continue;
+
+            JMenu menu = (JMenu) comp;
+            cleanEmptyJMenusOnMenuBarWorker(menu);
+        }
+    }
+
+    private void cleanEmptyJMenusOnMenuBarWorker(JMenu menu) {
+        if (menu.getMenuComponentCount() == 0) {
+            menu.getParent().remove(menu);
+        }
+        else {
+            for (Component comp1 : menu.getMenuComponents()) {
+                if (!(comp1 instanceof JMenu))
+                    continue;
+                else
+                    cleanEmptyJMenusOnMenuBarWorker((JMenu) comp1);
+            }
+        }
+    }
 
     protected JMenu includeHelpMenu() {
         JMenu helpMenu = new JMenu();
@@ -906,7 +909,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
      * 
      * @param systemName Vehicle ID
      */
-    public void addSystem(String systemName) {
+    public synchronized void addSystem(String systemName) {
         VehicleType vehicleType = VehiclesHolder.getVehicleById(systemName);
         ImcSystem imcSystem = ImcSystemsHolder.lookupSystemByName(systemName);
         if (vehicleType != null && imcSystem == null) {
@@ -914,9 +917,15 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
             return;
         }
 
+        if (!systemName.equals(systemName.trim())) {
+            NeptusLog.pub().fatal(">>>>>>>>>>>>>>>>> " + this.getClass().getSimpleName()
+                    + " :: Test for system name malformed '" + systemName + "' != '" + systemName.trim() + "'");
+            Thread.dumpStack();
+        }
+        
         ConsoleSystem system;
         if (imcSystem == null) {
-            NeptusLog.pub().warn("tried to add a vehicle from imc with comms disabled: " + systemName);
+            NeptusLog.pub().warn("tried to add a vehicle from imc with comms disabled: '" + systemName + "'");
             return;
         }
         if (imcSystem.getType() != SystemTypeEnum.VEHICLE) {
@@ -932,6 +941,15 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         else {
             system = new ConsoleSystem(systemName, this, imcSystem, imcMsgManager);
             consoleSystems.put(systemName, system);
+            
+            post(Notification.info("Console",
+                    "New main system added to console: " + systemName).requireHumanAction(false));
+            String msgTxt = "New main system added to console: '" + systemName + "'";
+            post(Notification
+                    .info("Console", msgTxt)
+                    .requireHumanAction(false));
+            NeptusLog.pub().info(ConsoleLayout.this.getClass() + " :: " + msgTxt);
+
             if (this.mainVehicle == null) {
                 this.setMainSystem(systemName);
             }
@@ -1518,8 +1536,12 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         if (pluginManager != null)
             pluginManager.reset();
         
-        if (settingsWindow != null)
+        if (settingsWindow != null) {
+            settingsWindow.setIgnoreSubPanelChangedEvents(false);
             settingsWindow.reset();
+        }
+        
+        cleanEmptyJMenusOnMenuBar();
     }
     
     /**
@@ -1581,6 +1603,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
             system.clean();
         }
         consoleSystems.clear();
+        mainSystemCombo.removeAllItems();
 
         mainPanel.clean();
         
@@ -1588,8 +1611,11 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         
         if (pluginManager != null)
             pluginManager.reset();
-        if (settingsWindow != null)
+        if (settingsWindow != null) {
             settingsWindow.reset();
+            settingsWindow.setIgnoreSubPanelChangedEvents(true);
+        }
+
     }
 
     /**
@@ -1811,6 +1837,12 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     }
 
     public JMenu removeMenuItem(String... menuPath) {
+        // To account for the add option of separating menus by '>'
+        if (menuPath.length == 1 && menuPath[0].contains(">")) {
+            String[] tks = menuPath[0].split(">");
+            menuPath = tks;
+        }
+        
         JMenu parent = null;
         for (int i = 0; i < this.menuBar.getMenuCount(); i++) {
             JMenu menu = getConsole().getJMenuBar().getMenu(i);
@@ -1928,6 +1960,61 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         }
     }
 
+    public synchronized void addJMenuIntoViewMenu(JMenuItem menu) {
+        JMenu viewMenu = getConsole().getOrCreateJMenu(new String[] { I18n.text("View") });
+        
+        if (settingsWindowName == null) {
+            Popup cAction = settingsWindow != null ? settingsWindow.getClass().getAnnotation(Popup.class)
+                    : SettingsWindow.class.getAnnotation(Popup.class);
+            settingsWindowName = I18n.text(cAction.name());
+        }
+        if (pluginManagerName == null) {
+            Popup cAction = pluginManager != null ? pluginManager.getClass().getAnnotation(Popup.class)
+                    : PluginManager.class.getAnnotation(Popup.class);
+            pluginManagerName = I18n.text(cAction.name());
+        }
+        
+        int elms = viewMenu.getItemCount();
+        if (elms == 0 || settingsWindowName.equals(menu.getText())) {
+            viewMenu.add(menu); // Add to last
+            return;
+        }
+        else if (pluginManagerName.equals(menu.getText())) {
+            // Add previous to Settings
+            if (elms == 0) {
+                viewMenu.add(menu);
+                return;
+            }
+            else {
+                JMenuItem lastMenu = viewMenu.getItem(elms - 1);
+                if (settingsWindowName.equals(lastMenu.getText()))
+                    viewMenu.add(menu, elms - 1);
+                else
+                    viewMenu.add(menu);
+                return;
+            }
+        } 
+
+        // If we got here at least one element we have in the menu
+        Collator collator = Collator.getInstance(Locale.US);
+        for (int i = elms - 1; i >= 0; i--) {
+            JMenuItem itemM = viewMenu.getItem(i);
+            if (settingsWindowName.equalsIgnoreCase(itemM.getText()) || pluginManagerName.equalsIgnoreCase(itemM.getText())) {
+                if (i == 0) {
+                    viewMenu.add(menu, 0);
+                    return;
+                }
+                continue;
+            }
+            else {
+                if (collator.compare(menu.getText(), itemM.getText()) < 0)
+                    continue;
+                viewMenu.add(menu, i + 1);
+                return;
+            }
+        }
+    }
+    
     @Override
     public void componentResized(ComponentEvent e) {
         notificationsDialog.setVisible(false);

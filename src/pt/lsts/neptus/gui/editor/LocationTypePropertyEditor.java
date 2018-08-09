@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -45,6 +45,7 @@ import com.l2fprod.common.beans.editor.FixedButton;
 import com.l2fprod.common.swing.LookAndFeelTweaks;
 
 import pt.lsts.neptus.gui.LocationPanel;
+import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.coord.LocationType;
 
 /**
@@ -75,7 +76,9 @@ public class LocationTypePropertyEditor extends AbstractPropertyEditor {
 					//System.err.println("->_>_>_>_>Depois:"+newLoc.getLatitude());
 					//locationType.setLocation(newLoc);
 					firePropertyChange(oldLoc, newLoc);
-					textField.setText(locationType.toString());
+					LocationType sLoc = locationType.getNewAbsoluteLatLonDepth();
+                    textField.setText(CoordinateUtil.latitudeAsPrettyString(sLoc.getLatitudeDegs()) + ", "
+                            + CoordinateUtil.longitudeAsPrettyString(sLoc.getLongitudeDegs()));
 				}
 			}
 		});
@@ -88,10 +91,9 @@ public class LocationTypePropertyEditor extends AbstractPropertyEditor {
 	public void setValue(Object arg0) {
 		if (arg0 instanceof LocationType) {
 			locationType.setLocation((LocationType) arg0);
-			textField.setText(locationType.toString());
+			LocationType sLoc = locationType.getNewAbsoluteLatLonDepth();
+			textField.setText(CoordinateUtil.latitudeAsPrettyString(sLoc.getLatitudeDegs()) + ", "
+                    + CoordinateUtil.longitudeAsPrettyString(sLoc.getLongitudeDegs()));
 		}
-	}
-	
-	public static void main(String[] args) {
 	}
 }

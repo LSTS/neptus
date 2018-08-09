@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -293,37 +293,32 @@ public class Loiter extends Maneuver implements LocatedManeuver, ManeuverWithSpe
 			}
 			
 			if (p.getName().equalsIgnoreCase("Speed")) {
-				setSpeed((Double)p.getValue());
+				setSpeed(Double.valueOf(""+p.getValue()));
 				continue;
 			}
 			
 			if (p.getName().equalsIgnoreCase("Speed Tolerance")) {
-				setSpeedTolerance((Double)p.getValue());
+				setSpeedTolerance(Double.valueOf(""+p.getValue()));
 				continue;
 			}
 			
-//			if (p.getName().equalsIgnoreCase("Speed Units")) {
-//				setSpeedUnits((String)p.getValue());
-//				continue;
-//			}
-			
 			if (p.getName().equals("Radius")) {
-				setRadius((Double)p.getValue());
+				setRadius(Double.valueOf(""+p.getValue()));
 				continue;
 			}
 			
 			if (p.getName().equalsIgnoreCase("Radius Tolerance")) {
-				setRadiusTolerance((Double)p.getValue());
+				setRadiusTolerance(Double.valueOf(""+p.getValue()));
 				continue;
 			}
 			
 			if (p.getName().equals("Length")) {
-				setLength((Double)p.getValue());
+				setLength(Double.valueOf(""+p.getValue()));
 				continue;
 			}
 			
 			if (p.getName().equals("Bearing")) {
-				setBearing((Double)p.getValue());
+				setBearing(Double.valueOf(""+p.getValue()));
 				continue;
 			}
 			

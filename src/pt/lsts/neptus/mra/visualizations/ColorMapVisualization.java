@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -104,7 +104,7 @@ public class ColorMapVisualization extends JPanel implements MRAVisualization, A
     private int defaultHeight = 600;
 
     private JLabel image = new JLabel();
-    private JComboBox<?> cmapCombo = new JComboBox<Object>(ColorMap.cmaps);
+    private JComboBox<?> cmapCombo = new JComboBox<Object>(ColorMap.cmaps.toArray(new ColorMap[ColorMap.cmaps.size()]));
     private JComboBox<String> entCombo = new JComboBox<String>();
     
     private JToolBar toolbar = new JToolBar(JToolBar.HORIZONTAL);

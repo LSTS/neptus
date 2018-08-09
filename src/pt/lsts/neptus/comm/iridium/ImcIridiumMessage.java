@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -103,6 +103,10 @@ public class ImcIridiumMessage extends IridiumMessage {
        Vector<IMCMessage> vec = new Vector<>();
        if (msg != null)
            vec.add(msg);
+       
+       msg.setSrc(getSource());
+       msg.setDst(getDestination());
+       msg.setTimestampMillis(timestampMillis);
        return vec;
     }
     
