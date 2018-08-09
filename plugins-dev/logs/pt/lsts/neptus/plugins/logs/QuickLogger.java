@@ -32,120 +32,82 @@
  */
 package pt.lsts.neptus.plugins.logs;
 
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.BorderLayout;
+import java.awt.event.KeyEvent;
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
 
-import javax.swing.JButton;
+import com.eclipsesource.json.Json;
+import com.eclipsesource.json.JsonArray;
+import com.google.common.eventbus.Subscribe;
 
-import pt.lsts.imc.IMCDefinition;
-import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.lsf.LsfMessageLogger;
-import pt.lsts.neptus.NeptusLog;
+import pt.lsts.imc.NeptusBlob;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
-import pt.lsts.neptus.console.plugins.ConsoleScript;
-import pt.lsts.neptus.console.plugins.LogBookPanel;
-import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.Popup;
+import pt.lsts.neptus.plugins.Popup.POSITION;
+import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.util.ConsoleParse;
-import pt.lsts.neptus.util.DateTimeUtil;
-import pt.lsts.neptus.util.conf.StringProperty;
 
 /**
  * @author zp
  * 
  */
+@Popup(name = "Quick LogBook Panel", accelerator = KeyEvent.VK_Q, width = 600, height = 400, pos = POSITION.BOTTOM_RIGHT, icon = "pt/lsts/neptus/plugins/plugins/logs/log.png")
 @PluginDescription(author = "zp", name = "Quick Logbook Panel")
-public class QuickLogger extends ConsolePanel implements ConfigurationListener {
-    private ConsoleScript conScript = new ConsoleScript();
+public class QuickLogger extends ConsolePanel {
 
     private static final long serialVersionUID = 1L;
 
-    @NeptusProperty(name = "Log Shortcuts", description = "Enter the shortcuts as <Text to display>,<Text to log>(,<icon filename>)?")
-    public StringProperty shortcuts = new StringProperty(
-            "Mission Start,Mission Started\nScript Example,\"VehicleStatePos.ref=\"+$(VehicleStatePos.ref)");
+    @NeptusProperty(name = "Disseminate to network", description = "Merge log entries from this log onto other console's")
+    public boolean disseminateLog = true;
 
-    @NeptusProperty(name = "Number of Rows", description = "Number of rows in the panel. 0 for infinite.")
-    public int numRows = 0;
+    private LogBookPanel lbPanel;
 
-    @NeptusProperty(name = "Number of Columns", description = "Number of columns in the panel. 0 for infinite.")
-    public int numCols = 1;
+    @Subscribe
+    public void on(NeptusBlob msg) {
+        if (msg.getContentType().equals("text/log")) {
+            JsonArray arr = Json.parse(new String(msg.getContent())).asArray();
+            lbPanel.merge(arr);
+        }
+    }
 
-    protected IMCMessage logMsg = IMCDefinition.getInstance().create("LogBookEntry");
+    @Periodic(millisBetweenUpdates = 30_000)
+    public void disseminate() {
+        JsonArray log = lbPanel.toJson();
+        NeptusBlob blob = new NeptusBlob("text/log", log.toString().getBytes());
+        ImcMsgManager.getManager().broadcastToCCUs(blob);
+    }
 
     public QuickLogger(ConsoleLayout console) {
         super(console);
-        // logMsg.setValue("op", System.getProperty("user.name"));
-        logMsg.setValue("context", System.getProperty("user.name") + " quick log");
-        logMsg.setValue("type", 0);
-        propertiesChanged();
-    }
-
-    @Override
-    public void propertiesChanged() {
-        removeAll();
-        setLayout(new GridLayout(numRows, numCols));
-        String[] lines = shortcuts.toString().split("\n");
-        for (String s : lines) {
-            String[] parts = s.split(",");
-            final String logText = parts[1].trim();
-
-            JButton btn = new JButton(parts[0].trim());
-            btn.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-
-                    String txt;
-
-                    try {
-                        conScript.setScript(logText);
-                        txt = conScript.evaluate(getState()).toString();
-                    }
-                    catch (Exception ex) {
-                        txt = logText;
-                        ex.printStackTrace();
-                    }
-
-                    logMsg.setValue("htime", DateTimeUtil.timeStampSeconds());
-                    logMsg.setValue("text", txt);
-                    try {
-                        LsfMessageLogger.log(logMsg);
-                    }
-                    catch (Exception ex) {
-                        NeptusLog.pub().error(ex);
-                    }
-                    LogBookPanel.logPlain(txt);
-                }
-            });
-            add(btn);
-        }
-        // doLayout();
-        invalidate();
-        revalidate();
-        validate();
     }
 
     public static void main(String[] args) {
         ConsoleParse.testSubPanel(QuickLogger.class);
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.plugins.SimpleSubPanel#initSubPanel()
-     */
     @Override
     public void initSubPanel() {
-        // TODO Auto-generated method stub
-        
+        removeAll();
+        SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd");
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+        setLayout(new BorderLayout());
+        lbPanel = new LogBookPanel(new File("log/logbook_" + sdf.format(new Date()) + ".html"));
+        add(lbPanel, BorderLayout.CENTER);
+        doLayout();
+        invalidate();
+        revalidate();
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.plugins.SimpleSubPanel#cleanSubPanel()
-     */
     @Override
     public void cleanSubPanel() {
-        // TODO Auto-generated method stub
-        
+
     }
 }
