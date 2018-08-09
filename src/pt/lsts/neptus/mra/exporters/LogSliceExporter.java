@@ -38,7 +38,13 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -68,34 +74,40 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
  * @author zp
  *
  */
-@PluginDescription(name="Log Slice", experimental=true)
+@PluginDescription(name = "Log Slice", experimental = true)
 public class LogSliceExporter implements MRAExporter {
-    
+
     Date start, end;
-    
+
     private String inputInterval(IMraLogGroup source) {
-        
-        SimpleDateFormat day = new SimpleDateFormat("yyyyMMdd");
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
-        
-        day.setTimeZone(TimeZone.getTimeZone("UTC"));
-        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-        
-        
-        start = new Date((long)(source.getLsfIndex().getStartTime()*1000));
-        end = new Date((long)(source.getLsfIndex().getEndTime()*1000));
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ssZ");
+
+        start = new Date((long) (source.getLsfIndex().getStartTime() * 1000));
+        end = new Date((long) (source.getLsfIndex().getEndTime() * 1000));
         Date startOfDay = new Date();
         try {
-            startOfDay = day.parse(day.format(start));
+            startOfDay = Date.from(LocalDate.now().atStartOfDay(ZoneId.of("UTC")).toInstant());
         }
         catch (Exception e) {
             e.printStackTrace();
-            return e.getClass()+": "+e.getMessage();
+            return e.getClass() + ": " + e.getMessage();
         }
-        
+
+        System.out.println(startOfDay);
+        System.out.println(sdf.format(startOfDay));
+        try {
+            System.out.println(sdf.parse(sdf.format(startOfDay)));
+        }
+        catch (ParseException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+
         String startSel = "";
-        while(startSel.isEmpty()) {
-        startSel = JOptionPane.showInputDialog(ConfigFetch.getSuperParentFrame(), I18n.text("Select start time (UTC)"), sdf.format(start));        
+        while (startSel.isEmpty()) {
+            startSel = JOptionPane.showInputDialog(ConfigFetch.getSuperParentFrame(),
+                    I18n.text("Select start time (UTC)"), sdf.format(start));
             if (startSel == null)
                 return I18n.text("Cancelled by the user");
             try {
@@ -107,10 +119,11 @@ public class LogSliceExporter implements MRAExporter {
                 continue;
             }
         }
-        
+
         String endSel = "";
         while (endSel.isEmpty()) {
-            endSel = JOptionPane.showInputDialog(ConfigFetch.getSuperParentFrame(), I18n.text("Select end time (UTC)"), sdf.format(end));
+            endSel = JOptionPane.showInputDialog(ConfigFetch.getSuperParentFrame(), I18n.text("Select end time (UTC)"),
+                    sdf.format(end));
             if (endSel == null)
                 return I18n.text("Cancelled by the user");
             try {
@@ -122,89 +135,90 @@ public class LogSliceExporter implements MRAExporter {
                 continue;
             }
         }
-        
+
         if (start.after(end)) {
             return I18n.text("Start time must be before end time");
         }
-      
-        start = new Date(startOfDay.getTime()+start.getTime());
-        end = new Date(startOfDay.getTime()+end.getTime());
+
+        start = new Date(start.getTime());
+        end = new Date(end.getTime());
         return null;
     }
-    
+
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
         return true;
     }
-    
+
     @Override
     public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
-        
+
         String problem = inputInterval(source);
         if (problem != null)
             return problem;
-        
+
         LsfIndex index = source.getLsfIndex();
         HashSet<String> availableMessages = new HashSet<>();
-        
+
         for (int i = 0; i < index.getNumberOfMessages(); i++) {
             int type = index.typeOf(i);
             String name = index.getDefinitions().getMessageName(type);
             if (name != null)
                 availableMessages.add(name);
         }
-        
+
         ArrayList<String> selectedMsgs = new ArrayList<>();
         selectedMsgs.addAll(availableMessages);
         Collections.sort(selectedMsgs);
-        String[] result = CheckboxList.selectOptions(ConfigFetch.getSuperParentFrame(), I18n.text("Messages to export"), selectedMsgs.toArray(new String[selectedMsgs.size()]));
+        String[] result = CheckboxList.selectOptions(ConfigFetch.getSuperParentFrame(), I18n.text("Messages to export"),
+                selectedMsgs.toArray(new String[selectedMsgs.size()]));
         if (result == null)
             return I18n.text("Cancelled by user.");
-        
+
         ArrayList<Integer> selectedTypes = new ArrayList<>();
         for (String r : result)
             selectedTypes.add(index.getDefinitions().getMessageId(r));
-        
+
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss");
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-        
+
         File outputdir = new File(source.getDir(), sdf.format(start));
         int count = 1;
         while (outputdir.exists()) {
-            outputdir = new File(source.getDir(), sdf.format(start)+"."+count);
+            outputdir = new File(source.getDir(), sdf.format(start) + "." + count);
             count++;
         }
-        
+
         outputdir.mkdirs();
         try {
-            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter( new
-                    GZIPOutputStream(new FileOutputStream(new File(outputdir, "IMC.xml.gz")))));
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
+                    new GZIPOutputStream(new FileOutputStream(new File(outputdir, "IMC.xml.gz")))));
 
             writer.write(index.getDefinitions().getSpecification());
             writer.close();
-            
+
             GZIPOutputStream out = new GZIPOutputStream(new FileOutputStream(new File(outputdir, "Data.lsf.gz")));
 
             writeInitialMessages(index, out);
             double endTime = end.getTime() / 1000.0;
-            for (int i = index.getFirstMessageAtOrAfter(start.getTime()/1000.0); i != -1; i++) {
+            for (int i = index.getFirstMessageAtOrAfter(start.getTime() / 1000.0); i != -1; i++) {
                 if (index.timeOf(i) > endTime)
                     break;
                 if (!selectedTypes.contains(index.typeOf(i)))
                     continue;
-                
+
                 out.write(index.getMessageBytes(i));
-            }            
+            }
             out.close();
         }
         catch (Exception e) {
             e.printStackTrace();
-            return e.getClass()+": "+e.getMessage();
+            return e.getClass() + ": " + e.getMessage();
         }
-        
+
         return I18n.textf("Log file written to %path", outputdir.getAbsolutePath());
     }
-    
+
     private void writeInitialMessages(LsfIndex index, OutputStream out) throws Exception {
         LinkedHashMap<Integer, EntityList> entities = new LinkedHashMap<>();
         LinkedHashMap<Integer, Announce> announces = new LinkedHashMap<>();
@@ -227,18 +241,18 @@ public class LogSliceExporter implements MRAExporter {
             else if (el.getOp() == OP.REPORT)
                 entities.put(el.getSrc(), el);
         }
-        
+
         for (Announce an : index.getIterator(Announce.class)) {
             if (an.getTimestampMillis() > start.getTime())
                 break;
             else
                 announces.put(an.getSrc(), an);
         }
-        
+
         ArrayList<IMCMessage> msgs = new ArrayList<>();
         msgs.addAll(entities.values());
         msgs.addAll(announces.values());
-        
+
         for (IMCMessage m : msgs) {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             IMCOutputStream ios = new IMCOutputStream(baos);
@@ -247,5 +261,23 @@ public class LogSliceExporter implements MRAExporter {
             out.write(baos.toByteArray());
             ios.close();
         }
+    }
+
+    public static void main(String[] args) throws ParseException {
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ISO_DATE_TIME;
+        Date startOfDay = new Date();
+        try {
+            startOfDay = Date.from(LocalDate.now().atStartOfDay(ZoneId.of("UTC")).toInstant());
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        timeFormatter.format(startOfDay.toInstant());
+        TemporalAccessor ta = timeFormatter.parse(timeFormatter.format(startOfDay.toInstant()));
+        Date date = Date.from(Instant.from(ta));
+
+        System.out.println(startOfDay);
+        System.out.println(date);
     }
 }

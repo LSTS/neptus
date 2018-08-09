@@ -115,6 +115,7 @@ import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.console.events.ConsoleEventMissionChanged;
 import pt.lsts.neptus.console.events.ConsoleEventNewSystem;
 import pt.lsts.neptus.console.events.ConsoleEventPlanChange;
+import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.console.notifications.NotificationsCollection;
 import pt.lsts.neptus.console.notifications.NotificationsDialog;
 import pt.lsts.neptus.console.plugins.ComponentSelector;
@@ -908,7 +909,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
      * 
      * @param systemName Vehicle ID
      */
-    public void addSystem(String systemName) {
+    public synchronized void addSystem(String systemName) {
         VehicleType vehicleType = VehiclesHolder.getVehicleById(systemName);
         ImcSystem imcSystem = ImcSystemsHolder.lookupSystemByName(systemName);
         if (vehicleType != null && imcSystem == null) {
@@ -916,9 +917,15 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
             return;
         }
 
+        if (!systemName.equals(systemName.trim())) {
+            NeptusLog.pub().fatal(">>>>>>>>>>>>>>>>> " + this.getClass().getSimpleName()
+                    + " :: Test for system name malformed '" + systemName + "' != '" + systemName.trim() + "'");
+            Thread.dumpStack();
+        }
+        
         ConsoleSystem system;
         if (imcSystem == null) {
-            NeptusLog.pub().warn("tried to add a vehicle from imc with comms disabled: " + systemName);
+            NeptusLog.pub().warn("tried to add a vehicle from imc with comms disabled: '" + systemName + "'");
             return;
         }
         if (imcSystem.getType() != SystemTypeEnum.VEHICLE) {
@@ -934,6 +941,15 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         else {
             system = new ConsoleSystem(systemName, this, imcSystem, imcMsgManager);
             consoleSystems.put(systemName, system);
+            
+            post(Notification.info("Console",
+                    "New main system added to console: " + systemName).requireHumanAction(false));
+            String msgTxt = "New main system added to console: '" + systemName + "'";
+            post(Notification
+                    .info("Console", msgTxt)
+                    .requireHumanAction(false));
+            NeptusLog.pub().info(ConsoleLayout.this.getClass() + " :: " + msgTxt);
+
             if (this.mainVehicle == null) {
                 this.setMainSystem(systemName);
             }
@@ -1587,6 +1603,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
             system.clean();
         }
         consoleSystems.clear();
+        mainSystemCombo.removeAllItems();
 
         mainPanel.clean();
         

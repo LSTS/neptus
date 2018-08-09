@@ -41,6 +41,7 @@ import com.google.common.eventbus.Subscribe;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
+import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.renderer2d.IMapRendererChangeEvent;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.renderer2d.IMapRendererChangeEvent.RendererChangeEvent;
@@ -103,6 +104,11 @@ public class SimpleMapPanel extends ConsolePanel implements ConfigurationListene
      */
     @Override
     public void cleanSubPanel() {
+    }
+    
+    @Periodic(millisBetweenUpdates = 300)
+    public void periodicRendererPaintCall() {
+        renderer.repaint();
     }
     
     @Subscribe

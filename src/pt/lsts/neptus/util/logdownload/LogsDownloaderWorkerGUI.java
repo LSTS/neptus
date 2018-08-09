@@ -80,6 +80,8 @@ class LogsDownloaderWorkerGUI {
             32);
     public static final ImageIcon ICON_DOWNLOAD_LIST = ImageUtils.getScaledIcon("images/downloader/sync-list.png", 32,
             32);
+    public static final ImageIcon ICON_DOWNLOAD_LIST_STOP = ImageUtils.getScaledIcon("images/downloader/sync-list-stop.png", 32,
+            32);
     public static final ImageIcon ICON_SETTINGS = ImageUtils.getScaledIcon("images/settings.png", 32, 32);
     public static final ImageIcon ICON_DELETE_FOLDERS = ImageUtils.getScaledIcon(
             "images/downloader/folder_delete1.png", 32, 32);
@@ -262,7 +264,17 @@ class LogsDownloaderWorkerGUI {
         cameraButton.setIcon(ICON_DOWNLOAD_PHOTO);
 //        cameraButton.addActionListener(turnCameraOn);
 
-        downloadListButton = new MiniButton();
+        downloadListButton = new MiniButton() {
+            private static final long serialVersionUID = 1487342520662303342L;
+
+            @Override
+            public void setState(boolean state) {
+                super.setState(state);
+                this.setIcon(state ? LogsDownloaderWorkerGUI.ICON_DOWNLOAD_LIST_STOP
+                        : LogsDownloaderWorkerGUI.ICON_DOWNLOAD_LIST);
+            }
+        };
+        downloadListButton.setToggle(true);
         downloadListButton.setToolTipText(I18n.text("Synchronize List of Log Folders"));
         downloadListButton.setIcon(ICON_DOWNLOAD_LIST);
         // downloadListButton.addActionListener(downloadListAction);

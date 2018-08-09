@@ -164,7 +164,7 @@ public class AccuTools extends ConsolePanel {
 
                 try {
                     IMCMessage msg = AccuUtils.getAccuMap(getConsole().getMission());
-                    ImcSystem[] systems = ImcSystemsHolder.lookupActiveSystemCCUs();
+                    ImcSystem[] systems = ImcSystemsHolder.lookupSystemCCUs();
                     
                     if (systems.length == 0) {
                         GuiUtils.errorMessage(getConsole(), "Send Map", "No active CCUs");
@@ -202,7 +202,7 @@ public class AccuTools extends ConsolePanel {
                         GuiUtils.errorMessage("Send LBL Config", "Unable to generate LblConfig IMC message");
                         return;
                     }
-                    ImcSystem[] systems = ImcSystemsHolder.lookupActiveSystemCCUs();
+                    ImcSystem[] systems = ImcSystemsHolder.lookupSystemCCUs();
                     if (systems.length == 0) {
                         GuiUtils.errorMessage(getConsole(), "Send LBL Config", "No active CCUs");
                         return;

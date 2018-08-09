@@ -43,7 +43,7 @@ public interface IManeuverPreview<T extends Maneuver> {
 
     public boolean init(String vehicleId, T man, SystemPositionAndAttitude state, Object maneuverState);
     public SystemPositionAndAttitude step(SystemPositionAndAttitude state, double timestep, double totalTime);
-    public void reset(SystemPositionAndAttitude state);
+    public default void reset(SystemPositionAndAttitude state) {};
     public boolean isFinished();
     /**
      * @return A clone or new instance of the man. state (important).

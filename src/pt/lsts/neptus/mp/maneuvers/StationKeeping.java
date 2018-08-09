@@ -49,6 +49,7 @@ import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.StationKeepingExtended;
 import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
@@ -68,6 +69,9 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, Maneuve
 	
 	private int duration = 60;
 	private double radius = 10;
+        private boolean keepSafe = false;
+        private int popupPeriod = 120;
+        private int popupDuration = 60;
 	private SpeedType speed = new SpeedType(1000, Units.RPM);
 	private ManeuverLocation location = new ManeuverLocation();	 
 
@@ -79,6 +83,9 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, Maneuve
 		l.setManeuverLocation(getManeuverLocation().clone());
 		l.setRadius(getRadius());
 		l.setSpeed(getSpeed());
+		l.setKeepSafe(isKeepSafe());
+		l.setPopupDuration(getPopupDuration());
+		l.setPopupPeriod(getPopupPeriod());
 		return l;		
 	}
 
@@ -99,6 +106,15 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, Maneuve
 	    //duration
 	    root.addElement("duration").setText(""+getDuration());
 	    
+	    //popup duration
+	    root.addElement("popupDuration").setText(""+getPopupDuration());
+	    
+	    //popup period
+	    root.addElement("popupPeriod").setText(""+getPopupPeriod());
+	    
+	    //keep safe
+	    root.addElement("keepSafe").setText(""+isKeepSafe());
+	    
 	    //trajectory
 	    Element trajectory = root.addElement("trajectory");	    
 	    Element trajRadius = trajectory.addElement("radius");
@@ -107,22 +123,22 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, Maneuve
 
 	    SpeedType.addSpeedElement(root, this);
 
-	    return document;
-	}
-	
-	@Override
-	public String getType() {
-		return "StationKeeping";
-	}
+        return document;
+    }
 
-	@Override
-	public void loadManeuverFromXML(String XML) {
-		try {
-	        Document doc = DocumentHelper.parseText(XML);
-	        
-	        // basePoint
-	        Node node = doc.selectSingleNode("StationKeeping/basePoint/point");
-	        ManeuverLocation loc = new ManeuverLocation();
+    @Override
+    public String getType() {
+        return "StationKeeping";
+    }
+
+    @Override
+    public void loadManeuverFromXML(String XML) {
+        try {
+            Document doc = DocumentHelper.parseText(XML);
+
+            // basePoint
+            Node node = doc.selectSingleNode("StationKeeping/basePoint/point");
+            ManeuverLocation loc = new ManeuverLocation();
             loc.load(node.asXML());
             setManeuverLocation(loc);	       
 	        
@@ -130,6 +146,14 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, Maneuve
 	        
 	        // Duration
 	        setDuration(Integer.parseInt(doc.selectSingleNode("StationKeeping/duration").getText()));
+            try {
+                setPopupDuration(Integer.parseInt(doc.selectSingleNode("StationKeeping/popupDuration").getText()));
+                setPopupPeriod(Integer.parseInt(doc.selectSingleNode("StationKeeping/popupPeriod").getText()));
+                setKeepSafe(Boolean.parseBoolean(doc.selectSingleNode("StationKeeping/keepSafe").getText()));    
+            }
+            catch (Exception e) {
+                NeptusLog.pub().warn("Vehicle does not have defaults for keepSafe parameters.");
+            }
 	        
 	        // Trajectory
 	        setRadius(Double.parseDouble(doc.selectSingleNode("StationKeeping/trajectory/radius").getText()));
@@ -182,10 +206,23 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, Maneuve
 		props.add(speed);
 		
 //		DefaultProperty radius = PropertiesEditor.getPropertyInstance("Radius", Double.class, this.radius, true);
-//        radius.setShortDescription(
+// 		radius.setShortDescription(
 //                I18n.textf("Radius of the Station Keeping circle. Lower values default to %radius meters.",
 //                        MINIMUM_SK_RADIUS) + "<br/>(m)");
 //		props.add(radius);
+//
+//		DefaultProperty popDuration = PropertiesEditor.getPropertyInstance("Popup Duration", Integer.class, this.popupDuration, true);
+//		popDuration.setShortDescription("The duration of the station keeping at surface level when it pops up. Only used if flag KEEP_SAFE is on.");     
+//		props.add(popDuration);
+//
+//		DefaultProperty popPeriod = PropertiesEditor.getPropertyInstance("Popup Period", Integer.class, this.popupPeriod, true);
+//		popPeriod.setShortDescription("The period at which the vehicle will popup to report its position. Only used if flag KEEP_SAFE is on.");     
+//		props.add(popPeriod);
+//
+//		DefaultProperty keepSafeOption = PropertiesEditor.getPropertyInstance("KEEP_SAFE", Boolean.class, this.keepSafe, true);
+//		keepSafeOption.setShortDescription(
+//		        "If this flag is set, the vehicle will hold position underwater, loitering at z reference. It will popup periodically to report position. When it pops up, it will stay at surface in \"normal\" station keeping behaviour for a certain time (popup_duration).");     
+//		props.add(keepSafeOption);        
 		
 		return props;
 	}
@@ -200,10 +237,27 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, Maneuve
 				setDuration((Integer)p.getValue());
 				continue;
 			}
+
 			if (p.getName().equals("Speed")) {
 				setSpeed((SpeedType)p.getValue());
 				continue;
 			}
+
+		    if (p.getName().equals("Popup Duration")) {
+		        setPopupDuration((Integer)p.getValue());
+		        continue;
+		    }
+
+		    if (p.getName().equals("Popup Period")) {
+		        setPopupPeriod((Integer)p.getValue());
+		        continue;
+		    }
+		    
+		    if (p.getName().equals("KEEP_SAFE")) {
+		        setKeepSafe((Boolean)p.getValue());
+		        continue;
+		    }
+
 			if (p.getName().equals("Radius")) {
 				setRadius(Math.max(MINIMUM_SK_RADIUS, (Double)p.getValue()));
 				continue;
@@ -258,7 +312,6 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, Maneuve
 	public void parseIMCMessage(IMCMessage message) {
 		setMaxTime((int)message.getDouble("timeout"));
     	
-    	
     	ManeuverLocation pos = new ManeuverLocation();
     	pos.setLatitudeRads(message.getDouble("lat"));
     	pos.setLongitudeRads(message.getDouble("lon"));
@@ -273,30 +326,62 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, Maneuve
 		setDuration((int)message.getDouble("duration"));
 		setRadius(message.getDouble("radius"));
 		setCustomSettings(message.getTupleList("custom"));
-	}
-	
-	@Override
-	public IMCMessage serializeToIMC() {
-	    pt.lsts.imc.StationKeeping message = new pt.lsts.imc.StationKeeping();
-		LocationType loc = getManeuverLocation();
-		loc.convertToAbsoluteLatLonDepth();
-		message.setLat(loc.getLatitudeRads());
-		message.setLon(loc.getLongitudeRads());
-		message.setZ(getManeuverLocation().getZ());
-		message.setZUnits(ZUnits.valueOf(getManeuverLocation().getZUnits().toString()));
-		message.setDuration(getDuration());
 		
-		speed.setSpeedToMessage(message);
-        
-		message.setRadius(this.getRadius());
-		message.setCustom(getCustomSettings());
-        
-		return message;
+		if (message.getMgid() == StationKeepingExtended.ID_STATIC) {
+		    setPopupDuration(message.getInteger("popup_duration"));
+		    setPopupPeriod(message.getInteger("popup_period"));
+		    setKeepSafe(true);
+		}   
 	}
-	  
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.mp.maneuvers.StatisticsProvider#getCompletionTime(pt.lsts.neptus.types.coord.LocationType)
-     */
+
+    
+    public pt.lsts.imc.StationKeeping serializetoRegularSKeeping() {
+        pt.lsts.imc.StationKeeping message = new pt.lsts.imc.StationKeeping();
+        LocationType loc = getManeuverLocation();
+        loc.convertToAbsoluteLatLonDepth();
+        message.setLat(loc.getLatitudeRads());
+        message.setLon(loc.getLongitudeRads());
+        message.setZ(getManeuverLocation().getZ());
+        message.setZUnits(ZUnits.valueOf(getManeuverLocation().getZUnits().toString()));
+        message.setDuration(getDuration());
+
+        speed.setSpeedToMessage(message);
+
+        message.setRadius(this.getRadius());
+        message.setCustom(getCustomSettings());
+        return message;
+    }
+    
+    public pt.lsts.imc.StationKeepingExtended serializetoSafeSKeeping() {
+        pt.lsts.imc.StationKeepingExtended message = new pt.lsts.imc.StationKeepingExtended();
+  
+        LocationType loc = getManeuverLocation();
+        loc.convertToAbsoluteLatLonDepth();
+        message.setLat(loc.getLatitudeRads());
+        message.setLon(loc.getLongitudeRads());
+        message.setZ(getManeuverLocation().getZ());
+        message.setZUnits(ZUnits.valueOf(getManeuverLocation().getZUnits().toString()));
+        message.setDuration(getDuration());
+        message.setPopupDuration(getPopupDuration());
+        message.setPopupPeriod(getPopupPeriod());
+        
+        speed.setSpeedToMessage(message);
+
+        message.setRadius(this.getRadius());
+        message.setCustom(getCustomSettings());
+
+        return message;        
+    }
+
+    @Override
+    public IMCMessage serializeToIMC() {
+        if (isKeepSafe())
+            return serializetoSafeSKeeping();
+        else
+            return serializetoRegularSKeeping();
+        
+    }
+
     @Override
     public double getCompletionTime(LocationType initialPosition) {
         double time = getDistanceTravelled(initialPosition) / speed.getMPS();
@@ -328,7 +413,49 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, Maneuve
     public double getMinDepth() {
         return getManeuverLocation().getAllZ();
     }   
-    
+
+    /**
+     * @return the keepSafe
+     */
+    public boolean isKeepSafe() {
+        return keepSafe;
+    }
+
+    /**
+     * @param keepSafe the keepSafe to set
+     */
+    public void setKeepSafe(boolean keepSafe) {
+        this.keepSafe = keepSafe;
+    }
+
+    /**
+     * @return the popupPeriod
+     */
+    public int getPopupPeriod() {
+        return popupPeriod;
+    }
+
+    /**
+     * @param popupPeriod the popupPeriod to set
+     */
+    public void setPopupPeriod(int popupPeriod) {
+        this.popupPeriod = popupPeriod;
+    }
+
+    /**
+     * @return the popupDuration
+     */
+    public int getPopupDuration() {
+        return popupDuration;
+    }
+
+    /**
+     * @param popupDuration the popupDuration to set
+     */
+    public void setPopupDuration(int popupDuration) {
+        this.popupDuration = popupDuration;
+    }
+
     @Override
     public Collection<ManeuverLocation> getWaypoints() {
         return Collections.singleton(getStartLocation());

@@ -103,6 +103,10 @@ public class ImcIridiumMessage extends IridiumMessage {
        Vector<IMCMessage> vec = new Vector<>();
        if (msg != null)
            vec.add(msg);
+       
+       msg.setSrc(getSource());
+       msg.setDst(getDestination());
+       msg.setTimestampMillis(timestampMillis);
        return vec;
     }
     

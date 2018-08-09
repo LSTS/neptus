@@ -36,15 +36,19 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.TreeMap;
 
+import javax.swing.JOptionPane;
 import javax.swing.tree.TreePath;
 
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCOutputStream;
+import pt.lsts.imc.PlanSpecification;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.console.plugins.planning.plandb.PlanDBAdapter;
 import pt.lsts.neptus.console.plugins.planning.plandb.PlanDBState;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.ByteUtil;
 
@@ -102,11 +106,33 @@ public class MissionTreePlanDbAdapter extends PlanDBAdapter {
         // Put plan in mission
         PlanType lp = console.getMission().getIndividualPlansList().get(spec.getId());
         spec.setMissionType(console.getMission());
+
+        boolean alreadyLocal = console.getMission().getIndividualPlansList().containsKey(spec.getId());
+
+        if (alreadyLocal) {
+            PlanSpecification remote = (PlanSpecification) spec.asIMCPlan();
+            PlanSpecification local = (PlanSpecification) console.getMission().getIndividualPlansList()
+                    .get(spec.getId()).asIMCPlan();
+            if (!ByteUtil.equal(local.payloadMD5(), remote.payloadMD5())) {
+                int option = JOptionPane.showConfirmDialog(console,
+                        I18n.text("Replace plan '" + spec.getId() + "' with received version?"));
+                if (option != JOptionPane.YES_OPTION)
+                    return;
+            }
+        }
+
         console.getMission().addPlan(spec);
         // Save mission
         console.getMission().save(true);
         // Alert listeners
         console.updateMissionListeners();
+
+        if (console.getPlan().getId().equals(spec.getId())) {
+            console.setPlan(spec);
+        }
+
+        console.post(Notification.success(I18n.text("Plan Dissemination"),
+                I18n.textf("Received plan '%plan' from vehicle.", spec.getId())));
 
         if (debugOn && lp != null) {
             try {

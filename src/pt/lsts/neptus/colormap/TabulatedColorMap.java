@@ -47,9 +47,11 @@ public class TabulatedColorMap extends InterpolationColorMap {
     }       
 
    public Color getColor(double value) {	
-        int val = (int)(value*values.length);
+        int val = (int) (value*values.length);
         if (val >= values.length)
             val = values.length-1;
+        if (val < 0)
+            val = 0;
         return colors[val];
     }
 }

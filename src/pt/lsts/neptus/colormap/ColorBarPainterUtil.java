@@ -33,11 +33,17 @@
 package pt.lsts.neptus.colormap;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.geom.Rectangle2D;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.Locale;
+
+import javax.swing.JPanel;
 
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.util.GuiUtils;
 
 /**
@@ -46,6 +52,13 @@ import pt.lsts.neptus.util.GuiUtils;
  */
 public class ColorBarPainterUtil {
 
+    private static NumberFormat getDecimalFormat(int fractionDigits) {
+        NumberFormat df = DecimalFormat.getInstance(Locale.US);
+        df.setGroupingUsed(false);
+        df.setMaximumFractionDigits(fractionDigits);
+        return df;
+    }
+
     private ColorBarPainterUtil() {
     }
 
@@ -53,15 +66,20 @@ public class ColorBarPainterUtil {
      * Paint a color bar with captions sized w x h=70 x 110.
      * 
      * @param g
-     * @param renderer
      * @param cmap
      * @param varName
      * @param units
      * @param minValue
      * @param maxValue
      */
-    public static void paintColorBar(Graphics2D g, StateRenderer2D renderer, ColorMap cmap, String varName, 
-            String units, double minValue, double maxValue) {
+    public static void paintColorBar(Graphics2D g, ColorMap cmap, String varName, String units, double minValue,
+            double maxValue) {
+        paintColorBarVertical(g, cmap, varName, units, minValue, maxValue, false);
+    }
+    
+    private static void paintColorBarVertical(Graphics2D g, ColorMap cmap, String varName, String units, double minValue,
+            double maxValue, boolean showInLog10) {
+        
             Graphics2D g2 = (Graphics2D) g.create();
             
             g2.translate(-5, -30);
@@ -75,7 +93,11 @@ public class ColorBarPainterUtil {
             g2.setFont(new Font("Helvetica", Font.BOLD, 18));
             g2.setFont(prev);
             g2.translate(15, 45);
+            g2.setColor(cmap.getColor(-0.1));
+            g2.fillRect(0, 81, 15, 1);
             cb.paint(g2);
+            g2.setColor(cmap.getColor(1.1));
+            g2.fillRect(0, -1, 15, 1);
             g2.translate(-10, -15);
             
             g2.setColor(Color.WHITE);
@@ -85,18 +107,25 @@ public class ColorBarPainterUtil {
 
             try {
                 double medValue = (maxValue - minValue) / 2. + minValue;
+                if (showInLog10) {
+                    double minL = Math.log10(minValue);
+                    double maxL = Math.log10(maxValue);
+                    double vMedL = (maxL - minL) / 2.;
+                    medValue = Math.pow(10, maxL - vMedL);
+                    System.out.println(String.format("minL=%f   maxL=%f   medL=%f   med=%f", minL, maxL, vMedL, medValue));
+                }
                 g2.setColor(Color.WHITE);
-                g2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(maxValue), 28, 20+5);
+                g2.drawString(getDecimalFormat(2).format(maxValue), 28, 20+5);
                 g2.setColor(Color.BLACK);
-                g2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(maxValue), 29, 21+5);
+                g2.drawString(getDecimalFormat(2).format(maxValue), 29, 21+5);
                 g2.setColor(Color.WHITE);
-                g2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(medValue), 28, 60);
+                g2.drawString(getDecimalFormat(2).format(medValue), 28, 60);
                 g2.setColor(Color.BLACK);
-                g2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(medValue), 29, 61);
+                g2.drawString(getDecimalFormat(2).format(medValue), 29, 61);
                 g2.setColor(Color.WHITE);
-                g2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(minValue), 28, 100-5);
+                g2.drawString(getDecimalFormat(2).format(minValue), 28, 100-5);
                 g2.setColor(Color.BLACK);
-                g2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(minValue), 29, 101-5);
+                g2.drawString(getDecimalFormat(2).format(minValue), 29, 101-5);
             }
             catch (Exception e) {
                 NeptusLog.pub().error(e);
@@ -111,4 +140,101 @@ public class ColorBarPainterUtil {
             g2.dispose();
     }
 
+    private static void paintColorBarHorizontal(Graphics2D g, ColorMap cmap, String varName, String units, double minValue,
+            double maxValue, boolean showInLog10) {
+        
+            Graphics2D g2 = (Graphics2D) g.create();
+            
+            g2.translate(-5, -30);
+            g2.setColor(new Color(250, 250, 250, 100));
+            g2.fillRect(5, 30, 110 - 8, 70);
+
+            ColorBar cb = new ColorBar(ColorBar.HORIZONTAL_ORIENTATION, cmap);
+            cb.setSize(80, 15);
+            g2.setColor(Color.WHITE);
+            Font prev = g2.getFont();
+            g2.translate(15, 45);
+            if (varName == null || varName.isEmpty())
+                g2.translate(0, -10);
+            g2.setColor(cmap.getColor(-0.1));
+            g2.fillRect(-2, 0, 1, 15);
+            cb.paint(g2);
+            g2.setColor(cmap.getColor(1.1));
+            g2.fillRect(81, 0, 1, 15);
+            g2.translate(-10, -15);
+            
+            g2.setColor(Color.WHITE);
+            g2.drawString(varName, 2, 11);
+            g2.setColor(Color.BLACK);
+            g2.drawString(varName, 2, 12);
+
+            try {
+                double medValue = (maxValue - minValue) / 2. + minValue;
+                if (showInLog10) {
+                    double minL = Math.log10(minValue);
+                    double maxL = Math.log10(maxValue);
+                    double vMedL = (maxL - minL) / 2.;
+                    medValue = Math.pow(10, maxL - vMedL);
+                    System.out.println(String.format("minL=%f   maxL=%f   medL=%f   med=%f", minL, maxL, vMedL, medValue));
+                }
+                g2.setFont(new Font("Helvetica", Font.PLAIN, 9));
+                g2.setColor(Color.WHITE);
+                String maxStr = getDecimalFormat(2).format(maxValue);
+                Rectangle2D bds = g2.getFontMetrics().getStringBounds(maxStr, g2);
+                g2.drawString(maxStr, (int) (85 - 2 - bds.getWidth() / 2.), 40);
+                g2.setColor(Color.BLACK);
+                g2.drawString(maxStr, (int) (86 - 2 - bds.getWidth() / 2.), 41);
+                String medStr = getDecimalFormat(2).format(medValue);
+                bds = g2.getFontMetrics().getStringBounds(medStr, g2);
+                g2.setColor(Color.WHITE);
+                g2.drawString(medStr, (int) (45 + 5 - bds.getWidth() / 2.), (int) (40 + bds.getHeight()));
+                g2.setColor(Color.BLACK);
+                g2.drawString(medStr, (int) (46 + 5 - bds.getWidth() / 2.), (int) (41 + bds.getHeight()));
+                String minStr = getDecimalFormat(2).format(minValue);
+                bds = g2.getFontMetrics().getStringBounds(minStr, g2);
+                g2.setColor(Color.WHITE);
+                g2.drawString(minStr, 5, 40);
+                g2.setColor(Color.BLACK);
+                g2.drawString(minStr, 6, 41);
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(e);
+                e.printStackTrace();
+            }
+
+            g2.setFont(prev);
+            g2.setColor(Color.WHITE);
+            g2.drawString(units, 10, 65);
+            g2.setColor(Color.BLACK);
+            g2.drawString(units, 10, 66);
+
+            g2.dispose();
+    }
+
+    public static void main(String[] args) {
+        
+        double min = 0.001;
+        double max = 23.71931;
+
+//        min = -3;
+//        max = 3;
+
+        JPanel panel = new JPanel();
+        panel.setSize(new Dimension(500, 400));
+        
+        GuiUtils.testFrame(panel, "", 500, 400);
+        Graphics2D g = (Graphics2D) panel.getGraphics();
+        
+//        g.scale(3, 3);
+        paintColorBarVertical(g, ColorMapFactory.createJetColorMap(), "sla", "m", min, max, false);
+//        g.translate(90, 0);
+//        paintColorBarVertical(g, ColorMapFactory.createJetColorMap(), "sla", "m", min, max, true);
+        
+//        g.scale(2, 2);
+        g.translate(80, 0);
+        paintColorBarHorizontal(g, ColorMapFactory.createJetColorMap(), "", "m", min, max, false);
+        g.translate(0, 90);
+        paintColorBarHorizontal(g, ColorMapFactory.createJetColorMap(), "sla", "m", min, max, true);
+
+    }
 }

@@ -104,7 +104,7 @@ public class ColorMapVisualization extends JPanel implements MRAVisualization, A
     private int defaultHeight = 600;
 
     private JLabel image = new JLabel();
-    private JComboBox<?> cmapCombo = new JComboBox<Object>(ColorMap.cmaps);
+    private JComboBox<?> cmapCombo = new JComboBox<Object>(ColorMap.cmaps.toArray(new ColorMap[ColorMap.cmaps.size()]));
     private JComboBox<String> entCombo = new JComboBox<String>();
     
     private JToolBar toolbar = new JToolBar(JToolBar.HORIZONTAL);

@@ -49,6 +49,7 @@ import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.SpeedType;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.mp.maneuvers.ManeuverWithSpeed;
+import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.map.PlanUtil;
 import pt.lsts.neptus.types.mission.TransitionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
@@ -62,9 +63,8 @@ import pt.lsts.neptus.util.GuiUtils;
 public class PlanTableModel extends AbstractTableModel {
     private static final long serialVersionUID = 1L;
     public static final Color INIT_MANEUVER_COLOR = new Color(0x7BBD87);
-    public static final Color UNREACH_MANEUVER_COLOR = new Color(0x94959C);
-    public static final Color SELECTED_MANEUVER_COLOR = new Color(0x0077CC);
-    
+    public static final Color UNREACH_MANEUVER_COLOR = new Color(0xB7B7BA);
+    public static final Color SELECTED_MANEUVER_COLOR = new Color(0x289CED);
     private PlanType plan;
     private ArrayList<ExtendedManeuver> list = new ArrayList<>();
     public static final int COLUMN_LABEL = 0;
@@ -147,7 +147,8 @@ public class PlanTableModel extends AbstractTableModel {
                 returnValue = man.getOutTransitions();
                 break;
             case COLUMN_LOCATION:
-                returnValue = man.getManeuverLocation().toString();
+                returnValue = CoordinateUtil.latitudeAsPrettyString(man.getManeuverLocation().getLatitudeDegs()) + ", "
+                        + CoordinateUtil.longitudeAsPrettyString(man.getManeuverLocation().getLongitudeDegs());
                 break;
             case COLUMN_DEPTH_ALTITUDE:
                 returnValue = man.getManeuverLocation().getZ() + " " + man.getManeuverLocation().getZUnits().name();
@@ -265,7 +266,8 @@ public class PlanTableModel extends AbstractTableModel {
                     if (!alreadyAdded(destManeuver))
                         list.add(e);
 
-                    if (!visited.contains(destManeuver)) visited.add(destManeuver);
+                    if (!visited.contains(destManeuver)) 
+                        visited.add(destManeuver);
 
                     it.remove();
 

@@ -144,6 +144,10 @@ public class AisContact {
         return rateOfTurn;
     }
     
+    public void setLastUpdate(long lastUpdate) {
+        this.lastUpdate = lastUpdate;
+    }
+
     /**
      * @param label the label to set
      */
@@ -163,6 +167,17 @@ public class AisContact {
      */
     public void setCog(double cog) {
         this.cog = cog;
+    }
+
+    /**
+     * @param hdg the hdg to set
+     */
+    public void setHdg(double hdg) {
+        this.hdg = hdg;
+    }
+    
+    public void setNavStatus(String navStatus) {
+        this.navStatus = navStatus;
     }
 
     /**

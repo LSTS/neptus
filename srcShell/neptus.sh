@@ -31,8 +31,30 @@
 # Author: Paulo Dias, José Pinto                                            #
 #############################################################################
 
+if [ -z "$BASH" ]
+then
+  bash $0 $@
+fi
+
 PROGNAME=$0
-NEPTUS_HOME=`dirname $(readlink -f $PROGNAME)`
+
+function command_exists {
+  type "$1" &> /dev/null
+}
+
+unameOut="$(uname -s)"
+case "${unameOut}" in
+    Darwin*)    NEPTUS_HOME=`dirname $PROGNAME`;
+                echo "MacOS found!";;
+    *)          if command_exists readlink; then
+                  NEPTUS_HOME=`dirname $(readlink -f $PROGNAME)`
+                  echo "Readlink found!"
+                else
+                  NEPTUS_HOME=`dirname $PROGNAME`
+                  echo "No readlink found!"
+                fi
+esac
+
 cd $NEPTUS_HOME
 
 WORKSPACE="pt.lsts.neptus.loader.NeptusMain ws"
@@ -64,11 +86,11 @@ if test -d jre/bin; then JAVA_BIN_FOLDER="jre/bin/"; else JAVA_BIN_FOLDER=""; fi
 
 JAVA_MACHINE_TYPE=$($JAVA_BIN_FOLDER"java" -cp bin/neptus.jar pt.lsts.neptus.loader.helper.CheckJavaOSArch)
 echo "Found machine type: $JAVA_MACHINE_TYPE"
-if [ ${JAVA_MACHINE_TYPE} == 'linux-x64' ]; then
+if [[ ${JAVA_MACHINE_TYPE} == 'linux-x64' ]]; then
  LIBS=".:libJNI/x64:libJNI:/usr/lib/jni:libJNI/gdal/linux/x64:libJNI/europa/x64"
-elif [ ${JAVA_MACHINE_TYPE} == 'linux-x86' ]; then
+elif [[ ${JAVA_MACHINE_TYPE} == 'linux-x86' ]]; then
   LIBS=".:libJNI/x86:libJNI:/usr/lib/jni:libJNI/gdal/linux/x86"
-elif [ ${JAVA_MACHINE_TYPE} == 'osx-x64' ]; then
+elif [[ ${JAVA_MACHINE_TYPE} == 'osx-x64' ]]; then
   LIBS=".:libJNI/osx:libJNI:/usr/lib/jni"
 fi
 
@@ -86,4 +108,4 @@ fi
 export VMFLAGS="-XX:+HeapDumpOnOutOfMemoryError"
 
 export LD_LIBRARY_PATH=$LIBS:$LD_LIBRARY_PATH
-$JAVA_BIN_FOLDER"java" -Xms10m -Xmx1024m $VMFLAGS -Djava.library.path=$LIBS $VTKPROP -cp $CLASSPATH $DEFAULT "$@"
+$JAVA_BIN_FOLDER"java" -Xms10m -Xmx3072m $VMFLAGS -Djava.library.path=$LIBS $VTKPROP -cp $CLASSPATH $DEFAULT "$@"

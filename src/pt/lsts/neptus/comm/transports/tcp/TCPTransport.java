@@ -361,7 +361,7 @@ public class TCPTransport {
 	        if (e instanceof NoRouteToHostException || e instanceof ConnectException) {
 //	            System.err.print(e.toString() + ": " + address + "  ");
 //	            System.err.flush();
-	            NeptusLog.pub().warn(e.toString() + ": " + address);
+	            NeptusLog.pub().debug(e.toString() + ": " + address);
 	        }
 	        else
 	            NeptusLog.pub().error(e);
