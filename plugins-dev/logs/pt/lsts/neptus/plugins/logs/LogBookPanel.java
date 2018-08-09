@@ -99,7 +99,6 @@ public class LogBookPanel extends JPanel {
 
         JPanel bottom = new JPanel(new BorderLayout());
         bottom.add(entry, BorderLayout.CENTER);
-
         bottom.add(btnAdd, BorderLayout.EAST);
 
         add(new JScrollPane(logbook), BorderLayout.CENTER);
@@ -237,8 +236,6 @@ public class LogBookPanel extends JPanel {
             public void undoableEditHappened(UndoableEditEvent evt) {
                 undo.addEdit(evt.getEdit());
                 saveToFile();
-                for (ActionListener l : listeners)
-                    l.actionPerformed(new ActionEvent(LogBookPanel.this, 0, "text edited"));
             }
         });
 
@@ -250,8 +247,6 @@ public class LogBookPanel extends JPanel {
                     if (undo.canUndo()) {
                         undo.undo();
                         saveToFile();
-                        for (ActionListener l : listeners)
-                            l.actionPerformed(new ActionEvent(LogBookPanel.this, 0, "text edited"));
                     }
                 }
                 catch (CannotUndoException e) {
@@ -269,8 +264,6 @@ public class LogBookPanel extends JPanel {
                     if (undo.canRedo()) {
                         undo.redo();
                         saveToFile();
-                        for (ActionListener l : listeners)
-                            l.actionPerformed(new ActionEvent(LogBookPanel.this, 0, "text edited"));
                     }
                 }
                 catch (CannotRedoException e) {
