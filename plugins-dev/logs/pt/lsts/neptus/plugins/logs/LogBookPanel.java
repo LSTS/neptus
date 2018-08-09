@@ -34,16 +34,18 @@ package pt.lsts.neptus.plugins.logs;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.TimeZone;
-import java.util.stream.Collectors;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
@@ -64,10 +66,10 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
 
-import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.util.GuiUtils;
 
 /**
@@ -81,7 +83,41 @@ public class LogBookPanel extends JPanel {
     private JTextField entry = new JTextField();
     private SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
     private JButton btnAdd = new JButton("Add");
+    private HashSet<ActionListener> listeners = new HashSet<>();
+
     private File file;
+
+    public LogBookPanel() {
+        this(new File("logbook.json"));
+    }
+
+    public LogBookPanel(File file) {
+        this.file = file;
+        setLayout(new BorderLayout(5, 5));
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+        setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+        JPanel bottom = new JPanel(new BorderLayout());
+        bottom.add(entry, BorderLayout.CENTER);
+
+        bottom.add(btnAdd, BorderLayout.EAST);
+
+        add(new JScrollPane(logbook), BorderLayout.CENTER);
+        add(bottom, BorderLayout.SOUTH);
+
+        btnAdd.addActionListener(this::addText);
+        entry.addActionListener(this::addText);
+
+        if (file != null) {
+            try {
+                JsonArray data = Json.parse(new FileReader(file)).asArray();
+                merge(data);
+            }
+            catch (IOException e) {
+            }
+        }
+        installUndoRedo();
+    }
 
     public JsonArray toJson() {
         JsonArray arr = new JsonArray();
@@ -105,71 +141,19 @@ public class LogBookPanel extends JPanel {
     public void merge(JsonArray log) {
         JsonArray thisLog = toJson();
 
-        
-        ArrayList<Pair<String, String>> entries = new ArrayList<>();
-        thisLog.forEach(v -> entries.add(
-                new Pair<String, String>(v.asObject().getString("timestamp", ""), v.asObject().getString("text", ""))));
+        LinkedHashMap<String, String> entries = new LinkedHashMap<>();
+        thisLog.forEach(v -> entries.put(v.asObject().getString("timestamp", ""), v.asObject().getString("text", "")));
+        log.forEach(v -> entries.put(v.asObject().getString("timestamp", ""), v.asObject().getString("text", "")));
 
-        int sizeBefore = entries.size();
-        log.forEach(v -> {
-            Pair<String, String> val = new Pair<String, String>(v.asObject().getString("timestamp", ""),
-                    v.asObject().getString("text", ""));
-
-            if (!entries.contains(val)) {
-                entries.add(val);
-            }
-        });
-
-        // if no new entries, merge is done.
-        if (sizeBefore == entries.size())
-            return;
-        
-        entries.sort(new Comparator<Pair<String, String>>() {
-            @Override
-            public int compare(Pair<String, String> o1, Pair<String, String> o2) {
-                return o1.first().compareTo(o2.first());
-            }
-        });
-        
         logbook.setText("");
+
+        ArrayList<String> times = new ArrayList<>();
+        times.addAll(entries.keySet());
         
-        for (Pair<String, String> entry : entries)
-            addLogEntry(entry.first(), entry.second());
-        
-    }
+        for (String time : times)
+            addLogEntry(time, entries.get(time));
 
-    public LogBookPanel() {
-        this(new File("logbook.html"));
-    }
-
-    public LogBookPanel(File html) {
-        this.file = html;
-        setLayout(new BorderLayout(5, 5));
-        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-        setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-
-        JPanel bottom = new JPanel(new BorderLayout());
-        bottom.add(entry, BorderLayout.CENTER);
-
-        bottom.add(btnAdd, BorderLayout.EAST);
-
-        add(new JScrollPane(logbook), BorderLayout.CENTER);
-        add(bottom, BorderLayout.SOUTH);
-
-        btnAdd.addActionListener(this::addText);
-        entry.addActionListener(this::addText);
-
-        if (html != null) {
-            try {
-                Document soup = Jsoup
-                        .parse(Files.readAllLines(html.toPath()).stream().collect(Collectors.joining("\n")));
-                logbook.setText(soup.html());
-                logbook.setText(cleanHtml());
-            }
-            catch (IOException e) {
-            }
-        }
-        installUndoRedo();
+        logbook.setText(cleanHtml());
     }
 
     private void addText(ActionEvent evt) {
@@ -195,7 +179,7 @@ public class LogBookPanel extends JPanel {
 
         return newDoc.html();
     }
-    
+
     public void addLogEntry(String time, String text) {
         Document doc = Jsoup.parse(cleanHtml());
 
@@ -206,21 +190,30 @@ public class LogBookPanel extends JPanel {
             table = doc.appendElement("table").attr("id", "table");
         }
 
-        int row = doc.getElementsByTag("tr").size();
+        Elements sameTime = doc.getElementsContainingOwnText(time);
+        if (!sameTime.isEmpty()) {
+            Element nextTd = sameTime.get(0).parent().parent().child(1);
+            nextTd.append("<br>").append(text);
+        }
+        else {
+            int row = doc.getElementsByTag("tr").size();
 
-        Element newRow = table.appendElement("tr");
+            Element newRow = table.appendElement("tr");
 
-        if (row % 2 == 0)
-            newRow.attr("bgcolor", "#FFFFFF");
-        else
-            newRow.attr("bgcolor", "#EEEEEE");
+            if (row % 2 == 0)
+                newRow.attr("bgcolor", "#FFFFFF");
+            else
+                newRow.attr("bgcolor", "#EEEEEE");
 
-        newRow.appendElement("td").attr("width", "10px").appendElement("strong").appendText(time);
-        newRow.appendElement("td").appendText(text);
+            newRow.appendElement("td").attr("width", "10px").appendElement("strong").appendText(time);
+            newRow.appendElement("td").appendText(text);
+        }
+
         logbook.setText(doc.html());
 
         saveToFile();
-        System.out.println(toJson());
+        for (ActionListener l : listeners)
+            l.actionPerformed(new ActionEvent(this, 0, "add entry"));
     }
 
     public void addLogEntry(String text) {
@@ -229,10 +222,9 @@ public class LogBookPanel extends JPanel {
 
     private void saveToFile() {
         try {
-            Files.write(file.toPath(), cleanHtml().getBytes(), StandardOpenOption.CREATE);
+            Files.write(file.toPath(), toJson().toString().getBytes(), StandardOpenOption.CREATE);
         }
         catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
@@ -245,6 +237,8 @@ public class LogBookPanel extends JPanel {
             public void undoableEditHappened(UndoableEditEvent evt) {
                 undo.addEdit(evt.getEdit());
                 saveToFile();
+                for (ActionListener l : listeners)
+                    l.actionPerformed(new ActionEvent(LogBookPanel.this, 0, "text edited"));
             }
         });
 
@@ -256,6 +250,8 @@ public class LogBookPanel extends JPanel {
                     if (undo.canUndo()) {
                         undo.undo();
                         saveToFile();
+                        for (ActionListener l : listeners)
+                            l.actionPerformed(new ActionEvent(LogBookPanel.this, 0, "text edited"));
                     }
                 }
                 catch (CannotUndoException e) {
@@ -273,6 +269,8 @@ public class LogBookPanel extends JPanel {
                     if (undo.canRedo()) {
                         undo.redo();
                         saveToFile();
+                        for (ActionListener l : listeners)
+                            l.actionPerformed(new ActionEvent(LogBookPanel.this, 0, "text edited"));
                     }
                 }
                 catch (CannotRedoException e) {
@@ -281,6 +279,14 @@ public class LogBookPanel extends JPanel {
         });
 
         logbook.getInputMap().put(KeyStroke.getKeyStroke("control Y"), "Redo");
+    }
+
+    public boolean addActionListener(ActionListener listener) {
+        return listeners.add(listener);
+    }
+
+    public boolean removeActionListener(ActionListener listener) {
+        return listeners.remove(listener);
     }
 
     public static void main(String[] args) {

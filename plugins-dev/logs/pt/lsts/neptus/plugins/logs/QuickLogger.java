@@ -71,6 +71,7 @@ public class QuickLogger extends ConsolePanel {
 
     @Subscribe
     public void on(NeptusBlob msg) {
+        System.out.println("Received message from " + msg.getSourceName());
         if (msg.getContentType().equals("text/log")) {
             JsonArray arr = Json.parse(new String(msg.getContent())).asArray();
             lbPanel.merge(arr);
@@ -82,6 +83,7 @@ public class QuickLogger extends ConsolePanel {
         JsonArray log = lbPanel.toJson();
         NeptusBlob blob = new NeptusBlob("text/log", log.toString().getBytes());
         ImcMsgManager.getManager().broadcastToCCUs(blob);
+        System.out.println("Sending to others: " + blob.asJSON());
     }
 
     public QuickLogger(ConsoleLayout console) {
@@ -99,8 +101,12 @@ public class QuickLogger extends ConsolePanel {
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 
         setLayout(new BorderLayout());
-        lbPanel = new LogBookPanel(new File("log/logbook_" + sdf.format(new Date()) + ".html"));
+        lbPanel = new LogBookPanel(new File("log/logbook_" + sdf.format(new Date()) + ".json"));
         add(lbPanel, BorderLayout.CENTER);
+        lbPanel.addActionListener(a -> {
+            disseminate();
+        });
+
         doLayout();
         invalidate();
         revalidate();
