@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2017.01.0 (mission/soi,2024cc8,dirty)" system="lauv-xplore-1" i18n="pt_PT">
+<config format="1" version="2017.01.0 (mission/rep2018,4712d4ed)" system="lauv-xplore-1" i18n="pt_PT">
   <section name="Motor Controller" name-i18n="Controlador de Motor">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -436,6 +436,34 @@
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
+    <param name="Reply timeout">
+      <name-i18n>Reply timeout</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>60</default>
+      <units/>
+      <desc/>
+      <min>30</min>
+    </param>
+    <param name="Documentation URL">
+      <name-i18n>Documentation URL</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>https://bit.ly/2LZ0EOc</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Valid Commands">
+      <name-i18n>Valid Commands</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>abort,dislodge,dive,errors,info,force,go,help,phone,reboot,sk,start,surface</default>
+      <units/>
+      <desc/>
+    </param>
   </section>
   <section name="Allocator" name-i18n="Alocador">
     <param name="Entity Label">
@@ -526,7 +554,7 @@
       <type>boolean</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>false</default>
+      <default>true</default>
       <units/>
       <desc>Fin effect Velocity dependent</desc>
     </param>
@@ -603,7 +631,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1.0</default>
+      <default>1.35</default>
       <units/>
       <desc>k pitch - Velocity dependent pitch fin effect </desc>
       <min>0.0</min>
@@ -613,7 +641,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1.0</default>
+      <default>2.0</default>
       <units/>
       <desc>k yaw - Velocity dependent pitch fin effect </desc>
       <min>0.0</min>
@@ -623,7 +651,7 @@
       <type>boolean</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>false</default>
+      <default>true</default>
       <units/>
       <desc>Roll not velocity dependent</desc>
     </param>
@@ -717,7 +745,7 @@
       <type>list:real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0.7, 0.0, 0.2</default>
+      <default>0.4, 0.05, 0.3</default>
       <units/>
       <desc>PID gains for Roll controller</desc>
       <size>3</size>
@@ -727,7 +755,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>-1.0</default>
+      <default>5.0</default>
       <units>°</units>
       <desc>Integral limit for Roll controller</desc>
     </param>
@@ -736,7 +764,7 @@
       <type>list:real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1.5, 0.0, 1.1</default>
+      <default>1.325, 0.0, 0.0</default>
       <units/>
       <desc>PID gains for Pitch controller</desc>
       <size>3</size>
@@ -755,7 +783,7 @@
       <type>list:real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0.4, 0.05, 0.6</default>
+      <default>0.65, 0.015, 0.7</default>
       <units/>
       <desc>PID gains for Depth controller</desc>
       <size>3</size>
@@ -765,7 +793,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>2.5</default>
+      <default>5</default>
       <units>°</units>
       <desc>Integral limit for Depth controller</desc>
     </param>
@@ -1587,7 +1615,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>15</default>
+      <default>20</default>
       <units>s</units>
       <desc>Period for along-track error check</desc>
     </param>
@@ -1596,7 +1624,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0.25</default>
+      <default>0.05</default>
       <units>m/s</units>
       <desc>Minimum speed for along-track progress</desc>
     </param>
@@ -1605,7 +1633,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>10</default>
+      <default>2</default>
       <units>°/s</units>
       <desc>Minimum yaw speed for track bearing convergence</desc>
     </param>
@@ -1614,7 +1642,7 @@
       <type>boolean</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>false</default>
+      <default>true</default>
       <units/>
       <desc>Enable cross-track error monitoring</desc>
     </param>
@@ -1623,7 +1651,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>15</default>
+      <default>25</default>
       <units>m</units>
       <desc>Distance threshold value for cross-track error</desc>
     </param>
@@ -1632,7 +1660,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>10</default>
+      <default>20</default>
       <units>s</units>
       <desc>Time threshold value for cross-track error</desc>
     </param>
@@ -1641,7 +1669,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>-1</default>
+      <default>1</default>
       <units/>
       <desc/>
     </param>
@@ -1650,7 +1678,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>7.0</default>
+      <default>10.0</default>
       <units>m</units>
       <desc>Threshold for a jump in EstimatedState to turn monitors off</desc>
     </param>
@@ -1659,7 +1687,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0.3</default>
+      <default>0.5</default>
       <units>m/s</units>
       <desc>Relation between monitor disabling time and position jump</desc>
       <min>0.1</min>
@@ -1669,7 +1697,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1.0</default>
+      <default>0.1</default>
       <units>m/s</units>
       <desc>ETA minimum admissible speed</desc>
       <min>0.1</min>
@@ -1679,7 +1707,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>5</default>
+      <default>5.0</default>
       <units>s</units>
       <desc>Timeout for new incoming path reference</desc>
       <min>3</min>
@@ -1699,7 +1727,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>5</default>
+      <default>7</default>
       <units/>
       <desc>Number of samples for forward range moving average</desc>
     </param>
@@ -1708,7 +1736,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>15.0</default>
+      <default>35.0</default>
       <units>°</units>
       <desc>Safe pitch angle to perform bottom tracking</desc>
     </param>
@@ -1726,7 +1754,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>4.0</default>
+      <default>8.0</default>
       <units>m</units>
       <desc>Minimum admissible forward range for bottom tracking</desc>
     </param>
@@ -1735,7 +1763,7 @@
       <type>boolean</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>true</default>
+      <default>false</default>
       <units/>
       <desc>Check slope angle trend in unsafe state</desc>
     </param>
@@ -1762,7 +1790,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>3.0</default>
+      <default>2.5</default>
       <units>m</units>
       <desc>Admissible altitude when doing depth control</desc>
     </param>
@@ -1774,6 +1802,55 @@
       <default>25000</default>
       <units>m</units>
       <desc>Maximum adimissible track length</desc>
+    </param>
+    <param name="Corridor -- Width">
+      <name-i18n>Corridor -- Width</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.5</default>
+      <units>m</units>
+      <desc>Width of corridor for attack entry angle</desc>
+      <min>1.0</min>
+      <max>50.0</max>
+    </param>
+    <param name="Corridor -- Entry Angle">
+      <name-i18n>Corridor -- Entry Angle</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>15.0</default>
+      <units>°</units>
+      <desc>Attack angle when lateral track error equals corridor width</desc>
+      <min>2</min>
+      <max>45</max>
+    </param>
+    <param name="Extended Control -- Enabled">
+      <name-i18n>Extended Control -- Enabled</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Enable extended (refined) corridor control</desc>
+    </param>
+    <param name="Extended Control -- Controller Gain">
+      <name-i18n>Extended Control -- Controller Gain</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.0</default>
+      <units/>
+      <desc>Gain for extended control</desc>
+    </param>
+    <param name="Extended Control -- Turn Rate Gain">
+      <name-i18n>Extended Control -- Turn Rate Gain</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.0</default>
+      <units/>
+      <desc>Turn rate gain for extended control</desc>
     </param>
   </section>
   <section name="Communications Relay Maneuver" name-i18n="Manobra de Retransmissão de Comunicações">
@@ -1999,7 +2076,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>15.0</default>
+      <default>7.5</default>
       <units>m</units>
       <desc>Radius of loitering circle after arriving at destination</desc>
     </param>
@@ -2344,6 +2421,24 @@
       <units/>
       <desc>ScheduledGoto maneuver's entity label</desc>
     </param>
+    <param name="Entity Label -- Takeoff">
+      <name-i18n>Entity Label -- Takeoff</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Takeoff Maneuver</default>
+      <units/>
+      <desc>Takeoff maneuver's entity label</desc>
+    </param>
+    <param name="Entity Label -- Land">
+      <name-i18n>Entity Label -- Land</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Land Maneuver</default>
+      <units/>
+      <desc>Land maneuver's entity label</desc>
+    </param>
     <param name="Entity Label -- Drop">
       <name-i18n>Entity Label -- Drop</name-i18n>
       <type>string</type>
@@ -2361,6 +2456,15 @@
       <default>Sample Maneuver</default>
       <units/>
       <desc>Sample maneuver's entity label</desc>
+    </param>
+    <param name="Entity Label -- StationKeepingExtended">
+      <name-i18n>Entity Label -- StationKeepingExtended</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>StationKeepingExtended Maneuver</default>
+      <units/>
+      <desc>StationKeepingExtended maneuver's entity label</desc>
     </param>
     <param name="Unsupported">
       <name-i18n>Unsupported</name-i18n>
@@ -2669,6 +2773,15 @@
       <units/>
       <desc>Default time tolerance to execute maneuver</desc>
     </param>
+    <param name="StationKeepingExtended -- Minimum Radius">
+      <name-i18n>StationKeepingExtended -- Minimum Radius</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10.0</default>
+      <units/>
+      <desc>Minimum radius for StationKeepingExtended to prevent incompatibility with path controller</desc>
+    </param>
   </section>
   <section name="Teleoperation Maneuver" name-i18n="Manobra de Teleoperação">
     <param name="Entity Label">
@@ -2884,7 +2997,7 @@
       <units/>
       <desc>Number of moving average samples to smooth accelerations</desc>
       <min>2</min>
-      <max>5</max>
+      <max>100</max>
     </param>
     <param name="Maximum Deviation Factor">
       <name-i18n>Maximum Deviation Factor</name-i18n>
@@ -3496,6 +3609,26 @@
       <desc>Level of battery below which an error will be thrown</desc>
       <min>0.0</min>
       <max>100.0</max>
+    </param>
+    <param name="Voltage Error Level">
+      <name-i18n>Voltage Error Level</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>25.5</default>
+      <units>V</units>
+      <desc>Level of battery, in voltage, below which an error will be thrown</desc>
+    </param>
+    <param name="Voltage Threshold Error Level">
+      <name-i18n>Voltage Threshold Error Level</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.5</default>
+      <units>V</units>
+      <desc>Threshold Level of battery, to switch of error to active.</desc>
+      <min>0.1</min>
+      <max>8.0</max>
     </param>
     <param name="Low Confidence Level">
       <name-i18n>Low Confidence Level</name-i18n>
@@ -4249,10 +4382,10 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1.5</default>
+      <default>2.0</default>
       <units>s</units>
       <desc>No GPS readings timeout</desc>
-      <min>2.0</min>
+      <min>1.5</min>
     </param>
     <param name="DVL timeout">
       <name-i18n>DVL timeout</name-i18n>
@@ -4667,7 +4800,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0.0</default>
+      <default>0.64</default>
       <units/>
       <desc>Depth sensor localization in x axis in meters- used for depth correction due to pitch</desc>
       <min>0.0</min>
@@ -4687,7 +4820,7 @@
       <type>boolean</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>false</default>
+      <default>true</default>
       <units/>
       <desc/>
     </param>
@@ -5517,7 +5650,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0</default>
+      <default>1</default>
       <units/>
       <desc/>
     </param>
@@ -6838,7 +6971,7 @@
       <type>list:real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>-0.025859, 0.006891, 0.0</default>
+      <default>-0.041908, 0.031712, 0.0</default>
       <units>G</units>
       <desc>Hard-Iron calibration parameters</desc>
       <size>3</size>
@@ -6872,6 +7005,15 @@
       <units>s</units>
       <desc>Number of seconds without data before restarting task</desc>
       <min>1.0</min>
+    </param>
+    <param name="Last Calibration Time">
+      <name-i18n>Last Calibration Time</name-i18n>
+      <type>string</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>N/A</default>
+      <units/>
+      <desc>Date of last successful calibration</desc>
     </param>
   </section>
   <section name="Mainboard" name-i18n="Placa Principal">
@@ -7204,6 +7346,26 @@
       <units>s</units>
       <desc>Reports periodicity</desc>
       <min>30</min>
+      <max>600</max>
+    </param>
+    <param name="Radio Reports">
+      <name-i18n>Radio Reports</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Enable Radio system state reporting</desc>
+    </param>
+    <param name="Radio Reports Periodicity">
+      <name-i18n>Radio Reports Periodicity</name-i18n>
+      <type>real</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>3</default>
+      <units>s</units>
+      <desc>Reports periodicity</desc>
+      <min>1</min>
       <max>600</max>
     </param>
   </section>
@@ -7868,6 +8030,33 @@
       <units>s</units>
       <desc>Maximum amount of time to wait for SMS send completion</desc>
     </param>
+    <param name="USSD code">
+      <name-i18n>USSD code</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>123</default>
+      <units/>
+      <desc>USSD code</desc>
+    </param>
+    <param name="Enable Balance Request">
+      <name-i18n>Enable Balance Request</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Enable Balance Request</desc>
+    </param>
+    <param name="Balance Periodicity">
+      <name-i18n>Balance Periodicity</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>60</default>
+      <units/>
+      <desc>Balance Periodicity</desc>
+    </param>
   </section>
   <section name="HTTP Server" name-i18n="Servidor HTTP">
     <param name="Entity Label">
@@ -8046,6 +8235,15 @@
       <default>1200</default>
       <units>s</units>
       <desc>Age, in seconds, after which received IMC messages are discarded.</desc>
+    </param>
+    <param name="Iridium Text Origin">
+      <name-i18n>Iridium Text Origin</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>iridium</default>
+      <units/>
+      <desc>Text messages received via Iridium will be tagged with this origin</desc>
     </param>
   </section>
   <section name="Iridium Modem" name-i18n="Modem Iridium">
@@ -8468,7 +8666,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default/>
+      <default>Temperature:CTD+OEMX</default>
       <units/>
       <desc>List of &lt;Message&gt;:&lt;Entity&gt;+&lt;Entity&gt; that define the source entities allowed to pass message of a specific message type.</desc>
     </param>
@@ -8661,7 +8859,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>AcousticOperation, AlignmentState, CpuUsage, DevCalibrationControl, DevCalibrationState, Distance, EntityList, EntityParameters, EntityState, EstimatedState, FollowRefState, FuelLevel, Heartbeat, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblEstimate, LblRangeAcceptance, LblConfig, LogBookEntry, LogBookControl, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PowerChannelState, ReportControl, RemoteActions, RemoteActionsRequest, Rpm, RSSI, SadcReadings, SimulatedState, SoiCommand, SoiState, StateReport, StorageUsage, Temperature, TextMessage, TrexObservation, TrexOperation, TrexToken, TrexPlan, UsblAnglesExtended, UsblPositionExtended, UsblFixExtended, UsblModem, UsblConfig, VehicleMedium, VehicleState, Voltage</default>
+      <default>AcousticOperation, AlignmentState, CpuUsage, DevCalibrationControl, DevCalibrationState, Distance, EntityList, EntityParameters, EntityState, EstimatedState, FollowRefState, FuelLevel, Heartbeat, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblEstimate, LblRangeAcceptance, LblConfig, LogBookEntry, LogBookControl, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PowerChannelState, ReportControl, RemoteActions, RemoteActionsRequest, Rpm, RSSI, SadcReadings, SimulatedState, SoiCommand, SoiState, StateReport, StorageUsage, Temperature, TextMessage, TrexObservation, TrexOperation, TrexToken, TrexPlan, Turbidity, UsblAnglesExtended, UsblPositionExtended, UsblFixExtended, UsblModem, UsblConfig, VehicleMedium, VehicleState, Voltage</default>
       <units/>
       <desc>List of messages to transport</desc>
     </param>
@@ -8691,6 +8889,15 @@
       <default>false</default>
       <units/>
       <desc>Only transmit messsages from local system.</desc>
+    </param>
+    <param name="Custom Service Type">
+      <name-i18n>Custom Service Type</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>Optional custom service type (imc+udp+&lt;Custom Service Type&gt;), empty entry gives default service (imc+udp)</desc>
     </param>
   </section>
   <section name="LEDs" name-i18n="LEDs">

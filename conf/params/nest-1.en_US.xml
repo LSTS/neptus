@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2017.01.0 (feature/lauv-arpao,3d5546c)" system="nest-1" i18n="en_US">
+<config format="1" version="2017.01.0 (mission/rep2018,4712d4ed)" system="nest-1" i18n="en_US">
   <section name="Navigation" name-i18n="Navigation">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -1126,7 +1126,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Chlorophyll, Conductivity, CpuUsage, Current, Depth, Distance, EntityState, Fluorescein, FuelLevel, GpsFix, Heartbeat, LblConfig, LblRange, LblRangeAcceptance, Phycocyanin, Phycoerythrin, PowerChannelState, Pressure, RhodamineDye, RSSI, Rpm, Salinity, SoundSpeed, StorageUsage, Temperature, Voltage, PH, Redox</default>
+      <default>Chlorophyll, Conductivity, CpuUsage, Current, Depth, Distance, EntityState, Fluorescein, FuelLevel, GpsFix, Heartbeat, LblConfig, LblRange, LblRangeAcceptance, Phycocyanin, Phycoerythrin, PowerChannelState, Pressure, RhodamineDye, RSSI, Rpm, Salinity, SoundSpeed, StorageUsage, Temperature, Turbidity, Voltage, PH, Redox</default>
       <units/>
       <desc>List of messages to transport</desc>
     </param>
@@ -1345,6 +1345,33 @@
       <units/>
       <desc>Enable or disable IP forward</desc>
     </param>
+    <param name="Enable Dynamic DNS">
+      <name-i18n>Enable Dynamic DNS</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Enable or disable Dynamic DNS</desc>
+    </param>
+    <param name="DynDNS Update Periodicity">
+      <name-i18n>DynDNS Update Periodicity</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>60</default>
+      <units>s</units>
+      <desc>Number of seconds between dynamic DNS updates</desc>
+    </param>
+    <param name="DynDNS URL">
+      <name-i18n>DynDNS URL</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>URL used to update dynamic DNS</desc>
+    </param>
   </section>
   <section name="UDP" name-i18n="UDP">
     <param name="Entity Label">
@@ -1528,6 +1555,15 @@
       <default>false</default>
       <units/>
       <desc>Only transmit messsages from local system.</desc>
+    </param>
+    <param name="Custom Service Type">
+      <name-i18n>Custom Service Type</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>Optional custom service type (imc+udp+&lt;Custom Service Type&gt;), empty entry gives default service (imc+udp)</desc>
     </param>
   </section>
 </config>

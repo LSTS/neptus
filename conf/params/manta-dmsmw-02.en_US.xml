@@ -1,5 +1,82 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2016.05.0 (HEAD,5a841ca)" system="manta-dmsmw-02" i18n="en_US">
+<config format="1" version="2017.01.0 (mission/rep2018,4712d4ed)" system="manta-dmsmw-02" i18n="en_US">
+  <section name="Text Message Parser" name-i18n="Text Message Parser">
+    <param name="Entity Label">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Text Message Parser</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Activation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Reply timeout">
+      <name-i18n>Reply timeout</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>60</default>
+      <units/>
+      <desc/>
+      <min>30</min>
+    </param>
+    <param name="Documentation URL">
+      <name-i18n>Documentation URL</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>https://bit.ly/2LZ0EOc</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Valid Commands">
+      <name-i18n>Valid Commands</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>abort,dislodge,dive,errors,info,force,go,help,phone,reboot,sk,start,surface</default>
+      <units/>
+      <desc/>
+    </param>
+  </section>
   <section name="Navigation" name-i18n="Navigation">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -1000,172 +1077,6 @@
       <desc/>
     </param>
   </section>
-  <section name="Acoustic Modem" name-i18n="Acoustic Modem">
-    <param name="Entity Label">
-      <name-i18n>Entity Label</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Acoustic Modem</default>
-      <units/>
-      <desc>Main entity label</desc>
-    </param>
-    <param name="Execution Priority">
-      <name-i18n>Execution Priority</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units/>
-      <desc>Execution priority</desc>
-    </param>
-    <param name="Activation Time">
-      <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Deactivation Time">
-      <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Debug Level">
-      <name-i18n>Debug Level</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>None</default>
-      <units/>
-      <desc/>
-      <values>None, Debug, Trace, Spew</values>
-      <values-i18n>None, Debug, Trace, Spew</values-i18n>
-    </param>
-    <param name="Serial Port - Device">
-      <name-i18n>Serial Port - Device</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>/dev/uart/1</default>
-      <units/>
-      <desc>Serial port device used to communicate with the sensor</desc>
-    </param>
-    <param name="Serial Port - Baud Rate">
-      <name-i18n>Serial Port - Baud Rate</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>19200</default>
-      <units/>
-      <desc>Serial port baud rate</desc>
-    </param>
-    <param name="Length of Transmit Pings">
-      <name-i18n>Length of Transmit Pings</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>5</default>
-      <units>ms</units>
-      <desc/>
-      <min>0</min>
-    </param>
-    <param name="Length of Receive Pings">
-      <name-i18n>Length of Receive Pings</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>5</default>
-      <units>ms</units>
-      <desc/>
-      <min>0</min>
-    </param>
-    <param name="Sound Speed on Water">
-      <name-i18n>Sound Speed on Water</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>1500</default>
-      <units>m/s</units>
-      <desc>Water sound speed</desc>
-      <min>1375</min>
-      <max>1900</max>
-    </param>
-    <param name="Turn Around Time">
-      <name-i18n>Turn Around Time</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>20</default>
-      <units>ms</units>
-      <desc/>
-      <min>0</min>
-    </param>
-    <param name="Timeout - Micro-Modem Ping">
-      <name-i18n>Timeout - Micro-Modem Ping</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>5.0</default>
-      <units>s</units>
-      <desc/>
-      <min>0</min>
-    </param>
-    <param name="Timeout - Narrow Band Ping">
-      <name-i18n>Timeout - Narrow Band Ping</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>5.0</default>
-      <units>s</units>
-      <desc/>
-      <min>0</min>
-    </param>
-    <param name="Timeout - Abort">
-      <name-i18n>Timeout - Abort</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>5.0</default>
-      <units>s</units>
-      <desc/>
-      <min>0</min>
-    </param>
-    <param name="Timeout - Input">
-      <name-i18n>Timeout - Input</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>20.0</default>
-      <units>s</units>
-      <desc/>
-      <min>0</min>
-    </param>
-    <param name="GPIO - Transducer Detection">
-      <name-i18n>GPIO - Transducer Detection</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>157</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Address Section">
-      <name-i18n>Address Section</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Micromodem Addresses - DMSMW</default>
-      <units/>
-      <desc>Name of the configuration section with modem addresses</desc>
-    </param>
-  </section>
   <section name="Clock" name-i18n="Clock">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -1747,7 +1658,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Chlorophyll, Conductivity, CpuUsage, Current, Depth, Distance, EntityState, Fluorescein, FuelLevel, GpsFix, Heartbeat, LblConfig, LblRange, LblRangeAcceptance, Phycocyanin, Phycoerythrin, PowerChannelState, Pressure, RhodamineDye, RSSI, Rpm, Salinity, SoundSpeed, StorageUsage, Temperature, Voltage</default>
+      <default>Chlorophyll, Conductivity, CpuUsage, Current, Depth, Distance, EntityState, Fluorescein, FuelLevel, GpsFix, Heartbeat, LblConfig, LblRange, LblRangeAcceptance, Phycocyanin, Phycoerythrin, PowerChannelState, Pressure, RhodamineDye, RSSI, Rpm, Salinity, SoundSpeed, StorageUsage, Temperature, Turbidity, Voltage, PH, Redox</default>
       <units/>
       <desc>List of messages to transport</desc>
     </param>
@@ -1935,9 +1846,18 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>AT\^SYSCFG=2,2,3fffffff,0,1</default>
+      <default>AT\^SYSCFG=2,2,3fffffff,1,1</default>
       <units/>
       <desc>GSM/GPRS mode.</desc>
+    </param>
+    <param name="Code Presentation Mode">
+      <name-i18n>Code Presentation Mode</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Code Presentation Mode</desc>
     </param>
     <param name="PPP - Interface">
       <name-i18n>PPP - Interface</name-i18n>
@@ -1956,6 +1876,33 @@
       <default>true</default>
       <units/>
       <desc>Enable or disable IP forward</desc>
+    </param>
+    <param name="Enable Dynamic DNS">
+      <name-i18n>Enable Dynamic DNS</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Enable or disable Dynamic DNS</desc>
+    </param>
+    <param name="DynDNS Update Periodicity">
+      <name-i18n>DynDNS Update Periodicity</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>60</default>
+      <units>s</units>
+      <desc>Number of seconds between dynamic DNS updates</desc>
+    </param>
+    <param name="DynDNS URL">
+      <name-i18n>DynDNS URL</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>URL used to update dynamic DNS</desc>
     </param>
   </section>
   <section name="UDP" name-i18n="UDP">
@@ -2110,7 +2057,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Abort, AcousticOperation, AcousticSystemsQuery, AcousticSystems, CpuUsage, Current, Depth, Distance, EntityList, EntityParameters, EntityState, EstimatedState, FuelLevel, GpsFix, Heartbeat, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblRange, LblRangeAcceptance, LogBookControl, LoggingControl, NavigationUncertainty, PlanControl, PlanControlState, RemoteSensorInfo, RSSI, StorageUsage, Temperature, Voltage</default>
+      <default>Abort, AcousticOperation, AcousticSystemsQuery, AcousticSystems, CommSystemsQuery, CpuUsage, Current, Depth, Distance, EntityList, EntityParameters, EntityState, EstimatedState, EulerAngles, FuelLevel, GpsFix, Heartbeat, IndicatedSpeed, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblRange, LblRangeAcceptance, LogBookControl, LoggingControl, MagneticField, NavigationUncertainty, PlanControl, PlanControlState, RemoteSensorInfo, RSSI, SetControlSurfaceDeflection, StateReport, StorageUsage, TelemetryMsg, Temperature, TextMessage, UsblAnglesExtended, UsblPositionExtended, UsblFixExtended, UsblModem, UsblConfig, VehicleState, Voltage, VtolState</default>
       <units/>
       <desc>List of messages to transport</desc>
     </param>
@@ -2140,6 +2087,15 @@
       <default>false</default>
       <units/>
       <desc>Only transmit messsages from local system.</desc>
+    </param>
+    <param name="Custom Service Type">
+      <name-i18n>Custom Service Type</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>Optional custom service type (imc+udp+&lt;Custom Service Type&gt;), empty entry gives default service (imc+udp)</desc>
     </param>
   </section>
   <section name="Panel Buttons" name-i18n="Panel Buttons">
@@ -2343,7 +2299,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>lauv-seacon-1, lauv-seacon-2, lauv-seacon-3, benthos1, benthos2, benthos3, benthos4, benthos5</default>
+      <default>lauv-seacon-1, lauv-seacon-2, lauv-seacon-3, benthos1, benthos2, benthos3, benthos4, benthos5, benthos6</default>
       <units/>
       <desc>Array of supported system names</desc>
     </param>
