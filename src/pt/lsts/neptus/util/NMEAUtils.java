@@ -224,6 +224,10 @@ public class NMEAUtils {
         return processTimeFromSentence(sentence, 0);
     }
 
+    public static Date processGLLTimeFromSentence(String sentence) {
+        return processTimeFromSentence(sentence, 4);
+    }
+
 	public static LocationType processGGASentence(String sentence) {		
 		try {
 			NMEA0183Sentence nmea = new NMEA0183Sentence(sentence);
@@ -237,6 +241,7 @@ public class NMEAUtils {
 			String north_south = (String) data_fields.get(2);
 			String longitude = (String) data_fields.get(3);
 			String east_west = (String) data_fields.get(4);
+			
 			int valid_fix = Integer.parseInt((String) data_fields.get(5));
 	
 			if (valid_fix == 0)
@@ -335,7 +340,44 @@ public class NMEAUtils {
 			return null;
 		}
 	}
-	
+
+    public static LocationType processGLLSentence(String sentence) {
+        try {
+            NMEA0183Sentence nmea = new NMEA0183Sentence(sentence);
+            if (!nmea.isValid())
+                return null;
+            List<?> data_fields = nmea.getDataFields();
+
+            String latitude = (String) data_fields.get(0);
+            String north_south = (String) data_fields.get(1);
+            String longitude = (String) data_fields.get(2);
+            String east_west = (String) data_fields.get(3);
+
+            // check for empty messages:
+            if (latitude.length() == 0)
+                return null;
+
+            double wgs84_lat = nmeaLatOrLongToWGS84(latitude);
+            double wgs84_long = nmeaLatOrLongToWGS84(longitude);
+
+            if (north_south.equalsIgnoreCase("S"))
+                wgs84_lat = -wgs84_lat;
+
+            if (east_west.equalsIgnoreCase("W"))
+                wgs84_long = -wgs84_long;
+
+            LocationType loc = new LocationType();
+            loc.setLatitudeDegs(wgs84_lat);
+            loc.setLongitudeDegs(wgs84_long);
+
+            return loc;
+        }
+        catch (Exception ex) {
+            ex.printStackTrace();
+            return null;
+        }
+    }
+
     /**
      * Searches an external system with mmsi or name and return an external system or
      * a new one created (the name is prevalent, if name is not known make it the same

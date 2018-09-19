@@ -339,6 +339,8 @@ public class NmeaPlotter extends ConsoleLayer implements NmeaProvider {
                 contactDb.processRattm(s);
             else if (nmeaType.startsWith("HDT", 3)) // GP
                 contactDb.processGPHDT(s);
+            else if (nmeaType.startsWith("GLL", 3)) // GP or NM
+                contactDb.processGLL(s);
             else {
                 synchronized (parser) {
                     parser.process(s); // Is AIS

@@ -182,6 +182,23 @@ public class AisContactDb implements AISObserver {
         }
     }
 
+    public void processGLL(String sentence) {
+        LocationType myLoc = NMEAUtils.processGLLSentence(sentence);
+        Date dateTime = NMEAUtils.processGLLTimeFromSentence(sentence);
+        ExternalSystem extSys = ExternalSystemsHolder.lookupSystem("Ship");
+        if (extSys == null) {
+            ExternalSystem es = new ExternalSystem("Ship");
+            extSys = ExternalSystemsHolder.registerSystem(es);
+        }
+        LocationType oldLoc = extSys.getLocation();
+        extSys.setLocation(myLoc, dateTime == null ? System.currentTimeMillis() : dateTime.getTime());
+        if (oldLoc.compareTo(myLoc) != 0) {
+            NeptusLog.pub().debug((String.format(">>>>>>>>> Ship GLL >>>>>>> %s  :: %s :: %s :: %s", sentence, 
+                    CoordinateUtil.latitudeAsPrettyString(myLoc.getLatitudeDegs()), CoordinateUtil.longitudeAsPrettyString(myLoc.getLongitudeDegs()),
+                    DateTimeUtil.dateTimeFormatterISO8601.format(new Date(extSys.getLocationTimeMillis())))));
+        }
+    }
+
     public void processGPHDT(String sentence) {
         lastGPHDT = sentence;
         double myHeadingDegs = NMEAUtils.processGPHDTSentence(lastGPHDT);
