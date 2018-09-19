@@ -184,9 +184,6 @@ altitude: ${EstimatedState.alt};
     <layer class="pt.lsts.neptus.plugins.position.painter.SystemInfoPainter" opacity="1.0">
       <properties/>
     </layer>
-    <layer class="pt.lsts.ripples.RipplesPositions" opacity="1.0">
-      <properties/>
-    </layer>
   </layers>
   <interactions>
     <interaction class="pt.lsts.neptus.console.bathymLayer.DepthSoundingsInteraction">
