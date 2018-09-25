@@ -249,6 +249,11 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
     // Acoms vars
     private boolean acomsOnCurves = false;
     private int acomsRepetitions = 3;
+
+    // KrakenMinsas vars
+    private boolean sasNotOnCurves = true; // is not changed in parameters for now
+    private String sasOnSettingName;
+    private Vector<EntityParameter> sasOnSettingParams;
     
     // Debug
     public static boolean debug = false;
@@ -402,6 +407,9 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
         turnRadius = DEFAULT_TURN_RADIUS;
         acomsOnCurves = false;
         acomsRepetitions = 3;
+        sasNotOnCurves = true;
+        sasOnSettingName = "";
+        sasOnSettingParams = null;
     }
 
     private long resetCommandLineCounter() {
@@ -820,6 +828,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                                         curvCtrlLocation.convertToAbsoluteLatLonDepth();
 
                                         insertAcomsOnCurveIfEnabled(sb, true);
+                                        insertSASNotOnCurveIfEnabled(sb, true);
                                         
                                         double targetLatDegs = curvCtrlLocation.getLatitudeDegs();
                                         double targetLonDegs = curvCtrlLocation.getLongitudeDegs();
@@ -836,6 +845,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                                                 centerLonDegs, direction, wp.getZ(), wp.getZUnits(), speedMS));
 
                                         insertAcomsOnCurveIfEnabled(sb, false);
+                                        insertSASNotOnCurveIfEnabled(sb, false);
 
                                         if (debug) {
                                             planControlPoints.add(centerLocation);
@@ -902,6 +912,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                                         curvEndLocation.convertToAbsoluteLatLonDepth();
 
                                         insertAcomsOnCurveIfEnabled(sb, true);
+                                        insertSASNotOnCurveIfEnabled(sb, true);
                                         
                                         sb.append(getCommandCurve(curvStartLocation.getLatitudeDegs(),
                                                 curvStartLocation.getLongitudeDegs(),
@@ -917,6 +928,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                                                 wp.getZUnits(), speedMS));
 
                                         insertAcomsOnCurveIfEnabled(sb, false);
+                                        insertSASNotOnCurveIfEnabled(sb, false);
                                         
                                         if (debug) {
                                             planPoints.add(curvStartLocation);
@@ -1021,6 +1033,27 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
     }
 
     /**
+     * @param sb
+     * @param curveStartOrEnd If curve segment start (true), or end (false)
+     */
+    private void insertSASNotOnCurveIfEnabled(StringBuilder sb, boolean curveStartOrEnd) {
+        if (!sasNotOnCurves)
+            return;
+        
+        if (curveStartOrEnd)
+            sb.append(getSasOffSetting());
+        else
+            sb.append(processPayload(sasOnSettingName, sasOnSettingParams));
+    }
+
+    /**
+     * @return
+     */
+    private String getSasOffSetting() {
+        return getSetting('P', "KrakenMinsas", "ACTIVE:OFF;RECORDING:OFF;PROCESSING:ON");
+    }
+
+    /**
      * Comment on maneuver id and payload are created and added to sb provided.
      * 
      * @param sb
@@ -1082,6 +1115,18 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                                 acomsOnCurves = false;
                                 sb.append(getSetting('Q', "Acoms", "0"));
                             }
+                            break;
+                        case "KrakenMinsas":
+                            sasNotOnCurves = true;
+                            sasOnSettingName = sep.getName();
+                            sasOnSettingParams = sep.getParams();
+                            String sasOnSetting = processPayload(sasOnSettingName, sasOnSettingParams);
+                            if (sasOnSetting.contains("KrakenMinsas ACTIVE:OFF"))
+                                sasNotOnCurves = false;
+                            if (sasNotOnCurves)
+                                sb.append(getSasOffSetting());
+                            else
+                                sb.append(sasOnSetting);
                             break;
                         default:
                             sb.append(processPayload(sep.getName(), sep.getParams()));
