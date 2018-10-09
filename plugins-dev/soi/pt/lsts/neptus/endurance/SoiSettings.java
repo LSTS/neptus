@@ -36,7 +36,7 @@ import java.lang.reflect.Field;
 
 import pt.lsts.neptus.plugins.NeptusProperty;
 
-public class SoiSettings {
+public class SoiSettings{
     @NeptusProperty(name = "Nominal Speed", description="Speed to used when planning (nominal)", units="m/s")
     public double speed = 1;
 

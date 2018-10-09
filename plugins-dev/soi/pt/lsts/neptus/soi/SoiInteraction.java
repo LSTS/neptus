@@ -63,6 +63,7 @@ import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.endurance.AssetsManager;
 import pt.lsts.neptus.endurance.CommMean;
+import pt.lsts.neptus.endurance.DripSettings;
 import pt.lsts.neptus.endurance.Plan;
 import pt.lsts.neptus.endurance.SoiSettings;
 import pt.lsts.neptus.i18n.I18n;
@@ -177,7 +178,7 @@ public class SoiInteraction extends SimpleRendererInteraction {
             plan = Plan.parse((PlanSpecification) ptype.asIMCPlan());
 
             if (scheduleWaypoints) {
-                SoiSettings vehicleSettings = AssetsManager.getInstance().getSettings().getOrDefault(system, new SoiSettings());
+                SoiSettings vehicleSettings = (SoiSettings) AssetsManager.getInstance().getSettings().getOrDefault(system, new SoiSettings());
                 plan.scheduleWaypoints(System.currentTimeMillis() + (long) (timeToFirstWaypoint * 1000l),
                         vehicleSettings.speed);
             }
@@ -221,8 +222,8 @@ public class SoiInteraction extends SimpleRendererInteraction {
     }
 
     @SuppressWarnings("deprecation")
-    @NeptusMenuItem("Tools>SOI>Change Settings")
-    public void sendSettings() {
+    @NeptusMenuItem("Tools>SOI>Change SOI Settings")
+    public void sendSOISettings() {
 
         String system = getConsole().getMainSystem();
 
@@ -238,6 +239,29 @@ public class SoiInteraction extends SimpleRendererInteraction {
         String settingsStr = "";
         for (PluginProperty p : after) {
             settingsStr += SoiSettings.abbrev(p.getName()) + "=" + p.getValue() + ";";
+        }
+        cmd.setSettings(settingsStr.substring(0, settingsStr.length() - 1));
+        sendCommand(cmd, system);
+    }
+    
+    @SuppressWarnings("deprecation")
+    @NeptusMenuItem("Tools>SOI>Change Drip Settings")
+    public void sendDripSettings() {
+
+        String system = getConsole().getMainSystem();
+
+        AssetsManager.getInstance().getDripSettings().putIfAbsent(system, new DripSettings());
+
+        if (PluginUtils.editPluginProperties(AssetsManager.getInstance().getDripSettings().get(system), true))
+            return;
+        @SuppressWarnings("unchecked")
+        List<PluginProperty> after = Arrays.asList(PluginUtils.getPluginProperties(AssetsManager.getInstance().getDripSettings().get(system)));
+        SoiCommand cmd = new SoiCommand();
+        cmd.setType(TYPE.REQUEST);
+        cmd.setCommand(COMMAND.SET_PARAMS);
+        String settingsStr = "";
+        for (PluginProperty p : after) {
+            settingsStr += DripSettings.abbrev(p.getName()) + "=" + p.getValue() + ";";
         }
         cmd.setSettings(settingsStr.substring(0, settingsStr.length() - 1));
         sendCommand(cmd, system);
