@@ -108,4 +108,4 @@ fi
 export VMFLAGS="-XX:+HeapDumpOnOutOfMemoryError"
 
 export LD_LIBRARY_PATH=$LIBS:$LD_LIBRARY_PATH
-$JAVA_BIN_FOLDER"java" -Xms10m -Xmx3072m $VMFLAGS -Djava.library.path=$LIBS $VTKPROP -cp $CLASSPATH $DEFAULT "$@"
+$JAVA_BIN_FOLDER"java" -Xms10m -Xmx1024m $VMFLAGS -Djava.library.path=$LIBS $VTKPROP -cp $CLASSPATH $DEFAULT "$@"

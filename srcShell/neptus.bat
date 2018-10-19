@@ -146,5 +146,5 @@ set VMFLAGS="-XX:+HeapDumpOnOutOfMemoryError"
 
 set OLDPATH=%PATH%
 set PATH=%LIBRARYPATH%;%PATH%
-%JAVA_BIN_FOLDER%java -Xms10m -Xmx3072m -Dj3d.rend=d3d -Dsun.java2d.d3d=true %VMFLAGS% -Djava.library.path="%LIBRARYPATH%" -cp %CLASSPATH% %DEFAULT% %1 %2 %3 %4 %5 %6 %7 %8 %9
+%JAVA_BIN_FOLDER%java -Xms10m -Xmx1024m -Dj3d.rend=d3d -Dsun.java2d.d3d=true %VMFLAGS% -Djava.library.path="%LIBRARYPATH%" -cp %CLASSPATH% %DEFAULT% %1 %2 %3 %4 %5 %6 %7 %8 %9
 set PATH=%OLDPATH%
