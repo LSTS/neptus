@@ -36,6 +36,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import pt.lsts.imc.Magnetometer;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
@@ -94,6 +95,13 @@ public class ManPreviewFactory {
             else if (Launch.class.isAssignableFrom(maneuver.getClass())) {
                 GotoPreview prev = new GotoPreview();
                 prev.init(vehicleId, (Launch) maneuver, state, manState);
+                IManeuverPreview<?> p = (IManeuverPreview<?>) prev;
+                previewMatchList.put((Class<Maneuver>) maneuver.getClass(), (Class<IManeuverPreview<?>>) p.getClass());
+                return prev;
+            }
+            else if (Magnetometer.class.isAssignableFrom(maneuver.getClass())) {
+                MagnetometerPreview prev = new MagnetometerPreview();
+                prev.init(vehicleId, (pt.lsts.neptus.mp.maneuvers.Magnetometer) maneuver, state, manState);
                 IManeuverPreview<?> p = (IManeuverPreview<?>) prev;
                 previewMatchList.put((Class<Maneuver>) maneuver.getClass(), (Class<IManeuverPreview<?>>) p.getClass());
                 return prev;

@@ -44,6 +44,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
 import javax.swing.AbstractAction;
@@ -78,6 +79,7 @@ import pt.lsts.neptus.gui.ToolbarButton;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.params.ConfigurationManager;
 import pt.lsts.neptus.params.SystemProperty;
+import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.update.Periodic;
@@ -124,6 +126,9 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
 
     /** Received acks **/
     private final HashSet<Long> acks = new HashSet<>();
+
+    @NeptusProperty(name = "Radio Throughput", description = "Used to calculate TTL")
+    public double radioThroughput = 52.0;
 
     public TelemetryControlPanel(ConsoleLayout console) {
         super(console);
@@ -401,7 +406,7 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
      * Compute an estimate for timeout, for a given message
      * */
     private int getAckTimeoutSeconds(TelemetryMsg msg) {
-        float timeout = (float) (2.5 + (msg.getPayloadSize() / 52.0));
+        float timeout = (float) (2.5 + (msg.getPayloadSize() / radioThroughput));
         return MathUtils.round(timeout);
     }
 
@@ -433,14 +438,15 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
             return;
         }
 
-        NeptusLog.pub().info("Sync plan " + currSelectedPlan.getDisplayName() + " to " + imcTarget + " through " + telemetryTarget);
+        PlanType planCopy = currSelectedPlan.clonePlan();
+        NeptusLog.pub().info("Sync plan " + planCopy.getDisplayName() + " to " + imcTarget + " through " + telemetryTarget);
 
         PlanDB pdb = new PlanDB();
         pdb.setType(PlanDB.TYPE.REQUEST);
         pdb.setOp(PlanDB.OP.SET);
         pdb.setRequestId(IMCSendMessageUtils.getNextRequestId());
-        pdb.setPlanId(currSelectedPlan.getId());
-        pdb.setArg(currSelectedPlan.asIMCPlan());
+        pdb.setPlanId(planCopy.getId());
+        pdb.setArg(planCopy.asIMCPlan());
         pdb.setDst(ImcSystemsHolder.lookupSystemByName(imcTarget).getId().intValue());
 
         byte[] bfr;
@@ -458,15 +464,23 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
             return;
 
         long reqId = msg.getReqId();
-        scheduleAction(() -> {
-            synchronized (acks) {
-                if (acks.contains(reqId))
-                    post(Notification.success("Telemetry Control", "Uploaded plan " + currSelectedPlan.getDisplayName()));
-                else
-                    post(Notification.error("Telemetry Control", "Failed to upload plan " + currSelectedPlan.getDisplayName()));
-                acks.remove(reqId);
-            }
-        }, msg.getTtl());
+        scheduleAction(
+                () -> {
+                    synchronized (acks) {
+                        if (acks.contains(reqId)) {
+                            acks.remove(reqId);
+                            post(Notification.success("Telemetry Control", "Sent plan upload " + planCopy.getDisplayName()));
+                            return true;
+                        }
+                    }
+                    return false;
+                },
+                () -> {
+                    synchronized (acks) {
+                        if (!acks.contains(reqId))
+                            post(Notification.error("Telemetry Control", "Failed to upload plan " + planCopy.getDisplayName() + "(reqId: " + reqId + ")"));
+                    }
+                }, msg.getTtl());
     }
 
     private void sendPlanStart(String telemetryTarget, String imcTarget) {
@@ -476,7 +490,8 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
             return;
         }
 
-        NeptusLog.pub().info("Start plan " + currSelectedPlan.getDisplayName() + " to " + imcTarget + "( " + ImcSystemsHolder.lookupSystemByName(imcTarget).getId().intValue() + ") through " + telemetryTarget);
+        PlanType planCopy = currSelectedPlan.clonePlan();
+        NeptusLog.pub().info("Start plan " + planCopy.getDisplayName() + " to " + imcTarget + "( " + ImcSystemsHolder.lookupSystemByName(imcTarget).getId().intValue() + ") through " + telemetryTarget);
 
         PlanControl pc = new PlanControl();
         pc.setType(PlanControl.TYPE.REQUEST);
@@ -501,15 +516,23 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
 
         long reqId = msg.getReqId();
 
-        scheduleAction(() -> {
-            synchronized (acks) {
-                if (acks.contains(reqId))
-                    post(Notification.success("Telemetry Control", "Sent plan start " + currSelectedPlan.getDisplayName()));
-                else
-                    post(Notification.error("Telemetry Control", "Failed to send plan start " + currSelectedPlan.getDisplayName()));
-                acks.remove(reqId);
-            }
-        }, msg.getTtl());
+        scheduleAction(
+                () -> {
+                    synchronized (acks) {
+                        if (acks.contains(reqId)) {
+                            acks.remove(reqId);
+                            post(Notification.success("Telemetry Control", "Sent plan start " + planCopy.getDisplayName()));
+                            return true;
+                        }
+                    }
+                    return false;
+                },
+                () -> {
+                    synchronized (acks) {
+                        if (!acks.contains(reqId))
+                            post(Notification.error("Telemetry Control", "Failed to send plan start " + planCopy.getDisplayName()));
+                    }
+                }, msg.getTtl());
     }
 
     private void sendPlanStop(String telemetryTarget, String imcTarget) {
@@ -519,7 +542,8 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
             return;
         }
 
-        NeptusLog.pub().info("Send plan stop " + currSelectedPlan.getDisplayName() + " to " + imcTarget + " through " + telemetryTarget);
+        PlanType planCopy = currSelectedPlan.clonePlan();
+        NeptusLog.pub().info("Send plan stop " + planCopy.getDisplayName() + " to " + imcTarget + " through " + telemetryTarget);
 
         PlanControl pc = new PlanControl();
         pc.setType(PlanControl.TYPE.REQUEST);
@@ -544,15 +568,23 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
 
         long reqId = msg.getReqId();
 
-        scheduleAction(() -> {
-            synchronized (acks) {
-                if (acks.contains(reqId))
-                    post(Notification.success("Telemetry Control", "Sent plan stop " + currSelectedPlan.getDisplayName()));
-                else
-                    post(Notification.error("Telemetry Control", "Failed to send plan stop " + currSelectedPlan.getDisplayName()));
-                acks.remove(reqId);
-            }
-        }, msg.getTtl());
+        scheduleAction(
+                () -> {
+                    synchronized (acks) {
+                        if (acks.contains(reqId)) {
+                            acks.remove(reqId);
+                            post(Notification.success("Telemetry Control", "Sent plan stop " + planCopy.getDisplayName()));
+                            return true;
+                        }
+                    }
+                    return false;
+                },
+                () -> {
+                    synchronized (acks) {
+                        if (acks.contains(reqId))
+                            post(Notification.error("Telemetry Control", "Failed to send plan stop " + planCopy.getDisplayName()));
+                    }
+                }, msg.getTtl());
     }
 
     /**
@@ -605,17 +637,28 @@ public class TelemetryControlPanel extends ConsolePanel implements PlanChangeLis
     /**
      * Schedule the given action to be started after timeoutSeconds
      * */
-    private void scheduleAction(Runnable action, int timeoutSeconds) {
+    private void scheduleAction(Callable<Boolean> onWait, Runnable onFail, int timeoutSeconds) {
         new Thread(() -> {
             try {
-                Thread.sleep(timeoutSeconds * 1000);
+                int timeCounter = 0;
+                while(true) {
+                    if(onWait.call())
+                        break;
+                    timeCounter++;
+
+                    if(timeCounter > timeoutSeconds) {
+                        onFail.run();
+                        break;
+                    }
+                    Thread.sleep(1000);
+                }
             }
             catch (InterruptedException e) {
                 e.printStackTrace();
                 GuiUtils.errorMessage("TelemetryControl", "Failed to schedule action due to \n" + e.getMessage());
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-
-            action.run();
         }).start();
     }
 }
