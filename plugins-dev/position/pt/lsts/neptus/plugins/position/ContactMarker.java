@@ -347,14 +347,14 @@ SubPanelChangeListener, MainVehicleChangeListener {
                         return;
 
                     // place marks on map
-                    importedMarks.stream()
-                            .forEach(m -> MapGroup.getMapGroupInstance(getConsole()
-                                    .getMission())
-                                    .getMaps()[0]
-                                    .addObject(m));
+                    importedMarks.stream().forEach(m -> {
+                        MapType mapType = MapGroup.getMapGroupInstance(getConsole().getMission()).getMaps()[0];
+                        m.setMapGroup(mapType.getMapGroup());
+                        m.setParentMap(mapType);
+                        mapType.addObject(m);
+                    });
 
                     getConsole().getMission().save(true);
-
                 });
                 menus.add(importMarks);
 
