@@ -27,15 +27,12 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: ineeve
+ * Author: Renato Campos
  * 14 Nov 2018
  */
 package pt.lsts.neptus.mra.importers.i872;
 
-/**
- * @author ineeve
- *
- */
+
 public class I872Parser {
 
     /**
