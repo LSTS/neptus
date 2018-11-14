@@ -27,7 +27,7 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: ineeve
+ * Author: Renato Campos
  * 14 Nov 2018
  */
 package pt.lsts.neptus.mra.importers.i872;
@@ -38,10 +38,7 @@ import pt.lsts.neptus.mra.api.SidescanLine;
 import pt.lsts.neptus.mra.api.SidescanParameters;
 import pt.lsts.neptus.mra.api.SidescanParser;
 
-/**
- * @author ineeve
- *
- */
+
 public class I872SidescanParser implements SidescanParser {
 
     /**
