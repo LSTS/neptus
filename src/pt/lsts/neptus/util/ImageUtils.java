@@ -598,7 +598,7 @@ public class ImageUtils {
     
     public static String readExifComment(File jpegFile) throws Exception {
         Metadata metadata = ImageMetadataReader.readMetadata(jpegFile);
-        ExifSubIFDDescriptor descriptor = new ExifSubIFDDescriptor(metadata.getDirectory(ExifSubIFDDirectory.class));
+        ExifSubIFDDescriptor descriptor = new ExifSubIFDDescriptor((ExifSubIFDDirectory) metadata.getDirectoriesOfType(ExifSubIFDDirectory.class));
         return descriptor.getUserCommentDescription();
     }
     
