@@ -34,6 +34,7 @@ package pt.lsts.neptus.plugins.djiimporter;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics2D;
@@ -60,7 +61,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Random;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TimeZone;
@@ -82,8 +82,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
-
-import org.jdesktop.swingx.JXTable;
 
 import com.adobe.xmp.XMPException;
 import com.adobe.xmp.XMPIterator;
@@ -126,7 +124,7 @@ public class PhotoImporter extends SimpleRendererInteraction {
     private ImageMetadata selected = null;
     private boolean enable = false;
     private String prevDir = "";
-    private TableDialog tableDialog = null;
+    private TableDialog tableDialog = new TableDialog(SwingUtilities.getWindowAncestor(getConsole()));
     private StateRenderer2D renderer = null;
 
     public PhotoImporter(ConsoleLayout console) {
@@ -136,7 +134,7 @@ public class PhotoImporter extends SimpleRendererInteraction {
     private void addPhotoMarker(String file) {
         Metadata metadata = null;
         File jpegFile = new File(file);
- 
+
 
         try {
             metadata = ImageMetadataReader.readMetadata(jpegFile);
@@ -144,18 +142,18 @@ public class PhotoImporter extends SimpleRendererInteraction {
         catch (ImageProcessingException | IOException e) {
             e.printStackTrace();
         }
-        
+
         // obtain the Make/Model
         ExifIFD0Directory exifDir = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
         String make = exifDir.getString( ExifIFD0Directory.TAG_MAKE);
         String model = exifDir.getString( ExifIFD0Directory.TAG_MODEL);
         if (!make.equals("DJI"))
             return;
-        
+
         ImageMetadata imgMD = new ImageMetadata();
         imgMD.setMake(make);
         imgMD.setModel(model);
-        
+
         //set Path to actual file
         imgMD.setPath(file);
 
@@ -220,12 +218,8 @@ public class PhotoImporter extends SimpleRendererInteraction {
                 imageList.add(imgMD);
                 list.put(dateStr, imageList);
 
-                Random random = new Random();
-                final float hue = random.nextFloat();
-                final float saturation = 1.0f;//1.0 for brilliant, 0.0 for dull
-                final float luminance = 1.0f; //1.0 for brighter, 0.0 for black
-                Color c = Color.getHSBColor(hue, saturation, luminance);
-
+                Color c = new Color(Color.HSBtoRGB((float) Math.random(), 0.5F + (float) Math.random(), ((float) Math.random())/0.2F));
+                
                 if (!colorList.containsKey(dateStr)) {
                     colorList.put(dateStr, c);
                 }
@@ -249,20 +243,27 @@ public class PhotoImporter extends SimpleRendererInteraction {
         if (res == JFileChooser.APPROVE_OPTION) {
             File[] files = selPhotos.getSelectedFiles();
             prevDir = selPhotos.getSelectedFile().getPath();
-            for (File f : files) {
-                SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-                    @Override
-                    protected Void doInBackground() throws Exception {
+
+            SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+                @Override
+                protected Void doInBackground() throws Exception {
+                    for (File f : files) {
                         addPhotoMarker(f.getAbsolutePath());
-                        return null;
                     }
-                };
-                worker.execute();
-            }
-            synchronized (list) {
-                if (!list.isEmpty())
-                    setActive(true, null);
-            }
+                    return null;
+                }
+
+                @Override
+                protected void done() {
+                    synchronized (list) {
+                        if (!list.isEmpty()) {
+                            setActive(true, null);
+                            tableDialog.updateTableModel();
+                        }
+                    }
+                }
+            };
+            worker.execute();
         }
     }
 
@@ -279,18 +280,20 @@ public class PhotoImporter extends SimpleRendererInteraction {
 
     @NeptusMenuItem("Tools>DJI>View Table")
     public void viewTableAction() {
-        if (list.isEmpty()) {
-            GuiUtils.errorMessage(I18n.text("Error"), I18n.text("No data to display"));
-            return;
-        }
-        if (tableDialog == null) {
-            tableDialog = new TableDialog(SwingUtilities.windowForComponent(getConsole()), list);
-            tableDialog.setVisible(true);
-        }
-        else {
-            tableDialog.dispose();
-            tableDialog = new TableDialog(SwingUtilities.windowForComponent(getConsole()), list);
-            tableDialog.setVisible(true);
+        synchronized (list) {
+            if (list.isEmpty()) {
+                GuiUtils.errorMessage(I18n.text("Error"), I18n.text("No data to display"));
+                return;
+            }
+            if (tableDialog == null) {
+                tableDialog = new TableDialog(SwingUtilities.windowForComponent(getConsole()));
+                tableDialog.setVisible(true);
+            }
+            else {
+                tableDialog.dispose();
+                tableDialog = new TableDialog(SwingUtilities.windowForComponent(getConsole()));
+                tableDialog.setVisible(true);
+            }
         }
     }
 
@@ -333,7 +336,7 @@ public class PhotoImporter extends SimpleRendererInteraction {
                 g.fill(poly);
                 g.translate(-16, -(y-10));
             }
-
+            
             g.setColor(colorList.get(date));
             g.fill(new Ellipse2D.Double(x-20, y-11, 12, 12));
             if (!datesList.containsKey(date))
@@ -364,7 +367,7 @@ public class PhotoImporter extends SimpleRendererInteraction {
         StringBuilder html = new StringBuilder("<html>");
         DateFormat formatterUTC = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         formatterUTC.setTimeZone(TimeZone.getTimeZone("UTC")); // UTC timezone
-        
+
         html.append("<b>" + i.getName() + "</b><br>" + formatterUTC.format(i.getDate()));
         html.append("</html>");
 
@@ -424,7 +427,7 @@ public class PhotoImporter extends SimpleRendererInteraction {
 
     @Override
     public void cleanSubPanel() {
-        
+
     }
 
     @Override
@@ -448,8 +451,8 @@ public class PhotoImporter extends SimpleRendererInteraction {
             setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
             DateFormat formatterUTC = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
             formatterUTC.setTimeZone(TimeZone.getTimeZone("UTC")); // UTC timezone
-            
-            
+
+
             setTitle(imgMetaData.getName() + " - " + formatterUTC.format(imgMetaData.getDate()));
             setType(Type.POPUP);
             setResizable(false);
@@ -499,7 +502,7 @@ public class PhotoImporter extends SimpleRendererInteraction {
 
             JLabel lblDate = new JLabel(I18n.text("Date:"));
             lblDate.setFont(new Font("Tahoma", Font.BOLD, 11));
-   
+
             JLabel lblDateValue = new JLabel(formatterUTC.format(imgMetaData.getDate()));
             infoPanel.add(lblDate, "cell 0 3,grow");
             infoPanel.add(lblDateValue, "cell 1 3,grow");
@@ -535,15 +538,16 @@ public class PhotoImporter extends SimpleRendererInteraction {
     public static void main(String[] args) {
 
     }
-    
+
     private class TableDialog extends JDialog {
 
         private static final long serialVersionUID = 1L;
         private final JPanel contentPanel = new JPanel();
-        private JXTable table;
+        private ArrayList<ImageMetadata> dataArray = new ArrayList<>();
+        private JTable table;
         private MetadataModel model;
 
-        public TableDialog(Window parent, Map<String, ArrayList<ImageMetadata>> list) {
+        public TableDialog(Window parent) {
             super(parent, ModalityType.MODELESS);
             setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
             setTitle(I18n.text("Photos List"));
@@ -554,30 +558,40 @@ public class PhotoImporter extends SimpleRendererInteraction {
             contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
             getContentPane().add(contentPanel, BorderLayout.CENTER);
             contentPanel.setLayout(new BorderLayout(0, 0));
-            ArrayList<ImageMetadata> dataArray = new ArrayList<>();
             for (Entry<String, ArrayList<ImageMetadata>> e : list.entrySet()) {
                 for (ImageMetadata img : e.getValue()) {
                     dataArray.add(img);
                 }
             }
+
             model = new MetadataModel(dataArray);
-            table = new JXTable();
+            table = new JTable();
             table.setModel(model);
             contentPanel.add(new JScrollPane(table), BorderLayout.CENTER);
-            
-            DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-            centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+            table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+                private static final long serialVersionUID = 1L;
 
-            //set all columns to be centered
-            for (int i=0 ; i< model.columnNames.size(); i++) {
-                table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
-            }
-            
+                @Override
+                public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
+                        int row, int column) {
+                    Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                    setHorizontalAlignment(SwingConstants.CENTER);
+                    ImageMetadata img = dataArray.get(row);
+                    String dateStr = getYearMonthDay(img.getDate());
+                    if (hasFocus)
+                        c.setBackground(new Color(242, 250, 200));
+                    else
+                        c.setBackground(colorList.get(dateStr));
+
+                    return c;
+                };
+            });
+
             table.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent event) {
                     super.mouseClicked(event);
-                    
+
                     if (event.getClickCount() == 2) {
                         ImageMetadata imgMD = dataArray.get(table.getSelectedRow());
                         if (imgMD != null) {
@@ -586,7 +600,7 @@ public class PhotoImporter extends SimpleRendererInteraction {
                         }
                     }
                 }
-                
+
                 @Override
                 public void mouseReleased(MouseEvent e) {
                     int r = table.rowAtPoint(e.getPoint());
@@ -618,6 +632,20 @@ public class PhotoImporter extends SimpleRendererInteraction {
                     }
                 }
             });
+        }
+
+        public void updateTableModel() {
+            synchronized (list) {
+                dataArray.clear();
+                for (Entry<String, ArrayList<ImageMetadata>> e : list.entrySet()) {
+                    for (ImageMetadata img : e.getValue()) {
+                        dataArray.add(img);
+                    }
+                }
+                model.update(dataArray);
+
+                table.revalidate();
+            }
         }
     }
 }

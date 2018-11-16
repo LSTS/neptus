@@ -103,8 +103,12 @@ public class MetadataModel extends AbstractTableModel {
 
     @Override
     public int getRowCount() {
-        // TODO Auto-generated method stub
         return data.size();
+    }
+
+    public void update(ArrayList<ImageMetadata> dataArray) {
+        this.data = dataArray;
+        fireTableDataChanged();
     }
 
 
