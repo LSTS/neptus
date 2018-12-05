@@ -350,6 +350,19 @@
                 </annotation>
             </ScheduledGoto>
         </maneuver>
+        <maneuver>
+	        <FollowReference kind="automatic">
+	          <controlSource>-1</controlSource>
+	          <controlEntity>-1</controlEntity>
+	          <timeout>60.0</timeout>
+	          <loiterRadius>20.0</loiterRadius>
+	          <altitudeInterval>1.0</altitudeInterval>
+	          <annotation>
+	            <documentation>No documentation available</documentation>
+	            <implementation-class>pt.lsts.neptus.mp.maneuvers.FollowReference</implementation-class>
+	        </annotation>
+	        </FollowReference>	        
+        </maneuver>
     </feasibleManeuvers>
     <protocols-supported>
         <protocols>gsm iridium</protocols>
