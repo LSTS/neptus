@@ -15,7 +15,7 @@
  *
  * Modified European Union Public Licence - EUPL v.1.1 Usage
  * Alternatively, this file may be used under the terms of the Modified EUPL,
- * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
+ * Version 1.1 only (the "Licence"), appearing in the file LICENSE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
  * law or agreed to in writing, software distributed under the Licence is
@@ -27,80 +27,77 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: José Pinto
- * Feb 14, 2013
+ * Author: keila
+ * 04/12/2018
  */
 package pt.lsts.neptus.plugins.rtplot;
 
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 
 import javax.swing.JDialog;
 import javax.swing.JEditorPane;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.GuiUtils;
 
-/**
- * @author zp
- *
- */
-public class RealTimePlotSettings extends JPanel {
+public class RealTimePlotScript extends JPanel {
 
     private static final long serialVersionUID = 1L;
     protected JEditorPane editorPane = new JEditorPane();
     protected JFormattedTextField periodicityField = new JFormattedTextField(GuiUtils.getNeptusDecimalFormat(0));
     protected JFormattedTextField numPointsField = new JFormattedTextField(GuiUtils.getNeptusDecimalFormat(0));
-    
-    public RealTimePlotSettings(RealTimePlot plot) {
-        setLayout(new BorderLayout(3,3));
+    private JMenuBar bar = new JMenuBar();
+    private JMenu methods = new JMenu("Options");
+    private JMenuItem math = new JMenuItem("Math Formulas"), plotprops = new JMenuItem("Plot Properties"),
+            sysdata = new JMenuItem("System data");
+    private final String state = "EstimatedState";
+
+    /**
+     * @param realTimePlotGroovy
+     * @param sysID ID of system(s) being used on the script
+     */
+    public RealTimePlotScript(RealTimePlotGroovy rtplot) {
+        // create script editor
+        setLayout(new BorderLayout(3, 3));
+        methods.setToolTipText("Insert formulas, methods and other settings");
+        methods.add(sysdata);
+        methods.add(math);
+        methods.add(plotprops);
+        bar.add(methods);
+        add(bar, BorderLayout.NORTH);
+
         add(new JScrollPane(editorPane), BorderLayout.CENTER);
         JPanel bottom = new JPanel(new GridLayout(0, 2));
         bottom.add(new JLabel(I18n.text("Periodicity (milliseconds)") + ":"));
         bottom.add(periodicityField);
         bottom.add(new JLabel(I18n.text("Trace points") + ":"));
         bottom.add(numPointsField);
-        
+
         add(bottom, BorderLayout.SOUTH);
-        editorPane.setText(plot.traceScripts);
-        periodicityField.setText(""+plot.periodicity);
-        numPointsField.setText(""+plot.numPoints);
-    }
-    
-    public static void editSettings(final RealTimePlot plot) {
-        final JDialog dialog = new JDialog(plot.getConsole());
-        final RealTimePlotSettings settings = new RealTimePlotSettings(plot);
-        dialog.getContentPane().add(settings);
+        editorPane.setText(rtplot.traceScripts);
+        periodicityField.setText("" + rtplot.periodicity);
+        numPointsField.setText("" + rtplot.numPoints);
+
+        final JDialog dialog = new JDialog(rtplot.getConsole());
+        dialog.getContentPane().add(this);
         dialog.setSize(400, 400);
         dialog.setModal(true);
-        
-        dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
-        dialog.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                // int op = JOptionPane.showConfirmDialog(dialog, I18n.text("Do you wish to save changes?")); // Avoid this due to Modality blocks all Neotus
-                int op = GuiUtils.confirmDialog(dialog, I18n.text("Select an Option"), I18n.text("Do you wish to save changes?"));
-                if (op == JOptionPane.YES_OPTION) {
-                    plot.periodicity = Integer.parseInt(settings.periodicityField.getText());
-                    plot.numPoints = Integer.parseInt(settings.numPointsField.getText());
-                    plot.traceScripts = settings.editorPane.getText();
-                    plot.propertiesChanged();
-                    dialog.dispose();
-                }
-                else if (op == JOptionPane.NO_OPTION) {
-                    dialog.dispose();
-                }
-            }
 
-        });
-        GuiUtils.centerParent(dialog, plot.getConsole());
-        dialog.setVisible(true);        
+        GuiUtils.centerParent(dialog, rtplot.getConsole());
+        dialog.setVisible(true);
+    }
+
+    public static void editSettings(RealTimePlotGroovy rtplot, String sysID) {
+        new RealTimePlotScript(rtplot);
+       // eval script and create trace(s) for each system
+        //rtplot.runScript(b, script);
     }
 }
