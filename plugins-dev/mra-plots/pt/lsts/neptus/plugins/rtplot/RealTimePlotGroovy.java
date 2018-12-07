@@ -36,14 +36,13 @@ import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 
 import javax.swing.JButton;
@@ -59,8 +58,6 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.data.time.Millisecond;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
-
-import com.sun.org.apache.bcel.internal.generic.NEW;
 
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
@@ -87,14 +84,15 @@ public class RealTimePlotGroovy extends ConsolePanel implements IPeriodicUpdates
     private TimeSeriesCollection tsc = new TimeSeriesCollection();
     private JButton btnEdit, btnClear, cfgEdit;
     private JComboBox<String> sysSel;
+    private ItemListener itemListener;
     private JLabel vLabel;
     private LinkedHashMap<String, groovy.lang.Script> scripts = new LinkedHashMap<>();
     private JPanel bottom, top;
     private String selectedSys = null;
-    private ArrayList<String> avSystems;
     private GroovyShell shell;
     private CompilerConfiguration cnfg;
     private ImportCustomizer imports;
+    private boolean updating = false;
 
     @NeptusProperty(name = "Periodicity (milliseconds)")
     public int periodicity = 1000;
@@ -120,9 +118,16 @@ public class RealTimePlotGroovy extends ConsolePanel implements IPeriodicUpdates
         shell = new GroovyShell(cnfg);
         configLayout();
     }
+    
+    /**
+     * @param tsc the tsc to set
+     */
+    public void addSerie(TimeSeries ts) {
+        this.tsc.addSeries(ts);
+    }
 
     /**
-     * 
+     * ConsolePanel layout configuration
      */
     public void configLayout() {
         setLayout(new BorderLayout());
@@ -160,24 +165,23 @@ public class RealTimePlotGroovy extends ConsolePanel implements IPeriodicUpdates
         timeSeriesChart = ChartFactory.createTimeSeriesChart(null, null, null, tsc, true, true, true);
         add(new ChartPanel(timeSeriesChart), BorderLayout.CENTER);
 
-        avSystems = new ArrayList<>();
-        avSystems.add("ALL");
         sysSel = new JComboBox<String>();
         selectedSys = "ALL";
-//        sysSel.addActionListener(new ActionListener() {
-//
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                if (sysSel.getSelectedItem() != null) {
-//                    String sel = (String) sysSel.getSelectedItem();
-//                    if (!sel.equals(selectedSys)){
-//                        selectedSys = new String(sel);
-//                    System.err.println("SELECTED ITEM: "+sysSel.getSelectedItem()+"\n\n");
-//                    }
-//                }
-//            }
-//        });
+        itemListener = new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if(sysSel.getSelectedItem() != null && !updating)
+                    if(e.getStateChange() == ItemEvent.SELECTED) {
+                        String sel = (String) sysSel.getSelectedItem();
+                        if (!sel.equals(selectedSys)){
+                            selectedSys = new String(sel);
+                        }
+                    }
+                
+            }
+        };
         updateComboBox();
+        sysSel.addItemListener(itemListener);
         
         vLabel = new JLabel("System:");
         vLabel.setToolTipText("Select System(s)");
@@ -190,18 +194,13 @@ public class RealTimePlotGroovy extends ConsolePanel implements IPeriodicUpdates
     /**
      * Update available systems
      */
-    public void updateComboBox() {
-        sysSel.removeAllItems();//avSystems.clear();
-        sysSel.addItem("ALL");//avSystems.add("ALL");
+    public synchronized void updateComboBox() {
+        updating = true;
+        sysSel.removeAllItems();
+        sysSel.addItem("ALL");
         Arrays.stream(ImcSystemsHolder.lookupActiveSystemVehicles()).forEach(i -> sysSel.addItem(i.getName()));
-        if (sysSel.getSelectedItem() != null) {
-            String sel = (String) sysSel.getSelectedItem();
-            if (!sel.equals(selectedSys)){
-                selectedSys = new String(sel);
-            System.err.println("SELECTED ITEM: "+sysSel.getSelectedItem()+"\n\n");
-            }
-        }
         sysSel.setSelectedItem(selectedSys);
+        updating = false;
     }
 
     @Override

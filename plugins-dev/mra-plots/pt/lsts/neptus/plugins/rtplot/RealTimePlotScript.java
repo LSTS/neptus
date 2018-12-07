@@ -45,6 +45,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import groovy.lang.Binding;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.GuiUtils;
 
@@ -58,13 +59,22 @@ public class RealTimePlotScript extends JPanel {
     private JMenu methods = new JMenu("Options");
     private JMenuItem math = new JMenuItem("Math Formulas"), plotprops = new JMenuItem("Plot Properties"),
             sysdata = new JMenuItem("System data");
-    private final String state = "EstimatedState";
+    private final String systems = "{ s, clo -> s.collect{clo.call(it)} }";
+    private final String state = "{ l -> l.EstimatedState }";
+    private final String roll = "state.phi * 180/PI", pitch = "state.theta*180/PI", yaw = "state.psi*180/PI";
+    private static RealTimePlotGroovy plot = null;
+    private Binding binding;
 
     /**
      * @param realTimePlotGroovy
      * @param sysID ID of system(s) being used on the script
      */
     public RealTimePlotScript(RealTimePlotGroovy rtplot) {
+        plot = rtplot;
+        binding = new Binding();
+        binding.setVariable("roll", roll);
+        binding.setVariable("pitch", pitch);
+        binding.setVariable("yaw", yaw);
         // create script editor
         setLayout(new BorderLayout(3, 3));
         methods.setToolTipText("Insert formulas, methods and other settings");
@@ -95,9 +105,15 @@ public class RealTimePlotScript extends JPanel {
         dialog.setVisible(true);
     }
 
-    public static void editSettings(RealTimePlotGroovy rtplot, String sysID) {
+    public static void editSettings(final RealTimePlotGroovy rtplot, String sysID) {
         new RealTimePlotScript(rtplot);
-       // eval script and create trace(s) for each system
-        //rtplot.runScript(b, script);
+        // eval script and create trace(s) for each system
+        // rtplot.runScript(b, script);
+    }
+    
+    public static void addSerie(Object data) {
+        //Transform data in Jfree serie
+        //plot.addSerie();
+       
     }
 }
