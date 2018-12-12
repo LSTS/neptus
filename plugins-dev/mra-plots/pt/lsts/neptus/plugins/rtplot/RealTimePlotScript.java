@@ -33,8 +33,17 @@
 package pt.lsts.neptus.plugins.rtplot;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringJoiner;
 
+import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JEditorPane;
 import javax.swing.JFormattedTextField;
@@ -42,28 +51,38 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 import groovy.lang.Binding;
+import groovy.lang.Closure;
+import pt.lsts.imc.EstimatedState;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.StateReport;
+import pt.lsts.imc.state.ImcSystemState;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.GuiUtils;
 
 public class RealTimePlotScript extends JPanel {
 
     private static final long serialVersionUID = 1L;
-    protected JEditorPane editorPane = new JEditorPane();
+    protected static JEditorPane editorPane = new JEditorPane();
     protected JFormattedTextField periodicityField = new JFormattedTextField(GuiUtils.getNeptusDecimalFormat(0));
     protected JFormattedTextField numPointsField = new JFormattedTextField(GuiUtils.getNeptusDecimalFormat(0));
     private JMenuBar bar = new JMenuBar();
-    private JMenu methods = new JMenu("Options");
-    private JMenuItem math = new JMenuItem("Math Formulas"), plotprops = new JMenuItem("Plot Properties"),
-            sysdata = new JMenuItem("System data");
-    private final String systems = "{ s, clo -> s.collect{clo.call(it)} }";
-    private final String state = "{ l -> l.EstimatedState }";
-    private final String roll = "state.phi * 180/PI", pitch = "state.theta*180/PI", yaw = "state.psi*180/PI";
+    private JMenu methods = new JMenu("Options"), math = new JMenu("Math Formulas"),
+            plotprops = new JMenu("Plot Properties");
+    private static JMenu sysdata = new JMenu("System data");
+    private JButton save = new JButton();
+    private static List<String> systems = new ArrayList<>(); //"{ s, clo -> s.collect{clo.call(it)} }";
     private static RealTimePlotGroovy plot = null;
-    private Binding binding;
+    private static Binding binding = new Binding();
+    private static boolean editing = false;
 
     /**
      * @param realTimePlotGroovy
@@ -71,10 +90,6 @@ public class RealTimePlotScript extends JPanel {
      */
     public RealTimePlotScript(RealTimePlotGroovy rtplot) {
         plot = rtplot;
-        binding = new Binding();
-        binding.setVariable("roll", roll);
-        binding.setVariable("pitch", pitch);
-        binding.setVariable("yaw", yaw);
         // create script editor
         setLayout(new BorderLayout(3, 3));
         methods.setToolTipText("Insert formulas, methods and other settings");
@@ -82,38 +97,150 @@ public class RealTimePlotScript extends JPanel {
         methods.add(math);
         methods.add(plotprops);
         bar.add(methods);
+        save.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String script = editorPane.getText();
+                plot.runScript(binding, script);
+                plot.traceScripts = script;
+                editing = false;
+
+            }
+        });
+        save.setToolTipText("Save changes to script");
         add(bar, BorderLayout.NORTH);
-
-        add(new JScrollPane(editorPane), BorderLayout.CENTER);
         JPanel bottom = new JPanel(new GridLayout(0, 2));
-        bottom.add(new JLabel(I18n.text("Periodicity (milliseconds)") + ":"));
-        bottom.add(periodicityField);
-        bottom.add(new JLabel(I18n.text("Trace points") + ":"));
-        bottom.add(numPointsField);
-
+        add(new JScrollPane(editorPane), BorderLayout.CENTER);
+        JPanel bottomL = new JPanel(new BorderLayout());
+        JPanel bottomR = new JPanel(new GridLayout(0, 2));
+        save.setText("Save");
+        save.setSize(new Dimension(5, 5));
+        bottomL.add(save, BorderLayout.CENTER);
+        bottomR.add(new JLabel(I18n.text("Periodicity (milliseconds)") + ":"));
+        bottomR.add(periodicityField);
+        bottomR.add(new JLabel(I18n.text("Trace points") + ":"));
+        bottomR.add(numPointsField);
+        bottom.add(bottomL, BorderLayout.WEST);
+        bottom.add(bottomR, BorderLayout.EAST);
         add(bottom, BorderLayout.SOUTH);
         editorPane.setText(rtplot.traceScripts);
         periodicityField.setText("" + rtplot.periodicity);
         numPointsField.setText("" + rtplot.numPoints);
+        editorPane.setText(plot.traceScripts);
 
         final JDialog dialog = new JDialog(rtplot.getConsole());
         dialog.getContentPane().add(this);
         dialog.setSize(400, 400);
         dialog.setModal(true);
+        
+        dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+        dialog.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                // int op = JOptionPane.showConfirmDialog(dialog, I18n.text("Do you wish to save changes?")); // Avoid this due to Modality blocks all Neotus
+                int op = GuiUtils.confirmDialog(dialog, I18n.text("Select an Option"), I18n.text("Do you wish to save changes?"));
+                if (op == JOptionPane.YES_OPTION) {
+                    save.doClick();
+                    dialog.dispose();
+                }
+                else if (op == JOptionPane.NO_OPTION) {
+                    dialog.dispose();
+                }
+            }
+
+        });
 
         GuiUtils.centerParent(dialog, rtplot.getConsole());
         dialog.setVisible(true);
     }
 
     public static void editSettings(final RealTimePlotGroovy rtplot, String sysID) {
+        editing = true;
+        updateLocalVars(sysID); 
         new RealTimePlotScript(rtplot);
+        rtplot.initScripts = editorPane.getText();
         // eval script and create trace(s) for each system
-        // rtplot.runScript(b, script);
+        binding.setVariable("systems", systems);
+        //TODO reset GUI and script/bind variables 
     }
-    
+
+    /**
+     * 
+     */
+    private static void updateLocalVars(String id) {
+        for(ImcSystem s: ImcSystemsHolder.lookupActiveSystemVehicles())
+            if(id.equalsIgnoreCase("ALL")) {
+                systems.add(s.getName());
+                JMenu menu = new JMenu(s.getName());
+                createExtraOptions(s.getName(),menu);
+                sysdata.add(menu);
+            }
+            else if(id.equalsIgnoreCase(s.getName())) {
+                systems.add(s.getName());
+                createExtraOptions(s.getName(),sysdata);
+                return;
+            }
+//        plot.runScript(binding, STATE);
+    }
+
+    /**
+     * @return the editing
+     */
+    public static boolean isBeingEditing() {
+        return editing;
+    }
+
+    protected static void createExtraOptions(String system, JMenu component) {
+        for (String msg : ImcMsgManager.getManager().getState(system).availableMessages()) {
+            JMenuItem item = new JMenuItem(msg);
+            item.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    Class<?> clazz;
+                    try {
+                        RealTimePlotScript.class.getClassLoader();
+                        clazz = Class.forName(msg,false,RealTimePlotScript.class.getClassLoader());
+                        IMCMessage m = ImcMsgManager.getManager().getState(system).get(msg);
+                        clazz.newInstance();
+                        clazz.cast(m.cloneMessageTyped());
+                        binding.setVariable(msg, clazz);
+                         
+                        addText(msg.toLowerCase());
+                    }
+                    catch (ClassNotFoundException | InstantiationException | IllegalAccessException e1) {
+                        NeptusLog.pub().error("Error Casting IMC Message from " + system, e1);
+                        return;
+                        // e1.printStackTrace();
+                    }
+                }
+            });
+            component.add(item);
+
+        }
+    }
+
+    /**
+     * 
+     */
+    protected static void addText(String code) {
+        String current, old = editorPane.getText();
+        StringJoiner sj = new StringJoiner("\n");
+        // TODO reset sj?
+        sj.setEmptyValue(old);
+        sj.add(code);
+        current = sj.toString();
+        editorPane.setText(current);
+    }
+
+    protected EstimatedState getSystemState(ImcSystem s) {
+        return (EstimatedState)ImcMsgManager.getManager().getState(s.getName()).get("EstimatedState");
+    }
+
     public static void addSerie(Object data) {
-        //Transform data in Jfree serie
-        //plot.addSerie();
-       
+        // Transform data in Jfree serie
+        // plot.addSerie();
+
     }
 }

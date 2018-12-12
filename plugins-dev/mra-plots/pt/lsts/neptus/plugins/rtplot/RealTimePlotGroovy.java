@@ -38,7 +38,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -61,7 +60,6 @@ import org.jfree.data.time.TimeSeriesCollection;
 
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
-import groovy.util.GroovyScriptEngine;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -101,7 +99,7 @@ public class RealTimePlotGroovy extends ConsolePanel implements IPeriodicUpdates
     public int numPoints = 100;
 
     @NeptusProperty(name = "Traces Script")
-    public String traceScripts = "roll: ${EstimatedState.phi} * 180 / Math.PI;\npitch: ${EstimatedState.theta} * 180 / Math.PI;\nyaw: ${EstimatedState.psi} * 180 / Math.PI";
+    public String traceScripts = "state.depth";
     
     @NeptusProperty(name = "Initial Script")
     public String initScripts = "createPlot(Salinity)";
@@ -114,7 +112,7 @@ public class RealTimePlotGroovy extends ConsolePanel implements IPeriodicUpdates
         //init shell
         cnfg = new CompilerConfiguration();
         imports = new ImportCustomizer();
-        imports.addStarImports("pt.lsts.imc.net.IMCProtocol","java.lang.Math");
+        imports.addStarImports("pt.lsts.imc","java.lang.Math","pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder");
         shell = new GroovyShell(cnfg);
         configLayout();
     }
@@ -234,7 +232,6 @@ public class RealTimePlotGroovy extends ConsolePanel implements IPeriodicUpdates
                     tsc.addSeries(ts);
                 }
                 ts.addOrUpdate(new Millisecond(new Date(System.currentTimeMillis())), Double.parseDouble(o.toString()));
-
             }
         }
         return true;
@@ -276,10 +273,14 @@ public class RealTimePlotGroovy extends ConsolePanel implements IPeriodicUpdates
 //        tsc.removeAllSeries();
 //    }
     
+    public void plot (JFreeChart p) {
+        
+    }
+    
     public void runScript (Binding b,String script) {
         shell = new GroovyShell(b, cnfg);
         shell.parse(script);
-        Object result = shell.evaluate(script);
+        //Object result = shell.evaluate(script);
     }
 
     @Override
