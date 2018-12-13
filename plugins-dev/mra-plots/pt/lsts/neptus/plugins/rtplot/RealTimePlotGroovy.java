@@ -38,17 +38,24 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.Writer;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
-
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import org.codehaus.groovy.control.CompilationFailedException;
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.control.customizers.ImportCustomizer;
 import org.jfree.chart.ChartFactory;
@@ -57,9 +64,15 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.data.time.Millisecond;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
+import org.jfree.data.time.TimeSeriesDataItem;
 
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
+import groovy.lang.Script;
+import groovy.util.GroovyScriptEngine;
+import groovy.util.ResourceException;
+import groovy.util.ScriptException;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -72,24 +85,25 @@ import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
+import pt.lsts.neptus.plugins.update.Periodic;
 
 @PluginDescription(name = "Real-Time plot", icon = "pt/lsts/neptus/plugins/rtplot/rtplot.png", description = "Real-Time plots with Groovy scripts")
 @Popup(accelerator = 'U', pos = POSITION.CENTER, height = 300, width = 300)
-public class RealTimePlotGroovy extends ConsolePanel implements IPeriodicUpdates, ConfigurationListener {
+public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationListener {
 
     private static final long serialVersionUID = 1L;
-    private JFreeChart timeSeriesChart = null;
     private TimeSeriesCollection tsc = new TimeSeriesCollection();
     private JButton btnEdit, btnClear, cfgEdit;
     private JComboBox<String> sysSel;
     private ItemListener itemListener;
     private JLabel vLabel;
-    private LinkedHashMap<String, groovy.lang.Script> scripts = new LinkedHashMap<>();
     private JPanel bottom, top;
     private String selectedSys = null;
     private GroovyShell shell;
     private CompilerConfiguration cnfg;
     private ImportCustomizer imports;
+    private Writer scriptOutput, scriptError;
+    private StringBuffer bufferO, bufferE;
     private boolean updating = false;
 
     @NeptusProperty(name = "Periodicity (milliseconds)")
@@ -99,31 +113,97 @@ public class RealTimePlotGroovy extends ConsolePanel implements IPeriodicUpdates
     public int numPoints = 100;
 
     @NeptusProperty(name = "Traces Script")
-    public String traceScripts = "state.depth";
-    
+    public String traceScript = "addSerie(msgs(\"EstimatedState.depth\"))";
+
     @NeptusProperty(name = "Initial Script")
-    public String initScripts = "createPlot(Salinity)";
+    public String initScripts = "addSerie(msgs(\"EstimatedState.depth\"))";
 
     private String traceScriptsBefore = "";
     private int numPointsBefore = numPoints;
 
     public RealTimePlotGroovy(ConsoleLayout c) {
         super(c);
-        //init shell
+        // init shell
         cnfg = new CompilerConfiguration();
         imports = new ImportCustomizer();
-        imports.addStarImports("pt.lsts.imc","java.lang.Math","pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder");
-        shell = new GroovyShell(cnfg);
+        imports.addStarImports("pt.lsts.imc", "java.lang.Math", "pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder");
+        imports.addStaticStars("pt.lsts.neptus.plugins.rtplot.PlotScript");
+        cnfg.addCompilationCustomizers(imports);
+        redirectIO();
+        shell = new GroovyShell(this.getClass().getClassLoader(), cnfg);
+        shell.setProperty("out", scriptOutput);
+        shell.setProperty("err", scriptError);
         configLayout();
     }
-    
+
+    /**
+     * 
+     */
+    private void redirectIO() {
+        bufferO = new StringBuffer();
+        scriptOutput = new Writer() {
+
+            @Override
+            public void write(char[] cbuf, int off, int len) throws IOException {
+                bufferO.append(cbuf, off, len);
+
+            }
+
+            @Override
+            public void flush() throws IOException {
+                NeptusLog.pub().debug(I18n.text(bufferO.toString()));
+                bufferO = new StringBuffer();
+
+            }
+
+            @Override
+            public void close() throws IOException {
+                scriptOutput.close();
+
+            }
+        };
+        bufferE = new StringBuffer();
+        scriptError = new Writer() {
+
+            @Override
+            public void write(char[] cbuf, int off, int len) throws IOException {
+                bufferE.append(cbuf, off, len);
+            }
+
+            @Override
+            public void flush() throws IOException {
+                System.err.println("ERROR on REAL TIME PLOT SCRIPT EXECUTION\n\n"+ bufferE.toString());
+                NeptusLog.pub().error(I18n.text(bufferE.toString()));
+                bufferE = new StringBuffer();
+            }
+
+            @Override
+            public void close() throws IOException {
+                scriptOutput.close();
+
+            }
+        };
+    }
+
+    public void bind(String var, Object value) {
+        shell.setVariable(var, value);
+    }
+
+    public void unbind(String var) {
+        shell.getContext().getVariables().remove(var);
+    }
+
     /**
      * @param tsc the tsc to set
      */
-    public void addSerie(TimeSeries ts) {
-        this.tsc.addSeries(ts);
+    public void addSerie(String id,TimeSeries ts) {
+        if(tsc.getSeries(id) == null) {
+            //TODO ts.setMaximumItemCount(numPoints);
+            tsc.addSeries(ts);
+        }
+        else
+            tsc.getSeries(id).addOrUpdate(ts.getDataItem(0));
     }
-
     /**
      * ConsolePanel layout configuration
      */
@@ -160,33 +240,38 @@ public class RealTimePlotGroovy extends ConsolePanel implements IPeriodicUpdates
         });
 
         add(bottom, BorderLayout.SOUTH);
-        timeSeriesChart = ChartFactory.createTimeSeriesChart(null, null, null, tsc, true, true, true);
-        add(new ChartPanel(timeSeriesChart), BorderLayout.CENTER);
-
+        addPlot(ChartFactory.createTimeSeriesChart(null, null, null, tsc, true, true, true)); //default plot
         sysSel = new JComboBox<String>();
         selectedSys = "ALL";
         itemListener = new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
-                if(sysSel.getSelectedItem() != null && !updating)
-                    if(e.getStateChange() == ItemEvent.SELECTED) {
+                if (sysSel.getSelectedItem() != null && !updating)
+                    if (e.getStateChange() == ItemEvent.SELECTED) {
                         String sel = (String) sysSel.getSelectedItem();
-                        if (!sel.equals(selectedSys)){
+                        if (!sel.equals(selectedSys)) {
                             selectedSys = new String(sel);
                         }
                     }
-                
+
             }
         };
         updateComboBox();
         sysSel.addItemListener(itemListener);
-        
+
         vLabel = new JLabel("System:");
         vLabel.setToolTipText("Select System(s)");
         top = new JPanel(new GridLayout(0, 2));
         top.add(vLabel);
         top.add(sysSel);
         add(top, BorderLayout.NORTH);
+    }
+
+    /**
+     * 
+     */
+    public void addPlot(JFreeChart timeSeriesChart) {
+        this.add(new ChartPanel(timeSeriesChart), BorderLayout.CENTER);
     }
 
     /**
@@ -201,91 +286,66 @@ public class RealTimePlotGroovy extends ConsolePanel implements IPeriodicUpdates
         updating = false;
     }
 
-    @Override
-    public long millisBetweenUpdates() {
-        return periodicity;
-    }
 
-    @Override
+    @Periodic(millisBetweenUpdates=1000)
     public boolean update() {
         if (!isShowing())
             return true;
-        Collection<String> traces = scripts.keySet();
         updateComboBox();
-        for (ImcSystem sys : ImcSystemsHolder.lookupActiveSystemVehicles()) {
-            // if (!vehicleContexts.containsKey(sys.getName())) {
-            //
-            // }
-
-            // Global global = vehicleContexts.get(sys.getName());
-            for (String s : traces) {
-                // Object o = scripts.get(s).exec(context, global);
-                // if (o instanceof NativeJavaObject) {
-                // o = ((NativeJavaObject)o).unwrap();
-                // }
-                Object o = null;
-                String seriesName = sys.getName() + "." + s;
-                TimeSeries ts = tsc.getSeries(seriesName);
-                if (ts == null) {
-                    ts = new TimeSeries(seriesName);
-                    ts.setMaximumItemCount(numPoints);
-                    tsc.addSeries(ts);
-                }
-                ts.addOrUpdate(new Millisecond(new Date(System.currentTimeMillis())), Double.parseDouble(o.toString()));
-            }
-        }
+        System.err.println("Debug qualquer");
+        runScript(traceScript);
         return true;
     }
 
     @Override
     public void propertiesChanged() {
-        if (!traceScripts.equals(traceScriptsBefore) || numPoints != numPointsBefore) {
+        if (!traceScript.equals(traceScriptsBefore) || numPoints != numPointsBefore) {
             tsc.removeAllSeries();
-            scripts.clear();
-
             try {
-                //parseScript();
+                // parseScript();
             }
             catch (Exception e) {
                 e.printStackTrace();
             }
         }
 
-        traceScriptsBefore = traceScripts;
+        traceScriptsBefore = traceScript;
         numPointsBefore = numPoints;
     }
 
-//    protected void parseScript() throws Exception {
-//        Pattern p = Pattern.compile("([\\w ]+):(.*)");
-//
-//        for (String line : traceScripts.split("\n")) {
-//            Matcher m = p.matcher(line);
-//            if (m.matches()) {
-//                 String ss = m.group(2);
-//                 ss = ss.replaceAll("\\$\\{([^\\}]*)\\}", "state.expr(\"$1\")");
-//                 String name = m.group(1);
-//                 Context.enter();
-//                 Script sc = context.compileString(ss, name, 1, null);
-//                 Context.exit();
-//                 scripts.put(name, sc);
-//            }
-//        }
-//        tsc.removeAllSeries();
-//    }
-    
-    public void plot (JFreeChart p) {
-        
+    // protected void parseScript() throws Exception {
+    // Pattern p = Pattern.compile("([\\w ]+):(.*)");
+    //
+    // for (String line : traceScripts.split("\n")) {
+    // Matcher m = p.matcher(line);
+    // if (m.matches()) {
+    // String ss = m.group(2);
+    // ss = ss.replaceAll("\\$\\{([^\\}]*)\\}", "state.expr(\"$1\")");
+    // String name = m.group(1);
+    // Context.enter();
+    // Script sc = context.compileString(ss, name, 1, null);
+    // Context.exit();
+    // scripts.put(name, sc);
+    // }
+    // }
+    // tsc.removeAllSeries();
+    // }
+
+    public void plot(JFreeChart p) {
+
     }
-    
-    public void runScript (Binding b,String script) {
-        shell = new GroovyShell(b, cnfg);
-        shell.parse(script);
-        //Object result = shell.evaluate(script);
+
+    public Object invokeMethod(Binding b, String method, String... args) {
+        return shell.invokeMethod(method, args);
+    }
+
+    public void runScript(String script) {
+        Object result = shell.evaluate(script);
     }
 
     @Override
     public void initSubPanel() {
-        traceScriptsBefore = traceScripts;
+        traceScriptsBefore = traceScript;
         propertiesChanged();
     }
 
