@@ -36,9 +36,11 @@ import java.awt.BorderLayout
 import java.util.Map;
 
 import pt.lsts.imc.*;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
+
 
 import org.jfree.chart.ChartFactory
 import org.jfree.chart.ChartPanel
@@ -49,47 +51,39 @@ import org.jfree.data.time.TimeSeriesDataItem
 
 
 
-/**
- * @author keila
- *
- */
 class PlotScript {
-    //systems variable must be declared and updated on the script evaluation
     //EstimatedState related closures
-    static systems = [""]
+    static systems = []     //systems variable must be declared and updated on the script evaluation
     static RealTimePlotGroovy plot = null
-    static def state = {systems.collectEntries{ [(it): ((EstimatedState)ImcMsgManager.getManager().getState(it).get("EstimatedState").cloneMessage())]}}
-    static final def roll  = {state.each {k,v -> [(k):v.phi* 180/Math.PI]}}
-    static final def pitch = {state.each {k,v -> [(k):v.theta* 180/Math.PI]}}
-    static final def yaw   = {state.each {k,v -> [(k):v.psi* 180/Math.PI]}}
-    static final def depth = {state.each {k,v -> [(k):v.depth]}}
-    //Other IMC related closures
+    static def state = {field -> systems.collectEntries{ [(it): ImcMsgManager.getManager().getState(it).get("EstimatedState."+field)]}}
+    //static final def rollscript  = state("phi").apply()//{state.each {k,v -> [(k):v.phi* 180/Math.PI]}}
+    static final def pitchscript = {state.each {k,v -> [(k):v.theta* 180/Math.PI]}}
+    static final def yawscript   = {state.each {k,v -> [(k):v.psi* 180/Math.PI]}}
     //ImcMsgManager.getManager().getState(it).get(msg).get(field, Number)
     //static def msgs (String msgDotField) { systems.collectEntries{ [(it): ImcMsgManager.getManager().getState(it).expr(msgDotField)]}} //TODO class Number necessary?
     static def msgs = { msgDotField -> systems.collectEntries{ [(it+"."+msgDotField): ImcMsgManager.getManager().getState(it).expr(msgDotField)]}}
     JFreeChart timeSeriesChart;
-    
+
     static TimeSeries x() {}
-    
+
     static TimeSeries y() {}
-    
+
+    //    static def apply (LinkedHashMap map,Closure function) {
+    //        map.each {
+    //            [(it.key): function.call(it.value)]
+    //        }
+    //    }
+    //LinkedHashMap.metaClass = {}
+
     static def addSerie(LinkedHashMap map) {
-        map.each {
-              TimeSeriesDataItem item = new TimeSeriesDataItem(new Millisecond(new Date(System.currentTimeMillis())),new Double( it.value))
-              TimeSeries t = new TimeSeries(it.key)
-              t.add(item)
-              plot.addSerie(it.key,t)
-        }
-    }
-    
-    private Map<String,Double> convertFunctions(Closure map) {
-        Map<String,Double> result = new HashMap<>();
-        maps().each {k,v ->
-            if(v in BigDecimal) {
-                result.put(k.toString(),new Double(v))
+        if(systems.size()>0) {
+            map.each {
+                TimeSeriesDataItem item = new TimeSeriesDataItem(new Millisecond(new Date(System.currentTimeMillis())),new Double( it.value))
+                TimeSeries t = new TimeSeries(it.key)
+                t.add(item)
+                plot.addSerie(it.key,t)
             }
         }
-        result;
     }
     //ChartFactory.createTimeSeriesChart(title, timeAxisLabel, valueAxisLabel, dataset)
     //    static PlotScript latLongPlot() {
@@ -102,6 +96,6 @@ class PlotScript {
     //    }
     //
     //    static JFreeChart timePlot(List<TimeSeries> tsc,int numPoints) {}
-        
-    
+
+
 }

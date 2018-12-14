@@ -39,8 +39,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.ArrayList;
-import java.util.List;
+import java.lang.reflect.Method;
 import java.util.StringJoiner;
 
 import javax.swing.JButton;
@@ -55,7 +54,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-import pt.lsts.imc.EstimatedState;
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
+
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
@@ -66,23 +67,24 @@ import pt.lsts.neptus.util.GuiUtils;
 public class RealTimePlotScript extends JPanel {
 
     private static final long serialVersionUID = 1L;
-    protected static JEditorPane editorPane = new JEditorPane();
+    protected static RSyntaxTextArea editorPane = new RSyntaxTextArea();
     protected JFormattedTextField periodicityField = new JFormattedTextField(GuiUtils.getNeptusDecimalFormat(0));
     protected JFormattedTextField numPointsField = new JFormattedTextField(GuiUtils.getNeptusDecimalFormat(0));
     private JMenuBar bar = new JMenuBar();
-    private JMenu methods = new JMenu("Options"), math = new JMenu("Math Formulas"),
-            plotprops = new JMenu("Plot Properties");
+    private JMenu methods = new JMenu("Options");
+    private static JMenu math = new JMenu("Math Formulas");
+    private JMenu plotprops = new JMenu("Plot Properties");
     private static JMenu sysdata = new JMenu("System data");
     private JButton save = new JButton();
-    private static List<String> systems = new ArrayList<>(); // "{ s, clo -> s.collect{clo.call(it)} }";
     private static RealTimePlotGroovy plot = null;
-    private static boolean editing = false;
 
     /**
      * @param realTimePlotGroovy
      * @param sysID ID of system(s) being used on the script
      */
     public RealTimePlotScript(RealTimePlotGroovy rtplot) {
+        editorPane.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_GROOVY);
+        editorPane.setCodeFoldingEnabled(true);
         plot = rtplot;
         // create script editor
         setLayout(new BorderLayout(3, 3));
@@ -98,8 +100,6 @@ public class RealTimePlotScript extends JPanel {
                 String script = editorPane.getText();
                 plot.traceScript = script;
                 plot.runScript(script);
-                editing = false;
-
             }
         });
         save.setToolTipText("Save changes to script");
@@ -154,15 +154,9 @@ public class RealTimePlotScript extends JPanel {
     }
 
     public static void editSettings(final RealTimePlotGroovy rtplot, String sysID) {
-        editing = true;
         updateLocalVars(sysID);
-        PlotScript.setSystems(systems);
-        PlotScript.setPlot(rtplot);
-        rtplot.bind("systems", systems);
-        new RealTimePlotScript(rtplot);
-        rtplot.initScripts = editorPane.getText();
-        // eval script and create trace(s) for each system
-        // TODO reset GUI and script/bind variables
+        final RealTimePlotScript settings = new RealTimePlotScript(rtplot);
+        //rtplot.initScripts = editorPane.getText();
     }
 
     /**
@@ -171,25 +165,49 @@ public class RealTimePlotScript extends JPanel {
     private static void updateLocalVars(String id) {
         for (ImcSystem s : ImcSystemsHolder.lookupActiveSystemVehicles())
             if (id.equalsIgnoreCase("ALL")) {
-                systems.add(s.getName());
                 JMenu menu = new JMenu(s.getName());
                 createExtraOptions(s.getName(), menu);
                 sysdata.add(menu);
             }
             else if (id.equalsIgnoreCase(s.getName())) {
-                systems.add(s.getName());
                 createExtraOptions(s.getName(), sysdata);
                 return;
             }
-        // plot.runScript(binding, STATE);
+        fillMathOptions();
     }
-
-    /**
-     * @return the editing
-     */
-    public static boolean isBeingEditing() {
-        return editing;
+    
+    private static void fillMathOptions() {
+        for(Method method: Math.class.getDeclaredMethods()) {
+            JMenuItem item = new JMenuItem(method.getName());
+            math.add(item);
+            item.addActionListener(new ActionListener() {
+                
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    addText(methodSignature(method,false));
+                    
+                }
+            });
+        }
     }
+    
+    public static String methodSignature ( Method method,
+            boolean longTypeNames )
+        {
+          Class<?>[] parameterTypes = method.getParameterTypes();
+          if ( parameterTypes.length == 0 ) return "";
+          StringBuilder paramString = new StringBuilder();
+          paramString.append(longTypeNames ? parameterTypes[0].getName()
+                          : parameterTypes[0].getSimpleName());
+          for ( int i = 1 ; i < parameterTypes.length ; i++ )
+          {
+            paramString.append(",").append(
+                longTypeNames  ? parameterTypes[i].getName()
+                        : parameterTypes[i].getSimpleName());
+          }
+          return method.getName() + "("
+                  +paramString.toString() + ")";
+        }
 
     protected static void createExtraOptions(String system, JMenu component) {
         for (String msg : ImcMsgManager.getManager().getState(system).availableMessages()) {
@@ -198,17 +216,10 @@ public class RealTimePlotScript extends JPanel {
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    // RealTimePlotScript.class.getClassLoader();
-                    // clazz = Class.forName(msg,false,RealTimePlotScript.class.getClassLoader());
-                    // clazz.newInstance();
-                    // clazz.cast(m.cloneMessageTyped());
-                    //IMCMessage mtyped = new IMCMessage(msg);
                     IMCMessage m = ImcMsgManager.getManager().getState(system).get(msg);
                     m.cloneMessageTyped();
-                    Object result = ImcMsgManager.getManager().getState("lauv-xlpore-2").expr(msg+".depth");
-//                    System.err.println("Class: "+result.getClass());
-//                    System.err.println("double?: "+new Double(result.toString()));
-                    addText("msgs("+msg+".<field>)");
+                    String s = "s = msgs("+msg+".<field>)"+"\n"+"addSerie s"; 
+                    addText(s);
                 }
             });
             component.add(item);
@@ -217,25 +228,14 @@ public class RealTimePlotScript extends JPanel {
     }
 
     /**
-     * 
+     * Add code to script editor, separated by a \newline char
      */
     protected static void addText(String code) {
-        String current, old = editorPane.getText();
-        StringJoiner sj = new StringJoiner("\n");
-        // TODO reset sj?
+        String current, old = plot.traceScript;
+        StringJoiner sj = new StringJoiner("/n");
         sj.setEmptyValue(old);
         sj.add(code);
         current = sj.toString();
         editorPane.setText(current);
-    }
-
-    protected EstimatedState getSystemState(ImcSystem s) {
-        return (EstimatedState) ImcMsgManager.getManager().getState(s.getName()).get("EstimatedState");
-    }
-
-    public static void addSerie(Object data) {
-        // Transform data in Jfree serie
-        // plot.addSerie();
-
     }
 }

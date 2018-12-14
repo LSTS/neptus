@@ -38,17 +38,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Collections;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -61,17 +56,11 @@ import org.codehaus.groovy.control.customizers.ImportCustomizer;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.data.time.Millisecond;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
-import org.jfree.data.time.TimeSeriesDataItem;
 
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
-import groovy.lang.Script;
-import groovy.util.GroovyScriptEngine;
-import groovy.util.ResourceException;
-import groovy.util.ScriptException;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
@@ -84,15 +73,16 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
-import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.plugins.update.Periodic;
+import pt.lsts.neptus.util.GuiUtils;
 
 @PluginDescription(name = "Real-Time plot", icon = "pt/lsts/neptus/plugins/rtplot/rtplot.png", description = "Real-Time plots with Groovy scripts")
 @Popup(accelerator = 'U', pos = POSITION.CENTER, height = 300, width = 300)
 public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationListener {
 
     private static final long serialVersionUID = 1L;
-    private TimeSeriesCollection tsc = new TimeSeriesCollection();
+    private TimeSeriesCollection allTsc = new TimeSeriesCollection();
+    private TimeSeriesCollection selTsc = new TimeSeriesCollection();
     private JButton btnEdit, btnClear, cfgEdit;
     private JComboBox<String> sysSel;
     private ItemListener itemListener;
@@ -105,6 +95,15 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
     private Writer scriptOutput, scriptError;
     private StringBuffer bufferO, bufferE;
     private boolean updating = false;
+    private final ChartPanel chart;
+    private List<String> systems = Collections.synchronizedList(new ArrayList<String>());
+
+    /**
+     * @return the systems
+     */
+    public synchronized List<String> getSystems() {
+        return systems;
+    }
 
     @NeptusProperty(name = "Periodicity (milliseconds)")
     public int periodicity = 1000;
@@ -112,17 +111,20 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
     @NeptusProperty(name = "Maximum Number of points")
     public int numPoints = 100;
 
-    @NeptusProperty(name = "Traces Script")
+    @NeptusProperty(name = "Current Script")
     public String traceScript = "addSerie(msgs(\"EstimatedState.depth\"))";
 
     @NeptusProperty(name = "Initial Script")
     public String initScripts = "addSerie(msgs(\"EstimatedState.depth\"))";
 
-    private String traceScriptsBefore = "";
+    private String previousScritp = "";
+
     private int numPointsBefore = numPoints;
 
     public RealTimePlotGroovy(ConsoleLayout c) {
         super(c);
+        JFreeChart timeSeriesChart = ChartFactory.createTimeSeriesChart(null, null, null, allTsc, true, true, true);
+        chart = new ChartPanel(timeSeriesChart);
         // init shell
         cnfg = new CompilerConfiguration();
         imports = new ImportCustomizer();
@@ -130,10 +132,13 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
         imports.addStaticStars("pt.lsts.neptus.plugins.rtplot.PlotScript");
         cnfg.addCompilationCustomizers(imports);
         redirectIO();
+        previousScritp = traceScript;
         shell = new GroovyShell(this.getClass().getClassLoader(), cnfg);
+        PlotScript.setPlot(this);
         shell.setProperty("out", scriptOutput);
         shell.setProperty("err", scriptError);
         configLayout();
+        add(chart, BorderLayout.CENTER);
     }
 
     /**
@@ -158,8 +163,6 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
 
             @Override
             public void close() throws IOException {
-                scriptOutput.close();
-
             }
         };
         bufferE = new StringBuffer();
@@ -172,7 +175,6 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
 
             @Override
             public void flush() throws IOException {
-                System.err.println("ERROR on REAL TIME PLOT SCRIPT EXECUTION\n\n"+ bufferE.toString());
                 NeptusLog.pub().error(I18n.text(bufferE.toString()));
                 bufferE = new StringBuffer();
             }
@@ -194,16 +196,17 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
     }
 
     /**
-     * @param tsc the tsc to set
+     * @param allTsc the TimeSeries to set
      */
-    public void addSerie(String id,TimeSeries ts) {
-        if(tsc.getSeries(id) == null) {
-            //TODO ts.setMaximumItemCount(numPoints);
-            tsc.addSeries(ts);
+    public void addSerie(String id, TimeSeries ts) {
+        if (allTsc.getSeries(id) == null) {
+            // TODO ts.setMaximumItemCount(numPoints);
+            allTsc.addSeries(ts);
         }
         else
-            tsc.getSeries(id).addOrUpdate(ts.getDataItem(0));
+            allTsc.getSeries(id).addOrUpdate(ts.getDataItem(0));
     }
+
     /**
      * ConsolePanel layout configuration
      */
@@ -235,12 +238,11 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                tsc.removeAllSeries();
+                allTsc.removeAllSeries();
             }
         });
 
         add(bottom, BorderLayout.SOUTH);
-        addPlot(ChartFactory.createTimeSeriesChart(null, null, null, tsc, true, true, true)); //default plot
         sysSel = new JComboBox<String>();
         selectedSys = "ALL";
         itemListener = new ItemListener() {
@@ -251,6 +253,23 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
                         String sel = (String) sysSel.getSelectedItem();
                         if (!sel.equals(selectedSys)) {
                             selectedSys = new String(sel);
+                            if (selectedSys.equalsIgnoreCase("ALL")) {
+                                changeChartSrc(allTsc); // Reestablish initial timeSeries collection
+                                Arrays.stream(ImcSystemsHolder.lookupActiveSystemVehicles())
+                                        .forEach(s -> systems.add(s.getName()));
+                                return;
+                            }
+                            else {
+                                systems.clear();
+                                systems.add(selectedSys);
+                                selTsc = new TimeSeriesCollection();
+                                for (Object s : allTsc.getSeries()) {
+                                    TimeSeries serie = (TimeSeries) s;
+                                    if (serie.getKey().toString().startsWith(selectedSys))
+                                        selTsc.addSeries(serie);
+                                }
+                                changeChartSrc(selTsc);
+                            }
                         }
                     }
 
@@ -258,7 +277,6 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
         };
         updateComboBox();
         sysSel.addItemListener(itemListener);
-
         vLabel = new JLabel("System:");
         vLabel.setToolTipText("Select System(s)");
         top = new JPanel(new GridLayout(0, 2));
@@ -270,8 +288,9 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
     /**
      * 
      */
-    public void addPlot(JFreeChart timeSeriesChart) {
-        this.add(new ChartPanel(timeSeriesChart), BorderLayout.CENTER);
+    public void changeChartSrc(TimeSeriesCollection tsc) {
+        JFreeChart timeSeriesChart = ChartFactory.createTimeSeriesChart(null, null, null, tsc, true, true, true);
+        chart.setChart(timeSeriesChart);
     }
 
     /**
@@ -286,30 +305,28 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
         updating = false;
     }
 
-
-    @Periodic(millisBetweenUpdates=1000)
+    @Periodic(millisBetweenUpdates = 1000)
     public boolean update() {
         if (!isShowing())
             return true;
         updateComboBox();
-        System.err.println("Debug qualquer");
+        systems.clear();
+        for(ImcSystem system: ImcSystemsHolder.lookupActiveSystemVehicles()) {
+            if(selectedSys.equalsIgnoreCase("ALL"))
+                systems.add(system.getName());
+            else if(selectedSys.equalsIgnoreCase(system.getName()))
+                systems.add(selectedSys);
+        }
         runScript(traceScript);
         return true;
     }
 
     @Override
     public void propertiesChanged() {
-        if (!traceScript.equals(traceScriptsBefore) || numPoints != numPointsBefore) {
-            tsc.removeAllSeries();
-            try {
-                // parseScript();
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
+        if (!traceScript.equals(previousScritp) || numPoints != numPointsBefore) {
+            allTsc.removeAllSeries();
         }
-
-        traceScriptsBefore = traceScript;
+        previousScritp = traceScript;
         numPointsBefore = numPoints;
     }
 
@@ -332,7 +349,6 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
     // }
 
     public void plot(JFreeChart p) {
-
     }
 
     public Object invokeMethod(Binding b, String method, String... args) {
@@ -340,17 +356,35 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
     }
 
     public void runScript(String script) {
-        Object result = shell.evaluate(script);
+        Object result;
+        bind("systems", systems);
+        PlotScript.setSystems(systems);
+        if (ImcSystemsHolder.lookupActiveSystemVehicles().length > 0) {
+            try {
+                shell.parse(script);
+                result = shell.evaluate(script);
+            }
+            catch (CompilationFailedException e) {
+                GuiUtils.errorMessage(this, "Error Parsing Script", e.getLocalizedMessage());
+            }
+        }
     }
 
     @Override
     public void initSubPanel() {
-        traceScriptsBefore = traceScript;
+        previousScritp = traceScript;
         propertiesChanged();
     }
 
     @Override
     public void cleanSubPanel() {
-        // nothing
+        try {
+            scriptOutput.close();
+            scriptError.close();
+        }
+        catch (IOException e) {
+            NeptusLog.pub().error(I18n.text("Error closing IO Writer"), e);
+            // e.printStackTrace();
+        }
     }
 }
