@@ -72,6 +72,8 @@ import ucar.nc2.NetcdfFileWriter;
 @PluginDescription(name = "PMEL netCDF Exporter")
 public class PmelNetCDFExporter extends MRAExporterFilter {
 
+    private static final double DEPTH_SCALE = 0.001;
+
     @SuppressWarnings("serial")
     public static final SimpleDateFormat dateTimeFormatterISO8601NoMillis = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", new Locale("en")) {{setTimeZone(TimeZone.getTimeZone("UTC"));}};
     
@@ -181,7 +183,7 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
                     .setUnits("m").setDataType(DataType.INT).setDimensions(dims).setAtribute("axis", "Z")
                     .setAtribute(NetCDFUtils.NETCDF_ATT_FILL_VALUE, -9999)
                     .setAtribute(NetCDFUtils.NETCDF_ATT_MISSING_VALUE, -9999).setAtribute("valid_min", 0)
-                    .setAtribute("scale_factor", 0.1).setAtribute("positive", "down")
+                    .setAtribute("scale_factor", DEPTH_SCALE).setAtribute("positive", "down")
                     .setAtribute("_CoordinateAxisType", "Depth").setAtribute("positive", "down")
                     .setAtribute("coordinates", "time lat lon");
             varsList.add(depthVar);
@@ -415,7 +417,7 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
                     timeVar.insertData((time * 1E3 - startDate.getTime()) / 1E3, idx);
                     latVar.insertData(loc.getLatitudeDegs(), idx);
                     lonVar.insertData(loc.getLongitudeDegs(), idx);
-                    depthVar.insertData(m.getDouble("depth") / 0.1, idx);
+                    depthVar.insertData(m.getDouble("depth") / DEPTH_SCALE, idx);
                     
                     double vx = m.getDouble("vx");
                     double vy = m.getDouble("vy");
