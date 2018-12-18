@@ -33,69 +33,97 @@
 package pt.lsts.neptus.plugins.rtplot
 
 import java.awt.BorderLayout
+import java.awt.geom.Point2D
 import java.util.Map;
 
 import pt.lsts.imc.*;
-import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.comm.manager.imc.ImcSystem;
-import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
-import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
-
+import pt.lsts.neptus.NeptusLog
+import pt.lsts.neptus.comm.manager.imc.ImcSystem
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder
+import pt.lsts.neptus.mra.plots.TimedXYDataItem
+import pt.lsts.neptus.plugins.rtplot.RealTimePlotGroovy.PlotType
+import pt.lsts.neptus.types.coord.LocationType
+import pt.lsts.neptus.util.GuiUtils
 
 import org.jfree.chart.ChartFactory
 import org.jfree.chart.ChartPanel
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.time.Millisecond
 import org.jfree.data.time.TimeSeries
+import org.jfree.data.time.TimeSeriesCollection
 import org.jfree.data.time.TimeSeriesDataItem
+import org.jfree.data.xy.XYDataItem
+import org.jfree.data.xy.XYSeries
 
 
 
 class PlotScript {
-    //EstimatedState related closures
     static systems = []     //systems variable must be declared and updated on the script evaluation
     static RealTimePlotGroovy plot = null
     static def state = {field -> systems.collectEntries{ [(it): ImcMsgManager.getManager().getState(it).get("EstimatedState."+field)]}}
+    //TODO add to @RealTimePlotScript Options JMenu
     //static final def rollscript  = state("phi").apply()//{state.each {k,v -> [(k):v.phi* 180/Math.PI]}}
     static final def pitchscript = {state.each {k,v -> [(k):v.theta* 180/Math.PI]}}
     static final def yawscript   = {state.each {k,v -> [(k):v.psi* 180/Math.PI]}}
     //ImcMsgManager.getManager().getState(it).get(msg).get(field, Number)
-    //static def msgs (String msgDotField) { systems.collectEntries{ [(it): ImcMsgManager.getManager().getState(it).expr(msgDotField)]}} //TODO class Number necessary?
-    static def msgs = { msgDotField -> systems.collectEntries{ [(it+"."+msgDotField): ImcMsgManager.getManager().getState(it).expr(msgDotField)]}}
-    JFreeChart timeSeriesChart;
+    static def msgs = { msgDotField ->
+        try {
+            systems.collectEntries{ [(it+"."+msgDotField): ImcMsgManager.getManager().getState(it).expr(msgDotField)]}
+        } catch (IOException e) {
+            GuiUtils.errorMessage(this, "Error parsing scritp msgs method:", e.getLocalizedMessage());
+        }
+    }
+
+    static def apply = {LinkedHashMap map, Object f -> map.each { [(it.key):function.call(it.value)]}}
 
     static TimeSeries x() {}
 
     static TimeSeries y() {}
 
-    //    static def apply (LinkedHashMap map,Closure function) {
-    //        map.each {
-    //            [(it.key): function.call(it.value)]
-    //        }
-    //    }
-    //LinkedHashMap.metaClass = {}
-
-    static def addSerie(LinkedHashMap map) {
+    static def addTimeSerie(LinkedHashMap map) {
+        if(!plot.getType().equals(PlotType.TIMESERIES)) {
+            //plot.resetSeries()
+            plot.setType(PlotType.TIMESERIES)
+        }
         if(systems.size()>0) {
             map.each {
-                TimeSeriesDataItem item = new TimeSeriesDataItem(new Millisecond(new Date(System.currentTimeMillis())),new Double( it.value))
+                TimeSeriesDataItem item = new TimeSeriesDataItem(new Millisecond(new Date(System.currentTimeMillis())),new Double(it.value))
                 TimeSeries t = new TimeSeries(it.key)
                 t.add(item)
-                plot.addSerie(it.key,t)
+                plot.addTimeSerie(it.key,t)
             }
         }
     }
-    //ChartFactory.createTimeSeriesChart(title, timeAxisLabel, valueAxisLabel, dataset)
-    //    static PlotScript latLongPlot() {
-    //        msgs("lat").call("EstimatedState")
-    //        msgs("lon").call("EstimatedState")
-    //    }
-    //
-    //    static JFreeChart xyPlot(String id,TimeSeries ts) {
-    //      //assert systems.size() == 1 -> lat lon plot for one selected system only
-    //    }
-    //
-    //    static JFreeChart timePlot(List<TimeSeries> tsc,int numPoints) {}
+    static def addSerie(LinkedHashMap map) {
+        if(systems.size()>0) {
+            map.each {
+                XYSeries xy = new XYSeries(it.key,false)
+                xy.add(it.value);
+                plot.addSerie(it.key,xy)
+            }
+        }
+    }
 
+    static def plotLatLong() {
+        systems.each {
+            EstimatedState state = ImcMsgManager.getManager().getState(it).get("EstimatedState")
+            LocationType ref = new LocationType(0,0)
+            if(!plot.getType().equals(PlotType.LATLONG)) {
+                //plot.resetSeries()
+                plot.setType(PlotType.LATLONG)
+            }
+            def resultmap = [:]
+            LocationType loc =  new LocationType(state.getDouble("lat"),state.getDouble("lon")) //lat long
+            loc.translatePosition(state.getDouble("x"), state.getDouble("y"), state.getDouble("z"))
+            def id = it+".position"
+            double[] offsets = loc.getOffsetFrom(ref)
+            //TimedXYDataItem item =  new TimedXYDataItem(offsets[0],offsets[1],System.currentTimeMillis(),id)
+            Point2D pt = new Point2D.Double(offsets[0],offsets[1])
+            XYDataItem item = new XYDataItem(pt.getX(),pt.getY())
+            resultmap.put id, item
+            addSerie(resultmap)
+        }
+    }
 
 }
