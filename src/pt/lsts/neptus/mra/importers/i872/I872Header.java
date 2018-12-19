@@ -32,10 +32,134 @@
  */
 package pt.lsts.neptus.mra.importers.i872;
 
+import java.nio.ByteBuffer;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+
+import pt.lsts.neptus.util.NMEAUtils;
 
 public class I872Header {
+    /**
+     * Each ping header has 1000 bytes
+     */
+    private final int HEADER_SIZE = 1000;
+    /**
+     * Number of the ping. First ping may not start in 0.
+     */
+    private int pingNumber;
+    /**
+     * 0 -> $GPGLL; 1 -> $GPGGA; 2 -> $GPRMC
+     */
+    private int gpsType;
+    private String date, time, milliseconds;
+    private int operatingFrequency;
+    private int rangeIndex;
+    private int numberGPSStrings;
+    private static int[] rangeMap = {0,0,0,0,0,10,20,30,40,50,60,80,100,125,150,200};
 
-    public I872Header() {
+    public I872Header(ByteBuffer headerInfo, Boolean onlyTimestamp) {
+        try {
+            parseHeader(headerInfo, onlyTimestamp);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Extract all the important information of the header.
+     * @param pingBuffer The ping buffer.
+     * @throws Exception In case of invalid header
+     */
+    private void parseHeader(ByteBuffer pingBuffer, Boolean onlyTimestamp) throws Exception {
+        byte[] headerBytes = new byte[HEADER_SIZE];
+        pingBuffer.get(headerBytes, 0, HEADER_SIZE);
+        if (headerBytes[0] != '8' || headerBytes[1] != '7' || headerBytes[2] != '2') {
+            throw new Exception("Invalid header");
+        }
+        parseDate(headerBytes);
+        if (onlyTimestamp) {
+            return;
+        }
+        pingNumber = ((headerBytes[4] & 0xff) << 24) | ((headerBytes[5] & 0xff) << 16) |
+                ((headerBytes[6] & 0xff) << 8) | (headerBytes[7] & 0xff);
+        gpsType = headerBytes[14] >> 4;
+        //System.out.println("GPS type: " + gpsType);
+        numberGPSStrings = headerBytes[14] % 16;
+        //System.out.println("Number gps strings: " + numberGPSStrings);
+        operatingFrequency = headerBytes[45];
+        rangeIndex = headerBytes[46];
+        /*
+        int dataGain = headerBytes[47];
+        int channelBalance = headerBytes[48];
+        int repetitionRate = (headerBytes[49] << 8) + headerBytes[50];
+        double soundVelocity = ((headerBytes[51] << 8) + headerBytes[52])/10.0;
+        int sonarType = headerBytes[70];*/
+        
+    }
+
+    /**
+     * 
+     */
+    private void parseDate(byte[] headerBytes) {
+        date = byteArrayToString(headerBytes, 19, 11);
+        time = byteArrayToString(headerBytes, 31, 8);
+        milliseconds = byteArrayToString(headerBytes, 40, 4);
+    }
+
+    /**
+     * Converts a byte array to a string
+     * @param originalArray The array which contains the string
+     * @param startOffset Initial offset of the string
+     * @param length Length of the string
+     * @return A string created from the originalArray
+     */
+    public String byteArrayToString(byte[] originalArray, int startOffset, int length) {
+        byte[] dateBytes = new byte[length];
+        int maxIndex = startOffset + length;
+        for (int i = startOffset; i < maxIndex; i++) {
+            dateBytes[i-startOffset] = originalArray[i];
+        }
+        return new String(dateBytes);
+    }
+    
+    public long getTimestamp() {
+        try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy hh:mm:ss.SSS");
+            String fullDate = date + " " + time + milliseconds;
+            Date parsedDate = dateFormat.parse(fullDate);
+            return parsedDate.getTime();
+        }
+        catch (ParseException e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+    
+    /**
+     * 
+     * @return
+     */
+    public int getFrequency() {
+        return operatingFrequency;
+    }
+    
+    public int getNumberGPSStrings() {
+        return numberGPSStrings;
+    }
+    
+    public int getGPSType() {
+        return gpsType;
+    }
+    
+    public int getRange() {
+        return rangeMap[rangeIndex];
+    }
+    
+    public int getPingNumber() {
+        return pingNumber;
     }
 
 }
