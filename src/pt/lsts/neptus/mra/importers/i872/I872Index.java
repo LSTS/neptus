@@ -33,14 +33,37 @@
 package pt.lsts.neptus.mra.importers.i872;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.TreeSet;
 
 /**
  * @author ineeve
  *
  */
 public class I872Index implements Serializable {
+    
+    private static final long serialVersionUID = -9220474691062798631L;
+    private HashMap<Long,Long> timestampToPosition;
+    private TreeSet<Long> timestampsSet;
 
     public I872Index() {
+        timestampToPosition = new HashMap<Long, Long>();
+        timestampsSet = new TreeSet<Long>();
+    }
+    
+    public void addPing(Long timestamp, Long position) {
+        timestampToPosition.put(timestamp, position);
+        timestampsSet.add(timestamp);
+    }
+    public long getPositionOfPing(Long timestamp) {
+        long nextTimestamp = timestampsSet.ceiling(timestamp);
+        return timestampToPosition.get(nextTimestamp);
     }
 
+    public long getFirstTimestamp() {
+        return timestampsSet.first();
+    }
+    public long getLastTimestamp() {
+        return timestampsSet.last();
+    }
 }
