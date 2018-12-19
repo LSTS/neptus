@@ -32,20 +32,184 @@
  */
 package pt.lsts.neptus.mra.importers.i872;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileChannel.MapMode;
+import java.util.HashMap;
+import java.util.TreeSet;
+
+import pt.lsts.neptus.NeptusLog;
 
 public class I872Parser {
 
     /**
+     * Maps timestamps to pings
+     */
+    private HashMap<Long, I872Ping> pings;
+    private TreeSet<Long> timestampsSet;
+    private FileInputStream fis;
+    private FileChannel channel;
+    private long minTimestamp, maxTimestamp;
+    private String indexPath;
+    private I872Index index;
+    private final int WINDOW_SIZE = 100;
+
+    /**
      * 
      */
-    public I872Parser() {
+    public I872Parser(File file) {
+        index = new I872Index();
+        indexPath = file.getParent() + "/mra/i872.index";
+        minTimestamp = -1;
+        maxTimestamp = -1;
+        try {
+            fis = new FileInputStream(file);
+        }
+        catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return;
+        }
+        channel = fis.getChannel();
+        if (!new File(indexPath).exists()) {
+            NeptusLog.pub().info("Generating 872 index for " + file.getAbsolutePath());
+            generateIndex();
+        }
+        else {
+            NeptusLog.pub().info("Loading 872 index for " + file.getAbsolutePath());
+            if(!loadIndex()) {
+                NeptusLog.pub().error("Corrupted 872 index file. Trying to create a new index.");
+                generateIndex();
+            }
+        }
+
     }
+    
+    private void generateIndex() {
+        try {
+            for (long pos = 0; pos < channel.size(); pos += I872Ping.PING_SIZE) {
+                ByteBuffer pingBuffer = channel.map(MapMode.READ_ONLY, pos, I872Ping.PING_SIZE);
+                I872Header pingHeader = new I872Header(pingBuffer, true);
+                index.addPing(pingHeader.getTimestamp(), pos);
+            }
+            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(indexPath));
+            out.writeObject(index);
+            out.close();
+            NeptusLog.pub().info("872 index written");
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+    }
+    
+    private boolean loadIndex() {
+        ObjectInputStream in;
+        try {
+            in = new ObjectInputStream(new FileInputStream(indexPath));
+            index = (I872Index) in.readObject();
+            in.close();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    private void parseFile(Long initialPos) {
+        pings = new HashMap<Long, I872Ping>();
+        timestampsSet = new TreeSet<Long>();
+        try {
+            long pingTimestamp;
+            long lastIndex = channel.size() - I872Ping.PING_SIZE;
+            if (channel.size() - I872Ping.PING_SIZE < initialPos + WINDOW_SIZE * I872Ping.PING_SIZE) {
+                lastIndex = channel.size() - I872Ping.PING_SIZE;
+            } else {
+                lastIndex = initialPos + WINDOW_SIZE * I872Ping.PING_SIZE;
+            }
+            for (long i = initialPos; i <= lastIndex; i += I872Ping.PING_SIZE) {
+                ByteBuffer pingBuffer = channel.map(MapMode.READ_ONLY, i, I872Ping.PING_SIZE);
+                I872Ping currentPing = new I872Ping(pingBuffer);
+                pingTimestamp = currentPing.getTimestamp();
+                timestampsSet.add(pingTimestamp);
+                pings.put(pingTimestamp, currentPing);
+                if (i == initialPos) {
+                    minTimestamp = pingTimestamp;
+                }
+                else if (i == lastIndex) {
+                    maxTimestamp = pingTimestamp;
+                }
+            }
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+    }
+
+    /**
+     * @return
+     */
+    public long getFirstTimestamp() {
+        return index.getFirstTimestamp();
+    }
+
+    /**
+     * @return
+     */
+    public long getLastTimestamp() {
+        return index.getLastTimestamp();
+    }
+
+    /**
+     * 
+     */
+    public void cleanup() {
+        try {
+            if (fis != null) {
+                fis.close();
+            }
+            if (channel != null) {
+                channel.close();
+            }
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 
+     * @param timestamp
+     * @return
+     */
+    public I872Ping getPingAt(long timestamp) {
+        
+        if (timestamp < minTimestamp || timestamp > maxTimestamp) {
+            parseFile(index.getPositionOfPing(timestamp));
+        } 
+        long nextTimestamp = timestampsSet.ceiling(timestamp);
+        return pings.get(nextTimestamp);
+    }
+    
 
     /**
      * @param args
      */
     public static void main(String[] args) {
-        // TODO Auto-generated method stub
+        I872Parser parser = new I872Parser(new File("/home/ineeve/Downloads/boat_launch.872"));
+        I872Ping ping1 = parser.getPingAt(0);
+        System.out.println("Ping: " + ping1.getTimestamp());
+        I872Ping ping2 = parser.getPingAt(1127403506526L);
+        System.out.println("Ping2: " + ping2.getTimestamp());
+        
 
     }
 
