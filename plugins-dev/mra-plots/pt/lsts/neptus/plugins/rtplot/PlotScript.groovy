@@ -61,25 +61,46 @@ import org.jfree.data.xy.XYSeries
 class PlotScript {
     static systems = []     //systems variable must be declared and updated on the script evaluation
     static RealTimePlotGroovy plot = null
-    static def state = {field -> systems.collectEntries{ [(it): ImcMsgManager.getManager().getState(it).get("EstimatedState."+field)]}}
-    //TODO add to @RealTimePlotScript Options JMenu
-    //static final def rollscript  = state("phi").apply()//{state.each {k,v -> [(k):v.phi* 180/Math.PI]}}
-    static final def pitchscript = {state.each {k,v -> [(k):v.theta* 180/Math.PI]}}
-    static final def yawscript   = {state.each {k,v -> [(k):v.psi* 180/Math.PI]}}
-    //ImcMsgManager.getManager().getState(it).get(msg).get(field, Number)
+    
     static def msgs = { msgDotField ->
         try {
             systems.collectEntries{ [(it+"."+msgDotField): ImcMsgManager.getManager().getState(it).expr(msgDotField)]}
         } catch (IOException e) {
-            GuiUtils.errorMessage(this, "Error parsing scritp msgs method:", e.getLocalizedMessage());
+            GuiUtils.errorMessage(plot, "Error parsing scritp msgs method:", e.getLocalizedMessage());
         }
     }
+    
+    static def state = { String f ->
+        String msg = "EstimatedState."+f
+        msgs(msg)
+        }
 
-    static def apply = {LinkedHashMap map, Object f -> map.each { [(it.key):function.call(it.value)]}}
-
-    static TimeSeries x() {}
-
-    static TimeSeries y() {}
+    static def apply = {LinkedHashMap map, Object function -> map.each { [(it.key):function.call(it.value)]}}
+    
+    static def roll  = { apply(state("phi"),{i -> i*180/Math.PI}) }
+    static def pitch = { apply(state("theta"),{i -> i*180/Math.PI}) }
+    static def yaw   = { apply(state("psi"),{i -> i*180/Math.PI}) }
+    
+    static def xyserie(LinkedHashMap map1,LinkedHashMap map2,boolean autosort=false) {
+        if(!plot.getType().equals(PlotType.GENERICXY)) {
+            //plot.resetSeries()
+            plot.setType(PlotType.GENERICXY)
+        }
+        def result = [:]
+        def lookup
+        systems.eachWithIndex { sys, index ->
+            def id = sys+".serie"
+            if((lookup = map1.keySet().find{it.startsWith(sys)}) != null) {
+                def v1 = map1.get lookup
+                if((lookup = map2.keySet().find{it.startsWith(sys)}) != null) {
+                    def v2 = map2.get lookup
+                    XYDataItem item = new XYDataItem(v2,v1)
+                    result.put id, item
+                    addSerie result
+                }
+            }
+        }
+    }
 
     static def addTimeSerie(LinkedHashMap map) {
         if(!plot.getType().equals(PlotType.TIMESERIES)) {
@@ -109,16 +130,15 @@ class PlotScript {
         systems.each {
             EstimatedState state = ImcMsgManager.getManager().getState(it).get("EstimatedState")
             LocationType ref = new LocationType(0,0)
-            if(!plot.getType().equals(PlotType.LATLONG)) {
+            if(!plot.getType().equals(PlotType.GENERICXY)) {
                 //plot.resetSeries()
-                plot.setType(PlotType.LATLONG)
+                plot.setType(PlotType.GENERICXY)
             }
             def resultmap = [:]
             LocationType loc =  new LocationType(state.getDouble("lat"),state.getDouble("lon")) //lat long
             loc.translatePosition(state.getDouble("x"), state.getDouble("y"), state.getDouble("z"))
             def id = it+".position"
             double[] offsets = loc.getOffsetFrom(ref)
-            //TimedXYDataItem item =  new TimedXYDataItem(offsets[0],offsets[1],System.currentTimeMillis(),id)
             Point2D pt = new Point2D.Double(offsets[0],offsets[1])
             XYDataItem item = new XYDataItem(pt.getX(),pt.getY())
             resultmap.put id, item
