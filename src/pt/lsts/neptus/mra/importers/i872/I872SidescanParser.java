@@ -32,19 +32,25 @@
  */
 package pt.lsts.neptus.mra.importers.i872;
 
+import java.io.File;
 import java.util.ArrayList;
 
+import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mra.api.SidescanLine;
 import pt.lsts.neptus.mra.api.SidescanParameters;
 import pt.lsts.neptus.mra.api.SidescanParser;
+import pt.lsts.neptus.mra.api.SidescanUtil;
 
 
 public class I872SidescanParser implements SidescanParser {
 
+    private I872Parser parser;
+    
     /**
      * 
      */
-    public I872SidescanParser() {
+    public I872SidescanParser(File f) {
+        parser = new I872Parser(f);
     }
 
     /* (non-Javadoc)
@@ -52,8 +58,7 @@ public class I872SidescanParser implements SidescanParser {
      */
     @Override
     public long firstPingTimestamp() {
-        // TODO Auto-generated method stub
-        return 0;
+        return parser.getFirstTimestamp();
     }
 
     /* (non-Javadoc)
@@ -61,8 +66,7 @@ public class I872SidescanParser implements SidescanParser {
      */
     @Override
     public long lastPingTimestamp() {
-        // TODO Auto-generated method stub
-        return 0;
+        return parser.getLastTimestamp();
     }
 
     /* (non-Javadoc)
@@ -71,8 +75,37 @@ public class I872SidescanParser implements SidescanParser {
     @Override
     public ArrayList<SidescanLine> getLinesBetween(long timestamp1, long timestamp2, int subsystem,
             SidescanParameters config) {
-        // TODO Auto-generated method stub
-        return null;
+        ArrayList<SidescanLine> list = new ArrayList<SidescanLine>();
+        I872Ping currentPing;
+        if (timestamp1 < 0 || timestamp2 < 0) {
+            return list;
+        }
+        currentPing = parser.getPingAt(timestamp1);
+        if (currentPing == null) {
+            return list;
+        }
+        
+        while(currentPing.getTimestamp() < timestamp2) {
+            double fData[] = new double[I872Ping.DATA_SIZE*2];
+            int[] portData = currentPing.getPortData();
+            int[] starboardData = currentPing.getStarboardData();
+            for (int i = 0; i < I872Ping.DATA_SIZE; i++) {
+                fData[i] = portData[i];
+            }
+            for (int i = 0; i < I872Ping.DATA_SIZE; i++) {
+                fData[i + I872Ping.DATA_SIZE] = starboardData[i];
+            }
+            SystemPositionAndAttitude pose = new SystemPositionAndAttitude();
+            
+            pose.getPosition().setLatitudeDegs(currentPing.getLatitude());
+            pose.getPosition().setLongitudeDegs(currentPing.getLongitude());
+            
+            fData = SidescanUtil.applyNormalizationAndTVG(fData, currentPing.getRange(), config);
+            
+            list.add(new SidescanLine(currentPing.getTimestamp(), currentPing.getRange(), pose, currentPing.getFrequency(), fData));
+            currentPing = parser.getPingAt(currentPing.getTimestamp()+1);
+        }
+        return list;
     }
 
     /* (non-Javadoc)
@@ -80,8 +113,9 @@ public class I872SidescanParser implements SidescanParser {
      */
     @Override
     public ArrayList<Integer> getSubsystemList() {
-        // TODO Auto-generated method stub
-        return null;
+        ArrayList<Integer> subsystems = new ArrayList<Integer>();
+        subsystems.add(0);
+        return subsystems;
     }
 
     /* (non-Javadoc)
@@ -89,8 +123,8 @@ public class I872SidescanParser implements SidescanParser {
      */
     @Override
     public void cleanup() {
-        // TODO Auto-generated method stub
-
+        parser.cleanup();
+        parser = null;
     }
 
 }
