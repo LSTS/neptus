@@ -70,7 +70,6 @@ public class RealTimePlotScript extends JPanel {
 
     private static final long serialVersionUID = 1L;
     protected static RSyntaxTextArea editorPane = new RSyntaxTextArea();
-    protected JFormattedTextField periodicityField = new JFormattedTextField(GuiUtils.getNeptusDecimalFormat(0));
     protected JFormattedTextField numPointsField = new JFormattedTextField(GuiUtils.getNeptusDecimalFormat(0));
     private JMenuBar bar = new JMenuBar();
     private JMenu methods = new JMenu("Options");
@@ -101,6 +100,7 @@ public class RealTimePlotScript extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 String script = editorPane.getText();
                 plot.traceScript = script;
+                plot.resetSeries();
                 plot.runScript(script);
             }
         });
@@ -113,15 +113,12 @@ public class RealTimePlotScript extends JPanel {
         save.setText("Save");
         save.setSize(new Dimension(5, 5));
         bottomL.add(save, BorderLayout.CENTER);
-        bottomR.add(new JLabel(I18n.text("Periodicity (milliseconds)") + ":"));
-        bottomR.add(periodicityField);
         bottomR.add(new JLabel(I18n.text("Trace points") + ":"));
         bottomR.add(numPointsField);
         bottom.add(bottomL, BorderLayout.WEST);
         bottom.add(bottomR, BorderLayout.EAST);
         add(bottom, BorderLayout.SOUTH);
         editorPane.setText(rtplot.traceScript);
-        periodicityField.setText("" + rtplot.periodicity);
         numPointsField.setText("" + rtplot.numPoints);
         editorPane.setText(plot.traceScript);
         fillPlotOptions();
@@ -150,6 +147,7 @@ public class RealTimePlotScript extends JPanel {
                         String script = editorPane.getText();
                         plot.traceScript = script;
                         plot.numPoints = Integer.parseInt(RealTimePlotScript.this.numPointsField.getText());
+                        plot.resetSeries();
                         plot.runScript(script);
                         dialog.dispose();
                     }
@@ -175,8 +173,7 @@ public class RealTimePlotScript extends JPanel {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                editorPane.setText("");
-                addText("s = \"EstimatedState.depth\"\naddTimeSerie(msgs(s))", true);
+                addText("s = msgs(\"EstimatedState.depth\")\naddTimeSerie s", true);
 
             }
         });
@@ -186,7 +183,6 @@ public class RealTimePlotScript extends JPanel {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                editorPane.setText("");
                 addText("plotLatLong()", true);
 
             }
@@ -196,7 +192,8 @@ public class RealTimePlotScript extends JPanel {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO Auto-generated method stub
+                editorPane.setText("");
+                addText("s = msgs(\"EstimatedState.depth\")\nt = msgs(\"EstimatedState.timestamp\")\nxyserie t,s", true);
 
             }
         });
@@ -298,7 +295,7 @@ public class RealTimePlotScript extends JPanel {
                     IMCMessage m = ImcMsgManager.getManager().getState(system).get(msg);
                     m.cloneMessageTyped();
                     String var = m.getAbbrev().toLowerCase();
-                    String s = var + " = msgs(\"" + msg + ".<field>\")" + "\n" + "addTimeSerie" + var;
+                    String s = var + " = msgs(\"" + msg + ".<field>\")" + "\n" + "addTimeSerie " + var;
                     addText(s, false);
                 }
             });

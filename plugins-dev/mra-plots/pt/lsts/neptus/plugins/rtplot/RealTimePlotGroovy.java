@@ -64,6 +64,7 @@ import org.jfree.data.xy.XYSeriesCollection;
 
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
+import pt.lsts.imc.EstimatedState;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
@@ -78,7 +79,7 @@ import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.util.GuiUtils;
 
-@PluginDescription(name = "Real-Time plot", icon = "pt/lsts/neptus/plugins/rtplot/rtplot.png", description = "Real-Time plots with Groovy scripts")
+@PluginDescription(name = "Real-Time Plot", icon = "pt/lsts/neptus/plugins/rtplot/rtplot.png", description = "Real-Time plots with Groovy scripts")
 @Popup(accelerator = 'U', pos = POSITION.CENTER, height = 300, width = 300)
 public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationListener {
 
@@ -105,7 +106,6 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
 
     public enum PlotType {
         TIMESERIES, // default
-        LATLONG,
         GENERICXY
 
     }
@@ -119,17 +119,14 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
         return systems;
     }
 
-    @NeptusProperty(name = "Periodicity (milliseconds)")
-    public int periodicity = 1000;
-
     @NeptusProperty(name = "Maximum Number of points")
     public int numPoints = 100;
 
     @NeptusProperty(name = "Current Script")
-    public String traceScript = "s = \"EstimatedState.depth\"\naddTimeSerie(msgs(s))";
+    public String traceScript = "s = msgs(\"EstimatedState.depth\")\naddTimeSerie s";
 
     @NeptusProperty(name = "Initial Script")
-    public String initScripts = "s = \"EstimatedState.depth\"\naddTimeSerie(msgs(s))";
+    public String initScripts = "s = msgs(\"EstimatedState.depth\")\naddTimeSerie s";
 
     @NeptusProperty(name = "Plot Type")
     public String plotType = PlotType.TIMESERIES.name();
@@ -300,10 +297,10 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
                                 systems.clear();
                                 systems.add(selectedSys);
                                 if (type.equals(PlotType.TIMESERIES)) {
-                                    resetSelSeries();
+                                    updateSelSeries();
                                 }
                                 else { // XY
-                                    resetSelXY();
+                                    updateSelXY();
                                 }
                             }
                         }
@@ -333,6 +330,7 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
      */
     public void setType(PlotType t) {
         if (!type.equals(t)) {
+            resetSeries();
             RealTimePlotGroovy.type = t;
             changeChart();
         }
@@ -377,6 +375,10 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
             else if (selectedSys.equalsIgnoreCase(system.getName()))
                 systems.add(selectedSys);
         }
+        if(!selectedSys.equalsIgnoreCase("ALL") && type.equals(PlotType.TIMESERIES))
+            updateSelSeries();
+        else if(!selectedSys.equalsIgnoreCase("ALL") && !type.equals(PlotType.TIMESERIES))
+            updateSelXY();
         try {
             runScript(traceScript);
         }
@@ -403,11 +405,9 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
      */
     public void resetSeries() {
         allTsc.removeAllSeries();
-        resetSelSeries();
+        selTsc.removeAllSeries();
         xySeries.removeAllSeries();
-        resetSelXY();
-        chart.getChart().fireChartChanged();
-        //runScript(traceScript);
+        xySelSeries.removeAllSeries();
     }
 
     private void changeChart() {
@@ -420,9 +420,9 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
         }
         else {
             if (type.equals(PlotType.TIMESERIES))
-                resetSelSeries();
+                updateSelSeries();
             else
-                resetSelXY();
+                updateSelXY();
         }
 
     }
@@ -466,7 +466,7 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
     /**
      * 
      */
-    private void resetSelXY() {
+    private void updateSelXY() {
         xySelSeries = new XYSeriesCollection();
         for (Object s : xySeries.getSeries()) {
             XYSeries serie = (XYSeries) s;
@@ -479,7 +479,7 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
     /**
      * 
      */
-    private void resetSelSeries() {
+    private void updateSelSeries() {
         selTsc = new TimeSeriesCollection();
         for (Object s : allTsc.getSeries()) {
             TimeSeries serie = (TimeSeries) s;
