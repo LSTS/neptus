@@ -85,9 +85,7 @@ public class I872Header {
         pingNumber = ((headerBytes[4] & 0xff) << 24) | ((headerBytes[5] & 0xff) << 16) |
                 ((headerBytes[6] & 0xff) << 8) | (headerBytes[7] & 0xff);
         gpsType = headerBytes[14] >> 4;
-        //System.out.println("GPS type: " + gpsType);
         numberGPSStrings = headerBytes[14] % 16;
-        //System.out.println("Number gps strings: " + numberGPSStrings);
         operatingFrequency = headerBytes[45];
         rangeIndex = headerBytes[46];
     }
