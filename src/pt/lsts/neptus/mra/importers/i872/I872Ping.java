@@ -34,7 +34,6 @@ package pt.lsts.neptus.mra.importers.i872;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 
 import pt.lsts.neptus.types.coord.LocationType;
@@ -79,7 +78,6 @@ public class I872Ping {
     
     /**
      * Parses and stores data for a ping.
-     * 
      */
     private void parseData(ByteBuffer buffer) {
         
@@ -91,9 +89,6 @@ public class I872Ping {
         }
     }
 
-    /**
-     * 
-     */
     private void parseGPSStrings(ByteBuffer buffer) {
         int numberGPSStrings = header.getNumberGPSStrings();
         ArrayList<String> gpsStrings = new ArrayList<String>();
