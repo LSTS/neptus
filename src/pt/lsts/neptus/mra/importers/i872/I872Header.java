@@ -36,11 +36,10 @@ import java.nio.ByteBuffer;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
-
-import pt.lsts.neptus.util.NMEAUtils;
 
 public class I872Header {
+    
+    private static int[] rangeMap = {0,0,0,0,0,10,20,30,40,50,60,80,100,125,150,200};
     /**
      * Each ping header has 1000 bytes
      */
@@ -57,7 +56,7 @@ public class I872Header {
     private int operatingFrequency;
     private int rangeIndex;
     private int numberGPSStrings;
-    private static int[] rangeMap = {0,0,0,0,0,10,20,30,40,50,60,80,100,125,150,200};
+    
 
     public I872Header(ByteBuffer headerInfo, Boolean onlyTimestamp) {
         try {
@@ -91,17 +90,10 @@ public class I872Header {
         //System.out.println("Number gps strings: " + numberGPSStrings);
         operatingFrequency = headerBytes[45];
         rangeIndex = headerBytes[46];
-        /*
-        int dataGain = headerBytes[47];
-        int channelBalance = headerBytes[48];
-        int repetitionRate = (headerBytes[49] << 8) + headerBytes[50];
-        double soundVelocity = ((headerBytes[51] << 8) + headerBytes[52])/10.0;
-        int sonarType = headerBytes[70];*/
-        
     }
 
     /**
-     * 
+     * Gets the date, time and milliseconds of the header
      */
     private void parseDate(byte[] headerBytes) {
         date = byteArrayToString(headerBytes, 19, 11);
@@ -125,6 +117,10 @@ public class I872Header {
         return new String(dateBytes);
     }
     
+    /**
+     * Gets the timestamp in which the header was created.
+     * @return The timestamp of this header
+     */
     public long getTimestamp() {
         try {
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy hh:mm:ss.SSS");
@@ -138,10 +134,6 @@ public class I872Header {
         }
     }
     
-    /**
-     * 
-     * @return
-     */
     public int getFrequency() {
         return operatingFrequency;
     }
