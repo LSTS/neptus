@@ -49,21 +49,16 @@ import pt.lsts.neptus.NeptusLog;
 
 public class I872Parser {
 
-    /**
-     * Maps timestamps to pings
-     */
-    private HashMap<Long, I872Ping> pings;
+    private final int WINDOW_SIZE = 100;
+    private HashMap<Long, I872Ping> pings; // Maps timestamps to pings
     private TreeSet<Long> timestampsSet;
     private FileInputStream fis;
     private FileChannel channel;
-    private long minTimestamp, maxTimestamp;
+    private long minTimestamp, maxTimestamp; // Current minTimestamp and maxTimestamp loaded.
     private String indexPath;
     private I872Index index;
-    private final int WINDOW_SIZE = 100;
+    
 
-    /**
-     * 
-     */
     public I872Parser(File file) {
         index = new I872Index();
         indexPath = file.getParent() + "/mra/i872.index";
@@ -91,6 +86,9 @@ public class I872Parser {
 
     }
     
+    /**
+     * Create an index for the file being parsed in order to be possible to load big data files.
+     */
     private void generateIndex() {
         try {
             for (long pos = 0; pos < channel.size(); pos += I872Ping.PING_SIZE) {
@@ -123,6 +121,11 @@ public class I872Parser {
         return true;
     }
 
+    /**
+     * Parses a part of the file.
+     * The number of pings being read depends on the WINDOW_SIZE variable.
+     * @param initialPos Initial position to start parsing the file.
+     */
     private void parseFile(Long initialPos) {
         pings = new HashMap<Long, I872Ping>();
         timestampsSet = new TreeSet<Long>();
@@ -154,23 +157,14 @@ public class I872Parser {
         }
     }
 
-    /**
-     * @return
-     */
     public long getFirstTimestamp() {
         return index.getFirstTimestamp();
     }
 
-    /**
-     * @return
-     */
     public long getLastTimestamp() {
         return index.getLastTimestamp();
     }
 
-    /**
-     * 
-     */
     public void cleanup() {
         try {
             if (fis != null) {
@@ -186,9 +180,9 @@ public class I872Parser {
     }
 
     /**
-     * 
-     * @param timestamp
-     * @return
+     * Get the lower ping which timestamp is greater than or equal to the given timestamp input.
+     * @param timestamp The timestamp of the ping to search.
+     * @return the lower ping which timestamp is greater than or equal to the given timestamp input.
      */
     public I872Ping getPingAt(long timestamp) {
         
@@ -197,20 +191,6 @@ public class I872Parser {
         } 
         long nextTimestamp = timestampsSet.ceiling(timestamp);
         return pings.get(nextTimestamp);
-    }
-    
-
-    /**
-     * @param args
-     */
-    public static void main(String[] args) {
-        I872Parser parser = new I872Parser(new File("/home/ineeve/Downloads/boat_launch.872"));
-        I872Ping ping1 = parser.getPingAt(0);
-        System.out.println("Ping: " + ping1.getTimestamp());
-        I872Ping ping2 = parser.getPingAt(1127403506526L);
-        System.out.println("Ping2: " + ping2.getTimestamp());
-        
-
     }
 
 }

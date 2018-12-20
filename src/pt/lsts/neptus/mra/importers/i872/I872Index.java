@@ -36,10 +36,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.TreeSet;
 
-/**
- * @author ineeve
- *
- */
+
 public class I872Index implements Serializable {
     
     private static final long serialVersionUID = -9220474691062798631L;
@@ -51,10 +48,20 @@ public class I872Index implements Serializable {
         timestampsSet = new TreeSet<Long>();
     }
     
+    /**
+     * Adds a ping to the index
+     * @param timestamp Timestamp of the ping
+     * @param position Starting position of the ping in the file
+     */
     public void addPing(Long timestamp, Long position) {
         timestampToPosition.put(timestamp, position);
         timestampsSet.add(timestamp);
     }
+    /**
+     * Get position of a ping in the 872 file.
+     * @param timestamp The timestamp of the ping to search
+     * @return The position of the ping in the 872 file.
+     */
     public long getPositionOfPing(Long timestamp) {
         long nextTimestamp = timestampsSet.ceiling(timestamp);
         return timestampToPosition.get(nextTimestamp);
