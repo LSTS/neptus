@@ -36,6 +36,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.NMEAUtils;
 
@@ -102,7 +103,7 @@ public class I872Ping {
             
         }
         if (gpsStrings.size() != numberGPSStrings) {
-            System.err.println("Invalid gps strings at ping: " + header.getPingNumber());
+            NeptusLog.pub().debug("Invalid gps strings at ping: " + header.getPingNumber());
             return;
         }
         Collections.sort(gpsStrings, String.CASE_INSENSITIVE_ORDER);
@@ -118,14 +119,6 @@ public class I872Ping {
                 locationType = NMEAUtils.processRMCSentence(selectedGPSString);
                 break;
         }
-        /*
-        if (locationType == null) {
-            System.out.println("Selected gps type: " + header.getGPSType());
-            System.out.println("Number of gps strings: " + header.getNumberGPSStrings());
-            System.out.println("Failing String: " + selectedGPSString);
-            gpsStrings.forEach(s -> System.out.println(s));
-        }
-        */
     }
     
     /**
