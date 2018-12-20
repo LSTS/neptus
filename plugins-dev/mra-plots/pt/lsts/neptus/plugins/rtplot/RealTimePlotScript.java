@@ -37,8 +37,6 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.lang.reflect.Method;
@@ -80,6 +78,10 @@ public class RealTimePlotScript extends JPanel {
     private static RealTimePlotGroovy plot = null;
 
     /**
+     * This class represents the editor panel used to edit the script executed periodically in the @RealTimePlotGroovy .
+     * The editor has support to highlight the Groovy programming language. The options menu in the upper bar is dynamic
+     * and varies according to the selected system on the main panel.
+     * 
      * @param realTimePlotGroovy
      * @param sysID ID of system(s) being used on the script
      */
@@ -106,17 +108,16 @@ public class RealTimePlotScript extends JPanel {
         });
         save.setToolTipText("Save changes to script");
         add(bar, BorderLayout.NORTH);
-        JPanel bottom = new JPanel(new GridLayout(0, 2));
+        JPanel bottom = new JPanel(new GridLayout(0, 3));
         add(new JScrollPane(editorPane), BorderLayout.CENTER);
-        JPanel bottomL = new JPanel(new BorderLayout());
-        JPanel bottomR = new JPanel(new GridLayout(0, 2));
         save.setText("Save");
-        save.setSize(new Dimension(5, 5));
-        bottomL.add(save, BorderLayout.CENTER);
-        bottomR.add(new JLabel(I18n.text("Trace points") + ":"));
-        bottomR.add(numPointsField);
-        bottom.add(bottomL, BorderLayout.WEST);
-        bottom.add(bottomR, BorderLayout.EAST);
+        save.setMinimumSize(new Dimension(5, 5));
+        bottom.add(save, BorderLayout.WEST);
+        JLabel label = new JLabel(I18n.text("Trace points") + ":");
+        label.setMinimumSize(new Dimension(5, 5));
+        bottom.add(label, BorderLayout.CENTER);
+        numPointsField.setMinimumSize(new Dimension(5, 5));
+        bottom.add(numPointsField, BorderLayout.EAST);
         add(bottom, BorderLayout.SOUTH);
         editorPane.setText(rtplot.traceScript);
         numPointsField.setText("" + rtplot.numPoints);
@@ -130,42 +131,10 @@ public class RealTimePlotScript extends JPanel {
 
             }
         });
-        MenuScroller.setScrollerFor(math, 10, 300);
-        final JDialog dialog = new JDialog(rtplot.getConsole());
-        dialog.getContentPane().add(this);
-        dialog.setSize(400, 400);
-        dialog.setModal(true);
-
-        dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
-        dialog.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                if (!editorPane.getText().equals(plot.traceScript)) {
-                    int op = GuiUtils.confirmDialog(dialog, I18n.text("Select an Option"),
-                            I18n.text("Do you wish to save changes?"));
-                    if (op == JOptionPane.YES_OPTION) {
-                        String script = editorPane.getText();
-                        plot.traceScript = script;
-                        plot.numPoints = Integer.parseInt(RealTimePlotScript.this.numPointsField.getText());
-                        plot.resetSeries();
-                        plot.runScript(script);
-                        dialog.dispose();
-                    }
-                    else if (op == JOptionPane.NO_OPTION) {
-                        dialog.dispose();
-                    }
-                }
-                else
-                    dialog.dispose();
-            }
-        });
-
-        GuiUtils.centerParent(dialog, rtplot.getConsole());
-        dialog.setVisible(true);
     }
 
     /**
-     * 
+     * Adds different types of plots available on the script to the correspondent @JMenu
      */
     private void fillPlotOptions() {
         JMenuItem plotType0 = new JMenuItem("Time Series");
@@ -193,7 +162,8 @@ public class RealTimePlotScript extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 editorPane.setText("");
-                addText("s = msgs(\"EstimatedState.depth\")\nt = msgs(\"EstimatedState.timestamp\")\nxyserie t,s", true);
+                addText("s = msgs(\"EstimatedState.depth\")\nt = msgs(\"EstimatedState.timestamp\")\nxyserie t,s",
+                        true);
 
             }
         });
@@ -204,13 +174,43 @@ public class RealTimePlotScript extends JPanel {
     }
 
     public static void editSettings(final RealTimePlotGroovy rtplot, String sysID) {
+        final JDialog dialog = new JDialog(rtplot.getConsole());
         updateLocalVars(sysID);
-        final RealTimePlotScript settings = new RealTimePlotScript(rtplot);
-        // rtplot.initScripts = editorPane.getText();
+        RealTimePlotScript scriptSettings = new RealTimePlotScript(rtplot);
+        dialog.getContentPane().add(scriptSettings);
+        dialog.setSize(400, 400);
+        dialog.setModal(true);
+
+        dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+        dialog.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                if (!editorPane.getText().equals(plot.traceScript)) {
+                    int op = GuiUtils.confirmDialog(dialog, I18n.text("Select an Option"),
+                            I18n.text("Do you wish to save changes?"));
+                    if (op == JOptionPane.YES_OPTION) {
+                        String script = editorPane.getText();
+                        plot.traceScript = script;
+                        plot.numPoints = Integer.parseInt(scriptSettings.numPointsField.getText());
+                        plot.resetSeries();
+                        plot.runScript(script);
+                        dialog.dispose();
+                    }
+                    else if (op == JOptionPane.NO_OPTION) {
+                        dialog.dispose();
+                    }
+                }
+                else
+                    dialog.dispose();
+            }
+        });
+
+        GuiUtils.centerParent(dialog, rtplot.getConsole());
+        dialog.setVisible(true);
     }
 
     /**
-     * 
+     * Updates the Option @JMenu according to the selected system(s)
      */
     private static void updateLocalVars(String id) {
         sysdata = new JMenu("System data");
@@ -227,6 +227,9 @@ public class RealTimePlotScript extends JPanel {
         fillMathOptions();
     }
 
+    /**
+     * Fills the Math @JMenu with the methods from the @java.lang.Math class as @JMenuItem
+     */
     private static void fillMathOptions() {
 
         for (Method method : Math.class.getDeclaredMethods()) {
@@ -237,42 +240,20 @@ public class RealTimePlotScript extends JPanel {
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    addText("apply(<serie>, Math." + methodSignature(method) + ")", false);
-
-                }
-            });
-            item.addKeyListener(new KeyListener() {
-
-                @Override
-                public void keyTyped(KeyEvent e) {
-                    int key = e.getKeyCode();
-                    if (key == KeyEvent.VK_DOWN) {
-
-                    }
-                    else if (key == KeyEvent.VK_UP) {
-
-                    }
-                    else if (key == KeyEvent.VK_LEFT) {
-
-                    }
-
-                }
-
-                @Override
-                public void keyPressed(KeyEvent e) {
-                    // TODO Auto-generated method stub
-
-                }
-
-                @Override
-                public void keyReleased(KeyEvent e) {
-                    // TODO Auto-generated method stub
+                    addText("closure = {arg -> Math." + methodSignature(method)+"}"+"\napply(<serie>, closure)", false);
 
                 }
             });
         }
+        MenuScroller.setScrollerFor(math, 15, 250);
     }
 
+    /**
+     * Returns a method signature, including the parameters type
+     * 
+     * @param method
+     * @return signature in a String
+     */
     public static String methodSignature(Method method) {
         Class<?>[] parameterTypes = method.getParameterTypes();
         if (parameterTypes.length == 0)
@@ -285,6 +266,12 @@ public class RealTimePlotScript extends JPanel {
         return method.getName() + "(" + paramString.toString() + ")";
     }
 
+    /**
+     * Adds options from the available messages for each selected system
+     * 
+     * @param system id
+     * @param component the correspondent @JMenu to attach the options
+     */
     protected static void createExtraOptions(String system, JMenu component) {
         for (String msg : ImcMsgManager.getManager().getState(system).availableMessages()) {
             JMenuItem item = new JMenuItem(msg);
@@ -305,7 +292,10 @@ public class RealTimePlotScript extends JPanel {
     }
 
     /**
-     * Add code to script editor, separated by a \newline char
+     * Adds code to script editor, separated by a \newline char
+     * 
+     * @param code to be added
+     * @param deletePrevious specifies if the existing code is removed or not
      */
     protected static void addText(String code, boolean deletePrevious) {
         String current, old = plot.traceScript;
