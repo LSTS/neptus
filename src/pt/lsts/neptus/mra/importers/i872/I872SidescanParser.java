@@ -46,9 +46,6 @@ public class I872SidescanParser implements SidescanParser {
 
     private I872Parser parser;
     
-    /**
-     * 
-     */
     public I872SidescanParser(File f) {
         parser = new I872Parser(f);
     }
