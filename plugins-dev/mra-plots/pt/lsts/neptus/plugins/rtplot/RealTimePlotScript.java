@@ -214,17 +214,42 @@ public class RealTimePlotScript extends JPanel {
      */
     private static void updateLocalVars(String id) {
         sysdata = new JMenu("System data");
+        JMenu deft = new JMenu("Default");
+        String[] defaults = {"state","roll","pitch","yaw"};
+        createDefaultOptions(deft,defaults);
+        sysdata.add(deft);
         for (ImcSystem s : ImcSystemsHolder.lookupActiveSystemVehicles())
             if (id.equalsIgnoreCase("ALL")) {
                 JMenu menu = new JMenu(s.getName());
-                createExtraOptions(s.getName(), menu);
+                createExtraSysOptions(s.getName(), menu);
                 sysdata.add(menu);
             }
             else if (id.equalsIgnoreCase(s.getName())) {
-                createExtraOptions(s.getName(), sysdata);
+                createExtraSysOptions(s.getName(), sysdata);
                 return;
             }
         fillMathOptions();
+    }
+
+    /**
+     * @param component - @JMenu to add default methods options as @JMenuItem
+     */
+    private static void createDefaultOptions(JMenu component,String[] options) {
+        for (int i=0;i<options.length;i++) {
+            String var = options[i];
+            String s = i==0 ? ("addTimeSerie " + var+"(\"<field>\")"):("addTimeSerie " + var+"(),\""+var+"\"");
+            JMenuItem item = new JMenuItem(var);
+            item.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    addText(s, false);
+                }
+            });
+            component.add(item);
+
+        }
+        
     }
 
     /**
@@ -272,7 +297,7 @@ public class RealTimePlotScript extends JPanel {
      * @param system id
      * @param component the correspondent @JMenu to attach the options
      */
-    protected static void createExtraOptions(String system, JMenu component) {
+    protected static void createExtraSysOptions(String system, JMenu component) {
         for (String msg : ImcMsgManager.getManager().getState(system).availableMessages()) {
             JMenuItem item = new JMenuItem(msg);
             item.addActionListener(new ActionListener() {

@@ -59,31 +59,29 @@ import org.jfree.data.xy.XYSeries
 
 
 class PlotScript {
-    static systems = []     //systems variable must be declared and updated on the script evaluation
-    static RealTimePlotGroovy plot = null
-
+    
+    static RealTimePlotGroovy realTimePlot = null
+    
+     static void configPlot(RealTimePlotGroovy p) {
+        realTimePlot = p
+    }
+    
+    static private  String newName(String dottedName, String serieName) {
+        dottedName.split(/(\.)/)[0] + "." +serieName
+    } 
+    
     static def msgs = { msgDotField ->
-        try {
-            systems.collectEntries{ [(it+"."+msgDotField): ImcMsgManager.getManager().getState(it).expr(msgDotField)]}
-        } catch (IOException e) {
-            plot.traceScript=plot.previousScript
-            GuiUtils.errorMessage(plot, "Error parsing script in msgs method:", e.getLocalizedMessage());
-        }
+        RealTimePlotGroovy.getSystems().collectEntries{ [(it+"."+msgDotField): ImcMsgManager.getManager().getState(it).expr(msgDotField)]}
     }
 
     static def state(String s){
-        try {
-            String msg = "EstimatedState."+s
-            msgs(msg)
-        } catch (IOException e) {
-            plot.traceScript=plot.previousScript
-            GuiUtils.errorMessage(plot, "Error parsing script retrieving state:", e.getLocalizedMessage());
-        }
+        String msg = "EstimatedState."+s
+        msgs(msg)
     }
 
     static LinkedHashMap apply (LinkedHashMap map, Object function)  {
         def result = [:]
-        map.each { 
+        map.each {
             result.put it.key,function.call(it.value)
         }
         result
@@ -100,13 +98,13 @@ class PlotScript {
     }
 
     static def xyserie(LinkedHashMap map1,LinkedHashMap map2,String name="serie",boolean autosort=false) {
-        if(!plot.getType().equals(PlotType.GENERICXY)) {
+        if(!RealTimePlotGroovy.type().equals(PlotType.GENERICXY)) {
             //plot.resetSeries()
-            plot.setType(PlotType.GENERICXY)
+            realTimePlot.setType(PlotType.GENERICXY)
         }
         def result = [:]
         def lookup
-        systems.eachWithIndex { sys, index ->
+        RealTimePlotGroovy.getSystems().eachWithIndex { sys, index ->
             def id = sys+"."+name
             if((lookup = map1.keySet().find{it.startsWith(sys)}) != null) {
                 def v1 = map1.get lookup
@@ -120,45 +118,40 @@ class PlotScript {
         }
     }
 
-    static def addTimeSerie(LinkedHashMap map) {
-        if(!plot.getType().equals(PlotType.TIMESERIES)) {
+    static def addTimeSerie(LinkedHashMap map,String serieName=null) {
+        if(!RealTimePlotGroovy.type.equals(PlotType.TIMESERIES)) {
             //plot.resetSeries()
-            plot.setType(PlotType.TIMESERIES)
+            realTimePlot.setType(PlotType.TIMESERIES)
         }
-        if(systems.size()>0) {
+        if(RealTimePlotGroovy.getSystems().size()>0) {
             map.each {
                 if(it.value != null) {
                     TimeSeriesDataItem item = new TimeSeriesDataItem(new Millisecond(new Date(System.currentTimeMillis())),new Double(it.value))
-                    TimeSeries t = new TimeSeries(it.key)
+                    def name = serieName==null ? it.key : newName(it.key,serieName)
+                    TimeSeries t =  new TimeSeries(name)
                     t.add(item)
-                    plot.addTimeSerie(it.key,t)
+                    realTimePlot.addTimeSerie(it.key,t)
                 }
             }
         }
     }
-    static def addSerie(LinkedHashMap map) {
-        if(systems.size()>0) {
+    static def addSerie(LinkedHashMap map,String serieName=null) {
+        if(RealTimePlotGroovy.getSystems().size()>0) {
             map.each {
-                try {
-                    XYSeries xy = new XYSeries(it.key,false)
-                    xy.add(it.value)
-                    plot.addSerie(it.key,xy)
-                }
-                catch(Exception e) {
-                    plot.traceScript=plot.previousScript
-                    GuiUtils.errorMessage(plot, "Error parsing script adding XY serie:", e.getLocalizedMessage());
-                    
-                }
+                def name = serieName==null? it.value : newName(it.key,serieName)
+                XYSeries xy = new XYSeries(it.key,false)
+                xy.add(it.value)
+                realTimePlot.addSerie(it.key,xy)
             }
         }
     }
 
     static def plotLatLong() {
-        systems.each {
+        RealTimePlotGroovy.getSystems().each {
             EstimatedState state = ImcMsgManager.getManager().getState(it).get("EstimatedState")
             LocationType ref = new LocationType(0,0)
-            if(!plot.getType().equals(PlotType.GENERICXY)) {
-                plot.setType(PlotType.GENERICXY)
+            if(!RealTimePlotGroovy.type.equals(PlotType.GENERICXY)) {
+                realTimePlot.setType(PlotType.GENERICXY)
             }
             def resultmap = [:]
             LocationType loc =  new LocationType(state.getDouble("lat"),state.getDouble("lon")) //lat long
@@ -171,5 +164,4 @@ class PlotScript {
             addSerie(resultmap)
         }
     }
-
 }

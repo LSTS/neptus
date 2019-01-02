@@ -80,7 +80,7 @@ import pt.lsts.neptus.util.GuiUtils;
 @PluginDescription(name = "Real-Time Plot", icon = "pt/lsts/neptus/plugins/rtplot/rtplot.png", description = "Real-Time plots with Groovy scripts")
 @Popup(accelerator = 'U', pos = POSITION.CENTER, height = 300, width = 300)
 public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationListener {
-
+    
     private static final long serialVersionUID = 1L;
     private static PlotType type = PlotType.TIMESERIES;
     private TimeSeriesCollection allTsc = new TimeSeriesCollection();
@@ -100,7 +100,7 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
     private StringBuffer bufferO, bufferE;
     private boolean updating = false;
     private final ChartPanel chart;
-    private List<String> systems = Collections.synchronizedList(new ArrayList<String>());
+    private static List<String> systems = Collections.synchronizedList(new ArrayList<String>());
 
     public enum PlotType {
         TIMESERIES, // default
@@ -111,7 +111,7 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
     /**
      * @return the systems
      */
-    public synchronized List<String> getSystems() {
+    public static synchronized List<String> getSystems() {
         return systems;
     }
 
@@ -150,7 +150,9 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
         redirectIO();
         previousScript = traceScript;
         shell = new GroovyShell(this.getClass().getClassLoader(), cnfg);
-        PlotScript.setPlot(this);
+        //PlotScript.configPlot(this);
+        //shell.evaluate("PlotScript.plot=${this}");
+        //shell.invokeMethod("PlotScript.configPlot", this);
         shell.setProperty("out", scriptOutput);
         shell.setProperty("err", scriptError);
         configLayout();
@@ -201,10 +203,6 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
 
             }
         };
-    }
-
-    public void bind(String var, Object value) {
-        shell.setVariable(var, value);
     }
 
     public void unbind(String var) {
@@ -442,9 +440,11 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
      * @param script Text script
      */
     public void runScript(String script) {
-        PlotScript.setSystems(systems);
         if (ImcSystemsHolder.lookupActiveSystemVehicles().length > 0) {
             try {
+                shell.setVariable("plot", RealTimePlotGroovy.this);
+                String defplot = "configPlot plot";
+                shell.evaluate(defplot);
                 shell.parse(script);
                 shell.evaluate(script);
             }
