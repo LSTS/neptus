@@ -55,7 +55,6 @@ import pt.lsts.neptus.types.map.PlanElement;
 import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
-import pt.lsts.neptus.util.XMLUtil;
 
 public class Magnetometer extends Maneuver implements LocatedManeuver, ManeuverWithSpeed, StateRendererInteraction,
         IMCSerialization, StatisticsProvider, PathProvider {
@@ -388,7 +387,7 @@ public class Magnetometer extends Maneuver implements LocatedManeuver, ManeuverW
             double angle = AngleUtils.calcAngle(lastDragPoint.getY(), lastDragPoint.getX(), event.getPoint().getY(),
                     event.getPoint().getX());
             double nx = norm * Math.cos(bearingRad - angle);
-            double ny = norm * Math.sin(bearingRad - angle);
+            Math.sin(bearingRad - angle);
 
             width += nx / (Math.abs(nx) < 30 ? 10 : 2);
 

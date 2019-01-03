@@ -99,7 +99,6 @@ import pt.lsts.neptus.console.actions.AutoSnapshotConsoleAction;
 import pt.lsts.neptus.console.actions.ConsoleAction;
 import pt.lsts.neptus.console.actions.CreateMissionConsoleAction;
 import pt.lsts.neptus.console.actions.ExitAction;
-import pt.lsts.neptus.console.actions.LayoutEditConsoleAction;
 import pt.lsts.neptus.console.actions.OpenConsoleAction;
 import pt.lsts.neptus.console.actions.OpenImcMonitorAction;
 import pt.lsts.neptus.console.actions.OpenMRAAction;
@@ -328,10 +327,6 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         if (editable)
             manager.setSettingsWindow(settings);
         instance.settingsWindow = settings;
-
-        // @Deprecated
-        if (!editable)
-            instance.removeJMenuAction(LayoutEditConsoleAction.class);
 
         if (!monoConsoleMode) {
             // Let us remove the unwanted menus

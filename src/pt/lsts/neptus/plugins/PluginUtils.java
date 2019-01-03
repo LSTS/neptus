@@ -359,11 +359,10 @@ public class PluginUtils {
         return null;
     }
     /**
-     * @deprecated Use {@link #editPluginProperties(Object, Window, boolean)} instead.
      * @return <b>true</b> if cancelled or <b>false</b> otherwise.
      */
     public static <P extends Window>  boolean editPluginProperties(final Object obj, boolean editable) {
-        return editPluginProperties(obj, null, editable);
+        return editPluginProperties(obj, ConfigFetch.getSuperParentAsFrame(), editable);
     }
     
     /**
@@ -395,7 +394,6 @@ public class PluginUtils {
                 return getPluginProperties(obj);
             }
         };
-        
         return PropertiesEditor.editProperties(provider, parent, editable);
     }
 

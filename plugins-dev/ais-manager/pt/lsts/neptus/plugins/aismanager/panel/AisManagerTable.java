@@ -40,6 +40,8 @@ import java.awt.Component;
 import java.util.HashMap;
 
 public class AisManagerTable extends JTable {
+    private static final long serialVersionUID = -129151613053419358L;
+
     private final String[] COLUMN_NAMES = {
             "Label",
             "MMSI",
