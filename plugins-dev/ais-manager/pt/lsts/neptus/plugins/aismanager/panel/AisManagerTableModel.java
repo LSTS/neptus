@@ -38,6 +38,7 @@ import pt.lsts.neptus.util.MathMiscUtils;
 import javax.swing.table.DefaultTableModel;
 
 public class AisManagerTableModel extends DefaultTableModel {
+    private static final long serialVersionUID = -621914316989929156L;
     private int MMSI_COL = 1;
     private int SOG_COL = 2;
     private int COG_COL = 3;
