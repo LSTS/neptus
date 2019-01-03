@@ -98,7 +98,7 @@ class PlotScript {
     }
 
     static def xyserie(LinkedHashMap map1,LinkedHashMap map2,String name="serie",boolean autosort=false) {
-        if(!RealTimePlotGroovy.type().equals(PlotType.GENERICXY)) {
+        if(!realTimePlot.getType().equals(PlotType.GENERICXY)) {
             //plot.resetSeries()
             realTimePlot.setType(PlotType.GENERICXY)
         }
@@ -119,7 +119,7 @@ class PlotScript {
     }
 
     static def addTimeSerie(LinkedHashMap map,String serieName=null) {
-        if(!RealTimePlotGroovy.type.equals(PlotType.TIMESERIES)) {
+        if(!realTimePlot.getType().equals(PlotType.TIMESERIES)) {
             //plot.resetSeries()
             realTimePlot.setType(PlotType.TIMESERIES)
         }
@@ -130,7 +130,7 @@ class PlotScript {
                     def name = serieName==null ? it.key : newName(it.key,serieName)
                     TimeSeries t =  new TimeSeries(name)
                     t.add(item)
-                    realTimePlot.addTimeSerie(it.key,t)
+                    realTimePlot.addTimeSerie(name,t)
                 }
             }
         }
@@ -150,7 +150,7 @@ class PlotScript {
         RealTimePlotGroovy.getSystems().each {
             EstimatedState state = ImcMsgManager.getManager().getState(it).get("EstimatedState")
             LocationType ref = new LocationType(0,0)
-            if(!RealTimePlotGroovy.type.equals(PlotType.GENERICXY)) {
+            if(!realTimePlot.getType().equals(PlotType.GENERICXY)) {
                 realTimePlot.setType(PlotType.GENERICXY)
             }
             def resultmap = [:]

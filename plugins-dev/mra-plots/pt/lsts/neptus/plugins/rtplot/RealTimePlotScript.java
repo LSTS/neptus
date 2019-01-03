@@ -40,7 +40,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.lang.reflect.Method;
-import java.util.StringJoiner;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -265,7 +264,7 @@ public class RealTimePlotScript extends JPanel {
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    addText("closure = {arg -> Math." + methodSignature(method)+"}"+"\napply(<serie>, closure)", false);
+                    addText("closure = {arg -> Math." + methodSignature(method)+"}"+"\nserie = apply(<serie>, closure)", false);
 
                 }
             });
@@ -323,12 +322,12 @@ public class RealTimePlotScript extends JPanel {
      * @param deletePrevious specifies if the existing code is removed or not
      */
     protected static void addText(String code, boolean deletePrevious) {
-        String current, old = plot.traceScript;
-        StringJoiner sj = new StringJoiner("\n");
+        String current, old = editorPane.getText();
+        StringBuilder sb = new StringBuilder(code.length()+old.length());
         if (!deletePrevious)
-            sj.add(old);
-        sj.add(code);
-        current = sj.toString();
+            sb.append(old+"\n");
+        sb.append(code);
+        current = sb.toString();
         editorPane.setText(current);
     }
 }

@@ -50,7 +50,6 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import org.codehaus.groovy.control.CompilationFailedException;
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.control.customizers.ImportCustomizer;
 import org.jfree.chart.ChartFactory;
@@ -71,6 +70,7 @@ import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
@@ -124,7 +124,7 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
     @NeptusProperty(name = "Initial Script")
     public String initScripts = "s = msgs(\"EstimatedState.depth\")\naddTimeSerie s";
 
-    @NeptusProperty(name = "Plot Type")
+    @NeptusProperty(name = "Plot Type",units="TIMESERIES or GENERICXY",userLevel = LEVEL.ADVANCED,editable=false)
     public String plotType = PlotType.TIMESERIES.name();
 
     private String previousScript = "";
@@ -141,6 +141,7 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
             timeSeriesChart = ChartFactory.createScatterPlot(null, null, null, xySeries, PlotOrientation.HORIZONTAL,
                     true, true, true);
         chart = new ChartPanel(timeSeriesChart);
+        
         // init shell
         cnfg = new CompilerConfiguration();
         imports = new ImportCustomizer();
@@ -150,11 +151,10 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
         redirectIO();
         previousScript = traceScript;
         shell = new GroovyShell(this.getClass().getClassLoader(), cnfg);
-        //PlotScript.configPlot(this);
-        //shell.evaluate("PlotScript.plot=${this}");
-        //shell.invokeMethod("PlotScript.configPlot", this);
         shell.setProperty("out", scriptOutput);
         shell.setProperty("err", scriptError);
+        
+        //Layout
         configLayout();
         add(chart, BorderLayout.CENTER);
     }
@@ -331,6 +331,7 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
         if (!type.equals(t)) {
             resetSeries();
             RealTimePlotGroovy.type = t;
+            plotType = type.name();
             changeChart();
         }
     }
@@ -448,7 +449,7 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
                 shell.parse(script);
                 shell.evaluate(script);
             }
-            catch (CompilationFailedException e) {
+            catch (Exception e) {
                 traceScript = previousScript;
                 GuiUtils.errorMessage(this, "Error Parsing Script", e.getLocalizedMessage());
             }
