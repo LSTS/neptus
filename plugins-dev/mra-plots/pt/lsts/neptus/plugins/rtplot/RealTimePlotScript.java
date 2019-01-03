@@ -141,7 +141,7 @@ public class RealTimePlotScript extends JPanel {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                addText("s = msgs(\"EstimatedState.depth\")\naddTimeSerie s", true);
+                addText("s = value(\"EstimatedState.depth\")\naddTimeSeries s", true);
 
             }
         });
@@ -161,7 +161,7 @@ public class RealTimePlotScript extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 editorPane.setText("");
-                addText("s = msgs(\"EstimatedState.depth\")\nt = msgs(\"EstimatedState.timestamp\")\nxyserie t,s",
+                addText("s = value(\"EstimatedState.depth\")\nt = value(\"EstimatedState.timestamp\")\nxyseries t,s",
                         true);
 
             }
@@ -236,7 +236,7 @@ public class RealTimePlotScript extends JPanel {
     private static void createDefaultOptions(JMenu component,String[] options) {
         for (int i=0;i<options.length;i++) {
             String var = options[i];
-            String s = i==0 ? ("addTimeSerie " + var+"(\"<field>\")"):("addTimeSerie " + var+"(),\""+var+"\"");
+            String s = i==0 ? ("addTimeSeries " + var+"(\"<field>\")"):("addTimeSeries " + var+"(),\""+var+"\"");
             JMenuItem item = new JMenuItem(var);
             item.addActionListener(new ActionListener() {
 
@@ -264,7 +264,7 @@ public class RealTimePlotScript extends JPanel {
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    addText("closure = {arg -> Math." + methodSignature(method)+"}"+"\nserie = apply(<serie>, closure)", false);
+                    addText("closure = {arg -> Math." + methodSignature(method)+"}"+"\nseries = apply(<series>, closure)", false);
 
                 }
             });
@@ -306,7 +306,7 @@ public class RealTimePlotScript extends JPanel {
                     IMCMessage m = ImcMsgManager.getManager().getState(system).get(msg);
                     m.cloneMessageTyped();
                     String var = m.getAbbrev().toLowerCase();
-                    String s = var + " = msgs(\"" + msg + ".<field>\")" + "\n" + "addTimeSerie " + var;
+                    String s = var + " = value(\"" + msg + ".<field>\")" + "\n" + "addTimeSeries " + var;
                     addText(s, false);
                 }
             });

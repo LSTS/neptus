@@ -70,13 +70,13 @@ class PlotScript {
         dottedName.split(/(\.)/)[0] + "." +serieName
     } 
     
-    static def msgs = { msgDotField ->
+    static def value = { msgDotField ->
         RealTimePlotGroovy.getSystems().collectEntries{ [(it+"."+msgDotField): ImcMsgManager.getManager().getState(it).expr(msgDotField)]}
     }
 
     static def state(String s){
         String msg = "EstimatedState."+s
-        msgs(msg)
+        value(msg)
     }
 
     static LinkedHashMap apply (LinkedHashMap map, Object function)  {
@@ -97,7 +97,7 @@ class PlotScript {
         apply(state("psi"),{i -> i*180/Math.PI})
     }
 
-    static def xyserie(LinkedHashMap map1,LinkedHashMap map2,String name="serie",boolean autosort=false) {
+    static def xyseries(LinkedHashMap map1,LinkedHashMap map2,String name="serie",boolean autosort=false) {
         if(!realTimePlot.getType().equals(PlotType.GENERICXY)) {
             //plot.resetSeries()
             realTimePlot.setType(PlotType.GENERICXY)
@@ -110,15 +110,17 @@ class PlotScript {
                 def v1 = map1.get lookup
                 if((lookup = map2.keySet().find{it.startsWith(sys)}) != null) {
                     def v2 = map2.get lookup
-                    XYDataItem item = new XYDataItem(v1,v2)
-                    result.put id, item
-                    addSerie result
+                    if(v1 != null && v2 != null) {
+                        XYDataItem item = new XYDataItem(v1,v2)
+                        result.put id, item
+                        addSeries result
+                    }
                 }
             }
         }
     }
 
-    static def addTimeSerie(LinkedHashMap map,String serieName=null) {
+    static def addTimeSeries(LinkedHashMap map,String serieName=null) {
         if(!realTimePlot.getType().equals(PlotType.TIMESERIES)) {
             //plot.resetSeries()
             realTimePlot.setType(PlotType.TIMESERIES)
@@ -135,13 +137,15 @@ class PlotScript {
             }
         }
     }
-    static def addSerie(LinkedHashMap map,String serieName=null) {
+    static def addSeries(LinkedHashMap map,String serieName=null) {
         if(RealTimePlotGroovy.getSystems().size()>0) {
             map.each {
-                def name = serieName==null? it.value : newName(it.key,serieName)
-                XYSeries xy = new XYSeries(it.key,false)
-                xy.add(it.value)
-                realTimePlot.addSerie(it.key,xy)
+                if(it.value != null) {
+                    def name = serieName==null? it.value : newName(it.key,serieName)
+                    XYSeries xy = new XYSeries(it.key,false)
+                    xy.add(it.value)
+                    realTimePlot.addSerie(it.key,xy)
+                }
             }
         }
     }
@@ -149,19 +153,21 @@ class PlotScript {
     static def plotLatLong() {
         RealTimePlotGroovy.getSystems().each {
             EstimatedState state = ImcMsgManager.getManager().getState(it).get("EstimatedState")
-            LocationType ref = new LocationType(0,0)
-            if(!realTimePlot.getType().equals(PlotType.GENERICXY)) {
-                realTimePlot.setType(PlotType.GENERICXY)
+            if(state != null) {
+                LocationType ref = new LocationType(0,0)
+                if(!realTimePlot.getType().equals(PlotType.GENERICXY)) {
+                    realTimePlot.setType(PlotType.GENERICXY)
+                }
+                def resultmap = [:]
+                LocationType loc =  new LocationType(state.getDouble("lat"),state.getDouble("lon")) //lat long
+                loc.translatePosition(state.getDouble("x"), state.getDouble("y"), state.getDouble("z"))
+                def id = it+".position"
+                double[] offsets = loc.getOffsetFrom(ref)
+                Point2D pt = new Point2D.Double(offsets[0],offsets[1])
+                XYDataItem item = new XYDataItem(pt.getX(),pt.getY())
+                resultmap.put id, item
+                addSeries(resultmap)
             }
-            def resultmap = [:]
-            LocationType loc =  new LocationType(state.getDouble("lat"),state.getDouble("lon")) //lat long
-            loc.translatePosition(state.getDouble("x"), state.getDouble("y"), state.getDouble("z"))
-            def id = it+".position"
-            double[] offsets = loc.getOffsetFrom(ref)
-            Point2D pt = new Point2D.Double(offsets[0],offsets[1])
-            XYDataItem item = new XYDataItem(pt.getX(),pt.getY())
-            resultmap.put id, item
-            addSerie(resultmap)
         }
     }
 }

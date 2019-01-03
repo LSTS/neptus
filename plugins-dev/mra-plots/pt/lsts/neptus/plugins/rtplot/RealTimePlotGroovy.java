@@ -119,10 +119,10 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
     public int numPoints = 100;
 
     @NeptusProperty(name = "Current Script")
-    public String traceScript = "s = msgs(\"EstimatedState.depth\")\naddTimeSerie s";
+    public String traceScript = "s = value(\"EstimatedState.depth\")\naddTimeSeries s";
 
     @NeptusProperty(name = "Initial Script")
-    public String initScripts = "s = msgs(\"EstimatedState.depth\")\naddTimeSerie s";
+    public String initScripts = "s = value(\"EstimatedState.depth\")\naddTimeSeries s";
 
     @NeptusProperty(name = "Plot Type",units="TIMESERIES or GENERICXY",userLevel = LEVEL.ADVANCED,editable=false)
     public String plotType = PlotType.TIMESERIES.name();
@@ -393,6 +393,7 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
             NeptusLog.pub().error(I18n.text("Error updating script for real-time plot"), e);
             return false;
         }
+        previousScript = traceScript;
         return true;
     }
 
