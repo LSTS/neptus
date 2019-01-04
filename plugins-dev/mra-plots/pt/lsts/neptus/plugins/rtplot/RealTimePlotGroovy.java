@@ -421,7 +421,7 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
      * Changes the Type of chart according to the class field value
      */
     private void changeChart() {
-        if (systems.size() > 1) {
+        if (selectedSys.equalsIgnoreCase("ALL")) {
             if (type.equals(PlotType.TIMESERIES))
                 changeChartSrc(allTsc);
             else
