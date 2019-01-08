@@ -40,6 +40,7 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Vector;
 
@@ -236,7 +237,10 @@ public class PlanWizard extends ConsolePanel implements MissionChangeListener {
         path.getShapePoints().forEach(p -> poly.addVertex(p));
         
         Pair<Double, Double> diamAngle = poly.getDiameterAndAngle();
-        ArrayList<LocationType> coverage = poly.getCoveragePath(diamAngle.second(), options.getSelection().swathWidth, 0);
+        ArrayList<LocationType> coverage = poly.getCoveragePath(diamAngle.second(), options.getSelection().swathWidth, options.getSelection().corner);
+        
+        if (options.getSelection().reversed)
+            Collections.reverse(coverage);
         
         PlanType generated = new PlanType(getConsole().getMission());
         
@@ -372,5 +376,13 @@ public class PlanWizard extends ConsolePanel implements MissionChangeListener {
                 
         @NeptusProperty(name="Generated plan id", description="Name of the generated plan")
         public String planId = "plan_wiz";
+        
+        @NeptusProperty(name="Reversed", description="Reverse plan")
+        public boolean reversed = false;
+        
+        @NeptusProperty(name="Corner", description="First Corner")
+        public int corner = 0;
+        
+        
     }
 }
