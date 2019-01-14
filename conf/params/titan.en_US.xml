@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2017.01.0 (master,992d208a,dirty)" system="titan" i18n="en_US">
+<config format="1" version="2017.01.0 (master,3b18955d)" system="titan" i18n="en_US">
   <section name="Autopilot" name-i18n="Autopilot">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -310,6 +310,15 @@
       <default>true</default>
       <units/>
       <desc>Convert altitude extracted from the Ardupilot to WGS84 height</desc>
+    </param>
+    <param name="Takeoff Pitch">
+      <name-i18n>Takeoff Pitch</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>13</default>
+      <units/>
+      <desc>Default pitch angle for automatic takeoff, in degrees.</desc>
     </param>
     <param name="Loiter in Idle">
       <name-i18n>Loiter in Idle</name-i18n>
@@ -1784,7 +1793,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Current</default>
+      <default>Voltage</default>
       <units/>
       <desc/>
     </param>
@@ -1793,7 +1802,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Power Supply (+12VDC)</default>
+      <default>Power Supply (+5VDC)</default>
       <units/>
       <desc/>
     </param>
@@ -1802,7 +1811,7 @@
       <type>list:real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>2.78, 0.0</default>
+      <default>7.2, 0.0</default>
       <units/>
       <desc/>
       <size>2</size>
@@ -1840,7 +1849,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Current</default>
+      <default>Voltage</default>
       <units/>
       <desc/>
     </param>
@@ -1849,7 +1858,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Power Supply (+5VDC)</default>
+      <default>Power Supply (+24VDC)</default>
       <units/>
       <desc/>
     </param>
@@ -1858,7 +1867,7 @@
       <type>list:real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>3.79, 0.0</default>
+      <default>31.9, 0.0</default>
       <units/>
       <desc/>
       <size>2</size>
@@ -1877,7 +1886,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Power Supply (+5VDC)</default>
+      <default>Batteries</default>
       <units/>
       <desc/>
     </param>
@@ -1886,7 +1895,35 @@
       <type>list:real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>7.2, 0.0</default>
+      <default>60.0, 0.0</default>
+      <units/>
+      <desc/>
+      <size>2</size>
+    </param>
+    <param name="ADC Channel 4 - Message">
+      <name-i18n>ADC Channel 4 - Message</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Current</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="ADC Channel 4 - Entity Label">
+      <name-i18n>ADC Channel 4 - Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Batteries</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="ADC Channel 4 - Conversion">
+      <name-i18n>ADC Channel 4 - Conversion</name-i18n>
+      <type>list:real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>8.3, 0.0</default>
       <units/>
       <desc/>
       <size>2</size>
@@ -1896,7 +1933,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>5V C.3 (Photo Trigger)</default>
+      <default>5V C.3 (5V Sensor)</default>
       <units/>
       <desc/>
     </param>
@@ -1905,7 +1942,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0</default>
+      <default>1</default>
       <units/>
       <desc/>
     </param>
@@ -1932,7 +1969,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>12V C.3 (12V Sensor)</default>
+      <default>12V C.2 (12V Sensor)</default>
       <units/>
       <desc/>
     </param>
@@ -1950,7 +1987,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Bat Out C.1 (Acoustic Modem)</default>
+      <default>12V C.3 (12V Sensor)</default>
       <units/>
       <desc/>
     </param>
@@ -1968,7 +2005,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Bat Out C.2 (Spare)</default>
+      <default>12V C.4 (12V Sensor)</default>
       <units/>
       <desc/>
     </param>
@@ -1981,12 +2018,66 @@
       <units/>
       <desc/>
     </param>
+    <param name="Power Channel 5 - Name">
+      <name-i18n>Power Channel 5 - Name</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>24V C.1 (Acoustic Modem)</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Power Channel 5 - State">
+      <name-i18n>Power Channel 5 - State</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Power Channel 6 - Name">
+      <name-i18n>Power Channel 6 - Name</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Bat Out C.1 (Spare)</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Power Channel 6 - State">
+      <name-i18n>Power Channel 6 - State</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Power Channel 7 - Name">
+      <name-i18n>Power Channel 7 - Name</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Bat Out C.2 (Spare)</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Power Channel 7 - State">
+      <name-i18n>Power Channel 7 - State</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1</default>
+      <units/>
+      <desc/>
+    </param>
     <param name="ADC VDelta Offset">
       <name-i18n>ADC VDelta Offset</name-i18n>
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0.05</default>
+      <default>0.035</default>
       <units/>
       <desc>ADC nominal fixed offset (atxmega32a4u).</desc>
     </param>
@@ -2862,9 +2953,454 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Acceleration, AcousticLink, AcousticOperation, AngularVelocity, Announce, ApmStatus, ArmingState, AutopilotMode, ControlLoops, CommSystemsQuery, CpuUsage, Current, Depth, DesiredHeading, DesiredPath, DesiredRoll, DesiredSpeed, DesiredVerticalRate, DesiredZ, DevCalibrationControl, DevDataText, DmsDetection, EulerAngles, EntityList, EntityState, EstimatedState, EstimatedStreamVelocity, FollowReference, FollowRefState, FuelLevel, GpsFix, IndicatedSpeed, LeaderState, LinkLevel, LogBookEntry, MagneticField, ManeuverControlState, PathControlState, PlanControl, PlanSpecification, PlanControlState, PlanDB, PowerChannelControl, Pressure, Reference, ReportControl, Rpm, RSSI, ServoPosition, SetControlSurfaceDeflection, SetServoPosition, SetThrusterActuation, SimulatedState, StopManeuver, StorageUsage, TelemetryMsg, Temperature, TextMessage, Throttle, TrueSpeed, TrexObservation, TrexPlan, TrexToken, TrueSpeed, UamRxFrame, UamTxFrame, UamTxStatus, UamRxRange, UsblAnglesExtended, UsblPositionExtended, UsblFixExtended, UsblModem, UsblConfig, VehicleCommand, VehicleMedium, VehicleState, Voltage, VtolState</default>
+      <default>Abort, Acceleration, AcousticLink, AcousticOperation, AngularVelocity, Announce, ApmStatus, ArmingState, AutopilotMode, ControlLoops, CommSystemsQuery, CpuUsage, Current, Depth, DesiredHeading, DesiredPath, DesiredRoll, DesiredSpeed, DesiredVerticalRate, DesiredZ, DevCalibrationControl, DevDataText, DmsDetection, EulerAngles, EntityList, EntityState, EstimatedState, EstimatedStreamVelocity, FollowReference, FollowRefState, FuelLevel, GpsFix, IndicatedSpeed, LeaderState, LinkLevel, LogBookEntry, MagneticField, ManeuverControlState, PathControlState, PlanControl, PlanSpecification, PlanControlState, PlanDB, PowerChannelControl, Pressure, Reference, ReportControl, Rpm, RSSI, ServoPosition, SetControlSurfaceDeflection, SetServoPosition, SetThrusterActuation, SimulatedState, SoundSpeed, StopManeuver, StorageUsage, TelemetryMsg, Temperature, TextMessage, Throttle, TrueSpeed, TrexObservation, TrexPlan, TrexToken, TrueSpeed, UamRxFrame, UamTxFrame, UamTxStatus, UamRxRange, UsblAnglesExtended, UsblPositionExtended, UsblFixExtended, UsblModem, UsblConfig, VehicleCommand, VehicleMedium, VehicleState, Voltage, VtolState</default>
       <units/>
       <desc/>
+    </param>
+  </section>
+  <section name="Radio" name-i18n="Radio">
+    <param name="Entity Label">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Radio</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>50</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Activation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Spew</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Active - Scope">
+      <name-i18n>Active - Scope</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>global</default>
+      <units/>
+      <desc>Scoped of the 'Active' parameter</desc>
+    </param>
+    <param name="Active - Visibility">
+      <name-i18n>Active - Visibility</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>user</default>
+      <units/>
+      <desc>Visibility of the 'Active' parameter</desc>
+    </param>
+    <param name="Active">
+      <name-i18n>Active</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>True to activate task, false otherwise</desc>
+    </param>
+    <param name="Serial Port - Device">
+      <name-i18n>Serial Port - Device</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>/dev/ttyUSB2</default>
+      <units/>
+      <desc>Serial port device used to communicate with the sensor</desc>
+    </param>
+    <param name="Serial Port - Baud Rate">
+      <name-i18n>Serial Port - Baud Rate</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>57600</default>
+      <units/>
+      <desc>Serial port baud rate</desc>
+    </param>
+    <param name="Power Channel">
+      <name-i18n>Power Channel</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>Power channel name</desc>
+    </param>
+    <param name="Address Section">
+      <name-i18n>Address Section</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Radio Addresses</default>
+      <units/>
+      <desc>Name of the configuration section with vehicle addresses</desc>
+    </param>
+    <param name="Radio Model">
+      <name-i18n>Radio Model</name-i18n>
+      <type>string</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>RDFXXXxPtP</default>
+      <units/>
+      <desc>Radio Model</desc>
+      <values>3DR, RDFXXXxPtP</values>
+      <values-i18n>3DR, RDFXXXxPtP</values-i18n>
+    </param>
+    <param name="Mode of communication">
+      <name-i18n>Mode of communication</name-i18n>
+      <type>string</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>Client</default>
+      <units/>
+      <desc>Coms mode</desc>
+      <values>Server, Client</values>
+      <values-i18n>Server, Client</values-i18n>
+    </param>
+    <param name="Vehicle to bind">
+      <name-i18n>Vehicle to bind</name-i18n>
+      <type>string</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>vtol-03</default>
+      <units/>
+      <desc>Vehicle to bind</desc>
+    </param>
+    <param name="Radio power level">
+      <name-i18n>Radio power level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>30</default>
+      <units/>
+      <desc>Radio power level (dBm)</desc>
+      <values>1, 2, 4, 8, 11, 14, 17, 20, 30</values>
+      <values-i18n>1, 2, 4, 8, 11, 14, 17, 20, 30</values-i18n>
+    </param>
+    <param name="Number of channels">
+      <name-i18n>Number of channels</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>number of frequency hopping channels</desc>
+    </param>
+    <param name="Duty cycle">
+      <name-i18n>Duty cycle</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>100</default>
+      <units/>
+      <desc>Duty cycle - the percentage of time to allow transmit</desc>
+    </param>
+    <param name="Air speed">
+      <name-i18n>Air speed</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>64</default>
+      <units/>
+      <desc>Air speed (Air data rate)</desc>
+      <values>2, 4, 8, 16, 19, 24, 32, 48, 64, 96, 128, 192, 250</values>
+      <values-i18n>2, 4, 8, 16, 19, 24, 32, 48, 64, 96, 128, 192, 250</values-i18n>
+    </param>
+    <param name="Radio Error correction">
+      <name-i18n>Radio Error correction</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Radio Error correction - this reduces bandwidth</desc>
+    </param>
+    <param name="Mavlink framing">
+      <name-i18n>Mavlink framing</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Mavlink framing</desc>
+    </param>
+    <param name="Radio rssi report">
+      <name-i18n>Radio rssi report</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Radio rssi report</desc>
+    </param>
+    <param name="Radio TDM report">
+      <name-i18n>Radio TDM report</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Radio TDM sync time report</desc>
+    </param>
+    <param name="Enable telemetry report">
+      <name-i18n>Enable telemetry report</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Enable system state telemetry reporting. When enabled, systems shall acknowledge reception of requests to broadcast Reports messages containing the overall state of the system. When disabled, those requests shall be ignored</desc>
+    </param>
+    <param name="Enable UAV high speed report">
+      <name-i18n>Enable UAV high speed report</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Enable system state telemetry reporting.</desc>
+    </param>
+    <param name="UAV high speed Reports Periodicity">
+      <name-i18n>UAV high speed Reports Periodicity</name-i18n>
+      <type>real</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>1</default>
+      <units>s</units>
+      <desc>Reports periodicity</desc>
+      <min>0.3</min>
+      <max>600</max>
+    </param>
+    <param name="Entity Label - Voltage">
+      <name-i18n>Entity Label - Voltage</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Autopilot</default>
+      <units/>
+      <desc>Entity label for battery Voltage</desc>
+    </param>
+  </section>
+  <section name="Acoustic Modem" name-i18n="Acoustic Modem">
+    <param name="Entity Label">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Acoustic Modem</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Activation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>3.5</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Active - Scope">
+      <name-i18n>Active - Scope</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>maneuver</default>
+      <units/>
+      <desc>Scoped of the 'Active' parameter</desc>
+    </param>
+    <param name="Active - Visibility">
+      <name-i18n>Active - Visibility</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>user</default>
+      <units/>
+      <desc>Visibility of the 'Active' parameter</desc>
+    </param>
+    <param name="Active">
+      <name-i18n>Active</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>0</default>
+      <units/>
+      <desc>True to activate task, false otherwise</desc>
+    </param>
+    <param name="Serial Port - Device">
+      <name-i18n>Serial Port - Device</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>/dev/ttyUSB1</default>
+      <units/>
+      <desc>Serial port device used to communicate with the sensor</desc>
+    </param>
+    <param name="Serial Port - Baud Rate">
+      <name-i18n>Serial Port - Baud Rate</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>115200</default>
+      <units/>
+      <desc>Serial port baud rate</desc>
+    </param>
+    <param name="Transmit Only Underwater">
+      <name-i18n>Transmit Only Underwater</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Do not transmit when at water surface</desc>
+    </param>
+    <param name="Address Section">
+      <name-i18n>Address Section</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Seatrac Addresses</default>
+      <units/>
+      <desc>Name of the configuration section with modem addresses</desc>
+    </param>
+    <param name="AHRS Mode">
+      <name-i18n>AHRS Mode</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Enable the AHRS information to used in navigation</desc>
+    </param>
+    <param name="Pressure Sensor Mode">
+      <name-i18n>Pressure Sensor Mode</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Enable the pressure sensor, depth, sound velocity and temperature information </desc>
+    </param>
+    <param name="USBL Mode">
+      <name-i18n>USBL Mode</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Enable the USBL mode. USBL receivers can obtain position information.</desc>
+    </param>
+    <param name="Enhanced USBL">
+      <name-i18n>Enhanced USBL</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Request Enhanced USBL information. USBL receivers request enhanced information in transmissions. This parameter is useful only when the beacon has an USBL receiver.</desc>
+    </param>
+    <param name="AHRS Rotation Matrix">
+      <name-i18n>AHRS Rotation Matrix</name-i18n>
+      <type>list:real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0</default>
+      <units/>
+      <desc>AHRS rotation matrix which is dependent of the mounting position</desc>
+      <size>9</size>
+    </param>
+    <param name="Hard-Iron Calibration">
+      <name-i18n>Hard-Iron Calibration</name-i18n>
+      <type>list:real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0, 0.0, 0.0</default>
+      <units>G</units>
+      <desc>Hard-Iron calibration parameters</desc>
+      <size>3</size>
+    </param>
+    <param name="Calibration Threshold">
+      <name-i18n>Calibration Threshold</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.1</default>
+      <units>G</units>
+      <desc>Minimum magnetic field calibration values to reset hard iron parameters</desc>
+      <min>0.0</min>
+    </param>
+    <param name="Max Range">
+      <name-i18n>Max Range</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1000</default>
+      <units/>
+      <desc>Maximum value of distance at which Ranges are considered</desc>
+      <min>250</min>
     </param>
   </section>
   <section name="Arduino Serial" name-i18n="Arduino Serial">
@@ -2941,6 +3477,121 @@
       <default>9999</default>
       <units/>
       <desc>TCP port to listen on</desc>
+    </param>
+  </section>
+  <section name="Acoustic Access Controller" name-i18n="Acoustic Access Controller">
+    <param name="Entity Label">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Acoustic Access Controller</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Activation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Enable Reports">
+      <name-i18n>Enable Reports</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Enable system state acoustic reporting. When enabled, systems shall acknowledge reception of requests to broadcast acoustic messages containing the overall state of the system. When disabled, those requests shall be ignored</desc>
+    </param>
+    <param name="USBL Node -- Enabled">
+      <name-i18n>USBL Node -- Enabled</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Enable system's USBL mode. When active, this system will start using USBL by actively broadcasting an acoustic message containing a request to get USBL feedback. The request contains the period for transmissions, if quick (two-way travel) or ranging (three-way travel) mode is desired, and, if in ranging mode (not "quick"), to use absolute or relative positioning. If a USBL modem is in reach, they will start exchanging acoustic transmissions to provide USBL positioning to the system. Any system can be configured to request USBL information including modems with built-in USBL capabilities</desc>
+    </param>
+    <param name="USBL Node -- Period">
+      <name-i18n>USBL Node -- Period</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>15</default>
+      <units>s</units>
+      <desc>USBL's period. This value determines the period of USBL positioning data. If "Quick" mode is selected, modem shall ping the USBL modem with this period to get bearing and elevation (two-way travel transmission). If "Quick" mode is disabled, ranging information is included for a proper fix. In this case, the USBL modem pings the node, hears the reply, computes the position and transmits back to the node (three-way travel transmission)</desc>
+      <min>2.0</min>
+    </param>
+    <param name="USBL Node -- Absolute Fix">
+      <name-i18n>USBL Node -- Absolute Fix</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>If this argument is enabled, USBL sends an absolute fix using WGS-84 lat/lon coordinates. If disabled, then the positioning is relative to the origin of a system where the center of the reference frame is the USBL modem</desc>
+    </param>
+    <param name="USBL Node -- Quick, No Range">
+      <name-i18n>USBL Node -- Quick, No Range</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>In this mode, the USBL node does not request ranging information. Thus, with this mode enabled, there's only a two-way travel transmission between the node and the USBL modem. The node will actively ping the modem to get bearing/elevation information With this mode enabled "Absolute Fix" argument is ignored</desc>
+    </param>
+    <param name="USBL Modem -- Announce Service">
+      <name-i18n>USBL Modem -- Announce Service</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>This argument only concerns systems with USBL modems installed. This parameter statically adds a USBL announce, even if service has not been detected yet (eg. modem not connected)</desc>
+    </param>
+    <param name="USBL Modem -- Max Waiting Time">
+      <name-i18n>USBL Modem -- Max Waiting Time</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10.0</default>
+      <units>s</units>
+      <desc>This argument only concerns systems with USBL modems installed. This value establishes the maximum amount of time that the modem waits for the target system's reply</desc>
+      <min>2.0</min>
+      <max>20.0</max>
     </param>
   </section>
   <section name="UDP" name-i18n="UDP">
@@ -3095,7 +3746,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Acceleration, AngularVelocity, AcousticOperation, ApmStatus, ArmingState, AutopilotMode, CommSystemsQuery, CpuUsage, Current, DesiredPath, DesiredRoll, DesiredSpeed, DesiredVerticalRate, DesiredZ, DmsDetection, EntityList, EntityParameters, EntityState, EstimatedState, EstimatedStreamVelocity, FollowRefState, FuelLevel, GpsFix, Heartbeat, IndicatedSpeed, LeaderState, LinkLevel, LogBookControl, LoggingControl, MagneticField, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, PowerChannelControl, Pressure, QueryEntityParameters, RemoteActionsRequest, Rpm, RSSI, SaveEntityParameters, ServoPosition, SetEntityParameters, SetServoPosition, SimulatedState, StorageUsage, Target, TelemetryMsg, Temperature, Throttle, TrexOperation, TrueSpeed, TextMessage, UsblAnglesExtended, UsblPositionExtended, UsblFixExtended, UsblModem, UsblConfig, VehicleMedium, VehicleState, Voltage, VtolState</default>
+      <default>Abort, Acceleration, AngularVelocity, AcousticOperation, AcousticSystemsQuery, AcousticSystems, ApmStatus, ArmingState, AutopilotMode, CommSystemsQuery, CpuUsage, Current, Depth, Distance, DesiredPath, DesiredRoll, DesiredSpeed, DesiredVerticalRate, DesiredZ, DmsDetection, EntityList, EntityParameters, EntityState, EstimatedState, EstimatedStreamVelocity, FollowRefState, FuelLevel, GpsFix, Heartbeat, IndicatedSpeed, LeaderState, LinkLevel, LogBookControl, LoggingControl, MagneticField, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, PowerChannelControl, Pressure, QueryEntityParameters, RemoteActionsRequest, Rpm, RSSI, SaveEntityParameters, ServoPosition, SetEntityParameters, SetServoPosition, SimulatedState, StorageUsage, Target, TelemetryMsg, Temperature, Throttle, TrexOperation, TrueSpeed, TextMessage, UsblAnglesExtended, UsblPositionExtended, UsblFixExtended, UsblModem, UsblConfig, VehicleMedium, VehicleState, Voltage, VtolState</default>
       <units/>
       <desc>List of messages to transport</desc>
     </param>
