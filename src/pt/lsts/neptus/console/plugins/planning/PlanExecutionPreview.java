@@ -347,7 +347,10 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
         String plan = msg.getPlanId();
         String maneuver = (msg.getManId() == null || msg.getManId().isEmpty()) ? null : msg.getManId();
 
-        if (msg.getState() == STATE.BLOCKED || msg.getState() == STATE.READY)
+        if (msg.getState() == STATE.BLOCKED)
+            return;
+        
+        if (msg.getState() == STATE.READY)
             plan = maneuver = null;
 
         setSimulationState(src, plan, maneuver);
