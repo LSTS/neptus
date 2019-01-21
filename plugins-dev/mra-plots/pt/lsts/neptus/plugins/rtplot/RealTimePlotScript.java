@@ -40,6 +40,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -255,21 +257,33 @@ public class RealTimePlotScript extends JPanel {
      * Fills the Math @JMenu with the methods from the @java.lang.Math class as @JMenuItem
      */
     private static void fillMathOptions() {
-
+        final String[] meths = {"acos","asin","atan","atan2","cos","cosh","sin","sinh","tan","tanh","toDegrees","toRadians"};
+        final List<String> trigMethods = new ArrayList<>();
+        for(String s: meths)
+            trigMethods.add(s);
+        JMenu trig = new JMenu("Trigonometric");
+        JMenu other = new JMenu("Other");
         for (Method method : Math.class.getDeclaredMethods()) {
             JMenuItem item = new JMenuItem(method.getName());
             item.setPreferredSize(new Dimension(150, (int) item.getPreferredSize().getHeight()));
-            math.add(item);
             item.addActionListener(new ActionListener() {
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    addText("closure = {arg -> Math." + methodSignature(method)+"}"+"\nseries = apply(<series>, closure)", false);
+                    addText("closure = {arg -> Math." + methodSignature(method) + "}"
+                            + "\nseries = apply(<series>, closure)", false);
 
                 }
             });
+            
+            if (trigMethods.contains(method.getName())) 
+                trig.add(item);
+            else
+                other.add(item);
         }
-        MenuScroller.setScrollerFor(math, 15, 250);
+        MenuScroller.setScrollerFor(other, 15, 250);
+        math.add(trig);
+        math.add(other);
     }
 
     /**
