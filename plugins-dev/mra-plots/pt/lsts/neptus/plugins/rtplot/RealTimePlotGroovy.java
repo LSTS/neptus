@@ -27,8 +27,7 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: José Pinto
- * Feb 14, 2013
+ * Author: Keila Lima
  */
 package pt.lsts.neptus.plugins.rtplot;
 

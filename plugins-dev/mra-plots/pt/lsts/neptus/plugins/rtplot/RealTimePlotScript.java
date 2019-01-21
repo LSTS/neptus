@@ -39,12 +39,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -53,6 +55,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
@@ -63,6 +66,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.gui.MenuScroller;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 
 public class RealTimePlotScript extends JPanel {
@@ -71,11 +75,14 @@ public class RealTimePlotScript extends JPanel {
     protected static RSyntaxTextArea editorPane = new RSyntaxTextArea();
     protected JFormattedTextField numPointsField = new JFormattedTextField(GuiUtils.getNeptusDecimalFormat(0));
     private JMenuBar bar = new JMenuBar();
-    private JMenu methods = new JMenu("Options");
     private JMenu plotprops = new JMenu("Plot Properties");
-    private static JMenu math = new JMenu("Math Formulas");
+    private JMenu methods = new JMenu("Options");
+    private static JMenu math;
     private static JMenu sysdata;
-    private JButton save = new JButton();
+    private static JMenu storedScripts;
+    private JButton save = new JButton("Save");
+    private JButton store = new JButton("Store");
+    private final static String path = "conf/mraplots/realtime/";
     private static RealTimePlotGroovy plot = null;
 
     /**
@@ -92,11 +99,7 @@ public class RealTimePlotScript extends JPanel {
         plot = rtplot;
         // create script editor
         setLayout(new BorderLayout(3, 3));
-        methods.setToolTipText("Insert formulas, methods and other settings");
-        methods.add(sysdata);
-        methods.add(math);
-        methods.add(plotprops);
-        bar.add(methods);
+
         save.addActionListener(new ActionListener() {
 
             @Override
@@ -107,13 +110,43 @@ public class RealTimePlotScript extends JPanel {
                 plot.runScript(script);
             }
         });
+        store.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int choice,replace=1;
+                final JFileChooser fc = new JFileChooser(path);
+                fc.setAcceptAllFileFilterUsed(false);
+                fc.setSelectedFile(new File("script.groovy"));
+                fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+                FileNameExtensionFilter filter = new FileNameExtensionFilter("Groovy scripts", "groovy");
+                fc.addChoosableFileFilter(filter);
+                choice = fc.showDialog(rtplot, "Store Script");
+                if (choice == JFileChooser.APPROVE_OPTION) {
+                    if(fc.getSelectedFile().exists()) {
+                        replace = GuiUtils.confirmDialog(editorPane, "Store Script", "Do you want to replace file: "+fc.getSelectedFile().getName()+"?");
+                    }
+                    if (filter.accept(fc.getSelectedFile()) && replace > 0) {
+                        FileUtil.saveToFile(fc.getSelectedFile().getAbsolutePath(), editorPane.getText());
+                        showStoredScripts();
+                    }
+                    else if (!filter.accept(fc.getSelectedFile())){
+                        GuiUtils.errorMessage(editorPane, "Wrong file extension",
+                                "The script extension must be groovy. Please store the script with the correct extension."
+                                        + FileUtil.getFileExtension(fc.getSelectedFile()));
+                    }
+                }
+            }
+        });
         save.setToolTipText("Save changes to script");
+        store.setToolTipText("Store current script locally");
         add(bar, BorderLayout.NORTH);
-        JPanel bottom = new JPanel(new GridLayout(0, 3));
+        JPanel bottom = new JPanel(new GridLayout(0, 4));
         add(new JScrollPane(editorPane), BorderLayout.CENTER);
-        save.setText("Save");
         save.setMinimumSize(new Dimension(5, 5));
+        store.setMinimumSize(new Dimension(5, 5));
         bottom.add(save, BorderLayout.WEST);
+        bottom.add(store, BorderLayout.WEST);
         JLabel label = new JLabel(I18n.text("Trace points") + ":");
         label.setMinimumSize(new Dimension(5, 5));
         bottom.add(label, BorderLayout.CENTER);
@@ -132,6 +165,12 @@ public class RealTimePlotScript extends JPanel {
 
             }
         });
+        methods.setToolTipText("Insert formulas, methods and other settings");
+        methods.add(sysdata);
+        methods.add(math);
+        methods.add(plotprops);
+        methods.add(storedScripts);
+        bar.add(methods);
     }
 
     /**
@@ -216,8 +255,8 @@ public class RealTimePlotScript extends JPanel {
     private static void updateLocalVars(String id) {
         sysdata = new JMenu("System data");
         JMenu deft = new JMenu("Default");
-        String[] defaults = {"state","roll","pitch","yaw"};
-        createDefaultOptions(deft,defaults);
+        String[] defaults = { "state", "roll", "pitch", "yaw" };
+        createDefaultOptions(deft, defaults);
         sysdata.add(deft);
         for (ImcSystem s : ImcSystemsHolder.lookupActiveSystemVehicles())
             if (id.equalsIgnoreCase("ALL")) {
@@ -230,15 +269,48 @@ public class RealTimePlotScript extends JPanel {
                 return;
             }
         fillMathOptions();
+        showStoredScripts();
+    }
+
+    /**
+     * 
+     */
+    private static void showStoredScripts() {
+        storedScripts = new JMenu("Stored Scripts");
+        File conf_mra_rtplot = new File(path);
+
+        // ensure path exists
+        if (!conf_mra_rtplot.exists()) {
+            conf_mra_rtplot.mkdirs();
+        }
+        for (final File fileEntry : conf_mra_rtplot.listFiles()) {
+            if (!fileEntry.isDirectory()) {
+                String scriptName = FileUtil.getFileNameWithoutExtension(fileEntry);
+                JMenuItem item = new JMenuItem(scriptName);
+
+                item.addActionListener(new ActionListener() {
+
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        String aux = scriptName.concat(".groovy");
+                        File f = new File(path.concat(aux));
+                        if (f.exists() && f.isFile())
+                            editorPane.setText(FileUtil.getFileAsString(f));
+                    }
+                });
+                storedScripts.add(item);
+            }
+        }
     }
 
     /**
      * @param component - @JMenu to add default methods options as @JMenuItem
      */
-    private static void createDefaultOptions(JMenu component,String[] options) {
-        for (int i=0;i<options.length;i++) {
+    private static void createDefaultOptions(JMenu component, String[] options) {
+        for (int i = 0; i < options.length; i++) {
             String var = options[i];
-            String s = i==0 ? ("addTimeSeries " + var+"(\"<field>\")"):("addTimeSeries " + var+"(),\""+var+"\"");
+            String s = i == 0 ? ("addTimeSeries " + var + "(\"<field>\")")
+                    : ("addTimeSeries " + var + "(),\"" + var + "\"");
             JMenuItem item = new JMenuItem(var);
             item.addActionListener(new ActionListener() {
 
@@ -250,16 +322,18 @@ public class RealTimePlotScript extends JPanel {
             component.add(item);
 
         }
-        
+
     }
 
     /**
      * Fills the Math @JMenu with the methods from the @java.lang.Math class as @JMenuItem
      */
     private static void fillMathOptions() {
-        final String[] meths = {"acos","asin","atan","atan2","cos","cosh","sin","sinh","tan","tanh","toDegrees","toRadians"};
+        math = new JMenu("Math Formulas");
+        final String[] meths = { "acos", "asin", "atan", "atan2", "cos", "cosh", "sin", "sinh", "tan", "tanh",
+                "toDegrees", "toRadians" };
         final List<String> trigMethods = new ArrayList<>();
-        for(String s: meths)
+        for (String s : meths)
             trigMethods.add(s);
         JMenu trig = new JMenu("Trigonometric");
         JMenu other = new JMenu("Other");
@@ -275,8 +349,8 @@ public class RealTimePlotScript extends JPanel {
 
                 }
             });
-            
-            if (trigMethods.contains(method.getName())) 
+
+            if (trigMethods.contains(method.getName()))
                 trig.add(item);
             else
                 other.add(item);
@@ -337,9 +411,9 @@ public class RealTimePlotScript extends JPanel {
      */
     protected static void addText(String code, boolean deletePrevious) {
         String current, old = editorPane.getText();
-        StringBuilder sb = new StringBuilder(code.length()+old.length());
+        StringBuilder sb = new StringBuilder(code.length() + old.length());
         if (!deletePrevious)
-            sb.append(old+"\n");
+            sb.append(old + "\n");
         sb.append(code);
         current = sb.toString();
         editorPane.setText(current);
