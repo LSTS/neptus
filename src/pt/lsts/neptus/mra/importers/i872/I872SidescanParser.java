@@ -94,8 +94,8 @@ public class I872SidescanParser implements SidescanParser {
             }
             SystemPositionAndAttitude pose = new SystemPositionAndAttitude();
             
-            pose.getPosition().setLatitudeDegs(currentPing.getLatitude());
-            pose.getPosition().setLongitudeDegs(currentPing.getLongitude());
+            pose.getPosition().setLatitudeDegs(currentPing.getLatitudeDegs());
+            pose.getPosition().setLongitudeDegs(currentPing.getLongitudeDegs());
             
             fData = SidescanUtil.applyNormalizationAndTVG(fData, currentPing.getRange(), config);
             
