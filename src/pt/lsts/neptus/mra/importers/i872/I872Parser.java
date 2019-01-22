@@ -46,6 +46,7 @@ import java.util.HashMap;
 import java.util.TreeSet;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.mra.importers.jsf.JsfParser;
 
 public class I872Parser {
 
@@ -192,5 +193,10 @@ public class I872Parser {
         long nextTimestamp = timestampsSet.ceiling(timestamp);
         return pings.get(nextTimestamp);
     }
-
+    
+    public static void main(String[] args) throws IOException {
+        I872Parser parser = new I872Parser(new File("/home/ineeve/Downloads/111958_AFPF/Data.872"));
+        long firstTimestamp = parser.getFirstTimestamp();
+        parser.getPingAt(firstTimestamp);
+    }
 }
