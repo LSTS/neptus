@@ -54,8 +54,6 @@ import org.imgscalr.Scalr;
 
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.LoggingControl;
-import pt.lsts.imc.PlanSpecification;
 import pt.lsts.imc.PopUp;
 import pt.lsts.imc.StationKeeping;
 import pt.lsts.neptus.NeptusLog;
@@ -170,6 +168,9 @@ public class KMLExporter implements MRAExporter {
     
     @NeptusProperty(category = "SideScan", name="Resolution (px/meter)", description="Resolution of generated mosaic")
     public double sssResolution = 3;
+        
+    @NeptusProperty(category = "SideScan", name="Truncate Range", description="Ignore data further than this range")
+    public int truncRange = 0;
     
     
     
@@ -422,8 +423,18 @@ public class KMLExporter implements MRAExporter {
             }
 
             BufferedImage previous = new BufferedImage(3, 3, BufferedImage.TYPE_INT_ARGB);
+            
+            Integer margin = null;
+            
             for (SidescanLine sl : lines) {
 
+                if (margin == null) {
+                    margin = 0;
+                    if (truncRange > 0 && truncRange < sl.getRange()) {
+                        margin = (int) (((sl.getRange()-truncRange) / sl.getRange()) * (sl.getData().length / 2)); 
+                    }
+                }
+                
                 if (filter != null && !filter.isDataValid(new Date(sl.getTimestampMillis())))
                     continue;
                 
@@ -444,20 +455,22 @@ public class KMLExporter implements MRAExporter {
 
                 int startPixel, endPixel;
 
+               
+                
                 switch (ducer) {
                     case board:
-                        startPixel = 0;
+                        startPixel = margin;
                         endPixel = sl.getData().length / 2;
                         filename = fname+"_board";
                         break;
                     case starboard:
                         startPixel = sl.getData().length / 2;
-                        endPixel = sl.getData().length;
+                        endPixel = sl.getData().length - margin;
                         filename = fname+"_starboard";
                         break;
                     default:
-                        startPixel = 0;
-                        endPixel = sl.getData().length;
+                        startPixel = margin;
+                        endPixel = sl.getData().length - margin;
                         filename = fname;
                         break;
                 }
