@@ -52,6 +52,7 @@ import javax.swing.ProgressMonitor;
 
 import org.imgscalr.Scalr;
 
+import pt.lsts.imc.Elevator;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.PopUp;
@@ -70,6 +71,7 @@ import pt.lsts.neptus.mra.api.BathymetryParser;
 import pt.lsts.neptus.mra.api.BathymetryParserFactory;
 import pt.lsts.neptus.mra.api.BathymetryPoint;
 import pt.lsts.neptus.mra.api.BathymetrySwath;
+import pt.lsts.neptus.mra.api.CorrectedPosition;
 import pt.lsts.neptus.mra.api.SidescanLine;
 import pt.lsts.neptus.mra.api.SidescanParameters;
 import pt.lsts.neptus.mra.api.SidescanParser;
@@ -171,6 +173,9 @@ public class KMLExporter implements MRAExporter {
         
     @NeptusProperty(category = "SideScan", name="Truncate Range", description="Ignore data further than this range")
     public int truncRange = 0;
+    
+    @NeptusProperty(category = "SideScan", name="Use Corrected positions", description="Use locations corrected by GPS")
+    public boolean correctedPositions = true;
     
     
     
@@ -339,7 +344,8 @@ public class KMLExporter implements MRAExporter {
     public String sidescanOverlay(File dir, double resolution, LocationType topLeft, LocationType bottomRight,
             String fname, long startTime, long endTime, Ducer ducer) {
         SidescanParser ssParser = SidescanParserFactory.build(source);
-
+        CorrectedPosition positions = new CorrectedPosition(source);
+        
         double totalProg = 100;
         double startProg = 100;
         // FIXME temporary fix
@@ -397,21 +403,19 @@ public class KMLExporter implements MRAExporter {
             double progress = ((double)(time - start) / (end - start)) * totalProg + startProg;
             pmonitor.setProgress((int)progress);
 
+            // check maneuver type and advance data from StationKeeping, Popup and Elevator maneuvers
             if (skipSK) {
                 IMCMessage msg = source.getLsfIndex().getMessageAt("PlanControlState", time / 1000.0);
                 if (msg != null && msg.getAbbrev().equals("PlanControlState"))
                     switch(msg.getInteger("man_type")) {
                         case StationKeeping.ID_STATIC:
                         case PopUp.ID_STATIC:
-                            System.out.println("skipping maneuver.");
+                        case Elevator.ID_STATIC:
                             continue;
                         default:
                             break;
                     }
             }
-            
-            
-            
             
             ArrayList<SidescanLine> lines;
             try {
@@ -501,7 +505,13 @@ public class KMLExporter implements MRAExporter {
                 g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
                 if (blendMode != SideScanComposite.MODE.NONE)
                     g2.setComposite(new SideScanComposite(blendMode));
-                double[] pos = sl.getState().getPosition().getOffsetFrom(topLeft);
+                
+                double[] pos;
+                if (correctedPositions)
+                    pos = positions.getPosition(sl.getTimestampMillis()/1000.0).getPosition().getOffsetFrom(topLeft);
+                else
+                    pos = sl.getState().getPosition().getOffsetFrom(topLeft);
+                     
                 g2.translate(pos[1] * resolution, -pos[0] * resolution);
                 if (makeAbs && sl.getState().getYaw() < 0)
                     g2.rotate(Math.toRadians(300) + sl.getState().getYaw());
