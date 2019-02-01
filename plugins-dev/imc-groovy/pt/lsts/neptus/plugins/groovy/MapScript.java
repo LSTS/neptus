@@ -33,11 +33,18 @@
 package pt.lsts.neptus.plugins.groovy;
 
 import java.awt.Color;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.PrecisionModel;
+
 import pt.lsts.imc.dsl.Location;
+import pt.lsts.neptus.colormap.ConvexHull;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -45,8 +52,12 @@ import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.map.MapType;
 import pt.lsts.neptus.types.map.MarkElement;
 import pt.lsts.neptus.types.map.ParallelepipedElement;
+import pt.lsts.neptus.types.map.PathElement;
 
 public class MapScript {
+
+    private static final int WGS84SRID = 4326;
+    private static final int EPSGSRID = 3857;
 
     private static MapScript instance = null;
 
@@ -254,6 +265,13 @@ public class MapScript {
         return CoordinateUtil.computeLocationsCentroid(Arrays.asList(pts));
     }
 
+    /**
+     * Adds a parallelepiped according to the centroid calculated from the coordinates of the third argument 
+     * @param w - width of the parallelepiped
+     * @param l - length of the parallelepiped
+     * @param wps - coordinates for the vertices of the parallelepiped
+     * @return the parallelepiped
+     */
     public static ParallelepipedElement pp(int w, int l, LocationType... wps) {
         if (console != null) {
             ParallelepipedElement pap;
@@ -271,6 +289,12 @@ public class MapScript {
         return null;
     }
 
+    /**
+     * Adds a mark to the current map on the console
+     * @param name - id for the mark
+     * @param loc  - coordinates
+     * @return the mark element
+     */
     public static MarkElement mark(String name, LocationType loc) {
         if (console != null) {
             MapGroup mg = MapGroup.getMapGroupInstance(console.getMission());
@@ -286,8 +310,76 @@ public class MapScript {
         return null;
     }
 
+    /**
+     * Adds a mark to the current map on the console
+     * @param name - id for the mark
+     * @param loc  - coordinates
+     * @return the mark element
+     */
     public static MarkElement mark(String name, Location loc) {
         return mark(name, PlanScript.fromLocation(loc));
     }
+    
+    public static PathElement path(String id,Location... locs) {
+        ArrayList<LocationType> l = new ArrayList<LocationType>();
+        for(Location loc: locs) {
+            l.add(PlanScript.fromLocation(loc));
+        }
+        
+        LocationType[] array =  new LocationType[l.size()];
+        return path(id,l.toArray(array));
+    }
+    
+    public static PathElement path(String id,LocationType... locs) {
+        if (console != null) {
+            MapGroup mg = MapGroup.getMapGroupInstance(console.getMission());// MapGroup mg = pp.getMapGroup();
+            MapType m = mg.getMaps()[0];// MapType m = pp.getParentMap();
+            ArrayList<LocationType> lsorted = sortLocations(locs);
+            LocationType firstPoint = lsorted.get(0);
+            PathElement poly = new PathElement(mg, m, firstPoint);
+            for(int i=1;i<lsorted.size();i++) {
+                poly.addPoint(lsorted.get(i));
+            }
+            poly.addPoint(lsorted.get(0));
+            poly.setFinished(true);
+            poly.setId(id);
+            poly.setFilled(true);
+            poly.setShape(true);
+            m.addObject(poly);
+            return poly;
+        }
+        return null;
+    }
+    
+    private static ArrayList<LocationType> sortLocations(LocationType... locs) {
+        if (locs.length == 0)
+            return null;
+        Point2D[] ps = new Point2D[locs.length];
+        Coordinate[] coords = new Coordinate[locs.length];
+        ArrayList<LocationType> result = new ArrayList<LocationType>();
+        int i;
+        for(i=0;i<locs.length;i++) {
+            double[] coordx = locs[i].getAbsoluteLatLonDepth();
+            ps[i]     = new Point2D.Double(coordx[0], coordx[1]);
+            coords[i] = new Coordinate(coordx[0], coordx[1]);
+        }
+        
+//        GeometryFactory fac = new GeometryFactory(new PrecisionModel(),EPSGSRID);//WGS84 — SRID 4326
+//        org.locationtech.jts.algorithm.ConvexHull convex = new org.locationtech.jts.algorithm.ConvexHull(coords, fac);
+//        //if (convex.getConvexHull().getCoordinates().length >= 3 ) { //Polygon
+//        for(Coordinate c: convex.getConvexHull().getCoordinates()) {
+//            LocationType l = new LocationType(c.getX(), c.getY());
+//            result.add(l);
+//            //            }
+//        }
+        
+        for (Point2D p2d : ConvexHull.compute(new ArrayList<Point2D>(Arrays.asList(ps)))) {
+            LocationType l = new LocationType(p2d.getX(), p2d.getY());
+            result.add(l);
+        }
+        return result;
+    }
+    
+    
 
 }

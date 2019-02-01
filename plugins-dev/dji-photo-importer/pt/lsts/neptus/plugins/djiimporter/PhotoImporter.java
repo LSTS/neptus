@@ -83,6 +83,10 @@ import javax.swing.SwingWorker;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.PrecisionModel;
+
 import com.adobe.xmp.XMPException;
 import com.adobe.xmp.XMPIterator;
 import com.adobe.xmp.XMPMeta;
@@ -102,12 +106,18 @@ import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.NeptusMenuItem;
+import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.SimpleRendererInteraction;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.types.map.MapGroup;
+import pt.lsts.neptus.types.map.MapType;
+import pt.lsts.neptus.types.map.MarkElement;
+import pt.lsts.neptus.types.map.PathElement;
 
 /**
  * @author Manuel Ribeiro
@@ -121,12 +131,23 @@ public class PhotoImporter extends SimpleRendererInteraction {
     private Map<String, Color> colorList = Collections.synchronizedMap(new HashMap<String, Color>());
     private Set<String> datesSelected = new HashSet<String>();
     private Map<String, Point> datesList = new HashMap<String, Point>();
+    private Map<String,ArrayList<LocationType>> areas = Collections.synchronizedMap(new HashMap<String, ArrayList<LocationType>>());
     private ImageMetadata selected = null;
     private boolean enable = false;
     private String prevDir = "";
     private TableDialog tableDialog = new TableDialog(SwingUtilities.getWindowAncestor(getConsole()));
     private StateRenderer2D renderer = null;
-
+    
+    //SRIDs: Spatial Reference System Identifier
+    private static final int WGS84SRID = 4326;
+    private static final int EPSGSRID = 3857;
+    
+    @NeptusProperty(name="hide marks",description="Show/Hide marks icons of the images",userLevel=LEVEL.REGULAR)
+    public boolean hideMarks = false;
+    
+    @NeptusProperty(name="show polygon",description="Show/Hide polygon area of each survey",userLevel=LEVEL.REGULAR)
+    public boolean showPolygon = false;
+    
     public PhotoImporter(ConsoleLayout console) {
         super(console);
     }
@@ -211,20 +232,40 @@ public class PhotoImporter extends SimpleRendererInteraction {
         }
         synchronized (list) {
             String dateStr = getYearMonthDay(date);
-            if (list.containsKey(dateStr))
+            if (list.containsKey(dateStr)) {
                 list.get(dateStr).add(imgMD);
+                areas.get(dateStr).add(imgMD.getLocation());
+            }
             else {
                 ArrayList<ImageMetadata> imageList = new ArrayList<>();
+                ArrayList<LocationType> positionList = new ArrayList<LocationType>();
                 imageList.add(imgMD);
+                positionList.add(imgMD.getLocation());
                 list.put(dateStr, imageList);
-
+                areas.put(dateStr, positionList);
                 Color c = new Color(Color.HSBtoRGB((float) Math.random(), 0.5F + (float) Math.random(), ((float) Math.random())/0.2F));
                 
                 if (!colorList.containsKey(dateStr)) {
                     colorList.put(dateStr, c);
                 }
             }
+            
+            //return new LocationType(lat,lon);
+            //mark(name,new LocationType(lat,lon));
+           
         }
+    }
+    
+    public MarkElement mark(LocationType loc) {
+            MapGroup mg = MapGroup.getMapGroupInstance(getConsole().getMission());
+            MapType m = mg.getMaps()[0];
+            MarkElement elem = new MarkElement(mg, m);
+            //elem.setId(name);
+            elem.setCenterLocation(loc);
+            m.addObject(elem);
+            getConsole().getMission().save(false);
+            getConsole().warnMissionListeners();
+            return elem;
     }
 
     private static String getYearMonthDay(Date date) {
@@ -245,6 +286,7 @@ public class PhotoImporter extends SimpleRendererInteraction {
             prevDir = selPhotos.getSelectedFile().getPath();
 
             SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+
                 @Override
                 protected Void doInBackground() throws Exception {
                     for (File f : files) {
@@ -271,6 +313,7 @@ public class PhotoImporter extends SimpleRendererInteraction {
     public void clearPhotosAction() {
         synchronized (list) {
             list.clear();
+            areas.clear();
             colorList.clear();
             datesSelected.clear();
             datesList.clear();
@@ -305,19 +348,73 @@ public class PhotoImporter extends SimpleRendererInteraction {
             return;
 
         synchronized (list) {
+            if (!hideMarks) {
             for (Entry<String, ArrayList<ImageMetadata>> e : list.entrySet())
                 for (ImageMetadata img : e.getValue()) {
-                    if (datesSelected.contains(getYearMonthDay(img.getDate())))
+                    if (datesSelected.contains(getYearMonthDay(img.getDate()))) {
                         paintImgIcon(img, g, renderer);
+                    }
                 }
-
+            }
+            
             if (!list.isEmpty())
                 printMenu(g, renderer);
         }
-
+        
         ImageMetadata sel = selected;
         if (sel != null)
             paintImgDetails(sel, g, renderer);
+    }
+
+    /**
+     * Builds a minimal convex containing all the points (images locations)
+     * @param id  - Identifier for the area according to the photo index
+     * @param pts - List of @LocationType where the grouped photos where taken 
+     * @param c   - color used to identify these groups of photos
+     */
+    private void buildConvexHull(String id, ArrayList<LocationType> locs,Color c) {
+        MapGroup mg = MapGroup.getMapGroupInstance(getConsole().getMission());
+        MapType m = mg.getMaps()[0];
+        ArrayList<LocationType> ps = sortLocations(locs);
+        PathElement poly = new PathElement(mg,m,ps.get(0));
+        mark(ps.get(0));
+        System.err.println("Original locs size: "+locs.size());
+        System.err.println("Sorted ps size: "+ps.size());
+        for(int i=1;i<ps.size();i++) {
+            poly.addPoint(ps.get(i));
+            mark(ps.get(i));
+        }
+        poly.addPoint(ps.get(0)); //to close the shape
+        poly.isFinished();
+        poly.setMyColor(c);
+        poly.setId("DJIU_"+id);
+        poly.setFilled(true);
+        poly.setShape(true);
+        m.addObject(poly);
+    }
+
+    /**
+     * @param locs
+     * @return
+     */
+    private ArrayList<LocationType> sortLocations(ArrayList<LocationType> locs) {
+        Coordinate[] coords = new Coordinate[locs.size()];
+        ArrayList<LocationType> result = new ArrayList<LocationType>();
+        int i;
+        for(i=0;i<locs.size();i++) {
+            double[] coordx = locs.get(i).getAbsoluteLatLonDepth();
+            coords[i] = new Coordinate(coordx[0], coordx[1]);
+        }
+        
+        GeometryFactory fac = new GeometryFactory(new PrecisionModel(),WGS84SRID);
+        org.locationtech.jts.algorithm.ConvexHull convex = new org.locationtech.jts.algorithm.ConvexHull(coords, fac);
+        //if (convex.getConvexHull().getCoordinates().length >= 3 ) { //Polygon
+        for(Coordinate c: convex.getConvexHull().getCoordinates()) {
+            LocationType l = new LocationType(c.getX(), c.getY());
+            result.add(l);
+            //            }
+        }
+        return result;
     }
 
     private void printMenu(Graphics2D g, StateRenderer2D renderer) {
@@ -402,14 +499,26 @@ public class PhotoImporter extends SimpleRendererInteraction {
         if (event.getClickCount() == 2) {
             for (Entry<String, Point> e : datesList.entrySet()) {
                 if (e.getValue().distance(event.getPoint()) <= 9) {
-                    if (datesSelected.contains(e.getKey()))
+                    if (datesSelected.contains(e.getKey())) {
+                        if (showPolygon) {
+                            if (datesSelected.contains(e.getKey()))
+                                buildConvexHull(e.getKey(), areas.get(e.getKey()), colorList.get(e.getKey()));
+                        }
+                        else {
+                            MapGroup mg = MapGroup.getMapGroupInstance(getConsole().getMission());
+                            MapType m = mg.getMaps()[0];
+                            if (m.getElements().containsKey("DJI_"+e.getKey()))
+                                m.getElements().remove("DJI_"+e.getKey());
+                        }
                         datesSelected.remove(e.getKey());
+                    }
+                        
                     else
                         datesSelected.add(e.getKey());
                     return;
                 }
             }
-
+            
             if (sel != null) {
                 DetailsDialog details = new DetailsDialog(SwingUtilities.windowForComponent(getConsole()), sel);
 
@@ -648,4 +757,5 @@ public class PhotoImporter extends SimpleRendererInteraction {
             }
         }
     }
+    
 }
