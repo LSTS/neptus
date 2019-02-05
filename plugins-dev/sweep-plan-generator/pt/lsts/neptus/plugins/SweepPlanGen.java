@@ -2,14 +2,18 @@ package pt.lsts.neptus.plugins;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
+import com.l2fprod.common.propertysheet.PropertySheetPanel;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.plugins.planning.MapPanel;
 import pt.lsts.neptus.data.Pair;
+import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.PropertiesProvider;
 import pt.lsts.neptus.gui.PropertiesTable;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.maneuvers.*;
+import pt.lsts.neptus.params.ManeuverPayloadConfig;
+import pt.lsts.neptus.params.SystemProperty;
 import pt.lsts.neptus.renderer2d.InteractionAdapter;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
@@ -19,19 +23,15 @@ import pt.lsts.neptus.types.map.PlanElement;
 import pt.lsts.neptus.types.map.PlanUtil;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
-import pt.lsts.neptus.ws.Location;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.beans.PropertyChangeEvent;
@@ -42,12 +42,13 @@ import java.util.*;
 public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainter {
 
     protected PolygonType.Vertex vertex = null;
-    protected Vector<MapPanel> maps = new Vector<>();
     private JPanel sidePanel = null;
-    private JPanel controls;
+    private PropertySheetPanel propsPanel = null;
+    private PropertiesTable propTable = null;
     private HashMap<Component, Object> componentList = new HashMap<>();
     private MultiVehicleDynamicSurveyOptions options = new MultiVehicleDynamicSurveyOptions();
     private double sweepAngle = -Math.PI/180;
+    private String vehicle = null;
 
     //MAP INTERACTION
     private PolygonType task = null;
@@ -57,6 +58,7 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
     private PlanElement planElement = null;
     private PlanType generated = null;
     private StateRenderer2D stateRenderer = null;
+    private PropertiesProvider provider = null;
 
     public SweepPlanGen(ConsoleLayout console) {
         super(console);
@@ -117,10 +119,7 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
         if (sidePanel == null) {
             sidePanel = new JPanel(new BorderLayout(2, 2));
 
-            JLabel statsLabel = new JLabel();
-            statsLabel.setText("my text");
-
-            controls = new JPanel(new GridLayout(0, 3));
+            /*JPanel controls = new JPanel(new GridLayout(0, 3));
 
             controls.add(new JButton("My Button"));
             controls.add(new JButton("My Button"));
@@ -128,23 +127,45 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
             controls.add(new JButton("My Button"));
             controls.add(new JButton("My Button"));
             controls.add(new JButton("My Button"));
-            controls.setBorder(new TitledBorder(I18n.text("Plan")));
+            controls.setBorder(new TitledBorder(I18n.text("Plan")));*/
 
             sidePanel.add(getVehicleSelector(),BorderLayout.PAGE_START);
             sidePanel.add(getAngleSelector(),BorderLayout.SOUTH);
             //sidePanel.add(controls, BorderLayout.SOUTH);
-            //sidePanel.add(statsLabel, BorderLayout.SOUTH);
             sidePanel.add(getOptionsPanel(),BorderLayout.CENTER);
-            
-            controls.setOpaque(false);
         }
         return sidePanel;
     }
 
     private JComboBox<String> getVehicleSelector() {
 
-        //JComboBox<VehicleType> vehicleList = new JComboBox<VehicleType>();
-        return new JComboBox<String>(VehiclesHolder.getVehiclesArray());
+        JComboBox<String> vehicleList = new JComboBox<String>(VehiclesHolder.getVehiclesArray());
+        vehicle = vehicleList.getItemAt(0);
+        /*vehicleList.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("Inside Listener");
+                vehicle = (String)((JComboBox<String>)e.getSource()).getSelectedItem();
+
+                ArrayList<SystemProperty> payloadProps = ConfigurationManager.getInstance().getClonedProperties(vehicle, SystemProperty.Visibility.USER,
+                        SystemProperty.Scope.MANEUVER);
+                for (SystemProperty sp : payloadProps) {
+                    String name = sp.getName();
+                    System.out.println("Name: " + name + "; Category: "+sp.getCategory()+"; Value: "+sp.getValue());
+                }
+            }
+        });*/
+        vehicleList.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if(e.getStateChange() != ItemEvent.SELECTED){
+                    return;
+                }
+                vehicle = (String)e.getItem();
+                updateProperties();
+            }
+        });
+        return vehicleList;
 
         /*if (plan == null && getConsole().getPlan() != null) {
             setPlan(getConsole().getPlan().clonePlan());
@@ -204,7 +225,49 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
     }
 
     private JPanel getOptionsPanel() {
-        PropertiesProvider provider = new PropertiesProvider() {
+        JPanel optionsPanel = new JPanel();
+
+        optionsPanel.setLayout(new GridLayout(2,0));
+
+        optionsPanel.add(getGeneralPropertiesTable());
+
+        optionsPanel.add(getVehiclePropertiesTable());
+
+        return optionsPanel;
+    }
+
+    private PropertySheetPanel getVehiclePropertiesTable() {
+        propsPanel = new PropertySheetPanel();
+        propsPanel.setDescriptionVisible(true);
+        propsPanel.setMode(PropertySheetPanel.VIEW_AS_CATEGORIES);
+        propsPanel.addPropertySheetChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                String porpName = ((SystemProperty)evt.getSource()).getName();
+
+                // TODO: 05/02/2019 add check if is range
+                /*if(propTable != null && provider != null){
+                    options.swathWidth = (double)((long)evt.getNewValue());
+                    propTable.editProperties(provider);
+                    updatePlan(stateRenderer);
+                }*/
+
+                System.out.println(evt.getPropertyName()+"; "+evt.getNewValue());
+            }
+        });
+
+        propsPanel.setEditorFactory(PropertiesEditor.getPropertyEditorRegistry());
+        propsPanel.setRendererFactory(PropertiesEditor.getPropertyRendererRegistry());
+        propsPanel.setToolBarVisible(false);
+
+        updateProperties();
+
+        propsPanel.setBorder(new TitledBorder(I18n.text("Vehicle Properties")));
+        return propsPanel;
+    }
+
+    private PropertiesTable getGeneralPropertiesTable() {
+        provider = new PropertiesProvider() {
             @Override
             public DefaultProperty[] getProperties() {
                 return PluginUtils.getPluginProperties(options);
@@ -226,18 +289,28 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
             }
         };
 
-        PropertiesTable propTable= new PropertiesTable();
+        propTable = new PropertiesTable();
         propTable.editProperties(provider);
         propTable.addPropertyChangeListener(new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 if (task != null){
-                    getConsole().warnMissionListeners();
+                    System.out.println("PropTable Change Listener");
                     updatePlan(stateRenderer);
                 }
             }
         });
+
+        propTable.setBorder(new TitledBorder(I18n.text("General Properties")));
         return propTable;
+    }
+
+    private void updateProperties() {
+        DefaultProperty[] payloadProps = new ManeuverPayloadConfig(vehicle, new Goto(), propsPanel).getProperties();
+        /*ArrayList<SystemProperty> payloadProps = ConfigurationManager.getInstance().getClonedProperties(vehicle, SystemProperty.Visibility.USER,
+                SystemProperty.Scope.MANEUVER);*/
+
+        propsPanel.setProperties(payloadProps);
     }
 
     // MAP INTERACTION
@@ -390,7 +463,6 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
                 @Override
                 public void actionPerformed(ActionEvent evt) {
                     // TODO: 01/02/2019 remove this
-                    //PluginUtils.getPluginProperties(new MultiVehicleSurveyOptions());
                 }
             });
         }
