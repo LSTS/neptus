@@ -43,7 +43,7 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
 
     protected PolygonType.Vertex vertex = null;
     protected Vector<MapPanel> maps = new Vector<>();
-    protected JPanel sidePanel = null;
+    private JPanel sidePanel = null;
     private JPanel controls;
     private HashMap<Component, Object> componentList = new HashMap<>();
     private MultiVehicleDynamicSurveyOptions options = new MultiVehicleDynamicSurveyOptions();
@@ -56,6 +56,7 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
     private PolygonType.Vertex endPoint = null;
     private PlanElement planElement = null;
     private PlanType generated = null;
+    private StateRenderer2D stateRenderer = null;
 
     public SweepPlanGen(ConsoleLayout console) {
         super(console);
@@ -64,7 +65,7 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
     @Override
     public void setActive(boolean mode, StateRenderer2D source) {
         super.setActive(mode, source);
-        StateRenderer2D renderer = source;
+        stateRenderer = source;
 
         JSplitPane horizontalSplit;
         if (mode) {
@@ -191,7 +192,7 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
                 double newValue = (double)((JSpinner)evt.getSource()).getValue();
                 if (task != null){
                     sweepAngle = newValue * Math.PI/180;
-                    generatePlan();
+                    updatePlan(stateRenderer);
                 }
             }
         });
@@ -232,7 +233,7 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
             public void propertyChange(PropertyChangeEvent evt) {
                 if (task != null){
                     getConsole().warnMissionListeners();
-                    generatePlan();
+                    updatePlan(stateRenderer);
                 }
             }
         });
@@ -302,6 +303,16 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
            });
         }
 
+        if (endPoint != null && isVertex(source, lt, endPoint,10)) {
+            popup.add("<html><b>Remove</b> end point").addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    endPoint = null;
+                    updatePlan(source);
+                }
+            });
+        }
+
         if(survey != null) {
             popup.add("<html><b>Delete</b> Survey").addActionListener(new ActionListener() {
                 @Override
@@ -327,6 +338,7 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
                     }
                 });
             }
+
             popup.add("<html>Add <b>Vertex</b>").addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent evt) {
@@ -339,6 +351,13 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
                 @Override
                 public void actionPerformed(ActionEvent evt) {
                     startPoint = new PolygonType.Vertex(source.getRealWorldLocation(e.getPoint()));
+                    updatePlan(source);
+                }
+            });
+            popup.add("<html>Add <b>End</b> Point").addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent evt) {
+                    endPoint = new PolygonType.Vertex(source.getRealWorldLocation(e.getPoint()));
                     updatePlan(source);
                 }
             });
@@ -390,10 +409,15 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
 
     @Override
     public void mousePressed(MouseEvent event, StateRenderer2D source) {
+        if(task != null && endPoint != null && isVertex(source,source.getRealWorldLocation(event.getPoint()),endPoint,10)){
+            selectedTask = task;
+            lastPoint = source.getRealWorldLocation(event.getPoint());
+            clickedVertex = endPoint;
+            return;
+        }
         if(task != null && startPoint != null && isVertex(source,source.getRealWorldLocation(event.getPoint()),startPoint,10)){
             selectedTask = task;
             lastPoint = source.getRealWorldLocation(event.getPoint());
-            lastScreenPoint = event.getPoint();
             clickedVertex = startPoint;
             return;
         }
@@ -468,10 +492,14 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
             }
             if(startPoint != null){
                 Point2D pt = renderer.getScreenPosition(startPoint.getLocation());
-                g.setColor(Color.RED);
+                g.setColor(Color.GREEN);
                 g.fill(new Ellipse2D.Double(pt.getX()-5, pt.getY()-5,10,10));
             }
-            g.setTransform(renderer.getIdentity());
+            if(endPoint != null){
+                Point2D pt = renderer.getScreenPosition(endPoint.getLocation());
+                g.setColor(Color.GREEN);
+                g.fill(new Ellipse2D.Double(pt.getX()-5, pt.getY()-5,10,10));
+            }
             planElement.paint(g,renderer);
         }
     }
