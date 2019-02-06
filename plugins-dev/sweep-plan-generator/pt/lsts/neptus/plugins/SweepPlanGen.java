@@ -2,7 +2,6 @@ package pt.lsts.neptus.plugins;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
-import com.l2fprod.common.propertysheet.PropertySheet;
 import com.l2fprod.common.propertysheet.PropertySheetPanel;
 import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -13,7 +12,6 @@ import pt.lsts.neptus.gui.PropertiesProvider;
 import pt.lsts.neptus.gui.PropertiesTable;
 import pt.lsts.neptus.gui.editor.renderer.I18nCellRenderer;
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.actions.PlanActions;
 import pt.lsts.neptus.mp.maneuvers.*;
@@ -48,7 +46,6 @@ import java.util.*;
 @PluginDescription(name = "Sweep Plan Generator")
 public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainter {
 
-    private PolygonType.Vertex vertex = null;
     private JPanel sidePanel = null;
     private PropertySheetPanel propsPanel = null;
     private PropertiesTable propTable = null;
@@ -149,18 +146,15 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
 
     private JComboBox<String> getVehicleSelector() {
 
-        JComboBox<String> vehicleList = new JComboBox<String>(VehiclesHolder.getVehiclesArray());
+        JComboBox<String> vehicleList = new JComboBox<>(VehiclesHolder.getVehiclesArray());
         setVehicle(vehicleList.getItemAt(0));
 
-        vehicleList.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-                if(e.getStateChange() != ItemEvent.SELECTED){
-                    return;
-                }
-                setVehicle((String)e.getItem());
-                updateProperties();
+        vehicleList.addItemListener(e -> {
+            if(e.getStateChange() != ItemEvent.SELECTED){
+                return;
             }
+            setVehicle((String)e.getItem());
+            updateProperties();
         });
         return vehicleList;
     }
@@ -178,13 +172,10 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
         Double step = 1d;
         angleSpinnerModel = new SpinnerNumberModel(current, min, max, step);
         angleSpinner = new JSpinner(angleSpinnerModel);
-        angleSpinner.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent evt) {
-                double newValue = (double)((JSpinner)evt.getSource()).getValue();
-                sweepAngle = newValue * Math.PI/180;
-                updatePlan(stateRenderer);
-            }
+        angleSpinner.addChangeListener(evt -> {
+            double newValue = (double)((JSpinner)evt.getSource()).getValue();
+            sweepAngle = newValue * Math.PI/180;
+            updatePlan(stateRenderer);
         });
         ((JSpinner.DefaultEditor)angleSpinner.getEditor()).getTextField().setColumns(5);
 
@@ -209,23 +200,53 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
         propsPanel = new PropertySheetPanel();
         propsPanel.setDescriptionVisible(true);
         propsPanel.setMode(PropertySheetPanel.VIEW_AS_CATEGORIES);
-        propsPanel.addPropertySheetChangeListener(new PropertyChangeListener() {
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                String propName = ((SystemProperty)evt.getSource()).getName();
-                String categoryName = ((SystemProperty)evt.getSource()).getCategory();
+        propsPanel.addPropertySheetChangeListener(evt -> {
+            if (evt.getSource() instanceof SystemProperty) {
+                SystemProperty sp = (SystemProperty) evt.getSource();
+                sp.setValue(evt.getNewValue());
 
-                System.out.println(vehicleOptions.keySet());
-                if(propTable != null && generalProvider != null && isRangeProperty(categoryName,propName)){
-                    long newValue = (long)evt.getNewValue();
+                for (SystemProperty sprop : vehicleOptions.values()) {
+                    sprop.propertyChange(evt);
+                }
+                sp.propertyChange(evt);
+            }
+
+            String propName = ((SystemProperty)evt.getSource()).getName();
+            String categoryName = ((SystemProperty)evt.getSource()).getCategory();
+
+            double newValue;
+
+            if(propTable != null && generalProvider != null && isRangeProperty(categoryName,propName)){
+                if(propName.contains("Multiplier") || propName.contains("Frequency")){
+                    String lowChannels = (String)vehicleOptions.get("Sidescan.Low-Frequency Channels").getValue();
+                    String highChannels = (String)vehicleOptions.get("Sidescan.High-Frequency Channels").getValue();
+
+                    double lowRange = 0;
+                    double highRange = 0;
+                    if(!lowChannels.equals("None")){
+                        if(vehicleOptions.get("Sidescan.Low-Frequency Range").getValue() instanceof Long){
+                            lowRange = ((Long)vehicleOptions.get("Sidescan.Low-Frequency Range").getValue()).doubleValue();
+                        } else {
+                            lowRange = ((Integer)vehicleOptions.get("Sidescan.Low-Frequency Range").getValue()).doubleValue();
+                        }
+                    }
+                    if(!highChannels.equals("None")){
+                        highRange = ((Long)vehicleOptions.get("Sidescan.High-Frequency Range").getValue()).doubleValue();
+                    }
+
+                    newValue = Math.max(lowRange,highRange);
+                } else {
+                    newValue = ((Long)evt.getNewValue()).doubleValue();
+                }
+                if(newValue != 0) {
                     generalOptions.swathWidth = newValue*2;
                     generalOptions.depth = -newValue*0.1;
                     propTable.editProperties(generalProvider);
                     updatePlan(stateRenderer);
                 }
-
-                System.out.println(categoryName+"."+propName+"; "+evt.getNewValue());
             }
+
+            System.out.println(categoryName+"."+propName+" : "+evt.getNewValue());
         });
 
         propsPanel.setEditorFactory(PropertiesEditor.getPropertyEditorRegistry());
@@ -265,12 +286,9 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
 
         propTable = new PropertiesTable();
         propTable.editProperties(generalProvider);
-        propTable.addPropertyChangeListener(new PropertyChangeListener() {
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                System.out.println("PropTable Change Listener");
-                updatePlan(stateRenderer);
-            }
+        propTable.addPropertyChangeListener(evt -> {
+            System.out.println("PropTable Change Listener");
+            updatePlan(stateRenderer);
         });
 
         propTable.setBorder(new TitledBorder(I18n.text("General Properties")));
@@ -306,19 +324,26 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
             }
         }
 
+        // Let us make sure all dependencies between properties are ok
+        for (SystemProperty spCh : vehicleOptions.values()) {
+            for (SystemProperty sp : vehicleOptions.values()) {
+                PropertyChangeEvent evt = new PropertyChangeEvent(spCh, spCh.getName(), null, spCh.getValue());
+                sp.propertyChange(evt);
+            }
+        }
+
         if(propsPanel != null){
             propsPanel.setProperties(payloadProps.toArray(new SystemProperty[0]));
         }
     }
 
     private boolean isRangeProperty(String categoryName, String propName) {
-        return propName.contains("Range");
+        return propName.contains("Range") || propName.contains("Frequency") && categoryName.equals("Sidescan");
     }
 
     //MAP INTERACTION
-    LocationType lastPoint = null;
-    Point2D lastScreenPoint = null;
-    PolygonType.Vertex clickedVertex = null;
+    private LocationType lastPoint = null;
+    private PolygonType.Vertex clickedVertex = null;
 
     public boolean containsPoint(LocationType lt, StateRenderer2D renderer,int error){
         if (task.containsPoint(lt))
@@ -335,21 +360,21 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
         return false;
     }
 
-    public PolygonType.Vertex getVertexAt(PolygonType poly, LocationType lt, int error, StateRenderer2D renderer){
+    private PolygonType.Vertex getVertexAt(StateRenderer2D renderer, PolygonType poly, LocationType lt){
         Point2D screen = renderer.getScreenPosition(lt);
         for (PolygonType.Vertex v : poly.getVertices()) {
             Point2D pt = renderer.getScreenPosition(v.getLocation());
-            if (pt.distance(screen) < error) {
+            if (pt.distance(screen) < 10) {
                 return v;
             }
         }
         return null;
     }
 
-    public boolean isVertex(StateRenderer2D renderer, LocationType lt, PolygonType.Vertex vertex, int error) {
+    private boolean isVertex(StateRenderer2D renderer, LocationType lt, PolygonType.Vertex vertex) {
         Point2D screen = renderer.getScreenPosition(lt);
         Point2D pt = renderer.getScreenPosition(vertex.getLocation());
-        return pt.distance(screen) < error;
+        return pt.distance(screen) < 10;
     }
 
     @Override
@@ -368,7 +393,7 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
 
         JPopupMenu popup = new JPopupMenu();
 
-        if (startPoint != null && isVertex(source, lt, startPoint,10)) {
+        if (startPoint != null && isVertex(source, lt, startPoint)) {
            popup.add("<html><b>Remove</b> start point").addActionListener(new ActionListener() {
                @Override
                public void actionPerformed(ActionEvent e) {
@@ -378,7 +403,7 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
            });
         }
 
-        if (endPoint != null && isVertex(source, lt, endPoint,10)) {
+        if (endPoint != null && isVertex(source, lt, endPoint)) {
             popup.add("<html><b>Remove</b> end point").addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -402,7 +427,7 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
 
         if(task != null) {
             // check if a polygon vertex was hit
-            PolygonType.Vertex selectedVertex = getVertexAt(task,source.getRealWorldLocation(e.getPoint()),10,source);
+            PolygonType.Vertex selectedVertex = getVertexAt(source, task, source.getRealWorldLocation(e.getPoint()));
             if (selectedVertex != null && task.getVertices().size() > 3) {
                 popup.add("<html><b>Remove</b> vertex").addActionListener(new ActionListener() {
                     @Override
@@ -483,13 +508,13 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
 
     @Override
     public void mousePressed(MouseEvent event, StateRenderer2D source) {
-        if(task != null && endPoint != null && isVertex(source,source.getRealWorldLocation(event.getPoint()),endPoint,10)){
+        if(task != null && endPoint != null && isVertex(source,source.getRealWorldLocation(event.getPoint()),endPoint)){
             selectedTask = task;
             lastPoint = source.getRealWorldLocation(event.getPoint());
             clickedVertex = endPoint;
             return;
         }
-        if(task != null && startPoint != null && isVertex(source,source.getRealWorldLocation(event.getPoint()),startPoint,10)){
+        if(task != null && startPoint != null && isVertex(source,source.getRealWorldLocation(event.getPoint()),startPoint)){
             selectedTask = task;
             lastPoint = source.getRealWorldLocation(event.getPoint());
             clickedVertex = startPoint;
@@ -498,7 +523,6 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
         if (task != null && containsPoint(source.getRealWorldLocation(event.getPoint()),source,10)) {
             selectedTask = task;
             lastPoint = source.getRealWorldLocation(event.getPoint());
-            lastScreenPoint = event.getPoint();
 
             for (int i = 0; i < task.getVertices().size(); i++) {
                 PolygonType.Vertex v = task.getVertices().get(i);
@@ -534,14 +558,12 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
         updatePlan(source);
 
         lastPoint = source.getRealWorldLocation(event.getPoint());
-        lastScreenPoint = event.getPoint();
     }
 
     @Override
     public void mouseReleased(MouseEvent event, StateRenderer2D source) {
         if(selectedTask != null) {
             lastPoint = null;
-            lastScreenPoint = null;
             clickedVertex = null;
 
             updatePlan(source);
