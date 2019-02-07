@@ -29,6 +29,7 @@ import pt.lsts.neptus.types.map.PlanElement;
 import pt.lsts.neptus.types.map.PlanUtil;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
+import pt.lsts.neptus.util.GuiUtils;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -92,12 +93,11 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
                 Component comp = bl.getLayoutComponent(BorderLayout.CENTER);
 
                 horizontalSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true, comp, getSidePanel());
-                horizontalSplit.setResizeWeight(1.0);
-
                 c.add(horizontalSplit);
 
                 c.invalidate();
                 c.validate();
+                horizontalSplit.setDividerLocation(0.75);
                 if (c instanceof JComponent)
                     ((JComponent) c).setBorder(new LineBorder(Color.orange.darker(), 3));
             }
@@ -130,6 +130,7 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
             sidePanel.add(getOptionsPanel(),BorderLayout.CENTER);
             sidePanel.add(getVehicleSelector(),BorderLayout.PAGE_START);
         }
+
         return sidePanel;
     }
 
@@ -556,9 +557,6 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
                 planElement = new PlanElement();
                 updatePlan(source);
             });
-            popup.add("<html>Test Function").addActionListener(evt -> {
-                // TODO: 01/02/2019 remove this
-            });
         }
 
         if(task != null && generated != null) {
@@ -915,6 +913,25 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
     private void savePlan() {
         setVehicle(vehicle);
         setPayloads();
+
+        if (getConsole().getMission().getIndividualPlansList().get(generated.getId()) != null) {
+            int option = JOptionPane.showConfirmDialog(getConsole(),
+                    I18n.text("Do you wish to replace the existing plan with same name?"));
+            if (option == JOptionPane.CANCEL_OPTION || option == JOptionPane.NO_OPTION)
+                return;
+        }
+
+        try {
+            generated.validatePlan();
+        }
+        catch (Exception ex) {
+            int option = GuiUtils.confirmDialog(getConsole(), I18n.text("Plan Validation"),
+                    I18n.text("Are you sure you want to save the plan?\nThe following errors where found:")
+                            +"\n - " + ex.getMessage().replaceAll("\n", "\n - "));
+            if (option != JOptionPane.YES_OPTION)
+                return;
+        }
+
         getConsole().getMission().addPlan(generated);
         getConsole().getMission().save(true);
         getConsole().warnMissionListeners();
@@ -951,7 +968,7 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
         @NeptusProperty(name="Reversed", description="Reverse plan")
         boolean reversed = false;
 
-        @NeptusProperty(name="Corner", description="First Corner")
+        @NeptusProperty(name="Corner", description="First Corner", units="Intger between 0 and 3 inclusive and -1 for optimized selection")
         int corner = -1;
 
         @NeptusProperty(name="Sweep Overlap", description="Percentage of overlapping coverage", units = "Values should be between 0(no overlap) and 100(full overlap)")
