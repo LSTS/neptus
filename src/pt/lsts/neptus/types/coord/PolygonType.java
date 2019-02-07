@@ -526,6 +526,17 @@ public class PolygonType implements Renderer2DPainter {
         return length;
     }
 
+    public double getPathLength(double angle, double swathWidth, int corner) {
+        ArrayList<LocationType> path = getCoveragePath(angle, swathWidth, corner);
+        double length = 0;
+
+        for (int i = 1; i < path.size(); i++) {
+            length += path.get(i - 1).getHorizontalDistanceInMeters(path.get(i));
+        }
+
+        return length;
+    }
+
     public static void main(String[] args) {
         PolygonType pt = new PolygonType();
         pt.setColor(Color.yellow);
