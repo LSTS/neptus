@@ -41,7 +41,6 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Polygon;
-import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -68,9 +67,8 @@ import java.util.TreeSet;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JDialog;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -78,7 +76,6 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -103,6 +100,7 @@ import com.drew.metadata.jpeg.JpegDirectory;
 import com.drew.metadata.xmp.XmpDirectory;
 
 import net.miginfocom.swing.MigLayout;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.NeptusMenuItem;
@@ -112,13 +110,13 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.SimpleRendererInteraction;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
-import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.types.map.AbstractElement.ELEMENT_TYPE;
 import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.map.MapType;
-import pt.lsts.neptus.types.map.MarkElement;
 import pt.lsts.neptus.types.map.PathElement;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
  * @author Manuel Ribeiro
@@ -136,7 +134,7 @@ public class PhotoImporter extends SimpleRendererInteraction {
     private ImageMetadata selected = null;
     private boolean enable = false;
     private String prevDir = "";
-    private TableDialog tableDialog = new TableDialog(SwingUtilities.getWindowAncestor(getConsole()));
+    private TableDialog tableDialog;
     private StateRenderer2D renderer = null;
     
     //SRIDs: Spatial Reference System Identifier
@@ -305,7 +303,8 @@ public class PhotoImporter extends SimpleRendererInteraction {
                     synchronized (list) {
                         if (!list.isEmpty()) {
                             setActive(true, null);
-                            tableDialog.updateTableModel();
+                            if(tableDialog != null)
+                                tableDialog.updateTableModel();
                         }
                     }
                 }
@@ -323,7 +322,7 @@ public class PhotoImporter extends SimpleRendererInteraction {
             colorList.clear();
             datesSelected.clear();
             datesList.clear();
-            tableDialog.dispose();
+            tableDialog.getContent().dispose();
         }
     }
 
@@ -335,13 +334,13 @@ public class PhotoImporter extends SimpleRendererInteraction {
                 return;
             }
             if (tableDialog == null) {
-                tableDialog = new TableDialog(SwingUtilities.windowForComponent(getConsole()));
-                tableDialog.setVisible(true);
+                tableDialog = new TableDialog();
+                tableDialog.getContent().setVisible(true);
             }
             else {
-                tableDialog.dispose();
-                tableDialog = new TableDialog(SwingUtilities.windowForComponent(getConsole()));
-                tableDialog.setVisible(true);
+                //tableDialog.getContent().dispose();
+                tableDialog = new TableDialog();
+                tableDialog.getContent().setVisible(true);
             }
         }
     }
@@ -544,10 +543,9 @@ public class PhotoImporter extends SimpleRendererInteraction {
                     return;
                 }
             }
-            
             if (sel != null) {
-                DetailsDialog details = new DetailsDialog(SwingUtilities.windowForComponent(getConsole()), sel);
-
+                JFrame details = new DetailsDialog(sel).getContentFrame();
+                GuiUtils.centerOnScreen(details);
                 if (details != null)
                     details.setVisible(true);
             }
@@ -576,43 +574,53 @@ public class PhotoImporter extends SimpleRendererInteraction {
         enable = mode;
     }
 
-    private class DetailsDialog extends JDialog {
+    private class DetailsDialog {
 
-        private static final long serialVersionUID = 1L;
-        private final JPanel contentPanel = new JPanel();
+        private final JFrame contentPanel; 
 
-        public DetailsDialog(Window parent, ImageMetadata imgMetaData) {
-            super(parent, ModalityType.MODELESS);
-            setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        /**
+         * @return the contentPanel
+         */
+        public JFrame getContentFrame() {
+            return contentPanel;
+        }
+
+        public DetailsDialog(ImageMetadata imgMetaData) {
             DateFormat formatterUTC = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
             formatterUTC.setTimeZone(TimeZone.getTimeZone("UTC")); // UTC timezone
-
-
-            setTitle(imgMetaData.getName() + " - " + formatterUTC.format(imgMetaData.getDate()));
-            setType(Type.POPUP);
-            setResizable(false);
-            setLocationRelativeTo(ConfigFetch.getSuperParentAsFrame());
-            setBounds(100, 100, 405, 510);
-            getContentPane().setLayout(new BorderLayout());
-            contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
-            getContentPane().add(contentPanel, BorderLayout.CENTER);
-            contentPanel.setLayout(new BorderLayout(0, 0));
-
-            JLabel lblImage = new JLabel();
-            lblImage.setSize(400, 300);
+//            setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+//            setTitle(imgMetaData.getName() + " - " + formatterUTC.format(imgMetaData.getDate()));
+//            setType(Type.POPUP);
+//            setResizable(false);
+//            setLocationRelativeTo(ConfigFetch.getSuperParentAsFrame());
+//            setBounds(100, 100, 405, 510);
+//            getContentPane().setLayout(new BorderLayout());
+          
             BufferedImage img = null;
+            JLabel lblImage   = null;
             try {
                 img = ImageIO.read(new File(imgMetaData.getPath()));
             } catch (IOException e) {
-                e.printStackTrace();
+                NeptusLog.pub().error(e);
+                //e.printStackTrace();
             }
-            Image dimg = img.getScaledInstance(lblImage.getWidth(), lblImage.getHeight(),
-                    Image.SCALE_SMOOTH);
+            final Image dimg = ImageUtils.getFasterScaledInstance(img, 400, 300);//img.getScaledInstance(400, 300,Image.SCALE_SMOOTH);
+            
+            lblImage = new JLabel() {
+                private static final long serialVersionUID = 1L;
 
-            ImageIcon imageIcon = new ImageIcon(dimg);
-            lblImage.setIcon(imageIcon);
-            contentPanel.add(lblImage);
+                @Override
+                public void paint(java.awt.Graphics g) {
+                    super.paint(g);
+                    g.drawImage(dimg,25, 25,400,300,null);
+                }
+            };
+            lblImage.setSize(400, 300);
 
+            contentPanel = GuiUtils.testFrame(lblImage, "Image "+imgMetaData.getName(),450, 510);
+            //contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
+            //getContentPane().add(contentPanel, BorderLayout.CENTER);
+            //contentPanel.setLayout(new BorderLayout(0, 0));
             JPanel infoPanel = new JPanel();
             contentPanel.add(infoPanel, BorderLayout.SOUTH);
             infoPanel.setLayout(new MigLayout("", "[50px][214px]", "[14px][14px][14px][14px][14px]"));
@@ -674,24 +682,32 @@ public class PhotoImporter extends SimpleRendererInteraction {
 
     }
 
-    private class TableDialog extends JDialog {
+    private class TableDialog {
 
         private static final long serialVersionUID = 1L;
+        private final JFrame wrapper;
         private final JPanel contentPanel = new JPanel();
         private ArrayList<ImageMetadata> dataArray = new ArrayList<>();
         private JTable table;
         private MetadataModel model;
 
-        public TableDialog(Window parent) {
-            super(parent, ModalityType.MODELESS);
-            setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-            setTitle(I18n.text("Photos List"));
-            setType(Type.POPUP);
-            setBounds(100, 100, 850, 300);
-            setLocationRelativeTo(ConfigFetch.getSuperParentAsFrame());
-            getContentPane().setLayout(new BorderLayout());
+        /**
+         * @return the contentPanel
+         */
+        public JFrame getContent() {
+            return wrapper;
+        }
+
+        public TableDialog() {
+//            super(parent, ModalityType.MODELESS);
+//            setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+//            setTitle(I18n.text("Photos List"));
+//            setType(Type.POPUP);
+//            setBounds(100, 100, 850, 300);
+//            setLocationRelativeTo(ConfigFetch.getSuperParentAsFrame());
+//            getContentPane().setLayout(new BorderLayout());
+//            getContentPane().add(contentPanel, BorderLayout.CENTER);
             contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
-            getContentPane().add(contentPanel, BorderLayout.CENTER);
             contentPanel.setLayout(new BorderLayout(0, 0));
             for (Entry<String, ArrayList<ImageMetadata>> e : list.entrySet()) {
                 for (ImageMetadata img : e.getValue()) {
@@ -730,7 +746,7 @@ public class PhotoImporter extends SimpleRendererInteraction {
                     if (event.getClickCount() == 2) {
                         ImageMetadata imgMD = dataArray.get(table.getSelectedRow());
                         if (imgMD != null) {
-                            DetailsDialog details = new DetailsDialog(SwingUtilities.windowForComponent(getConsole()), imgMD);
+                            JFrame details = new DetailsDialog(imgMD).getContentFrame();
                             details.setVisible(true);
                         }
                     }
@@ -767,6 +783,8 @@ public class PhotoImporter extends SimpleRendererInteraction {
                     }
                 }
             });
+            wrapper = GuiUtils.testFrame(contentPanel, "DJI Photo Importer Table");
+            wrapper.setVisible(false);
         }
 
         public void updateTableModel() {
