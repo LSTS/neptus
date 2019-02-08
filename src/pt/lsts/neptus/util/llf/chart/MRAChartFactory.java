@@ -37,6 +37,7 @@ import java.util.Vector;
 
 import pt.lsts.neptus.mra.MRAPanel;
 import pt.lsts.neptus.mra.plots.ScriptedPlot;
+import pt.lsts.neptus.mra.plots.ScriptedPlotsGroovy;
 import pt.lsts.neptus.mra.visualizations.MRAVisualization;
 import pt.lsts.neptus.plugins.PluginsRepository;
 
@@ -91,7 +92,9 @@ public class MRAChartFactory {
             if (f.isDirectory() || !f.canRead())
                 continue;
             ScriptedPlot plot = new ScriptedPlot(panel, f.getAbsolutePath());
+            ScriptedPlotsGroovy gPlot = new ScriptedPlotsGroovy(panel,f.getAbsolutePath());
             plots.add(plot);
+            //return gPlot.getPlots();
         }
 
         return plots;
