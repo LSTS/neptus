@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -1058,7 +1058,7 @@ public class EnvDataPaintHelper {
             final int idx = 1; //getIndexForData(rendererCalculator.getLevelOfDetail(), usePercent);
             debugOut(showDataDebugLegend, String.format("%s stg 1 took %ss :: using %d of %d visible from original %d (%.1f%% of visible) | %d not gridded %sused",
                     varName, MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1), (ptFilt.get(0) == null ? -1 : ptFilt.get(0).size()), 
-                    visiblePts.longValue(), dest.size(), usePercent, (ptFilt.get(1) == null ? -1 : ptFilt.get(1).size()), idx == 0 ? "not " : ""));
+                    visiblePts.longValue(), dest.size(), usePercent, (ptFilt.get(1) == null ? -1 : ptFilt.get(1).size()), ""));
             stMillis = System.currentTimeMillis();
 
             if (eachPointPainter != null) {
@@ -1093,20 +1093,6 @@ public class EnvDataPaintHelper {
         catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    /**
-     * @param loDetail
-     * @param usePercent
-     * @return
-     */
-    private static int getIndexForData(int loDetail, double usePercent) {
-        int idx = 0;
-        if (usePercent <= 90)
-            idx = 0;
-        else
-            idx = 1;
-        return idx;
     }
 
     /**

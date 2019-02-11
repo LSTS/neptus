@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2017.01.0 (master,cab2f729)" system="manta-12" i18n="pt_PT">
+<config format="1" version="2017.01.0 (master,3b18955d)" system="manta-12" i18n="pt_PT">
   <section name="Text Message Parser" name-i18n="Processador de Mensagens de Texto">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -47,6 +47,34 @@
       <desc/>
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Reply timeout">
+      <name-i18n>Reply timeout</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>60</default>
+      <units/>
+      <desc/>
+      <min>30</min>
+    </param>
+    <param name="Documentation URL">
+      <name-i18n>Documentation URL</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>https://bit.ly/2LZ0EOc</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Valid Commands">
+      <name-i18n>Valid Commands</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>abort,dislodge,dive,errors,info,force,go,help,phone,reboot,sk,start,surface</default>
+      <units/>
+      <desc/>
     </param>
   </section>
   <section name="Navigation" name-i18n="Navegação">
@@ -1885,7 +1913,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Abort, Announce, AcousticLink, AcousticOperation, CommSystemsQuery, CpuUsage, Current, Depth, DevDataText, EntityList, EntityState, EstimatedState, FuelLevel, GpsFix, Heartbeat, IndicatedSpeed, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblRange, LblRangeAcceptance, LogBookControl, LogBookEntry, PlanControl, PlanControlState, PowerChannelControl, RemoteSensorInfo, RSSI, StorageUsage, TelemetryMsg, Temperature, TextMessage, UamRxFrame, UamTxFrame, UamTxStatus, UamRxRange, UsblAnglesExtended, UsblPositionExtended, UsblFixExtended, UsblModem, UsblConfig, VehicleState, Voltage, VtolState</default>
+      <default>Abort, Acceleration, AngularVelocity, Announce, AcousticLink, AcousticOperation, CommSystemsQuery, CpuUsage, Current, Depth, DevDataText, EntityList, EntityState, EstimatedState, FuelLevel, EulerAngles, GpsFix, Heartbeat, IndicatedSpeed, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblRange, LblRangeAcceptance, LogBookControl, LogBookEntry, LoggingControl, MagneticField, SetControlSurfaceDeflection, PlanControl, PlanControlState, Pressure, PowerChannelControl, RemoteSensorInfo, ReportControl, RSSI, SoundSpeed, StorageUsage, TelemetryMsg, Temperature, TextMessage, UamRxFrame, UamTxFrame, UamTxStatus, UamRxRange, UsblAnglesExtended, UsblPositionExtended, UsblFixExtended, UsblModem, UsblConfig, VehicleState, Voltage, VtolState</default>
       <units/>
       <desc/>
     </param>
@@ -2098,7 +2126,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>10</default>
+      <default>50</default>
       <units/>
       <desc>Prioridade de execução</desc>
     </param>
@@ -2221,7 +2249,7 @@
       <type>string</type>
       <visibility>user</visibility>
       <scope>global</scope>
-      <default/>
+      <default>vtol-03</default>
       <units/>
       <desc>Vehicle to bind</desc>
     </param>
@@ -2250,27 +2278,9 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>10</default>
+      <default>100</default>
       <units/>
       <desc>Duty cycle - the percentage of time to allow transmit</desc>
-    </param>
-    <param name="Max frequency">
-      <name-i18n>Max frequency</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>870000</default>
-      <units/>
-      <desc>Max frequency in KHz</desc>
-    </param>
-    <param name="Min frequency">
-      <name-i18n>Min frequency</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>868000</default>
-      <units/>
-      <desc>Min frequency in KHz</desc>
     </param>
     <param name="Air speed">
       <name-i18n>Air speed</name-i18n>
@@ -2327,6 +2337,26 @@
       <default>false</default>
       <units/>
       <desc>Enable system state telemetry reporting. When enabled, systems shall acknowledge reception of requests to broadcast Reports messages containing the overall state of the system. When disabled, those requests shall be ignored</desc>
+    </param>
+    <param name="Enable UAV high speed report">
+      <name-i18n>Enable UAV high speed report</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Enable system state telemetry reporting.</desc>
+    </param>
+    <param name="UAV high speed Reports Periodicity">
+      <name-i18n>UAV high speed Reports Periodicity</name-i18n>
+      <type>real</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>1</default>
+      <units>s</units>
+      <desc>Reports periodicity</desc>
+      <min>0.3</min>
+      <max>600</max>
     </param>
     <param name="Entity Label - Voltage">
       <name-i18n>Entity Label - Voltage</name-i18n>
@@ -2490,7 +2520,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Abort, AcousticOperation, AcousticSystemsQuery, AcousticSystems, CommSystemsQuery, CpuUsage, Current, Depth, Distance, EntityList, EntityParameters, EntityState, EstimatedState, FuelLevel, GpsFix, Heartbeat, IndicatedSpeed, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblRange, LblRangeAcceptance, LogBookControl, LoggingControl, NavigationUncertainty, PlanControl, PlanControlState, RemoteSensorInfo, RSSI, StateReport, StorageUsage, TelemetryMsg, Temperature, TextMessage, UsblAnglesExtended, UsblPositionExtended, UsblFixExtended, UsblModem, UsblConfig, VehicleState, Voltage, VtolState</default>
+      <default>Abort, AcousticOperation, AcousticSystemsQuery, AcousticSystems, CommSystemsQuery, CpuUsage, Current, Depth, Distance, EntityList, EntityParameters, EntityState, EstimatedState, EulerAngles, FuelLevel, GpsFix, Heartbeat, IndicatedSpeed, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblRange, LblRangeAcceptance, LogBookControl, LoggingControl, MagneticField, NavigationUncertainty, PlanControl, PlanControlState, RemoteSensorInfo, RSSI, SetControlSurfaceDeflection, StateReport, StorageUsage, TelemetryMsg, Temperature, TextMessage, UsblAnglesExtended, UsblPositionExtended, UsblFixExtended, UsblModem, UsblConfig, VehicleState, Voltage, VtolState</default>
       <units/>
       <desc>List of messages to transport</desc>
     </param>

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -347,7 +347,10 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
         String plan = msg.getPlanId();
         String maneuver = (msg.getManId() == null || msg.getManId().isEmpty()) ? null : msg.getManId();
 
-        if (msg.getState() == STATE.BLOCKED || msg.getState() == STATE.READY)
+        if (msg.getState() == STATE.BLOCKED)
+            return;
+        
+        if (msg.getState() == STATE.READY)
             plan = maneuver = null;
 
         setSimulationState(src, plan, maneuver);
@@ -382,11 +385,12 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
             PlanSimulator sim = setSimulationState(src, plan, null);
             if (sim != null) {
                 EstimatedState current = sim.getState().toEstimatedState();
-                current.setLat(msg.getLatitude());
-                current.setLon(msg.getLongitude());
+                current.setLat(Math.toRadians(msg.getLatitude()));
+                current.setLon(Math.toRadians(msg.getLongitude()));
+                current.setDepth(msg.getDepth()/10.0);
                 double ellapsedTime = Math.abs(System.currentTimeMillis()/1000.0 - msg.getStime()) * 3;
                 sim.setPositionEstimation(current, ellapsedTime);
-            }            
+            }
         }
     }
 

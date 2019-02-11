@@ -32,14 +32,13 @@
 
 package pt.lsts.neptus.mp.preview;
 
+import java.util.Vector;
+
 import pt.lsts.neptus.mp.Maneuver.SPEED_UNITS;
 import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mp.maneuvers.Magnetometer;
 import pt.lsts.neptus.types.coord.LocationType;
-import pt.lsts.neptus.vtk.utils.PointCloudUtils;
-
-import java.util.Vector;
 
 /**
  * @author zp

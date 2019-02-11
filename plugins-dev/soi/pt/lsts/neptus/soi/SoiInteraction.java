@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -221,7 +221,6 @@ public class SoiInteraction extends SimpleRendererInteraction {
         sendCommand(cmd, getConsole().getMainSystem());
     }
 
-    @SuppressWarnings("deprecation")
     @NeptusMenuItem("Tools>SOI>Change SOI Settings")
     public void sendSOISettings() {
 
@@ -244,7 +243,6 @@ public class SoiInteraction extends SimpleRendererInteraction {
         sendCommand(cmd, system);
     }
     
-    @SuppressWarnings("deprecation")
     @NeptusMenuItem("Tools>SOI>Change Drip Settings")
     public void sendDripSettings() {
 
@@ -439,7 +437,6 @@ public class SoiInteraction extends SimpleRendererInteraction {
             popup.addSeparator();
 
             popup.add("Change plug-in settings").addActionListener(new ActionListener() {
-                @SuppressWarnings("deprecation")
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     PluginUtils.editPluginProperties(SoiInteraction.this, true);

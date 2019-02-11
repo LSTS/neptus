@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -359,11 +359,10 @@ public class PluginUtils {
         return null;
     }
     /**
-     * @deprecated Use {@link #editPluginProperties(Object, Window, boolean)} instead.
      * @return <b>true</b> if cancelled or <b>false</b> otherwise.
      */
     public static <P extends Window>  boolean editPluginProperties(final Object obj, boolean editable) {
-        return editPluginProperties(obj, null, editable);
+        return editPluginProperties(obj, ConfigFetch.getSuperParentAsFrame(), editable);
     }
     
     /**
@@ -395,7 +394,6 @@ public class PluginUtils {
                 return getPluginProperties(obj);
             }
         };
-        
         return PropertiesEditor.editProperties(provider, parent, editable);
     }
 
