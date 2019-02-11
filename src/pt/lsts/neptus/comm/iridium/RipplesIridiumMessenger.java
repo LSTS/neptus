@@ -36,11 +36,11 @@ package pt.lsts.neptus.comm.iridium;
  * @author zp
  *
  */
-@IridiumProvider(id="heroku", name="Heroku Messenger", description="Sends Iridium messages directly via heroku ripples app.")
+@IridiumProvider(id="ripples", name="Ripples Messenger", description="Sends Iridium messages directly to ripples app.")
 public class RipplesIridiumMessenger extends HubIridiumMessenger {
 
     public RipplesIridiumMessenger() {
-        serverUrl = "http://ripples-spring.herokuapp.com/api/v1/";        
+        serverUrl = "http://104.248.168.40:9090/api/v1/";        
     }
     
 }
