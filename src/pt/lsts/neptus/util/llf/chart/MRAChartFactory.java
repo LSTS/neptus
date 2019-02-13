@@ -36,8 +36,8 @@ import java.io.File;
 import java.util.Vector;
 
 import pt.lsts.neptus.mra.MRAPanel;
+import pt.lsts.neptus.mra.plots.GenericPlot;
 import pt.lsts.neptus.mra.plots.ScriptedPlot;
-import pt.lsts.neptus.mra.plots.ScriptedPlotsGroovy;
 import pt.lsts.neptus.mra.visualizations.MRAVisualization;
 import pt.lsts.neptus.plugins.PluginsRepository;
 
@@ -73,15 +73,15 @@ public class MRAChartFactory {
             }
         }
 
-        Vector<ScriptedPlot> scrptPlots = getScriptedPlots(panel);
+        Vector<GenericPlot> scrptPlots = getScriptedPlots(panel);
         if (scrptPlots != null && scrptPlots.size() > 0)
             charts.addAll(scrptPlots);
 
         return charts.toArray(new MRAVisualization[charts.size()]);
     }
 
-    public static Vector<ScriptedPlot> getScriptedPlots(MRAPanel panel) {
-        Vector<ScriptedPlot> plots = new Vector<ScriptedPlot>();
+    public static Vector<GenericPlot> getScriptedPlots(MRAPanel panel) {
+        Vector<GenericPlot> plots = new Vector<GenericPlot>();
 
         File sFx = new File("conf/mraplots");
         File[] scripts = sFx.exists() ? sFx.listFiles() : null;
@@ -91,10 +91,8 @@ public class MRAChartFactory {
         for (File f : scripts) {
             if (f.isDirectory() || !f.canRead())
                 continue;
-            ScriptedPlot plot = new ScriptedPlot(panel, f.getAbsolutePath());
-            ScriptedPlotsGroovy gPlot = new ScriptedPlotsGroovy(panel,f.getAbsolutePath());
-            plots.add(plot);
-            //return gPlot.getPlots();
+            ScriptedPlot gPlot = new ScriptedPlot(panel,f.getAbsolutePath());
+            plots.add(gPlot.getGenericPlot());
         }
 
         return plots;

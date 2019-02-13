@@ -85,7 +85,7 @@ import pt.lsts.neptus.mra.api.SidescanParameters;
 import pt.lsts.neptus.mra.api.SidescanParser;
 import pt.lsts.neptus.mra.api.SidescanParserFactory;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
-import pt.lsts.neptus.mra.plots.ScriptedPlot;
+import pt.lsts.neptus.mra.plots.GenericPlot;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.map.MapGroup;
@@ -365,7 +365,7 @@ public class LsfReport {
             doc.newPage();
 
             for (LLFChart llfChart : llfCharts) {
-                if (!(llfChart instanceof ScriptedPlot)) {
+                if (!(llfChart instanceof GenericPlot)) {
                     java.awt.Graphics2D g2 = cb.createGraphicsShapes(pageSize.getWidth(), pageSize.getHeight());
                     int width = (int) pageSize.getWidth();
                     int height = (int) pageSize.getHeight();

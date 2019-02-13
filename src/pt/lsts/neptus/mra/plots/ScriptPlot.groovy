@@ -28,44 +28,33 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: keila
- * Feb 8, 2019
+ * Feb 13, 2019
  */
 package pt.lsts.neptus.mra.plots
 
-import pt.lsts.imc.lsf.LsfIndex
 import pt.lsts.neptus.plugins.plots.groovy.GroovyPlot
-import pt.lsts.neptus.plugins.rtplot.PlotScript
 import pt.lsts.neptus.plugins.rtplot.RealTimePlotGroovy
 
 /**
  * @author keila
  *
  */
-class ScriptedPlotGroovy extends GroovyPlot  {
+class ScriptPlot extends GroovyPlot {
     
-    private Map<String,MRATimeSeriesPlot> timeseries;
-    static ScriptedPlot plot
-    
-    
-    static void configPlot(ScriptedPlot p) {
+    public static ScriptedPlot plot = null
+    static void configPlot(RealTimePlotGroovy p) {
         plot = p
     }
-
     
+    
+
     /* (non-Javadoc)
      * @see pt.lsts.neptus.plugins.plots.groovy.GroovyPlot#value(java.lang.String)
      */
     @Override
     public LinkedHashMap value(String msgDotEntityDotField) {
-        
-        return plot.getDataFromExpr(msgDotEntityDotField);
+        // TODO Auto-generated method stub
+        return null
     }
-    
 
-    /**
-     * @return
-     */
-    public List<MRATimeSeriesPlot> getPlots() {
-        return timeseries.values();
-    }
 }

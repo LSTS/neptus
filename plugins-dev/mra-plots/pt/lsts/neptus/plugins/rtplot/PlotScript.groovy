@@ -70,10 +70,16 @@ class PlotScript extends GroovyPlot {
     static def value = { msgDotField ->
         RealTimePlotGroovy.getSystems().collectEntries{ [(it+"."+msgDotField): ImcMsgManager.getManager().getState(it).expr(msgDotField)]}
     }
-
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.plugins.plots.groovy.GroovyPlot#value(java.lang.String)
+     */
+    @Override
+    public LinkedHashMap value(String msgDotEntityDotField) {
+        return this.value.call(msgDotEntityDotField);
+    }
+    
     static def state(String s){
-        String msg = "EstimatedState."+s
-        value(msg)
+        return this.value("EstimatedState."+s)
     }
 
     static def roll() {
@@ -160,11 +166,4 @@ class PlotScript extends GroovyPlot {
         }
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.plugins.plots.groovy.GroovyPlot#value(java.lang.String)
-     */
-    @Override
-    public LinkedHashMap value(String msgDotEntityDotField) {
-        return this.value.call(msgDotEntityDotField);
-    }
 }
