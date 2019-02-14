@@ -43,6 +43,7 @@ import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.control.customizers.ImportCustomizer;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
+import org.jfree.data.time.TimeSeriesDataItem;
 
 import groovy.lang.GroovyShell;
 import pt.lsts.imc.lsf.LsfIndex;
@@ -147,7 +148,12 @@ public class ScriptedPlot {
      * @param allTsc the TimeSeries to be added
      */
     public void addTimeSerie(String id, TimeSeries ts) {
-        plot.addValue(ts.getDataItem(0).getPeriod().getFirstMillisecond(), id, ts.getDataItem(0).getValue().doubleValue());
+        plot.addValue(id,ts.getDataItem(0));
+        //getDataItem(0);
+        //for(int i=0;i<p.tsc.getSeriesCount();i++){
+            //TimeSeriesDataItem data = values.get(id).
+            //plot.addValue(expr, data);
+        //}
     }
     public void mark (double time,String label  ) {
         mra.addMarker(new LogMarker(label, time * 1000,0,0));

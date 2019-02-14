@@ -37,6 +37,8 @@ import java.util.Vector;
 
 import javax.swing.ImageIcon;
 
+import org.jfree.data.time.TimeSeriesDataItem;
+
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.mra.MRAPanel;
@@ -83,6 +85,17 @@ public class GenericPlot extends MRATimeSeriesPlot {
     @Override
     public Vector<String> getForbiddenSeries() {
         return forbiddenSeries;
+    }
+    
+    public void addValue(String trace, TimeSeriesDataItem value) {
+
+        if (forbiddenSeries.contains(trace))
+            return;
+
+        if (!series.containsKey(trace)) {
+            addTrace(trace);
+        }
+        series.get(trace).addOrUpdate(value);
     }
 
     @Override

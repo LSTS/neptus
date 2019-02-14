@@ -52,6 +52,7 @@ import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.data.time.Millisecond;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
+import org.jfree.data.time.TimeSeriesDataItem;
 
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.i18n.I18n;
@@ -130,7 +131,7 @@ public abstract class MRATimeSeriesPlot implements LLFChart, LogMarkerListener {
         }
         series.get(trace).addOrUpdate(new Millisecond(new Date(timeMillis), TimeZone.getTimeZone("UTC"), Locale.getDefault()), value);
     }
-
+    
     @Override
     public Component getComponent(IMraLogGroup source, double timestep) {
         MRAChartPanel fcp = new MRAChartPanel(this, source, mraPanel);
