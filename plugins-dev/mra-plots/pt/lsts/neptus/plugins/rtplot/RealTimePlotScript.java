@@ -128,7 +128,7 @@ public class RealTimePlotScript extends JPanel {
                     }
                     if (filter.accept(fc.getSelectedFile()) && replace > 0) {
                         FileUtil.saveToFile(fc.getSelectedFile().getAbsolutePath(), editorPane.getText());
-                        showStoredScripts();
+                        fillStoredScripts();
                     }
                     else if (!filter.accept(fc.getSelectedFile())){
                         GuiUtils.errorMessage(editorPane, "Wrong file extension",
@@ -158,6 +158,7 @@ public class RealTimePlotScript extends JPanel {
         editorPane.setText(plot.traceScript);
         fillPlotOptions();
         fillMathOptions();
+        fillStoredScripts();
         numPointsField.addActionListener(new ActionListener() {
 
             @Override
@@ -274,13 +275,12 @@ public class RealTimePlotScript extends JPanel {
                 createExtraSysOptions(s.getName(), sysdata);
                 return;
             }
-        showStoredScripts();
     }
 
     /**
      * List in the @JMenu the stored scripts under the directory conf/mraplots/realtime/
      */
-    private static void showStoredScripts() {
+    private void fillStoredScripts() {
         storedScripts = new JMenu("Stored Scripts");
         File conf_mra_rtplot = new File(path);
 

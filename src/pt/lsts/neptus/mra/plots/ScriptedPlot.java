@@ -43,7 +43,6 @@ import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.control.customizers.ImportCustomizer;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
-import org.jfree.data.time.TimeSeriesDataItem;
 
 import groovy.lang.GroovyShell;
 import pt.lsts.imc.lsf.LsfIndex;
@@ -57,11 +56,11 @@ import pt.lsts.neptus.util.GuiUtils;
  */
 public class ScriptedPlot {
     
-    private TimeSeriesCollection timeseries = new TimeSeriesCollection();
     private GroovyShell shell;
     private LsfIndex index;
     private final String scriptPath;
-    Map<String,List<TimeSeries>> values = new LinkedHashMap<>();
+    private TimeSeriesCollection tcoll = new TimeSeriesCollection();
+    Map<String,TimeSeries> values = new LinkedHashMap<>();
     List<String> msgsDotEntDotFields = new ArrayList<>();
     String msg, entity, field;
     private MRAPanel mra;
@@ -74,14 +73,21 @@ public class ScriptedPlot {
     public ScriptedPlot(MRAPanel panel,String path) {
         mra = panel;
         scriptPath = path;
+        index = mra.getSource().getLsfIndex();
+        String [] fields = new String[1];
+        fields[0] = "EstimatedState.depth";
+        plot = new GenericPlot(fields, panel);
+        for(TimeSeries t: plot.series.values()){
+            tcoll.addSeries(t);
+        }
         // init shell
         CompilerConfiguration cnfg = new CompilerConfiguration();
         ImportCustomizer imports = new ImportCustomizer();
         imports.addStarImports("pt.lsts.imc", "java.lang.Math","pt.lsts.neptus.mra.plots");
-        imports.addStaticStars("pt.lsts.neptus.mra.plots.ScriptedPlotGroovy","pt.lsts.neptus.plugins.plots.groovy.GroovyPlot");
+        imports.addStaticStars("pt.lsts.neptus.mra.plots.ScriptedPlotGroovy");
         cnfg.addCompilationCustomizers(imports);
         shell = new GroovyShell(this.getClass().getClassLoader(), cnfg);
-        runScript(path);
+        runScript(scriptPath);
     }
     
     public String[] msgField(String expr) {
@@ -99,6 +105,10 @@ public class ScriptedPlot {
         }
         return fields;
     }
+    
+    public void defineTitle(String t) {
+        plot.chart.setTitle(t);
+    }
 
   
     /**
@@ -108,12 +118,20 @@ public class ScriptedPlot {
         return plot;
     }
 
-    public void addSerieQuery(String expr) {
-        if(!values.containsKey(expr))
-            values.put(expr, new ArrayList<TimeSeries>());
-        GenericPlot p = new GenericPlot(msgField(expr),mra);//TODO Optimize
-        p.process(index);
-        values.get(expr).addAll(p.series.values());
+    public List<TimeSeries> getDataFromExpr(String expr) {
+        List<TimeSeries> result = new ArrayList<>();
+        
+        if(tcoll.getSeries(expr) == null) {
+            GenericPlot p = new GenericPlot(msgField(expr),mra);//TODO Optimize
+            System.err.println("Got here 1");
+            p.process(index);
+            for(TimeSeries t: p.series.values()){
+                result.add(t);
+                tcoll.addSeries(t);
+            }
+        }
+        
+        return result;
     }
 
     /**
@@ -129,7 +147,7 @@ public class ScriptedPlot {
             while ((c = reader.read()) != -1) {
                 sb.append((char) c);
             }
-          shell.setVariable("plot", this);
+          shell.setVariable("plot", ScriptedPlot.this);
           String defplot = "configPlot plot";
           shell.evaluate(defplot);
           String script = sb.toString();  
@@ -145,15 +163,11 @@ public class ScriptedPlot {
     /**
      * Adds a new time series to the existing plot. If the series already exists, it updates it.
      * 
-     * @param allTsc the TimeSeries to be added
+     * @param ts the TimeSeries to be added
      */
-    public void addTimeSerie(String id, TimeSeries ts) {
-        plot.addValue(id,ts.getDataItem(0));
-        //getDataItem(0);
-        //for(int i=0;i<p.tsc.getSeriesCount();i++){
-            //TimeSeriesDataItem data = values.get(id).
-            //plot.addValue(expr, data);
-        //}
+    public void addTimeSerie(TimeSeries ts) {
+        plot.tsc.addSeries(ts);
+
     }
     public void mark (double time,String label  ) {
         mra.addMarker(new LogMarker(label, time * 1000,0,0));

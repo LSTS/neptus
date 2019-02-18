@@ -33,39 +33,51 @@
 package pt.lsts.neptus.mra.plots
 
 import pt.lsts.imc.lsf.LsfIndex
-import pt.lsts.neptus.plugins.plots.groovy.GroovyPlot
 import pt.lsts.neptus.plugins.rtplot.PlotScript
 import pt.lsts.neptus.plugins.rtplot.RealTimePlotGroovy
+
+import org.jfree.data.time.Millisecond
+import org.jfree.data.time.TimeSeries
+import org.jfree.data.time.TimeSeriesDataItem
+import org.jfree.data.xy.XYDataItem
+import org.jfree.data.xy.XYSeries
 
 /**
  * @author keila
  *
  */
-class ScriptedPlotGroovy extends GroovyPlot  {
+class ScriptedPlotGroovy  {
     
-    private Map<String,MRATimeSeriesPlot> timeseries;
-    static ScriptedPlot plot
+    static ScriptedPlot plot = null
     
     
     static void configPlot(ScriptedPlot p) {
         plot = p
     }
-
     
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.plugins.plots.groovy.GroovyPlot#value(java.lang.String)
-     */
-    @Override
-    public LinkedHashMap value(String msgDotEntityDotField) {
-        
-        return plot.getDataFromExpr(msgDotEntityDotField);
+    static def value = { msgDotField ->
+    	if(plot!= null)
+    		return plot.getDataFromExpr(msgDotField);
+    }
+
+	static void addTimeSeries(List<TimeSeries> lts) {
+	lts.each {
+		plot.addTimeSeries(it)
+		}
+	}
+    
+    static public List<TimeSeries> apply(List<TimeSeries> lts, Object function) {
+    	lts.each {
+	    	for(int i = 0;i<it.getItemCount();i++) {
+	    		def value = it.getDataItem(i).getValue
+	        	it.getDataItem(i).setValue(function.call(value))
+	        }
+    	}
+    	lts
     }
     
-
-    /**
-     * @return
-     */
-    public List<MRATimeSeriesPlot> getPlots() {
-        return timeseries.values();
+    static void title(String t) {
+    	plot.defineTitle(t);
     }
+
 }

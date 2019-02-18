@@ -42,7 +42,6 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystem
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder
 import pt.lsts.neptus.mra.plots.TimedXYDataItem
-import pt.lsts.neptus.plugins.plots.groovy.GroovyPlot
 import pt.lsts.neptus.plugins.rtplot.RealTimePlotGroovy.PlotType
 import pt.lsts.neptus.types.coord.LocationType
 import pt.lsts.neptus.util.GuiUtils
@@ -59,7 +58,7 @@ import org.jfree.data.xy.XYSeries
 
 
 
-class PlotScript extends GroovyPlot {
+class PlotScript {
     
     static RealTimePlotGroovy realTimePlot = null
     
@@ -67,15 +66,19 @@ class PlotScript extends GroovyPlot {
         realTimePlot = p
     }
     
+    static public final String newName(String dottedName, String serieName) {
+        dottedName.split(/(\.)/)[0] + "." +serieName
+    }
+    static public LinkedHashMap apply (LinkedHashMap map, Object function)  {
+        def result = [:]
+        map.each {
+            result.put it.key,function.call(it.value)
+        }
+        result
+    }
+    
     static def value = { msgDotField ->
         RealTimePlotGroovy.getSystems().collectEntries{ [(it+"."+msgDotField): ImcMsgManager.getManager().getState(it).expr(msgDotField)]}
-    }
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.plugins.plots.groovy.GroovyPlot#value(java.lang.String)
-     */
-    @Override
-    public LinkedHashMap value(String msgDotEntityDotField) {
-        return this.value.call(msgDotEntityDotField);
     }
     
     static def state(String s){
