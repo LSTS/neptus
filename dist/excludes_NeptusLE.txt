@@ -17,7 +17,6 @@ plugins/s57-client*.jar
 plugins/spot.jar
 plugins/sunfish.jar
 plugins/trex*.jar
-plugins/urready4os.jar
 plugins/vrp.jar
 plugins/waveglider.jar
 plugins/webupdate.jar
