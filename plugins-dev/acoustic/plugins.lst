@@ -8,3 +8,4 @@ pt.lsts.neptus.plugins.acoustic.SimpleAbortModemRequest
 pt.lsts.neptus.plugins.acoustic.MantaOperations
 pt.lsts.neptus.plugins.acoustic.LblEstimateOverlay
 pt.lsts.neptus.plugins.acoustic.LBLRangesReplay
+pt.lsts.neptus.plugins.acoustic.UsblLayer
