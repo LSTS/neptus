@@ -1,1 +1,3 @@
-addTimeSeries (value("EstimatedState.depth"))
+
+depth = "EstimatedState.depth" 
+addTimeSeries depth

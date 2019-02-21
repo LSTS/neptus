@@ -35,16 +35,20 @@ package pt.lsts.neptus.mra.plots;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.control.customizers.ImportCustomizer;
 import org.jfree.data.time.TimeSeries;
-import org.jfree.data.time.TimeSeriesCollection;
+import org.jfree.data.time.TimeSeriesDataItem;
 
 import groovy.lang.GroovyShell;
+import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.MRAPanel;
@@ -54,84 +58,78 @@ import pt.lsts.neptus.util.GuiUtils;
  * @author keila
  *
  */
-public class ScriptedPlot {
-    
+public class ScriptedPlot extends MRATimeSeriesPlot {
+
     private GroovyShell shell;
     private LsfIndex index;
     private final String scriptPath;
-    private TimeSeriesCollection tcoll = new TimeSeriesCollection();
-    Map<String,TimeSeries> values = new LinkedHashMap<>();
-    List<String> msgsDotEntDotFields = new ArrayList<>();
-    String msg, entity, field;
+    private Map<String, TimeSeries> values = new LinkedHashMap<>();
+    private Map<String, String> seriesIndex = new HashMap<>();
     private MRAPanel mra;
-    private GenericPlot plot;
-
+    private String title = null;
 
     /**
      * @param panel
      */
-    public ScriptedPlot(MRAPanel panel,String path) {
+    public ScriptedPlot(MRAPanel panel, String path) {
+        super(panel);
         mra = panel;
         scriptPath = path;
         index = mra.getSource().getLsfIndex();
-        String [] fields = new String[1];
+        String[] fields = new String[1];
         fields[0] = "EstimatedState.depth";
-        plot = new GenericPlot(fields, panel);
-        for(TimeSeries t: plot.series.values()){
-            tcoll.addSeries(t);
-        }
+
         // init shell
         CompilerConfiguration cnfg = new CompilerConfiguration();
         ImportCustomizer imports = new ImportCustomizer();
-        imports.addStarImports("pt.lsts.imc", "java.lang.Math","pt.lsts.neptus.mra.plots");
+        imports.addStarImports("pt.lsts.imc", "java.lang.Math", "pt.lsts.neptus.mra.plots");
         imports.addStaticStars("pt.lsts.neptus.mra.plots.ScriptedPlotGroovy");
         cnfg.addCompilationCustomizers(imports);
         shell = new GroovyShell(this.getClass().getClassLoader(), cnfg);
         runScript(scriptPath);
     }
-    
+
     public String[] msgField(String expr) {
+        String msg, field, entity;
         String[] fields = expr.split(".");
-        if(fields.length == 2) {
+        if (fields.length == 2) {
             msg = fields[0];
             field = fields[1];
             entity = null;
         }
-        else if(fields.length == 3)
-        {
+        else if (fields.length == 3) {
             msg = fields[0];
             entity = fields[1];
             field = fields[2];
         }
         return fields;
     }
-    
-    public void defineTitle(String t) {
-        plot.chart.setTitle(t);
-    }
 
-  
-    /**
-     * @return the plot
-     */
-    public GenericPlot getGenericPlot() {
-        return plot;
+    public void title(String t) {
+        title = t;
     }
 
     public List<TimeSeries> getDataFromExpr(String expr) {
         List<TimeSeries> result = new ArrayList<>();
-        
-        if(tcoll.getSeries(expr) == null) {
-            GenericPlot p = new GenericPlot(msgField(expr),mra);//TODO Optimize
-            System.err.println("Got here 1");
+
+        if (tsc.getSeries(expr) == null) {
+            GenericPlot p = new GenericPlot(msgField(expr), mra);// TODO Optimize
             p.process(index);
-            for(TimeSeries t: p.series.values()){
+            for (TimeSeries t : p.series.values()) {
                 result.add(t);
-                tcoll.addSeries(t);
+                tsc.addSeries(t);
             }
         }
-        
+
         return result;
+    }
+    
+    @Override
+    public String getName() {
+        if(title == null)
+            return  Arrays.toString(seriesIndex.keySet().toArray());
+        else 
+            return title;
     }
 
     /**
@@ -147,29 +145,107 @@ public class ScriptedPlot {
             while ((c = reader.read()) != -1) {
                 sb.append((char) c);
             }
-          shell.setVariable("plot", ScriptedPlot.this);
-          String defplot = "configPlot plot";
-          shell.evaluate(defplot);
-          String script = sb.toString();  
-          shell.parse(script);
-          shell.evaluate(script);
-          reader.close();
+            shell.setVariable("plot", ScriptedPlot.this);
+            String defplot = "configPlot plot";
+            boolean b = shell.getVariable("plot") == null;
+            System.err.println("plot var equals null? "+b);
+            shell.evaluate(defplot); 
+            //shell.invokeMethod("configPlot", this);
+            String script = sb.toString();
+            shell.parse(script);
+            shell.evaluate(script);
+            reader.close();
         }
         catch (Exception e) {
             GuiUtils.errorMessage(mra, "Error Parsing Script", e.getLocalizedMessage());
         }
     }
-    
+
     /**
      * Adds a new time series to the existing plot. If the series already exists, it updates it.
      * 
      * @param ts the TimeSeries to be added
      */
-    public void addTimeSerie(TimeSeries ts) {
-        plot.tsc.addSeries(ts);
+    public void addTimeSeries(TimeSeries ts) {
+        String trace = ts.getKey().toString();
 
+        if (forbiddenSeries.contains(trace))
+            return;
+
+        if (!super.series.containsKey(trace)) {
+            addTrace(trace);
+        }
+        for (int i = 0; i < ts.getItemCount(); i++) {
+            TimeSeriesDataItem value = ts.getDataItem(i);
+            super.series.get(trace).addOrUpdate(value);
+        }
     }
-    public void mark (double time,String label  ) {
-        mra.addMarker(new LogMarker(label, time * 1000,0,0));
+    
+    public void addTimeSeries(String id, String query) {
+        seriesIndex.put(id, query);
+    }
+
+    public void mark(double time, String label) {
+        mra.addMarker(new LogMarker(label, time * 1000, 0, 0));
+    }
+
+    public void addQuery(String id, String field) {
+        seriesIndex.put(id, field);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see pt.lsts.neptus.mra.plots.MRATimeSeriesPlot#canBeApplied(pt.lsts.imc.lsf.LsfIndex)
+     */
+    @Override
+    public boolean canBeApplied(LsfIndex index) {
+        for (Entry<String, String> entry : seriesIndex.entrySet()) {
+            String field = entry.getValue();
+            String messageName = field.split("\\.")[0];
+            if (!index.containsMessagesOfType(messageName))
+                return false;
+        }
+        return true;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see pt.lsts.neptus.mra.plots.MRATimeSeriesPlot#process(pt.lsts.imc.lsf.LsfIndex) adapted from @GenericPlot
+     */
+    @Override
+    public void process(LsfIndex source) {
+        for (Entry<String, String> entry : seriesIndex.entrySet()) {
+            String field, entity;
+            String id = entry.getKey();
+            field = entry.getValue();
+            String messageName = field.split("\\.")[0];
+            String variable = field.split("\\.")[1];
+            System.err.println("Variable " + variable);
+            for (IMCMessage m : source.getIterator(messageName, 0, (long) (timestep * 1000))) {
+
+                String seriesName = "";
+                if (id.equals(field)) {
+                    if (m.getValue("id") != null) {
+                        seriesName = m.getSourceName() + "." + source.getEntityName(m.getSrc(), m.getSrcEnt()) + "."
+                                + field + "." + m.getValue("id");
+                    }
+                    else {
+                        seriesName = m.getSourceName() + "." + source.getEntityName(m.getSrc(), m.getSrcEnt()) + "."
+                                + field;
+                    }
+                }
+                else
+                    seriesName = m.getSourceName() + "." + id;
+                if (m.getMessageType().getFieldUnits(variable) != null
+                        && m.getMessageType().getFieldUnits(variable).startsWith("rad")) {
+                    // Special case for angles in radians
+                    addValue(m.getTimestampMillis(), seriesName, Math.toDegrees(m.getDouble(variable)));
+                }
+                else
+                    addValue(m.getTimestampMillis(), seriesName, m.getDouble(variable));
+            }
+        }
     }
 }

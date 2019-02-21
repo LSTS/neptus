@@ -32,10 +32,6 @@
  */
 package pt.lsts.neptus.mra.plots
 
-import pt.lsts.imc.lsf.LsfIndex
-import pt.lsts.neptus.plugins.rtplot.PlotScript
-import pt.lsts.neptus.plugins.rtplot.RealTimePlotGroovy
-
 import org.jfree.data.time.Millisecond
 import org.jfree.data.time.TimeSeries
 import org.jfree.data.time.TimeSeriesDataItem
@@ -48,36 +44,66 @@ import org.jfree.data.xy.XYSeries
  */
 class ScriptedPlotGroovy  {
     
-    static ScriptedPlot plot = null
+    static ScriptedPlot scripedPlot = null
     
     
     static void configPlot(ScriptedPlot p) {
-        plot = p
+        System.err.println("Configuring Plot: "+(p==null));
+        scripedPlot = p
     }
     
     static def value = { msgDotField ->
-    	if(plot!= null)
-    		return plot.getDataFromExpr(msgDotField);
+    	if(scripedPlot!= null)
+    		return scripedPlot.getDataFromExpr(msgDotField);
     }
 
-	static void addTimeSeries(List<TimeSeries> lts) {
-	lts.each {
-		plot.addTimeSeries(it)
-		}
+	static void addTimeSeries(Map<String,String> queries) {
+        queries.each {
+            scripedPlot.addTimeSeries(it.key, it.value)
+        }
 	}
     
-    static public List<TimeSeries> apply(List<TimeSeries> lts, Object function) {
-    	lts.each {
-	    	for(int i = 0;i<it.getItemCount();i++) {
-	    		def value = it.getDataItem(i).getValue
-	        	it.getDataItem(i).setValue(function.call(value))
-	        }
-    	}
-    	lts
+    static void addTimeSeries(String... queries) {
+       queries.each { 
+           scripedPlot.addTimeSeries(it, it)
+       }
     }
     
+    static Map<String,TimeSeries> addTimeSeries(List<TimeSeries> ts) {
+        ts.each{
+            scripedPlot.addTimeSeries(it)
+        }
+    }
+    
+    static Map<String,TimeSeries> getTimeSeriesFor(Map<String,String> queries) {
+        queries.each {
+            scripedPlot.addQuery(it.key,it.value)
+        }        
+    }
+    
+    static void getTimeSeriesFor(List<String> queries) {
+        queries.each {
+            scripedPlot.addQuery(it,it)
+        }
+    }
+    
+    static Map<String,TimeSeries> getTimeSeries(List<String> fields) {
+        fields.forEach{
+            scripedPlot.addTimeSeries(it)
+        }
+    }
+    
+    static public TimeSeries apply(TimeSeries ts, Object function) {
+        TimeSeries result = new TimeSeries(ts.getKey())
+        for(int i = 0;i<ts.getItemCount();i++) {
+            def value = ts.getDataItem(i)
+            result.add(value.setValue(function.call(value..getValue())))
+        }
+        result
+    }
+
     static void title(String t) {
-    	plot.defineTitle(t);
+    	scripedPlot.title(t);
     }
 
 }
