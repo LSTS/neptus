@@ -57,7 +57,7 @@ class ScriptedPlotGroovy  {
     		return scripedPlot.getDataFromExpr(msgDotField);
     }
 
-	static void addTimeSeries(Map<String,String> queries) {
+	static void addTimeSeries(LinkedHashMap<String,String> queries) {
         queries.each {
             scripedPlot.addTimeSeries(it.key, it.value)
         }
@@ -69,13 +69,13 @@ class ScriptedPlotGroovy  {
        }
     }
     
-    static Map<String,TimeSeries> addTimeSeries(List<TimeSeries> ts) {
+    static LinkedHashMap<String,TimeSeries> addTimeSeries(List<TimeSeries> ts) {
         ts.each{
             scripedPlot.addTimeSeries(it)
         }
     }
     
-    static Map<String,TimeSeries> getTimeSeriesFor(Map<String,String> queries) {
+    static LinkedHashMap<String,TimeSeries> getTimeSeriesFor(LinkedHashMap<String,String> queries) {
         queries.each {
             scripedPlot.addQuery(it.key,it.value)
         }        
@@ -87,7 +87,7 @@ class ScriptedPlotGroovy  {
         }
     }
     
-    static Map<String,TimeSeries> getTimeSeries(List<String> fields) {
+    static LinkedHashMap<String,TimeSeries> getTimeSeries(List<String> fields) {
         fields.forEach{
             scripedPlot.addTimeSeries(it)
         }

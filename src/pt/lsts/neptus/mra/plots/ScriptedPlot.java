@@ -34,148 +34,102 @@ package pt.lsts.neptus.mra.plots;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.Script;
-import org.mozilla.javascript.ScriptableObject;
-import org.mozilla.javascript.tools.shell.Global;
+import org.codehaus.groovy.control.CompilerConfiguration;
+import org.codehaus.groovy.control.customizers.ImportCustomizer;
+import org.jfree.data.time.TimeSeries;
+import org.jfree.data.time.TimeSeriesDataItem;
 
+import groovy.lang.GroovyShell;
 import pt.lsts.imc.lsf.LsfIndex;
-import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.MRAPanel;
 import pt.lsts.neptus.util.GuiUtils;
 
 /**
- * @author zp
+ * Changes to use Groovy on Feb 2019
+ * @author keila
  * 
  */
 public class ScriptedPlot extends MRATimeSeriesPlot {
 
     protected LinkedHashMap<String, String> traces = new LinkedHashMap<>();
     protected LinkedHashMap<String, String> hiddenTraces = new LinkedHashMap<>();
-    protected LinkedHashMap<String, Script> scripts = new LinkedHashMap<>();
-
-    protected String init = null, end = null;
-    protected Script initScript = null, endScript = null;
 
     protected ScriptableIndex scIndex = null;
-    protected Context context;
-    protected Global global;
     protected LsfIndex index;
-    protected String title = getClass().getName();
-    protected ScriptEnvironment env = new ScriptEnvironment();
-
+    
+    private GroovyShell shell;
+    private final String scriptPath;
+    private MRAPanel mra;
+    private String title = null;
 
     @Override
     public String getName() {
-        return I18n.text(title);
+        if(title == null)
+            return  I18n.text(Arrays.toString(traces.keySet().toArray()));
+        else 
+            return I18n.text(title);
     }
 
     @Override
     public String getTitle() {
-        return I18n.textf("%plotname plot", title);
+        
+        if(title == null)
+            return  I18n.text(Arrays.toString(traces.keySet().toArray()));
+        else 
+            return I18n.text(title);
     }
-    public ScriptedPlot(MRAPanel panel, String scriptFile) {
+    
+    public ScriptedPlot(MRAPanel panel, String path) {
         super(panel);
+        scriptPath = path;
+        index = panel.getSource().getLsfIndex();
+        String[] fields = new String[1];
+        fields[0] = "EstimatedState.depth";
 
+        // init shell
+        CompilerConfiguration cnfg = new CompilerConfiguration();
+        ImportCustomizer imports = new ImportCustomizer();
+        imports.addStarImports("pt.lsts.imc", "java.lang.Math", "pt.lsts.neptus.mra.plots");
+        imports.addStaticStars("pt.lsts.neptus.mra.plots.ScriptedPlotGroovy");
+        cnfg.addCompilationCustomizers(imports);
+        shell = new GroovyShell(this.getClass().getClassLoader(), cnfg);
+        runScript(scriptPath);
+    }
+
+    /**
+     * Runs the Groovy script after verifying its validity by parsing it.
+     * 
+     * @param script Text script
+     */
+    public void runScript(String path) {
+        StringBuilder sb = new StringBuilder();
         try {
-            BufferedReader reader = new BufferedReader(new FileReader(scriptFile));
-            title = reader.readLine();
-            String line;
-            while((line = reader.readLine()) != null) {
-                if (line.trim().isEmpty() || line.trim().startsWith("#"))
-                    continue;
-
-                while (line.endsWith("\\")) {
-                    line = line.substring(0, line.length()-1) + reader.readLine();
-                }
-
-                String parts[] = line.trim().split(":");
-
-                String script = parts[1];
-
-                script = script.replaceAll("\\$\\{([^\\}]*)\\}", "log.val(\"$1\")");
-                script = script.replaceAll("mark\\(([^\\)]+)\\)", "log.mark($1)");
-                script = script.replaceAll("\\$time", "log.time()");
-                script = script.replaceAll("\\$(\\w+)", "env[\"$1\"]");
-
-                if (parts[0].isEmpty())
-                    hiddenTraces.put(parts[1], script);
-                else if (parts[0].equals("init"))
-                    init = script;
-                else if (parts[0].equals("end"))
-                    end = script;
-                else
-                    traces.put(parts[0], script);                
+            BufferedReader reader = new BufferedReader(new FileReader(path));
+            int c;
+            while ((c = reader.read()) != -1) {
+                sb.append((char) c);
             }
-
+            shell.setVariable("plot", ScriptedPlot.this);
+            String defplot = "configPlot plot";
+            boolean b = shell.getVariable("plot") == null;
+            System.err.println("plot var equals null? "+b);
+            shell.evaluate(defplot); 
+            //shell.invokeMethod("configPlot", this);
+            String script = sb.toString();
+            shell.parse(script);
+            shell.evaluate(script);
             reader.close();
         }
         catch (Exception e) {
-            GuiUtils.errorMessage(panel, e);
-        }       
-    }
-
-    protected void init() {
-
-        context = Context.enter();
-        context.initStandardObjects();
-        global = new Global(context);
-        Object o = Context.javaToJS(scIndex, global);
-        ScriptableObject.putProperty(global, "log", o);
-        ScriptableObject.putProperty(global, "env", env);
-        ScriptableObject.putProperty(global, "mraPanel", mraPanel);
-
-        if (init != null) {
-            try {
-                initScript = context.compileString(init, "init", 1, null);
-            }
-            catch (Exception e) {
-                GuiUtils.errorMessage(mraPanel, "Init script Error", e.getMessage());
-                e.printStackTrace();
-            }
-            NeptusLog.pub().debug("init");
-        }
-
-        if (end != null) {
-            try {
-                endScript = context.compileString(end, "end", 1, null);
-            }
-            catch (Exception e) {
-                GuiUtils.errorMessage(mraPanel, "End script Error", e.getMessage());
-                e.printStackTrace();
-            }
-            NeptusLog.pub().debug("ended.");
-        }
-
-        for (Entry<String, String> t : traces.entrySet()) {
-            String script = t.getValue();
-            try {
-                context.evaluateString(global, script, t.getKey(), 1, null);
-                scripts.put(t.getKey(), context.compileString(script, t.getKey(), 1, null));
-            }
-            catch (Exception e) {
-                GuiUtils.errorMessage(mraPanel, "Plot script Error", e.getMessage());
-                e.printStackTrace();
-            }
-        }
-
-        for (Entry<String, String> t : hiddenTraces.entrySet()) {
-            String trace = t.getValue();
-            try {
-                context.evaluateString(global, trace, t.getKey(), 1, null);
-                scripts.put(t.getKey(), context.compileString(trace, t.getKey(), 1, null));
-            }
-            catch (Exception e) {
-                GuiUtils.errorMessage(mraPanel, "Script Error", e.getMessage());
-                e.printStackTrace();
-            }
+            GuiUtils.errorMessage(mra, "Error Parsing Script", e.getLocalizedMessage());
         }
     }
 
@@ -184,38 +138,62 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
         this.index = index;
         return true;
     }
+    
+    /**
+     * Adds a new time series to the existing plot. If the series already exists, it updates it.
+     * 
+     * @param ts the TimeSeries to be added
+     */
+    public void addTimeSeries(TimeSeries ts) {
+        String trace = ts.getKey().toString();
+
+        if (forbiddenSeries.contains(trace))
+            return;
+
+        if (!super.series.containsKey(trace)) {
+            addTrace(trace);
+        }
+        for (int i = 0; i < ts.getItemCount(); i++) {
+            TimeSeriesDataItem value = ts.getDataItem(i);
+            super.series.get(trace).addOrUpdate(value);
+        }
+    }
+
+    public void addTimeSeries(String id, String query) {
+        traces.put(id, query);
+    }
+    
+    public void addQuery(String id, String field) {
+        traces.put(id, field);
+    }
+    public void title(String t) {
+        title = t;
+    }
+
 
     @Override
     public void process(LsfIndex source) {
         this.scIndex = new ScriptableIndex(source, 0);
-        this.env = new ScriptEnvironment();
         this.index = source;
-        init();
-
-        if (initScript != null)
-            initScript.exec(context, global);        
 
         double step = Math.max(timestep, 0.05);
         for (int i = index.advanceToTime(0, step); i != -1; 
                 i = index.advanceToTime(i, index.timeOf(i) + step)) {
 
             scIndex.lsfPos = i;
-            for (String trace : scripts.keySet()) {
-                if (traces.containsKey(trace)) {
-                    Object ret = scripts.get(trace).exec(context, global);
-                    if (ret != null && ret instanceof Number) {
-                        double val = ((Number)ret).doubleValue();
-                        addValue((long)(index.timeOf(i)*1000), trace, val);
+            for (Entry<String, String> entry : traces.entrySet()) {
+                String seriesName = index.getMessage(i).getSourceName()+"."+entry.getKey();
+                if (traces.containsKey(entry.getKey())) {
+                    double value = scIndex.val(entry.getValue());
+                    if (value != Double.NaN) {
+                        addValue((long)(index.timeOf(i)*1000), seriesName, value);
                     }
                 }
-                else {
-                    scripts.get(trace).exec(context, global);
-                }
+//                else {
+//                    scripts.get(trace).exec(context, global);
+//                }
             }            
         }
-
-        if (endScript != null)
-            endScript.exec(context, global);
 
     }
 
