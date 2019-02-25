@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <console name="Neptus Console" width="1366" height="727" resizable="true" mission-file="../../missions/APDL/missao-apdl.nmisz" main-vehicle="lauv-xplore-1">
-  <!-- Data saved on 2018-04-07T11:57:44.0Z with Neptus version 2018.01.1-dev (compiled on 2018-04-05, gtag/20170721-rep17-arpao-337-gd346a79-dirty). -->
+  <!-- Data saved on 2019-02-25T18:27:29.0Z with Neptus version 2019.02.1-dev (compiled on 2019-02-25, gtag/20170721-rep17-arpao-822-gf8fd8088a-dirty). -->
   <mainpanel name="console main panel">
-    <subpanel class="pt.lsts.neptus.console.plugins.containers.MigLayoutContainer" x="0" y="0" width="1360" height="643">
+    <subpanel class="pt.lsts.neptus.console.plugins.containers.MigLayoutContainer" x="0" y="0" width="1366" height="643">
       <properties>
         <entry key="XML Definitions">&lt;profiles&gt;
   &lt;profile name="Normal"&gt;
@@ -87,7 +87,7 @@
       <child class="pt.lsts.neptus.plugins.map.MapEditor" x="0" y="0" width="0" height="0">
         <properties/>
       </child>
-      <child class="pt.lsts.neptus.console.plugins.planning.MapPanel" x="0" y="0" width="1054" height="643">
+      <child class="pt.lsts.neptus.console.plugins.planning.MapPanel" x="0" y="0" width="1060" height="643">
         <properties>
           <entry key="World Map Transparency">false</entry>
         </properties>
@@ -99,9 +99,7 @@
         <properties/>
       </child>
       <child class="pt.lsts.neptus.console.plugins.MyLocationDisplay" x="0" y="0" width="0" height="0">
-        <properties>
-          <entry key="Location">N38.44020556°, W9.11050278°</entry>
-        </properties>
+        <properties/>
       </child>
       <child class="pt.lsts.neptus.plugins.oplimits.OperationLimitsSubPanel" x="0" y="0" width="95" height="40">
         <properties/>
@@ -109,7 +107,7 @@
       <child class="pt.lsts.neptus.console.plugins.planning.PlanControlPanel" x="0" y="0" width="232" height="50">
         <properties/>
       </child>
-      <child class="pt.lsts.neptus.console.plugins.planning.PlanControlStatePanel" x="0" y="54" width="294" height="100">
+      <child class="pt.lsts.neptus.console.plugins.planning.PlanControlStatePanel" x="0" y="56" width="294" height="100">
         <properties/>
       </child>
       <child class="pt.lsts.neptus.console.plugins.planning.PlanEditor" x="0" y="0" width="0" height="0">
@@ -158,8 +156,15 @@ altitude: ${EstimatedState.alt};
       <child class="pt.lsts.neptus.plugins.sunfish.iridium.feedback.IridiumStatus" x="0" y="0" width="0" height="0">
         <properties/>
       </child>
-      <child class="pt.lsts.neptus.plugins.SweepPlanGen" x="0" y="0" width="0" height="0">
-        <properties/>
+      <child class="pt.lsts.neptus.plugins.sidescan.console.SidescanRealTimeWaterfall" x="0" y="0" width="300" height="472">
+        <properties>
+          <entry key="Speed correction">true</entry>
+          <entry key="Time Variable Gain factor">280.0</entry>
+          <entry key="Color map to use">Bronze</entry>
+          <entry key="Clean lines on vehicle change">false</entry>
+          <entry key="Slant range correction">false</entry>
+          <entry key="Normalization factor">0.2</entry>
+        </properties>
       </child>
     </subpanel>
   </mainpanel>
