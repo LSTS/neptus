@@ -46,15 +46,13 @@ class ScriptedPlotGroovy  {
     
     static ScriptedPlot scripedPlot = null
     
-    
     static void configPlot(ScriptedPlot p) {
-        System.err.println("Configuring Plot: "+(p==null));
         scripedPlot = p
     }
     
     static def value = { msgDotField ->
     	if(scripedPlot!= null)
-    		return scripedPlot.getDataFromExpr(msgDotField);
+    		return scripedPlot.getTimeSeriesFor(msgDotField);
     }
 
 	static void addTimeSeries(LinkedHashMap<String,String> queries) {
@@ -69,22 +67,12 @@ class ScriptedPlotGroovy  {
        }
     }
     
-    static LinkedHashMap<String,TimeSeries> addTimeSeries(List<TimeSeries> ts) {
-        ts.each{
-            scripedPlot.addTimeSeries(it)
-        }
+    static LinkedHashMap<String,TimeSeries> addTimeSeries(TimeSeries ts) {
+        scripedPlot.addTimeSeries(ts)
     }
-    
-    static LinkedHashMap<String,TimeSeries> getTimeSeriesFor(LinkedHashMap<String,String> queries) {
-        queries.each {
-            scripedPlot.addQuery(it.key,it.value)
-        }        
-    }
-    
-    static void getTimeSeriesFor(List<String> queries) {
-        queries.each {
-            scripedPlot.addQuery(it,it)
-        }
+ 
+    static void addQuery(String id,String query) {
+        scripedPlot.addQuery(id,query)
     }
     
     static LinkedHashMap<String,TimeSeries> getTimeSeries(List<String> fields) {
@@ -93,13 +81,37 @@ class ScriptedPlotGroovy  {
         }
     }
     
-    static public TimeSeries apply(TimeSeries ts, Object function) {
-        TimeSeries result = new TimeSeries(ts.getKey())
+    static public TimeSeries apply(String id,TimeSeries ts, Object function) {
+        TimeSeries result = new TimeSeries(id)
         for(int i = 0;i<ts.getItemCount();i++) {
             def value = ts.getDataItem(i)
             result.add(value.setValue(function.call(value..getValue())))
         }
         result
+    }
+    
+    static public TimeSeries apply(String id,TimeSeries ts1,TimeSeries ts2, Object function) {
+        int min = Math.min(ts1.getItemCount(), ts2.getItemCount())
+        TimeSeries result = new TimeSeries(id)
+        for (int i=0; i<min;i++) {
+            def val1 = ts1.getDataItem(i)
+            def val2 = ts2.getDataItem(i)
+            def val  = function.call(val1.getValue(),val2.getValue())
+            result.add(val1.setValue(val))
+        }
+        result
+    }
+    
+    static public double getTimeSeriesMax(String id) {
+        return scripedPlot.getTimeSeriesFor(id).findValueRange().getUpperBound();
+    }
+    
+    static public double getTimeSeriesMin(String id) {
+        return scripedPlot.getTimeSeriesFor(id).findValueRange().getLowerBound();
+    }
+    
+    static public void mark(double time, String label) {
+        scripedPlot.mark(time,label)
     }
 
     static void title(String t) {

@@ -37,8 +37,6 @@ import java.io.FileReader;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.control.customizers.ImportCustomizer;
@@ -46,6 +44,7 @@ import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesDataItem;
 
 import groovy.lang.GroovyShell;
+import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.LogMarker;
@@ -54,45 +53,43 @@ import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * Changes to use Groovy on Feb 2019
+ * 
  * @author keila
  * 
  */
 public class ScriptedPlot extends MRATimeSeriesPlot {
 
     protected LinkedHashMap<String, String> traces = new LinkedHashMap<>();
-    protected LinkedHashMap<String, String> hiddenTraces = new LinkedHashMap<>();
 
-    protected ScriptableIndex scIndex = null;
     protected LsfIndex index;
-    
+
     private GroovyShell shell;
     private final String scriptPath;
     private MRAPanel mra;
     private String title = null;
+    private boolean processed = false;
 
     @Override
     public String getName() {
-        if(title == null)
-            return  I18n.text(Arrays.toString(traces.keySet().toArray()));
-        else 
+        if (title == null)
+            return I18n.text(Arrays.toString(traces.keySet().toArray()));
+        else
             return I18n.text(title);
     }
 
     @Override
     public String getTitle() {
-        
-        if(title == null)
-            return  I18n.text(Arrays.toString(traces.keySet().toArray()));
-        else 
+
+        if (title == null)
+            return I18n.text(Arrays.toString(traces.keySet().toArray()));
+        else
             return I18n.text(title);
     }
-    
+
     public ScriptedPlot(MRAPanel panel, String path) {
         super(panel);
         scriptPath = path;
         index = panel.getSource().getLsfIndex();
-        String[] fields = new String[1];
-        fields[0] = "EstimatedState.depth";
 
         // init shell
         CompilerConfiguration cnfg = new CompilerConfiguration();
@@ -117,12 +114,10 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
             while ((c = reader.read()) != -1) {
                 sb.append((char) c);
             }
-            shell.setVariable("plot", ScriptedPlot.this);
-            String defplot = "configPlot plot";
-            boolean b = shell.getVariable("plot") == null;
-            System.err.println("plot var equals null? "+b);
-            shell.evaluate(defplot); 
-            //shell.invokeMethod("configPlot", this);
+            shell.setVariable("plot_", ScriptedPlot.this);
+            String defplot = "configPlot plot_";
+            shell.evaluate(defplot);
+            // shell.invokeMethod("configPlot", this);
             String script = sb.toString();
             shell.parse(script);
             shell.evaluate(script);
@@ -135,10 +130,14 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
 
     @Override
     public boolean canBeApplied(LsfIndex index) {
-        this.index = index;
+        for(String s: traces.values()) {
+            String messageType = s.split("\\.")[0];
+            if(!index.containsMessagesOfType(messageType))
+                return false;
+        }
         return true;
     }
-    
+
     /**
      * Adds a new time series to the existing plot. If the series already exists, it updates it.
      * 
@@ -162,132 +161,56 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
     public void addTimeSeries(String id, String query) {
         traces.put(id, query);
     }
-    
-    public void addQuery(String id, String field) {
-        traces.put(id, field);
+
+    public TimeSeries getTimeSeriesFor(String id) {
+        if (!processed) {
+            process(index);
+            processed = true;
+        }
+        System.err.println("Getting TimeSeries for "+id);
+        return series.get(id);
     }
+    
+    public void addQuery(String id,String query) {
+        traces.put(id,query);
+        super.forbiddenSeries.addElement(id);
+    }
+
     public void title(String t) {
         title = t;
     }
 
-
     @Override
     public void process(LsfIndex source) {
-        this.scIndex = new ScriptableIndex(source, 0);
-        this.index = source;
-
-        double step = Math.max(timestep, 0.05);
-        for (int i = index.advanceToTime(0, step); i != -1; 
-                i = index.advanceToTime(i, index.timeOf(i) + step)) {
-
-            scIndex.lsfPos = i;
+        if (!processed) {
             for (Entry<String, String> entry : traces.entrySet()) {
-                String seriesName = index.getMessage(i).getSourceName()+"."+entry.getKey();
-                if (traces.containsKey(entry.getKey())) {
-                    double value = scIndex.val(entry.getValue());
-                    if (value != Double.NaN) {
-                        addValue((long)(index.timeOf(i)*1000), seriesName, value);
-                    }
+                String messageName, entity = null, variable = null;
+                messageName = entry.getValue().split("\\.")[0];
+                if (entry.getValue().split("\\.").length == 2)
+                    variable = entry.getValue().split("\\.")[1];
+                else if (entry.getValue().split("\\.").length == 3) {
+                    entity = entry.getValue().split("\\.")[1];
+                    variable = entry.getValue().split("\\.")[2];
                 }
-//                else {
-//                    scripts.get(trace).exec(context, global);
-//                }
-            }            
-        }
-
-    }
-
-    /**
-     * This internal class allows plot scripts to access the current log time and message fields in the log
-     * 
-     * @author zp
-     */
-    public class ScriptableIndex {
-
-        protected LsfIndex lsfIndex;
-        protected int lsfPos;
-        protected int prevPos = 0;
-
-        /**
-         * Class constructor is passed the LsfIndex and an initial index (usually 0)
-         * 
-         * @param source The index to be used by scripts
-         * @param curIndex The position in the index
-         */
-        public ScriptableIndex(LsfIndex source, int curIndex) {
-            this.lsfIndex = source;
-            this.lsfPos = curIndex;            
-        }
-
-        public void mark(double time, String label) {
-            mraPanel.addMarker(new LogMarker(label, time * 1000,0,0));
-        }
-
-        public void mark(String label) {
-            mark(lsfIndex.timeOf(lsfPos), label);
-        }
-
-        /**
-         * This method returns the current log time
-         * 
-         * @return current log time
-         */
-        public double time() {
-            return lsfIndex.timeOf(lsfPos);
-        }
-
-        /**
-         * This method evaluates a field expression (like "EstimatedState[Navigation].x") and returns its current value
-         * in the log
-         * 
-         * @param expression The expression to be valuated
-         * @return The value (double) or Double.NaN if the expression is invalid or the log does not contain the
-         *         required fields at current time
-         */
-        public double val(String expression) {
-
-            Pattern p = Pattern.compile("(\\w+)(\\[(\\w+)\\])?\\.(\\w+)");
-            Matcher m = p.matcher(expression);
-
-            if (!m.matches()) {
-                return Double.NaN;
-            }
-            String message, entity, field;
-            message = m.group(1);
-            if (m.groupCount() > 2) {
-                entity = m.group(3);
-                field = m.group(4);
-            }
-            else {
-                entity = null;
-                field = m.group(2);
-            }
-
-            int msgType = index.getDefinitions().getMessageId(message);
-
-            if (entity == null) {
-                int msgIdx = index.getPreviousMessageOfType(msgType, lsfPos);
-                if (msgIdx == -1)
-                    return Double.NaN;
-                else
-                    return index.getMessage(msgIdx).getDouble(field);
-            }
-            else {
-                int msgIdx = index.getPreviousMessageOfType(msgType, lsfPos);
-                while (msgIdx >= prevPos) {
-
-                    if (msgIdx == -1)
-                        return Double.NaN;
-                    else if (index.entityNameOf(msgIdx).equals(entity)) {
-                        prevPos = msgIdx;
-                        return index.getMessage(msgIdx).getDouble(field);
+                for (IMCMessage m : source.getIterator(messageName, 0, (long) (timestep * 1000))) {
+                    String seriesName = m.getSourceName() + "." + entry.getKey();
+                    if (entity != null) {
+                        if (m.getEntityName().equals(entity)) {
+                            double val = m.getDouble(variable);
+                            addValue(m.getTimestampMillis(), seriesName, val);
+                        }
                     }
                     else {
-                        msgIdx = index.getPreviousMessageOfType(msgType, msgIdx);
+                        double val = m.getDouble(variable);
+                        addValue(m.getTimestampMillis(), seriesName, val);
                     }
                 }
             }
-            return Double.NaN;
         }
+        processed = true;
+    }
+    
+    public void mark(double time, String label) {
+        mraPanel.addMarker(new LogMarker(label, time * 1000, 0, 0));
     }
 }

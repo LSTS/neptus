@@ -90,7 +90,6 @@ public class MRAChartFactory {
         for (File f : scripts) {
             if (f.isDirectory() || !f.canRead())
                 continue;
-            System.err.println("running script: "+f.getName());
             ScriptedPlot plot = new ScriptedPlot(panel, f.getAbsolutePath());
             plots.add(plot);
         }

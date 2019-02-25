@@ -1,0 +1,11 @@
+title "Bathymetry"
+
+addTimeSeries "Altitude": "EstimatedState.alt", "Depth":"EstimatedState.depth"
+
+depth = value "Depth"
+
+alt = value "Altitude"
+
+sum = { double1, double2 -> double1+double2}
+
+apply ("Bathymetry", depth, alt,sum)
