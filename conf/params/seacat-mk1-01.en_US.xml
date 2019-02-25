@@ -219,6 +219,7 @@
       <desc>Sets power level</desc>
       <min>0</min>
       <max>100</max>
+      <values>0, 100</values>
     </param>
     <param name="Range">
       <name-i18n>Range</name-i18n>
