@@ -35,6 +35,7 @@ package pt.lsts.neptus.mra.plots
 import org.jfree.data.time.Millisecond
 import org.jfree.data.time.TimeSeries
 import org.jfree.data.time.TimeSeriesDataItem
+import org.jfree.data.time.TimeSeriesCollection
 import org.jfree.data.xy.XYDataItem
 import org.jfree.data.xy.XYSeries
 
@@ -67,8 +68,19 @@ class ScriptedPlotGroovy  {
        }
     }
     
-    static LinkedHashMap<String,TimeSeries> addTimeSeries(TimeSeries ts) {
-        scripedPlot.addTimeSeries(ts)
+    static void addTimeSeries(String id,TimeSeriesCollection tsc) {
+        tsc.getSeries().each { ts -> 
+            String fields[] = ts.getKey().toString().split("\\.")
+            def newName = fields[0]+"."+id
+            ts.setKey(newName)
+            scripedPlot.addTimeSeries(ts)
+        }
+    }
+    
+    static void addTimeSeries(TimeSeriesCollection tsc) {
+        tsc.getSeries().each { ts ->
+            scripedPlot.addTimeSeries(ts)
+        }
     }
  
     static void addQuery(String id,String query) {
@@ -76,38 +88,79 @@ class ScriptedPlotGroovy  {
     }
     
     static LinkedHashMap<String,TimeSeries> getTimeSeries(List<String> fields) {
-        fields.forEach{
+        fields.each{
             scripedPlot.addTimeSeries(it)
         }
     }
     
-    static public TimeSeries apply(String id,TimeSeries ts, Object function) {
-        TimeSeries result = new TimeSeries(id)
-        for(int i = 0;i<ts.getItemCount();i++) {
-            def value = ts.getDataItem(i)
-            result.add(value.setValue(function.call(value..getValue())))
+    static public TimeSeriesCollection apply(String id=null,TimeSeriesCollection tsc, Object function) {
+        TimeSeriesCollection result = new TimeSeriesCollection()
+                tsc.getSeries().each { ts ->
+                    String name = id ? ts.getKey().toString() : id
+                    TimeSeries s = new TimeSeries(name)
+                    for(int i = 0;i<ts.getItemCount();i++) {
+                        def value = ts.getDataItem(i)
+                        def val = function.call(value.getValue())
+                        TimeSeriesDataItem item = new TimeSeriesDataItem(value.getPeriod(),val)
+                        s.add(item)
+                    }
+                    result.addSeries(s)
+                }
+        result
+    }
+    
+    static public TimeSeriesCollection apply(String id="serie",TimeSeriesCollection tsc1,TimeSeriesCollection tsc2, Object function) {
+        int min_tsc = Math.min(tsc1.getSeriesCount(), tsc2.seriesCount)
+        TimeSeriesCollection result = new TimeSeriesCollection()
+        TimeSeries ts1, ts2,ts
+//        System.err.println("TSC Size: "+tsc1.getSeriesCount()+" "+tsc2.getSeriesCount())
+        for(int j=0;j<min_tsc;j++) {
+            String key = tsc1.getSeriesKey(j)
+            ts1 = tsc1.getSeries(key)
+//            System.err.println(j+".TS1 null?: "+(ts1==null))
+//            System.err.println("TS1 key: "+ts1.getKey())
+            key = tsc2.getSeriesKey(j)
+            ts2 = tsc2.getSeries(key)
+            if(ts1.getKey().toString().split("\\.")[0].equals(ts2.getKey().toString().split("\\.")[0])) { //Same source vehicle lauv-noptilus-1.<Query_ID>
+//                System.err.println("Keys/Source: "+ts1.getKey().toString().split("\\.")[0]+" "+ts2.getKey().toString().split("\\.")[0])
+                def newName = ts1.getKey().toString().split("\\.")[0]+ "."+id
+                ts = new TimeSeries(newName)
+                int min = Math.min(ts1.getItemCount(), ts2.getItemCount())
+                for (int i=0; i<min;i++) {
+                    def val1 = ts1.getDataItem(i)
+                    def val2 = ts2.getDataItem(i)
+                    def val  = function.call(val1.getValue(),val2.getValue())
+                    TimeSeriesDataItem item = new TimeSeriesDataItem(val1.getPeriod(), val)
+                    ts.add(item)
+                }
+                result.addSeries(ts)
+            }
         }
         result
     }
     
-    static public TimeSeries apply(String id,TimeSeries ts1,TimeSeries ts2, Object function) {
-        int min = Math.min(ts1.getItemCount(), ts2.getItemCount())
-        TimeSeries result = new TimeSeries(id)
-        for (int i=0; i<min;i++) {
-            def val1 = ts1.getDataItem(i)
-            def val2 = ts2.getDataItem(i)
-            def val  = function.call(val1.getValue(),val2.getValue())
-            result.add(val1.setValue(val))
+    static public TimeSeries getTimeSeriesMax(String id) {
+        double max = Double.MIN_VALUE
+        TimeSeries result
+         scripedPlot.getTimeSeriesFor(id).getSeries().each { 
+             if(it.findValueRange().getUpperBound() > max) {
+                 max    = it.findValueRange().getUpperBound()
+                 result = it
+             }
         }
         result
     }
     
-    static public double getTimeSeriesMax(String id) {
-        return scripedPlot.getTimeSeriesFor(id).findValueRange().getUpperBound();
-    }
-    
-    static public double getTimeSeriesMin(String id) {
-        return scripedPlot.getTimeSeriesFor(id).findValueRange().getLowerBound();
+    static public TimeSeries getTimeSeriesMin(String id) {
+        double min = Double.MAX_VALUE
+        TimeSeries result
+         scripedPlot.getTimeSeriesFor(id).getSeries().each { 
+             if(it.findValueRange().getLowerBound() < min) {
+                 min    = it.findValueRange().getLowerBound()
+                 result = it
+             }
+        }
+        result
     }
     
     static public void mark(double time, String label) {

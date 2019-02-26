@@ -36,11 +36,15 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.control.customizers.ImportCustomizer;
 import org.jfree.data.time.TimeSeries;
+import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.data.time.TimeSeriesDataItem;
 
 import groovy.lang.GroovyShell;
@@ -60,8 +64,9 @@ import pt.lsts.neptus.util.GuiUtils;
 public class ScriptedPlot extends MRATimeSeriesPlot {
 
     protected LinkedHashMap<String, String> traces = new LinkedHashMap<>();
-
+    protected TimeSeriesCollection customTsc = new TimeSeriesCollection();
     protected LsfIndex index;
+    protected ScriptableIndex scIndex = null;
 
     private GroovyShell shell;
     private final String scriptPath;
@@ -99,6 +104,8 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
         cnfg.addCompilationCustomizers(imports);
         shell = new GroovyShell(this.getClass().getClassLoader(), cnfg);
         runScript(scriptPath);
+        for(TimeSeries t: (List<TimeSeries>)tsc.getSeries())
+            System.err.println("\nTimeSeries: "+t.getKey()+" Size: "+t.getItemCount());
     }
 
     /**
@@ -107,6 +114,7 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
      * @param script Text script
      */
     public void runScript(String path) {
+        System.err.println("Running Script");
         StringBuilder sb = new StringBuilder();
         try {
             BufferedReader reader = new BufferedReader(new FileReader(path));
@@ -145,35 +153,45 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
      */
     public void addTimeSeries(TimeSeries ts) {
         String trace = ts.getKey().toString();
-
         if (forbiddenSeries.contains(trace))
             return;
 
-        if (!super.series.containsKey(trace)) {
+        if (!series.containsKey(trace)) {
+            System.err.println("Adding trace: "+trace);
             addTrace(trace);
         }
         for (int i = 0; i < ts.getItemCount(); i++) {
             TimeSeriesDataItem value = ts.getDataItem(i);
-            super.series.get(trace).addOrUpdate(value);
+            series.get(trace).addOrUpdate(value);
         }
+        customTsc.addSeries(ts);
     }
 
     public void addTimeSeries(String id, String query) {
         traces.put(id, query);
     }
 
-    public TimeSeries getTimeSeriesFor(String id) {
-        if (!processed) {
+    public TimeSeriesCollection getTimeSeriesFor(String id) {
+        if(!processed) {
             process(index);
             processed = true;
         }
-        System.err.println("Getting TimeSeries for "+id);
-        return series.get(id);
+        TimeSeriesCollection tsc = new TimeSeriesCollection();
+        for(TimeSeries s: series.values()) {
+            String fields[] = s.getKey().toString().split("\\.");
+            String variable ="";
+            for(int i=1;i<fields.length;i++)
+                variable+=fields[i];
+            if(variable.equals(id)) {
+                tsc.addSeries(s);
+            }
+        }
+        return tsc;
     }
     
     public void addQuery(String id,String query) {
         traces.put(id,query);
-        super.forbiddenSeries.addElement(id);
+        forbiddenSeries.addElement(id);
     }
 
     public void title(String t) {
@@ -182,35 +200,144 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
 
     @Override
     public void process(LsfIndex source) {
-        if (!processed) {
+        System.err.println("Process!");
+        this.scIndex = new ScriptableIndex(source, 0);
+        this.index = source;
+
+        double step = Math.max(timestep, 0.05);
+        for (int i = index.advanceToTime(0, step); i != -1; 
+                i = index.advanceToTime(i, index.timeOf(i) + step)) {
+
+            scIndex.lsfPos = i;
             for (Entry<String, String> entry : traces.entrySet()) {
-                String messageName, entity = null, variable = null;
-                messageName = entry.getValue().split("\\.")[0];
-                if (entry.getValue().split("\\.").length == 2)
-                    variable = entry.getValue().split("\\.")[1];
-                else if (entry.getValue().split("\\.").length == 3) {
-                    entity = entry.getValue().split("\\.")[1];
-                    variable = entry.getValue().split("\\.")[2];
-                }
-                for (IMCMessage m : source.getIterator(messageName, 0, (long) (timestep * 1000))) {
-                    String seriesName = m.getSourceName() + "." + entry.getKey();
-                    if (entity != null) {
-                        if (m.getEntityName().equals(entity)) {
-                            double val = m.getDouble(variable);
-                            addValue(m.getTimestampMillis(), seriesName, val);
-                        }
+//                String messageName, entity = null, variable = null;
+//                messageName = entry.getValue().split("\\.")[0];
+//                if (entry.getValue().split("\\.").length == 2)
+//                    variable = entry.getValue().split("\\.")[1];
+//                else if (entry.getValue().split("\\.").length == 3) {
+//                    entity = entry.getValue().split("\\.")[1];
+//                    variable = entry.getValue().split("\\.")[2];
+//                }
+//                for (IMCMessage m : source.getIterator(messageName, 0, (long) (timestep * 1000))) {
+                    String seriesName = index.getMessage(i).getSourceName() + "." + entry.getKey();
+                    double value = scIndex.val(entry.getValue());
+                    if (value != Double.NaN) {
+                        addValue((long)(index.timeOf(i)*1000), seriesName, value);
                     }
-                    else {
-                        double val = m.getDouble(variable);
-                        addValue(m.getTimestampMillis(), seriesName, val);
-                    }
-                }
+//                    if (entity != null) {
+//                        if (m.getEntityName().equals(entity)) {
+//                            double val = m.getDouble(variable);
+//                            addValue(m.getTimestampMillis(), seriesName, val);
+//                        }
+//                    }
+//                    else {
+//                        double val = m.getDouble(variable);
+//                        addValue(m.getTimestampMillis(), seriesName, val);
+//                    }
+//                }
             }
         }
-        processed = true;
+        for(TimeSeries t: (List<TimeSeries>)customTsc.getSeries())
+            for(int i= 0;i<t.getItemCount();i++)  {
+                TimeSeriesDataItem item = t.getDataItem(i);
+                addValue(item.getPeriod().getFirstMillisecond(), t.getKey().toString(), item.getValue().doubleValue());
+            }
     }
     
     public void mark(double time, String label) {
         mraPanel.addMarker(new LogMarker(label, time * 1000, 0, 0));
+    }
+    /**
+     * This internal class allows plot scripts to access the current log time and message fields in the log
+     * 
+     * @author zp
+     */
+    public class ScriptableIndex {
+
+        protected LsfIndex lsfIndex;
+        protected int lsfPos;
+        protected int prevPos = 0;
+
+        /**
+         * Class constructor is passed the LsfIndex and an initial index (usually 0)
+         * 
+         * @param source The index to be used by scripts
+         * @param curIndex The position in the index
+         */
+        public ScriptableIndex(LsfIndex source, int curIndex) {
+            this.lsfIndex = source;
+            this.lsfPos = curIndex;            
+        }
+
+        public void mark(double time, String label) {
+            mraPanel.addMarker(new LogMarker(label, time * 1000,0,0));
+        }
+
+        public void mark(String label) {
+            mark(lsfIndex.timeOf(lsfPos), label);
+        }
+
+        /**
+         * This method returns the current log time
+         * 
+         * @return current log time
+         */
+        public double time() {
+            return lsfIndex.timeOf(lsfPos);
+        }
+
+        /**
+         * This method evaluates a field expression (like "EstimatedState[Navigation].x") and returns its current value
+         * in the log
+         * 
+         * @param expression The expression to be valuated
+         * @return The value (double) or Double.NaN if the expression is invalid or the log does not contain the
+         *         required fields at current time
+         */
+        public double val(String expression) {
+
+            Pattern p = Pattern.compile("(\\w+)(\\[(\\w+)\\])?\\.(\\w+)");
+            Matcher m = p.matcher(expression);
+
+            if (!m.matches()) {
+                return Double.NaN;
+            }
+            String message, entity, field;
+            message = m.group(1);
+            if (m.groupCount() > 2) {
+                entity = m.group(3);
+                field = m.group(4);
+            }
+            else {
+                entity = null;
+                field = m.group(2);
+            }
+
+            int msgType = index.getDefinitions().getMessageId(message);
+
+            if (entity == null) {
+                int msgIdx = index.getPreviousMessageOfType(msgType, lsfPos);
+                if (msgIdx == -1)
+                    return Double.NaN;
+                else
+                    return index.getMessage(msgIdx).getDouble(field);
+            }
+            else {
+                int msgIdx = index.getPreviousMessageOfType(msgType, lsfPos);
+                while (msgIdx >= prevPos) {
+
+                    if (msgIdx == -1)
+                        return Double.NaN;
+                    else if (index.entityNameOf(msgIdx).equals(entity)) {
+                        prevPos = msgIdx;
+                        return index.getMessage(msgIdx).getDouble(field);
+                    }
+                    else {
+                        msgIdx = index.getPreviousMessageOfType(msgType, msgIdx);
+                    }
+                }
+            }
+            return Double.NaN;
+        }
     }
 }
