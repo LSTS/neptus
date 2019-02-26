@@ -32,16 +32,17 @@
  */
 package pt.lsts.neptus.plugins.sweepplangen;
 
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
-import com.l2fprod.common.propertysheet.PropertySheetPanel;
-import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
+import java.awt.event.ItemEvent;
+import java.awt.event.MouseEvent;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Point2D;
+import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -50,6 +51,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -63,11 +65,12 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
-import java.awt.event.ItemEvent;
-import java.awt.event.MouseEvent;
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.Point2D;
-import java.beans.PropertyChangeEvent;
+
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+import com.l2fprod.common.propertysheet.PropertySheetPanel;
+import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
+
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.plugins.planning.edit.AllManeuversPayloadSettingsChanged;
 import pt.lsts.neptus.data.Pair;
@@ -102,7 +105,7 @@ import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.GuiUtils;
 
-
+@SuppressWarnings("serial")
 @PluginDescription(name = "Sweep Plan Generator")
 public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainter {
 
@@ -116,9 +119,9 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
     private LinkedHashMap<String, SystemProperty> vehicleOptions = new LinkedHashMap<>();
 
     private String vehicle = null;
-    private double sweepAngle = -Math.PI/180;
+    private double sweepAngle = -Math.PI / 180;
 
-    //MAP INTERACTION
+    // MAP INTERACTION
     private PolygonType task = null;
     private PolygonType selectedTask = null;
     private PolygonType.Vertex startPoint = null;
@@ -161,7 +164,8 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
                 if (c instanceof JComponent)
                     ((JComponent) c).setBorder(new LineBorder(Color.orange.darker(), 3));
             }
-        } else {
+        }
+        else {
             Container c = source;
             while (c.getParent() != null && !(c.getLayout() instanceof BorderLayout))
                 c = c.getParent();
@@ -186,9 +190,9 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
         if (sidePanel == null) {
             sidePanel = new JPanel(new BorderLayout(2, 2));
 
-            sidePanel.add(getAngleSelector(),BorderLayout.SOUTH);
-            sidePanel.add(getOptionsPanel(),BorderLayout.CENTER);
-            sidePanel.add(getVehicleSelector(),BorderLayout.PAGE_START);
+            sidePanel.add(getAngleSelector(), BorderLayout.SOUTH);
+            sidePanel.add(getOptionsPanel(), BorderLayout.CENTER);
+            sidePanel.add(getVehicleSelector(), BorderLayout.PAGE_START);
         }
 
         return sidePanel;
@@ -201,13 +205,13 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
         getConsole().addMainVehicleListener(id -> vehicleList.getModel().setSelectedItem(id));
 
         vehicleList.addItemListener(e -> {
-            if(e.getStateChange() != ItemEvent.SELECTED){
+            if (e.getStateChange() != ItemEvent.SELECTED) {
                 return;
             }
-            setVehicle((String)e.getItem());
+            setVehicle((String) e.getItem());
             updateProperties();
             updateVehiclePropsConstraints();
-            getConsole().setMainSystem((String)e.getItem());
+            getConsole().setMainSystem((String) e.getItem());
         });
 
         // set vehicle local variable
@@ -233,11 +237,11 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
         angleSpinnerModel = new SpinnerNumberModel(current, min, max, step);
         angleSpinner = new JSpinner(angleSpinnerModel);
         angleSpinner.addChangeListener(evt -> {
-            double newValue = (double)((JSpinner)evt.getSource()).getValue();
-            sweepAngle = -newValue * Math.PI/180;
+            double newValue = (double) ((JSpinner) evt.getSource()).getValue();
+            sweepAngle = -newValue * Math.PI / 180;
             updatePlan(stateRenderer);
         });
-        ((JSpinner.DefaultEditor)angleSpinner.getEditor()).getTextField().setColumns(5);
+        ((JSpinner.DefaultEditor) angleSpinner.getEditor()).getTextField().setColumns(5);
 
         panel.add(angleSpinner);
         label.setLabelFor(angleSpinner);
@@ -247,7 +251,7 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
     private JPanel getOptionsPanel() {
         JPanel optionsPanel = new JPanel();
 
-        optionsPanel.setLayout(new GridLayout(2,0));
+        optionsPanel.setLayout(new GridLayout(2, 0));
 
         optionsPanel.add(getGeneralPropertiesTable());
 
@@ -272,7 +276,7 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
             }
 
             updateVehiclePropsConstraints();
-            //System.out.println(categoryName+"."+propName+" : "+evt.getNewValue());
+            // System.out.println(categoryName+"."+propName+" : "+evt.getNewValue());
         });
 
         propsPanel.setEditorFactory(PropertiesEditor.getPropertyEditorRegistry());
@@ -282,7 +286,6 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
         updateProperties();
 
         propsPanel.setBorder(new TitledBorder(I18n.text("Vehicle Properties")));
-
 
         return propsPanel;
     }
@@ -321,8 +324,8 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
     @SuppressWarnings("deprecation")
     private void updateProperties() {
         vehicleOptions.clear();
-        ArrayList<SystemProperty> payloadProps = ConfigurationManager.getInstance().getClonedProperties(vehicle, SystemProperty.Visibility.USER,
-                SystemProperty.Scope.MANEUVER);
+        ArrayList<SystemProperty> payloadProps = ConfigurationManager.getInstance().getClonedProperties(vehicle,
+                SystemProperty.Visibility.USER, SystemProperty.Scope.MANEUVER);
 
         // Add vehicle props to the PropertySheetPanel
         for (SystemProperty sp : payloadProps) {
@@ -337,7 +340,7 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
                 }
                 if (sp.getRenderer() != null) {
                     DefaultCellRenderer rend;
-                    if(sp.getRenderer() instanceof I18nSystemPropertyRenderer) {
+                    if (sp.getRenderer() instanceof I18nSystemPropertyRenderer) {
                         I18nSystemPropertyRenderer rendSProp = (I18nSystemPropertyRenderer) sp.getRenderer();
                         I18nCellRenderer newRend = new I18nCellRenderer(rendSProp.getUnitsStr());
                         newRend.setI18nMapper(rendSProp.getI18nMapper());
@@ -356,44 +359,50 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
             }
         }
 
-        if(propsPanel != null){
+        if (propsPanel != null) {
             propsPanel.setProperties(payloadProps.toArray(new SystemProperty[0]));
         }
     }
 
-    private void updateVehiclePropsConstraints(){
-        vehicleOptions.forEach((String key,SystemProperty property)->{
+    private void updateVehiclePropsConstraints() {
+        vehicleOptions.forEach((String key, SystemProperty property) -> {
             String[] catNamePair = key.split("\\.");
             String categoryName = catNamePair[0];
             String propName = catNamePair[1];
 
             double newValue = 0;
 
-            if(propTable != null && generalProvider != null && isRangeProperty(categoryName,propName)){
-                if((propName.contains("Multiplier") || propName.contains("Frequency")) && vehicleOptions.get("Sidescan.Range")==null){
-                    String lowChannels = (String)vehicleOptions.get("Sidescan.Low-Frequency Channels").getValue();
-                    String highChannels = (String)vehicleOptions.get("Sidescan.High-Frequency Channels").getValue();
+            if (propTable != null && generalProvider != null && isRangeProperty(categoryName, propName)) {
+                if ((propName.contains("Multiplier") || propName.contains("Frequency"))
+                        && vehicleOptions.get("Sidescan.Range") == null) {
+                    String lowChannels = (String) vehicleOptions.get("Sidescan.Low-Frequency Channels").getValue();
+                    String highChannels = (String) vehicleOptions.get("Sidescan.High-Frequency Channels").getValue();
 
                     double lowRange = 0;
                     double highRange = 0;
-                    if(!lowChannels.equals("None")){
-                        if(vehicleOptions.get("Sidescan.Low-Frequency Range").getValue() instanceof Long){
-                            lowRange = ((Long)vehicleOptions.get("Sidescan.Low-Frequency Range").getValue()).doubleValue();
-                        } else {
-                            lowRange = ((Integer)vehicleOptions.get("Sidescan.Low-Frequency Range").getValue()).doubleValue();
+                    if (!lowChannels.equals("None")) {
+                        if (vehicleOptions.get("Sidescan.Low-Frequency Range").getValue() instanceof Long) {
+                            lowRange = ((Long) vehicleOptions.get("Sidescan.Low-Frequency Range").getValue())
+                                    .doubleValue();
+                        }
+                        else {
+                            lowRange = ((Integer) vehicleOptions.get("Sidescan.Low-Frequency Range").getValue())
+                                    .doubleValue();
                         }
                     }
-                    if(!highChannels.equals("None")){
-                        highRange = ((Long)vehicleOptions.get("Sidescan.High-Frequency Range").getValue()).doubleValue();
+                    if (!highChannels.equals("None")) {
+                        highRange = ((Long) vehicleOptions.get("Sidescan.High-Frequency Range").getValue())
+                                .doubleValue();
                     }
 
-                    newValue = Math.max(lowRange,highRange);
-                } else if(propName.equals("Range")){
-                    newValue = ((Long)property.getValue()).doubleValue();
+                    newValue = Math.max(lowRange, highRange);
                 }
-                if(newValue != 0) {
-                    generalOptions.swathWidth = newValue*2;
-                    generalOptions.depth = -newValue*0.1;
+                else if (propName.equals("Range")) {
+                    newValue = ((Long) property.getValue()).doubleValue();
+                }
+                if (newValue != 0) {
+                    generalOptions.swathWidth = newValue * 2;
+                    generalOptions.depth = -newValue * 0.1;
                     propTable.editProperties(generalProvider);
                     updatePlan(stateRenderer);
                 }
@@ -405,11 +414,11 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
         return (propName.contains("Range") || propName.contains("Frequency")) && categoryName.equals("Sidescan");
     }
 
-    //MAP INTERACTION
+    // MAP INTERACTION
     private LocationType lastPoint = null;
     private PolygonType.Vertex clickedVertex = null;
 
-    private boolean containsPoint(LocationType lt, StateRenderer2D renderer){
+    private boolean containsPoint(LocationType lt, StateRenderer2D renderer) {
         if (task.containsPoint(lt))
             return true;
 
@@ -424,8 +433,8 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
         return false;
     }
 
-    private double distSq(double lx1, double ly1, double lz1, double lx2, double ly2, double lz2){
-        return Math.pow(lx1-lx2,2)+ Math.pow(ly1-ly2,2) + Math.pow(lz1-lz2,2);
+    private double distSq(double lx1, double ly1, double lz1, double lx2, double ly2, double lz2) {
+        return Math.pow(lx1 - lx2, 2) + Math.pow(ly1 - ly2, 2) + Math.pow(lz1 - lz2, 2);
     }
 
     private double calculatePointProjectionDist(double[] linePoint1, double[] linePoint2, double[] lt) {
@@ -440,7 +449,8 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
         double pz = lt[2];
 
         double line_dist = distSq(lx1, ly1, lz1, lx2, ly2, lz2);
-        if (line_dist == 0) return distSq(px, py, pz, lx1, ly1, lz1);
+        if (line_dist == 0)
+            return distSq(px, py, pz, lx1, ly1, lz1);
         double t = ((px - lx1) * (lx2 - lx1) + (py - ly1) * (ly2 - ly1) + (pz - lz1) * (lz2 - lz1)) / line_dist;
         t = Math.min(1, Math.max(t, 0));
         return distSq(px, py, pz, lx1 + t * (lx2 - lx1), ly1 + t * (ly2 - ly1), lz1 + t * (lz2 - lz1));
@@ -448,7 +458,7 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
 
     private int getVertexOptimalIndex(PolygonType poly, LocationType lt) {
         List<PolygonType.Vertex> vertices = poly.getVertices();
-        if(vertices.size() < 4){
+        if (vertices.size() < 4) {
             // returning index for the next vertex
             return vertices.size();
         }
@@ -459,14 +469,14 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
 
         PolygonType.Vertex currVertex = vertices.get(0);
         for (int i = 1; i < vertices.size(); i++) {
-            /*currDist += currVertex.getLocation().getDistanceInMeters(lt);
-            currDist += lt.getDistanceInMeters(vertices.get(i).getLocation());*/
+             // currDist += currVertex.getLocation().getDistanceInMeters(lt); currDist +=
+             // lt.getDistanceInMeters(vertices.get(i).getLocation());
 
             currDist = calculatePointProjectionDist(task.getCentroid().getOffsetFrom(currVertex.getLocation()),
                     task.getCentroid().getOffsetFrom(vertices.get(i).getLocation()),
                     task.getCentroid().getOffsetFrom(lt));
 
-            if(currDist < minDist){
+            if (currDist < minDist) {
                 minDist = currDist;
                 optimalIndex = i;
             }
@@ -474,28 +484,24 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
         }
 
         // last to first check
-        /*currDist += currVertex.getLocation().getDistanceInMeters(lt);
-        currDist += lt.getDistanceInMeters(vertices.get(0).getLocation());*/
+        // currDist += currVertex.getLocation().getDistanceInMeters(lt); currDist +=
+        // lt.getDistanceInMeters(vertices.get(0).getLocation());
+        
         currDist = calculatePointProjectionDist(task.getCentroid().getOffsetFrom(currVertex.getLocation()),
-                task.getCentroid().getOffsetFrom(vertices.get(0).getLocation()),
-                task.getCentroid().getOffsetFrom(lt));
+                task.getCentroid().getOffsetFrom(vertices.get(0).getLocation()), task.getCentroid().getOffsetFrom(lt));
 
-        if(currDist < minDist){
+        if (currDist < minDist) {
             optimalIndex = vertices.size();
         }
 
-        /*TreeMap<Double, LocationType> map = new TreeMap<>();
-        List<PolygonType.Vertex> vertices = new ArrayList<>(poly.getVertices());
-        vertices.forEach((PolygonType.Vertex vertex) -> {
-            LocationType tempLt = vertex.getLocation();
-            map.put(calculateAzimuth(task,tempLt),tempLt);
-        });
-        System.out.println(map.toString());*/
+        // TreeMap<Double, LocationType> map = new TreeMap<>(); List<PolygonType.Vertex> vertices = new
+        // ArrayList<>(poly.getVertices()); vertices.forEach((PolygonType.Vertex vertex) -> { LocationType tempLt =
+        // vertex.getLocation(); map.put(calculateAzimuth(task,tempLt),tempLt); }); System.out.println(map.toString());
 
         return optimalIndex;
     }
 
-    private PolygonType.Vertex getVertexAt(StateRenderer2D renderer, PolygonType poly, LocationType lt){
+    private PolygonType.Vertex getVertexAt(StateRenderer2D renderer, PolygonType poly, LocationType lt) {
         Point2D screen = renderer.getScreenPosition(lt);
         for (PolygonType.Vertex v : poly.getVertices()) {
             Point2D pt = renderer.getScreenPosition(v.getLocation());
@@ -542,7 +548,7 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
             });
         }
 
-        if(survey != null) {
+        if (survey != null) {
             popup.add("<html><b>Delete</b> Survey").addActionListener(evt -> {
                 task = null;
                 endPoint = null;
@@ -551,7 +557,7 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
             });
         }
 
-        if(task != null) {
+        if (task != null) {
             // check if a polygon vertex was hit
             PolygonType.Vertex selectedVertex = getVertexAt(source, task, source.getRealWorldLocation(e.getPoint()));
             if (selectedVertex != null && task.getVertices().size() > 3) {
@@ -563,9 +569,9 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
             }
 
             popup.add("<html>Add <b>Vertex</b>").addActionListener(evt -> {
-                int optimalIndex = getVertexOptimalIndex(task,source.getRealWorldLocation(e.getPoint()));
-                //task.addVertex(source.getRealWorldLocation(e.getPoint()));
-                task.addVertex(optimalIndex,source.getRealWorldLocation(e.getPoint()));
+                int optimalIndex = getVertexOptimalIndex(task, source.getRealWorldLocation(e.getPoint()));
+                // task.addVertex(source.getRealWorldLocation(e.getPoint()));
+                task.addVertex(optimalIndex, source.getRealWorldLocation(e.getPoint()));
                 task.recomputePath();
                 updatePlan(source);
             });
@@ -577,7 +583,8 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
                 endPoint = new PolygonType.Vertex(source.getRealWorldLocation(e.getPoint()));
                 updatePlan(source);
             });
-        } else {
+        }
+        else {
             popup.add("<html>New <b>Survey</b>").addActionListener(evt -> {
                 // ADD NEW SURVEY
                 task = new PolygonType();
@@ -602,7 +609,7 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
             });
         }
 
-        if(task != null && generated != null) {
+        if (task != null && generated != null) {
             popup.add("<html><b>Save</b> Plan to Mission").addActionListener(e14 -> savePlan());
         }
 
@@ -611,19 +618,21 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
 
     @Override
     public void mousePressed(MouseEvent event, StateRenderer2D source) {
-        if(task != null && endPoint != null && isVertex(source,source.getRealWorldLocation(event.getPoint()),endPoint)){
+        if (task != null && endPoint != null
+                && isVertex(source, source.getRealWorldLocation(event.getPoint()), endPoint)) {
             selectedTask = task;
             lastPoint = source.getRealWorldLocation(event.getPoint());
             clickedVertex = endPoint;
             return;
         }
-        if(task != null && startPoint != null && isVertex(source,source.getRealWorldLocation(event.getPoint()),startPoint)){
+        if (task != null && startPoint != null
+                && isVertex(source, source.getRealWorldLocation(event.getPoint()), startPoint)) {
             selectedTask = task;
             lastPoint = source.getRealWorldLocation(event.getPoint());
             clickedVertex = startPoint;
             return;
         }
-        if (task != null && containsPoint(source.getRealWorldLocation(event.getPoint()),source)) {
+        if (task != null && containsPoint(source.getRealWorldLocation(event.getPoint()), source)) {
             selectedTask = task;
             lastPoint = source.getRealWorldLocation(event.getPoint());
 
@@ -637,22 +646,24 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
             }
 
             clickedVertex = null;
-        } else {
+        }
+        else {
             super.mousePressed(event, source);
         }
     }
 
     @Override
     public void mouseDragged(MouseEvent event, StateRenderer2D source) {
-        if(selectedTask == null){
-            super.mouseDragged(event,source);
+        if (selectedTask == null) {
+            super.mouseDragged(event, source);
             return;
         }
 
         if (clickedVertex != null) {
             clickedVertex.setLocation(source.getRealWorldLocation(event.getPoint()));
             task.recomputePath();
-        } else if (lastPoint != null) {
+        }
+        else if (lastPoint != null) {
             LocationType loc = source.getRealWorldLocation(event.getPoint());
             double offsets[] = loc.getOffsetFrom(lastPoint);
             task.translate(offsets[0], offsets[1]);
@@ -665,7 +676,7 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
 
     @Override
     public void mouseReleased(MouseEvent event, StateRenderer2D source) {
-        if(selectedTask != null) {
+        if (selectedTask != null) {
             lastPoint = null;
             clickedVertex = null;
 
@@ -678,25 +689,25 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
 
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
-        if(task != null && planElement != null && isActive()) {
-            task.paint(g,renderer);
+        if (task != null && planElement != null && isActive()) {
+            task.paint(g, renderer);
             g.setTransform(renderer.getIdentity());
             for (PolygonType.Vertex v : task.getVertices()) {
                 Point2D pt = renderer.getScreenPosition(v.getLocation());
                 g.fill(new Ellipse2D.Double(pt.getX() - 5, pt.getY() - 5, 10, 10));
             }
-            if(startPoint != null){
+            if (startPoint != null) {
                 Point2D pt = renderer.getScreenPosition(startPoint.getLocation());
                 g.setColor(Color.GREEN);
-                g.fill(new Ellipse2D.Double(pt.getX()-5, pt.getY()-5,10,10));
+                g.fill(new Ellipse2D.Double(pt.getX() - 5, pt.getY() - 5, 10, 10));
             }
-            if(endPoint != null){
+            if (endPoint != null) {
                 Point2D pt = renderer.getScreenPosition(endPoint.getLocation());
                 g.setColor(Color.GREEN);
-                g.fill(new Ellipse2D.Double(pt.getX()-5, pt.getY()-5,10,10));
+                g.fill(new Ellipse2D.Double(pt.getX() - 5, pt.getY() - 5, 10, 10));
             }
             planElement.setColor(Color.BLUE);
-            planElement.paint(g,renderer);
+            planElement.paint(g, renderer);
         }
     }
 
@@ -715,7 +726,7 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
         return manLoc;
     }
 
-    private void addStartManeuver(){
+    private void addStartManeuver() {
         if (startPoint == null)
             return;
 
@@ -731,7 +742,7 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
         generated.getGraph().addManeuverAtEnd(start);
     }
 
-    private void addEndManeuver(LocationType lastLoc){
+    private void addEndManeuver(LocationType lastLoc) {
         if (endPoint == null)
             return;
 
@@ -760,16 +771,14 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
     }
 
     private void generatePlan() {
-
         Pair<Double, Double> diamAngle = task.getDiameterAndAngle();
-        double angle = sweepAngle != -Math.PI/180 ? sweepAngle : diamAngle.second();
+        double angle = sweepAngle != -Math.PI / 180 ? sweepAngle : diamAngle.second();
 
         int corner = generalOptions.corner;
 
-        /*for (int i = 0; i<4 ; i++){
-            System.out.println("Length for i = "+i+" : " + task.getPathLength(generalOptions.swathWidth,i));
-            //System.out.println("Better Length for i = "+i+" : " + getPathLength(task.getCoveragePath(angle, generalOptions.swathWidth, corner)));
-        }*/
+         // for (int i = 0; i<4 ; i++){ System.out.println("Length for i = "+i+" : " +
+         // task.getPathLength(generalOptions.swathWidth,i)); //System.out.println("Better Length for i = "+i+" : " +
+         // getPathLength(task.getCoveragePath(angle, generalOptions.swathWidth, corner))); }
 
         generated = new PlanType(getConsole().getMission());
 
@@ -777,42 +786,40 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
         LocationType lastLoc;
         long curTime = System.currentTimeMillis() + generalOptions.startInMins * 60_000;
 
-
         double shortestDistance = Double.MAX_VALUE;
 
+        // restrict overlap range
+        double validOverlap = Math.max(0, generalOptions.overlap / 100);
+        validOverlap = Math.min(1, validOverlap);
 
-        //restrict overlap range
-        double validOverlap = Math.max(0,generalOptions.overlap/100);
-        validOverlap = Math.min(1,validOverlap);
-
-        double finalSwathWidth = generalOptions.swathWidth - (generalOptions.swathWidth*validOverlap*0.5);
+        double finalSwathWidth = generalOptions.swathWidth - (generalOptions.swathWidth * validOverlap * 0.5);
 
         // Find Shortest Distance Corner
         for (int i = 0; i < 4; i++) {
             ArrayList<LocationType> tempCoverage = task.getCoveragePath(angle, finalSwathWidth, i);
             LocationType covStart = tempCoverage.get(0);
-            LocationType covEnd = tempCoverage.get(tempCoverage.size()-1);
+            LocationType covEnd = tempCoverage.get(tempCoverage.size() - 1);
             double distance = 0;
             // add distance to start point
-            if(startPoint != null){
+            if (startPoint != null) {
                 distance += covStart.getDistanceInMeters(startPoint.getLocation());
             }
 
             // add distance to end point
-            if(endPoint != null){
+            if (endPoint != null) {
                 distance += covEnd.getDistanceInMeters(endPoint.getLocation());
             }
             distance += task.getPathLength(angle, finalSwathWidth, i);
-            //System.out.println("Better Length for i = "+i+" : " + distance);
-            if(distance < shortestDistance){
+            // System.out.println("Better Length for i = "+i+" : " + distance);
+            if (distance < shortestDistance) {
                 shortestDistance = distance;
                 corner = i;
             }
         }
 
-        //System.out.println("Selected Corner: "+corner+" with total distance: "+shortestDistance);
+        // System.out.println("Selected Corner: "+corner+" with total distance: "+shortestDistance);
 
-        if(generalOptions.corner != -1)
+        if (generalOptions.corner != -1)
             corner = generalOptions.corner;
 
         ArrayList<LocationType> coverage = task.getCoveragePath(angle, finalSwathWidth, corner);
@@ -824,7 +831,7 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
 
         if (generalOptions.timedPlan) {
             ScheduledGoto m1 = new ScheduledGoto();
-            m1.setId("SG"+manId++);
+            m1.setId("SG" + manId++);
             m1.setManeuverLocation(createLoc(coverage.remove(0)));
             m1.setArrivalTime(new Date(curTime));
             generated.getGraph().addManeuverAtEnd(m1);
@@ -832,7 +839,7 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
         }
         else {
             Goto m1 = new Goto();
-            m1.setId("Go"+manId++);
+            m1.setId("Go" + manId++);
             lastLoc = new ManeuverLocation(coverage.remove(0));
             ManeuverLocation mloc = createLoc(lastLoc);
             mloc.setZ(0);
@@ -844,29 +851,29 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
             lastLoc = new LocationType(m1.getManeuverLocation());
 
             PopUp man = new PopUp();
-            man.setId("P"+manId++);
+            man.setId("P" + manId++);
             man.setManeuverLocation(createLoc(lastLoc));
             man.setDuration(generalOptions.popupDuration);
             generated.getGraph().addManeuverAtEnd(man);
         }
+        
         long lastPopup = System.currentTimeMillis();
-
         FollowTrajectory traj = null;
 
-        while(!coverage.isEmpty()) {
+        while (!coverage.isEmpty()) {
             LocationType loc = coverage.remove(0);
 
             double distanceToTarget = lastLoc.getDistanceInMeters(loc);
             long targetEta = (long) ((distanceToTarget / generalOptions.speedMps) * 1000 + curTime);
 
-            if ((targetEta - lastPopup)/60_000.0 > generalOptions.popupMins) {
+            if ((targetEta - lastPopup) / 60_000.0 > generalOptions.popupMins) {
                 if (traj != null)
                     generated.getGraph().addManeuverAtEnd(traj);
                 traj = null;
 
-                //add popup
+                // add popup
                 PopUp man = new PopUp();
-                man.setId("P"+manId++);
+                man.setId("P" + manId++);
                 ManeuverLocation mloc = createLoc(lastLoc);
                 man.setManeuverLocation(mloc);
                 man.setDuration(generalOptions.popupDuration);
@@ -874,32 +881,30 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
                 generated.getGraph().addManeuverAtEnd(man);
                 lastPopup = curTime + generalOptions.popupDuration * 1_000;
                 targetEta += generalOptions.popupDuration * 1_000;
-
             }
 
             if (traj == null) {
                 if (generalOptions.timedPlan) {
                     traj = new FollowTrajectory();
-                    traj.setId("FT"+manId++);
+                    traj.setId("FT" + manId++);
                 }
                 else {
                     traj = new FollowPath();
-                    traj.setId("FP"+manId++);
+                    traj.setId("FP" + manId++);
                 }
                 traj.setManeuverLocation(createLoc(lastLoc));
                 Vector<double[]> curPath = new Vector<>();
-                curPath.add(new double[] {0, 0, 0, 0});
+                curPath.add(new double[] { 0, 0, 0, 0 });
                 traj.setOffsets(curPath);
-                if(stateRenderer != null){
+                if (stateRenderer != null) {
                     traj.setShowEditingText(false);
                     traj.setEditing(true);
                 }
-
             }
 
             Vector<double[]> curPath = new Vector<>(traj.getPathPoints());
             double[] offsets = loc.getOffsetFrom(traj.getManeuverLocation());
-            curPath.add(new double[] {offsets[0], offsets[1], offsets[2], (targetEta - curTime) / 1000.0});
+            curPath.add(new double[] { offsets[0], offsets[1], offsets[2], (targetEta - curTime) / 1000.0 });
             traj.setOffsets(curPath);
             lastLoc = loc;
             curTime = targetEta;
@@ -908,11 +913,12 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
         if (traj != null)
             generated.getGraph().addManeuverAtEnd(traj);
 
-        if(endPoint != null){
+        if (endPoint != null) {
             addEndManeuver(lastLoc);
-        } else {
+        }
+        else {
             StationKeeping man = new StationKeeping();
-            man.setId("SK"+manId);
+            man.setId("SK" + manId);
             ManeuverLocation mloc = createLoc(lastLoc);
             mloc.setZ(0);
             mloc.setZUnits(ManeuverLocation.Z_UNITS.DEPTH);
@@ -928,31 +934,28 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
         planElement.setPlan(generated);
     }
 
-    private void setPayloads()  {
-        if(generated == null || vehicle == null)
+    private void setPayloads() {
+        if (generated == null || vehicle == null)
             return;
 
         Goto pivot = new Goto();
-
         ManeuverPayloadConfig payloadConfig = new ManeuverPayloadConfig(vehicle, pivot, propsPanel);
-
         payloadConfig.setProperties(propsPanel.getProperties());
-
         PlanActions newPlanActions = pivot.getStartActions();
-
-        AllManeuversPayloadSettingsChanged undoRedo = new AllManeuversPayloadSettingsChanged(generated, newPlanActions, null);
+        AllManeuversPayloadSettingsChanged undoRedo = new AllManeuversPayloadSettingsChanged(generated, newPlanActions,
+                null);
         undoRedo.redo();
     }
 
     private void setVehicle(String vehicle) {
         this.vehicle = vehicle;
-        if(task != null){
+        if (task != null) {
             generated.setVehicle(vehicle);
         }
     }
 
     private void updatePlan(StateRenderer2D renderer) {
-        if(task == null)
+        if (task == null)
             return;
         generatePlan();
         planElement.recalculateManeuverPositions(renderer);
@@ -974,8 +977,8 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
         }
         catch (Exception ex) {
             int option = GuiUtils.confirmDialog(getConsole(), I18n.text("Plan Validation"),
-                    I18n.text("Are you sure you want to save the plan?\nThe following errors where found:")
-                            +"\n - " + ex.getMessage().replaceAll("\n", "\n - "));
+                    I18n.text("Are you sure you want to save the plan?\nThe following errors where found:") + "\n - "
+                            + ex.getMessage().replaceAll("\n", "\n - "));
             if (option != JOptionPane.YES_OPTION)
                 return;
         }
@@ -986,40 +989,40 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
     }
 
     public static class MultiVehicleDynamicSurveyOptions {
-        @NeptusProperty(name="Swath Width", description="Cross-track region covered by each vehicle")
+        @NeptusProperty(name = "Swath Width", description = "Cross-track region covered by each vehicle")
         double swathWidth = 180;
 
-        @NeptusProperty(name="Depth", description= "Depth at which to travel (negative for altitude)")
+        @NeptusProperty(name = "Depth", description = "Depth at which to travel (negative for altitude)")
         double depth = 4;
 
-        @NeptusProperty(name="Speed (m/s)", description="Speed to use while travelling")
+        @NeptusProperty(name = "Speed (m/s)", description = "Speed to use while travelling")
         double speedMps = 1.2;
 
-        @NeptusProperty(name="Minutes till first point", description="Amount of minutes to travel to the first waypoint")
+        @NeptusProperty(name = "Minutes till first point", description = "Amount of minutes to travel to the first waypoint")
         int startInMins = 1;
 
-        @NeptusProperty(name="Create timed plan", description="Opt to generate desired ETA for each waypoint")
+        @NeptusProperty(name = "Create timed plan", description = "Opt to generate desired ETA for each waypoint")
         boolean timedPlan = false;
 
-        @NeptusProperty(name="Popup periodicity in minutes", description="Do not stay underwater more than this time (minutes)")
+        @NeptusProperty(name = "Popup periodicity in minutes", description = "Do not stay underwater more than this time (minutes)")
         int popupMins = 30;
 
-        @NeptusProperty(name="Popup duration in seconds", description="How long to stay at surface when the vehicle pops up")
+        @NeptusProperty(name = "Popup duration in seconds", description = "How long to stay at surface when the vehicle pops up")
         int popupDuration = 45;
 
-        @NeptusProperty(name="Popup Wait at surface", description="If set, the vehicle will wait <duration> seconds before diving, otherwise will dive after GPS fix.")
+        @NeptusProperty(name = "Popup Wait at surface", description = "If set, the vehicle will wait <duration> seconds before diving, otherwise will dive after GPS fix.")
         boolean popupWaitAtSurface = true;
 
-        @NeptusProperty(name="Generated plan id", description="Name of the generated plan")
+        @NeptusProperty(name = "Generated plan id", description = "Name of the generated plan")
         String planId = "plan_wiz";
 
-        @NeptusProperty(name="Reversed", description="Reverse plan")
+        @NeptusProperty(name = "Reversed", description = "Reverse plan")
         boolean reversed = false;
 
-        @NeptusProperty(name="Corner", description="First Corner", units="Intger between 0 and 3 inclusive and -1 for optimized selection")
+        @NeptusProperty(name = "Corner", description = "First Corner", units = "Intger between 0 and 3 inclusive and -1 for optimized selection")
         int corner = -1;
 
-        @NeptusProperty(name="Sweep Overlap", description="Percentage of overlapping coverage", units = "Values should be between 0(no overlap) and 100(full overlap)")
+        @NeptusProperty(name = "Sweep Overlap", description = "Percentage of overlapping coverage", units = "Values should be between 0(no overlap) and 100(full overlap)")
         double overlap = 10;
     }
 }
