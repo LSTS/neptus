@@ -584,7 +584,7 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
             popup.add(I18n.text("New survey")).addActionListener(evt -> {
                 // ADD NEW SURVEY
                 task = new PolygonType();
-                task.setColor(Color.red);
+                task.setColor(new Color(0xCC66FF));
 
                 LocationType clickedLocation = source.getRealWorldLocation(e.getPoint());
                 LocationType nw = new LocationType(clickedLocation), ne = new LocationType(clickedLocation),
