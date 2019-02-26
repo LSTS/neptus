@@ -119,6 +119,23 @@ StateRendererInteraction, IMCSerialization, PathProvider {
     protected InteractionAdapter adapter = new InteractionAdapter(null);
     protected Point2D lastDragPoint = null;
     protected boolean editing = false;
+    protected boolean showEditingText = true;
+
+    public boolean isEditing() {
+        return editing;
+    }
+
+    public void setEditing(boolean editing) {
+        this.editing = editing;
+    }
+
+    public boolean isShowEditingText() {
+        return showEditingText;
+    }
+
+    public void setShowEditingText(boolean showEditingText) {
+        this.showEditingText = showEditingText;
+    }
 
     public String getName() {
         return "FollowTrajectory";
@@ -235,7 +252,7 @@ StateRendererInteraction, IMCSerialization, PathProvider {
     public void paintOnMap(Graphics2D g2d, PlanElement planElement, StateRenderer2D renderer) {
         super.paintOnMap(g2d, planElement, renderer);
         
-        if (editing && editingHelpText != null && !editingHelpText.isEmpty()) {
+        if (editing && showEditingText && editingHelpText != null && !editingHelpText.isEmpty()) {
             Graphics2D g3 = (Graphics2D) g2d.create();
             Point2D manL = renderer.getScreenPosition(getManeuverLocation());
             Point2D gL = renderer.getScreenPosition(renderer.getTopLeftLocationType());

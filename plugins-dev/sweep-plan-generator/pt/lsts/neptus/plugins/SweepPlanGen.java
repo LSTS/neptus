@@ -168,13 +168,13 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
         SpinnerNumberModel angleSpinnerModel;
         Double current = (double) -1;
         Double min = (double) -1;
-        Double max = 365d;
+        Double max = 360d;
         Double step = 1d;
         angleSpinnerModel = new SpinnerNumberModel(current, min, max, step);
         angleSpinner = new JSpinner(angleSpinnerModel);
         angleSpinner.addChangeListener(evt -> {
             double newValue = (double)((JSpinner)evt.getSource()).getValue();
-            sweepAngle = newValue * Math.PI/180;
+            sweepAngle = -newValue * Math.PI/180;
             updatePlan(stateRenderer);
         });
         ((JSpinner.DefaultEditor)angleSpinner.getEditor()).getTextField().setColumns(5);
@@ -252,10 +252,7 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
 
         propTable = new PropertiesTable();
         propTable.editProperties(generalProvider);
-        propTable.addPropertyChangeListener(evt -> {
-            System.out.println("PropTable Change Listener");
-            updatePlan(stateRenderer);
-        });
+        propTable.addPropertyChangeListener(evt -> updatePlan(stateRenderer));
 
         propTable.setBorder(new TitledBorder(I18n.text("General Properties")));
         return propTable;
@@ -307,7 +304,6 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
     private void updateVehiclePropsConstraints(){
         vehicleOptions.forEach((String key,SystemProperty property)->{
             String[] catNamePair = key.split("\\.");
-            System.out.println(Arrays.toString(catNamePair));
             String categoryName = catNamePair[0];
             String propName = catNamePair[1];
 
@@ -368,18 +364,6 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
         return false;
     }
 
-    /*private double calculateAzimuth(PolygonType poly, LocationType lt) {
-        LocationType center = task.getCentroid();
-        double[] offset = lt.getOffsetFrom(center);
-        System.out.println(Arrays.toString(offset));
-        double realAzimuth = Math.atan2(offset[0],offset[1]);
-        if(realAzimuth < 0){
-            return 2*Math.PI + realAzimuth;
-        } else {
-            return realAzimuth;
-        }
-    }*/
-
     private double distSq(double lx1, double ly1, double lz1, double lx2, double ly2, double lz2){
         return Math.pow(lx1-lx2,2)+ Math.pow(ly1-ly2,2) + Math.pow(lz1-lz2,2);
     }
@@ -422,7 +406,6 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
                     task.getCentroid().getOffsetFrom(vertices.get(i).getLocation()),
                     task.getCentroid().getOffsetFrom(lt));
 
-            System.out.println(i + ". Curr Distance: "+currDist);
             if(currDist < minDist){
                 minDist = currDist;
                 optimalIndex = i;
@@ -437,7 +420,6 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
                 task.getCentroid().getOffsetFrom(vertices.get(0).getLocation()),
                 task.getCentroid().getOffsetFrom(lt));
 
-        System.out.println("Last. Curr Distance: "+currDist);
         if(currDist < minDist){
             optimalIndex = vertices.size();
         }
@@ -555,6 +537,7 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
                 task.addVertex(sw);
                 task.recomputePath();
                 planElement = new PlanElement();
+                planElement.setBeingEdited(true);
                 updatePlan(source);
             });
         }
@@ -652,6 +635,7 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
                 g.setColor(Color.GREEN);
                 g.fill(new Ellipse2D.Double(pt.getX()-5, pt.getY()-5,10,10));
             }
+            planElement.setColor(Color.BLUE);
             planElement.paint(g,renderer);
         }
     }
@@ -846,6 +830,10 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
                 Vector<double[]> curPath = new Vector<>();
                 curPath.add(new double[] {0, 0, 0, 0});
                 traj.setOffsets(curPath);
+                if(stateRenderer != null){
+                    traj.setShowEditingText(false);
+                    traj.setEditing(true);
+                }
 
             }
 
