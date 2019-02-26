@@ -250,13 +250,9 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
 
     private JPanel getOptionsPanel() {
         JPanel optionsPanel = new JPanel();
-
         optionsPanel.setLayout(new GridLayout(2, 0));
-
         optionsPanel.add(getGeneralPropertiesTable());
-
         optionsPanel.add(getVehiclePropertiesTable());
-
         return optionsPanel;
     }
 
