@@ -225,7 +225,7 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
 
     private JPanel getAngleSelector() {
         JPanel panel = new JPanel();
-        JLabel label = new JLabel("Sweep Angle");
+        JLabel label = new JLabel(I18n.text("Sweep angle"));
         panel.add(label);
 
         JSpinner angleSpinner;
@@ -531,21 +531,21 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
         JPopupMenu popup = new JPopupMenu();
 
         if (startPoint != null && isVertex(source, lt, startPoint)) {
-            popup.add("<html><b>Remove</b> start point").addActionListener(e1 -> {
+            popup.add(I18n.text("Remove start point")).addActionListener(e1 -> {
                 startPoint = null;
                 updatePlan(source);
             });
         }
 
         if (endPoint != null && isVertex(source, lt, endPoint)) {
-            popup.add("<html><b>Remove</b> end point").addActionListener(e12 -> {
+            popup.add(I18n.text("Remove end point")).addActionListener(e12 -> {
                 endPoint = null;
                 updatePlan(source);
             });
         }
 
         if (survey != null) {
-            popup.add("<html><b>Delete</b> Survey").addActionListener(evt -> {
+            popup.add(I18n.text("Delete survey")).addActionListener(evt -> {
                 task = null;
                 endPoint = null;
                 startPoint = null;
@@ -557,31 +557,31 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
             // check if a polygon vertex was hit
             PolygonType.Vertex selectedVertex = getVertexAt(source, task, source.getRealWorldLocation(e.getPoint()));
             if (selectedVertex != null && task.getVertices().size() > 3) {
-                popup.add("<html><b>Remove</b> vertex").addActionListener(e13 -> {
+                popup.add(I18n.text("Remove vertex")).addActionListener(e13 -> {
                     task.removeVertex(selectedVertex);
                     task.recomputePath();
                     updatePlan(source);
                 });
             }
 
-            popup.add("<html>Add <b>Vertex</b>").addActionListener(evt -> {
+            popup.add(I18n.text("Add vertex")).addActionListener(evt -> {
                 int optimalIndex = getVertexOptimalIndex(task, source.getRealWorldLocation(e.getPoint()));
                 // task.addVertex(source.getRealWorldLocation(e.getPoint()));
                 task.addVertex(optimalIndex, source.getRealWorldLocation(e.getPoint()));
                 task.recomputePath();
                 updatePlan(source);
             });
-            popup.add("<html>Add <b>Start</b> Point").addActionListener(evt -> {
+            popup.add(I18n.text("Add start point")).addActionListener(evt -> {
                 startPoint = new PolygonType.Vertex(source.getRealWorldLocation(e.getPoint()));
                 updatePlan(source);
             });
-            popup.add("<html>Add <b>End</b> Point").addActionListener(evt -> {
+            popup.add(I18n.text("Add end point")).addActionListener(evt -> {
                 endPoint = new PolygonType.Vertex(source.getRealWorldLocation(e.getPoint()));
                 updatePlan(source);
             });
         }
         else {
-            popup.add("<html>New <b>Survey</b>").addActionListener(evt -> {
+            popup.add(I18n.text("New survey")).addActionListener(evt -> {
                 // ADD NEW SURVEY
                 task = new PolygonType();
                 task.setColor(Color.red);
@@ -606,7 +606,7 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
         }
 
         if (task != null && generated != null) {
-            popup.add("<html><b>Save</b> Plan to Mission").addActionListener(e14 -> savePlan());
+            popup.add(I18n.text("Generate plan")).addActionListener(e14 -> savePlan());
         }
 
         popup.show(source, e.getX(), e.getY());
