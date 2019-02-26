@@ -38,6 +38,7 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.event.ItemEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Ellipse2D;
@@ -104,11 +105,15 @@ import pt.lsts.neptus.types.map.PlanUtil;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ImageUtils;
 
 @SuppressWarnings("serial")
-@PluginDescription(name = "Sweep Plan Generator")
+@PluginDescription(name = "Sweep Plan Generator", version = "1.0", 
+    icon = "pt/lsts/neptus/plugins/sweepplangen/sweep-plan-gen.png")
 public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainter {
-
+    
+    private static Image imageIcon;
+    
     private JPanel sidePanel;
     private PropertySheetPanel propsPanel = null;
     private PropertiesTable propTable = null;
@@ -133,6 +138,13 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
     public SweepPlanGen(ConsoleLayout console) {
         super(console);
         sidePanel = null;
+    }
+
+    @Override
+    public Image getIconImage() {
+        if (imageIcon == null)
+            imageIcon = ImageUtils.getIcon(PluginUtils.getPluginIcon(getClass())).getImage();
+        return imageIcon;
     }
 
     @Override
