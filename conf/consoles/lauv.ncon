@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <console name="Neptus Console" width="1366" height="727" resizable="true" mission-file="../../missions/APDL/missao-apdl.nmisz" main-vehicle="lauv-xplore-1">
-  <!-- Data saved on 2019-02-25T18:27:29.0Z with Neptus version 2019.02.1-dev (compiled on 2019-02-25, gtag/20170721-rep17-arpao-822-gf8fd8088a-dirty). -->
+  <!-- Data saved on 2019-02-27T14:59:33.0Z with Neptus version 2019.02.1-dev (compiled on 2019-02-26, gtag/20170721-rep17-arpao-835-g588198cf5-dirty). -->
   <mainpanel name="console main panel">
     <subpanel class="pt.lsts.neptus.console.plugins.containers.MigLayoutContainer" x="0" y="0" width="1366" height="643">
       <properties>
@@ -156,14 +156,17 @@ altitude: ${EstimatedState.alt};
       <child class="pt.lsts.neptus.plugins.sunfish.iridium.feedback.IridiumStatus" x="0" y="0" width="0" height="0">
         <properties/>
       </child>
-      <child class="pt.lsts.neptus.plugins.sidescan.console.SidescanRealTimeWaterfall" x="0" y="0" width="300" height="472">
+      <child class="pt.lsts.neptus.plugins.sidescan.console.SidescanRealTimeWaterfall" x="0" y="0" width="0" height="0">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.plugins.sweepplangen.SweepPlanGen" x="0" y="0" width="0" height="0">
+        <properties/>
+      </child>
+      <child class="pt.lsts.ripples.RipplesUpload" x="0" y="0" width="0" height="0">
         <properties>
-          <entry key="Speed correction">true</entry>
-          <entry key="Time Variable Gain factor">280.0</entry>
-          <entry key="Color map to use">Bronze</entry>
-          <entry key="Clean lines on vehicle change">false</entry>
-          <entry key="Slant range correction">false</entry>
-          <entry key="Normalization factor">0.2</entry>
+          <entry key="synch">false</entry>
+          <entry key="Poll also systems from server">false</entry>
+          <entry key="Synch external systems">false</entry>
         </properties>
       </child>
     </subpanel>
