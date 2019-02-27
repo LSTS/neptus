@@ -87,6 +87,12 @@ class ScriptedPlotGroovy  {
         scripedPlot.addQuery(id,query)
     }
     
+    static void addQuery(LinkedHashMap<String,String> queries) {
+        queries.each {
+            scripedPlot.addQuery(it.key,it.value)
+        }
+    }
+    
     static LinkedHashMap<String,TimeSeries> getTimeSeries(List<String> fields) {
         fields.each{
             scripedPlot.addTimeSeries(it)
@@ -113,16 +119,12 @@ class ScriptedPlotGroovy  {
         int min_tsc = Math.min(tsc1.getSeriesCount(), tsc2.seriesCount)
         TimeSeriesCollection result = new TimeSeriesCollection()
         TimeSeries ts1, ts2,ts
-//        System.err.println("TSC Size: "+tsc1.getSeriesCount()+" "+tsc2.getSeriesCount())
         for(int j=0;j<min_tsc;j++) {
             String key = tsc1.getSeriesKey(j)
             ts1 = tsc1.getSeries(key)
-//            System.err.println(j+".TS1 null?: "+(ts1==null))
-//            System.err.println("TS1 key: "+ts1.getKey())
             key = tsc2.getSeriesKey(j)
             ts2 = tsc2.getSeries(key)
             if(ts1.getKey().toString().split("\\.")[0].equals(ts2.getKey().toString().split("\\.")[0])) { //Same source vehicle lauv-noptilus-1.<Query_ID>
-//                System.err.println("Keys/Source: "+ts1.getKey().toString().split("\\.")[0]+" "+ts2.getKey().toString().split("\\.")[0])
                 def newName = ts1.getKey().toString().split("\\.")[0]+ "."+id
                 ts = new TimeSeries(newName)
                 int min = Math.min(ts1.getItemCount(), ts2.getItemCount())
@@ -139,31 +141,78 @@ class ScriptedPlotGroovy  {
         result
     }
     
-    static public TimeSeries getTimeSeriesMax(String id) {
+    static public TimeSeriesDataItem getTimeSeriesMaxItem(TimeSeriesCollection tsc) {
         double max = Double.MIN_VALUE
-        TimeSeries result
-         scripedPlot.getTimeSeriesFor(id).getSeries().each { 
-             if(it.findValueRange().getUpperBound() > max) {
-                 max    = it.findValueRange().getUpperBound()
-                 result = it
-             }
+        TimeSeriesDataItem result
+        tsc.getSeries().each {
+            for (int i=0;i<it.getItemCount();i++) {
+                TimeSeriesDataItem t = it.getDataItem(i)
+                if(t.getValue() > max) {
+                    max    = t.getValue()
+                    result = new TimeSeriesDataItem(t.getPeriod(),t.getValue().doubleValue())
+                }
+            }
         }
         result
     }
     
-    static public TimeSeries getTimeSeriesMin(String id) {
+    static public TimeSeriesDataItem getTimeSeriesMinItem(TimeSeriesCollection tsc) {
         double min = Double.MAX_VALUE
-        TimeSeries result
-         scripedPlot.getTimeSeriesFor(id).getSeries().each { 
-             if(it.findValueRange().getLowerBound() < min) {
-                 min    = it.findValueRange().getLowerBound()
-                 result = it
-             }
+        TimeSeriesDataItem result
+         tsc.getSeries().each { 
+            for (int i=0;i<it.getItemCount();i++) {
+                TimeSeriesDataItem t = it.getDataItem(i)
+                if(t.getValue() < min) {
+                    min    = t.getValue()
+                    result = new TimeSeriesDataItem(t.getPeriod(),t.getValue().doubleValue())
+                }
+            }
         }
         result
     }
     
-    static public void mark(double time, String label) {
+    
+    static public LinkedHashMap<String,Double> getAGV (TimeSeriesCollection tsc) {
+        tsc.getSeries().collectEntries {[(it.getKey()): getAGV(it) ]}
+    }
+    
+    static public LinkedHashMap<String,TimeSeriesDataItem> getAGVIetms (TimeSeriesCollection tsc) {
+        tsc.getSeries().collectEntries {[(it.getKey()): getAGVItem(it) ]}
+    }
+    
+    static public double getAGV (TimeSeries ts) {
+        getAGVItem(ts).getValue().doubleValue()
+    }
+    
+    static public TimeSeriesDataItem getAGVItem (TimeSeries ts) {
+        TimeSeriesDataItem item
+        double avg = 0.0
+        int n = ts.getItemCount()
+        for(int i=0;i<n;i++) {
+            avg+= ts.getDataItem(i)
+        }
+        def value = avg/(double)n
+        def init_time = ts.getDataItem(0)
+        def end_time = ts.getDataItem(0)
+        def avg_time = (end_time - init_time)/2;
+        item = new TimeSeriesDataItem(avg_time, value)
+        item
+    }
+    
+    static public void markFromItem(String id,TimeSeriesDataItem item) {
+        mark id,item.getPeriod().getFirstMillisecond()
+    }
+    
+    static public List<TimeSeriesDataItem> getAGVItems (TimeSeriesCollection tsc) {
+        List<TimeSeriesDataItem> result = new ArrayList<>()
+        tsc.getSeries().each { ts->
+             TimeSeriesDataItem item = getAVGItem((TimeSeries)ts)
+             result.add item
+        }
+        result
+    }
+    
+    static public void mark(String label,double time) {
         scripedPlot.mark(time,label)
     }
 

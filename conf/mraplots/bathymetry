@@ -8,4 +8,11 @@ alt = value "Altitude"
 
 sum = { double1, double2 -> double1+double2}
 
-apply ("Bathymetry", depth, alt,sum)
+bathym = apply ("Bathymetry", depth, alt,sum)
+
+deepestP = getTimeSeriesMaxItem bathym
+
+markFromItem "Deepest Point", deepestP
+
+addTimeSeries bathym
+

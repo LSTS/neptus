@@ -38,6 +38,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -48,7 +49,6 @@ import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.data.time.TimeSeriesDataItem;
 
 import groovy.lang.GroovyShell;
-import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.LogMarker;
@@ -65,6 +65,7 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
 
     protected LinkedHashMap<String, String> traces = new LinkedHashMap<>();
     protected TimeSeriesCollection customTsc = new TimeSeriesCollection();
+    protected Vector<String> hiddenFiles = new Vector<>();
     protected LsfIndex index;
     protected ScriptableIndex scIndex = null;
 
@@ -72,7 +73,6 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
     private final String scriptPath;
     private MRAPanel mra;
     private String title = null;
-    private boolean processed = false;
 
     @Override
     public String getName() {
@@ -86,9 +86,9 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
     public String getTitle() {
 
         if (title == null)
-            return I18n.text(Arrays.toString(traces.keySet().toArray()));
+            return I18n.text(Arrays.toString(traces.keySet().toArray())+" plot");
         else
-            return I18n.text(title);
+            return I18n.text(title+" plot");
     }
 
     public ScriptedPlot(MRAPanel panel, String path) {
@@ -104,8 +104,6 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
         cnfg.addCompilationCustomizers(imports);
         shell = new GroovyShell(this.getClass().getClassLoader(), cnfg);
         runScript(scriptPath);
-        for(TimeSeries t: (List<TimeSeries>)tsc.getSeries())
-            System.err.println("\nTimeSeries: "+t.getKey()+" Size: "+t.getItemCount());
     }
 
     /**
@@ -114,7 +112,6 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
      * @param script Text script
      */
     public void runScript(String path) {
-        System.err.println("Running Script");
         StringBuilder sb = new StringBuilder();
         try {
             BufferedReader reader = new BufferedReader(new FileReader(path));
@@ -125,8 +122,8 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
             shell.setVariable("plot_", ScriptedPlot.this);
             String defplot = "configPlot plot_";
             shell.evaluate(defplot);
-            // shell.invokeMethod("configPlot", this);
             String script = sb.toString();
+            //System.err.println("Running Script: \n"+script);
             shell.parse(script);
             shell.evaluate(script);
             reader.close();
@@ -157,7 +154,6 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
             return;
 
         if (!series.containsKey(trace)) {
-            System.err.println("Adding trace: "+trace);
             addTrace(trace);
         }
         for (int i = 0; i < ts.getItemCount(); i++) {
@@ -172,9 +168,8 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
     }
 
     public TimeSeriesCollection getTimeSeriesFor(String id) {
-        if(!processed) {
+        if(!series.containsKey(id)) {
             process(index);
-            processed = true;
         }
         TimeSeriesCollection tsc = new TimeSeriesCollection();
         for(TimeSeries s: series.values()) {
@@ -186,12 +181,18 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
                 tsc.addSeries(s);
             }
         }
+        if(hiddenFiles.contains(id)) { 
+            series.remove(id);
+            if(traces.containsKey(id)) 
+                traces.remove(id);
+        }
+        
         return tsc;
     }
-    
+
     public void addQuery(String id,String query) {
         traces.put(id,query);
-        forbiddenSeries.addElement(id);
+        hiddenFiles.addElement(id);
     }
 
     public void title(String t) {
@@ -200,7 +201,6 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
 
     @Override
     public void process(LsfIndex source) {
-        System.err.println("Process!");
         this.scIndex = new ScriptableIndex(source, 0);
         this.index = source;
 
@@ -210,36 +210,17 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
 
             scIndex.lsfPos = i;
             for (Entry<String, String> entry : traces.entrySet()) {
-//                String messageName, entity = null, variable = null;
-//                messageName = entry.getValue().split("\\.")[0];
-//                if (entry.getValue().split("\\.").length == 2)
-//                    variable = entry.getValue().split("\\.")[1];
-//                else if (entry.getValue().split("\\.").length == 3) {
-//                    entity = entry.getValue().split("\\.")[1];
-//                    variable = entry.getValue().split("\\.")[2];
-//                }
-//                for (IMCMessage m : source.getIterator(messageName, 0, (long) (timestep * 1000))) {
-                    String seriesName = index.getMessage(i).getSourceName() + "." + entry.getKey();
-                    double value = scIndex.val(entry.getValue());
-                    if (value != Double.NaN) {
-                        addValue((long)(index.timeOf(i)*1000), seriesName, value);
-                    }
-//                    if (entity != null) {
-//                        if (m.getEntityName().equals(entity)) {
-//                            double val = m.getDouble(variable);
-//                            addValue(m.getTimestampMillis(), seriesName, val);
-//                        }
-//                    }
-//                    else {
-//                        double val = m.getDouble(variable);
-//                        addValue(m.getTimestampMillis(), seriesName, val);
-//                    }
-//                }
+                String seriesName = index.getMessage(i).getSourceName() + "." + entry.getKey();
+                double value = scIndex.val(entry.getValue());
+                if (value != Double.NaN) {
+                    addValue((long)(index.timeOf(i)*1000), seriesName, value);
+                }
             }
         }
         for(TimeSeries t: (List<TimeSeries>)customTsc.getSeries())
             for(int i= 0;i<t.getItemCount();i++)  {
                 TimeSeriesDataItem item = t.getDataItem(i);
+                t.getMaximumItemAge();
                 addValue(item.getPeriod().getFirstMillisecond(), t.getKey().toString(), item.getValue().doubleValue());
             }
     }
