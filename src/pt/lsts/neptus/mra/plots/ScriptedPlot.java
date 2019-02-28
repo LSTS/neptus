@@ -35,6 +35,7 @@ package pt.lsts.neptus.mra.plots;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
@@ -129,7 +130,7 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
             reader.close();
         }
         catch (Exception e) {
-            GuiUtils.errorMessage(mra, "Error Parsing Script", e.getLocalizedMessage());
+            GuiUtils.errorMessage(mra, "Error Parsing Script", e.getClass().getName());
         }
     }
 
@@ -201,6 +202,7 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
 
     @Override
     public void process(LsfIndex source) {
+        //System.err.println("Processing!");
         this.scIndex = new ScriptableIndex(source, 0);
         this.index = source;
 
@@ -256,15 +258,6 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
 
         public void mark(String label) {
             mark(lsfIndex.timeOf(lsfPos), label);
-        }
-
-        /**
-         * This method returns the current log time
-         * 
-         * @return current log time
-         */
-        public double time() {
-            return lsfIndex.timeOf(lsfPos);
         }
 
         /**

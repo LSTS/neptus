@@ -200,8 +200,9 @@ class ScriptedPlotGroovy  {
     }
     
     static public void markFromItem(String id,TimeSeriesDataItem item) {
-        mark id,item.getPeriod().getFirstMillisecond()
+        mark id,item.getPeriod().getFirstMillisecond()/1000
     }
+    static public sum = { double1, double2 -> double1+double2}
     
     static public List<TimeSeriesDataItem> getAGVItems (TimeSeriesCollection tsc) {
         List<TimeSeriesDataItem> result = new ArrayList<>()
