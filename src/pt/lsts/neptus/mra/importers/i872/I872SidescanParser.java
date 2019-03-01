@@ -41,7 +41,6 @@ import pt.lsts.neptus.mra.api.SidescanParameters;
 import pt.lsts.neptus.mra.api.SidescanParser;
 import pt.lsts.neptus.mra.api.SidescanUtil;
 
-
 public class I872SidescanParser implements SidescanParser {
 
     private I872Parser parser;

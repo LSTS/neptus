@@ -56,7 +56,6 @@ public class I872Header {
     private int operatingFrequency;
     private int rangeIndex;
     private int numberGPSStrings;
-    
 
     public I872Header(ByteBuffer headerInfo, Boolean onlyTimestamp) {
         try {
@@ -151,5 +150,4 @@ public class I872Header {
     public int getPingNumber() {
         return pingNumber;
     }
-
 }

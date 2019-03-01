@@ -36,7 +36,6 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.TreeSet;
 
-
 public class I872Index implements Serializable {
     
     private static final long serialVersionUID = -9220474691062798631L;
@@ -70,6 +69,7 @@ public class I872Index implements Serializable {
     public long getFirstTimestamp() {
         return timestampsSet.first();
     }
+    
     public long getLastTimestamp() {
         return timestampsSet.last();
     }

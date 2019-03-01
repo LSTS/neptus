@@ -58,7 +58,6 @@ public class I872Parser {
     private long minTimestamp, maxTimestamp; // Current minTimestamp and maxTimestamp loaded.
     private String indexPath;
     private I872Index index;
-    
 
     public I872Parser(File file) {
         index = new I872Index();
@@ -84,7 +83,6 @@ public class I872Parser {
                 generateIndex();
             }
         }
-
     }
     
     /**
@@ -135,7 +133,8 @@ public class I872Parser {
             long lastIndex = channel.size() - I872Ping.PING_SIZE;
             if (channel.size() - I872Ping.PING_SIZE < initialPos + WINDOW_SIZE * I872Ping.PING_SIZE) {
                 lastIndex = channel.size() - I872Ping.PING_SIZE;
-            } else {
+            }
+            else {
                 lastIndex = initialPos + WINDOW_SIZE * I872Ping.PING_SIZE;
             }
             for (long i = initialPos; i <= lastIndex; i += I872Ping.PING_SIZE) {
@@ -186,7 +185,6 @@ public class I872Parser {
      * @return the lower ping which timestamp is greater than or equal to the given timestamp input.
      */
     public I872Ping getPingAt(long timestamp) {
-        
         if (timestamp < minTimestamp || timestamp > maxTimestamp) {
             parseFile(index.getPositionOfPing(timestamp));
         } 

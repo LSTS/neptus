@@ -80,7 +80,6 @@ public class I872Ping {
      * Parses and stores data for a ping.
      */
     private void parseData(ByteBuffer buffer) {
-
         for (int i = 0; i < 1000; i++) {
             portChannelData[i] = (buffer.get() & 0xff);
         }
@@ -114,7 +113,6 @@ public class I872Ping {
         catch (Exception e) {
             NeptusLog.pub().warn("Corrupted GPS Strings: " + e.getMessage());
         }
-
     }
 
     /**
@@ -175,5 +173,4 @@ public class I872Ping {
     public int getFrequency() {
         return header.getFrequency();
     }
-
 }
