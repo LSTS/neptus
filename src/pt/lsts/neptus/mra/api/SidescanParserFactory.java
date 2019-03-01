@@ -36,7 +36,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
-import pt.lsts.neptus.mra.importers.i872.I872SidescanParser;
+import pt.lsts.neptus.mra.importers.i872.Imagenex872SidescanParser;
 import pt.lsts.neptus.mra.importers.jsf.JsfSidescanParser;
 import pt.lsts.neptus.mra.importers.sdf.SdfSidescanParser;
 import pt.lsts.neptus.util.llf.LogUtils;
@@ -106,7 +106,7 @@ public class SidescanParserFactory {
             }
             file = new File(dir.getAbsolutePath()+"/"+I872_FILE);
             if(file.exists()) {
-                return new I872SidescanParser(file);
+                return new Imagenex872SidescanParser(file);
             }
             FilenameFilter sdfFilter = SDFFilter();
             File[] files = source.getDir().listFiles(sdfFilter);

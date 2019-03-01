@@ -40,7 +40,7 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.NMEAUtils;
 
-public class I872Ping {
+public class Imagenex872Ping {
 
     public static final int PING_SIZE = 4096; // bytes
     public static final int DATA_SIZE = 1000; // bytes
@@ -50,11 +50,11 @@ public class I872Ping {
 
     private int[] portChannelData;
     private int[] starboardChannelData;
-    private I872Header header;
+    private Imagenex872Header header;
     private ArrayList<String> gpsData;
     private LocationType locationType;
 
-    public I872Ping(ByteBuffer pingInfo) {
+    public Imagenex872Ping(ByteBuffer pingInfo) {
         portChannelData = new int[DATA_SIZE];
         starboardChannelData = new int[DATA_SIZE];
         parsePing(pingInfo);
@@ -73,7 +73,7 @@ public class I872Ping {
      * Parses and stores header info. Each ping has an header of 1000 bytes, from 0-999
      */
     private void parseHeader(ByteBuffer buffer) {
-        header = new I872Header(buffer, false);
+        header = new Imagenex872Header(buffer, false);
     }
 
     /**

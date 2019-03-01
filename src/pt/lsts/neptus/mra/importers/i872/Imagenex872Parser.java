@@ -48,19 +48,19 @@ import java.util.TreeSet;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.mra.importers.jsf.JsfParser;
 
-public class I872Parser {
+public class Imagenex872Parser {
 
     private final int WINDOW_SIZE = 100;
-    private HashMap<Long, I872Ping> pings; // Maps timestamps to pings
+    private HashMap<Long, Imagenex872Ping> pings; // Maps timestamps to pings
     private TreeSet<Long> timestampsSet;
     private FileInputStream fis;
     private FileChannel channel;
     private long minTimestamp, maxTimestamp; // Current minTimestamp and maxTimestamp loaded.
     private String indexPath;
-    private I872Index index;
+    private Imagenex872Index index;
 
-    public I872Parser(File file) {
-        index = new I872Index();
+    public Imagenex872Parser(File file) {
+        index = new Imagenex872Index();
         indexPath = file.getParent() + "/mra/i872.index";
         minTimestamp = -1;
         maxTimestamp = -1;
@@ -90,9 +90,9 @@ public class I872Parser {
      */
     private void generateIndex() {
         try {
-            for (long pos = 0; pos < channel.size(); pos += I872Ping.PING_SIZE) {
-                ByteBuffer pingBuffer = channel.map(MapMode.READ_ONLY, pos, I872Ping.PING_SIZE);
-                I872Header pingHeader = new I872Header(pingBuffer, true);
+            for (long pos = 0; pos < channel.size(); pos += Imagenex872Ping.PING_SIZE) {
+                ByteBuffer pingBuffer = channel.map(MapMode.READ_ONLY, pos, Imagenex872Ping.PING_SIZE);
+                Imagenex872Header pingHeader = new Imagenex872Header(pingBuffer, true);
                 index.addPing(pingHeader.getTimestamp(), pos);
             }
             ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(indexPath));
@@ -110,7 +110,7 @@ public class I872Parser {
         ObjectInputStream in;
         try {
             in = new ObjectInputStream(new FileInputStream(indexPath));
-            index = (I872Index) in.readObject();
+            index = (Imagenex872Index) in.readObject();
             in.close();
         }
         catch (Exception e) {
@@ -126,20 +126,20 @@ public class I872Parser {
      * @param initialPos Initial position to start parsing the file.
      */
     private void parseFile(Long initialPos) {
-        pings = new HashMap<Long, I872Ping>();
+        pings = new HashMap<Long, Imagenex872Ping>();
         timestampsSet = new TreeSet<Long>();
         try {
             long pingTimestamp;
-            long lastIndex = channel.size() - I872Ping.PING_SIZE;
-            if (channel.size() - I872Ping.PING_SIZE < initialPos + WINDOW_SIZE * I872Ping.PING_SIZE) {
-                lastIndex = channel.size() - I872Ping.PING_SIZE;
+            long lastIndex = channel.size() - Imagenex872Ping.PING_SIZE;
+            if (channel.size() - Imagenex872Ping.PING_SIZE < initialPos + WINDOW_SIZE * Imagenex872Ping.PING_SIZE) {
+                lastIndex = channel.size() - Imagenex872Ping.PING_SIZE;
             }
             else {
-                lastIndex = initialPos + WINDOW_SIZE * I872Ping.PING_SIZE;
+                lastIndex = initialPos + WINDOW_SIZE * Imagenex872Ping.PING_SIZE;
             }
-            for (long i = initialPos; i <= lastIndex; i += I872Ping.PING_SIZE) {
-                ByteBuffer pingBuffer = channel.map(MapMode.READ_ONLY, i, I872Ping.PING_SIZE);
-                I872Ping currentPing = new I872Ping(pingBuffer);
+            for (long i = initialPos; i <= lastIndex; i += Imagenex872Ping.PING_SIZE) {
+                ByteBuffer pingBuffer = channel.map(MapMode.READ_ONLY, i, Imagenex872Ping.PING_SIZE);
+                Imagenex872Ping currentPing = new Imagenex872Ping(pingBuffer);
                 pingTimestamp = currentPing.getTimestamp();
                 timestampsSet.add(pingTimestamp);
                 pings.put(pingTimestamp, currentPing);
@@ -184,7 +184,7 @@ public class I872Parser {
      * @param timestamp The timestamp of the ping to search.
      * @return the lower ping which timestamp is greater than or equal to the given timestamp input.
      */
-    public I872Ping getPingAt(long timestamp) {
+    public Imagenex872Ping getPingAt(long timestamp) {
         if (timestamp < minTimestamp || timestamp > maxTimestamp) {
             parseFile(index.getPositionOfPing(timestamp));
         } 
@@ -193,7 +193,7 @@ public class I872Parser {
     }
     
     public static void main(String[] args) throws IOException {
-        I872Parser parser = new I872Parser(new File("/home/ineeve/Downloads/111958_AFPF/Data.872"));
+        Imagenex872Parser parser = new Imagenex872Parser(new File("/home/ineeve/Downloads/111958_AFPF/Data.872"));
         long firstTimestamp = parser.getFirstTimestamp();
         parser.getPingAt(firstTimestamp);
     }

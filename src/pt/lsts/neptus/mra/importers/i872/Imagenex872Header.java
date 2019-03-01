@@ -37,7 +37,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class I872Header {
+public class Imagenex872Header {
     
     private static int[] rangeMap = {0,0,0,0,0,10,20,30,40,50,60,80,100,125,150,200};
     /**
@@ -57,7 +57,7 @@ public class I872Header {
     private int rangeIndex;
     private int numberGPSStrings;
 
-    public I872Header(ByteBuffer headerInfo, Boolean onlyTimestamp) {
+    public Imagenex872Header(ByteBuffer headerInfo, Boolean onlyTimestamp) {
         try {
             parseHeader(headerInfo, onlyTimestamp);
         }

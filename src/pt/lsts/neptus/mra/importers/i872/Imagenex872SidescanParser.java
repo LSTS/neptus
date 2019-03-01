@@ -41,12 +41,12 @@ import pt.lsts.neptus.mra.api.SidescanParameters;
 import pt.lsts.neptus.mra.api.SidescanParser;
 import pt.lsts.neptus.mra.api.SidescanUtil;
 
-public class I872SidescanParser implements SidescanParser {
+public class Imagenex872SidescanParser implements SidescanParser {
 
-    private I872Parser parser;
+    private Imagenex872Parser parser;
     
-    public I872SidescanParser(File f) {
-        parser = new I872Parser(f);
+    public Imagenex872SidescanParser(File f) {
+        parser = new Imagenex872Parser(f);
     }
 
     /* (non-Javadoc)
@@ -72,7 +72,7 @@ public class I872SidescanParser implements SidescanParser {
     public ArrayList<SidescanLine> getLinesBetween(long timestamp1, long timestamp2, int subsystem,
             SidescanParameters config) {
         ArrayList<SidescanLine> list = new ArrayList<SidescanLine>();
-        I872Ping currentPing;
+        Imagenex872Ping currentPing;
         if (timestamp1 < 0 || timestamp2 < 0) {
             return list;
         }
@@ -82,14 +82,14 @@ public class I872SidescanParser implements SidescanParser {
         }
         
         while(currentPing.getTimestamp() < timestamp2) {
-            double fData[] = new double[I872Ping.DATA_SIZE*2];
+            double fData[] = new double[Imagenex872Ping.DATA_SIZE*2];
             int[] portData = currentPing.getPortData();
             int[] starboardData = currentPing.getStarboardData();
-            for (int i = 0; i < I872Ping.DATA_SIZE; i++) {
+            for (int i = 0; i < Imagenex872Ping.DATA_SIZE; i++) {
                 fData[i] = portData[i];
             }
-            for (int i = 0; i < I872Ping.DATA_SIZE; i++) {
-                fData[i + I872Ping.DATA_SIZE] = starboardData[i];
+            for (int i = 0; i < Imagenex872Ping.DATA_SIZE; i++) {
+                fData[i + Imagenex872Ping.DATA_SIZE] = starboardData[i];
             }
             SystemPositionAndAttitude pose = new SystemPositionAndAttitude();
             

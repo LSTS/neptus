@@ -36,13 +36,13 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.TreeSet;
 
-public class I872Index implements Serializable {
+public class Imagenex872Index implements Serializable {
     
     private static final long serialVersionUID = -9220474691062798631L;
     private HashMap<Long,Long> timestampToPosition;
     private TreeSet<Long> timestampsSet;
 
-    public I872Index() {
+    public Imagenex872Index() {
         timestampToPosition = new HashMap<Long, Long>();
         timestampsSet = new TreeSet<Long>();
     }
