@@ -1,23 +1,23 @@
 title "Control vs Desired"
 
 heading = "EstimatedState.psi" 
-addTimeSeries "Heading": heading
+plot "Heading": heading
 
 desired_h = "DesiredHeading.value" 
-addTimeSeries "DesiredHeading": desired_h
+plot "DesiredHeading": desired_h
 
 depth = "EstimatedState.depth" 
-addTimeSeries "Depth": depth
+plot "Depth": depth
 
 altitude = "EstimatedState.alt" 
-addTimeSeries "Altitude": altitude
+plot "Altitude": altitude
 
 desired_z = "DesiredZ.value" 
-addTimeSeries "DesiredZ":  desired_z
+plot "DesiredZ":  desired_z
 
 roll = "EstimatedState.phi" 
-addTimeSeries "Roll":  roll
+plot "Roll":  roll
 
 desired_roll = "DesiredRoll.value" 
-addTimeSeries "DesiredRoll": desired_roll
+plot "DesiredRoll": desired_roll
 

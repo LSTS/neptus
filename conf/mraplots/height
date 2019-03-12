@@ -2,10 +2,6 @@ title "WGS84 Height"
 
 addQuery "height":"EstimatedState.height", "z":"EstimatedState.z" //add timeSeries data but does not show them on the chart
 
-h = value "height"
-z = value "z"
+height = apply ("Height", "height", "z",sub)
 
-sub = { double1, double2 -> double1-double2} //subtract closure
-height = apply ("Height", h, z,sub)
-
-addTimeSeries height
+plot height

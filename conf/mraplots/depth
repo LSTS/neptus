@@ -1,2 +1,2 @@
 depth = "EstimatedState.depth" 
-addTimeSeries depth
+plot depth

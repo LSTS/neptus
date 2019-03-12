@@ -45,61 +45,62 @@ import org.jfree.data.xy.XYSeries
  */
 class ScriptedPlotGroovy  {
     
-    static ScriptedPlot scripedPlot = null
+    static ScriptedPlot scriptedPlot = null
     
     static void configPlot(ScriptedPlot p) {
-        scripedPlot = p
+        scriptedPlot = p
     }
     
-    static def value = { msgDotField ->
-    	if(scripedPlot!= null)
-    		return scripedPlot.getTimeSeriesFor(msgDotField);
-    }
+//    private def value = { msgDotField ->
+//    	if(scriptedPlot!= null)
+//    		return scriptedPlot.getTimeSeriesFor(msgDotField);
+//    }
 
-	static void addTimeSeries(LinkedHashMap<String,String> queries) {
+	static void plot(LinkedHashMap<String,String> queries) {
         queries.each {
-            scripedPlot.addTimeSeries(it.key, it.value)
+            scriptedPlot.addTimeSeries(it.key, it.value)
         }
 	}
     
-    static void addTimeSeries(String... queries) {
+    static void plot(String... queries) {
        queries.each { 
-           scripedPlot.addTimeSeries(it, it)
+           scriptedPlot.addTimeSeries(it, it)
        }
     }
     
-    static void addTimeSeries(String id,TimeSeriesCollection tsc) {
+    static void plot(String id,TimeSeriesCollection tsc) {
         tsc.getSeries().each { ts -> 
             String fields[] = ts.getKey().toString().split("\\.")
             def newName = fields[0]+"."+id
             ts.setKey(newName)
-            scripedPlot.addTimeSeries(ts)
+            scriptedPlot.addTimeSeries(ts)
         }
     }
     
-    static void addTimeSeries(TimeSeriesCollection tsc) {
+    static void plot(TimeSeriesCollection tsc) {
         tsc.getSeries().each { ts ->
-            scripedPlot.addTimeSeries(ts)
+            scriptedPlot.addTimeSeries(ts)
         }
     }
  
     static void addQuery(String id,String query) {
-        scripedPlot.addQuery(id,query)
+        scriptedPlot.addQuery(id,query)
     }
     
     static void addQuery(LinkedHashMap<String,String> queries) {
         queries.each {
-            scripedPlot.addQuery(it.key,it.value)
+            scriptedPlot.addQuery(it.key,it.value)
         }
     }
     
     static LinkedHashMap<String,TimeSeries> getTimeSeries(List<String> fields) {
         fields.each{
-            scripedPlot.addTimeSeries(it)
+            scriptedPlot.addTimeSeries(it)
         }
     }
     
-    static public TimeSeriesCollection apply(String id=null,TimeSeriesCollection tsc, Object function) {
+    static public TimeSeriesCollection apply(String id=null,String queryID, Object function) {
+        TimeSeriesCollection tsc = scriptedPlot.getTimeSeriesFor(queryID)
         TimeSeriesCollection result = new TimeSeriesCollection()
                 tsc.getSeries().each { ts ->
                     String name = id ? ts.getKey().toString() : id
@@ -115,9 +116,11 @@ class ScriptedPlotGroovy  {
         result
     }
     
-    static public TimeSeriesCollection apply(String id="serie",TimeSeriesCollection tsc1,TimeSeriesCollection tsc2, Object function) {
-        int min_tsc = Math.min(tsc1.getSeriesCount(), tsc2.seriesCount)
+    static public TimeSeriesCollection apply(String id,String queryID1,String queryID2, Object function) {
+        TimeSeriesCollection tsc1 = scriptedPlot.getTimeSeriesFor(queryID1)
+        TimeSeriesCollection tsc2 = scriptedPlot.getTimeSeriesFor(queryID2)
         TimeSeriesCollection result = new TimeSeriesCollection()
+        int min_tsc = Math.min(tsc1.getSeriesCount(), tsc2.seriesCount)
         TimeSeries ts1, ts2,ts
         for(int j=0;j<min_tsc;j++) {
             String key = tsc1.getSeriesKey(j)
@@ -204,6 +207,17 @@ class ScriptedPlotGroovy  {
     }
     static public sum = { double1, double2 -> double1+double2}
     
+    static public diff = { double1, double2 -> double1-double2}
+    
+    static public mult = { double1, double2 -> double1*double2}
+    
+    static public div = { double1, double2 -> 
+        if(double2 != 0.0)
+            double1/double2
+        else
+            Double.NaN             
+            }
+    
     static public List<TimeSeriesDataItem> getAGVItems (TimeSeriesCollection tsc) {
         List<TimeSeriesDataItem> result = new ArrayList<>()
         tsc.getSeries().each { ts->
@@ -214,11 +228,11 @@ class ScriptedPlotGroovy  {
     }
     
     static public void mark(String label,double time) {
-        scripedPlot.mark(time,label)
+        scriptedPlot.mark(time,label)
     }
 
     static void title(String t) {
-    	scripedPlot.title(t);
+    	scriptedPlot.title(t);
     }
 
 }

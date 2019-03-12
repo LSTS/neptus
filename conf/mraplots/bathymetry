@@ -1,18 +1,12 @@
 title "Bathymetry"
 
-addTimeSeries "Altitude": "EstimatedState.alt", "Depth":"EstimatedState.depth"
+plot "Altitude": "EstimatedState.alt", "Depth":"EstimatedState.depth"
 
-depth = value "Depth"
+bathy = apply ("Bathymetry", "Depth", "Altitude",sum)
 
-alt = value "Altitude"
-
-sum = { double1, double2 -> double1+double2}
-
-bathym = apply ("Bathymetry", depth, alt,sum)
-
-deepestP = getTimeSeriesMaxItem bathym
+deepestP = getTimeSeriesMaxItem "Bathymetry"
 
 markFromItem "Deepest Point", deepestP
 
-addTimeSeries bathym
+plot bathy
 

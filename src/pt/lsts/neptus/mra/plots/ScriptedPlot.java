@@ -35,7 +35,6 @@ package pt.lsts.neptus.mra.plots;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
@@ -74,6 +73,7 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
     private final String scriptPath;
     private MRAPanel mra;
     private String title = null;
+    private boolean processed = false;
 
     @Override
     public String getName() {
@@ -169,10 +169,14 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
     }
 
     public TimeSeriesCollection getTimeSeriesFor(String id) {
-        if(!series.containsKey(id)) {
-            process(index);
-        }
         TimeSeriesCollection tsc = new TimeSeriesCollection();
+        if(!processed)
+            return tsc;
+        if(!series.containsKey(id)) {
+            //process(index);
+            return tsc;
+        }
+        
         for(TimeSeries s: series.values()) {
             String fields[] = s.getKey().toString().split("\\.");
             String variable ="";
@@ -182,6 +186,7 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
                 tsc.addSeries(s);
             }
         }
+        
         if(hiddenFiles.contains(id)) { 
             series.remove(id);
             if(traces.containsKey(id)) 
@@ -202,7 +207,7 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
 
     @Override
     public void process(LsfIndex source) {
-        //System.err.println("Processing!");
+        //System.err.println("Processing "+title+"!");
         this.scIndex = new ScriptableIndex(source, 0);
         this.index = source;
 
@@ -225,6 +230,7 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
                 t.getMaximumItemAge();
                 addValue(item.getPeriod().getFirstMillisecond(), t.getKey().toString(), item.getValue().doubleValue());
             }
+       processed = true;
     }
     
     public void mark(double time, String label) {
