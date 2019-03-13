@@ -155,10 +155,8 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
 
         RowFilter<IndexedLogTableModel, Object> rf = null;
         //If current expression doesn't parse, don't update.
-
-        for (String msg : msgsToFilter) {
-            filters.add(RowFilter.regexFilter(msg, 2));
-        }
+        for (String msg : msgsToFilter)
+            filters.add(RowFilter.regexFilter("^"+msg+"$", 2));
 
         rf = RowFilter.orFilter(filters);
 
