@@ -50,11 +50,6 @@ class ScriptedPlotGroovy  {
     static void configPlot(ScriptedPlot p) {
         scriptedPlot = p
     }
-    
-//    private def value = { msgDotField ->
-//    	if(scriptedPlot!= null)
-//    		return scriptedPlot.getTimeSeriesFor(msgDotField);
-//    }
 
 	static void plot(LinkedHashMap<String,String> queries) {
         queries.each {
@@ -67,16 +62,7 @@ class ScriptedPlotGroovy  {
            scriptedPlot.addTimeSeries(it, it)
        }
     }
-    
-    static void plot(String id,TimeSeriesCollection tsc) {
-        tsc.getSeries().each { ts -> 
-            String fields[] = ts.getKey().toString().split("\\.")
-            def newName = fields[0]+"."+id
-            ts.setKey(newName)
-            scriptedPlot.addTimeSeries(ts)
-        }
-    }
-    
+       
     static void plot(TimeSeriesCollection tsc) {
         tsc.getSeries().each { ts ->
             scriptedPlot.addTimeSeries(ts)
@@ -90,12 +76,6 @@ class ScriptedPlotGroovy  {
     static void addQuery(LinkedHashMap<String,String> queries) {
         queries.each {
             scriptedPlot.addQuery(it.key,it.value)
-        }
-    }
-    
-    static LinkedHashMap<String,TimeSeries> getTimeSeries(List<String> fields) {
-        fields.each{
-            scriptedPlot.addTimeSeries(it)
         }
     }
     
@@ -144,7 +124,8 @@ class ScriptedPlotGroovy  {
         result
     }
     
-    static public TimeSeriesDataItem getTimeSeriesMaxItem(TimeSeriesCollection tsc) {
+    static public TimeSeriesDataItem getTimeSeriesMaxItem(String id) {
+        TimeSeriesCollection tsc = scriptedPlot.getTimeSeriesFor(id)
         double max = Double.MIN_VALUE
         TimeSeriesDataItem result
         tsc.getSeries().each {
@@ -173,14 +154,10 @@ class ScriptedPlotGroovy  {
         }
         result
     }
-    
-    
-    static public LinkedHashMap<String,Double> getAGV (TimeSeriesCollection tsc) {
+        
+    static public LinkedHashMap<String,Double> getAGV (String id) {
+        TimeSeriesCollection tsc = scriptedPlot.getTimeSeriesFor(id)
         tsc.getSeries().collectEntries {[(it.getKey()): getAGV(it) ]}
-    }
-    
-    static public LinkedHashMap<String,TimeSeriesDataItem> getAGVIetms (TimeSeriesCollection tsc) {
-        tsc.getSeries().collectEntries {[(it.getKey()): getAGVItem(it) ]}
     }
     
     static public double getAGV (TimeSeries ts) {
@@ -203,7 +180,8 @@ class ScriptedPlotGroovy  {
     }
     
     static public void markFromItem(String id,TimeSeriesDataItem item) {
-        mark id,item.getPeriod().getFirstMillisecond()/1000
+        if(item != null)
+            mark id,item.getPeriod().getFirstMillisecond()/1000
     }
     static public sum = { double1, double2 -> double1+double2}
     
