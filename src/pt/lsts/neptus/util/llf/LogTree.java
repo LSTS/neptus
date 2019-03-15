@@ -264,6 +264,32 @@ public class LogTree extends JTree {
                 }
             }
         });
+        
+        menu.add(new AbstractAction(I18n.text("Remane")) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (LsfReportProperties.generatingReport) {
+                    GuiUtils.infoMessage(panel.getRootPane(),
+                            I18n.text("Can not rename Marks"),
+                            I18n.text("Can not rename Marks - Generating Report."));
+                    
+                }
+                String label = GuiUtils.input(panel.getRootPane(), "Enter Mark New Name", "mark");
+                char first = label.charAt(0);
+                if(!Character.isLetter(first)){
+                    GuiUtils.infoMessage(panel.getRootPane(),
+                            I18n.text("Can not rename Mark"),I18n.text("The name should start with a letter."));
+                    actionPerformed(e);
+                    return;
+                }
+                else {
+                    for (TreePath path : paths) {
+                        final DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
+                        panel.renameMarker((LogMarker) node.getUserObject(), label);
+                    }
+                }
+            }
+        });
 
         menu.add(new AbstractAction(I18n.text("GoTo")) {
             @Override
