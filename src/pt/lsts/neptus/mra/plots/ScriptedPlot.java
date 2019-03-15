@@ -140,7 +140,7 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
         }
         catch (Exception e) {
             GuiUtils.errorMessage(mra, "Error Parsing Script", e.getClass().getName());
-            e.printStackTrace();
+            //e.printStackTrace();
         }
     }
 
@@ -348,16 +348,16 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
                 entity = null;
                 field = m.group(2);
             }
-            boolean hasSRC =false;
+//            boolean hasSRC =false;
             int msgType = index.getDefinitions().getMessageId(message);
-            for( Announce a: index.getAvailableSystems()) {
-                if(source.equals(a.getSourceName())) {
-                    hasSRC = true;
-                    break;
-                }
-            }
-            if(!hasSRC)
-                return Double.NaN;
+//            for( Announce a: index.getAvailableSystems()) {
+//                if(source.equals(a.getSourceName())) {
+//                    hasSRC = true;
+//                    break;
+//                }
+//            }
+//            if(!hasSRC)
+//                return Double.NaN;
             
             if (entity == null) {
                 int msgIdx = index.getPreviousMessageOfType(msgType, lsfPos);
