@@ -46,7 +46,6 @@ import java.util.HashMap;
 import java.util.TreeSet;
 
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.mra.importers.jsf.JsfParser;
 
 public class Imagenex872Parser {
 

@@ -33,8 +33,6 @@
 package pt.lsts.neptus.mra.importers.i872;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Collections;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -45,13 +43,11 @@ public class Imagenex872Ping {
     public static final int PING_SIZE = 4096; // bytes
     public static final int DATA_SIZE = 1000; // bytes
 
-    private static final int GPSOffset = 3000; // bytes
     private static final int GPSStringSize = 100; // bytes
 
     private int[] portChannelData;
     private int[] starboardChannelData;
     private Imagenex872Header header;
-    private ArrayList<String> gpsData;
     private LocationType locationType;
 
     public Imagenex872Ping(ByteBuffer pingInfo) {
