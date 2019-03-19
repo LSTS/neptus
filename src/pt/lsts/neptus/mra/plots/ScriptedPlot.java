@@ -140,7 +140,7 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
         }
         catch (Exception e) {
             GuiUtils.errorMessage(mra, "Error Parsing Script", e.getClass().getName());
-            //e.printStackTrace();
+            e.printStackTrace();
         }
     }
 
@@ -348,23 +348,19 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
                 entity = null;
                 field = m.group(2);
             }
-//            boolean hasSRC =false;
             int msgType = index.getDefinitions().getMessageId(message);
-//            for( Announce a: index.getAvailableSystems()) {
-//                if(source.equals(a.getSourceName())) {
-//                    hasSRC = true;
-//                    break;
-//                }
-//            }
-//            if(!hasSRC)
-//                return Double.NaN;
-            
+
             if (entity == null) {
                 int msgIdx = index.getPreviousMessageOfType(msgType, lsfPos);
-                if (msgIdx == -1)
-                    return Double.NaN;
-                else
-                    return index.getMessage(msgIdx).getDouble(field);
+                while (msgIdx >= prevPos) {
+                    if (msgIdx == -1)
+                        return Double.NaN;
+                    else if (index.getMessage(msgIdx).getSourceName().equals(source))
+                            return index.getMessage(msgIdx).getDouble(field);
+                    else {
+                        msgIdx = index.getPreviousMessageOfType(msgType, msgIdx);
+                    }
+                }
             }
             else {
                 int msgIdx = index.getPreviousMessageOfType(msgType, lsfPos);
@@ -372,7 +368,7 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
 
                     if (msgIdx == -1)
                         return Double.NaN;
-                    else if (index.entityNameOf(msgIdx).equals(entity)) {
+                    else if (index.entityNameOf(msgIdx).equals(entity) && index.getMessage(msgIdx).getSourceName().equals(source)) {
                         prevPos = msgIdx;
                         return index.getMessage(msgIdx).getDouble(field);
                     }
