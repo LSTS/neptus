@@ -66,25 +66,23 @@ class PlotScript {
         realTimePlot = p
     }
     
-    static private  String newName(String dottedName, String serieName) {
+    static public final String newName(String dottedName, String serieName) {
         dottedName.split(/(\.)/)[0] + "." +serieName
-    } 
-    
-    static def value = { msgDotField ->
-        RealTimePlotGroovy.getSystems().collectEntries{ [(it+"."+msgDotField): ImcMsgManager.getManager().getState(it).expr(msgDotField)]}
     }
-
-    static def state(String s){
-        String msg = "EstimatedState."+s
-        value(msg)
-    }
-
-    static LinkedHashMap apply (LinkedHashMap map, Object function)  {
+    static public LinkedHashMap apply (LinkedHashMap map, Object function)  {
         def result = [:]
         map.each {
             result.put it.key,function.call(it.value)
         }
         result
+    }
+    
+    static def value = { msgDotField ->
+        RealTimePlotGroovy.getSystems().collectEntries{ [(it+"."+msgDotField): ImcMsgManager.getManager().getState(it).expr(msgDotField)]}
+    }
+    
+    static def state(String s){
+        return this.value("EstimatedState."+s)
     }
 
     static def roll() {
@@ -170,4 +168,5 @@ class PlotScript {
             }
         }
     }
+
 }

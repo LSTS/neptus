@@ -128,7 +128,7 @@ public class RealTimePlotScript extends JPanel {
                     }
                     if (filter.accept(fc.getSelectedFile()) && replace > 0) {
                         FileUtil.saveToFile(fc.getSelectedFile().getAbsolutePath(), editorPane.getText());
-                        showStoredScripts();
+                        fillStoredScripts();
                     }
                     else if (!filter.accept(fc.getSelectedFile())){
                         GuiUtils.errorMessage(editorPane, "Wrong file extension",
@@ -157,6 +157,8 @@ public class RealTimePlotScript extends JPanel {
         numPointsField.setText("" + rtplot.numPoints);
         editorPane.setText(plot.traceScript);
         fillPlotOptions();
+        fillMathOptions();
+        fillStoredScripts();
         numPointsField.addActionListener(new ActionListener() {
 
             @Override
@@ -213,6 +215,11 @@ public class RealTimePlotScript extends JPanel {
         plotprops.add(plotType1);
     }
 
+    /**
+     * Creates and configures the settings editor according to the selected system(s)
+     * @param rtplot - The caller plugin panel
+     * @param sysID  - The selected system(s)
+     */
     public static void editSettings(final RealTimePlotGroovy rtplot, String sysID) {
         final JDialog dialog = new JDialog(rtplot.getConsole());
         updateLocalVars(sysID);
@@ -268,14 +275,12 @@ public class RealTimePlotScript extends JPanel {
                 createExtraSysOptions(s.getName(), sysdata);
                 return;
             }
-        fillMathOptions();
-        showStoredScripts();
     }
 
     /**
-     * 
+     * List in the @JMenu the stored scripts under the directory conf/mraplots/realtime/
      */
-    private static void showStoredScripts() {
+    private void fillStoredScripts() {
         storedScripts = new JMenu("Stored Scripts");
         File conf_mra_rtplot = new File(path);
 
@@ -328,7 +333,7 @@ public class RealTimePlotScript extends JPanel {
     /**
      * Fills the Math @JMenu with the methods from the @java.lang.Math class as @JMenuItem
      */
-    private static void fillMathOptions() {
+    private void fillMathOptions() {
         math = new JMenu("Math Formulas");
         final String[] meths = { "acos", "asin", "atan", "atan2", "cos", "cosh", "sin", "sinh", "tan", "tanh",
                 "toDegrees", "toRadians" };
