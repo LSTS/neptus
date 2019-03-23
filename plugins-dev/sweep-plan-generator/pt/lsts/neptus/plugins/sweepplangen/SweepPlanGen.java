@@ -72,6 +72,7 @@ import com.l2fprod.common.propertysheet.Property;
 import com.l2fprod.common.propertysheet.PropertySheetPanel;
 import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
 
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.plugins.planning.edit.AllManeuversPayloadSettingsChanged;
 import pt.lsts.neptus.data.Pair;
@@ -784,10 +785,6 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
 
         int corner = generalOptions.corner;
 
-         // for (int i = 0; i<4 ; i++){ System.out.println("Length for i = "+i+" : " +
-         // task.getPathLength(generalOptions.swathWidth,i)); //System.out.println("Better Length for i = "+i+" : " +
-         // getPathLength(task.getCoveragePath(angle, generalOptions.swathWidth, corner))); }
-
         generated = new PlanType(getConsole().getMission());
 
         int manId = 1;
@@ -818,14 +815,14 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
                 distance += covEnd.getDistanceInMeters(endPoint.getLocation());
             }
             distance += task.getPathLength(angle, finalSwathWidth, i);
-            // System.out.println("Better Length for i = "+i+" : " + distance);
+            NeptusLog.pub().debug("Better Length for i = "+i+" : " + distance);
             if (distance < shortestDistance) {
                 shortestDistance = distance;
                 corner = i;
             }
         }
 
-        // System.out.println("Selected Corner: "+corner+" with total distance: "+shortestDistance);
+        NeptusLog.pub().debug("Selected Corner: "+corner+" with total distance: "+shortestDistance);
 
         if (generalOptions.corner != -1)
             corner = generalOptions.corner;
@@ -891,31 +888,39 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
                 targetEta += generalOptions.popupDuration * 1_000;
             }
 
-            if (traj == null) {
-                if (generalOptions.timedPlan) {
-                    traj = new FollowTrajectory();
-                    traj.setId("FT" + manId++);
-                }
-                else {
-                    traj = new FollowPath();
-                    traj.setId("FP" + manId++);
-                }
-                traj.setManeuverLocation(createLoc(lastLoc));
-                Vector<double[]> curPath = new Vector<>();
-                curPath.add(new double[] { 0, 0, 0, 0 });
-                traj.setOffsets(curPath);
-                if (stateRenderer != null) {
-                    traj.setShowEditingText(false);
-                    traj.setEditing(true);
-                }
+            if (generalOptions.gotosOnly) {
+                Goto g = new Goto();
+                g.setId("G"+manId++);
+                g.setManeuverLocation(createLoc(lastLoc));
+                generated.getGraph().addManeuverAtEnd(g);
             }
+            else {
+                if (traj == null) {
+                    if (generalOptions.timedPlan) {
+                        traj = new FollowTrajectory();
+                        traj.setId("FT" + manId++);
+                    }
+                    else {
+                        traj = new FollowPath();
+                        traj.setId("FP" + manId++);
+                    }
+                    traj.setManeuverLocation(createLoc(lastLoc));
+                    Vector<double[]> curPath = new Vector<>();
+                    curPath.add(new double[] { 0, 0, 0, 0 });
+                    traj.setOffsets(curPath);
+                    if (stateRenderer != null) {
+                        traj.setShowEditingText(false);
+                        traj.setEditing(true);
+                    }
+                }
 
-            Vector<double[]> curPath = new Vector<>(traj.getPathPoints());
-            double[] offsets = loc.getOffsetFrom(traj.getManeuverLocation());
-            curPath.add(new double[] { offsets[0], offsets[1], offsets[2], (targetEta - curTime) / 1000.0 });
-            traj.setOffsets(curPath);
+                Vector<double[]> curPath = new Vector<>(traj.getPathPoints());
+                double[] offsets = loc.getOffsetFrom(traj.getManeuverLocation());
+                curPath.add(new double[] { offsets[0], offsets[1], offsets[2], (targetEta - curTime) / 1000.0 });
+                traj.setOffsets(curPath);
+                curTime = targetEta;
+            }
             lastLoc = loc;
-            curTime = targetEta;
         }
 
         if (traj != null)
@@ -1011,6 +1016,9 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
 
         @NeptusProperty(name = "Create timed plan", description = "Opt to generate desired ETA for each waypoint")
         boolean timedPlan = false;
+
+        @NeptusProperty(name = "Use goto maneuvers", description = "Opt to generate plan using goto instead of FollowPath / Followtrajectory")
+        boolean gotosOnly = false;
 
         @NeptusProperty(name = "Popup periodicity in minutes", description = "Do not stay underwater more than this time (minutes)")
         int popupMins = 30;
