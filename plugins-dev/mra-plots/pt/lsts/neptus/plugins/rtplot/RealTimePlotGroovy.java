@@ -43,6 +43,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Timer;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -75,6 +81,7 @@ import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.logdownload.LogsDownloaderWorker;
 
 @PluginDescription(name = "Real-Time Plot", icon = "pt/lsts/neptus/plugins/rtplot/rtplot.png", description = "Real-Time plots with Groovy scripts")
 @Popup(accelerator = 'U', pos = POSITION.CENTER, height = 300, width = 300)
@@ -100,6 +107,11 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
     private boolean updating = false;
     private final ChartPanel chart;
     private static List<String> systems = Collections.synchronizedList(new ArrayList<String>());
+    private ScheduledThreadPoolExecutor timedExec;
+
+    private long timer;
+    private final long MILLI2NANO = 1000000;
+    public  final int PERIODICMIN = 100;  
 
     public enum PlotType {
         TIMESERIES, // default
@@ -116,6 +128,9 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
 
     @NeptusProperty(name = "Maximum Number of points")
     public int numPoints = 100;
+    
+    @NeptusProperty(name="Periodicity (milliseconds)",description="Update Interval\nRange:from 100 milliseconds",units="Milliseconds")
+    public int periodicity = 1000;
 
     @NeptusProperty(name = "Current Script")
     public String traceScript = "s = value(\"EstimatedState.depth\")\naddTimeSeries s";
@@ -156,6 +171,10 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
         //Layout
         configLayout();
         add(chart, BorderLayout.CENTER);
+        timer = System.nanoTime();
+        /*timedExec = createThreadPool();
+        timedExec.scheduleAtFixedRate(, 500, 5000, TimeUnit.MILLISECONDS);*/
+
     }
 
     /**
@@ -368,10 +387,17 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
         updating = false;
     }
 
-    @Periodic(millisBetweenUpdates = 1000)
+    @Periodic(millisBetweenUpdates = 10)
     public boolean update() {
+        try {
         if (!isShowing())
             return true;
+        long nano = periodicity*MILLI2NANO;
+        long diff = System.nanoTime() - timer;
+        if(diff < nano)
+            return true;
+        System.err.println("DIFF nano: "+diff+" DIFF milli:"+diff/1000000);
+        timer = System.nanoTime();
         updateComboBox();
         systems.clear();
         for (ImcSystem system : ImcSystemsHolder.lookupActiveSystemVehicles()) {
@@ -394,6 +420,38 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
         }
         previousScript = traceScript;
         return true;
+        }
+        catch (Exception e) {
+            System.err.println("Error Updating");
+            e.printStackTrace();
+            return false;
+        }
+    }
+    /**
+     * Creates Scheduled Executor for updates.
+     * Original implementation from @LogsDownloaderWorkerUtil
+     * @return
+     */
+    private ScheduledThreadPoolExecutor createThreadPool() {
+        ScheduledThreadPoolExecutor ret = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(1, new ThreadFactory() {
+            private ThreadGroup group;
+            private long count = 0;
+            {
+                SecurityManager s = System.getSecurityManager();
+                group = (s != null) ? s.getThreadGroup() :
+                    Thread.currentThread().getThreadGroup();
+            }
+            @Override
+            public Thread newThread(Runnable r) {
+                Thread t = new Thread(group, r);
+                t.setName(this.getClass().getSimpleName() + "::"
+                        + Integer.toHexString(this.hashCode()) + "::" + count++);
+                t.setDaemon(true);
+                return t;
+            }
+        });
+        
+        return ret;
     }
 
     @Override
@@ -452,6 +510,7 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
             catch (Exception e) {
                 traceScript = previousScript;
                 GuiUtils.errorMessage(this, "Error Parsing Script", e.getLocalizedMessage());
+                e.printStackTrace();
             }
         }
     }
@@ -498,4 +557,5 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
         }
         changeChartSrc(selTsc);
     }
+
 }

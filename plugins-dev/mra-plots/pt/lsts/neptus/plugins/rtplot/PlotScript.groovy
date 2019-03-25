@@ -59,28 +59,29 @@ import org.jfree.data.xy.XYSeries
 
 
 class PlotScript {
-    
+
     static RealTimePlotGroovy realTimePlot = null
-    
-     static void configPlot(RealTimePlotGroovy p) {
+
+    static void configPlot(RealTimePlotGroovy p) {
         realTimePlot = p
     }
-    
+
     static public final String newName(String dottedName, String serieName) {
         dottedName.split(/(\.)/)[0] + "." +serieName
     }
     static public LinkedHashMap apply (LinkedHashMap map, Object function)  {
         def result = [:]
         map.each {
-            result.put it.key,function.call(it.value)
+            if(it.value!=null)
+                result.put it.key,function.call(it.value)
         }
         result
     }
-    
+
     static def value = { msgDotField ->
         RealTimePlotGroovy.getSystems().collectEntries{ [(it+"."+msgDotField): ImcMsgManager.getManager().getState(it).expr(msgDotField)]}
     }
-    
+
     static def state(String s){
         return this.value("EstimatedState."+s)
     }
@@ -168,5 +169,4 @@ class PlotScript {
             }
         }
     }
-
 }

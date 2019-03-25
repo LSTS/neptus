@@ -74,6 +74,7 @@ public class RealTimePlotScript extends JPanel {
     private static final long serialVersionUID = 1L;
     protected static RSyntaxTextArea editorPane = new RSyntaxTextArea();
     protected JFormattedTextField numPointsField = new JFormattedTextField(GuiUtils.getNeptusDecimalFormat(0));
+    protected JFormattedTextField periodicityField = new JFormattedTextField(GuiUtils.getNeptusDecimalFormat(0));
     private JMenuBar bar = new JMenuBar();
     private JMenu plotprops = new JMenu("Plot Properties");
     private JMenu methods = new JMenu("Options");
@@ -106,6 +107,8 @@ public class RealTimePlotScript extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 String script = editorPane.getText();
                 plot.traceScript = script;
+                plot.numPoints = Integer.parseInt(RealTimePlotScript.this.numPointsField.getText());
+                plot.periodicity = Integer.parseInt(RealTimePlotScript.this.periodicityField.getText());
                 plot.resetSeries();
                 plot.runScript(script);
             }
@@ -140,20 +143,27 @@ public class RealTimePlotScript extends JPanel {
         });
         save.setToolTipText("Save changes to script");
         store.setToolTipText("Store current script locally");
-        add(bar, BorderLayout.NORTH);
-        JPanel bottom = new JPanel(new GridLayout(0, 4));
-        add(new JScrollPane(editorPane), BorderLayout.CENTER);
         save.setMinimumSize(new Dimension(5, 5));
         store.setMinimumSize(new Dimension(5, 5));
-        bottom.add(save, BorderLayout.WEST);
-        bottom.add(store, BorderLayout.WEST);
-        JLabel label = new JLabel(I18n.text("Trace points") + ":");
-        label.setMinimumSize(new Dimension(5, 5));
-        bottom.add(label, BorderLayout.CENTER);
         numPointsField.setMinimumSize(new Dimension(5, 5));
-        bottom.add(numPointsField, BorderLayout.EAST);
+
+        add(bar, BorderLayout.NORTH);
+        JPanel bottom = new JPanel(new GridLayout(2, 3));
+        add(new JScrollPane(editorPane), BorderLayout.CENTER);
+        //Editors parameters
+        JLabel numLabel = new JLabel(I18n.text("Trace points") + ":");
+        JLabel periodLabel = new JLabel(I18n.text("Periodicity (milliseconds)") + ":");
+        numLabel.setMinimumSize(new Dimension(5, 5));
+        bottom.add(numLabel);//, BorderLayout.CENTER
+        bottom.add(numPointsField);
+        bottom.add(save);
+        bottom.add(periodLabel);
+        bottom.add(periodicityField);
+        bottom.add(store);
         add(bottom, BorderLayout.SOUTH);
+        
         editorPane.setText(rtplot.traceScript);
+        periodicityField.setText("" + rtplot.periodicity);
         numPointsField.setText("" + rtplot.numPoints);
         editorPane.setText(plot.traceScript);
         fillPlotOptions();
@@ -163,8 +173,17 @@ public class RealTimePlotScript extends JPanel {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                plot.numPoints = Integer.parseInt(RealTimePlotScript.this.numPointsField.getText());
-
+                rtplot.numPoints = Integer.parseInt(RealTimePlotScript.this.numPointsField.getText());
+                System.err.println("Changed numPoints to: "+rtplot.periodicity);
+            }
+        });
+        periodicityField.addActionListener(new ActionListener() {
+            
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int aux = Integer.parseInt(RealTimePlotScript.this.periodicityField.getText());
+                rtplot.periodicity = aux >= rtplot.PERIODICMIN ? aux : rtplot.PERIODICMIN;
+                System.err.println("Changed period to: "+rtplot.periodicity);
             }
         });
         methods.setToolTipText("Insert formulas, methods and other settings");
@@ -239,6 +258,9 @@ public class RealTimePlotScript extends JPanel {
                         String script = editorPane.getText();
                         plot.traceScript = script;
                         plot.numPoints = Integer.parseInt(scriptSettings.numPointsField.getText());
+                        int aux = Integer.parseInt(scriptSettings.periodicityField.getText());
+                        rtplot.periodicity = aux >= rtplot.PERIODICMIN ? aux : rtplot.PERIODICMIN;
+                        rtplot.periodicity = Integer.parseInt(scriptSettings.periodicityField.getText());
                         plot.resetSeries();
                         plot.runScript(script);
                         dialog.dispose();
