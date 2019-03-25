@@ -72,6 +72,7 @@ import com.l2fprod.common.propertysheet.Property;
 import com.l2fprod.common.propertysheet.PropertySheetPanel;
 import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
 
+import pt.lsts.imc.ScheduledGoto.DELAYED;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.plugins.planning.edit.AllManeuversPayloadSettingsChanged;
@@ -110,11 +111,11 @@ import pt.lsts.neptus.util.ImageUtils;
 
 @SuppressWarnings("serial")
 @PluginDescription(name = "Sweep Plan Generator", version = "1.0", 
-    icon = "pt/lsts/neptus/plugins/sweepplangen/sweep-plan-gen.png")
+icon = "pt/lsts/neptus/plugins/sweepplangen/sweep-plan-gen.png")
 public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainter {
-    
+
     private static Image imageIcon;
-    
+
     private JPanel sidePanel;
     private PropertySheetPanel propsPanel = null;
     private PropertiesTable propTable = null;
@@ -478,8 +479,8 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
 
         PolygonType.Vertex currVertex = vertices.get(0);
         for (int i = 1; i < vertices.size(); i++) {
-             // currDist += currVertex.getLocation().getDistanceInMeters(lt); currDist +=
-             // lt.getDistanceInMeters(vertices.get(i).getLocation());
+            // currDist += currVertex.getLocation().getDistanceInMeters(lt); currDist +=
+            // lt.getDistanceInMeters(vertices.get(i).getLocation());
 
             currDist = calculatePointProjectionDist(task.getCentroid().getOffsetFrom(currVertex.getLocation()),
                     task.getCentroid().getOffsetFrom(vertices.get(i).getLocation()),
@@ -495,7 +496,7 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
         // last to first check
         // currDist += currVertex.getLocation().getDistanceInMeters(lt); currDist +=
         // lt.getDistanceInMeters(vertices.get(0).getLocation());
-        
+
         currDist = calculatePointProjectionDist(task.getCentroid().getOffsetFrom(currVertex.getLocation()),
                 task.getCentroid().getOffsetFrom(vertices.get(0).getLocation()), task.getCentroid().getOffsetFrom(lt));
 
@@ -861,13 +862,12 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
             man.setDuration(generalOptions.popupDuration);
             generated.getGraph().addManeuverAtEnd(man);
         }
-        
+
         long lastPopup = System.currentTimeMillis();
         FollowTrajectory traj = null;
 
         while (!coverage.isEmpty()) {
             LocationType loc = coverage.remove(0);
-
             double distanceToTarget = lastLoc.getDistanceInMeters(loc);
             long targetEta = (long) ((distanceToTarget / generalOptions.speedMps) * 1000 + curTime);
 
@@ -889,10 +889,20 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
             }
 
             if (generalOptions.gotosOnly) {
-                Goto g = new Goto();
-                g.setId("G"+manId++);
-                g.setManeuverLocation(createLoc(lastLoc));
-                generated.getGraph().addManeuverAtEnd(g);
+                if (generalOptions.timedPlan) {
+                    ScheduledGoto g = new ScheduledGoto();
+                    g.setId("SG"+manId++);
+                    g.setDelayedBehavior(DELAYED.RESUME);
+                    g.setManeuverLocation(createLoc(loc));
+                    g.setArrivalTime(new Date(targetEta));
+                    generated.getGraph().addManeuverAtEnd(g);                   
+                }
+                else {
+                    Goto g = new Goto();
+                    g.setId("G"+manId++);
+                    g.setManeuverLocation(createLoc(loc));
+                    generated.getGraph().addManeuverAtEnd(g);    
+                }                
             }
             else {
                 if (traj == null) {
@@ -917,14 +927,16 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
                 Vector<double[]> curPath = new Vector<>(traj.getPathPoints());
                 double[] offsets = loc.getOffsetFrom(traj.getManeuverLocation());
                 curPath.add(new double[] { offsets[0], offsets[1], offsets[2], (targetEta - curTime) / 1000.0 });
-                traj.setOffsets(curPath);
-                curTime = targetEta;
+                traj.setOffsets(curPath);                
             }
-            lastLoc = loc;
-        }
 
+            curTime = targetEta;
+            lastLoc = loc;
+
+
+        }
         if (traj != null)
-            generated.getGraph().addManeuverAtEnd(traj);
+            generated.getGraph().addManeuverAtEnd(traj);            
 
         if (endPoint != null) {
             addEndManeuver(lastLoc);
