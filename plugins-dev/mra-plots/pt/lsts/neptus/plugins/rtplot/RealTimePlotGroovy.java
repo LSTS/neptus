@@ -361,8 +361,8 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
         }
         catch (Exception e) {
             traceScript = previousScript;
-            NeptusLog.pub().error(I18n.text("Error updating script for real-time plot: "+e.getLocalizedMessage()), e);
-            e.printStackTrace();
+            NeptusLog.pub().error(I18n.text("Error updating script for real-time plot: "+e.getLocalizedMessage()));
+            //e.printStackTrace();
             return false;
         }
         previousScript = traceScript;
