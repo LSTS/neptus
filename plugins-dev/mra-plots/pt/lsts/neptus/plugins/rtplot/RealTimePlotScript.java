@@ -108,9 +108,8 @@ public class RealTimePlotScript extends JPanel {
                 String script = editorPane.getText();
                 plot.traceScript = script;
                 plot.numPoints = Integer.parseInt(RealTimePlotScript.this.numPointsField.getText());
-                plot.periodicity = Integer.parseInt(RealTimePlotScript.this.periodicityField.getText());
-                plot.resetSeries();
-                plot.runScript(script);
+                plot.periodicity = Long.parseLong(RealTimePlotScript.this.periodicityField.getText());
+                plot.propertiesChanged();
             }
         });
         store.addActionListener(new ActionListener() {
@@ -163,29 +162,13 @@ public class RealTimePlotScript extends JPanel {
         add(bottom, BorderLayout.SOUTH);
         
         editorPane.setText(rtplot.traceScript);
-        periodicityField.setText("" + rtplot.periodicity);
-        numPointsField.setText("" + rtplot.numPoints);
+        periodicityField.setText("" + plot.periodicity);
+        numPointsField.setText("" + plot.numPoints);
         editorPane.setText(plot.traceScript);
         fillPlotOptions();
         fillMathOptions();
         fillStoredScripts();
-        numPointsField.addActionListener(new ActionListener() {
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                rtplot.numPoints = Integer.parseInt(RealTimePlotScript.this.numPointsField.getText());
-                System.err.println("Changed numPoints to: "+rtplot.periodicity);
-            }
-        });
-        periodicityField.addActionListener(new ActionListener() {
-            
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int aux = Integer.parseInt(RealTimePlotScript.this.periodicityField.getText());
-                rtplot.periodicity = aux >= rtplot.PERIODICMIN ? aux : rtplot.PERIODICMIN;
-                System.err.println("Changed period to: "+rtplot.periodicity);
-            }
-        });
         methods.setToolTipText("Insert formulas, methods and other settings");
         methods.add(sysdata);
         methods.add(math);
@@ -241,6 +224,7 @@ public class RealTimePlotScript extends JPanel {
      */
     public static void editSettings(final RealTimePlotGroovy rtplot, String sysID) {
         final JDialog dialog = new JDialog(rtplot.getConsole());
+        dialog.setTitle("Real-time plot settings");
         updateLocalVars(sysID);
         RealTimePlotScript scriptSettings = new RealTimePlotScript(rtplot);
         dialog.getContentPane().add(scriptSettings);
@@ -258,11 +242,8 @@ public class RealTimePlotScript extends JPanel {
                         String script = editorPane.getText();
                         plot.traceScript = script;
                         plot.numPoints = Integer.parseInt(scriptSettings.numPointsField.getText());
-                        int aux = Integer.parseInt(scriptSettings.periodicityField.getText());
-                        rtplot.periodicity = aux >= rtplot.PERIODICMIN ? aux : rtplot.PERIODICMIN;
-                        rtplot.periodicity = Integer.parseInt(scriptSettings.periodicityField.getText());
-                        plot.resetSeries();
-                        plot.runScript(script);
+                        plot.periodicity = Long.parseLong(scriptSettings.periodicityField.getText());
+                        plot.propertiesChanged();
                         dialog.dispose();
                     }
                     else if (op == JOptionPane.NO_OPTION) {

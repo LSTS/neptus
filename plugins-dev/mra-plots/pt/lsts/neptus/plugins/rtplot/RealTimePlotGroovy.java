@@ -43,8 +43,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Timer;
-import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
@@ -79,9 +77,7 @@ import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
-import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.logdownload.LogsDownloaderWorker;
 
 @PluginDescription(name = "Real-Time Plot", icon = "pt/lsts/neptus/plugins/rtplot/rtplot.png", description = "Real-Time plots with Groovy scripts")
 @Popup(accelerator = 'U', pos = POSITION.CENTER, height = 300, width = 300)
@@ -103,15 +99,12 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
     private CompilerConfiguration cnfg;
     private ImportCustomizer imports;
     private Writer scriptOutput, scriptError;
-    private StringBuffer bufferO, bufferE;
     private boolean updating = false;
     private final ChartPanel chart;
     private static List<String> systems = Collections.synchronizedList(new ArrayList<String>());
     private ScheduledThreadPoolExecutor timedExec;
-
-    private long timer;
-    private final long MILLI2NANO = 1000000;
-    public  final int PERIODICMIN = 100;  
+    private final Runnable updateTask;
+    public  final long PERIODICMIN = 100;  
 
     public enum PlotType {
         TIMESERIES, // default
@@ -130,7 +123,7 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
     public int numPoints = 100;
     
     @NeptusProperty(name="Periodicity (milliseconds)",description="Update Interval\nRange:from 100 milliseconds",units="Milliseconds")
-    public int periodicity = 1000;
+    public long periodicity = 1000;
 
     @NeptusProperty(name = "Current Script")
     public String traceScript = "s = value(\"EstimatedState.depth\")\naddTimeSeries s";
@@ -144,6 +137,7 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
     private String previousScript = "";
 
     private int numPointsBefore = numPoints;
+    private long previousPeriod= periodicity;
 
     public RealTimePlotGroovy(ConsoleLayout c) {
         super(c);
@@ -162,7 +156,6 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
         imports.addStarImports("pt.lsts.imc", "java.lang.Math", "pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder");
         imports.addStaticStars("pt.lsts.neptus.plugins.rtplot.PlotScript");
         cnfg.addCompilationCustomizers(imports);
-        redirectIO();
         previousScript = traceScript;
         shell = new GroovyShell(this.getClass().getClassLoader(), cnfg);
         shell.setProperty("out", scriptOutput);
@@ -171,56 +164,18 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
         //Layout
         configLayout();
         add(chart, BorderLayout.CENTER);
-        timer = System.nanoTime();
-        /*timedExec = createThreadPool();
-        timedExec.scheduleAtFixedRate(, 500, 5000, TimeUnit.MILLISECONDS);*/
-
-    }
-
-    /**
-     * Redirects the script output and error writer to a Neptus one
-     */
-    private void redirectIO() {
-        bufferO = new StringBuffer();
-        scriptOutput = new Writer() {
+        timedExec = createThreadPool();
+        updateTask = new Runnable() {
 
             @Override
-            public void write(char[] cbuf, int off, int len) throws IOException {
-                bufferO.append(cbuf, off, len);
-
+            public void run() {
+                update();
+                
             }
-
-            @Override
-            public void flush() throws IOException {
-                NeptusLog.pub().debug(I18n.text(bufferO.toString()));
-                bufferO = new StringBuffer();
-
-            }
-
-            @Override
-            public void close() throws IOException {
-            }
+            
         };
-        bufferE = new StringBuffer();
-        scriptError = new Writer() {
+        timedExec.scheduleAtFixedRate(updateTask, 0, periodicity, TimeUnit.MILLISECONDS);
 
-            @Override
-            public void write(char[] cbuf, int off, int len) throws IOException {
-                bufferE.append(cbuf, off, len);
-            }
-
-            @Override
-            public void flush() throws IOException {
-                NeptusLog.pub().error(I18n.text(bufferE.toString()));
-                bufferE = new StringBuffer();
-            }
-
-            @Override
-            public void close() throws IOException {
-                scriptOutput.close();
-
-            }
-        };
     }
 
     public void unbind(String var) {
@@ -387,17 +342,9 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
         updating = false;
     }
 
-    @Periodic(millisBetweenUpdates = 10)
     public boolean update() {
-        try {
         if (!isShowing())
             return true;
-        long nano = periodicity*MILLI2NANO;
-        long diff = System.nanoTime() - timer;
-        if(diff < nano)
-            return true;
-        System.err.println("DIFF nano: "+diff+" DIFF milli:"+diff/1000000);
-        timer = System.nanoTime();
         updateComboBox();
         systems.clear();
         for (ImcSystem system : ImcSystemsHolder.lookupActiveSystemVehicles()) {
@@ -416,17 +363,13 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
         catch (Exception e) {
             traceScript = previousScript;
             NeptusLog.pub().error(I18n.text("Error updating script for real-time plot"), e);
+            e.printStackTrace();
             return false;
         }
         previousScript = traceScript;
         return true;
-        }
-        catch (Exception e) {
-            System.err.println("Error Updating");
-            e.printStackTrace();
-            return false;
-        }
     }
+
     /**
      * Creates Scheduled Executor for updates.
      * Original implementation from @LogsDownloaderWorkerUtil
@@ -458,9 +401,23 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
     public void propertiesChanged() {
         if (!traceScript.equals(previousScript) || numPoints != numPointsBefore) {
             resetSeries();
+            previousScript = traceScript;
+            numPointsBefore = numPoints;
         }
-        previousScript = traceScript;
-        numPointsBefore = numPoints;
+        if(periodicity != previousPeriod) {
+            if(periodicity < PERIODICMIN) {
+                periodicity = previousPeriod;
+                GuiUtils.errorMessage("Invalid periodicity parameter value", "The periodicity must be at least 100 milliseconds.");
+                return;
+            }
+            updating = true;
+            timedExec.purge();
+            timedExec.shutdown();
+            timedExec = createThreadPool();
+            timedExec.scheduleAtFixedRate(updateTask, 0, periodicity, TimeUnit.MILLISECONDS);
+            previousPeriod = periodicity;
+            updating = false;
+        }
         runScript(traceScript);
     }
 
@@ -523,12 +480,9 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
 
     @Override
     public void cleanSubPanel() {
-        try {
-            scriptOutput.close();
-            scriptError.close();
-        }
-        catch (IOException e) {
-            NeptusLog.pub().error(I18n.text("Error closing IO Writer"), e);
+        if(!timedExec.isTerminated() || !timedExec.isShutdown()) {
+            timedExec.purge();
+            timedExec.shutdown();
         }
     }
 
