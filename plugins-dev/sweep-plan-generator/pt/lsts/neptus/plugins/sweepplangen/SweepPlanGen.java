@@ -83,6 +83,7 @@ import pt.lsts.neptus.gui.PropertiesTable;
 import pt.lsts.neptus.gui.editor.renderer.I18nCellRenderer;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
 import pt.lsts.neptus.mp.actions.PlanActions;
 import pt.lsts.neptus.mp.maneuvers.FollowPath;
 import pt.lsts.neptus.mp.maneuvers.FollowTrajectory;
@@ -858,7 +859,12 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
 
             PopUp man = new PopUp();
             man.setId("P" + manId++);
-            man.setManeuverLocation(createLoc(lastLoc));
+            ManeuverLocation loc = createLoc(lastLoc);
+            if (generalOptions.popupDepth >= 0) {
+                loc.setZUnits(Z_UNITS.DEPTH);
+                loc.setZ(generalOptions.popupDepth);
+            }
+            man.setManeuverLocation(loc);
             man.setDuration(generalOptions.popupDuration);
             generated.getGraph().addManeuverAtEnd(man);
         }
@@ -880,7 +886,12 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
                 PopUp man = new PopUp();
                 man.setId("P" + manId++);
                 ManeuverLocation mloc = createLoc(lastLoc);
+                if (generalOptions.popupDepth >= 0) {
+                    mloc.setZUnits(Z_UNITS.DEPTH);
+                    mloc.setZ(generalOptions.popupDepth);
+                }
                 man.setManeuverLocation(mloc);
+                
                 man.setDuration(generalOptions.popupDuration);
                 man.setWaitAtSurface(generalOptions.popupWaitAtSurface);
                 generated.getGraph().addManeuverAtEnd(man);
@@ -1040,6 +1051,9 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
 
         @NeptusProperty(name = "Popup Wait at surface", description = "If set, the vehicle will wait <duration> seconds before diving, otherwise will dive after GPS fix.")
         boolean popupWaitAtSurface = true;
+        
+        @NeptusProperty(name = "PopUp depth", description = "Depth to use for popups (if value bigger than -1).")
+        int popupDepth = -1;        
 
         @NeptusProperty(name = "Generated plan id", description = "Name of the generated plan")
         String planId = "plan_wiz";
