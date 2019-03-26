@@ -37,7 +37,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -362,7 +361,7 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
         }
         catch (Exception e) {
             traceScript = previousScript;
-            NeptusLog.pub().error(I18n.text("Error updating script for real-time plot"), e);
+            NeptusLog.pub().error(I18n.text("Error updating script for real-time plot: "+e.getLocalizedMessage()), e);
             e.printStackTrace();
             return false;
         }
@@ -401,7 +400,6 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
     public void propertiesChanged() {
         if (!traceScript.equals(previousScript) || numPoints != numPointsBefore) {
             resetSeries();
-            previousScript = traceScript;
             numPointsBefore = numPoints;
         }
         if(periodicity != previousPeriod) {
