@@ -58,6 +58,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -126,7 +127,7 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
 public class PhotoImporter extends SimpleRendererInteraction {
 
     private static final long serialVersionUID = 1L;
-    private Map<String, ArrayList<ImageMetadata>> list = Collections.synchronizedMap(new HashMap<String, ArrayList<ImageMetadata>>());
+    private Map<String, ArrayList<ImageMetadata>> list = Collections.synchronizedMap(new LinkedHashMap<String, ArrayList<ImageMetadata>>());
     private Map<String, Color> colorList = Collections.synchronizedMap(new HashMap<String, Color>());
     private Set<String> datesSelected = new HashSet<String>();
     private Map<String, Point> datesList = new HashMap<String, Point>();
@@ -274,7 +275,7 @@ public class PhotoImporter extends SimpleRendererInteraction {
     private static String getYearMonthDay(Date date) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
-        return calendar.get(Calendar.YEAR) + "-"+ calendar.get(Calendar.MONTH) + "-" +  calendar.get(Calendar.DAY_OF_MONTH);
+        return calendar.get(Calendar.YEAR) + "-"+ (calendar.get(Calendar.MONTH) == 0 ? 01 : calendar.get(Calendar.MONTH)) + "-" +  calendar.get(Calendar.DAY_OF_MONTH);
     }
 
     @NeptusMenuItem("Tools>DJI>Load Photos")
@@ -456,7 +457,7 @@ public class PhotoImporter extends SimpleRendererInteraction {
         g.fillRect(20, 20, 100, colorList.size()*20);
         int x = 55;
         int y = 35;
-
+        datesList.clear();
         SortedSet<String> keys = new TreeSet<String>(colorList.keySet());
         for (String date : keys) {
             if (datesSelected.contains(date)) {
