@@ -72,19 +72,19 @@ import pt.lsts.neptus.util.GuiUtils;
 public class RealTimePlotScript extends JPanel {
 
     private static final long serialVersionUID = 1L;
-    protected static RSyntaxTextArea editorPane = new RSyntaxTextArea();
+    protected RSyntaxTextArea editorPane = new RSyntaxTextArea();
     protected JFormattedTextField numPointsField = new JFormattedTextField(GuiUtils.getNeptusDecimalFormat(0));
     protected JFormattedTextField periodicityField = new JFormattedTextField(GuiUtils.getNeptusDecimalFormat(0));
     private JMenuBar bar = new JMenuBar();
     private JMenu plotprops = new JMenu("Plot Properties");
     private JMenu methods = new JMenu("Options");
-    private static JMenu math;
-    private static JMenu sysdata;
-    private static JMenu storedScripts;
+    private JMenu math = new JMenu("Math Formulas");
+    private JMenu sysdata = new JMenu("System data");
+    private JMenu storedScripts = new JMenu("Stored Scripts");
     private JButton save = new JButton("Save");
     private JButton store = new JButton("Store");
-    private final static String path = "conf/mraplots/realtime/";
-    private static RealTimePlotGroovy plot = null;
+    private final String path = "conf/mraplots/realtime/";
+    private RealTimePlotGroovy plot = null;
 
     /**
      * This class represents the editor panel used to edit the script executed periodically in the @RealTimePlotGroovy .
@@ -161,13 +161,7 @@ public class RealTimePlotScript extends JPanel {
         bottom.add(store);
         add(bottom, BorderLayout.SOUTH);
         
-        editorPane.setText(rtplot.traceScript);
-        periodicityField.setText("" + plot.periodicity);
-        numPointsField.setText("" + plot.numPoints);
-        editorPane.setText(plot.traceScript);
-        fillPlotOptions();
-        fillMathOptions();
-        fillStoredScripts();
+        fillTextFields();
 
         methods.setToolTipText("Insert formulas, methods and other settings");
         methods.add(sysdata);
@@ -175,6 +169,16 @@ public class RealTimePlotScript extends JPanel {
         methods.add(plotprops);
         methods.add(storedScripts);
         bar.add(methods);
+    }
+
+    /**
+     * @param rtplot
+     */
+    private void fillTextFields() {
+        editorPane.setText(plot.traceScript);
+        periodicityField.setText("" + plot.periodicity);
+        numPointsField.setText("" + plot.numPoints);
+        editorPane.setText(plot.traceScript);
     }
 
     /**
@@ -213,6 +217,7 @@ public class RealTimePlotScript extends JPanel {
         });
         plotType1.add(latlong);
         plotType1.add(other);
+        plotprops.removeAll();
         plotprops.add(plotType0);
         plotprops.add(plotType1);
     }
@@ -222,12 +227,15 @@ public class RealTimePlotScript extends JPanel {
      * @param rtplot - The caller plugin panel
      * @param sysID  - The selected system(s)
      */
-    public static void editSettings(final RealTimePlotGroovy rtplot, String sysID) {
-        final JDialog dialog = new JDialog(rtplot.getConsole());
+    public void editSettings(String sysID) {
+        final JDialog dialog = new JDialog(plot.getConsole());
         dialog.setTitle("Real-time plot settings");
+        fillTextFields();
         updateLocalVars(sysID);
-        RealTimePlotScript scriptSettings = new RealTimePlotScript(rtplot);
-        dialog.getContentPane().add(scriptSettings);
+        fillPlotOptions();
+        fillMathOptions();
+        fillStoredScripts();
+        dialog.getContentPane().add(this);
         dialog.setSize(400, 400);
         dialog.setModal(true);
 
@@ -241,8 +249,8 @@ public class RealTimePlotScript extends JPanel {
                     if (op == JOptionPane.YES_OPTION) {
                         String script = editorPane.getText();
                         plot.traceScript = script;
-                        plot.numPoints = Integer.parseInt(scriptSettings.numPointsField.getText());
-                        plot.periodicity = Long.parseLong(scriptSettings.periodicityField.getText());
+                        plot.numPoints = Integer.parseInt(numPointsField.getText());
+                        plot.periodicity = Long.parseLong(periodicityField.getText());
                         plot.propertiesChanged();
                         dialog.dispose();
                     }
@@ -255,15 +263,15 @@ public class RealTimePlotScript extends JPanel {
             }
         });
 
-        GuiUtils.centerParent(dialog, rtplot.getConsole());
+        GuiUtils.centerParent(dialog, plot.getConsole());
         dialog.setVisible(true);
     }
 
     /**
      * Updates the Option @JMenu according to the selected system(s)
      */
-    private static void updateLocalVars(String id) {
-        sysdata = new JMenu("System data");
+    private void updateLocalVars(String id) {
+        sysdata.removeAll();
         JMenu deft = new JMenu("Default");
         String[] defaults = { "state", "roll", "pitch", "yaw" };
         createDefaultOptions(deft, defaults);
@@ -284,7 +292,6 @@ public class RealTimePlotScript extends JPanel {
      * List in the @JMenu the stored scripts under the directory conf/mraplots/realtime/
      */
     private void fillStoredScripts() {
-        storedScripts = new JMenu("Stored Scripts");
         File conf_mra_rtplot = new File(path);
 
         // ensure path exists
@@ -306,6 +313,7 @@ public class RealTimePlotScript extends JPanel {
                             editorPane.setText(FileUtil.getFileAsString(f));
                     }
                 });
+                storedScripts.removeAll();
                 storedScripts.add(item);
             }
         }
@@ -314,7 +322,7 @@ public class RealTimePlotScript extends JPanel {
     /**
      * @param component - @JMenu to add default methods options as @JMenuItem
      */
-    private static void createDefaultOptions(JMenu component, String[] options) {
+    private void createDefaultOptions(JMenu component, String[] options) {
         for (int i = 0; i < options.length; i++) {
             String var = options[i];
             String s = i == 0 ? ("addTimeSeries " + var + "(\"<field>\")")
@@ -337,7 +345,6 @@ public class RealTimePlotScript extends JPanel {
      * Fills the Math @JMenu with the methods from the @java.lang.Math class as @JMenuItem
      */
     private void fillMathOptions() {
-        math = new JMenu("Math Formulas");
         final String[] meths = { "acos", "asin", "atan", "atan2", "cos", "cosh", "sin", "sinh", "tan", "tanh",
                 "toDegrees", "toRadians" };
         final List<String> trigMethods = new ArrayList<>();
@@ -364,6 +371,7 @@ public class RealTimePlotScript extends JPanel {
                 other.add(item);
         }
         MenuScroller.setScrollerFor(other, 15, 250);
+        math.removeAll();
         math.add(trig);
         math.add(other);
     }
@@ -374,7 +382,7 @@ public class RealTimePlotScript extends JPanel {
      * @param method
      * @return signature in a String
      */
-    public static String methodSignature(Method method) {
+    public String methodSignature(Method method) {
         Class<?>[] parameterTypes = method.getParameterTypes();
         if (parameterTypes.length == 0)
             return "";
@@ -392,7 +400,7 @@ public class RealTimePlotScript extends JPanel {
      * @param system id
      * @param component the correspondent @JMenu to attach the options
      */
-    protected static void createExtraSysOptions(String system, JMenu component) {
+    protected void createExtraSysOptions(String system, JMenu component) {
         for (String msg : ImcMsgManager.getManager().getState(system).availableMessages()) {
             JMenuItem item = new JMenuItem(msg);
             item.addActionListener(new ActionListener() {
@@ -417,7 +425,7 @@ public class RealTimePlotScript extends JPanel {
      * @param code to be added
      * @param deletePrevious specifies if the existing code is removed or not
      */
-    protected static void addText(String code, boolean deletePrevious) {
+    protected void addText(String code, boolean deletePrevious) {
         String current, old = editorPane.getText();
         StringBuilder sb = new StringBuilder(code.length() + old.length());
         if (!deletePrevious)
