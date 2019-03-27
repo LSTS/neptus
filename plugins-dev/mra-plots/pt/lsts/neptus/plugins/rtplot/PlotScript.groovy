@@ -79,7 +79,7 @@ class PlotScript {
     }
 
     static def value = { msgDotField ->
-        RealTimePlotGroovy.getSystems().collectEntries{ [(it+"."+msgDotField): ImcMsgManager.getManager().getState(it).expr(msgDotField)]}
+        realTimePlot.getSystems().collectEntries{ [(it+"."+msgDotField): ImcMsgManager.getManager().getState(it).expr(msgDotField)]}
     }
 
     static def state(String s){
@@ -103,7 +103,7 @@ class PlotScript {
         }
         def result = [:]
         def lookup
-        RealTimePlotGroovy.getSystems().eachWithIndex { sys, index ->
+        realTimePlot.getSystems().eachWithIndex { sys, index ->
             def id = sys+"."+name
             if((lookup = map1.keySet().find{it.startsWith(sys)}) != null) {
                 def v1 = map1.get lookup
@@ -124,7 +124,7 @@ class PlotScript {
             //plot.resetSeries()
             realTimePlot.setType(PlotType.TIMESERIES)
         }
-        if(RealTimePlotGroovy.getSystems().size()>0) {
+        if(map.size()>0) {
             map.each {
                 if(it.value != null) {
                     TimeSeriesDataItem item = new TimeSeriesDataItem(new Millisecond(new Date(System.currentTimeMillis())),new Double(it.value))
@@ -137,7 +137,7 @@ class PlotScript {
         }
     }
     static def addSeries(LinkedHashMap map,String serieName=null) {
-        if(RealTimePlotGroovy.getSystems().size()>0) {
+        if(map.size()>0) {
             map.each {
                 if(it.value != null) {
                     def name = serieName==null? it.value : newName(it.key,serieName)
@@ -150,7 +150,7 @@ class PlotScript {
     }
 
     static def plotLatLong() {
-        RealTimePlotGroovy.getSystems().each {
+        realTimePlot.getSystems().each {
             EstimatedState state = ImcMsgManager.getManager().getState(it).get("EstimatedState")
             if(state != null) {
                 LocationType ref = new LocationType(0,0)
