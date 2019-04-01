@@ -96,7 +96,7 @@ class PlotScript {
         apply(state("psi"),{i -> i*180/Math.PI})
     }
 
-    static def xyseries(LinkedHashMap map1,LinkedHashMap map2,String name="serie",boolean autosort=false) {
+    static def xyseries(LinkedHashMap map1,LinkedHashMap map2,String name="serie") {
         if(!realTimePlot.getType().equals(PlotType.GENERICXY)) {
             //plot.resetSeries()
             realTimePlot.setType(PlotType.GENERICXY)
