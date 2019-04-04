@@ -97,15 +97,15 @@ public class RealTimePlotScript extends JPanel {
      * @param sysID ID of system(s) being used on the script
      */
     public RealTimePlotScript(RealTimePlotGroovy rtplot) {
-        editorPane.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_GROOVY);
-        editorPane.setCodeFoldingEnabled(true);
-        plot = rtplot;
-        dialog = new JDialog(plot.getConsole());
-        dialog.setTitle("Real-time plot settings");
+        this.editorPane.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_GROOVY);
+        this.editorPane.setCodeFoldingEnabled(true);
+        this.plot = rtplot;
+        this.dialog = new JDialog(plot.getConsole());
+        this.dialog.setTitle("Real-time plot settings");
         // create script editor
         setLayout(new BorderLayout(3, 3));
 
-        save.addActionListener(new ActionListener() {
+        this.save.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -132,7 +132,7 @@ public class RealTimePlotScript extends JPanel {
                 plot.propertiesChanged();
             }
         });
-        store.addActionListener(new ActionListener() {
+        this.store.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -166,7 +166,7 @@ public class RealTimePlotScript extends JPanel {
         store.setMinimumSize(new Dimension(5, 5));
         numPointsField.setMinimumSize(new Dimension(5, 5));
 
-        add(bar, BorderLayout.NORTH);
+        add(this.bar, BorderLayout.NORTH);
         JPanel bottom = new JPanel(new GridLayout(2, 3));
         add(new JScrollPane(editorPane), BorderLayout.CENTER);
         //Editors parameters
@@ -189,6 +189,31 @@ public class RealTimePlotScript extends JPanel {
         methods.add(plotprops);
         methods.add(storedScripts);
         bar.add(methods);
+        
+        dialog.setSize(400, 400);
+        dialog.setModal(true);
+
+        dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+        dialog.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                if (!editorPane.getText().equals(plot.traceScript)) {
+                    int op = GuiUtils.confirmDialog(RealTimePlotScript.this.dialog, I18n.text("Select an Option"),
+                            I18n.text("Do you wish to save changes?"));
+                    if (op == JOptionPane.YES_OPTION) {
+                        save.doClick();
+                        RealTimePlotScript.this.dialog.dispose();
+                        
+                    }
+                    else if (op == JOptionPane.NO_OPTION) {
+                        RealTimePlotScript.this.dialog.dispose();
+                    }
+                }
+                else {
+                    RealTimePlotScript.this.dialog.dispose();
+                }
+            }
+        });
     }
 
     /**
@@ -238,7 +263,7 @@ public class RealTimePlotScript extends JPanel {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                addText("double lat = Math.toDegrees(0.0)\ndouble lon = Math.toDegrees(0.0)\ndouble h= Math.toDegrees(0.0)\nplotNEDFrom(lat,lon,h)", true);
+                addText("double lat = Math.toDegrees(0.0)\ndouble lon = Math.toDegrees(0.0)\ndouble h = 0.0 \nplotNEDFrom(lat,lon,h)", true);
 
             }
         });
@@ -256,7 +281,7 @@ public class RealTimePlotScript extends JPanel {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                editorPane.setText("");
+                RealTimePlotScript.this.editorPane.setText("");
                 addText("s = value(\"EstimatedState.depth\")\nt = value(\"EstimatedState.timestamp\")\nxyseries t,s",
                         true);
 
@@ -271,6 +296,7 @@ public class RealTimePlotScript extends JPanel {
         plotprops.removeAll();
         plotprops.add(plotType0);
         plotprops.add(plotType1);
+
     }
 
     /**
@@ -285,50 +311,27 @@ public class RealTimePlotScript extends JPanel {
         fillPlotOptions();
         fillMathOptions();
         fillStoredScripts();
-        dialog.getContentPane().add(this);
-        dialog.setSize(400, 400);
-        dialog.setModal(true);
-
-        dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
-        dialog.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                if (!editorPane.getText().equals(plot.traceScript)) {
-                    int op = GuiUtils.confirmDialog(dialog, I18n.text("Select an Option"),
-                            I18n.text("Do you wish to save changes?"));
-                    if (op == JOptionPane.YES_OPTION) {
-                        save.doClick();
-                        
-                    }
-                    else if (op == JOptionPane.NO_OPTION) {
-                        dialog.dispose();
-                    }
-                }
-                else
-                    dialog.dispose();
-            }
-        });
-
-        GuiUtils.centerParent(dialog, plot.getConsole());
-        dialog.setVisible(true);
+        this.dialog.getContentPane().add(this);
+        GuiUtils.centerParent(this.dialog, plot.getConsole());
+        this.dialog.setVisible(true);
     }
 
     /**
      * Updates the Option @JMenu according to the selected system(s)
      */
     private void updateLocalVars(String id) {
-        sysdata.removeAll();
+        this.sysdata.removeAll();
         JMenu deft = new JMenu("Default");
         createDefaultOptions(deft, defaults);
-        sysdata.add(deft);
+        this.sysdata.add(deft);
         for (ImcSystem s : ImcSystemsHolder.lookupActiveSystemVehicles())
             if (id.equalsIgnoreCase("ALL")) {
                 JMenu menu = new JMenu(s.getName());
                 createExtraSysOptions(s.getName(), menu);
-                sysdata.add(menu);
+                this.sysdata.add(menu);
             }
             else if (id.equalsIgnoreCase(s.getName())) {
-                createExtraSysOptions(s.getName(), sysdata);
+                createExtraSysOptions(s.getName(), this.sysdata);
                 return;
             }
     }
@@ -355,11 +358,11 @@ public class RealTimePlotScript extends JPanel {
                         String aux = scriptName.concat(".groovy");
                         File f = new File(path.concat(aux));
                         if (f.exists() && f.isFile())
-                            editorPane.setText(FileUtil.getFileAsString(f));
+                            RealTimePlotScript.this.editorPane.setText(FileUtil.getFileAsString(f));
                     }
                 });
-                storedScripts.removeAll();
-                storedScripts.add(item);
+                this.storedScripts.removeAll();
+                this.storedScripts.add(item);
             }
         }
     }
@@ -416,9 +419,9 @@ public class RealTimePlotScript extends JPanel {
                 other.add(item);
         }
         MenuScroller.setScrollerFor(other, 15, 250);
-        math.removeAll();
-        math.add(trig);
-        math.add(other);
+        this.math.removeAll();
+        this.math.add(trig);
+        this.math.add(other);
     }
 
     /**
@@ -477,6 +480,6 @@ public class RealTimePlotScript extends JPanel {
             sb.append(old + "\n");
         sb.append(code);
         current = sb.toString();
-        editorPane.setText(current);
+        this.editorPane.setText(current);
     }
 }
