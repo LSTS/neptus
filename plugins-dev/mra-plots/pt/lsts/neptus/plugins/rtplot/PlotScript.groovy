@@ -211,16 +211,16 @@ class PlotScript {
         realTimePlot.getSystems().each {
             EstimatedState state = ImcMsgManager.getManager().getState(it).get("EstimatedState")
             if(state != null) {
-                LocationType ref = new LocationType(lat,lon)
-                ref.setHeight(h)
                 if(!realTimePlot.getType().equals(PlotType.GENERICXY)) {
                     realTimePlot.setType(PlotType.GENERICXY)
                 }
+                LocationType ref = new LocationType(lat,lon)
+                ref.setHeight(h)
                 def resultmap = [:]
                 LocationType loc =  new LocationType(Math.toDegrees(state.getDouble("lat")),Math.toDegrees(state.getDouble("lon"))) //lat long
                 loc.translatePosition(state.getDouble("x"), state.getDouble("y"), state.getDouble("z"))
                 def id = it+".relativeNED"
-                double[] offsets = loc.getOffsetFrom(ref)
+                double[] offsets = ref.getOffsetFrom(loc)
                 XYDataItem item = new XYDataItem(offsets[0],offsets[1])
                 resultmap.put id, item
                 addSeries(resultmap)
