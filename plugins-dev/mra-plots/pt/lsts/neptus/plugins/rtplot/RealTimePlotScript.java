@@ -84,7 +84,9 @@ public class RealTimePlotScript extends JPanel {
     private JButton save = new JButton("Save");
     private JButton store = new JButton("Store");
     private final String path = "conf/mraplots/realtime/";
+    private final JDialog dialog;
     private RealTimePlotGroovy plot = null;
+    private final String[] defaults = { "state", "roll", "pitch", "yaw" };
 
     /**
      * This class represents the editor panel used to edit the script executed periodically in the @RealTimePlotGroovy .
@@ -98,6 +100,8 @@ public class RealTimePlotScript extends JPanel {
         editorPane.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_GROOVY);
         editorPane.setCodeFoldingEnabled(true);
         plot = rtplot;
+        dialog = new JDialog(plot.getConsole());
+        dialog.setTitle("Real-time plot settings");
         // create script editor
         setLayout(new BorderLayout(3, 3));
 
@@ -106,9 +110,25 @@ public class RealTimePlotScript extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String script = editorPane.getText();
-                plot.traceScript = script;
                 plot.numPoints = Integer.parseInt(RealTimePlotScript.this.numPointsField.getText());
-                plot.periodicity = Long.parseLong(RealTimePlotScript.this.periodicityField.getText());
+                long temp = Long.parseLong(RealTimePlotScript.this.periodicityField.getText());
+                if(temp < plot.PERIODICMIN) {
+                    GuiUtils.errorMessage(RealTimePlotScript.this.dialog,"Invalid periodicity parameter value", "The periodicity must be at least 100 milliseconds.");
+                    return;
+                }
+                else
+                    plot.periodicity = temp;
+                if (!script.equals(plot.traceScript)) {
+                    try {
+                        plot.checkScript(script);
+                    }
+                    catch (Exception e1) {
+                        GuiUtils.errorMessage(RealTimePlotScript.this.dialog, "Error Parsing Current Script",
+                                e1.getLocalizedMessage());
+                        return;
+                    }
+                }
+                plot.traceScript = script;
                 plot.propertiesChanged();
             }
         });
@@ -200,7 +220,34 @@ public class RealTimePlotScript extends JPanel {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                addText("plotLatLong()", true);
+                addText("plotAbsoluteLatLong()", true);
+
+            }
+        });
+        JMenuItem ned = new JMenuItem("NED Plot");
+        ned.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                addText("plotNED()", true);
+
+            }
+        });
+        JMenuItem nedFrom = new JMenuItem("Relative NED Plot");
+        nedFrom.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                addText("double lat = Math.toDegrees(0.0)\ndouble lon = Math.toDegrees(0.0)\ndouble h= Math.toDegrees(0.0)\nplotNEDFrom(lat,lon,h)", true);
+
+            }
+        });
+        JMenuItem drawLine = new JMenuItem("Connected Plot Points");
+        drawLine.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                addText("setDrawLineForXY true", false);
 
             }
         });
@@ -215,7 +262,11 @@ public class RealTimePlotScript extends JPanel {
 
             }
         });
+        plotType1.add(drawLine);
         plotType1.add(latlong);
+        plotType1.add(ned);
+        plotType1.add(nedFrom);
+        plotType1.add(drawLine);
         plotType1.add(other);
         plotprops.removeAll();
         plotprops.add(plotType0);
@@ -228,8 +279,7 @@ public class RealTimePlotScript extends JPanel {
      * @param sysID  - The selected system(s)
      */
     public void editSettings(String sysID) {
-        final JDialog dialog = new JDialog(plot.getConsole());
-        dialog.setTitle("Real-time plot settings");
+
         fillTextFields();
         updateLocalVars(sysID);
         fillPlotOptions();
@@ -247,12 +297,8 @@ public class RealTimePlotScript extends JPanel {
                     int op = GuiUtils.confirmDialog(dialog, I18n.text("Select an Option"),
                             I18n.text("Do you wish to save changes?"));
                     if (op == JOptionPane.YES_OPTION) {
-                        String script = editorPane.getText();
-                        plot.traceScript = script;
-                        plot.numPoints = Integer.parseInt(numPointsField.getText());
-                        plot.periodicity = Long.parseLong(periodicityField.getText());
-                        plot.propertiesChanged();
-                        dialog.dispose();
+                        save.doClick();
+                        
                     }
                     else if (op == JOptionPane.NO_OPTION) {
                         dialog.dispose();
@@ -273,7 +319,6 @@ public class RealTimePlotScript extends JPanel {
     private void updateLocalVars(String id) {
         sysdata.removeAll();
         JMenu deft = new JMenu("Default");
-        String[] defaults = { "state", "roll", "pitch", "yaw" };
         createDefaultOptions(deft, defaults);
         sysdata.add(deft);
         for (ImcSystem s : ImcSystemsHolder.lookupActiveSystemVehicles())

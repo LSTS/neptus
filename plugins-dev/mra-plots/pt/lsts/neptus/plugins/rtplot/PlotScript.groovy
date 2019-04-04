@@ -65,11 +65,25 @@ class PlotScript {
     static void configPlot(RealTimePlotGroovy p) {
         realTimePlot = p
     }
+    
+    static public sum = {double1, double2 -> double1+double2}
+    
+    static public diff = { double1, double2 -> double1-double2}
+    
+    static public prod = { double1, double2 -> double1*double2}
+    
+    static public div = { double1, double2 ->
+        if(double2 != 0.0)
+            double1/double2
+        else
+            Double.NaN
+            }
 
-    static public final String newName(String dottedName, String serieName) {
+    static String newName(String dottedName, String serieName) {
         dottedName.split(/(\.)/)[0] + "." +serieName
     }
-    static public LinkedHashMap apply (LinkedHashMap map, Object function)  {
+    
+    static LinkedHashMap apply (LinkedHashMap map, Object function)  {
         def result = [:]
         map.each {
             if(it.value!=null)
@@ -78,8 +92,11 @@ class PlotScript {
         result
     }
 
-    static def value = { msgDotField ->
-        realTimePlot.getSystems().collectEntries{ [(it+"."+msgDotField): ImcMsgManager.getManager().getState(it).expr(msgDotField)]}
+    static def value = { msgDotField -> 
+        if(realTimePlot!=null && realTimePlot.getSystems() != null)
+            realTimePlot.getSystems().collectEntries{ [(it+"."+msgDotField): ImcMsgManager.getManager().getState(it).expr(msgDotField)]
+            }
+        else  [:]
     }
 
     static def state(String s){
@@ -95,12 +112,17 @@ class PlotScript {
     static def yaw() {
         apply(state("psi"),{i -> i*180/Math.PI})
     }
+    
+    static def setDrawLineForXY(boolean toDraw) {
+        realTimePlot.drawLineForXY(toDraw);
+    }
 
     static def xyseries(LinkedHashMap map1,LinkedHashMap map2,String name="serie") {
         if(!realTimePlot.getType().equals(PlotType.GENERICXY)) {
             //plot.resetSeries()
             realTimePlot.setType(PlotType.GENERICXY)
         }
+        
         def result = [:]
         def lookup
         realTimePlot.getSystems().eachWithIndex { sys, index ->
@@ -149,24 +171,61 @@ class PlotScript {
         }
     }
 
-    static def plotLatLong() {
+    static def plotAbsoluteLatLong() {
         realTimePlot.getSystems().each {
             EstimatedState state = ImcMsgManager.getManager().getState(it).get("EstimatedState")
             if(state != null) {
-                LocationType ref = new LocationType(0,0)
                 if(!realTimePlot.getType().equals(PlotType.GENERICXY)) {
                     realTimePlot.setType(PlotType.GENERICXY)
                 }
                 def resultmap = [:]
-                LocationType loc =  new LocationType(state.getDouble("lat"),state.getDouble("lon")) //lat long
+                LocationType loc =  new LocationType(Math.toDegrees(state.getDouble("lat")),Math.toDegrees(state.getDouble("lon"))) //lat long
                 loc.translatePosition(state.getDouble("x"), state.getDouble("y"), state.getDouble("z"))
+                loc.convertToAbsoluteLatLonDepth()
                 def id = it+".position"
-                double[] offsets = loc.getOffsetFrom(ref)
-                Point2D pt = new Point2D.Double(offsets[0],offsets[1])
-                XYDataItem item = new XYDataItem(pt.getX(),pt.getY())
+                XYDataItem item = new XYDataItem(loc.getLatitudeDegs(),loc.getLongitudeDegs())
                 resultmap.put id, item
                 addSeries(resultmap)
             }
         }
     }
+    
+    static def plotNED() {
+        realTimePlot.getSystems().each {
+            EstimatedState state = ImcMsgManager.getManager().getState(it).get("EstimatedState")
+            if(state != null) {
+                if(!realTimePlot.getType().equals(PlotType.GENERICXY)) {
+                    realTimePlot.setType(PlotType.GENERICXY)
+                }
+                def resultmap = [:]
+                def id = it+".NED"
+                XYDataItem item = new XYDataItem(state.getDouble("x"),state.getDouble("y"))
+                resultmap.put id, item
+                addSeries(resultmap)
+            }
+        }
+    }
+    
+    
+    static def plotNEDFrom(double lat,double lon,double h) {
+        realTimePlot.getSystems().each {
+            EstimatedState state = ImcMsgManager.getManager().getState(it).get("EstimatedState")
+            if(state != null) {
+                LocationType ref = new LocationType(lat,lon)
+                ref.setHeight(h)
+                if(!realTimePlot.getType().equals(PlotType.GENERICXY)) {
+                    realTimePlot.setType(PlotType.GENERICXY)
+                }
+                def resultmap = [:]
+                LocationType loc =  new LocationType(Math.toDegrees(state.getDouble("lat")),Math.toDegrees(state.getDouble("lon"))) //lat long
+                loc.translatePosition(state.getDouble("x"), state.getDouble("y"), state.getDouble("z"))
+                def id = it+".relativeNED"
+                double[] offsets = loc.getOffsetFrom(ref)
+                XYDataItem item = new XYDataItem(offsets[0],offsets[1])
+                resultmap.put id, item
+                addSeries(resultmap)
+            }
+        }
+    }
+    
 }
