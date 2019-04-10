@@ -135,7 +135,9 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
 
     @Override
     public String getName() {
-        return log.name();
+        StringBuilder sb = new StringBuilder(log.name());
+        sb.append(" Messages");
+        return sb.toString();
     }
 
     private void applyFilter(ArrayList<String> msgsToFilter, int initTS, int finalTS) {
