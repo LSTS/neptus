@@ -42,8 +42,10 @@ import javax.swing.*;
 import pt.lsts.imc.AcousticOperation;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.PlanControl;
 import pt.lsts.imc.sender.MessageEditor;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
@@ -55,9 +57,11 @@ import pt.lsts.neptus.plugins.*;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
+import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.util.ConsoleParse;
 import pt.lsts.neptus.util.GuiUtils;
@@ -126,7 +130,7 @@ public class AcousticOperations extends ConsolePanel implements ConfigurationLis
 
         add(getSelectionPanel(), BorderLayout.NORTH);
         add(getControlPanel(),BorderLayout.CENTER);
-        add(getInfoArea(),BorderLayout.SOUTH);
+        add(new JScrollPane(getInfoArea()),BorderLayout.SOUTH);
 
         updateButtons();
     }
@@ -134,10 +138,10 @@ public class AcousticOperations extends ConsolePanel implements ConfigurationLis
     //SUB PANELS
     private JPanel getSelectionPanel() {
         final JPanel selectionPanel = new JPanel();
-        selectionPanel.setLayout(new GridLayout(0, 2, 2, 2));
-        //selectionPanel.add(new JLabel(I18n.text("Gateway:")));
+        selectionPanel.setLayout(new GridLayout(2, 2, 2, 2));
+        selectionPanel.add(new JLabel(I18n.text("Gateway:")));
+        selectionPanel.add(new JLabel(I18n.text("Target:")));
         selectionPanel.add(getGatewaysSelect());
-        //selectionPanel.add(new JLabel(I18n.text("Target:")));
         selectionPanel.add(getTargetSelect());
 
         return selectionPanel;
@@ -155,7 +159,9 @@ public class AcousticOperations extends ConsolePanel implements ConfigurationLis
     }
     private JTextArea getInfoArea() {
         final JTextArea infoArea = new JTextArea();
-        infoArea.setRows(3);
+        infoArea.setEditable(false);
+        infoArea.setBackground(Color.white);
+        infoArea.setRows(6);
         return infoArea;
     }
 
@@ -305,9 +311,19 @@ public class AcousticOperations extends ConsolePanel implements ConfigurationLis
         abortButton.setBackground(Color.red);
         abortButton.setActionCommand("abort");
         cmdButtons.put("abort", abortButton);
+        JPanel context = this;
         abortButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
+                int dialogResult = JOptionPane.showConfirmDialog(
+                        context,
+                        I18n.text("Are you sure you want to abort the current plan"),
+                        I18n.text("Abort Plan"),
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.WARNING_MESSAGE);
+                if(dialogResult != JOptionPane.YES_OPTION){
+                    return;
+                }
                 ImcSystem[] sysLst;
 
                 if (selectedGateway.equals(I18n.text("Any"))) {
@@ -350,13 +366,38 @@ public class AcousticOperations extends ConsolePanel implements ConfigurationLis
         return abortButton;
     }
     private JButton getStartPlanButton() {
-        final JButton startPlanButton = new JButton(I18n.text("Start Plan"));
+        final JButton startPlanButton = new JButton(I18n.text("Start/Resume Plan"));
         startPlanButton.setActionCommand("start");
         cmdButtons.put("start", startPlanButton);
         startPlanButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
-                System.out.println("Start Pressed");
+                SendPlanDialog dialog = SendPlanDialog.sendPlan(getConsole());
+
+                if (dialog == null)
+                    return;
+
+                PlanControl pc = new PlanControl();
+                pc.setType(PlanControl.TYPE.REQUEST);
+                pc.setOp(PlanControl.OP.START);
+                pc.setPlanId(dialog.planId);
+                if (dialog.sendDefinition) {
+                    try {
+                        PlanType pt = getConsole().getMission().getIndividualPlansList().get(dialog.planId);
+                        pc.setArg(pt.asIMCPlan(false));
+                    }
+                    catch (Exception e) {
+                        NeptusLog.pub().error("Error retriveing plan from mission", e);
+                        return;
+                    }
+                }
+
+                boolean ret = IMCSendMessageUtils.sendMessageByAcousticModem(pc, dialog.selectedVehicle, true, gatewaysLookup());
+
+                if (!ret) {
+                    String errorTextForDialog = I18n.textf("Error sending message to %sys.", dialog.selectedVehicle);
+                    post(Notification.error(I18n.text("Send Message"), errorTextForDialog).src(I18n.text("Console")));
+                }
             }
         });
         return startPlanButton;
@@ -394,15 +435,9 @@ public class AcousticOperations extends ConsolePanel implements ConfigurationLis
         }
     }
     private void updateButtons() {
-        if (selectedGateway == null)
+        if (selectedGateway == null || selectedTarget == null)
             for (String key : cmdButtons.keySet())
                 cmdButtons.get(key).setEnabled(false);
-        else if(selectedTarget == null) {
-            cmdButtons.get("range").setEnabled(true);
-            cmdButtons.get("abort").setEnabled(false);
-            cmdButtons.get("message").setEnabled(false);
-            cmdButtons.get("start").setEnabled(false);
-        }
         else {
             for (String key : cmdButtons.keySet())
                 cmdButtons.get(key).setEnabled(true);
@@ -425,6 +460,12 @@ public class AcousticOperations extends ConsolePanel implements ConfigurationLis
         return sysLst;
     }
 
+    @Periodic(millisBetweenUpdates = 1000000000)
+    public void updateGateways(){
+        ImcSystem[] sysList;
+        sysList = ImcSystemsHolder.lookupSystemByService("acoustic/operation", VehicleType.SystemTypeEnum.ALL, true);
+        System.out.println("Arrays.toString(sysList) = " + Arrays.toString(sysList));
+    }
 
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
