@@ -40,9 +40,9 @@ import java.awt.event.KeyEvent;
 import java.util.*;
 import javax.swing.*;
 import pt.lsts.imc.AcousticOperation;
+import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.sender.MessageEditor;
-import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
@@ -97,7 +97,7 @@ public class AcousticOperations extends ConsolePanel implements ConfigurationLis
 
     //PANEL INFORMATION
     private LinkedHashMap<String, JButton> cmdButtons = new LinkedHashMap<>();
-    private JTextArea infoPanel = null;
+    private JTextArea infoArea = null;
 
 
     protected boolean initialized = false;
@@ -123,9 +123,6 @@ public class AcousticOperations extends ConsolePanel implements ConfigurationLis
 
         setLayout(new BorderLayout());
 
-        /*JSplitPane split1 = new JSplitPane(JSplitPane.VERTICAL_SPLIT, getSelectionPanel(), getControlPanel());
-        split1.setDividerLocation(40);
-        add(split1);*/
         add(getSelectionPanel(), BorderLayout.NORTH);
         add(getControlPanel(),BorderLayout.CENTER);
         add(getInfoArea(),BorderLayout.SOUTH);
@@ -242,7 +239,43 @@ public class AcousticOperations extends ConsolePanel implements ConfigurationLis
         abortButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
-                System.out.println("Abort Pressed");
+                ImcSystem[] sysLst;
+
+                if (selectedGateway.equals(I18n.text("any"))) {
+                    sysLst = ImcSystemsHolder.lookupSystemByService("acoustic/operation", VehicleType.SystemTypeEnum.ALL, true);
+                }
+                else {
+                    ImcSystem sys = ImcSystemsHolder.lookupSystemByName(selectedGateway);
+                    if (sys != null)
+                        sysLst = new ImcSystem[] { sys };
+                    else
+                        sysLst = new ImcSystem[] {};
+                }
+
+                if (sysLst.length == 0) {
+                    post(Notification
+                            .error(I18n.text("Abort"),
+                                    I18n.text("No acoustic device is capable of sending this request"))
+                            .src(I18n.text("Console")));
+                }
+
+                IMCMessage m = IMCDefinition.getInstance().create("AcousticOperation", "op", "ABORT", "system",
+                        selectedTarget);
+
+                int successCount = 0;
+                for (ImcSystem sys : sysLst)
+                    if (ImcMsgManager.getManager().sendMessage(m.cloneMessage(), sys.getId(), null))
+                        successCount++;
+
+                if (successCount > 0) {
+                    infoArea.setText(I18n.textf("Abort %systemName commanded to %systemCount systems", selectedGateway,
+                            successCount));
+                }
+                else {
+                    post(Notification.error(I18n.text("Abort"), I18n.text("Unable to abort selected system"))
+                            .src(I18n.text("Console")));
+                }
+
             }
         });
         return abortButton;
@@ -279,7 +312,7 @@ public class AcousticOperations extends ConsolePanel implements ConfigurationLis
                 successCount++;
 
         if (successCount > 0) {
-            infoPanel.setText(I18n.textf(
+            infoArea.setText(I18n.textf(
                     "Request to send message to %systemName via %systemCount acoustic gateways", destination,
                     successCount));
             return true;
