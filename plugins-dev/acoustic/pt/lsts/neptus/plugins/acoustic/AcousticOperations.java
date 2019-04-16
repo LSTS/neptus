@@ -43,6 +43,7 @@ import pt.lsts.imc.AcousticOperation;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.sender.MessageEditor;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
@@ -198,7 +199,75 @@ public class AcousticOperations extends ConsolePanel implements ConfigurationLis
         rangeBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
-                System.out.println("Range pressed");
+                ImcSystem[] sysLst;
+
+                if (selectedGateway.equals(I18n.text("Any")))
+                    sysLst = ImcSystemsHolder.lookupSystemByService("acoustic/operation", VehicleType.SystemTypeEnum.ALL, true);
+                else {
+                    ImcSystem sys = ImcSystemsHolder.lookupSystemByName(selectedGateway);
+                    if (sys != null)
+                        sysLst = new ImcSystem[] { sys };
+                    else
+                        sysLst = new ImcSystem[] {};
+                }
+
+                if (sysLst.length == 0) {
+                    post(Notification
+                            .error(I18n.text("Range System"),
+                                    I18n.text("No acoustic device is capable of sending this request"))
+                            .src(I18n.text("Console")));
+                }
+
+                if (selectedTarget == null) {
+                    infoArea.setText(I18n.text("Please select a system."));
+                }
+                else {
+                    IMCMessage m = IMCDefinition.getInstance().create("AcousticOperation", "op", "RANGE", "system",
+                            selectedTarget);
+
+                    cmdButtons.get("range").setEnabled(false);
+                    SwingWorker<Integer, Void> sWorker = new SwingWorker<Integer, Void>() {
+                        @Override
+                        protected Integer doInBackground() throws Exception {
+                            int successCount = 0;
+                            for (ImcSystem sys : sysLst) {
+                                if (ImcMsgManager.getManager().sendMessage(m.cloneMessage(), sys.getId(), null))
+                                    successCount++;
+                                if (separateRangingForAnyGateway && sysLst.length > 1) {
+                                    try {
+                                        Thread.sleep(separateRangingForAnyGatewaySeconds * 1000);
+                                    }
+                                    catch (Exception e) {
+                                        NeptusLog.pub().warn(e);
+                                    }
+                                }
+                            }
+                            return successCount;
+                        }
+                        @Override
+                        protected void done() {
+                            int successCount = 0;
+                            try {
+                                successCount = get();
+                            }
+                            catch (Exception e) {
+                                NeptusLog.pub().error(e);
+                            }
+
+                            if (successCount > 0) {
+                                infoArea.setText(I18n.textf("Range %systemName commanded to %systemCount systems",
+                                        selectedTarget, successCount));
+                            }
+                            else {
+                                post(Notification.error(I18n.text("Range System"), I18n.text("Unable to range selected system"))
+                                        .src(I18n.text("Console")));
+                            }
+
+                            cmdButtons.get("range").setEnabled(true);
+                        }
+                    };
+                    sWorker.execute();
+                }
             }
         });
         return rangeBtn;
@@ -241,7 +310,7 @@ public class AcousticOperations extends ConsolePanel implements ConfigurationLis
             public void actionPerformed(ActionEvent event) {
                 ImcSystem[] sysLst;
 
-                if (selectedGateway.equals(I18n.text("any"))) {
+                if (selectedGateway.equals(I18n.text("Any"))) {
                     sysLst = ImcSystemsHolder.lookupSystemByService("acoustic/operation", VehicleType.SystemTypeEnum.ALL, true);
                 }
                 else {
