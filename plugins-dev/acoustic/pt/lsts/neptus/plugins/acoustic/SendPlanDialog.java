@@ -35,6 +35,7 @@ package pt.lsts.neptus.plugins.acoustic;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 
+import java.util.Arrays;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -43,7 +44,9 @@ import javax.swing.JPanel;
 
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.types.mission.MissionType;
+import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.GuiUtils;
 
@@ -56,15 +59,22 @@ public class SendPlanDialog extends JPanel {
     private static final long serialVersionUID = 1L;
     public String selectedVehicle;
     public String planId;
-    public boolean sendDefinition = false, ignoreErrors = false, skipCalibration = true;
+    public String startingManeuver;
+    public boolean sendDefinition = false, isResume = false, ignoreErrors = false, skipCalibration = true;
+    private ConsoleLayout console;
 
     private JComboBox<String> vehiclesCombo;
     private JComboBox<String> plansCombo;
+    private JComboBox<String> maneuversCombo;
     private JCheckBox sendDefsCheck, ignoreErrorsCheck, skipCalibrationCheck;
 
     public SendPlanDialog(ConsoleLayout console) {
+        this.console = console;
         vehiclesCombo = new JComboBox<>(VehiclesHolder.getVehiclesArray());
         plansCombo = new JComboBox<>(console.getMission().getIndividualPlansList().keySet().toArray(new String[0]));
+        plansCombo.setSelectedIndex(0);
+        plansCombo.repaint();
+        maneuversCombo = new JComboBox<>(getPlanManeuvers(console));
         sendDefsCheck = new JCheckBox(I18n.text("Send plan definition"));
         sendDefsCheck
                 .setToolTipText(I18n.text("Include the current plan definition from this console (larger message)"));
@@ -76,8 +86,12 @@ public class SendPlanDialog extends JPanel {
         skipCalibrationCheck = new JCheckBox(I18n.text("Skip calibration"));
         skipCalibrationCheck
                 .setToolTipText(I18n.text("Do not perform calibration before starting the plan"));
-        
-        
+
+
+        sendDefsCheck.addActionListener(this::sendDefsSelected);
+        vehiclesCombo.addActionListener(this::vehicleSelected);
+        plansCombo.addActionListener(this::planSelected);
+        maneuversCombo.addActionListener(this::maneuverSelected);
 
         try {
             selectedVehicle = console.getMainSystem();
@@ -92,10 +106,6 @@ public class SendPlanDialog extends JPanel {
             planId = console.getPlan().getId();
         }
 
-        sendDefsCheck.addActionListener(this::sendDefsSelected);
-        vehiclesCombo.addActionListener(this::vehicleSelected);
-        plansCombo.addActionListener(this::planSelected);
-
         initLayout();
     }
 
@@ -106,6 +116,10 @@ public class SendPlanDialog extends JPanel {
 
         add(new JLabel(I18n.text("Plan to execute")));
         add(plansCombo);
+
+        add(new JLabel(I18n.text("Plan to start at")));
+        add(maneuversCombo);
+
         add(sendDefsCheck);
         add(ignoreErrorsCheck);
         add(skipCalibrationCheck);
@@ -116,11 +130,52 @@ public class SendPlanDialog extends JPanel {
     }
 
     private void planSelected(ActionEvent evt) {
-        planId = plansCombo.getSelectedItem().toString();
+        String selectedPlan = plansCombo.getSelectedItem().toString();
+        planId = selectedPlan;
+        maneuversCombo.removeActionListener(this::maneuverSelected);
+        maneuversCombo.removeAllItems();
+        for (String maneuver : getPlanManeuvers(console)) {
+            maneuversCombo.addItem(maneuver);
+        }
+        maneuversCombo.addActionListener(this::maneuverSelected);
+        maneuversCombo.setSelectedIndex(0);
+    }
+
+    private void maneuverSelected(ActionEvent actionEvent) {
+        if (maneuversCombo.getSelectedItem() != null){
+            startingManeuver = maneuversCombo.getSelectedItem().toString();
+        }
+        else {
+            startingManeuver = null;
+        }
+        if(maneuversCombo.getSelectedIndex() != 0){
+            sendDefsCheck.setEnabled(false);
+            ignoreErrorsCheck.setEnabled(false);
+            skipCalibrationCheck.setEnabled(false);
+            isResume = true;
+        }
+        else {
+            sendDefsCheck.setEnabled(true);
+            ignoreErrorsCheck.setEnabled(true);
+            skipCalibrationCheck.setEnabled(true);
+            isResume = false;
+        }
     }
 
     private void sendDefsSelected(ActionEvent evt) {
         sendDefinition = sendDefsCheck.isSelected();
+    }
+
+    private String[] getPlanManeuvers(ConsoleLayout console) {
+        String planName = (String)plansCombo.getSelectedItem();
+        if(planName != null){
+            PlanType planType = console.getMission().getIndividualPlansList().get(planName);
+            if(planType != null){
+                Maneuver[] maneuvers = planType.getGraph().getAllManeuvers();
+                return Arrays.stream(maneuvers).map(Maneuver::getId).toArray(String[]::new);
+            }
+        }
+        return new String[0];
     }
 
     public static SendPlanDialog sendPlan(ConsoleLayout console) {

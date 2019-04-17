@@ -38,17 +38,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.util.*;
+import java.util.List;
 import javax.swing.*;
-import pt.lsts.imc.AcousticOperation;
-import pt.lsts.imc.IMCDefinition;
-import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.PlanControl;
+import pt.lsts.imc.*;
 import pt.lsts.imc.sender.MessageEditor;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.neptus.comm.manager.imc.MessageDeliveryListener;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.notifications.Notification;
@@ -61,10 +60,12 @@ import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.txtmsg.SendTxtMessage;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.util.ConsoleParse;
 import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**
  * @author zp
@@ -94,7 +95,7 @@ public class AcousticOperations extends ConsolePanel implements ConfigurationLis
             description = "Time in seconds")
     private short separateRangingForAnyGatewaySeconds = 2;
 
-
+    private final String TXT_PREFIX = "TXT";
     protected MessageEditor editor = new MessageEditor();
 
     private String selectedGateway = null;
@@ -377,22 +378,30 @@ public class AcousticOperations extends ConsolePanel implements ConfigurationLis
                 if (dialog == null)
                     return;
 
-                PlanControl pc = new PlanControl();
-                pc.setType(PlanControl.TYPE.REQUEST);
-                pc.setOp(PlanControl.OP.START);
-                pc.setPlanId(dialog.planId);
-                if (dialog.sendDefinition) {
-                    try {
-                        PlanType pt = getConsole().getMission().getIndividualPlansList().get(dialog.planId);
-                        pc.setArg(pt.asIMCPlan(false));
-                    }
-                    catch (Exception e) {
-                        NeptusLog.pub().error("Error retriveing plan from mission", e);
-                        return;
-                    }
-                }
+                boolean ret;
 
-                boolean ret = IMCSendMessageUtils.sendMessageByAcousticModem(pc, dialog.selectedVehicle, true, gatewaysLookup());
+                dialog.selectedVehicle = getConsole().getMainSystem();
+                if (dialog.isResume) {
+                    ret = sendPlanResumeMessage(dialog.planId, dialog.startingManeuver);
+                }
+                else {
+                    PlanControl pc = new PlanControl();
+                    pc.setType(PlanControl.TYPE.REQUEST);
+                    pc.setOp(PlanControl.OP.START);
+                    pc.setPlanId(dialog.planId);
+                    if (dialog.sendDefinition) {
+                        try {
+                            PlanType pt = getConsole().getMission().getIndividualPlansList().get(dialog.planId);
+                            pc.setArg(pt.asIMCPlan(false));
+                        }
+                        catch (Exception e) {
+                            NeptusLog.pub().error("Error retriveing plan from mission", e);
+                            return;
+                        }
+                    }
+
+                    ret = IMCSendMessageUtils.sendMessageByAcousticModem(pc, dialog.selectedVehicle, true, gatewaysLookup());
+                }
 
                 if (!ret) {
                     String errorTextForDialog = I18n.textf("Error sending message to %sys.", dialog.selectedVehicle);
@@ -458,6 +467,14 @@ public class AcousticOperations extends ConsolePanel implements ConfigurationLis
                 sysLst = new ImcSystem[] {};
         }
         return sysLst;
+    }
+    private boolean sendPlanResumeMessage(String planId, String maneuverId){
+        TextMessage msgTxt = new TextMessage();
+        String msgStr = "resume " + planId.trim() + " " + maneuverId.trim();
+        msgTxt.setOrigin(GeneralPreferences.imcCcuName.toLowerCase());
+        msgTxt.setText(msgStr);
+
+        return IMCSendMessageUtils.sendMessageByAcousticModem(msgTxt, selectedTarget, true, gatewaysLookup());
     }
 
     @Periodic(millisBetweenUpdates = 1000000000)
