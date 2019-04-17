@@ -32,11 +32,14 @@
  */
 package pt.lsts.neptus.plugins.acoustic;
 
+import com.google.common.eventbus.Subscribe;
 import java.awt.*;
 import java.awt.Dialog.ModalityType;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Point2D;
 import java.util.*;
 import java.util.List;
 import javax.swing.*;
@@ -52,6 +55,7 @@ import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mystate.MyState;
 import pt.lsts.neptus.plugins.*;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.Popup;
@@ -61,6 +65,7 @@ import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.txtmsg.SendTxtMessage;
+import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.util.ConsoleParse;
@@ -73,7 +78,7 @@ import pt.lsts.neptus.util.conf.GeneralPreferences;
  */
 @PluginDescription(name = "New Acoustic Operations", author = "ZP", icon = "pt/lsts/neptus/plugins/acoustic/manta.png")
 @LayerPriority(priority = 40)
-@Popup(name = "New Acoustic Operations", accelerator = KeyEvent.VK_M, width = 600, height = 400, pos = POSITION.CENTER, icon = "pt/lsts/neptus/plugins/acoustic/manta.png")
+@Popup(name = "New Acoustic Operations", accelerator = KeyEvent.VK_M, width = 650, height = 600, pos = POSITION.CENTER, icon = "pt/lsts/neptus/plugins/acoustic/manta.png")
 public class AcousticOperations extends ConsolePanel implements ConfigurationListener, Renderer2DPainter {
 
     private static final long serialVersionUID = 1L;
@@ -95,15 +100,20 @@ public class AcousticOperations extends ConsolePanel implements ConfigurationLis
             description = "Time in seconds")
     private short separateRangingForAnyGatewaySeconds = 2;
 
-    private final String TXT_PREFIX = "TXT";
-    protected MessageEditor editor = new MessageEditor();
-
+    //SYSTEMS INFO
+    private Vector<LocationType> rangeSources = new Vector<>();
+    private Vector<Double> rangeDistances = new Vector<>();
+    private HashSet<String> knownSystems = new HashSet<>();
     private String selectedGateway = null;
     private String selectedTarget = null;
 
-    //PANEL INFORMATION
+    //PANELS
     private LinkedHashMap<String, JButton> cmdButtons = new LinkedHashMap<>();
+    private JComboBox<String> gatewaysCombo;
+    private JComboBox<String> targetsCombo;
     private JTextArea infoArea = null;
+
+    protected MessageEditor editor = new MessageEditor();
 
 
     protected boolean initialized = false;
@@ -117,6 +127,26 @@ public class AcousticOperations extends ConsolePanel implements ConfigurationLis
 
     @Override
     public void propertiesChanged() {
+        for (String s : sysListing.split(",")) {
+            if (!s.isEmpty() && !s.endsWith(" list"))
+                knownSystems.add(s.trim());
+        }
+
+        if(gatewaysCombo == null || targetsCombo == null){
+            return;
+        }
+
+        ArrayList<String> systems = new ArrayList<>(knownSystems);
+        Collections.sort(systems);
+
+        for (String s : systems) {
+            gatewaysCombo.addItem(s);
+            System.out.println("selectedTargetBefore = " + selectedTarget);
+            targetsCombo.addItem(s);
+            System.out.println("selectedTargetAfter = " + selectedTarget);
+        }
+
+
     }
 
     @Override
@@ -154,6 +184,7 @@ public class AcousticOperations extends ConsolePanel implements ConfigurationLis
         ctrlPanel.add(getRangeButton());
         ctrlPanel.add(getMessageButton());
         ctrlPanel.add(getStartPlanButton());
+        ctrlPanel.add(getCtrlsBottomRow());
         ctrlPanel.add(getAbortButton());
 
         return ctrlPanel;
@@ -168,6 +199,8 @@ public class AcousticOperations extends ConsolePanel implements ConfigurationLis
 
     //SELECTION BOXES
     private JComboBox<String> getGatewaysSelect(){
+        if(gatewaysCombo != null)
+            return gatewaysCombo;
         final JComboBox<String> gatewaySelect = new JComboBox<>(sysListing.split(","));
         gatewaySelect.insertItemAt("Any",0);
         gatewaySelect.setEditable(true);
@@ -180,9 +213,12 @@ public class AcousticOperations extends ConsolePanel implements ConfigurationLis
                 updateButtons();
             }
         });
+        gatewaysCombo = gatewaySelect;
         return gatewaySelect;
     }
     private JComboBox<String> getTargetSelect(){
+        if(targetsCombo != null)
+            return targetsCombo;
         final JComboBox<String> targetSelect = new JComboBox<>();
         targetSelect.addItem("Test Target");
         targetSelect.setEditable(true);
@@ -195,6 +231,7 @@ public class AcousticOperations extends ConsolePanel implements ConfigurationLis
                 updateButtons();
             }
         });
+        targetsCombo = targetSelect;
         return targetSelect;
     }
 
@@ -226,7 +263,7 @@ public class AcousticOperations extends ConsolePanel implements ConfigurationLis
                 }
 
                 if (selectedTarget == null) {
-                    infoArea.setText(I18n.text("Please select a system."));
+                    addText(I18n.text("Please select a system."));
                 }
                 else {
                     IMCMessage m = IMCDefinition.getInstance().create("AcousticOperation", "op", "RANGE", "system",
@@ -262,7 +299,7 @@ public class AcousticOperations extends ConsolePanel implements ConfigurationLis
                             }
 
                             if (successCount > 0) {
-                                infoArea.setText(I18n.textf("Range %systemName commanded to %systemCount systems",
+                                addText(I18n.textf("Range %systemName commanded to %systemCount systems",
                                         selectedTarget, successCount));
                             }
                             else {
@@ -354,7 +391,7 @@ public class AcousticOperations extends ConsolePanel implements ConfigurationLis
                         successCount++;
 
                 if (successCount > 0) {
-                    infoArea.setText(I18n.textf("Abort %systemName commanded to %systemCount systems", selectedGateway,
+                    addText(I18n.textf("Abort %systemName commanded to %systemCount systems", selectedGateway,
                             successCount));
                 }
                 else {
@@ -411,6 +448,40 @@ public class AcousticOperations extends ConsolePanel implements ConfigurationLis
         });
         return startPlanButton;
     }
+    private JPanel getCtrlsBottomRow(){
+        final JPanel row = new JPanel();
+        row.setLayout(new GridLayout(0, 2, 2, 2));
+
+        row.add(getRefreshStateButton());
+        row.add(getClearRangesButton());
+
+        return row;
+    }
+    private JButton getClearRangesButton() {
+        final JButton clearRangesButton = new JButton(I18n.text("Clear Ranges"));
+        clearRangesButton.setActionCommand("clear");
+        cmdButtons.put("clear", clearRangesButton);
+        clearRangesButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                rangeDistances.clear();
+                rangeSources.clear();
+            }
+        });
+        return clearRangesButton;
+    }
+    private JButton getRefreshStateButton() {
+        final JButton refreshStateButton = new JButton(I18n.text("Refresh Systems"));
+        refreshStateButton.setActionCommand("refresh");
+        cmdButtons.put("refresh", refreshStateButton);
+        refreshStateButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                requestSysListing();
+            }
+        });
+        return refreshStateButton;
+    }
 
     //UTILITIES
     private boolean sendAcoustically(String destination, IMCMessage msg) {
@@ -431,7 +502,7 @@ public class AcousticOperations extends ConsolePanel implements ConfigurationLis
                 successCount++;
 
         if (successCount > 0) {
-            infoArea.setText(I18n.textf(
+            addText(I18n.textf(
                     "Request to send message to %systemName via %systemCount acoustic gateways", destination,
                     successCount));
             return true;
@@ -476,18 +547,110 @@ public class AcousticOperations extends ConsolePanel implements ConfigurationLis
 
         return IMCSendMessageUtils.sendMessageByAcousticModem(msgTxt, selectedTarget, true, gatewaysLookup());
     }
+    public void addText(String text) {
+        infoArea.setText(infoArea.getText() + " \n" + text);
+        infoArea.scrollRectToVisible(new Rectangle(0, infoArea.getHeight() + 22, 1, 1));
+    }
 
-    @Periodic(millisBetweenUpdates = 1000000000)
-    public void updateGateways(){
-        ImcSystem[] sysList;
-        sysList = ImcSystemsHolder.lookupSystemByService("acoustic/operation", VehicleType.SystemTypeEnum.ALL, true);
-        System.out.println("Arrays.toString(sysList) = " + Arrays.toString(sysList));
+    @Subscribe
+    public void on(AcousticOperation msg) {
+        switch (msg.getOp()) {
+            case RANGE_RECVED:
+                LocationType loc = new LocationType(MyState.getLocation());
+                if (ImcSystemsHolder.getSystemWithName(msg.getSourceName()) != null)
+                    loc = ImcSystemsHolder.getSystemWithName(msg.getSourceName()).getLocation();
+
+                rangeDistances.add(msg.getRange());
+                rangeSources.add(loc);
+
+                addText(I18n.textf("Distance to %systemName is %distance", msg.getSystem().toString(),
+                        GuiUtils.getNeptusDecimalFormat(1).format(msg.getRange())));
+                break;
+            case ABORT_ACKED:
+                addText(I18n.textf("%systemName has acknowledged abort command", msg.getSystem().toString()));
+                break;
+            case BUSY:
+                addText(I18n.textf("%manta is busy. Try again in a few moments", msg.getSourceName()));
+                break;
+            case NO_TXD:
+                addText(I18n.textf("%manta has no acoustic transducer connected. Connect a transducer.",
+                        msg.getSourceName()));
+                break;
+            case ABORT_IP:
+                addText(I18n.textf("Aborting %systemName acoustically (via %manta)...", msg.getSystem().toString(),
+                        msg.getSourceName()));
+                break;
+            case ABORT_TIMEOUT:
+                addText(I18n.textf("%manta timed out while trying to abort %systemName", msg.getSourceName(),
+                        msg.getSystem().toString()));
+                break;
+            case MSG_DONE:
+                addText(I18n.textf("Message to %systemName has been sent successfully.", msg.getSystem().toString()));
+                break;
+            case MSG_FAILURE:
+                addText(I18n.textf("Failed to send message to %systemName.", msg.getSystem().toString()));
+                break;
+            case MSG_IP:
+                addText(I18n.textf("Sending message to %systemName...", msg.getSystem().toString()));
+                break;
+            case MSG_QUEUED:
+                addText(I18n.textf("Message to %systemName has been queued in %manta.", msg.getSystem().toString(),
+                        msg.getSourceName()));
+                break;
+            case RANGE_IP:
+                addText(I18n.textf("Ranging of %systemName is in progress...", msg.getSystem().toString()));
+                break;
+            case RANGE_TIMEOUT:
+                addText(I18n.textf("Ranging of %systemName timed out.", msg.getSystem().toString()));
+                break;
+            case UNSUPPORTED:
+                addText(I18n.textf("The command is not supported by %manta.", msg.getSourceName()));
+                break;
+            default:
+                addText(I18n.textf("[%manta]: %status", msg.getSourceName(), msg.getOp().toString()));
+                break;
+        }
+    }
+
+    @Subscribe
+    public void on(AcousticSystems systems) {
+        String acSystems = systems.getString("list", false);
+        boolean newSystem = false;
+        System.out.println("acSystems = " + acSystems);
+        for (String s : acSystems.split(","))
+            newSystem |= knownSystems.add(s);
+
+        if (newSystem)
+            propertiesChanged();
+    }
+
+    @Periodic(millisBetweenUpdates = 300000)
+    private void requestSysListing() {
+        System.out.println("::::::::REQUESTING SYSTEMS:::::::::");
+        if (sysDiscovery) {
+            AcousticSystemsQuery asq = new AcousticSystemsQuery();
+            for (ImcSystem s : gatewaysLookup())
+                send(s.getName(), asq);
+        }
     }
 
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         if (!showRanges)
             return;
+
+        for (int i = 0; i < rangeSources.size(); i++) {
+            double radius = rangeDistances.get(i) * renderer.getZoom();
+            Point2D pt = renderer.getScreenPosition(rangeSources.get(i));
+
+            if (i < rangeSources.size() - 1)
+                g.setColor(new Color(255, 128, 0, 128));
+            else
+                g.setColor(new Color(255, 128, 0, 255));
+
+            g.setStroke(new BasicStroke(2f));
+            g.draw(new Ellipse2D.Double(pt.getX() - radius, pt.getY() - radius, radius * 2, radius * 2));
+        }
     }
 
     /*
