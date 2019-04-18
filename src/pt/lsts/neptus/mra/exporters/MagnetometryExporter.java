@@ -79,36 +79,40 @@ public class MagnetometryExporter implements MRAExporter {
         
         File dir = new File(source.getFile("mra"), "magnetometer");
         dir.mkdirs();
-        File file1 = new File(dir, "MagneticField.csv");
-        File file2 = new File(dir, "TotalMagneticIntensity.csv");
+        File file1 = new File(dir, "TotalMagneticIntensity.csv");
+        File file2 = new File(dir, "MagneticField.csv");
         
         CorrectedPosition pos = new CorrectedPosition(source);
         
         try {
             BufferedWriter tmi = new BufferedWriter(new FileWriter(file1));
             tmi.write("time (unix), time (utc), type, latitude, longitude, depth, altitude, tmi\n");
-            
+
             for (TotalMagIntensity msg : index.getIterator(TotalMagIntensity.class)) {
                 SystemPositionAndAttitude loc = pos.getPosition(msg.getTimestamp());
-                
-                String line = String.format("%.03f, %s, %30s, %.07f, %.07f, %.02f, %.02f, %.07f\n", msg.getTimestamp(), sdf.format(msg.getDate()), 
-                        msg.getEntityName(), loc.getPosition().getLatitudeDegs(), loc.getPosition().getLongitudeDegs(),
-                        loc.getDepth(), loc.getAltitude(), msg.getValue());
-                
+
+                String line = String.format("%.03f, %s, %30s, %.07f, %.07f, %.02f, %.02f, %.03f\n", msg.getTimestamp(),
+                        sdf.format(msg.getDate()), msg.getEntityName(), loc.getPosition().getLatitudeDegs(),
+                        loc.getPosition().getLongitudeDegs(), loc.getDepth(), loc.getAltitude(), msg.getValue()*100_000);
+
                 tmi.write(line);
             }
             tmi.close();
-            
+
             BufferedWriter mf = new BufferedWriter(new FileWriter(file2));
-            mf.write("time (unix), time (utc), type, latitude, longitude, depth, altitude, x, y, z\n");
-            
+            mf.write(
+                    "time (unix), time (utc), type, latitude, longitude, depth, altitude, roll, pitch, yaw, x, y, z\n");
+
             for (MagneticField msg : index.getIterator(MagneticField.class)) {
                 SystemPositionAndAttitude loc = pos.getPosition(msg.getTimestamp());
-                
-                String line = String.format("%.03f, %s, %30s, %.07f, %.07f, %.02f, %.02f, %.07f, %.07f, %.07f\n", msg.getTime(), sdf.format(msg.getDate()), 
-                        msg.getEntityName(), loc.getPosition().getLatitudeDegs(), loc.getPosition().getLongitudeDegs(),
-                        loc.getDepth(), loc.getAltitude(), msg.getX(), msg.getY(), msg.getZ());
-                
+
+                String line = String.format(
+                        "%.03f, %s, %30s, %.07f, %.07f, %.02f, %.02f, %.02f, %.02f, %.02f, %.03f, %.03f, %.03f\n",
+                        msg.getTimestamp(), sdf.format(msg.getDate()), msg.getEntityName(),
+                        loc.getPosition().getLatitudeDegs(), loc.getPosition().getLongitudeDegs(), loc.getDepth(),
+                        loc.getAltitude(), Math.toDegrees(loc.getRoll()), Math.toDegrees(loc.getPitch()),
+                        Math.toDegrees(loc.getYaw()), msg.getX()*100_000, msg.getY()*100_000, msg.getZ()*100_000);
+
                 mf.write(line);
             }
             
