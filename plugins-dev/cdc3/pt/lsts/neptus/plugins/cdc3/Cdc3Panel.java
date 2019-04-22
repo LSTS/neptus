@@ -40,6 +40,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -56,6 +57,9 @@ import org.apache.commons.lang3.tuple.Pair;
 import com.google.common.eventbus.Subscribe;
 
 import net.miginfocom.swing.MigLayout;
+import pt.lsts.imc.Abort;
+import pt.lsts.imc.PlanControl;
+import pt.lsts.imc.PlanSpecification;
 import pt.lsts.imc.TransmissionRequest;
 import pt.lsts.imc.TransmissionRequest.COMM_MEAN;
 import pt.lsts.imc.TransmissionRequest.DATA_MODE;
@@ -85,6 +89,7 @@ import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ReflectionUtil;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**
  * @author pdias
@@ -300,6 +305,7 @@ public class Cdc3Panel extends ConsolePanel implements IEditorMenuExtension, Sub
         ArrayList<JMenuItem> ret = new ArrayList<>();
         
         JMenu menu = new JMenu(PluginUtils.getPluginI18nName(getClass()));
+        JMenu menu1 = new JMenu("Transmission Request");
 
         JMenuItem vehicleToUse = new JMenuItem("Target vehicle " + vehicleDestination);
         vehicleToUse.addActionListener(e ->  {
@@ -310,6 +316,16 @@ public class Cdc3Panel extends ConsolePanel implements IEditorMenuExtension, Sub
             }
         });
         menu.add(vehicleToUse);
+
+        JMenuItem vehicleToUse1 = new JMenuItem("Target vehicle " + vehicleDestination);
+        vehicleToUse1.addActionListener(e ->  {
+            String opt = (String) JOptionPane.showInputDialog(getConsole(), "Choose New target vehicle", "Target vehicle",
+                    JOptionPane.QUESTION_MESSAGE, null, systemsNames.split("( *)?,( *)?"), vehicleDestination);
+            if (opt != null) {
+                vehicleDestination = opt;
+            }
+        });
+        menu1.add(vehicleToUse1);
 
         JMenuItem planStart = new JMenuItem("Plan " + vehicleDestination + " start");
         planStart.addActionListener(e ->  {
@@ -332,6 +348,10 @@ public class Cdc3Panel extends ConsolePanel implements IEditorMenuExtension, Sub
                     txRqst.setDeadline(System.currentTimeMillis() / 1E3 + requestTimeoutSeconds);
                     
                     send(txRqst);
+                    synchronized (requests) {
+                        Pair<TransmissionRequest, LocalDateTime> pair = Pair.of(txRqst, LocalDateTime.now());
+                        requests.put(txRqst.getReqId(), pair);
+                    }
                     NeptusLog.pub().warn(msg);
                     NeptusLog.pub().warn(txRqst.asJSON());
                     textArea.append("\n>SENT Plan " + vehicleDestination + " start::>"
@@ -344,6 +364,63 @@ public class Cdc3Panel extends ConsolePanel implements IEditorMenuExtension, Sub
             }
         });
         menu.add(planStart);
+
+        JMenuItem planStart1 = new JMenuItem("Plan " + vehicleDestination + " start");
+        planStart1.addActionListener(e ->  {
+            Set<String> plans = getConsole().getMission().getIndividualPlansList().keySet();
+            Vector<String> filtered = new Vector<String>();
+            for (String planId : plans)
+                if (planId.length() <= GeneralPreferences.maximumSizePlanNameForAcoustics)
+                    filtered.add(planId);
+
+            if (filtered.isEmpty()) {
+                post(Notification
+                        .error(I18n.text("Send Plan acoustically"),
+                                I18n.textf(
+                                        "Plans started acoustically cannot have an ID bigger than %number character",
+                                        GeneralPreferences.maximumSizePlanNameForAcoustics))
+                        .src(I18n.text("Console")));
+                return;
+            }
+
+            String[] ops = filtered.toArray(new String[0]);
+            String opt = (String) JOptionPane.showInputDialog(getConsole(),
+                    I18n.text("Please select plan to start"), I18n.text("Start plan"),
+                    JOptionPane.QUESTION_MESSAGE, null, ops, null);
+
+            if (opt != null) {
+                try {
+                    PlanControl pc = new PlanControl();
+                    pc.setType(PlanControl.TYPE.REQUEST);
+                    pc.setOp(PlanControl.OP.START);
+                    pc.setPlanId(opt.toString());
+                    int req = requestIdCounter.getAndIncrement();
+                    pc.setRequestId(req);
+
+                    TransmissionRequest txRqst = new TransmissionRequest();
+                    txRqst.setReqId(req);
+                    txRqst.setDestination(vehicleDestination);
+                    txRqst.setCommMean(COMM_MEAN.ACOUSTIC);
+                    txRqst.setDataMode(DATA_MODE.INLINEMSG);
+                    txRqst.setMsgData(pc);
+                    txRqst.setDeadline(System.currentTimeMillis() / 1E3 + requestTimeoutSeconds);
+                    
+                    send(txRqst);
+                    synchronized (requests) {
+                        Pair<TransmissionRequest, LocalDateTime> pair = Pair.of(txRqst, LocalDateTime.now());
+                        requests.put(txRqst.getReqId(), pair);
+                    }                    
+                    NeptusLog.pub().warn(txRqst.asJSON());
+                    textArea.append("\n>IMC SENT Plan " + vehicleDestination + " start::>"
+                            + "\nPlan ID::" + pc.getPlanId() + "\n"
+                            + txRqst.asJSON(false) + "\n");
+                }
+                catch (NumberFormatException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        });
+        menu1.add(planStart1);
 
         JMenuItem planWp = new JMenuItem("Plan " + vehicleDestination + " WP here");
         planWp.addActionListener(e ->  {
@@ -375,6 +452,10 @@ public class Cdc3Panel extends ConsolePanel implements IEditorMenuExtension, Sub
                 txRqst.setDeadline(System.currentTimeMillis() / 1E3 + requestTimeoutSeconds);
 
                 send(txRqst);
+                synchronized (requests) {
+                    Pair<TransmissionRequest, LocalDateTime> pair = Pair.of(txRqst, LocalDateTime.now());
+                    requests.put(txRqst.getReqId(), pair);
+                }
                 NeptusLog.pub().warn(msg);
                 NeptusLog.pub().warn(txRqst.asJSON());
                 textArea.append("\n>SENT Plan " + vehicleDestination + " WP here::>" 
@@ -387,7 +468,107 @@ public class Cdc3Panel extends ConsolePanel implements IEditorMenuExtension, Sub
         });
         menu.add(planWp);
 
+        JMenuItem planWp1 = new JMenuItem("Plan " + vehicleDestination + " WP here");
+        planWp1.addActionListener(e ->  {
+            try {
+                LocationType locCp = loc.getNewAbsoluteLatLonDepth();
+
+                PlanCreator creator = new PlanCreator(getConsole().getMission());
+                creator.setLocation(locCp);
+                creator.setZ(0, ManeuverLocation.Z_UNITS.DEPTH);
+                creator.addManeuver("Goto", "speed", vehicleSpeed, "speedUnits", "m/s");
+                PlanType plan = creator.getPlan();
+                plan.setVehicle(vehicleDestination);
+                plan.setId("imc-wp-" + vehicleDestination);
+                plan = addPlanToMission(plan);
+                PlanSpecification imcPlan = (PlanSpecification) plan.asIMCPlan();
+
+                PlanControl pc = new PlanControl();
+                pc.setType(PlanControl.TYPE.REQUEST);
+                pc.setOp(PlanControl.OP.START);
+                pc.setPlanId(imcPlan.getPlanId());
+                pc.setArg(imcPlan);
+                int req = requestIdCounter.getAndIncrement();
+                pc.setRequestId(req);
+                
+                TransmissionRequest txRqst = new TransmissionRequest();
+                txRqst.setReqId(req);
+                txRqst.setDestination(vehicleDestination);
+                txRqst.setCommMean(COMM_MEAN.ACOUSTIC);
+                txRqst.setDataMode(DATA_MODE.INLINEMSG);
+                txRqst.setMsgData(pc);
+                txRqst.setDeadline(System.currentTimeMillis() / 1E3 + requestTimeoutSeconds);
+
+                send(txRqst);
+                synchronized (requests) {
+                    Pair<TransmissionRequest, LocalDateTime> pair = Pair.of(txRqst, LocalDateTime.now());
+                    requests.put(txRqst.getReqId(), pair);
+                }
+                NeptusLog.pub().warn(txRqst.asJSON());
+                textArea.append("\n>SENT Plan " + vehicleDestination + " WP here::>" 
+                        + "\n" + txRqst.asJSON(false) + "\n");
+            }
+            catch (NumberFormatException e1) {
+                e1.printStackTrace();
+            }
+        });
+        menu1.add(planWp1);
+
+        JMenuItem abort1 = new JMenuItem("Abort " + vehicleDestination);
+        abort1.addActionListener(e ->  {
+            try {
+                Abort ab = new Abort();
+
+                TransmissionRequest txRqst = new TransmissionRequest();
+                txRqst.setReqId(requestIdCounter.getAndIncrement());
+                txRqst.setDestination(vehicleDestination);
+                txRqst.setCommMean(COMM_MEAN.ACOUSTIC);
+                txRqst.setDataMode(DATA_MODE.INLINEMSG);
+                txRqst.setMsgData(ab);
+                txRqst.setDeadline(System.currentTimeMillis() / 1E3 + requestTimeoutSeconds);
+                
+                send(txRqst);
+                synchronized (requests) {
+                    Pair<TransmissionRequest, LocalDateTime> pair = Pair.of(txRqst, LocalDateTime.now());
+                    requests.put(txRqst.getReqId(), pair);
+                }                    
+                NeptusLog.pub().warn(txRqst.asJSON());
+                textArea.append("\n>IMC SENT Abort " + vehicleDestination + "::>"
+                        + txRqst.asJSON(false) + "\n");
+            }
+            catch (NumberFormatException e1) {
+                e1.printStackTrace();
+            }
+        });
+        menu1.add(abort1);
+
+        JMenuItem range1 = new JMenuItem("Range " + vehicleDestination);
+        range1.addActionListener(e ->  {
+            try {
+                TransmissionRequest txRqst = new TransmissionRequest();
+                txRqst.setReqId(requestIdCounter.getAndIncrement());
+                txRqst.setDestination(vehicleDestination);
+                txRqst.setCommMean(COMM_MEAN.ACOUSTIC);
+                txRqst.setDataMode(DATA_MODE.RANGE);
+                txRqst.setDeadline(System.currentTimeMillis() / 1E3 + requestTimeoutSeconds);
+                
+                send(txRqst);
+                synchronized (requests) {
+                    Pair<TransmissionRequest, LocalDateTime> pair = Pair.of(txRqst, LocalDateTime.now());
+                    requests.put(txRqst.getReqId(), pair);
+                }                    
+                NeptusLog.pub().warn(txRqst.asJSON());
+                textArea.append("\n>IMC SENT Range " + vehicleDestination + "::>"
+                        + txRqst.asJSON(false) + "\n");
+            }
+            catch (NumberFormatException e1) {
+                e1.printStackTrace();
+            }
+        });
+        menu1.add(range1);
+
         ret.add(menu);
+        ret.add(menu1);
 
         return ret;
     }
