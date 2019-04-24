@@ -44,6 +44,7 @@ import java.util.*;
 import java.util.List;
 import javax.swing.*;
 import pt.lsts.imc.*;
+import pt.lsts.imc.net.IMCFragmentHandler;
 import pt.lsts.imc.sender.MessageEditor;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
@@ -84,7 +85,7 @@ public class AcousticOperations extends ConsolePanel implements ConfigurationLis
     private static final long serialVersionUID = 1L;
 
     @NeptusProperty(name = "Systems listing", description = "Use commas to separate system identifiers")
-    public String sysListing = "benthos-1,benthos-2,benthos-3,benthos-4,lauv-xtreme-2,lauv-noptilus-1,lauv-noptilus-2,lauv-noptilus-3";
+    public String sysListing = "benthos-1";
 
     @NeptusProperty(name = "Display ranges in the map")
     public boolean showRanges = true;
@@ -127,26 +128,34 @@ public class AcousticOperations extends ConsolePanel implements ConfigurationLis
 
     @Override
     public void propertiesChanged() {
+        if(gatewaysCombo == null || targetsCombo == null){
+            return;
+        }
+
+        System.out.println("In properties change");
+
+        //UPDATE GATEWAYS COMBO
+        gatewaysCombo.removeAllItems();
+        for(ImcSystem sys : ImcSystemsHolder.lookupSystemByService("acoustic/operation", VehicleType.SystemTypeEnum.ALL, true)){
+            knownSystems.add(sys.getName().trim());
+            gatewaysCombo.addItem(sys.getName().trim());
+        }
+
+        //UPDATE TARGETS COMBO
         for (String s : sysListing.split(",")) {
             if (!s.isEmpty() && !s.endsWith(" list"))
                 knownSystems.add(s.trim());
         }
 
-        if(gatewaysCombo == null || targetsCombo == null){
-            return;
-        }
-
         ArrayList<String> systems = new ArrayList<>(knownSystems);
         Collections.sort(systems);
 
+        targetsCombo.removeAllItems();
         for (String s : systems) {
-            gatewaysCombo.addItem(s);
-            System.out.println("selectedTargetBefore = " + selectedTarget);
+            //System.out.println("selectedTargetBefore = " + selectedTarget);
             targetsCombo.addItem(s);
-            System.out.println("selectedTargetAfter = " + selectedTarget);
+            //System.out.println("selectedTargetAfter = " + selectedTarget);
         }
-
-
     }
 
     @Override
@@ -194,6 +203,7 @@ public class AcousticOperations extends ConsolePanel implements ConfigurationLis
         infoArea.setEditable(false);
         infoArea.setBackground(Color.white);
         infoArea.setRows(6);
+        this.infoArea = infoArea;
         return infoArea;
     }
 
@@ -201,7 +211,7 @@ public class AcousticOperations extends ConsolePanel implements ConfigurationLis
     private JComboBox<String> getGatewaysSelect(){
         if(gatewaysCombo != null)
             return gatewaysCombo;
-        final JComboBox<String> gatewaySelect = new JComboBox<>(sysListing.split(","));
+        final JComboBox<String> gatewaySelect = new JComboBox<>();
         gatewaySelect.insertItemAt("Any",0);
         gatewaySelect.setEditable(true);
         gatewaySelect.setSelectedItem("Select Gateway...");
@@ -209,10 +219,14 @@ public class AcousticOperations extends ConsolePanel implements ConfigurationLis
         gatewaySelect.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                selectedGateway = e.getActionCommand();
+                if(gatewaysCombo.getSelectedItem() != null)
+                    selectedGateway = gatewaysCombo.getSelectedItem().toString();
                 updateButtons();
             }
         });
+        for(ImcSystem sys : ImcSystemsHolder.lookupSystemByService("acoustic/operation", VehicleType.SystemTypeEnum.ALL, true)){
+            gatewaySelect.addItem(sys.getName().trim());
+        }
         gatewaysCombo = gatewaySelect;
         return gatewaySelect;
     }
@@ -220,17 +234,20 @@ public class AcousticOperations extends ConsolePanel implements ConfigurationLis
         if(targetsCombo != null)
             return targetsCombo;
         final JComboBox<String> targetSelect = new JComboBox<>();
-        targetSelect.addItem("Test Target");
         targetSelect.setEditable(true);
         targetSelect.setSelectedItem("Select Target...");
         targetSelect.setEditable(false);
         targetSelect.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                selectedTarget = e.getActionCommand();
+                if(targetsCombo.getSelectedItem() != null)
+                    selectedTarget = targetsCombo.getSelectedItem().toString();
                 updateButtons();
             }
         });
+        for(ImcSystem sys : ImcSystemsHolder.lookupSystemByService("acoustic/operation", VehicleType.SystemTypeEnum.ALL, true)){
+            targetSelect.addItem(sys.getName().trim());
+        }
         targetsCombo = targetSelect;
         return targetSelect;
     }
@@ -415,9 +432,18 @@ public class AcousticOperations extends ConsolePanel implements ConfigurationLis
                 if (dialog == null)
                     return;
 
-                boolean ret;
+                boolean ret = true;
 
-                dialog.selectedVehicle = getConsole().getMainSystem();
+                //dialog.selectedVehicle = getConsole().getMainSystem();
+
+                System.out.println("dialog.selectedVehicle = " + dialog.selectedVehicle);
+                System.out.println("dialog.planId = " + dialog.planId);
+                System.out.println("dialog.startingManeuver = " + dialog.startingManeuver);
+                System.out.println("dialog.isResume = " + dialog.isResume);
+                System.out.println("dialog.sendDefinition = " + dialog.sendDefinition);
+                System.out.println("dialog.skipCalibration = " + dialog.skipCalibration);
+                System.out.println("dialog.ignoreErrors = " + dialog.ignoreErrors);
+
                 if (dialog.isResume) {
                     ret = sendPlanResumeMessage(dialog.planId, dialog.startingManeuver);
                 }
@@ -426,18 +452,36 @@ public class AcousticOperations extends ConsolePanel implements ConfigurationLis
                     pc.setType(PlanControl.TYPE.REQUEST);
                     pc.setOp(PlanControl.OP.START);
                     pc.setPlanId(dialog.planId);
+                    pc.setSrc(ImcMsgManager.getManager().getLocalId().intValue());
+                    pc.setDst(ImcSystemsHolder.getSystemWithName(dialog.selectedVehicle).getId().intValue());
                     if (dialog.sendDefinition) {
                         try {
                             PlanType pt = getConsole().getMission().getIndividualPlansList().get(dialog.planId);
-                            pc.setArg(pt.asIMCPlan(false));
+                            pc.setArg(pt.asIMCPlan());
                         }
                         catch (Exception e) {
-                            NeptusLog.pub().error("Error retriveing plan from mission", e);
+                            NeptusLog.pub().error("Error retrieving plan from mission", e);
                             return;
                         }
                     }
 
-                    ret = IMCSendMessageUtils.sendMessageByAcousticModem(pc, dialog.selectedVehicle, true, gatewaysLookup());
+                    if(pc.getPayloadSize() > 1020) {
+                        IMCFragmentHandler handler = new IMCFragmentHandler(IMCDefinition.getInstance());
+                        try {
+                            MessagePart[] parts = handler.fragment(pc, 1020);
+                            for (MessagePart part : parts)
+                                ret &= IMCSendMessageUtils.sendMessageByAcousticModem(part, dialog.selectedVehicle, true, gatewaysLookup());
+                            NeptusLog.pub().info("Plan Control message with definition resulted in "+parts.length+" fragments");
+                        }
+                        catch (Exception ex) {
+                            ret = false;
+                            NeptusLog.pub().error(ex);
+                            ex.printStackTrace();
+                        }
+                    }
+                    else {
+                        ret = IMCSendMessageUtils.sendMessageByAcousticModem(pc, dialog.selectedVehicle, true, gatewaysLookup());
+                    }
                 }
 
                 if (!ret) {
@@ -477,6 +521,7 @@ public class AcousticOperations extends ConsolePanel implements ConfigurationLis
         refreshStateButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                knownSystems.clear();
                 requestSysListing();
             }
         });
@@ -525,11 +570,14 @@ public class AcousticOperations extends ConsolePanel implements ConfigurationLis
             if (selectedGateway.startsWith("lsts"))
                 cmdButtons.get("abort").setEnabled(false);
         }
+        cmdButtons.get("refresh").setEnabled(true);
     }
     private ImcSystem[] gatewaysLookup() {
         ImcSystem[] sysLst;
-        if (selectedGateway.equals(I18n.text("Any")))
+        if (selectedGateway == null || selectedGateway.equals(I18n.text("Any"))) {
+            System.out.println("Looking up any ");
             sysLst = ImcSystemsHolder.lookupSystemByService("acoustic/operation", VehicleType.SystemTypeEnum.ALL, true);
+        }
         else {
             ImcSystem sys = ImcSystemsHolder.lookupSystemByName(selectedGateway);
             if (sys != null)
@@ -616,7 +664,6 @@ public class AcousticOperations extends ConsolePanel implements ConfigurationLis
     public void on(AcousticSystems systems) {
         String acSystems = systems.getString("list", false);
         boolean newSystem = false;
-        System.out.println("acSystems = " + acSystems);
         for (String s : acSystems.split(","))
             newSystem |= knownSystems.add(s);
 
@@ -626,11 +673,12 @@ public class AcousticOperations extends ConsolePanel implements ConfigurationLis
 
     @Periodic(millisBetweenUpdates = 300000)
     private void requestSysListing() {
-        System.out.println("::::::::REQUESTING SYSTEMS:::::::::");
         if (sysDiscovery) {
             AcousticSystemsQuery asq = new AcousticSystemsQuery();
-            for (ImcSystem s : gatewaysLookup())
+            for (ImcSystem s : gatewaysLookup()){
+                System.out.println("::::::::REQUESTING SYSTEMS SENDING:::::::::");
                 send(s.getName(), asq);
+            }
         }
     }
 
@@ -638,7 +686,6 @@ public class AcousticOperations extends ConsolePanel implements ConfigurationLis
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         if (!showRanges)
             return;
-
         for (int i = 0; i < rangeSources.size(); i++) {
             double radius = rangeDistances.get(i) * renderer.getZoom();
             Point2D pt = renderer.getScreenPosition(rangeSources.get(i));

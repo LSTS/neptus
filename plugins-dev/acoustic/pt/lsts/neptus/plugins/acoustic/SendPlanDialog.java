@@ -60,7 +60,7 @@ public class SendPlanDialog extends JPanel {
     public String selectedVehicle;
     public String planId;
     public String startingManeuver;
-    public boolean sendDefinition = false, isResume = false, ignoreErrors = false, skipCalibration = true;
+    public boolean sendDefinition = false, isResume = false, ignoreErrors = false, skipCalibration = false;
     private ConsoleLayout console;
 
     private JComboBox<String> vehiclesCombo;
@@ -72,9 +72,15 @@ public class SendPlanDialog extends JPanel {
         this.console = console;
         vehiclesCombo = new JComboBox<>(VehiclesHolder.getVehiclesArray());
         plansCombo = new JComboBox<>(console.getMission().getIndividualPlansList().keySet().toArray(new String[0]));
-        plansCombo.setSelectedIndex(0);
-        plansCombo.repaint();
+        Object planId = plansCombo.getSelectedItem();
+        if(planId != null){
+            this.planId = planId.toString();
+        }
         maneuversCombo = new JComboBox<>(getPlanManeuvers(console));
+        Object startMan = maneuversCombo.getSelectedItem();
+        if(startMan != null){
+            startingManeuver = startMan.toString();
+        }
         sendDefsCheck = new JCheckBox(I18n.text("Send plan definition"));
         sendDefsCheck
                 .setToolTipText(I18n.text("Include the current plan definition from this console (larger message)"));
@@ -130,8 +136,7 @@ public class SendPlanDialog extends JPanel {
     }
 
     private void planSelected(ActionEvent evt) {
-        String selectedPlan = plansCombo.getSelectedItem().toString();
-        planId = selectedPlan;
+        planId = plansCombo.getSelectedItem().toString();
         maneuversCombo.removeActionListener(this::maneuverSelected);
         maneuversCombo.removeAllItems();
         for (String maneuver : getPlanManeuvers(console)) {
@@ -152,12 +157,18 @@ public class SendPlanDialog extends JPanel {
             sendDefsCheck.setEnabled(false);
             ignoreErrorsCheck.setEnabled(false);
             skipCalibrationCheck.setEnabled(false);
+            sendDefinition = false;
+            ignoreErrors = false;
+            skipCalibration = false;
             isResume = true;
         }
         else {
             sendDefsCheck.setEnabled(true);
             ignoreErrorsCheck.setEnabled(true);
             skipCalibrationCheck.setEnabled(true);
+            sendDefinition = sendDefsCheck.isSelected();
+            ignoreErrors = ignoreErrorsCheck.isSelected();
+            skipCalibration = skipCalibrationCheck.isSelected();
             isResume = false;
         }
     }
