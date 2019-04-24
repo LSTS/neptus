@@ -44,6 +44,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.plugins.planning.plandb.PlanDBInfo;
@@ -64,13 +65,17 @@ public class SendPlanDialog extends JPanel {
     public String selectedVehicle;
     public String planId;
     public String startingManeuver;
-    public boolean sendDefinition = false, isResume = false, ignoreErrors = false, skipCalibration = false;
+    public boolean sendDefinition = false,
+            isResume = false,
+            ignoreErrors = false,
+            skipCalibration = false,
+            justSendPlan = false;
     private ConsoleLayout console;
 
     private JComboBox<String> vehiclesCombo;
     private JComboBox<String> plansCombo;
     private JComboBox<String> maneuversCombo;
-    private JCheckBox sendDefsCheck, ignoreErrorsCheck, skipCalibrationCheck;
+    private JCheckBox sendDefsCheck, ignoreErrorsCheck, skipCalibrationCheck, justPlanCheck;
 
     private ActionListener maneuversSelectedListener = this::maneuverSelected;
 
@@ -99,10 +104,15 @@ public class SendPlanDialog extends JPanel {
         skipCalibrationCheck
                 .setToolTipText(I18n.text("Do not perform calibration before starting the plan"));
 
+        justPlanCheck = new JCheckBox(I18n.text("Just Send Plan"));
+        justPlanCheck
+                .setToolTipText(I18n.text("Send the selected plan with no further action"));
+
 
         ignoreErrorsCheck.addActionListener(this::ignoreErrorsSelected);
         skipCalibrationCheck.addActionListener(this::skipCalibrationSelected);
         sendDefsCheck.addActionListener(this::sendDefsSelected);
+        justPlanCheck.addActionListener(this::justPlanSelected);
         vehiclesCombo.addActionListener(this::vehicleSelected);
         plansCombo.addActionListener(this::planSelected);
         maneuversCombo.addActionListener(maneuversSelectedListener);
@@ -137,11 +147,11 @@ public class SendPlanDialog extends JPanel {
         add(sendDefsCheck);
         add(ignoreErrorsCheck);
         add(skipCalibrationCheck);
+        add(justPlanCheck);
     }
 
     private void vehicleSelected(ActionEvent evt) {
         selectedVehicle = vehiclesCombo.getSelectedItem().toString();
-        vehicleHasPlanCheck();
     }
 
     private void planSelected(ActionEvent evt) {
@@ -153,7 +163,6 @@ public class SendPlanDialog extends JPanel {
         }
         maneuversCombo.addActionListener(maneuversSelectedListener);
         maneuversCombo.setSelectedIndex(0);
-        vehicleHasPlanCheck();
     }
 
     private void maneuverSelected(ActionEvent actionEvent) {
@@ -180,8 +189,8 @@ public class SendPlanDialog extends JPanel {
             ignoreErrors = ignoreErrorsCheck.isSelected();
             skipCalibration = skipCalibrationCheck.isSelected();
             isResume = false;
-            vehicleHasPlanCheck();
         }
+        justPlanSelected(null);
     }
 
     private void skipCalibrationSelected(ActionEvent evt) {
@@ -196,23 +205,34 @@ public class SendPlanDialog extends JPanel {
         sendDefinition = sendDefsCheck.isSelected();
     }
 
-    private void vehicleHasPlanCheck(){
-        if(selectedVehicle != null && planId != null){
-            try{
-                Map<String, PlanDBInfo> plans = ImcSystemsHolder.lookupSystemByName(selectedVehicle).getPlanDBControl()
-                        .getRemoteState().getStoredPlans();
-                if(plans.containsKey(planId)){
-                    sendDefsCheck.setEnabled(false);
-                    sendDefinition = false;
-                } else {
-                    sendDefsCheck.setEnabled(true);
-                    sendDefinition = sendDefsCheck.isSelected();
-                }
-            } catch (Exception e) {
-                sendDefsCheck.setEnabled(true);
-                sendDefinition = sendDefsCheck.isSelected();
-                e.printStackTrace();
-            }
+    private void justPlanSelected(ActionEvent evt) {
+        justSendPlan = justPlanCheck.isSelected();
+        if(justSendPlan){
+            maneuversCombo.setEnabled(false);
+            sendDefsCheck.setEnabled(false);
+            ignoreErrorsCheck.setEnabled(false);
+            skipCalibrationCheck.setEnabled(false);
+        }
+        else {
+            maneuversCombo.setEnabled(true);
+            sendDefsCheck.setEnabled(true);
+            ignoreErrorsCheck.setEnabled(true);
+            skipCalibrationCheck.setEnabled(true);
+        }
+    }
+
+    private boolean vehicleHasPlan(){
+        if(selectedVehicle == null || planId == null) {
+            return false;
+        }
+        try{
+            Map<String, PlanDBInfo> plans = ImcSystemsHolder.lookupSystemByName(selectedVehicle).getPlanDBControl()
+                    .getRemoteState().getStoredPlans();
+            return plans.containsKey(planId);
+        } catch (Exception ex) {
+            NeptusLog.pub().error(ex);
+            ex.printStackTrace();
+            return false;
         }
     }
 
@@ -234,6 +254,17 @@ public class SendPlanDialog extends JPanel {
             int op = JOptionPane.showConfirmDialog(console, dialog, I18n.text("Send plan acoustically"),
                     JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
             if (op == JOptionPane.OK_OPTION){
+                if(dialog.sendDefinition && dialog.vehicleHasPlan()) {
+                    int resendPlan = JOptionPane.showConfirmDialog(
+                            console,
+                            I18n.text("Are you sure you want to re-send a plan that is already present on the vehicle?"),
+                            I18n.text("Resending Plan"),
+                            JOptionPane.YES_NO_OPTION,
+                            JOptionPane.INFORMATION_MESSAGE);
+                    if (resendPlan != JOptionPane.YES_OPTION) {
+                        continue;
+                    }
+                }
                 if(dialog.ignoreErrors){
                     int confirm = JOptionPane.showConfirmDialog(
                             console,
@@ -241,13 +272,11 @@ public class SendPlanDialog extends JPanel {
                             I18n.text("Ignore Errors"),
                             JOptionPane.YES_NO_OPTION,
                             JOptionPane.WARNING_MESSAGE);
-                    if (confirm == JOptionPane.YES_OPTION){
-                        return dialog;
+                    if(confirm != JOptionPane.YES_OPTION){
+                        continue;
                     }
                 }
-                else {
-                    return dialog;
-                }
+                return dialog;
             }
             else{
                 break;
