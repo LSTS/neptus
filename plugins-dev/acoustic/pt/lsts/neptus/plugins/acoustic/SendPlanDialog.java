@@ -35,14 +35,18 @@ package pt.lsts.neptus.plugins.acoustic;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 
+import java.awt.event.ActionListener;
 import java.util.Arrays;
+import java.util.Map;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.plugins.planning.plandb.PlanDBInfo;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.types.mission.MissionType;
@@ -67,6 +71,8 @@ public class SendPlanDialog extends JPanel {
     private JComboBox<String> plansCombo;
     private JComboBox<String> maneuversCombo;
     private JCheckBox sendDefsCheck, ignoreErrorsCheck, skipCalibrationCheck;
+
+    private ActionListener maneuversSelectedListener = this::maneuverSelected;
 
     public SendPlanDialog(ConsoleLayout console) {
         this.console = console;
@@ -94,10 +100,12 @@ public class SendPlanDialog extends JPanel {
                 .setToolTipText(I18n.text("Do not perform calibration before starting the plan"));
 
 
+        ignoreErrorsCheck.addActionListener(this::ignoreErrorsSelected);
+        skipCalibrationCheck.addActionListener(this::skipCalibrationSelected);
         sendDefsCheck.addActionListener(this::sendDefsSelected);
         vehiclesCombo.addActionListener(this::vehicleSelected);
         plansCombo.addActionListener(this::planSelected);
-        maneuversCombo.addActionListener(this::maneuverSelected);
+        maneuversCombo.addActionListener(maneuversSelectedListener);
 
         try {
             selectedVehicle = console.getMainSystem();
@@ -109,7 +117,7 @@ public class SendPlanDialog extends JPanel {
 
         if (console.getPlan() != null) {
             plansCombo.setSelectedItem(console.getPlan().getId());
-            planId = console.getPlan().getId();
+            this.planId = console.getPlan().getId();
         }
 
         initLayout();
@@ -133,17 +141,19 @@ public class SendPlanDialog extends JPanel {
 
     private void vehicleSelected(ActionEvent evt) {
         selectedVehicle = vehiclesCombo.getSelectedItem().toString();
+        vehicleHasPlanCheck();
     }
 
     private void planSelected(ActionEvent evt) {
         planId = plansCombo.getSelectedItem().toString();
-        maneuversCombo.removeActionListener(this::maneuverSelected);
+        maneuversCombo.removeActionListener(maneuversSelectedListener);
         maneuversCombo.removeAllItems();
         for (String maneuver : getPlanManeuvers(console)) {
             maneuversCombo.addItem(maneuver);
         }
-        maneuversCombo.addActionListener(this::maneuverSelected);
+        maneuversCombo.addActionListener(maneuversSelectedListener);
         maneuversCombo.setSelectedIndex(0);
+        vehicleHasPlanCheck();
     }
 
     private void maneuverSelected(ActionEvent actionEvent) {
@@ -170,11 +180,40 @@ public class SendPlanDialog extends JPanel {
             ignoreErrors = ignoreErrorsCheck.isSelected();
             skipCalibration = skipCalibrationCheck.isSelected();
             isResume = false;
+            vehicleHasPlanCheck();
         }
+    }
+
+    private void skipCalibrationSelected(ActionEvent evt) {
+        skipCalibration = skipCalibrationCheck.isSelected();
+    }
+
+    private void ignoreErrorsSelected(ActionEvent evt) {
+        ignoreErrors = ignoreErrorsCheck.isSelected();
     }
 
     private void sendDefsSelected(ActionEvent evt) {
         sendDefinition = sendDefsCheck.isSelected();
+    }
+
+    private void vehicleHasPlanCheck(){
+        if(selectedVehicle != null && planId != null){
+            try{
+                Map<String, PlanDBInfo> plans = ImcSystemsHolder.lookupSystemByName(selectedVehicle).getPlanDBControl()
+                        .getRemoteState().getStoredPlans();
+                if(plans.containsKey(planId)){
+                    sendDefsCheck.setEnabled(false);
+                    sendDefinition = false;
+                } else {
+                    sendDefsCheck.setEnabled(true);
+                    sendDefinition = sendDefsCheck.isSelected();
+                }
+            } catch (Exception e) {
+                sendDefsCheck.setEnabled(true);
+                sendDefinition = sendDefsCheck.isSelected();
+                e.printStackTrace();
+            }
+        }
     }
 
     private String[] getPlanManeuvers(ConsoleLayout console) {
@@ -191,10 +230,29 @@ public class SendPlanDialog extends JPanel {
 
     public static SendPlanDialog sendPlan(ConsoleLayout console) {
         SendPlanDialog dialog = new SendPlanDialog(console);
-        int op = JOptionPane.showConfirmDialog(console, dialog, I18n.text("Send plan acoustically"),
-                JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
-        if (op == JOptionPane.OK_OPTION)
-            return dialog;
+        while(true){
+            int op = JOptionPane.showConfirmDialog(console, dialog, I18n.text("Send plan acoustically"),
+                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+            if (op == JOptionPane.OK_OPTION){
+                if(dialog.ignoreErrors){
+                    int confirm = JOptionPane.showConfirmDialog(
+                            console,
+                            I18n.text("Are you sure you want to proceed using the Ignore Errors option?"),
+                            I18n.text("Ignore Errors"),
+                            JOptionPane.YES_NO_OPTION,
+                            JOptionPane.WARNING_MESSAGE);
+                    if (confirm == JOptionPane.YES_OPTION){
+                        return dialog;
+                    }
+                }
+                else {
+                    return dialog;
+                }
+            }
+            else{
+                break;
+            }
+        }
         return null;
     }
     
