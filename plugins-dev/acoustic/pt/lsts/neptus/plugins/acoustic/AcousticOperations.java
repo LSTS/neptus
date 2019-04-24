@@ -27,8 +27,8 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: José Pinto
- * Jul 21, 2011
+ * Author: Eduardo Ramos
+ * Apr 24, 2019
  */
 package pt.lsts.neptus.plugins.acoustic;
 
@@ -97,7 +97,7 @@ import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**
- * @author zp
+ * @author Eduardo Ramos
  * 
  */
 @PluginDescription(name = "New Acoustic Operations", author = "ZP", icon = "pt/lsts/neptus/plugins/acoustic/manta.png")
