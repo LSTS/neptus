@@ -86,8 +86,8 @@ public class Cdc3Serializer {
             buf.putFloat(msg.getLatitudeRads());
             buf.putFloat(msg.getLongitudeRads());
             buf.put((byte) (msg.getDepth() & 0xFF));
-            buf.putShort((short) (msg.getAltitude() * 10));
             buf.putShort((short) (msg.getYawRad() * 100));
+            buf.putShort((short) (msg.getAltitude() * 10));
             buf.put((byte) (msg.getProgress()));
             buf.put((byte) (msg.getFuelLevel() & 0xFF));
             buf.put((byte) (msg.getFuelConfidence() & 0xFF));
@@ -133,8 +133,8 @@ public class Cdc3Serializer {
             msg.setLatitudeRads(buf.getFloat());
             msg.setLongitudeRads(buf.getFloat());
             msg.setDepth(buf.get() & 0xFF);
-            msg.setAltitude(buf.getShort() / 10f);
             msg.setYawRad(buf.getShort() / 100f);
+            msg.setAltitude(buf.getShort() / 10f);
             msg.setProgress(buf.get());
             msg.setFuelLevel(buf.get() & 0xFF);
             msg.setFuelConfidence(buf.get() & 0xFF);
@@ -239,6 +239,17 @@ public class Cdc3Serializer {
         st1Msg.setFuelLevel(10);
         st1Msg.setFuelConfidence(10);
         serializeAndPrintDebug(st1Msg);
+
+        StatusMessage st2Msg = new StatusMessage();
+        st2Msg.setLatitudeRads(2.0f);
+        st2Msg.setLongitudeRads(1.0f);
+        st2Msg.setDepth(5);
+        st2Msg.setAltitude(7);
+        st2Msg.setYawRad(0.02f);
+        st2Msg.setProgress(99);
+        st2Msg.setFuelLevel(22);
+        st2Msg.setFuelConfidence(0);
+        serializeAndPrintDebug(st2Msg);
 
         RetaskToMissionMessage rtmMsg = new RetaskToMissionMessage();
         serializeAndPrintDebug(rtmMsg);

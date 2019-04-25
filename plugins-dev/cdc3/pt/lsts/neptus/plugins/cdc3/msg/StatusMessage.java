@@ -218,14 +218,14 @@ public class StatusMessage extends Cdc3Message {
         sb.append("  \"depth\" : ");
         sb.append(depth);
         sb.append(",\n");
-        sb.append("  \"altitude\" : ");
-        sb.append(altitude);
-        sb.append(",\n");
         sb.append("  \"yawDegs\" : ");
         sb.append(getYawDeg());
         sb.append(",\n");
         sb.append("  \"yaw\" : ");
         sb.append(getYawRad());
+        sb.append(",\n");
+        sb.append("  \"altitude\" : ");
+        sb.append(altitude);
         sb.append(",\n");
         sb.append("  \"progress\" : ");
         sb.append(progress);
