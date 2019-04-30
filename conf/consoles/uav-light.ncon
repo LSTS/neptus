@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <console name="UAV Operation Console" width="1382" height="744" resizable="true" mission-file="../../missions/Braganca.nmisz" main-vehicle="x8-02">
-  <!-- Data saved on 2017-06-02T17:41:26.0Z with Neptus version @VERSION@ (compiled on @DATE@, g@SCM_REV@). -->
+  <!-- Data saved on 2019-04-30T14:18:22.0Z with Neptus version @VERSION@ (compiled on @DATE@, g@SCM_REV@). -->
   <mainpanel name="console main panel">
-    <subpanel class="pt.lsts.neptus.console.plugins.containers.MigLayoutContainer" x="0" y="0" width="1366" height="649">
+    <subpanel class="pt.lsts.neptus.console.plugins.containers.MigLayoutContainer" x="0" y="0" width="1382" height="660">
       <properties>
         <entry key="XML Definitions">&lt;profiles&gt;
   &lt;profile name="TACO"&gt;
@@ -83,7 +83,7 @@
       <child class="pt.lsts.neptus.plugins.ipcam.AirCamDisplay" x="0" y="0" width="0" height="0">
         <properties/>
       </child>
-      <child class="pt.lsts.neptus.plugins.uavs.panels.AutopilotModePanel" x="124" y="0" width="120" height="52">
+      <child class="pt.lsts.neptus.plugins.uavs.panels.AutopilotModePanel" x="125" y="0" width="119" height="52">
         <properties/>
       </child>
       <child class="pt.lsts.neptus.console.plugins.ChronometerPlugin" x="0" y="0" width="0" height="0">
@@ -101,7 +101,7 @@
       <child class="pt.lsts.neptus.plugins.followref.FollowReferenceInteraction" x="0" y="0" width="0" height="0">
         <properties/>
       </child>
-      <child class="pt.lsts.neptus.plugins.uavs.panels.GimbalPanel" x="0" y="569" width="244" height="70">
+      <child class="pt.lsts.neptus.plugins.uavs.panels.GimbalPanel" x="0" y="0" width="0" height="0">
         <properties/>
       </child>
       <child class="pt.lsts.neptus.plugins.messages.IMCInspector" x="0" y="0" width="0" height="0">
@@ -125,12 +125,10 @@
       <child class="pt.lsts.neptus.plugins.map.MapEditor" x="0" y="0" width="0" height="0">
         <properties/>
       </child>
-      <child class="pt.lsts.neptus.console.plugins.planning.MapPanel" x="0" y="0" width="1008" height="649">
-        <properties>
-          <entry key="Interpolate States">true</entry>
-        </properties>
+      <child class="pt.lsts.neptus.console.plugins.planning.MapPanel" x="0" y="0" width="1020" height="660">
+        <properties/>
       </child>
-      <child class="pt.lsts.neptus.console.plugins.planning.MissionTreePanel" x="0" y="456" width="244" height="133">
+      <child class="pt.lsts.neptus.console.plugins.planning.MissionTreePanel" x="0" y="464" width="244" height="134">
         <properties/>
       </child>
       <child class="pt.lsts.neptus.console.plugins.MyLocationDisplay" x="0" y="0" width="0" height="0">
@@ -139,17 +137,17 @@
       <child class="pt.lsts.neptus.console.plugins.planning.PathControlLayer" x="0" y="0" width="0" height="0">
         <properties/>
       </child>
-      <child class="pt.lsts.neptus.plugins.uavs.panels.PayloadManagePanel" x="0" y="525" width="244" height="40">
+      <child class="pt.lsts.neptus.plugins.uavs.panels.PayloadManagePanel" x="0" y="0" width="0" height="0">
         <properties/>
       </child>
-      <child class="pt.lsts.neptus.console.plugins.planning.PlanControlPanel" x="0" y="0" width="120" height="52">
+      <child class="pt.lsts.neptus.console.plugins.planning.PlanControlPanel" x="0" y="0" width="119" height="52">
         <properties>
           <entry key="Enable beacons button">false</entry>
           <entry key="Enable teleoperation button">false</entry>
           <entry key="Use Calibration on Start Plan">false</entry>
         </properties>
       </child>
-      <child class="pt.lsts.neptus.console.plugins.planning.PlanControlStatePanel" x="0" y="367" width="244" height="85">
+      <child class="pt.lsts.neptus.console.plugins.planning.PlanControlStatePanel" x="0" y="373" width="244" height="85">
         <properties/>
       </child>
       <child class="pt.lsts.neptus.console.plugins.planning.PlanEditor" x="0" y="0" width="0" height="0">
@@ -160,7 +158,7 @@
           <entry key="Maximum Top Speed (100%)">20.0</entry>
         </properties>
       </child>
-      <child class="pt.lsts.neptus.plugins.uavs.panels.PreflightPanel" x="0" y="593" width="244" height="50">
+      <child class="pt.lsts.neptus.plugins.uavs.panels.PreflightPanel" x="0" y="604" width="244" height="50">
         <properties/>
       </child>
       <child class="pt.lsts.neptus.plugins.rtplot.RealTimePlot" x="0" y="0" width="0" height="0">
@@ -174,7 +172,7 @@ desired_roll: ${DesiredRoll.value} * 180 / Math.PI</entry>
           <entry key="simulatedHeight">900.0</entry>
         </properties>
       </child>
-      <child class="pt.lsts.neptus.plugins.uavs.panels.SpeedIndicatorPanel" x="0" y="204" width="244" height="100">
+      <child class="pt.lsts.neptus.plugins.uavs.panels.SpeedIndicatorPanel" x="0" y="206" width="244" height="100">
         <properties>
           <entry key="Maximum Speed">23.0</entry>
           <entry key="Minimum Speed">14.0</entry>
@@ -191,7 +189,7 @@ desired_roll: ${DesiredRoll.value} * 180 / Math.PI</entry>
           <entry key="System Class Filter">ALL</entry>
         </properties>
       </child>
-      <child class="pt.lsts.neptus.plugins.uavs.panels.UavAltitudePanel" x="0" y="0" width="100" height="649">
+      <child class="pt.lsts.neptus.plugins.uavs.panels.UavAltitudePanel" x="0" y="0" width="100" height="660">
         <properties/>
       </child>
       <child class="pt.lsts.neptus.plugins.uavs.panels.UavHUDPanel" x="0" y="0" width="244" height="200">
@@ -221,13 +219,6 @@ desired_roll: ${DesiredRoll.value} * 180 / Math.PI</entry>
       <child class="pt.lsts.neptus.plugins.uavs.panels.UavStatusOverlay" x="0" y="0" width="0" height="0">
         <properties/>
       </child>
-     <child class="pt.lsts.neptus.firers.saop.SAOPConnectionHandler" x="0" y="0" width="0" height="0">
-        <properties>
-          <entry key="IP ADDRESS">127.0.0.1</entry>
-          <entry key="PORT">8888</entry>
-          <entry key="Bind PORT">8000</entry>
-        </properties>
-      </child>
     </subpanel>
   </mainpanel>
   <mainpanel name="console alarm panel"/>
@@ -251,6 +242,9 @@ desired_roll: ${DesiredRoll.value} * 180 / Math.PI</entry>
         <entry key="Entity Name">Autopilot</entry>
         <entry key="Display GPS">true</entry>
       </properties>
+    </layer>
+    <layer class="pt.lsts.neptus.firers.saop.SAOPConnectionHandler" opacity="1.0">
+      <properties/>
     </layer>
   </layers>
   <interactions>

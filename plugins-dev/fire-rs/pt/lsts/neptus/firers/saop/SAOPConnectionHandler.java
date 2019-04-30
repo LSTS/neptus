@@ -32,6 +32,7 @@
  */
 package pt.lsts.neptus.firers.saop;
 
+import java.awt.Graphics2D;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,9 +41,12 @@ import java.util.StringJoiner;
 import javax.swing.JOptionPane;
 
 import com.google.common.eventbus.Subscribe;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.DevDataBinary;
+import pt.lsts.imc.DevDataText;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.Heartbeat;
 import pt.lsts.imc.IMCDefinition;
@@ -59,6 +63,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.comm.manager.imc.MessageDeliveryListener;
 import pt.lsts.neptus.comm.transports.ImcTcpTransport;
+import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.i18n.I18n;
@@ -67,24 +72,17 @@ import pt.lsts.neptus.messages.listener.MessageListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
-import pt.lsts.neptus.plugins.SimpleRendererInteraction;
 import pt.lsts.neptus.plugins.update.Periodic;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
 import pt.lsts.neptus.util.GuiUtils;
 
 @PluginDescription(name = "SAOP Server Interaction", description = "IMC Message exchange with SAOP IMC TCP Server")
-public class SAOPConnectionHandler extends SimpleRendererInteraction {
+public class SAOPConnectionHandler extends ConsoleLayer {
 
-    /**
-     * @param console
-     */
-    public SAOPConnectionHandler(ConsoleLayout console) {
-        super(console);
-    }
 
-    private static final long serialVersionUID = 1L;
     private final String prefix = "saop-";
     private volatile boolean sendHeartbeat = false, established = false;
     private ImcTcpTransport imctt;
@@ -101,43 +99,6 @@ public class SAOPConnectionHandler extends SimpleRendererInteraction {
     @NeptusProperty(name = "Bind PORT", userLevel = LEVEL.ADVANCED, description = "Neptus internal configuration")
     public int bindPort = 8000;
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.lsts.neptus.renderer2d.StateRendererInteraction#isExclusive()
-     */
-    @Override
-    public boolean isExclusive() {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.lsts.neptus.console.ConsolePanel#cleanSubPanel()
-     */
-    @Override
-    public void cleanSubPanel() {
-        established = false;
-        sendHeartbeat = false;
-        imctt.removeListener(msgListener);
-        imctt.purge();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.lsts.neptus.console.ConsolePanel#initSubPanel()
-     */
-    @Override
-    public void initSubPanel() {
-        initializeListeners();
-        imctt = new ImcTcpTransport(bindPort, IMCDefinition.getInstance());
-        imctt.addListener(msgListener);
-        
-    }
-
     /**
      * Send periodically heartbeat to keep connection open
      */
@@ -147,12 +108,10 @@ public class SAOPConnectionHandler extends SimpleRendererInteraction {
         if( isConnected && !established){
           established = true;
           sendHeartbeat = true;
-//          System.err.println("\n\nConnection Established with SAOP Server\n\n");
         }
         else if(!isConnected && established){
           established = false;
           sendHeartbeat = false;
- //         System.err.println("\n\nLost connection with SAOP Server\n\n");
         }
             
         if (sendHeartbeat) {
@@ -166,14 +125,28 @@ public class SAOPConnectionHandler extends SimpleRendererInteraction {
         msgListener = new MessageListener<MessageInfo, IMCMessage>() {
             @Override
             public void onMessage(MessageInfo info, IMCMessage msg) {
+                NeptusLog.pub().info("Received: " + msg.getAbbrev() + " from: " + info.getPublisher() + ":"
+                        + info.getPublisherPort());
                 // if (info.getPublisherInetAddress().equalsIgnoreCase(ipAddr) && info.getPublisherPort() == port) {
                 if (msg.getMgid() == PlanControl.ID_STATIC) {
-                    NeptusLog.pub().info("Received: " + msg.getAbbrev() + " from: " + info.getPublisher() + ":"
-                            + info.getPublisherPort());
-                    PlanControl pc = (PlanControl) msg;
+                    PlanControl pc = msg.cloneMessageTyped();
                     addNewPlanControl(pc);
                 }
                 // }
+                else if(msg.getMgid() == DevDataBinary.ID_STATIC) {
+                    DevDataBinary data = msg.cloneMessageTyped();
+                    //TODO insert deserialization code here
+                }
+
+                else if (msg.getMgid() == DevDataText.ID_STATIC) {
+                    //Parse Json Object from IMC msg
+                    JsonParser parser   = new JsonParser();
+                    DevDataText data    = msg.cloneMessageTyped();
+                    JsonElement element = parser.parse(data.getValue());
+                    
+                    //TODO create Polygon and paint it according to rgb code -> add it to Map
+                    
+                }
             }
         };
 
@@ -191,7 +164,6 @@ public class SAOPConnectionHandler extends SimpleRendererInteraction {
 
             @Override
             public void deliveryTimeOut(IMCMessage msg) {
-                // TODO retry??
                 if (checkMsgId(msg.getMgid())) {
                     imctt.sendMessage(ipAddr, serverPort, msg, deliveryListener);
                 }
@@ -216,45 +188,44 @@ public class SAOPConnectionHandler extends SimpleRendererInteraction {
         // Filter specific IMC Messages from UAVs
         if (imcSys != null
                 && (imcSys.getType() == SystemTypeEnum.VEHICLE && imcSys.getTypeVehicle() == VehicleTypeEnum.UAV)) {
-            if(established){
-            if (msg.getMgid() == PlanControl.ID_STATIC) {
-                sendHeartbeat = false;
-                PlanControl pc = (PlanControl) msg;
-                pc = (PlanControl) pc.cloneMessage();
-                if (!pc.getType().equals(pt.lsts.imc.PlanControl.TYPE.REQUEST)) { // REPLY SUCCESS or FAILURE or
-                    // IN_PROGRESS
-
-                    if (pc.getPlanId() != null) { // reset original SAOP data
-                        String newName = pc.getPlanId();
-                        String oldName = getOriginalName(newName);
-                        pc.setPlanId(oldName);
-                        pc.setRequestId(plans_reqId.get(newName));
-                    }
-                }
-                imctt.sendMessage(ipAddr, serverPort, pc, deliveryListener);
-                // plans_reqId.remove(newName); plan Id is needed for PCS
-
-                sendHeartbeat = true;
-            }
-            else if (msg.getMgid() == PlanControlState.ID_STATIC) {
-                PlanControlState pcs = (PlanControlState) msg;
-                pcs = (PlanControlState) pcs.cloneMessage();
-                String newName = pcs.getPlanId();
-                String oldName = getOriginalName(newName);
-                if (plans_reqId.containsKey(pcs.getPlanId())) {
+            if (established) {
+                if (msg.getMgid() == PlanControl.ID_STATIC) {
                     sendHeartbeat = false;
-                    pcs.setPlanId(oldName);
-                    imctt.sendMessage(ipAddr, serverPort, msg, deliveryListener);
+                    PlanControl pc = (PlanControl) msg;
+                    pc = (PlanControl) pc.cloneMessage();
+                    if (!pc.getType().equals(pt.lsts.imc.PlanControl.TYPE.REQUEST)) { // REPLY SUCCESS or FAILURE or
+                        // IN_PROGRESS
+
+                        if (pc.getPlanId() != null) { // reset original SAOP data
+                            String newName = pc.getPlanId();
+                            String oldName = getOriginalName(newName);
+                            pc.setPlanId(oldName);
+                            pc.setRequestId(plans_reqId.get(newName));
+                        }
+                    }
+                    imctt.sendMessage(ipAddr, serverPort, pc, deliveryListener);
+                    // plans_reqId.remove(newName); plan Id is needed for PCS
+
                     sendHeartbeat = true;
                 }
-            }
-            else if (msg.getMgid() == DevDataBinary.ID_STATIC) {
-                // TODO Filter src entity to IR Cam/FireMapper/AUXCPU
-                imctt.sendMessage(ipAddr, serverPort, msg, deliveryListener);
-            }
-            else if (msg.getMgid() == EstimatedState.ID_STATIC) {
-                imctt.sendMessage(ipAddr, serverPort, msg, deliveryListener);
-            }
+                else if (msg.getMgid() == PlanControlState.ID_STATIC) {
+                    PlanControlState pcs = (PlanControlState) msg;
+                    pcs = (PlanControlState) pcs.cloneMessage();
+                    String newName = pcs.getPlanId();
+                    String oldName = getOriginalName(newName);
+                    if (plans_reqId.containsKey(pcs.getPlanId())) {
+                        sendHeartbeat = false;
+                        pcs.setPlanId(oldName);
+                        imctt.sendMessage(ipAddr, serverPort, msg, deliveryListener);
+                        sendHeartbeat = true;
+                    }
+                }
+                else if (msg.getMgid() == DevDataBinary.ID_STATIC) {
+                    imctt.sendMessage(ipAddr, serverPort, msg, deliveryListener);
+                }
+                else if (msg.getMgid() == EstimatedState.ID_STATIC) {
+                    imctt.sendMessage(ipAddr, serverPort, msg, deliveryListener);
+                }
             }
         }
     }
@@ -367,5 +338,42 @@ public class SAOPConnectionHandler extends SimpleRendererInteraction {
         }
 
         super.setProperties(properties);
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.console.ConsoleLayer#userControlsOpacity()
+     */
+    @Override
+    public boolean userControlsOpacity() {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.console.ConsoleLayer#initLayer()
+     */
+    @Override
+    public void initLayer() {
+        initializeListeners();
+        imctt = new ImcTcpTransport(bindPort, IMCDefinition.getInstance());
+        imctt.addListener(msgListener);
+        
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.console.ConsoleLayer#cleanLayer()
+     */
+    @Override
+    public void cleanLayer() {
+        established = false;
+        sendHeartbeat = false;
+        imctt.removeListener(msgListener);
+        imctt.purge();
+        
+    }
+    
+    @Override
+    public void paint(Graphics2D g, StateRenderer2D renderer) {
+        //TODO paint raster
     }
 }

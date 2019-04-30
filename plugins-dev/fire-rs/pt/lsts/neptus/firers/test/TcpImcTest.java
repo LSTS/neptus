@@ -32,15 +32,28 @@
  */
 package pt.lsts.neptus.firers.test;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import pt.lsts.imc.DevDataBinary;
+import pt.lsts.imc.DevDataText;
 import pt.lsts.imc.EstimatedState;
+import pt.lsts.imc.Goto;
 import pt.lsts.imc.Heartbeat;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.Loiter;
+import pt.lsts.imc.PlanControl;
+import pt.lsts.imc.PlanControl.OP;
+import pt.lsts.imc.PlanManeuver;
+import pt.lsts.imc.PlanSpecification;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.MessageDeliveryListener;
 import pt.lsts.neptus.comm.transports.ImcTcpTransport;
 import pt.lsts.neptus.messages.listener.MessageInfo;
 import pt.lsts.neptus.messages.listener.MessageListener;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
@@ -56,18 +69,21 @@ public class TcpImcTest {
     public static void main(String[] args) throws Exception {
         ConfigFetch.initialize();
 
-        int portServer = Integer.parseInt(args[0]);
+        int req_id = 666;
+        
+        int portServer = 8888;//Integer.parseInt(args[0]);
 
-        String server = args[1];
-        int destServer = Integer.parseInt(args[2]);
+        String server = "127.0.0.1";//args[1];
+        int destServer = 8000;//Integer.parseInt(args[2]);
 
         ImcTcpTransport tcpT = new ImcTcpTransport(portServer, IMCDefinition.getInstance());
         
         tcpT.addListener(new MessageListener<MessageInfo, IMCMessage>() {
             @Override
             public void onMessage(MessageInfo info, IMCMessage msg) {
-                info.dump(System.out);
-                msg.dump(System.out);
+                //info.dump(System.out);
+                //msg.dump(System.out);
+                //System.err.println("Received "+msg.getAbbrev());
             }
         });
 
@@ -94,21 +110,132 @@ public class TcpImcTest {
             }
         };
 
+        //build plan specification to send
         IMCMessage msg = new Heartbeat();;
         IMCMessage msgES = new EstimatedState();
-     
+        PlanControl pc = new PlanControl();
+        PlanSpecification ps = new PlanSpecification();
+        PlanManeuver pm = new PlanManeuver();
+        Goto goto_ = new Goto();
+        goto_.setLat(LocationType.FEUP.getLatitudeRads()); 
+        goto_.setLon(LocationType.FEUP.getLongitudeRads());
+        goto_.setZ(20.0);
+        goto_.setZUnitsStr("HEIGHT");
+        Loiter loiter = new Loiter();
+        loiter.setZ(20.0);
+        loiter.setZUnitsStr("HEIGHT");
+        loiter.setRadius(150.0);
+        List<PlanManeuver>mans = new ArrayList<>();
+        pm.setData(goto_);
+        mans.add(pm);
+        pm.setData(loiter);
+        pc.setPlanId("plan"+req_id);
+        ps.setPlanId("plan"+req_id);
+        ps.setManeuvers(mans);
+        pc.setRequestId(req_id);
+        pc.setOp(OP.LOAD);
+        pc.setArg(ps);
+        pc.setSrc(0x3c22);
+        pc.setDst(0x0c0c);
         msg.setSrc(0x3c22);
         msgES.setSrc(0x3c22);
         
-        try { Thread.sleep(5000); } catch (InterruptedException e1) { }
-        tcpT.sendMessage(server, destServer, msg, mdlT);
-        try { Thread.sleep(5000); } catch (InterruptedException e1) { }
-        tcpT.sendMessage(server, destServer, msgES, mdlT);
-        
+
+        String last=pc.getPlanId();
         while (true) {
+            // Send IMC Messages periodically
+            DevDataBinary dataB = getDevBinaryMsg();
+            dataB.setTimestampMillis(System.currentTimeMillis());
+            dataB.setSrc(0x3c22);
+            dataB.setDst(0x0c0c);
             msg.setTimestampMillis(System.currentTimeMillis());
-            tcpT.sendMessage(server, destServer, msg, mdlT);
-            try { Thread.sleep(1000); } catch (InterruptedException e1) { }
+            tcpT.sendMessage(server, destServer, dataB, mdlT);
+            
+            DevDataText dataT = getDevTextMsg();
+            dataT.setTimestampMillis(System.currentTimeMillis());
+            dataT.setSrc(0x3c22);
+            dataT.setDst(0x0c0c);
+            msg.setTimestampMillis(System.currentTimeMillis());
+            tcpT.sendMessage(server, destServer, dataT, mdlT);
+
+            try {
+                Thread.sleep(15_000);
+            }
+            catch (InterruptedException e1) {
+            }
+            pc.setTimestampMillis(System.currentTimeMillis());
+            pc.setRequestId(req_id);
+            if (pc.getOp().equals(OP.LOAD)) {
+                pc.setArg(null);
+                pc.setOp(OP.START);
+                pc.setPlanId(last);
+                sendIMCMsg(server, destServer, tcpT, mdlT, pc);
+            }
+
+            else if (pc.getOp().equals(OP.START)) {
+                pc.setArg(null);
+                pc.setOp(OP.STOP);
+                pc.setPlanId(last);
+                
+                try {
+                    Thread.sleep(15_000);
+                }
+                catch (InterruptedException e1) {
+                }
+                sendIMCMsg(server, destServer, tcpT, mdlT, pc);
+                req_id++;
+                pc.setRequestId(req_id);
+                pc.setPlanId("plan"+req_id);
+                ps.setPlanId("plan"+req_id);
+            }
+            
+
+            else if (pc.getOp().equals(OP.STOP)) {
+                pc.setArg(ps);
+                pc.setOp(OP.LOAD);
+                pc.setPlanId(last);
+                
+                try {
+                    Thread.sleep(15_000);
+                }
+                catch (InterruptedException e1) {
+                }
+                sendIMCMsg(server, destServer, tcpT, mdlT, pc);
+            }
         }
+        
     }
+
+    /**
+     * @param server
+     * @param destServer
+     * @param tcpT
+     * @param mdlT
+     * @param pc
+     */
+    private static void sendIMCMsg(String server, int destServer, ImcTcpTransport tcpT, MessageDeliveryListener mdlT,
+            PlanControl pc) {
+        System.err.println("SENT " + pc.getOpStr() + " with planID: " + pc.getPlanId());
+        tcpT.sendMessage(server, destServer, pc, mdlT);
+    }
+
+    /**
+     * Read Raster data from file
+     */
+    private static DevDataBinary getDevBinaryMsg() {
+        DevDataBinary data = new DevDataBinary();
+        byte[] input = FileUtil.getFileAsByteArray("plugins-dev/fire-rs/pt/lsts/neptus/firers/test/rasterSample");
+        data.setValue(input);
+        return data;
+    }  
+    
+    /**
+     * Read Raster data from file
+     */
+    private static DevDataText getDevTextMsg() {
+        DevDataText data = new DevDataText();
+        String input = FileUtil.getFileAsString("plugins-dev/fire-rs/pt/lsts/neptus/firers/test/contourLines");
+        data.setValue(input);
+        return data;
+    }  
 }
