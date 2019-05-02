@@ -33,6 +33,16 @@
 package pt.lsts.neptus.firers.saop;
 
 import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.Point;
+import java.awt.RenderingHints;
+import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBuffer;
+import java.awt.image.ImageObserver;
+import java.awt.image.Raster;
+import java.awt.image.SampleModel;
+import java.awt.image.WritableRaster;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -55,7 +65,6 @@ import pt.lsts.imc.PlanControl;
 import pt.lsts.imc.PlanControl.OP;
 import pt.lsts.imc.PlanControlState;
 import pt.lsts.imc.PlanSpecification;
-
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
@@ -64,14 +73,13 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.comm.manager.imc.MessageDeliveryListener;
 import pt.lsts.neptus.comm.transports.ImcTcpTransport;
 import pt.lsts.neptus.console.ConsoleLayer;
-import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.messages.listener.MessageInfo;
 import pt.lsts.neptus.messages.listener.MessageListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
-import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
+import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.mission.plan.PlanType;
@@ -89,6 +97,7 @@ public class SAOPConnectionHandler extends ConsoleLayer {
     private MessageDeliveryListener deliveryListener;
     private MessageListener<MessageInfo, IMCMessage> msgListener;
     private Map<String, Integer> plans_reqId = Collections.synchronizedMap(new HashMap<>());
+    private WritableRaster firemap = null;
 
     @NeptusProperty(name = "Debug Mode", userLevel = LEVEL.REGULAR, description = "Request operators permission to start/stop plan")
     public boolean debugMode = true;
@@ -135,6 +144,9 @@ public class SAOPConnectionHandler extends ConsoleLayer {
                 // }
                 else if(msg.getMgid() == DevDataBinary.ID_STATIC) {
                     DevDataBinary data = msg.cloneMessageTyped();
+                    RasterInfo raster;
+                    //TODO fill raster from data
+                    //fillRaster(raster);
                     //TODO insert deserialization code here
                 }
 
@@ -149,7 +161,7 @@ public class SAOPConnectionHandler extends ConsoleLayer {
                 }
             }
         };
-
+       
         deliveryListener = new MessageDeliveryListener() {
 
             @Override
@@ -179,6 +191,78 @@ public class SAOPConnectionHandler extends ConsoleLayer {
                 NeptusLog.pub().debug(I18n.text("Error delivering " + msg.getAbbrev() + " to SAOP IMC TCP Server."));
             }
         };
+    }
+    
+    private void fillRaster(RasterInfo data) {
+
+        int w=0,h=0,dataType=0;
+        int numBands=0;
+        if(firemap != null) //Use previous as parent
+            firemap = Raster.createWritableRaster(new SampleModel(dataType,w,h,numBands) {
+                
+                @Override
+                public void setSample(int x, int y, int b, int s, DataBuffer data) {
+                    // TODO Auto-generated method stub
+                    
+                }
+                
+                @Override
+                public void setDataElements(int x, int y, Object obj, DataBuffer data) {
+                    // TODO Auto-generated method stub
+                    
+                }
+                
+                @Override
+                public int getSampleSize(int band) {
+                    // TODO Auto-generated method stub
+                    return 0;
+                }
+                
+                @Override
+                public int[] getSampleSize() {
+                    // TODO Auto-generated method stub
+                    return null;
+                }
+                
+                @Override
+                public int getSample(int x, int y, int b, DataBuffer data) {
+                    // TODO Auto-generated method stub
+                    return 0;
+                }
+                
+                @Override
+                public int getNumDataElements() {
+                    // TODO Auto-generated method stub
+                    return 0;
+                }
+                
+                @Override
+                public Object getDataElements(int x, int y, Object obj, DataBuffer data) {
+                    // TODO Auto-generated method stub
+                    return null;
+                }
+                
+                @Override
+                public SampleModel createSubsetSampleModel(int[] bands) {
+                    // TODO Auto-generated method stub
+                    return null;
+                }
+                
+                @Override
+                public DataBuffer createDataBuffer() {
+                    // TODO Auto-generated method stub
+                    return null;
+                }
+                
+                @Override
+                public SampleModel createCompatibleSampleModel(int w, int h) {
+                    // TODO Auto-generated method stub
+                    return null;
+                }
+            }, null);
+        else 
+            firemap = new WritableRaster(null,null,null) {
+            };
     }
 
     @Subscribe
@@ -233,7 +317,7 @@ public class SAOPConnectionHandler extends ConsoleLayer {
     public boolean checkMsgId(int msgId) {
 
         return msgId == PlanControl.ID_STATIC || msgId == PlanControlState.ID_STATIC || msgId == DevDataBinary.ID_STATIC
-                || msgId == EstimatedState.ID_STATIC;
+                || msgId == DevDataText.ID_STATIC || msgId == EstimatedState.ID_STATIC;
     }
 
     /**
@@ -314,7 +398,7 @@ public class SAOPConnectionHandler extends ConsoleLayer {
     }
 
     /**
-     * Updated plugins parameters
+     * Update plugins parameters
      */
     @Override
     public void setProperties(Property[] properties) {
@@ -374,6 +458,44 @@ public class SAOPConnectionHandler extends ConsoleLayer {
     
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
-        //TODO paint raster
+        if(firemap != null) {
+            AffineTransform xform = new AffineTransform();
+            ImageObserver obs = new ImageObserver() {
+                
+                @Override
+                public boolean imageUpdate(Image img, int infoflags, int x, int y, int width, int height) {
+                    // TODO Auto-generated method stub
+                    return false;
+                }
+            };
+ 
+            BufferedImage imgbuff = new BufferedImage(firemap.getWidth(),firemap.getHeight(),BufferedImage.TYPE_INT_ARGB);
+            imgbuff.setData(firemap);
+            g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+            g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            int[] scaleFactor = getScaleFactor(firemap.getWidth(),firemap.getHeight(),renderer.getWidth(),renderer.getHeight());
+            g.drawImage(imgbuff.getScaledInstance(scaleFactor[0],scaleFactor[1] , Image.SCALE_SMOOTH), xform, obs);
+        }
+    }
+    
+    public int[] getScaleFactor(int originalW, int originalH,int maxWidth, int maxHeight ) {
+        int[] res = new int[2];
+        double imgRatio = (double) originalW / (double) originalH;
+        double desiredRatio = (double) maxWidth / (double) maxHeight;
+        int width = maxWidth;
+        int height = maxHeight;
+
+        if (desiredRatio > imgRatio) {
+            height = maxHeight;
+            width = (int) (maxHeight * imgRatio);
+        }
+        else {
+            width = maxWidth;
+            height = (int) (maxWidth / imgRatio);
+        }
+        res[0] = width;
+        res[1] = height;
+        return res;
     }
 }
