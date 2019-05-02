@@ -32,12 +32,22 @@
  */
 package pt.lsts.neptus.firers.saop;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import java.awt.Color;
 import java.awt.Graphics2D;
+import java.io.ByteArrayInputStream;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringJoiner;
-
+import java.util.zip.Inflater;
+import java.util.zip.InflaterInputStream;
 import javax.swing.JOptionPane;
 
 import com.google.common.eventbus.Subscribe;
@@ -64,7 +74,6 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.comm.manager.imc.MessageDeliveryListener;
 import pt.lsts.neptus.comm.transports.ImcTcpTransport;
 import pt.lsts.neptus.console.ConsoleLayer;
-import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.messages.listener.MessageInfo;
@@ -74,6 +83,7 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.coord.PolygonType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
@@ -89,6 +99,8 @@ public class SAOPConnectionHandler extends ConsoleLayer {
     private MessageDeliveryListener deliveryListener;
     private MessageListener<MessageInfo, IMCMessage> msgListener;
     private Map<String, Integer> plans_reqId = Collections.synchronizedMap(new HashMap<>());
+    private ArrayList<ContourLine> polygons = new ArrayList<>();
+    private FireRaster raster = new FireRaster();
 
     @NeptusProperty(name = "Debug Mode", userLevel = LEVEL.REGULAR, description = "Request operators permission to start/stop plan")
     public boolean debugMode = true;
@@ -134,18 +146,74 @@ public class SAOPConnectionHandler extends ConsoleLayer {
                 }
                 // }
                 else if(msg.getMgid() == DevDataBinary.ID_STATIC) {
+
                     DevDataBinary data = msg.cloneMessageTyped();
-                    //TODO insert deserialization code here
+                    byte[] msgData = data.getValue();
+                    ByteBuffer wrapper = ByteBuffer.wrap(msgData);
+                    wrapper.order(ByteOrder.LITTLE_ENDIAN);
+                    short magicNum = wrapper.getShort();
+                    long EPSG_ID = wrapper.getLong();
+                    long xSize = wrapper.getLong();
+                    long ySize = wrapper.getLong();
+                    double xOffset = wrapper.getDouble();
+                    double yOffset = wrapper.getDouble();
+                    double cellWidth = wrapper.getDouble();
+
+                    boolean compareResult = magicNum == (short) 0x3EF1;
+                    System.out.println("compareResult = " + compareResult);
+                    System.out.println("magicNum = " + magicNum);
+                    System.out.println("EPSG_ID = " + EPSG_ID);
+                    System.out.println("xSize = " + xSize);
+                    System.out.println("ySize = " + ySize);
+                    System.out.println("xOffset = " + xOffset);
+                    System.out.println("yOffset = " + yOffset);
+                    System.out.println("cellWidth = " + cellWidth);
+
+
+                    //TODO fix data decompression
+                    byte[] raster;
+                    raster = Arrays.copyOfRange(msgData,wrapper.position(),msgData.length);
+                    //System.out.println("Compressed Raster = " + Arrays.toString(raster));
+
+                    Inflater decompressor = new Inflater();
+                    decompressor.setInput(raster);
+                    byte[] inputBuff = new byte[256];
+                    ByteArrayInputStream inByteStream = new ByteArrayInputStream(inputBuff);
+                    InflaterInputStream inStream = new InflaterInputStream(inByteStream, decompressor);
+
+                    ArrayList<Double> rasterResult = new ArrayList<>();
+
+                    byte[] tmpDouble = new byte[8];
+                    ByteBuffer tmpBB = ByteBuffer.wrap(tmpDouble);
+                    try {
+                        while(inStream.read(tmpDouble) > 0){
+                            double tmp = tmpBB.getDouble();
+                            //System.out.println("tmp = " + tmp);
+                            rasterResult.add(tmp);
+                            tmpBB.rewind();
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    System.out.println("Raster Unserialized Data = " + rasterResult);
                 }
 
                 else if (msg.getMgid() == DevDataText.ID_STATIC) {
                     //Parse Json Object from IMC msg
-                    JsonParser parser   = new JsonParser();
-                    DevDataText data    = msg.cloneMessageTyped();
-                    JsonElement element = parser.parse(data.getValue());
-                    
-                    //TODO create Polygon and paint it according to rgb code -> add it to Map
-                    
+                    polygons.clear();
+                    try {
+                        JsonParser parser   = new JsonParser();
+                        DevDataText data    = msg.cloneMessageTyped();
+                        JsonElement element = parser.parse(data.getValue());
+                        JsonObject object = element.getAsJsonObject();
+                        for (JsonElement contourLineElem : object.get("wildfire_contours").getAsJsonArray()) {
+                            JsonObject contourLine = contourLineElem.getAsJsonObject();
+                            polygons.add(processContourLine(contourLine));
+                        }
+                    } catch (Exception e){
+                        e.printStackTrace();
+                    }
                 }
             }
         };
@@ -228,6 +296,20 @@ public class SAOPConnectionHandler extends ConsoleLayer {
                 }
             }
         }
+    }
+
+    private ContourLine processContourLine(JsonObject contourLineObj){
+        String time = contourLineObj.getAsJsonPrimitive("time").getAsString();
+        JsonArray colorRGB = contourLineObj.getAsJsonArray("color");
+        PolygonType poly = new PolygonType();
+        poly.setFilled(false);
+        poly.setColor(new Color(colorRGB.get(0).getAsInt(), colorRGB.get(1).getAsInt(), colorRGB.get(2).getAsInt()));
+        for (JsonElement vertexElem : contourLineObj.get("polygon").getAsJsonArray()) {
+            JsonElement latObj = vertexElem.getAsJsonObject().get("lat"),
+                    longObj = vertexElem.getAsJsonObject().get("lon");
+            poly.addVertex(latObj.getAsDouble(),longObj.getAsDouble());
+        }
+        return new ContourLine(time,poly);
     }
 
     public boolean checkMsgId(int msgId) {
@@ -367,13 +449,73 @@ public class SAOPConnectionHandler extends ConsoleLayer {
     public void cleanLayer() {
         established = false;
         sendHeartbeat = false;
+        polygons.clear();
         imctt.removeListener(msgListener);
         imctt.purge();
         
     }
     
     @Override
-    public void paint(Graphics2D g, StateRenderer2D renderer) {
+    public void paint(Graphics2D go, StateRenderer2D renderer) {
         //TODO paint raster
+        Graphics2D g = ((Graphics2D) go.create());
+        for (ContourLine cl : polygons) {
+            cl.polygon.paint(g,renderer);
+            g.setTransform(renderer.getIdentity());
+        }
+    }
+
+    private class ContourLine {
+        public String time;
+        public PolygonType polygon;
+
+        ContourLine(String time, PolygonType polygon) {
+            this.time = time;
+            this.polygon = polygon;
+        }
+    }
+
+    private class FireRaster {
+        long EPSG_ID;
+        long xSize;
+        long ySize;
+        double xOffset;
+        double yOffset;
+        double cellWidth;
+        ArrayList<Double> rasterData;
+
+        FireRaster(){}
+
+        public void setEPSG_ID(long EPSG_ID) {
+            this.EPSG_ID = EPSG_ID;
+        }
+
+        public void setxSize(long xSize) {
+            this.xSize = xSize;
+        }
+
+        public void setySize(long ySize) {
+            this.ySize = ySize;
+        }
+
+        public void setxOffset(double xOffset) {
+            this.xOffset = xOffset;
+        }
+
+        public void setyOffset(double yOffset) {
+            this.yOffset = yOffset;
+        }
+
+        public void setCellWidth(double cellWidth) {
+            this.cellWidth = cellWidth;
+        }
+
+        public void setRasterData(ArrayList<Double> rasterData) {
+            this.rasterData = rasterData;
+        }
+
+        public void rasterDataAppend(Double value){
+            this.rasterData.add(value);
+        }
     }
 }

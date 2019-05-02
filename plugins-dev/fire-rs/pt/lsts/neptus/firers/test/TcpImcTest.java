@@ -32,7 +32,9 @@
  */
 package pt.lsts.neptus.firers.test;
 
+import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import pt.lsts.imc.DevDataBinary;
@@ -163,7 +165,7 @@ public class TcpImcTest {
             }
             catch (InterruptedException e1) {
             }
-            pc.setTimestampMillis(System.currentTimeMillis());
+            /*pc.setTimestampMillis(System.currentTimeMillis());
             pc.setRequestId(req_id);
             if (pc.getOp().equals(OP.LOAD)) {
                 pc.setArg(null);
@@ -201,7 +203,7 @@ public class TcpImcTest {
                 catch (InterruptedException e1) {
                 }
                 sendIMCMsg(server, destServer, tcpT, mdlT, pc);
-            }
+            }*/
         }
         
     }
@@ -224,10 +226,29 @@ public class TcpImcTest {
      */
     private static DevDataBinary getDevBinaryMsg() {
         DevDataBinary data = new DevDataBinary();
-        byte[] input = FileUtil.getFileAsByteArray("plugins-dev/fire-rs/pt/lsts/neptus/firers/test/rasterSample");
-        data.setValue(input);
+        FileInputStream inputFile = null;
+        try {
+            inputFile = new FileInputStream("plugins-dev/fire-rs/pt/lsts/neptus/firers/test/rasterSample");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return data;
+        }
+        BufferedReader inputBuf = new BufferedReader(new InputStreamReader(inputFile));
+        try {
+            String inputStr = inputBuf.readLine();
+            int len = inputStr.length();
+            byte[] input = new byte[len / 2];
+            for (int i = 0; i < len; i += 2) {
+                input[i / 2] = (byte) ((Character.digit(inputStr.charAt(i), 16) << 4)
+                        + Character.digit(inputStr.charAt(i+1), 16));
+            }
+            System.out.println("Arrays.toString(input) = " + Arrays.toString(input));
+            data.setValue(input);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return data;
-    }  
+    }
     
     /**
      * Read Raster data from file
