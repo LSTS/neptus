@@ -32,12 +32,9 @@
  */
 package pt.lsts.neptus.firers.saop;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
-import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
@@ -49,7 +46,6 @@ import java.awt.image.WritableRaster;
 import java.io.ByteArrayInputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -58,10 +54,13 @@ import java.util.Map;
 import java.util.StringJoiner;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
+
 import javax.swing.JOptionPane;
 
 import com.google.common.eventbus.Subscribe;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.l2fprod.common.propertysheet.Property;
 
@@ -98,7 +97,7 @@ import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
 import pt.lsts.neptus.util.GuiUtils;
 
-@PluginDescription(name = "SAOP Server Interaction", description = "IMC Message exchange with SAOP IMC TCP Server")
+@PluginDescription(name = "SAOP Server Interaction", description = "IMC Message exchange with SAOP IMC TCP Server", icon = "pt/lsts/neptus/firers/images/fire.png")
 public class SAOPConnectionHandler extends ConsoleLayer {
 
     private final String prefix = "saop-";
@@ -180,10 +179,8 @@ public class SAOPConnectionHandler extends ConsoleLayer {
                     System.out.println("cellWidth = " + cellWidth);
                     raster = new FireRaster(xOffset, yOffset, xSize, ySize, cellWidth, EPSG_ID);
 
-                    //TODO fix data decompression
                     byte[] rasterData;
                     rasterData = Arrays.copyOfRange(msgData,wrapper.position(),msgData.length);
-                    //System.out.println("Compressed Raster = " + Arrays.toString(raster));
 
                     Inflater decompressor = new Inflater();
                     decompressor.setInput(rasterData);
@@ -191,22 +188,20 @@ public class SAOPConnectionHandler extends ConsoleLayer {
                     ByteArrayInputStream inByteStream = new ByteArrayInputStream(inputBuff);
                     InflaterInputStream inStream = new InflaterInputStream(inByteStream, decompressor);
 
-                    ArrayList<Double> rasterResult = new ArrayList<>();
-
                     byte[] tmpDouble = new byte[8];
                     ByteBuffer tmpBB = ByteBuffer.wrap(tmpDouble);
                     try {
                         while(inStream.read(tmpDouble) > 0){
-                            double tmp = tmpBB.getDouble();
-                            //System.out.println("tmp = " + tmp);
-                            rasterResult.add(tmp);
+                            int tmp = tmpBB.get() & 0xFF;
+                            raster.rasterDataAppend(tmp);
                             tmpBB.rewind();
                         }
+                        fillRaster();
                     } catch (Exception e) {
+                        NeptusLog.pub().error(e);
                         e.printStackTrace();
                     }
 
-                    System.out.println("Raster Unserialized Data = " + rasterResult);
                 }
 
                 else if (msg.getMgid() == DevDataText.ID_STATIC) {
@@ -222,6 +217,7 @@ public class SAOPConnectionHandler extends ConsoleLayer {
                             polygons.add(processContourLine(contourLine));
                         }
                     } catch (Exception e){
+                        NeptusLog.pub().error(e);
                         e.printStackTrace();
                     }
                 }
@@ -326,9 +322,9 @@ public class SAOPConnectionHandler extends ConsoleLayer {
                     return null;
                 }
             }, null);
-        else
-            firemap = new WritableRaster(null, null, null) {
-            };
+//        else
+//            firemap = new WritableRaster(null, null, null) {
+//            };
     }
 
     @Subscribe
@@ -391,6 +387,8 @@ public class SAOPConnectionHandler extends ConsoleLayer {
                     longObj = vertexElem.getAsJsonObject().get("lon");
             poly.addVertex(latObj.getAsDouble(), longObj.getAsDouble());
         }
+        String id = new StringBuilder("ContouLine").append(polygons.size()).toString();
+        poly.setId(id);
         return new ContourLine(time, poly);
     }
 
@@ -610,7 +608,7 @@ public class SAOPConnectionHandler extends ConsoleLayer {
         final double xOffset;
         final double yOffset;
         final double cellWidth;
-        ArrayList<Double> rasterData;
+        ArrayList<Integer> rasterData;
 
         FireRaster(double xOffset, double yOffset, long xSize, long ySize, double cellWidth, long EPSG_ID) {
             this.xOffset = xOffset;
@@ -619,7 +617,7 @@ public class SAOPConnectionHandler extends ConsoleLayer {
             this.ySize = ySize;
             this.cellWidth = cellWidth;
             this.EPSG_ID = EPSG_ID;
-            rasterData = new ArrayList<Double>();
+            rasterData = new ArrayList<Integer>();
         }
 
         /**
@@ -667,15 +665,15 @@ public class SAOPConnectionHandler extends ConsoleLayer {
         /**
          * @return the rasterData
          */
-        public ArrayList<Double> getRasterData() {
+        public ArrayList<Integer> getRasterData() {
             return rasterData;
         }
 
-        public void setRasterData(ArrayList<Double> rasterData) {
+        public void setRasterData(ArrayList<Integer> rasterData) {
             this.rasterData = rasterData;
         }
 
-        public void rasterDataAppend(Double value){
+        public void rasterDataAppend(int value){
             this.rasterData.add(value);
         }
     }
