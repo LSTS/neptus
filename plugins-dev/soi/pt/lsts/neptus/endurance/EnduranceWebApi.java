@@ -49,9 +49,11 @@ import java.util.concurrent.TimeUnit;
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonObject;
 
+import pt.lsts.neptus.util.conf.GeneralPreferences;
+
 public class EnduranceWebApi {
 
-	private static final String SOI_URL_DEFAULT = "http://ripples.lsts.pt/soi";
+	private static final String SOI_URL_DEFAULT = GeneralPreferences.ripplesUrl + "/soi";
 	
 	private static String soiUrl = SOI_URL_DEFAULT;
 	
