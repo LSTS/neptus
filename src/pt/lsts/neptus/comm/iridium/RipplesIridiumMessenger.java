@@ -40,7 +40,7 @@ package pt.lsts.neptus.comm.iridium;
 public class RipplesIridiumMessenger extends HubIridiumMessenger {
 
     public RipplesIridiumMessenger() {
-        serverUrl = "http://104.248.168.40:9090/api/v1/";        
+        serverUrl = "http://falkor.lsts.pt:9090/api/v1/";        
     }
     
 }
