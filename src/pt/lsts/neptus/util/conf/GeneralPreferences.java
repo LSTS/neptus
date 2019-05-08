@@ -262,8 +262,8 @@ public class GeneralPreferences implements PropertiesProvider {
 
     // -------------------------------------------------------------------------
     
-    @NeptusProperty(name = "Iridium Messenger", category="Iridium Communications", userLevel = LEVEL.REGULAR,
-        description = "Iridium messaging implementation")
+    @NeptusProperty(name = "Ripples URL", category="Iridium Communications", userLevel = LEVEL.REGULAR,
+        description = "URL of the ripples web server")
     public static String ripplesUrl = "http://ripples.lsts.pt";
     
 
