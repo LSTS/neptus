@@ -6,5 +6,6 @@
 pt.lsts.neptus.plugins.acoustic.LBLRangeDisplay
 pt.lsts.neptus.plugins.acoustic.SimpleAbortModemRequest
 pt.lsts.neptus.plugins.acoustic.MantaOperations
+pt.lsts.neptus.plugins.acoustic.AcousticOperations
 pt.lsts.neptus.plugins.acoustic.LblEstimateOverlay
 pt.lsts.neptus.plugins.acoustic.LBLRangesReplay
