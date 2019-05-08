@@ -57,6 +57,7 @@ import com.google.gson.Gson;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.iridium.Position.PosType;
 import pt.lsts.neptus.util.ByteUtil;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**
  * @author zp
@@ -66,7 +67,7 @@ import pt.lsts.neptus.util.ByteUtil;
 public class HubIridiumMessenger implements IridiumMessenger {
 
     protected boolean available = true;
-    protected String serverUrl = "http://ripples.lsts.pt/api/v1/";
+    protected String serverUrl = GeneralPreferences.ripplesUrl + "/api/v1/";
     // protected String serverUrl = "http://lsts-hub/api/v1/";
     protected String systemsUrl = serverUrl+"systems";
     protected String activeSystemsUrl = systemsUrl+"/active";

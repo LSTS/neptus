@@ -261,6 +261,13 @@ public class GeneralPreferences implements PropertiesProvider {
     public static boolean localTimeOnConsoleOn = false;
 
     // -------------------------------------------------------------------------
+    
+    @NeptusProperty(name = "Iridium Messenger", category="Iridium Communications", userLevel = LEVEL.REGULAR,
+        description = "Iridium messaging implementation")
+    public static String ripplesUrl = "http://ripples.lsts.pt";
+    
+
+    // -------------------------------------------------------------------------
     // Constructor and initialize
 
     public GeneralPreferences() {

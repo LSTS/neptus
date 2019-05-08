@@ -101,7 +101,7 @@ public class RipplesUpload extends ConsolePanel implements ConfigurationListener
     private static final long serialVersionUID = -8036937519999303108L;
     
     private final String firebasePath = "https://neptus.firebaseio.com/";
-    private final String ripplesActiveSysUrl = "http://ripples.lsts.pt/api/v1/systems/active";
+    private final String ripplesActiveSysUrl = GeneralPreferences.ripplesUrl + "/api/v1/systems/active";
 
     private JCheckBoxMenuItem menuItem;
     private ImageIcon onIcon, offIcon;

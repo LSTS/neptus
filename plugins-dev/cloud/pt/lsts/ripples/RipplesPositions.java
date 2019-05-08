@@ -65,6 +65,7 @@ import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**
  * @author zp
@@ -74,7 +75,7 @@ import pt.lsts.neptus.util.ImageUtils;
 public class RipplesPositions extends ConsoleLayer {
 
     @NeptusProperty
-    String positionsApiUrl = "http://ripples.lsts.pt/positions";
+    String positionsApiUrl = GeneralPreferences.ripplesUrl + "/positions";
 
     ColorMap cmap = ColorMapFactory.createRedYellowGreenColorMap();
 
