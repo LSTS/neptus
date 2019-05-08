@@ -100,7 +100,7 @@ import pt.lsts.neptus.util.conf.GeneralPreferences;
  * @author Eduardo Ramos
  * 
  */
-@PluginDescription(name = "New Acoustic Operations", author = "ZP", icon = "pt/lsts/neptus/plugins/acoustic/manta.png")
+@PluginDescription(name = "New Acoustic Operations", author = "Eduardo Ramos", icon = "pt/lsts/neptus/plugins/acoustic/manta.png")
 @LayerPriority(priority = 40)
 @Popup(name = "New Acoustic Operations", accelerator = KeyEvent.VK_M, width = 650, height = 600, pos = POSITION.CENTER, icon = "pt/lsts/neptus/plugins/acoustic/manta.png")
 public class AcousticOperations extends ConsolePanel implements ConfigurationListener, Renderer2DPainter {
