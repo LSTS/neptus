@@ -34,7 +34,6 @@ package pt.lsts.neptus.firers.test;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import pt.lsts.imc.DevDataBinary;
@@ -65,61 +64,66 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
 public class TcpImcTest {
     /**
      * @param args
-     * @throws MiddlewareException 
+     * @throws MiddlewareException
      */
     @SuppressWarnings("unused")
     public static void main(String[] args) throws Exception {
         ConfigFetch.initialize();
 
         int req_id = 666;
-        
-        int portServer = 8888;//Integer.parseInt(args[0]);
 
-        String server = "127.0.0.1";//args[1];
-        int destServer = 8000;//Integer.parseInt(args[2]);
+        int portServer = 8888;// Integer.parseInt(args[0]);
+
+        String server = "127.0.0.1";// args[1];
+        int destServer = 8000;// Integer.parseInt(args[2]);
 
         ImcTcpTransport tcpT = new ImcTcpTransport(portServer, IMCDefinition.getInstance());
-        
+
         tcpT.addListener(new MessageListener<MessageInfo, IMCMessage>() {
             @Override
             public void onMessage(MessageInfo info, IMCMessage msg) {
-                //info.dump(System.out);
-                //msg.dump(System.out);
-                //System.err.println("Received "+msg.getAbbrev());
+                // info.dump(System.out);
+                // msg.dump(System.out);
+                // System.err.println("Received "+msg.getAbbrev());
             }
         });
 
         MessageDeliveryListener mdlT = new MessageDeliveryListener() {
             @Override
             public void deliveryUnreacheable(IMCMessage message) {
-                NeptusLog.pub().info("<###>>>> deliveryUnreacheable: "+ message.getAbbrev());
+                NeptusLog.pub().info("<###>>>> deliveryUnreacheable: " + message.getAbbrev());
             }
+
             @Override
             public void deliveryTimeOut(IMCMessage message) {
-                NeptusLog.pub().info("<###>>>> deliveryTimeOut: "+ message.getAbbrev());
+                NeptusLog.pub().info("<###>>>> deliveryTimeOut: " + message.getAbbrev());
             }
+
             @Override
             public void deliverySuccess(IMCMessage message) {
-                NeptusLog.pub().info("<###>>>> deliverySuccess: "+ message.getAbbrev());
+                NeptusLog.pub().info("<###>>>> deliverySuccess: " + message.getAbbrev());
             }
+
             @Override
             public void deliveryError(IMCMessage message, Object error) {
-                NeptusLog.pub().info("<###>>>> deliveryError: "+ message.getAbbrev() + " " + error);
+                NeptusLog.pub().info("<###>>>> deliveryError: " + message.getAbbrev() + " " + error);
             }
+
             @Override
             public void deliveryUncertain(IMCMessage message, Object msg) {
-                NeptusLog.pub().info("<###>>>> deliveryUncertain: "+ message.getAbbrev() + " " + msg);                
+                NeptusLog.pub().info("<###>>>> deliveryUncertain: " + message.getAbbrev() + " " + msg);
             }
         };
 
-        //build plan specification to send
-        IMCMessage msg = new Heartbeat();;
+        // build plan specification to send
+        IMCMessage msg = new Heartbeat();
+        ;
         IMCMessage msgES = new EstimatedState();
         PlanControl pc = new PlanControl();
         PlanSpecification ps = new PlanSpecification();
         PlanManeuver pm = new PlanManeuver();
         Goto goto_ = new Goto();
-        goto_.setLat(LocationType.FEUP.getLatitudeRads()); 
+        goto_.setLat(LocationType.FEUP.getLatitudeRads());
         goto_.setLon(LocationType.FEUP.getLongitudeRads());
         goto_.setZ(20.0);
         goto_.setZUnitsStr("HEIGHT");
@@ -127,12 +131,12 @@ public class TcpImcTest {
         loiter.setZ(20.0);
         loiter.setZUnitsStr("HEIGHT");
         loiter.setRadius(150.0);
-        List<PlanManeuver>mans = new ArrayList<>();
+        List<PlanManeuver> mans = new ArrayList<>();
         pm.setData(goto_);
         mans.add(pm);
         pm.setData(loiter);
-        pc.setPlanId("plan"+req_id);
-        ps.setPlanId("plan"+req_id);
+        pc.setPlanId("plan" + req_id);
+        ps.setPlanId("plan" + req_id);
         ps.setManeuvers(mans);
         pc.setRequestId(req_id);
         pc.setOp(OP.LOAD);
@@ -141,9 +145,8 @@ public class TcpImcTest {
         pc.setDst(0x0c0c);
         msg.setSrc(0x3c22);
         msgES.setSrc(0x3c22);
-        
 
-        String last=pc.getPlanId();
+        String last = pc.getPlanId();
         while (true) {
             // Send IMC Messages periodically
             for (int i = 1; i <= 2; i++) {
@@ -166,47 +169,24 @@ public class TcpImcTest {
             }
             catch (InterruptedException e1) {
             }
-            /*pc.setTimestampMillis(System.currentTimeMillis());
-            pc.setRequestId(req_id);
-            if (pc.getOp().equals(OP.LOAD)) {
-                pc.setArg(null);
-                pc.setOp(OP.START);
-                pc.setPlanId(last);
-                sendIMCMsg(server, destServer, tcpT, mdlT, pc);
-            }
-
-            else if (pc.getOp().equals(OP.START)) {
-                pc.setArg(null);
-                pc.setOp(OP.STOP);
-                pc.setPlanId(last);
-                
-                try {
-                    Thread.sleep(15_000);
-                }
-                catch (InterruptedException e1) {
-                }
-                sendIMCMsg(server, destServer, tcpT, mdlT, pc);
-                req_id++;
-                pc.setRequestId(req_id);
-                pc.setPlanId("plan"+req_id);
-                ps.setPlanId("plan"+req_id);
-            }
-            
-
-            else if (pc.getOp().equals(OP.STOP)) {
-                pc.setArg(ps);
-                pc.setOp(OP.LOAD);
-                pc.setPlanId(last);
-                
-                try {
-                    Thread.sleep(15_000);
-                }
-                catch (InterruptedException e1) {
-                }
-                sendIMCMsg(server, destServer, tcpT, mdlT, pc);
-            }*/
+            /*
+             * pc.setTimestampMillis(System.currentTimeMillis()); pc.setRequestId(req_id); if
+             * (pc.getOp().equals(OP.LOAD)) { pc.setArg(null); pc.setOp(OP.START); pc.setPlanId(last);
+             * sendIMCMsg(server, destServer, tcpT, mdlT, pc); }
+             * 
+             * else if (pc.getOp().equals(OP.START)) { pc.setArg(null); pc.setOp(OP.STOP); pc.setPlanId(last);
+             * 
+             * try { Thread.sleep(15_000); } catch (InterruptedException e1) { } sendIMCMsg(server, destServer, tcpT,
+             * mdlT, pc); req_id++; pc.setRequestId(req_id); pc.setPlanId("plan"+req_id); ps.setPlanId("plan"+req_id); }
+             * 
+             * 
+             * else if (pc.getOp().equals(OP.STOP)) { pc.setArg(ps); pc.setOp(OP.LOAD); pc.setPlanId(last);
+             * 
+             * try { Thread.sleep(15_000); } catch (InterruptedException e1) { } sendIMCMsg(server, destServer, tcpT,
+             * mdlT, pc); }
+             */
         }
-        
+
     }
 
     /**
@@ -239,7 +219,7 @@ public class TcpImcTest {
                         + Character.digit(inputStr.charAt(i + 1), 16));
                 data.setValue(input);
             }
-            System.out.println("Arrays.toString(input) = " + Arrays.toString(input));
+            data.setValue(input);
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -255,5 +235,5 @@ public class TcpImcTest {
         String input = FileUtil.getFileAsString("plugins-dev/fire-rs/pt/lsts/neptus/firers/test/contourLines");
         data.setValue(input);
         return data;
-    }  
+    }
 }
