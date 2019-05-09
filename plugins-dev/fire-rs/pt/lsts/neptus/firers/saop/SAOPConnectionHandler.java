@@ -193,20 +193,13 @@ public class SAOPConnectionHandler extends ConsoleLayer {
 
                     byte[] tmpDouble = new byte[8];
                     ByteBuffer tmpBB = ByteBuffer.wrap(tmpDouble);
-                    int max = Integer.MIN_VALUE;
-                    int min = Integer.MAX_VALUE;
                     try {
                         while (inStream.read(tmpDouble) > 0) {
                             int tmp = tmpBB.get() & 0xFF;
                             raster.rasterDataAppend(tmp);
                             tmpBB.rewind();
-                            if (tmp < min && tmp > 0)
-                                min = tmp;
-                            else if (tmp > max)
-                                max = tmp;
                         }
-                        System.out.println("MAX: " + max + " min: " + min);
-                        System.out.println("Raster Unserialized Data = " + raster.getRasterData());
+                        //System.out.println("Raster Unserialized Data = " + raster.getRasterData());
 
                         DataBufferInt buffer = new DataBufferInt(
                                 ArrayUtils.toPrimitive(raster.getRasterData().toArray(new Integer[] {})), 1);
