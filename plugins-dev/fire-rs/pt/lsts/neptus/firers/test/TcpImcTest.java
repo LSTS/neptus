@@ -34,7 +34,6 @@ package pt.lsts.neptus.firers.test;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import pt.lsts.imc.DevDataBinary;
@@ -242,7 +241,6 @@ public class TcpImcTest {
                 input[i / 2] = (byte) ((Character.digit(inputStr.charAt(i), 16) << 4)
                         + Character.digit(inputStr.charAt(i+1), 16));
             }
-            System.out.println("Arrays.toString(input) = " + Arrays.toString(input));
             data.setValue(input);
         } catch (IOException e) {
             e.printStackTrace();
