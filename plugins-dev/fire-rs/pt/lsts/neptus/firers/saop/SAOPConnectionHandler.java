@@ -32,10 +32,7 @@
  */
 package pt.lsts.neptus.firers.saop;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.RenderingHints;
+import java.awt.*;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
@@ -46,9 +43,13 @@ import java.awt.image.WritableRaster;
 import java.io.ByteArrayInputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringJoiner;
@@ -76,6 +77,8 @@ import pt.lsts.imc.PlanControl.OP;
 import pt.lsts.imc.PlanControlState;
 import pt.lsts.imc.PlanSpecification;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.colormap.ColorMapFactory;
+import pt.lsts.neptus.colormap.InterpolationColorMap;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
@@ -110,6 +113,8 @@ public class SAOPConnectionHandler extends ConsoleLayer {
     private Map<String, Integer> plans_reqId = Collections.synchronizedMap(new HashMap<>());
     private ArrayList<ContourLine> polygons = new ArrayList<>();
     private FireRaster raster;
+    private InterpolationColorMap polyCm = ColorMapFactory.createGrayScaleColorMap();
+    private InterpolationColorMap rasterCm = ColorMapFactory.createAutumnColorMap();
 
     @NeptusProperty(name="Debug Mode",userLevel=LEVEL.REGULAR,description="Request operators permission to start/stop plan")
     public boolean debugMode = true;
@@ -203,7 +208,9 @@ public class SAOPConnectionHandler extends ConsoleLayer {
 
                 else if (msg.getMgid() == DevDataText.ID_STATIC) {
                     //Parse Json Object from IMC msg
-                    polygons.clear();
+                    //polygons.clear();
+                    double minTime = Double.MAX_VALUE;
+                    double maxTime = Double.MIN_VALUE;
                     try {
                         JsonParser parser   = new JsonParser();
                         DevDataText data    = msg.cloneMessageTyped();
@@ -213,6 +220,15 @@ public class SAOPConnectionHandler extends ConsoleLayer {
                             JsonObject contourLine = contourLineElem.getAsJsonObject();
                             polygons.add(processContourLine(contourLine));
                         }
+                        System.out.println("polygons = " + polygons.size());
+                        for (ContourLine contour :
+                                polygons) {
+                            if (contour.time > maxTime)
+                                maxTime = contour.time;
+                            if(contour.time < minTime)
+                                minTime = contour.time;
+                        }
+                        polyCm.setValues(new double[]{minTime,maxTime});
                     } catch (Exception e){
                         NeptusLog.pub().error(e);
                         e.printStackTrace();
@@ -285,13 +301,14 @@ public class SAOPConnectionHandler extends ConsoleLayer {
 
                 @Override
                 public int getSample(int x, int y, int b, DataBuffer data) {
+                    int value = data.getElem(x+y*w);
                     switch (b) {
                         case 0://red
-                            return data.getElem(x+y*w);
+                            return rasterCm.getColor(value).getRed();
                         case 1://green
-                            return 0;
+                            return rasterCm.getColor(value).getGreen();
                         case 2://blue
-                            return 0;
+                            return rasterCm.getColor(value).getBlue();
                         case 3://alpha
                             if(data.getElem(x+y*w) == 0){
                                 return 0;
@@ -399,9 +416,18 @@ public class SAOPConnectionHandler extends ConsoleLayer {
                     longObj = vertexElem.getAsJsonObject().get("lon");
             poly.addVertex(latObj.getAsDouble(), longObj.getAsDouble());
         }
-        String id = new StringBuilder("ContouLine").append(polygons.size()).toString();
+        String id = new StringBuilder("ContourLine").append(polygons.size()).toString();
         poly.setId(id);
-        return new ContourLine(time, poly);
+
+        // Parse time to epoch
+        DateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        try {
+            Date dateTime = utcFormat.parse(time);
+            return new ContourLine(dateTime.getTime(), poly);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public boolean checkMsgId(int msgId) {
@@ -533,6 +559,7 @@ public class SAOPConnectionHandler extends ConsoleLayer {
     @Override
     public void initLayer() {
         initializeListeners();
+        rasterCm.setValues(new double[]{0,255});
         imctt = new ImcTcpTransport(bindPort, IMCDefinition.getInstance());
         imctt.addListener(msgListener);
 
@@ -557,10 +584,14 @@ public class SAOPConnectionHandler extends ConsoleLayer {
     public void paint(Graphics2D go, StateRenderer2D renderer) {
         Graphics2D g = ((Graphics2D) go.create());
 
-        for (ContourLine cl : polygons) {
+        for (int i = 0; i < polygons.size()-1; i++) {
+            ContourLine cl = polygons.get(i);
+            cl.polygon.setColor(polyCm.getColor(cl.time));
             cl.polygon.paint(g, renderer);
             g.setTransform(renderer.getIdentity());
         }
+        polygons.get(Math.max(0,polygons.size()-1)).polygon.paint(g,renderer);
+        g.setTransform(renderer.getIdentity());
 
         if (raster.firemap != null) {
             BufferedImage imgbuff = new BufferedImage(raster.firemap.getWidth(), raster.firemap.getHeight(),
@@ -588,10 +619,10 @@ public class SAOPConnectionHandler extends ConsoleLayer {
     }
 
     private class ContourLine {
-        public String time;
+        public long time;
         public PolygonType polygon;
 
-        ContourLine(String time, PolygonType polygon) {
+        ContourLine(long time, PolygonType polygon) {
             this.time = time;
             this.polygon = polygon;
         }
