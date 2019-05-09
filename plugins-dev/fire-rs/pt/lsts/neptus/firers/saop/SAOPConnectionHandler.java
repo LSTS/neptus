@@ -34,12 +34,12 @@ package pt.lsts.neptus.firers.saop;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Image;
+import java.awt.Point;
 import java.awt.RenderingHints;
-import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
-import java.awt.image.ImageObserver;
+import java.awt.image.DataBufferInt;
 import java.awt.image.Raster;
 import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
@@ -64,6 +64,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.l2fprod.common.propertysheet.Property;
 
+import org.apache.commons.lang3.ArrayUtils;
 import pt.lsts.imc.DevDataBinary;
 import pt.lsts.imc.DevDataText;
 import pt.lsts.imc.EstimatedState;
@@ -91,6 +92,7 @@ import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.coord.PolygonType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
@@ -106,7 +108,6 @@ public class SAOPConnectionHandler extends ConsoleLayer {
     private MessageDeliveryListener deliveryListener;
     private MessageListener<MessageInfo, IMCMessage> msgListener;
     private Map<String, Integer> plans_reqId = Collections.synchronizedMap(new HashMap<>());
-    private WritableRaster firemap = null;
     private ArrayList<ContourLine> polygons = new ArrayList<>();
     private FireRaster raster;
 
@@ -162,21 +163,15 @@ public class SAOPConnectionHandler extends ConsoleLayer {
                     wrapper.order(ByteOrder.LITTLE_ENDIAN);
                     short magicNum = wrapper.getShort();
                     long EPSG_ID = wrapper.getLong();
-                    long xSize = wrapper.getLong();
-                    long ySize = wrapper.getLong();
+                    Long xSize = wrapper.getLong();
+                    Long ySize = wrapper.getLong();
                     double xOffset = wrapper.getDouble();
                     double yOffset = wrapper.getDouble();
                     double cellWidth = wrapper.getDouble();
 
-                    boolean compareResult = magicNum == (short) 0x3EF1;
-                    System.out.println("compareResult = " + compareResult);
-                    System.out.println("magicNum = " + magicNum);
-                    System.out.println("EPSG_ID = " + EPSG_ID);
-                    System.out.println("xSize = " + xSize);
-                    System.out.println("ySize = " + ySize);
-                    System.out.println("xOffset = " + xOffset);
-                    System.out.println("yOffset = " + yOffset);
-                    System.out.println("cellWidth = " + cellWidth);
+                    if(magicNum != (short) 0x3EF1){
+                        return;
+                    }
                     raster = new FireRaster(xOffset, yOffset, xSize, ySize, cellWidth, EPSG_ID);
 
                     byte[] rasterData;
@@ -196,7 +191,9 @@ public class SAOPConnectionHandler extends ConsoleLayer {
                             raster.rasterDataAppend(tmp);
                             tmpBB.rewind();
                         }
-                        fillRaster();
+                        DataBufferInt buffer = new DataBufferInt(
+                                ArrayUtils.toPrimitive(raster.getRasterData().toArray(new Integer[]{})),1);
+                        fillRaster(xSize.intValue(), ySize.intValue(), buffer);
                     } catch (Exception e) {
                         NeptusLog.pub().error(e);
                         e.printStackTrace();
@@ -255,12 +252,12 @@ public class SAOPConnectionHandler extends ConsoleLayer {
         };
     }
 
-    private void fillRaster() {
-
-        int w = 0, h = 0, dataType = 0;
-        int numBands = 0;
-        if (firemap != null) // Use previous as parent
-            firemap = Raster.createWritableRaster(new SampleModel(dataType, w, h, numBands) {
+    private void fillRaster(int w, int h, DataBufferInt buffer) {
+        int dataType = DataBuffer.TYPE_INT;
+        int numBands = 4;
+        if (raster != null && raster.firemap == null){
+            raster.firemap = Raster.createWritableRaster(
+                    new SampleModel(dataType, w, h, numBands) {
 
                 @Override
                 public void setSample(int x, int y, int b, int s, DataBuffer data) {
@@ -288,8 +285,23 @@ public class SAOPConnectionHandler extends ConsoleLayer {
 
                 @Override
                 public int getSample(int x, int y, int b, DataBuffer data) {
-                    // TODO Auto-generated method stub
-                    return 0;
+                    switch (b) {
+                        case 0://red
+                            return data.getElem(x+y*w);
+                        case 1://green
+                            return 0;
+                        case 2://blue
+                            return 0;
+                        case 3://alpha
+                            if(data.getElem(x+y*w) == 0){
+                                return 0;
+                            }
+                            else {
+                                return 255;
+                            }
+                        default:
+                            return 0;
+                    }
                 }
 
                 @Override
@@ -321,10 +333,10 @@ public class SAOPConnectionHandler extends ConsoleLayer {
                     // TODO Auto-generated method stub
                     return null;
                 }
-            }, null);
-//        else
-//            firemap = new WritableRaster(null, null, null) {
-//            };
+            },
+                    buffer,
+                    new Point(0,0));
+        }
     }
 
     @Subscribe
@@ -544,51 +556,35 @@ public class SAOPConnectionHandler extends ConsoleLayer {
     @Override
     public void paint(Graphics2D go, StateRenderer2D renderer) {
         Graphics2D g = ((Graphics2D) go.create());
-        if (firemap != null) {
-            AffineTransform xform = new AffineTransform();
-            ImageObserver obs = new ImageObserver() {
 
-                @Override
-                public boolean imageUpdate(Image img, int infoflags, int x, int y, int width, int height) {
-                    // TODO Auto-generated method stub
-                    return false;
-                }
-            };
-
-            BufferedImage imgbuff = new BufferedImage(firemap.getWidth(), firemap.getHeight(),
-                    BufferedImage.TYPE_INT_ARGB);
-            imgbuff.setData(firemap);
-            g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-            g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            int[] scaleFactor = getScaleFactor(firemap.getWidth(), firemap.getHeight(), renderer.getWidth(),
-                    renderer.getHeight());
-            g.drawImage(imgbuff.getScaledInstance(scaleFactor[0], scaleFactor[1], Image.SCALE_SMOOTH), xform, obs);
-        }
         for (ContourLine cl : polygons) {
             cl.polygon.paint(g, renderer);
             g.setTransform(renderer.getIdentity());
         }
-    }
 
-    public int[] getScaleFactor(int originalW, int originalH, int maxWidth, int maxHeight) {
-        int[] res = new int[2];
-        double imgRatio = (double) originalW / (double) originalH;
-        double desiredRatio = (double) maxWidth / (double) maxHeight;
-        int width = maxWidth;
-        int height = maxHeight;
+        if (raster.firemap != null) {
+            BufferedImage imgbuff = new BufferedImage(raster.firemap.getWidth(), raster.firemap.getHeight(),
+                    BufferedImage.TYPE_INT_ARGB);
+            imgbuff.setData(raster.firemap);
+            g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+            g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION,RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
 
-        if (desiredRatio > imgRatio) {
-            height = maxHeight;
-            width = (int) (maxHeight * imgRatio);
+            // TODO: 09/05/2019 Properly scale to new coordinate system
+            int[] scaleFactor = raster.getScaleFactor(renderer.getWidth(),
+                    renderer.getHeight());
+
+            // TODO: 09/05/2019 Translate to new coordinate system
+            LocationType topLeft = new LocationType(41.29100, -8.57000);
+            Point2D corner = renderer.getScreenPosition(topLeft);
+
+            g.translate(corner.getX(), corner.getY());
+            g.scale(renderer.getZoom(), -renderer.getZoom());
+            g.translate(0, -imgbuff.getHeight());
+            g.rotate(-renderer.getRotation());
+            g.drawImage(imgbuff, 0, 0, imgbuff.getWidth(), imgbuff.getHeight(),renderer);
         }
-        else {
-            width = maxWidth;
-            height = (int) (maxWidth / imgRatio);
-        }
-        res[0] = width;
-        res[1] = height;
-        return res;
     }
 
     private class ContourLine {
@@ -609,6 +605,8 @@ public class SAOPConnectionHandler extends ConsoleLayer {
         final double yOffset;
         final double cellWidth;
         ArrayList<Integer> rasterData;
+        WritableRaster firemap;
+
 
         FireRaster(double xOffset, double yOffset, long xSize, long ySize, double cellWidth, long EPSG_ID) {
             this.xOffset = xOffset;
@@ -675,6 +673,26 @@ public class SAOPConnectionHandler extends ConsoleLayer {
 
         public void rasterDataAppend(int value){
             this.rasterData.add(value);
+        }
+
+        public int[] getScaleFactor(int maxWidth, int maxHeight) {
+            int[] res = new int[2];
+            double imgRatio = (double) firemap.getWidth() / (double) firemap.getHeight();
+            double desiredRatio = (double) maxWidth / (double) maxHeight;
+            int width;
+            int height;
+
+            if (desiredRatio > imgRatio) {
+                height = maxHeight;
+                width = (int) (maxHeight * imgRatio);
+            }
+            else {
+                width = maxWidth;
+                height = (int) (maxWidth / imgRatio);
+            }
+            res[0] = width;
+            res[1] = height;
+            return res;
         }
     }
 }
