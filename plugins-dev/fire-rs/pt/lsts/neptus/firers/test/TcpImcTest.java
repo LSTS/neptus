@@ -146,13 +146,14 @@ public class TcpImcTest {
         String last=pc.getPlanId();
         while (true) {
             // Send IMC Messages periodically
-            DevDataBinary dataB = getDevBinaryMsg();
-            dataB.setTimestampMillis(System.currentTimeMillis());
-            dataB.setSrc(0x3c22);
-            dataB.setDst(0x0c0c);
-            msg.setTimestampMillis(System.currentTimeMillis());
-            tcpT.sendMessage(server, destServer, dataB, mdlT);
-            
+            for (int i = 1; i <= 2; i++) {
+                DevDataBinary dataB = getDevBinaryMsg(i);
+                dataB.setTimestampMillis(System.currentTimeMillis());
+                dataB.setSrc(0x3c22);
+                dataB.setDst(0x0c0c);
+                msg.setTimestampMillis(System.currentTimeMillis());
+                tcpT.sendMessage(server, destServer, dataB, mdlT);
+            }
             DevDataText dataT = getDevTextMsg();
             dataT.setTimestampMillis(System.currentTimeMillis());
             dataT.setSrc(0x3c22);
@@ -224,32 +225,28 @@ public class TcpImcTest {
     /**
      * Read Raster data from file
      */
-    private static DevDataBinary getDevBinaryMsg() {
+    private static DevDataBinary getDevBinaryMsg(int j) {
         DevDataBinary data = new DevDataBinary();
         FileInputStream inputFile = null;
         try {
-            inputFile = new FileInputStream("plugins-dev/fire-rs/pt/lsts/neptus/firers/test/rasterSample");
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            return data;
-        }
-        BufferedReader inputBuf = new BufferedReader(new InputStreamReader(inputFile));
-        try {
+            inputFile = new FileInputStream("plugins-dev/fire-rs/pt/lsts/neptus/firers/test/rasterSample" + j);
+            BufferedReader inputBuf = new BufferedReader(new InputStreamReader(inputFile));
             String inputStr = inputBuf.readLine();
             int len = inputStr.length();
             byte[] input = new byte[len / 2];
             for (int i = 0; i < len; i += 2) {
                 input[i / 2] = (byte) ((Character.digit(inputStr.charAt(i), 16) << 4)
-                        + Character.digit(inputStr.charAt(i+1), 16));
+                        + Character.digit(inputStr.charAt(i + 1), 16));
+                data.setValue(input);
             }
             System.out.println("Arrays.toString(input) = " + Arrays.toString(input));
-            data.setValue(input);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             e.printStackTrace();
         }
         return data;
     }
-    
+
     /**
      * Read Raster data from file
      */
