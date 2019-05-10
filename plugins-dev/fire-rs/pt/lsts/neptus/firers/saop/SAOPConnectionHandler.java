@@ -231,7 +231,11 @@ public class SAOPConnectionHandler extends ConsoleLayer {
                         JsonObject object = element.getAsJsonObject();
                         for (JsonElement contourLineElem : object.get("wildfire_contours").getAsJsonArray()) {
                             JsonObject contourLine = contourLineElem.getAsJsonObject();
-                            polygons.add(processContourLine(contourLine));
+                            ContourLine clInstance = processContourLine(contourLine);
+                            if(clInstance != null){
+                                polygons.removeIf(cl -> cl.epoch == clInstance.epoch);
+                                polygons.add(clInstance);
+                            }
                         }
                         System.out.println("polygons = " + polygons.size());
                         for (ContourLine contour :
@@ -614,7 +618,7 @@ public class SAOPConnectionHandler extends ConsoleLayer {
             g.setTransform(renderer.getIdentity());
         }
 
-        if (raster.firemap != null) {
+        if (raster != null && raster.firemap != null) {
             BufferedImage imgbuff = new BufferedImage(raster.firemap.getWidth(), raster.firemap.getHeight(),
                     BufferedImage.TYPE_INT_ARGB);
             imgbuff.setData(raster.firemap);
