@@ -53,10 +53,12 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.StringJoiner;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
@@ -64,6 +66,15 @@ import java.util.zip.InflaterInputStream;
 import javax.swing.JOptionPane;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.gdal.gdal.Dataset;
+import org.gdal.gdal.gdal;
+import org.gdal.osr.CoordinateTransformation;
+import org.gdal.osr.SpatialReference;
+import org.opengis.metadata.Identifier;
+import org.opengis.metadata.extent.Extent;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.cs.CoordinateSystem;
+import org.opengis.util.InternationalString;
 
 import com.google.common.eventbus.Subscribe;
 import com.google.gson.JsonArray;
@@ -106,7 +117,9 @@ import pt.lsts.neptus.types.coord.PolygonType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
+import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.coord.GdalUtilities;
 
 @PluginDescription(name = "SAOP Server Interaction", description = "IMC Message exchange with SAOP IMC TCP Server", icon = "pt/lsts/neptus/firers/images/fire.png")
 public class SAOPConnectionHandler extends ConsoleLayer {
@@ -288,6 +301,12 @@ public class SAOPConnectionHandler extends ConsoleLayer {
     private void fillRaster(int w, int h, DataBufferInt buffer) {
         int dataType = DataBuffer.TYPE_INT;
         int numBands = 4;
+        
+        String wkt = FileUtil.getFileAsString("pt/lsts/neptus/firers/crs/3035.prj");
+        double points[][];
+//        Dataset src_data = gdal.GridCreate("", points, raster.xOffset, raster.yOffset, 0, 0, raster.xSize, raster.ySize, dataType, ByteBuffer.wrap(buffer.getBankData()));
+        Dataset dst_data = null;
+ //       gdal.ReprojectImage(src_data, dst_data, wkt);
         if (raster != null && raster.firemap == null) {
             raster.firemap = Raster.createWritableRaster(new SampleModel(dataType, w, h, numBands) {
 
