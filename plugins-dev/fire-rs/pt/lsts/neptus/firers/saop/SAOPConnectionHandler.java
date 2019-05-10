@@ -32,7 +32,12 @@
  */
 package pt.lsts.neptus.firers.saop;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.Polygon;
+import java.awt.RenderingHints;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
@@ -58,6 +63,8 @@ import java.util.zip.InflaterInputStream;
 
 import javax.swing.JOptionPane;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import com.google.common.eventbus.Subscribe;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -65,7 +72,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.l2fprod.common.propertysheet.Property;
 
-import org.apache.commons.lang3.ArrayUtils;
 import pt.lsts.imc.DevDataBinary;
 import pt.lsts.imc.DevDataText;
 import pt.lsts.imc.EstimatedState;
@@ -113,10 +119,15 @@ public class SAOPConnectionHandler extends ConsoleLayer {
     private Map<String, Integer> plans_reqId = Collections.synchronizedMap(new HashMap<>());
     private ArrayList<ContourLine> polygons = new ArrayList<>();
     private FireRaster raster;
+    // ETR89/LAEA Europe Coordinates System params for WGS84 re-projection
+    public final double ETR89_to_WGS84_lat = 52.0;
+    public final double ETR89_to_WGS84_long = 10.0;
+    public final double ETR89_to_WGS84_east = 4321000.0;
+    public final double ETR89_to_WGS84_nort = 3210000.0;
     private InterpolationColorMap polyCm = ColorMapFactory.createGrayScaleColorMap();
     private InterpolationColorMap rasterCm = ColorMapFactory.createAutumnColorMap();
 
-    @NeptusProperty(name="Debug Mode",userLevel=LEVEL.REGULAR,description="Request operators permission to start/stop plan")
+    @NeptusProperty(name = "Debug Mode", userLevel = LEVEL.REGULAR, description = "Request operators permission to start/stop plan")
     public boolean debugMode = true;
     @NeptusProperty(name = "IP ADDRESS", userLevel = LEVEL.REGULAR, description = "IP ADDRESS to SAOP server")
     public String ipAddr = "127.0.0.1";
@@ -159,7 +170,7 @@ public class SAOPConnectionHandler extends ConsoleLayer {
                     addNewPlanControl(pc);
                 }
                 // }
-                else if(msg.getMgid() == DevDataBinary.ID_STATIC) {
+                else if (msg.getMgid() == DevDataBinary.ID_STATIC) {
 
                     DevDataBinary data = msg.cloneMessageTyped();
 
@@ -174,13 +185,13 @@ public class SAOPConnectionHandler extends ConsoleLayer {
                     double yOffset = wrapper.getDouble();
                     double cellWidth = wrapper.getDouble();
 
-                    if(magicNum != (short) 0x3EF1){
+                    if (magicNum != (short) 0x3EF1) {
                         return;
                     }
                     raster = new FireRaster(xOffset, yOffset, xSize, ySize, cellWidth, EPSG_ID);
 
                     byte[] rasterData;
-                    rasterData = Arrays.copyOfRange(msgData,wrapper.position(),msgData.length);
+                    rasterData = Arrays.copyOfRange(msgData, wrapper.position(), msgData.length);
 
                     Inflater decompressor = new Inflater();
                     decompressor.setInput(rasterData);
@@ -191,15 +202,16 @@ public class SAOPConnectionHandler extends ConsoleLayer {
                     byte[] tmpDouble = new byte[8];
                     ByteBuffer tmpBB = ByteBuffer.wrap(tmpDouble);
                     try {
-                        while(inStream.read(tmpDouble) > 0){
+                        while (inStream.read(tmpDouble) > 0) {
                             int tmp = tmpBB.get() & 0xFF;
                             raster.rasterDataAppend(tmp);
                             tmpBB.rewind();
                         }
                         DataBufferInt buffer = new DataBufferInt(
-                                ArrayUtils.toPrimitive(raster.getRasterData().toArray(new Integer[]{})),1);
+                                ArrayUtils.toPrimitive(raster.getRasterData().toArray(new Integer[] {})), 1);
                         fillRaster(xSize.intValue(), ySize.intValue(), buffer);
-                    } catch (Exception e) {
+                    }
+                    catch (Exception e) {
                         NeptusLog.pub().error(e);
                         e.printStackTrace();
                     }
@@ -211,9 +223,10 @@ public class SAOPConnectionHandler extends ConsoleLayer {
                     //polygons.clear();
                     double minTime = Double.MAX_VALUE;
                     double maxTime = Double.MIN_VALUE;
+
                     try {
-                        JsonParser parser   = new JsonParser();
-                        DevDataText data    = msg.cloneMessageTyped();
+                        JsonParser parser = new JsonParser();
+                        DevDataText data = msg.cloneMessageTyped();
                         JsonElement element = parser.parse(data.getValue());
                         JsonObject object = element.getAsJsonObject();
                         for (JsonElement contourLineElem : object.get("wildfire_contours").getAsJsonArray()) {
@@ -223,10 +236,10 @@ public class SAOPConnectionHandler extends ConsoleLayer {
                         System.out.println("polygons = " + polygons.size());
                         for (ContourLine contour :
                                 polygons) {
-                            if (contour.time > maxTime)
-                                maxTime = contour.time;
-                            if(contour.time < minTime)
-                                minTime = contour.time;
+                            if (contour.epoch > maxTime)
+                                maxTime = contour.epoch;
+                            if(contour.epoch < minTime)
+                                minTime = contour.epoch;
                         }
                         polyCm.setValues(new double[]{minTime,maxTime});
                     } catch (Exception e){
@@ -236,7 +249,7 @@ public class SAOPConnectionHandler extends ConsoleLayer {
                 }
             }
         };
-       
+
         deliveryListener = new MessageDeliveryListener() {
 
             @Override
@@ -271,9 +284,8 @@ public class SAOPConnectionHandler extends ConsoleLayer {
     private void fillRaster(int w, int h, DataBufferInt buffer) {
         int dataType = DataBuffer.TYPE_INT;
         int numBands = 4;
-        if (raster != null && raster.firemap == null){
-            raster.firemap = Raster.createWritableRaster(
-                    new SampleModel(dataType, w, h, numBands) {
+        if (raster != null && raster.firemap == null) {
+            raster.firemap = Raster.createWritableRaster(new SampleModel(dataType, w, h, numBands) {
 
                 @Override
                 public void setSample(int x, int y, int b, int s, DataBuffer data) {
@@ -301,7 +313,7 @@ public class SAOPConnectionHandler extends ConsoleLayer {
 
                 @Override
                 public int getSample(int x, int y, int b, DataBuffer data) {
-                    int value = data.getElem(x+y*w);
+                    int value = data.getElem(x + y * w);
                     switch (b) {
                         case 0://red
                             return rasterCm.getColor(value).getRed();
@@ -310,7 +322,7 @@ public class SAOPConnectionHandler extends ConsoleLayer {
                         case 2://blue
                             return rasterCm.getColor(value).getBlue();
                         case 3://alpha
-                            if(data.getElem(x+y*w) == 0){
+                            if(value == 0){
                                 return 0;
                             }
                             else {
@@ -350,9 +362,7 @@ public class SAOPConnectionHandler extends ConsoleLayer {
                     // TODO Auto-generated method stub
                     return null;
                 }
-            },
-                    buffer,
-                    new Point(0,0));
+            }, buffer, new Point(0, 0));
         }
     }
 
@@ -408,9 +418,10 @@ public class SAOPConnectionHandler extends ConsoleLayer {
     private ContourLine processContourLine(JsonObject contourLineObj) {
         String time = contourLineObj.getAsJsonPrimitive("time").getAsString();
         JsonArray colorRGB = contourLineObj.getAsJsonArray("color");
+        Color c = new Color(colorRGB.get(0).getAsInt(), colorRGB.get(1).getAsInt(), colorRGB.get(2).getAsInt());
         PolygonType poly = new PolygonType();
         poly.setFilled(false);
-        poly.setColor(new Color(colorRGB.get(0).getAsInt(), colorRGB.get(1).getAsInt(), colorRGB.get(2).getAsInt()));
+        poly.setColor(c);
         for (JsonElement vertexElem : contourLineObj.get("polygon").getAsJsonArray()) {
             JsonElement latObj = vertexElem.getAsJsonObject().get("lat"),
                     longObj = vertexElem.getAsJsonObject().get("lon");
@@ -423,7 +434,7 @@ public class SAOPConnectionHandler extends ConsoleLayer {
         DateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
         try {
             Date dateTime = utcFormat.parse(time);
-            return new ContourLine(dateTime.getTime(), poly);
+            return new ContourLine(dateTime.getTime(), time, poly, c);
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -584,14 +595,24 @@ public class SAOPConnectionHandler extends ConsoleLayer {
     public void paint(Graphics2D go, StateRenderer2D renderer) {
         Graphics2D g = ((Graphics2D) go.create());
 
+        g.setColor(new Color(255, 255, 255, 150));
+        g.fillRect(20, 20, 150, 2 * 150);
+        int x = 60;
+        int y = 40;
+
         for (int i = 0; i < polygons.size()-1; i++) {
             ContourLine cl = polygons.get(i);
-            cl.polygon.setColor(polyCm.getColor(cl.time));
+            cl.polygon.setColor(polyCm.getColor(cl.epoch));
             cl.polygon.paint(g, renderer);
+            y = printLabel(go,renderer,cl,x,y);
             g.setTransform(renderer.getIdentity());
         }
-        polygons.get(Math.max(0,polygons.size()-1)).polygon.paint(g,renderer);
-        g.setTransform(renderer.getIdentity());
+        if(polygons.size() != 0){
+            ContourLine lastCL = polygons.get(Math.max(0,polygons.size()-1));
+            lastCL.polygon.paint(g,renderer);
+            y = printLabel(go,renderer,lastCL,x,y);
+            g.setTransform(renderer.getIdentity());
+        }
 
         if (raster.firemap != null) {
             BufferedImage imgbuff = new BufferedImage(raster.firemap.getWidth(), raster.firemap.getHeight(),
@@ -600,12 +621,11 @@ public class SAOPConnectionHandler extends ConsoleLayer {
             g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
             g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION,RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
+            g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
 
             // TODO: 09/05/2019 Properly scale to new coordinate system
             int[] scaleFactor = raster.getScaleFactor(renderer.getWidth(),
                     renderer.getHeight());
-
             // TODO: 09/05/2019 Translate to new coordinate system
             LocationType topLeft = new LocationType(41.29100, -8.57000);
             Point2D corner = renderer.getScreenPosition(topLeft);
@@ -614,116 +634,144 @@ public class SAOPConnectionHandler extends ConsoleLayer {
             g.scale(renderer.getZoom(), -renderer.getZoom());
             g.translate(0, -imgbuff.getHeight());
             g.rotate(-renderer.getRotation());
-            g.drawImage(imgbuff, 0, 0, imgbuff.getWidth(), imgbuff.getHeight(),renderer);
+            g.drawImage(imgbuff, 0, 0, imgbuff.getWidth(), imgbuff.getHeight(), renderer);
+            //g.drawImage(imgbuff.getScaledInstance(scaleFactor[0], scaleFactor[1], Image.SCALE_SMOOTH), xform, obs);
         }
+//        GradientPaint redtowhite = new GradientPaint(y-20, x-10, Color.red, 200, y,
+//                Color.white);
+//        g.setPaint(redtowhite);
+//        g.fill(new Rectangle2D.Float(x+2, y+2, 30, 50));
+
     }
 
-    private class ContourLine {
-        public long time;
-        public PolygonType polygon;
+    private int printLabel(Graphics2D g, StateRenderer2D renderer, ContourLine c, int x, int y) {
 
-        ContourLine(long time, PolygonType polygon) {
-            this.time = time;
-            this.polygon = polygon;
-        }
+        g.setColor(Color.BLACK);
+        Polygon poly = new Polygon(new int[] { 8, 8, 16 }, new int[] { 0, 10, 5 }, 3);
+        g.translate(16, y - 10);
+        g.fill(poly);
+        g.translate(-16, -(y - 10));
+
+        g.setColor(c.color);
+        g.fill(new Ellipse2D.Double(x - 20, y - 11, 12, 12));
+        g.setColor(Color.BLACK);
+        String parts[] = c.time.split("T");
+        String date = parts[0];
+        String time = parts[1];
+        g.drawString(date, x, y);
+        g.drawString(time, x, y + 10);
+        y += 20;
+        return y;
     }
 
-    private class FireRaster {
-        final long EPSG_ID;
-        final long xSize;
-        final long ySize;
-        final double xOffset;
-        final double yOffset;
-        final double cellWidth;
-        ArrayList<Integer> rasterData;
-        WritableRaster firemap;
+private class ContourLine {
+    public String time;
+    public long epoch;
+    public PolygonType polygon;
+    public Color color;
 
-
-        FireRaster(double xOffset, double yOffset, long xSize, long ySize, double cellWidth, long EPSG_ID) {
-            this.xOffset = xOffset;
-            this.yOffset = yOffset;
-            this.xSize = xSize;
-            this.ySize = ySize;
-            this.cellWidth = cellWidth;
-            this.EPSG_ID = EPSG_ID;
-            rasterData = new ArrayList<Integer>();
-        }
-
-        /**
-         * @return the ePSG_ID
-         */
-        public long getEPSG_ID() {
-            return EPSG_ID;
-        }
-
-        /**
-         * @return the xSize
-         */
-        public long getxSize() {
-            return xSize;
-        }
-
-        /**
-         * @return the ySize
-         */
-        public long getySize() {
-            return ySize;
-        }
-
-        /**
-         * @return the xOffset
-         */
-        public double getxOffset() {
-            return xOffset;
-        }
-
-        /**
-         * @return the yOffset
-         */
-        public double getyOffset() {
-            return yOffset;
-        }
-
-        /**
-         * @return the cellWidth
-         */
-        public double getCellWidth() {
-            return cellWidth;
-        }
-
-        /**
-         * @return the rasterData
-         */
-        public ArrayList<Integer> getRasterData() {
-            return rasterData;
-        }
-
-        public void setRasterData(ArrayList<Integer> rasterData) {
-            this.rasterData = rasterData;
-        }
-
-        public void rasterDataAppend(int value){
-            this.rasterData.add(value);
-        }
-
-        public int[] getScaleFactor(int maxWidth, int maxHeight) {
-            int[] res = new int[2];
-            double imgRatio = (double) firemap.getWidth() / (double) firemap.getHeight();
-            double desiredRatio = (double) maxWidth / (double) maxHeight;
-            int width;
-            int height;
-
-            if (desiredRatio > imgRatio) {
-                height = maxHeight;
-                width = (int) (maxHeight * imgRatio);
-            }
-            else {
-                width = maxWidth;
-                height = (int) (maxWidth / imgRatio);
-            }
-            res[0] = width;
-            res[1] = height;
-            return res;
-        }
+    ContourLine(long epoch, String time, PolygonType polygon, Color c) {
+        this.epoch = epoch;
+        this.time = time;
+        this.polygon = polygon;
+        this.color = c;
     }
 }
+
+private class FireRaster {
+    final long EPSG_ID;
+    final long xSize;
+    final long ySize;
+    final double xOffset;
+    final double yOffset;
+    final double cellWidth;
+    ArrayList<Integer> rasterData;
+    WritableRaster firemap;
+
+    FireRaster(double xOffset, double yOffset, long xSize, long ySize, double cellWidth, long EPSG_ID) {
+        this.xOffset = xOffset;
+        this.yOffset = yOffset;
+        this.xSize = xSize;
+        this.ySize = ySize;
+        this.cellWidth = cellWidth;
+        this.EPSG_ID = EPSG_ID;
+        rasterData = new ArrayList<Integer>();
+    }
+
+    /**
+     * @return the ePSG_ID
+     */
+    public long getEPSG_ID() {
+        return EPSG_ID;
+    }
+
+    /**
+     * @return the xSize
+     */
+    public long getxSize() {
+        return xSize;
+    }
+
+    /**
+     * @return the ySize
+     */
+    public long getySize() {
+        return ySize;
+    }
+
+    /**
+     * @return the xOffset
+     */
+    public double getxOffset() {
+        return xOffset;
+    }
+
+    /**
+     * @return the yOffset
+     */
+    public double getyOffset() {
+        return yOffset;
+    }
+
+    /**
+     * @return the cellWidth
+     */
+    public double getCellWidth() {
+        return cellWidth;
+    }
+
+    /**
+     * @return the rasterData
+     */
+    public ArrayList<Integer> getRasterData() {
+        return rasterData;
+    }
+
+    public void setRasterData(ArrayList<Integer> rasterData) {
+        this.rasterData = rasterData;
+    }
+
+    public void rasterDataAppend(int value) {
+        this.rasterData.add(value);
+    }
+
+    public int[] getScaleFactor(int maxWidth, int maxHeight) {
+        int[] res = new int[2];
+        double imgRatio = (double) firemap.getWidth() / (double) firemap.getHeight();
+        double desiredRatio = (double) maxWidth / (double) maxHeight;
+        int width;
+        int height;
+
+        if (desiredRatio > imgRatio) {
+            height = maxHeight;
+            width = (int) (maxHeight * imgRatio);
+        }
+        else {
+            width = maxWidth;
+            height = (int) (maxWidth / imgRatio);
+        }
+        res[0] = width;
+        res[1] = height;
+        return res;
+    }
+}}
