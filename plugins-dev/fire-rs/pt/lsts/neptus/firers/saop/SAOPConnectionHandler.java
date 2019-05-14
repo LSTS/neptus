@@ -32,19 +32,10 @@
  */
 package pt.lsts.neptus.firers.saop;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.Polygon;
-import java.awt.RenderingHints;
+import java.awt.*;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBuffer;
-import java.awt.image.DataBufferInt;
-import java.awt.image.Raster;
-import java.awt.image.SampleModel;
-import java.awt.image.WritableRaster;
+import java.awt.image.*;
 import java.io.ByteArrayInputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -94,8 +85,7 @@ import pt.lsts.imc.PlanControl.OP;
 import pt.lsts.imc.PlanControlState;
 import pt.lsts.imc.PlanSpecification;
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.colormap.ColorMapFactory;
-import pt.lsts.neptus.colormap.InterpolationColorMap;
+import pt.lsts.neptus.colormap.*;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
@@ -139,6 +129,7 @@ public class SAOPConnectionHandler extends ConsoleLayer {
     public final double ETR89_to_WGS84_nort = 3210000.0;
     private InterpolationColorMap polyCm = ColorMapFactory.createGrayScaleColorMap();
     private InterpolationColorMap rasterCm = ColorMapFactory.createAutumnColorMap();
+    private ColorBar cb = new ColorBar(ColorBar.VERTICAL_ORIENTATION, rasterCm);
 
     @NeptusProperty(name = "Debug Mode", userLevel = LEVEL.REGULAR, description = "Request operators permission to start/stop plan")
     public boolean debugMode = true;
@@ -214,14 +205,23 @@ public class SAOPConnectionHandler extends ConsoleLayer {
 
                     byte[] tmpDouble = new byte[8];
                     ByteBuffer tmpBB = ByteBuffer.wrap(tmpDouble);
+                    tmpBB.order(ByteOrder.LITTLE_ENDIAN);
+                    double cmMax = Double.MIN_VALUE, cmMin = Double.MAX_VALUE;
                     try {
                         while (inStream.read(tmpDouble) > 0) {
-                            int tmp = tmpBB.get() & 0xFF;
+                            double tmp = tmpBB.getDouble();
+                            if(tmp != Double.POSITIVE_INFINITY){
+                                if(tmp > cmMax)
+                                    cmMax = tmp;
+                                if(tmp < cmMin)
+                                    cmMin = tmp;
+                            }
                             raster.rasterDataAppend(tmp);
                             tmpBB.rewind();
                         }
-                        DataBufferInt buffer = new DataBufferInt(
-                                ArrayUtils.toPrimitive(raster.getRasterData().toArray(new Integer[] {})), 1);
+                        rasterCm.setValues(new double[]{cmMin, cmMax});
+                        DataBufferDouble buffer = new DataBufferDouble(
+                                ArrayUtils.toPrimitive(raster.getRasterData().toArray(new Double[] {})), 1);
                         fillRaster(xSize.intValue(), ySize.intValue(), buffer);
                     }
                     catch (Exception e) {
@@ -236,6 +236,7 @@ public class SAOPConnectionHandler extends ConsoleLayer {
                     //polygons.clear();
                     double minTime = Double.MAX_VALUE;
                     double maxTime = Double.MIN_VALUE;
+                    polygons.clear();
 
                     try {
                         JsonParser parser = new JsonParser();
@@ -246,7 +247,6 @@ public class SAOPConnectionHandler extends ConsoleLayer {
                             JsonObject contourLine = contourLineElem.getAsJsonObject();
                             ContourLine clInstance = processContourLine(contourLine);
                             if(clInstance != null){
-                                polygons.removeIf(cl -> cl.epoch == clInstance.epoch);
                                 polygons.add(clInstance);
                             }
                         }
@@ -298,7 +298,7 @@ public class SAOPConnectionHandler extends ConsoleLayer {
         };
     }
 
-    private void fillRaster(int w, int h, DataBufferInt buffer) {
+    private void fillRaster(int w, int h, DataBufferDouble buffer) {
         int dataType = DataBuffer.TYPE_INT;
         int numBands = 4;
         
@@ -336,7 +336,7 @@ public class SAOPConnectionHandler extends ConsoleLayer {
 
                 @Override
                 public int getSample(int x, int y, int b, DataBuffer data) {
-                    int value = data.getElem(x + y * w);
+                    double value = data.getElemDouble(x + y * w);
                     switch (b) {
                         case 0://red
                             return rasterCm.getColor(value).getRed();
@@ -345,7 +345,7 @@ public class SAOPConnectionHandler extends ConsoleLayer {
                         case 2://blue
                             return rasterCm.getColor(value).getBlue();
                         case 3://alpha
-                            if(value == 0){
+                            if(value == Double.POSITIVE_INFINITY){
                                 return 0;
                             }
                             else {
@@ -593,7 +593,6 @@ public class SAOPConnectionHandler extends ConsoleLayer {
     @Override
     public void initLayer() {
         initializeListeners();
-        rasterCm.setValues(new double[]{0,255});
         imctt = new ImcTcpTransport(bindPort, IMCDefinition.getInstance());
         imctt.addListener(msgListener);
 
@@ -623,6 +622,38 @@ public class SAOPConnectionHandler extends ConsoleLayer {
         int x = 60;
         int y = 40;
 
+        // PAINT RASTER COLORMAP
+        Graphics2D cbGraphics = ((Graphics2D) go.create());
+        double[] oldValues = rasterCm.getValues();
+        rasterCm.setValues(new double[]{0,1});
+        cb.setSize(15, 80);
+        cbGraphics.setColor(Color.black);
+        cbGraphics.setFont(new Font("Helvetica", Font.BOLD, 14));
+        cbGraphics.translate(20, 350);
+        cb.paint(cbGraphics);
+        rasterCm.setValues(oldValues);
+
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+        // multiply by 1000 because java creates dates based on milliseconds
+        long minVal = Double.valueOf(oldValues[0]).longValue()*1000, maxVal = Double.valueOf(oldValues[1]).longValue()*1000;
+        try {
+            if (oldValues[0] != Double.MAX_VALUE)
+                cbGraphics.drawString(sdf.format(new Date((minVal + maxVal)/2)), 15, 45);
+
+            if (oldValues[0] == Double.MAX_VALUE) {
+                cbGraphics.drawString("-\u221E", 15, 80);
+                cbGraphics.drawString("+\u221E", 15, 10);
+            }
+            else {
+                cbGraphics.drawString(sdf.format(new Date(maxVal)), 15, 10);
+                cbGraphics.drawString(sdf.format(new Date(minVal)), 15, 80);
+            }
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error(e);
+        }
+
+        // PAINT POLYGONS
         for (int i = 0; i < polygons.size()-1; i++) {
             ContourLine cl = polygons.get(i);
             cl.polygon.setColor(polyCm.getColor(cl.epoch));
@@ -637,6 +668,7 @@ public class SAOPConnectionHandler extends ConsoleLayer {
             g.setTransform(renderer.getIdentity());
         }
 
+        // PAINT RASTER
         if (raster != null && raster.firemap != null) {
             BufferedImage imgbuff = new BufferedImage(raster.firemap.getWidth(), raster.firemap.getHeight(),
                     BufferedImage.TYPE_INT_ARGB);
@@ -708,7 +740,7 @@ private class FireRaster {
     final double xOffset;
     final double yOffset;
     final double cellWidth;
-    ArrayList<Integer> rasterData;
+    ArrayList<Double> rasterData;
     WritableRaster firemap;
 
     FireRaster(double xOffset, double yOffset, long xSize, long ySize, double cellWidth, long EPSG_ID) {
@@ -718,7 +750,7 @@ private class FireRaster {
         this.ySize = ySize;
         this.cellWidth = cellWidth;
         this.EPSG_ID = EPSG_ID;
-        rasterData = new ArrayList<Integer>();
+        rasterData = new ArrayList<Double>();
     }
 
     /**
@@ -766,15 +798,15 @@ private class FireRaster {
     /**
      * @return the rasterData
      */
-    public ArrayList<Integer> getRasterData() {
+    public ArrayList<Double> getRasterData() {
         return rasterData;
     }
 
-    public void setRasterData(ArrayList<Integer> rasterData) {
+    public void setRasterData(ArrayList<Double> rasterData) {
         this.rasterData = rasterData;
     }
 
-    public void rasterDataAppend(int value) {
+    public void rasterDataAppend(double value) {
         this.rasterData.add(value);
     }
 
