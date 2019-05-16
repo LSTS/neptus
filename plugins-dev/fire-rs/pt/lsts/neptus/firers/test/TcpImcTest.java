@@ -149,14 +149,20 @@ public class TcpImcTest {
         String last = pc.getPlanId();
         while (true) {
             // Send IMC Messages periodically
-            for (int i = 1; i <= 2; i++) {
-                DevDataBinary dataB = getDevBinaryMsg(i);
-                dataB.setTimestampMillis(System.currentTimeMillis());
-                dataB.setSrc(0x3c22);
-                dataB.setDst(0x0c0c);
-                msg.setTimestampMillis(System.currentTimeMillis());
-                tcpT.sendMessage(server, destServer, dataB, mdlT);
-            }
+//            for (int i = 1; i <= 2; i++) {
+//                DevDataBinary dataB = getDevBinaryMsg(i);
+//                dataB.setTimestampMillis(System.currentTimeMillis());
+//                dataB.setSrc(0x3c22);
+//                dataB.setDst(0x0c0c);
+//                msg.setTimestampMillis(System.currentTimeMillis());
+//                tcpT.sendMessage(server, destServer, dataB, mdlT);
+//            }
+            DevDataBinary dataB = getDevBinaryMsg(0);
+            dataB.setTimestampMillis(System.currentTimeMillis());
+            dataB.setSrc(0x3c22);
+            dataB.setDst(0x0c0c);
+            msg.setTimestampMillis(System.currentTimeMillis());
+            tcpT.sendMessage(server, destServer, dataB, mdlT);
             DevDataText dataT = getDevTextMsg();
             dataT.setTimestampMillis(System.currentTimeMillis());
             dataT.setSrc(0x3c22);
@@ -209,7 +215,8 @@ public class TcpImcTest {
         DevDataBinary data = new DevDataBinary();
         FileInputStream inputFile = null;
         try {
-            inputFile = new FileInputStream("plugins-dev/fire-rs/pt/lsts/neptus/firers/test/rasterSample" + j);
+            //inputFile = new FileInputStream("plugins-dev/fire-rs/pt/lsts/neptus/firers/test/rasterSample" + j);//EPSG:3035
+            inputFile = new FileInputStream("plugins-dev/fire-rs/pt/lsts/neptus/firers/test/rasterUTM");//EPSG:32629
             BufferedReader inputBuf = new BufferedReader(new InputStreamReader(inputFile));
             String inputStr = inputBuf.readLine();
             int len = inputStr.length();
