@@ -32,10 +32,21 @@
  */
 package pt.lsts.neptus.firers.saop;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.Point;
+import java.awt.Polygon;
+import java.awt.RenderingHints;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
-import java.awt.image.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferDouble;
+import java.awt.image.Raster;
+import java.awt.image.SampleModel;
+import java.awt.image.WritableRaster;
 import java.io.ByteArrayInputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -44,12 +55,10 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.StringJoiner;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
@@ -57,15 +66,6 @@ import java.util.zip.InflaterInputStream;
 import javax.swing.JOptionPane;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.gdal.gdal.Dataset;
-import org.gdal.gdal.gdal;
-import org.gdal.osr.CoordinateTransformation;
-import org.gdal.osr.SpatialReference;
-import org.opengis.metadata.Identifier;
-import org.opengis.metadata.extent.Extent;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.cs.CoordinateSystem;
-import org.opengis.util.InternationalString;
 
 import com.google.common.eventbus.Subscribe;
 import com.google.gson.JsonArray;
@@ -85,7 +85,9 @@ import pt.lsts.imc.PlanControl.OP;
 import pt.lsts.imc.PlanControlState;
 import pt.lsts.imc.PlanSpecification;
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.colormap.*;
+import pt.lsts.neptus.colormap.ColorBar;
+import pt.lsts.neptus.colormap.ColorMapFactory;
+import pt.lsts.neptus.colormap.InterpolationColorMap;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
@@ -104,12 +106,12 @@ import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.coord.PolygonType;
+import pt.lsts.neptus.types.coord.UTMCoordinates;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
-import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.coord.GdalUtilities;
+import pt.lsts.neptus.util.ImageUtils;
 
 @PluginDescription(name = "SAOP Server Interaction", description = "IMC Message exchange with SAOP IMC TCP Server", icon = "pt/lsts/neptus/firers/images/fire.png")
 public class SAOPConnectionHandler extends ConsoleLayer {
@@ -127,6 +129,7 @@ public class SAOPConnectionHandler extends ConsoleLayer {
     public final double ETR89_to_WGS84_long = 10.0;
     public final double ETR89_to_WGS84_east = 4321000.0;
     public final double ETR89_to_WGS84_nort = 3210000.0;
+    public final int WGS84_EPSG = 4326; 
     private InterpolationColorMap polyCm = ColorMapFactory.createGrayScaleColorMap();
     private InterpolationColorMap rasterCm = ColorMapFactory.createAutumnColorMap();
     private ColorBar cb = new ColorBar(ColorBar.VERTICAL_ORIENTATION, rasterCm);
@@ -192,8 +195,11 @@ public class SAOPConnectionHandler extends ConsoleLayer {
                     if (magicNum != (short) 0x3EF1) {
                         return;
                     }
-                    raster = new FireRaster(xOffset, yOffset, xSize, ySize, cellWidth, EPSG_ID);
+                    NeptusLog.pub().info(I18n.text("xoffset: "+xOffset+" yoffset: "+yOffset+" EPSG: "+EPSG_ID));
+                    NeptusLog.pub().info(I18n.text("xSize: "+xSize+" ySize: "+ySize+" Cell Width: "+cellWidth));
 
+                    raster = new FireRaster(xOffset, yOffset, xSize, ySize, cellWidth, EPSG_ID);
+                    NeptusLog.pub().info(I18n.text("WSG84 coords for raster: "+raster.getLocation()));
                     byte[] rasterData;
                     rasterData = Arrays.copyOfRange(msgData, wrapper.position(), msgData.length);
 
@@ -250,7 +256,7 @@ public class SAOPConnectionHandler extends ConsoleLayer {
                                 polygons.add(clInstance);
                             }
                         }
-                        System.out.println("polygons = " + polygons.size());
+                        NeptusLog.pub().info(I18n.text("Received "+polygons.size()+" contour lines from SAOP"));
                         for (ContourLine contour :
                                 polygons) {
                             if (contour.epoch > maxTime)
@@ -301,12 +307,7 @@ public class SAOPConnectionHandler extends ConsoleLayer {
     private void fillRaster(int w, int h, DataBufferDouble buffer) {
         int dataType = DataBuffer.TYPE_INT;
         int numBands = 4;
-        
-        String wkt = FileUtil.getFileAsString("pt/lsts/neptus/firers/crs/3035.prj");
-        double points[][];
-//        Dataset src_data = gdal.GridCreate("", points, raster.xOffset, raster.yOffset, 0, 0, raster.xSize, raster.ySize, dataType, ByteBuffer.wrap(buffer.getBankData()));
-        Dataset dst_data = null;
- //       gdal.ReprojectImage(src_data, dst_data, wkt);
+       
         if (raster != null && raster.firemap == null) {
             raster.firemap = Raster.createWritableRaster(new SampleModel(dataType, w, h, numBands) {
 
@@ -615,12 +616,19 @@ public class SAOPConnectionHandler extends ConsoleLayer {
 
     @Override
     public void paint(Graphics2D go, StateRenderer2D renderer) {
+        int length = polygons.size() > 1 ? polygons.size()*50+100: 200;
+        int width  = 150;
         Graphics2D g = ((Graphics2D) go.create());
-
         g.setColor(new Color(255, 255, 255, 150));
-        g.fillRect(20, 20, 150, 2 * 150);
-        int x = 60;
+        g.fillRect(20, 20, width, length);
+        int x = 40;
         int y = 40;
+        
+        //Title
+        g.setColor(Color.black);
+        g.setFont(new Font("Helvetica", Font.BOLD, 12));
+        g.drawString("Wildfire Contours", x, y);
+        y+=20;
 
         // PAINT RASTER COLORMAP
         Graphics2D cbGraphics = ((Graphics2D) go.create());
@@ -628,14 +636,17 @@ public class SAOPConnectionHandler extends ConsoleLayer {
         rasterCm.setValues(new double[]{0,1});
         cb.setSize(15, 80);
         cbGraphics.setColor(Color.black);
-        cbGraphics.setFont(new Font("Helvetica", Font.BOLD, 14));
-        cbGraphics.translate(20, 350);
+        cbGraphics.setFont(new Font("Helvetica", Font.BOLD, 12));
+        int yy = polygons.size() > 1 ? polygons.size()*40+y: 100;
+        cbGraphics.drawString("Ignition Time", x, yy);
+        cbGraphics.translate(x, yy+10);
         cb.paint(cbGraphics);
         rasterCm.setValues(oldValues);
 
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
         // multiply by 1000 because java creates dates based on milliseconds
         long minVal = Double.valueOf(oldValues[0]).longValue()*1000, maxVal = Double.valueOf(oldValues[1]).longValue()*1000;
+        cbGraphics.setFont(new Font("Helvetica", Font.BOLD, 10));
         try {
             if (oldValues[0] != Double.MAX_VALUE)
                 cbGraphics.drawString(sdf.format(new Date((minVal + maxVal)/2)), 15, 45);
@@ -652,22 +663,17 @@ public class SAOPConnectionHandler extends ConsoleLayer {
         catch (Exception e) {
             NeptusLog.pub().error(e);
         }
+        
 
         // PAINT POLYGONS
-        for (int i = 0; i < polygons.size()-1; i++) {
+        for (int i = 0; i < polygons.size(); i++) {
             ContourLine cl = polygons.get(i);
-            cl.polygon.setColor(polyCm.getColor(cl.epoch));
+            //cl.polygon.setColor(polyCm.getColor(cl.epoch));
             cl.polygon.paint(g, renderer);
-            y = printLabel(go,renderer,cl,x,y);
+            y = printLabel(go,renderer,cl,x+10,y);
             g.setTransform(renderer.getIdentity());
         }
-        if(polygons.size() != 0){
-            ContourLine lastCL = polygons.get(Math.max(0,polygons.size()-1));
-            lastCL.polygon.paint(g,renderer);
-            y = printLabel(go,renderer,lastCL,x,y);
-            g.setTransform(renderer.getIdentity());
-        }
-
+        
         // PAINT RASTER
         if (raster != null && raster.firemap != null) {
             BufferedImage imgbuff = new BufferedImage(raster.firemap.getWidth(), raster.firemap.getHeight(),
@@ -679,23 +685,21 @@ public class SAOPConnectionHandler extends ConsoleLayer {
             g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
 
             // TODO: 09/05/2019 Properly scale to new coordinate system
-            int[] scaleFactor = raster.getScaleFactor(renderer.getWidth(),
-                    renderer.getHeight());
-            // TODO: 09/05/2019 Translate to new coordinate system
-            LocationType topLeft = new LocationType(41.29100, -8.57000);
+            LocationType topLeft = raster.getLocation();
+            
+ 
             Point2D corner = renderer.getScreenPosition(topLeft);
-
             g.translate(corner.getX(), corner.getY());
             g.scale(renderer.getZoom(), -renderer.getZoom());
             g.translate(0, -imgbuff.getHeight());
             g.rotate(-renderer.getRotation());
             g.drawImage(imgbuff, 0, 0, imgbuff.getWidth(), imgbuff.getHeight(), renderer);
+            
+//            BufferedImage img = ImageUtils.toBufferedImage(ImageUtils.getImage("plugins-dev/fire-rs/pt/lsts/neptus/firers/test/fire.png"));
+//            LocationType l = new LocationType(41.2994128,-8.5813754);
+//            g.drawImage(img, 0, 0, 81, 81, renderer);
             //g.drawImage(imgbuff.getScaledInstance(scaleFactor[0], scaleFactor[1], Image.SCALE_SMOOTH), xform, obs);
         }
-//        GradientPaint redtowhite = new GradientPaint(y-20, x-10, Color.red, 200, y,
-//                Color.white);
-//        g.setPaint(redtowhite);
-//        g.fill(new Rectangle2D.Float(x+2, y+2, 30, 50));
 
     }
 
@@ -703,19 +707,20 @@ public class SAOPConnectionHandler extends ConsoleLayer {
 
         g.setColor(Color.BLACK);
         Polygon poly = new Polygon(new int[] { 8, 8, 16 }, new int[] { 0, 10, 5 }, 3);
-        g.translate(16, y - 10);
+        g.translate(20, y - 10);
         g.fill(poly);
-        g.translate(-16, -(y - 10));
+        g.translate(-20, -(y - 10));
 
         g.setColor(c.color);
-        g.fill(new Ellipse2D.Double(x - 20, y - 11, 12, 12));
+        g.fill(new Ellipse2D.Double(x - 10, y - 10, 12, 12));
         g.setColor(Color.BLACK);
         String parts[] = c.time.split("T");
         String date = parts[0];
         String time = parts[1];
-        g.drawString(date, x, y);
-        g.drawString(time, x, y + 10);
-        y += 20;
+        g.setFont(new Font("Helvetica", Font.BOLD, 10));
+        g.drawString(date, x+5, y-2);
+        g.drawString(time, x+5, y + 10);
+        y += 25;
         return y;
     }
 
@@ -740,6 +745,7 @@ private class FireRaster {
     final double xOffset;
     final double yOffset;
     final double cellWidth;
+    private final LocationType location;
     ArrayList<Double> rasterData;
     WritableRaster firemap;
 
@@ -751,6 +757,21 @@ private class FireRaster {
         this.cellWidth = cellWidth;
         this.EPSG_ID = EPSG_ID;
         rasterData = new ArrayList<Double>();
+//        if(EPSG_ID == 32629) {//WGS 84 / UTM zone 29N 
+        UTMCoordinates utm = new UTMCoordinates(xOffset, yOffset, 29, 'N');
+        utm.UTMtoLL();
+        location = new LocationType(utm.getLatitudeDegrees(), utm.getLongitudeDegrees());
+//        }
+//        else {
+//            location = new LocationType();
+//        }
+    }
+
+    /**
+     * @return
+     */
+    public LocationType getLocation() {
+        return location;
     }
 
     /**
@@ -829,4 +850,22 @@ private class FireRaster {
         res[1] = height;
         return res;
     }
-}}
+}
+
+    public static void main(String [] args) {
+    UTMCoordinates utm = new UTMCoordinates(535047.210, 4572080.090, 29, 'N');
+    utm.UTMtoLL();
+    LocationType loc = new LocationType(utm.getLatitudeDegrees(), utm.getLongitudeDegrees()); 
+    LocationType topLeft = new LocationType(41.29100, -8.57000);
+    System.err.println("UTM/WGS84: "+loc);
+    System.err.println("Hard Coded: "+topLeft);
+    
+}
+
+}
+
+
+
+
+
+
