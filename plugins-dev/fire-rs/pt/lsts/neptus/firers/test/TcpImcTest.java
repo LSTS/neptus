@@ -239,7 +239,7 @@ public class TcpImcTest {
      */
     private static DevDataText getDevTextMsg() {
         DevDataText data = new DevDataText();
-        String input = FileUtil.getFileAsString("plugins-dev/fire-rs/pt/lsts/neptus/firers/test/contourLines");
+        String input = FileUtil.getFileAsString("plugins-dev/fire-rs/pt/lsts/neptus/firers/test/moreContourLines");
         data.setValue(input);
         return data;
     }

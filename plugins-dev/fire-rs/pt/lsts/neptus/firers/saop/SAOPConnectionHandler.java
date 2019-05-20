@@ -39,8 +39,10 @@ import java.awt.Image;
 import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.RenderingHints;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferDouble;
@@ -48,6 +50,7 @@ import java.awt.image.Raster;
 import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
 import java.io.ByteArrayInputStream;
+import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.text.DateFormat;
@@ -60,6 +63,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringJoiner;
+import java.util.TimeZone;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
 
@@ -195,11 +199,11 @@ public class SAOPConnectionHandler extends ConsoleLayer {
                     if (magicNum != (short) 0x3EF1) {
                         return;
                     }
-                    NeptusLog.pub().info(I18n.text("xoffset: "+xOffset+" yoffset: "+yOffset+" EPSG: "+EPSG_ID));
+                    NeptusLog.pub().info(I18n.text("xoffset: "+(xOffset)+" yoffset: "+(yOffset)+" EPSG: "+EPSG_ID));
                     NeptusLog.pub().info(I18n.text("xSize: "+xSize+" ySize: "+ySize+" Cell Width: "+cellWidth));
 
                     raster = new FireRaster(xOffset, yOffset, xSize, ySize, cellWidth, EPSG_ID);
-                    NeptusLog.pub().info(I18n.text("WSG84 coords for raster: "+raster.getLocation()));
+                    NeptusLog.pub().info(I18n.text("WGS84 coords for raster: "+raster.getLocation()));
                     byte[] rasterData;
                     rasterData = Arrays.copyOfRange(msgData, wrapper.position(), msgData.length);
 
@@ -247,8 +251,8 @@ public class SAOPConnectionHandler extends ConsoleLayer {
                     try {
                         JsonParser parser = new JsonParser();
                         DevDataText data = msg.cloneMessageTyped();
-                        JsonElement element = parser.parse(data.getValue());
-                        JsonObject object = element.getAsJsonObject();
+//                        JsonElement element = parser.parse(data.getValue());
+                        JsonObject object = parser.parse(data.getValue()).getAsJsonObject();
                         for (JsonElement contourLineElem : object.get("wildfire_contours").getAsJsonArray()) {
                             JsonObject contourLine = contourLineElem.getAsJsonObject();
                             ContourLine clInstance = processContourLine(contourLine);
@@ -440,7 +444,8 @@ public class SAOPConnectionHandler extends ConsoleLayer {
     }
 
     private ContourLine processContourLine(JsonObject contourLineObj) {
-        String time = contourLineObj.getAsJsonPrimitive("time").getAsString();
+//        String time = contourLineObj.getAsJsonPrimitive("time").getAsString();
+        BigDecimal time = contourLineObj.getAsJsonPrimitive("time").getAsBigDecimal();
         JsonArray colorRGB = contourLineObj.getAsJsonArray("color");
         Color c = new Color(colorRGB.get(0).getAsInt(), colorRGB.get(1).getAsInt(), colorRGB.get(2).getAsInt());
         PolygonType poly = new PolygonType();
@@ -451,18 +456,16 @@ public class SAOPConnectionHandler extends ConsoleLayer {
                     longObj = vertexElem.getAsJsonObject().get("lon");
             poly.addVertex(latObj.getAsDouble(), longObj.getAsDouble());
         }
+        poly.addVertex(poly.getVertices().get(0).getLatitudeDegs(),poly.getVertices().get(0).getLongitudeDegs()); // adding first point to close the polygon
         String id = new StringBuilder("ContourLine").append(polygons.size()).toString();
         poly.setId(id);
 
         // Parse time to epoch
-        DateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-        try {
-            Date dateTime = utcFormat.parse(time);
-            return new ContourLine(dateTime.getTime(), time, poly, c);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return null;
+        DateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss'Z'");
+        utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        long tIme = time.longValue();
+        Date dateTime = new Date(tIme*1000);
+        return new ContourLine(dateTime.getTime(), utcFormat.format(dateTime), poly, c);
     }
 
     public boolean checkMsgId(int msgId) {
@@ -630,41 +633,44 @@ public class SAOPConnectionHandler extends ConsoleLayer {
         g.drawString("Wildfire Contours", x, y);
         y+=20;
 
-        // PAINT RASTER COLORMAP
-        Graphics2D cbGraphics = ((Graphics2D) go.create());
-        double[] oldValues = rasterCm.getValues();
-        rasterCm.setValues(new double[]{0,1});
-        cb.setSize(15, 80);
-        cbGraphics.setColor(Color.black);
-        cbGraphics.setFont(new Font("Helvetica", Font.BOLD, 12));
-        int yy = polygons.size() > 1 ? polygons.size()*40+y: 100;
-        cbGraphics.drawString("Ignition Time", x, yy);
-        cbGraphics.translate(x, yy+10);
-        cb.paint(cbGraphics);
-        rasterCm.setValues(oldValues);
+        // PAINT RASTER
+        if (raster != null && raster.firemap != null) {
+            // PAINT RASTER COLORMAP
+            Graphics2D cbGraphics = ((Graphics2D) go.create());
+            double[] oldValues = rasterCm.getValues();
+            rasterCm.setValues(new double[] { 0, 1 });
+            cb.setSize(15, 80);
+            cbGraphics.setColor(Color.black);
+            cbGraphics.setFont(new Font("Helvetica", Font.BOLD, 12));
+            int yy = polygons.size() > 1 ? polygons.size() * 40 + y : 100;
+            cbGraphics.drawString("Ignition Time", x, yy);
+            cbGraphics.translate(x, yy + 10);
+            cb.paint(cbGraphics);
+            rasterCm.setValues(oldValues);
 
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
-        // multiply by 1000 because java creates dates based on milliseconds
-        long minVal = Double.valueOf(oldValues[0]).longValue()*1000, maxVal = Double.valueOf(oldValues[1]).longValue()*1000;
-        cbGraphics.setFont(new Font("Helvetica", Font.BOLD, 10));
-        try {
-            if (oldValues[0] != Double.MAX_VALUE)
-                cbGraphics.drawString(sdf.format(new Date((minVal + maxVal)/2)), 15, 45);
+            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+            // multiply by 1000 because java creates dates based on milliseconds
+            long minVal = Double.valueOf(oldValues[0]).longValue() * 1000,
+                    maxVal = Double.valueOf(oldValues[1]).longValue() * 1000;
+            cbGraphics.setFont(new Font("Helvetica", Font.BOLD, 10));
+            try {
+                if (oldValues[0] != Double.MAX_VALUE)
+                    cbGraphics.drawString(sdf.format(new Date((minVal + maxVal) / 2)), 15, 45);
 
-            if (oldValues[0] == Double.MAX_VALUE) {
-                cbGraphics.drawString("-\u221E", 15, 80);
-                cbGraphics.drawString("+\u221E", 15, 10);
+                if (oldValues[0] == Double.MAX_VALUE) {
+                    cbGraphics.drawString("-\u221E", 15, 80);
+                    cbGraphics.drawString("+\u221E", 15, 10);
+                }
+                else {
+                    cbGraphics.drawString(sdf.format(new Date(maxVal)), 15, 10);
+                    cbGraphics.drawString(sdf.format(new Date(minVal)), 15, 80);
+                }
             }
-            else {
-                cbGraphics.drawString(sdf.format(new Date(maxVal)), 15, 10);
-                cbGraphics.drawString(sdf.format(new Date(minVal)), 15, 80);
+            catch (Exception e) {
+                NeptusLog.pub().error(e);
             }
+  
         }
-        catch (Exception e) {
-            NeptusLog.pub().error(e);
-        }
-        
-
         // PAINT POLYGONS
         for (int i = 0; i < polygons.size(); i++) {
             ContourLine cl = polygons.get(i);
@@ -684,21 +690,18 @@ public class SAOPConnectionHandler extends ConsoleLayer {
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
 
-            // TODO: 09/05/2019 Properly scale to new coordinate system
             LocationType topLeft = raster.getLocation();
-            
  
             Point2D corner = renderer.getScreenPosition(topLeft);
-            g.translate(corner.getX(), corner.getY());
-            g.scale(renderer.getZoom(), -renderer.getZoom());
-            g.translate(0, -imgbuff.getHeight());
-            g.rotate(-renderer.getRotation());
-            g.drawImage(imgbuff, 0, 0, imgbuff.getWidth(), imgbuff.getHeight(), renderer);
+            g.translate(corner.getX(), corner.getY());            
+            g.scale(renderer.getZoom(), renderer.getZoom());
+            g.rotate(-imgbuff.getHeight());
+            g.drawImage(imgbuff, 0, 0, new Double(raster.xSize*raster.getCellWidth()).intValue(), new Double(raster.ySize*raster.getCellWidth()).intValue(), renderer);
             
 //            BufferedImage img = ImageUtils.toBufferedImage(ImageUtils.getImage("plugins-dev/fire-rs/pt/lsts/neptus/firers/test/fire.png"));
 //            LocationType l = new LocationType(41.2994128,-8.5813754);
+//            Point2D c = renderer.getScreenPosition(l);
 //            g.drawImage(img, 0, 0, 81, 81, renderer);
-            //g.drawImage(imgbuff.getScaledInstance(scaleFactor[0], scaleFactor[1], Image.SCALE_SMOOTH), xform, obs);
         }
 
     }
@@ -714,7 +717,7 @@ public class SAOPConnectionHandler extends ConsoleLayer {
         g.setColor(c.color);
         g.fill(new Ellipse2D.Double(x - 10, y - 10, 12, 12));
         g.setColor(Color.BLACK);
-        String parts[] = c.time.split("T");
+        String parts[] = c.time.split(" ");
         String date = parts[0];
         String time = parts[1];
         g.setFont(new Font("Helvetica", Font.BOLD, 10));
@@ -758,13 +761,12 @@ private class FireRaster {
         this.EPSG_ID = EPSG_ID;
         rasterData = new ArrayList<Double>();
 //        if(EPSG_ID == 32629) {//WGS 84 / UTM zone 29N 
-        UTMCoordinates utm = new UTMCoordinates(xOffset, yOffset, 29, 'N');
+        double xNW  = xOffset-cellWidth/2;
+        double yNW  = yOffset + (ySize*cellWidth) - cellWidth/2; //most south-most west --> most north west
+        UTMCoordinates utm = new UTMCoordinates(xNW, yNW, 29, 'N'); // half-pixel translation
         utm.UTMtoLL();
         location = new LocationType(utm.getLatitudeDegrees(), utm.getLongitudeDegrees());
-//        }
-//        else {
-//            location = new LocationType();
-//        }
+        NeptusLog.pub().info(I18n.text("Adjustment xoffset: "+xNW+" Adjustment yoffset: "+yNW+" EPSG: "+EPSG_ID));
     }
 
     /**
@@ -833,7 +835,7 @@ private class FireRaster {
 
     public int[] getScaleFactor(int maxWidth, int maxHeight) {
         int[] res = new int[2];
-        double imgRatio = (double) firemap.getWidth() / (double) firemap.getHeight();
+        double imgRatio = (double) raster.xSize*raster.getCellWidth() / (double) raster.ySize*raster.getCellWidth();
         double desiredRatio = (double) maxWidth / (double) maxHeight;
         int width;
         int height;
