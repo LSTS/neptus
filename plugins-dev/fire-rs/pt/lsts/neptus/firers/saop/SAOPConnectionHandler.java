@@ -227,9 +227,12 @@ public class SAOPConnectionHandler extends ConsoleLayer {
                         DataBufferDouble buffer = new DataBufferDouble(
                                 ArrayUtils.toPrimitive(raster.getRasterData().toArray(new Double[] {})), 1);
                         fillRaster(xSize.intValue(), ySize.intValue(), buffer);
-                        int op = GuiUtils.confirmDialog(getConsole(), "New Wildfire Map Processed", "Center map in the new wildfire?");
-                        if (op == JOptionPane.YES_OPTION) {
-                            raster.center = true;
+                        if (debugMode) {
+                            int op = GuiUtils.confirmDialog(getConsole(), "New Wildfire Map Processed",
+                                    "Center map in the new wildfire?");
+                            if (op == JOptionPane.YES_OPTION) {
+                                raster.center = true;
+                            }
                         }
                     }
                     catch (Exception e) {
@@ -552,24 +555,31 @@ public class SAOPConnectionHandler extends ConsoleLayer {
      */
     @Override
     public void setProperties(Property[] properties) {
+        boolean netPropsChanged = false;
         if ((boolean) properties[0].getValue() != debugMode) {
             debugMode = (boolean) properties[0].getValue();
         }
         if ((String) properties[1].getValue() != ipAddr) {
             ipAddr = (String) properties[1].getValue();
+            netPropsChanged = true;
 //TODO give feedback
         }
         if ((int) properties[2].getValue() != serverPort) {
             serverPort = (int) properties[2].getValue();
+            netPropsChanged = true;
         }
         if ((int) properties[3].getValue() != bindPort) {
+            bindPort = (int) properties[3].getValue();
+            netPropsChanged = true;
+        }
+        if(netPropsChanged) {
             established = false;
             sendHeartbeat = false;
-            bindPort = (int) properties[3].getValue();
             imctt.reStart();
             imctt.setBindPort(bindPort);
             imctt.addListener(msgListener);
             sendHeartbeat = true;
+            NeptusLog.pub().warn(I18n.text("Changed SAOP properties"));
         }
 
         super.setProperties(properties);
