@@ -500,7 +500,7 @@ public class SAOPConnectionHandler extends ConsoleLayer {
                 pc.setArg(plan.asIMCPlan(true));//generate same plan as the Neptus console sender
                 getConsole().getMission().addPlan(plan);
                 getConsole().getMission().save(true);
-                getConsole().updateMissionListeners();
+                //getConsole().updateMissionListeners();
                 getConsole().post(Notification.success(I18n.text("SAOP IMC TCP SERVER"),
                         I18n.textf("Received PlanSpecifition: %plan.", pcsName)));
             }
@@ -706,13 +706,17 @@ public class SAOPConnectionHandler extends ConsoleLayer {
             g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
-
+            //Flip image vertically
+            AffineTransform tx = AffineTransform.getScaleInstance(1, -1);
+            tx.translate(0, -imgbuff.getHeight(null));
+            AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+            imgbuff = op.filter(imgbuff, null);
             LocationType topLeft = raster.getLocation();
  
             Point2D corner = renderer.getScreenPosition(topLeft);
             g.translate(corner.getX(), corner.getY());            
             g.scale(renderer.getZoom(), renderer.getZoom());
-            g.rotate(-imgbuff.getHeight());//
+            //g.rotate(-Math.PI/2);// 
             g.drawImage(imgbuff, 0, 0, new Double(raster.xSize*raster.getCellWidth()).intValue(), new Double(raster.ySize*raster.getCellWidth()).intValue(), renderer);
         }
 
