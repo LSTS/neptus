@@ -695,13 +695,8 @@ public class SAOPConnectionHandler extends ConsoleLayer {
             Point2D corner = renderer.getScreenPosition(topLeft);
             g.translate(corner.getX(), corner.getY());            
             g.scale(renderer.getZoom(), renderer.getZoom());
-            g.rotate(-imgbuff.getHeight());
+            g.rotate(-imgbuff.getHeight());//
             g.drawImage(imgbuff, 0, 0, new Double(raster.xSize*raster.getCellWidth()).intValue(), new Double(raster.ySize*raster.getCellWidth()).intValue(), renderer);
-            
-//            BufferedImage img = ImageUtils.toBufferedImage(ImageUtils.getImage("plugins-dev/fire-rs/pt/lsts/neptus/firers/test/fire.png"));
-//            LocationType l = new LocationType(41.2994128,-8.5813754);
-//            Point2D c = renderer.getScreenPosition(l);
-//            g.drawImage(img, 0, 0, 81, 81, renderer);
         }
 
     }
