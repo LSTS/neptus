@@ -35,7 +35,6 @@ package pt.lsts.neptus.firers.saop;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.RenderingHints;
@@ -229,6 +228,10 @@ public class SAOPConnectionHandler extends ConsoleLayer {
                         DataBufferDouble buffer = new DataBufferDouble(
                                 ArrayUtils.toPrimitive(raster.getRasterData().toArray(new Double[] {})), 1);
                         fillRaster(xSize.intValue(), ySize.intValue(), buffer);
+                        int op = GuiUtils.confirmDialog(getConsole(), "New Wildfire Map Processed", "Center map in the new wildfire?");
+                        if (op == JOptionPane.YES_OPTION) {
+                            raster.center = true;
+                        }
                     }
                     catch (Exception e) {
                         NeptusLog.pub().error(e);
@@ -400,11 +403,10 @@ public class SAOPConnectionHandler extends ConsoleLayer {
             if (established) {
                 if (msg.getMgid() == PlanControl.ID_STATIC) {
                     sendHeartbeat = false;
-                    PlanControl pc = (PlanControl) msg;
-                    pc = (PlanControl) pc.cloneMessage();
+                    PlanControl original = (PlanControl) msg;
+                    PlanControl pc = (PlanControl) original.cloneMessage();
                     if (!pc.getType().equals(pt.lsts.imc.PlanControl.TYPE.REQUEST)) { // REPLY SUCCESS or FAILURE or
                         // IN_PROGRESS
-
                         if (pc.getPlanId() != null) { // reset original SAOP data
                             String newName = pc.getPlanId();
                             String oldName = getOriginalName(newName);
@@ -486,17 +488,16 @@ public class SAOPConnectionHandler extends ConsoleLayer {
                 plans_reqId.put(pcsName, pc.getRequestId());
             }
         }
-        if (pc.getArg() != null) {
+        if (pc.getArg() != null) { //keep original plan in case of PlanControl Start or load
             if (pc.getArg().getClass().equals(PlanSpecification.class)) {
                 ps = (PlanSpecification) pc.getArg();
                 ps.setPlanId(pcsName);
                 PlanType plan = IMCUtils.parsePlanSpecification(getConsole().getMission(), ps);
-                plan.setVehicle("x8-02");
+                plan.setVehicle("x8-06"); //FIXME need for @PlanType but UAV id can change
                 synchronized (plans_reqId) {
                     plans_reqId.put(pcsName, pc.getRequestId());
                 }
-                pc.setArg(ps);
-
+                pc.setArg(plan.asIMCPlan(true));//generate same plan as the Neptus console sender
                 getConsole().getMission().addPlan(plan);
                 getConsole().getMission().save(true);
                 getConsole().updateMissionListeners();
@@ -558,6 +559,7 @@ public class SAOPConnectionHandler extends ConsoleLayer {
         }
         if ((String) properties[1].getValue() != ipAddr) {
             ipAddr = (String) properties[1].getValue();
+//TODO give feedback
         }
         if ((int) properties[2].getValue() != serverPort) {
             serverPort = (int) properties[2].getValue();
@@ -623,7 +625,7 @@ public class SAOPConnectionHandler extends ConsoleLayer {
         g.fillRect(20, 20, width, length);
         int x = 40;
         int y = 40;
-        
+        //renderer.focusLocation(elem.getCenterLocation());
         //Title
         g.setColor(Color.black);
         g.setFont(new Font("Helvetica", Font.BOLD, 12));
@@ -699,7 +701,10 @@ public class SAOPConnectionHandler extends ConsoleLayer {
 //            LocationType l = new LocationType(41.2994128,-8.5813754);
 //            g.drawImage(img, 0, 0, 81, 81, renderer);
             //g.drawImage(imgbuff.getScaledInstance(scaleFactor[0], scaleFactor[1], Image.SCALE_SMOOTH), xform, obs);
+            if(raster.center)
+                renderer.focusLocation(topLeft);
         }
+        raster.center = false;
 
     }
 
@@ -739,6 +744,7 @@ private class ContourLine {
 }
 
 private class FireRaster {
+    public boolean center;
     final long EPSG_ID;
     final long xSize;
     final long ySize;
@@ -757,6 +763,7 @@ private class FireRaster {
         this.cellWidth = cellWidth;
         this.EPSG_ID = EPSG_ID;
         rasterData = new ArrayList<Double>();
+        center = false;
 //        if(EPSG_ID == 32629) {//WGS 84 / UTM zone 29N 
         UTMCoordinates utm = new UTMCoordinates(xOffset, yOffset, 29, 'N');
         utm.UTMtoLL();
