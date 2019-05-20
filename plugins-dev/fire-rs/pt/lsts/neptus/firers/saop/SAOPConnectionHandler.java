@@ -135,7 +135,7 @@ public class SAOPConnectionHandler extends ConsoleLayer {
     @NeptusProperty(name = "Debug Mode", userLevel = LEVEL.REGULAR, description = "Request operators permission to start/stop plan")
     public boolean debugMode = true;
     @NeptusProperty(name = "IP ADDRESS", userLevel = LEVEL.REGULAR, description = "IP ADDRESS to SAOP server")
-    public String ipAddr = "127.0.0.1";
+    public String ipAddr = "10.0.250.5";
     @NeptusProperty(name = "PORT", userLevel = LEVEL.REGULAR, description = "Port to SAOP server")
     public int serverPort = 8888;
     @NeptusProperty(name = "Bind PORT", userLevel = LEVEL.ADVANCED, description = "Neptus internal configuration")
@@ -227,13 +227,12 @@ public class SAOPConnectionHandler extends ConsoleLayer {
                         DataBufferDouble buffer = new DataBufferDouble(
                                 ArrayUtils.toPrimitive(raster.getRasterData().toArray(new Double[] {})), 1);
                         fillRaster(xSize.intValue(), ySize.intValue(), buffer);
-                        if (debugMode) {
-                            int op = GuiUtils.confirmDialog(getConsole(), "New Wildfire Map Processed",
-                                    "Center map in the new wildfire?");
-                            if (op == JOptionPane.YES_OPTION) {
-                                raster.center = true;
-                            }
-                        }
+//                        if (debugMode) {
+//                            int op = GuiUtils.confirmDialog(getConsole(), "New Wildfire Map Processed",
+//                                    "Center map in the new wildfire?");
+//                            if (op == JOptionPane.YES_OPTION) {
+//                            }
+//                        }
                     }
                     catch (Exception e) {
                         NeptusLog.pub().error(e);
@@ -556,23 +555,34 @@ public class SAOPConnectionHandler extends ConsoleLayer {
     @Override
     public void setProperties(Property[] properties) {
         boolean netPropsChanged = false;
-        if ((boolean) properties[0].getValue() != debugMode) {
-            debugMode = (boolean) properties[0].getValue();
+        for (int i = 0; i < properties.length; i++) {
+            Property p = properties[i];
+            if (p.getDisplayName().equalsIgnoreCase("Debug Mode")) {
+                if ((boolean) properties[i].getValue() != debugMode) {
+                    debugMode = (boolean) properties[0].getValue();
+                    netPropsChanged = true;
+                }
+            }
+            else if (p.getDisplayName().equalsIgnoreCase("IP ADDRESS")) {
+                if ((String) properties[i].getValue() != ipAddr) {
+                    ipAddr = (String) properties[1].getValue();
+                    netPropsChanged = true;
+                }
+            }
+            else if (p.getDisplayName().equalsIgnoreCase("PORT")) {
+                if ((int) properties[i].getValue() != serverPort) {
+                    serverPort = (int) properties[2].getValue();
+                    netPropsChanged = true;
+                }
+            }
+            else if (p.getDisplayName().equalsIgnoreCase("Bind PORT")) {
+                if ((int) properties[i].getValue() != bindPort) {
+                    bindPort = (int) properties[i].getValue();
+                    netPropsChanged = true;
+                }
+            }
         }
-        if ((String) properties[1].getValue() != ipAddr) {
-            ipAddr = (String) properties[1].getValue();
-            netPropsChanged = true;
-//TODO give feedback
-        }
-        if ((int) properties[2].getValue() != serverPort) {
-            serverPort = (int) properties[2].getValue();
-            netPropsChanged = true;
-        }
-        if ((int) properties[3].getValue() != bindPort) {
-            bindPort = (int) properties[3].getValue();
-            netPropsChanged = true;
-        }
-        if(netPropsChanged) {
+        if (netPropsChanged) {
             established = false;
             sendHeartbeat = false;
             imctt.reStart();
@@ -700,14 +710,11 @@ public class SAOPConnectionHandler extends ConsoleLayer {
             LocationType topLeft = raster.getLocation();
  
             Point2D corner = renderer.getScreenPosition(topLeft);
-           if(raster.center)
-                renderer.focusLocation(topLeft);
             g.translate(corner.getX(), corner.getY());            
             g.scale(renderer.getZoom(), renderer.getZoom());
             g.rotate(-imgbuff.getHeight());//
             g.drawImage(imgbuff, 0, 0, new Double(raster.xSize*raster.getCellWidth()).intValue(), new Double(raster.ySize*raster.getCellWidth()).intValue(), renderer);
         }
-        raster.center = false;
 
     }
 
@@ -747,7 +754,6 @@ private class ContourLine {
 }
 
 private class FireRaster {
-    public boolean center;
     final long EPSG_ID;
     final long xSize;
     final long ySize;
@@ -766,7 +772,6 @@ private class FireRaster {
         this.cellWidth = cellWidth;
         this.EPSG_ID = EPSG_ID;
         rasterData = new ArrayList<Double>();
-        center = false;
 //        if(EPSG_ID == 32629) {//WGS 84 / UTM zone 29N 
         double xNW  = xOffset-cellWidth/2;
         double yNW  = yOffset + (ySize*cellWidth) - cellWidth/2; //most south-most west --> most north west
