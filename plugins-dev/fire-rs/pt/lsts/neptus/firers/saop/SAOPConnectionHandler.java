@@ -53,7 +53,6 @@ import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -175,73 +174,8 @@ public class SAOPConnectionHandler extends ConsoleLayer {
                     addNewPlanControl(pc);
                 }
                 // }
-                else if (msg.getMgid() == DevDataBinary.ID_STATIC) {
-
-                    DevDataBinary data = msg.cloneMessageTyped();
-
-                    byte[] msgData = data.getValue();
-                    ByteBuffer wrapper = ByteBuffer.wrap(msgData);
-                    wrapper.order(ByteOrder.LITTLE_ENDIAN);
-                    short magicNum = wrapper.getShort();
-                    long EPSG_ID = wrapper.getLong();
-                    Long xSize = wrapper.getLong();
-                    Long ySize = wrapper.getLong();
-                    double xOffset = wrapper.getDouble();
-                    double yOffset = wrapper.getDouble();
-                    double cellWidth = wrapper.getDouble();
-
-                    if (magicNum != (short) 0x3EF1) {
-                        return;
-                    }
-                    NeptusLog.pub()
-                            .info(I18n.text("xoffset: " + (xOffset) + " yoffset: " + (yOffset) + " EPSG: " + EPSG_ID));
-                    NeptusLog.pub()
-                            .info(I18n.text("xSize: " + xSize + " ySize: " + ySize + " Cell Width: " + cellWidth));
-
-                    raster = new FireRaster(xOffset, yOffset, xSize, ySize, cellWidth, EPSG_ID);
-                    NeptusLog.pub().info(I18n.text("WGS84 coords for raster: " + raster.getLocation()));
-                    byte[] rasterData;
-                    rasterData = Arrays.copyOfRange(msgData, wrapper.position(), msgData.length);
-
-                    Inflater decompressor = new Inflater();
-                    decompressor.setInput(rasterData);
-                    byte[] inputBuff = new byte[256];
-                    ByteArrayInputStream inByteStream = new ByteArrayInputStream(inputBuff);
-                    InflaterInputStream inStream = new InflaterInputStream(inByteStream, decompressor);
-
-                    byte[] tmpDouble = new byte[8];
-                    ByteBuffer tmpBB = ByteBuffer.wrap(tmpDouble);
-                    tmpBB.order(ByteOrder.LITTLE_ENDIAN);
-                    double cmMax = Double.MIN_VALUE, cmMin = Double.MAX_VALUE;
-                    try {
-                        while (inStream.read(tmpDouble) > 0) {
-                            double tmp = tmpBB.getDouble();
-                            if (tmp != Double.POSITIVE_INFINITY) {
-                                if (tmp > cmMax)
-                                    cmMax = tmp;
-                                if (tmp < cmMin)
-                                    cmMin = tmp;
-                            }
-                            raster.rasterDataAppend(tmp);
-                            tmpBB.rewind();
-                        }
-                        rasterCm.setValues(new double[] { cmMin, cmMax });
-                        DataBufferDouble buffer = new DataBufferDouble(
-                                ArrayUtils.toPrimitive(raster.getRasterData().toArray(new Double[] {})), 1);
-                        fillRaster(xSize.intValue(), ySize.intValue(), buffer);
-                        // if (debugMode) {
-                        // int op = GuiUtils.confirmDialog(getConsole(), "New Wildfire Map Processed",
-                        // "Center map in the new wildfire?");
-                        // if (op == JOptionPane.YES_OPTION) {
-                        // }
-                        // }
-                    }
-                    catch (Exception e) {
-                        NeptusLog.pub().error(e);
-                        e.printStackTrace();
-                    }
-
-                }
+//                else if (msg.getMgid() == DevDataBinary.ID_STATIC) {
+//                }
 
                 else if (msg.getMgid() == DevDataText.ID_STATIC) {
                     // Parse Json Object from IMC msg
@@ -277,6 +211,7 @@ public class SAOPConnectionHandler extends ConsoleLayer {
                     }
                 }
             }
+
         };
 
         deliveryListener = new MessageDeliveryListener() {
@@ -436,11 +371,81 @@ public class SAOPConnectionHandler extends ConsoleLayer {
                 }
                 else if (msg.getMgid() == DevDataBinary.ID_STATIC) {
                     imctt.sendMessage(ipAddr, serverPort, msg, deliveryListener);
+                    processFiremap(msg);
                 }
                 else if (msg.getMgid() == EstimatedState.ID_STATIC) {
                     imctt.sendMessage(ipAddr, serverPort, msg, deliveryListener);
                 }
             }
+        }
+    }
+    
+    /**
+     * @param msg
+     */
+    private void processFiremap(IMCMessage msg) {
+        DevDataBinary data = msg.cloneMessageTyped();
+
+        byte[] msgData = data.getValue();
+        ByteBuffer wrapper = ByteBuffer.wrap(msgData);
+        wrapper.order(ByteOrder.LITTLE_ENDIAN);
+        short magicNum = wrapper.getShort();
+        long EPSG_ID = wrapper.getLong();
+        Long xSize = wrapper.getLong();
+        Long ySize = wrapper.getLong();
+        double xOffset = wrapper.getDouble();
+        double yOffset = wrapper.getDouble();
+        double cellWidth = wrapper.getDouble();
+
+        if (magicNum != (short) 0x3EF1) {
+            return;
+        }
+        NeptusLog.pub()
+                .info(I18n.text("xoffset: " + (xOffset) + " yoffset: " + (yOffset) + " EPSG: " + EPSG_ID));
+        NeptusLog.pub()
+                .info(I18n.text("xSize: " + xSize + " ySize: " + ySize + " Cell Width: " + cellWidth));
+
+        raster = new FireRaster(xOffset, yOffset, xSize, ySize, cellWidth, EPSG_ID);
+        NeptusLog.pub().info(I18n.text("WGS84 coords for raster: " + raster.getLocation()));
+        byte[] rasterData;
+        rasterData = Arrays.copyOfRange(msgData, wrapper.position(), msgData.length);
+
+        Inflater decompressor = new Inflater();
+        decompressor.setInput(rasterData);
+        byte[] inputBuff = new byte[256];
+        ByteArrayInputStream inByteStream = new ByteArrayInputStream(inputBuff);
+        InflaterInputStream inStream = new InflaterInputStream(inByteStream, decompressor);
+
+        byte[] tmpDouble = new byte[8];
+        ByteBuffer tmpBB = ByteBuffer.wrap(tmpDouble);
+        tmpBB.order(ByteOrder.LITTLE_ENDIAN);
+        double cmMax = Double.MIN_VALUE, cmMin = Double.MAX_VALUE;
+        try {
+            while (inStream.read(tmpDouble) > 0) {
+                double tmp = tmpBB.getDouble();
+                if (tmp != Double.POSITIVE_INFINITY) {
+                    if (tmp > cmMax)
+                        cmMax = tmp;
+                    if (tmp < cmMin)
+                        cmMin = tmp;
+                }
+                raster.rasterDataAppend(tmp);
+                tmpBB.rewind();
+            }
+            rasterCm.setValues(new double[] { cmMin, cmMax });
+            DataBufferDouble buffer = new DataBufferDouble(
+                    ArrayUtils.toPrimitive(raster.getRasterData().toArray(new Double[] {})), 1);
+            fillRaster(xSize.intValue(), ySize.intValue(), buffer);
+            // if (debugMode) {
+            // int op = GuiUtils.confirmDialog(getConsole(), "New Wildfire Map Processed",
+            // "Center map in the new wildfire?");
+            // if (op == JOptionPane.YES_OPTION) {
+            // }
+            // }
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error(e);
+            e.printStackTrace();
         }
     }
 
