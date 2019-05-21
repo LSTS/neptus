@@ -177,7 +177,6 @@ public class SAOPConnectionHandler extends ConsoleLayer {
 //                else if (msg.getMgid() == DevDataBinary.ID_STATIC) {
 //                    processFiremap(msg);
 //                }
-
                 else if (msg.getMgid() == DevDataText.ID_STATIC) {
                     // Parse Json Object from IMC msg
                     // polygons.clear();
@@ -475,7 +474,7 @@ public class SAOPConnectionHandler extends ConsoleLayer {
         poly.setId(id);
 
         // Parse time to epoch
-        DateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss'Z'");
+        DateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         utcFormat.setTimeZone(TimeZone.getDefault());
         long tIme = time.longValue();
         Date dateTime = new Date(tIme * 1000);
@@ -651,8 +650,8 @@ public class SAOPConnectionHandler extends ConsoleLayer {
 
     @Override
     public void paint(Graphics2D go, StateRenderer2D renderer) {
-        int length = polygons.size() > 1 ? polygons.size() * 50 + 100 : 200;
-        int width = 150;
+        int length = polygons.size() > 2 ? polygons.size() * 40 + 120 : 220;
+        int width = 160;
         Graphics2D g = ((Graphics2D) go.create());
         g.setColor(new Color(255, 255, 255, 150));
         g.fillRect(20, 20, width, length);
@@ -662,7 +661,7 @@ public class SAOPConnectionHandler extends ConsoleLayer {
         // Title
         g.setColor(Color.black);
         g.setFont(new Font("Helvetica", Font.BOLD, 12));
-        g.drawString("Wildfire Contours", x, y);
+        g.drawString("Wildfire Contours", x-5, y);
         y += 20;
 
         // PAINT RASTER
@@ -674,8 +673,8 @@ public class SAOPConnectionHandler extends ConsoleLayer {
             cb.setSize(15, 80);
             cbGraphics.setColor(Color.black);
             cbGraphics.setFont(new Font("Helvetica", Font.BOLD, 12));
-            int yy = polygons.size() > 1 ? polygons.size() * 40 + y : 100;
-            cbGraphics.drawString("Ignition Time", x, yy);
+            int yy = polygons.size() > 2 ? polygons.size() * 30 + y : 130;
+            cbGraphics.drawString("Ignition Time", x-5, yy);
             cbGraphics.translate(x, yy + 10);
             cb.paint(cbGraphics);
             rasterCm.setValues(oldValues);
