@@ -175,6 +175,7 @@ public class SAOPConnectionHandler extends ConsoleLayer {
                 }
                 // }
 //                else if (msg.getMgid() == DevDataBinary.ID_STATIC) {
+//                    processFiremap(msg);
 //                }
 
                 else if (msg.getMgid() == DevDataText.ID_STATIC) {
@@ -350,6 +351,7 @@ public class SAOPConnectionHandler extends ConsoleLayer {
                             String oldName = getOriginalName(newName);
                             pc.setPlanId(oldName);
                             pc.setRequestId(plans_reqId.get(newName));
+                            
                         }
                     }
                     imctt.sendMessage(ipAddr, serverPort, pc, deliveryListener);
@@ -474,7 +476,7 @@ public class SAOPConnectionHandler extends ConsoleLayer {
 
         // Parse time to epoch
         DateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss'Z'");
-        utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        utcFormat.setTimeZone(TimeZone.getDefault());
         long tIme = time.longValue();
         Date dateTime = new Date(tIme * 1000);
         return new ContourLine(dateTime.getTime(), utcFormat.format(dateTime), poly, c);
@@ -506,14 +508,14 @@ public class SAOPConnectionHandler extends ConsoleLayer {
                 ps = (PlanSpecification) pc.getArg();
                 ps.setPlanId(pcsName);
                 PlanType plan = IMCUtils.parsePlanSpecification(getConsole().getMission(), ps);
-                plan.setVehicle("x8-06"); // FIXME need for @PlanType but UAV id can change
+                plan.setVehicle("x8-06"); // FIXME needed for @PlanType but UAV id can change
                 synchronized (plans_reqId) {
                     plans_reqId.put(pcsName, pc.getRequestId());
                 }
                 pc.setArg(plan.asIMCPlan(true));// generate same plan as the Neptus console sender
                 getConsole().getMission().addPlan(plan);
                 getConsole().getMission().save(true);
-                // getConsole().updateMissionListeners();
+                getConsole().updateMissionListeners();
                 getConsole().post(Notification.success(I18n.text("SAOP IMC TCP SERVER"),
                         I18n.textf("Received PlanSpecifition: %plan.", pcsName)));
             }
@@ -679,6 +681,7 @@ public class SAOPConnectionHandler extends ConsoleLayer {
             rasterCm.setValues(oldValues);
 
             SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+            sdf.setTimeZone(TimeZone.getDefault());
             // multiply by 1000 because java creates dates based on milliseconds
             long minVal = Double.valueOf(oldValues[0]).longValue() * 1000,
                     maxVal = Double.valueOf(oldValues[1]).longValue() * 1000;
@@ -748,7 +751,6 @@ public class SAOPConnectionHandler extends ConsoleLayer {
         g.fill(new Ellipse2D.Double(x - 10, y - 10, 12, 12));
         g.setColor(Color.BLACK);
         String parts[] = c.time.split(" ");
-        String date = parts[0];
         String time = parts[1];
         g.setFont(new Font("Helvetica", Font.BOLD, 10));
         //g.drawString(date, x + 5, y - 2);
