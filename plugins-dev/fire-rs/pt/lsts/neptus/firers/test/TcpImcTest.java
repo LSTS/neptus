@@ -216,7 +216,7 @@ public class TcpImcTest {
         FileInputStream inputFile = null;
         try {
             //inputFile = new FileInputStream("plugins-dev/fire-rs/pt/lsts/neptus/firers/test/rasterSample" + j);//EPSG:3035
-            inputFile = new FileInputStream("plugins-dev/fire-rs/pt/lsts/neptus/firers/test/rasterUTM");//EPSG:32629
+            inputFile = new FileInputStream("plugins-dev/fire-rs/pt/lsts/neptus/firers/test/rasterUTM1");//EPSG:32629
             BufferedReader inputBuf = new BufferedReader(new InputStreamReader(inputFile));
             String inputStr = inputBuf.readLine();
             int len = inputStr.length();
