@@ -746,8 +746,8 @@ public class SAOPConnectionHandler extends ConsoleLayer {
         String date = parts[0];
         String time = parts[1];
         g.setFont(new Font("Helvetica", Font.BOLD, 10));
-        g.drawString(date, x + 5, y - 2);
-        g.drawString(time, x + 5, y + 10);
+        //g.drawString(date, x + 5, y - 2);
+        g.drawString(time, x + 5, y);
         y += 25;
         return y;
     }
@@ -788,11 +788,11 @@ public class SAOPConnectionHandler extends ConsoleLayer {
             // if(EPSG_ID == 32629) {//WGS 84 / UTM zone 29N
             double xNW = xOffset - cellWidth / 2;
             double yNW = yOffset + (ySize * cellWidth) - cellWidth / 2; // most south-most west --> most north west
-            UTMCoordinates utm = new UTMCoordinates(xNW, (yOffset-(cellWidth / 2)), 29, 'N'); // half-pixel translation
+            UTMCoordinates utm = new UTMCoordinates(xOffset, (yOffset+(cellWidth)), 29, 'N'); // pixel translation from (0,0) of the top left coordinate of the raster
             utm.UTMtoLL();
             location = new LocationType(utm.getLatitudeDegrees(), utm.getLongitudeDegrees());
             NeptusLog.pub().info(
-                    I18n.text("Adjustment xoffset: " + xNW + " Adjustment yoffset: " + yNW + " EPSG: " + EPSG_ID));
+                    I18n.text("Adjustment xoffset: " + xOffset + " Adjustment yoffset: " + (yOffset+(cellWidth)) + " EPSG: " + EPSG_ID));
         }
 
         /**
