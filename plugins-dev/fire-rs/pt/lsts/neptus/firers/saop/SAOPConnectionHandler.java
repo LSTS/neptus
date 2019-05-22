@@ -85,6 +85,7 @@ import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.PlanControl;
 import pt.lsts.imc.PlanControl.OP;
 import pt.lsts.imc.PlanControlState;
+import pt.lsts.imc.PlanDB;
 import pt.lsts.imc.PlanSpecification;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorBar;
@@ -528,7 +529,7 @@ public class SAOPConnectionHandler extends ConsoleLayer {
                 if (pc.getOp().equals(OP.START) && pcsName != null) {
                     message = message + " to plan: " + pc.getPlanId();
                 }
-                else if (pc.getOp().equals(OP.START) && pcsName != null) {
+                else if (pc.getOp().equals(OP.LOAD) && pcsName != null) {
                     message = message + " to plan: " + pcsName;
                 }
                 else if (pc.getOp().equals(OP.START) && (pcsName == null && pc.getArg() == null))
@@ -549,6 +550,7 @@ public class SAOPConnectionHandler extends ConsoleLayer {
             getConsole().post(Notification.success(I18n.text("SAOP IMC TCP SERVER"),
                     I18n.textf("Forwarded PlanControl %op.", pc.getOpStr())));
         }
+        ImcMsgManager.getManager().broadcastToCCUs(pc);//Spread the newz
     }
 
     /**
