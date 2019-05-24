@@ -37,6 +37,7 @@ import java.awt.geom.Point2D
 import java.util.Map;
 
 import pt.lsts.imc.*;
+import pt.lsts.imc.state.ImcSystemState
 import pt.lsts.neptus.NeptusLog
 import pt.lsts.neptus.comm.manager.imc.ImcSystem
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager
@@ -226,6 +227,47 @@ class PlotScript {
                 addSeries(resultmap)
             }
         }
+    }
+    
+    static def plotNEDFrom(String lat0, String long0, String h0,String lat,String lon,String h,String x,String y,String z,Closure toApply0=Closure.IDENTITY,Closure toApply=Closure.IDENTITY) {
+
+        if(!realTimePlot.getType().equals(PlotType.GENERICXY)) {
+            realTimePlot.setType(PlotType.GENERICXY)
+        }
+        realTimePlot.getSystems().each { String sys ->
+            ImcSystemState imcstt = ImcMsgManager.getManager().getState(sys)
+            double fromLat  = imcstt.expr(lat0)
+            double fromLong = imcstt.expr(long0)
+            double fromH    = imcstt.expr(h0)
+            double toLat  = imcstt.expr(lat)
+            double toLong = imcstt.expr(lat0)
+            double toH    = imcstt.expr(h)
+            double xx = imcstt.expr(x)
+            double yy = imcstt.expr(y)
+            double zz = imcstt.expr(z)
+            
+            if(fromLat!=null && fromLong!=null && fromH !=null && toLat!=null && toLong!=null && toH!=null && xx!=null && yy!=null && zz!=null) {
+                def resultmap = [:]
+                fromLat  = toApply0.call(fromLat)
+                fromLong = toApply0.call(fromLong)
+                toLat  = toApply.call(toLat)
+                toLong = toApply.call(toLong)
+                LocationType loc0 =  new LocationType(fromLat,fromLong) //lat long
+                loc0.setHeight(fromH)
+                LocationType loc1 =  new LocationType(toLat,toLong) //lat long
+                loc1.setHeight(toH)
+                loc1.translatePosition(xx, yy, zz)
+                def id = sys+".NED"
+                double[] offsets = loc0.getOffsetFrom(loc1)
+                XYDataItem item = new XYDataItem(offsets[0],offsets[1])
+                resultmap.put id, item
+                addSeries resultmap
+            }
+        }
+    }
+    static def plotNEDFrom(String lat,String lon,String h) {
+        Closure closure = {rad -> Math.toDegrees(rad)}
+        return plotNEDFrom(lat,lon,h,"EstimatedState.lat", "EstimatedState.lon", "EstimatedState.height","EstimatedState.x","EstimatedState.y","EstimatedState.z",closure,closure)
     }
     
 }
