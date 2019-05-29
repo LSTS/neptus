@@ -982,7 +982,7 @@ public class KMLExporter implements MRAExporter {
                     bw.write(mb);
                 else {
                     WorldImage imgDvl = new WorldImage(1, ColorMapFactory.createJetColorMap());
-                    imgDvl.setMaxVal(20d);
+                    imgDvl.setMaxVal(MRAProperties.maxBathymDepth);
                     imgDvl.setMinVal(3d);
                     it = source.getLsfIndex().getIterator("EstimatedState", 0, 100);
                     for (IMCMessage s : it) {
@@ -992,7 +992,7 @@ public class KMLExporter implements MRAExporter {
                         if (alt == -1 || depth < MRAProperties.minDepthForBathymetry)
                             continue;
                         else
-                            imgDvl.addPoint(loc, s.getDouble("alt"));
+                            imgDvl.addPoint(loc, s.getDouble("alt") + s.getDouble("depth"));
                     }
                     if (imgDvl.getAmountDataPoints() > 0) {
                         ImageIO.write(imgDvl.processData(), "PNG", new File(out.getParent(), "dvl_bath.png"));
