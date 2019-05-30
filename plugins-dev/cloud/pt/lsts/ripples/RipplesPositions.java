@@ -38,6 +38,7 @@ import java.awt.Image;
 import java.awt.geom.Point2D;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -81,7 +82,7 @@ public class RipplesPositions extends ConsoleLayer {
 
     LinkedHashMap<String, PositionUpdate> lastPositions = new LinkedHashMap<>();
     LinkedHashMap<String, ArrayList<PositionUpdate> > positions = new LinkedHashMap<>();
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ"); 
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ"); 
     {
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
@@ -170,7 +171,7 @@ public class RipplesPositions extends ConsoleLayer {
                 double latDegs = obj.get("lat").getAsDouble();
                 double lonDegs = obj.get("lon").getAsDouble();
                 Date time = sdf.parse(obj.get("timestamp").getAsString());
-                int id = obj.get("imc_id").getAsInt();
+                int id = obj.get("imcId").getAsInt();
                 
                 PositionUpdate update = new PositionUpdate();
                 update.id = IMCDefinition.getInstance().getResolver().resolve(id);
@@ -208,6 +209,7 @@ public class RipplesPositions extends ConsoleLayer {
         }
         catch (Exception e) {
             error = e.getClass().getSimpleName()+" "+e.getMessage();
+            e.printStackTrace();
             NeptusLog.pub().error(e);
             getConsole().post(Notification
                     .error(getName(), e.getClass().getSimpleName() + " while polling device updates from Ripples.")
@@ -226,7 +228,12 @@ public class RipplesPositions extends ConsoleLayer {
         }
     }
     
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ParseException {
+        String date = "2019-05-30T10:26:12.000+0000";
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ"); 
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+        sdf.parse(date);
+        
         RipplesPositions positions = new RipplesPositions();
         positions.pollActiveSystems();
     }

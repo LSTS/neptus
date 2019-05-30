@@ -121,7 +121,6 @@ public class IridiumManager {
                 lastTime = now;
             }
             catch (Exception e) {
-                e.printStackTrace();
                 NeptusLog.pub().error(e);
                 
             }
