@@ -60,6 +60,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 
+import groovy.lang.Script;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
@@ -109,6 +110,7 @@ public class RealTimePlotScript extends JPanel {
 
             @Override
             public void actionPerformed(ActionEvent e) {
+                Script parsed=null;
                 String script = editorPane.getText();
                 plot.numPoints = Integer.parseInt(RealTimePlotScript.this.numPointsField.getText());
                 long temp = Long.parseLong(RealTimePlotScript.this.periodicityField.getText());
@@ -120,16 +122,17 @@ public class RealTimePlotScript extends JPanel {
                     plot.periodicity = temp;
                 if (!script.equals(plot.traceScript)) {
                     try {
-                        plot.checkScript(script);
+                        plot.runScript(script);
+                        plot.traceScript = script;
+                        plot.propertiesChanged();
                     }
                     catch (Exception e1) {
                         GuiUtils.errorMessage(RealTimePlotScript.this.dialog, "Error Parsing Current Script",
                                 e1.getLocalizedMessage());
+                        e1.printStackTrace();
                         return;
                     }
                 }
-                plot.traceScript = script;
-                plot.propertiesChanged();
             }
         });
         this.store.addActionListener(new ActionListener() {

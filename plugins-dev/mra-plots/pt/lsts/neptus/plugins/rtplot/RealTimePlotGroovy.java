@@ -52,6 +52,7 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import org.codehaus.groovy.control.CompilationFailedException;
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.control.customizers.ImportCustomizer;
 import org.jfree.chart.ChartFactory;
@@ -455,7 +456,8 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
             catch (Exception e) {
                 traceScript = previousScript;
                 if (editSettings.isShowing())
-                    GuiUtils.errorMessage(editSettings, "Error Parsing Script", e.getLocalizedMessage());
+                    throw e;
+                    //GuiUtils.errorMessage(editSettings, "Error Parsing Script1", e.getLocalizedMessage());
                 else {
                     GuiUtils.errorMessage(this, "Error Parsing Script", e.getLocalizedMessage());
                     e.printStackTrace();
@@ -480,12 +482,13 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
      * @param toBtested - script to be tested
      * @return parsedScript -> Throws Error
      */
-    public Script checkScript(String toBtested) {
+    public Script checkScript(String toBtested) throws CompilationFailedException {
         shell = new GroovyShell(this.getClass().getClassLoader(), cnfg);
         shell.setVariable("plot_", RealTimePlotGroovy.this);
         String defplot = "configPlot plot_";
         shell.evaluate(defplot);
-        return shell.parse(toBtested);
+        Script result = shell.parse(toBtested);
+        return result;
     }
 
     @Override

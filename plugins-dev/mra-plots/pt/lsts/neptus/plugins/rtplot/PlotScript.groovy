@@ -229,43 +229,6 @@ class PlotScript {
         }
     }
     
-    static def plotNEDFrom(String lat0, String long0, String h0,String lat,String lon,String h,String x,String y,String z,Closure toApply0=Closure.IDENTITY,Closure toApply=Closure.IDENTITY) {
-
-        if(!realTimePlot.getType().equals(PlotType.GENERICXY)) {
-            realTimePlot.setType(PlotType.GENERICXY)
-        }
-        realTimePlot.getSystems().each { String sys ->
-            ImcSystemState imcstt = ImcMsgManager.getManager().getState(sys)
-            double fromLat  = imcstt.expr(lat0)
-            double fromLong = imcstt.expr(long0)
-            double fromH    = imcstt.expr(h0)
-            double toLat  = imcstt.expr(lat)
-            double toLong = imcstt.expr(lat0)
-            double toH    = imcstt.expr(h)
-            double xx = imcstt.expr(x)
-            double yy = imcstt.expr(y)
-            double zz = imcstt.expr(z)
-            
-            if(fromLat!=null && fromLong!=null && fromH !=null && toLat!=null && toLong!=null && toH!=null && xx!=null && yy!=null && zz!=null) {
-                def resultmap = [:]
-                fromLat  = toApply0.call(fromLat)
-                fromLong = toApply0.call(fromLong)
-                toLat  = toApply.call(toLat)
-                toLong = toApply.call(toLong)
-                LocationType loc0 =  new LocationType(fromLat,fromLong) //lat long
-                loc0.setHeight(fromH)
-                LocationType loc1 =  new LocationType(toLat,toLong) //lat long
-                loc1.setHeight(toH)
-                loc1.translatePosition(xx, yy, zz)
-                def id = sys+".NED"
-                double[] offsets = loc0.getOffsetFrom(loc1)
-                XYDataItem item = new XYDataItem(offsets[0],offsets[1])
-                resultmap.put id, item
-                addSeries resultmap
-            }
-        }
-    }
-    
     static def plotNEDFrom(LinkedHashMap lat0, LinkedHashMap long0, LinkedHashMap h0,LinkedHashMap lat,LinkedHashMap lon,LinkedHashMap h,LinkedHashMap x,LinkedHashMap y,LinkedHashMap z) {
         if(!realTimePlot.getType().equals(PlotType.GENERICXY)) {
             //plot.resetSeries()
@@ -275,7 +238,7 @@ class PlotScript {
         def result = [:]
         def lookup1,lookup2,lookup3,lookup4,lookup5,lookup6,lookup7,lookup8
         lat0.keySet().each { key ->
-        	def sys = key.split(".")[0]
+        	def sys = key.split(/(\.)/)[0]
             def id = sys+"."+name
             if((lookup1 = long0.keySet().find{it.startsWith(sys)}) != null && (lookup2 = h0.keySet().find{it.startsWith(sys)}) != null 
             	&& (lookup3 = lat.keySet().find{it.startsWith(sys)}) != null && (lookup4 = lon.keySet().find{it.startsWith(sys)}) != null 
@@ -299,14 +262,19 @@ class PlotScript {
 	                double[] offsets = loc0.getOffsetFrom(loc1)
 	                XYDataItem item = new XYDataItem(offsets[0],offsets[1])
 	                result.put id, item
-	                addSeries result
                 }
             }
+            addSeries result
         }
     }
     
-    static def plotNEDFrom(LinkedHashMap lat, LinkedHashMap long, LinkedHashMap h) {//TODO xyz offset from this coordinates?
-        return plotNEDFrom(lat,lon,h,"EstimatedState.lat", "EstimatedState.lon", "EstimatedState.height","EstimatedState.x","EstimatedState.y","EstimatedState.z",closure,closure)
+    static def plotNEDFrom(LinkedHashMap lat, LinkedHashMap lon, LinkedHashMap h) { //TODO xyz offset from this coordinates?
+        def closure = {arg -> Math.toDegrees(arg)}
+        def la = apply ( value ("EstimatedState.lat"), closure)
+        def ln = apply ( value ("EstimatedState.lon"), closure)
+        def he = apply ( value ("EstimatedState.height"), closure)
+
+        return plotNEDFrom(lat,lon,h,la, ln, he,value("EstimatedState.x"),value("EstimatedState.y"),value("EstimatedState.z"))
     }
     
 }
