@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -52,8 +52,11 @@ import javax.swing.ProgressMonitor;
 
 import org.imgscalr.Scalr;
 
+import pt.lsts.imc.Elevator;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.PopUp;
+import pt.lsts.imc.StationKeeping;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorBar;
 import pt.lsts.neptus.colormap.ColorMap;
@@ -68,6 +71,7 @@ import pt.lsts.neptus.mra.api.BathymetryParser;
 import pt.lsts.neptus.mra.api.BathymetryParserFactory;
 import pt.lsts.neptus.mra.api.BathymetryPoint;
 import pt.lsts.neptus.mra.api.BathymetrySwath;
+import pt.lsts.neptus.mra.api.CorrectedPosition;
 import pt.lsts.neptus.mra.api.SidescanLine;
 import pt.lsts.neptus.mra.api.SidescanParameters;
 import pt.lsts.neptus.mra.api.SidescanParser;
@@ -154,7 +158,27 @@ public class KMLExporter implements MRAExporter {
 
     @NeptusProperty(category = "Export", name="Export Sidescan")
     public boolean exportSidescan = true;
-
+    
+    @NeptusProperty(category = "SideScan", name="Skip PopUps and SKs", description="Skip popup and station keeping maneuvers")
+    public boolean skipSK = true;
+    
+    @NeptusProperty(category = "SideScan", name="Single Vehicle Survey", description="Do not use data from other vehicles")
+    public boolean singleVehicle = true;
+    
+    @NeptusProperty(category = "SideScan", name="Margin in meters", description="Margins to be used to generate mosaic (from vehicle path)")
+    public int margin = 150;
+    
+    @NeptusProperty(category = "SideScan", name="Resolution (px/meter)", description="Resolution of generated mosaic")
+    public double sssResolution = 3;
+        
+    @NeptusProperty(category = "SideScan", name="Truncate Range", description="Ignore data further than this range")
+    public int truncRange = 0;
+    
+    @NeptusProperty(category = "SideScan", name="Use Corrected positions", description="Use locations corrected by GPS")
+    public boolean correctedPositions = true;
+    
+    
+    
     public KMLExporter(IMraLogGroup source) {
         this.source = source;
     }
@@ -258,6 +282,19 @@ public class KMLExporter implements MRAExporter {
             if (state.getAlt() < 0 || state.getDepth() < MRAProperties.minDepthForBathymetry
                     || Math.abs(state.getTheta()) > Math.toDegrees(10))
                 continue;
+            
+            if (skipSK) {
+                IMCMessage msg = source.getLsfIndex().getMessageAt("PlanControlState", state.getTimestamp());
+                if (msg != null && msg.getAbbrev().equals("PlanControlState"))
+                    switch(msg.getInteger("man_type")) {
+                        case StationKeeping.ID_STATIC:
+                        case PopUp.ID_STATIC:
+                            System.out.println("skipping maneuver.");
+                            continue;
+                        default:
+                            break;
+                    }
+            }
 
             LocationType loc = new LocationType(Math.toDegrees(state.getLat()), Math.toDegrees(state.getLon()));
             loc.translatePosition(state.getX(), state.getY(), 0);
@@ -307,7 +344,8 @@ public class KMLExporter implements MRAExporter {
     public String sidescanOverlay(File dir, double resolution, LocationType topLeft, LocationType bottomRight,
             String fname, long startTime, long endTime, Ducer ducer) {
         SidescanParser ssParser = SidescanParserFactory.build(source);
-
+        CorrectedPosition positions = new CorrectedPosition(source);
+        
         double totalProg = 100;
         double startProg = 100;
         // FIXME temporary fix
@@ -365,7 +403,20 @@ public class KMLExporter implements MRAExporter {
             double progress = ((double)(time - start) / (end - start)) * totalProg + startProg;
             pmonitor.setProgress((int)progress);
 
-
+            // check maneuver type and advance data from StationKeeping, Popup and Elevator maneuvers
+            if (skipSK) {
+                IMCMessage msg = source.getLsfIndex().getMessageAt("PlanControlState", time / 1000.0);
+                if (msg != null && msg.getAbbrev().equals("PlanControlState"))
+                    switch(msg.getInteger("man_type")) {
+                        case StationKeeping.ID_STATIC:
+                        case PopUp.ID_STATIC:
+                        case Elevator.ID_STATIC:
+                            continue;
+                        default:
+                            break;
+                    }
+            }
+            
             ArrayList<SidescanLine> lines;
             try {
                 lines = ssParser.getLinesBetween(time, time + 1000, sys, params);
@@ -376,8 +427,18 @@ public class KMLExporter implements MRAExporter {
             }
 
             BufferedImage previous = new BufferedImage(3, 3, BufferedImage.TYPE_INT_ARGB);
+            
+            Integer margin = null;
+            
             for (SidescanLine sl : lines) {
 
+                if (margin == null) {
+                    margin = 0;
+                    if (truncRange > 0 && truncRange < sl.getRange()) {
+                        margin = (int) (((sl.getRange()-truncRange) / sl.getRange()) * (sl.getData().length / 2)); 
+                    }
+                }
+                
                 if (filter != null && !filter.isDataValid(new Date(sl.getTimestampMillis())))
                     continue;
                 
@@ -398,20 +459,22 @@ public class KMLExporter implements MRAExporter {
 
                 int startPixel, endPixel;
 
+               
+                
                 switch (ducer) {
                     case board:
-                        startPixel = 0;
+                        startPixel = margin;
                         endPixel = sl.getData().length / 2;
                         filename = fname+"_board";
                         break;
                     case starboard:
                         startPixel = sl.getData().length / 2;
-                        endPixel = sl.getData().length;
+                        endPixel = sl.getData().length - margin;
                         filename = fname+"_starboard";
                         break;
                     default:
-                        startPixel = 0;
-                        endPixel = sl.getData().length;
+                        startPixel = margin;
+                        endPixel = sl.getData().length - margin;
                         filename = fname;
                         break;
                 }
@@ -442,7 +505,13 @@ public class KMLExporter implements MRAExporter {
                 g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
                 if (blendMode != SideScanComposite.MODE.NONE)
                     g2.setComposite(new SideScanComposite(blendMode));
-                double[] pos = sl.getState().getPosition().getOffsetFrom(topLeft);
+                
+                double[] pos;
+                if (correctedPositions)
+                    pos = positions.getPosition(sl.getTimestampMillis()/1000.0).getPosition().getOffsetFrom(topLeft);
+                else
+                    pos = sl.getState().getPosition().getOffsetFrom(topLeft);
+                     
                 g2.translate(pos[1] * resolution, -pos[0] * resolution);
                 if (makeAbs && sl.getState().getYaw() < 0)
                     g2.rotate(Math.toRadians(300) + sl.getState().getYaw());
@@ -737,6 +806,12 @@ public class KMLExporter implements MRAExporter {
 
             LocationType bottomRight = null, topLeft = null;
 
+            int vehicle = -1;
+            
+            // main vehicle is the source of first message
+            if (singleVehicle)
+                vehicle = source.getLsfIndex().getMessage(0).getSrc();                
+            
             // Path
             Iterable<IMCMessage> it = source.getLsfIndex().getIterator("EstimatedState", 0, 3000);
             pmonitor.setProgress(1);
@@ -744,6 +819,8 @@ public class KMLExporter implements MRAExporter {
             double start = source.getLsfIndex().getStartTime();
             double end = source.getLsfIndex().getEndTime();
             for (IMCMessage s : it) {
+                if (vehicle > -1 && s.getSrc() != vehicle) // only consider main vehicle
+                    continue;
                 double progress = ((s.getTimestamp() - start) / (end - start)) * 30 + 1;
                 pmonitor.setProgress((int)progress);
                 LocationType loc = IMCUtils.parseLocation(s);
@@ -779,8 +856,6 @@ public class KMLExporter implements MRAExporter {
                     topLeft.setLongitudeDegs(loc.getLongitudeDegs());
                 else if (loc.getLongitudeDegs() > bottomRight.getLongitudeDegs())
                     bottomRight.setLongitudeDegs(loc.getLongitudeDegs());
-
-                // states.add(loc);
             }
 
             if (topLeft == null) {
@@ -810,8 +885,8 @@ public class KMLExporter implements MRAExporter {
                 pmonitor.setProgress(90);
             }
 
-            topLeft.translatePosition(50, -50, 0);
-            bottomRight.translatePosition(-50, 50, 0);
+            topLeft.translatePosition(margin, -margin, 0);
+            bottomRight.translatePosition(-margin, margin, 0);
             topLeft.convertToAbsoluteLatLonDepth();
             bottomRight.convertToAbsoluteLatLonDepth();
 
@@ -822,17 +897,17 @@ public class KMLExporter implements MRAExporter {
                     double lastTime = 0;
                     int count = 1;
                     for (Double seg : LogUtils.lineSegments(source)) {
-                        bw.write(sidescanOverlay(out.getParentFile(), 6, topLeft, bottomRight, "sss" + count,
+                        bw.write(sidescanOverlay(out.getParentFile(), sssResolution, topLeft, bottomRight, "sss" + count,
                                 (long) (lastTime * 1000), (long) (seg * 1000), Ducer.both));
                         lastTime = seg;
                         count++;
                     }
                 }
                 else {
-                    bw.write(sidescanOverlay(out.getParentFile(), 6, topLeft, bottomRight, Ducer.both));
+                    bw.write(sidescanOverlay(out.getParentFile(), sssResolution, topLeft, bottomRight, Ducer.both));
                     if (separateTransducers) {
-                        bw.write(sidescanOverlay(out.getParentFile(), 6, topLeft, bottomRight, Ducer.board));
-                        bw.write(sidescanOverlay(out.getParentFile(), 6, topLeft, bottomRight, Ducer.starboard));
+                        bw.write(sidescanOverlay(out.getParentFile(), sssResolution, topLeft, bottomRight, Ducer.board));
+                        bw.write(sidescanOverlay(out.getParentFile(), sssResolution, topLeft, bottomRight, Ducer.starboard));
                     }
                 }
             }
@@ -886,6 +961,7 @@ public class KMLExporter implements MRAExporter {
                 return  I18n.textf("Log exported to %path", out.getAbsolutePath());
         }
         catch (Exception e) {
+            e.printStackTrace();
             GuiUtils.errorMessage(I18n.text("Error while exporting to KML"), I18n.textf(
                     "Exception of type %exception occurred: %message", e.getClass().getSimpleName(), e.getMessage()));
             e.printStackTrace();

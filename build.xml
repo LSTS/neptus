@@ -2,7 +2,7 @@
 <!-- ===================================================================
    Build file for Neptus
 
-Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
+Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
 Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
 All rights reserved.
 Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -56,8 +56,8 @@ For simple use the main targets are:
 	<!-- =================================================================== -->
 	<!-- Defines variables used by the other targets                         -->
 	<!-- =================================================================== -->
-	<property name="version.MAJOR" value="2018" />
-	<property name="version.MINOR" value="01" />
+	<property name="version.MAJOR" value="2019" />
+	<property name="version.MINOR" value="02" />
 	<property name="version.PATCH" value="1" />
 	<!-- Set this to '-dev' if a developer release; blank "" if maintenance release; or '-rcX' for release candidate X (X number) -->
 	<property name="version.DEVELOPER" value="-dev" />
