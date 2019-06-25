@@ -261,6 +261,13 @@ public class GeneralPreferences implements PropertiesProvider {
     public static boolean localTimeOnConsoleOn = false;
 
     // -------------------------------------------------------------------------
+    
+    @NeptusProperty(name = "Ripples URL", category="Iridium Communications", userLevel = LEVEL.REGULAR,
+        description = "URL of the ripples web server")
+    public static String ripplesUrl = "http://ripples.lsts.pt";
+    
+
+    // -------------------------------------------------------------------------
     // Constructor and initialize
 
     public GeneralPreferences() {

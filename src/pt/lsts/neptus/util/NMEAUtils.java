@@ -268,7 +268,7 @@ public class NMEAUtils {
 			return loc;
 		}
 		catch (Exception ex) {
-			ex.printStackTrace();
+		    NeptusLog.pub().warn("Corrupted GGA String: " + ex.getMessage());
 			return null;
 		}
 	}
@@ -299,7 +299,7 @@ public class NMEAUtils {
             return Double.NaN;
         }
         catch (Exception ex) {
-            ex.printStackTrace();
+            NeptusLog.pub().warn("Corrupted GPHDT String: " + ex.getMessage());
             return Double.NaN;
         }
     }
@@ -336,7 +336,7 @@ public class NMEAUtils {
 			return loc;
 		}
 		catch (Exception ex) {
-			ex.printStackTrace();
+		    NeptusLog.pub().warn("Corrupted RMC String: " + ex.getMessage());
 			return null;
 		}
 	}
@@ -373,7 +373,7 @@ public class NMEAUtils {
             return loc;
         }
         catch (Exception ex) {
-            ex.printStackTrace();
+            NeptusLog.pub().warn("Corrupted GLL String: " + ex.getMessage());
             return null;
         }
     }

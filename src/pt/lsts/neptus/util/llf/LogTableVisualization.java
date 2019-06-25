@@ -135,7 +135,9 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
 
     @Override
     public String getName() {
-        return log.name();
+        StringBuilder sb = new StringBuilder(log.name());
+        sb.append(" Messages");
+        return sb.toString();
     }
 
     private void applyFilter(ArrayList<String> msgsToFilter, int initTS, int finalTS) {
@@ -155,10 +157,8 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
 
         RowFilter<IndexedLogTableModel, Object> rf = null;
         //If current expression doesn't parse, don't update.
-
-        for (String msg : msgsToFilter) {
-            filters.add(RowFilter.regexFilter(msg, 2));
-        }
+        for (String msg : msgsToFilter)
+            filters.add(RowFilter.regexFilter("^"+msg+"$", 2));
 
         rf = RowFilter.orFilter(filters);
 

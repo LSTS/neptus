@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <console name="Neptus Console" width="1366" height="727" resizable="true" mission-file="../../missions/APDL/missao-apdl.nmisz" main-vehicle="lauv-xplore-1">
-  <!-- Data saved on 2018-04-07T11:57:44.0Z with Neptus version 2018.01.1-dev (compiled on 2018-04-05, gtag/20170721-rep17-arpao-337-gd346a79-dirty). -->
+  <!-- Data saved on 2019-02-27T14:59:33.0Z with Neptus version 2019.02.1-dev (compiled on 2019-02-26, gtag/20170721-rep17-arpao-835-g588198cf5-dirty). -->
   <mainpanel name="console main panel">
-    <subpanel class="pt.lsts.neptus.console.plugins.containers.MigLayoutContainer" x="0" y="0" width="1360" height="643">
+    <subpanel class="pt.lsts.neptus.console.plugins.containers.MigLayoutContainer" x="0" y="0" width="1366" height="643">
       <properties>
         <entry key="XML Definitions">&lt;profiles&gt;
   &lt;profile name="Normal"&gt;
@@ -87,7 +87,7 @@
       <child class="pt.lsts.neptus.plugins.map.MapEditor" x="0" y="0" width="0" height="0">
         <properties/>
       </child>
-      <child class="pt.lsts.neptus.console.plugins.planning.MapPanel" x="0" y="0" width="1054" height="643">
+      <child class="pt.lsts.neptus.console.plugins.planning.MapPanel" x="0" y="0" width="1060" height="643">
         <properties>
           <entry key="World Map Transparency">false</entry>
         </properties>
@@ -99,9 +99,7 @@
         <properties/>
       </child>
       <child class="pt.lsts.neptus.console.plugins.MyLocationDisplay" x="0" y="0" width="0" height="0">
-        <properties>
-          <entry key="Location">N38.44020556°, W9.11050278°</entry>
-        </properties>
+        <properties/>
       </child>
       <child class="pt.lsts.neptus.plugins.oplimits.OperationLimitsSubPanel" x="0" y="0" width="95" height="40">
         <properties/>
@@ -157,6 +155,19 @@ altitude: ${EstimatedState.alt};
       </child>
       <child class="pt.lsts.neptus.plugins.sunfish.iridium.feedback.IridiumStatus" x="0" y="0" width="0" height="0">
         <properties/>
+      </child>
+      <child class="pt.lsts.neptus.plugins.sidescan.console.SidescanRealTimeWaterfall" x="0" y="0" width="0" height="0">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.plugins.sweepplangen.SweepPlanGen" x="0" y="0" width="0" height="0">
+        <properties/>
+      </child>
+      <child class="pt.lsts.ripples.RipplesUpload" x="0" y="0" width="0" height="0">
+        <properties>
+          <entry key="synch">false</entry>
+          <entry key="Poll also systems from server">false</entry>
+          <entry key="Synch external systems">false</entry>
+        </properties>
       </child>
     </subpanel>
   </mainpanel>

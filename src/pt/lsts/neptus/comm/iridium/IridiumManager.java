@@ -81,7 +81,7 @@ public class IridiumManager {
         RockBlockIridiumMessenger,
         HubIridiumMessenger,
         SimulatedMessenger,
-        HerokuMessenger
+        RipplesMessenger
     }
     
     private IridiumManager() {
@@ -100,7 +100,7 @@ public class IridiumManager {
                 return hubMessenger;
             case RockBlockIridiumMessenger:
                 return rockBlockMessenger;
-            case HerokuMessenger:
+            case RipplesMessenger:
                 return ripplesMessenger;
             default:
                 return simMessenger;
@@ -121,7 +121,6 @@ public class IridiumManager {
                 lastTime = now;
             }
             catch (Exception e) {
-                e.printStackTrace();
                 NeptusLog.pub().error(e);
                 
             }

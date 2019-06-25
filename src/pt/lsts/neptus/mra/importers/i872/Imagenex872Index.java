@@ -27,20 +27,50 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: zp
- * Jan 19, 2018
+ * Author: Renato Campos
+ * 10 Dec 2018
  */
-package pt.lsts.neptus.comm.iridium;
+package pt.lsts.neptus.mra.importers.i872;
 
-/**
- * @author zp
- *
- */
-@IridiumProvider(id="ripples", name="Ripples Messenger", description="Sends Iridium messages directly to ripples app.")
-public class RipplesIridiumMessenger extends HubIridiumMessenger {
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.TreeSet;
 
-    public RipplesIridiumMessenger() {
-        serverUrl = "http://falkor.lsts.pt:9090/api/v1/";        
+public class Imagenex872Index implements Serializable {
+    
+    private static final long serialVersionUID = -9220474691062798631L;
+    private HashMap<Long,Long> timestampToPosition;
+    private TreeSet<Long> timestampsSet;
+
+    public Imagenex872Index() {
+        timestampToPosition = new HashMap<Long, Long>();
+        timestampsSet = new TreeSet<Long>();
     }
     
+    /**
+     * Adds a ping to the index
+     * @param timestamp Timestamp of the ping
+     * @param position Starting position of the ping in the file
+     */
+    public void addPing(Long timestamp, Long position) {
+        timestampToPosition.put(timestamp, position);
+        timestampsSet.add(timestamp);
+    }
+    /**
+     * Get position of a ping in the 872 file.
+     * @param timestamp The timestamp of the ping to search
+     * @return The position of the ping in the 872 file.
+     */
+    public long getPositionOfPing(Long timestamp) {
+        long nextTimestamp = timestampsSet.ceiling(timestamp);
+        return timestampToPosition.get(nextTimestamp);
+    }
+
+    public long getFirstTimestamp() {
+        return timestampsSet.first();
+    }
+    
+    public long getLastTimestamp() {
+        return timestampsSet.last();
+    }
 }

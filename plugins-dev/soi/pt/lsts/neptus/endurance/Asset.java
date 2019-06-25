@@ -40,6 +40,7 @@ import java.util.Map.Entry;
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonObject;
 
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.types.coord.CoordinateUtil;
 
 public class Asset implements Comparable<Asset>{
@@ -47,7 +48,7 @@ public class Asset implements Comparable<Asset>{
 	private final String assetName;
 	private Plan plan = null;
 	private Hashtable<String, String> config = new Hashtable<>();
-	private AssetState received = null;
+	private AssetState received = AssetState.builder().withTimestamp(new Date(System.currentTimeMillis() - 3600_000)).build();
 	private AssetTrack track = new AssetTrack();
 	
 	public Asset(String assetName) {
@@ -72,7 +73,12 @@ public class Asset implements Comparable<Asset>{
 	}
 	
 	public void setState(AssetState state) {
-		if (received == null || state.getTimestamp().after(received.getTimestamp())) {
+	    if (state.getTimestamp() == null) {
+	        NeptusLog.pub().error("Ignoring AssetState with no timestamp.");
+	        return;
+	    }
+	    
+	    if (received == null || state.getTimestamp().after(received.getTimestamp())) {
 			received = state;
 		}
 		

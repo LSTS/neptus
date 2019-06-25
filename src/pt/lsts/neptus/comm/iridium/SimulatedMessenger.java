@@ -50,6 +50,7 @@ import pt.lsts.imc.IridiumMsgRx;
 import pt.lsts.imc.IridiumMsgTx;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**
  * @author zp
@@ -63,7 +64,7 @@ public class SimulatedMessenger implements IridiumMessenger {
 
     protected HashSet<IridiumMessageListener> listeners = new HashSet<>();
 
-    protected String serverUrl = "http://ripples.lsts.pt/api/v1/";
+    protected String serverUrl = GeneralPreferences.ripplesUrl + "/api/v1/";
     protected String messagesUrl = serverUrl+"irsim";
     protected int timeoutMillis = 10000;
 

@@ -41,7 +41,9 @@ import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Hashtable;
 
@@ -65,6 +67,7 @@ import pt.lsts.neptus.colormap.ColormapOverlay;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.MRAProperties;
 import pt.lsts.neptus.mra.WorldImage;
 import pt.lsts.neptus.mra.api.BathymetryParser;
@@ -177,7 +180,8 @@ public class KMLExporter implements MRAExporter {
     @NeptusProperty(category = "SideScan", name="Use Corrected positions", description="Use locations corrected by GPS")
     public boolean correctedPositions = true;
     
-    
+    @NeptusProperty(category = "Export", name="Export Marks")
+    public boolean exportMarks = true;
     
     public KMLExporter(IMraLogGroup source) {
         this.source = source;
@@ -209,6 +213,35 @@ public class KMLExporter implements MRAExporter {
         ret += "\t\t\t<width>4</width>\n";
         ret += "\t\t\t</LineStyle>\n";
         ret += "\t\t</Style>\n";
+        
+        ret += "\t\t<Style id=\"s_ylw-pushpin\">";
+        ret += "\t\t\t<IconStyle>";
+        ret += "\t\t\t\t<color>80ffffff</color>";
+        ret += "\t\t\t\t<scale>1.1</scale>";
+        ret += "\t\t\t\t<Icon>";
+        ret += "\t\t\t\t\t<href>http://maps.google.com/mapfiles/kml/paddle/ltblu-circle.png</href>";
+        ret += "\t\t\t\t</Icon>";
+        ret += "\t\t\t\t<hotSpot x=\"32\" y=\"1\" xunits=\"pixels\" yunits=\"pixels\"/>";
+        ret += "\t\t\t</IconStyle>";
+        ret += "\t\t\t<LabelStyle>";
+        ret += "\t\t\t\t<color>80ffffff</color>";
+        ret += "\t\t\t</LabelStyle>";
+        ret += "\t\t\t<ListStyle>";
+        ret += "\t\t\t\t<ItemIcon>";
+        ret += "\t\t\t\t\t<href>http://maps.google.com/mapfiles/kml/paddle/ltblu-circle-lv.png</href>";
+        ret += "\t\t\t\t</ItemIcon>";
+        ret += "\t\t\t</ListStyle>";
+        ret += "\t\t</Style>";
+        ret += "\t\t<StyleMap id=\"mark\">";
+        ret += "\t\t\t<Pair>";
+        ret += "\t\t\t\t<key>normal</key>";
+        ret += "\t\t\t\t<styleUrl>#s_ylw-pushpin</styleUrl>";
+        ret += "\t\t\t</Pair>";
+        ret += "\t\t\t<Pair>";
+        ret += "\t\t\t\t<key>highlight</key>";
+        ret += "\t\t\t\t<styleUrl>#s_ylw-pushpin_hl</styleUrl>";
+        ret += "\t\t\t</Pair>";
+        ret += "\t\t</StyleMap>";
 
         return ret;
     }
@@ -268,6 +301,36 @@ public class KMLExporter implements MRAExporter {
             retAll += ret;
         }
         return retAll;
+    }
+
+    public String folderOpen(String name) {
+        String ret = "\t\t<Folder>\n";
+        ret += "\t\t\t<name>" + name + "</name>\n";
+        ret += "\t\t\t<open>0</open>\n";
+        return ret;
+    }
+
+    public String folderClose() {
+        String ret = "\t\t</Folder>\n";
+        return ret;
+    }
+
+    public String markPlacemark(LocationType coord, String name, String style) {
+        String ret = "\t\t\t<Placemark>\n";
+        ret += "\t\t\t\t<name>" + name + "</name>\n";
+        ret += "\t\t\t\t<styleUrl>#" + style + "</styleUrl>\n";
+        ret += "\t\t\t\t<Point>\n";
+        ret += "\t\t\t\t\t<gx:altitudeMode>clampToSeaFloor</gx:altitudeMode>\n";
+        ret += "\t\t\t\t\t<coordinates> ";
+
+        LocationType l = coord;
+        l.convertToAbsoluteLatLonDepth();
+        ret += l.getLongitudeDegs() + "," + l.getLatitudeDegs() + ","+(-l.getDepth())+"\n";// -" + l.getDepth()+"\n";
+        
+        ret += "\t\t\t\t\t</coordinates>\n";
+        ret += "\t\t\t\t</Point>\n";
+        ret += "\t\t\t</Placemark>\n";
+        return ret;
     }
 
     public String kmlFooter() {
@@ -919,7 +982,7 @@ public class KMLExporter implements MRAExporter {
                     bw.write(mb);
                 else {
                     WorldImage imgDvl = new WorldImage(1, ColorMapFactory.createJetColorMap());
-                    imgDvl.setMaxVal(20d);
+                    imgDvl.setMaxVal(MRAProperties.maxBathymDepth);
                     imgDvl.setMinVal(3d);
                     it = source.getLsfIndex().getIterator("EstimatedState", 0, 100);
                     for (IMCMessage s : it) {
@@ -929,12 +992,29 @@ public class KMLExporter implements MRAExporter {
                         if (alt == -1 || depth < MRAProperties.minDepthForBathymetry)
                             continue;
                         else
-                            imgDvl.addPoint(loc, s.getDouble("alt"));
+                            imgDvl.addPoint(loc, s.getDouble("alt") + s.getDouble("depth"));
                     }
                     if (imgDvl.getAmountDataPoints() > 0) {
                         ImageIO.write(imgDvl.processData(), "PNG", new File(out.getParent(), "dvl_bath.png"));
                         bw.write(overlay(new File(out.getParent(), "dvl_bath.png"), "DVL Bathymetry", imgDvl.getSouthWest(),
                                 imgDvl.getNorthEast(), visibilityForBathymetry));
+                    }
+                }
+
+                if (exportMarks) {
+                    pmonitor.setNote(I18n.text("Generating marks placemarks"));
+                    Collection<LogMarker> markersLst = LogMarker.load(source);
+                    if (!markersLst.isEmpty()) {
+                        bw.write(folderOpen("Marks"));
+                        markersLst.forEach(m -> {
+                            try {
+                                bw.write(markPlacemark(m.getLocation(), m.getLabel(), "mark"));
+                            }
+                            catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        });
+                        bw.write(folderClose());
                     }
                 }
             }

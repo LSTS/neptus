@@ -1282,7 +1282,20 @@ public class GuiUtils {
         return new JComboBox<>(vehicles.toArray(new String[0]));
     }
     
-    
+    public static String input(Component parent, String title, String default_) {
+        TableLayout tl = new TableLayout(new double[] {0.33, 0.67}, new double[] {0.5,0.5});
+        tl.setHGap(3);
+        JPanel p = new JPanel(tl);
+        JTextField input = new JTextField(default_);
+        
+        p.add(new JLabel("Input:"), "0,0");
+        p.add(input, "1,0");
+
+        int op = JOptionPane.showConfirmDialog(parent, p, title, JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+        if (op == JOptionPane.CANCEL_OPTION)
+            return null;
+        return input.getText();
+    }
     
     /**
      * Unitary test.

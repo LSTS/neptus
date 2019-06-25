@@ -47,6 +47,7 @@ import pt.lsts.neptus.comm.iridium.HubIridiumMessenger;
 import pt.lsts.neptus.comm.iridium.HubIridiumMessenger.HubSystemMsg;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.plugins.update.Periodic;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 
 /**
@@ -56,7 +57,7 @@ import pt.lsts.neptus.plugins.update.Periodic;
 public class HubLocationProvider implements ILocationProvider {
 
     SituationAwareness parent;
-    private String systemsUrl = "http://ripples.lsts.pt/api/v1/systems/active";
+    private String systemsUrl = GeneralPreferences.ripplesUrl + "/api/v1/systems/active";
     @Override
     public void onInit(SituationAwareness instance) {
         this.parent = instance;

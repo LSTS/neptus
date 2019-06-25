@@ -58,6 +58,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**
  * @author zp
@@ -66,8 +67,8 @@ import pt.lsts.neptus.i18n.I18n;
 public class HistoricWebAdapter {
 
     private ExecutorService executor = Executors.newSingleThreadExecutor();
-    private String getURL = "http://ripples.lsts.pt/datastore/lsf";
-    private String postURL = "http://ripples.lsts.pt/datastore";
+    private String getURL = GeneralPreferences.ripplesUrl + "/datastore/lsf";
+    private String postURL = GeneralPreferences.ripplesUrl + "/datastore";
     private HttpClient client = new HttpClient();
     private long lastPoll = System.currentTimeMillis() - 1200 * 1000;
     private HistoricDataInteraction interaction;

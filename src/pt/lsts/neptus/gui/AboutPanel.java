@@ -67,7 +67,7 @@ public class AboutPanel extends JDialog {
     private static String aboutImageFilePath = "images/nep-about.jpg";
     private static String additionalHTML = "";
 
-    private static final String COPY_YEARS = "2004-2018";
+    private static final String COPY_YEARS = "2004-2019";
 
     private String mainDevelopers = "Paulo Dias, José Pinto";
     private String contributorsDevelopers = "Ricardo Martins, Manuel Ribeiro, "

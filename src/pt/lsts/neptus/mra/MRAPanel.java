@@ -45,6 +45,7 @@ import java.util.Vector;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -462,6 +463,29 @@ public class MRAPanel extends JPanel {
                 }
             }
         }
+    }
+    
+    public void renameMarker(LogMarker marker,String newLabel) {
+        if (LsfReportProperties.generatingReport){
+            GuiUtils.infoMessage(getRootPane(),
+                    I18n.text("Can not rename Marks"),
+                    I18n.text("Can not rename Marks - Generating Report."));
+            return;
+        }
+        
+        for(LogMarker m: logMarkers){
+            if(m.getLabel().equals(newLabel)) {
+                int op = GuiUtils.confirmDialog(getRootPane(), "Duplicated Mark Label", "This label already exists in a mark. Do you want to override it?");          
+                if (op == JOptionPane.NO_OPTION || op == JOptionPane.CLOSED_OPTION)
+                    return; //TODO recall rename method
+                else
+                    break;
+            }
+        }
+
+        removeMarker(marker);
+        marker.setLabel(newLabel);
+        addMarker(marker);
     }
 
     /**
