@@ -169,6 +169,11 @@ public class Plan {
     }
 
     public static Plan parse(SoiPlan spec) {
+        // empty plan
+        if (spec == null) {
+            return null;
+        }
+        
         Plan plan = new Plan("soi_" + spec.getPlanId());
         int id = 1;
         for (SoiWaypoint wpt : spec.getWaypoints()) {

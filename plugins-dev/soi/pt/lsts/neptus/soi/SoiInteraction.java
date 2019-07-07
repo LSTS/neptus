@@ -397,7 +397,11 @@ public class SoiInteraction extends SimpleRendererInteraction {
                     break;
                 case GET_PLAN:
                 case EXEC:
-                    AssetsManager.getInstance().getPlans().put(cmd.getSourceName(), Plan.parse(cmd.getPlan()));
+                    Plan plan = Plan.parse(cmd.getPlan());
+                    if (plan != null) 
+                        AssetsManager.getInstance().getPlans().put(cmd.getSourceName(), Plan.parse(cmd.getPlan()));
+                    else
+                        AssetsManager.getInstance().getPlans().remove(cmd.getSourceName());
                     say(vName+" plan");
                     break;
                 default:
