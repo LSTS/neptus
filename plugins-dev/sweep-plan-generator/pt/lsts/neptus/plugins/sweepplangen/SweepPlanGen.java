@@ -796,6 +796,7 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
             return locations;
         
         LocationType previous = locations.get(0);
+        result.add(previous);
         for (int i = 1; i < locations.size(); i++) {
             LocationType current = locations.get(i);
             double distanceToPrevious = current.getDistanceInMeters(previous);
