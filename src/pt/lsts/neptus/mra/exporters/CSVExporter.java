@@ -32,28 +32,29 @@
  */
 package pt.lsts.neptus.mra.exporters;
 
+import java.awt.*;
+import java.awt.event.*;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.text.NumberFormat;
-import java.util.LinkedHashMap;
+import java.util.*;
 import java.util.List;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumnModel;
 
-import javax.swing.ProgressMonitor;
-
-import com.google.common.collect.Lists;
-
-import pt.lsts.imc.EntityInfo;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCMessageType;
-import pt.lsts.imc.lsf.LsfIterator;
 import pt.lsts.neptus.gui.editor.StringListEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.PluginUtils;
+
 import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.conf.ConfigFetch;
+
 
 /**
  * @author zp
@@ -61,10 +62,14 @@ import pt.lsts.neptus.util.GuiUtils;
  */
 @PluginDescription(name="Export to CSV")
 public class CSVExporter implements MRAExporter {
-    
+
     /** Line ending to use */
     private static final String LINE_ENDING = "\r\n";
-    
+
+    private ArrayList<String> logList = new ArrayList<String>();
+
+    private ProgressMonitor pmonitor;
+
     @NeptusProperty(name = "Message List to Export", editorClass = StringListEditor.class,
             description = "List of messages to export (comma separated values, no spaces). Use '!' at the begining to make it an exclude list.")
     public String msgList = "";
@@ -73,10 +78,27 @@ public class CSVExporter implements MRAExporter {
             description = "If true will transform the enumerations and bitfields into the textual representation.")
     public boolean textualizeEnum = true;
 
+    @NeptusProperty(name = "Messages List", editorClass = StringListEditor.class,
+            description = "List of messages to export (comma separated values, no spaces). Use '!' at the begining to make it an exclude list.")
+    public String test = "";
+
     private IMraLogGroup source;
     private LinkedHashMap<Short, String> entityNames = new LinkedHashMap<>();
 
+    private JFrame window;
+    private JPanel mainContent, filter, currentFilters;
+
+    private ArrayList<JPanel> filters = new ArrayList<>();
+    private JLabel sourceEntCLabel, messagesLabel;
+;
+    private JComboBox<String> messagesBox;
+    private CheckBoxGroup entitiesBox;
+    private JPanel entities;
+
+    private HashMap<String, String[]> filtersMap;
+
     public CSVExporter(IMraLogGroup source) {
+        //super(ConfigFetch.getSuperParentAsFrame(), I18n.text("MRA Exporter"), ModalityType.DOCUMENT_MODAL);
         this.source = source;
     }
 
@@ -86,7 +108,7 @@ public class CSVExporter implements MRAExporter {
     }
 
     public String getHeader(String messageType) {
-        IMCMessageType type = source.getLsfIndex().getDefinitions().getType(messageType);
+       IMCMessageType type = source.getLsfIndex().getDefinitions().getType(messageType);
         String ret = "timestamp (seconds since 01/01/1970), system, entity ";
         for (String field : type.getFieldNames()) {
             if (type.getFieldUnits(field) != null)
@@ -151,65 +173,380 @@ public class CSVExporter implements MRAExporter {
     }
 
     @Override
-    public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
-        //pmonitor = new ProgressMonitor(ConfigFetch.getSuperParentFrame(), I18n.text("Exporting to CSV"),
-        //        I18n.text("Starting up"), 0, source.listLogs().length);
-        
-        if (PluginUtils.editPluginProperties(this, true))
-            return I18n.text("Cancelled by the user.");
+    public String process(IMraLogGroup source, ProgressMonitor pMonitor) {
+        pmonitor = new ProgressMonitor(ConfigFetch.getSuperParentFrame(), I18n.text("Exporting to CSV"),
+                I18n.text("Starting up"), 0, source.listLogs().length);
 
-        String tmpList = msgList.trim();
-        boolean includeList = true;
-        if (tmpList.isEmpty() || tmpList.startsWith("!")) {
-            includeList = false;
-            if (!tmpList.isEmpty())
-                tmpList = tmpList.replaceFirst("!", "");
+        window = new JFrame();
+        window.setLocationRelativeTo(ConfigFetch.getSuperParentAsFrame());
+        window.setSize(400, 400);
+        window.setLayout(new BorderLayout());
+
+        JLabel empty = new JLabel("");
+        empty.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        window.add(empty, BorderLayout.WEST);
+
+        JLabel empty2 = new JLabel("");
+        empty2.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        window.add(empty2, BorderLayout.EAST);
+
+        JLabel empty3 = new JLabel("");
+        empty3.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        window.add(empty3, BorderLayout.NORTH);
+
+        mainContent = new JPanel();
+        LayoutManager layout = new BoxLayout(mainContent, BoxLayout.PAGE_AXIS);
+        mainContent.setLayout(layout);
+
+        filtersMap = new HashMap<>();
+        addFilter();
+
+        currentFilters = new JPanel();
+        currentFilters.setBorder(BorderFactory.createTitledBorder("Filters: "));
+        currentFilters.setBounds(30,30,100,200);
+
+        mainContent.add(filter);
+        mainContent.add(currentFilters);
+
+        window.getContentPane().add(mainContent, BorderLayout.CENTER);
+
+        JPanel buttonsPnl = new JPanel();
+        JButton exportButton = new JButton("Export");
+        exportButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e)
+            {
+                export();
+            }
+        });
+        buttonsPnl.add(exportButton, BorderLayout.EAST);
+        window.getContentPane().add(buttonsPnl, BorderLayout.SOUTH);
+        window.setVisible(true);
+
+        while (window.isShowing() && !pmonitor.isCanceled()) {
+            try {
+                Thread.sleep(100);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
         }
-        String[] lst = tmpList.split(",");
-        List<String> messagesList = Lists.newArrayList(lst);
+
+        if (pmonitor.isCanceled()) {
+            return I18n.text("Cancelled by the user");
+        }
+
+        return I18n.text("Process complete");
+    }
+
+    private void addFilter() {
+        filter = new JPanel();
+        LayoutManager layout = new BoxLayout(filter, BoxLayout.PAGE_AXIS);
+        filter.setLayout(layout);
+
+        filter.setBorder(BorderFactory.createTitledBorder("Add new filter: "));
+        filter.setBounds(30,30,300,200);
         
-        File dir = new File(source.getFile("mra"), "csv");
+        JPanel msgPnl = new JPanel();
+        JPanel entiPnl = new JPanel();
+        JPanel buttonsPnl2 = new JPanel();
 
-        dir.mkdirs();
+        messagesLabel = new JLabel(I18n.text("Messages"));
 
-        entityNames.clear();
-        LsfIterator<EntityInfo> it = source.getLsfIndex().getIterator(EntityInfo.class);
-        if (it != null)
-            for (EntityInfo ei : it)
-                entityNames.put(ei.getId(), ei.getLabel());
+        //list of messages in this log source
+        String[] logs = source.listLogs();
+        messagesBox = generateMessageSelector(logs);
+        messagesBox.setBounds(50, 50, 200, 20);
+        
+        msgPnl.add(messagesLabel);
+        msgPnl.add(messagesBox);
+        filter.add(msgPnl);
 
-        int i = 0;
-        for (String message : source.listLogs()) {
+        entities = new JPanel();
+        sourceEntCLabel = new JLabel(I18n.text("Entity"));
+        populateSourceEntity(messagesBox.getSelectedItem().toString());
+        messagesBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    populateSourceEntity(messagesBox.getSelectedItem().toString());
+                    window.repaint();
+                }
+
+            }
+        });
+        entitiesBox.setSize(new Dimension(100,100));
+
+        entiPnl.add(sourceEntCLabel);
+        entiPnl.add(entities);
+        filter.add(entiPnl);
+
+        JButton cancelButton = new JButton("Cancel");
+        JButton saveButton = new JButton("OK");
+        saveButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e)
+            {
+                List<String> selected = new ArrayList<>();
+                for(int i = 0; i < entitiesBox.checkBoxes.size(); i++){
+                    if(entitiesBox.checkBoxes.get(i).isSelected()) {
+                        selected.add(entitiesBox.checkBoxes.get(i).getText());
+                        System.out.println("entitys: " + entitiesBox.checkBoxes.get(i).getText() );
+                    }
+                }
+                filtersMap.put(messagesBox.getSelectedItem().toString(), selected.stream().toArray(String[]::new));
+                //todo add filters tab and repaint
+                setCurrentFilters();
+
+            }
+        });
+
+        buttonsPnl2.add(cancelButton);
+        buttonsPnl2.add(saveButton);
+        filter.add(buttonsPnl2);
+    }
+
+    private void setCurrentFilters() {
+        currentFilters.removeAll();
+
+        DefaultTableModel model = new DefaultTableModel();
+
+        model.addColumn("Message");
+        model.addColumn("Entities");
+
+        for (String message : filtersMap.keySet()) {
+            List<String> entities = new ArrayList<String>(Arrays.asList(filtersMap.get(message)));
+            model.addRow(new Object[]{message, entities.toString()});
+        }
+
+        JTable table = new JTable(model);
+        TableColumnModel columnModel = table.getColumnModel();
+        columnModel.getColumn(0).setPreferredWidth(80);
+        columnModel.getColumn(1).setPreferredWidth(260);
+
+        currentFilters.add(table);
+        currentFilters.revalidate();
+    }
+
+    private String export() {
+        for (String message : filtersMap.keySet()) {
+            List<String> entities = new ArrayList<String>(Arrays.asList(filtersMap.get(message)));
+
             if (pmonitor.isCanceled())
                 return I18n.text("Cancelled by the user");
-            
-            boolean acceptMsg = true;
-            if (includeList)
-                acceptMsg = messagesList.contains(message);
-            else
-                acceptMsg = !messagesList.contains(message);
-            if (!acceptMsg)
-                continue;
-            
+
+            File dir = new File(source.getFile("mra"), "csv");
+            dir.mkdirs();
+
+            //export
             try {
+
                 File out = new File(dir, message + ".csv");
                 BufferedWriter bw = new BufferedWriter(new FileWriter(out));
                 pmonitor.setNote(I18n.textf("Exporting %message data to %csvfile...", message, out.getAbsolutePath()));
-                pmonitor.setProgress(++i);
                 bw.write(getHeader(message));
 
-                for (IMCMessage m : source.getLsfIndex().getIterator(message)) {
-                    bw.write(getLine(m));
+                int total = source.getLsfIndex().getNumberOfMessages();
+                String[] s = new String[total];
+                for (int row = 0; row < source.getLsfIndex().getNumberOfMessages(); row++) {
+                    if (source.getLsfIndex().getMessage(row).getMessageType().getShortName().equals(message)) {
+                        if (entities.contains(source.getLsfIndex().entityNameOf(row))) {
+                            bw.write(getLine(source.getLsfIndex().getMessage(row)));
+                        }
+                    }
                 }
                 bw.close();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
                 pmonitor.close();
                 return e.getClass().getSimpleName() + ": " + e.getMessage();
             }
         }
+        return "";
+    }
 
-        return I18n.text("Process complete");
+    private void populateSourceEntity(String messageName) {
+        System.out.println("populateSourceEntity:::::" + messageName);
+
+        int total = source.getLsfIndex().getNumberOfMessages();
+        String[] s = new String[total];
+        for (int row = 0; row < source.getLsfIndex().getNumberOfMessages(); row++) {
+            if(source.getLsfIndex().getMessage(row).getMessageType().getShortName().equals(messageName))
+               s[row] = source.getLsfIndex().entityNameOf(row);
+        }
+
+        Set<String> temp = new LinkedHashSet<String>( Arrays.asList( s ) );
+        String[] result = temp.toArray( new String[temp.size()] );
+
+        if(entitiesBox != null)
+            entitiesBox.removeAll();
+
+        entitiesBox = new CheckBoxGroup(result);
+        entitiesBox.setSizeAll();
+        entities.add(entitiesBox);
+        entitiesBox.revalidate();
+    }
+
+    public JComboBox<String> generateMessageSelector(String[] logs) {
+        ArrayList<CSVExporter.LogItem> options = new ArrayList<>();
+
+        for (String log : logs ) {
+            if (logList.contains(log))
+                options.add(new CSVExporter.LogItem(log, true, false));
+            else
+                options.add(new CSVExporter.LogItem(log, false, true));
+        }
+        Arrays.sort(options.toArray());
+
+        JComboBox<String> comboBox = new JComboBox(options.toArray());
+
+        comboBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                @SuppressWarnings("unchecked")
+                JComboBox<String> cb = (JComboBox<String>) e.getSource();
+            }
+        });
+        return comboBox;
+    }
+
+    public class CheckBoxGroup extends JPanel {
+
+        private JCheckBox all;
+        private List<JCheckBox> checkBoxes;
+        private JPanel content;
+
+        public CheckBoxGroup(String... options) {
+            checkBoxes = new ArrayList<>(25);
+            setLayout(new BorderLayout());
+            JPanel header = new JPanel(new FlowLayout(FlowLayout.LEFT, 1, 1));
+            all = new JCheckBox("Select All...");
+            all.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    for (JCheckBox cb : checkBoxes) {
+                        cb.setSelected(all.isSelected());
+                    }
+                }
+            });
+            header.add(all);
+            add(header, BorderLayout.NORTH);
+
+            content = new ScrollablePane(new GridBagLayout());
+            content.setBackground(UIManager.getColor("List.background"));
+            if (options.length > 0) {
+
+                GridBagConstraints gbc = new GridBagConstraints();
+                gbc.gridwidth = GridBagConstraints.REMAINDER;
+                gbc.anchor = GridBagConstraints.NORTHWEST;
+                gbc.weightx = 1;
+                for (int index = 1; index < options.length - 1; index++) {
+                    JCheckBox cb = new JCheckBox(options[index]);
+                    cb.setOpaque(false);
+                    checkBoxes.add(cb);
+                    content.add(cb, gbc);
+
+                    System.out.println("opção "+ index + ": " + options[index]);
+                }
+
+                JCheckBox cb = new JCheckBox(options[options.length - 1]);
+                cb.setOpaque(false);
+                checkBoxes.add(cb);
+                gbc.weighty = 1;
+                content.add(cb, gbc);
+
+            }
+
+            add(new JScrollPane(content));
+        }
+
+        public void setSizeAll() {
+            all.setBounds(50, 50, 100, 20);
+        }
+
+        public class ScrollablePane extends JPanel implements Scrollable {
+
+            public ScrollablePane(LayoutManager layout) {
+                super(layout);
+            }
+
+            @Override
+            public Dimension getPreferredScrollableViewportSize() {
+                return new Dimension(200, 150);
+            }
+
+            @Override
+            public int getScrollableUnitIncrement(Rectangle visibleRect, int orientation, int direction) {
+                return 32;
+            }
+
+            @Override
+            public int getScrollableBlockIncrement(Rectangle visibleRect, int orientation, int direction) {
+                return 32;
+            }
+
+            @Override
+            public boolean getScrollableTracksViewportWidth() {
+                boolean track = false;
+                Container parent = getParent();
+                if (parent instanceof JViewport) {
+                    JViewport vp = (JViewport) parent;
+                    track = vp.getWidth() > getPreferredSize().width;
+                }
+                return track;
+            }
+
+            @Override
+            public boolean getScrollableTracksViewportHeight() {
+                boolean track = false;
+                Container parent = getParent();
+                if (parent instanceof JViewport) {
+                    JViewport vp = (JViewport) parent;
+                    track = vp.getHeight() > getPreferredSize().height;
+                }
+                return track;
+            }
+
+        }
+
+    }
+
+
+    private class LogItem implements Comparable<LogItem> {
+        protected String logName;
+        protected boolean m_selected;
+        protected boolean m_enabled;
+
+        public LogItem(String name, boolean selected, boolean enabled) {
+            this.logName = name;
+            this.m_selected = selected;
+            this.m_enabled = enabled;
+        }
+
+        public boolean isEnabled() {
+            return m_enabled;
+        }
+
+        @SuppressWarnings("unused")
+        public String getName() { return logName; }
+
+        @SuppressWarnings("unused")
+        public void setSelected(boolean selected) {
+            m_selected = selected;
+        }
+
+        public void invertSelected() {
+            m_selected = !m_selected;
+        }
+
+        public boolean isSelected() {
+            return m_selected;
+        }
+
+        public String toString() {
+            return logName;
+        }
+
+        @Override
+        public int compareTo(CSVExporter.LogItem anotherLog) {
+            return logName.compareTo(anotherLog.logName);
+        }
     }
 }
