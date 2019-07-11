@@ -86,7 +86,7 @@ public class CSVExporter implements MRAExporter {
     private LinkedHashMap<Short, String> entityNames = new LinkedHashMap<>();
 
     private JFrame window;
-    private JPanel mainContent, filter, currentFilters;
+    private JPanel mainContent, entitiesFilter, filter, msgFilter;
 
     private ArrayList<JPanel> filters = new ArrayList<>();
     private JLabel sourceEntCLabel, messagesLabel;
@@ -177,9 +177,12 @@ public class CSVExporter implements MRAExporter {
         pmonitor = new ProgressMonitor(ConfigFetch.getSuperParentFrame(), I18n.text("Exporting to CSV"),
                 I18n.text("Starting up"), 0, source.listLogs().length);
 
+        if (pmonitor.isCanceled())
+            return I18n.text("Cancelled by the user");
+
         window = new JFrame();
         window.setLocationRelativeTo(ConfigFetch.getSuperParentAsFrame());
-        window.setSize(400, 400);
+        window.setSize(500, 500);
         window.setLayout(new BorderLayout());
 
         JLabel empty = new JLabel("");
@@ -199,14 +202,22 @@ public class CSVExporter implements MRAExporter {
         mainContent.setLayout(layout);
 
         filtersMap = new HashMap<>();
-        addFilter();
+        addMsgFilter();
+        addEntityFilter();
 
-        currentFilters = new JPanel();
-        currentFilters.setBorder(BorderFactory.createTitledBorder("Filters: "));
-        currentFilters.setBounds(30,30,100,200);
+        filter = new JPanel();
+        filter.setBorder(BorderFactory.createTitledBorder("Current filters: "));
+        filter.setBounds(30,30,100,200);
 
+        JPanel addFilter = new JPanel();
+        layout = new BoxLayout(addFilter, BoxLayout.LINE_AXIS);
+        addFilter.setLayout(layout);
+
+
+        addFilter.add(msgFilter);
+        addFilter.add(entitiesFilter);
+        mainContent.add(addFilter);
         mainContent.add(filter);
-        mainContent.add(currentFilters);
 
         window.getContentPane().add(mainContent, BorderLayout.CENTER);
 
@@ -238,13 +249,55 @@ public class CSVExporter implements MRAExporter {
         return I18n.text("Process complete");
     }
 
-    private void addFilter() {
-        filter = new JPanel();
-        LayoutManager layout = new BoxLayout(filter, BoxLayout.PAGE_AXIS);
-        filter.setLayout(layout);
+    private void addMsgFilter() {
+        msgFilter = new JPanel();
+        LayoutManager layout = new BoxLayout(msgFilter, BoxLayout.PAGE_AXIS);
+        msgFilter.setLayout(layout);
 
-        filter.setBorder(BorderFactory.createTitledBorder("Add new filter: "));
-        filter.setBounds(30,30,300,200);
+        msgFilter.setBorder(BorderFactory.createTitledBorder("By Messages: "));
+        msgFilter.setBounds(30,30,200,200);
+
+        //list of messages in this log source
+        String[] logs = source.listLogs();
+
+        ArrayList<String> options = new ArrayList<>();
+
+        for (String log : logs ) {
+            if (logList.contains(log))
+                options.add(log);
+            else
+                options.add(log);
+        }
+        Arrays.sort(options.toArray());
+
+        CheckBoxGroup msgBox = new CheckBoxGroup(options.toArray( new String[options.size()]));
+        msgBox.setSize(new Dimension(100,100));
+        msgBox.setBounds(30,30,100,100);
+        msgFilter.add(msgBox);
+
+        JButton saveButton = new JButton("OK");
+        saveButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e)
+            {
+                for(int i = 0; i < msgBox.checkBoxes.size(); i++){
+                    if(msgBox.checkBoxes.get(i).isSelected()) {
+                        filtersMap.put(msgBox.checkBoxes.get(i).getText(), null);
+                    }
+                }
+                setCurrentFilters();
+            }
+        });
+        saveButton.setBounds(30,30,100,100);
+        msgFilter.add(saveButton);
+    }
+
+    private void addEntityFilter() {
+        entitiesFilter = new JPanel();
+        LayoutManager layout = new BoxLayout(entitiesFilter, BoxLayout.PAGE_AXIS);
+        entitiesFilter.setLayout(layout);
+
+        entitiesFilter.setBorder(BorderFactory.createTitledBorder("By Entities: "));
+        entitiesFilter.setBounds(30,30,300,200);
         
         JPanel msgPnl = new JPanel();
         JPanel entiPnl = new JPanel();
@@ -259,7 +312,7 @@ public class CSVExporter implements MRAExporter {
         
         msgPnl.add(messagesLabel);
         msgPnl.add(messagesBox);
-        filter.add(msgPnl);
+        entitiesFilter.add(msgPnl);
 
         entities = new JPanel();
         sourceEntCLabel = new JLabel(I18n.text("Entity"));
@@ -277,9 +330,8 @@ public class CSVExporter implements MRAExporter {
 
         entiPnl.add(sourceEntCLabel);
         entiPnl.add(entities);
-        filter.add(entiPnl);
+        entitiesFilter.add(entiPnl);
 
-        JButton cancelButton = new JButton("Cancel");
         JButton saveButton = new JButton("OK");
         saveButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
@@ -288,32 +340,32 @@ public class CSVExporter implements MRAExporter {
                 for(int i = 0; i < entitiesBox.checkBoxes.size(); i++){
                     if(entitiesBox.checkBoxes.get(i).isSelected()) {
                         selected.add(entitiesBox.checkBoxes.get(i).getText());
-                        System.out.println("entitys: " + entitiesBox.checkBoxes.get(i).getText() );
                     }
                 }
                 filtersMap.put(messagesBox.getSelectedItem().toString(), selected.stream().toArray(String[]::new));
-                //todo add filters tab and repaint
                 setCurrentFilters();
-
             }
         });
 
-        buttonsPnl2.add(cancelButton);
         buttonsPnl2.add(saveButton);
-        filter.add(buttonsPnl2);
+        entitiesFilter.add(buttonsPnl2);
     }
 
     private void setCurrentFilters() {
-        currentFilters.removeAll();
+        filter.removeAll();
 
         DefaultTableModel model = new DefaultTableModel();
-
         model.addColumn("Message");
         model.addColumn("Entities");
 
         for (String message : filtersMap.keySet()) {
-            List<String> entities = new ArrayList<String>(Arrays.asList(filtersMap.get(message)));
-            model.addRow(new Object[]{message, entities.toString()});
+            List<String> entities;
+            if(filtersMap.get(message) == null)
+                model.addRow(new Object[]{message, "all"});
+            else {
+                entities = new ArrayList<String>(Arrays.asList(filtersMap.get(message)));
+                model.addRow(new Object[]{message, entities.toString()});
+            }
         }
 
         JTable table = new JTable(model);
@@ -321,16 +373,13 @@ public class CSVExporter implements MRAExporter {
         columnModel.getColumn(0).setPreferredWidth(80);
         columnModel.getColumn(1).setPreferredWidth(260);
 
-        currentFilters.add(table);
-        currentFilters.revalidate();
+        filter.add(table);
+        filter.revalidate();
     }
 
-    private String export() {
+    private void export() {
         for (String message : filtersMap.keySet()) {
             List<String> entities = new ArrayList<String>(Arrays.asList(filtersMap.get(message)));
-
-            if (pmonitor.isCanceled())
-                return I18n.text("Cancelled by the user");
 
             File dir = new File(source.getFile("mra"), "csv");
             dir.mkdirs();
@@ -356,10 +405,8 @@ public class CSVExporter implements MRAExporter {
             } catch (Exception e) {
                 e.printStackTrace();
                 pmonitor.close();
-                return e.getClass().getSimpleName() + ": " + e.getMessage();
             }
         }
-        return "";
     }
 
     private void populateSourceEntity(String messageName) {
