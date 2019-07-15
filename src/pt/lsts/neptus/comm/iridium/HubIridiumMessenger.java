@@ -220,7 +220,7 @@ public class HubIridiumMessenger implements IridiumMessenger {
         String since = null;
         if (timeSince != null)
             since = dateToString(timeSince);
-        URL u = new URL(messagesUrl+"?since="+since);
+        URL u = new URL(messagesUrl+"?since="+(timeSince.getTime()/1000));
         if (since == null)
             u = new URL(messagesUrl);
         HttpURLConnection conn = (HttpURLConnection) u.openConnection();
@@ -240,7 +240,12 @@ public class HubIridiumMessenger implements IridiumMessenger {
         Vector<IridiumMessage> ret = new Vector<>();        
         
         for (HubMessage m : msgs) {
-            ret.add(m.message());
+            try {
+                ret.add(m.message());
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(e);
+            }
         }
         
         return ret;
@@ -317,11 +322,18 @@ public class HubIridiumMessenger implements IridiumMessenger {
     }
     
     public static void main(String[] args) throws Exception {
+        GeneralPreferences.ripplesUrl = "https://ripples.lsts.pt";
+        
         HubIridiumMessenger messenger = new HubIridiumMessenger();
-        Date d = new Date(System.currentTimeMillis() - (1000 * 3600 * 60));
+        Date d = new Date(System.currentTimeMillis() - (1000 * 3600 * 5));
         
         System.out.println(dateToString(d));
-        System.out.println(messenger.pollMessages(d).size());
+        System.out.println(d.getTime());
+        Collection<IridiumMessage> msgs = messenger.pollMessages(d);
+        System.out.println(msgs.size());
+        msgs.stream().forEach(m -> {
+            System.out.println(m.asImc());
+        });
         
         
         

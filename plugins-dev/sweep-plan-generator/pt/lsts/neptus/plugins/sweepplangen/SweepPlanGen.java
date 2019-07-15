@@ -780,6 +780,46 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
         generated.getGraph().addManeuverAtEnd(manSK);
         manSK.getManeuverLocation().setAbsoluteDepth(0);
     }
+    
+    /**
+     * Given a list of locations make sure that all locations are within a bounded distance, adding more locations if
+     * needed
+     * 
+     * @param locations A list of locations to transform / validate
+     * @param maxDistance Maximum allowed distance between any two locations
+     * @return A list of locations with potentially new locations added in between
+     */
+    private ArrayList<LocationType> splitIfNeeded(ArrayList<LocationType> locations, double maxDistance) {
+        ArrayList<LocationType> result = new ArrayList<>();
+        // if empty list of just one location
+        if (locations.size() < 2)
+            return locations;
+        
+        LocationType previous = locations.get(0);
+        result.add(previous);
+        for (int i = 1; i < locations.size(); i++) {
+            LocationType current = locations.get(i);
+            double distanceToPrevious = current.getDistanceInMeters(previous);
+            // new locations in between are required
+            if (distanceToPrevious > maxDistance) {
+                // how many times this distance needs to be split
+                double divs = Math.ceil(distanceToPrevious/maxDistance);
+                double[] offsets = current.getOffsetFrom(previous);
+                offsets[0] /= divs;
+                offsets[1] /= divs;
+                for (int div = 1; div <= divs; div++) {
+                    LocationType loc = new LocationType(previous);
+                    loc.translatePosition(div * offsets[0], div * offsets[1], 0);
+                    result.add(loc);
+                }
+            }
+            else {
+                result.add(current);
+            }
+            previous = current;
+        }
+        return result;
+    }
 
     private void generatePlan() {
         Pair<Double, Double> diamAngle = task.getDiameterAndAngle();
@@ -830,7 +870,8 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
             corner = generalOptions.corner;
 
         ArrayList<LocationType> coverage = task.getCoveragePath(angle, finalSwathWidth, corner);
-
+        coverage = splitIfNeeded(coverage, generalOptions.popupMins * 60 * generalOptions.speedMps);
+        
         if (generalOptions.reversed)
             Collections.reverse(coverage);
 
@@ -875,6 +916,12 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
         while (!coverage.isEmpty()) {
             LocationType loc = coverage.remove(0);
             double distanceToTarget = lastLoc.getDistanceInMeters(loc);
+            double timeToTarget = (distanceToTarget / generalOptions.speedMps);
+            if (timeToTarget / 60 > generalOptions.popupMins) {
+                System.out.println("TimeToTarget: "+timeToTarget);
+                
+            }
+                
             long targetEta = (long) ((distanceToTarget / generalOptions.speedMps) * 1000 + curTime);
 
             if ((targetEta - lastPopup) / 60_000.0 > generalOptions.popupMins) {
@@ -882,19 +929,23 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
                     generated.getGraph().addManeuverAtEnd(traj);
                 traj = null;
 
+                
                 // add popup
                 PopUp man = new PopUp();
                 man.setId("P" + manId++);
                 ManeuverLocation mloc = createLoc(lastLoc);
-                if (generalOptions.popupDepth >= 0) {
-                    mloc.setZUnits(Z_UNITS.DEPTH);
-                    mloc.setZ(generalOptions.popupDepth);
+                // if the plan is at surface, there's no need for popups
+                if (mloc.getZUnits() != Z_UNITS.DEPTH || mloc.getZ() != 0) {
+                    if (generalOptions.popupDepth >= 0) {
+                        mloc.setZUnits(Z_UNITS.DEPTH);
+                        mloc.setZ(generalOptions.popupDepth);
+                    }
+                    man.setManeuverLocation(mloc);
+                    man.setDuration(generalOptions.popupDuration);
+                    man.setWaitAtSurface(generalOptions.popupWaitAtSurface);
+                    generated.getGraph().addManeuverAtEnd(man);
                 }
-                man.setManeuverLocation(mloc);
                 
-                man.setDuration(generalOptions.popupDuration);
-                man.setWaitAtSurface(generalOptions.popupWaitAtSurface);
-                generated.getGraph().addManeuverAtEnd(man);
                 lastPopup = curTime + generalOptions.popupDuration * 1_000;
                 targetEta += generalOptions.popupDuration * 1_000;
             }
