@@ -87,15 +87,22 @@ public class CSVExporter implements MRAExporter {
 
     private JFrame window;
     private JPanel mainContent, entitiesFilter, filter, msgFilter;
+    private CheckBoxGroup msgBox, entitiesBox;
+    private JButton okEntityFilterButton, okMsgFilterButton;
 
     private ArrayList<JPanel> filters = new ArrayList<>();
     private JLabel sourceEntCLabel, messagesLabel;
 ;
     private JComboBox<String> messagesBox;
-    private CheckBoxGroup entitiesBox;
     private JPanel entities;
 
     private HashMap<String, String[]> filtersMap;
+
+    //todo preencher estes dois maps no incio, sempre que houver alterações, mudar isto e atualizar as tabelas que estão a ser mostradas
+    //todo reset volta a restabelecer estes dois maps
+    //todo um deles serve para depois o export
+    private HashMap<String, Set<String>> msgEntitiesMap;
+    private HashMap<String, Set<String>> entitieMsgsMap;
 
     public CSVExporter(IMraLogGroup source) {
         //super(ConfigFetch.getSuperParentAsFrame(), I18n.text("MRA Exporter"), ModalityType.DOCUMENT_MODAL);
@@ -180,6 +187,11 @@ public class CSVExporter implements MRAExporter {
         if (pmonitor.isCanceled())
             return I18n.text("Cancelled by the user");
 
+        //todo preencher
+        msgEntitiesMap = new HashMap<>();
+        entitieMsgsMap = new HashMap<>();
+        getMaps();
+
         window = new JFrame();
         window.setLocationRelativeTo(ConfigFetch.getSuperParentAsFrame());
         window.setSize(500, 500);
@@ -188,14 +200,8 @@ public class CSVExporter implements MRAExporter {
         JLabel empty = new JLabel("");
         empty.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         window.add(empty, BorderLayout.WEST);
-
-        JLabel empty2 = new JLabel("");
-        empty2.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        window.add(empty2, BorderLayout.EAST);
-
-        JLabel empty3 = new JLabel("");
-        empty3.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        window.add(empty3, BorderLayout.NORTH);
+        window.add(empty, BorderLayout.EAST);
+        window.add(empty, BorderLayout.NORTH);
 
         mainContent = new JPanel();
         LayoutManager layout = new BoxLayout(mainContent, BoxLayout.PAGE_AXIS);
@@ -205,19 +211,14 @@ public class CSVExporter implements MRAExporter {
         addMsgFilter();
         addEntityFilter();
 
-        filter = new JPanel();
-        filter.setBorder(BorderFactory.createTitledBorder("Current filters: "));
-        filter.setBounds(30,30,100,200);
-
         JPanel addFilter = new JPanel();
         layout = new BoxLayout(addFilter, BoxLayout.LINE_AXIS);
         addFilter.setLayout(layout);
 
-
         addFilter.add(msgFilter);
         addFilter.add(entitiesFilter);
         mainContent.add(addFilter);
-        mainContent.add(filter);
+        //mainContent.add(filter);
 
         window.getContentPane().add(mainContent, BorderLayout.CENTER);
 
@@ -229,7 +230,20 @@ public class CSVExporter implements MRAExporter {
                 export();
             }
         });
-        buttonsPnl.add(exportButton, BorderLayout.EAST);
+
+        buttonsPnl.add(exportButton, BorderLayout.WEST);
+
+        JButton resetButton = new JButton("Reset");
+        exportButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e)
+            {
+                //todo HERE
+                //getMaps();
+                //updateInterface();
+            }
+        });
+        buttonsPnl.add(resetButton, BorderLayout.EAST);
+
         window.getContentPane().add(buttonsPnl, BorderLayout.SOUTH);
         window.setVisible(true);
 
@@ -249,46 +263,56 @@ public class CSVExporter implements MRAExporter {
         return I18n.text("Process complete");
     }
 
+
+    private void getMaps() {
+        for (int row = 0; row < source.getLsfIndex().getNumberOfMessages(); row++) {
+            String message = source.getLsfIndex().getMessage(row).getMessageType().getShortName();
+            String entity = source.getLsfIndex().entityNameOf(row);
+            putInMap(msgEntitiesMap, message, entity);
+            putInMap(entitieMsgsMap, entity, message);
+        }
+    }
+
+    private void putInMap(HashMap<String,Set<String>> map, String s1, String s2) {
+        Set<String> set;
+        if(map.containsKey(s1)) {
+            set = new HashSet<>(map.get(s1));
+            set.add(s2);
+            map.replace(s1, set);
+        }
+        else{
+            set = new HashSet<>();
+            set.add(s2);
+            map.put(s1,set);
+        }
+    }
+
+
     private void addMsgFilter() {
         msgFilter = new JPanel();
         LayoutManager layout = new BoxLayout(msgFilter, BoxLayout.PAGE_AXIS);
         msgFilter.setLayout(layout);
 
-        msgFilter.setBorder(BorderFactory.createTitledBorder("By Messages: "));
+        msgFilter.setBorder(BorderFactory.createTitledBorder("Messages: "));
         msgFilter.setBounds(30,30,200,200);
 
-        //list of messages in this log source
-        String[] logs = source.listLogs();
-
-        ArrayList<String> options = new ArrayList<>();
-
-        for (String log : logs ) {
-            if (logList.contains(log))
-                options.add(log);
-            else
-                options.add(log);
-        }
-        Arrays.sort(options.toArray());
-
-        CheckBoxGroup msgBox = new CheckBoxGroup(options.toArray( new String[options.size()]));
+        Set<String> msg = msgEntitiesMap.keySet();
+        msgBox = new CheckBoxGroup(msg.toArray( new String[msg.size()]));
         msgBox.setSize(new Dimension(100,100));
         msgBox.setBounds(30,30,100,100);
         msgFilter.add(msgBox);
 
-        JButton saveButton = new JButton("OK");
-        saveButton.addActionListener(new ActionListener() {
+        okMsgFilterButton = new JButton("OK");
+        okMsgFilterButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
-                for(int i = 0; i < msgBox.checkBoxes.size(); i++){
-                    if(msgBox.checkBoxes.get(i).isSelected()) {
-                        filtersMap.put(msgBox.checkBoxes.get(i).getText(), null);
-                    }
-                }
-                setCurrentFilters();
+                setMaps(msgBox, msgEntitiesMap, entitieMsgsMap);
+                updateInterface();
             }
         });
-        saveButton.setBounds(30,30,100,100);
-        msgFilter.add(saveButton);
+
+        okMsgFilterButton.setBounds(30,30,100,100);
+        msgFilter.add(okMsgFilterButton);
     }
 
     private void addEntityFilter() {
@@ -296,10 +320,29 @@ public class CSVExporter implements MRAExporter {
         LayoutManager layout = new BoxLayout(entitiesFilter, BoxLayout.PAGE_AXIS);
         entitiesFilter.setLayout(layout);
 
-        entitiesFilter.setBorder(BorderFactory.createTitledBorder("By Entities: "));
+        entitiesFilter.setBorder(BorderFactory.createTitledBorder("Entities: "));
         entitiesFilter.setBounds(30,30,300,200);
-        
-        JPanel msgPnl = new JPanel();
+
+        Set<String> entities = entitieMsgsMap.keySet();
+        entitiesBox = new CheckBoxGroup(entities.toArray( new String[entities.size()]));
+        entitiesBox.setSize(new Dimension(100,100));
+        entitiesBox.setBounds(30,30,100,100);
+        entitiesFilter.add(entitiesBox);
+
+        okEntityFilterButton = new JButton("OK");
+        okEntityFilterButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e)
+            {
+                setMaps(entitiesBox, entitieMsgsMap, msgEntitiesMap);
+                updateInterface();
+            }
+        });
+
+        okEntityFilterButton.setBounds(30,30,100,100);
+        entitiesFilter.add(okEntityFilterButton);
+
+
+     /* JPanel msgPnl = new JPanel();
         JPanel entiPnl = new JPanel();
         JPanel buttonsPnl2 = new JPanel();
 
@@ -348,33 +391,46 @@ public class CSVExporter implements MRAExporter {
         });
 
         buttonsPnl2.add(saveButton);
-        entitiesFilter.add(buttonsPnl2);
+        entitiesFilter.add(buttonsPnl2);*/
     }
 
-    private void setCurrentFilters() {
-        filter.removeAll();
+    private void updateInterface() {
+        // Repaint all
+        msgFilter.remove(msgBox);
+        Set<String> msg = msgEntitiesMap.keySet();
+        msgBox = new CheckBoxGroup(msg.toArray( new String[msg.size()]));
+        msgFilter.add(msgBox);
+        msgFilter.add(okMsgFilterButton);
+        msgFilter.revalidate();
 
-        DefaultTableModel model = new DefaultTableModel();
-        model.addColumn("Message");
-        model.addColumn("Entities");
+        entitiesFilter.remove(entitiesBox);
+        Set<String> entities = entitieMsgsMap.keySet();
+        entitiesBox = new CheckBoxGroup(entities.toArray( new String[entities.size()]));
+        entitiesFilter.add(entitiesBox);
+        entitiesFilter.add(okEntityFilterButton);
+        entitiesBox.revalidate();
+    }
 
-        for (String message : filtersMap.keySet()) {
-            List<String> entities;
-            if(filtersMap.get(message) == null)
-                model.addRow(new Object[]{message, "all"});
-            else {
-                entities = new ArrayList<String>(Arrays.asList(filtersMap.get(message)));
-                model.addRow(new Object[]{message, entities.toString()});
+    private void setMaps(CheckBoxGroup box, HashMap<String,Set<String>> map1, HashMap<String,Set<String>> map2) {
+        for(int i = 0; i < box.checkBoxes.size(); i++){
+            if(!box.checkBoxes.get(i).isSelected()) {
+                String key = box.checkBoxes.get(i).getText();
+                if(!map1.containsKey(key))
+                    continue;
+                Set<String> set = map1.get(key);
+                for (String s : set) {
+                    if (map2.containsKey(s)){
+                        Set<String> aux = map2.get(s);
+                        if(aux.contains(key)) {
+                            aux.remove(key);
+                            if(aux.size() == 0)
+                                map2.remove(s);
+                        }
+                    }
+                }
+                map1.remove(key);
             }
         }
-
-        JTable table = new JTable(model);
-        TableColumnModel columnModel = table.getColumnModel();
-        columnModel.getColumn(0).setPreferredWidth(80);
-        columnModel.getColumn(1).setPreferredWidth(260);
-
-        filter.add(table);
-        filter.revalidate();
     }
 
     private void export() {
@@ -464,7 +520,10 @@ public class CSVExporter implements MRAExporter {
             checkBoxes = new ArrayList<>(25);
             setLayout(new BorderLayout());
             JPanel header = new JPanel(new FlowLayout(FlowLayout.LEFT, 1, 1));
+
             all = new JCheckBox("Select All...");
+            all.setSelected(true);
+
             all.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -490,7 +549,6 @@ public class CSVExporter implements MRAExporter {
                     checkBoxes.add(cb);
                     content.add(cb, gbc);
 
-                    System.out.println("opção "+ index + ": " + options[index]);
                 }
 
                 JCheckBox cb = new JCheckBox(options[options.length - 1]);
@@ -499,6 +557,10 @@ public class CSVExporter implements MRAExporter {
                 gbc.weighty = 1;
                 content.add(cb, gbc);
 
+            }
+
+            for (JCheckBox cb : checkBoxes) {
+                cb.setSelected(true);
             }
 
             add(new JScrollPane(content));
