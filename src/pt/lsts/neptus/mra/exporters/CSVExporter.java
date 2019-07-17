@@ -41,8 +41,6 @@ import java.text.NumberFormat;
 import java.util.*;
 import java.util.List;
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumnModel;
 
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCMessageType;
@@ -69,6 +67,7 @@ public class CSVExporter implements MRAExporter {
     private ArrayList<String> logList = new ArrayList<String>();
 
     private ProgressMonitor pmonitor;
+    private int progress;
 
     @NeptusProperty(name = "Message List to Export", editorClass = StringListEditor.class,
             description = "List of messages to export (comma separated values, no spaces). Use '!' at the begining to make it an exclude list.")
@@ -86,21 +85,10 @@ public class CSVExporter implements MRAExporter {
     private LinkedHashMap<Short, String> entityNames = new LinkedHashMap<>();
 
     private JFrame window;
-    private JPanel mainContent, entitiesFilter, filter, msgFilter;
+    private JPanel mainContent, entitiesFilter, msgFilter;
     private CheckBoxGroup msgBox, entitiesBox;
     private JButton okEntityFilterButton, okMsgFilterButton;
 
-    private ArrayList<JPanel> filters = new ArrayList<>();
-    private JLabel sourceEntCLabel, messagesLabel;
-;
-    private JComboBox<String> messagesBox;
-    private JPanel entities;
-
-    private HashMap<String, String[]> filtersMap;
-
-    //todo preencher estes dois maps no incio, sempre que houver alterações, mudar isto e atualizar as tabelas que estão a ser mostradas
-    //todo reset volta a restabelecer estes dois maps
-    //todo um deles serve para depois o export
     private HashMap<String, Set<String>> msgEntitiesMap;
     private HashMap<String, Set<String>> entitieMsgsMap;
 
@@ -183,11 +171,11 @@ public class CSVExporter implements MRAExporter {
     public String process(IMraLogGroup source, ProgressMonitor pMonitor) {
         pmonitor = new ProgressMonitor(ConfigFetch.getSuperParentFrame(), I18n.text("Exporting to CSV"),
                 I18n.text("Starting up"), 0, source.listLogs().length);
+        progress = 0;
 
         if (pmonitor.isCanceled())
             return I18n.text("Cancelled by the user");
 
-        //todo preencher
         msgEntitiesMap = new HashMap<>();
         entitieMsgsMap = new HashMap<>();
         getMaps();
@@ -207,7 +195,6 @@ public class CSVExporter implements MRAExporter {
         LayoutManager layout = new BoxLayout(mainContent, BoxLayout.PAGE_AXIS);
         mainContent.setLayout(layout);
 
-        filtersMap = new HashMap<>();
         addMsgFilter();
         addEntityFilter();
 
@@ -218,11 +205,21 @@ public class CSVExporter implements MRAExporter {
         addFilter.add(msgFilter);
         addFilter.add(entitiesFilter);
         mainContent.add(addFilter);
-        //mainContent.add(filter);
 
         window.getContentPane().add(mainContent, BorderLayout.CENTER);
 
         JPanel buttonsPnl = new JPanel();
+
+        JButton resetButton = new JButton("Reset");
+        resetButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e)
+            {
+                getMaps();
+                updateInterface();
+            }
+        });
+        buttonsPnl.add(resetButton, BorderLayout.EAST);
+
         JButton exportButton = new JButton("Export");
         exportButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
@@ -230,24 +227,12 @@ public class CSVExporter implements MRAExporter {
                 export();
             }
         });
-
         buttonsPnl.add(exportButton, BorderLayout.WEST);
-
-        JButton resetButton = new JButton("Reset");
-        exportButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {
-                //todo HERE
-                //getMaps();
-                //updateInterface();
-            }
-        });
-        buttonsPnl.add(resetButton, BorderLayout.EAST);
 
         window.getContentPane().add(buttonsPnl, BorderLayout.SOUTH);
         window.setVisible(true);
 
-        while (window.isShowing() && !pmonitor.isCanceled()) {
+        while (window.isShowing() && progress < msgEntitiesMap.size() && !pmonitor.isCanceled()) {
             try {
                 Thread.sleep(100);
             }
@@ -259,6 +244,9 @@ public class CSVExporter implements MRAExporter {
         if (pmonitor.isCanceled()) {
             return I18n.text("Cancelled by the user");
         }
+
+        window.setVisible(false);
+        window.dispose();
 
         return I18n.text("Process complete");
     }
@@ -340,62 +328,9 @@ public class CSVExporter implements MRAExporter {
 
         okEntityFilterButton.setBounds(30,30,100,100);
         entitiesFilter.add(okEntityFilterButton);
-
-
-     /* JPanel msgPnl = new JPanel();
-        JPanel entiPnl = new JPanel();
-        JPanel buttonsPnl2 = new JPanel();
-
-        messagesLabel = new JLabel(I18n.text("Messages"));
-
-        //list of messages in this log source
-        String[] logs = source.listLogs();
-        messagesBox = generateMessageSelector(logs);
-        messagesBox.setBounds(50, 50, 200, 20);
-        
-        msgPnl.add(messagesLabel);
-        msgPnl.add(messagesBox);
-        entitiesFilter.add(msgPnl);
-
-        entities = new JPanel();
-        sourceEntCLabel = new JLabel(I18n.text("Entity"));
-        populateSourceEntity(messagesBox.getSelectedItem().toString());
-        messagesBox.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                if (e.getStateChange() == ItemEvent.SELECTED) {
-                    populateSourceEntity(messagesBox.getSelectedItem().toString());
-                    window.repaint();
-                }
-
-            }
-        });
-        entitiesBox.setSize(new Dimension(100,100));
-
-        entiPnl.add(sourceEntCLabel);
-        entiPnl.add(entities);
-        entitiesFilter.add(entiPnl);
-
-        JButton saveButton = new JButton("OK");
-        saveButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {
-                List<String> selected = new ArrayList<>();
-                for(int i = 0; i < entitiesBox.checkBoxes.size(); i++){
-                    if(entitiesBox.checkBoxes.get(i).isSelected()) {
-                        selected.add(entitiesBox.checkBoxes.get(i).getText());
-                    }
-                }
-                filtersMap.put(messagesBox.getSelectedItem().toString(), selected.stream().toArray(String[]::new));
-                setCurrentFilters();
-            }
-        });
-
-        buttonsPnl2.add(saveButton);
-        entitiesFilter.add(buttonsPnl2);*/
     }
 
     private void updateInterface() {
-        // Repaint all
         msgFilter.remove(msgBox);
         Set<String> msg = msgEntitiesMap.keySet();
         msgBox = new CheckBoxGroup(msg.toArray( new String[msg.size()]));
@@ -434,22 +369,20 @@ public class CSVExporter implements MRAExporter {
     }
 
     private void export() {
-        for (String message : filtersMap.keySet()) {
-            List<String> entities = new ArrayList<String>(Arrays.asList(filtersMap.get(message)));
+
+        for (String message : msgEntitiesMap.keySet()) {
+            System.out.println("Key = " + message);
+            Set<String> entities = msgEntitiesMap.get(message);
 
             File dir = new File(source.getFile("mra"), "csv");
             dir.mkdirs();
 
             //export
             try {
-
                 File out = new File(dir, message + ".csv");
                 BufferedWriter bw = new BufferedWriter(new FileWriter(out));
                 pmonitor.setNote(I18n.textf("Exporting %message data to %csvfile...", message, out.getAbsolutePath()));
                 bw.write(getHeader(message));
-
-                int total = source.getLsfIndex().getNumberOfMessages();
-                String[] s = new String[total];
                 for (int row = 0; row < source.getLsfIndex().getNumberOfMessages(); row++) {
                     if (source.getLsfIndex().getMessage(row).getMessageType().getShortName().equals(message)) {
                         if (entities.contains(source.getLsfIndex().entityNameOf(row))) {
@@ -462,52 +395,10 @@ public class CSVExporter implements MRAExporter {
                 e.printStackTrace();
                 pmonitor.close();
             }
+
+            progress++;
+
         }
-    }
-
-    private void populateSourceEntity(String messageName) {
-        System.out.println("populateSourceEntity:::::" + messageName);
-
-        int total = source.getLsfIndex().getNumberOfMessages();
-        String[] s = new String[total];
-        for (int row = 0; row < source.getLsfIndex().getNumberOfMessages(); row++) {
-            if(source.getLsfIndex().getMessage(row).getMessageType().getShortName().equals(messageName))
-               s[row] = source.getLsfIndex().entityNameOf(row);
-        }
-
-        Set<String> temp = new LinkedHashSet<String>( Arrays.asList( s ) );
-        String[] result = temp.toArray( new String[temp.size()] );
-
-        if(entitiesBox != null)
-            entitiesBox.removeAll();
-
-        entitiesBox = new CheckBoxGroup(result);
-        entitiesBox.setSizeAll();
-        entities.add(entitiesBox);
-        entitiesBox.revalidate();
-    }
-
-    public JComboBox<String> generateMessageSelector(String[] logs) {
-        ArrayList<CSVExporter.LogItem> options = new ArrayList<>();
-
-        for (String log : logs ) {
-            if (logList.contains(log))
-                options.add(new CSVExporter.LogItem(log, true, false));
-            else
-                options.add(new CSVExporter.LogItem(log, false, true));
-        }
-        Arrays.sort(options.toArray());
-
-        JComboBox<String> comboBox = new JComboBox(options.toArray());
-
-        comboBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                @SuppressWarnings("unchecked")
-                JComboBox<String> cb = (JComboBox<String>) e.getSource();
-            }
-        });
-        return comboBox;
     }
 
     public class CheckBoxGroup extends JPanel {
