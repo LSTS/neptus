@@ -57,6 +57,7 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
 /**
  * @author zp
  * @author pdias
+ * @author anasantos
  */
 @PluginDescription(name="Export to CSV")
 public class CSVExporter implements MRAExporter {
@@ -66,17 +67,9 @@ public class CSVExporter implements MRAExporter {
     
     private ProgressMonitor pmonitor;
 
-    @NeptusProperty(name = "Message List to Export", editorClass = StringListEditor.class,
-            description = "List of messages to export (comma separated values, no spaces). Use '!' at the begining to make it an exclude list.")
-    public String msgList = "";
-
     @NeptusProperty(name = "Textualize enumerations and bitfields",
             description = "If true will transform the enumerations and bitfields into the textual representation.")
     public boolean textualizeEnum = true;
-
-    @NeptusProperty(name = "Messages List", editorClass = StringListEditor.class,
-            description = "List of messages to export (comma separated values, no spaces). Use '!' at the begining to make it an exclude list.")
-    public String test = "";
 
     private IMraLogGroup source;
     private int progress;
