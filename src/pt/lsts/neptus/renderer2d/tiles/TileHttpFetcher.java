@@ -44,6 +44,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageInputStream;
 
+import org.apache.http.HeaderElement;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpGet;
@@ -287,7 +288,13 @@ public abstract class TileHttpFetcher extends Tile {
                     }
                     retries = 0;
                     isInStateForbidden = false;
-                    
+
+                    for (HeaderElement cacheInfo : resp.getFirstHeader("cache-control").getElements()){
+                        if(cacheInfo.getName().equalsIgnoreCase("max-age")){
+                            expiration = System.currentTimeMillis() + 1000 * Long.parseLong(cacheInfo.getValue());
+                        }
+                    }
+
                     InputStream is = resp.getEntity().getContent();
                     ImageInputStream iis = ImageIO.createImageInputStream(is);
                     
@@ -635,6 +642,12 @@ public abstract class TileHttpFetcher extends Tile {
 
                             retries = 0;
                             isInStateForbidden = false;
+
+                            for (HeaderElement cacheInfo : resp.getFirstHeader("cache-control").getElements()){
+                                if(cacheInfo.getName().equalsIgnoreCase("max-age")){
+                                    expiration = System.currentTimeMillis() + 1000 * Long.parseLong(cacheInfo.getValue());
+                                }
+                            }
 
                             InputStream is = resp.getEntity().getContent();
                             ImageInputStream iis = ImageIO.createImageInputStream(is);

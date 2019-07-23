@@ -103,6 +103,7 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
     public final int levelOfDetail;
     public final int tileX, tileY;
     public final int worldX, worldY;
+    public long expiration;
     protected BufferedImage image = null;
     protected boolean temporaryTransparencyDetectedOnImageOnDisk = false; //only for base layers
     private boolean showTileId = false;
@@ -392,6 +393,8 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
         try {
             File outFile = new File(getTileFilePath());
             outFile.mkdirs();
+            System.out.println("Saving expiration date for tile: " + getId());
+            System.out.println("expiration = " + expiration);
             return ImageIO.write(image, TILE_FX_EXTENSION.toUpperCase(), outFile);
         }
         catch (Exception e) {
