@@ -302,8 +302,10 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
             for (String mapDefTag : list) {
                 String[] tags = mapDefTag.split(":");
                 String mapDef = tags[0];
-                if (mapActiveHolderList.containsKey(mapDef))
+                if (mapActiveHolderList.containsKey(mapDef)) {
                     mapActiveHolderList.put(mapDef, true);
+                    Tile.setCache(mapDef,true);
+                }
                 if (mapLayerPrioriryHolderList.containsKey(mapDef) && tags.length > 1) {
                     try {
                         short prio = Short.parseShort(tags[1]);
@@ -488,6 +490,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
 
         for (String key : mapStyle) {
             if (mapActiveHolderList.containsKey(key)) {
+                Tile.setCache(key, true);
                 mapActiveHolderList.put(key, true);
             }
         }
@@ -664,10 +667,12 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
             for (String mapKey : mapActiveHolderList.keySet()) {
                 if (mapKey.equalsIgnoreCase(mapStyle)) {
                     mapActiveHolderList.put(mapKey, activate);
+                    Tile.setCache(mapKey, activate);
                 }
                 else {
                     if (exclusive && !mapStyleList.contains(mapKey)) {
                         mapActiveHolderList.put(mapKey, !activate);
+                        Tile.setCache(mapKey, !activate);
                     }
                 }
             }

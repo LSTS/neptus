@@ -39,16 +39,27 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
+import javax.imageio.ImageTypeSpecifier;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.metadata.IIOMetadata;
+import javax.imageio.metadata.IIOMetadataNode;
+import javax.imageio.stream.ImageOutputStream;
+
+import org.apache.commons.io.FileUtils;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
@@ -86,6 +97,8 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
     }
     
     protected static final String TILE_FX_EXTENSION = "png";
+
+    static HashMap<String, HashMap<String, Long>> cacheExpiration = new HashMap<>();
     
     public static final long MILISECONDS_TO_TILE_MEM_REMOVAL = 20000;
     private static final int MILLIS_TO_NOT_TRY_LOAD_LOW_LEVEL_IMAGE = 30000;
@@ -393,9 +406,51 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
         try {
             File outFile = new File(getTileFilePath());
             outFile.mkdirs();
-            System.out.println("Saving expiration date for tile: " + getId());
+            outFile.delete();
+            outFile.createNewFile();
+            System.out.println("Saving expiration date for tile: " + getId() + " from map: " + getClass().getSimpleName());
             System.out.println("expiration = " + expiration);
-            return ImageIO.write(image, TILE_FX_EXTENSION.toUpperCase(), outFile);
+
+
+            ImageWriter writer = ImageIO.getImageWritersByFormatName("png").next();
+
+            ImageWriteParam writeParam = writer.getDefaultWriteParam();
+            ImageTypeSpecifier typeSpecifier = ImageTypeSpecifier.createFromBufferedImageType(BufferedImage.TYPE_INT_RGB);
+
+            //adding metadata
+            IIOMetadata metadata = writer.getDefaultImageMetadata(typeSpecifier, writeParam);
+
+            IIOMetadataNode textEntry = new IIOMetadataNode("tEXtEntry");
+            textEntry.setAttribute("keyword", "expiration");
+            textEntry.setAttribute("value", Long.toString(expiration));
+
+            IIOMetadataNode text = new IIOMetadataNode("tEXt");
+            text.appendChild(textEntry);
+
+            IIOMetadataNode root = new IIOMetadataNode("javax_imageio_png_1.0");
+            root.appendChild(text);
+
+            metadata.mergeTree("javax_imageio_png_1.0", root);
+
+            //writing the data
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageOutputStream stream = ImageIO.createImageOutputStream(baos);
+            writer.setOutput(stream);
+            writer.write(metadata, new IIOImage(image, null, metadata), writeParam);
+            stream.close();
+
+            FileUtils.writeByteArrayToFile(outFile, baos.toByteArray());
+
+            HashMap<String, Long> currMapStyleCache = cacheExpiration.get(getClass().getAnnotation(MapTileProvider.class).name());
+            if(currMapStyleCache != null){
+                currMapStyleCache.put(id, expiration);
+            } else {
+                HashMap<String, Long> newMap = new HashMap<>();
+                newMap.put(id, expiration);
+                cacheExpiration.put(getClass().getAnnotation(MapTileProvider.class).name(), newMap);
+            }
+
+            return true;
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -418,12 +473,20 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
             if (image == null)
                 state = TileState.LOADING;
             File inFile = new File(getTileFilePath());
-            if (!inFile.exists()) {
-                lasErrorMessage = "Error loading tile from file not existing!";
-                if (image == null)
-                    state = TileState.ERROR;
-//                scheduleLoadImageFromLowerLevelOfDetail();
-                return false;
+
+            if(hasExpired()){
+                if (!inFile.exists()) {
+                    lasErrorMessage = "Error loading tile from file not existing!";
+                    if (image == null)
+                        state = TileState.ERROR;
+                    // scheduleLoadImageFromLowerLevelOfDetail();
+                    return false;
+                } else {
+                    if(hasExpired(inFile)){
+                        state = TileState.ERROR;
+                        return false;
+                    }
+                }
             }
             
             BufferedImage img;
@@ -450,6 +513,34 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
         finally {
             tileCacheDiskClearOrTileSaveLock.readLock().unlock();
         }
+    }
+
+    private boolean hasExpired() {
+        HashMap<String, Long> currMapStyleCache = cacheExpiration.get(getClass().getAnnotation(MapTileProvider.class).name());
+        Long expiration = currMapStyleCache.get(id);
+        if(expiration != null) {
+            return expiration <= System.currentTimeMillis();
+        } else {
+            return true;
+        }
+    }
+
+    private boolean hasExpired(File inFile) {
+        // TODO: 24/07/2019 read file metadata field with name expiration
+        return true;
+    }
+
+    public static void setCache(String mapKey, boolean state) {
+        if(state) {
+            cacheExpiration.put(mapKey,loadCacheExpiration(mapKey));
+        } else {
+            cacheExpiration.remove(mapKey);
+        }
+    }
+
+    private static HashMap<String, Long> loadCacheExpiration(String mapKey) {
+        // TODO: 24/07/2019 load previously saved cache from disk
+        return new HashMap<>();
     }
 
     /**
