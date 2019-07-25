@@ -43,13 +43,18 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.imageio.IIOImage;
@@ -94,7 +99,7 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
     
     protected static String TILE_BASE_CACHE_DIR;
     
-    {
+    static {
         if (new File("../" + ".cache/wmcache").exists())
             TILE_BASE_CACHE_DIR = "../" + ".cache/wmcache";
         else
@@ -133,7 +138,11 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
     
     private Timer timer = null; // new Timer(this.getClass().getSimpleName() + " [" + Integer.toHexString(this.hashCode()) + "]");
     private TimerTask timerTask = null;
-    
+
+    private static Timer saveTimer = new Timer("TileExpirationMapSaveTimer");
+    private static AtomicBoolean hasSaveTimer = new AtomicBoolean(false);
+    private static final long SAVE_INTERVAL = 120000; //2 minutes
+
     /**
      * @param levelOfDetail
      * @param tileX
@@ -410,8 +419,7 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
         tileCacheDiskClearOrTileSaveLock.readLock().lock();
         try {
             File outFile = new File(getTileFilePath());
-            outFile.mkdirs();
-            outFile.delete();
+            outFile.getParentFile().mkdirs();
             outFile.createNewFile();
             System.out.println("Saving expiration date for tile: " + getId() + " from map: " + getClass().getSimpleName());
             System.out.println("expiration = " + expiration);
@@ -455,6 +463,16 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
                 newMap.put(id, expiration);
                 cacheExpiration.put(getClass().getAnnotation(MapTileProvider.class).name(), newMap);
             }
+            if(!hasSaveTimer.get()) {
+                saveTimer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        saveCacheExpiration();
+                        hasSaveTimer.set(false);
+                    }
+                }, SAVE_INTERVAL);
+                hasSaveTimer.set(true);
+            }
 
             return true;
         }
@@ -488,6 +506,7 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
                     // scheduleLoadImageFromLowerLevelOfDetail();
                     return false;
                 } else {
+                    System.out.println("Checking file expiration");
                     if(hasExpired(inFile)){
                         state = TileState.ERROR;
                         return false;
@@ -550,7 +569,7 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
             String value = node.getAttributes().getNamedItem("value").getNodeValue();
             if("expiration".equals(keyword)){
                 try {
-                    long expirationValue = Long.valueOf(value);
+                    expiration = Long.valueOf(value);
 
                     // add new entry to cache map
                     HashMap<String, Long> currMapStyleCache = cacheExpiration.get(getClass().getAnnotation(MapTileProvider.class).name());
@@ -562,7 +581,7 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
                         cacheExpiration.put(getClass().getAnnotation(MapTileProvider.class).name(), newMap);
                     }
 
-                    return expirationValue <= System.currentTimeMillis();
+                    return expiration <= System.currentTimeMillis();
                 } catch (NumberFormatException e) {
                     NeptusLog.pub().info(String.format("Could not load expiration metadata for map tile %s of style '%s'",
                             id,
@@ -583,8 +602,51 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
     }
 
     private static HashMap<String, Long> loadCacheExpiration(String mapKey) {
-        // TODO: 24/07/2019 load previously saved cache from disk
-        return new HashMap<>();
+        System.out.println("Loading cache file for: " + mapKey);
+        File serFile = new File(TILE_BASE_CACHE_DIR + "/serializedCaches/" + mapKey);
+        if(!serFile.exists()) {
+            System.out.println(String.format("No cache expiration found at '%s'", serFile.getPath()));
+            return new HashMap<>();
+        }
+
+        try (FileInputStream fis = new FileInputStream(serFile);
+             ObjectInputStream ois = new ObjectInputStream(fis)) {
+            Object savedObject = ois.readObject();
+            if (savedObject instanceof HashMap){
+                return ((HashMap) savedObject);
+            } else {
+                throw new Exception("Saved Object is not instance of HashMap");
+            }
+        } catch(Exception e) {
+            System.out.println("An error occurred while saving cache expiration data");
+            e.printStackTrace();
+            return new HashMap<>();
+        }
+    }
+
+    private static void saveCacheExpiration() {
+        System.out.println("Saving cache");
+        for (Map.Entry<String, HashMap<String, Long>> mapEntry : cacheExpiration.entrySet()) {
+            System.out.println("Key = " + mapEntry.getKey());
+            try {
+                File serFile = new File(TILE_BASE_CACHE_DIR + "/serializedCaches/" + mapEntry.getKey());
+                serFile.getParentFile().mkdirs();
+                serFile.createNewFile();
+                FileOutputStream fos = new FileOutputStream(serFile);
+                ObjectOutputStream oos = new ObjectOutputStream(fos);
+                oos.writeObject(mapEntry.getValue());
+                oos.close();
+                fos.close();
+            } catch(IOException ioe) {
+                System.out.println("An error occurred while saving cache expiration data");
+                ioe.printStackTrace();
+            }
+        }
+    }
+
+    public static void cleanup() {
+        saveTimer.cancel();
+        saveCacheExpiration();
     }
 
     /**

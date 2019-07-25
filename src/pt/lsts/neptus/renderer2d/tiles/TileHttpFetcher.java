@@ -746,8 +746,6 @@ public abstract class TileHttpFetcher extends Tile {
                         finally {
                             get.abort();
 
-                            System.out.println(lasErrorMessage);
-
                             // Mostly for GoogleMaps wait time between connections
                             long waitTime = getWaitTimeMillisToSeparateConnections();
                             if (waitTime > MAX_WAIT_TIME_MILLIS)

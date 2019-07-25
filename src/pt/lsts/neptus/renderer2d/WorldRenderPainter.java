@@ -411,6 +411,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
             public void run() {
                 clearMemCache();
 
+                Tile.cleanup();
                 ttask.cancel();
                 ttask1.cancel();
                 timer.cancel();
