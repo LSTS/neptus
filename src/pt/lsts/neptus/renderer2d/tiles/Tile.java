@@ -32,6 +32,7 @@
  */
 package pt.lsts.neptus.renderer2d.tiles;
 
+import com.sun.imageio.plugins.png.PNGMetadata;
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Font;
@@ -42,6 +43,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -52,6 +54,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
 import javax.imageio.ImageTypeSpecifier;
 import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
@@ -61,6 +64,8 @@ import javax.imageio.stream.ImageOutputStream;
 
 import org.apache.commons.io.FileUtils;
 
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.i18n.I18n;
@@ -412,6 +417,7 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
             System.out.println("expiration = " + expiration);
 
 
+            // https://docs.oracle.com/javase/8/docs/api/javax/imageio/metadata/doc-files/png_metadata.html
             ImageWriter writer = ImageIO.getImageWritersByFormatName("png").next();
 
             ImageWriteParam writeParam = writer.getDefaultWriteParam();
@@ -525,8 +531,46 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
         }
     }
 
-    private boolean hasExpired(File inFile) {
-        // TODO: 24/07/2019 read file metadata field with name expiration
+    private boolean hasExpired(File inFile) throws IOException {
+        // https://docs.oracle.com/javase/8/docs/api/javax/imageio/metadata/doc-files/png_metadata.html
+        ImageReader imageReader = ImageIO.getImageReadersByFormatName("png").next();
+
+        imageReader.setInput(ImageIO.createImageInputStream(inFile), true);
+
+        // read metadata of first image
+        IIOMetadata metadata = imageReader.getImageMetadata(0);
+
+        // the PNG image reader already create a PNGMetadata Object
+        PNGMetadata pngmeta = (PNGMetadata) metadata;
+        NodeList childNodes = pngmeta.getStandardTextNode().getChildNodes();
+
+        for (int i = 0; i < childNodes.getLength(); i++) {
+            Node node = childNodes.item(i);
+            String keyword = node.getAttributes().getNamedItem("keyword").getNodeValue();
+            String value = node.getAttributes().getNamedItem("value").getNodeValue();
+            if("expiration".equals(keyword)){
+                try {
+                    long expirationValue = Long.valueOf(value);
+
+                    // add new entry to cache map
+                    HashMap<String, Long> currMapStyleCache = cacheExpiration.get(getClass().getAnnotation(MapTileProvider.class).name());
+                    if(currMapStyleCache != null){
+                        currMapStyleCache.put(id, expiration);
+                    } else {
+                        HashMap<String, Long> newMap = new HashMap<>();
+                        newMap.put(id, expiration);
+                        cacheExpiration.put(getClass().getAnnotation(MapTileProvider.class).name(), newMap);
+                    }
+
+                    return expirationValue <= System.currentTimeMillis();
+                } catch (NumberFormatException e) {
+                    NeptusLog.pub().info(String.format("Could not load expiration metadata for map tile %s of style '%s'",
+                            id,
+                            getClass().getSimpleName()));
+                    return true;
+                }
+            }
+        }
         return true;
     }
 
