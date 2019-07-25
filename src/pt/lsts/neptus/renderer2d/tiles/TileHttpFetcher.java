@@ -35,6 +35,8 @@ package pt.lsts.neptus.renderer2d.tiles;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.net.UnknownHostException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Random;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -44,6 +46,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageInputStream;
 
+import org.apache.http.Header;
 import org.apache.http.HeaderElement;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -289,11 +292,8 @@ public abstract class TileHttpFetcher extends Tile {
                     retries = 0;
                     isInStateForbidden = false;
 
-                    for (HeaderElement cacheInfo : resp.getFirstHeader("cache-control").getElements()){
-                        if(cacheInfo.getName().equalsIgnoreCase("max-age")){
-                            expiration = System.currentTimeMillis() + 1000 * Long.parseLong(cacheInfo.getValue());
-                        }
-                    }
+                    System.out.println("Fetched tile from: " + urlGet);
+                    parseExpirationHeader(resp, urlGet);
 
                     InputStream is = resp.getEntity().getContent();
                     ImageInputStream iis = ImageIO.createImageInputStream(is);
@@ -347,7 +347,7 @@ public abstract class TileHttpFetcher extends Tile {
                 }
                 finally {
                     get.abort();
-                    
+
                     // Mostly for GoogleMaps wait time between connections
                     if (waitTime > 0) {
                         if (getWaitTimeLock() != null) {
@@ -413,6 +413,33 @@ public abstract class TileHttpFetcher extends Tile {
             workingThreadCounter.decrementAndGet();
             httpFetcherWorkerList.offer(tf);
         }
+    }
+
+    private void parseExpirationHeader(HttpResponse resp, String urlGet) {
+        Header cacheControlHeader = resp.getFirstHeader("cache-control");
+        if(cacheControlHeader != null) {
+            for (HeaderElement cacheInfo : cacheControlHeader.getElements()){
+                if(cacheInfo.getName().equalsIgnoreCase("max-age")){
+                    try {
+                        expiration = System.currentTimeMillis() + 1000 * Long.parseLong(cacheInfo.getValue());
+                        return;
+                    } catch (NumberFormatException e) {
+                        NeptusLog.pub().info("An error occurred while parsing cache control:max-age from request url: " + urlGet);
+                    }
+                }
+            }
+        }
+
+        Header expiresHeader = resp.getFirstHeader("Expires");
+        if(expiration < System.currentTimeMillis() && expiresHeader != null) {
+            try {
+                expiration = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz").parse(expiresHeader.getValue()).getTime();
+                return;
+            } catch (ParseException e){
+                NeptusLog.pub().info("An error occurred while parsing expires header from request url: " + urlGet);
+            }
+        }
+        expiration = System.currentTimeMillis() + 86400000;// one day
     }
 
     // ---------------  Less threads for loading tiles code (test) ------------------------
@@ -643,11 +670,8 @@ public abstract class TileHttpFetcher extends Tile {
                             retries = 0;
                             isInStateForbidden = false;
 
-                            for (HeaderElement cacheInfo : resp.getFirstHeader("cache-control").getElements()){
-                                if(cacheInfo.getName().equalsIgnoreCase("max-age")){
-                                    expiration = System.currentTimeMillis() + 1000 * Long.parseLong(cacheInfo.getValue());
-                                }
-                            }
+                            System.out.println("Fetched tile from: " + urlGet);
+                            parseExpirationHeader(resp, urlGet);
 
                             InputStream is = resp.getEntity().getContent();
                             ImageInputStream iis = ImageIO.createImageInputStream(is);
@@ -721,6 +745,8 @@ public abstract class TileHttpFetcher extends Tile {
                         }
                         finally {
                             get.abort();
+
+                            System.out.println(lasErrorMessage);
 
                             // Mostly for GoogleMaps wait time between connections
                             long waitTime = getWaitTimeMillisToSeparateConnections();
