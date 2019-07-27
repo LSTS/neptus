@@ -83,6 +83,7 @@ import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.plugins.cdc3.msg.Cdc3Message;
+import pt.lsts.neptus.plugins.cdc3.msg.EnableMessage;
 import pt.lsts.neptus.plugins.cdc3.msg.RetaskToMissionMessage;
 import pt.lsts.neptus.plugins.cdc3.msg.RetaskToWaypointMessage;
 import pt.lsts.neptus.plugins.cdc3.msg.serialization.Cdc3Serializer;
@@ -598,6 +599,48 @@ public class Cdc3Panel extends ConsolePanel implements IEditorMenuExtension, Sub
             }
         });
         menu1.add(range1);
+        
+        JMenuItem enableMsg = new JMenuItem("Enable/Disable message for " + vehicleDestination);
+        enableMsg.addActionListener(e ->  {
+            String opt = JOptionPane.showInputDialog(getConsole(), "Message Ordinal", 3);
+            String opt1 = JOptionPane.showInputDialog(getConsole(), "Disable(0)/Enable(1)/TimeMinutes(2->255)", 1);
+            if (opt != null && opt1 != null) {
+                try {
+                    int id = Integer.parseInt(opt);
+                    int enblDsble = Integer.parseInt(opt1);
+                    EnableMessage msg = new EnableMessage();
+                    msg.setMsgOrdinal(id);
+                    msg.setMsgEnableDisable(enblDsble);;
+                    
+                    ByteBuffer serBuf = Cdc3Serializer.serialize(msg);
+                    byte[] rawData = ArrayUtils.subarray(serBuf.array(), serBuf.arrayOffset(), serBuf.position());
+                    
+                    TransmissionRequest txRqst = new TransmissionRequest();
+                    txRqst.setReqId(requestIdCounter.getAndIncrement());
+                    txRqst.setDestination(vehicleDestination);
+                    txRqst.setCommMean(COMM_MEAN.ACOUSTIC);
+                    txRqst.setDataMode(DATA_MODE.RAW);
+                    txRqst.setRawData(rawData);
+                    txRqst.setDeadline(System.currentTimeMillis() / 1E3 + requestTimeoutSeconds);
+                    
+                    send(gateway, txRqst);
+                    synchronized (requests) {
+                        Pair<TransmissionRequest, LocalDateTime> pair = Pair.of(txRqst, LocalDateTime.now());
+                        requests.put(txRqst.getReqId(), pair);
+                    }
+                    NeptusLog.pub().warn(msg);
+                    NeptusLog.pub().warn(txRqst.asJSON());
+                    textArea.append("\n" + DateTimeUtil.timeFormatterUTC.format(new Date()) + "UTC>SENT Enable " + vehicleDestination + " start::>"
+                            + "\nBuffer::" + Cdc3Serializer.bufferToString(serBuf) + "\n"
+                            + msg + "\n" + txRqst.asJSON(false) + "\n");
+                }
+                catch (NumberFormatException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        });
+        menu.add(enableMsg);
+
 
         ret.add(menu);
         ret.add(menu1);

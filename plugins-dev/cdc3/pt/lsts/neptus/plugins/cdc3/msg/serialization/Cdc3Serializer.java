@@ -36,6 +36,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import pt.lsts.neptus.plugins.cdc3.msg.Cdc3Message;
+import pt.lsts.neptus.plugins.cdc3.msg.EnableMessage;
 import pt.lsts.neptus.plugins.cdc3.msg.RetaskToMissionMessage;
 import pt.lsts.neptus.plugins.cdc3.msg.RetaskToWaypointMessage;
 import pt.lsts.neptus.plugins.cdc3.msg.StatusMessage;
@@ -51,6 +52,7 @@ public class Cdc3Serializer {
     public static final int POLY_CODE = 0x07;
 
     public enum CMD_CODES_ENUM {
+        ENABLE(1),
         REPORT(3),
         RETASK_MISSION(5),
         RETASK_WP(6),
@@ -79,7 +81,14 @@ public class Cdc3Serializer {
         buf.order(ENDIANESS);
         buf.put((byte) SYNC_CODE);
         
-        if (message.getClass().isAssignableFrom(StatusMessage.class)) {
+        if (message.getClass().isAssignableFrom(EnableMessage.class)) {
+            buf.put((byte) CMD_CODES_ENUM.ENABLE.value);
+
+            EnableMessage msg = (EnableMessage) message;
+            buf.putInt((int) (msg.getMsgOrdinal() & 0xFFFFFFFF));
+            buf.putInt((int) (msg.getMsgEnableDisable() & 0xFFFFFFFF));
+        } 
+        else if (message.getClass().isAssignableFrom(StatusMessage.class)) {
             buf.put((byte) CMD_CODES_ENUM.REPORT.value);
             
             StatusMessage msg = (StatusMessage) message;
@@ -128,7 +137,18 @@ public class Cdc3Serializer {
 
         int cmdCode = buf.get() & 0xFF;
 
-        if (cmdCode == CMD_CODES_ENUM.REPORT.value) {
+        if (cmdCode == CMD_CODES_ENUM.ENABLE.value) {
+            EnableMessage msg = new EnableMessage();
+            msg.setMsgOrdinal(buf.getInt() & 0xFFFFFFFF);
+            msg.setMsgEnableDisable(buf.getInt() & 0xFFFFFFFF);
+
+            int crc8Calc = crc8(buf.array(), buf.arrayOffset(), buf.position());
+            int crc8 = buf.get() & 0xFF;
+            if (crc8 != crc8Calc)
+                return null;
+            return (M) msg;
+        }
+        else if (cmdCode == CMD_CODES_ENUM.REPORT.value) {
             StatusMessage msg = new StatusMessage();
             msg.setLatitudeRads(buf.getFloat());
             msg.setLongitudeRads(buf.getFloat());
@@ -266,5 +286,13 @@ public class Cdc3Serializer {
         rtw1Msg.setLongitudeDegs(-8.59796f);
         rtw1Msg.setSpeedMps(2);
         serializeAndPrintDebug(rtw1Msg);
+
+        EnableMessage enblMsg = new EnableMessage();
+        serializeAndPrintDebug(enblMsg);
+
+        EnableMessage enbl1Msg = new EnableMessage();
+        enbl1Msg.setMsgOrdinal(3);
+        enbl1Msg.setMsgEnableDisable(1);
+        serializeAndPrintDebug(enbl1Msg);
     }
 }
