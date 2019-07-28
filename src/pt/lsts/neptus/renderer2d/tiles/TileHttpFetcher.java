@@ -498,7 +498,7 @@ public abstract class TileHttpFetcher extends Tile {
             switch (tileLoadingState) {
                 case START: 
                     {
-                        double sleepT = 100;//2000 + 15000 * rnd.nextDouble();
+                        double sleepT = 2000 + 15000 * rnd.nextDouble();
                         if (isInStateForbidden && retries == 0)
                             sleepT = 60000 + 30000 * rnd.nextDouble();
                         // NeptusLog.pub().info("<###> "+sleepT + "ms");
