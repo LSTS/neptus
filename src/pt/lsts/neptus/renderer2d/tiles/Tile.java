@@ -49,6 +49,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
@@ -421,8 +422,8 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
             File outFile = new File(getTileFilePath());
             outFile.getParentFile().mkdirs();
             outFile.createNewFile();
-            System.out.println("Saving expiration date for tile: " + getId() + " from map: " + getClass().getSimpleName());
-            System.out.println("expiration = " + expiration);
+            NeptusLog.pub().debug("Saving expiration date for tile: " + getId() + " from map: " + getClass().getSimpleName());
+            NeptusLog.pub().debug("expiration = " + new Date(expiration));
 
 
             // https://docs.oracle.com/javase/8/docs/api/javax/imageio/metadata/doc-files/png_metadata.html
@@ -506,7 +507,7 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
                     // scheduleLoadImageFromLowerLevelOfDetail();
                     return false;
                 } else {
-                    System.out.println("Checking file expiration");
+                    NeptusLog.pub().debug("Checking file expiration");
                     if(hasExpired(inFile)){
                         state = TileState.ERROR;
                         return false;
@@ -602,10 +603,10 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
     }
 
     private static HashMap<String, Long> loadCacheExpiration(String mapKey) {
-        System.out.println("Loading cache file for: " + mapKey);
+        NeptusLog.pub().info("Loading cache file for: " + mapKey);
         File serFile = new File(TILE_BASE_CACHE_DIR + "/serializedCaches/" + mapKey);
         if(!serFile.exists()) {
-            System.out.println(String.format("No cache expiration found at '%s'", serFile.getPath()));
+            NeptusLog.pub().error(String.format("No cache expiration found at '%s'", serFile.getPath()));
             return new HashMap<>();
         }
 
@@ -618,16 +619,16 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
                 throw new Exception("Saved Object is not instance of HashMap");
             }
         } catch(Exception e) {
-            System.out.println("An error occurred while saving cache expiration data");
+            NeptusLog.pub().error("An error occurred while saving cache expiration data");
             e.printStackTrace();
             return new HashMap<>();
         }
     }
 
     private static void saveCacheExpiration() {
-        System.out.println("Saving cache");
+        NeptusLog.pub().debug("Saving tile cache");
         for (Map.Entry<String, HashMap<String, Long>> mapEntry : cacheExpiration.entrySet()) {
-            System.out.println("Key = " + mapEntry.getKey());
+            NeptusLog.pub().debug("Saving Map Style: " + mapEntry.getKey());
             try {
                 File serFile = new File(TILE_BASE_CACHE_DIR + "/serializedCaches/" + mapEntry.getKey());
                 serFile.getParentFile().mkdirs();
@@ -638,7 +639,7 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
                 oos.close();
                 fos.close();
             } catch(IOException ioe) {
-                System.out.println("An error occurred while saving cache expiration data");
+                NeptusLog.pub().error("An error occurred while saving cache expiration data for map style: " + mapEntry.getKey());
                 ioe.printStackTrace();
             }
         }

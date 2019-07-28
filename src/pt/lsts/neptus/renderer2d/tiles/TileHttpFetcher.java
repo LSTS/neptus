@@ -292,7 +292,7 @@ public abstract class TileHttpFetcher extends Tile {
                     retries = 0;
                     isInStateForbidden = false;
 
-                    System.out.println("Fetched tile from: " + urlGet);
+                    NeptusLog.pub().debug("Fetched tile from: " + urlGet);
                     parseExpirationHeader(resp, urlGet);
 
                     InputStream is = resp.getEntity().getContent();
@@ -670,7 +670,7 @@ public abstract class TileHttpFetcher extends Tile {
                             retries = 0;
                             isInStateForbidden = false;
 
-                            System.out.println("Fetched tile from: " + urlGet);
+                            NeptusLog.pub().debug("Fetched tile from: " + urlGet);
                             parseExpirationHeader(resp, urlGet);
 
                             InputStream is = resp.getEntity().getContent();
