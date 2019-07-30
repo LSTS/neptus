@@ -37,10 +37,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * @author ineeve
- * 
- */
 public class RipplesPlan {
 	private String id = "idle";
 	private ArrayList<RipplesWaypoint> waypoints = new ArrayList<>();

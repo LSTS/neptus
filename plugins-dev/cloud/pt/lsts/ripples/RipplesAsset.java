@@ -33,10 +33,6 @@
 
 package pt.lsts.ripples;
 
-/**
- * @author ineeve
- * 
- */
 public class RipplesAsset {
 	private String name;
 	private int imcid;

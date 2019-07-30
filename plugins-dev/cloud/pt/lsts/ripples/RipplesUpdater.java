@@ -74,10 +74,7 @@ import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 
-/**
- * @author ineeve
- * 
- */
+
 @PluginDescription(name = "Ripples Updater", icon = "pt/lsts/ripples/ripples_on.png")
 public class RipplesUpdater extends ConsolePanel implements ConfigurationListener {
 
