@@ -27,8 +27,8 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: zepinto
- * 09/01/2018
+ * Author: ineeve
+ * July 15, 2019
  */
 package pt.lsts.ripples;
 
