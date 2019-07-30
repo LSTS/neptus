@@ -72,6 +72,7 @@ import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.PlanUtil;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**
  * @author ineeve
@@ -82,8 +83,7 @@ public class RipplesUpdater extends ConsolePanel implements ConfigurationListene
 
     private static final long serialVersionUID = 8901788326550597186L;
 
-    // private final String ripplesPostUrl = GeneralPreferences.ripplesUrl + "/soi/asset";
-    private final String ripplesPostUrl = "http://localhost:9090/soi/assets";
+    private final String ripplesPostUrl = GeneralPreferences.ripplesUrl + "/soi/asset";
     private JCheckBoxMenuItem menuItem;
 
     private ImageIcon onIcon, offIcon;
