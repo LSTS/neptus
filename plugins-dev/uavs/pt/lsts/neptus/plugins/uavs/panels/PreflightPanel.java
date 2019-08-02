@@ -155,6 +155,9 @@ public class PreflightPanel extends ConsolePanel implements MainVehicleChangeLis
     
     @Subscribe
     public void on(VehicleMedium msg) {
+        if (msg.getEntityName() == null)
+            return;
+
         if (msg.getSourceName().equals(getConsole().getMainSystem())) {
             if (!currentEntity.isEmpty() && !msg.getEntityName().equals(currentEntity))
                 return;
