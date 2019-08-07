@@ -85,8 +85,8 @@ public class Cdc3Serializer {
             buf.put((byte) CMD_CODES_ENUM.ENABLE.value);
 
             EnableMessage msg = (EnableMessage) message;
-            buf.putInt((int) (msg.getMsgOrdinal() & 0xFFFFFFFF));
-            buf.putInt((int) (msg.getMsgEnableDisable() & 0xFFFFFFFF));
+            buf.put((byte) (msg.getMsgOrdinal() & 0xFF));
+            buf.put((byte) (msg.getMsgEnableDisable() & 0xFF));
         } 
         else if (message.getClass().isAssignableFrom(StatusMessage.class)) {
             buf.put((byte) CMD_CODES_ENUM.REPORT.value);
@@ -139,8 +139,8 @@ public class Cdc3Serializer {
 
         if (cmdCode == CMD_CODES_ENUM.ENABLE.value) {
             EnableMessage msg = new EnableMessage();
-            msg.setMsgOrdinal(buf.getInt() & 0xFFFFFFFF);
-            msg.setMsgEnableDisable(buf.getInt() & 0xFFFFFFFF);
+            msg.setMsgOrdinal(buf.get() & 0xFF);
+            msg.setMsgEnableDisable(buf.get() & 0xFF);
 
             int crc8Calc = crc8(buf.array(), buf.arrayOffset(), buf.position());
             int crc8 = buf.get() & 0xFF;
