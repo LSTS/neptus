@@ -128,9 +128,9 @@ public class CmreAisCsvParser {
      * @param contactDb 
      */
     private static boolean parseAIS(String sentence, AisContactDb contactDb) {
-        final int AIS_ELM = 11;
-        final int EXTRA_COUNTER_IDX = 12;
-        final int MIN_ELMS = 13;
+        final int AIS_ELM = 12;
+        final int EXTRA_COUNTER_IDX = 13;
+        final int MIN_ELMS = 14;
         String[] tk = sentence.split(",");
         if (tk.length < MIN_ELMS || !"AIS".equalsIgnoreCase(tk[0].trim()))
             return false;
@@ -168,6 +168,7 @@ public class CmreAisCsvParser {
         if (msg.length < 11)
             return false;
         
+        int mmsi = -1;
         String name = null;
         String type = "";
         double latDegs = 0;
@@ -185,6 +186,14 @@ public class CmreAisCsvParser {
                 String[] tk = st.split("=");
                 String v;
                 switch (tk[0].trim().toLowerCase()) {
+                    case "mmsi":
+                        try {
+                            mmsi = Integer.parseInt(tk[1].trim());
+                        }
+                        catch (NumberFormatException e) {
+                            e.printStackTrace();
+                        }
+                        break;
                     case "node_name":
                         name = tk[1].trim();
                         break;
@@ -256,16 +265,23 @@ public class CmreAisCsvParser {
             timeMillis = Double.valueOf(timestamp * 1E3).longValue();
         }
         
-        int mmsi = -1;
-        try {
-            mmsi = Integer.parseInt(name);
+        if (mmsi == -1) {
+            try {
+                mmsi = Integer.parseInt(name);
+                String shipName = contactDb.getNameForMMSI(mmsi);
+                if (shipName != null && !shipName.isEmpty())
+                    name = shipName;
+            }
+            catch (NumberFormatException e) {
+                // e.printStackTrace();
+                mmsi = name.hashCode();
+            }
+        }
+        
+        if (name == null && mmsi != -1) {
             String shipName = contactDb.getNameForMMSI(mmsi);
             if (shipName != null && !shipName.isEmpty())
                 name = shipName;
-        }
-        catch (NumberFormatException e) {
-            // e.printStackTrace();
-            mmsi = name.hashCode();
         }
         
         ExternalSystem sys = NMEAUtils.getAndRegisterExternalSystem(mmsi, name);
