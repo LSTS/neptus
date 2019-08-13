@@ -289,7 +289,7 @@ public class SystemsInteraction extends ConsoleInteraction {
                     if (mmsi != null || callSign != null) {
                         sb.append("<br/>");
                         if (mmsi != null)
-                            sb.append("<b>").append("MMSI: ").append("</b>").append(mmsi);
+                            sb.append("<b>").append("MMSI: ").append("</b>").append(mmsi instanceof Number ? String.format("%09d", ((Number) mmsi).intValue()) : mmsi);
                         if (callSign != null)
                             sb.append(" ").append("<b>").append(I18n.text("Call-Sign")).append(": ").append("</b>").append(callSign);
 
