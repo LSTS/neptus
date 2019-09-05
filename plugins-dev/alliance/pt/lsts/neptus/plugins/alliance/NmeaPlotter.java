@@ -160,6 +160,10 @@ public class NmeaPlotter extends ConsoleLayer implements NmeaProvider {
 
     @NeptusProperty(name = "Minutes to Show Distress Signal", category = "Distress Test", userLevel = LEVEL.ADVANCED)
     private int minutesToShowDistress = 5; 
+    
+    @NeptusProperty(name = "Connect via Ripples", category = "TCP Client", userLevel = LEVEL.REGULAR)
+    public boolean ripplesConnection = false;
+
 
     private JLabel distressLabelToPaint = new JLabel();
 
@@ -215,6 +219,18 @@ public class NmeaPlotter extends ConsoleLayer implements NmeaProvider {
                 updateAisManager(c);
             }
         }
+    }
+    
+    @Periodic(millisBetweenUpdates = 30_000)
+    public void ripplesUpdate() {
+        if (!ripplesConnection)
+            return;
+        try {
+            RipplesAisParser.getShips().forEach(contactDb::setMTShip);    
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error("Error downloading AIS data from Ripples: "+e.getMessage(), e);
+        }        
     }
 
     /**

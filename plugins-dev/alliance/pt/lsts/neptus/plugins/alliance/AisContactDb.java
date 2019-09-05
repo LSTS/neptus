@@ -297,8 +297,7 @@ public class AisContactDb implements AISObserver {
             updateSystem(mmsi, loc, heading,System.currentTimeMillis());
     }
     
-    public void processJson(String sentence) {
-        MTShip ship = gson.fromJson(sentence, MTShip.class);
+    public void setMTShip(MTShip ship) {
         int mmsi = (int) ship.SHIP_ID;
         String name = ship.SHIPNAME;
         if (ship.SHIPNAME.equals("[SAT-AIS]")) {
@@ -336,6 +335,11 @@ public class AisContactDb implements AISObserver {
         long time = System.currentTimeMillis()-(ship.ELAPSED*60_000);
         contact.setLastUpdate(time);
         updateSystem(mmsi,new LocationType(ship.LAT,ship.LON),ship.HEADING,time);
+    }
+    
+    public void processJson(String sentence) {
+        MTShip ship = gson.fromJson(sentence, MTShip.class);
+        setMTShip(ship);
     }
 
     public void updateSystem(int mmsi, LocationType loc, double heading,long millis) {
