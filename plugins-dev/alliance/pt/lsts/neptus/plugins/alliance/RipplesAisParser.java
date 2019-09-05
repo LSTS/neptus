@@ -91,8 +91,11 @@ public class RipplesAisParser {
         ship.L_FORE = (int) bow;
         ship.W_LEFT = (int) port;
         
+        
         try {
-            ship.TIME = sdf.parse(object.getString("timestamp", sdf.format(new Date()))).getTime()/1000.0;
+            Date timestamp = sdf.parse(object.getString("timestamp", sdf.format(new Date())));
+            ship.TIME = timestamp.getTime()/1000.0;
+            ship.ELAPSED = (System.currentTimeMillis() - timestamp.getTime()) / 1000;
         }
         catch (ParseException e) {
             NeptusLog.pub().error("Error parsing date: "+object.getString("timestamp", "N/A"));
@@ -103,7 +106,7 @@ public class RipplesAisParser {
     
     public static void main(String[] args) throws Exception {
         getShips().forEach(c -> {
-            System.out.println(c);
+            
         });
     }
 }
