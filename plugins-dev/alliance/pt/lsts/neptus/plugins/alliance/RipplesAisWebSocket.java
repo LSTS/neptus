@@ -39,7 +39,7 @@ import com.eclipsesource.json.JsonObject;
 
 import eu.mivrenik.stomp.StompFrame;
 import eu.mivrenik.stomp.client.StompClient;
-import eu.mivrenik.stomp.client.listener.StompMessageListener;
+import eu.mivrenik.stomp.client.listener.StompConnectionListener;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.plugins.alliance.NmeaPlotter.MTShip;
 
@@ -47,7 +47,7 @@ import pt.lsts.neptus.plugins.alliance.NmeaPlotter.MTShip;
  * @author zp
  *
  */
-public class RipplesAisWebSocket implements StompMessageListener {
+public class RipplesAisWebSocket {
 
     private StompClient client;
     private MTShipListener listener = null;
@@ -60,9 +60,9 @@ public class RipplesAisWebSocket implements StompMessageListener {
     public void connect() {
         try {
             client = new StompClient(URI.create("wss://ripples.lsts.pt/ws"));
-            client.connect();
-            client.subscribe("/topic/ais", this);    
-            this.connected = true;
+            client.connectBlocking();
+            client.subscribe("/topic/ais", this::onAisPosition);
+            connected = true;            
         }
         catch (Exception e) {
             NeptusLog.pub().error("Error subscribing to websocket: "+e.getMessage());
@@ -79,8 +79,7 @@ public class RipplesAisWebSocket implements StompMessageListener {
         }
     }
     
-    @Override
-    public void onMessage(StompFrame arg0) {
+    public void onAisPosition(StompFrame arg0) {
         JsonObject obj = Json.parse(arg0.getBody()).asObject();
         MTShip ship = RipplesAisParser.parse(obj);     
         listener.received(ship);
