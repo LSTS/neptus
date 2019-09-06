@@ -574,14 +574,14 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, NameId {
         }
     }
     
-    public IMCMessage asIMCPlan() {
+    public PlanSpecification asIMCPlan() {
         return asIMCPlan(false);
     }
     
     /**
      * @return
      */
-    public IMCMessage asIMCPlan(boolean fillInPayloads) {
+    public PlanSpecification asIMCPlan(boolean fillInPayloads) {
         
         if (fillInPayloads)
             setPayloads();
