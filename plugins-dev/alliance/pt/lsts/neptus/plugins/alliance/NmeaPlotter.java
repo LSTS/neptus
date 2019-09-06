@@ -111,7 +111,8 @@ public class NmeaPlotter extends ConsoleLayer implements NmeaProvider {
     
     private static final Color COLOR_GREEN_DARK_100 = new Color(155, 255, 155, 250);
     private static final Color COLOR_RED_DARK_100 = new Color(255, 155, 155, 250);
-
+    
+    
     @NeptusProperty(name = "Connect to the serial port", category = "Serial Port", userLevel = LEVEL.REGULAR)
     public boolean serialListen = false;
 
@@ -161,10 +162,12 @@ public class NmeaPlotter extends ConsoleLayer implements NmeaProvider {
     @NeptusProperty(name = "Minutes to Show Distress Signal", category = "Distress Test", userLevel = LEVEL.ADVANCED)
     private int minutesToShowDistress = 5; 
     
-    @NeptusProperty(name = "Connect via Ripples", category = "TCP Client", userLevel = LEVEL.REGULAR)
+    @NeptusProperty(name = "Connect via Ripples", category = "Ripples", userLevel = LEVEL.REGULAR)
     public boolean ripplesConnection = false;
 
-
+    @NeptusProperty(name = "Use Web Sockets for Ripples Connection", category = "Ripples", userLevel = LEVEL.REGULAR)
+    public boolean ripplesWS = true;
+    
     private JLabel distressLabelToPaint = new JLabel();
 
     private JMenuItem connectItem = null;
@@ -200,6 +203,8 @@ public class NmeaPlotter extends ConsoleLayer implements NmeaProvider {
 
     private LinkedHashMap<String, LocationType> lastLocs = new LinkedHashMap<>();
     private LinkedHashMap<String, ScatterPointsElement> tracks = new LinkedHashMap<>();
+    
+    private RipplesAisWebSocket webSocket = new RipplesAisWebSocket(contactDb::setMTShip);
 
     @Periodic(millisBetweenUpdates = 5000)
     public void updateTracks() {
@@ -221,10 +226,24 @@ public class NmeaPlotter extends ConsoleLayer implements NmeaProvider {
         }
     }
     
+    
+    
     @Periodic(millisBetweenUpdates = 30_000)
     public void ripplesUpdate() {
-        if (!ripplesConnection)
+        // disconnected
+        if (!ripplesConnection) {
+            if (webSocket.isConnected())
+                webSocket.disconnect();
             return;
+        }
+        
+        //connected over web sockets
+        if (ripplesWS) {
+            if(!webSocket.isConnected())
+                webSocket.connect();
+        }            
+        
+        //connected over http polling
         try {
             RipplesAisParser.getShips().forEach(contactDb::setMTShip);    
         }

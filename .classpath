@@ -253,6 +253,8 @@
 	<classpathentry kind="lib" path="lib/jfreechart-1.5.0.jar"/>
 	<classpathentry kind="lib" path="lib/xchart-3.5.1.jar"/>
 	<classpathentry kind="lib" path="lib/ais-contact-manager-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/Java-WebSocket-1.4.0.jar"/>
+	<classpathentry kind="lib" path="lib/StompClient.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="lib/ini4j-0.5.2.jar"/>

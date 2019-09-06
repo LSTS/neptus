@@ -444,8 +444,9 @@ public class AisContactDb implements AISObserver {
         Vector<Integer> toRemove = new Vector<>();
 
         for (Entry<Integer, AisContact> entry : contacts.entrySet()) {
-            if (entry.getValue().ageMillis() > maximumAgeMillis)
+            if (entry.getValue().ageMillis() > maximumAgeMillis) {
                 toRemove.add(entry.getKey());
+            }
         }
 
         for (int rem : toRemove) {
