@@ -34,10 +34,11 @@ package pt.lsts.neptus.plugins.acoustic;
 
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
-
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.Arrays;
 import java.util.Map;
+
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -141,7 +142,7 @@ public class SendPlanDialog extends JPanel {
         add(new JLabel(I18n.text("Plan to execute")));
         add(plansCombo);
 
-        add(new JLabel(I18n.text("Plan to start at")));
+        add(new JLabel(I18n.text("Starting maneuver")));
         add(maneuversCombo);
 
         add(sendDefsCheck);
@@ -288,8 +289,11 @@ public class SendPlanDialog extends JPanel {
     public static void main(String[] args) {
         GuiUtils.setLookAndFeel();
         ConsoleLayout cl = ConsoleLayout.forge();
+        File missionFile = new File("missions/APDL/missao-apdl.nmisz");
         cl.setMainSystem("lauv-xplore-1");
-        cl.setMission(new MissionType());
+        MissionType mission = new MissionType();
+        mission.loadFile(missionFile);
+        cl.setMission(mission);
         SendPlanDialog.sendPlan(cl);
     }
 }

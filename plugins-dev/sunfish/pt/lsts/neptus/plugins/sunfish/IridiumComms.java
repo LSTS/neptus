@@ -688,7 +688,7 @@ public class IridiumComms extends SimpleRendererInteraction {
 
     @Subscribe
     public void on(TextMessage msg) {
-        NeptusLog.pub().info("Received text message");
+        NeptusLog.pub().info("Received text message from "+msg.getSourceName()+": "+msg.getText());
         if (msg.getText().startsWith("ERROR"))
             post(Notification.error("Iridium Error", msg.getSourceName() + ": " + msg.getText())
                     .requireHumanAction(true));

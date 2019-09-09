@@ -633,11 +633,12 @@ public class AnnounceWorker {
     }
     
     private void sendAcousticSystemsQueryMsg(ImcSystem sys) {
+        System.out.println("Send REQUEST to "+sys+"!!!");
         try {
             if (!sys.isServiceProvided("acoustic"))
                 return;
                 
-            NeptusLog.pub().debug("Sending '" + sys.name + " | "
+            NeptusLog.pub().warn("Sending '" + sys.name + " | "
                     + sys.getId() + "' AcousticSystemsQuery request...");
             IMCMessage msg = new AcousticSystemsQuery(imcDefinition);
             imcManager.sendMessage(msg, sys.getId(), null);
