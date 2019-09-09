@@ -222,7 +222,8 @@ public class IMCSendMessageUtils {
         if (gateways.length == 0)
             throw new Exception("No acoustic gateways are available");
         
-        List<ImcSystem> lst = Arrays.asList(gateways);
+        ArrayList<ImcSystem> lst = new ArrayList<ImcSystem>();
+        lst.addAll(Arrays.asList(gateways));
         
         // make sure the preferred gateway is in the beginning of the list
         if (preferredGateway != null) {
