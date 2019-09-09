@@ -185,7 +185,7 @@ public class IMCSendMessageUtils {
      * @see #burstMessageAcoustically(IMCMessage, String)
      */
     public static ArrayList<TransmissionRequest> sendMessageAcoustically(IMCMessage msg, String destination) throws Exception {
-        return sendMessageAcoustically(msg, destination, null, false);
+        return sendMessageAcoustically(msg, destination, null, false, 60);
     }
     
     /**
@@ -197,10 +197,10 @@ public class IMCSendMessageUtils {
      * @see #sendMessageAcoustically(IMCMessage, String)
      */
     public static ArrayList<TransmissionRequest> burstMessageAcoustically(IMCMessage msg, String destination) throws Exception {
-        return sendMessageAcoustically(msg, destination, null, true);
+        return sendMessageAcoustically(msg, destination, null, true, 60);
     }    
     
-    public static ArrayList<TransmissionRequest> sendMessageAcoustically(IMCMessage msg, String destination, ImcSystem preferredGateway, boolean burst) throws Exception {
+    public static ArrayList<TransmissionRequest> sendMessageAcoustically(IMCMessage msg, String destination, ImcSystem preferredGateway, boolean burst, int timeoutSecs) throws Exception {
         
         ArrayList<TransmissionRequest> requests = new ArrayList<TransmissionRequest>();
         
@@ -210,7 +210,7 @@ public class IMCSendMessageUtils {
             MessagePart[] parts = handler.fragment(msg, 998);
             NeptusLog.pub().info("PlanDB message resulted in "+parts.length+" fragments");
             for (MessagePart part : parts)
-                requests.addAll(sendMessageAcoustically(part, destination, preferredGateway, burst));
+                requests.addAll(sendMessageAcoustically(part, destination, preferredGateway, burst, 60));
             return requests;
         }
         
@@ -240,7 +240,7 @@ public class IMCSendMessageUtils {
             request.setDataMode(DATA_MODE.INLINEMSG);
             request.setMsgData(msg);
             request.setDestination(destination);
-            request.setDeadline(System.currentTimeMillis() / 1000.0 + 60);
+            request.setDeadline(System.currentTimeMillis() / 1000.0 + timeoutSecs);
 
             ImcMsgManager.getManager().sendMessageToSystem(request, sys.getName());
             sendCount++;

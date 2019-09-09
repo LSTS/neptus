@@ -70,7 +70,6 @@ import javax.swing.SwingWorker;
 
 import com.google.common.eventbus.Subscribe;
 
-import pt.lsts.imc.Abort;
 import pt.lsts.imc.AcousticOperation;
 import pt.lsts.imc.AcousticSystems;
 import pt.lsts.imc.AcousticSystemsQuery;
@@ -83,7 +82,6 @@ import pt.lsts.imc.PlanControl;
 import pt.lsts.imc.PlanControl.OP;
 import pt.lsts.imc.PlanControl.TYPE;
 import pt.lsts.imc.PlanDB;
-import pt.lsts.imc.PlanSpecification;
 import pt.lsts.imc.RSSI;
 import pt.lsts.imc.SetEntityParameters;
 import pt.lsts.imc.StorageUsage;
@@ -151,8 +149,6 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
 
     public HashSet<String> knownSystems = new HashSet<>();
 
-    private ConcurrentHashMap<Integer, TransmissionRequest> requests = new ConcurrentHashMap<Integer, TransmissionRequest>();
-    
     @NeptusProperty(name = "Systems listing", description = "Use commas to separate system identifiers")
     public String sysListing = "benthos-1,benthos-2,benthos-3,benthos-4,lauv-xtreme-2,lauv-noptilus-1,lauv-noptilus-2,lauv-noptilus-3";
 
@@ -251,19 +247,18 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
         IMCMessage spec = pt.asIMCPlan();
         boolean customManeuver = !pt.getGraph().getInitialManeuverId().equals(dialog.startingManeuver);
         
-        if (customManeuver && dialog.sendDefinition) {
+        if (dialog.justSendPlan || dialog.sendDefinition) {
             PlanDB pdb = new PlanDB();
             pdb.setPlanId(pt.getId());
             pdb.setOp(PlanDB.OP.SET);
             pdb.setType(PlanDB.TYPE.REQUEST);
             pdb.setArg(spec);
-            sendAcoustically(dialog.selectedVehicle, pdb);
-            sendAcoustically(dialog.selectedVehicle,
-                    new TextMessage("neptus", "resume " + pt.getId() + " " + dialog.startingManeuver));
-            
-            return;
+            sendAcoustically(dialog.selectedVehicle, pdb);            
         }
-        if (customManeuver && !dialog.sendDefinition) {
+        if (dialog.justSendPlan)
+            return;
+        
+        if (customManeuver) {
             sendAcoustically(dialog.selectedVehicle,
                     new TextMessage("neptus", "resume " + pt.getId() + " " + dialog.startingManeuver));
             return;
@@ -273,20 +268,8 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
         pc.setType(PlanControl.TYPE.REQUEST);
         pc.setDst(ImcSystemsHolder.getSystemWithName(dialog.selectedVehicle).getId().intValue());
         pc.setSrc(ImcMsgManager.getManager().getLocalId().intValue());
-        if (dialog.justSendPlan)
-            pc.setOp(PlanControl.OP.LOAD);
-        else
-            pc.setOp(PlanControl.OP.START);
+        pc.setOp(PlanControl.OP.START);
         pc.setPlanId(dialog.planId);
-        if (dialog.sendDefinition) {
-            try {
-                pc.setArg(pt.asIMCPlan(false));
-            }
-            catch (Exception e) {
-                NeptusLog.pub().error("Error retrieving plan from mission", e);
-                return;
-            }
-        }
         if (dialog.ignoreErrors)
             pc.setFlags(pc.getFlags() | PlanControl.FLG_IGNORE_ERRORS);
         if (dialog.skipCalibration)

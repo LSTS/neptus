@@ -234,7 +234,7 @@ public class SendTxtMessage extends ConsolePanel {
                     sender = ImcSystemsHolder.lookupSystemByName(senderNode);
                 try {
                     ArrayList<TransmissionRequest> requests = IMCSendMessageUtils.sendMessageAcoustically(msgTxt,
-                            destination, sender, false);
+                            destination, sender, false, 5);
                     requests.forEach(t -> {
                         transmissions.put(t.getReqId(), t);
                         updateRecvBoxTxt(t.getReqId()+"> Transmission requested.");
