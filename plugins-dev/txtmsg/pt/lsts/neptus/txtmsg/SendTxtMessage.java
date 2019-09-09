@@ -39,10 +39,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
-import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
@@ -58,12 +56,12 @@ import com.google.common.eventbus.Subscribe;
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.AcousticOperation;
 import pt.lsts.imc.AcousticOperation.OP;
-import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.TextMessage;
-import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
+import pt.lsts.imc.TransmissionRequest;
+import pt.lsts.imc.TransmissionStatus;
+import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
-import pt.lsts.neptus.comm.manager.imc.MessageDeliveryListener;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.notifications.Notification;
@@ -72,8 +70,8 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.Popup;
-import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
@@ -96,23 +94,22 @@ public class SendTxtMessage extends ConsolePanel {
 
     private static final String TXT_PREFIX = "TXT";
     
-    @NeptusProperty(name = "Comunication mean", editable = false)
-    private CommMeanEnum mean = CommMeanEnum.ACOUSTICS;
-    
     @NeptusProperty(name = "Maximum Number of Chars to Send")
     private int maxNumberOfChars = 65;
     
     @NeptusProperty(name = "Maximum Number of Chars in Control Box")
     private int maxRecvChars = 1000;
 
-    @NeptusProperty(name = "Fix sender Node", userLevel = LEVEL.REGULAR, description = "Fix the possible sender nodes names (comma separated)")
-    private String senderNodeNames = "";
+    @NeptusProperty(name = "Gateway", userLevel = LEVEL.REGULAR, description = "Set the sender modem (optional)")
+    private String senderNode = "";
 
-    @NeptusProperty(name = "Destination Node", userLevel = LEVEL.REGULAR, description = "Destination node, use empty for broadcast")
+    @NeptusProperty(name = "Destination", userLevel = LEVEL.REGULAR, description = "Destination modem, use empty for broadcast")
     private String destinationNode = "";
 
     @NeptusProperty(name = "Play Sound on Message received", userLevel = LEVEL.REGULAR, description = "Play a sound on a message received")
     private boolean soundOnReceive = true;
+    
+    private ConcurrentHashMap<Integer, TransmissionRequest> transmissions = new ConcurrentHashMap<Integer, TransmissionRequest>();
     
     // GUI
     private JTextArea sendBox;
@@ -122,11 +119,13 @@ public class SendTxtMessage extends ConsolePanel {
     private JButton sendButton;
     private JButton clearButton;
     private JButton clearCtlButton;
+    private JButton settingsButton;
     
     // Actions
     private AbstractAction sendAction;
     private AbstractAction clearAction;
     private AbstractAction clearCtlAction;
+    private AbstractAction settingsAction;
     
     private String currentStrToSend = "";
     
@@ -139,18 +138,11 @@ public class SendTxtMessage extends ConsolePanel {
         super(console);
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.console.ConsolePanel#initSubPanel()
-     */
     @Override
     public void initSubPanel() {
         initialize();
     }
 
-
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.console.ConsolePanel#cleanSubPanel()
-     */
     @Override
     public void cleanSubPanel() {
     }
@@ -205,6 +197,7 @@ public class SendTxtMessage extends ConsolePanel {
         GuiUtils.reactEnterKeyPress(sendButton);
         clearButton = new JButton(clearAction);
         clearCtlButton = new JButton(clearCtlAction);
+        settingsButton = new JButton(settingsAction);
         
         removeAll();
         setLayout(new MigLayout());
@@ -214,11 +207,11 @@ public class SendTxtMessage extends ConsolePanel {
         add(sendBoxScroll, "w 100%, h 40px:40px:40px, span, wrap");
         add(sendButton, "h 20px");
         add(clearButton, "h 20px");
-        add(clearCtlButton, "h 20px, wrap");
+        add(clearCtlButton, "h 20px");
+        add(settingsButton, "h 20px, wrap");
         add(recvBoxScroll, "w 100%, h 100%, span");
     }
 
-    
     private void initializeActions() {
         sendAction = new AbstractAction(I18n.text("send")) {
             @Override
@@ -231,65 +224,26 @@ public class SendTxtMessage extends ConsolePanel {
                 msgTxt.setOrigin(GeneralPreferences.imcCcuName.toLowerCase());
                 msgTxt.setText(" " +TXT_PREFIX + ":" + msgStr);
 
+                String destination = destinationNode.isEmpty() ? "broadcast" : destinationNode;
+                
                 AcousticOperation msg = new AcousticOperation();
                 msg.setOp(AcousticOperation.OP.MSG);
-                String dstStr = destinationNode.isEmpty() ? "broadcast" : destinationNode;
-                msg.setSystem(dstStr);
                 msg.setMsg(msgTxt);
-                
-                ImcSystem[] senderList = ImcSystemsHolder.lookupSystemByService("acoustic/operation", SystemTypeEnum.ALL, true);
-                List<ImcSystem> senders = new ArrayList<ImcSystem>();
-                if (senderNodeNames.isEmpty()) {
-                    senders = Arrays.asList(senderList);
+                ImcSystem sender = null;
+                if (!senderNode.isEmpty())
+                    sender = ImcSystemsHolder.lookupSystemByName(senderNode);
+                try {
+                    ArrayList<TransmissionRequest> requests = IMCSendMessageUtils.sendMessageAcoustically(msgTxt,
+                            destination, sender, false);
+                    requests.forEach(t -> {
+                        transmissions.put(t.getReqId(), t);
+                        updateRecvBoxTxt(t.getReqId()+"> Transmission requested.");
+                    });                    
                 }
-                else {
-                    String[] authSenders = senderNodeNames.split(",");
-                    for (ImcSystem sys : senderList) {
-                        for (String as : authSenders) {
-                            if (as.equalsIgnoreCase(sys.getName()))
-                                senders.add(sys);
-                        }
-                    }
-                }
-                
-                if (senders.size() > 0) {
-                   double r = new Random().nextDouble();
-                   int idx = (int) (senders.size() * r);
-                   ImcSystem sender = senders.get(idx);
-                   MessageDeliveryListener msgListener = new MessageDeliveryListener() {
-                       @Override
-                       public void deliveryUnreacheable(IMCMessage message) {
-                           updateRecvBoxTxt("STA> Msg delivery Unreacheable");
-                       }
-
-                       @Override
-                       public void deliveryUncertain(IMCMessage message, Object msg) {
-                           updateRecvBoxTxt("STA> Msg delivery Uncertain");
-                       }
-
-                       @Override
-                       public void deliveryTimeOut(IMCMessage message) {
-                           updateRecvBoxTxt("STA> Msg delivery TimeOut");
-                       }
-
-                       @Override
-                       public void deliverySuccess(IMCMessage message) {
-                           updateRecvBoxTxt("STA> Msg delivery Success");
-                       }
-
-                       @Override
-                       public void deliveryError(IMCMessage message, Object error) {
-                           updateRecvBoxTxt("STA> Msg delivery Error");
-                       }
-                   };
-                   currentStrToSend = msgStr;
-                   boolean res = ImcMsgManager.getManager().sendMessage(msg, sender.getId(), "", msgListener);
-                    updateRecvBoxTxt("SND> Msg \"" + msgStr + "\" sending using ... " + sender.getName() + ">>" + dstStr
-                            + "... " + res + "...");
-                }
-                else {
-                    
-                }
+                catch (Exception ex) {
+                    ex.printStackTrace();
+                    updateRecvBoxTxt("STA> Error sending message: "+ex.getMessage());
+                }                    
             }
         };
 
@@ -305,6 +259,12 @@ public class SendTxtMessage extends ConsolePanel {
                 synchronized (recvBox) {
                     recvBox.setText("");
                 }
+            }
+        };
+        settingsAction = new AbstractAction("settings") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                PluginUtils.editPluginProperties(SendTxtMessage.this, true);                
             }
         };
     }
@@ -332,7 +292,7 @@ public class SendTxtMessage extends ConsolePanel {
     }
 
     @Subscribe
-    public void onTextMessage(AcousticOperation msg) {
+    public void on(AcousticOperation msg) {
         if (msg.getOp() == OP.MSG_DONE || msg.getOp() == OP.MSG_FAILURE || msg.getOp() == OP.BUSY) {
             String recMessage = "RES> " + msg.getOpStr(); 
             updateRecvBoxTxt(recMessage);
@@ -340,6 +300,19 @@ public class SendTxtMessage extends ConsolePanel {
                 sendBox.setText("");
         }
     }
+    
+   @Subscribe
+   public void on(TextMessage msg) {
+       updateRecvBoxTxt("TXT> "+msg.getOrigin()+" | "+msg.getText());
+   }
+   
+   @Subscribe
+   public void on(TransmissionStatus msg) {
+       if (transmissions.containsKey(msg.getReqId())) {
+           updateRecvBoxTxt(msg.getReqId()+"> "+msg.getStatusStr()+" | "+msg.getInfo());
+       }
+   }
+    
     
     /**
      * @param recMessage
