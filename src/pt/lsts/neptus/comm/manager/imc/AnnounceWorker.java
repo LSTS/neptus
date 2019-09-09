@@ -633,7 +633,6 @@ public class AnnounceWorker {
     }
     
     private void sendAcousticSystemsQueryMsg(ImcSystem sys) {
-        System.out.println("Send REQUEST to "+sys+"!!!");
         try {
             if (!sys.isServiceProvided("acoustic"))
                 return;
