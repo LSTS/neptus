@@ -62,6 +62,7 @@ public class Plan {
 
     private final String planId;
     private boolean cyclic = false;
+    private String type = "dune";
     private ArrayList<Waypoint> waypoints = new ArrayList<>();
 
     /**
@@ -139,8 +140,9 @@ public class Plan {
 
         for (Maneuver m : SoiUtils.getFirstManeuverSequence(spec)) {
             LocationType thisLocation = Waypoint.locationOf(m);
+            if (thisLocation == null)
+                continue;
             try {
-
                 if (lastLocation != null && lastLocation.getDistanceInMeters(thisLocation) > 40_000) {
                     double times = Math.ceil(lastLocation.getDistanceInMeters(thisLocation) / 40_000);
                     double intermediate = lastLocation.getDistanceInMeters(thisLocation) / times;
@@ -162,9 +164,14 @@ public class Plan {
             }
         }
 
-        if (PlanUtilities.isCyclic(spec))
-            plan.cyclic = true;
-
+        try {
+            if (PlanUtilities.isCyclic(spec))
+                plan.cyclic = true;    
+        }
+        catch (Exception e) {
+            
+        }
+        
         return plan;
     }
 
@@ -183,6 +190,7 @@ public class Plan {
                 soiWpt.setArrivalTime(new Date(1000 * wpt.getEta()));
             plan.addWaypoint(soiWpt);
         }
+        plan.type = "soi";
         return plan;
     }
 
@@ -281,6 +289,7 @@ public class Plan {
     public String toString() {
         JsonObject pp = new JsonObject();
         pp.add("id", getPlanId());
+        pp.add("type", type);
         JsonArray waypoints = new JsonArray();
         for (Waypoint wpt : waypoints()) {
             JsonObject waypoint = new JsonObject();

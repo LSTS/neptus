@@ -45,6 +45,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonObject;
@@ -152,8 +153,16 @@ public class EnduranceWebApi {
 	}
 
 	public static Future<Void> setAsset(Asset asset) {
+	    System.out.println("Send asset"+asset);
 		return postJson(soiUrl, asset.toString());
 	}
+	
+	public static Future<Void> setAssets(List<Asset> assets) {
+	    String assetsString = "["+assets.stream().map(a -> a.toString()).collect(Collectors.joining(","))+"]";
+	    System.out.println(assetsString);
+	    return postJson(soiUrl+"/assets", assetsString);
+	}
+	    	
 
 	public static void main(String[] args) throws Exception {
 	    //setSoiUrl("http://127.0.0.1:8080/soi");

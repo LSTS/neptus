@@ -44,7 +44,13 @@ public class Waypoint implements Comparable<Waypoint> {
     private Date arrivalTime = null;
 
     public static LocationType locationOf(Maneuver man) {
-        return new LocationType(Math.toDegrees(man.getDouble("lat")), Math.toDegrees(man.getDouble("lon")));
+        try {
+            return new LocationType(Math.toDegrees(man.getDouble("lat")), Math.toDegrees(man.getDouble("lon")));    
+        }
+        catch (Exception e) {
+            return null;
+        }
+        
     }
 
     public Waypoint(int id, Maneuver man) throws Exception {
