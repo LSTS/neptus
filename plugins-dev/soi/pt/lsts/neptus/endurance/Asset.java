@@ -130,7 +130,7 @@ public class Asset implements Comparable<Asset>{
 		if (receivedState() == null)
 			return null;
 				
-		if (plan == null)
+		if (plan == null || plan.waypoints().isEmpty())
 			return receivedState();
 		
 		Date now = new Date();
