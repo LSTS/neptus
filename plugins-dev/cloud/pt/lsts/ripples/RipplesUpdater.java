@@ -80,7 +80,7 @@ public class RipplesUpdater extends ConsolePanel implements ConfigurationListene
 
     private static final long serialVersionUID = 8901788326550597186L;
 
-    private final String ripplesPostUrl = GeneralPreferences.ripplesUrl + "/soi/asset";
+    private final String ripplesPostUrl = GeneralPreferences.ripplesUrl + "/soi/assets";
     private JCheckBoxMenuItem menuItem;
 
     private ImageIcon onIcon, offIcon;
@@ -113,8 +113,7 @@ public class RipplesUpdater extends ConsolePanel implements ConfigurationListene
 
     @Override
     public void cleanSubPanel() {
-        if (connected)
-            disconnect();
+        disconnect();
 
         if (menuItem != null) {
             removeCheckMenuItem(checkMenuTxt);
@@ -128,14 +127,14 @@ public class RipplesUpdater extends ConsolePanel implements ConfigurationListene
         menuItem = addCheckMenuItem(checkMenuTxt + ">" + I18n.text("Connect"), offIcon, new CheckMenuChangeListener() {
 
             @Override
-            public void menuUnchecked(ActionEvent e) {
+            public void menuChecked(ActionEvent e) {
                 menuItem.setText(I18n.text("Connect"));
                 menuItem.setIcon(offIcon);
                 connect();
             }
 
             @Override
-            public void menuChecked(ActionEvent e) {
+            public void menuUnchecked(ActionEvent e) {
                 menuItem.setText(I18n.text("Disconnect"));
                 menuItem.setIcon(onIcon);
                 disconnect();
@@ -215,11 +214,11 @@ public class RipplesUpdater extends ConsolePanel implements ConfigurationListene
             LocationType loc = m.convertToAbsoluteLatLonDepth();
             locs.add(new double[] { loc.getLatitudeDegs(), loc.getLongitudeDegs() });
         }
-        NeptusLog.pub().info("Received PCS with " + locs.size() + " waypoints");
+        NeptusLog.pub().debug("Received PCS with " + locs.size() + " waypoints");
         return new RipplesPlan(planType.getId(), locs);
     }
 
-    @Periodic(millisBetweenUpdates = 5000)
+    @Periodic(millisBetweenUpdates = 1000)
     public void sendUpdatesToRipples() {
         if (!this.connected)
             return;
@@ -233,7 +232,7 @@ public class RipplesUpdater extends ConsolePanel implements ConfigurationListene
             ImcSystem imcSystem = ImcSystemsHolder.lookupSystemByName(sysName);
             int imcId = (imcSystem != null && imcSystem.getId() != null) ? imcSystem.getId().intValue() : -1;
             payload.add(new RipplesAsset(sysName, imcId, assetState, plan));
-            NeptusLog.pub().info("Asset state: " + assetState);
+            NeptusLog.pub().debug("Asset state: " + assetState);
         });
 
         String assetsAsJson = gson.toJson(payload);
