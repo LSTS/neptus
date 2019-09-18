@@ -233,11 +233,10 @@ public class SoiRiskAnalysis extends ConsolePanel {
     void update() {
         boolean doLayout = false;
         List<Asset> assets = AssetsManager.getInstance().getAssets();
-        NeptusLog.pub().info("Processing "+assets.size()+" assets for risk analysis.");
+        NeptusLog.pub().debug("Processing "+assets.size()+" assets for risk analysis.");
         for (Asset asset : assets) {
             String name = asset.getAssetName();
             VehicleRiskAnalysis risk = state.getOrDefault(name, new VehicleRiskAnalysis());
-            
             AssetState next = asset.futureState();
             AssetState current = asset.stateAt(new Date());
 
@@ -246,8 +245,12 @@ public class SoiRiskAnalysis extends ConsolePanel {
             if (system != null) {
                 risk.lastCommunication = new Date(system.getLocationTimeMillis()); 
             }
-            
-            if (System.currentTimeMillis() - risk.lastCommunication.getTime() > 24 * 3600_000) {
+            else {
+                NeptusLog.pub().debug("Ignoring asset state for "+name);
+                continue;
+            }
+           /* 
+            if (risk.lastCommunication != null && System.currentTimeMillis() - risk.lastCommunication.getTime() > 24 * 3600_000) {
                 // remove this panel
                 if (panels.containsKey(name)) {
                     remove(panels.get(name));
@@ -255,7 +258,7 @@ public class SoiRiskAnalysis extends ConsolePanel {
                     doLayout();
                 }
                 return;
-            }
+            }*/
             
             if (next != null)
                 risk.nextCommunication = next.getTimestamp();
