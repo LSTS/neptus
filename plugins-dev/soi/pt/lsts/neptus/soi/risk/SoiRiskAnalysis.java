@@ -243,12 +243,16 @@ public class SoiRiskAnalysis extends ConsolePanel {
             ImcSystem system = ImcSystemsHolder.lookupSystemByName(name);
             
             if (system != null) {
+                if (system.getLocationTimeMillis() < 0 )
+                    continue;
                 risk.lastCommunication = new Date(system.getLocationTimeMillis()); 
             }
             else {
                 NeptusLog.pub().debug("Ignoring asset state for "+name);
                 continue;
             }
+            
+            
            /* 
             if (risk.lastCommunication != null && System.currentTimeMillis() - risk.lastCommunication.getTime() > 24 * 3600_000) {
                 // remove this panel
