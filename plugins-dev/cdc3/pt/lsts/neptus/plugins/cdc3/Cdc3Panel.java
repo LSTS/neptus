@@ -373,7 +373,7 @@ public class Cdc3Panel extends ConsolePanel implements IEditorMenuExtension, Sub
                     byte[] rawData = ArrayUtils.subarray(serBuf.array(), serBuf.arrayOffset(), serBuf.position());
                     
                     TransmissionRequest txRqst = new TransmissionRequest();
-                    txRqst.setReqId(requestIdCounter.getAndIncrement());
+                    txRqst.setReqId(requestIdCounter.getAndIncrement() & 0xFFFF);
                     txRqst.setDestination(vehicleDestination);
                     txRqst.setCommMean(COMM_MEAN.ACOUSTIC);
                     txRqst.setDataMode(DATA_MODE.RAW);
@@ -427,7 +427,7 @@ public class Cdc3Panel extends ConsolePanel implements IEditorMenuExtension, Sub
                     pc.setType(PlanControl.TYPE.REQUEST);
                     pc.setOp(PlanControl.OP.START);
                     pc.setPlanId(opt.toString());
-                    int req = requestIdCounter.getAndIncrement();
+                    int req = requestIdCounter.getAndIncrement() & 0xFFFF;
                     pc.setRequestId(req);
 
                     TransmissionRequest txRqst = new TransmissionRequest();
@@ -477,7 +477,7 @@ public class Cdc3Panel extends ConsolePanel implements IEditorMenuExtension, Sub
                 plan = addPlanToMission(plan);
 
                 TransmissionRequest txRqst = new TransmissionRequest();
-                txRqst.setReqId(requestIdCounter.getAndIncrement());
+                txRqst.setReqId(requestIdCounter.getAndIncrement() & 0xFFFF);
                 txRqst.setDestination(vehicleDestination);
                 txRqst.setCommMean(COMM_MEAN.ACOUSTIC);
                 txRqst.setDataMode(DATA_MODE.RAW);
@@ -521,7 +521,7 @@ public class Cdc3Panel extends ConsolePanel implements IEditorMenuExtension, Sub
                 pc.setOp(PlanControl.OP.START);
                 pc.setPlanId(imcPlan.getPlanId());
                 pc.setArg(imcPlan);
-                int req = requestIdCounter.getAndIncrement();
+                int req = requestIdCounter.getAndIncrement() & 0xFFFF;
                 pc.setRequestId(req);
                 
                 TransmissionRequest txRqst = new TransmissionRequest();
@@ -553,7 +553,7 @@ public class Cdc3Panel extends ConsolePanel implements IEditorMenuExtension, Sub
                 Abort ab = new Abort();
 
                 TransmissionRequest txRqst = new TransmissionRequest();
-                txRqst.setReqId(requestIdCounter.getAndIncrement());
+                txRqst.setReqId(requestIdCounter.getAndIncrement() & 0xFFFF);
                 txRqst.setDestination(vehicleDestination);
                 txRqst.setCommMean(COMM_MEAN.ACOUSTIC);
                 txRqst.setDataMode(DATA_MODE.INLINEMSG);
@@ -579,7 +579,7 @@ public class Cdc3Panel extends ConsolePanel implements IEditorMenuExtension, Sub
         range1.addActionListener(e ->  {
             try {
                 TransmissionRequest txRqst = new TransmissionRequest();
-                txRqst.setReqId(requestIdCounter.getAndIncrement());
+                txRqst.setReqId(requestIdCounter.getAndIncrement() & 0xFFFF);
                 txRqst.setDestination(vehicleDestination);
                 txRqst.setCommMean(COMM_MEAN.ACOUSTIC);
                 txRqst.setDataMode(DATA_MODE.RANGE);
@@ -616,7 +616,7 @@ public class Cdc3Panel extends ConsolePanel implements IEditorMenuExtension, Sub
                     byte[] rawData = ArrayUtils.subarray(serBuf.array(), serBuf.arrayOffset(), serBuf.position());
                     
                     TransmissionRequest txRqst = new TransmissionRequest();
-                    txRqst.setReqId(requestIdCounter.getAndIncrement());
+                    txRqst.setReqId(requestIdCounter.getAndIncrement() & 0xFFFF);
                     txRqst.setDestination(vehicleDestination);
                     txRqst.setCommMean(COMM_MEAN.ACOUSTIC);
                     txRqst.setDataMode(DATA_MODE.RAW);
