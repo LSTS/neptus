@@ -77,6 +77,7 @@ import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.util.WGS84Utilities;
 
@@ -242,7 +243,7 @@ public class SoiRiskAnalysis extends ConsolePanel {
 
             ImcSystem system = ImcSystemsHolder.lookupSystemByName(name);
             
-            if (system != null) {
+            if (system != null && system.getType() == SystemTypeEnum.VEHICLE) {
                 if (system.getLocationTimeMillis() < 0 )
                     continue;
                 risk.lastCommunication = new Date(system.getLocationTimeMillis()); 
