@@ -129,6 +129,8 @@ public class Cdc3Panel extends ConsolePanel implements IEditorMenuExtension, Sub
 
     private Vector<IMapPopup> renderersPopups;
 
+    private int planDepth = 0;
+    
     /**
      * @param console
      */
@@ -473,6 +475,17 @@ public class Cdc3Panel extends ConsolePanel implements IEditorMenuExtension, Sub
         JMenuItem planWp = new JMenuItem("Plan " + vehicleDestination + " WP here");
         planWp.addActionListener(e ->  {
             try {
+                String opt = JOptionPane.showInputDialog(getConsole(), "Plan depth", planDepth);
+                if (opt != null) {
+                    try {
+                        planDepth = Integer.parseInt(opt);
+                    }
+                    catch (NumberFormatException e1) {
+                        e1.printStackTrace();
+                        return;
+                    }
+                }
+                
                 LocationType locCp = loc.getNewAbsoluteLatLonDepth();
                 RetaskToWaypointMessage msg = new RetaskToWaypointMessage();
                 msg.setLatitudeRads((float) locCp.getLatitudeRads());
@@ -484,7 +497,7 @@ public class Cdc3Panel extends ConsolePanel implements IEditorMenuExtension, Sub
 
                 PlanCreator creator = new PlanCreator(getConsole().getMission());
                 creator.setLocation(locCp);
-                creator.setZ(0, ManeuverLocation.Z_UNITS.DEPTH);
+                creator.setZ(planDepth, ManeuverLocation.Z_UNITS.DEPTH);
                 creator.addManeuver("Goto", "speed", vehicleSpeed, "speedUnits", "m/s");
                 PlanType plan = creator.getPlan();
                 plan.setVehicle(vehicleDestination);
@@ -519,11 +532,22 @@ public class Cdc3Panel extends ConsolePanel implements IEditorMenuExtension, Sub
         JMenuItem planWp1 = new JMenuItem("Plan " + vehicleDestination + " WP here");
         planWp1.addActionListener(e ->  {
             try {
+                String opt = JOptionPane.showInputDialog(getConsole(), "Plan depth", planDepth);
+                if (opt != null) {
+                    try {
+                        planDepth = Integer.parseInt(opt);
+                    }
+                    catch (NumberFormatException e1) {
+                        e1.printStackTrace();
+                        return;
+                    }
+                }
+
                 LocationType locCp = loc.getNewAbsoluteLatLonDepth();
 
                 PlanCreator creator = new PlanCreator(getConsole().getMission());
                 creator.setLocation(locCp);
-                creator.setZ(0, ManeuverLocation.Z_UNITS.DEPTH);
+                creator.setZ(planDepth, ManeuverLocation.Z_UNITS.DEPTH);
                 creator.addManeuver("Goto", "speed", vehicleSpeed, "speedUnits", "m/s");
                 PlanType plan = creator.getPlan();
                 plan.setVehicle(vehicleDestination);
