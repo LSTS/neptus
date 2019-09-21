@@ -67,6 +67,7 @@ import pt.lsts.imc.TransmissionRequest.COMM_MEAN;
 import pt.lsts.imc.TransmissionRequest.DATA_MODE;
 import pt.lsts.imc.TransmissionStatus;
 import pt.lsts.imc.UamRxFrame;
+import pt.lsts.imc.UamRxRange;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
@@ -92,6 +93,7 @@ import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.ReflectionUtil;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 
@@ -326,7 +328,14 @@ public class Cdc3Panel extends ConsolePanel implements IEditorMenuExtension, Sub
             appendText("\n" + DateTimeUtil.timeFormatterUTC.format(new Date()) + "UTC>UamRxFrame::>" + recMsg + "\n");
         }
     }
-    
+
+    @Subscribe
+    private void on(UamRxRange msg) {
+        String sourceName = msg.getSourceName();
+        NeptusLog.pub().warn(">UamRxRange from " + sourceName +"::>" + msg.getSys() + " @" + MathMiscUtils.round(msg.getValue(), 1) + "m");
+        appendText("\n" + DateTimeUtil.timeFormatterUTC.format(new Date()) + "UTC>UamRxRange::>" + msg.getSys() + " @" + MathMiscUtils.round(msg.getValue(), 1) + "m\n");
+    }
+
     /**
      * @param msg
      */
