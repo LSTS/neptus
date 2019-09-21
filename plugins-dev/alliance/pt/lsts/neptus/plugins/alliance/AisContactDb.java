@@ -450,7 +450,7 @@ public class AisContactDb implements AISObserver {
         }
 
         for (int rem : toRemove) {
-            NeptusLog.pub().info("Removing " + rem + " because is more than " + maximumAgeMillis + " milliseconds old.");
+            NeptusLog.pub().debug("Removing " + rem + " because is more than " + maximumAgeMillis + " milliseconds old.");
             contacts.remove(rem);
         }
     }
