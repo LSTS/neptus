@@ -95,10 +95,11 @@ public class VerticalProfileViewer implements Renderer2DPainter {
     private boolean valuesTable = true;
 
     public VerticalProfileViewer() {
+        if (!store.exists())
+            return;
         synchronized (profiles) {
             try {
                 JsonArray arr = Json.parse(new FileReader(store)).asArray();
-
                 for (JsonValue v : arr.values()) {
                     profiles.add((VerticalProfile) VerticalProfile.parseJson(v.toString()));
                 }
