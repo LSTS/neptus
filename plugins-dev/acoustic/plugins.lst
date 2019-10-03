@@ -10,3 +10,4 @@ pt.lsts.neptus.plugins.acoustic.AcousticOperations
 pt.lsts.neptus.plugins.acoustic.LblEstimateOverlay
 pt.lsts.neptus.plugins.acoustic.LBLRangesReplay
 pt.lsts.neptus.plugins.acoustic.UsblLayer
+pt.lsts.neptus.plugins.acoustic.BlueRovUSBL

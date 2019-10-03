@@ -158,6 +158,8 @@ public class UsblLayer extends ConsoleLayer {
             fixes.add(msg);
         }
     }
+    
+    
 
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
