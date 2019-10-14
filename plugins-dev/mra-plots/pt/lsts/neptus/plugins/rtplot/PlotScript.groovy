@@ -221,7 +221,7 @@ class PlotScript {
                 LocationType loc =  new LocationType(Math.toDegrees(state.getDouble("lat")),Math.toDegrees(state.getDouble("lon"))) //lat long
                 loc.translatePosition(state.getDouble("x"), state.getDouble("y"), state.getDouble("z"))
                 def id = it+".relativeNED"
-                double[] offsets = ref.getOffsetFrom(loc)
+                double[] offsets = loc.getOffsetFrom(ref)
                 XYDataItem item = new XYDataItem(offsets[0],offsets[1])
                 resultmap.put id, item
                 addSeries(resultmap)
