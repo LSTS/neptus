@@ -349,6 +349,7 @@ public class RealTimePlotScript extends JPanel {
         if (!conf_mra_rtplot.exists()) {
             conf_mra_rtplot.mkdirs();
         }
+        this.storedScripts.removeAll();
         for (final File fileEntry : conf_mra_rtplot.listFiles()) {
             if (!fileEntry.isDirectory()) {
                 String scriptName = FileUtil.getFileNameWithoutExtension(fileEntry);
@@ -364,7 +365,6 @@ public class RealTimePlotScript extends JPanel {
                             RealTimePlotScript.this.editorPane.setText(FileUtil.getFileAsString(f));
                     }
                 });
-                this.storedScripts.removeAll();
                 this.storedScripts.add(item);
             }
         }
