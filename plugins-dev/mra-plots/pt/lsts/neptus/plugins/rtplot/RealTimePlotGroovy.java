@@ -101,6 +101,7 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
     private ImportCustomizer imports;
     private boolean updating = false;
     private boolean drawLineXY = false;
+    private boolean running = false;
     private final ChartPanel chart;
     private List<String> systems = Collections.synchronizedList(new ArrayList<String>());
     private ScheduledThreadPoolExecutor timedExec;
@@ -171,7 +172,8 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
 
             @Override
             public void run() {
-                update();
+                if(!running)
+                    update();
 
             }
 
@@ -319,7 +321,7 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
     }
 
     /**
-     * Changes the source of the current chart to a @TimeSeriescollection
+     * Changes the source of the current chart to a @XYSeriesCollection
      * 
      * @param xys Data set to be used as source for the chart
      */
@@ -329,6 +331,7 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
         //connect or not plot points 
         XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) xyChart.getXYPlot().getRenderer();
         renderer.setDefaultLinesVisible(drawLineXY);
+        xyChart.getXYPlot().setRenderer(renderer);
         chart.setChart(xyChart);
     }
 
@@ -446,6 +449,7 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
      * @param script Text script
      */
     public void runScript(String script) {
+        running = true;
         if (ImcSystemsHolder.lookupActiveSystemVehicles().length > 0) {
             shell = new GroovyShell(this.getClass().getClassLoader(), cnfg);
             try {
@@ -464,6 +468,7 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
                 }
             }
         }
+        running = false;
     }
 
     private void releaseThis() {
@@ -521,9 +526,8 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
     }
     
     public void drawLineForXY(boolean bool) {
-        if (bool != drawLineXY) {
+        if (bool != drawLineXY && type.equals(PlotType.GENERICXY)) {
             drawLineXY = bool;
-            if(type.equals(PlotType.GENERICXY))
             changeChart();
         }
     }
