@@ -60,7 +60,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 
-import groovy.lang.Script;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
@@ -110,7 +109,6 @@ public class RealTimePlotScript extends JPanel {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                Script parsed=null;
                 String script = editorPane.getText();
                 plot.numPoints = Integer.parseInt(RealTimePlotScript.this.numPointsField.getText());
                 long temp = Long.parseLong(RealTimePlotScript.this.periodicityField.getText());
@@ -139,7 +137,7 @@ public class RealTimePlotScript extends JPanel {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                int choice,replace=1;
+                int choice,replace=JOptionPane.YES_OPTION;
                 final JFileChooser fc = new JFileChooser(path);
                 fc.setAcceptAllFileFilterUsed(false);
                 fc.setSelectedFile(new File("script.groovy"));
@@ -151,8 +149,8 @@ public class RealTimePlotScript extends JPanel {
                     if(fc.getSelectedFile().exists()) {
                         replace = GuiUtils.confirmDialog(editorPane, "Store Script", "Do you want to replace file: "+fc.getSelectedFile().getName()+"?");
                     }
-                    if (filter.accept(fc.getSelectedFile()) && replace > 0) {
-                        FileUtil.saveToFile(fc.getSelectedFile().getAbsolutePath(), editorPane.getText());
+                    if (filter.accept(fc.getSelectedFile()) && replace == JOptionPane.YES_OPTION) {
+                        FileUtil.saveToFile(fc.getSelectedFile().getAbsolutePath(), editorPane.getText(),"UTF-8",false);
                         fillStoredScripts();
                     }
                     else if (!filter.accept(fc.getSelectedFile())){
