@@ -5,6 +5,6 @@ pt.lsts.neptus.plugins.mraplots.BathymetryPlotter
 pt.lsts.neptus.plugins.mraplots.MraPhotosVisualization
 pt.lsts.neptus.plugins.mraplots.NetworkConnections
 pt.lsts.neptus.plugins.mraplots.RevisionOverlays
-pt.lsts.neptus.plugins.rtplot.RealTimePlot
+pt.lsts.neptus.plugins.rtplot.RealTimePlotGroovy
 pt.lsts.neptus.plugins.seastate.SeaStatePlot
 pt.lsts.neptus.plugins.mraplots.ImagePositionsExporter
