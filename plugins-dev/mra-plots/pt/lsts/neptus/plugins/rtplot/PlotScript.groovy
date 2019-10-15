@@ -119,23 +119,25 @@ class PlotScript {
     }
 
     static def xyseries(LinkedHashMap map1,LinkedHashMap map2,String name="serie") {
-        if(!realTimePlot.getType().equals(PlotType.GENERICXY)) {
-            //plot.resetSeries()
-            realTimePlot.setType(PlotType.GENERICXY)
-        }
-        
-        def result = [:]
-        def lookup
-        realTimePlot.getSystems().eachWithIndex { sys, index ->
-            def id = sys+"."+name
-            if((lookup = map1.keySet().find{it.startsWith(sys)}) != null) {
-                def v1 = map1.get lookup
-                if((lookup = map2.keySet().find{it.startsWith(sys)}) != null) {
-                    def v2 = map2.get lookup
-                    if(v1 != null && v2 != null) {
-                        XYDataItem item = new XYDataItem(v1,v2)
-                        result.put id, item
-                        addSeries result
+        synchronized(realTimePlot) {
+            if(!realTimePlot.getType().equals(PlotType.GENERICXY)) {
+                //plot.resetSeries()
+                realTimePlot.setType(PlotType.GENERICXY)
+            }
+
+            def result = [:]
+            def lookup
+            realTimePlot.getSystems().eachWithIndex { sys, index ->
+                def id = sys+"."+name
+                if((lookup = map1.keySet().find{it.startsWith(sys)}) != null) {
+                    def v1 = map1.get lookup
+                    if((lookup = map2.keySet().find{it.startsWith(sys)}) != null) {
+                        def v2 = map2.get lookup
+                        if(v1 != null && v2 != null) {
+                            XYDataItem item = new XYDataItem(v1,v2)
+                            result.put id, item
+                            addSeries result
+                        }
                     }
                 }
             }
@@ -143,22 +145,25 @@ class PlotScript {
     }
 
     static def addTimeSeries(LinkedHashMap map,String serieName=null) {
-        if(!realTimePlot.getType().equals(PlotType.TIMESERIES)) {
-            //plot.resetSeries()
-            realTimePlot.setType(PlotType.TIMESERIES)
-        }
-        if(map.size()>0) {
-            map.each {
-                if(it.value != null) {
-                    TimeSeriesDataItem item = new TimeSeriesDataItem(new Millisecond(new Date(System.currentTimeMillis())),new Double(it.value))
-                    def name = serieName==null ? it.key : newName(it.key,serieName)
-                    TimeSeries t =  new TimeSeries(name)
-                    t.add(item)
-                    realTimePlot.addTimeSerie(name,t)
+        synchronized(realTimePlot) {
+            if(!realTimePlot.getType().equals(PlotType.TIMESERIES)) {
+                //plot.resetSeries()
+                realTimePlot.setType(PlotType.TIMESERIES)
+            }
+            if(map.size()>0) {
+                map.each {
+                    if(it.value != null) {
+                        TimeSeriesDataItem item = new TimeSeriesDataItem(new Millisecond(new Date(System.currentTimeMillis())),new Double(it.value))
+                        def name = serieName==null ? it.key : newName(it.key,serieName)
+                        TimeSeries t =  new TimeSeries(name)
+                        t.add(item)
+                        realTimePlot.addTimeSerie(name,t)
+                    }
                 }
             }
         }
     }
+    
     static def addSeries(LinkedHashMap map,String serieName=null) {
         if(map.size()>0) {
             map.each {
@@ -173,101 +178,109 @@ class PlotScript {
     }
 
     static def plotAbsoluteLatLong() {
-        realTimePlot.getSystems().each {
-            EstimatedState state = ImcMsgManager.getManager().getState(it).get("EstimatedState")
-            if(state != null) {
-                if(!realTimePlot.getType().equals(PlotType.GENERICXY)) {
-                    realTimePlot.setType(PlotType.GENERICXY)
+       synchronized(realTimePlot) {
+            realTimePlot.getSystems().each {
+                EstimatedState state = ImcMsgManager.getManager().getState(it).get("EstimatedState")
+                if(state != null) {
+                    if(!realTimePlot.getType().equals(PlotType.GENERICXY)) {
+                        realTimePlot.setType(PlotType.GENERICXY)
+                    }
+                    def resultmap = [:]
+                    LocationType loc =  new LocationType(Math.toDegrees(state.getDouble("lat")),Math.toDegrees(state.getDouble("lon"))) //lat long
+                    loc.translatePosition(state.getDouble("x"), state.getDouble("y"), state.getDouble("z"))
+                    loc.convertToAbsoluteLatLonDepth()
+                    def id = it+".position"
+                    XYDataItem item = new XYDataItem(loc.getLatitudeDegs(),loc.getLongitudeDegs())
+                    resultmap.put id, item
+                    addSeries(resultmap)
                 }
-                def resultmap = [:]
-                LocationType loc =  new LocationType(Math.toDegrees(state.getDouble("lat")),Math.toDegrees(state.getDouble("lon"))) //lat long
-                loc.translatePosition(state.getDouble("x"), state.getDouble("y"), state.getDouble("z"))
-                loc.convertToAbsoluteLatLonDepth()
-                def id = it+".position"
-                XYDataItem item = new XYDataItem(loc.getLatitudeDegs(),loc.getLongitudeDegs())
-                resultmap.put id, item
-                addSeries(resultmap)
             }
         }
     }
     
     static def plotNED() {
-        realTimePlot.getSystems().each {
-            EstimatedState state = ImcMsgManager.getManager().getState(it).get("EstimatedState")
-            if(state != null) {
-                if(!realTimePlot.getType().equals(PlotType.GENERICXY)) {
-                    realTimePlot.setType(PlotType.GENERICXY)
+        synchronized(realTimePlot) {
+            realTimePlot.getSystems().each {
+                EstimatedState state = ImcMsgManager.getManager().getState(it).get("EstimatedState")
+                if(state != null) {
+                    if(!realTimePlot.getType().equals(PlotType.GENERICXY)) {
+                        realTimePlot.setType(PlotType.GENERICXY)
+                    }
+                    def resultmap = [:]
+                    def id = it+".NED"
+                    XYDataItem item = new XYDataItem(state.getDouble("x"),state.getDouble("y"))
+                    resultmap.put id, item
+                    addSeries(resultmap)
                 }
-                def resultmap = [:]
-                def id = it+".NED"
-                XYDataItem item = new XYDataItem(state.getDouble("x"),state.getDouble("y"))
-                resultmap.put id, item
-                addSeries(resultmap)
             }
         }
     }
     
     
     static def plotNEDFrom(double lat,double lon,double h) {
-        realTimePlot.getSystems().each {
-            EstimatedState state = ImcMsgManager.getManager().getState(it).get("EstimatedState")
-            if(state != null) {
-                if(!realTimePlot.getType().equals(PlotType.GENERICXY)) {
-                    realTimePlot.setType(PlotType.GENERICXY)
+        synchronized(realTimePlot) {
+            realTimePlot.getSystems().each {
+                EstimatedState state = ImcMsgManager.getManager().getState(it).get("EstimatedState")
+                if(state != null) {
+                    if(!realTimePlot.getType().equals(PlotType.GENERICXY)) {
+                        realTimePlot.setType(PlotType.GENERICXY)
+                    }
+                    LocationType ref = new LocationType(lat,lon)
+                    ref.setHeight(h)
+                    def resultmap = [:]
+                    LocationType loc =  new LocationType(Math.toDegrees(state.getDouble("lat")),Math.toDegrees(state.getDouble("lon"))) //lat long
+                    loc.translatePosition(state.getDouble("x"), state.getDouble("y"), state.getDouble("z"))
+                    def id = it+".relativeNED"
+                    double[] offsets = loc.getOffsetFrom(ref)
+                    XYDataItem item = new XYDataItem(offsets[0],offsets[1])
+                    resultmap.put id, item
+                    addSeries(resultmap)
                 }
-                LocationType ref = new LocationType(lat,lon)
-                ref.setHeight(h)
-                def resultmap = [:]
-                LocationType loc =  new LocationType(Math.toDegrees(state.getDouble("lat")),Math.toDegrees(state.getDouble("lon"))) //lat long
-                loc.translatePosition(state.getDouble("x"), state.getDouble("y"), state.getDouble("z"))
-                def id = it+".relativeNED"
-                double[] offsets = loc.getOffsetFrom(ref)
-                XYDataItem item = new XYDataItem(offsets[0],offsets[1])
-                resultmap.put id, item
-                addSeries(resultmap)
             }
         }
     }
-    
+
     static def plotNEDFrom(LinkedHashMap lat0, LinkedHashMap long0, LinkedHashMap h0,LinkedHashMap lat,LinkedHashMap lon,LinkedHashMap h,LinkedHashMap x,LinkedHashMap y,LinkedHashMap z) {
-        if(!realTimePlot.getType().equals(PlotType.GENERICXY)) {
-            //plot.resetSeries()
-            realTimePlot.setType(PlotType.GENERICXY)
-        }
-        def name = "NED"
-        def result = [:]
-        def lookup1,lookup2,lookup3,lookup4,lookup5,lookup6,lookup7,lookup8
-        lat0.keySet().each { key ->
-        	def sys = key.split(/(\.)/)[0]
-            def id = sys+"."+name
-            if((lookup1 = long0.keySet().find{it.startsWith(sys)}) != null && (lookup2 = h0.keySet().find{it.startsWith(sys)}) != null 
-            	&& (lookup3 = lat.keySet().find{it.startsWith(sys)}) != null && (lookup4 = lon.keySet().find{it.startsWith(sys)}) != null 
-            	&& (lookup5 = h.keySet().find{it.startsWith(sys)}) != null && (lookup6 = x.keySet().find{it.startsWith(sys)}) != null 
-            	&& (lookup7 = y.keySet().find{it.startsWith(sys)}) != null && (lookup8 = z.keySet().find{it.startsWith(sys)}) != null ) {
-                double fromLat  = lat0.get key
-	            double fromLong = long0.get lookup1
-	            double fromH    = h0.get lookup2
-	            double toLat  = lat.get lookup3
-	            double toLong = lon.get lookup4
-	            double toH    = h.get lookup5
-	            double xx = x.get lookup6
-	            double yy = y.get lookup7
-	            double zz = z.get lookup8
-            	if(fromLat!=null && fromLong!=null && fromH !=null && toLat!=null && toLong!=null && toH!=null && xx!=null && yy!=null && zz!=null) {
-	                LocationType loc0 =  new LocationType(fromLat,fromLong) 
-	                loc0.setHeight(fromH)
-	                LocationType loc1 =  new LocationType(toLat,toLong) 
-	                loc1.setHeight(toH)
-	                loc1.translatePosition(xx, yy, zz)
-	                double[] offsets = loc0.getOffsetFrom(loc1)
-	                XYDataItem item = new XYDataItem(offsets[0],offsets[1])
-	                result.put id, item
-                }
+        synchronized(realTimePlot) {
+            if(!realTimePlot.getType().equals(PlotType.GENERICXY)) {
+                //plot.resetSeries()
+                realTimePlot.setType(PlotType.GENERICXY)
             }
-            addSeries result
+            def name = "NED"
+            def result = [:]
+            def lookup1,lookup2,lookup3,lookup4,lookup5,lookup6,lookup7,lookup8
+            lat0.keySet().each { key ->
+                def sys = key.split(/(\.)/)[0]
+                def id = sys+"."+name
+                if((lookup1 = long0.keySet().find{it.startsWith(sys)}) != null && (lookup2 = h0.keySet().find{it.startsWith(sys)}) != null
+                && (lookup3 = lat.keySet().find{it.startsWith(sys)}) != null && (lookup4 = lon.keySet().find{it.startsWith(sys)}) != null
+                && (lookup5 = h.keySet().find{it.startsWith(sys)}) != null && (lookup6 = x.keySet().find{it.startsWith(sys)}) != null
+                && (lookup7 = y.keySet().find{it.startsWith(sys)}) != null && (lookup8 = z.keySet().find{it.startsWith(sys)}) != null ) {
+                    double fromLat  = lat0.get key
+                    double fromLong = long0.get lookup1
+                    double fromH    = h0.get lookup2
+                    double toLat  = lat.get lookup3
+                    double toLong = lon.get lookup4
+                    double toH    = h.get lookup5
+                    double xx = x.get lookup6
+                    double yy = y.get lookup7
+                    double zz = z.get lookup8
+                    if(fromLat!=null && fromLong!=null && fromH !=null && toLat!=null && toLong!=null && toH!=null && xx!=null && yy!=null && zz!=null) {
+                        LocationType loc0 =  new LocationType(fromLat,fromLong)
+                        loc0.setHeight(fromH)
+                        LocationType loc1 =  new LocationType(toLat,toLong)
+                        loc1.setHeight(toH)
+                        loc1.translatePosition(xx, yy, zz)
+                        double[] offsets = loc0.getOffsetFrom(loc1)
+                        XYDataItem item = new XYDataItem(offsets[0],offsets[1])
+                        result.put id, item
+                    }
+                }
+                addSeries result
+            }
         }
     }
-    
+
     static def plotNEDFrom(LinkedHashMap lat, LinkedHashMap lon, LinkedHashMap h) { //TODO xyz offset from this coordinates?
         def closure = {arg -> Math.toDegrees(arg)}
         def la = apply ( value ("EstimatedState.lat"), closure)
