@@ -1,0 +1,11 @@
+title "Bathymetry"
+
+plot "Altitude": "EstimatedState.alt", "Depth":"EstimatedState.depth"
+
+bathy = apply ("Bathymetry", "Depth", "Altitude",sum)
+plot bathy
+
+deepestP = getTimeSeriesMaxTime "Bathymetry"
+plotDomainMarker "Deepest Point", deepestP
+
+
