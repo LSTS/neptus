@@ -32,197 +32,362 @@
  */
 package pt.lsts.neptus.mra.plots;
 
+import java.awt.Color;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TimeZone;
+import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.Script;
-import org.mozilla.javascript.ScriptableObject;
-import org.mozilla.javascript.tools.shell.Global;
+import org.codehaus.groovy.control.CompilerConfiguration;
+import org.codehaus.groovy.control.customizers.ImportCustomizer;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.ValueMarker;
+import org.jfree.chart.renderer.xy.XYItemRenderer;
+import org.jfree.chart.ui.RectangleAnchor;
+import org.jfree.chart.ui.TextAnchor;
+import org.jfree.data.time.Millisecond;
+import org.jfree.data.time.TimeSeries;
+import org.jfree.data.time.TimeSeriesCollection;
+import org.jfree.data.time.TimeSeriesDataItem;
 
+import groovy.lang.GroovyShell;
 import pt.lsts.imc.lsf.LsfIndex;
-import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.MRAPanel;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 
 /**
- * @author zp
+ * Changes to use Groovy on Feb 2019
+ * 
+ * @author keila
  * 
  */
 public class ScriptedPlot extends MRATimeSeriesPlot {
 
     protected LinkedHashMap<String, String> traces = new LinkedHashMap<>();
-    protected LinkedHashMap<String, String> hiddenTraces = new LinkedHashMap<>();
-    protected LinkedHashMap<String, Script> scripts = new LinkedHashMap<>();
-
-    protected String init = null, end = null;
-    protected Script initScript = null, endScript = null;
-
-    protected ScriptableIndex scIndex = null;
-    protected Context context;
-    protected Global global;
+    protected TimeSeriesCollection customTsc = new TimeSeriesCollection();
+    protected Vector<String> hiddenFiles = new Vector<>();
+    protected Map<ValueMarker,LogMarker> rangeMarks = new HashMap<>();
+    protected LinkedHashMap<String, TimeSeries> hiddenSeries = new LinkedHashMap<>();
     protected LsfIndex index;
-    protected String title = getClass().getName();
-    protected ScriptEnvironment env = new ScriptEnvironment();
+    protected ScriptableIndex scIndex = null;
 
+    private GroovyShell shell;
+    private final String scriptPath;
+    private MRAPanel mra;
+    private String title = null;
+    private boolean processed = false;
+
+    public boolean isProcessed() {
+        return processed;
+    }
 
     @Override
     public String getName() {
-        return I18n.text(title);
+        if (title == null)
+            return I18n.text(Arrays.toString(traces.keySet().toArray()));
+        else
+            return I18n.text(title);
     }
 
     @Override
     public String getTitle() {
-        return I18n.textf("%plotname plot", title);
+
+        if (title == null)
+            return I18n.text(Arrays.toString(traces.keySet().toArray())+" plot");
+        else
+            return I18n.text(title+" plot");
     }
-    public ScriptedPlot(MRAPanel panel, String scriptFile) {
+
+    public ScriptedPlot(MRAPanel panel, String path) {
         super(panel);
+        scriptPath = path;
+        index = panel.getSource().getLsfIndex();
 
+        // init shell
+        CompilerConfiguration cnfg = new CompilerConfiguration();
+        ImportCustomizer imports = new ImportCustomizer();
+        imports.addStarImports("pt.lsts.imc", "java.lang.Math", "pt.lsts.neptus.mra.plots");
+        imports.addStaticStars("pt.lsts.neptus.plugins.mraplots.ScriptedPlotGroovy");
+        cnfg.addCompilationCustomizers(imports);
+        shell = new GroovyShell(this.getClass().getClassLoader(), cnfg);
+        runScript(scriptPath);
+    }
+
+    /**
+     * Runs the Groovy script after verifying its validity by parsing it.
+     * 
+     * @param script Text script
+     */
+    public void runScript(String path) {
+        StringBuilder sb = new StringBuilder();
         try {
-            BufferedReader reader = new BufferedReader(new FileReader(scriptFile));
-            title = reader.readLine();
-            String line;
-            while((line = reader.readLine()) != null) {
-                if (line.trim().isEmpty() || line.trim().startsWith("#"))
-                    continue;
-
-                while (line.endsWith("\\")) {
-                    line = line.substring(0, line.length()-1) + reader.readLine();
-                }
-
-                String parts[] = line.trim().split(":");
-
-                String script = parts[1];
-
-                script = script.replaceAll("\\$\\{([^\\}]*)\\}", "log.val(\"$1\")");
-                script = script.replaceAll("mark\\(([^\\)]+)\\)", "log.mark($1)");
-                script = script.replaceAll("\\$time", "log.time()");
-                script = script.replaceAll("\\$(\\w+)", "env[\"$1\"]");
-
-                if (parts[0].isEmpty())
-                    hiddenTraces.put(parts[1], script);
-                else if (parts[0].equals("init"))
-                    init = script;
-                else if (parts[0].equals("end"))
-                    end = script;
-                else
-                    traces.put(parts[0], script);                
+            BufferedReader reader = new BufferedReader(new FileReader(path));
+            int c;
+            while ((c = reader.read()) != -1) {
+                sb.append((char) c);
             }
-
+            shell.setVariable("plot_", ScriptedPlot.this);
+            String defplot = "configPlot plot_";
+            shell.evaluate(defplot);
+            String script = sb.toString();
+            shell.parse(script);
+            shell.evaluate(script);
             reader.close();
+            shell.getContext().getVariables().clear();
         }
         catch (Exception e) {
-            GuiUtils.errorMessage(panel, e);
-        }       
-    }
-
-    protected void init() {
-
-        context = Context.enter();
-        context.initStandardObjects();
-        global = new Global(context);
-        Object o = Context.javaToJS(scIndex, global);
-        ScriptableObject.putProperty(global, "log", o);
-        ScriptableObject.putProperty(global, "env", env);
-        ScriptableObject.putProperty(global, "mraPanel", mraPanel);
-
-        if (init != null) {
-            try {
-                initScript = context.compileString(init, "init", 1, null);
-            }
-            catch (Exception e) {
-                GuiUtils.errorMessage(mraPanel, "Init script Error", e.getMessage());
-                e.printStackTrace();
-            }
-            NeptusLog.pub().debug("init");
-        }
-
-        if (end != null) {
-            try {
-                endScript = context.compileString(end, "end", 1, null);
-            }
-            catch (Exception e) {
-                GuiUtils.errorMessage(mraPanel, "End script Error", e.getMessage());
-                e.printStackTrace();
-            }
-            NeptusLog.pub().debug("ended.");
-        }
-
-        for (Entry<String, String> t : traces.entrySet()) {
-            String script = t.getValue();
-            try {
-                context.evaluateString(global, script, t.getKey(), 1, null);
-                scripts.put(t.getKey(), context.compileString(script, t.getKey(), 1, null));
-            }
-            catch (Exception e) {
-                GuiUtils.errorMessage(mraPanel, "Plot script Error", e.getMessage());
-                e.printStackTrace();
-            }
-        }
-
-        for (Entry<String, String> t : hiddenTraces.entrySet()) {
-            String trace = t.getValue();
-            try {
-                context.evaluateString(global, trace, t.getKey(), 1, null);
-                scripts.put(t.getKey(), context.compileString(trace, t.getKey(), 1, null));
-            }
-            catch (Exception e) {
-                GuiUtils.errorMessage(mraPanel, "Script Error", e.getMessage());
-                e.printStackTrace();
-            }
+            String fileNAme = FileUtil.getFileNameWithoutExtension(new File(scriptPath));
+            String scriptRef = title==null ? fileNAme : getName();
+            GuiUtils.errorMessage(mra, "Error Parsing Script "+scriptRef, e.getClass().getName()+" "+e.getLocalizedMessage());
+            e.printStackTrace();
         }
     }
-
+    
     @Override
     public boolean canBeApplied(LsfIndex index) {
-        this.index = index;
+        for(String s: traces.values()) {
+            String messageType = s.split("\\.")[0];
+            if(!index.containsMessagesOfType(messageType))
+                return false;
+        }
         return true;
+    }
+
+    /**
+     * Adds a new time series to the existing plot. If the series already exists, it updates it.
+     * 
+     * @param ts the TimeSeries to be added
+     */
+    public void addTimeSeries(TimeSeries ts) {
+        String trace = ts.getKey().toString();
+        String id    = getSeriesId(ts);
+        if (!forbiddenSeries.contains(trace)) {
+            if (!series.containsKey(trace)) {
+                addTrace(trace);
+            }
+            for (int i = 0; i < ts.getItemCount(); i++) {
+                TimeSeriesDataItem value = ts.getDataItem(i);
+                series.get(trace).addOrUpdate(value);
+            }
+        }
+        customTsc.addSeries(ts);
+    }
+
+    public void addTimeSeries(String id, String query) {
+        if(!processed)
+            traces.put(id, query);
+    }
+
+    public TimeSeriesCollection getTimeSeriesFor(String id) {
+        TimeSeriesCollection tsc = new TimeSeriesCollection();
+        if(!processed)
+            return tsc;
+
+        if(hiddenFiles.contains(id)) { 
+            for(TimeSeries s: hiddenSeries.values()) {
+                String variable = getSeriesId(s);
+                if(variable.equals(id)) {
+                    tsc.addSeries(s);
+                }
+            }
+        }
+        else {
+
+            for(TimeSeries s: series.values()) {
+                String fields[] = s.getKey().toString().split("\\.");
+                String variable = s.getKey().toString().substring(fields[0].length()+1);
+                if(variable.equals(id)) {
+                    tsc.addSeries(s);
+                }
+            }
+        }
+        return tsc;
+    }
+
+    /**
+     * @param s
+     * @return
+     */
+    private String getSeriesId(TimeSeries s) {
+        String fields[] = s.getKey().toString().split("\\.");
+        String variable = s.getKey().toString().substring(fields[0].length()+1);
+        return variable;
+    }
+
+    public void addQuery(String id,String query) {
+        traces.put(id,query); //Get data from LSFIndex
+        if(!hiddenFiles.contains(id))
+            hiddenFiles.addElement(id); //Don't add it to plot
+    }
+
+    public void title(String t) {
+        if(!processed)
+            title = t;
     }
 
     @Override
     public void process(LsfIndex source) {
+        series.clear();
+
         this.scIndex = new ScriptableIndex(source, 0);
-        this.env = new ScriptEnvironment();
         this.index = source;
-        init();
-
-        if (initScript != null)
-            initScript.exec(context, global);        
-
-        double step = Math.max(timestep, 0.05);
+        double step = Math.max(timestep, 0.01);
         for (int i = index.advanceToTime(0, step); i != -1; 
                 i = index.advanceToTime(i, index.timeOf(i) + step)) {
 
             scIndex.lsfPos = i;
-            for (String trace : scripts.keySet()) {
-                if (traces.containsKey(trace)) {
-                    Object ret = scripts.get(trace).exec(context, global);
-                    if (ret != null && ret instanceof Number) {
-                        double val = ((Number)ret).doubleValue();
-                        addValue((long)(index.timeOf(i)*1000), trace, val);
+            for (Entry<String, String> entry : traces.entrySet()) {
+                String src = index.getMessage(i).getSourceName();
+                String seriesName = src + "." + entry.getKey();
+                double value = scIndex.val(entry.getValue(),src);
+                if (value != Double.NaN && src != null) {
+                    if(forbiddenSeries.contains(seriesName) && !hiddenFiles.contains(entry.getKey())) {
+                        hiddenFiles.add(entry.getKey());
+                    }
+                    if(!hiddenFiles.contains(entry.getKey())){
+                        addValue((long)(index.timeOf(i)*1000), seriesName, value);
+                    }
+                    else {
+                        addHiddenValue((long)(index.timeOf(i)*1000), seriesName, value);
                     }
                 }
-                else {
-                    scripts.get(trace).exec(context, global);
-                }
-            }            
+            }
         }
 
-        if (endScript != null)
-            endScript.exec(context, global);
-
+        processed = true;
+        runScript(scriptPath);
+        // No need to iterate over timestep because previous data is already in the scale
+        for (TimeSeries t : (List<TimeSeries>) customTsc.getSeries()) {
+            for (int i = 0; i < t.getItemCount(); i++) {
+                TimeSeriesDataItem item = t.getDataItem(i);
+                if (item.getValue().doubleValue() != Double.NaN) {
+                    if (!forbiddenSeries.contains(t.getKey().toString())) {
+                        addValue(item.getPeriod().getFirstMillisecond(), t.getKey().toString(),
+                                item.getValue().doubleValue());
+                    }
+                    else {
+                        addHiddenValue(item.getPeriod().getFirstMillisecond(), t.getKey().toString(),
+                                item.getValue().doubleValue());
+                    }
+                }
+            }
+        }
+        hiddenFiles.clear(); //used to filter custom series
     }
 
+    private void addRangeMarker(ValueMarker marker) {
+        if(chart!=null) {
+            chart.getXYPlot().addRangeMarker(marker);
+            mraPanel.getLogTree().addMarker(rangeMarks.get(marker));
+        }
+    }
+    
+    public void addRangeMarker (String label,double value) {
+        if (processed) {
+            ValueMarker marker = new ValueMarker(value);
+            LogMarker lm = new LogMarker(label, value, 0, 0);
+            marker.setLabel(label);
+            marker.setPaint(Color.black);
+            marker.setLabelAnchor(RectangleAnchor.BOTTOM_RIGHT);
+            marker.setLabelTextAnchor(TextAnchor.TOP_RIGHT);
+            rangeMarks.put(marker,lm);
+        }
+    }
+    
+    @Override
+    public void removeLogMarker(LogMarker e) {
+        for (Entry<ValueMarker, LogMarker> entry : rangeMarks.entrySet()) {
+            ValueMarker m = entry.getKey();
+            if (m.getLabel().equals(e.getLabel()) && e.equals(entry.getValue())) {
+                mraPanel.getLogTree().removeMarker(entry.getValue());
+                rangeMarks.remove(m);
+                if (chart != null)
+                    chart.getXYPlot().removeRangeMarker(m);
+                break;
+            }
+        }
+        super.removeLogMarker(e);
+    }
+    
+    @Override
+    public JFreeChart getChart(IMraLogGroup source, double timestep) {
+        this.timestep = timestep;
+        this.index = source.getLsfIndex();
+        tsc = new TimeSeriesCollection();
+        customTsc = new TimeSeriesCollection();
+        series.clear();
+        hiddenSeries.clear();
+        clearRangeMarkers();
+        processed = false;
+        runScript(scriptPath);
+        process(index);
+        chart = createChart();
+        XYItemRenderer r = chart.getXYPlot().getRenderer();
+        if (r != null) {
+            for (int i = 0; i < tsc.getSeriesCount(); i++) {
+                r.setSeriesPaint(i, seriesColors[i % seriesColors.length]);
+            }
+        }
+        for (LogMarker marker : mraPanel.getMarkers()) {
+                addLogMarker(marker);
+        }
+        for(Entry<ValueMarker,LogMarker> e: rangeMarks.entrySet()) {
+            ValueMarker m = e.getKey();
+            addRangeMarker(m);
+        }
+        return chart;
+    }
+
+    /**
+     * Remove markers from logTree to avoid duplicates
+     */
+    private void clearRangeMarkers() {
+        for (Entry<ValueMarker, LogMarker> entry : rangeMarks.entrySet()) {
+            ValueMarker m = entry.getKey();
+                mraPanel.getLogTree().removeMarker(entry.getValue());
+                if (chart != null)
+                    chart.getXYPlot().removeRangeMarker(m);
+        }
+        rangeMarks.clear();
+    }
+    
+    /**
+     * @param l
+     * @param seriesName
+     * @param value
+     */
+    private void addHiddenValue(long timeMillis, String seriesName, double value) {
+        if (!hiddenSeries.containsKey(seriesName)) {
+            hiddenSeries.put(seriesName, new TimeSeries(seriesName));
+
+        }
+        hiddenSeries.get(seriesName).addOrUpdate(new Millisecond(new Date(timeMillis), TimeZone.getTimeZone("UTC"), Locale.getDefault()), value);
+    }
+
+    public void mark(double time, String label) {
+        if(processed)
+            mraPanel.addMarker(new LogMarker(label, time, 0, 0));
+    }
     /**
      * This internal class allows plot scripts to access the current log time and message fields in the log
      * 
      * @author zp
+     * @author keila - regex changes and filter source
      */
     public class ScriptableIndex {
 
@@ -250,25 +415,16 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
         }
 
         /**
-         * This method returns the current log time
-         * 
-         * @return current log time
-         */
-        public double time() {
-            return lsfIndex.timeOf(lsfPos);
-        }
-
-        /**
          * This method evaluates a field expression (like "EstimatedState[Navigation].x") and returns its current value
          * in the log
          * 
-         * @param expression The expression to be valuated
+         * @param expression The expression to be evaluated
          * @return The value (double) or Double.NaN if the expression is invalid or the log does not contain the
          *         required fields at current time
          */
-        public double val(String expression) {
+        public double val(String expression, String source) {
 
-            Pattern p = Pattern.compile("(\\w+)(\\[(\\w+)\\])?\\.(\\w+)");
+            Pattern p = Pattern.compile("(\\w+)(\\.(\\w+(\\s\\w+)*))?\\.(\\w+)");
             Matcher m = p.matcher(expression);
 
             if (!m.matches()) {
@@ -276,9 +432,10 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
             }
             String message, entity, field;
             message = m.group(1);
+
             if (m.groupCount() > 2) {
                 entity = m.group(3);
-                field = m.group(4);
+                field = m.group(m.groupCount());
             }
             else {
                 entity = null;
@@ -289,18 +446,23 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
 
             if (entity == null) {
                 int msgIdx = index.getPreviousMessageOfType(msgType, lsfPos);
-                if (msgIdx == -1)
-                    return Double.NaN;
-                else
-                    return index.getMessage(msgIdx).getDouble(field);
+                while (msgIdx >= prevPos) {
+                    if (msgIdx == -1)
+                        return Double.NaN;
+                    else if (index.getMessage(msgIdx).getSourceName().equals(source))
+                            return index.getMessage(msgIdx).getDouble(field);
+                    else {
+                        msgIdx = index.getPreviousMessageOfType(msgType, msgIdx);
+                    }
+                }
             }
             else {
                 int msgIdx = index.getPreviousMessageOfType(msgType, lsfPos);
                 while (msgIdx >= prevPos) {
-
-                    if (msgIdx == -1)
+                    String src = index.getMessage(msgIdx).getSourceName(); 
+                    if (msgIdx == -1 || src == null)
                         return Double.NaN;
-                    else if (index.entityNameOf(msgIdx).equals(entity)) {
+                    else if (index.entityNameOf(msgIdx).equals(entity) && src.equals(source)) {
                         prevPos = msgIdx;
                         return index.getMessage(msgIdx).getDouble(field);
                     }
