@@ -254,11 +254,6 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
     private boolean acomsOnCurves = false;
     private int acomsRepetitions = 3;
 
-    // KrakenMinsas vars
-//    private boolean sasNotOnCurves = true; // is not changed in parameters for now
-//    private String sasOnSettingName;
-//    private Vector<EntityParameter> sasOnSettingParams;
-    
     // More general way to disconnect on curve
     private ArrayList<String> logNotOnCurvesPayload = new ArrayList<>();
     private Map<String, Vector<EntityParameter>> logOnSettingParams = new HashMap<>();
@@ -415,9 +410,6 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
         turnRadius = DEFAULT_TURN_RADIUS;
         acomsOnCurves = false;
         acomsRepetitions = 3;
-//        sasNotOnCurves = true;
-//        sasOnSettingName = "";
-//        sasOnSettingParams = null;
         logNotOnCurvesPayload.clear();
         logOnSettingParams.clear();
     }
@@ -1051,27 +1043,6 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
         }
     }
 
-//    /**
-//     * @param sb
-//     * @param curveStartOrEnd If curve segment start (true), or end (false)
-//     */
-//    private void insertSASNotOnCurveIfEnabled(StringBuilder sb, boolean curveStartOrEnd) {
-//        if (!sasNotOnCurves)
-//            return;
-//        
-//        if (curveStartOrEnd)
-//            sb.append(getSasOffSetting());
-//        else
-//            sb.append(processPayload(sasOnSettingName, sasOnSettingParams));
-//    }
-//
-//    /**
-//     * @return
-//     */
-//    private String getSasOffSetting() {
-//        return getSetting('P', "KrakenMinsas", "ACTIVE:OFF;RECORDING:OFF;PROCESSING:ON");
-//    }
-
     /**
      * Comment on maneuver id and payload are created and added to sb provided.
      * 
@@ -1138,18 +1109,6 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                                 sb.append(getSetting('Q', "Acoms", "0"));
                             }
                             break;
-//                        case "KrakenMinsas":
-//                            sasNotOnCurves = true;
-//                            sasOnSettingName = sep.getName();
-//                            sasOnSettingParams = sep.getParams();
-//                            String sasOnSetting = processPayload(sasOnSettingName, sasOnSettingParams);
-//                            if (sasOnSetting.contains("KrakenMinsas ACTIVE:OFF"))
-//                                sasNotOnCurves = false;
-//                            if (sasNotOnCurves)
-//                                sb.append(getSasOffSetting());
-//                            else
-//                                sb.append(sasOnSetting);
-//                            break;
                         default:
                             EntityParameter activeParameter = sep.getParams().stream()
                                     .filter((p) -> ACTIVE_STRING.equalsIgnoreCase(p.getName())).findFirst()
