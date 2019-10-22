@@ -37,6 +37,8 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -54,6 +56,7 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.maneuvers.Goto;
 import pt.lsts.neptus.params.ManeuverPayloadConfig;
+import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.renderer2d.StateRendererInteraction;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.GuiUtils;
@@ -77,6 +80,7 @@ public class ManeuverPropertiesPanel extends JPanel {
     protected UndoManager manager = new UndoManager();
     protected PlanType plan;
     protected ManeuverPayloadConfig payloadConfig = null;
+    protected List<Property> combinedProps = new ArrayList<>();  
     
     public ManeuverPropertiesPanel() {
         setLayout(new BorderLayout());     
@@ -95,6 +99,20 @@ public class ManeuverPropertiesPanel extends JPanel {
         propsPanel.addPropertySheetChangeListener(new PropertyChangeListener() {            
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
+                Property prop = combinedProps.stream()
+                        .filter((p) -> p.getName().equalsIgnoreCase(((Property) evt.getSource()).getName())).findFirst()
+                        .orElse(null);
+                if (prop != null) {
+                    String[] res = PluginUtils.validatePluginProperties(maneuver, new Property[] {prop});
+                    if (res != null && res.length > 0) {
+                        propsPanel.removePropertySheetChangeListener(this);
+                        prop.setValue(evt.getOldValue());
+                        propsPanel.addPropertySheetChangeListener(this);
+                        propsPanel.repaint();
+                        return;
+                    }
+                }
+
                 setProps();
             }
         });
@@ -179,16 +197,15 @@ public class ManeuverPropertiesPanel extends JPanel {
         
         DefaultProperty[] payloadProps = new ManeuverPayloadConfig(vehicle, man, propsPanel).getProperties();
         
-        Property[] combinedProps = new Property[manProps.length + payloadProps.length];
-        int i;
-        for (i = 0; i < manProps.length; i++)
-            combinedProps[i] = manProps[i];
-        for (int j = 0; j < payloadProps.length; j++)
-            combinedProps[j+i] = payloadProps[j];
+        combinedProps.clear();
+        for (DefaultProperty p : manProps)
+            combinedProps.add(p);
+        for (DefaultProperty p : payloadProps)
+            combinedProps.add(p);
         
         // To avoid ConcurrentModificationException on the PropertySheetTableModel
         synchronized (propsPanel) {
-            propsPanel.setProperties(combinedProps);
+            propsPanel.setProperties(combinedProps.stream().toArray(Property[]::new));
         }
         
         setBorder(new TitledBorder(man.getId()));
