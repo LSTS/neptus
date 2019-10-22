@@ -105,7 +105,9 @@ public class ManeuverPropertiesPanel extends JPanel {
                 if (prop != null) {
                     String[] res = PluginUtils.validatePluginProperties(maneuver, new Property[] {prop});
                     if (res != null && res.length > 0) {
+                        propsPanel.removePropertySheetChangeListener(this);
                         prop.setValue(evt.getOldValue());
+                        propsPanel.addPropertySheetChangeListener(this);
                         propsPanel.repaint();
                         return;
                     }
