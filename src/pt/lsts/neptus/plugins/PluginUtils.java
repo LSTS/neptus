@@ -610,6 +610,10 @@ public class PluginUtils {
                 }
                 try {
                     propertyValue = property.getValue();
+                    
+                    String[] res = PluginUtils.validatePluginProperties(obj, new Property[] {property});
+                    if (res != null && res.length > 0)
+                        continue; // not valid value so don't set
                 }
                 catch (Exception e1) {
                     // TODO Auto-generated catch block
