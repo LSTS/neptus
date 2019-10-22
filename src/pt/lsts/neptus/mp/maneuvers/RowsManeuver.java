@@ -159,15 +159,16 @@ IMCSerialization, StatisticsProvider, PathProvider {
             bearingRad = Math.toRadians(Double.parseDouble(doc.selectSingleNode("//bearing").getText()));
 
             // area
-            width = Double.parseDouble(doc.selectSingleNode("//width").getText());
+            width = Math.abs(Double.parseDouble(doc.selectSingleNode("//width").getText()));
             node = doc.selectSingleNode("//length");
             if (node != null)
-                length = Double.parseDouble(node.getText());
+                length = Math.abs(Double.parseDouble(node.getText()));
             else
                 length = width;
 
             //steps
-            hstep = Double.parseDouble(doc.selectSingleNode("//hstep").getText());
+            hstep = Math.abs(Double.parseDouble(doc.selectSingleNode("//hstep").getText()));
+            hstep = hstep <= 0 ? 1 : hstep;
 
             node = doc.selectSingleNode("//crossAngle");
             if (node != null)
@@ -205,6 +206,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
             if (node != null) {
                 try {
                     ssRangeShadow = Short.parseShort(node.getText());
+                    ssRangeShadow = ssRangeShadow < 0 ? 0 : ssRangeShadow;
                 }
                 catch (Exception e) {
                     e.printStackTrace();
@@ -756,11 +758,13 @@ IMCSerialization, StatisticsProvider, PathProvider {
 
             if (p.getName().equals("Width")) {
                 width = (Double)p.getValue();
+                width = width < 0 ? 1 : width;
                 continue;
             }
 
             if (p.getName().equals("Length")) {
                 length = (Double)p.getValue();
+                length = length < 0 ? 1 : length;
                 continue;
             }
 
@@ -791,6 +795,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
 
             if (p.getName().equals("Horizontal Step")) {
                 hstep = (Double)p.getValue();
+                hstep = hstep <= 0 ? 1 : hstep;
                 continue;
             }
 
@@ -815,6 +820,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
             }
             if (p.getName().equalsIgnoreCase("Shadow Size")) {
                 ssRangeShadow = (Short)p.getValue();
+                ssRangeShadow = ssRangeShadow < 0 ? 0 : ssRangeShadow;
                 continue;
             }
             
@@ -884,6 +890,34 @@ IMCSerialization, StatisticsProvider, PathProvider {
         props.add(ssRangeShadowtP);
 
         return props;
+    }
+    
+    // Validate for additional parameters
+    public String validateLength(double value) {
+        if (value <= 0)
+            return "Keep it above 0";
+        return null;
+    }
+
+    // Validate for additional parameters
+    public String validateWidth(double value) {
+        if (value <= 0)
+            return "Keep it above 0";
+        return null;
+    }
+
+    // Validate for additional parameters
+    public String validateHorizontalStep(double value) {
+        if (value <= 0)
+            return "Keep it above 0";
+        return null;
+    }
+    
+    // Validate for additional parameters
+    public String validateShadowSize(short value) {
+        if (value < 0)
+            return "Keep it 0 or above";
+        return null;
     }
 
     public double getSpeed() {
