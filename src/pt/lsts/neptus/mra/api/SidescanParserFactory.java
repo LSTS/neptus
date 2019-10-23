@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -36,6 +36,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.mra.importers.i872.Imagenex872SidescanParser;
 import pt.lsts.neptus.mra.importers.jsf.JsfSidescanParser;
 import pt.lsts.neptus.mra.importers.sdf.SdfSidescanParser;
 import pt.lsts.neptus.util.llf.LogUtils;
@@ -47,8 +48,9 @@ import pt.lsts.neptus.util.llf.LogUtils;
 public class SidescanParserFactory {
 
     private static final String JSF_FILE = "Data.jsf";
+    private static final String I872_FILE = "Data.872";
 
-    private static String[] validSidescanFiles = {JSF_FILE};
+    private static String[] validSidescanFiles = {JSF_FILE, I872_FILE};
 
     static File dir;
     static File file;
@@ -101,15 +103,18 @@ public class SidescanParserFactory {
             file = new File(dir.getAbsolutePath()+"/"+JSF_FILE);
             if(file.exists()) {
                 return new JsfSidescanParser(file);
-            } 
-            else {
-                    FilenameFilter sdfFilter = SDFFilter();
-                    File[] files = source.getDir().listFiles(sdfFilter);
-                    if (files.length == 1)
-                        return new SdfSidescanParser(files[0]);
-                    else if (files.length > 1)
-                        return new SdfSidescanParser(files);
             }
+            file = new File(dir.getAbsolutePath()+"/"+I872_FILE);
+            if(file.exists()) {
+                return new Imagenex872SidescanParser(file);
+            }
+            FilenameFilter sdfFilter = SDFFilter();
+            File[] files = source.getDir().listFiles(sdfFilter);
+            if (files.length == 1)
+                return new SdfSidescanParser(files[0]);
+            else if (files.length > 1)
+                return new SdfSidescanParser(files);
+            
 
             // Next cases should be file = new File(...) and check for existence
             // TODO

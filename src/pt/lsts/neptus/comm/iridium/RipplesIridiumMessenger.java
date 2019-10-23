@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -36,11 +36,11 @@ package pt.lsts.neptus.comm.iridium;
  * @author zp
  *
  */
-@IridiumProvider(id="heroku", name="Heroku Messenger", description="Sends Iridium messages directly via heroku ripples app.")
+@IridiumProvider(id="ripples", name="Ripples Messenger", description="Sends Iridium messages directly to ripples app.")
 public class RipplesIridiumMessenger extends HubIridiumMessenger {
 
     public RipplesIridiumMessenger() {
-        serverUrl = "http://ripples-spring.herokuapp.com/api/v1/";        
+        serverUrl = "http://falkor.lsts.pt:9090/api/v1/";        
     }
     
 }

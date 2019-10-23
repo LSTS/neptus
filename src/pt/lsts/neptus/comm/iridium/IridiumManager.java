@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -81,7 +81,7 @@ public class IridiumManager {
         RockBlockIridiumMessenger,
         HubIridiumMessenger,
         SimulatedMessenger,
-        HerokuMessenger
+        RipplesMessenger
     }
     
     private IridiumManager() {
@@ -100,7 +100,7 @@ public class IridiumManager {
                 return hubMessenger;
             case RockBlockIridiumMessenger:
                 return rockBlockMessenger;
-            case HerokuMessenger:
+            case RipplesMessenger:
                 return ripplesMessenger;
             default:
                 return simMessenger;
@@ -121,7 +121,6 @@ public class IridiumManager {
                 lastTime = now;
             }
             catch (Exception e) {
-                e.printStackTrace();
                 NeptusLog.pub().error(e);
                 
             }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -182,6 +182,23 @@ public class AisContactDb implements AISObserver {
         }
     }
 
+    public void processGLL(String sentence) {
+        LocationType myLoc = NMEAUtils.processGLLSentence(sentence);
+        Date dateTime = NMEAUtils.processGLLTimeFromSentence(sentence);
+        ExternalSystem extSys = ExternalSystemsHolder.lookupSystem("Ship");
+        if (extSys == null) {
+            ExternalSystem es = new ExternalSystem("Ship");
+            extSys = ExternalSystemsHolder.registerSystem(es);
+        }
+        LocationType oldLoc = extSys.getLocation();
+        extSys.setLocation(myLoc, dateTime == null ? System.currentTimeMillis() : dateTime.getTime());
+        if (oldLoc.compareTo(myLoc) != 0) {
+            NeptusLog.pub().debug((String.format(">>>>>>>>> Ship GLL >>>>>>> %s  :: %s :: %s :: %s", sentence, 
+                    CoordinateUtil.latitudeAsPrettyString(myLoc.getLatitudeDegs()), CoordinateUtil.longitudeAsPrettyString(myLoc.getLongitudeDegs()),
+                    DateTimeUtil.dateTimeFormatterISO8601.format(new Date(extSys.getLocationTimeMillis())))));
+        }
+    }
+
     public void processGPHDT(String sentence) {
         lastGPHDT = sentence;
         double myHeadingDegs = NMEAUtils.processGPHDTSentence(lastGPHDT);
@@ -280,8 +297,7 @@ public class AisContactDb implements AISObserver {
             updateSystem(mmsi, loc, heading,System.currentTimeMillis());
     }
     
-    public void processJson(String sentence) {
-        MTShip ship = gson.fromJson(sentence, MTShip.class);
+    public void setMTShip(MTShip ship) {
         int mmsi = (int) ship.SHIP_ID;
         String name = ship.SHIPNAME;
         if (ship.SHIPNAME.equals("[SAT-AIS]")) {
@@ -319,6 +335,11 @@ public class AisContactDb implements AISObserver {
         long time = System.currentTimeMillis()-(ship.ELAPSED*60_000);
         contact.setLastUpdate(time);
         updateSystem(mmsi,new LocationType(ship.LAT,ship.LON),ship.HEADING,time);
+    }
+    
+    public void processJson(String sentence) {
+        MTShip ship = gson.fromJson(sentence, MTShip.class);
+        setMTShip(ship);
     }
 
     public void updateSystem(int mmsi, LocationType loc, double heading,long millis) {

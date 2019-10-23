@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -208,23 +208,19 @@ public class ManeuversUtil {
         width = Math.abs(width);
         length = Math.abs(length);
         hstep = Math.abs(hstep);
+        hstep = hstep == 0 ? 0.1 : hstep;
         
         boolean direction = true;
         Vector<double[]> newPoints = new Vector<double[]>();
         double[] point = {-curvOff, 0, 0, -1};
         newPoints.add(point);
         
-//        double x1; 
         double x2;
         for (double y = 0; y <= width; y += hstep) {
-            if (direction) {
-//                x1 = -curvOff; 
+            if (direction)
                 x2 = length + curvOff;
-            }
-            else {
-//                x1 = length + curvOff;
+            else
                 x2 = -curvOff;
-            }
             direction = !direction;
 
             double hstepDelta = 0;
@@ -251,16 +247,14 @@ public class ManeuversUtil {
             pt[X] = res[0];
             pt[Y] = res[1];
         }
-        
-//        NeptusLog.pub().info("<###>Points");
-//        for (double[] pt : newPoints) {
-//            NeptusLog.pub().info("<###>[" + pt[X] + ", " + pt[Y] + "]");
-//        }
         return newPoints;
     }
 
     public static Vector<double[]> calcExpansiveSquarePatternPointsMaxBox(
             double width, double hstep, double bearingRad, boolean invertY) {
+        width = Math.abs(width);
+        hstep = Math.abs(hstep);
+        hstep = hstep == 0 ? 0.1 : hstep;
 
         Vector<double[]> newPoints = new Vector<double[]>();
         
@@ -345,6 +339,9 @@ public class ManeuversUtil {
      */
     public static void paintPointLineList(Graphics2D g2d, double zoom, List<double[]> points,
             boolean paintSSRange, double sRange, boolean editMode) {
+        zoom = zoom <= 0 ? 0.01 : zoom;
+        sRange = sRange < 0 ? 0 : sRange;
+        
         double[] pointI, pointF, pointN;
         
         Color oColor = g2d.getColor();
@@ -483,6 +480,10 @@ public class ManeuversUtil {
      */
     public static void paintBox(Graphics2D g, double zoom, double width, double length, double x0, double y0,
             double bearingRad, double crossAngleRadians, boolean fill, boolean invertY, boolean editMode) {
+        zoom = zoom <= 0 ? 0.01 : zoom;
+        width = Math.abs(width);
+        length = Math.abs(length);
+        
         Graphics2D g2d = (Graphics2D) g.create();
         double mult = !invertY ? 1 : -1;
         GeneralPath sp = new GeneralPath();

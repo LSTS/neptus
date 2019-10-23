@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -61,6 +61,7 @@ import java.util.Properties;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.imageio.spi.ServiceRegistry;
 import javax.swing.table.TableCellRenderer;
@@ -359,11 +360,10 @@ public class PluginUtils {
         return null;
     }
     /**
-     * @deprecated Use {@link #editPluginProperties(Object, Window, boolean)} instead.
      * @return <b>true</b> if cancelled or <b>false</b> otherwise.
      */
     public static <P extends Window>  boolean editPluginProperties(final Object obj, boolean editable) {
-        return editPluginProperties(obj, null, editable);
+        return editPluginProperties(obj, ConfigFetch.getSuperParentAsFrame(), editable);
     }
     
     /**
@@ -395,7 +395,6 @@ public class PluginUtils {
                 return getPluginProperties(obj);
             }
         };
-        
         return PropertiesEditor.editProperties(provider, parent, editable);
     }
 
@@ -439,6 +438,8 @@ public class PluginUtils {
 
     public static String[] validatePluginProperties(Object obj, LinkedHashMap<String, PluginProperty> props) {
         Vector<String> errors = new Vector<String>();
+        ArrayList<String> propsMissedProcessed = new ArrayList<>(props.size());
+        props.keySet().stream().forEach((s) -> propsMissedProcessed.add(s));
 
         Class<? extends Object> providerClass = obj.getClass();
 
@@ -453,78 +454,106 @@ public class PluginUtils {
                 }
                 if (props.get(name) == null)
                     continue;
-                // Find method
-                String validateMethodUpper = "validate" + Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
-                String validateMethodLower = "validate" + Character.toLowerCase(fieldName.charAt(0)) + fieldName.substring(1);
-                Method m;
+                propsMissedProcessed.remove(name);
+                
                 Object propValue = props.get(name).getValue();
-                if (propValue == null) {
-                    NeptusLog.pub().debug(
-                            "Property " + providerClass.getSimpleName() + "." + name
-                                    + " has no method to validate user input!");
-                    continue;
-                }
-                
-                Class<? extends Object> propClass = propValue.getClass();
-                if (f.getType().isPrimitive()) {
-                    //propClass.isArray() // FIXME
-                    if (propClass == Double.class)
-                        propClass = double.class;
-                    else if (propClass == Float.class)
-                        propClass = float.class;
-                    else if (propClass == Byte.class)
-                        propClass = byte.class;
-                    else if (propClass == Character.class)
-                        propClass = char.class;
-                    else if (propClass == Short.class)
-                        propClass = short.class;
-                    else if (propClass == Integer.class)
-                        propClass = int.class;
-                    else if (propClass == Long.class)
-                        propClass = long.class;
-                    else if (propClass == Boolean.class)
-                        propClass = boolean.class;
-                }
-                
-                try {
-                    m = providerClass.getMethod(validateMethodUpper, propClass);
-                }
-                catch (NoSuchMethodException e1) {
-                    try {
-                        m = providerClass.getMethod(validateMethodLower, propClass);
-                    }
-                    catch (NoSuchMethodException e) {
-                        NeptusLog.pub().debug("Property "+providerClass.getSimpleName()+"."+name+" has no method to validate user input!" );
-                        continue;
-                    }
-                    catch (SecurityException e) {
-                        e.printStackTrace();
-                        continue;
-                    }
-                }
-                catch (SecurityException e1) {
-                    e1.printStackTrace();
-                    continue;
-                }
-
-                // If method has been found, invoke it
-                Object res;
-                try {
-                    res = m.invoke(obj, propValue);
-                }
-                catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-                    e.printStackTrace();
-                    continue;
-                }
+                String res = findValidationMethodAndInvoque(obj, fieldName, name, propValue, f.getType().isPrimitive());
                 // In case of error add error message to the error message array
                 if (res != null)
                     errors.add(res.toString());
             }
         }
+        
+        // Let us validate the additional properties that are not annotated
+        for (String name : propsMissedProcessed) {
+            Object propValue = props.get(name).getValue();
+            String fieldName = name.codePoints().filter((p) -> Character.isJavaIdentifierStart(p))
+                    .mapToObj((p) -> new String(Character.toChars(p))).collect(Collectors.joining());
+            String res = findValidationMethodAndInvoque(obj, fieldName, name, propValue, true);
+            // In case of error add error message to the error message array
+            if (res != null)
+                errors.add(res.toString());
+        }
 
-        return errors.toArray(new String[0]);
+        return errors.stream().toArray(String[]::new);
     }
     
+    /**
+     * @return
+     */
+    private static String findValidationMethodAndInvoque(Object obj, String fieldName, String propName,
+            Object propValue, boolean fieldIsPrimitive) {
+        // Find method
+        String validateMethodUpper = "validate" + Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
+        String validateMethodLower = "validate" + Character.toLowerCase(fieldName.charAt(0)) + fieldName.substring(1);
+        Method m;
+        
+        Class<? extends Object> providerClass = obj.getClass();
+        
+        if (propValue == null) {
+            NeptusLog.pub().debug(
+                    "Property " + providerClass.getSimpleName() + "." + propName
+                            + " has no value to validate user input!");
+            return null;
+        }
+        
+        Class<? extends Object> propClass = propValue.getClass();
+        if (fieldIsPrimitive) {
+            //propClass.isArray() // FIXME
+            if (propClass == Double.class)
+                propClass = double.class;
+            else if (propClass == Float.class)
+                propClass = float.class;
+            else if (propClass == Byte.class)
+                propClass = byte.class;
+            else if (propClass == Character.class)
+                propClass = char.class;
+            else if (propClass == Short.class)
+                propClass = short.class;
+            else if (propClass == Integer.class)
+                propClass = int.class;
+            else if (propClass == Long.class)
+                propClass = long.class;
+            else if (propClass == Boolean.class)
+                propClass = boolean.class;
+        }
+        
+        try {
+            m = providerClass.getMethod(validateMethodUpper, propClass);
+        }
+        catch (NoSuchMethodException e1) {
+            try {
+                m = providerClass.getMethod(validateMethodLower, propClass);
+            }
+            catch (NoSuchMethodException e) {
+                NeptusLog.pub().debug("Property " + providerClass.getSimpleName() + "." + propName
+                        + " has no method to validate user input!");
+                return null;
+            }
+            catch (SecurityException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+        catch (SecurityException e1) {
+            e1.printStackTrace();
+            return null;
+        }
+
+        // If method has been found, invoke it
+        try {
+            Object res = m.invoke(obj, propValue);
+            if (res != null)
+                return res.toString();
+        }
+        catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        return null;
+    }
+
     public static Field[] getFields(Object o) {
         Class<?> c;
         if (o instanceof Class<?>)
@@ -581,6 +610,10 @@ public class PluginUtils {
                 }
                 try {
                     propertyValue = property.getValue();
+                    
+                    String[] res = PluginUtils.validatePluginProperties(obj, new Property[] {property});
+                    if (res != null && res.length > 0)
+                        continue; // not valid value so don't set
                 }
                 catch (Exception e1) {
                     // TODO Auto-generated catch block
@@ -1173,5 +1206,16 @@ public class PluginUtils {
         String test = "Speed Units dff";
         String[] alt = computeParamNameAlternatives(test);
         System.out.println(Arrays.toString(alt));
+        
+        String[] values = {
+                "Test of the speed (m/s)",
+                "Test of the water",
+                "Teste de água (m/s)"
+        };
+        for (String name : values) {
+            String fieldName = name.codePoints().filter((p) -> Character.isJavaIdentifierStart(p))
+                    .mapToObj((p) -> new String(Character.toChars(p))).collect(Collectors.joining());
+            System.out.println(String.format("name: '%s' >> '%s'", name, fieldName));
+        }
     }
 }

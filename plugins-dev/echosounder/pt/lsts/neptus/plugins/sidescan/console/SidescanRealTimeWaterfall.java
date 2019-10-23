@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -40,6 +40,7 @@ import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -53,6 +54,7 @@ import com.google.common.eventbus.Subscribe;
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.SonarData;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -290,7 +292,12 @@ public class SidescanRealTimeWaterfall extends ConsolePanel
 
     @Periodic(millisBetweenUpdates = 200)
     private boolean periodicUpdaterSSImage() {
-        threadExecutor.execute(() -> ssViewer.updateRequest());
+        try {
+            threadExecutor.execute(() -> ssViewer.updateRequest());
+        }
+        catch (RejectedExecutionException e) {
+            NeptusLog.pub().warn(e.getMessage());
+        }
         return true;
     }
 }

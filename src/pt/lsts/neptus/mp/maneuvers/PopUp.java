@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -69,7 +69,7 @@ import pt.lsts.neptus.types.map.PlanElement;
  */
 public class PopUp extends Maneuver implements LocatedManeuver, ManeuverWithSpeed, IMCSerialization {
 
-    protected double radiusTolerance = 2;
+    protected double radiusTolerance = 20;
     protected int duration = 5;
     protected SpeedType speed = new SpeedType(1000, Units.RPM);
     protected ManeuverLocation destination = new ManeuverLocation();

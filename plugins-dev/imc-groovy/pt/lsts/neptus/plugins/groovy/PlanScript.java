@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -78,7 +78,7 @@ public class PlanScript extends DSLPlan {
         neptusPlan = plan;
         super.setPlanSpec((PlanSpecification) plan.asIMCPlan(true));
         try {
-            this.locate(new Location(PlanUtil.getFirstLocation(plan).getLatitudeRads(),PlanUtil.getFirstLocation(plan).getLongitudeRads()));
+            this.locate(convertToLocation(PlanUtil.getFirstLocation(plan)));
         }
         catch (Exception e) {
             NeptusLog.pub().error(I18n.text(" Error initializing the location in the IMC DSL."),e);
@@ -96,7 +96,7 @@ public class PlanScript extends DSLPlan {
      * @param popup_waypoint - add popup at original waypoint besides the distance
      * @return
      */
-    public List<Location> midpoints(Location wp1,Location wp2,int maxDist,boolean popup_waypoint){
+    public static List<Location> midpoints(Location wp1,Location wp2,int maxDist,boolean popup_waypoint){
         List<Location> result = new ArrayList<>();
             int j=1;
             double distance = (double) wp1.distance(wp2);
@@ -117,24 +117,20 @@ public class PlanScript extends DSLPlan {
         return result;
     }
     
-    public List<Location> midpoints(Location wp1,Location wp2,int maxDist){
+    public static List<Location> midpoints(Location wp1,Location wp2,int maxDist){
         return  midpoints(wp1,wp2,maxDist,true);
     }
     
-    public Location midpoint(Location wp1,Location wp2,int maxDist){
+    public static Location midpoint(Location wp1,Location wp2,double maxDist){
         
         double rad = (double)wp1.angle(wp2),lat,lg;
         //double degree = (double) Location.toDeg(rad);
         //degree= degree<0 ? degree+360: degree;//degree*2
         lat = Math.sin(rad)*maxDist;
         lg  = Math.cos(rad)*maxDist;
-        
         Location l = (Location) wp1.translateBy(lg, lat); //displacements https://gis.stackexchange.com/questions/5821/calculating-latitude-longitude-x-miles-from-point
-        //System.out.println("ADDED new Location: "+l.toString());
-
         return l;
     }
-       
     
     public void addToConsole(){
         
@@ -163,7 +159,7 @@ public class PlanScript extends DSLPlan {
            if(p!=null)
                return new PlanScript(neptusConsole,p);
         }
-        return null;
+       return null;
     }
     
     public Location initialLocation() {
@@ -204,9 +200,20 @@ public class PlanScript extends DSLPlan {
     private List<Location> waypointsToLocations(ArrayList<ManeuverLocation> planWaypoints) {
         List<Location> result = new ArrayList<>();
         for(ManeuverLocation loc: planWaypoints)
-            result.add(new Location(loc.getLatitudeRads(),loc.getLongitudeRads()));
+            result.add(convertToLocation(loc));
             
         return result;
+    }
+
+    /**
+     * @param loc
+     * @return
+     */
+    public static Location convertToLocation(LocationType loc) {
+        
+        Location l = new Location(loc.getLatitudeRads(),loc.getLongitudeRads());
+        l = (Location)l.translateBy(loc.getOffsetNorth(), loc.getOffsetEast());
+        return l;
     }
 
     /**
@@ -230,7 +237,6 @@ public class PlanScript extends DSLPlan {
         }
         
     }
-    
 //    public Map<Double,String> getVehiclesRangeSorted(String [] avVehicles){
 //        Map<Double,String> result = new HashMap<>();
 //        for(String vehicle: avVehicles){
@@ -287,6 +293,14 @@ public class PlanScript extends DSLPlan {
 //        
 //        return result;
 //    }
+
+    /**
+     * @param loc
+     * @return
+     */
+    public static LocationType fromLocation(Location loc) {
+        return new LocationType(Math.toDegrees(loc.getLatitude()), Math.toDegrees(loc.getLongitude()));
+    }
 
 
 }

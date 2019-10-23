@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -217,9 +217,11 @@ public class ExpandingSquarePattern extends FollowPath {
             bearingDeg = Double.parseDouble(doc.selectSingleNode("//bearing").getText());
 
             // area
-            width = Double.parseDouble(doc.selectSingleNode("//width").getText());
+            width = Math.abs(Double.parseDouble(doc.selectSingleNode("//width").getText()));
+            width = width <= 0 ? 1 : width;
             //steps
-            hstep = Double.parseDouble(doc.selectSingleNode("//hstep").getText());
+            hstep = Math.abs(Double.parseDouble(doc.selectSingleNode("//hstep").getText()));
+            hstep = hstep <= 0 ? 1 : hstep;
 
             node = doc.selectSingleNode("//firstCurveRight");
             if (node != null)
@@ -326,6 +328,19 @@ public class ExpandingSquarePattern extends FollowPath {
         super.setProperties(properties);
         ManeuversUtil.setPropertiesToManeuver(this, properties);
         recalcPoints();
+    }
+
+    public String validateWidth(double value) {
+        if (value <= 0)
+            return "Keep it above 0";
+        return null;
+    }
+
+    // Validate for additional parameters
+    public String validateHstep(double value) {
+        if (value <= 0)
+            return "Keep it above 0";
+        return null;
     }
 
     /* (non-Javadoc)

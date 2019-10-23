@@ -77,6 +77,9 @@
 	<classpathentry kind="src" path="plugins-dev/hmapping"/>
 	<classpathentry kind="src" path="plugins-dev/telemetry-control"/>
 	<classpathentry kind="src" path="plugins-dev/dms"/>
+	<classpathentry kind="src" path="plugins-dev/sweep-plan-generator"/>
+	<classpathentry kind="src" path="plugins-dev/dev"/>
+	<classpathentry kind="src" path="plugins-dev/cdc3"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.17.jar"/>
 	<classpathentry kind="lib" path="lib/xerces-2.7.1/xml-apis.jar"/>
 	<classpathentry kind="lib" path="lib/xerces-2.7.1/xercesImpl.jar"/>
@@ -251,6 +254,7 @@
 	<classpathentry kind="lib" path="lib/jfreechart-1.5.0.jar"/>
 	<classpathentry kind="lib" path="lib/xchart-3.5.1.jar"/>
 	<classpathentry kind="lib" path="lib/ais-contact-manager-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/marineapi-0.11.0.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="lib/ini4j-0.5.2.jar"/>
@@ -263,8 +267,8 @@
 	<classpathentry kind="lib" path="lib/zxing-core-3.2.1.jar"/>
 	<classpathentry kind="lib" path="plugins-dev/shapefiles/lib/shapefilereader-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/opencv-2.4.11.jar"/>
-	<classpathentry kind="lib" path="plugins-dev/imc-groovy/lib/groovy-all-2.4.11.jar"/>
-	<classpathentry kind="lib" path="plugins-dev/imc-groovy/lib/rsyntaxtextarea-2.5.8.jar"/>
-	<classpathentry kind="lib" path="plugins-dev/imc-groovy/lib/imc_plan_dsl.jar"/>
+	<classpathentry kind="lib" path="plugins-dev/imc-groovy/lib/imc_plan_dsl-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/rsyntaxtextarea-2.5.8.jar"/>
+	<classpathentry kind="lib" path="lib/groovy-2.5.4.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

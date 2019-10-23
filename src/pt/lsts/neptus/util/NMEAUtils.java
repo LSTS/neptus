@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -224,6 +224,10 @@ public class NMEAUtils {
         return processTimeFromSentence(sentence, 0);
     }
 
+    public static Date processGLLTimeFromSentence(String sentence) {
+        return processTimeFromSentence(sentence, 4);
+    }
+
 	public static LocationType processGGASentence(String sentence) {		
 		try {
 			NMEA0183Sentence nmea = new NMEA0183Sentence(sentence);
@@ -237,6 +241,7 @@ public class NMEAUtils {
 			String north_south = (String) data_fields.get(2);
 			String longitude = (String) data_fields.get(3);
 			String east_west = (String) data_fields.get(4);
+			
 			int valid_fix = Integer.parseInt((String) data_fields.get(5));
 	
 			if (valid_fix == 0)
@@ -263,7 +268,7 @@ public class NMEAUtils {
 			return loc;
 		}
 		catch (Exception ex) {
-			ex.printStackTrace();
+		    NeptusLog.pub().warn("Corrupted GGA String: " + ex.getMessage());
 			return null;
 		}
 	}
@@ -294,7 +299,7 @@ public class NMEAUtils {
             return Double.NaN;
         }
         catch (Exception ex) {
-            ex.printStackTrace();
+            NeptusLog.pub().warn("Corrupted GPHDT String: " + ex.getMessage());
             return Double.NaN;
         }
     }
@@ -331,11 +336,48 @@ public class NMEAUtils {
 			return loc;
 		}
 		catch (Exception ex) {
-			ex.printStackTrace();
+		    NeptusLog.pub().warn("Corrupted RMC String: " + ex.getMessage());
 			return null;
 		}
 	}
-	
+
+    public static LocationType processGLLSentence(String sentence) {
+        try {
+            NMEA0183Sentence nmea = new NMEA0183Sentence(sentence);
+            if (!nmea.isValid())
+                return null;
+            List<?> data_fields = nmea.getDataFields();
+
+            String latitude = (String) data_fields.get(0);
+            String north_south = (String) data_fields.get(1);
+            String longitude = (String) data_fields.get(2);
+            String east_west = (String) data_fields.get(3);
+
+            // check for empty messages:
+            if (latitude.length() == 0)
+                return null;
+
+            double wgs84_lat = nmeaLatOrLongToWGS84(latitude);
+            double wgs84_long = nmeaLatOrLongToWGS84(longitude);
+
+            if (north_south.equalsIgnoreCase("S"))
+                wgs84_lat = -wgs84_lat;
+
+            if (east_west.equalsIgnoreCase("W"))
+                wgs84_long = -wgs84_long;
+
+            LocationType loc = new LocationType();
+            loc.setLatitudeDegs(wgs84_lat);
+            loc.setLongitudeDegs(wgs84_long);
+
+            return loc;
+        }
+        catch (Exception ex) {
+            NeptusLog.pub().warn("Corrupted GLL String: " + ex.getMessage());
+            return null;
+        }
+    }
+
     /**
      * Searches an external system with mmsi or name and return an external system or
      * a new one created (the name is prevalent, if name is not known make it the same

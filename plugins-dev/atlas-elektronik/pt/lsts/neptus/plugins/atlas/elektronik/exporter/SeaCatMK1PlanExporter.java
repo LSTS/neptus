@@ -49,6 +49,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Vector;
 
 import javax.swing.JComponent;
@@ -104,6 +105,9 @@ import pt.lsts.neptus.util.FileUtil;
  */
 public class SeaCatMK1PlanExporter implements IPlanFileExporter {
 
+    private static final String ACTIVE_STRING = "Active";
+    private static final String LOG_ON_LINES_ONLY_STRING = "Log On Lines Only";
+    
     private static final int DEFAULT_TURN_RADIUS = 15;
     
     private static final String GLOBAL_CONTEXT_STRING = "*";
@@ -250,10 +254,9 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
     private boolean acomsOnCurves = false;
     private int acomsRepetitions = 3;
 
-    // KrakenMinsas vars
-    private boolean sasNotOnCurves = true; // is not changed in parameters for now
-    private String sasOnSettingName;
-    private Vector<EntityParameter> sasOnSettingParams;
+    // More general way to disconnect on curve
+    private ArrayList<String> logNotOnCurvesPayload = new ArrayList<>();
+    private Map<String, Vector<EntityParameter>> logOnSettingParams = new HashMap<>();
     
     // Debug
     public static boolean debug = false;
@@ -407,9 +410,8 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
         turnRadius = DEFAULT_TURN_RADIUS;
         acomsOnCurves = false;
         acomsRepetitions = 3;
-        sasNotOnCurves = true;
-        sasOnSettingName = "";
-        sasOnSettingParams = null;
+        logNotOnCurvesPayload.clear();
+        logOnSettingParams.clear();
     }
 
     private long resetCommandLineCounter() {
@@ -828,7 +830,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                                         curvCtrlLocation.convertToAbsoluteLatLonDepth();
 
                                         insertAcomsOnCurveIfEnabled(sb, true);
-                                        insertSASNotOnCurveIfEnabled(sb, true);
+                                        insertLogNotOnCurveIfEnabled(sb, true);
                                         
                                         double targetLatDegs = curvCtrlLocation.getLatitudeDegs();
                                         double targetLonDegs = curvCtrlLocation.getLongitudeDegs();
@@ -845,7 +847,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                                                 centerLonDegs, direction, wp.getZ(), wp.getZUnits(), speedMS));
 
                                         insertAcomsOnCurveIfEnabled(sb, false);
-                                        insertSASNotOnCurveIfEnabled(sb, false);
+                                        insertLogNotOnCurveIfEnabled(sb, false);
 
                                         if (debug) {
                                             planControlPoints.add(centerLocation);
@@ -912,7 +914,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                                         curvEndLocation.convertToAbsoluteLatLonDepth();
 
                                         insertAcomsOnCurveIfEnabled(sb, true);
-                                        insertSASNotOnCurveIfEnabled(sb, true);
+                                        insertLogNotOnCurveIfEnabled(sb, true);
                                         
                                         sb.append(getCommandCurve(curvStartLocation.getLatitudeDegs(),
                                                 curvStartLocation.getLongitudeDegs(),
@@ -928,7 +930,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                                                 wp.getZUnits(), speedMS));
 
                                         insertAcomsOnCurveIfEnabled(sb, false);
-                                        insertSASNotOnCurveIfEnabled(sb, false);
+                                        insertLogNotOnCurveIfEnabled(sb, false);
                                         
                                         if (debug) {
                                             planPoints.add(curvStartLocation);
@@ -1032,25 +1034,13 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
             sb.append(getSetting('Q', "Acoms", "0"));
     }
 
-    /**
-     * @param sb
-     * @param curveStartOrEnd If curve segment start (true), or end (false)
-     */
-    private void insertSASNotOnCurveIfEnabled(StringBuilder sb, boolean curveStartOrEnd) {
-        if (!sasNotOnCurves)
-            return;
-        
-        if (curveStartOrEnd)
-            sb.append(getSasOffSetting());
-        else
-            sb.append(processPayload(sasOnSettingName, sasOnSettingParams));
-    }
-
-    /**
-     * @return
-     */
-    private String getSasOffSetting() {
-        return getSetting('P', "KrakenMinsas", "ACTIVE:OFF;RECORDING:OFF;PROCESSING:ON");
+    private void insertLogNotOnCurveIfEnabled(StringBuilder sb, boolean curveStartOrEnd) {
+        for (String pld : logNotOnCurvesPayload) {
+            if (curveStartOrEnd)
+                sb.append(processPayloadForOff(pld, logOnSettingParams.get(pld)));
+            else
+                sb.append(processPayload(pld, logOnSettingParams.get(pld)));
+        }
     }
 
     /**
@@ -1070,6 +1060,9 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
      * @return
      */
     private String getPayloadSettingsFromManeuver(Maneuver m) {
+        logNotOnCurvesPayload.clear();
+        logOnSettingParams.clear();
+        
         StringBuilder sb = new StringBuilder();
         PlanActions pActions = m.getStartActions();
         for (IMCMessage msg : pActions.getAllMessages()) {
@@ -1116,19 +1109,19 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                                 sb.append(getSetting('Q', "Acoms", "0"));
                             }
                             break;
-                        case "KrakenMinsas":
-                            sasNotOnCurves = true;
-                            sasOnSettingName = sep.getName();
-                            sasOnSettingParams = sep.getParams();
-                            String sasOnSetting = processPayload(sasOnSettingName, sasOnSettingParams);
-                            if (sasOnSetting.contains("KrakenMinsas ACTIVE:OFF"))
-                                sasNotOnCurves = false;
-                            if (sasNotOnCurves)
-                                sb.append(getSasOffSetting());
-                            else
-                                sb.append(sasOnSetting);
-                            break;
                         default:
+                            EntityParameter activeParameter = sep.getParams().stream()
+                                    .filter((p) -> ACTIVE_STRING.equalsIgnoreCase(p.getName())).findFirst()
+                                    .orElse(null);
+                            EntityParameter logOnLinesOnlyParameter = sep.getParams().stream()
+                                    .filter((p) -> LOG_ON_LINES_ONLY_STRING.equalsIgnoreCase(p.getName())).findFirst()
+                                    .orElse(null);
+                            if (activeParameter != null && "true".equalsIgnoreCase(activeParameter.getValue())
+                                    && logOnLinesOnlyParameter != null
+                                    && "true".equalsIgnoreCase(logOnLinesOnlyParameter.getValue())) {
+                                logNotOnCurvesPayload.add(sep.getName());
+                                logOnSettingParams.put(sep.getName(), sep.getParams());
+                            }
                             sb.append(processPayload(sep.getName(), sep.getParams()));
                             break;
                     }
@@ -1140,6 +1133,26 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
         }
 
         return sb.toString();
+    }
+
+    /**
+     * Gets the command for a disconnected payload.
+     * 
+     * @param payloadName
+     * @param params
+     * @return
+     */
+    private String processPayloadForOff(String payloadName, Vector<EntityParameter> params) {
+        EntityParameter activeParameter = params.stream().filter((p) -> ACTIVE_STRING.equalsIgnoreCase(p.getName()))
+                .findFirst().orElse(null);
+        if (activeParameter == null)
+            return "";
+        
+        activeParameter = activeParameter.cloneMessageTyped();
+        activeParameter.setValue("false");
+        Vector<EntityParameter> activeParamVector = new Vector<>();
+        activeParamVector.add(activeParameter);
+        return processPayload(payloadName, activeParamVector);
     }
 
     /**
@@ -1172,7 +1185,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                 funcSb.put(formatParameterName(ep.getName()), sb);
             }
             else {
-                if (name.equalsIgnoreCase("Active")) {
+                if (name.equalsIgnoreCase(ACTIVE_STRING)) {
                     name = translatePayloadActiveFor(payloadName);
                     activeKey = true;
                 }

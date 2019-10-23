@@ -72,7 +72,6 @@ public class AisPathMonitor extends ConsoleInteraction {
         List<ShipAisSnapshot> future = aisManager.getFutureSnapshot(ais.getMmsi(), Arrays.stream(timeOffsetsMinutes)
                 .map(v -> v*60*1000).parallel().toArray());
 
-        boolean first = true;
         for(ShipAisSnapshot f : future) {
             LocationType loc = new LocationType(f.getLatDegs(), f.getLonDegs());
             Point2D p = source.getScreenPosition(loc);

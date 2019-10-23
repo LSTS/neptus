@@ -190,6 +190,15 @@
       <units/>
       <desc>Activates sensor operation</desc>
     </param>
+    <param name="Log On Lines Only">
+      <name-i18n>Log On Lines Only</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>false</default>
+      <units/>
+      <desc>Deactivates logging on curves in selected maneuvers.</desc>
+    </param>
     <param name="Mission Critical">
       <name-i18n>Mission Critical</name-i18n>
       <type>boolean</type>
@@ -242,6 +251,15 @@
       <default>false</default>
       <units/>
       <desc>Activates sensor operation</desc>
+    </param>
+    <param name="Log On Lines Only">
+      <name-i18n>Log On Lines Only</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>false</default>
+      <units/>
+      <desc>Deactivates logging on curves in selected maneuvers.</desc>
     </param>
     <param name="Mission Critical">
       <name-i18n>Mission Critical</name-i18n>
@@ -475,14 +493,16 @@
       <values>JPG, TIFF, PNG, PGM</values>
       <values-i18n>JPEG, TIFF, PNG, PGM</values-i18n>
     </param>
-    <param name="Image_Compr">
+    <param name="Compression">
       <name-i18n>Image Compression</name-i18n>
-      <type>boolean</type>
+      <type>string</type>
       <visibility>user</visibility>
       <scope>maneuver</scope>
-      <default>true</default>
+      <default>NO</default>
       <units/>
       <desc>Recorded images will be compressed</desc>
+      <values>NO, AUTO</values>
+      <values-i18n>NO, AUTO</values-i18n>
     </param>
     <param name="Shutter_Time">
       <name-i18n>Shutter Time</name-i18n>
@@ -543,6 +563,15 @@
       <default>false</default>
       <units/>
       <desc>Activates sensor operation</desc>
+    </param>
+    <param name="Log On Lines Only">
+      <name-i18n>Log On Lines Only</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>false</default>
+      <units/>
+      <desc>Deactivates logging on curves in selected maneuvers.</desc>
     </param>
     <param name="Mission Critical">
       <name-i18n>Mission Critical</name-i18n>

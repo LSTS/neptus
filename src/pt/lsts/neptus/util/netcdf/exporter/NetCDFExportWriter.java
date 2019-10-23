@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -38,7 +38,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.util.netcdf.NetCDFUtils;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayDouble;
@@ -117,12 +116,10 @@ public class NetCDFExportWriter {
         Array data = Array.factory(int.class, new int[] { 3 }, new int[] { 1, 2, 3 });
         t.addAttribute(new Attribute("scale", data));
         
-        // add a string-valued variable: char svar(80)
-        Dimension svar_len = writer.addDimension(null, "svar_len", 80);
+        writer.addDimension(null, "svar_len", 80);
         writer.addVariable(null, "svar", DataType.CHAR, "svar_len");
 
-        // add a 2D string-valued variable: char names(names, 80)
-        Dimension names = writer.addDimension(null, "names", 3);
+        writer.addDimension(null, "names", 3);
         writer.addVariable(null, "names", DataType.CHAR, "names svar_len");
 
         // add a scalar variable

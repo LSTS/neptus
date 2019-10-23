@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -38,6 +38,7 @@ import java.awt.Image;
 import java.awt.geom.Point2D;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -65,6 +66,7 @@ import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**
  * @author zp
@@ -74,13 +76,13 @@ import pt.lsts.neptus.util.ImageUtils;
 public class RipplesPositions extends ConsoleLayer {
 
     @NeptusProperty
-    String positionsApiUrl = "http://ripples.lsts.pt/positions";
+    String positionsApiUrl = GeneralPreferences.ripplesUrl + "/positions";
 
     ColorMap cmap = ColorMapFactory.createRedYellowGreenColorMap();
 
     LinkedHashMap<String, PositionUpdate> lastPositions = new LinkedHashMap<>();
     LinkedHashMap<String, ArrayList<PositionUpdate> > positions = new LinkedHashMap<>();
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ"); 
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ"); 
     {
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
@@ -169,7 +171,7 @@ public class RipplesPositions extends ConsoleLayer {
                 double latDegs = obj.get("lat").getAsDouble();
                 double lonDegs = obj.get("lon").getAsDouble();
                 Date time = sdf.parse(obj.get("timestamp").getAsString());
-                int id = obj.get("imc_id").getAsInt();
+                int id = obj.get("imcId").getAsInt();
                 
                 PositionUpdate update = new PositionUpdate();
                 update.id = IMCDefinition.getInstance().getResolver().resolve(id);
@@ -207,6 +209,7 @@ public class RipplesPositions extends ConsoleLayer {
         }
         catch (Exception e) {
             error = e.getClass().getSimpleName()+" "+e.getMessage();
+            e.printStackTrace();
             NeptusLog.pub().error(e);
             getConsole().post(Notification
                     .error(getName(), e.getClass().getSimpleName() + " while polling device updates from Ripples.")
@@ -225,7 +228,12 @@ public class RipplesPositions extends ConsoleLayer {
         }
     }
     
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ParseException {
+        String date = "2019-05-30T10:26:12.000+0000";
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ"); 
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+        sdf.parse(date);
+        
         RipplesPositions positions = new RipplesPositions();
         positions.pollActiveSystems();
     }

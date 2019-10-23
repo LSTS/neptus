@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -49,9 +49,13 @@ import pt.lsts.neptus.util.ImageUtils;
 public class GenericPlot extends MRATimeSeriesPlot {
 
     protected String[] fieldsToPlot = null;
+    protected final String name;
 
     public GenericPlot(String[] fieldsToPlot, MRAPanel panel) {
         super(panel);
+        StringBuilder sb = new StringBuilder(Arrays.toString(fieldsToPlot));
+        sb.append(" Messages");
+        this.name = sb.toString();
         this.fieldsToPlot = fieldsToPlot;
     }
 
@@ -62,12 +66,14 @@ public class GenericPlot extends MRATimeSeriesPlot {
 
     @Override
     public String getTitle() {
-        return getName();
+        StringBuilder sb = new StringBuilder(getName());
+        sb.append(" plot");
+        return sb.toString();
     }
 
     @Override
     public String getName() {
-        return Arrays.toString(fieldsToPlot);
+        return this.name;
     }    
 
     @Override

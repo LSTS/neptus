@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -76,6 +76,7 @@ public class AssetsManager {
     private static AssetsManager instance = null;
     
     private ConcurrentHashMap<String, SoiSettings> settings = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, DripSettings> dSettings = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, Plan> plans = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, Asset> assetsMap = new ConcurrentHashMap<>();
 
@@ -342,5 +343,12 @@ public class AssetsManager {
         catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * @return
+     */
+    public ConcurrentHashMap<String, DripSettings> getDripSettings() {
+        return dSettings;
     }
 }

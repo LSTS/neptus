@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -59,6 +59,7 @@ import com.l2fprod.common.propertysheet.PropertyEditorRegistry;
 import com.l2fprod.common.propertysheet.PropertyRendererRegistry;
 import com.l2fprod.common.propertysheet.PropertySheet;
 import com.l2fprod.common.propertysheet.PropertySheetPanel;
+import com.l2fprod.common.propertysheet.PropertySheetTableModel.Item;
 
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.EntityParameter;
@@ -92,6 +93,8 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
     private JButton saveButton;
     private JButton refreshButton;
     private JButton resetButton;
+    private JButton collapseButton;
+    
     private JLabel titleLabel;
     private JCheckBox checkAdvance;
     private JComboBox<Scope> scopeComboBox;
@@ -206,6 +209,21 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
             add(saveButton, "sg buttons, split");
         }
 
+        collapseButton = new JButton(new AbstractAction(I18n.text("Collapse All")) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                for (int i = 0; i < psp.getTable().getSheetModel().getRowCount(); i++) {
+                    Item o = (Item) psp.getTable().getSheetModel().getObject(i);
+                    if (o.isVisible() && !o.hasToggle()) { 
+                        o.getParent().toggle();
+                    }
+                }
+            }
+        });
+        collapseButton.setToolTipText(I18n.text("Collapse all sections."));
+        add(collapseButton, "sg buttons, split");
+
+        
         resetButton = new JButton(new AbstractAction(I18n.text("Reset")) {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -215,11 +233,11 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         resetButton.setToolTipText(I18n.text("Local reset. Needs to be sent to system."));
         if (showResetButton)
             add(resetButton, "sg buttons, gapbefore 30, split, wrap");
-        
+        resetButton.setToolTipText(I18n.text("Local reset. Needs to be sent to system."));
+                    
         if (showScopeCombo)
             add(scopeComboBox, "split, w :160:");
 
-        
         checkAdvance = new JCheckBox(I18n.text("Access Developer Parameters"));
         checkAdvance.setToolTipText("<html>" + I18n.textc("Be careful changing these values.<br>They may make the vehicle inoperable.",
                 "This will be a tooltip, and use <br> to change line."));
@@ -544,10 +562,10 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
 //        ImcMsgManager.getManager().start();
 //        MonitorIMCComms icmm = new MonitorIMCComms(ImcMsgManager.getManager());
 //        GuiUtils.testFrame(icmm);
+        GuiUtils.setLookAndFeel();
+        String vehicle = "lauv-noptilus-1";
         
-        String vehicle = "lauv-dolphin-1";
-        
-        GeneralPreferences.language = "pt_PT";
+        GeneralPreferences.language = "en_US";
         
         final SystemConfigurationEditorPanel sc1 = new SystemConfigurationEditorPanel(vehicle, Scope.MANEUVER,
                 Visibility.USER, true, true, true, ImcMsgManager.getManager());

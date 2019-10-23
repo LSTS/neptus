@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -73,6 +73,7 @@ import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
+import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
@@ -215,9 +216,9 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
                     vicon = new ImageIcon(vimg.getScaledInstance(40, -1, Image.SCALE_SMOOTH));
                     vehIconPool.put(v.getId(), vicon);
                 }
-
+    
                 menu.setIcon(vicon);
-
+    
                 String loiterSettings = "(";
                 String settings = "(";
                 NumberFormat nf = GuiUtils.getNeptusDecimalFormat(1);
@@ -250,28 +251,29 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
                             new Thread() {
                                 @Override
                                 public void run() {
+                                    double speed = 0;
                                     double z = 0;
                                     ManeuverLocation.Z_UNITS zunits = Z_UNITS.NONE;
-
+    
                                     PlanCreator creator = new PlanCreator(getConsole().getMission());
                                     creator.setLocation(target);
                                     if ("auv".equalsIgnoreCase(v.getType()) || "uuv".equalsIgnoreCase(v.getType())) {
-                                        z = auvDepth;
-                                        zunits = ManeuverLocation.Z_UNITS.DEPTH;
-                                        creator.setZ(z, zunits);
-                                        creator.setSpeed(auvSpeed);
+                                            z = auvDepth;
+                                            zunits = ManeuverLocation.Z_UNITS.DEPTH;
+                                            creator.setZ(z, zunits);
+                                            creator.setSpeed(auvSpeed);
                                     }
                                     else if ("uav".equalsIgnoreCase(v.getType())) {
-                                        z = uavZ;
-                                        zunits = uavZUnits;
-                                        creator.setSpeed(uavSpeed);
-                                        creator.setZ(z, zunits);
+                                            z = uavZ;
+                                            zunits = uavZUnits;
+                                            creator.setSpeed(uavSpeed);
+                                            creator.setZ(z, zunits);
                                     }
                                     else if ("asv".equalsIgnoreCase(v.getType()) || "usv".equalsIgnoreCase(v.getType())) {
-                                        z = 0;
-                                        zunits = ManeuverLocation.Z_UNITS.DEPTH;
-                                        creator.setSpeed(asvSpeed);
-                                        creator.setZ(z, zunits);
+                                            z = 0;
+                                            zunits = ManeuverLocation.Z_UNITS.DEPTH;
+                                            creator.setSpeed(asvSpeed);
+                                            creator.setZ(z, zunits);
                                     }
                                     else {
                                         NeptusLog.pub().error("error sending goto ");
@@ -290,7 +292,7 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
                     });
                     ok = true;
                 }
-
+    
                 if (v.getFeasibleManeuvers().containsValue(StationKeeping.class.getName())) {
                     menu.add(new AbstractAction(I18n.textf("Surface here %settings", settings)) {
                         @Override
@@ -301,19 +303,18 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
                                     PlanCreator creator = new PlanCreator(getConsole().getMission());
                                     double radius = 10;
                                     int duration = 0;
-                                    if ("auv".equalsIgnoreCase(v.getType()) || "uuv".equalsIgnoreCase(v.getType())) {                                    
+                                    if ("auv".equalsIgnoreCase(v.getType()) || "uuv".equalsIgnoreCase(v.getType())) {
                                         radius = auvSkRadius;
-                                        creator.setSpeed(asvSpeed);
+                                        creator.setSpeed(auvSpeed);
                                     }
-                                    else if ("asv".equalsIgnoreCase(v.getType()) || "usv".equalsIgnoreCase(v.getType())) {                                    
+                                    else if ("asv".equalsIgnoreCase(v.getType()) || "usv".equalsIgnoreCase(v.getType())) {
                                         radius = asvSkRadius;
                                         creator.setSpeed(asvSpeed);
                                     }
                                     else {
                                         return;
                                     }
-
-                                    
+    
                                     creator.setLocation(target);
                                     creator.setZ(0, Z_UNITS.DEPTH);
                                     creator.addManeuver("StationKeeping", "duration", duration, "radius", radius);
@@ -328,7 +329,7 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
                     });
                     ok = true;
                 }
-
+    
                 if (v.getFeasibleManeuvers().containsValue(Loiter.class.getName())) {
                     menu.add(new AbstractAction(I18n.textf("Loiter here, %settings", loiterSettings)) {
                         @Override
@@ -336,13 +337,13 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
                             new Thread() {
                                 @Override
                                 public void run() {
-
+    
                                     double radius = 10;
                                     int duration = 0;
                                     double z = 0;
                                     Z_UNITS zunits = Z_UNITS.NONE;
                                     PlanCreator creator = new PlanCreator(getConsole().getMission());
-                                    
+    
                                     if ("auv".equalsIgnoreCase(v.getType()) || "uuv".equalsIgnoreCase(v.getType())) {
                                         creator.setSpeed(auvSpeed);
                                         radius = auvLoiterRadius;
@@ -365,8 +366,7 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
                                     else {
                                         return;
                                     }
-
-                                   
+    
                                     creator.setLocation(target);
                                     creator.setZ(z, zunits);
                                     creator.addManeuver("Loiter", "loiterDuration", duration, "radius", radius);
@@ -381,9 +381,17 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
                     });
                     ok = true;
                 }
-
-                if (ok)
+                if (ok) {
+                    menu.addSeparator();
+                    menu.add(new AbstractAction(I18n.text("Change settings")) {
+                        
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            PluginUtils.editPluginProperties(CommandPlanner.this, getConsole(), true);
+                        }
+                    });
                     items.add(menu);
+                }
             }
             catch (Exception e) {
                 e.printStackTrace();

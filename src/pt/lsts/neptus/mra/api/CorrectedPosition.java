@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -118,7 +118,7 @@ public class CorrectedPosition {
         if (positions.isEmpty())
             return null;
         SystemPositionAndAttitude p = new SystemPositionAndAttitude();
-        p.setTime((long) timestamp * 1000);
+        p.setTime((long) (timestamp * 1000.0));
         int pos = Collections.binarySearch(positions, p);
         if (pos < 0)
             pos = -pos;
