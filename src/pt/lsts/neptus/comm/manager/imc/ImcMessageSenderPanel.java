@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -33,8 +33,10 @@
 package pt.lsts.neptus.comm.manager.imc;
 
 import java.awt.BorderLayout;
+import java.awt.Dialog.ModalityType;
 import java.awt.Dimension;
 import java.awt.Image;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.ByteArrayOutputStream;
@@ -54,6 +56,7 @@ import javax.swing.GroupLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -67,6 +70,7 @@ import javax.swing.WindowConstants;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCOutputStream;
+import pt.lsts.imc.sender.MessageEditor;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.LocationCopyPastePanel;
 import pt.lsts.neptus.types.coord.CoordinateUtil;
@@ -105,6 +109,7 @@ public class ImcMessageSenderPanel extends JPanel {
 	private JTextField srcId = new JTextField("");
 	private JTextField dstId = new JTextField("");
 	
+	private MessageEditor editor = new MessageEditor();
     
 	private HashMap<String, IMCMessage> messagesPool = new HashMap<String, IMCMessage>();
 	
@@ -217,8 +222,18 @@ public class ImcMessageSenderPanel extends JPanel {
 				public void actionPerformed(ActionEvent e) {
 					String mName = (String) getMessagesComboBox().getSelectedItem();
 					IMCMessage sMsg = getOrCreateMessage(mName);
-					MessageEditorImc.showProperties(sMsg, 
-							SwingUtilities.getWindowAncestor(ImcMessageSenderPanel.this), true);
+					editor.setMessage(sMsg);
+					JDialog dg = new JDialog(SwingUtilities.getWindowAncestor(ImcMessageSenderPanel.this), ModalityType.DOCUMENT_MODAL); 
+					dg.setContentPane(editor);
+					dg.setSize(500, 500);
+					dg.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+					GuiUtils.centerParent(dg, (Window) dg.getParent());
+					dg.setVisible(true);
+					
+					sMsg = editor.getMessage();
+					mName = sMsg.getAbbrev();
+					messagesPool.put(mName, sMsg);
+					getMessagesComboBox().setSelectedItem(mName);
 				}
 			});
 		}

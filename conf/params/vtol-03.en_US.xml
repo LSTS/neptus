@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2017.01.0 (master,cab2f729)" system="vtol-03" i18n="en_US">
+<config format="1" version="2019.02.1 (master,65b8ee0a9)" system="vtol-03" i18n="en_US">
   <section name="Autopilot" name-i18n="Autopilot">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -1587,95 +1587,6 @@
       <desc>Set of commands for plans to generate at boot</desc>
     </param>
   </section>
-  <section name="Report Supervisor" name-i18n="Report Supervisor">
-    <param name="Entity Label">
-      <name-i18n>Entity Label</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Report Supervisor</default>
-      <units/>
-      <desc>Main entity label</desc>
-    </param>
-    <param name="Execution Priority">
-      <name-i18n>Execution Priority</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units/>
-      <desc>Execution priority</desc>
-    </param>
-    <param name="Activation Time">
-      <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Deactivation Time">
-      <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Debug Level">
-      <name-i18n>Debug Level</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>None</default>
-      <units/>
-      <desc/>
-      <values>None, Debug, Trace, Spew</values>
-      <values-i18n>None, Debug, Trace, Spew</values-i18n>
-    </param>
-    <param name="Acoustic Reports">
-      <name-i18n>Acoustic Reports</name-i18n>
-      <type>boolean</type>
-      <visibility>user</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Enable acoustic system state reporting</desc>
-    </param>
-    <param name="Acoustic Reports Periodicity">
-      <name-i18n>Acoustic Reports Periodicity</name-i18n>
-      <type>real</type>
-      <visibility>user</visibility>
-      <scope>global</scope>
-      <default>60</default>
-      <units>s</units>
-      <desc>Reports periodicity</desc>
-      <min>30</min>
-      <max>600</max>
-    </param>
-    <param name="Radio Reports">
-      <name-i18n>Radio Reports</name-i18n>
-      <type>boolean</type>
-      <visibility>user</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Enable Radio system state reporting</desc>
-    </param>
-    <param name="Radio Reports Periodicity">
-      <name-i18n>Radio Reports Periodicity</name-i18n>
-      <type>real</type>
-      <visibility>user</visibility>
-      <scope>global</scope>
-      <default>1</default>
-      <units>s</units>
-      <desc>Reports periodicity</desc>
-      <min>0.3</min>
-      <max>600</max>
-    </param>
-  </section>
   <section name="Lost Comms Monitor" name-i18n="Lost Comms Monitor">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -2045,6 +1956,118 @@
       <default>GpsFix, LblConfig</default>
       <units/>
       <desc>List of messages ordered by loading order</desc>
+    </param>
+  </section>
+  <section name="Communications Manager" name-i18n="Communications Manager">
+    <param name="Entity Label">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Communications Manager</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Activation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Iridium - Entity Label">
+      <name-i18n>Iridium - Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Iridium Modem</default>
+      <units/>
+      <desc>Entity label of Iridium modem</desc>
+    </param>
+    <param name="GSM - Entity Label">
+      <name-i18n>GSM - Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>GSM</default>
+      <units/>
+      <desc>Entity label of GSM modem</desc>
+    </param>
+    <param name="GSM Address Section">
+      <name-i18n>GSM Address Section</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>GSM Addresses</default>
+      <units/>
+      <desc>Name of the configuration section with gsm modem addresses</desc>
+    </param>
+    <param name="Acoustic Address Section">
+      <name-i18n>Acoustic Address Section</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Evologics Addresses</default>
+      <units/>
+      <desc>Name of the configuration section with acoustic modem addresses</desc>
+    </param>
+    <param name="Iridium Reports Period">
+      <name-i18n>Iridium Reports Period</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>600</default>
+      <units/>
+      <desc>Period, in seconds, between transmission of states via Iridium. Value of 0 disables transmission.</desc>
+    </param>
+    <param name="Process AcousticOperation Messages">
+      <name-i18n>Process AcousticOperation Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Enable CommManager to process and convert legacy message -&gt; AcousticOperation</desc>
+    </param>
+    <param name="Send Iridium plain texts">
+      <name-i18n>Send Iridium plain texts</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1</default>
+      <units/>
+      <desc>Send Iridium text messages as plain text (and not IMC)</desc>
     </param>
   </section>
   <section name="Discovery" name-i18n="Discovery">
@@ -2471,7 +2494,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Acceleration, AcousticLink, AcousticOperation, AngularVelocity, Announce, ApmStatus, ArmingState, AutopilotMode, ControlLoops, CommSystemsQuery, CpuUsage, Current, Depth, DesiredHeading, DesiredPath, DesiredRoll, DesiredSpeed, DesiredVerticalRate, DesiredZ, DevCalibrationControl, DevDataText, DmsDetection, EulerAngles, EntityList, EntityState, EstimatedState, EstimatedStreamVelocity, FollowReference, FollowRefState, FuelLevel, GpsFix, IndicatedSpeed, LeaderState, LinkLevel, LogBookEntry, MagneticField, ManeuverControlState, PathControlState, PlanControl, PlanSpecification, PlanControlState, PlanDB, PowerChannelControl, Pressure, Reference, ReportControl, Rpm, RSSI, ServoPosition, SetControlSurfaceDeflection, SetServoPosition, SetThrusterActuation, SimulatedState, StopManeuver, StorageUsage, TelemetryMsg, Temperature, TextMessage, Throttle, TrueSpeed, TrexObservation, TrexPlan, TrexToken, TrueSpeed, UamRxFrame, UamTxFrame, UamTxStatus, UamRxRange, UsblAnglesExtended, UsblPositionExtended, UsblFixExtended, UsblModem, UsblConfig, VehicleCommand, VehicleMedium, VehicleState, Voltage, VtolState</default>
+      <default>Abort, Acceleration, AcousticLink, AcousticOperation, AngularVelocity, Announce, ApmStatus, ArmingState, AutopilotMode, ControlLoops, CommSystemsQuery, CpuUsage, Current, Depth, DesiredHeading, DesiredPath, DesiredRoll, DesiredSpeed, DesiredVerticalRate, DesiredZ, DevCalibrationControl, DevDataText, DmsDetection, EulerAngles, EntityList, EntityState, EstimatedState, EstimatedStreamVelocity, FollowReference, FollowRefState, FuelLevel, GpsFix, IndicatedSpeed, LeaderState, LinkLevel, LogBookEntry, MagneticField, ManeuverControlState, PathControlState, PlanControl, PlanSpecification, PlanControlState, PlanDB, PowerChannelControl, Pressure, Reference, ReportControl, Rpm, RSSI, ServoPosition, SetControlSurfaceDeflection, SetServoPosition, SetThrusterActuation, SimulatedState, SoundSpeed, StopManeuver, StorageUsage, TelemetryMsg, Temperature, TextMessage, Throttle, TrueSpeed, TrexObservation, TrexPlan, TrexToken, TrueSpeed, UamRxFrame, UamTxFrame, UamTxStatus, UamRxRange, UsblAnglesExtended, UsblPositionExtended, UsblFixExtended, UsblModem, UsblConfig, VehicleCommand, VehicleMedium, VehicleState, Voltage, VtolState</default>
       <units/>
       <desc/>
     </param>
@@ -2491,7 +2514,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>10</default>
+      <default>50</default>
       <units/>
       <desc>Execution priority</desc>
     </param>
@@ -2614,7 +2637,7 @@
       <type>string</type>
       <visibility>user</visibility>
       <scope>global</scope>
-      <default/>
+      <default>vtol-03</default>
       <units/>
       <desc>Vehicle to bind</desc>
     </param>
@@ -2643,27 +2666,9 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>10</default>
+      <default>100</default>
       <units/>
       <desc>Duty cycle - the percentage of time to allow transmit</desc>
-    </param>
-    <param name="Max frequency">
-      <name-i18n>Max frequency</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>870000</default>
-      <units/>
-      <desc>Max frequency in KHz</desc>
-    </param>
-    <param name="Min frequency">
-      <name-i18n>Min frequency</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>868000</default>
-      <units/>
-      <desc>Min frequency in KHz</desc>
     </param>
     <param name="Air speed">
       <name-i18n>Air speed</name-i18n>
@@ -2720,6 +2725,26 @@
       <default>true</default>
       <units/>
       <desc>Enable system state telemetry reporting. When enabled, systems shall acknowledge reception of requests to broadcast Reports messages containing the overall state of the system. When disabled, those requests shall be ignored</desc>
+    </param>
+    <param name="Enable UAV high speed report">
+      <name-i18n>Enable UAV high speed report</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Enable system state telemetry reporting.</desc>
+    </param>
+    <param name="UAV high speed Reports Periodicity">
+      <name-i18n>UAV high speed Reports Periodicity</name-i18n>
+      <type>real</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>1</default>
+      <units>s</units>
+      <desc>Reports periodicity</desc>
+      <min>0.3</min>
+      <max>600</max>
     </param>
     <param name="Entity Label - Voltage">
       <name-i18n>Entity Label - Voltage</name-i18n>
@@ -2805,6 +2830,73 @@
       <default>9999</default>
       <units/>
       <desc>TCP port to listen on</desc>
+    </param>
+  </section>
+  <section name="TCP On Demand" name-i18n="TCP On Demand">
+    <param name="Entity Label">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>TCP On Demand</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Activation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Maximum Number of Tries">
+      <name-i18n>Maximum Number of Tries</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>3</default>
+      <units/>
+      <desc>Maximum number of tries for one requested message before throwing error.</desc>
+    </param>
+    <param name="Time Between Tries">
+      <name-i18n>Time Between Tries</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5</default>
+      <units/>
+      <desc>Time between tries for one requested message.</desc>
     </param>
   </section>
   <section name="UDP" name-i18n="UDP">
@@ -2959,7 +3051,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Acceleration, AngularVelocity, AcousticOperation, ApmStatus, ArmingState, AutopilotMode, CommSystemsQuery, CpuUsage, Current, DesiredPath, DesiredRoll, DesiredSpeed, DesiredVerticalRate, DesiredZ, DmsDetection, EntityList, EntityParameters, EntityState, EstimatedState, EstimatedStreamVelocity, FollowRefState, FuelLevel, GpsFix, Heartbeat, IndicatedSpeed, LeaderState, LinkLevel, LogBookControl, LoggingControl, MagneticField, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, PowerChannelControl, Pressure, QueryEntityParameters, RemoteActionsRequest, Rpm, RSSI, SaveEntityParameters, ServoPosition, SetEntityParameters, SetServoPosition, SimulatedState, StorageUsage, Target, TelemetryMsg, Temperature, Throttle, TrexOperation, TrueSpeed, TextMessage, UsblAnglesExtended, UsblPositionExtended, UsblFixExtended, UsblModem, UsblConfig, VehicleMedium, VehicleState, Voltage, VtolState</default>
+      <default>Abort, Acceleration, AngularVelocity, AcousticOperation, AcousticSystemsQuery, AcousticSystems, ApmStatus, ArmingState, AutopilotMode, CommSystemsQuery, CpuUsage, Current, Depth, Distance, DesiredPath, DesiredRoll, DesiredSpeed, DesiredVerticalRate, DesiredZ, DmsDetection, EntityList, EntityParameters, EntityState, EstimatedState, EstimatedStreamVelocity, FollowRefState, FuelLevel, GpsFix, Heartbeat, IndicatedSpeed, LeaderState, LinkLevel, LogBookControl, LoggingControl, MagneticField, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, PowerChannelControl, Pressure, QueryEntityParameters, RemoteActionsRequest, Rpm, RSSI, SaveEntityParameters, ServoPosition, SetEntityParameters, SetServoPosition, SimulatedState, StorageUsage, Target, TelemetryMsg, Temperature, Throttle, TransmissionRequest, TransmissionStatus, TrexOperation, TrueSpeed, TextMessage, UamTxFrame, UamRxFrame, UamTxStatus, UamRxRange, UsblAnglesExtended, UsblPositionExtended, UsblFixExtended, UsblModem, UsblConfig, VehicleMedium, VehicleState, Voltage, VtolState</default>
       <units/>
       <desc>List of messages to transport</desc>
     </param>

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -152,10 +152,10 @@ IMCSerialization, StatisticsProvider, PathProvider {
             bearingDegs = Double.parseDouble(doc.selectSingleNode("//bearing").getText());
 
             // area
-            width = Double.parseDouble(doc.selectSingleNode("//width").getText());
+            width = Math.abs(Double.parseDouble(doc.selectSingleNode("//width").getText()));
             Node node = doc.selectSingleNode("//length");
             if (node != null)
-                length = Double.parseDouble(node.getText());
+                length = Math.abs(Double.parseDouble(node.getText()));
             else
                 length = width;
 
@@ -635,6 +635,20 @@ IMCSerialization, StatisticsProvider, PathProvider {
     @Override
     protected Vector<DefaultProperty> additionalProperties() {
         return ManeuversUtil.getPropertiesFromManeuver(this);
+    }
+    
+    // Validate for additional parameters
+    public String validateLength(double value) {
+        if (value <= 0)
+            return "Keep it above 0";
+        return null;
+    }
+
+    // Validate for additional parameters
+    public String validateWidth(double value) {
+        if (value <= 0)
+            return "Keep it above 0";
+        return null;
     }
 
     @Override

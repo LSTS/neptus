@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -78,7 +78,7 @@ public class ColormapOverlay implements Renderer2DPainter {
     protected String name;
     protected ColorMap colormap;
     protected ColorBar cb;
-    protected boolean inverted;
+    protected boolean inverted, clamp = true;
     protected int transparency = 0;
     public ColormapOverlay(String name, int cellWidth, boolean inverted, int transparency) {
         this.name = name;
@@ -87,6 +87,13 @@ public class ColormapOverlay implements Renderer2DPainter {
         this.transparency = transparency;
     }
     
+    /**
+     * @param clamp the clamp to set
+     */
+    public void setClamp(boolean clamp) {
+        this.clamp = clamp;
+    }
+
     public void addSampleUseMax(LocationType location, double value) {
         if (ref == null)
             ref = new LocationType(location.convertToAbsoluteLatLonDepth());
@@ -224,9 +231,10 @@ public class ColormapOverlay implements Renderer2DPainter {
         }
         else
             image = new BufferedImage(data.length, data[0].length, BufferedImage.TYPE_INT_ARGB);
-        
-        maxVal = Math.ceil(maxVal);
-        minVal = Math.floor(minVal);
+        if(clamp){
+            maxVal = Math.ceil(maxVal);
+            minVal = Math.floor(minVal);
+        }
         
         double amplitude = maxVal - minVal;
         Color c;

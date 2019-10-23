@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -68,10 +68,10 @@ import pt.lsts.neptus.util.ImageUtils;
 
 
 /**
- * @author lsts
+ * @author keila
  *
  */
-@PluginDescription(name = "Groovy Scripting", author = "Keila Lima",description="Scripting IMC plans using Groovy")
+@PluginDescription(name = "Groovy Scripting",description="Scripting IMC plans using Groovy")
 @Popup(pos = POSITION.RIGHT, width=500, height=600)
 @SuppressWarnings("serial")
 public class GroovyPanel extends ConsolePanel {
@@ -157,8 +157,13 @@ public class GroovyPanel extends ConsolePanel {
                     scripts_directory = fc.getSelectedFile();
                     border = BorderFactory.createTitledBorder("Script "+FileUtil.getFileNameWithoutExtension(scripts_directory)+" Output");
                     outputPanel.setBorder(border);
-                    NeptusLog.pub().info("Opening: " + scripts_directory.getName() + "." + "\n");
-                    editor.setText(FileUtil.getFileAsString(scripts_directory));
+                    if(scripts_directory.exists()){
+                        NeptusLog.pub().info("Opening: " + scripts_directory.getName() + "." + "\n");
+                        editor.setText(FileUtil.getFileAsString(scripts_directory));
+                    }
+                    else {
+                        scripts_directory = new File(fc.getSelectedFile().getAbsolutePath());
+                    }
                 }
             }
         };
@@ -188,21 +193,20 @@ public class GroovyPanel extends ConsolePanel {
             public void actionPerformed(ActionEvent e) {
                 File directory = null;
                 if(scripts_directory!=null){
-                    directory = new File (scripts_directory.getAbsolutePath());
-                    //FileUtil.saveToFile(scripts_directory.getAbsolutePath(), editor.getText());
+                    FileUtil.saveToFile(scripts_directory.getAbsolutePath(), editor.getText());
                 }
                 else{
                     directory = new File(".");
-                }
-                final JFileChooser fc = new JFileChooser(directory);
-                fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
-                // Demonstrate "Save" dialog:
-                int rVal = fc.showDialog(GroovyPanel.this, "Save as...");
-                if (rVal == JFileChooser.APPROVE_OPTION) {
-                    scripts_directory = fc.getSelectedFile();
-                    border = BorderFactory.createTitledBorder("Script "+FileUtil.getFileNameWithoutExtension(scripts_directory)+" Output");
-                    outputPanel.setBorder(border);
-                    FileUtil.saveToFile(scripts_directory.getAbsolutePath(), editor.getText());
+                    final JFileChooser fc = new JFileChooser(directory);
+                    fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+                    // Demonstrate "Save" dialog:
+                    int rVal = fc.showDialog(GroovyPanel.this, "Save as...");
+                    if (rVal == JFileChooser.APPROVE_OPTION) {
+                        scripts_directory = fc.getSelectedFile();
+                        border = BorderFactory.createTitledBorder("Script "+FileUtil.getFileNameWithoutExtension(scripts_directory)+" Output");
+                        outputPanel.setBorder(border);
+                        FileUtil.saveToFile(scripts_directory.getAbsolutePath(), editor.getText());
+                    }
                 }
             }
         };

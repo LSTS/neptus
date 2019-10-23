@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -160,6 +160,10 @@ public class NmeaPlotter extends ConsoleLayer implements NmeaProvider {
 
     @NeptusProperty(name = "Minutes to Show Distress Signal", category = "Distress Test", userLevel = LEVEL.ADVANCED)
     private int minutesToShowDistress = 5; 
+    
+    @NeptusProperty(name = "Connect via Ripples", category = "TCP Client", userLevel = LEVEL.REGULAR)
+    public boolean ripplesConnection = false;
+
 
     private JLabel distressLabelToPaint = new JLabel();
 
@@ -215,6 +219,18 @@ public class NmeaPlotter extends ConsoleLayer implements NmeaProvider {
                 updateAisManager(c);
             }
         }
+    }
+    
+    @Periodic(millisBetweenUpdates = 30_000)
+    public void ripplesUpdate() {
+        if (!ripplesConnection)
+            return;
+        try {
+            RipplesAisParser.getShips().forEach(contactDb::setMTShip);    
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error("Error downloading AIS data from Ripples: "+e.getMessage(), e);
+        }        
     }
 
     /**
@@ -339,6 +355,8 @@ public class NmeaPlotter extends ConsoleLayer implements NmeaProvider {
                 contactDb.processRattm(s);
             else if (nmeaType.startsWith("HDT", 3)) // GP
                 contactDb.processGPHDT(s);
+            else if (nmeaType.startsWith("GLL", 3)) // GP or NM
+                contactDb.processGLL(s);
             else {
                 synchronized (parser) {
                     parser.process(s); // Is AIS

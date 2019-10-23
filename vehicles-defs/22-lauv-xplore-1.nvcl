@@ -92,7 +92,7 @@
                     <radiusTolerance>5</radiusTolerance>
                 </finalPoint>
                 <amplitude>1</amplitude>
-                <pitch>0.17453292</pitch>
+                <pitch>0.26179939</pitch>
                 <speed type="float" unit="RPM">900</speed>
                 <annotation>
                     <documentation>No documentation available</documentation>

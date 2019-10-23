@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -33,6 +33,7 @@
 package pt.lsts.neptus.comm;
 
 import java.awt.Component;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -43,6 +44,12 @@ import pt.lsts.imc.AcousticOperation;
 import pt.lsts.imc.AcousticSystems;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.MessagePart;
+import pt.lsts.imc.TransmissionRequest;
+import pt.lsts.imc.TransmissionRequest.COMM_MEAN;
+import pt.lsts.imc.TransmissionRequest.DATA_MODE;
+import pt.lsts.imc.net.IMCFragmentHandler;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
@@ -170,6 +177,88 @@ public class IMCSendMessageUtils {
     }
 
     /**
+     * Send message to a system using any available acoustic gateway
+     * @param msg The message to send
+     * @param destination The destination to reach (possibly "broadcast")
+     * @return The resulting text to present to the user, if successful
+     * @throws Exception In case the message could not be delivered
+     * @see #burstMessageAcoustically(IMCMessage, String)
+     */
+    public static ArrayList<TransmissionRequest> sendMessageAcoustically(IMCMessage msg, String destination) throws Exception {
+        return sendMessageAcoustically(msg, destination, null, false, 60);
+    }
+    
+    /**
+     * Send message to a system using ALL available acoustic gateways
+     * @param msg The message to send
+     * @param destination The destination to reach (possibly "broadcast")
+     * @return The resulting text to present to the user, if successful
+     * @throws Exception In case the message could not be delivered
+     * @see #sendMessageAcoustically(IMCMessage, String)
+     */
+    public static ArrayList<TransmissionRequest> burstMessageAcoustically(IMCMessage msg, String destination) throws Exception {
+        return sendMessageAcoustically(msg, destination, null, true, 60);
+    }    
+    
+    public static ArrayList<TransmissionRequest> sendMessageAcoustically(IMCMessage msg, String destination, ImcSystem preferredGateway, boolean burst, int timeoutSecs) throws Exception {
+        
+        ArrayList<TransmissionRequest> requests = new ArrayList<TransmissionRequest>();
+        
+        if (msg.getPayloadSize() > 998) {
+            IMCFragmentHandler handler = new IMCFragmentHandler(IMCDefinition.getInstance());
+            
+            MessagePart[] parts = handler.fragment(msg, 998);
+            NeptusLog.pub().info("PlanDB message resulted in "+parts.length+" fragments");
+            for (MessagePart part : parts)
+                requests.addAll(sendMessageAcoustically(part, destination, preferredGateway, burst, 60));
+            return requests;
+        }
+        
+        NeptusLog.pub().debug("Send "+msg.getAbbrev()+" via acoustic modem to "+destination);
+        ImcSystem[] gateways = ImcSystemsHolder.lookupSystemByService("acoustic/operation", SystemTypeEnum.ALL, true);
+        
+        int sendCount = 0;
+        
+        if (gateways.length == 0)
+            throw new Exception("No acoustic gateways are available");
+        
+        ArrayList<ImcSystem> lst = new ArrayList<ImcSystem>();
+        lst.addAll(Arrays.asList(gateways));
+        
+        // make sure the preferred gateway is in the beginning of the list
+        if (preferredGateway != null) {
+            lst.remove(preferredGateway);
+            lst.add(0, preferredGateway);
+        }
+        
+        for (ImcSystem sys : lst) {
+            if (sys.getName().equals(destination) || !doesSystemWithAcousticCanReachSystem(sys, destination))
+                continue;
+            TransmissionRequest request = new TransmissionRequest();
+            request.setCommMean(COMM_MEAN.ACOUSTIC);
+            request.setReqId(getNextRequestId());
+            request.setDataMode(DATA_MODE.INLINEMSG);
+            request.setMsgData(msg);
+            request.setDestination(destination);
+            request.setDeadline(System.currentTimeMillis() / 1000.0 + timeoutSecs);
+
+            ImcMsgManager.getManager().sendMessageToSystem(request, sys.getName());
+            sendCount++;
+            requests.add(request);
+            if (!burst)
+                break;
+            
+        }
+        
+        if (sendCount == 0)
+            throw new Exception("Available gateways cannot reach destination.");
+        
+        return requests;
+    }
+            
+    
+    /**
+     * @deprecated use {@link #sendMessageAcoustically(IMCMessage, String)} instead
      * @param msg
      * @param system
      * @param acousticOpSysLst
@@ -178,6 +267,8 @@ public class IMCSendMessageUtils {
     public static boolean sendMessageByAcousticModem(IMCMessage msg, String system,
             boolean sendOnlyThroughOne, ImcSystem[] acousticOpSysLst) {
         // TODO listen for the responses back from the systems with modems
+        
+        NeptusLog.pub().info("Sending "+msg.getAbbrev()+" via acoustic modem to "+system);
         
         List<ImcSystem> lst = Arrays.asList(acousticOpSysLst);
         if (sendOnlyThroughOne)

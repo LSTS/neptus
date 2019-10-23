@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -85,6 +85,7 @@ import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.AbstractElement;
 import pt.lsts.neptus.types.map.MapGroup;
@@ -120,6 +121,7 @@ SubPanelChangeListener, MainVehicleChangeListener {
     public boolean showDisseminateOption = true;
 
     private Vector<IMapPopup> renderersPopups = new Vector<IMapPopup>();
+    protected ArrayList<MarkElement> intersectedObjects = new ArrayList<>();
 
     public ContactMarker(ConsoleLayout console) {
         super(console);
@@ -183,6 +185,17 @@ SubPanelChangeListener, MainVehicleChangeListener {
         ImcMsgManager.getManager().broadcastToCCUs(event);
     }
 
+    protected void testMouseIntersections(LocationType loc, StateRenderer2D renderer) {
+        intersectedObjects.clear();
+
+        Vector<MarkElement> marks = MapGroup.getMapGroupInstance(getConsole().getMission())
+                .getAllObjectsOfType(MarkElement.class);
+        marks.stream().sequential().forEachOrdered(elem -> {
+            if (elem.containsPoint(loc, renderer)) {
+                intersectedObjects.add(elem);
+            }
+        });
+    }
     /*
      * (non-Javadoc)
      * 
@@ -194,7 +207,9 @@ SubPanelChangeListener, MainVehicleChangeListener {
     public Collection<JMenuItem> getApplicableItems(final LocationType loc, IMapPopup source) {
 
         Vector<JMenuItem> menus = new Vector<JMenuItem>();
-
+        
+        testMouseIntersections(loc, source.getRenderer());
+        
         JMenuItem add = new JMenuItem(I18n.text("Add mark"));
         if (useSingleMarkAdditionMode)
             menus.add(add);
@@ -277,8 +292,10 @@ SubPanelChangeListener, MainVehicleChangeListener {
         }
 
         if (getConsole() != null && getConsole().getMission() != null) {
-            Vector<MarkElement> marks = MapGroup.getMapGroupInstance(getConsole().getMission()).getAllObjectsOfType(
-                    MarkElement.class);
+            if (intersectedObjects.size() == 0)
+                intersectedObjects.addAll(MapGroup.getMapGroupInstance(getConsole().getMission()).getAllObjectsOfType(
+                        MarkElement.class));
+            ArrayList<MarkElement> marks = intersectedObjects; 
             if (marks.size() > 0) {
                 JMenu remove = new JMenu(I18n.text("Remove mark"));
                 menus.add(remove);

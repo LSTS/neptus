@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -256,16 +256,17 @@ public class RowsPattern extends FollowPath {
             bearingRad = Math.toRadians(Double.parseDouble(doc.selectSingleNode("//bearing").getText()));
 
             // area
-            width = Double.parseDouble(doc.selectSingleNode("//width").getText());
+            width = Math.abs(Double.parseDouble(doc.selectSingleNode("//width").getText()));
             if (!ignoreLength) {
                 node = doc.selectSingleNode("//length");
                 if (node != null)
-                    length = Double.parseDouble(node.getText());
+                    length = Math.abs(Double.parseDouble(node.getText()));
                 else
                     length = width;
             }
             //steps
-            hstep = Double.parseDouble(doc.selectSingleNode("//hstep").getText());
+            hstep = Math.abs(Double.parseDouble(doc.selectSingleNode("//hstep").getText()));
+            hstep = hstep <= 0 ? 1 : hstep;
 
             if (!ignoreCrossAngle) {
                 node = doc.selectSingleNode("//crossAngle");
@@ -478,12 +479,14 @@ public class RowsPattern extends FollowPath {
 
             if (p.getName().equals("Width")) {
                 width = (Double)p.getValue();
+                width = width < 0 ? 1 : width;
                 continue;
             }
 
             if (!ignoreLength) {
                 if (p.getName().equals("Length")) {
                     length = (Double)p.getValue();
+                    length = length < 0 ? 1 : length;
                     continue;
                 }
             }
@@ -586,6 +589,27 @@ public class RowsPattern extends FollowPath {
         }
 
         return props;
+    }
+
+    // Validate for additional parameters
+    public String validateLength(double value) {
+        if (value <= 0)
+            return "Keep it above 0";
+        return null;
+    }
+
+    // Validate for additional parameters
+    public String validateWidth(double value) {
+        if (value <= 0)
+            return "Keep it above 0";
+        return null;
+    }
+
+    // Validate for additional parameters
+    public String validateHorizontalStep(double value) {
+        if (value <= 0)
+            return "Keep it above 0";
+        return null;
     }
 
     /* (non-Javadoc)

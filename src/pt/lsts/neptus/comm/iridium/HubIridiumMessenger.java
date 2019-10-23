@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -57,6 +57,7 @@ import com.google.gson.Gson;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.iridium.Position.PosType;
 import pt.lsts.neptus.util.ByteUtil;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**
  * @author zp
@@ -66,7 +67,7 @@ import pt.lsts.neptus.util.ByteUtil;
 public class HubIridiumMessenger implements IridiumMessenger {
 
     protected boolean available = true;
-    protected String serverUrl = "http://ripples.lsts.pt/api/v1/";
+    protected String serverUrl = GeneralPreferences.ripplesUrl + "/api/v1/";
     // protected String serverUrl = "http://lsts-hub/api/v1/";
     protected String systemsUrl = serverUrl+"systems";
     protected String activeSystemsUrl = systemsUrl+"/active";
@@ -219,7 +220,7 @@ public class HubIridiumMessenger implements IridiumMessenger {
         String since = null;
         if (timeSince != null)
             since = dateToString(timeSince);
-        URL u = new URL(messagesUrl+"?since="+since);
+        URL u = new URL(messagesUrl+"?since="+(timeSince.getTime()/1000));
         if (since == null)
             u = new URL(messagesUrl);
         HttpURLConnection conn = (HttpURLConnection) u.openConnection();
@@ -239,7 +240,12 @@ public class HubIridiumMessenger implements IridiumMessenger {
         Vector<IridiumMessage> ret = new Vector<>();        
         
         for (HubMessage m : msgs) {
-            ret.add(m.message());
+            try {
+                ret.add(m.message());
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(e);
+            }
         }
         
         return ret;
@@ -316,11 +322,18 @@ public class HubIridiumMessenger implements IridiumMessenger {
     }
     
     public static void main(String[] args) throws Exception {
+        GeneralPreferences.ripplesUrl = "https://ripples.lsts.pt";
+        
         HubIridiumMessenger messenger = new HubIridiumMessenger();
-        Date d = new Date(System.currentTimeMillis() - (1000 * 3600 * 60));
+        Date d = new Date(System.currentTimeMillis() - (1000 * 3600 * 5));
         
         System.out.println(dateToString(d));
-        System.out.println(messenger.pollMessages(d).size());
+        System.out.println(d.getTime());
+        Collection<IridiumMessage> msgs = messenger.pollMessages(d);
+        System.out.println(msgs.size());
+        msgs.stream().forEach(m -> {
+            System.out.println(m.asImc());
+        });
         
         
         

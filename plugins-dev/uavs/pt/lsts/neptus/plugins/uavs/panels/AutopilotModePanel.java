@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -38,6 +38,7 @@ import java.awt.Font;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+import javax.swing.UIManager;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -48,39 +49,59 @@ import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
+import pt.lsts.neptus.plugins.update.Periodic;
 
 /** Shows Autopilot mode and level of autonomy
  * @author jfortuna
+ * M. Ribeiro
  *
  */
 @PluginDescription(name = "Autopilot Mode Indicator", author = "jfortuna",  version = "0.1", category = CATEGORY.INTERFACE)
 public class AutopilotModePanel extends ConsolePanel implements MainVehicleChangeListener {
 
+    @NeptusProperty
+    public long oldMsgTimeout = 2000;
+
     private static final long serialVersionUID = 1L;
-    
+    private long lastMsgMillis;
+
     // Current mode variables
     private String currentMode = null;
     private AUTONOMY autonomyLevel = AUTONOMY.MANUAL;
-    
+
     // GUI
     private JPanel modePanel = null;
-    
+
+    private boolean updated = false;
+
+    @Periodic
+    public void checkIfOld() {
+        if (!updated && (System.currentTimeMillis() - lastMsgMillis >= oldMsgTimeout)) {
+            modePanel.setBackground(UIManager.getColor( "Panel.background"));
+            modePanel.removeAll();
+            modePanel.repaint();
+            updated = true;
+        }
+    }
+
     // Listener
     @Subscribe
     public void on(AutopilotMode msg) {
         if(!msg.getSourceName().equals(getConsole().getMainSystem()))
             return;
-        
+
+        lastMsgMillis = System.currentTimeMillis();
         currentMode = msg.getMode();
         autonomyLevel = msg.getAutonomy();
-        
+
         modePanel.removeAll();
-        
+
         JLabel modeLabel = new JLabel(currentMode,SwingConstants.CENTER);
         modeLabel.setFont(new Font(modeLabel.getFont().getFontName(),Font.BOLD,modeLabel.getFont().getSize()));
-        
+
         switch (autonomyLevel) {
             case MANUAL:
                 modePanel.setBackground(Color.yellow);
@@ -93,8 +114,9 @@ public class AutopilotModePanel extends ConsolePanel implements MainVehicleChang
                 modePanel.setBackground(Color.green.darker());
                 break;
         };
-        
+
         modePanel.add(modeLabel, "w 100%, h 100%");
+        updated = false;
     }
 
     /**
@@ -106,7 +128,7 @@ public class AutopilotModePanel extends ConsolePanel implements MainVehicleChang
         // clears all the unused initializations of the standard SimpleSubPanel
         removeAll();
     }
-    
+
     @Override
     public void initSubPanel() {
 
@@ -116,7 +138,7 @@ public class AutopilotModePanel extends ConsolePanel implements MainVehicleChang
         this.setLayout(new MigLayout("gap 0 0, ins 0"));
         this.add(modePanel,"w 100%, h 100%, wrap"); 
     }
-    
+
     private void titlePanelSetup() {
         modePanel = new JPanel(new MigLayout("gap 0 0, ins 0"));
         modePanel.add(new JLabel(I18n.text("Mode Indicator"),SwingConstants.CENTER), "w 100%, h 100%");

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -95,10 +95,11 @@ public class VerticalProfileViewer implements Renderer2DPainter {
     private boolean valuesTable = true;
 
     public VerticalProfileViewer() {
+        if (!store.exists())
+            return;
         synchronized (profiles) {
             try {
                 JsonArray arr = Json.parse(new FileReader(store)).asArray();
-
                 for (JsonValue v : arr.values()) {
                     profiles.add((VerticalProfile) VerticalProfile.parseJson(v.toString()));
                 }

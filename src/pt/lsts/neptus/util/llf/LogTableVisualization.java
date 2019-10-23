@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -135,7 +135,9 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
 
     @Override
     public String getName() {
-        return log.name();
+        StringBuilder sb = new StringBuilder(log.name());
+        sb.append(" Messages");
+        return sb.toString();
     }
 
     private void applyFilter(ArrayList<String> msgsToFilter, int initTS, int finalTS) {
@@ -155,10 +157,8 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
 
         RowFilter<IndexedLogTableModel, Object> rf = null;
         //If current expression doesn't parse, don't update.
-
-        for (String msg : msgsToFilter) {
-            filters.add(RowFilter.regexFilter(msg, 2));
-        }
+        for (String msg : msgsToFilter)
+            filters.add(RowFilter.regexFilter("^"+msg+"$", 2));
 
         rf = RowFilter.orFilter(filters);
 

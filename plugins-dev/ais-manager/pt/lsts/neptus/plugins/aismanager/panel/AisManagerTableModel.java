@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -38,6 +38,7 @@ import pt.lsts.neptus.util.MathMiscUtils;
 import javax.swing.table.DefaultTableModel;
 
 public class AisManagerTableModel extends DefaultTableModel {
+    private static final long serialVersionUID = -621914316989929156L;
     private int MMSI_COL = 1;
     private int SOG_COL = 2;
     private int COG_COL = 3;

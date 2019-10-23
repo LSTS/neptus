@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -40,6 +40,7 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Vector;
 
@@ -236,7 +237,10 @@ public class PlanWizard extends ConsolePanel implements MissionChangeListener {
         path.getShapePoints().forEach(p -> poly.addVertex(p));
         
         Pair<Double, Double> diamAngle = poly.getDiameterAndAngle();
-        ArrayList<LocationType> coverage = poly.getCoveragePath(diamAngle.second(), options.getSelection().swathWidth, 0);
+        ArrayList<LocationType> coverage = poly.getCoveragePath(diamAngle.second(), options.getSelection().swathWidth, options.getSelection().corner);
+        
+        if (options.getSelection().reversed)
+            Collections.reverse(coverage);
         
         PlanType generated = new PlanType(getConsole().getMission());
         
@@ -372,5 +376,13 @@ public class PlanWizard extends ConsolePanel implements MissionChangeListener {
                 
         @NeptusProperty(name="Generated plan id", description="Name of the generated plan")
         public String planId = "plan_wiz";
+        
+        @NeptusProperty(name="Reversed", description="Reverse plan")
+        public boolean reversed = false;
+        
+        @NeptusProperty(name="Corner", description="First Corner")
+        public int corner = 0;
+        
+        
     }
 }

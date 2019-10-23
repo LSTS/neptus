@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -36,7 +36,7 @@ import java.lang.reflect.Field;
 
 import pt.lsts.neptus.plugins.NeptusProperty;
 
-public class SoiSettings {
+public class SoiSettings{
     @NeptusProperty(name = "Nominal Speed", description="Speed to used when planning (nominal)", units="m/s")
     public double speed = 1;
 

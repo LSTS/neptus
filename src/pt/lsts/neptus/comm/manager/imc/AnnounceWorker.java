@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2018 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -637,7 +637,7 @@ public class AnnounceWorker {
             if (!sys.isServiceProvided("acoustic"))
                 return;
                 
-            NeptusLog.pub().debug("Sending '" + sys.name + " | "
+            NeptusLog.pub().warn("Sending '" + sys.name + " | "
                     + sys.getId() + "' AcousticSystemsQuery request...");
             IMCMessage msg = new AcousticSystemsQuery(imcDefinition);
             imcManager.sendMessage(msg, sys.getId(), null);
