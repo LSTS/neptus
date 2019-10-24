@@ -58,7 +58,7 @@ For simple use the main targets are:
 	<!-- =================================================================== -->
 	<property name="version.MAJOR" value="2019" />
 	<property name="version.MINOR" value="10" />
-	<property name="version.PATCH" value="1" />
+	<property name="version.PATCH" value="2" />
 	<!-- Set this to '-dev' if a developer release; blank "" if maintenance release; or '-rcX' for release candidate X (X number) -->
 	<property name="version.DEVELOPER" value="-dev" />
 	
