@@ -558,6 +558,7 @@ For simple use the main targets are:
 		<exec executable="git" outputproperty="git.tagstring" failonerror="false">
 			<arg value="describe"/>
 			<arg value="--dirty"/>
+			<arg value="--match=neptus*"/>
 		</exec>
 		<local name="git.revision" />
 		<exec executable="git" outputproperty="git.revision">
