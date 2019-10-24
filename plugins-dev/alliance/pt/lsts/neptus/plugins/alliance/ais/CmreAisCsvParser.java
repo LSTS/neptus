@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -32,6 +32,9 @@
  */
 package pt.lsts.neptus.plugins.alliance.ais;
 
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetSocketAddress;
 import java.util.Arrays;
 
 import pt.lsts.neptus.NeptusLog;
@@ -42,7 +45,9 @@ import pt.lsts.neptus.systems.external.ExternalSystemsHolder;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.AISUtil;
 import pt.lsts.neptus.util.AngleUtils;
+import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.NMEAUtils;
+import pt.lsts.neptus.util.UnitsUtil;
 
 /**
  * @author pdias
@@ -104,7 +109,7 @@ public class CmreAisCsvParser {
             case "DISTRESS_STATUS":
                 return parseDistressStatus(sentence);
             default:
-                NeptusLog.pub().error("Type not known (" + type + ")");
+                NeptusLog.pub().debug("Type not known (" + type + ")");
                 return false;
         }
     }
@@ -123,9 +128,9 @@ public class CmreAisCsvParser {
      * @param contactDb 
      */
     private static boolean parseAIS(String sentence, AisContactDb contactDb) {
-        final int AIS_ELM = 11;
-        final int EXTRA_COUNTER_IDX = 12;
-        final int MIN_ELMS = 13;
+        final int AIS_ELM = 12;
+        final int EXTRA_COUNTER_IDX = 13;
+        final int MIN_ELMS = 14;
         String[] tk = sentence.split(",");
         if (tk.length < MIN_ELMS || !"AIS".equalsIgnoreCase(tk[0].trim()))
             return false;
@@ -143,7 +148,7 @@ public class CmreAisCsvParser {
         }
         
         if (extraElements == 0)
-            return false;
+            return true;
         if (tk.length != MIN_ELMS + AIS_ELM * extraElements)
             return false;
         
@@ -163,6 +168,7 @@ public class CmreAisCsvParser {
         if (msg.length < 11)
             return false;
         
+        int mmsi = -1;
         String name = null;
         String type = "";
         double latDegs = 0;
@@ -180,6 +186,14 @@ public class CmreAisCsvParser {
                 String[] tk = st.split("=");
                 String v;
                 switch (tk[0].trim().toLowerCase()) {
+                    case "mmsi":
+                        try {
+                            mmsi = Integer.parseInt(tk[1].trim());
+                        }
+                        catch (NumberFormatException e) {
+                            e.printStackTrace();
+                        }
+                        break;
                     case "node_name":
                         name = tk[1].trim();
                         break;
@@ -247,18 +261,27 @@ public class CmreAisCsvParser {
         }
         
         long timeMillis = System.currentTimeMillis();
-        if (Double.isFinite(timestamp)) // assuming millis since epoch
-            timeMillis = Double.valueOf(timestamp).longValue();
+        if (Double.isFinite(timestamp)) { // assuming seconds since epoch
+            timeMillis = Double.valueOf(timestamp * 1E3).longValue();
+        }
         
-        int mmsi = -1;
-        try {
-            mmsi = Integer.parseInt(name);
+        if (mmsi == -1) {
+            try {
+                mmsi = Integer.parseInt(name);
+                String shipName = contactDb.getNameForMMSI(mmsi);
+                if (shipName != null && !shipName.isEmpty())
+                    name = shipName;
+            }
+            catch (NumberFormatException e) {
+                // e.printStackTrace();
+                mmsi = name.hashCode();
+            }
+        }
+        
+        if (name == null && mmsi != -1) {
             String shipName = contactDb.getNameForMMSI(mmsi);
             if (shipName != null && !shipName.isEmpty())
                 name = shipName;
-        }
-        catch (NumberFormatException e) {
-            e.printStackTrace();
         }
         
         ExternalSystem sys = NMEAUtils.getAndRegisterExternalSystem(mmsi, name);
@@ -271,10 +294,10 @@ public class CmreAisCsvParser {
         sys.setLocation(loc, timeMillis);
         sys.setAttitudeDegrees(headingDegs > 360 ? courseDegs : headingDegs, timeMillis);
         
-        if (mmsi > 0)
+        if (mmsi != -1)
             sys.storeData(SystemUtils.MMSI_KEY, mmsi, timeMillis, true);
 
-        sys.storeData(SystemUtils.GROUND_SPEED_KEY, speedKnots / AisContactDb.MPS_TO_KNOT_CONV, timeMillis, true);
+        sys.storeData(SystemUtils.GROUND_SPEED_KEY, speedKnots / UnitsUtil.MS_TO_KNOT, timeMillis, true);
         sys.storeData(SystemUtils.COURSE_DEGS_KEY, courseDegs, timeMillis, true);
 
         sys.storeData(SystemUtils.NAV_STATUS_KEY, AISUtil.translateNavigationalStatus(navStatus), timeMillis, true);
@@ -289,7 +312,7 @@ public class CmreAisCsvParser {
         if (Double.isFinite(rateOfTurnDegsPerMin)) {
             sys.storeData(SystemUtils.RATE_OF_TURN_DEGS_PER_MIN_KEY, rateOfTurnDegsPerMin, timeMillis, true);
         }
-        
+
         return true;
     }
     
@@ -408,7 +431,7 @@ public class CmreAisCsvParser {
         if (mmsi > 0)
             sys.storeData(SystemUtils.MMSI_KEY, mmsi, timeMillis, true);
 
-        sys.storeData(SystemUtils.GROUND_SPEED_KEY, speedKnots / AisContactDb.MPS_TO_KNOT_CONV, timeMillis, true);
+        sys.storeData(SystemUtils.GROUND_SPEED_KEY, speedKnots / UnitsUtil.MS_TO_KNOT, timeMillis, true);
 //        sys.storeData(SystemUtils.COURSE_KEY, courseDegs, timeMillis, true);
 
         if (!type.isEmpty()) {
@@ -593,7 +616,7 @@ public class CmreAisCsvParser {
         return true;
     }
 
-    public static void main(String[] args) {
+    public static void test1(String[] args) {
         AisContactDb contactDb = new AisContactDb();
         
         String sentenceAIS = "AIS,Node_Name=211212500,Node_Type=ship,Latitude=38.889712,"
@@ -628,6 +651,46 @@ public class CmreAisCsvParser {
         parseDistressStatus(sentenceDistressStatus);
         
         System.out.println(Arrays.toString(ExternalSystemsHolder.lookupAllActiveSystems()));
+    }
+    
+    public static void test2(String[] args) {
+        try (DatagramSocket socket = new DatagramSocket();) {
+            if (args.length < 3) {
+                System.out.println("Usage <host> <port> <file>");
+                System.exit(1);
+            }
+            
+            String host = args[0];
+            int port = Integer.parseInt(args[1]);
+            String file = args[2];
+            
+//            byte[] ba = FileUtil.getFileAsByteArray(file);
+//            ByteBuffer bb = ByteBuffer.wrap(ba);
+//            byte[] dst = new byte[bb.remaining()];
+//            while (bb.remaining() > 0) {
+//                bb.get(dst, 0, Math.min(bb.remaining(), dst.length));
+//                DatagramPacket packet = new DatagramPacket(dst, dst.length, new InetSocketAddress(host, port ));
+//                socket.send(packet);
+//            }
+            
+            String sentences = FileUtil.getFileAsString(file);
+            String[] sts = sentences.split("\n");
+            for (String s : sts) {
+                Thread.sleep(2000);
+                byte[] dst = s.getBytes();
+                DatagramPacket packet = new DatagramPacket(dst, dst.length, new InetSocketAddress(host, port ));
+                socket.send(packet);
+                System.out.println("sent to " + host + ":" + port + ": " + s);
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        System.out.println("END");
+    }
 
+    public static void main(String[] args) {
+        // test1(args);
+        test2(args);
     }
 }

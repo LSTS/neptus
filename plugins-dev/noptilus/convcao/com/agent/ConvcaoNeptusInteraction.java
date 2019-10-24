@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -92,11 +92,11 @@ import com.google.gson.Gson;
 import convcao.com.agent.model.InputData;
 import convcao.com.agent.model.TransferData;
 import pt.lsts.imc.DesiredZ;
-import pt.lsts.imc.DesiredZ.Z_UNITS;
 import pt.lsts.imc.Distance;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.FollowRefState;
 import pt.lsts.imc.Reference;
+import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
@@ -1160,7 +1160,7 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
         //System.out.println("depth for "+vehicle.getId()+" is "+depth);
         ref.setLat(dest.getLatitudeRads());
         ref.setLon(dest.getLongitudeRads());
-        DesiredZ desZ = new DesiredZ(depth, Z_UNITS.DEPTH);
+        DesiredZ desZ = new DesiredZ(depth, ZUnits.DEPTH);
 
         if (depth > 0)
             ref.setRadius(10);

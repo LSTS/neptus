@@ -52,7 +52,7 @@ import pt.lsts.imc.PowerChannelControl.OP;
 import pt.lsts.imc.PowerChannelState;
 import pt.lsts.imc.PowerChannelState.STATE;
 import pt.lsts.imc.Target;
-import pt.lsts.imc.Target.Z_UNITS;
+import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
@@ -136,7 +136,7 @@ public class DropMapLayer extends SimpleRendererInteraction implements Renderer2
                 target.setLat(targetPos.getLatitudeRads());
                 target.setLon(targetPos.getLongitudeRads());
                 target.setZ(dropHeight);
-                target.setZUnits(Z_UNITS.HEIGHT);
+                target.setZUnits(ZUnits.HEIGHT);
                 target.setLabel("neptus");
                 send(target);
                 dropPos = null;

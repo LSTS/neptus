@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -33,13 +33,36 @@
 package pt.lsts.neptus.colormap;
 
 import java.awt.Color;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URL;
+import java.nio.file.DirectoryStream;
+import java.nio.file.DirectoryStream.Filter;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.security.CodeSource;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Vector;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.apache.commons.io.FilenameUtils;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 public class ColorMapFactory {
 
@@ -63,9 +86,12 @@ public class ColorMapFactory {
         colorMapNamesList.add("White");
         colorMapNamesList.add("Rainbow");
         colorMapNamesList.add("Bronze");
+        colorMapNamesList.add("BrownToWhite");
         colorMapNamesList.add("StoreData");
 
         Collections.sort(colorMapNamesList);
+        
+        ColorMapFactory.loadAdditionalColorMaps();
     }
 
     private ColorMapFactory() {
@@ -110,12 +136,14 @@ public class ColorMapFactory {
             return createRedYellowGreenColorMap();
         else if ("bronze".equalsIgnoreCase(name))
             return createBronzeColormap();
+        else if ("brownToWhite".equalsIgnoreCase(name))
+            return createBrownToWhiteColormap();
 
         else {
-            for (int i = 0; i < ColorMap.cmaps.length; i++) {
-                if (ColorMap.cmaps[i].toString().equalsIgnoreCase(name))
-                    return ColorMap.cmaps[i];
-            }
+            ColorMap cmMatched = ColorMap.cmaps.stream().filter(cm -> cm.toString().equalsIgnoreCase(name)).findFirst()
+                    .orElse(null);
+            if (cmMatched != null)
+                return cmMatched;
         }
         return createJetColorMap();
     }
@@ -357,6 +385,22 @@ public class ColorMapFactory {
         return bronze;
     }
 
+    private static InterpolationColorMap brownToWhite = null;
+    public static InterpolationColorMap createBrownToWhiteColormap() {
+        if (brownToWhite == null) {
+            InputStreamReader isr = new InputStreamReader(
+                    ClassLoader.getSystemResourceAsStream("colormaps/brown_white.255.colormap"));
+            try {
+                brownToWhite = new TabulatedColorMap(isr, true);
+                ((InterpolationColorMap) brownToWhite).setName(I18n.textc("BrownToWhite", "Colormap name"));
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return brownToWhite;
+    }
+
     private static InterpolationColorMap sscanmap = null;
 
     public static InterpolationColorMap createSideScanColorMap() {
@@ -387,13 +431,159 @@ public class ColorMapFactory {
 
         return new InterpolationColorMap(I18n.text("Inverted") + " " + original.toString(), inv, colors);
     }
+    
+    static void loadAdditionalColorMaps() {
+        List<InterpolationColorMap> loadedColormaps = new ArrayList<>();
+        
+        CodeSource src = ColorMapFactory.class.getProtectionDomain().getCodeSource();
+        if (src != null) {
+            try {
+                URL jar = src.getLocation();
+                System.out.println(jar.toURI().toString());
+                
+                Filter<Path> filter = new DirectoryStream.Filter<Path>() {
+                    @Override
+                    public boolean accept(Path entry) throws IOException {
+                        String ext = FilenameUtils.getExtension(entry.toString());
+                        switch (ext.toLowerCase()) {
+                            case "rgb":
+                            case "act":
+                            case "gct":
+                            case "cpt":
+                                return true;
+                            default:
+                                break;
+                        }
+                        return false;
+                    }
+                };
+                
+                // Load jar colormaps
+                List<InterpolationColorMap> cmJarColormaps = new ArrayList<>();
+                boolean isJar = jar.getPath().endsWith(".jar");
+                URI uri = isJar ? URI.create("jar:" + jar.toURI().toString()) : URI.create(jar.toURI().toString());
+                Map<String, String> env = new HashMap<>();
+                env.put("create", "false");
+                try (FileSystem fs = isJar ? FileSystems.newFileSystem(uri, env) : FileSystems.getDefault()) {
+                    Path cmp = fs.getPath(isJar ? "/" : uri.getPath() + "colormaps");
+                    try (Stream<Path> walk = Files.walk(cmp, 2)) {
+                        for (Iterator<Path> it = walk.iterator(); it.hasNext();){
+                            Path p = it.next();
+                            if (!filter.accept(p))
+                                continue;
+                            try (InputStream colomapStream = Files.newInputStream(p, StandardOpenOption.READ)) {
+                                InterpolationColorMap cm = loadColorMap(p, colomapStream);
+                                if (cm != null)
+                                    cmJarColormaps.add(cm);
+                            }
+                            catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                    catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                catch (UnsupportedOperationException e) {
+                    if (isJar)
+                        e.printStackTrace();
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
 
+                if (!cmJarColormaps.isEmpty())
+                    NeptusLog.pub().info("Loaded "+cmJarColormaps.size()+" colormaps from "+jar);
+                
+                // Load external colormaps
+                List<InterpolationColorMap> cmFolderColormaps = new ArrayList<>();
+                try {
+                    Path localFolderColormaps = Paths.get(ConfigFetch.getConfFolder() + "/colormaps/");
+                    if (localFolderColormaps.toFile().exists()) {
+                        DirectoryStream<Path> fds = Files
+                                .newDirectoryStream(localFolderColormaps, filter);
+                        fds.forEach(p -> {
+                            try (InputStream colomapStream = Files.newInputStream(p)) {
+                                InterpolationColorMap cm = loadColorMap(p, colomapStream);
+                                if (cm != null)
+                                    cmFolderColormaps.add(cm);
+                            }
+                            catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        });
+                    }
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                if (!cmFolderColormaps.isEmpty())
+                    NeptusLog.pub().info("Loaded "+cmFolderColormaps.size()+" colormaps from "+ConfigFetch.getConfFolder() + "/colormaps/");
+                
+                loadedColormaps.addAll(cmJarColormaps.stream().sorted((c1, c2) -> c1.getName().compareTo(c2.getName()))
+                        .collect(Collectors.toList()));
+                loadedColormaps.addAll(cmFolderColormaps.stream()
+                        .sorted((c1, c2) -> c1.getName().compareTo(c2.getName())).collect(Collectors.toList()));
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+            
+            if (!loadedColormaps.isEmpty()) {
+                List<ColorMap> nl = ColorMap.cmaps;
+                nl.addAll(loadedColormaps);
+                loadedColormaps.forEach(cm -> colorMapNamesList.add(cm.getName()));
+            }
+        }
+    }
+
+    private static InterpolationColorMap loadColorMap(Path path, InputStream inputStream) {
+        String ext = FilenameUtils.getExtension(path.toString());
+        InterpolationColorMap cm = null;
+        String name = path.getName(path.getNameCount() - 1).toString();
+        try {
+            switch (ext.toLowerCase()) {
+                case "act":
+                case "gct":
+                    cm = ColorMapParser.loadAdobeColorTable(name, inputStream);
+                    break;
+                case "rgb":
+                    cm = ColorMapParser.loadRGBColorTable(name, inputStream);
+                    break;
+                case "cpt":
+                    cm = ColorMapParser.loadCPTColorTable(name, inputStream);
+                    break;
+                default:
+                    break;
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (cm != null)
+            NeptusLog.pub().debug(String.format("Loaded '%s' colormap", name));
+        else
+            NeptusLog.pub().warn(String.format("Error loading '%s' colormap", name));
+
+        return cm;
+    }
+    
     public static void main(String[] args) {
         ColorBar bar = new ColorBar(ColorBar.HORIZONTAL_ORIENTATION,
                 ColorMapFactory.createInvertedColorMap((InterpolationColorMap) ColorMapFactory.createAutumnColorMap()));
         ColorBar bar2 = new ColorBar(ColorBar.HORIZONTAL_ORIENTATION, ColorMapFactory.createAutumnColorMap());
         GuiUtils.testFrame(bar, bar.getCmap().toString());
         GuiUtils.testFrame(bar2, bar2.getCmap().toString());
+
+        ColorBar bar3 = new ColorBar(ColorBar.HORIZONTAL_ORIENTATION, ColorMapFactory.createBronzeColormap());
+        GuiUtils.testFrame(bar3, bar3.getCmap().toString());
+        ColorBar bar4 = new ColorBar(ColorBar.HORIZONTAL_ORIENTATION, ColorMapFactory.createBrownToWhiteColormap());
+        GuiUtils.testFrame(bar4, bar4.getCmap().toString());
+        
+        loadAdditionalColorMaps();
 
     }
 }

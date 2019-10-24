@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -261,6 +261,32 @@ public class LogTree extends JTree {
                 for (TreePath path : paths) {
                     final DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
                     panel.removeMarker((LogMarker) node.getUserObject());
+                }
+            }
+        });
+        
+        menu.add(new AbstractAction(I18n.text("Remane")) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (LsfReportProperties.generatingReport) {
+                    GuiUtils.infoMessage(panel.getRootPane(),
+                            I18n.text("Can not rename Marks"),
+                            I18n.text("Can not rename Marks - Generating Report."));
+                    
+                }
+                String label = GuiUtils.input(panel.getRootPane(), "Enter Mark New Name", "mark");
+                char first = label.charAt(0);
+                if(!Character.isLetter(first)){
+                    GuiUtils.infoMessage(panel.getRootPane(),
+                            I18n.text("Can not rename Mark"),I18n.text("The name should start with a letter."));
+                    actionPerformed(e);
+                    return;
+                }
+                else {
+                    for (TreePath path : paths) {
+                        final DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
+                        panel.renameMarker((LogMarker) node.getUserObject(), label);
+                    }
                 }
             }
         });

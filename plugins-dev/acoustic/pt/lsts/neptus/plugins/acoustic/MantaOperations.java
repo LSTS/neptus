@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -50,8 +50,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.Set;
 import java.util.Vector;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
@@ -78,7 +78,6 @@ import pt.lsts.imc.EntityParameter;
 import pt.lsts.imc.GpsFix;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.MessagePart;
 import pt.lsts.imc.PlanControl;
 import pt.lsts.imc.PlanControl.OP;
 import pt.lsts.imc.PlanControl.TYPE;
@@ -87,8 +86,11 @@ import pt.lsts.imc.RSSI;
 import pt.lsts.imc.SetEntityParameters;
 import pt.lsts.imc.StorageUsage;
 import pt.lsts.imc.TextMessage;
+import pt.lsts.imc.TransmissionRequest;
+import pt.lsts.imc.TransmissionStatus;
 import pt.lsts.imc.Voltage;
-import pt.lsts.imc.net.IMCFragmentHandler;
+import pt.lsts.imc.def.SpeedUnits;
+import pt.lsts.imc.def.ZUnits;
 import pt.lsts.imc.sender.MessageEditor;
 import pt.lsts.imc.state.ImcSystemState;
 import pt.lsts.neptus.NeptusLog;
@@ -99,14 +101,13 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.notifications.Notification;
-import pt.lsts.neptus.gui.VehicleChooser;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mystate.MyState;
 import pt.lsts.neptus.plugins.ConfigurationListener;
+import pt.lsts.neptus.plugins.NeptusMenuItem;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.plugins.update.Periodic;
@@ -116,13 +117,9 @@ import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
-import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
-import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.ConsoleParse;
 import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.ImageUtils;
-import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**
  * @author zp
@@ -151,7 +148,7 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
     protected LinkedHashMap<Integer, PlanControl> pendingRequests = new LinkedHashMap<>();
 
     public HashSet<String> knownSystems = new HashSet<>();
-    
+
     @NeptusProperty(name = "Systems listing", description = "Use commas to separate system identifiers")
     public String sysListing = "benthos-1,benthos-2,benthos-3,benthos-4,lauv-xtreme-2,lauv-noptilus-1,lauv-noptilus-2,lauv-noptilus-3";
 
@@ -175,7 +172,8 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
     protected Vector<Double> rangeDistances = new Vector<Double>();
 
     protected boolean initialized = false;
-    
+
+    private ConcurrentHashMap<Integer, TransmissionRequest> transmissions = new ConcurrentHashMap<Integer, TransmissionRequest>();
     /**
      * @param console
      */
@@ -183,7 +181,7 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
         super(console);      
         addTemplates();
     }
-    
+
     private void addTemplates() {
         PlanControl pc = new PlanControl();
         pc.setPlanId("dislodge");
@@ -191,27 +189,27 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
         pc.setRequestId(1);
         pc.setFlags(PlanControl.FLG_IGNORE_ERRORS);
         pc.setOp(OP.START);
-        
+
         editor.addTemplate("(Template) Dislodge", pc);
-        
+
         PlanControl surf = new PlanControl();
         Elevator elev = new Elevator();
         elev.setEndZ(0);
-        elev.setEndZUnits(Elevator.END_Z_UNITS.DEPTH);
+        elev.setEndZUnits(ZUnits.DEPTH);
         elev.setStartZ(0);
-        elev.setStartZUnits(Elevator.START_Z_UNITS.DEPTH);
+        elev.setStartZUnits(ZUnits.DEPTH);
         elev.setRadius(15);
         elev.setSpeed(1.2);
-        elev.setSpeedUnits(Elevator.SPEED_UNITS.METERS_PS);
+        elev.setSpeedUnits(SpeedUnits.METERS_PS);
         surf.setPlanId("surface");
         surf.setArg(elev);
         surf.setType(TYPE.REQUEST);
         surf.setRequestId(1);
         surf.setFlags(PlanControl.FLG_IGNORE_ERRORS);
         surf.setOp(OP.START);
-        
+
         editor.addTemplate("(Template) Surface", surf);
-        
+
         SetEntityParameters setParams = new SetEntityParameters();
         setParams.setName("Report Supervisor");
         EntityParameter p1 = new EntityParameter();
@@ -221,16 +219,13 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
         p2.setName("Acoustic Reports Periodicity");
         p2.setValue("60");
         setParams.setParams(Arrays.asList(p1, p2));
-        
+
         editor.addTemplate("(Template) Acoustic Reports", setParams);
+
+        TextMessage txt = new TextMessage().setText("info");
+        txt.setOrigin("neptus");
         
-        AcousticOperation acText = new AcousticOperation();
-        acText.setOp(AcousticOperation.OP.MSG);
-        acText.setSystem("broadcast");
-        TextMessage txt = new TextMessage().setText("your text here.");
-        acText.setMsg(txt);
-        
-        editor.addTemplate("(Template) Acoustic Text", acText);
+        editor.addTemplate("(Template) Text Message", txt);
     }
 
     protected ActionListener systemActionListener = new ActionListener() {
@@ -240,35 +235,117 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
         }
     };
 
-    private boolean sendAcoustically(String destination, IMCMessage msg) {
-        ImcSystem[] sysLst = gateways();
-        AcousticOperation op = new AcousticOperation(AcousticOperation.OP.MSG, destination, 0, msg);
 
-        if (sysLst.length == 0) {
-            post(Notification
-                    .error(I18n.text("Send message"),
-                            I18n.text("No acoustic device is capable of sending this message"))
-                    .src(I18n.text("Console")));
-            return false;
+    @NeptusMenuItem("Tools>Acoustic Operations>Start plan...")
+    public void startPlan() {
+        SendPlanDialog dialog = SendPlanDialog.sendPlan(getConsole());
+
+        if (dialog == null)
+            return;
+
+        PlanType pt = getConsole().getMission().getIndividualPlansList().get(dialog.planId);
+        IMCMessage spec = pt.asIMCPlan();
+        boolean customManeuver = !pt.getGraph().getInitialManeuverId().equals(dialog.startingManeuver);
+        
+        if (dialog.justSendPlan || dialog.sendDefinition) {
+            PlanDB pdb = new PlanDB();
+            pdb.setPlanId(pt.getId());
+            pdb.setOp(PlanDB.OP.SET);
+            pdb.setType(PlanDB.TYPE.REQUEST);
+            pdb.setArg(spec);
+            sendAcoustically(dialog.selectedVehicle, pdb);            
+        }
+        if (dialog.justSendPlan)
+            return;
+        
+        if (customManeuver) {
+            sendAcoustically(dialog.selectedVehicle,
+                    new TextMessage("neptus", "resume " + pt.getId() + " " + dialog.startingManeuver));
+            return;
         }
         
+        PlanControl pc = new PlanControl();
+        pc.setType(PlanControl.TYPE.REQUEST);
+        pc.setDst(ImcSystemsHolder.getSystemWithName(dialog.selectedVehicle).getId().intValue());
+        pc.setSrc(ImcMsgManager.getManager().getLocalId().intValue());
+        pc.setOp(PlanControl.OP.START);
+        pc.setPlanId(dialog.planId);
+        if (dialog.ignoreErrors)
+            pc.setFlags(pc.getFlags() | PlanControl.FLG_IGNORE_ERRORS);
+        if (dialog.skipCalibration)
+            pc.setFlags(pc.getFlags() & ~PlanControl.FLG_CALIBRATE);
+
+        sendAcoustically(dialog.selectedVehicle, pc);               
+    }
+
+    @NeptusMenuItem("Tools>Acoustic Operations>Send message...")
+    public void sendMessage() {
+        JDialog dialog = new JDialog(getConsole(), I18n.text("Send message acoustically"), true);
+        dialog.setLayout(new BorderLayout());
+        dialog.getContentPane().add(editor, BorderLayout.CENTER);
+        JPanel bottom = new JPanel(new FlowLayout(FlowLayout.TRAILING));
+        JButton btn = new JButton(I18n.text("Send"));
+        btn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                sendAcoustically(getConsole().getMainSystem(), editor.getMessage());
+                dialog.dispose();
+                dialog.setVisible(false);
+            }
+        });
+        bottom.add(btn);
+        dialog.getContentPane().add(bottom, BorderLayout.SOUTH);
+        dialog.setSize(600, 500);
+        dialog.setModalityType(ModalityType.DOCUMENT_MODAL);
+        GuiUtils.centerParent(dialog, getConsole());
+        dialog.setVisible(true);
+    }
+
+    @NeptusMenuItem("Tools>Acoustic Operations>Reverse Range")
+    public void reverseRange() {
+        ImcSystem[] sysLst = gateways();
+        
+        if (sysLst.length == 0) {
+            post(Notification
+                    .error(I18n.text("Reverse range"),
+                            I18n.text("No acoustic device  could be found."))
+                    .src(I18n.text("Console")));
+            return;
+        }
+        
+        AcousticOperation op = new AcousticOperation();
+        op.setOp(AcousticOperation.OP.REVERSE_RANGE);
+        op.setSystem(getConsole().getMainSystem());
+
         int successCount = 0;
         for (ImcSystem sys : sysLst)
             if (ImcMsgManager.getManager().sendMessage(op.cloneMessage(), sys.getId(), null))
                 successCount++;
 
         if (successCount > 0) {
-            bottomPane.setText(I18n.textf(
-                    "Request to send message to %systemName via %systemCount acoustic gateways", destination,
-                    successCount));
-            return true;
+            bottomPane.setText(
+                    I18n.textf("Request for reverse range to %systemName triggered via %systemCount acoustic gateways",
+                            getConsole().getMainSystem(), successCount));
         }
         else {
-            post(Notification.error(I18n.text("Send message"), 
-                    I18n.textf("Unable to send message to system %systemName", destination))
+            post(Notification
+                    .error(I18n.text("Reverse Range"),
+                            I18n.textf("Unable to trigger reverse range of %systemName", getConsole().getMainSystem()))
                     .src(I18n.text("Console")));
-            return false;
         }
+    }
+
+
+    private boolean sendAcoustically(String destination, IMCMessage msg) {
+        try {
+            IMCSendMessageUtils.sendMessageAcoustically(msg, destination)
+                    .forEach(t -> transmissions.put(t.getReqId(), t));
+            return true;
+        }
+        catch (Exception ex) {
+            post(Notification.error(I18n.text("Acoustic Operations"), "Error starting plan: "+ex.getMessage()));
+            return false;
+        }               
     }
 
     @Periodic(millisBetweenUpdates = 1500)
@@ -327,115 +404,6 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
         for (ILayerPainter str2d : renderers) {
             str2d.addPostRenderPainter(this, this.getClass().getSimpleName());
         }
-        
-        addMenuItem(I18n.text("Tools") + ">" + I18n.text("Send Plan via Acoustic Modem"),
-                ImageUtils.getIcon(PluginUtils.getPluginIcon(getClass())), new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                PlanType plan = getConsole().getPlan();
-                if (plan == null) {
-                    GuiUtils.errorMessage(getConsole(), I18n.text("Send Plan acoustically"),
-                            I18n.text("Please select a plan in the console."));
-                    return;
-                }
-                PlanDB pdb = new PlanDB();
-                pdb.setRequestId(IMCSendMessageUtils.getNextRequestId());
-                pdb.setArg(getConsole().getPlan().asIMCPlan());
-                pdb.setOp(PlanDB.OP.SET);
-                pdb.setPlanId(getConsole().getPlan().getId());
-               
-                if(pdb.getPayloadSize() > 1020) {
-                    IMCFragmentHandler handler = new IMCFragmentHandler(IMCDefinition.getInstance());
-                    try {
-                        MessagePart[] parts = handler.fragment(pdb, 1020);    
-                        for (MessagePart part : parts)
-                            sendAcoustically(getConsole().getMainSystem(), part);
-                        NeptusLog.pub().info("PlanDB message resulted in "+parts.length+" fragments");
-                    }
-                    catch (Exception ex) {
-                        NeptusLog.pub().error(ex);
-                        ex.printStackTrace();
-                    }
-                }
-                else {
-                    sendAcoustically(getConsole().getMainSystem(), pdb);
-                }
-            }
-        });
-
-        addMenuItem(I18n.text("Tools") + ">" + I18n.text("Start Plan via Acoustic Modem"),
-                ImageUtils.getIcon(PluginUtils.getPluginIcon(getClass())), new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        String defaultVehicle = getConsole().getMainSystem();
-                        Set<String> plans = getConsole().getMission().getIndividualPlansList().keySet();
-                        Vector<String> filtered = new Vector<String>();
-                        for (String planId : plans)
-                            if (planId.length() <= GeneralPreferences.maximumSizePlanNameForAcoustics)
-                                filtered.add(planId);
-
-                        if (filtered.isEmpty()) {
-                            post(Notification
-                                    .error(I18n.text("Send Plan acoustically"),
-                                            I18n.textf(
-                                                    "Plans started acoustically cannot have an ID bigger than %number character",
-                                                    GeneralPreferences.maximumSizePlanNameForAcoustics))
-                                    .src(I18n.text("Console")));
-                            return;
-                        }
-
-                        VehicleType choice = VehicleChooser.showVehicleDialog(null,
-                                VehiclesHolder.getVehicleById(defaultVehicle), null);
-                        if (choice == null)
-                            return;
-
-                        String[] ops = filtered.toArray(new String[0]);
-                        Object option = JOptionPane.showInputDialog(getConsole(),
-                                I18n.text("Please select plan to start"), I18n.text("Start plan"),
-                                JOptionPane.QUESTION_MESSAGE, null, ops, null);
-
-                        if (option == null)
-                            return;
-                        NeptusLog.pub().warn("Start plan " + option.toString());
-
-                        ImcSystem[] sysLst = gateways();
-
-                        if (sysLst.length == 0) {
-                            post(Notification
-                                    .error(I18n.text("Start Plan"),
-                                    I18n.textf("No acoustic device is capable of sending this request to %systemName", choice.getId()))
-                                    .src(I18n.text("Console")));
-                            return;
-                        }
-
-                        PlanControl pc = new PlanControl();
-                        pc.setType(PlanControl.TYPE.REQUEST);
-                        pc.setOp(PlanControl.OP.START);
-                        pc.setPlanId(option.toString());
-                        int req = IMCSendMessageUtils.getNextRequestId();
-                        pc.setRequestId(req);
-
-                        pendingRequests.put(req, pc);
-
-                        AcousticOperation aop = new AcousticOperation();
-                        aop.setOp(AcousticOperation.OP.MSG);
-                        aop.setSystem(choice.getId());
-                        aop.setMsg(pc);
-
-                        int successCount = 0;
-                        for (ImcSystem sys : sysLst) {
-                            if (ImcMsgManager.getManager().sendMessage(aop.cloneMessage(), sys.getId(), null))
-                                successCount++;
-                        }
-
-                        if (successCount == 0) {
-                            post(Notification
-                                    .error(I18n.text("Error sending start plan"),
-                                    I18n.textf("No system was able to send the message to %systemName", choice.getId()))
-                                    .src(I18n.text("Console")));
-                        }
-                    }
-                });
 
         getConsole().getImcMsgManager().addListener(this);
 
@@ -535,7 +503,7 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
                             catch (Exception e) {
                                 NeptusLog.pub().error(e);
                             }
-                            
+
                             if (successCount > 0) {
                                 bottomPane.setText(I18n.textf("Range %systemName commanded to %systemCount systems",
                                         selectedSystem, successCount));
@@ -544,7 +512,7 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
                                 post(Notification.error(I18n.text("Range System"), I18n.text("Unable to range selected system"))
                                         .src(I18n.text("Console")));
                             }
-                            
+
                             btnR.setEnabled(true);
                         }
                     };
@@ -582,13 +550,13 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
         ctrlPanel.add(btn);
 
         btn = new JButton(I18n.text("Abort"));
-        // btn.setForeground(Color.red);
         btn.setBackground(Color.red);
         btn.setActionCommand("abort");
         cmdButtons.put("abort", btn);
         btn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
+                
                 ImcSystem[] sysLst;
 
                 if (gateway.equals(I18n.text("any"))) {
@@ -601,20 +569,12 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
                     else
                         sysLst = new ImcSystem[] {};
                 }
-
-                if (sysLst.length == 0) {
-                    post(Notification
-                            .error(I18n.text("Abort"),
-                                    I18n.text("No acoustic device is capable of sending this request"))
-                            .src(I18n.text("Console")));
-                }
-
-                IMCMessage m = IMCDefinition.getInstance().create("AcousticOperation", "op", "ABORT", "system",
-                        selectedSystem);
-
+                
+                AcousticOperation m = new AcousticOperation(AcousticOperation.OP.ABORT, selectedSystem, 0, null);
+                
                 int successCount = 0;
                 for (ImcSystem sys : sysLst)
-                    if (ImcMsgManager.getManager().sendMessage(m.cloneMessage(), sys.getId(), null))
+                    if (ImcMsgManager.getManager().sendMessage(m, sys.getId(), null))
                         successCount++;
 
                 if (successCount > 0) {
@@ -637,7 +597,7 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
             }
         });
         ctrlPanel.add(clearButton);
-        
+
         showRangesCheckBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
@@ -662,7 +622,7 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
         add(split2, BorderLayout.CENTER);
         propertiesChanged();
     }
-    
+
     @Override
     public void propertiesChanged() {
         for (JRadioButton r : radioButtons.values()) {
@@ -714,6 +674,27 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
     public void addText(String text) {
         bottomPane.setText(bottomPane.getText() + " \n" + text);
         bottomPane.scrollRectToVisible(new Rectangle(0, bottomPane.getHeight() + 22, 1, 1));
+    }
+    
+    @Subscribe
+    public void on(TransmissionStatus msg) {
+        if (transmissions.containsKey(msg.getReqId())) {
+            addText("["+msg.getReqId()+"] "+msg.getStatusStr()+" "+msg.getInfo());
+            
+            switch (msg.getStatus()) {
+                case DELIVERED:
+                case MAYBE_DELIVERED:
+                case SENT:
+                    post(Notification.success("Acoustic Operations", "Request "+msg.getReqId()+" was "+msg.getStatusStr().replaceAll("_", " ").toLowerCase()));
+                    break;
+                case INPUT_FAILURE:
+                case PERMANENT_FAILURE:
+                case TEMPORARY_FAILURE:
+                    post(Notification.error("Acoustic Operations", msg.getInfo()));
+                default:
+                    break;
+            }
+        }        
     }
 
     @Subscribe
@@ -839,7 +820,7 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         if (!showRanges)
             return;
-        
+
         for (int i = 0; i < rangeSources.size(); i++) {
             double radius = rangeDistances.get(i) * renderer.getZoom();
             Point2D pt = renderer.getScreenPosition(rangeSources.get(i));
@@ -861,9 +842,7 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
      */
     @Override
     public void cleanSubPanel() {
-        getConsole().getImcMsgManager().removeListener(this);
-        removeMenuItem(I18n.text("Tools") + ">" + I18n.text("Send Plan via Acoustic Modem"));
-        removeMenuItem(I18n.text("Tools") + ">" + I18n.text("Start Plan via Acoustic Modem"));
+        getConsole().getImcMsgManager().removeListener(this);       
     }
 
     public static void main(String[] args) {

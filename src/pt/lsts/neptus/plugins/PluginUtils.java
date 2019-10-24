@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -32,6 +32,7 @@
  */
 package pt.lsts.neptus.plugins;
 
+import java.awt.Window;
 import java.beans.PropertyEditor;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -60,6 +61,7 @@ import java.util.Properties;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.imageio.spi.ServiceRegistry;
 import javax.swing.table.TableCellRenderer;
@@ -68,6 +70,8 @@ import org.apache.commons.io.IOUtils;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
+import com.l2fprod.common.propertysheet.PropertyEditorRegistry;
+import com.l2fprod.common.propertysheet.PropertyRendererRegistry;
 import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
 
 import pt.lsts.neptus.NeptusLog;
@@ -237,8 +241,25 @@ public class PluginUtils {
      * @param defaultValueString or null if not known.
      * @return
      */    
-    @SuppressWarnings({ "unchecked", "serial" })
     public static PluginProperty createPluginProperty(Object obj, Field f, String defaultValueString, boolean forEdit) {
+        return createPluginProperty(obj, f, defaultValueString, forEdit, PropertiesEditor.getPropertyEditorRegistry(),
+                PropertiesEditor.getPropertyRendererRegistry());
+    }
+
+    /**
+     * NOTE: the forEdit is important because if we want to load properties for the {@link GeneralPreferences}
+     * we pass forEdit=false so we don't call I18n that loads {@link GeneralPreferences#language} while we are 
+     * loading {@link GeneralPreferences} properties from file.
+     * @param obj
+     * @param f
+     * @param defaultValueString or null if not known.
+     * @param propertyEditorRegistry
+     * @param propertyRendererRegistry
+     * @return
+     */
+    @SuppressWarnings({ "unchecked", "serial" })
+    public static PluginProperty createPluginProperty(Object obj, Field f, String defaultValueString, boolean forEdit,
+            PropertyEditorRegistry propertyEditorRegistry, PropertyRendererRegistry propertyRendererRegistry) {
         NeptusProperty a = f.getAnnotation(NeptusProperty.class);
 
         if (a != null) {
@@ -247,12 +268,18 @@ public class PluginUtils {
             //}
             String name = a.name();
             String desc = a.description();
-            String defaultStr = "";
+            String units = a.units();
+            String defaultAndUnitsStr = "";
             if (defaultValueString != null && forEdit) {
                 if (f.getType().getEnumConstants() != null)
                     defaultValueString = I18n.text(defaultValueString);
-                defaultStr = "<br><i>[[" + I18n.text("Default value:") + " \"<b><code>" + defaultValueString
-                        + "</code></b>\"]]</i>";
+                defaultAndUnitsStr = "<br>";
+                defaultAndUnitsStr += units.length() > 0 ? "(" + units + ") " : "";
+                defaultAndUnitsStr += "<i>(" + I18n.text("Default value:") + " \"<b><code>" + defaultValueString
+                        + "</code></b>\")</i>";
+            }
+            else {
+                defaultAndUnitsStr += units.length() > 0 ? "<br>(" + units + ") " : "";
             }
             Class<? extends PropertyEditor> editClass = null;
             Class<? extends TableCellRenderer> rendererClass = null;
@@ -261,9 +288,9 @@ public class PluginUtils {
             if (a.name().length() == 0) {
                 name = f.getName();
             }
-            if (a.description().length() == 0) {
-                desc = f.getName();
-            }
+            // if (a.description().length() == 0) {
+            //     desc = f.getName();
+            // }
 
             if (a.editorClass() != PropertyEditor.class) {
                 editClass = a.editorClass();
@@ -292,24 +319,24 @@ public class PluginUtils {
             }
 
             PluginProperty pp = new PluginProperty(name, f.getType(), o);
-            pp.setShortDescription((forEdit ? I18n.text(desc) : desc) + defaultStr);
+            pp.setShortDescription((forEdit ? I18n.text(desc) : desc) + defaultAndUnitsStr);
             pp.setEditable(a.editable());
-            pp.setDisplayName(forEdit ? I18n.text(name) : name);
+            pp.setDisplayName(forEdit ? (obj.getClass().equals(GeneralPreferences.class) ? "* " : "") + I18n.text(name) : name);
             if (category != null && category.length() > 0) {
                 pp.setCategory(category);
             }
 
             if (editClass != null) {
-                PropertiesEditor.getPropertyEditorRegistry().registerEditor(pp, editClass);
+                propertyEditorRegistry.registerEditor(pp, editClass);
             }
             else {
                 if (ReflectionUtil.hasInterface(f.getType(), PropertyType.class)) {
                     PropertyType pt = (PropertyType) o;
-                    PropertiesEditor.getPropertyEditorRegistry().registerEditor(pp, pt.getPropertyEditor());
+                    propertyEditorRegistry.registerEditor(pp, pt.getPropertyEditor());
                 }
                 if (f.getType().getEnumConstants() != null) {
                     if (o != null) {
-                        PropertiesEditor.getPropertyEditorRegistry().registerEditor(pp,
+                        propertyEditorRegistry.registerEditor(pp,
                                 new EnumEditor((Class<? extends Enum<?>>) o.getClass()));
                         PropertiesEditor.getPropertyRendererRegistry().registerRenderer(pp, new DefaultCellRenderer() {
                             {
@@ -326,16 +353,26 @@ public class PluginUtils {
             }
             
             if (rendererClass != null)
-                PropertiesEditor.getPropertyRendererRegistry().registerRenderer(pp, rendererClass);
+                propertyRendererRegistry.registerRenderer(pp, rendererClass);
 
             return pp;
         }
         return null;
     }
-    /**     
+    /**
      * @return <b>true</b> if cancelled or <b>false</b> otherwise.
      */
-    public static boolean editPluginProperties(final Object obj, boolean editable) {
+    public static <P extends Window>  boolean editPluginProperties(final Object obj, boolean editable) {
+        return editPluginProperties(obj, ConfigFetch.getSuperParentAsFrame(), editable);
+    }
+    
+    /**
+     * @param obj
+     * @param parent
+     * @param editable
+     * @return
+     */
+    public static <P extends Window> boolean editPluginProperties(final Object obj, P parent, boolean editable) {
         PropertiesProvider provider = new PropertiesProvider() {
             
             @Override
@@ -358,8 +395,7 @@ public class PluginUtils {
                 return getPluginProperties(obj);
             }
         };
-        
-        return PropertiesEditor.editProperties(provider, editable);
+        return PropertiesEditor.editProperties(provider, parent, editable);
     }
 
     /**
@@ -402,6 +438,8 @@ public class PluginUtils {
 
     public static String[] validatePluginProperties(Object obj, LinkedHashMap<String, PluginProperty> props) {
         Vector<String> errors = new Vector<String>();
+        ArrayList<String> propsMissedProcessed = new ArrayList<>(props.size());
+        props.keySet().stream().forEach((s) -> propsMissedProcessed.add(s));
 
         Class<? extends Object> providerClass = obj.getClass();
 
@@ -416,79 +454,107 @@ public class PluginUtils {
                 }
                 if (props.get(name) == null)
                     continue;
-                // Find method
-                String validateMethodUpper = "validate" + Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
-                String validateMethodLower = "validate" + Character.toLowerCase(fieldName.charAt(0)) + fieldName.substring(1);
-                Method m;
+                propsMissedProcessed.remove(name);
+                
                 Object propValue = props.get(name).getValue();
-                if (propValue == null) {
-                    NeptusLog.pub().debug(
-                            "Property " + providerClass.getSimpleName() + "." + name
-                                    + " has no method to validate user input!");
-                    continue;
-                }
-                
-                Class<? extends Object> propClass = propValue.getClass();
-                if (f.getType().isPrimitive()) {
-                    //propClass.isArray() // FIXME
-                    if (propClass == Double.class)
-                        propClass = double.class;
-                    else if (propClass == Float.class)
-                        propClass = float.class;
-                    else if (propClass == Byte.class)
-                        propClass = byte.class;
-                    else if (propClass == Character.class)
-                        propClass = char.class;
-                    else if (propClass == Short.class)
-                        propClass = short.class;
-                    else if (propClass == Integer.class)
-                        propClass = int.class;
-                    else if (propClass == Long.class)
-                        propClass = long.class;
-                    else if (propClass == Boolean.class)
-                        propClass = boolean.class;
-                }
-                
-                try {
-                    m = providerClass.getMethod(validateMethodUpper, propClass);
-                }
-                catch (NoSuchMethodException e1) {
-                    try {
-                        m = providerClass.getMethod(validateMethodLower, propClass);
-                    }
-                    catch (NoSuchMethodException e) {
-                        NeptusLog.pub().debug("Property "+providerClass.getSimpleName()+"."+name+" has no method to validate user input!" );
-                        continue;
-                    }
-                    catch (SecurityException e) {
-                        e.printStackTrace();
-                        continue;
-                    }
-                }
-                catch (SecurityException e1) {
-                    e1.printStackTrace();
-                    continue;
-                }
-
-                // If method has been found, invoke it
-                Object res;
-                try {
-                    res = m.invoke(obj, propValue);
-                }
-                catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-                    e.printStackTrace();
-                    continue;
-                }
+                String res = findValidationMethodAndInvoque(obj, fieldName, name, propValue, f.getType().isPrimitive());
                 // In case of error add error message to the error message array
                 if (res != null)
                     errors.add(res.toString());
             }
         }
+        
+        // Let us validate the additional properties that are not annotated
+        for (String name : propsMissedProcessed) {
+            Object propValue = props.get(name).getValue();
+            String fieldName = name.codePoints().filter((p) -> Character.isJavaIdentifierStart(p))
+                    .mapToObj((p) -> new String(Character.toChars(p))).collect(Collectors.joining());
+            String res = findValidationMethodAndInvoque(obj, fieldName, name, propValue, true);
+            // In case of error add error message to the error message array
+            if (res != null)
+                errors.add(res.toString());
+        }
 
-        return errors.toArray(new String[0]);
+        return errors.stream().toArray(String[]::new);
     }
     
-    private static Field[] getFields(Object o) {
+    /**
+     * @return
+     */
+    private static String findValidationMethodAndInvoque(Object obj, String fieldName, String propName,
+            Object propValue, boolean fieldIsPrimitive) {
+        // Find method
+        String validateMethodUpper = "validate" + Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
+        String validateMethodLower = "validate" + Character.toLowerCase(fieldName.charAt(0)) + fieldName.substring(1);
+        Method m;
+        
+        Class<? extends Object> providerClass = obj.getClass();
+        
+        if (propValue == null) {
+            NeptusLog.pub().debug(
+                    "Property " + providerClass.getSimpleName() + "." + propName
+                            + " has no value to validate user input!");
+            return null;
+        }
+        
+        Class<? extends Object> propClass = propValue.getClass();
+        if (fieldIsPrimitive) {
+            //propClass.isArray() // FIXME
+            if (propClass == Double.class)
+                propClass = double.class;
+            else if (propClass == Float.class)
+                propClass = float.class;
+            else if (propClass == Byte.class)
+                propClass = byte.class;
+            else if (propClass == Character.class)
+                propClass = char.class;
+            else if (propClass == Short.class)
+                propClass = short.class;
+            else if (propClass == Integer.class)
+                propClass = int.class;
+            else if (propClass == Long.class)
+                propClass = long.class;
+            else if (propClass == Boolean.class)
+                propClass = boolean.class;
+        }
+        
+        try {
+            m = providerClass.getMethod(validateMethodUpper, propClass);
+        }
+        catch (NoSuchMethodException e1) {
+            try {
+                m = providerClass.getMethod(validateMethodLower, propClass);
+            }
+            catch (NoSuchMethodException e) {
+                NeptusLog.pub().debug("Property " + providerClass.getSimpleName() + "." + propName
+                        + " has no method to validate user input!");
+                return null;
+            }
+            catch (SecurityException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+        catch (SecurityException e1) {
+            e1.printStackTrace();
+            return null;
+        }
+
+        // If method has been found, invoke it
+        try {
+            Object res = m.invoke(obj, propValue);
+            if (res != null)
+                return res.toString();
+        }
+        catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        return null;
+    }
+
+    public static Field[] getFields(Object o) {
         Class<?> c;
         if (o instanceof Class<?>)
             c = (Class<?>)o;
@@ -544,6 +610,10 @@ public class PluginUtils {
                 }
                 try {
                     propertyValue = property.getValue();
+                    
+                    String[] res = PluginUtils.validatePluginProperties(obj, new Property[] {property});
+                    if (res != null && res.length > 0)
+                        continue; // not valid value so don't set
                 }
                 catch (Exception e1) {
                     // TODO Auto-generated catch block
@@ -837,8 +907,37 @@ public class PluginUtils {
             return "<properties/>";
         }
         
-        // props.list(System.err);
+        return getConfigXmlWorker(addComment, props);
+    }
+
+    public static String getConfigXmlWithDefaults(Object... obj) {
+        return getConfigXmlWithDefaults(false, obj);
+    }
+
+    public static String getConfigXmlWithDefaults(boolean addComment, Object... obj) {
+        Properties props = null;
+        try {
+            for (Object o : obj) {
+                if (props == null) {
+                    props = saveProperties(o, false);
+                }
+                else {
+                    Properties propTmp = saveProperties(o, false);
+                    final Properties p = props;
+                    if (propTmp != null)
+                        propTmp.forEach((k, v) -> p.putIfAbsent(k, v));
+                }
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return "<properties/>";
+        }
         
+        return getConfigXmlWorker(addComment, props);
+    }
+
+    private static String getConfigXmlWorker(boolean addComment, Properties props) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
             props.storeToXML(baos, addComment ? "Generated by Neptus on " + (new Date()) : null, "UTF-8");
@@ -851,7 +950,7 @@ public class PluginUtils {
             return "<properties/>";
         }
     }
-
+    
     public static void setConfigXml(Object obj, String xml) {
         Properties props = new Properties();
 
@@ -1107,5 +1206,16 @@ public class PluginUtils {
         String test = "Speed Units dff";
         String[] alt = computeParamNameAlternatives(test);
         System.out.println(Arrays.toString(alt));
+        
+        String[] values = {
+                "Test of the speed (m/s)",
+                "Test of the water",
+                "Teste de água (m/s)"
+        };
+        for (String name : values) {
+            String fieldName = name.codePoints().filter((p) -> Character.isJavaIdentifierStart(p))
+                    .mapToObj((p) -> new String(Character.toChars(p))).collect(Collectors.joining());
+            System.out.println(String.format("name: '%s' >> '%s'", name, fieldName));
+        }
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -65,6 +65,20 @@ public class ManeuversUtil {
 
     public static final Color noEditBoxColor = new Color(255, 160, 0, 100);
     public static final Color editBoxColor = new Color(255, 125, 255, 200);
+
+    private static GeneralPath arrow1 = new GeneralPath();
+    private static GeneralPath arrow2 = new GeneralPath();
+    static {
+        arrow1.moveTo(0, -5);
+        arrow1.lineTo(-3.5, -11);
+        arrow1.lineTo(3.5, -11);
+        arrow1.closePath();
+
+        arrow2.moveTo(0, -6);
+        arrow2.lineTo(-4.5, -12);
+        arrow2.lineTo(4.5, -12);
+        arrow2.closePath();
+    }
 
     private ManeuversUtil() {
     }
@@ -197,23 +211,19 @@ public class ManeuversUtil {
         width = Math.abs(width);
         length = Math.abs(length);
         hstep = Math.abs(hstep);
+        hstep = hstep == 0 ? 0.1 : hstep;
         
         boolean direction = true;
         Vector<double[]> newPoints = new Vector<double[]>();
         double[] point = {-curvOff, 0, 0, -1};
         newPoints.add(point);
         
-//        double x1; 
         double x2;
         for (double y = 0; y <= width; y += hstep) {
-            if (direction) {
-//                x1 = -curvOff; 
+            if (direction)
                 x2 = length + curvOff;
-            }
-            else {
-//                x1 = length + curvOff;
+            else
                 x2 = -curvOff;
-            }
             direction = !direction;
 
             double hstepDelta = 0;
@@ -240,16 +250,14 @@ public class ManeuversUtil {
             pt[X] = res[0];
             pt[Y] = res[1];
         }
-        
-//        NeptusLog.pub().info("<###>Points");
-//        for (double[] pt : newPoints) {
-//            NeptusLog.pub().info("<###>[" + pt[X] + ", " + pt[Y] + "]");
-//        }
         return newPoints;
     }
 
     public static Vector<double[]> calcExpansiveSquarePatternPointsMaxBox(
             double width, double hstep, double bearingRad, boolean invertY) {
+        width = Math.abs(width);
+        hstep = Math.abs(hstep);
+        hstep = hstep == 0 ? 0.1 : hstep;
 
         Vector<double[]> newPoints = new Vector<double[]>();
         
@@ -334,6 +342,9 @@ public class ManeuversUtil {
      */
     public static void paintPointLineList(Graphics2D g2d, double zoom, List<double[]> points,
             boolean paintSSRange, double sRange, boolean editMode) {
+        zoom = zoom <= 0 ? 0.01 : zoom;
+        sRange = sRange < 0 ? 0 : sRange;
+        
         double[] pointI, pointF, pointN;
         
         Color oColor = g2d.getColor();
@@ -386,6 +397,7 @@ public class ManeuversUtil {
                 g2d.setStroke(sO);
 
                 g2d.translate(pointF[X] * zoom, pointF[Y] * zoom);
+                
                 g2d.setColor(new Color(255, 0, 0));
                 if (i == points.size() - 2) {
                     g2d.setColor(new Color(0, 0, 255));
@@ -396,6 +408,20 @@ public class ManeuversUtil {
                 else {
                     g2d.fill(el);
                 }
+                
+                if (zoom > 0.4) {
+                    double angle = Math.atan2(pointF[Y] - pointI[Y], pointF[X] - pointI[X]);
+                    Graphics2D gArrow = (Graphics2D) g2d.create();
+                    gArrow.rotate(angle - Math.PI / 2);
+                    if (editMode)
+                        gArrow.scale(1.5, 1.5);
+                    gArrow.setColor(!editMode ? Color.gray : Color.black);
+                    gArrow.fill(arrow2);
+                    gArrow.setColor(!editMode ? Color.yellow : Color.orange);
+                    gArrow.fill(arrow1);
+                    gArrow.dispose();
+                }
+                
                 g2d.translate(-pointF[X] * zoom, -pointF[Y] * zoom);
 
                 if (pointN != null) {
@@ -410,6 +436,7 @@ public class ManeuversUtil {
                     g2d.setStroke(sO);
                     
                     g2d.translate(pointN[X] * zoom, pointN[Y] * zoom);
+                    
                     g2d.setColor(new Color(0, 255, 0));
                     if (i == points.size() - 3) {
                         g2d.setColor(new Color(0, 0, 255));
@@ -420,6 +447,20 @@ public class ManeuversUtil {
                     else {
                         g2d.fill(el);
                     }
+                    
+                    if (zoom > 0.4) {
+                        double angle = Math.atan2(pointN[Y] - pointF[Y], pointN[X] - pointF[X]);
+                        Graphics2D gArrow = (Graphics2D) g2d.create();
+                        gArrow.rotate(angle - Math.PI / 2);
+                        if (editMode)
+                            gArrow.scale(1.5, 1.5);
+                        gArrow.setColor(!editMode ? Color.gray : Color.black);
+                        gArrow.fill(arrow2);
+                        gArrow.setColor(!editMode ? Color.yellow : Color.orange);
+                        gArrow.fill(arrow1);
+                        gArrow.dispose();
+                    }
+                    
                     g2d.translate(-pointN[X] * zoom, -pointN[Y] * zoom);
                 }
             }
@@ -442,6 +483,10 @@ public class ManeuversUtil {
      */
     public static void paintBox(Graphics2D g, double zoom, double width, double length, double x0, double y0,
             double bearingRad, double crossAngleRadians, boolean fill, boolean invertY, boolean editMode) {
+        zoom = zoom <= 0 ? 0.01 : zoom;
+        width = Math.abs(width);
+        length = Math.abs(length);
+        
         Graphics2D g2d = (Graphics2D) g.create();
         double mult = !invertY ? 1 : -1;
         GeneralPath sp = new GeneralPath();
@@ -477,17 +522,32 @@ public class ManeuversUtil {
         
         if (speedProp == null || unitsProp == null)
             return Double.NaN;
-        
-        switch (""+unitsProp.getValue()) {
-            case "m/s":
-                return Double.parseDouble(""+speedProp.getValue());
-            case "RPM":
-                return SpeedConversion.convertRpmtoMps(Double.parseDouble(""+speedProp.getValue()));
-            case "%":
-                return SpeedConversion.convertPercentageToMps(Double.parseDouble(""+speedProp.getValue()));
-            default:
-                NeptusLog.pub().error("Unrecognized speed units: "+unitsProp.getValue());
-                return Double.NaN;
+
+        if (unitsProp.getValue() instanceof Maneuver.SPEED_UNITS) {
+            switch ((Maneuver.SPEED_UNITS) unitsProp.getValue()) {
+                case METERS_PS:
+                    return Double.parseDouble(""+speedProp.getValue());
+                case RPM:
+                    return SpeedConversion.convertPercentageToMps(Double.parseDouble(""+speedProp.getValue()));
+                case PERCENTAGE:
+                    return SpeedConversion.convertPercentageToMps(Double.parseDouble(""+speedProp.getValue()));
+                default:
+                    NeptusLog.pub().error("Unrecognized speed units: "+unitsProp.getValue());
+                    return Double.NaN;
+            }
+        }
+        else {
+            switch (""+unitsProp.getValue()) {
+                case "m/s":
+                    return Double.parseDouble(""+speedProp.getValue());
+                case "RPM":
+                    return SpeedConversion.convertRpmtoMps(Double.parseDouble(""+speedProp.getValue()));
+                case "%":
+                    return SpeedConversion.convertPercentageToMps(Double.parseDouble(""+speedProp.getValue()));
+                default:
+                    NeptusLog.pub().error("Unrecognized speed units: "+unitsProp.getValue());
+                    return Double.NaN;
+            }
         }
     }
     

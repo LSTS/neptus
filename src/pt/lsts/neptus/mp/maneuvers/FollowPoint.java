@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -46,6 +46,8 @@ import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCUtil;
+import pt.lsts.imc.def.SpeedUnits;
+import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.editor.SpeedUnitsEnumEditor;
 import pt.lsts.neptus.messages.TupleList;
@@ -76,7 +78,7 @@ public class FollowPoint extends Maneuver
     protected String idToFollow = "lauv-noptilus-1";
 
     @Override
-    public void loadFromXML(String xml) {
+    public void loadManeuverFromXML(String xml) {
         try {
             Document doc = DocumentHelper.parseText(xml);
             try {
@@ -133,14 +135,14 @@ public class FollowPoint extends Maneuver
         try {
             switch (this.getSpeedUnits()) {
                 case PERCENTAGE:
-                    msg.setSpeedUnits(pt.lsts.imc.FollowPoint.SPEED_UNITS.PERCENTAGE);
+                    msg.setSpeedUnits(SpeedUnits.PERCENTAGE);
                     break;
                 case RPM:
-                    msg.setSpeedUnits(pt.lsts.imc.FollowPoint.SPEED_UNITS.RPM);
+                    msg.setSpeedUnits(SpeedUnits.RPM);
                     break;
                 case METERS_PS:
                 default:
-                    msg.setSpeedUnits(pt.lsts.imc.FollowPoint.SPEED_UNITS.METERS_PS);
+                    msg.setSpeedUnits(SpeedUnits.METERS_PS);
                     break;
             }
         }
@@ -152,7 +154,7 @@ public class FollowPoint extends Maneuver
         msg.setLon(l.getLongitudeRads());
         msg.setTarget(idToFollow);
         msg.setZ(location.getZ());
-        msg.setZUnits(pt.lsts.imc.FollowPoint.Z_UNITS.valueOf(location.getZUnits().toString()));
+        msg.setZUnits(ZUnits.valueOf(location.getZUnits().toString()));
         msg.setCustom(customData.toString());
 
         return msg;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -59,6 +59,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JToolBar;
+import javax.swing.ProgressMonitor;
 import javax.swing.SwingWorker;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
@@ -76,6 +77,7 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.MapChangeEvent;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
 import pt.lsts.neptus.plugins.PluginUtils;
@@ -99,6 +101,7 @@ import pt.lsts.neptus.types.map.AbstractElement;
 import pt.lsts.neptus.types.map.ImageElement;
 import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.map.MapType;
+import pt.lsts.neptus.types.map.Model3DElement;
 import pt.lsts.neptus.types.map.RotatableElement;
 import pt.lsts.neptus.types.map.TransponderElement;
 import pt.lsts.neptus.types.mission.MissionType;
@@ -106,6 +109,7 @@ import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.util.coord.GdalDataSet;
 
 /**
  * @author zp
@@ -147,10 +151,14 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
         Bottom
     };
 
-    @NeptusProperty(name = "Toolbar location")
+    @NeptusProperty(name = "Toolbar location", userLevel = LEVEL.ADVANCED)
     public ControlsLocation toolbarLocation = ControlsLocation.Right;
 
-    
+    @NeptusProperty(name = "Ignore Addition of Transponders", category = "Ignore List", userLevel = LEVEL.ADVANCED)
+    public boolean ignoreAdditionOfTransponders = false;
+
+    @NeptusProperty(name = "Ignore Addition of Model3D", category = "Ignore List", userLevel = LEVEL.ADVANCED)
+    public boolean ignoreAdditionOfModel3D = false;
 
     public MapEditor(ConsoleLayout console) {
         super(console);
@@ -216,7 +224,6 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
                 return ret;
             };
         };
-
     }
 
     protected void updateUndoRedoActions() {
@@ -396,7 +403,6 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
         });
         line.setToolTipText(I18n.text("Add Line Segment"));
         toolbar.add(line);
-        
 
         undo = new ToolbarButton(ImageUtils.getIcon("pt/lsts/neptus/plugins/map/undo.png"), I18n.text("Undo"),
                 "undo");
@@ -595,6 +601,11 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
 
             JMenu add = new JMenu(I18n.text("Add..."));
             for (AbstractElement elem : MapType.getMapElements()) {
+                if (ignoreAdditionOfTransponders && elem.getClass() == TransponderElement.class)
+                    continue;
+                else if (ignoreAdditionOfTransponders && elem.getClass() == Model3DElement.class)
+                    continue;
+                
                 try {
                     final AbstractElement el = elem;
                     MapType m = null;
@@ -642,10 +653,9 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
 
             add.addSeparator();
 
-            JMenuItem AddWorldFile = add.add(I18n.text("Image from World File"));
-            AddWorldFile.setToolTipText(I18n.text("Will position the image in currently visible UTM zone."));
-            AddWorldFile.addActionListener(new ActionListener() {
-
+            JMenuItem addWorldFile = add.add(I18n.text("Image from World File"));
+            addWorldFile.setToolTipText(I18n.text("Will position the image in currently visible UTM zone."));
+            addWorldFile.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     JFileChooser chooser = GuiUtils.getFileChooser(ConfigFetch.getUserHomeFolder(), 
@@ -695,6 +705,87 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
                         catch (Exception ex) {
                             GuiUtils.errorMessage(getConsole(), ex);
                             ex.printStackTrace();
+                        }
+                    }
+                }
+            });
+            
+            JMenuItem addGeotiff = add.add(I18n.text("GeoTIFF overlay"));
+            addGeotiff.setToolTipText(I18n.text("Add GeoTIFF ground overlay."));
+            addGeotiff.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    JFileChooser chooser = GuiUtils.getFileChooser(ConfigFetch.getUserHomeFolder(), 
+                            I18n.text("GeoTIFF files"), "tiff", "tif");
+                    int op = chooser.showOpenDialog(getConsole());
+                    if (op == JFileChooser.APPROVE_OPTION) {
+                        try {
+                            MapType m = null;
+                            for (MapType mt : mg.getMaps())
+                                if (mt.getHref() != null && mt.getHref().length() > 0)
+                                    m = mt;
+
+                            final MapType pivot = m != null ? m : mg.getMaps()[0];
+                            
+                            GdalDataSet tiff = new GdalDataSet(chooser.getSelectedFile());
+
+                            ProgressMonitor pm = new ProgressMonitor(getConsole(),
+                                    I18n.text("GeoTIFF"), I18n.text("Processing GeoTIFF."), 0, 100);
+                            pm.setMillisToDecideToPopup(0);
+                            pm.setMillisToPopup(0);
+                            pm.setProgress(25);
+                            
+                            // TIFF usually have very big files, so let us load in background
+                            SwingWorker<ImageElement, Void> worker = new SwingWorker<ImageElement, Void>() {
+                                @Override
+                                protected ImageElement doInBackground() throws Exception {
+                                    ImageElement el = tiff.asImageElement(new File(ConfigFetch.getNeptusTmpDir()));
+                                    return el;
+                                }
+                                @Override
+                                protected void done() {
+                                    try {
+                                        boolean isCanceled = pm.isCanceled();
+                                        pm.close();
+                                        if (isCanceled) {
+                                            NeptusLog.pub().warn("Adding of GeoTIFF " + chooser.getSelectedFile()
+                                                    + " was canceled by the user.");
+                                            return;
+                                        }
+                                        
+                                        ImageElement el = get();
+                                        if (el.getCenterLocation().isLocationEqual(new LocationType())) {
+                                            GuiUtils.errorMessage(MapEditor.this.getConsole(), I18n.text("Add GeoTIFF ground overlay."),
+                                                    I18n.text("Unable to get geographic location for overlay."));
+                                        }
+                                        
+                                        el.setMapGroup(mg);
+                                        el.showParametersDialog(MapEditor.this.getConsole(), pivot.getObjectIds(), pivot, true);
+
+                                        if (!el.userCancel) {
+                                            pivot.addObject(el);
+
+                                            MapChangeEvent mce = new MapChangeEvent(MapChangeEvent.OBJECT_ADDED);
+                                            mce.setSourceMap(pivot);
+                                            mce.setChangedObject(draggedObject);
+                                            pivot.warnChangeListeners(mce);
+
+                                            AddObjectEdit edit = new AddObjectEdit(el);
+                                            manager.addEdit(edit);
+                                        }
+                                    }
+                                    catch (Exception ex) {
+                                        GuiUtils.errorMessage(MapEditor.this.getConsole(), I18n.text("Add GeoTIFF ground overlay."),
+                                                I18n.text("Image format not understood: "+ex.getMessage()));
+                                        ex.printStackTrace();                                
+                                    }
+                                }
+                            };
+                            worker.execute();
+                        }
+                        catch (Exception ex) {
+                            NeptusLog.pub().error(ex);
+                            GuiUtils.errorMessage(getConsole(), ex);
                         }
                     }
                 }
@@ -827,14 +918,12 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
 
     @Override
     public void mouseDragged(MouseEvent event, StateRenderer2D source) {
-
         if (currentInteraction != null) {
             currentInteraction.mouseDragged(event, source);
             return;
         }
 
         if (draggedObject != null) {
-
             if (event.isShiftDown() && draggedObject instanceof RotatableElement) {
                 if (objectMoved)
                     mouseReleased(event, source);
@@ -896,7 +985,6 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
         adapter.mouseReleased(event, source);
 
         if (event.getButton() != MouseEvent.BUTTON1) {
-
             return;
         }
 
@@ -932,6 +1020,16 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
             currentInteraction.keyPressed(event, source);
             return;
         }
+        
+        if (event.getKeyCode() == KeyEvent.VK_Z && event.isControlDown()) {
+            undo.doClick(20);
+            event.consume();
+        }
+        else if (event.getKeyCode() == KeyEvent.VK_Y && event.isControlDown()) {
+            redo.doClick(20);
+            event.consume();
+        }
+
         adapter.keyPressed(event, source);
     }
 
@@ -951,6 +1049,7 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
             currentInteraction.keyTyped(event, source);
             return;
         }
+        
         adapter.keyTyped(event, source);
     }
 
@@ -1043,7 +1142,6 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
      */
     @Override
     public void initSubPanel() {
-
     }
     
     @Override
@@ -1069,7 +1167,5 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
      */
     @Override
     public void cleanSubPanel() {
-        // TODO Auto-generated method stub
-
     }
 }

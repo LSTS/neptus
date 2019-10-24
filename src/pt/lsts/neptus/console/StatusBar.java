@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -58,6 +58,7 @@ import pt.lsts.neptus.events.NeptusEvents;
 import pt.lsts.neptus.gui.system.selection.MainSystemSelectionCombo;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.DateTimeUtil;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**
  * @author Hugo, PDias
@@ -66,8 +67,9 @@ public class StatusBar extends JPanel {
     private static final long serialVersionUID = -945440076259058094L;
 
     private static final int FONT_SIZE = 12;
-
-    private JLabel clock;
+    
+    private JLabel clockUTC;
+    private JLabel clockLocal;
     private JLabel mainSystem;
     private JLabel plan;
     protected JButton notificationButton;
@@ -119,35 +121,46 @@ public class StatusBar extends JPanel {
 
         this.add(Box.createHorizontalGlue());
 
+        this.add(Box.createHorizontalStrut(10));
+
         // Clock
-        clock = new JLabel();
-        clock.setFont(new Font("Arial", Font.PLAIN, FONT_SIZE));
-        clock.setHorizontalAlignment(SwingConstants.RIGHT);
-        this.add(clock);
+        clockLocal = new JLabel();
+        clockLocal.setFont(new Font("Arial", Font.PLAIN, FONT_SIZE));
+        clockLocal.setHorizontalAlignment(SwingConstants.RIGHT);
+        this.add(clockLocal);
+
+        this.add(Box.createHorizontalStrut(10));
+
+        clockUTC = new JLabel();
+        clockUTC.setFont(new Font("Arial", Font.PLAIN, FONT_SIZE));
+        clockUTC.setHorizontalAlignment(SwingConstants.RIGHT);
+        this.add(clockUTC);
         startClock();
 
         this.add(Box.createRigidArea(new Dimension(5, 0)));
 
-        notificationButton = new JButton(I18n.text("Notifications"));
-        notificationButton.setName("notification");
-        notificationButton.setFont(new Font("Arial", Font.PLAIN, FONT_SIZE));
-        notificationButton.setAction(new AbstractAction(I18n.text("Notifications")) {
-            private static final long serialVersionUID = 1L;
-            private boolean show = false;
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                this.show = !show;
-                if (this.show == false && notificationsDialog.isVisible() == false) {
-                    this.show = true;
+        if (notificationsDialog != null) {
+            notificationButton = new JButton(I18n.text("Notifications"));
+            notificationButton.setName("notification");
+            notificationButton.setFont(new Font("Arial", Font.PLAIN, FONT_SIZE));
+            notificationButton.setAction(new AbstractAction(I18n.text("Notifications")) {
+                private static final long serialVersionUID = 1L;
+                private boolean show = false;
+                
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    this.show = !show;
+                    if (this.show == false && notificationsDialog.isVisible() == false) {
+                        this.show = true;
+                    }
+                    notificationsDialog.visible(this.show);
+                    notificationCount = 0;
+                    notificationButton.setText(I18n.text("Notifications"));
+                    notificationButton.setFont(new Font("Arial", Font.PLAIN, FONT_SIZE));
                 }
-                notificationsDialog.visible(this.show);
-                notificationCount = 0;
-                notificationButton.setText(I18n.text("Notifications"));
-                notificationButton.setFont(new Font("Arial", Font.PLAIN, FONT_SIZE));
-            }
-        });
-        this.add(notificationButton);
+            });
+            this.add(notificationButton);
+        }
         
         if (mainSystemSelectionCombo != null)
             this.add(mainSystemSelectionCombo);
@@ -158,17 +171,24 @@ public class StatusBar extends JPanel {
         clockTimerTask = new TimerTask() {
             @Override
             public void run() {
-                /// Universal Time Coordinated
-                String clockStr = DateTimeUtil.timeUTCFormatterNoSegs3.format(new Date(System.currentTimeMillis()))
+                long curMillis = System.currentTimeMillis();
+                // Universal Time Coordinated
+                String clockStr = DateTimeUtil.timeUTCFormatterNoSegs3.format(new Date(curMillis))
                         + " " + I18n.text("UTC");
-                clock.setText(clockStr);
+                clockUTC.setText(clockStr);
+                // Local time
+                clockStr = GeneralPreferences.localTimeOnConsoleOn
+                        ? DateTimeUtil.timeFormatterNoSegs3.format(new Date(curMillis)) + " " + I18n.text("Local")
+                        : "";
+                clockLocal.setText(clockStr);
             }
         };
         clockTimer.schedule(clockTimerTask, 100, 800);
     }
 
     public void stopClock() {
-        clock.setText("");
+        clockUTC.setText("");
+        clockLocal.setText("");
         if (clockTimerTask != null)
             clockTimerTask.cancel();
         if (clockTimer != null)
@@ -195,6 +215,9 @@ public class StatusBar extends JPanel {
 
     @Subscribe
     public void onNewNotification(ConsoleEventNewNotification e) {
+        if (notificationButton == null)
+            return;
+        
         notificationCount++;
         notificationButton.setText(I18n.textf("%n Notifications", notificationCount));
         notificationButton.setFont(new Font("Arial", Font.BOLD, FONT_SIZE));

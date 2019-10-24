@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -63,16 +63,15 @@ public abstract class AbstractConsolePlugin implements PropertiesProvider {
     private ImageIcon icon;
     
     @Override
-    public final DefaultProperty[] getProperties() {
+    public DefaultProperty[] getProperties() {
         return PluginUtils.getPluginProperties(this);
     }
 
     @Override
-    public final void setProperties(Property[] properties) {
+    public void setProperties(Property[] properties) {
         PluginUtils.setPluginProperties(this, properties);
         propertiesChanged();
     }
-
 
     @Override
     public final String getPropertiesDialogTitle() {

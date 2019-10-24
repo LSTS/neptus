@@ -4,3 +4,4 @@
 # LEGAL_COPY=@LEGAL_COPY@
 
 pt.lsts.neptus.plugins.mjpeg.Viewer
+pt.lsts.neptus.plugins.mjpeg.VideoToPhotosFilter

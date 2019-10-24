@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -63,6 +63,7 @@ public class SimulationEngine {
     protected boolean finished = false;
     protected IManeuverPreview<?> curPreview = null;
     public static SimulatedBathymetry simBathym = SimulatedBathymetry.getInstance();
+    protected double ellapsedTime = 0;
     
     public SimulationEngine(final PlanType plan) {
         this.plan = plan;
@@ -144,7 +145,9 @@ public class SimulationEngine {
         }
         
         if (curPreview != null)
-            state = curPreview.step(state, timestep);
+            state = curPreview.step(state, timestep, ellapsedTime);
+        
+        ellapsedTime += timestep;
         
         if (curPreview == null || curPreview.isFinished()) {
             try {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -66,7 +66,7 @@ public class CSVExporter implements MRAExporter {
     private static final String LINE_ENDING = "\r\n";
     
     @NeptusProperty(name = "Message List to Export", editorClass = StringListEditor.class,
-            description = "List of messages to export. Use '!' at the begining to make it an exclude list.")
+            description = "List of messages to export (comma separated values, no spaces). Use '!' at the begining to make it an exclude list.")
     public String msgList = "";
 
     @NeptusProperty(name = "Textualize enumerations and bitfields",
@@ -113,8 +113,9 @@ public class CSVExporter implements MRAExporter {
                     && m.getMessageType().getFieldPossibleValues(field) != null) {
                 if (m.getUnitsOf(field).equals("tuplelist")
                         || m.getUnitsOf(field).equals("enumerated")) {
-                    return m.getMessageType().getFieldPossibleValues(field).get(
+                    String str = m.getMessageType().getFieldPossibleValues(field).get(
                             ((Number) v).longValue());
+                    ret += ", " + str;
                 }
                 else {
 

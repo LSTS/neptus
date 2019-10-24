@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -43,6 +43,7 @@ import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.Maneuver;
 import pt.lsts.imc.PathPoint;
 import pt.lsts.imc.PlanSpecification;
+import pt.lsts.imc.def.SpeedUnits;
 import pt.lsts.imc.types.PlanSpecificationAdapter;
 import pt.lsts.neptus.types.coord.LocationType;
 
@@ -117,7 +118,7 @@ public class PlanUtils {
      * @param units The speed units as defined in {@link FollowPath.SPEED_UNITS}
      * @return The resulting PlanSpecification message
      */
-    public static PlanSpecification trajectoryPlan(String plan_id, Vector<double[]> lld_locations, double speed, FollowPath.SPEED_UNITS units) {
+    public static PlanSpecification trajectoryPlan(String plan_id, Vector<double[]> lld_locations, double speed, SpeedUnits units) {
         FollowPath maneuver = new FollowPath();
         
         LocationType firstLoc = new LocationType(lld_locations.get(0)[0], lld_locations.get(0)[1]);
@@ -156,7 +157,7 @@ public class PlanUtils {
      * @param units The speed units as defined in {@link Goto.SPEED_UNITS}
      * @return The corresponding IMC message
      */
-    public static PlanSpecification planFromWaypoints(String plan_id, Vector<double[]> lld_locations, double speed, Goto.SPEED_UNITS units) {
+    public static PlanSpecification planFromWaypoints(String plan_id, Vector<double[]> lld_locations, double speed, SpeedUnits units) {
         Vector<Maneuver> maneuvers = new Vector<Maneuver>();
         
         PlanSpecificationAdapter plan = new PlanSpecificationAdapter();

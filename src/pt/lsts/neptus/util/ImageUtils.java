@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -272,6 +272,7 @@ public class ImageUtils {
     private static class ImageLoader {
 
         Image image;
+        ImageIcon imgIcon;
 
         public ImageLoader(String imageUrl) {
 
@@ -281,10 +282,12 @@ public class ImageUtils {
             }
 
             try {
-                image = new ImageIcon(this.getClass().getClassLoader().getResource(imageUrl)).getImage();
+                imgIcon = new ImageIcon(this.getClass().getClassLoader().getResource(imageUrl));
+                image = imgIcon.getImage();
             }
             catch (Exception e) {
-                image = new ImageIcon(imageUrl).getImage();
+                imgIcon = new ImageIcon(imageUrl);
+                image = imgIcon.getImage();
             }
             if (image == null) {
                 NeptusLog.waste().debug("[ImageLoader] Loading image " + imageUrl + " failed");
@@ -308,6 +311,20 @@ public class ImageUtils {
             else
                 return image;
         }
+        
+        @SuppressWarnings("static-access")
+        public Image getImageWaitLoad() {
+            if (image == null)
+                return null;
+            while (imgIcon.getImageLoadStatus() == java.awt.MediaTracker.LOADING) {
+                Thread.currentThread().yield();
+            }
+            if (image.getWidth(null) < 0)
+                return null;
+            else
+                return image;
+        }
+
     }
 
     /**
@@ -322,6 +339,14 @@ public class ImageUtils {
             NeptusLog.pub().error("Image " + imageURL + " was not found!");
         }
         return loader.getImage();
+    }
+
+    public static Image getImageWaitLoad(String imageURL) {
+        ImageLoader loader = new ImageLoader(imageURL);
+        if (loader.getImage() == null) {
+            NeptusLog.pub().error("Image " + imageURL + " was not found!");
+        }
+        return loader.getImageWaitLoad();
     }
 
     public static ImageIcon getIcon(String iconURL) {

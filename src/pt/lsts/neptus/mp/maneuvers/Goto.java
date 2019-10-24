@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -47,6 +47,8 @@ import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.def.SpeedUnits;
+import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.i18n.I18n;
@@ -102,7 +104,7 @@ public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver,
     }
 	
 	
-	public void loadFromXML(String xml) {  
+	public void loadManeuverFromXML(String xml) {  
 	    try {
 	        Document doc = DocumentHelper.parseText(xml);
 	        Node node = doc.selectSingleNode(getType()+"/finalPoint/point");
@@ -312,21 +314,21 @@ public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver,
 		gotoManeuver.setLat(l.getLatitudeRads());
 		gotoManeuver.setLon(l.getLongitudeRads());
 		gotoManeuver.setZ(getManeuverLocation().getZ());
-		gotoManeuver.setZUnits(pt.lsts.imc.Goto.Z_UNITS.valueOf(getManeuverLocation().getZUnits().name()));
+		gotoManeuver.setZUnits(ZUnits.valueOf(getManeuverLocation().getZUnits().name()));
 		gotoManeuver.setSpeed(this.getSpeed());
        
 		switch (this.getSpeedUnits()) {
             case METERS_PS:
-                gotoManeuver.setSpeedUnits(pt.lsts.imc.Goto.SPEED_UNITS.METERS_PS);
+                gotoManeuver.setSpeedUnits(SpeedUnits.METERS_PS);
                 break;
             case RPM:
-                gotoManeuver.setSpeedUnits(pt.lsts.imc.Goto.SPEED_UNITS.RPM);
+                gotoManeuver.setSpeedUnits(SpeedUnits.RPM);
                 break;
             case PERCENTAGE:
-                gotoManeuver.setSpeedUnits(pt.lsts.imc.Goto.SPEED_UNITS.PERCENTAGE);
+                gotoManeuver.setSpeedUnits(SpeedUnits.PERCENTAGE);
                 break;
             default:
-                gotoManeuver.setSpeedUnits(pt.lsts.imc.Goto.SPEED_UNITS.RPM);
+                gotoManeuver.setSpeedUnits(SpeedUnits.RPM);
                 break;
         }
 		

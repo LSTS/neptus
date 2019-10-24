@@ -1,6 +1,6 @@
 #!/bin/bash
 #############################################################################
-# Copyright (c) 2004-2016 Universidade do Porto - Faculdade de Engenharia   #
+# Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia   #
 # Laboratório de Sistemas e Tecnologia Subaquática (LSTS)                   #
 # All rights reserved.                                                      #
 # Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal            #
@@ -28,11 +28,33 @@
 #                                                                           #
 # For more information please see <http://lsts.fe.up.pt/neptus>.            #
 #############################################################################
-# Author: Paulo Dias, Jos� Pinto                                            #
+# Author: Paulo Dias, José Pinto                                            #
 #############################################################################
 
+if [ -z "$BASH" ]
+then
+  bash $0 $@
+fi
+
 PROGNAME=$0
-NEPTUS_HOME=`dirname $PROGNAME`
+
+function command_exists {
+  type "$1" &> /dev/null
+}
+
+unameOut="$(uname -s)"
+case "${unameOut}" in
+    Darwin*)    NEPTUS_HOME=`dirname $PROGNAME`;
+                echo "MacOS found!";;
+    *)          if command_exists readlink; then
+                  NEPTUS_HOME=`dirname $(readlink -f $PROGNAME)`
+                  echo "Readlink found!"
+                else
+                  NEPTUS_HOME=`dirname $PROGNAME`
+                  echo "No readlink found!"
+                fi
+esac
+
 cd $NEPTUS_HOME
 
 WORKSPACE="pt.lsts.neptus.loader.NeptusMain ws"
@@ -64,11 +86,11 @@ if test -d jre/bin; then JAVA_BIN_FOLDER="jre/bin/"; else JAVA_BIN_FOLDER=""; fi
 
 JAVA_MACHINE_TYPE=$($JAVA_BIN_FOLDER"java" -cp bin/neptus.jar pt.lsts.neptus.loader.helper.CheckJavaOSArch)
 echo "Found machine type: $JAVA_MACHINE_TYPE"
-if [ ${JAVA_MACHINE_TYPE} == 'linux-x64' ]; then
+if [[ ${JAVA_MACHINE_TYPE} == 'linux-x64' ]]; then
  LIBS=".:libJNI/x64:libJNI:/usr/lib/jni:libJNI/gdal/linux/x64:libJNI/europa/x64"
-elif [ ${JAVA_MACHINE_TYPE} == 'linux-x86' ]; then
+elif [[ ${JAVA_MACHINE_TYPE} == 'linux-x86' ]]; then
   LIBS=".:libJNI/x86:libJNI:/usr/lib/jni:libJNI/gdal/linux/x86"
-elif [ ${JAVA_MACHINE_TYPE} == 'osx-x64' ]; then
+elif [[ ${JAVA_MACHINE_TYPE} == 'osx-x64' ]]; then
   LIBS=".:libJNI/osx:libJNI:/usr/lib/jni"
 fi
 

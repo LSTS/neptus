@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -144,6 +144,10 @@ public class AisContact {
         return rateOfTurn;
     }
     
+    public void setLastUpdate(long lastUpdate) {
+        this.lastUpdate = lastUpdate;
+    }
+
     /**
      * @param label the label to set
      */
@@ -163,6 +167,17 @@ public class AisContact {
      */
     public void setCog(double cog) {
         this.cog = cog;
+    }
+
+    /**
+     * @param hdg the hdg to set
+     */
+    public void setHdg(double hdg) {
+        this.hdg = hdg;
+    }
+    
+    public void setNavStatus(String navStatus) {
+        this.navStatus = navStatus;
     }
 
     /**

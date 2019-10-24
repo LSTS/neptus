@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -54,16 +54,19 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.CheckMenuChangeListener;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * @author zp
@@ -74,55 +77,60 @@ public class OdssStatePublisher extends ConsolePanel implements IPeriodicUpdates
 
     private static final long serialVersionUID = -1397794375394456466L;
 
-    @NeptusProperty(name="Update Interval", description="Seconds between updates.")
+    @NeptusProperty(name="Update Interval", description="Seconds between updates.", userLevel = LEVEL.REGULAR)
     public int secondsBetweenUpdates = 300;
 
-    @NeptusProperty(name = "Username", category = "Server Settings")
-    public String username = "lstsfeup";
+    @NeptusProperty(name = "Username", category = "Server Settings", userLevel = LEVEL.REGULAR)
+    public String username = "";
 
-    @NeptusProperty(name = "Password", description = "The password will be stored in plain text.", category = "Server Settings")
-    public String password = "XtremeSeacon";
+    @NeptusProperty(name = "Reenter password", description = "The password will be asked again.", category = "Server Settings", userLevel = LEVEL.REGULAR)
+    private boolean reenterPassword = false;
 
-    @NeptusProperty(name = "Sender name", category = "E-mail content")
+//    @NeptusProperty(name = "Password", description = "The password will be stored in plain text.", category = "Server Settings")
+    private String password = "";
+
+    @NeptusProperty(name = "Sender name", category = "E-mail content", userLevel = LEVEL.REGULAR)
     public String fromName = "LSTS";
 
-    @NeptusProperty(name = "Sender e-mail", category = "E-mail content")
+    @NeptusProperty(name = "Sender e-mail", category = "E-mail content", userLevel = LEVEL.REGULAR)
     public String fromEmail = "lstsfeup@gmail.com";
 
-    @NeptusProperty(name = "Receiver name", category = "E-mail content")
+    @NeptusProperty(name = "Receiver name", category = "E-mail content", userLevel = LEVEL.ADVANCED)
     public String toName = "Track";
 
-    @NeptusProperty(name = "Sender e-mail", category = "E-mail content", description = "Can only be auvtrack@mbari.org or lstsfeup+auvtrack@gmail.com")
+    @NeptusProperty(name = "Destination e-mail", category = "E-mail content", userLevel = LEVEL.ADVANCED, 
+            description = "Can only be auvtrack@mbari.org or lstsfeup+auvtrack@gmail.com")
     public String toEmail = "auvtrack@mbari.org";
 
-    @NeptusProperty(name = "CC name", category = "E-mail content")
+    @NeptusProperty(name = "CC name", category = "E-mail content", userLevel = LEVEL.ADVANCED)
     public String ccName = "LSTS";
 
-    @NeptusProperty(name = "CC e-mail", category = "E-mail content")
+    @NeptusProperty(name = "CC e-mail", category = "E-mail content", userLevel = LEVEL.ADVANCED)
     public String ccEmail = "lstsfeup@gmail.com";
 
-    @NeptusProperty(name = "Subject", category = "E-mail content")
+    @NeptusProperty(name = "Subject", category = "E-mail content", userLevel = LEVEL.ADVANCED)
     public String subject = "$vehicle,$time,$longitude,$latitude";
 
-    @NeptusProperty(name = "Message", category = "E-mail content")
+    @NeptusProperty(name = "Message", category = "E-mail content", userLevel = LEVEL.ADVANCED)
     public String message = "Vehicle: $vehicle ($type)\nPosix time: $time\nPlan: $plan\nPosition: $gmaps";
 
-    @NeptusProperty(name = "Publishing")
+    @NeptusProperty(name = "Publishing", userLevel = LEVEL.REGULAR)
     public boolean publishOn = false;
     
-    @NeptusProperty(name = "Publishing simulated states", description = "If true any simulated system will not be published.")
+    @NeptusProperty(name = "Ignore publishing simulated states", userLevel = LEVEL.REGULAR,
+            description = "If true any simulated system will not be published.")
     public boolean ignoreSimulatedSystems = true;
 
-    @NeptusProperty(name = "Stmp server", category = "Server Settings")
+    @NeptusProperty(name = "Stmp server", category = "Server Settings", userLevel = LEVEL.REGULAR)
     public String smtpServerName = "smtp.gmail.com";
     
-    @NeptusProperty(name = "Stmp port", category = "Server Settings")
+    @NeptusProperty(name = "Stmp port", category = "Server Settings", userLevel = LEVEL.REGULAR)
     public int smtpServerPort = 587;
     
-    @NeptusProperty(name = "Use SSL", category = "Server Settings")
+    @NeptusProperty(name = "Use SSL", category = "Server Settings", userLevel = LEVEL.REGULAR)
     public boolean smtpServerSSL = true;
     
-    @NeptusProperty(name = "Use TLS", category = "Server Settings")
+    @NeptusProperty(name = "Use TLS", category = "Server Settings", userLevel = LEVEL.REGULAR)
     public boolean smtpServerTLS = true;
 
     private Timer timer = null;
@@ -178,6 +186,11 @@ public class OdssStatePublisher extends ConsolePanel implements IPeriodicUpdates
         }
         ttask = getTimerTask();
         timer.scheduleAtFixedRate(ttask, 500, secondsBetweenUpdates * 1000);
+        
+        if (reenterPassword) {
+            password = "";
+            reenterPassword = false;
+        }
     }
 
     @Override
@@ -287,6 +300,18 @@ public class OdssStatePublisher extends ConsolePanel implements IPeriodicUpdates
      */
     public void publishState(String vehicleId) throws EmailException {
 
+        if (username.isEmpty() || password.isEmpty()) {
+            String title = I18n.textf("Enter password for %", getName());
+            Pair<String, String> userCred = GuiUtils.askCredentials(getConsole(), title , username, password);
+            if (userCred == null) {
+                return;
+            }
+            else {
+                username = userCred.first();
+                password = userCred.second();
+            }
+        }
+        
         Email mail = new SimpleEmail();
         mail.setHostName(smtpServerName); //"smtp.gmail.com"
         mail.setSmtpPort(smtpServerPort); //587

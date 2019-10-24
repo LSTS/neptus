@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -33,18 +33,22 @@
 package pt.lsts.neptus.txtmsg;
 
 import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.Date;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
+import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.KeyStroke;
 import javax.swing.text.BadLocationException;
 
 import com.google.common.eventbus.Subscribe;
@@ -52,20 +56,23 @@ import com.google.common.eventbus.Subscribe;
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.AcousticOperation;
 import pt.lsts.imc.AcousticOperation.OP;
-import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.TextMessage;
-import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
+import pt.lsts.imc.TransmissionRequest;
+import pt.lsts.imc.TransmissionStatus;
+import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
-import pt.lsts.neptus.comm.manager.imc.MessageDeliveryListener;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.notifications.Notification;
+import pt.lsts.neptus.console.plugins.planning.SoundPlayer;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.Popup;
-import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
+import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 
@@ -78,14 +85,14 @@ import pt.lsts.neptus.util.conf.GeneralPreferences;
 @Popup(accelerator = KeyEvent.VK_Q, width = 400, height = 200)
 public class SendTxtMessage extends ConsolePanel {
 
+    private static final String SOUNDS_NOTIFICATION_WAV = "/sounds/notification.wav";
+    private static final String TEXT_SUBMIT = "text-submit";
+
     public enum CommMeanEnum {
         ACOUSTICS
     }
 
     private static final String TXT_PREFIX = "TXT";
-    
-    @NeptusProperty(name = "Comunication mean", editable = false)
-    private CommMeanEnum mean = CommMeanEnum.ACOUSTICS;
     
     @NeptusProperty(name = "Maximum Number of Chars to Send")
     private int maxNumberOfChars = 65;
@@ -93,12 +100,17 @@ public class SendTxtMessage extends ConsolePanel {
     @NeptusProperty(name = "Maximum Number of Chars in Control Box")
     private int maxRecvChars = 1000;
 
-    @NeptusProperty(name = "Fix sender Node", description = "Fix the possible sender nodes names (comma separated)")
-    private String senderNodeNames = "";
+    @NeptusProperty(name = "Gateway", userLevel = LEVEL.REGULAR, description = "Set the sender modem (optional)")
+    private String senderNode = "";
 
-    @NeptusProperty(name = "Destination Node", description = "Destination node, use empty for broadcast")
+    @NeptusProperty(name = "Destination", userLevel = LEVEL.REGULAR, description = "Destination modem, use empty for broadcast")
     private String destinationNode = "";
 
+    @NeptusProperty(name = "Play Sound on Message received", userLevel = LEVEL.REGULAR, description = "Play a sound on a message received")
+    private boolean soundOnReceive = true;
+    
+    private ConcurrentHashMap<Integer, TransmissionRequest> transmissions = new ConcurrentHashMap<Integer, TransmissionRequest>();
+    
     // GUI
     private JTextArea sendBox;
     private JTextArea recvBox;
@@ -107,13 +119,17 @@ public class SendTxtMessage extends ConsolePanel {
     private JButton sendButton;
     private JButton clearButton;
     private JButton clearCtlButton;
+    private JButton settingsButton;
     
     // Actions
     private AbstractAction sendAction;
     private AbstractAction clearAction;
     private AbstractAction clearCtlAction;
+    private AbstractAction settingsAction;
     
     private String currentStrToSend = "";
+    
+    private SimpleDateFormat dateFormater = new SimpleDateFormat("HH:mm:ss");
 
     /**
      * @param console
@@ -122,18 +138,11 @@ public class SendTxtMessage extends ConsolePanel {
         super(console);
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.console.ConsolePanel#initSubPanel()
-     */
     @Override
     public void initSubPanel() {
         initialize();
     }
 
-
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.console.ConsolePanel#cleanSubPanel()
-     */
     @Override
     public void cleanSubPanel() {
     }
@@ -142,7 +151,7 @@ public class SendTxtMessage extends ConsolePanel {
         initializeActions();
         
         sendBox = new JTextArea();
-        sendBox.setRows(30);
+        sendBox.setRows(1);
         sendBox.addKeyListener(new KeyListener() {
             @Override
             public void keyTyped(KeyEvent e) {
@@ -164,6 +173,18 @@ public class SendTxtMessage extends ConsolePanel {
             public void keyPressed(KeyEvent e) {
             }
         });
+        
+        InputMap input = sendBox.getInputMap();
+        KeyStroke shiftEnter = KeyStroke.getKeyStroke("control ENTER");
+        input.put(shiftEnter, TEXT_SUBMIT);
+        ActionMap actions = sendBox.getActionMap();
+        actions.put(TEXT_SUBMIT, new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                sendButton.doClick();
+            }
+        });
+        
         recvBox = new JTextArea();
         recvBox.setEnabled(false);
         
@@ -176,89 +197,53 @@ public class SendTxtMessage extends ConsolePanel {
         GuiUtils.reactEnterKeyPress(sendButton);
         clearButton = new JButton(clearAction);
         clearCtlButton = new JButton(clearCtlAction);
+        settingsButton = new JButton(settingsAction);
         
         removeAll();
         setLayout(new MigLayout());
         setPreferredSize(new Dimension(400, 200));
         setPreferredSize(new Dimension(200, 100));
         
-        add(sendBoxScroll, "w 100%, h 45%, span, wrap");
+        add(sendBoxScroll, "w 100%, h 40px:40px:40px, span, wrap");
         add(sendButton, "h 20px");
         add(clearButton, "h 20px");
-        add(clearCtlButton, "h 20px, wrap");
-        add(recvBoxScroll, "w 100%, h 45%, span");
+        add(clearCtlButton, "h 20px");
+        add(settingsButton, "h 20px, wrap");
+        add(recvBoxScroll, "w 100%, h 100%, span");
     }
 
-    
     private void initializeActions() {
         sendAction = new AbstractAction(I18n.text("send")) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String msgStr = sendBox.getText().trim();
-                // sendBox.setText("");
+                if (msgStr.isEmpty())
+                    return;
                 
                 TextMessage msgTxt = new TextMessage();
                 msgTxt.setOrigin(GeneralPreferences.imcCcuName.toLowerCase());
                 msgTxt.setText(" " +TXT_PREFIX + ":" + msgStr);
 
+                String destination = destinationNode.isEmpty() ? "broadcast" : destinationNode;
+                
                 AcousticOperation msg = new AcousticOperation();
                 msg.setOp(AcousticOperation.OP.MSG);
-                String dstStr = destinationNode.isEmpty() ? "broadcast" : destinationNode;
-                msg.setSystem(dstStr);
                 msg.setMsg(msgTxt);
-                
-                ImcSystem[] senderList = ImcSystemsHolder.lookupSystemByService("acoustic/operation", SystemTypeEnum.ALL, true);
-                List<ImcSystem> senders = new ArrayList<ImcSystem>();
-                if (senderNodeNames.isEmpty()) {
-                    senders = Arrays.asList(senderList);
+                ImcSystem sender = null;
+                if (!senderNode.isEmpty())
+                    sender = ImcSystemsHolder.lookupSystemByName(senderNode);
+                try {
+                    ArrayList<TransmissionRequest> requests = IMCSendMessageUtils.sendMessageAcoustically(msgTxt,
+                            destination, sender, false, 5);
+                    requests.forEach(t -> {
+                        transmissions.put(t.getReqId(), t);
+                        updateRecvBoxTxt(t.getReqId()+"> Transmission requested.");
+                    });                    
                 }
-                else {
-                    String[] authSenders = senderNodeNames.split(",");
-                    for (ImcSystem sys : senderList) {
-                        for (String as : authSenders) {
-                            if (as.equalsIgnoreCase(sys.getName()))
-                                senders.add(sys);
-                        }
-                    }
-                }
-                
-                if (senders.size() > 0) {
-                   double r = new Random().nextDouble();
-                   int idx = (int) (senders.size() * r);
-                   ImcSystem sender = senders.get(idx);
-                   MessageDeliveryListener msgListener = new MessageDeliveryListener() {
-                       @Override
-                       public void deliveryUnreacheable(IMCMessage message) {
-                           updateRecvBoxTxt("STA> Msg delivery Unreacheable");
-                       }
-
-                       @Override
-                       public void deliveryUncertain(IMCMessage message, Object msg) {
-                           updateRecvBoxTxt("STA> Msg delivery Uncertain");
-                       }
-
-                       @Override
-                       public void deliveryTimeOut(IMCMessage message) {
-                           updateRecvBoxTxt("STA> Msg delivery TimeOut");
-                       }
-
-                       @Override
-                       public void deliverySuccess(IMCMessage message) {
-                           updateRecvBoxTxt("STA> Msg delivery Success");
-                       }
-
-                       @Override
-                       public void deliveryError(IMCMessage message, Object error) {
-                           updateRecvBoxTxt("STA> Msg delivery Error");
-                       }
-                   };
-                   currentStrToSend = msgStr;
-                   boolean res = ImcMsgManager.getManager().sendMessage(msg, sender.getId(), "", msgListener);
-                   updateRecvBoxTxt("SND> Msg sending using ... " + sender.getName() + ">>" + dstStr + "... "+ res + "...");
-                }
-                else {
-                    
-                }
+                catch (Exception ex) {
+                    ex.printStackTrace();
+                    updateRecvBoxTxt("STA> Error sending message: "+ex.getMessage());
+                }                    
             }
         };
 
@@ -276,6 +261,12 @@ public class SendTxtMessage extends ConsolePanel {
                 }
             }
         };
+        settingsAction = new AbstractAction("settings") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                PluginUtils.editPluginProperties(SendTxtMessage.this, true);                
+            }
+        };
     }
     
     @Subscribe
@@ -291,10 +282,17 @@ public class SendTxtMessage extends ConsolePanel {
         updateRecvBoxTxt(recMessage);
 
         post(Notification.warning("Txt Message", recMessage).requireHumanAction(true));
+        
+        if (soundOnReceive)
+            playNotifySound();
+    }
+
+    private void playNotifySound() {
+        new SoundPlayer(FileUtil.getResourceAsStream(SOUNDS_NOTIFICATION_WAV)).start();
     }
 
     @Subscribe
-    public void onTextMessage(AcousticOperation msg) {
+    public void on(AcousticOperation msg) {
         if (msg.getOp() == OP.MSG_DONE || msg.getOp() == OP.MSG_FAILURE || msg.getOp() == OP.BUSY) {
             String recMessage = "RES> " + msg.getOpStr(); 
             updateRecvBoxTxt(recMessage);
@@ -303,18 +301,32 @@ public class SendTxtMessage extends ConsolePanel {
         }
     }
     
+   @Subscribe
+   public void on(TextMessage msg) {
+       updateRecvBoxTxt("TXT> "+msg.getOrigin()+" | "+msg.getText());
+   }
+   
+   @Subscribe
+   public void on(TransmissionStatus msg) {
+       if (transmissions.containsKey(msg.getReqId())) {
+           updateRecvBoxTxt(msg.getReqId()+"> "+msg.getStatusStr()+" | "+msg.getInfo());
+       }
+   }
+    
+    
     /**
      * @param recMessage
      */
     private void updateRecvBoxTxt(String recMessage) {
         synchronized (recvBox) {
-            recvBox.append(recMessage + "\n");
+            recvBox.append(dateFormater.format(new Date()) + " | " + recMessage + "\n");
             String t = recvBox.getText();
             if (t.length() > maxRecvChars) {
-                t = t.substring(Math.min(t.length(), t.length() - maxNumberOfChars), t.length());
+                t = t.substring(Math.min(t.length(), t.length() - maxRecvChars), t.length());
                 recvBox.setText(t);
                 recvBox.setCaretPosition(t.length());
             }
+            recvBox.scrollRectToVisible(new Rectangle(0, recvBox.getHeight() + 22, 1, 1));
         }
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -51,10 +51,10 @@ import org.reflections.Reflections;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 
-import pt.lsts.imc.Announce;
-import pt.lsts.imc.Goto;
 import pt.lsts.imc.Loiter;
 import pt.lsts.imc.PlanControlState;
+import pt.lsts.imc.def.SpeedUnits;
+import pt.lsts.imc.def.SystemType;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
 import pt.lsts.neptus.console.plugins.SystemsList;
@@ -88,10 +88,10 @@ public class PluginsPotGenerator {
     // add here more enumerations that are used in the GUI
     public static Vector<Class<?>> enums() {
         Vector<Class<?>> enums = new Vector<>();
-        enums.add(Announce.SYS_TYPE.class);
+        enums.add(SystemType.class);
         enums.add(ConsoleEventVehicleStateChanged.STATE.class);
         enums.add(ImcSystem.IMCAuthorityState.class);
-        enums.add(Goto.SPEED_UNITS.class);
+        enums.add(SpeedUnits.class);
         enums.add(Loiter.TYPE.class);
         enums.add(MapPanel.PlacementEnum.class);
         enums.add(PlanControlState.STATE.class);

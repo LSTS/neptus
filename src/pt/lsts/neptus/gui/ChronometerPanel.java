@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -56,7 +56,9 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFormattedTextField;
+import javax.swing.JLabel;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingConstants;
@@ -68,6 +70,7 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
+import pt.lsts.neptus.util.speech.SpeechUtil;
 
 /**
  * @author pdias
@@ -129,6 +132,10 @@ public class ChronometerPanel extends JPanel implements ActionListener {
     private MiniButton alarmValueButton = null;
     private MiniButton countdownToggleButton = null;
     private MiniButton resetButton = null;
+    private JLabel labelPanel = null;
+    
+    private boolean audioAlertOnZero = false;
+    private boolean alreadyReported = false;
 
     public ChronometerPanel() {
         this.removeAll();
@@ -148,7 +155,8 @@ public class ChronometerPanel extends JPanel implements ActionListener {
                 .addGroup(
                         layout.createSequentialGroup().addComponent(getStartStopToggleButton())
                                 .addComponent(getPauseResumeToggleButton()).addComponent(getAlarmValueButton())
-                                .addComponent(getCountdownToggleButton())));
+                                .addComponent(getCountdownToggleButton()).addGap(10)
+                                .addComponent(getLabelPanel())));
 
         layout.setVerticalGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addGroup(
                 layout.createSequentialGroup()
@@ -157,7 +165,8 @@ public class ChronometerPanel extends JPanel implements ActionListener {
                                 layout.createParallelGroup(GroupLayout.Alignment.CENTER)
                                         .addComponent(getStartStopToggleButton())
                                         .addComponent(getPauseResumeToggleButton()).addComponent(getAlarmValueButton())
-                                        .addComponent(getCountdownToggleButton()))));
+                                        .addComponent(getCountdownToggleButton())
+                                        .addComponent(getLabelPanel()))));
 
         layout.linkSize(SwingConstants.HORIZONTAL, getStartStopToggleButton(), getPauseResumeToggleButton(),
                 getAlarmValueButton(), getCountdownToggleButton()/* , getResetButton() */);
@@ -196,6 +205,17 @@ public class ChronometerPanel extends JPanel implements ActionListener {
                     };
                     Toolkit.getDefaultToolkit().getSystemClipboard()
                             .setContents(new StringSelection(ChronometerPanel.this.getFormattedTime()), owner);
+                }
+            }));
+            popup.add(new JMenuItem(new AbstractAction(I18n.text("Set label")) {
+                private static final long serialVersionUID = 1L;
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    String newLabel = JOptionPane.showInputDialog(
+                            SwingUtilities.windowForComponent(ChronometerPanel.this), I18n.text("Label text"),
+                            getLabelPanel().getText());
+                    getLabelPanel().setText(newLabel);
                 }
             }));
             display.add(popup);
@@ -270,6 +290,16 @@ public class ChronometerPanel extends JPanel implements ActionListener {
         return alarmValueButton;
     }
 
+    /**
+     * @return the labelPanel
+     */
+    public JLabel getLabelPanel() {
+        if (labelPanel == null) {
+            labelPanel = new JLabel("");
+        }
+        return labelPanel;
+    }
+    
     /**
      * Start the timer
      */
@@ -464,6 +494,7 @@ public class ChronometerPanel extends JPanel implements ActionListener {
                 cState = CronState.STOPED;
                 stopDisplayUpdate();
                 updateDisplay();
+                alreadyReported = false;
             }
         }
         else if (cState == CronState.PAUSED) {
@@ -548,10 +579,15 @@ public class ChronometerPanel extends JPanel implements ActionListener {
         else
             getDisplay().setState(ClockState.NONE);
 
-        if (t >= getMaxSecs() && getMaxSecs() > 0)
+        if (t >= getMaxSecs() && getMaxSecs() > 0) {
             getDisplay().setBackground(COLOR_NOK);
-        else
+            if (audioAlertOnZero && !alreadyReported)
+                SpeechUtil.readSimpleText("Chronometer Alarm");
+            alreadyReported = true;
+        }
+        else {
             getDisplay().setBackground(COLOR_OK);
+        }
     }
 
     public class HMSFormatter extends DefaultFormatter {
@@ -640,9 +676,24 @@ public class ChronometerPanel extends JPanel implements ActionListener {
 
         return time;
     }
+
+    /**
+     * @return the audioAlertOnZero
+     */
+    public boolean isAudioAlertOnZero() {
+        return audioAlertOnZero;
+    }
+    
+    /**
+     * @param audioAlertOnZero the audioAlertOnZero to set
+     */
+    public void setAudioAlertOnZero(boolean audioAlertOnZero) {
+        this.audioAlertOnZero = audioAlertOnZero;
+    }
     
     public static void main(String[] args) {
         ChronometerPanel chronometerPanel = new ChronometerPanel();
+        chronometerPanel.setAudioAlertOnZero(true);
         GuiUtils.testFrame(chronometerPanel, ChronometerPanel.class.getSimpleName(), 400, 204);
     }
 }

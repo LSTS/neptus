@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -115,14 +115,15 @@ public class ImcSystem implements Comparable<ImcSystem> {
 		setId((tmpId == null)?ImcId16.NULL_ID:tmpId);
 		CommMean commMean = CommUtil.getActiveCommMeanForProtocol(
                 vehicle, CommMean.IMC);
-		setCommsInfo((commMean == null)?null:commMean);
+        setCommsInfo((commMean == null) ? createEmptyCommMean() : commMean);
 	}
 
-	/**
+    /**
 	 * @param id
 	 */
 	public ImcSystem(ImcId16 id) {
 		this((id == null)?ImcId16.NULL_ID.toString():id.toString(), id);
+        setCommsInfo(createEmptyCommMean());
 	}
 
 	/**
@@ -133,6 +134,7 @@ public class ImcSystem implements Comparable<ImcSystem> {
 		setType(SystemTypeEnum.UNKNOWN);
 		setName(name);
 		setId((id == null)?ImcId16.NULL_ID:id);
+        setCommsInfo(createEmptyCommMean());
 	}
 
 	/**
@@ -141,7 +143,8 @@ public class ImcSystem implements Comparable<ImcSystem> {
 	 */
 	public ImcSystem(ImcId16 id, CommMean commMean) {
 		this(id);
-		setCommsInfo((commMean == null)?null:commMean);
+		if (commMean != null)
+		    setCommsInfo(commMean);
 	}
 
 	/**
@@ -151,10 +154,14 @@ public class ImcSystem implements Comparable<ImcSystem> {
 	 */
 	public ImcSystem(String name, ImcId16 id, CommMean commMean) {
 		this(name, id);
-		setCommsInfo((commMean == null)?null:commMean);
+        if (commMean != null)
+            setCommsInfo(commMean);
 	}
 
-	
+    private CommMean createEmptyCommMean() {
+        return ImcSystem.createCommMean("localhost", 0, 0, getId(), false, false);
+    }
+
 	/**
 	 * @return the name
 	 */
@@ -630,7 +637,9 @@ public class ImcSystem implements Comparable<ImcSystem> {
 	 */
 	@Override
 	public int compareTo(ImcSystem o) {
-		return getName().compareTo(o.getName());
+	    if (getId() == ImcId16.NULL_ID)
+	        return getName().compareTo(o.getName());
+		return getId().compareTo(o.getId());
 	}
 	
 	/**
@@ -975,7 +984,9 @@ public class ImcSystem implements Comparable<ImcSystem> {
     
     @Override
     public int hashCode() {
-        return name.hashCode();
+        if (getId() == ImcId16.NULL_ID)
+            return getName().hashCode();
+        return id.hashCode();
     }
     
     /**

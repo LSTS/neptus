@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -32,6 +32,7 @@
  */
 package pt.lsts.neptus.types.map;
 
+import java.awt.AlphaComposite;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.geom.Point2D;
@@ -68,6 +69,7 @@ public class ImageElement extends AbstractElement implements ScalableElement, Ro
 
     private String imageFileName = null;
     private double imageScale = 1.0; // meters per pixel
+    private double imageScaleV = Double.NaN; // meters per pixel
 
     private String bathymetricImageFileName = null;
 
@@ -184,10 +186,23 @@ public class ImageElement extends AbstractElement implements ScalableElement, Ro
                 this.image = ImageUtils.getImage(this.imageFileName);
             }
             nd = doc.selectSingleNode("//scale");
-            if (nd == null)
+            if (nd == null) {
                 this.imageScale = 1.0;
-            else
+                this.imageScaleV = Double.NaN;
+            }
+            else {
                 this.imageScale = Double.parseDouble(nd.getText());
+                this.imageScaleV = Double.NaN;
+                Node vScaleNode = nd.selectSingleNode("@vertical");
+                if (vScaleNode != null) {
+                    try {
+                        this.imageScaleV = Double.parseDouble(vScaleNode.getText());
+                    }
+                    catch (Exception e) {
+                        NeptusLog.pub().error(this, e);
+                    }
+                }
+            }
 
             // Tests if it is a batimetric image
             nd = doc.selectSingleNode("//max-height");
@@ -265,10 +280,34 @@ public class ImageElement extends AbstractElement implements ScalableElement, Ro
     }
 
     /**
+     * Please note that setting this will set the scale horizontal
+     * equal to the vertical.
+     * 
      * @param imageScale The imageScale to set.
      */
     public void setImageScale(double imageScale) {
         this.imageScale = imageScale;
+        setImageScaleV(Double.NaN);;
+    }
+    
+    /**
+     * This if different than {@link Double#NaN} will allow different 
+     * vertical scale than horizontal.
+     * 
+     * @return the imageScaleV
+     */
+    public double getImageScaleV() {
+        return imageScaleV;
+    }
+    
+    /**
+     * Sets, if different than {@link Double#NaN},  a different 
+     * vertical scale than horizontal.
+     * 
+     * @param imageScaleV the imageScaleV to set
+     */
+    public void setImageScaleV(double imageScaleV) {
+        this.imageScaleV = imageScaleV;
     }
 
     /**
@@ -410,10 +449,12 @@ public class ImageElement extends AbstractElement implements ScalableElement, Ro
         else
             root.addElement("href")
                     .addText(FileUtil.relativizeFilePathAsURI(getOriginalFilePath(), getImageFileName()));
-        root.addElement("scale").addText(Double.toString(getImageScale()));
-        // root.addElement("yaw").addText(
-        // Double.toString(getYaw()));
-
+        Element scaleElm = root.addElement("scale");
+        scaleElm.addText(Double.toString(getImageScale()));
+        if (!Double.isNaN(imageScaleV)) {
+            scaleElm.addAttribute("vertical", "" + imageScaleV);
+        }
+            
         if (isBathymetric()) {
             root.addElement("max-height").addText(Double.toString(getMaxHeight()));
             root.addElement("max-depth").addText(Double.toString(getMaxDepth()));
@@ -434,7 +475,6 @@ public class ImageElement extends AbstractElement implements ScalableElement, Ro
             if (getBathymetricImageFileName() != null)
                 root.addElement("href-altitude").addText(
                         FileUtil.relativizeFilePathAsURI(getOriginalFilePath(), getBathymetricImageFileName()));
-
         }
 
         return document;
@@ -466,11 +506,14 @@ public class ImageElement extends AbstractElement implements ScalableElement, Ro
         params.setCenter(getCenterLocation());
         params.setImageFileName(getImageFileName());
         params.setImageScale(getImageScale());
+        params.setImageScaleV(getImageScaleV());
         params.setIsBathymetric(isBathymetric());
         params.setMaxHeight(getMaxHeight());
         params.setMaxDepth(getMaxDepth());
         params.setResolution(getResolution());
         params.setBathimFile(getBathymetricImageFileName());
+        params.setTransparency(getTransparency());
+        params.setRotationDegs(getYawDeg());
         return params;
     }
 
@@ -484,10 +527,13 @@ public class ImageElement extends AbstractElement implements ScalableElement, Ro
         setCenterLocation(params.getCenter());
         setImageFileName(params.getImageFileName());
         setImageScale(params.getImageScale());
+        setImageScaleV(params.getImageScaleV());
         setBathymetric(params.getIsBathymetric());
         setMaxHeight(params.getMaxHeight());
         setMaxDepth(params.getMaxDepth());
         setResolution(params.getResolution());
+        setTransparency(params.getTransparency());
+        setYawDeg(params.getRotationDegs());
 
         if (isBathymetric() && params.getBathimFile() != null)
             setBathymetricImageFileName(params.getBathimFile().getAbsolutePath());
@@ -503,7 +549,11 @@ public class ImageElement extends AbstractElement implements ScalableElement, Ro
         Point2D center = renderer.getScreenPosition(getCenterLocation());
         g.translate(center.getX(), center.getY());
         g.rotate(getYawRad() - renderer.getRotation());
-        g.scale(getImageScale() * renderer.getZoom(), getImageScale() * renderer.getZoom());
+        double scaleH = getImageScale() * renderer.getZoom();
+        double scaleV = (Double.isNaN(getImageScaleV()) ? getImageScale() : getImageScaleV()) * renderer.getZoom();
+        g.scale(scaleH, scaleV);
+        if (transparency > 0 && transparency <= 100)
+            g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (100 - transparency) / 1E2f));
         g.drawImage(getImage(), -getImage().getWidth(renderer) / 2, -getImage().getHeight(renderer) / 2, null);
     }
 

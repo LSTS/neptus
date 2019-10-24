@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -57,6 +57,8 @@ import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.def.SpeedUnits;
+import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.gui.ToolbarSwitch;
 import pt.lsts.neptus.gui.editor.SpeedUnitsEnumEditor;
 import pt.lsts.neptus.i18n.I18n;
@@ -87,17 +89,17 @@ public class Land extends Maneuver implements LocatedManeuver, ManeuverWithSpeed
     protected Point2D lastDragPoint = null;
     protected boolean editing = false;
 
-    @NeptusProperty(name = "Abort Z", description = "Abort altitude or height. If landing is aborted while executing, the UAV will maintain its course and attempt to climb to the abort z reference.")
+    @NeptusProperty(name = "Abort Z", description = "Abort altitude or height. If landing is aborted while executing, the UAV will maintain its course and attempt to climb to the abort z reference.", units = "m")
     protected double zAbort = 20;
     @NeptusProperty(name = "Speed")
     protected double speed = 17;
     @NeptusProperty(name = "Speed Units", editorClass = SpeedUnitsEnumEditor.class)
     protected SPEED_UNITS speedUnits = SPEED_UNITS.METERS_PS;
-    @NeptusProperty(name = "Bearing", description = "Land bearing angle.")
+    @NeptusProperty(name = "Bearing", description = "Land bearing angle.", units = "\u00B0")
     protected double bearingDegs = 0;
-    @NeptusProperty(name = "Glide Slope", description = "Ratio (%) of the distance from the last waypoint to the landing point (touchdown) and the height difference between them.")
+    @NeptusProperty(name = "Glide Slope", description = "Ratio (%) of the distance from the last waypoint to the landing point (touchdown) and the height difference between them.", units = "%")
     protected short glideSlope = 10;
-    @NeptusProperty(name = "Glide Slope Altitude", description = "Height difference between the last waypoint to the landing point (touchdown).")
+    @NeptusProperty(name = "Glide Slope Altitude", description = "Height difference between the last waypoint to the landing point (touchdown).", units = "m")
     protected float glideSlopeAltitude = 10;
 
     public Land() {
@@ -203,7 +205,7 @@ public class Land extends Maneuver implements LocatedManeuver, ManeuverWithSpeed
      * @see pt.lsts.neptus.mp.Maneuver#loadFromXML(java.lang.String)
      */
     @Override
-    public void loadFromXML(String xml) {
+    public void loadManeuverFromXML(String xml) {
         try {
             Document doc = DocumentHelper.parseText(xml);
     
@@ -299,20 +301,20 @@ public class Land extends Maneuver implements LocatedManeuver, ManeuverWithSpeed
         man.setLat(Math.toRadians(latDegs));
         man.setLon(Math.toRadians(lonDegs));
         man.setZ(z);
-        man.setZUnits(pt.lsts.imc.Land.Z_UNITS.valueOf(getManeuverLocation().getZUnits().toString()));        
+        man.setZUnits(ZUnits.valueOf(getManeuverLocation().getZUnits().toString()));        
         man.setSpeed(speed);
         
         SPEED_UNITS speedU = speedUnits;
         switch (speedU) {
             case RPM:
-                man.setSpeedUnits(pt.lsts.imc.Land.SPEED_UNITS.RPM);
+                man.setSpeedUnits(SpeedUnits.RPM);
                 break;
             case PERCENTAGE:
-                man.setSpeedUnits(pt.lsts.imc.Land.SPEED_UNITS.PERCENTAGE);
+                man.setSpeedUnits(SpeedUnits.PERCENTAGE);
                 break;
             case METERS_PS:
             default:
-                man.setSpeedUnits(pt.lsts.imc.Land.SPEED_UNITS.METERS_PS);
+                man.setSpeedUnits(SpeedUnits.METERS_PS);
                 break;
         }
 

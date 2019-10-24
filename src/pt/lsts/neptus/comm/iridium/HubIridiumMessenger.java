@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -43,11 +43,15 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.TimeZone;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.IOUtils;
@@ -56,7 +60,11 @@ import com.google.gson.Gson;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.iridium.Position.PosType;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.ByteUtil;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**
  * @author zp
@@ -66,14 +74,14 @@ import pt.lsts.neptus.util.ByteUtil;
 public class HubIridiumMessenger implements IridiumMessenger {
 
     protected boolean available = true;
-    protected String serverUrl = "http://ripples.lsts.pt/api/v1/";
+    protected String serverUrl = GeneralPreferences.ripplesUrl + "/api/v1/";
     // protected String serverUrl = "http://lsts-hub/api/v1/";
     protected String systemsUrl = serverUrl+"systems";
     protected String activeSystemsUrl = systemsUrl+"/active";
     protected String messagesUrl = serverUrl+"iridium";
     protected int timeoutMillis = 10000;
     protected HashSet<IridiumMessageListener> listeners = new HashSet<>();
-    
+    private static Pattern p = Pattern.compile("\\((.)\\) \\((.*)\\) (.*) / (.*), (.*) / .*");
     private static TimeZone tz = TimeZone.getTimeZone("UTC");
     private static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
     static { dateFormat.setTimeZone(tz); }
@@ -170,6 +178,8 @@ public class HubIridiumMessenger implements IridiumMessenger {
         os.write(data);
         os.close();
 
+        NeptusLog.pub().info(messagesUrl+" : "+conn.getResponseCode()+" "+conn.getResponseMessage());
+        
         InputStream is = conn.getInputStream();
         ByteArrayOutputStream incoming = new ByteArrayOutputStream();
         IOUtils.copy(is, incoming);
@@ -217,7 +227,7 @@ public class HubIridiumMessenger implements IridiumMessenger {
         String since = null;
         if (timeSince != null)
             since = dateToString(timeSince);
-        URL u = new URL(messagesUrl+"?since="+since);
+        URL u = new URL(messagesUrl+"?since="+(timeSince.getTime()/1000));
         if (since == null)
             u = new URL(messagesUrl);
         HttpURLConnection conn = (HttpURLConnection) u.openConnection();
@@ -237,10 +247,56 @@ public class HubIridiumMessenger implements IridiumMessenger {
         Vector<IridiumMessage> ret = new Vector<>();        
         
         for (HubMessage m : msgs) {
-            ret.add(m.message());
+            try {
+                ret.add(m.message());
+            }
+            catch (Exception e) {
+                
+                String report = new String(Hex.decodeHex(m.msg.toCharArray()));
+                Matcher matcher = p.matcher(report);
+                if (matcher.matches()) {
+                    String vehicle = matcher.group(2);
+                    String timeOfDay = matcher.group(3);
+                    String latMins = matcher.group(4);
+                    String lonMins = matcher.group(5);
+                    
+                    String latParts[] = latMins.split(" ");
+                    String lonParts[] = lonMins.split(" ");
+                    double lat = getCoords(latParts);
+                    double lon = getCoords(lonParts);
+                    long timestamp = parseTimeString(timeOfDay).getTime();
+                    
+                    ImcSystem system = ImcSystemsHolder.getSystemWithName(vehicle);
+                    
+                    if (system != null) {
+                        system.setLocation(new LocationType(lat, lon), timestamp);
+                    }
+                    
+                    NeptusLog.pub().info("Text report: "+report);
+                }
+                
+                IridiumCommand msg = new IridiumCommand();
+                msg.command = new String(Hex.decodeHex(m.msg.toCharArray()));
+                ret.add(msg);
+            }
         }
         
         return ret;
+    }
+    
+    public static Date parseTimeString(String timeOfDay) {
+        GregorianCalendar date = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
+        String[] timeParts = timeOfDay.split(":");
+        date.set(Calendar.HOUR_OF_DAY, Integer.parseInt(timeParts[0]));
+        date.set(Calendar.MINUTE, Integer.parseInt(timeParts[1]));
+        date.set(Calendar.SECOND, Integer.parseInt(timeParts[2]));
+        return date.getTime();
+    }
+    
+    private double getCoords(String[] coordParts) {
+        double coord = Double.parseDouble(coordParts[0]);
+        coord += (coord > 0) ? Double.parseDouble(coordParts[1]) / 60.0 : -Double.parseDouble(coordParts[1]) / 60.0;
+        return coord;
     }
     
     @Override
@@ -278,6 +334,7 @@ public class HubIridiumMessenger implements IridiumMessenger {
         int type;
         String msg;
         String updated_at;
+        boolean plaintext;
         
         public IridiumMessage message() throws Exception {
             byte[] data = Hex.decodeHex(msg.toCharArray());
@@ -314,11 +371,18 @@ public class HubIridiumMessenger implements IridiumMessenger {
     }
     
     public static void main(String[] args) throws Exception {
+        GeneralPreferences.ripplesUrl = "https://ripples.lsts.pt";
+        
         HubIridiumMessenger messenger = new HubIridiumMessenger();
-        Date d = new Date(System.currentTimeMillis() - (1000 * 3600 * 60));
+        Date d = new Date(System.currentTimeMillis() - (1000 * 3600 * 5));
         
         System.out.println(dateToString(d));
-        System.out.println(messenger.pollMessages(d).size());
+        System.out.println(d.getTime());
+        Collection<IridiumMessage> msgs = messenger.pollMessages(d);
+        System.out.println(msgs.size());
+        msgs.stream().forEach(m -> {
+            System.out.println(m.asImc());
+        });
         
         
         

@@ -1,5 +1,5 @@
 #############################################################################
-# Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia   #
+# Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia   #
 # Laboratório de Sistemas e Tecnologia Subaquática (LSTS)                   #
 # All rights reserved.                                                      #
 # Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal            #
@@ -143,7 +143,7 @@ Section "-$(^Name) base" sec1
     File ..\static_files\icons\neptus.ico
     File /r /x .svn ${BASEDIR}\*
     ;File  /oname=neptus.bat ..\static_files\batch_files\neptusse.bat
-    File  /oname=neptus.bat  ${NEPTUS_BATCH_PATH}
+    ;File  /oname=neptus.bat  ${NEPTUS_BATCH_PATH}
 
     ${If} ${RunningX64}
        ; MessageBox MB_OK "running on x64"

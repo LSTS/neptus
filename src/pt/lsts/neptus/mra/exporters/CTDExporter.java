@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -71,10 +71,12 @@ public class CTDExporter implements MRAExporter {
     public CTDExporter(IMraLogGroup source) {
 
     }
+    
+    String ctdEntity = "CTD";
 
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
-        return source.getLsfIndex().getEntityId("CTD") != -1;
+        return source.getLsfIndex().containsMessagesOfType("Conductivity");
     };
 
     private String finish(BufferedWriter writer, int count) {
@@ -89,7 +91,7 @@ public class CTDExporter implements MRAExporter {
     @SuppressWarnings("resource")
     @Override
     public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
-
+        ctdEntity = source.getLsfIndex().getFirst(Conductivity.class).getEntityName();
         
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy'-'MM'-'dd HH:mm:ss");
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -169,7 +171,7 @@ public class CTDExporter implements MRAExporter {
             return e.getClass().getSimpleName()+": "+e.getMessage();
         }
         while (true) {
-            Conductivity c = scanner.next(Conductivity.class, "CTD");
+            Conductivity c = scanner.next(Conductivity.class, ctdEntity);
             
             if (c == null || c.getTimestampMillis() > end.getTime())
                 return finish(writer, count);
@@ -188,7 +190,7 @@ public class CTDExporter implements MRAExporter {
             if (containsSalinity)
                 s = scanner.next(Salinity.class);
             
-            Temperature t = scanner.next(Temperature.class, "CTD");
+            Temperature t = scanner.next(Temperature.class, ctdEntity);
             if (t == null)
                 return finish(writer, count);
             EstimatedState d = scanner.next(EstimatedState.class);

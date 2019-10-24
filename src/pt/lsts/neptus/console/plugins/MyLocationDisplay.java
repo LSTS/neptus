@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -52,6 +52,11 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Vector;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
@@ -61,6 +66,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JSeparator;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.SystemUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -75,7 +81,6 @@ import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.renderer2d.ILayerPainter;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
@@ -102,7 +107,7 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
 @SuppressWarnings("serial")
 @PluginDescription(author = "Paulo Dias", name = "MyLocationDisplay", version = "1.3.1", icon = "images/myloc.png", description = "My location display.", documentation = "my-location/my-location.html")
 @LayerPriority(priority = 182)
-public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates, Renderer2DPainter,
+public class MyLocationDisplay extends ConsolePanel implements Renderer2DPainter,
         IEditorMenuExtension, ConfigurationListener, SubPanelChangeListener, MissionChangeListener {
 
     private final Icon ICON = ImageUtils.getScaledIcon("images/myloc.png", 24, 24);
@@ -149,12 +154,24 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
             category = "Derive Heading", userLevel = LEVEL.ADVANCED,
             description = "This is the angle offset between what you consider front and where the operator is looking. (Clockwise positive angle.)")
     private short angleOffsetFromFrontToWhereTheOperatorIsLooking = 0;
+    
+    @NeptusProperty(name = "Offset from center in width in meters (from following system, positive right)", editable = true, 
+            category = "Dimension", userLevel = LEVEL.ADVANCED,
+            description = "")
+    private double widthOffsetFromCenter = 0;
+    @NeptusProperty(name = "Offset from center in length in meters (from following system, positive front)", editable = true, 
+            category = "Dimension", userLevel = LEVEL.ADVANCED,
+            description = "")
+    private double lengthOffsetFromCenter = 0;
 
     @NeptusProperty(name = "Length", category = "Dimension", userLevel = LEVEL.REGULAR)
     public double length = 0;
 
     @NeptusProperty(name = "Width", category = "Dimension", userLevel = LEVEL.REGULAR)
     public double width = 0;
+    
+    @NeptusProperty(name = "Draught", category = "Dimension", userLevel = LEVEL.REGULAR)
+    public double draught = 0;
     
     @NeptusProperty(name = "Show Data Source", editable = true,
             userLevel = LEVEL.ADVANCED,
@@ -168,6 +185,23 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
     private Vector<IMapPopup> renderersPopups = new Vector<IMapPopup>();
 
     protected GeneralPath myShape = new GeneralPath();
+
+    private boolean recalcRqst;
+    
+    private ScheduledExecutorService executer = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
+        String nameBase = new StringBuilder().append(MyLocationDisplay.class.getSimpleName())
+                .append("::").append(Integer.toHexString(MyLocationDisplay.this.hashCode()))
+                        .append("::").toString();
+        ThreadGroup group = new ThreadGroup(nameBase);
+        AtomicLong c = new AtomicLong(0);
+        @Override
+        public Thread newThread(Runnable r) {
+            Thread td = new Thread(group, r, nameBase + c.getAndIncrement());
+            td.setDaemon(true);
+            return td;
+        }
+    });
+    
     {
         myShape.moveTo(0, 5);
         myShape.lineTo(-5, 3.5);
@@ -189,11 +223,13 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
         headingDegrees = MyState.getAxisAnglesDegrees()[2];
         length = MyState.getLength();
         width = MyState.getWidth();
+        lengthOffsetFromCenter = MyState.getLengthOffsetFromCenter();
+        widthOffsetFromCenter = MyState.getWidthOffsetFromCenter();
+        draught = MyState.getDraught();
     }
 
     @Override
     public void initSubPanel() {
-
         renderersPopups = getConsole().getSubPanelsOfInterface(IMapPopup.class);
         for (IMapPopup str2d : renderersPopups) {
             str2d.addMenuExtension(this);
@@ -203,25 +239,20 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
         for (ILayerPainter str2d : renderers) {
             str2d.addPostRenderPainter(this, I18n.text("My location"));
         }
-
+        
+        executer.scheduleAtFixedRate(this::update, 5000, 500, TimeUnit.MILLISECONDS);
     }
 
     /*
      * (non-Javadoc)
      * 
-     * @see pt.lsts.neptus.plugins.update.IPeriodicUpdates#millisBetweenUpdates()
+     * @see pt.lsts.neptus.plugins.SimpleSubPanel#cleanSubPanel()
      */
     @Override
-    public long millisBetweenUpdates() {
-        return 500;
+    public void cleanSubPanel() {
+        executer.shutdown();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.lsts.neptus.plugins.update.IPeriodicUpdates#update()
-     */
-    @Override
     public boolean update() {
         location = MyState.getLocation();
         LocationType newLocation = location;
@@ -231,9 +262,16 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
         lastCalcPosTimeMillis = MyState.getLastLocationUpdateTimeMillis();
         length = MyState.getLength();
         width = MyState.getWidth();
+        lengthOffsetFromCenter = MyState.getLengthOffsetFromCenter();
+        widthOffsetFromCenter = MyState.getWidthOffsetFromCenter();
+        draught = MyState.getDraught();
         
         boolean updateLocation = false;
         boolean updateHeading = false;
+        boolean updateOffsetsInPos = false;
+        boolean updateSize = false;
+        boolean updateSizeOffsets = false;
+        boolean updateDraught = false;
 
         // update pos if following system
         if (followPositionOf != null && followPositionOf.length() != 0) {
@@ -245,6 +283,10 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
             long headingDegreesTime = -1;
             if (sys != null) {
                 loc = sys.getLocation();
+                if (loc != null) {
+                    loc = loc.getNewAbsoluteLatLonDepth();
+                    updateOffsetsInPos = true;
+                }
                 locTime = sys.getLocationTimeMillis();
                 if (!useConfiguredMyHeading) {
                     headingDegrees = sys.getYawDegrees();
@@ -255,23 +297,70 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                 ExternalSystem ext = ExternalSystemsHolder.lookupSystem(followPositionOf);
                 if (ext != null) {
                     loc = ext.getLocation();
+                    loc = loc.getNewAbsoluteLatLonDepth();
+                    updateOffsetsInPos = true;
                     locTime = ext.getLocationTimeMillis();
                     if (!useConfiguredMyHeading) {
                         headingDegrees = ext.getYawDegrees();
                         headingDegreesTime = ext.getAttitudeTimeMillis();
                     }
+                    
+                    Object obj = ext.retrieveData(SystemUtils.WIDTH_KEY);
+                    if (obj != null) {
+                        double width = ((Number) obj).doubleValue();
+                        obj = ext.retrieveData(SystemUtils.LENGHT_KEY);
+                        if (obj != null) {
+                            double length = ((Number) obj).doubleValue();
+
+                            double widthOffsetFromCenter = 0;
+                            obj = ext.retrieveData(SystemUtils.WIDTH_CENTER_OFFSET_KEY);
+                            if (obj != null)
+                                widthOffsetFromCenter = ((Number) obj).doubleValue();
+                            double lengthOffsetFromCenter = 0;
+                            obj = ext.retrieveData(SystemUtils.LENGHT_CENTER_OFFSET_KEY);
+                            if (obj != null)
+                                lengthOffsetFromCenter = ((Number) obj).doubleValue();
+
+                            if (length != 0) {
+                                this.length = length;
+                                updateSize = true;
+                            }
+                            if (width != 0) {
+                                this.width = width;
+                                updateSize = true;
+                            }
+                            if (lengthOffsetFromCenter != 0) {
+                                this.lengthOffsetFromCenter = lengthOffsetFromCenter;
+                                updateSizeOffsets = true;
+                            }
+                            if (widthOffsetFromCenter != 0) {
+                                this.widthOffsetFromCenter = widthOffsetFromCenter;
+                                updateSizeOffsets = true;
+                            }
+                        }
+                        
+                        obj = ext.retrieveData(SystemUtils.DRAUGHT_KEY);
+                        if (obj != null) {
+                            double draught = ((Number) obj).doubleValue();
+                            if (draught != 0) {
+                                this.draught = draught;
+                                updateDraught = true;
+                            }
+                        }
+                    }
                 }
             }
-            if (loc != null && locTime - lastCalcPosTimeMillis > 0) {
+            if (recalcRqst || loc != null && locTime - lastCalcPosTimeMillis > 0) {
                 updateLocation = true;
                 newLocation = loc;
             }
             // If the time of update of heading is old or we are using other way to calculate heading, don't updated
-            if (headingDegreesTime - lastCalcPosTimeMillis > 0
+            if (recalcRqst || headingDegreesTime - lastCalcPosTimeMillis > 0
                     && !(isFollowingHeadingOfFilled() || isSystemToDeriveHeadingFilled())) {
                 updateHeading = true;
                 newHeadingDegrees = headingDegrees;
             }
+            recalcRqst = false;
         }
         
         // update just heading if following system
@@ -325,22 +414,52 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
             newHeadingDegrees = headingDegrees;
         }
         
+        if (updateHeading)
+            headingDegrees = newHeadingDegrees;
+
+        if (updateLocation && updateOffsetsInPos) {
+//            double oLength = -lengthOffsetFromCenter;
+//            double oWidth = -widthOffsetFromCenter;
+//            double oN = oLength * Math.cos(Math.toRadians(headingDegrees)) + oWidth * Math.cos(Math.toRadians(headingDegrees + 90));
+//            double oE = oLength * Math.sin(Math.toRadians(headingDegrees)) + oWidth * Math.sin(Math.toRadians(headingDegrees + 90));
+//            newLocation.translatePosition(oN, oE, 0).convertToAbsoluteLatLonDepth();
+        }
+        
         if (updateLocation && updateHeading)
             MyState.setLocationAndAxis(newLocation, AngleUtils.nomalizeAngleDegrees360(newHeadingDegrees));
         else if (updateLocation)
             MyState.setLocation(newLocation);
         else if (updateHeading)
             MyState.setHeadingInDegrees(AngleUtils.nomalizeAngleDegrees360(newHeadingDegrees));
+        
+        if (updateSize) {
+            MyState.setLength(length);
+            length = MyState.getLength();
+            MyState.setWidth(width);
+            width = MyState.getWidth();
+        }
+
+        if (updateSizeOffsets) {
+            MyState.setLengthOffsetFromCenter(lengthOffsetFromCenter);
+            lengthOffsetFromCenter = MyState.getLengthOffsetFromCenter();
+            MyState.setWidthOffsetFromCenter(widthOffsetFromCenter);
+            widthOffsetFromCenter = MyState.getWidthOffsetFromCenter();
+        }
+        
+        if (updateDraught) {
+            MyState.setDraught(draught);
+            draught = MyState.getDraught();
+        }
 
         return true;
     }
 
     private boolean isSystemToDeriveHeadingFilled() {
-        return useSystemToDeriveHeading != null && useSystemToDeriveHeading.isEmpty();
+        return useSystemToDeriveHeading != null && !useSystemToDeriveHeading.isEmpty();
     }
 
     private boolean isFollowingHeadingOfFilled() {
-        return followHeadingOf != null && followHeadingOf.isEmpty();
+        return followHeadingOf != null && !followHeadingOf.isEmpty();
     }
 
     /*
@@ -387,7 +506,7 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                 diameter = diameter * renderer.getZoom();
                 Color colorCircle = new Color(color.getRed(), color.getGreen(), color.getBlue(), (int) (150 * alfaPercentage));
                 gt.setColor(colorCircle);
-                gt.draw(new Ellipse2D.Double(centerPos.getX() - diameter / 2, centerPos.getY() - diameter / 2, diameter, diameter));
+                // gt.draw(new Ellipse2D.Double(centerPos.getX() - diameter / 2, centerPos.getY() - diameter / 2, diameter, diameter));
 
                 gt.translate(centerPos.getX(), centerPos.getY());
                 gt.rotate(Math.PI + Math.toRadians(headingDegrees) - renderer.getRotation());
@@ -398,6 +517,10 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                     gt.rotate(Math.toRadians(-followHeadingOfAngleOffset));
                 }
 
+                gt.draw(new Ellipse2D.Double(-diameter / 2 + widthOffsetFromCenter * renderer.getZoom() / 2.,
+                        -diameter / 2 - lengthOffsetFromCenter * renderer.getZoom() / 2., diameter, diameter));
+                gt.translate(widthOffsetFromCenter * renderer.getZoom() / 2., -lengthOffsetFromCenter * renderer.getZoom() /2.);
+                
                 gt.scale(scaleX, scaleY);
                 gt.fill(myShape);
                 
@@ -847,6 +970,12 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
         length = MyState.getLength();
         MyState.setWidth(width);
         width = MyState.getWidth();
+        MyState.setLengthOffsetFromCenter(lengthOffsetFromCenter);
+        lengthOffsetFromCenter = MyState.getLengthOffsetFromCenter();
+        MyState.setWidthOffsetFromCenter(widthOffsetFromCenter);
+        widthOffsetFromCenter = MyState.getWidthOffsetFromCenter();
+        
+        recalcRqst = true;
     }
 
     /*
@@ -904,15 +1033,6 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                 }
             }
         }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.lsts.neptus.plugins.SimpleSubPanel#cleanSubPanel()
-     */
-    @Override
-    public void cleanSubPanel() {
     }
 
     /*

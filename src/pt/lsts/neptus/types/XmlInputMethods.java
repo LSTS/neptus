@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -32,6 +32,9 @@
  */
 package pt.lsts.neptus.types;
 
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 
 /**
@@ -60,7 +63,17 @@ public interface XmlInputMethods
      * @param xml
      * @return
      */
-    public abstract boolean load (String xml);
+    public default boolean load (String xml) {
+        try {
+            Document doc = DocumentHelper.parseText(xml);
+            return load(doc.getRootElement());
+        }
+        catch (DocumentException e) {
+            e.printStackTrace();
+            return false;
+        }        
+    }
+     
 
     /**
      * Should set {@link #isLoadOk()} return value.

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -58,17 +58,33 @@ import pt.lsts.neptus.util.GuiUtils;
 public class ContainerSubPanel extends ConsolePanel implements LockableSubPanel {
 
     private static final long serialVersionUID = 1L;
+    
     @NeptusProperty(name = "Maximize Panel", description = "Use this to indicate that this panel "
             + "should be maximized on load. (Only works for top level panels.)", distribution = DistributionEnum.DEVELOPER)
     public boolean maximizePanel = true;
     
     protected List<ConsolePanel> panels = new ArrayList<>();
+    private boolean childsBulkLoad = false;
 
     public ContainerSubPanel(ConsoleLayout console) {
         super(console);
         setEditMode(getEditMode());
     }
 
+    /**
+     * @return the childsBulkLoad
+     */
+    protected boolean isChildsBulkLoad() {
+        return childsBulkLoad;
+    }
+    
+    /**
+     * @param childsBulkLoad the childsBulkLoad to set
+     */
+    private void setChildsBulkLoad(boolean childsBulkLoad) {
+        this.childsBulkLoad = childsBulkLoad;
+    }
+    
     /**
      * @param maximize
      */
@@ -120,13 +136,18 @@ public class ContainerSubPanel extends ConsolePanel implements LockableSubPanel 
             this.add(panel);
         
         addSubPanelFinishUp();
-        
-        doLayout();
-        invalidate();
-        revalidate();
+
+        if (!childsBulkLoad)
+            reloadLayoutOfComponent();
 
         // Let us inform the addition
         getConsole().informSubPanelListener(panel, SubPanelChangeAction.ADDED);
+    }
+
+    private void reloadLayoutOfComponent() {
+        doLayout();
+        invalidate();
+        revalidate();
     }
 
     /**
@@ -142,7 +163,20 @@ public class ContainerSubPanel extends ConsolePanel implements LockableSubPanel 
     }
 
     /**
+     * This is called at the end of the bulk load of child elements in {@link #readChildFromXml(Element)}
+     * and can be used to layout only at the end of all childs.
+     * 
+     * This is an empty implementation.
+     */
+    protected void addSubPanelBulkFinishUp() {
+    }
+    
+    /**
      * Override this to finish up layout tasks after the new component is added to container.
+     * 
+     * Check the {@link #isChildsBulkLoad()} to decide to layout the component here or wait for
+     * the bulk load of all child. In this case use the {@link #addSubPanelBulkFinishUp()} 
+     * for this layout.
      */
     protected void addSubPanelFinishUp() {
     }
@@ -156,9 +190,7 @@ public class ContainerSubPanel extends ConsolePanel implements LockableSubPanel 
         
         sp.clean();
         
-        doLayout();
-        invalidate();
-        revalidate();
+        reloadLayoutOfComponent();
         
         // Let us inform the removal
         getConsole().informSubPanelListener(sp, SubPanelChangeAction.REMOVED);
@@ -208,7 +240,7 @@ public class ContainerSubPanel extends ConsolePanel implements LockableSubPanel 
     }
 
     @Override
-    public void XML_ChildsWrite(Element e) {
+    protected void writeChildToXml(Element e) {
         for (ConsolePanel sp : panels) {
 
             try {
@@ -227,8 +259,10 @@ public class ContainerSubPanel extends ConsolePanel implements LockableSubPanel 
     }
 
     @Override
-    public void XML_ChildsRead(Element el) {
+    protected void readChildFromXml(Element el) {
         List<?> list = el.selectNodes("*");
+        setChildsBulkLoad(true);
+        
         for (Iterator<?> iter = list.iterator(); iter.hasNext();) {
             Element element = (Element) iter.next();
             ConsolePanel subpanel = null;
@@ -251,10 +285,14 @@ public class ContainerSubPanel extends ConsolePanel implements LockableSubPanel 
                 }
             }
         }
+        
+        addSubPanelBulkFinishUp();
+        setChildsBulkLoad(false);
+        reloadLayoutOfComponent();
     }
    
     @Override
-    public void XML_PropertiesWrite(Element e) {
+    protected void writePropertiesToXml(Element e) {
         String xml = PluginUtils.getConfigXml(this);
         try {
             Element el = DocumentHelper.parseText(xml).getRootElement();

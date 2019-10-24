@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -39,13 +39,13 @@ import java.lang.reflect.Constructor;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -463,6 +463,29 @@ public class MRAPanel extends JPanel {
                 }
             }
         }
+    }
+    
+    public void renameMarker(LogMarker marker,String newLabel) {
+        if (LsfReportProperties.generatingReport){
+            GuiUtils.infoMessage(getRootPane(),
+                    I18n.text("Can not rename Marks"),
+                    I18n.text("Can not rename Marks - Generating Report."));
+            return;
+        }
+        
+        for(LogMarker m: logMarkers){
+            if(m.getLabel().equals(newLabel)) {
+                int op = GuiUtils.confirmDialog(getRootPane(), "Duplicated Mark Label", "This label already exists in a mark. Do you want to override it?");          
+                if (op == JOptionPane.NO_OPTION || op == JOptionPane.CLOSED_OPTION)
+                    return; //TODO recall rename method
+                else
+                    break;
+            }
+        }
+
+        removeMarker(marker);
+        marker.setLabel(newLabel);
+        addMarker(marker);
     }
 
     /**

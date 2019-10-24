@@ -123,7 +123,7 @@
             </FollowPath>
         </maneuver>
         <maneuver>
-            <RowsManeuver kind="automatic">
+            <Rows kind="automatic">
                 <basePoint type="pointType">
                     <point>
                         <id/>
@@ -146,7 +146,7 @@
                     <documentation>No documentation available</documentation>
                     <implementation-class>pt.lsts.neptus.mp.maneuvers.RowsManeuver</implementation-class>
                 </annotation>
-            </RowsManeuver>
+            </Rows>
         </maneuver>
         <maneuver>
             <CrossHatchPattern kind="automatic">
@@ -234,7 +234,7 @@
                     <port-tcp>6002</port-tcp>
                     <udp-on>true</udp-on>
                     <tcp-on>false</tcp-on>
-                    <imc-id>0c:04</imc-id>
+                    <imc-id>0c:0b</imc-id>
                 </imc>
             </protocols-args>
         </comm-mean>

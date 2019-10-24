@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -64,6 +64,9 @@ public class VehicleChooser {
 	    
 	    if (vehicles.isEmpty())
 	        return null;
+	    
+	    if (vehicles.size() == 1)
+	        return VehiclesHolder.getVehicleById(vehicles.get(0));
 	    
 	    Collections.sort(vehicles);
         Object ret = JOptionPane.showInputDialog(parentComponent, I18n.text("Select vehicle"),

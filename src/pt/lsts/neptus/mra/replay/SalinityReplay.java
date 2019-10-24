@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -127,7 +127,7 @@ public class SalinityReplay extends ColormapOverlay implements LogReplayLayer {
                             EstimatedState.class.getSimpleName(), indexScanner.getIndex(), salinity.getTimestamp());
                     
                     if (state == null) {
-                        NeptusLog.pub().warn(String.format("No location found for %msg at %time!", salinity.getMessageType(), 
+                        NeptusLog.pub().warn(String.format("No location found for %s at %s!", salinity.getMessageType(), 
                                 DateTimeUtil.milliSecondsToFormatedString(salinity.getTimestampMillis())));
                         continue;
                     }

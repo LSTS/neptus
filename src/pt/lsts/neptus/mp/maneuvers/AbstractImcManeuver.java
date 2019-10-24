@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -133,7 +133,7 @@ public abstract class AbstractImcManeuver<T extends IMCMessage> extends DefaultM
      * @see pt.lsts.neptus.mp.maneuvers.DefaultManeuver#loadFromXML(java.lang.String)
      */
     @Override
-    public void loadFromXML(String XML) {
+    public void loadManeuverFromXML(String XML) {
         
         if (message == null) {
             NeptusLog.pub().error("Invalid maneuver: "+message.getClass());

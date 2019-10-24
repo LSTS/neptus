@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -40,27 +40,21 @@ import java.awt.Font;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.GraphicsConfiguration;
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
 import java.awt.Paint;
-import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
-import java.awt.TexturePaint;
-import java.awt.Transparency;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
-import java.awt.image.BufferedImage;
 
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 
+import pt.lsts.neptus.util.ColorUtils;
 import pt.lsts.neptus.util.GuiUtils;
 
 /**
@@ -154,53 +148,11 @@ public class PanicButton extends JRoundButton {
 		}
     }
 
-    public static Paint[] createStripesEnableDisablePaints(Dimension dim, Color backgroundOutter) {
-        Paint backgroundOutterPaint, backgroundOutterPaintDisabled;
-        double mS = Math.min(dim.width, dim.height);
-    	mS = (mS == 0)?80:mS;
-    	int refSize = 80, refTexSize = 25, refStrokeSize = 10;
-        int size = (int) (mS * refTexSize / refSize);
-        int stroke = (int) (mS * refStrokeSize / refSize);
-        // BufferedImage buffImg = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
-        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        GraphicsDevice gs = ge.getDefaultScreenDevice();
-        GraphicsConfiguration gc = gs.getDefaultConfiguration();
-        BufferedImage buffImg = gc.createCompatibleImage(size, size, Transparency.BITMASK); 
-        Graphics2D gbi = buffImg.createGraphics();
-        gbi.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        gbi.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-        gbi.setColor(backgroundOutter);
-        gbi.fillRect(0, 0, size, size);
-        gbi.setColor(Color.BLACK);
-        Stroke s = new BasicStroke(stroke);
-        gbi.setStroke(s);
-        gbi.drawLine(0, 0, size, size);
-        gbi.drawLine(-size, 0, size, size*2);
-        gbi.drawLine(0, -size, size*2, size);
-        
-        Rectangle r = new Rectangle(0, 0, size, size);
-        backgroundOutterPaint = new TexturePaint(buffImg, r);
-
-        buffImg = new BufferedImage(size, size,
-                BufferedImage.TYPE_USHORT_GRAY);
-        gbi = buffImg.createGraphics();
-        gbi.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_ON);
-        gbi.setRenderingHint(RenderingHints.KEY_RENDERING,
-                RenderingHints.VALUE_RENDER_QUALITY);
-        gbi.setColor(backgroundOutter);
-        gbi.fillRect(0, 0, size, size);
-        gbi.setColor(Color.BLACK);
-        s = new BasicStroke(stroke);
-        gbi.setStroke(s);
-        gbi.drawLine(0, 0, size, size);
-        gbi.drawLine(-size, 0, size, size*2);
-        gbi.drawLine(0, -size, size*2, size);
-        
-        r = new Rectangle(0, 0, size, size);
-        backgroundOutterPaintDisabled = new TexturePaint(buffImg, r);
-        
-        return new Paint[] { backgroundOutterPaint, backgroundOutterPaintDisabled };
+    public static Paint[] createStripesEnableDisablePaints(Dimension dim, Color primeColor) {
+        Paint[] paints = new Paint[2];
+        paints[0] = ColorUtils.createStripesPaint(dim, primeColor);
+        paints[1] = ColorUtils.createStripesPaintDisabled(dim, primeColor);
+        return paints;
     }
 
     /**

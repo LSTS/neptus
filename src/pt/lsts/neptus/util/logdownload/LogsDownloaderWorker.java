@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -405,28 +405,55 @@ public class LogsDownloaderWorker {
                 if (exitRequest)
                     break;
             }
-
+            
             gui.logFilesList.setIgnoreRepaint(true);
             try {
-                if (SwingUtilities.isEventDispatchThread()) {
-                    if (exitRequest)
-                        return;
-                    gui.logFilesList.myModel.clear();
-                }
-                else {
-                    SwingUtilities.invokeAndWait(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (exitRequest)
-                                return;
-                            gui.logFilesList.myModel.clear();
-                        }
-                    });
-                }
-                for (final LogFileInfo fxS : validFiles) {
+                if (validFiles.isEmpty()) {
                     if (SwingUtilities.isEventDispatchThread()) {
                         if (exitRequest)
                             return;
+                        gui.logFilesList.myModel.clear();
+                    }
+                    else {
+                        SwingUtilities.invokeAndWait(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (exitRequest)
+                                    return;
+                                gui.logFilesList.myModel.clear();
+                            }
+                        });
+                    }
+                }
+                
+                Object[] inListElmObjtAArray = gui.logFilesList.myModel.toArray();
+                for (Object object : inListElmObjtAArray) {
+                    final LogFileInfo fxS = (LogFileInfo) object;
+                    if (!validFiles.contains(fxS)) {
+                        if (SwingUtilities.isEventDispatchThread()) {
+                            if (exitRequest)
+                                break;
+                            gui.logFilesList.removeFile(fxS);
+                        }
+                        else {
+                            SwingUtilities.invokeAndWait(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (exitRequest)
+                                        return;
+                                    gui.logFilesList.removeFile(fxS);
+                                }
+                            });
+                        }
+                        if (exitRequest)
+                            break;
+                    }
+                }
+                
+                for (final LogFileInfo fxS : validFiles) {
+                    if (SwingUtilities.isEventDispatchThread()) {
+                        if (exitRequest)
+                            break;
                         gui.logFilesList.addFile(fxS);
                     }
                     else {
@@ -446,12 +473,14 @@ public class LogsDownloaderWorker {
             catch (Exception e) {
                 NeptusLog.pub().error(e.getMessage());
             }
-            gui.logFilesList.setIgnoreRepaint(false);
-
-            gui.logFilesList.setValueIsAdjusting(false);
-            gui.logFilesList.invalidate();
-            gui.logFilesList.validate();
-            isUpdatingFileList = false;
+            finally {
+                gui.logFilesList.setIgnoreRepaint(false);
+                
+                gui.logFilesList.setValueIsAdjusting(false);
+                gui.logFilesList.invalidate();
+                gui.logFilesList.validate();
+                isUpdatingFileList = false;
+            }
         }
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -62,8 +62,11 @@ public class LogMarkersReplay implements LogReplayLayer, LogMarkerListener {
     ArrayList<LogMarker> markers = new ArrayList<>();
     Vector<LocationType> locations = new Vector<>();
     IMraLogGroup source = null;
+    StateRenderer2D renderer = null;
     @Override
-    public void paint(Graphics2D g, StateRenderer2D renderer) {        
+    public void paint(Graphics2D g, StateRenderer2D renderer) {    
+        
+        this.renderer = renderer;
 
         for (int i = 0 ; i < markers.size(); i++) {
             Point2D pt = renderer.getScreenPosition(locations.get(i));
@@ -106,6 +109,8 @@ public class LogMarkersReplay implements LogReplayLayer, LogMarkerListener {
                 locations.add(m.getLocation());
             }
         }    
+        if(renderer != null)
+            renderer.repaint();
     }
 
 
@@ -122,7 +127,7 @@ public class LogMarkersReplay implements LogReplayLayer, LogMarkerListener {
                 markers.remove(m);
                 locations.remove(ind);
             }
-        }        
+        }
     }
     
     @Override

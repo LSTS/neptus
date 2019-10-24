@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -63,11 +63,12 @@ public class PlanActions {
 		return actionMsgs;
 	}
 
-
 	/**
 	 * @param nd
 	 */
 	public boolean load(Element nd) {
+	    actionMsgs.clear();
+	    
         List<?> lst = nd.selectNodes("./messages/child::*");
         for (Object obj : lst) {
             Element pl = (Element) obj;
@@ -79,7 +80,6 @@ public class PlanActions {
 
         return true;
     }
-	
 
     public Element asElement(String rootElementName) {
         return (Element) asDocument(rootElementName).getRootElement().detach();
@@ -103,7 +103,6 @@ public class PlanActions {
         
         return document;
     }
-
 
 	/**
 	 * @return
@@ -132,7 +131,6 @@ public class PlanActions {
 		return actStr;
 	}
 
-
 	/**
 	 * @return
 	 */
@@ -141,12 +139,6 @@ public class PlanActions {
 		return (count == 0);
 	}
     
-//    public static  PlanActions showEditionDialog() {
-//    	LocationPanel.showLocationDialog(parent, title, previousLocation, mt, editable)
-//    	IMCMessage
-//    	return this;
-//    }
-	
 	/* (non-Javadoc)
 	 * @see java.lang.Object#clone()
 	 */
@@ -169,5 +161,12 @@ public class PlanActions {
             paec.setMessage(msg);
             actionMsgs.add(paec);
         }
+    }
+    
+    /**
+     * Clears all messages
+     */
+    public void clearMessages() {
+        actionMsgs.clear();
     }
 }

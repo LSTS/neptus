@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -32,7 +32,6 @@
  */
 package pt.lsts.neptus.mra.plots;
 
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -76,17 +75,18 @@ public abstract class MRAGanttPlot implements LLFChart, LogMarkerListener {
     protected LinkedHashMap<String, TaskSeries> series = new LinkedHashMap<>();
     protected LinkedHashMap<String, String> statePerTimeline = new LinkedHashMap<>();
 
+    protected long localTimeOffset = 0;
+    
     protected JFreeChart chart = null;
     protected MRAPanel mraPanel;
-
-    protected static final long localTimeOffset = Calendar.getInstance().get(Calendar.DST_OFFSET)
-            + Calendar.getInstance().get(Calendar.ZONE_OFFSET);
 
     /**
      * 
      */
     public MRAGanttPlot(MRAPanel panel) {
         this.mraPanel = panel;
+        this.localTimeOffset = LogLocalTimeOffset.getLocalTimeOffset((long) 
+                mraPanel.getSource().getLsfIndex().getStartTime()*1000);
     }
 
     public Vector<String> getForbiddenSeries() {
@@ -120,6 +120,7 @@ public abstract class MRAGanttPlot implements LLFChart, LogMarkerListener {
     }
 
     public void startActivity(double time, String trace, String state){
+        
         if (forbiddenSeries.contains(trace))
             return;
 
@@ -148,6 +149,7 @@ public abstract class MRAGanttPlot implements LLFChart, LogMarkerListener {
 
     private Task setEndTime(Task t, double time) {
         TimePeriod tp = t.getDuration();
+        
         t.setDuration(new SimpleTimePeriod(tp.getStart(), new Date((long)(time*1000 - localTimeOffset))));
         return t;
     }
@@ -252,6 +254,7 @@ public abstract class MRAGanttPlot implements LLFChart, LogMarkerListener {
 
     @Override 
     public void addLogMarker(LogMarker e) {
+        
         ValueMarker marker = new ValueMarker(e.getTimestamp() - localTimeOffset);
         marker.setLabel(e.getLabel());
         if (chart != null)

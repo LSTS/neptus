@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -561,40 +561,74 @@ public class ColorMapUtils {
 		
 		return img;
 	}
-		
-		
 	
+    /**
+     * @param val
+     * @param minVar
+     * @param maxVar
+     * @return
+     */
+    public static double getColorIndexZeroToOne(double val, double minVar, double maxVar) {
+        double ret = (val - minVar) / (maxVar - minVar);
+        return ret;
+    }
 
-	public static void main(String[] args) {
-		Location loc = new Location(41 , -8);
-		
-		Location loc0 = new Location(loc);
-		Location loc1 = new Location(loc);
-		Location loc2 = new Location(loc);
-		Location loc3 = new Location(loc);
-		Location loc4 = new Location(loc);
-		Location loc5 = new Location(loc);
-		
-		loc1.translate(15, 8.5, 0);
-		loc2.translate(5, 10, 0);
-		loc3.translate(10, 7, 0);
-		loc4.translate(3, 5, 0);
-		loc5.translate(00, 12, 20);
-		
-		Location[] locs = new Location[] {loc0, loc1,loc2};
+    /**
+     * @param val
+     * @param minVar
+     * @param maxVar
+     * @return
+     */
+    public static double getColorIndexZeroToOneLog10(double val, double minVar, double maxVar) {
+        double valL = Math.log10(val);
+        double minL = Math.log10(minVar);
+        double maxL = Math.log10(maxVar);
+        
+        double ret = (valL - minL) / (maxL - minL);
+        return ret;
+    }
 
-		Double[] values = new Double[] {0d, 600d, 340d};
+    public static void main(String[] args) {
+        Location loc = new Location(41 , -8);
+        
+        Location loc0 = new Location(loc);
+        Location loc1 = new Location(loc);
+        Location loc2 = new Location(loc);
+        Location loc3 = new Location(loc);
+        Location loc4 = new Location(loc);
+        Location loc5 = new Location(loc);
+        
+        loc1.translate(15, 8.5, 0);
+        loc2.translate(5, 10, 0);
+        loc3.translate(10, 7, 0);
+        loc4.translate(3, 5, 0);
+        loc5.translate(00, 12, 20);
+        
+        Location[] locs = new Location[] {loc0, loc1,loc2};
 
-		BufferedImage img = new BufferedImage(800,600,BufferedImage.TYPE_INT_ARGB);
+        Double[] values = new Double[] {0d, 600d, 340d};
+
+        BufferedImage img = new BufferedImage(800,600,BufferedImage.TYPE_INT_ARGB);
 
         generateColorMap(locs, values, (Graphics2D) img.getGraphics(), (double) img.getWidth(),
                 (double) img.getHeight(), 255,
                 ColorMapFactory.createInvertedColorMap((InterpolationColorMap) ColorMapFactory
                         .createGrayScaleColorMap()));
-		//generateColorMap(locs, values, (Graphics2D)img.getGraphics(), (double)img.getWidth(), (double)img.getHeight(),255, ColorMapFactory.createJetColorMap());
+        //generateColorMap(locs, values, (Graphics2D)img.getGraphics(), (double)img.getWidth(), (double)img.getHeight(),255, ColorMapFactory.createJetColorMap());
 
-		JLabel lbl = new JLabel(new ImageIcon(img));		
+        JLabel lbl = new JLabel(new ImageIcon(img));        
 
-		GuiUtils.testFrame(lbl);
-	}
+        GuiUtils.testFrame(lbl);
+
+        System.out.println("------------------------------------");
+
+        System.out.println(String.format("->> getColorIndexZeroToOne >> 0.5 = %f", getColorIndexZeroToOne(5, 0, 10)));
+        System.out.println(String.format("->> getColorIndexZeroToOne >> 0.75 = %f", getColorIndexZeroToOne(5, -10, 10)));
+        System.out.println(String.format("->> getColorIndexZeroToOne >> >1 = %f", getColorIndexZeroToOne(11, -10, 10)));
+
+        System.out.println(String.format("->> getColorIndexZeroToOneLog10 >> 0.899657 = %f", getColorIndexZeroToOneLog10(0.5, 0.001, 1)));
+        System.out.println(String.format("->> getColorIndexZeroToOneLog10 >> 0.899657 = %f", getColorIndexZeroToOneLog10(0.5, 0.001, 1)));
+        System.out.println(String.format("->> getColorIndexZeroToOneLog10 >> >1 = %f", getColorIndexZeroToOneLog10(1.001, 0.001, 1)));
+
+    }
 }

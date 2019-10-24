@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -1008,6 +1008,18 @@ public class GuiUtils {
                 KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, true), JComponent.WHEN_IN_FOCUSED_WINDOW);
     }
 
+    /**
+     * @param btn
+     * @param keyEvent 
+     */
+    public static void reactKeyPress(JButton btn, int keyEvent) {
+        btn.registerKeyboardAction(btn.getActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0, false)),
+                KeyStroke.getKeyStroke(keyEvent, 0, false), JComponent.WHEN_IN_FOCUSED_WINDOW);
+
+        btn.registerKeyboardAction(btn.getActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0, true)),
+                KeyStroke.getKeyStroke(keyEvent, 0, true), JComponent.WHEN_IN_FOCUSED_WINDOW);
+    }
+
     public static void printArray(Object[] array) {
         if (array == null)
             NeptusLog.pub().info("<###> "+array);
@@ -1270,7 +1282,20 @@ public class GuiUtils {
         return new JComboBox<>(vehicles.toArray(new String[0]));
     }
     
-    
+    public static String input(Component parent, String title, String default_) {
+        TableLayout tl = new TableLayout(new double[] {0.33, 0.67}, new double[] {0.5,0.5});
+        tl.setHGap(3);
+        JPanel p = new JPanel(tl);
+        JTextField input = new JTextField(default_);
+        
+        p.add(new JLabel("Input:"), "0,0");
+        p.add(input, "1,0");
+
+        int op = JOptionPane.showConfirmDialog(parent, p, title, JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+        if (op == JOptionPane.CANCEL_OPTION)
+            return null;
+        return input.getText();
+    }
     
     /**
      * Unitary test.

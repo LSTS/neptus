@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -97,7 +97,7 @@ public class ParallelepipedElement extends GeometryElement {
         Rectangle2D.Double tmp = new Rectangle2D.Double(-width / 2, -length / 2, width, length);
 
         AffineTransform rot = new AffineTransform();
-        rot.rotate(yaw);
+        rot.rotate(-yaw);
 
         PathIterator it = tmp.getPathIterator(rot);
 

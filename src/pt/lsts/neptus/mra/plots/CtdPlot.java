@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -32,10 +32,12 @@
  */
 package pt.lsts.neptus.mra.plots;
 
-import java.util.Arrays;
-import java.util.List;
+import org.jfree.chart.JFreeChart;
 
-import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.Conductivity;
+import pt.lsts.imc.Depth;
+import pt.lsts.imc.Salinity;
+import pt.lsts.imc.Temperature;
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.MRAPanel;
@@ -49,7 +51,7 @@ import pt.lsts.neptus.plugins.PluginDescription;
 public class CtdPlot extends MRACombinedPlot {
 
     
-    List<String> validEntities = Arrays.asList("CTD", "Water Quality Sensor");
+    //List<String> validEntities = Arrays.asList("CTD", "Water Quality Sensor");
     
     public CtdPlot(MRAPanel panel) {
         super(panel);
@@ -63,27 +65,31 @@ public class CtdPlot extends MRACombinedPlot {
     public String getName() {
         return I18n.text("CTD");
     }
-
+    
+    
+    @Override
+    public JFreeChart createChart() {
+        JFreeChart chart = super.createChart();
+        getChart("Depth").getXYPlot().getRangeAxis().setInverted(true);
+        return chart;
+    }
     @Override
     public void process(LsfIndex source) {
+        int entity = index.getFirst(Conductivity.class).getSrcEnt();
         
-        for (IMCMessage c : source.getIterator("Conductivity")) {
-            String entity = source.getEntityName(c.getSrc(), c.getSrcEnt());
-            if (validEntities.contains(entity))
-                addValue(c.getTimestampMillis(), "Conductivity."+c.getSourceName(), c.getDouble("value"));
+        for (Salinity s : source.getIterator(Salinity.class)) {
+            if (s.getSrcEnt() == entity)
+                addValue(s.getTimestampMillis(), "Salinity."+s.getSourceName(), s.getValue());
         }
 
+        for (Temperature t : source.getIterator(Temperature.class)) {
+            if (t.getSrcEnt() == entity)
+                addValue(t.getTimestampMillis(), "Temperature."+t.getSourceName(), t.getValue());
+        }
         
-        for (IMCMessage c : source.getIterator("Temperature")) {
-            String entity = source.getEntityName(c.getSrc(), c.getSrcEnt());
-            if (validEntities.contains(entity))
-                addValue(c.getTimestampMillis(), "Temperature."+c.getSourceName(), c.getDouble("value"));
-        }
-
-        for (IMCMessage c : source.getIterator("Pressure")) {
-            String entity = source.getEntityName(c.getSrc(), c.getSrcEnt());
-            if (validEntities.contains(entity))
-                addValue(c.getTimestampMillis(), "Pressure."+c.getSourceName(), c.getDouble("value"));
-        }
+        for (Depth d : source.getIterator(Depth.class)) {
+            if (d.getSrcEnt() == entity)
+                addValue(d.getTimestampMillis(), "Depth."+d.getSourceName(), d.getValue());
+        }       
     }
 }

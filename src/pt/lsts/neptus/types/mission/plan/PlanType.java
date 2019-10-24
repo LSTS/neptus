@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -39,6 +39,7 @@ import java.io.ByteArrayOutputStream;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Vector;
 
 import org.dom4j.Attribute;
@@ -179,6 +180,12 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, NameId {
      * @see pt.lsts.neptus.types.mission.plan.AbstractPlanType#load(java.lang.String)
      */
     public boolean load(String xml) {
+        // Clear data
+        vehicles.clear();
+        graph = null;
+        startActions.clearMessages();
+        endActions.clearMessages();
+
         try {
             Document doc = DocumentHelper.parseText(xml);
             this.setId(((Attribute)doc.selectSingleNode("/node()/@id")).getStringValue());
@@ -382,7 +389,7 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, NameId {
         return vehicles;
     }
 
-    public void setVehicles(Vector<VehicleType> vehicles) {
+    public void setVehicles(Collection<VehicleType> vehicles) {
         this.vehicles.clear();
         for (VehicleType v : vehicles)
             if (!this.vehicles.contains(v))
@@ -503,20 +510,8 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, NameId {
      * @return
      */
     public PlanType clonePlan() {
-
         PlanType plan = new PlanType(this.missionType);
-        plan.setId(getId());
-        Vector<VehicleType> vehicles = new Vector<VehicleType>();
-        vehicles.addAll(getVehicles());
-        plan.setVehicles(vehicles);
-
-        plan.graph = graph.clone();
-        
-        plan.startActions = new PlanActions();
-        plan.startActions.load(startActions.asElement("start-actions"));
-        plan.endActions = new PlanActions();
-        plan.endActions.load(endActions.asElement("end-actions"));
-
+        plan.load(asXML());
         return plan;		
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -34,6 +34,7 @@ package pt.lsts.neptus.console.plugins.planning;
 
 import java.awt.Image;
 import java.awt.event.ActionEvent;
+import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
@@ -56,8 +57,10 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
-import pt.lsts.neptus.gui.editor.SpeedUnitsEditor;
+import pt.lsts.neptus.gui.editor.SpeedUnitsEnumEditor;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mp.Maneuver;
+import pt.lsts.neptus.mp.Maneuver.SPEED_UNITS;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
 import pt.lsts.neptus.mp.maneuvers.Goto;
@@ -71,10 +74,12 @@ import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
+import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
+import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * @author zp
@@ -90,8 +95,8 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
     @NeptusProperty(name = "AUV travelling speed", category = "AUV", userLevel = LEVEL.REGULAR)
     public double auvSpeed = 1000;
 
-    @NeptusProperty(name = "AUV travelling speed units", category = "AUV", editorClass = SpeedUnitsEditor.class, userLevel = LEVEL.REGULAR)
-    public String auvSpeedUnits = I18n.text("RPM");
+    @NeptusProperty(name = "AUV travelling speed units", category = "AUV", editorClass = SpeedUnitsEnumEditor.class, userLevel = LEVEL.REGULAR)
+    public Maneuver.SPEED_UNITS auvSpeedUnits = SPEED_UNITS.RPM;
 
     @NeptusProperty(name = "AUV loiter depth", category = "AUV", userLevel = LEVEL.REGULAR)
     public double auvLtDepth = 3;
@@ -114,8 +119,8 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
     @NeptusProperty(name = "UAV flying speed", category = "UAV", userLevel = LEVEL.REGULAR)
     public double uavSpeed = 18;
 
-    @NeptusProperty(name = "UAV flying speed units", category = "UAV", editorClass = SpeedUnitsEditor.class, userLevel = LEVEL.REGULAR)
-    public String uavSpeedUnits = I18n.text("m/s");
+    @NeptusProperty(name = "UAV flying speed units", category = "UAV", editorClass = SpeedUnitsEnumEditor.class, userLevel = LEVEL.REGULAR)
+    public Maneuver.SPEED_UNITS uavSpeedUnits = SPEED_UNITS.METERS_PS;
 
     @NeptusProperty(name = "UAV loiter radius", category = "UAV", userLevel = LEVEL.REGULAR)
     public double uavLoiterRadius = 180;
@@ -123,8 +128,8 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
     @NeptusProperty(name = "ASV speed", category = "ASV", userLevel = LEVEL.REGULAR)
     public double asvSpeed = 1000;
 
-    @NeptusProperty(name = "ASV speed units", category = "ASV", editorClass = SpeedUnitsEditor.class, userLevel = LEVEL.REGULAR)
-    public String asvSpeedUnits = "RPM";
+    @NeptusProperty(name = "ASV speed units", category = "ASV", editorClass = SpeedUnitsEnumEditor.class, userLevel = LEVEL.REGULAR)
+    public Maneuver.SPEED_UNITS asvSpeedUnits = SPEED_UNITS.RPM;
 
     @NeptusProperty(name = "ASV Station Keeping radius", category = "ASV", description = "Radius of the circle where the ASV should keep its position", userLevel = LEVEL.REGULAR)
     public double asvSkRadius = 20;
@@ -223,9 +228,33 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
 
             menu.setIcon(vicon);
 
+            String loiterSettings = "(";
+            String settings = "(";
+            NumberFormat nf = GuiUtils.getNeptusDecimalFormat(1);
+            switch (v.getType().toLowerCase()) {
+                case "auv":
+                case "uuv":
+                    loiterSettings += "D="+nf.format(auvLtDepth);
+                    loiterSettings += " / S="+nf.format(auvSpeed)+" "+auvSpeedUnits.getString()+")";
+                    settings += "D="+nf.format(auvDepth);
+                    settings += " / S="+nf.format(auvSpeed)+" "+auvSpeedUnits.getString()+")";                    
+                    break;
+                case "asv":
+                case "usv":
+                    settings += " / S="+nf.format(asvSpeed)+" "+asvSpeedUnits.getString()+")";                    
+                    break;
+                case "uav":
+                    settings += uavZUnits.name().substring(0, 1)+"="+nf.format(uavZ) ;
+                    settings += " S="+nf.format(uavSpeed)+" "+uavSpeedUnits.getString()+")";     
+                    break;
+                default:
+                    break;
+            }
+            
+            
             boolean ok = false;
             if (v.getFeasibleManeuvers().containsValue(Goto.class.getName())) {
-                menu.add(new AbstractAction(I18n.text("Go here")) {
+                menu.add(new AbstractAction(I18n.textf("Go here %settings", settings)) {
                     @Override
                     public void actionPerformed(final ActionEvent arg0) {
                         new Thread() {
@@ -234,7 +263,7 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
                                 double speed = 0;
                                 double z = 0;
                                 ManeuverLocation.Z_UNITS zunits = Z_UNITS.NONE;
-                                String speedUnit = "RPM";
+                                Maneuver.SPEED_UNITS speedUnit = SPEED_UNITS.RPM;
 
                                 PlanCreator creator = new PlanCreator(getConsole().getMission());
                                 creator.setLocation(target);
@@ -264,7 +293,7 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
                                     return;
                                 }
                                 creator.setZ(z, zunits);
-                                creator.addManeuver("Goto", "speed", speed, "speedUnits", speedUnit);
+                                creator.addManeuver("Goto", "speed", speed, "speedUnits", speedUnit.getString());
                                 PlanType plan = creator.getPlan();
                                 plan.setVehicle(v);
                                 plan.setId("cmd-"+v);
@@ -278,7 +307,7 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
             }
 
             if (v.getFeasibleManeuvers().containsValue(StationKeeping.class.getName())) {
-                menu.add(new AbstractAction(I18n.text("Surface here")) {
+                menu.add(new AbstractAction(I18n.textf("Surface here %settings", settings)) {
                     @Override
                     public void actionPerformed(final ActionEvent arg0) {
                         new Thread() {
@@ -286,7 +315,7 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
                             public void run() {
 
                                 double speed = 0;
-                                String speedUnit = "RPM";
+                                Maneuver.SPEED_UNITS speedUnit = SPEED_UNITS.RPM;
                                 double radius = 10;
                                 int duration = 0;
                                 if ("auv".equalsIgnoreCase(v.getType()) || "uuv".equalsIgnoreCase(v.getType())) {
@@ -306,7 +335,7 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
                                 PlanCreator creator = new PlanCreator(getConsole().getMission());
                                 creator.setLocation(target);
                                 creator.setZ(0, Z_UNITS.DEPTH);
-                                creator.addManeuver("StationKeeping", "speed", speed, "speedUnits", speedUnit,
+                                creator.addManeuver("StationKeeping", "speed", speed, "speedUnits", speedUnit.getString(),
                                         "duration", duration, "radius", radius);
                                 PlanType plan = creator.getPlan();
                                 plan.setVehicle(v);
@@ -321,7 +350,7 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
             }
 
             if (v.getFeasibleManeuvers().containsValue(Loiter.class.getName())) {
-                menu.add(new AbstractAction(I18n.text("Loiter here")) {
+                menu.add(new AbstractAction(I18n.textf("Loiter here, %settings", loiterSettings)) {
                     @Override
                     public void actionPerformed(final ActionEvent arg0) {
                         new Thread() {
@@ -329,7 +358,7 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
                             public void run() {
 
                                 double speed = 0;
-                                String speedUnit = "RPM";
+                                Maneuver.SPEED_UNITS speedUnit = SPEED_UNITS.RPM;
                                 double radius = 10;
                                 int duration = 0;
                                 double z = 0;
@@ -364,7 +393,7 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
                                 PlanCreator creator = new PlanCreator(getConsole().getMission());
                                 creator.setLocation(target);
                                 creator.setZ(z, zunits);
-                                creator.addManeuver("Loiter", "speed", speed, "speedUnits", speedUnit,
+                                creator.addManeuver("Loiter", "speed", speed, "speedUnits", speedUnit.getString(),
                                         "loiterDuration", duration, "radius", radius);
                                 PlanType plan = creator.getPlan();
                                 plan.setVehicle(v);
@@ -378,8 +407,17 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
                 ok = true;
             }
 
-            if (ok)
+            if (ok) {
+                menu.addSeparator();
+                menu.add(new AbstractAction(I18n.text("Change settings")) {
+                    
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        PluginUtils.editPluginProperties(CommandPlanner.this, getConsole(), true);
+                    }
+                });
                 items.add(menu);
+            }
 
         }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -34,6 +34,7 @@ package pt.lsts.neptus.mra.api;
 
 import java.util.ArrayList;
 
+import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.SonarData;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
@@ -51,6 +52,8 @@ public class ImcSidescanParser implements SidescanParser {
     private long firstTimestamp = -1;
     private long lastTimestamp = -1;
 
+    private ArrayList<Long> subSystemsList = new ArrayList<>();
+    
     private long lastTimestampRequested;
 
     public ImcSidescanParser(IMraLogGroup source) {
@@ -70,9 +73,22 @@ public class ImcSidescanParser implements SidescanParser {
                 firstTimestamp = msg.getTimestampMillis();
             }
             lastTimestamp = msg.getTimestampMillis();
+            
+            Object subSysObj = msg.getValue("frequency");
+            if (subSysObj instanceof Number) {
+                try {
+                    long freq = (long) Double.parseDouble(subSysObj.toString());
+                    if (!subSystemsList.contains(freq))
+                        subSystemsList.add(freq);
+                }
+                catch (NumberFormatException e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
         pingParser.firstLogEntry();
+        subSystemsList.sort(null);
     }
 
     @Override
@@ -87,9 +103,11 @@ public class ImcSidescanParser implements SidescanParser {
 
     @Override
     public ArrayList<Integer> getSubsystemList() {
-        // For now just return a list with 1 item. In the future IMC will accommodate various SonarData subsystems.
+        // SonarData subsystems are accommodated by the frequency field.
         ArrayList<Integer> l = new ArrayList<Integer>();
-        l.add(1);
+        for (int i = 0; i < subSystemsList.size(); i++) {
+            l.add(subSystemsList.get(i).intValue());
+        }
         return l;
     };
 
@@ -98,9 +116,13 @@ public class ImcSidescanParser implements SidescanParser {
             SidescanParameters params) {
         // Preparation
         ArrayList<SidescanLine> list = new ArrayList<SidescanLine>();
-        double[] fData = null;
+//        double[] fData = null;
+        
+        if (!subSystemsList.contains((long) subsystem))
+            return list;
 
-        if (lastTimestampRequested > timestamp1) {
+        if (subSystemsList.size() > 1 && lastTimestampRequested >= timestamp1
+                || subSystemsList.size() <= 1 && lastTimestampRequested > timestamp1) {
             pingParser.firstLogEntry();
             stateParser.firstLogEntry();
         }
@@ -134,53 +156,12 @@ public class ImcSidescanParser implements SidescanParser {
             if (ping == null || state == null)
                 break;
 
-            fData = new double[ping.getRawData("data").length];
-            SystemPositionAndAttitude pose = new SystemPositionAndAttitude();
-            pose.setAltitude(state.getDouble("alt"));
-            pose.getPosition().setLatitudeRads(state.getDouble("lat"));
-            pose.getPosition().setLongitudeRads(state.getDouble("lon"));
-            pose.getPosition().setOffsetNorth(state.getDouble("x"));
-            pose.getPosition().setOffsetEast(state.getDouble("y"));
-            pose.setRoll(state.getDouble("phi"));
-            pose.setYaw(state.getDouble("psi"));
-            pose.setP(state.getDouble("p"));
-            pose.setQ(state.getDouble("q"));
-            pose.setR(state.getDouble("r"));
-            pose.setU(state.getDouble("u"));
-
-            // Image building. Calculate and draw a line, scale and save it
-            byte[] data = ping.getRawData("data");
-            int middle = data.length / 2;
-
-            double avgSboard = 0, avgPboard = 0;
-            for (int c = 0; c < data.length; c++) {
-                double r = data[c] & 0xFF;
-                if (c < middle)
-                    avgPboard += r;
-                else
-                    avgSboard += r;                        
+            long pingFreq = ping.getLong("frequency");
+            if (subsystem == pingFreq) {
+                SystemPositionAndAttitude pose = new SystemPositionAndAttitude((EstimatedState) state);
+                SidescanLine line = SidescanUtil.getSidescanLine(ping, pose, params);
+                list.add(line);
             }
-            
-            avgPboard /= (double) middle * params.getNormalization();
-            avgSboard /= (double) middle * params.getNormalization();
-            
-            for (int c = 0; c < data.length; c++) {
-                double r;
-                double avg;
-                if (c < middle) {
-                    r =  c / (double) middle;
-                    avg = avgPboard;
-                }
-                else {
-                    r =  1 - (c - middle) / (double) middle;
-                    avg = avgSboard;
-                }
-                double gain = Math.abs(30.0 * Math.log(r));
-                double pb = (data[c] & 0xFF) * Math.pow(10, gain / params.getTvgGain());
-                fData[c] = pb / avg;
-            }
-            
-            list.add(new SidescanLine(ping.getTimestampMillis(), range, pose, ping.getFloat("frequency"), fData));
             
             ping = getNextMessage(pingParser);
             if (ping != null)

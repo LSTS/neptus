@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -384,7 +384,7 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
             return false;
         
         if (image == null) {
-            NeptusLog.pub().warn(String.format("Tile image %tile", getTileFilePath()));
+            NeptusLog.pub().warn(String.format("Tile image %s is null!", getTileFilePath()));
             return false;
         }
 

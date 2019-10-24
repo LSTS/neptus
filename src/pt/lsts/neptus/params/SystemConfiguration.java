@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -55,7 +55,7 @@ import pt.lsts.neptus.plugins.Popup.POSITION;
  */
 @SuppressWarnings("serial")
 @PluginDescription(name = "System Configuration", icon = "images/settings2.png")
-@Popup(accelerator='Z', pos=POSITION.CENTER, width=600, height=600)
+@Popup(accelerator='1', pos=POSITION.CENTER, width=600, height=600)
 public class SystemConfiguration extends ConsolePanel implements NeptusMessageListener, MainVehicleChangeListener {
 
     private SystemConfigurationEditorPanel systemConfEditor;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -36,6 +36,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Method;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
@@ -64,12 +65,16 @@ import org.dom4j.tree.DefaultAttribute;
 import com.l2fprod.common.propertysheet.Property;
 import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
 
+import pt.lsts.imc.EstimatedState;
+import pt.lsts.imc.FuelLevel;
+import pt.lsts.imc.Header;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCFieldType;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCMessageType;
 import pt.lsts.imc.IMCOutputStream;
 import pt.lsts.imc.ImcStringDefs;
+import pt.lsts.imc.PolygonVertex;
 import pt.lsts.imc.types.PlanSpecificationAdapter;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
@@ -88,6 +93,7 @@ import pt.lsts.neptus.mp.maneuvers.IMCSerialization;
 import pt.lsts.neptus.mp.maneuvers.Unconstrained;
 import pt.lsts.neptus.plugins.PluginProperty;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.coord.PolygonType;
 import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.map.MarkElement;
 import pt.lsts.neptus.types.map.TransponderElement;
@@ -328,7 +334,7 @@ public class IMCUtils {
             fieldEl.addAttribute("name", fieldName);
             fieldEl.addAttribute("type", msg.getMessageType().getFieldType(fieldName).getTypeName());
 
-            if (!msg.getMessageType().getFieldType(fieldName).equals("message")) {
+            if (!msg.getMessageType().getFieldType(fieldName).getTypeName().equalsIgnoreCase("message")) {
                 fieldEl.setText(msg.getString(fieldName));
             }
             else {
@@ -942,6 +948,26 @@ public class IMCUtils {
         return IMCDefinition.getInstance().create("MessageList");
     }
 
+    public static <M extends IMCMessage, Mo extends IMCMessage> M copyHeader(Mo toCopyFrom, M message) {
+        Header hMsg = message.getHeader();
+        Header hToCopyFromMsg = toCopyFrom.getHeader();
+        
+        Method[] mth = hMsg.getClass().getDeclaredMethods();
+        for (Method method : mth) {
+            try {
+                if (method.getName().startsWith("set")) {
+                    Method methodGet = hToCopyFromMsg.getClass().getMethod(method.getName().replaceFirst("set", "get"));
+                    method.invoke(hMsg, methodGet.invoke(hToCopyFromMsg));
+                }
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        
+        return message;
+    }
+    
     public static LocationType parseLocation(IMCMessage imcEstimatedState) {
         LocationType loc = new LocationType();
         loc.setLatitudeDegs(Math.toDegrees(imcEstimatedState.getDouble("lat")));
@@ -1355,12 +1381,48 @@ public class IMCUtils {
             return "Gateway";
         return "Unknown";
     }
+    
+    /**
+     * Convert a polygon type into a list of PolygonVertex IMC messages
+     */
+    public static Vector<PolygonVertex> serializePolygon(PolygonType polygon) {
+        if (polygon == null)
+            return null;
+        Vector<PolygonVertex> ret = new Vector<>();
+        
+        polygon.getVertices().forEach(v -> {
+            ret.add(new PolygonVertex(v.getLocation().getLatitudeRads(), v.getLocation().getLongitudeRads()));
+        });
+        
+        return ret;
+    }
+    
+    /**
+     * Create a PolygonType from a list of PolygonVertex IMC messages
+     */
+    public static PolygonType parsePolygon(Vector<PolygonVertex> vertices) {
+        if (vertices == null)
+            return null;
+
+        PolygonType ret = new PolygonType();
+        vertices.forEach(v -> {
+            ret.addVertex(Math.toDegrees(v.getLat()), Math.toDegrees(v.getLon()));
+        });
+            
+        return ret;
+    }
+
 
     public static void main(String[] args) {
-
         for (String v : ImcStringDefs.IMC_ADDRESSES.keySet()) {
             System.out.println(v + " is of type " + getSystemType(ImcStringDefs.IMC_ADDRESSES.get(v)));
         }
+        
+        EstimatedState es = new EstimatedState();
+        es.setSrc(0x22);
+        es.setTimestampMillis(System.currentTimeMillis() - 356789);
+        FuelLevel fl = new FuelLevel();
+        copyHeader(es, fl);
     }
 
     public static void testSysTypeResolution() throws Exception {
@@ -1375,5 +1437,5 @@ public class IMCUtils {
             String name = IMCDefinition.getInstance().getResolver().resolve(id);
             System.out.println(addrElem.getText() + "," + name + " --> " + getSystemType(id));
         }
-    }
+    }    
 }

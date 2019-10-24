@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -79,6 +79,10 @@ public class Notification implements Comparable<Notification> {
 
     public static Notification warning(String title, String text) {
         return new Notification(title, text, NotificationType.WARNING);
+    }
+
+    public static Notification newNotification(String title, String text, NotificationType type) {
+        return new Notification(title, text, type);
     }
 
     private Notification(String title, String text, NotificationType type) {

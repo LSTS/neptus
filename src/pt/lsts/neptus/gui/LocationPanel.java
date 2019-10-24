@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -601,6 +601,32 @@ public class LocationPanel extends ParametersPanel implements ActionListener {
 	    return null;
 	}
 
+	/**
+	 * This method allows the user to edit the coordinates of the location (without offsets / depth)
+	 * @param title The window title to be presented
+	 * @param parent The parent component
+	 * @param previousLocation This previous location coordinates
+	 * @return The new (absolute) location or <strong>null</strong> if the user cancelled the dialog.
+	 */
+	public static LocationType showCoordinatesDialog(String title, Component parent, LocationType previousLocation) {
+	    LocationType location = new LocationType();
+	    location.setLocation(previousLocation);
+        location.convertToAbsoluteLatLonDepth();
+        location.setHeight(0);
+        PointSelector pointSel = new PointSelector();
+        pointSel.setZSelectable(false);
+        pointSel.setLocationType(location);
+        pointSel.setPreferredSize(new Dimension(420,150));
+        int result = JOptionPane.showConfirmDialog(parent, pointSel, title, JOptionPane.OK_CANCEL_OPTION);
+        
+        if (result != JOptionPane.OK_OPTION) {
+            return null;
+        }
+        
+        return pointSel.getLocationType().convertToAbsoluteLatLonDepth();        
+    }
+    
+	
 	public static LocationType showLocationDialog(String title, LocationType previousLocation, MissionType mt) {
 	    return showLocationDialog(title, previousLocation, mt, true);
 	}
@@ -658,7 +684,8 @@ public class LocationPanel extends ParametersPanel implements ActionListener {
         other.setLocation(loc);
         NeptusLog.pub().info("<###> "+other.asXML());
 
-        loc = LocationPanel.showLocationDialog("Testing..", loc, null);
+        //loc = LocationPanel.showLocationDialog("Testing..", loc, null);
+        loc = LocationPanel.showCoordinatesDialog("Testing", null, loc);
         NeptusLog.pub().info("<###>AFTER:");
         NeptusLog.pub().info("<###> "+loc.asXML());
     }

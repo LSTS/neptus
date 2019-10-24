@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -46,6 +46,7 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.MissionBrowser.State;
 import pt.lsts.neptus.gui.tree.ExtendedTreeNode;
 import pt.lsts.neptus.gui.tree.ExtendedTreeNode.ChildIterator;
+import pt.lsts.neptus.gui.tree.RootMissionTreeExtendedTreeNode;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.types.NameId;
 import pt.lsts.neptus.types.map.TransponderElement;
@@ -64,6 +65,7 @@ public class MissionTreeModel extends DefaultTreeModel {
     private final ExtendedTreeNode plans;
     private ExtendedTreeNode homeR;
 
+    private boolean hideTransponder = false;
 
     public enum ParentNodes {
         MAP(I18n.text("Maps")),
@@ -92,7 +94,7 @@ public class MissionTreeModel extends DefaultTreeModel {
      * @param root
      */
     public MissionTreeModel() {
-        super(new ExtendedTreeNode("Mission Elements"));
+        super(new RootMissionTreeExtendedTreeNode("Mission Elements"));
         maps = new ExtendedTreeNode(ParentNodes.MAP.nodeName);
         trans = new ExtendedTreeNode(ParentNodes.TRANSPONDERS.nodeName);
         ((DefaultMutableTreeNode) root).add(trans);
@@ -106,7 +108,7 @@ public class MissionTreeModel extends DefaultTreeModel {
      * @param root
      */
     private MissionTreeModel(ExtendedTreeNode maps, ExtendedTreeNode plans, ExtendedTreeNode trans) {
-        super(new ExtendedTreeNode("Mission Elements"));
+        super(new RootMissionTreeExtendedTreeNode("Mission Elements"));
         this.maps = maps;
         this.trans = trans;
         this.plans = plans;
@@ -124,9 +126,34 @@ public class MissionTreeModel extends DefaultTreeModel {
         mapsClone.setParent((MutableTreeNode) newModel.root);
         plansClone.setParent((MutableTreeNode) newModel.root);
         transClone.setParent((MutableTreeNode) newModel.root);
+        
+        newModel.setHideTransponder(isHideTransponder());
         return newModel;
     }
 
+    /**
+     * @return the hideTransponder
+     */
+    public boolean isHideTransponder() {
+        return hideTransponder;
+    }
+    
+    /**
+     * @param hideTransponder the hideTransponder to set
+     */
+    public void setHideTransponder(boolean hideTransponder) {
+        this.hideTransponder = hideTransponder;
+        
+        if (getRoot() instanceof RootMissionTreeExtendedTreeNode) {
+            if (this.hideTransponder)
+                ((RootMissionTreeExtendedTreeNode) getRoot()).addToFilterOut(ParentNodes.TRANSPONDERS.nodeName);
+            else
+                ((RootMissionTreeExtendedTreeNode) getRoot()).removeFromFilterOut(ParentNodes.TRANSPONDERS.nodeName);
+            
+            reload();
+        }
+    }
+    
     // /**
     // * Searched for a plan with this id in the nodes of the tree.
     // *
@@ -488,4 +515,13 @@ public class MissionTreeModel extends DefaultTreeModel {
     // }
     //
     // }
+    
+    /* (non-Javadoc)
+     * @see javax.swing.tree.DefaultTreeModel#getChildCount(java.lang.Object)
+     */
+    @Override
+    public int getChildCount(Object parent) {
+        // TODO Auto-generated method stub
+        return super.getChildCount(parent);
+    }
 }

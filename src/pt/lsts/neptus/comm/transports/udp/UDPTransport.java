@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -38,7 +38,6 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
-import java.net.NoRouteToHostException;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
@@ -91,18 +90,17 @@ public class UDPTransport {
     private boolean isOnBindError = false;
 
     /**
-	 * 
+	 * This will bind to port 6001. 
 	 */
     public UDPTransport() {
         initialize();
     }
 
     /**
-     * @param numberOfSenderThreads
+     * @param bindPort
      */
-    public UDPTransport(int numberOfSenderThreads) {
-        this.numberOfSenderThreads = numberOfSenderThreads;
-        initialize();
+    public UDPTransport(int bindPort) {
+        this(bindPort, 1);
     }
 
     /**
@@ -110,14 +108,20 @@ public class UDPTransport {
      * @param numberOfSenderThreads
      */
     public UDPTransport(int bindPort, int numberOfSenderThreads) {
+        setNumberOfSenderThreads(numberOfSenderThreads);
         setBindPort(bindPort);
         initialize();
     }
 
     public UDPTransport(boolean isBroadcastEnable, int bindPort, int numberOfSenderThreads) {
+        setNumberOfSenderThreads(numberOfSenderThreads);
         setBindPort(bindPort);
         setBroadcastEnable(isBroadcastEnable);
         initialize();
+    }
+
+    public UDPTransport(boolean isBroadcastEnable, int bindPort) {
+        this(isBroadcastEnable, bindPort, 1);
     }
 
     /**
@@ -684,7 +688,7 @@ public class UDPTransport {
                             else
                                 throw new Exception(req.getAddress() + " port is not valid");
                         }
-                        catch (NoRouteToHostException e) {
+                        catch (IOException e) {
                             NeptusLog.pub().debug(e + " :: " + req.getAddress());
                             // e.printStackTrace();
                             informDeliveryListener(req, ResultEnum.Error, e);

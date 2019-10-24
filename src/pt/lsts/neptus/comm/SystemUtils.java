@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -100,6 +100,8 @@ public class SystemUtils {
             return SystemTypeEnum.MOBILESENSOR;
         else if ("mooring".equalsIgnoreCase(typeStr.trim()))
             return SystemTypeEnum.STATICSENSOR;
+        else if ("buoy".equalsIgnoreCase(typeStr.trim()))
+            return SystemTypeEnum.STATICSENSOR;
         else if ("glider".equalsIgnoreCase(typeStr.trim()))
             return SystemTypeEnum.VEHICLE;
         else if (!"helicopter".equalsIgnoreCase(typeStr.trim()) && typeStr.trim().endsWith("copter"))
@@ -177,6 +179,8 @@ public class SystemUtils {
         else if ("WSN".equalsIgnoreCase(typeStr.trim()))
             return ExternalTypeEnum.MOBILESENSOR;
         else if ("mooring".equalsIgnoreCase(typeStr.trim()))
+            return ExternalTypeEnum.STATICSENSOR;
+        else if ("buoy".equalsIgnoreCase(typeStr.trim()))
             return ExternalTypeEnum.STATICSENSOR;
         else if ("glider".equalsIgnoreCase(typeStr.trim()))
             return ExternalTypeEnum.VEHICLE;

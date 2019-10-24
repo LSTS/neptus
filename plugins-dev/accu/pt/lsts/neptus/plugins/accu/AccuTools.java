@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -164,7 +164,7 @@ public class AccuTools extends ConsolePanel {
 
                 try {
                     IMCMessage msg = AccuUtils.getAccuMap(getConsole().getMission());
-                    ImcSystem[] systems = ImcSystemsHolder.lookupActiveSystemCCUs();
+                    ImcSystem[] systems = ImcSystemsHolder.lookupSystemCCUs();
                     
                     if (systems.length == 0) {
                         GuiUtils.errorMessage(getConsole(), "Send Map", "No active CCUs");
@@ -202,7 +202,7 @@ public class AccuTools extends ConsolePanel {
                         GuiUtils.errorMessage("Send LBL Config", "Unable to generate LblConfig IMC message");
                         return;
                     }
-                    ImcSystem[] systems = ImcSystemsHolder.lookupActiveSystemCCUs();
+                    ImcSystem[] systems = ImcSystemsHolder.lookupSystemCCUs();
                     if (systems.length == 0) {
                         GuiUtils.errorMessage(getConsole(), "Send LBL Config", "No active CCUs");
                         return;

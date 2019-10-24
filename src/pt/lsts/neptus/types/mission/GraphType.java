@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -760,8 +760,14 @@ public class GraphType implements XmlOutputMethods {
 	        graph.addManeuver((Maneuver)m.clone());
 	    }
 	    for (TransitionType t : transitions.values()) {
-            graph.addTransition(t.getSourceManeuver(), t.getTargetManeuver(), 
-                    (ConditionType) t.getCondition().clone());
+//            graph.addTransition(t.getSourceManeuver(), t.getTargetManeuver(), 
+//                    (ConditionType) t.getCondition().clone());
+            try {
+                graph.addTransition((TransitionType) t.clone());
+            }
+            catch (CloneNotSupportedException e) {
+                e.printStackTrace();
+            }
 	    }
 	    graph.setInitialManeuver(getInitialManeuverId());
 	    

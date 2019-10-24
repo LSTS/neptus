@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -32,11 +32,8 @@
  */
 package org.necsave.test;
 
-import pt.lsts.imc.Announce.SYS_TYPE;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.FollowPoint;
-import pt.lsts.imc.FollowPoint.SPEED_UNITS;
-import pt.lsts.imc.FollowPoint.Z_UNITS;
 import pt.lsts.imc.PathControlState;
 import pt.lsts.imc.PlanControl;
 import pt.lsts.imc.PlanControl.OP;
@@ -44,6 +41,9 @@ import pt.lsts.imc.PlanControl.TYPE;
 import pt.lsts.imc.PlanControlState;
 import pt.lsts.imc.PlanControlState.STATE;
 import pt.lsts.imc.RemoteSensorInfo;
+import pt.lsts.imc.def.SpeedUnits;
+import pt.lsts.imc.def.SystemType;
+import pt.lsts.imc.def.ZUnits;
 import pt.lsts.imc.net.Consume;
 import pt.lsts.imc.net.IMCProtocol;
 import pt.lsts.neptus.messages.listener.Periodic;
@@ -105,9 +105,9 @@ public class TestDuneFollowPoint {
                     .setArg(new FollowPoint()
                                 .setTarget(leader)
                                 .setMaxSpeed(max_speed)
-                                .setSpeedUnits(SPEED_UNITS.METERS_PS)
+                                .setSpeedUnits(SpeedUnits.METERS_PS)
                                 .setZ(0)
-                                .setZUnits(Z_UNITS.DEPTH));
+                                .setZUnits(ZUnits.DEPTH));
             
             imc.sendMessage(follower, pc);
             System.err.println("Not controlling...");
@@ -166,7 +166,7 @@ public class TestDuneFollowPoint {
     }
     
     void init() {
-        imc = new IMCProtocol("FollowPointTest", 7007, 0x8032, SYS_TYPE.CCU);
+        imc = new IMCProtocol("FollowPointTest", 7007, 0x8032, SystemType.CCU);
         imc.connect(follower);
         imc.connect(leader);
         imc.register(this);

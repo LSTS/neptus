@@ -92,7 +92,7 @@
                     <radiusTolerance>5</radiusTolerance>
                 </finalPoint>
                 <amplitude>1</amplitude>
-                <pitch>0.17453292</pitch>
+                <pitch>0.26179939</pitch>
                 <speed type="float" unit="RPM">900</speed>
                 <annotation>
                     <documentation>No documentation available</documentation>
@@ -147,7 +147,7 @@
             </FollowPath>
         </maneuver>
         <maneuver>
-            <RowsManeuver kind="automatic">
+            <Rows kind="automatic">
                 <basePoint type="pointType">
                     <point>
                         <id/>
@@ -170,7 +170,7 @@
                     <documentation>No documentation available</documentation>
                     <implementation-class>pt.lsts.neptus.mp.maneuvers.RowsManeuver</implementation-class>
                 </annotation>
-            </RowsManeuver>
+            </Rows>
         </maneuver>
         <maneuver>
             <RIPattern kind="automatic">

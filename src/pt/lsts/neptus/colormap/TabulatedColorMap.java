@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -42,10 +42,16 @@ public class TabulatedColorMap extends InterpolationColorMap {
         super(reader);
     }	    
 
+    public TabulatedColorMap(Reader reader, boolean is255) throws IOException {
+        super(reader, is255);
+    }       
+
    public Color getColor(double value) {	
-        int val = (int)(value*values.length);
+        int val = (int) (value*values.length);
         if (val >= values.length)
             val = values.length-1;
+        if (val < 0)
+            val = 0;
         return colors[val];
     }
 }

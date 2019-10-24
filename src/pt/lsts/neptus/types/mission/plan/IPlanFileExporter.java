@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -34,6 +34,8 @@ package pt.lsts.neptus.types.mission.plan;
 
 import java.io.File;
 
+import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.ProgressMonitor;
 
 /**
@@ -50,5 +52,16 @@ public interface IPlanFileExporter {
      * @throws Exception
      */
     public void exportToFile(PlanType plan, File out, ProgressMonitor monitor) throws Exception;
+    
     public String[] validExtensions();
+    
+    /**
+     * @see {@link JFileChooser#setAccessory(javax.swing.JComponent)}
+     * 
+     * @param fileChooser
+     * @return
+     */
+    public default JComponent createFileChooserAccessory(JFileChooser fileChooser) {
+        return null;
+    }
 }

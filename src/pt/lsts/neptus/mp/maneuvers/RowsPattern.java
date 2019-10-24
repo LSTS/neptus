@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -239,7 +239,7 @@ public class RowsPattern extends FollowPath {
     }
 
     @Override
-    public void loadFromXML(String xml) {
+    public void loadManeuverFromXML(String xml) {
         // TODO FIXME 
         try {
             Document doc = DocumentHelper.parseText(xml);
@@ -263,16 +263,17 @@ public class RowsPattern extends FollowPath {
             bearingRad = Math.toRadians(Double.parseDouble(doc.selectSingleNode("//bearing").getText()));
 
             // area
-            width = Double.parseDouble(doc.selectSingleNode("//width").getText());
+            width = Math.abs(Double.parseDouble(doc.selectSingleNode("//width").getText()));
             if (!ignoreLength) {
                 node = doc.selectSingleNode("//length");
                 if (node != null)
-                    length = Double.parseDouble(node.getText());
+                    length = Math.abs(Double.parseDouble(node.getText()));
                 else
                     length = width;
             }
             //steps
-            hstep = Double.parseDouble(doc.selectSingleNode("//hstep").getText());
+            hstep = Math.abs(Double.parseDouble(doc.selectSingleNode("//hstep").getText()));
+            hstep = hstep <= 0 ? 1 : hstep;
 
             if (!ignoreCrossAngle) {
                 node = doc.selectSingleNode("//crossAngle");
@@ -488,12 +489,14 @@ public class RowsPattern extends FollowPath {
 
             if (p.getName().equals("Width")) {
                 width = (Double)p.getValue();
+                width = width < 0 ? 1 : width;
                 continue;
             }
 
             if (!ignoreLength) {
                 if (p.getName().equals("Length")) {
                     length = (Double)p.getValue();
+                    length = length < 0 ? 1 : length;
                     continue;
                 }
             }
@@ -564,67 +567,78 @@ public class RowsPattern extends FollowPath {
 
         if (!ignoreLength) {
             DefaultProperty length = PropertiesEditor.getPropertyInstance("Length", Double.class, this.length, true);
-            length.setShortDescription("The length of the volume to cover, in meters");
+            length.setShortDescription(I18n.text("The length of the volume to cover, in meters") + "<br/>(m)");
             props.add(length);
         }
 
         DefaultProperty width = PropertiesEditor.getPropertyInstance("Width", Double.class, this.width, true);
-        width.setShortDescription("Width of the volume to cover, in meters");
+        width.setShortDescription(I18n.text("Width of the volume to cover, in meters") + "<br/>(m)");
         props.add(width);
 
-        //        DefaultProperty height = PropertiesEditor.getPropertyInstance("Height", Double.class, this.height, false);
-        //        height.setShortDescription("Height of the volume to cover, in meters. Use 0 for 2D rows");
-        //        props.add(height);        
-
         DefaultProperty halt = PropertiesEditor.getPropertyInstance("Horizontal Alternation", Short.class, (short)(this.alternationPercentage*100), true);
-        halt.setShortDescription("Horizontal alternation in percentage. 100 will make all rows separated by the Horizontal Step");
+        halt.setShortDescription(I18n
+                .text("Horizontal alternation in percentage. 100 will make all rows separated by the Horizontal Step")
+                + "<br/>(%)");
         props.add(halt);
 
         DefaultProperty hstep = PropertiesEditor.getPropertyInstance("Horizontal Step", Double.class, this.hstep, true);
-        hstep.setShortDescription("Horizontal distance between rows, in meters");
+        hstep.setShortDescription(I18n.text("Horizontal distance between rows, in meters") + "<br/>(m)");
         props.add(hstep);
 
-        //        DefaultProperty vstep = PropertiesEditor.getPropertyInstance("Vertical Step", Double.class, this.vstep, false);
-        //        vstep.setShortDescription("Vertical distance between rows, in meters");
-        //        props.add(vstep);
-
         DefaultProperty direction = PropertiesEditor.getPropertyInstance("Bearing", Double.class, Math.toDegrees(bearingRad), true);
-        direction.setShortDescription("The outgoing bearing (from starting location) in degrees");       
+        direction.setShortDescription(I18n.text("The outgoing bearing (from starting location) in degrees") + "<br/>(\u00B0)");       
         props.add(direction);
 
         if (!ignoreCrossAngle) {
             DefaultProperty cross = PropertiesEditor.getPropertyInstance("Cross Angle", Double.class, Math.toDegrees(crossAngleRadians), true);
-            cross.setShortDescription("The tilt angle of the search box in degrees");       
+            cross.setShortDescription(I18n.text("The tilt angle of the search box in degrees") + "<br/>(\u00B0)");
             props.add(cross);
         }
 
         DefaultProperty speed = PropertiesEditor.getPropertyInstance("Speed", Double.class, this.speed, true);
-        speed.setShortDescription("The vehicle's desired speed");
+        speed.setShortDescription(I18n.text("The vehicle's desired speed"));
         props.add(speed);
 
         DefaultProperty speedUnitsProp = PropertiesEditor.getPropertyInstance("Speed Units", Maneuver.SPEED_UNITS.class, speedUnits, true);
-        speedUnitsProp.setShortDescription("The units to consider in the speed parameters");
+        speedUnitsProp.setShortDescription(I18n.text("The units to consider in the speed parameters"));
         props.add(speedUnitsProp);
 
         DefaultProperty curvOffset = PropertiesEditor.getPropertyInstance("Curve Offset", Double.class, curvOff, true);
-        curvOffset.setShortDescription("The extra length to use for the curve");       
+        curvOffset.setShortDescription(I18n.text("The extra length to use for the curve") + "<br/>(m)");
         props.add(curvOffset);
 
         DefaultProperty squareCurveP = PropertiesEditor.getPropertyInstance("Square Curve", Boolean.class, squareCurve, true);
-        squareCurveP.setShortDescription("If the curve should be square or direct");       
+        squareCurveP.setShortDescription(I18n.text("If the curve should be square or direct"));
         props.add(squareCurveP);
 
         if (!ignoreFirstCurveRight) {
             DefaultProperty firstCurveRightP = PropertiesEditor.getPropertyInstance("First Curve Right", Boolean.class, firstCurveRight, true);
-            firstCurveRightP.setShortDescription("If the first curve should be to the right or left");       
+            firstCurveRightP.setShortDescription(I18n.text("If the first curve should be to the right or left"));       
             props.add(firstCurveRightP);
         }
 
-        //        for (DefaultProperty p : props) {
-        //            NeptusLog.pub().info("<###>* "+p.getName()+"="+p.getValue());
-        //        }
-
         return props;
+    }
+
+    // Validate for additional parameters
+    public String validateLength(double value) {
+        if (value <= 0)
+            return "Keep it above 0";
+        return null;
+    }
+
+    // Validate for additional parameters
+    public String validateWidth(double value) {
+        if (value <= 0)
+            return "Keep it above 0";
+        return null;
+    }
+
+    // Validate for additional parameters
+    public String validateHorizontalStep(double value) {
+        if (value <= 0)
+            return "Keep it above 0";
+        return null;
     }
 
     /* (non-Javadoc)

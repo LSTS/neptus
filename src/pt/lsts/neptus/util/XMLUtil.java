@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -226,7 +226,24 @@ public class XMLUtil {
             return null;
         }
     }
-    
+
+    public static Document createEmptyDocument() {
+        try {
+            DocumentBuilderFactory docBuilderFactory;
+            docBuilderFactory = DocumentBuilderFactory.newInstance();
+            docBuilderFactory.setIgnoringComments(true);
+            docBuilderFactory.setIgnoringElementContentWhitespace(true);
+            docBuilderFactory.setNamespaceAware(false);
+            DocumentBuilder builder = docBuilderFactory.newDocumentBuilder();
+            Document doc = builder.newDocument();
+            return doc;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     /**
      * @param args
      */

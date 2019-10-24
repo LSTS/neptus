@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -104,6 +104,12 @@ public class MRAProperties implements PropertiesProvider {
 
     @NeptusProperty(name = "Entity to use for depth measurements")
     public static depthEntities depthEntity = depthEntities.CTD;
+    
+    @NeptusProperty(name = "Magnetometer Threshold", description = "Minimal (excluded) difference between magnetometer raw and compensated values.", units = "MicroTeslas")
+    public static double magThreshold = 0.0;
+    
+    @NeptusProperty(name = "Magnetometer Layer Cell Width")
+    public static int magCellW = 5;
 
     private LinkedHashMap<Class<?>, Boolean> visiblePlots = new LinkedHashMap<Class<?>, Boolean>();
 

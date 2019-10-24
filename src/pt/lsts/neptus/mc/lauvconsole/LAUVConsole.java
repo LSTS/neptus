@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -56,11 +56,11 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
 @SuppressWarnings("serial")
 public class LAUVConsole extends ConsoleLayout {
     public static final int CLOSE_ACTION = JFrame.EXIT_ON_CLOSE;
-    private static String consoleURL = "conf/consoles/lauv.ncon";
+    protected static String consoleURL = "conf/consoles/lauv.ncon";
     // "conf/consoles/seacon-light.ncon" "conf/consoles/seacon-console.ncon";
     public static String lauvVehicle = "lauv-dolphin-1";
-    private static Loader loader = null;
-    private static boolean editEnabled = false;
+    protected static Loader loader = null;
+    protected static boolean editEnabled = false;
 
     @Override
     public void cleanup() {
@@ -84,15 +84,25 @@ public class LAUVConsole extends ConsoleLayout {
     }
 
     public static ConsoleLayout create(String[] args) {
+        try {
+            return create(LAUVConsole.class, args);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+        
+    public static <C extends ConsoleLayout> ConsoleLayout create(Class<C> conClass, String[] args) throws Exception {
 
         ConfigFetch.setOnLockedMode(true);
         ConfigFetch.setDistributionType(DistributionEnum.CLIENT);
 
         loader.setText(I18n.text("Loading console..."));
 
-        NeptusLog.pub().info("Loading " + LAUVConsole.class.getSimpleName() + ".");
+        NeptusLog.pub().info("Loading " + conClass.getClass().getSimpleName() + ".");
 
-        final LAUVConsole cls = new LAUVConsole();
+        final C cls = conClass.newInstance();
         ConsoleLayout.forge(cls, consoleURL, editEnabled, false, loader);
         
         GuiUtils.leftTopScreen(cls);
