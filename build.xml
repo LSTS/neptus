@@ -57,7 +57,7 @@ For simple use the main targets are:
 	<!-- Defines variables used by the other targets                         -->
 	<!-- =================================================================== -->
 	<property name="version.MAJOR" value="2019" />
-	<property name="version.MINOR" value="08" />
+	<property name="version.MINOR" value="10" />
 	<property name="version.PATCH" value="1" />
 	<!-- Set this to '-dev' if a developer release; blank "" if maintenance release; or '-rcX' for release candidate X (X number) -->
 	<property name="version.DEVELOPER" value="-dev" />
@@ -74,7 +74,7 @@ For simple use the main targets are:
 
 	<property name="name" value="neptus" />
 	<property name="Name" value="Neptus" />
-	<property name="years" value="2004-2018" />
+	<property name="years" value="2004-2019" />
 	<property name="legal.copy" value="(c)${years} LSTS-FEUP and Neptus developers. All Rights Reserved."/>
 	<property name="legal.copy.html" value="Copyright &#169; ${years} FEUP-LSTS and Neptus developers. All Rights Reserved."/>
 
