@@ -610,7 +610,7 @@ public class NmeaPlotter extends ConsoleLayer implements NmeaProvider {
 
     @Periodic(millisBetweenUpdates = 60000)
     public void purgeOldContacts() {
-        if (maximumAisAgeMinutes >= 0)
+        if (maximumAisAgeMinutes > 0)
             contactDb.purge(maximumAisAgeMinutes * 60 * 1000);
     }
 

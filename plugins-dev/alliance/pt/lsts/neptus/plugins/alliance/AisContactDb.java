@@ -310,7 +310,7 @@ public class AisContactDb implements AISObserver {
         }
         else {
             contact = contacts.get(mmsi);
-            contact.setLastUpdate((long)ship.TIME);
+            contact.setLastUpdate((long)(ship.TIME * 1000.0));
             contacts.replace(mmsi, contact);
         }
         contact.setLocation(new LocationType(ship.LAT, ship.LON));
@@ -332,7 +332,7 @@ public class AisContactDb implements AISObserver {
         additionalProps.setShipType(ship.TYPE);
         additionalProps.setDestination(ship.DESTINATION);
         contact.update(additionalProps);
-        long time = System.currentTimeMillis()-(ship.ELAPSED*60_000);
+        long time = System.currentTimeMillis()-ship.ELAPSED;
         contact.setLastUpdate(time);
         updateSystem(mmsi,new LocationType(ship.LAT,ship.LON),ship.HEADING,time);
     }
@@ -346,6 +346,7 @@ public class AisContactDb implements AISObserver {
         AisContact contact = contacts.get(mmsi);
         String name = contact.getLabel();
         ExternalSystem sys = NMEAUtils.getAndRegisterExternalSystem(mmsi, name);
+        
         sys.setLocation(loc, millis);
         sys.setAttitudeDegrees(heading > 360 ? contact.getCog() : heading,millis);
 
@@ -449,7 +450,7 @@ public class AisContactDb implements AISObserver {
         }
 
         for (int rem : toRemove) {
-            NeptusLog.pub().info("Removing " + rem + " because is more than " + maximumAgeMillis + " milliseconds old.");
+            NeptusLog.pub().debug("Removing " + rem + " because is more than " + maximumAgeMillis + " milliseconds old.");
             contacts.remove(rem);
         }
     }

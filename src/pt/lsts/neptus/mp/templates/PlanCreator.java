@@ -152,7 +152,7 @@ public class PlanCreator {
             double usedSpeed = speed;
             SPEED_UNITS usedSpeedUnits = speed_units;
             try {
-                usedSpeed = (double) speedPropValue;
+                usedSpeed = ((Number) speedPropValue).doubleValue();
             }
             catch (Exception e) {
                 e.printStackTrace();

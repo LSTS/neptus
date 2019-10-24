@@ -77,6 +77,7 @@ import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.util.WGS84Utilities;
 
@@ -233,21 +234,28 @@ public class SoiRiskAnalysis extends ConsolePanel {
     void update() {
         boolean doLayout = false;
         List<Asset> assets = AssetsManager.getInstance().getAssets();
-        NeptusLog.pub().info("Processing "+assets.size()+" assets for risk analysis.");
+        NeptusLog.pub().debug("Processing "+assets.size()+" assets for risk analysis.");
         for (Asset asset : assets) {
             String name = asset.getAssetName();
             VehicleRiskAnalysis risk = state.getOrDefault(name, new VehicleRiskAnalysis());
-            
             AssetState next = asset.futureState();
             AssetState current = asset.stateAt(new Date());
 
             ImcSystem system = ImcSystemsHolder.lookupSystemByName(name);
             
-            if (system != null) {
+            if (system != null && system.getType() == SystemTypeEnum.VEHICLE) {
+                if (system.getLocationTimeMillis() < 0 )
+                    continue;
                 risk.lastCommunication = new Date(system.getLocationTimeMillis()); 
             }
+            else {
+                NeptusLog.pub().debug("Ignoring asset state for "+name);
+                continue;
+            }
             
-            if (System.currentTimeMillis() - risk.lastCommunication.getTime() > 24 * 3600_000) {
+            
+           /* 
+            if (risk.lastCommunication != null && System.currentTimeMillis() - risk.lastCommunication.getTime() > 24 * 3600_000) {
                 // remove this panel
                 if (panels.containsKey(name)) {
                     remove(panels.get(name));
@@ -255,7 +263,7 @@ public class SoiRiskAnalysis extends ConsolePanel {
                     doLayout();
                 }
                 return;
-            }
+            }*/
             
             if (next != null)
                 risk.nextCommunication = next.getTimestamp();

@@ -127,7 +127,6 @@ public class AssetState {
 		
 		if (v.isArray()) {
 			for (JsonValue obj : v.asArray().values()) {
-				System.out.println(obj.toString());
 				states.add(Asset.parse(obj.toString()));
 			}
 		}
@@ -141,9 +140,9 @@ public class AssetState {
 	public static AssetState parse(String json) {
 		JsonObject obj = Json.parse(json).asObject();
 		Date d = null;
-		if (obj.get("time") != null)
-			d = new Date((long)(obj.getDouble("time", 0) * 1000));
-		
+		if (obj.get("timestamp") != null)
+			d = new Date((long)(obj.getDouble("timestamp", 0) * 1000));
+		System.out.println("date for asset state is "+d);
 		ArrayList<String> errors = new ArrayList<>();
 		
 		if (obj.get("errors") != null) {

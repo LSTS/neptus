@@ -48,6 +48,7 @@ import java.util.stream.Collectors;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.mystate.MyState;
 import pt.lsts.neptus.util.DateTimeUtil;
 
@@ -113,7 +114,7 @@ public class VehicleRiskPanel extends JPanel {
         }
         else {
             setBackground(new Color(255, 180, 180));
-            System.out.println("PROBLEMS: "+analysis.problems());
+            NeptusLog.pub().warn("PROBLEMS for "+analysis.problems());
         }
         if (analysis.lastCommunication == null)
             lblLastComm.setState("N/D", false, "No message has been received");

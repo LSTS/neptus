@@ -169,11 +169,13 @@
       <child class="pt.lsts.neptus.plugins.sweepplangen.SweepPlanGen" x="0" y="0" width="0" height="0">
         <properties/>
       </child>
-      <child class="pt.lsts.ripples.RipplesUpload" x="0" y="0" width="0" height="0">
-        <properties/>
-      </child>
       <child class="pt.lsts.neptus.plugins.rtplot.RealTimePlotGroovy" x="0" y="0" width="300" height="272">
         <properties/>
+      </child>
+      <child class="pt.lsts.ripples.RipplesUpdater" x="0" y="0" width="0" height="0">
+        <properties>
+          <entry key="connected">false</entry>
+        </properties>
       </child>
     </subpanel>
   </mainpanel>

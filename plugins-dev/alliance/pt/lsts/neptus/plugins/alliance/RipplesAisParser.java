@@ -95,7 +95,7 @@ public class RipplesAisParser {
         try {
             Date timestamp = sdf.parse(object.getString("timestamp", sdf.format(new Date())));
             ship.TIME = timestamp.getTime()/1000.0;
-            ship.ELAPSED = (System.currentTimeMillis() - timestamp.getTime()) / 1000;
+            ship.ELAPSED = (System.currentTimeMillis() - timestamp.getTime());
         }
         catch (ParseException e) {
             NeptusLog.pub().error("Error parsing date: "+object.getString("timestamp", "N/A"));

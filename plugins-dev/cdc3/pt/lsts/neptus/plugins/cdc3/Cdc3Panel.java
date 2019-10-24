@@ -33,6 +33,7 @@
 package pt.lsts.neptus.plugins.cdc3;
 
 import java.awt.Color;
+import java.awt.Rectangle;
 import java.nio.ByteBuffer;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -66,6 +67,7 @@ import pt.lsts.imc.TransmissionRequest.COMM_MEAN;
 import pt.lsts.imc.TransmissionRequest.DATA_MODE;
 import pt.lsts.imc.TransmissionStatus;
 import pt.lsts.imc.UamRxFrame;
+import pt.lsts.imc.UamRxRange;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
@@ -91,6 +93,7 @@ import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.ReflectionUtil;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 
@@ -126,6 +129,8 @@ public class Cdc3Panel extends ConsolePanel implements IEditorMenuExtension, Sub
 
     private Vector<IMapPopup> renderersPopups;
 
+    private int planDepth = 0;
+    
     /**
      * @param console
      */
@@ -258,6 +263,11 @@ public class Cdc3Panel extends ConsolePanel implements IEditorMenuExtension, Sub
 //        }
 //    }
     
+    private void appendText(String txt) {
+        textArea.append(txt);
+        textArea.scrollRectToVisible(new Rectangle(0, textArea.getHeight() + 22, 1, 1));
+    }
+    
     @Subscribe
     public void on(TransmissionStatus msg) {
         Pair<TransmissionRequest, LocalDateTime> rqst = requests.get(msg.getReqId());
@@ -266,7 +276,7 @@ public class Cdc3Panel extends ConsolePanel implements IEditorMenuExtension, Sub
 //            return;
         
         String txtNot = I18n.textf("The request %s1 for %s2", msg.getStatusStr(), rqst.getLeft().asJSON(false));
-        textArea.append("\n" + DateTimeUtil.timeFormatterUTC.format(new Date()) + "UTC>TransmissionStatus::>" + txtNot + "\n");
+        appendText("\n" + DateTimeUtil.timeFormatterUTC.format(new Date()) + "UTC>TransmissionStatus::>" + txtNot + "\n");
         switch(msg.getStatus()) {
             case DELIVERED:
                 post(Notification.success(I18n.text(this.getName()), txtNot));
@@ -317,10 +327,17 @@ public class Cdc3Panel extends ConsolePanel implements IEditorMenuExtension, Sub
             recMsg.setSource(sourceName);
             
             NeptusLog.pub().warn(recMsg + "\nBuffer::" + Cdc3Serializer.bufferToString(buf));
-            textArea.append("\n" + DateTimeUtil.timeFormatterUTC.format(new Date()) + "UTC>UamRxFrame::>" + recMsg + "\n");
+            appendText("\n" + DateTimeUtil.timeFormatterUTC.format(new Date()) + "UTC>UamRxFrame::>" + recMsg + "\n");
         }
     }
-    
+
+    @Subscribe
+    private void on(UamRxRange msg) {
+        String sourceName = msg.getSourceName();
+        NeptusLog.pub().warn(">UamRxRange from " + sourceName +"::>" + msg.getSys() + " @" + MathMiscUtils.round(msg.getValue(), 1) + "m");
+        appendText("\n" + DateTimeUtil.timeFormatterUTC.format(new Date()) + "UTC>UamRxRange::>" + msg.getSys() + " @" + MathMiscUtils.round(msg.getValue(), 1) + "m\n");
+    }
+
     /**
      * @param msg
      */
@@ -373,7 +390,7 @@ public class Cdc3Panel extends ConsolePanel implements IEditorMenuExtension, Sub
                     byte[] rawData = ArrayUtils.subarray(serBuf.array(), serBuf.arrayOffset(), serBuf.position());
                     
                     TransmissionRequest txRqst = new TransmissionRequest();
-                    txRqst.setReqId(requestIdCounter.getAndIncrement());
+                    txRqst.setReqId(requestIdCounter.getAndIncrement() & 0xFFFF);
                     txRqst.setDestination(vehicleDestination);
                     txRqst.setCommMean(COMM_MEAN.ACOUSTIC);
                     txRqst.setDataMode(DATA_MODE.RAW);
@@ -387,7 +404,7 @@ public class Cdc3Panel extends ConsolePanel implements IEditorMenuExtension, Sub
                     }
                     NeptusLog.pub().warn(msg);
                     NeptusLog.pub().warn(txRqst.asJSON());
-                    textArea.append("\n" + DateTimeUtil.timeFormatterUTC.format(new Date()) + "UTC>SENT Plan " + vehicleDestination + " start::>"
+                    appendText("\n" + DateTimeUtil.timeFormatterUTC.format(new Date()) + "UTC>SENT Plan " + vehicleDestination + " start::>"
                             + "\nBuffer::" + Cdc3Serializer.bufferToString(serBuf) + "\n"
                             + msg + "\n" + txRqst.asJSON(false) + "\n");
                 }
@@ -427,7 +444,7 @@ public class Cdc3Panel extends ConsolePanel implements IEditorMenuExtension, Sub
                     pc.setType(PlanControl.TYPE.REQUEST);
                     pc.setOp(PlanControl.OP.START);
                     pc.setPlanId(opt.toString());
-                    int req = requestIdCounter.getAndIncrement();
+                    int req = requestIdCounter.getAndIncrement() & 0xFFFF;
                     pc.setRequestId(req);
 
                     TransmissionRequest txRqst = new TransmissionRequest();
@@ -444,7 +461,7 @@ public class Cdc3Panel extends ConsolePanel implements IEditorMenuExtension, Sub
                         requests.put(txRqst.getReqId(), pair);
                     }                    
                     NeptusLog.pub().warn(txRqst.asJSON());
-                    textArea.append("\n" + DateTimeUtil.timeFormatterUTC.format(new Date()) + "UTC>IMC SENT Plan " + vehicleDestination + " start::>"
+                    appendText("\n" + DateTimeUtil.timeFormatterUTC.format(new Date()) + "UTC>IMC SENT Plan " + vehicleDestination + " start::>"
                             + "\nPlan ID::" + pc.getPlanId() + "\n"
                             + txRqst.asJSON(false) + "\n");
                 }
@@ -458,6 +475,17 @@ public class Cdc3Panel extends ConsolePanel implements IEditorMenuExtension, Sub
         JMenuItem planWp = new JMenuItem("Plan " + vehicleDestination + " WP here");
         planWp.addActionListener(e ->  {
             try {
+                String opt = JOptionPane.showInputDialog(getConsole(), "Plan depth", planDepth);
+                if (opt != null) {
+                    try {
+                        planDepth = Integer.parseInt(opt);
+                    }
+                    catch (NumberFormatException e1) {
+                        e1.printStackTrace();
+                        return;
+                    }
+                }
+                
                 LocationType locCp = loc.getNewAbsoluteLatLonDepth();
                 RetaskToWaypointMessage msg = new RetaskToWaypointMessage();
                 msg.setLatitudeRads((float) locCp.getLatitudeRads());
@@ -469,7 +497,7 @@ public class Cdc3Panel extends ConsolePanel implements IEditorMenuExtension, Sub
 
                 PlanCreator creator = new PlanCreator(getConsole().getMission());
                 creator.setLocation(locCp);
-                creator.setZ(0, ManeuverLocation.Z_UNITS.DEPTH);
+                creator.setZ(planDepth, ManeuverLocation.Z_UNITS.DEPTH);
                 creator.addManeuver("Goto", "speed", vehicleSpeed, "speedUnits", "m/s");
                 PlanType plan = creator.getPlan();
                 plan.setVehicle(vehicleDestination);
@@ -477,7 +505,7 @@ public class Cdc3Panel extends ConsolePanel implements IEditorMenuExtension, Sub
                 plan = addPlanToMission(plan);
 
                 TransmissionRequest txRqst = new TransmissionRequest();
-                txRqst.setReqId(requestIdCounter.getAndIncrement());
+                txRqst.setReqId(requestIdCounter.getAndIncrement() & 0xFFFF);
                 txRqst.setDestination(vehicleDestination);
                 txRqst.setCommMean(COMM_MEAN.ACOUSTIC);
                 txRqst.setDataMode(DATA_MODE.RAW);
@@ -491,7 +519,7 @@ public class Cdc3Panel extends ConsolePanel implements IEditorMenuExtension, Sub
                 }
                 NeptusLog.pub().warn(msg);
                 NeptusLog.pub().warn(txRqst.asJSON());
-                textArea.append("\n" + DateTimeUtil.timeFormatterUTC.format(new Date()) + "UTC>SENT Plan " + vehicleDestination + " WP here::>" 
+                appendText("\n" + DateTimeUtil.timeFormatterUTC.format(new Date()) + "UTC>SENT Plan " + vehicleDestination + " WP here::>" 
                         + "\nBuffer::" + Cdc3Serializer.bufferToString(serBuf) + "\n"
                         + msg + "\n" + txRqst.asJSON(false) + "\n");
             }
@@ -504,11 +532,22 @@ public class Cdc3Panel extends ConsolePanel implements IEditorMenuExtension, Sub
         JMenuItem planWp1 = new JMenuItem("Plan " + vehicleDestination + " WP here");
         planWp1.addActionListener(e ->  {
             try {
+                String opt = JOptionPane.showInputDialog(getConsole(), "Plan depth", planDepth);
+                if (opt != null) {
+                    try {
+                        planDepth = Integer.parseInt(opt);
+                    }
+                    catch (NumberFormatException e1) {
+                        e1.printStackTrace();
+                        return;
+                    }
+                }
+
                 LocationType locCp = loc.getNewAbsoluteLatLonDepth();
 
                 PlanCreator creator = new PlanCreator(getConsole().getMission());
                 creator.setLocation(locCp);
-                creator.setZ(0, ManeuverLocation.Z_UNITS.DEPTH);
+                creator.setZ(planDepth, ManeuverLocation.Z_UNITS.DEPTH);
                 creator.addManeuver("Goto", "speed", vehicleSpeed, "speedUnits", "m/s");
                 PlanType plan = creator.getPlan();
                 plan.setVehicle(vehicleDestination);
@@ -521,7 +560,7 @@ public class Cdc3Panel extends ConsolePanel implements IEditorMenuExtension, Sub
                 pc.setOp(PlanControl.OP.START);
                 pc.setPlanId(imcPlan.getPlanId());
                 pc.setArg(imcPlan);
-                int req = requestIdCounter.getAndIncrement();
+                int req = requestIdCounter.getAndIncrement() & 0xFFFF;
                 pc.setRequestId(req);
                 
                 TransmissionRequest txRqst = new TransmissionRequest();
@@ -538,7 +577,7 @@ public class Cdc3Panel extends ConsolePanel implements IEditorMenuExtension, Sub
                     requests.put(txRqst.getReqId(), pair);
                 }
                 NeptusLog.pub().warn(txRqst.asJSON());
-                textArea.append("\n" + DateTimeUtil.timeFormatterUTC.format(new Date()) + "UTC>SENT Plan " + vehicleDestination + " WP here::>" 
+                appendText("\n" + DateTimeUtil.timeFormatterUTC.format(new Date()) + "UTC>SENT Plan " + vehicleDestination + " WP here::>" 
                         + "\n" + txRqst.asJSON(false) + "\n");
             }
             catch (NumberFormatException e1) {
@@ -553,7 +592,7 @@ public class Cdc3Panel extends ConsolePanel implements IEditorMenuExtension, Sub
                 Abort ab = new Abort();
 
                 TransmissionRequest txRqst = new TransmissionRequest();
-                txRqst.setReqId(requestIdCounter.getAndIncrement());
+                txRqst.setReqId(requestIdCounter.getAndIncrement() & 0xFFFF);
                 txRqst.setDestination(vehicleDestination);
                 txRqst.setCommMean(COMM_MEAN.ACOUSTIC);
                 txRqst.setDataMode(DATA_MODE.INLINEMSG);
@@ -566,7 +605,7 @@ public class Cdc3Panel extends ConsolePanel implements IEditorMenuExtension, Sub
                     requests.put(txRqst.getReqId(), pair);
                 }                    
                 NeptusLog.pub().warn(txRqst.asJSON());
-                textArea.append("\n" + DateTimeUtil.timeFormatterUTC.format(new Date()) + "UTC>IMC SENT Abort " + vehicleDestination + "::>"
+                appendText("\n" + DateTimeUtil.timeFormatterUTC.format(new Date()) + "UTC>IMC SENT Abort " + vehicleDestination + "::>"
                         + txRqst.asJSON(false) + "\n");
             }
             catch (NumberFormatException e1) {
@@ -579,7 +618,7 @@ public class Cdc3Panel extends ConsolePanel implements IEditorMenuExtension, Sub
         range1.addActionListener(e ->  {
             try {
                 TransmissionRequest txRqst = new TransmissionRequest();
-                txRqst.setReqId(requestIdCounter.getAndIncrement());
+                txRqst.setReqId(requestIdCounter.getAndIncrement() & 0xFFFF);
                 txRqst.setDestination(vehicleDestination);
                 txRqst.setCommMean(COMM_MEAN.ACOUSTIC);
                 txRqst.setDataMode(DATA_MODE.RANGE);
@@ -591,7 +630,7 @@ public class Cdc3Panel extends ConsolePanel implements IEditorMenuExtension, Sub
                     requests.put(txRqst.getReqId(), pair);
                 }                    
                 NeptusLog.pub().warn(txRqst.asJSON());
-                textArea.append("\n" + DateTimeUtil.timeFormatterUTC.format(new Date()) + "UTC>IMC SENT Range " + vehicleDestination + "::>"
+                appendText("\n" + DateTimeUtil.timeFormatterUTC.format(new Date()) + "UTC>IMC SENT Range " + vehicleDestination + "::>"
                         + txRqst.asJSON(false) + "\n");
             }
             catch (NumberFormatException e1) {
@@ -616,7 +655,7 @@ public class Cdc3Panel extends ConsolePanel implements IEditorMenuExtension, Sub
                     byte[] rawData = ArrayUtils.subarray(serBuf.array(), serBuf.arrayOffset(), serBuf.position());
                     
                     TransmissionRequest txRqst = new TransmissionRequest();
-                    txRqst.setReqId(requestIdCounter.getAndIncrement());
+                    txRqst.setReqId(requestIdCounter.getAndIncrement() & 0xFFFF);
                     txRqst.setDestination(vehicleDestination);
                     txRqst.setCommMean(COMM_MEAN.ACOUSTIC);
                     txRqst.setDataMode(DATA_MODE.RAW);
@@ -630,7 +669,7 @@ public class Cdc3Panel extends ConsolePanel implements IEditorMenuExtension, Sub
                     }
                     NeptusLog.pub().warn(msg);
                     NeptusLog.pub().warn(txRqst.asJSON());
-                    textArea.append("\n" + DateTimeUtil.timeFormatterUTC.format(new Date()) + "UTC>SENT Enable " + vehicleDestination + " start::>"
+                    appendText("\n" + DateTimeUtil.timeFormatterUTC.format(new Date()) + "UTC>SENT Enable " + vehicleDestination + " start::>"
                             + "\nBuffer::" + Cdc3Serializer.bufferToString(serBuf) + "\n"
                             + msg + "\n" + txRqst.asJSON(false) + "\n");
                 }
