@@ -296,7 +296,7 @@ public class IridiumComms extends SimpleRendererInteraction {
                 pc.setArg(msg);
                 pc.setOp(OP.START);
                 pc.setType(TYPE.REQUEST);
-                pc.setPlanId(selectedPlan.replaceAll("(_)*[^\\w\\d]*", ""));
+                selectedPlan = selectedPlan.replaceAll("(_)*[^\\w\\d]*", "");
                 pc.setPlanId(selectedPlan);
                 sendViaIridium(getMainVehicleId(), pc);
             };
