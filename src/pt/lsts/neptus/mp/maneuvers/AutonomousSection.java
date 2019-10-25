@@ -64,17 +64,16 @@ import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.def.SpeedUnits;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.gui.LocationPanel;
 import pt.lsts.neptus.gui.ToolbarSwitch;
 import pt.lsts.neptus.gui.editor.PolygonPropertyEditor;
-import pt.lsts.neptus.gui.editor.SpeedUnitsEnumEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
-import pt.lsts.neptus.mp.preview.SpeedConversion;
+import pt.lsts.neptus.mp.SpeedType;
+import pt.lsts.neptus.mp.SpeedType.Units;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.renderer2d.InteractionAdapter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
@@ -95,10 +94,7 @@ public class AutonomousSection extends Maneuver
     protected double latitudeDegs = 0, longitudeDegs = 0;
     
     @NeptusProperty(name = "Speed")
-    protected double speed = 1;
-    
-    @NeptusProperty(name = "Speed Units", editorClass = SpeedUnitsEnumEditor.class)
-    protected SPEED_UNITS speedUnits = SPEED_UNITS.METERS_PS;
+    protected SpeedType speed = new SpeedType(1, Units.MPS);
     
     @NeptusProperty(name = "Enforce Depth Limit")
     protected boolean enforceDepth = true;
@@ -151,19 +147,7 @@ public class AutonomousSection extends Maneuver
     
     @Override
     public double getDistanceTravelled(LocationType initialPosition) {
-        double speed = getSpeed();
-        switch (getSpeedUnits()) {
-            case PERCENTAGE:
-                speed = SpeedConversion.convertPercentageToMps(speed);
-                break;
-            case RPM:
-                speed = SpeedConversion.convertRpmtoMps(speed);
-                break;
-            default:
-                break;
-        }
-        
-        return getCompletionTime(initialPosition) * speed;
+        return getCompletionTime(initialPosition) * speed.getMPS();
     }
     
     @Override
@@ -389,19 +373,7 @@ public class AutonomousSection extends Maneuver
         LocationType l = getManeuverLocation().convertToAbsoluteLatLonDepth();
         maneuver.setLat(l.getLatitudeRads());
         maneuver.setLon(l.getLongitudeRads());
-        maneuver.setSpeed(getSpeed());
-        switch (this.getSpeedUnits()) {
-            case PERCENTAGE:
-                maneuver.setSpeedUnits(SpeedUnits.PERCENTAGE);
-                break;
-            case RPM:
-                maneuver.setSpeedUnits(SpeedUnits.RPM);
-                break;
-            case METERS_PS:
-            default:
-                maneuver.setSpeedUnits(SpeedUnits.METERS_PS);
-                break;
-        }
+        speed.setSpeedToMessage(maneuver);
         
         maneuver.setMaxDepth(maxDepth);
         maneuver.setMinAlt(minAlt);
@@ -436,18 +408,7 @@ public class AutonomousSection extends Maneuver
 
         latitudeDegs = Math.toDegrees(man.getLat());
         longitudeDegs = Math.toDegrees(man.getLon());
-        setSpeed(man.getSpeed());
-        switch (man.getSpeedUnits()) {
-            case METERS_PS:
-                speedUnits = SPEED_UNITS.METERS_PS;
-                break;
-            case RPM:
-                speedUnits = SPEED_UNITS.RPM;
-                break;
-            default:
-                speedUnits = SPEED_UNITS.PERCENTAGE;
-                break;
-        }
+        setSpeed(SpeedType.parseImcSpeed(message));
 
         timeout = man.getTimeLimit();
         maxDepth = man.getMaxDepth();
@@ -463,20 +424,12 @@ public class AutonomousSection extends Maneuver
         enforceTime = (limits & pt.lsts.imc.AutonomousSection.ENFORCE_TIMEOUT) != 0;
     }
 
-    public double getSpeed() {
+    public SpeedType getSpeed() {
         return speed;
     }
 
-    public void setSpeed(double speed) {
+    public void setSpeed(SpeedType speed) {
         this.speed = speed;
-    }
-
-    public SPEED_UNITS getSpeedUnits() {
-        return speedUnits;
-    }
-
-    public void setSpeedUnits(SPEED_UNITS speedUnits) {
-        this.speedUnits = speedUnits;
     }
 
     @Override
@@ -486,7 +439,7 @@ public class AutonomousSection extends Maneuver
             
             ManeuversXMLUtil.parseLocation(doc.getRootElement(), this);
             try {
-                ManeuversXMLUtil.parseSpeed(doc.getRootElement(), this);
+                SpeedType.parseManeuverSpeed(doc.getRootElement(), this);
             }
             catch (Exception e) {
                 e.printStackTrace();
@@ -534,7 +487,7 @@ public class AutonomousSection extends Maneuver
         Document doc = ManeuversXMLUtil.createBaseDoc(getType());
         ManeuversXMLUtil.addLocation(doc.getRootElement(), this);
         try {
-            ManeuversXMLUtil.addSpeed(doc.getRootElement(), this);
+            SpeedType.addSpeedElement(doc.getRootElement(), this);
         }
         catch (Exception e) {
             e.printStackTrace();

@@ -42,6 +42,7 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.beans.PropertyEditor;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -69,6 +70,7 @@ import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.PropertiesProvider;
 import pt.lsts.neptus.gui.editor.ComboEditor;
 import pt.lsts.neptus.gui.editor.CoordinatesPropertyEditor;
+import pt.lsts.neptus.gui.editor.ZUnitsEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.actions.PlanActions;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
@@ -78,8 +80,10 @@ import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.XmlOutputMethods;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.PlanElement;
+import pt.lsts.neptus.types.map.PlanUtil;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.NameNormalizer;
 
@@ -92,7 +96,8 @@ import pt.lsts.neptus.util.NameNormalizer;
 public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, Comparable<Maneuver> {
     protected static final Color COLOR_HELP = new Color(255, 125, 255);
     protected static final int X = 0, Y = 1, Z = 2, T = 3;
-
+    protected ArrayList<VehicleType> vehicles = new ArrayList<>();
+    
     public enum Z_UNITS {
         NONE(0, "None"), DEPTH(1, "Depth"), ALTITUDE(2, "Altitude"), HEIGHT(3, "Height (WGS84)");
 
@@ -110,39 +115,6 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
 
         public String getString() {
             return name;
-        }
-    }
-
-    public enum SPEED_UNITS {
-        METERS_PS(0, "m/s"), RPM(1, "RPM"), PERCENTAGE(2, "%");
-
-        private int value;
-        private String name;
-
-        SPEED_UNITS(int value, String name) {
-            this.value = value;
-            this.name = name;
-        }
-
-        public int getValue() {
-            return value;
-        }
-
-        public String getString() {
-            return name;
-        }
-        
-        public static SPEED_UNITS parse(String str) {
-            try {
-                return SPEED_UNITS.valueOf(str);
-            }
-            catch (IllegalArgumentException e) {
-                for (SPEED_UNITS vs : values()) {
-                    if (vs.getString().equalsIgnoreCase(str))
-                        return vs;
-                }
-                throw e;
-            }
         }
     }
 
@@ -617,6 +589,8 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
         clone.setXPosition(getXPosition());
         clone.setYPosition(getYPosition());
         clone.setMissionType(getMissionType());
+        clone.vehicles.clear();
+        clone.vehicles.addAll(vehicles);
         clone.setId(getId());
         clone.setInitialManeuver(isInitialManeuver());
         clone.setCustomSettings(getCustomSettings());
@@ -890,8 +864,27 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
         this.missionType = missionType;
     }
 
+    /**
+     * @param vehicle the vehicle to set
+     */
+    public final void setVehicles(List<VehicleType> vehicles) {
+        this.vehicles.clear();
+        
+        if (vehicles != null)
+            this.vehicles.addAll(vehicles);            
+    }
+    
+    public final void setVehicle(VehicleType vehicle) {
+        if (vehicle == null)
+            this.vehicles.clear();
+        else
+            setVehicles(Arrays.asList(vehicle));
+    }
+
     public DefaultProperty[] getProperties() {
 
+        // System.out.println("Props for maneuver "+getId()+" from vehicles "+vehicles);
+        
         Vector<DefaultProperty> props = new Vector<DefaultProperty>();
 
         DefaultProperty id = PropertiesEditor.getPropertyInstance("ID", I18n.text("Generic properties"),
@@ -918,7 +911,8 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
             props.add(propertyZ);
             DefaultProperty pz = PropertiesEditor.getPropertyInstance("Z-Units", I18n.text("Location"), ManeuverLocation.Z_UNITS.class, loc.getZUnits(), true, I18n.text("Maneuver's z units"));
             pz.setDisplayName(I18n.textc("Z-Units", "Maneuver's z units"));
-            PropertiesEditor.getPropertyEditorRegistry().registerEditor(pz, new ComboEditor<ManeuverLocation.Z_UNITS>(ManeuverLocation.Z_UNITS.values()));
+            PropertiesEditor.getPropertyEditorRegistry().registerEditor(pz, vehicles.isEmpty() ? new ZUnitsEditor()
+                    : new ZUnitsEditor(PlanUtil.getValidZUnitsForVehicle(vehicles.get(0))));
             PropertiesEditor.getPropertyEditorRegistry().registerEditor(propertyLocation, CoordinatesPropertyEditor.class);
             props.add(pz);
         }

@@ -34,11 +34,13 @@ package pt.lsts.neptus.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dialog.ModalityType;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -58,8 +60,10 @@ import pt.lsts.neptus.gui.objparams.ParametersPanel;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
+import pt.lsts.neptus.types.map.PlanUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**
  * @author Ze Carlos
@@ -68,13 +72,42 @@ public class ZValueSelector extends ParametersPanel {
 
     private static final long serialVersionUID = 1L;
     private JComboBox<Z_UNITS> selectorHD = null;
+    protected ArrayList<ManeuverLocation.Z_UNITS> validZUnits = new ArrayList<>();
     private JFormattedTextField heightDepthField = null;
     private boolean editable;
     private JLabel jLabel = null;
     private boolean canceled = false;
     
     public ZValueSelector() {
-        super();
+        this((ManeuverLocation.Z_UNITS[]) null);
+    }
+
+    public ZValueSelector(ManeuverLocation.Z_UNITS... validUnits) {
+        this(false, validUnits);
+    }
+
+    public ZValueSelector(boolean useNone, ManeuverLocation.Z_UNITS... validUnits) {
+        if (validUnits != null && validUnits.length != 0 && validUnits[0] != null) {
+            for (Z_UNITS u : validUnits)
+                validZUnits.add(u);
+            
+            if (useNone && !validZUnits.contains(ManeuverLocation.Z_UNITS.NONE))
+                validZUnits.add(0, ManeuverLocation.Z_UNITS.NONE);
+        }
+        else {
+            if (GeneralPreferences.validZUnits != null && GeneralPreferences.validZUnits.length != 0
+                    && GeneralPreferences.validZUnits[0] != null) {
+                for (Z_UNITS u : GeneralPreferences.validZUnits)
+                    validZUnits.add(u);
+                if (useNone && !validZUnits.contains(ManeuverLocation.Z_UNITS.NONE))
+                    validZUnits.add(0, ManeuverLocation.Z_UNITS.NONE);
+            }
+            else {
+                for (Z_UNITS u : ManeuverLocation.Z_UNITS.values())
+                    validZUnits.add(u);
+            }
+         }
+        
         initialize();
     }
 
@@ -120,6 +153,11 @@ public class ZValueSelector extends ParametersPanel {
     private JComboBox<Z_UNITS> getZUnitsCombo() {
         if (selectorHD == null) {
             selectorHD = new ZUnitsComboBox();
+            selectorHD.removeAllItems();
+            for (ManeuverLocation.Z_UNITS u : ManeuverLocation.Z_UNITS.values()) {
+                if (validZUnits.contains(u))
+                    selectorHD.addItem(u);
+            }
             selectorHD.setPreferredSize(new java.awt.Dimension(90, 20));
         }
         return selectorHD;
@@ -137,16 +175,6 @@ public class ZValueSelector extends ParametersPanel {
             heightDepthField.addFocusListener(new SelectAllFocusListener());
         }
         return heightDepthField;
-    }
-
-    public static void main(String[] args) throws Exception {
-        ManeuverLocation loc = new ManeuverLocation();
-        loc.setZ(10);
-        
-        ZValueSelector.showHeightDepthDialog(null, loc, "Set plan depth / altitude");
-        
-        NeptusLog.pub().info("<###> "+loc.asXML());
-        
     }
 
     /**
@@ -174,12 +202,14 @@ public class ZValueSelector extends ParametersPanel {
     
     /**
      * Presents the user with a dialog where he can change the depth / altitude of the location
+     * @param vehicle 
      * @param loc The location to be edited in terms of Z
      * @param title The title of the dialog presented to the user
      * @return <code>true</code> if the user pressed OK or <code>false</code> otherwise.
      */
-    public static boolean showHeightDepthDialog(JComponent parentComponent, ManeuverLocation loc, String title) {
-        final ZValueSelector selector = new ZValueSelector();
+    public static boolean showHeightDepthDialog(JComponent parentComponent, String vehicle, ManeuverLocation loc, String title) {
+        final ZValueSelector selector = vehicle == null || vehicle.isEmpty() ? new ZValueSelector()
+                : new ZValueSelector(getValidUnits(vehicle));
         selector.setZ(loc.getZ());
         selector.setZUnits(loc.getZUnits());
         
@@ -203,7 +233,7 @@ public class ZValueSelector extends ParametersPanel {
         
         dialog.setLayout(new BorderLayout());
         dialog.add(selector, BorderLayout.CENTER);
-        dialog.setModal(true);
+        dialog.setModalityType(ModalityType.DOCUMENT_MODAL);
         dialog.setTitle(title);
         dialog.setSize(300, 120);
         
@@ -229,9 +259,16 @@ public class ZValueSelector extends ParametersPanel {
         return !selector.canceled;
     }
     
-    
+    /**
+     * @param vehicle
+     * @return
+     */
+    private static ManeuverLocation.Z_UNITS[] getValidUnits(String vehicle) {
+        return PlanUtil.getValidZUnitsForVehicle(vehicle);
+    }
+
     @SuppressWarnings("serial")
-    public class ZUnitsComboBox extends JComboBox<Z_UNITS> {
+    private class ZUnitsComboBox extends JComboBox<Z_UNITS> {
         public ZUnitsComboBox() {
             super(ManeuverLocation.Z_UNITS.values());
             this.setRenderer(new ListCellRenderer<Z_UNITS>() {
@@ -254,4 +291,13 @@ public class ZValueSelector extends ParametersPanel {
             });
         }
     };
+
+    public static void main(String[] args) throws Exception {
+        ManeuverLocation loc = new ManeuverLocation();
+        loc.setZ(10);
+        
+        ZValueSelector.showHeightDepthDialog(null, "sd", loc, "Set plan depth / altitude");
+        
+        NeptusLog.pub().info("<###> "+loc.asXML());
+    }
 } 

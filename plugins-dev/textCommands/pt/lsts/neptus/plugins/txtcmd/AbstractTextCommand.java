@@ -35,6 +35,7 @@ package pt.lsts.neptus.plugins.txtcmd;
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
+import pt.lsts.neptus.mp.SpeedType;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.MissionType;
@@ -80,6 +81,10 @@ public abstract class AbstractTextCommand implements ITextCommand {
                 loc.convertToAbsoluteLatLonDepth();
                 ret +="lat="+GuiUtils.getNeptusDecimalFormat(8).format(loc.getLatitudeDegs());
                 ret +=";lon="+GuiUtils.getNeptusDecimalFormat(8).format(loc.getLongitudeDegs());
+            }
+            if (p.getType() == SpeedType.class) {
+                SpeedType speed = (SpeedType)p.getValue();
+                ret +="speed="+GuiUtils.getNeptusDecimalFormat(1).format(speed.getMPS());                
             }
             else {
                 ret += p.getName()+"="+p.getValue();

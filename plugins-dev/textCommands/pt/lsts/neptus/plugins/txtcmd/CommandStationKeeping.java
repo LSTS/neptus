@@ -32,7 +32,8 @@
  */
 package pt.lsts.neptus.plugins.txtcmd;
 
-import pt.lsts.neptus.mp.Maneuver.SPEED_UNITS;
+import pt.lsts.neptus.mp.SpeedType;
+import pt.lsts.neptus.mp.SpeedType.Units;
 import pt.lsts.neptus.mp.templates.PlanCreator;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginUtils;
@@ -50,7 +51,7 @@ public class CommandStationKeeping extends AbstractTextCommand {
     LocationType dest = new LocationType();
     
     @NeptusProperty
-    double speed = 1.2;
+    SpeedType speed = new SpeedType(1.2, Units.MPS);
     
     @Override
     public String getCommand() {
@@ -60,7 +61,7 @@ public class CommandStationKeeping extends AbstractTextCommand {
     @Override
     public PlanType resultingPlan(MissionType mt) {
         PlanCreator planCreator = new PlanCreator(mt);
-        planCreator.setSpeed(speed, SPEED_UNITS.METERS_PS);
+        planCreator.setSpeed(speed);
         planCreator.setLocation(dest);
         planCreator.setDepth(0);
         planCreator.addManeuver("StationKeeping");
