@@ -265,7 +265,7 @@ public class GeneralPreferences implements PropertiesProvider {
             description = "If speed units are forced, the user cannot set other units.")
     public static boolean forceSpeedUnits = false;
     
-    @NeptusProperty(name = "Preferred Z Units Array", category = "Z Value", userLevel = LEVEL.REGULAR, 
+    @NeptusProperty(name = "Preferred Z Units Array", category = "Z Value", userLevel = LEVEL.ADVANCED, 
             editable = false, rendererClass = ArrayAsStringRenderer.class,
             description = "This lists the valid Z units to show. This can be overided by the per vehicle settings. "
                     + "Leeave it empty for no restrictions.")

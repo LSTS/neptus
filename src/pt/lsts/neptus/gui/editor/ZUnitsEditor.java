@@ -59,16 +59,18 @@ public class ZUnitsEditor extends AbstractPropertyEditor {
     }
 
     public ZUnitsEditor(ManeuverLocation.Z_UNITS... validUnits) {
-        this(false, validUnits);
+        this(true, validUnits);
     }
 
-    public ZUnitsEditor(boolean useNone, ManeuverLocation.Z_UNITS... validUnits) {
+    private ZUnitsEditor(boolean useNone, ManeuverLocation.Z_UNITS... validUnits) {
         if (validUnits != null && validUnits.length != 0 && validUnits[0] != null) {
             for (Z_UNITS u : validUnits)
                 validZUnits.add(u);
             
             if (useNone && !validZUnits.contains(ManeuverLocation.Z_UNITS.NONE))
                 validZUnits.add(0, ManeuverLocation.Z_UNITS.NONE);
+            if (!useNone && validZUnits.contains(ManeuverLocation.Z_UNITS.NONE))
+                validZUnits.remove(ManeuverLocation.Z_UNITS.NONE);
         }
         else {
             if (GeneralPreferences.validZUnits != null && GeneralPreferences.validZUnits.length != 0
@@ -77,10 +79,14 @@ public class ZUnitsEditor extends AbstractPropertyEditor {
                     validZUnits.add(u);
                 if (useNone && !validZUnits.contains(ManeuverLocation.Z_UNITS.NONE))
                     validZUnits.add(0, ManeuverLocation.Z_UNITS.NONE);
+                if (!useNone && validZUnits.contains(ManeuverLocation.Z_UNITS.NONE))
+                    validZUnits.remove(ManeuverLocation.Z_UNITS.NONE);
             }
             else {
                 for (Z_UNITS u : ManeuverLocation.Z_UNITS.values())
                     validZUnits.add(u);
+                if (!useNone && validZUnits.contains(ManeuverLocation.Z_UNITS.NONE))
+                    validZUnits.remove(ManeuverLocation.Z_UNITS.NONE);
             }
         }
         

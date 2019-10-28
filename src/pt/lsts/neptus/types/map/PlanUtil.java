@@ -59,6 +59,7 @@ import pt.lsts.neptus.mp.preview.PlanSimulator;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
@@ -530,8 +531,8 @@ public class PlanUtil {
      * @return
      */
     public static ManeuverLocation.Z_UNITS[] getValidZUnitsForVehicle(String vehicle) {
-        // TODO Auto-generated method stub
-        return null;
+        VehicleType veh = VehiclesHolder.getVehicleById(vehicle);
+        return getValidZUnitsForVehicle(veh);
     }
 
     /**
@@ -539,7 +540,6 @@ public class PlanUtil {
      * @return
      */
     public static ManeuverLocation.Z_UNITS[] getValidZUnitsForVehicle(VehicleType vehicle) {
-        // TODO Auto-generated method stub
-        return null;
+        return vehicle == null ? null : vehicle.getValidZUnits();
     }
 }

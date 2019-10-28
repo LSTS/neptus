@@ -35,6 +35,7 @@ package pt.lsts.neptus.types.vehicle;
 import java.awt.Color;
 import java.awt.Image;
 import java.io.File;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -42,6 +43,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.StringTokenizer;
 import java.util.Vector;
+import java.util.stream.Collectors;
 
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
@@ -56,6 +58,8 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverFactory;
+import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
 import pt.lsts.neptus.types.XmlInputMethods;
 import pt.lsts.neptus.types.XmlInputMethodsFromFile;
 import pt.lsts.neptus.types.XmlOutputMethods;
@@ -154,6 +158,8 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
     private LinkedHashMap<String, String> consolesType = new LinkedHashMap<String, String>();
 
     private ManeuverFactory manFactory = null;
+    
+    private ManeuverLocation.Z_UNITS[] validZUnits = null;
 
     public VehicleType() {
 
@@ -332,6 +338,19 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
                     // TODO Ver melhor esta parte
                     CoordinateSystem cs = new CoordinateSystem();
                     this.setCoordinateSystem(cs);
+                }
+            }
+
+            nd = doc.selectSingleNode("/" + rootElemName + "/properties/limits/valid-zunits");
+            validZUnits = null;
+            if (nd != null) {
+                String valueListStr = nd.getText();
+                if (valueListStr != null) {
+                    Z_UNITS[] res = Arrays.asList(valueListStr.split("\\s*[,;:]\\s*")).stream()
+                            .map((s) -> ManeuverLocation.Z_UNITS.from(s.trim()))
+                            .filter((e) -> e != null).toArray(Z_UNITS[]::new);
+                    if (res.length > 0)
+                        validZUnits = res;
                 }
             }
 
@@ -923,6 +942,12 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
             colorE.addElement("g").setText(Integer.toString(getIconColor().getGreen()));
             colorE.addElement("b").setText(Integer.toString(getIconColor().getBlue()));
         }
+        
+        if (validZUnits != null && validZUnits.length > 0) {
+            Element limitsElm = properties.addElement("limits");
+            limitsElm.addElement("valid-zunits")
+                    .addText(Arrays.asList(validZUnits).stream().map((e) -> e.text()).collect(Collectors.joining(",")));
+        }
 
         if ("".equals(coordinateSystemLabel))
             properties.add(coordinateSystem.asElement());
@@ -1111,5 +1136,19 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
         }
 
         return manFactory;
+    }
+    
+    /**
+     * @return the validZUnits
+     */
+    public ManeuverLocation.Z_UNITS[] getValidZUnits() {
+        return validZUnits;
+    }
+    
+    /**
+     * @param validZUnits the validZUnits to set
+     */
+    public void setValidZUnits(ManeuverLocation.Z_UNITS[] validZUnits) {
+        this.validZUnits = validZUnits == null || validZUnits.length == 0 ? null : validZUnits;
     }
 }
