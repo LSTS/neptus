@@ -21,7 +21,10 @@
                 <b>128</b>
             </icon-color>
         </appearance>
-        <coordinate-system-label>SNAME</coordinate-system-label>
+          <limits>
+            <valid-zunits>depth, altitude</valid-zunits>
+        </limits>
+      <coordinate-system-label>SNAME</coordinate-system-label>
     </properties>
     <feasibleManeuvers>
         <maneuver>
