@@ -68,7 +68,6 @@ import com.l2fprod.common.propertysheet.Property;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.PropertiesProvider;
-import pt.lsts.neptus.gui.editor.ComboEditor;
 import pt.lsts.neptus.gui.editor.CoordinatesPropertyEditor;
 import pt.lsts.neptus.gui.editor.ZUnitsEditor;
 import pt.lsts.neptus.i18n.I18n;
@@ -881,8 +880,6 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
         if (this instanceof LocatedManeuver) {
             ManeuverLocation loc = (((LocatedManeuver)this).getManeuverLocation()).clone();
             loc.convertToAbsoluteLatLonDepth();
-            //props.add(PropertiesEditor.getPropertyInstance("Latitude", "Location", String.class, loc.getLatitudeAsPrettyString(), false, "Maneuver's latitude"));
-            //props.add(PropertiesEditor.getPropertyInstance("Longitude", "Location", String.class, loc.getLongitudeAsPrettyString(), false, "Maneuver's longitude"));
             DefaultProperty propertyLocation = PropertiesEditor.getPropertyInstance("Location", I18n.text("Location"), LocationType.class, loc, true, I18n.text("Maneuver's location"));
             propertyLocation.setDisplayName(I18n.text("Location"));
             props.add(propertyLocation);
