@@ -98,26 +98,6 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
     protected static final int X = 0, Y = 1, Z = 2, T = 3;
     protected ArrayList<VehicleType> vehicles = new ArrayList<>();
     
-    public enum Z_UNITS {
-        NONE(0, "None"), DEPTH(1, "Depth"), ALTITUDE(2, "Altitude"), HEIGHT(3, "Height (WGS84)");
-
-        private int value;
-        private String name;
-
-        Z_UNITS(int value, String name) {
-            this.value = value;
-            this.name = name;
-        }
-
-        public int getValue() {
-            return value;
-        }
-
-        public String getString() {
-            return name;
-        }
-    }
-
     public static final String CT_STRING = "String";
     public static final String CT_NUMBER = "Number";
     public static final String CT_BOOLEAN = "Boolean";
