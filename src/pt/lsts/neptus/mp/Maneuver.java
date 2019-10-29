@@ -68,7 +68,6 @@ import com.l2fprod.common.propertysheet.Property;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.PropertiesProvider;
-import pt.lsts.neptus.gui.editor.ComboEditor;
 import pt.lsts.neptus.gui.editor.CoordinatesPropertyEditor;
 import pt.lsts.neptus.gui.editor.ZUnitsEditor;
 import pt.lsts.neptus.i18n.I18n;
@@ -98,26 +97,6 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
     protected static final int X = 0, Y = 1, Z = 2, T = 3;
     protected ArrayList<VehicleType> vehicles = new ArrayList<>();
     
-    public enum Z_UNITS {
-        NONE(0, "None"), DEPTH(1, "Depth"), ALTITUDE(2, "Altitude"), HEIGHT(3, "Height (WGS84)");
-
-        private int value;
-        private String name;
-
-        Z_UNITS(int value, String name) {
-            this.value = value;
-            this.name = name;
-        }
-
-        public int getValue() {
-            return value;
-        }
-
-        public String getString() {
-            return name;
-        }
-    }
-
     public static final String CT_STRING = "String";
     public static final String CT_NUMBER = "Number";
     public static final String CT_BOOLEAN = "Boolean";
@@ -901,8 +880,6 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
         if (this instanceof LocatedManeuver) {
             ManeuverLocation loc = (((LocatedManeuver)this).getManeuverLocation()).clone();
             loc.convertToAbsoluteLatLonDepth();
-            //props.add(PropertiesEditor.getPropertyInstance("Latitude", "Location", String.class, loc.getLatitudeAsPrettyString(), false, "Maneuver's latitude"));
-            //props.add(PropertiesEditor.getPropertyInstance("Longitude", "Location", String.class, loc.getLongitudeAsPrettyString(), false, "Maneuver's longitude"));
             DefaultProperty propertyLocation = PropertiesEditor.getPropertyInstance("Location", I18n.text("Location"), LocationType.class, loc, true, I18n.text("Maneuver's location"));
             propertyLocation.setDisplayName(I18n.text("Location"));
             props.add(propertyLocation);
