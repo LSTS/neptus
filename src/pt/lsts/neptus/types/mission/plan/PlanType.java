@@ -60,6 +60,7 @@ import pt.lsts.imc.PlanTransition;
 import pt.lsts.imc.PlanVariable;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
+import pt.lsts.neptus.comm.SystemUtils;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.PropertiesProvider;
 import pt.lsts.neptus.i18n.I18n;
@@ -85,6 +86,7 @@ import pt.lsts.neptus.types.mission.GraphType;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.TransitionType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.ByteUtil;
 import pt.lsts.neptus.util.NameNormalizer;
@@ -135,9 +137,22 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, NameId {
                     // throw new Exception(I18n.textf("The maneuver '%maneuver' has Z_UNITS set to NONE", man.getId()));
                     errors.add(I18n.textf("The maneuver '%maneuver' has Z_UNITS set to NONE", man.getId()));
                 }
-                if (ml.getZUnits() == Z_UNITS.ALTITUDE && ml.getZ() == 0) {
-                    // throw new Exception(I18n.textf("The maneuver '%maneuver' has Z_UNITS set to ALTITUDE and value 0!", man.getId()));
-                    errors.add((I18n.textf("The maneuver '%maneuver' has Z_UNITS set to ALTITUDE and value 0!", man.getId())));
+                
+                try {
+                    VehicleType veh = getVehicleType();
+                    if (veh != null) {
+                        String vehTypeStr = veh.getType();
+                        VehicleTypeEnum vehType = SystemUtils.getVehicleTypeFrom(vehTypeStr);
+                        if (vehType == VehicleTypeEnum.UUV) {
+                            if (ml.getZUnits() == Z_UNITS.ALTITUDE && ml.getZ() == 0) {
+                                errors.add((I18n.textf("The maneuver '%maneuver' has Z_UNITS set to ALTITUDE and value 0!",
+                                        man.getId())));
+                            }
+                        }
+                    }
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().warn(e.getMessage());
                 }
             }
         }
