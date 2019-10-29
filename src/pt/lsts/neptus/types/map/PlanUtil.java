@@ -34,6 +34,7 @@ package pt.lsts.neptus.types.map;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Vector;
 
@@ -46,9 +47,11 @@ import com.l2fprod.common.propertysheet.Property;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.plugins.planning.edit.ManeuverPropertiesPanel;
 import pt.lsts.neptus.gui.PropertiesEditor;
+import pt.lsts.neptus.gui.PropertiesProvider;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
 import pt.lsts.neptus.mp.SpeedType;
 import pt.lsts.neptus.mp.SpeedType.Units;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
@@ -56,6 +59,8 @@ import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.mp.maneuvers.ManeuverWithSpeed;
 import pt.lsts.neptus.mp.maneuvers.StatisticsProvider;
 import pt.lsts.neptus.mp.preview.PlanSimulator;
+import pt.lsts.neptus.plugins.PluginProperty;
+import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
@@ -510,7 +515,44 @@ public class PlanUtil {
         PlanType originalPlan = plan.clonePlan();
         plan.setVehicles(newVehicles);
 
-        // VehicleType newVehicle = plan.getVehicleType();
+        // Let us check on LocatedManeuvers
+        VehicleType veh = plan.getVehicleType();
+        Z_UNITS[] validZUnits = getValidZUnitsForVehicle(veh);
+        if (validZUnits != null && validZUnits.length > 0) {
+            Arrays.asList(plan.getGraph().getAllManeuvers()).stream().forEach((m) -> {
+                if (m instanceof LocatedManeuver) {
+                    LocatedManeuver lm = (LocatedManeuver) m;
+                    ManeuverLocation loc = lm.getManeuverLocation();
+                    Z_UNITS zu = loc.getZUnits();
+                    Z_UNITS nzu = Arrays.asList(validZUnits).stream().filter((u) -> u == zu).distinct().findFirst()
+                            .orElse(Z_UNITS.NONE);
+                    loc.setZUnits(nzu);
+                    lm.setManeuverLocation(loc);
+                }
+                
+                // Let us try to change any other through properties interfaces
+                try {
+                    ArrayList<DefaultProperty> propsChanged = new ArrayList<>();
+                    Arrays.asList(PluginUtils.getPluginProperties(m)).stream().forEach((pp) -> {
+                        if (checkPropertyForCorrectValues(validZUnits, pp))
+                            propsChanged.add(pp);
+                    });
+                    PluginUtils.setPluginProperties(m, propsChanged.stream().toArray(PluginProperty[]::new));
+                    
+                    if (m instanceof PropertiesProvider) {
+                        PropertiesProvider propProvider = (PropertiesProvider) m;
+                        Arrays.asList(propProvider.getProperties()).stream().forEach((pp) -> {
+                            if (checkPropertyForCorrectValues(validZUnits, pp))
+                                propsChanged.add(pp);
+                        });
+                        propProvider.setProperties(propsChanged.stream().toArray(DefaultProperty[]::new));
+                    }
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        }
 
         // FIXME Fix plan actions
         
@@ -524,6 +566,33 @@ public class PlanUtil {
         NeptusLog.pub().debug(String.format("ORIGINAL PLAN:\n%s\n\nNEW PLAN:\\n%s\n", originalPlan.asXML(), plan.asXML()));
         
         return plan;
+    }
+
+    /**
+     * @param validZUnits
+     * @param pp
+     * @return
+     */
+    private static boolean checkPropertyForCorrectValues(Z_UNITS[] validZUnits, DefaultProperty pp) {
+        if (!pp.isEditable())
+            return false;
+        if (pp.getType() == ManeuverLocation.class) {
+            ManeuverLocation loc = (ManeuverLocation) pp.getValue();
+            Z_UNITS zu = loc.getZUnits();
+            Z_UNITS nzu = Arrays.asList(validZUnits).stream().filter((u) -> u == zu).distinct().findFirst()
+                    .orElse(Z_UNITS.NONE);
+            loc.setZUnits(nzu);
+            return true;
+        }
+        else if (pp.getType() == Z_UNITS.class) {
+            Z_UNITS zu = (Z_UNITS) pp.getValue();
+            Z_UNITS nzu = Arrays.asList(validZUnits).stream().filter((u) -> u == zu).distinct().findFirst()
+                    .orElse(Z_UNITS.NONE);
+            pp.setValue(nzu);
+            return true;
+        }
+
+        return false;
     }
 
     /**
