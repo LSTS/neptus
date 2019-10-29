@@ -284,15 +284,15 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, NameId {
      */
     public void setVehicle(String vehicle) {
         if (vehicle == null) {
-            setVehicles(new Vector<VehicleType>());
-            for (Maneuver m : getGraph().getAllManeuvers())
-                m.setVehicles(null);
+            setVehicles(new ArrayList<VehicleType>());
+//            for (Maneuver m : getGraph().getAllManeuvers())
+//                m.setVehicles(null);
         }
         VehicleType vt = VehiclesHolder.getVehicleById(vehicle);
         if (vt != null) {
             this.setVehicleType(vt);
-            for (Maneuver m : getGraph().getAllManeuvers())
-                m.setVehicles(Arrays.asList(vt));
+//            for (Maneuver m : getGraph().getAllManeuvers())
+//                m.setVehicles(Arrays.asList(vt));
         }
     }
 
@@ -432,7 +432,8 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, NameId {
      */
     private void setVehicleType(VehicleType vehicleType) {
         vehicles.clear();
-        vehicles.add(vehicleType);
+        if (vehicleType != null)
+            vehicles.add(vehicleType);
         for (Maneuver m : getGraph().getAllManeuvers())
             m.setVehicles(this.vehicles);
     }
