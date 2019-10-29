@@ -134,7 +134,6 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, NameId {
             if (man instanceof LocatedManeuver) {
                 ManeuverLocation ml = ((LocatedManeuver) man).getManeuverLocation();
                 if (ml.getZUnits() == Z_UNITS.NONE) {
-                    // throw new Exception(I18n.textf("The maneuver '%maneuver' has Z_UNITS set to NONE", man.getId()));
                     errors.add(I18n.textf("The maneuver '%maneuver' has Z_UNITS set to NONE", man.getId()));
                 }
                 
@@ -160,9 +159,6 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, NameId {
         for (Maneuver man : getGraph().getAllManeuvers()) {
             if (getGraph().getIncomingTransitions(man).isEmpty()
                     && !man.getId().equals(getGraph().getInitialManeuverId())) {
-//                throw new Exception(I18n.textf(
-//                        "The maneuver '%maneuver' has no incoming transitions and is not the initial maneuver!",
-//                        man.getId()));
                 errors.add((I18n.textf(
                         "The maneuver '%maneuver' has no incoming transitions and is not the initial maneuver!",
                         man.getId())));
