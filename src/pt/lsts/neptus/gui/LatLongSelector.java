@@ -583,8 +583,12 @@ public class LatLongSelector extends ParametersPanel implements KeyListener {
 		loc.setLongitudeStr(getLongitude());
 		switch (type) {
     		case DECIMAL_DEGREES_DISPLAY:
-    			this.setLatitude(new double[] {MathMiscUtils.round(loc.getLatitudeDegs(), 6), 0, 0});
-    			this.setLongitude(new double[] {MathMiscUtils.round(loc.getLongitudeDegs(), 6), 0, 0});
+                this.setLatitude(new double[] {
+                        MathMiscUtils.round(loc.getLatitudeDegs(), CoordinateUtil.LAT_LON_DDEGREES_DECIMAL_PLACES), 0,
+                        0 });
+                this.setLongitude(new double[] {
+                        MathMiscUtils.round(loc.getLongitudeDegs(), CoordinateUtil.LAT_LON_DDEGREES_DECIMAL_PLACES), 0,
+                        0 });
     			latMin.setEnabled(false);
                 lonMin.setEnabled(false);
                 latSec.setEnabled(false);
@@ -594,8 +598,10 @@ public class LatLongSelector extends ParametersPanel implements KeyListener {
     		case DM_DISPLAY:
     			double[] dmLat = CoordinateUtil.decimalDegreesToDM(loc.getLatitudeDegs());
     			double[] dmLon = CoordinateUtil.decimalDegreesToDM(loc.getLongitudeDegs());
-    			this.setLatitude(new double[] {dmLat[0], MathMiscUtils.round(dmLat[1], 4), 0});
-    			this.setLongitude(new double[] {dmLon[0], MathMiscUtils.round(dmLon[1], 4), 0});
+                this.setLatitude(new double[] { dmLat[0],
+                        MathMiscUtils.round(dmLat[1], CoordinateUtil.LAT_LON_DM_DECIMAL_PLACES), 0 });
+                this.setLongitude(new double[] { dmLon[0],
+                        MathMiscUtils.round(dmLon[1], CoordinateUtil.LAT_LON_DM_DECIMAL_PLACES), 0 });
     			latMin.setEnabled(true);
                 lonMin.setEnabled(true);
                 latSec.setEnabled(false);
@@ -605,9 +611,11 @@ public class LatLongSelector extends ParametersPanel implements KeyListener {
     		case DMS_DISPLAY:
     			double[] dmsLat = CoordinateUtil.decimalDegreesToDMS(loc.getLatitudeDegs());
     			double[] dmsLon = CoordinateUtil.decimalDegreesToDMS(loc.getLongitudeDegs());
-    			this.setLatitude(new double[] {dmsLat[0], dmsLat[1], MathMiscUtils.round(dmsLat[2], 2)});
-    			this.setLongitude(new double[] {dmsLon[0], dmsLon[1], MathMiscUtils.round(dmsLon[2], 2)});
-    			
+                this.setLatitude(new double[] { dmsLat[0], dmsLat[1],
+                        MathMiscUtils.round(dmsLat[2], CoordinateUtil.LAT_LON_DMS_DECIMAL_PLACES) });
+                this.setLongitude(new double[] { dmsLon[0], dmsLon[1],
+                        MathMiscUtils.round(dmsLon[2], CoordinateUtil.LAT_LON_DMS_DECIMAL_PLACES) });
+   			
     			latMin.setEnabled(true);
                 lonMin.setEnabled(true);
                 
