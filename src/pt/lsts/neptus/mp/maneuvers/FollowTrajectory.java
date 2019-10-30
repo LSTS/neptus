@@ -317,14 +317,14 @@ StateRendererInteraction, IMCSerialization, PathProvider {
                             }
                             catch (Exception e1) {
                                 parseLatLon++;
-                                pt[0] = CoordinateUtil.parseLatitudeCoordToDoubleValue(parts[0]);
+                                pt[0] = CoordinateUtil.parseCoordString(parts[0]);
                             }
                             try {
                                 pt[1] = Double.parseDouble(parts[1].trim());
                             }
                             catch (Exception e1) {
                                 parseLatLon++;
-                                pt[1] = CoordinateUtil.parseLongitudeCoordToDoubleValue(parts[1]);
+                                pt[1] = CoordinateUtil.parseCoordString(parts[1]);
                             }
                             
                             pt[2] = Double.parseDouble(parts[2].trim());

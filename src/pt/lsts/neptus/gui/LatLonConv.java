@@ -146,12 +146,12 @@ public class LatLonConv extends JPanel {
 	 */
 	public void setLocationType(LocationType locationType) {
 		this.locationType = locationType;
+		double[] lld = locationType.getAbsoluteLatLonDepth();
+		
 		getLatLongSelector().setLatitude(
-				CoordinateUtil.parseLatitudeStringToDMS(locationType
-						.getLatitudeStr()));
+		        CoordinateUtil.decimalDegreesToDMS(lld[0]));
 		getLatLongSelector().setLongitude(
-				CoordinateUtil.parseLongitudeStringToDMS(locationType
-						.getLongitudeStr()));
+				CoordinateUtil.decimalDegreesToDMS(lld[1]));
 	}
 
 	/**
