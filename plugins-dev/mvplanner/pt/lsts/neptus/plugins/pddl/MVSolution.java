@@ -42,6 +42,8 @@ import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
+import pt.lsts.neptus.mp.SpeedType;
+import pt.lsts.neptus.mp.SpeedType.Units;
 import pt.lsts.neptus.mp.maneuvers.AreaSurvey;
 import pt.lsts.neptus.mp.maneuvers.Goto;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
@@ -278,8 +280,7 @@ public class MVSolution {
                 LocatedManeuver m = (LocatedManeuver) maneuver;
                 PopUp popup = new PopUp();
                 popup.setDuration(120);
-                popup.setSpeed(1.0);
-                popup.setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);
+                popup.setSpeed(new SpeedType(1.0, Units.MPS));
                 ManeuverLocation loc = new ManeuverLocation(m.getStartLocation());
                 loc.setZ(DEFAULT_DEPTH);
                 loc.setZUnits(Z_UNITS.DEPTH);
@@ -314,16 +315,14 @@ public class MVSolution {
                 action.location.setZUnits(Z_UNITS.DEPTH);
                 StationKeeping tmpSk = new StationKeeping();
                 tmpSk.setManeuverLocation(action.location);
-                tmpSk.setSpeed(1.0);
-                tmpSk.setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);
+                tmpSk.setSpeed(new SpeedType(1.0, Units.MPS));
                 tmpSk.setDuration(60);
                 m = tmpSk;
                 break;
             case "move":
                 if (useScheduledGoto) {
                     ScheduledGoto tmpMove = new ScheduledGoto();
-                    tmpMove.setSpeed(1.0);
-                    tmpMove.setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);
+                    tmpMove.setSpeed(new SpeedType(1.0, Units.MPS));
                     tmpMove.setManeuverLocation(action.location);
                     tmpMove.setArrivalTime(new Date(action.endTime));
                     tmpMove.setDelayedBehavior(DELAYED.RESUME);
@@ -332,8 +331,7 @@ public class MVSolution {
                 }
                 else {
                     Goto tmpMove = new Goto();
-                    tmpMove.setSpeed(1.0);
-                    tmpMove.setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);
+                    tmpMove.setSpeed(new SpeedType(1.0, Units.MPS));
                     tmpMove.setManeuverLocation(action.location);
                     m = tmpMove;
                     break;
@@ -341,8 +339,7 @@ public class MVSolution {
             case "sample": {
                 Loiter tmpLoiter = new Loiter();
                 tmpLoiter.setManeuverLocation(action.location);
-                tmpLoiter.setSpeed(1.0);
-                tmpLoiter.setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);
+                tmpLoiter.setSpeed(new SpeedType(1.0, Units.MPS));
                 tmpLoiter.setLoiterDuration((int) ((action.endTime - action.startTime) / 1000));
                 ManeuverPayloadConfig payloadConfig = new ManeuverPayloadConfig(action.vehicle.getId(), tmpLoiter,
                         null);
@@ -355,8 +352,7 @@ public class MVSolution {
                     SurveyAreaTask surveyTask = (SurveyAreaTask) tasks.get(action.name);
                     RowsManeuver rows = (RowsManeuver) surveyTask.getPivot().clone();
                     rows.setManeuverLocation(action.location);
-                    rows.setSpeed(1.0);
-                    rows.setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);
+                    rows.setSpeed(new SpeedType(1.0, Units.MPS));
                     ManeuverPayloadConfig payloadConfig = new ManeuverPayloadConfig(action.vehicle.getId(), rows, null);
                     enablePayloads(payloadConfig, action.payloads);
                     m = rows;
@@ -369,8 +365,7 @@ public class MVSolution {
                     manLoc.setZ(action.location.getZ());
                     manLoc.setZUnits(action.location.getZUnits());
                     rows.setManeuverLocation(manLoc);
-                    rows.setSpeed(1.0);
-                    rows.setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);
+                    rows.setSpeed(new SpeedType(1.0, Units.MPS));
                     ManeuverPayloadConfig payloadConfig = new ManeuverPayloadConfig(action.vehicle.getId(), rows, null);
                     enablePayloads(payloadConfig, action.payloads);
                     m = rows;

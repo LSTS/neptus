@@ -80,16 +80,16 @@ import pt.lsts.neptus.gui.editor.RenderSelectionEditor;
 import pt.lsts.neptus.gui.editor.RenderType;
 import pt.lsts.neptus.gui.editor.Script;
 import pt.lsts.neptus.gui.editor.ScriptSelectionEditor;
-import pt.lsts.neptus.gui.editor.SpeedUnitsEnumEditor;
+import pt.lsts.neptus.gui.editor.SpeedEditor;
 import pt.lsts.neptus.gui.editor.VehicleSelectionEditor;
-import pt.lsts.neptus.gui.editor.renderer.SpeedUnitsEnumRenderer;
+import pt.lsts.neptus.gui.editor.ZUnitsEditor;
 import pt.lsts.neptus.gui.editor.renderer.ArrayAsStringRenderer;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.messages.Bitmask;
 import pt.lsts.neptus.messages.Enumerated;
-import pt.lsts.neptus.mp.Maneuver.SPEED_UNITS;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.ManeuverLocationEditor;
+import pt.lsts.neptus.mp.SpeedType;
 import pt.lsts.neptus.mp.actions.PlanActions;
 import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -533,9 +533,10 @@ public class PropertiesEditor {
 			per.registerEditor(Double.class, NeptusDoubleEditor.class);
 			per.registerEditor(Float.class, NeptusDoubleEditor.class);
 			per.registerEditor(ManeuverLocation.class, ManeuverLocationEditor.class);
-			per.registerEditor(Credentials.class, CredentialsEditor.class);
-            per.registerEditor(SPEED_UNITS.class, SpeedUnitsEnumEditor.class); // This one does not seams to work.
+			per.registerEditor(Credentials.class, CredentialsEditor.class);            
+            per.registerEditor(SpeedType.class, SpeedEditor.class);
             per.registerEditor(File.class, FileOnlyPropertyEditor.class);
+            per.registerEditor(ManeuverLocation.Z_UNITS.class, ZUnitsEditor.class);
 		}
 		return per;
 	}
@@ -599,8 +600,6 @@ public class PropertiesEditor {
                     return I18n.text(value.toString());
                 }
             });
-
-            prr.registerRenderer(SPEED_UNITS.class, new SpeedUnitsEnumRenderer());
 
             prr.registerRenderer(String[].class, new ArrayAsStringRenderer());
             prr.registerRenderer(Long[].class, new ArrayAsStringRenderer());

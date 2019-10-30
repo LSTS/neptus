@@ -20,6 +20,9 @@
                 <b>255</b>
             </icon-color>
         </appearance>
+        <limits>
+            <valid-zunits>altitude, height</valid-zunits>
+        </limits>
         <coordinate-system-label>SNAME</coordinate-system-label>
         <operational-active>false</operational-active>
     </properties>

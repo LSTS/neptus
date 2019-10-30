@@ -32,7 +32,6 @@
  */
 package pt.lsts.neptus.mp.preview;
 
-import pt.lsts.neptus.mp.Maneuver.SPEED_UNITS;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mp.maneuvers.Elevator;
@@ -76,12 +75,7 @@ public class ElevatorPreview implements IManeuverPreview<Elevator> {
                 
         clockwise = true;
         radius = man.getRadius();
-        speed = man.getSpeed();
-
-        if (man.getSpeedUnits() == SPEED_UNITS.RPM) 
-            speed = SpeedConversion.convertRpmtoMps(speed);
-        else if (man.getSpeedUnits() == SPEED_UNITS.PERCENTAGE) // convert to RPM and then to m/s
-            speed = SpeedConversion.convertPercentageToMps(speed);
+        speed = man.getSpeed().getMPS();
 
         speed = Math.min(speed, SpeedConversion.MAX_SPEED);
 

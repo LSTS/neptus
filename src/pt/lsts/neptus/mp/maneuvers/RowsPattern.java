@@ -49,8 +49,9 @@ import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.SpeedType;
+import pt.lsts.neptus.mp.SpeedType.Units;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.map.PlanElement;
@@ -249,16 +250,8 @@ public class RowsPattern extends FollowPath {
             ManeuverLocation loc = new ManeuverLocation();
             loc.load(node.asXML());
             setManeuverLocation(loc);
-            //            double latRad = getPosition().getLatitudeAsDoubleValueRads();
-            //            double lonRad = getPosition().getLongitudeAsDoubleValueRads();
-            //            double z = getPosition().getDepth();            
 
-            // Speed
-            Node speedNode = doc.selectSingleNode("//speed");
-            speed = Double.parseDouble(speedNode.getText());
-//            speed_units = speedNode.valueOf("@unit");
-            SPEED_UNITS sUnits = ManeuversXMLUtil.parseSpeedUnits((Element) speedNode);
-            setSpeedUnits(sUnits);
+            SpeedType.parseManeuverSpeed(doc.getRootElement(), this);
 
             bearingRad = Math.toRadians(Double.parseDouble(doc.selectSingleNode("//bearing").getText()));
 
@@ -357,11 +350,8 @@ public class RowsPattern extends FollowPath {
             if (!firstCurveRight)
                 root.addElement("firstCurveRight").setText(""+firstCurveRight);
 
-        //speed
-        Element speedElem = root.addElement("speed");        
-        speedElem.addAttribute("unit", speedUnits.getString());
-        speedElem.setText(""+speed);
-
+        SpeedType.addSpeedElement(root, this);
+        
         return document;
     }
 
@@ -501,18 +491,13 @@ public class RowsPattern extends FollowPath {
                 }
             }
 
-            //            if (p.getName().equals("Height")) {
-            //                height = (Double)p.getValue();
-            //                continue;
-            //            }
-
             if (p.getName().equals("Horizontal Alternation")) {
                 alternationPercentage = ((Short) p.getValue()) / 100f;
                 continue;
             }
 
             if (p.getName().equals("Speed")) {
-                speed = (Double)p.getValue();
+                speed = (SpeedType)p.getValue();
                 continue;
             }
 
@@ -531,11 +516,6 @@ public class RowsPattern extends FollowPath {
                 continue;
             }
 
-            //            if (p.getName().equals("Vertical Step")) {
-            //                vstep = (Double)p.getValue();
-            //                continue;
-            //            }
-
             if (p.getName().equalsIgnoreCase("Curve Offset")) {
                 curvOff = (Double)p.getValue();
                 continue;
@@ -551,12 +531,7 @@ public class RowsPattern extends FollowPath {
                     firstCurveRight = (Boolean)p.getValue();
                     continue;
                 }
-            }
-            
-            // "Speed Units" parsing
-            SPEED_UNITS speedUnits = ManeuversUtil.getSpeedUnitsFromPropertyOrNullIfInvalidName(p);
-            if (speedUnits != null)
-                setSpeedUnits(speedUnits);
+            }            
         }
         recalcPoints();
     }
@@ -595,13 +570,9 @@ public class RowsPattern extends FollowPath {
             props.add(cross);
         }
 
-        DefaultProperty speed = PropertiesEditor.getPropertyInstance("Speed", Double.class, this.speed, true);
+        DefaultProperty speed = PropertiesEditor.getPropertyInstance("Speed", SpeedType.class, this.speed, true);
         speed.setShortDescription(I18n.text("The vehicle's desired speed"));
         props.add(speed);
-
-        DefaultProperty speedUnitsProp = PropertiesEditor.getPropertyInstance("Speed Units", Maneuver.SPEED_UNITS.class, speedUnits, true);
-        speedUnitsProp.setShortDescription(I18n.text("The units to consider in the speed parameters"));
-        props.add(speedUnitsProp);
 
         DefaultProperty curvOffset = PropertiesEditor.getPropertyInstance("Curve Offset", Double.class, curvOff, true);
         curvOffset.setShortDescription(I18n.text("The extra length to use for the curve") + "<br/>(m)");
@@ -673,14 +644,8 @@ public class RowsPattern extends FollowPath {
         RowsPattern man = new RowsPattern();
         //man("<FollowPath kind=\"automatic\"><basePoint type=\"pointType\"><point><id>id_53802104</id><name>id_53802104</name><coordinate><latitude>0N0'0''</latitude><longitude>0E0'0''</longitude><depth>0.0</depth></coordinate></point><radiusTolerance>0.0</radiusTolerance></basePoint><path><nedOffsets northOffset=\"0.0\" eastOffset=\"1.0\" depthOffset=\"2.0\" timeOffset=\"3.0\"/><nedOffsets northOffset=\"4.0\" eastOffset=\"5.0\" depthOffset=\"6.0\" timeOffset=\"7.0\"/></path><speed unit=\"RPM\">1000.0</speed></FollowPath>");
         //NeptusLog.pub().info("<###> "+FileUtil.getAsPrettyPrintFormatedXMLString(man.getManeuverAsDocument("FollowTrajectory")));
-        man.setSpeed(1);
-        man.setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);        
-        //        NeptusLog.pub().info("<###> "+FileUtil.getAsPrettyPrintFormatedXMLString(man.getManeuverAsDocument("RIPattern")));
-
-        man.setSpeed(2);
-        man.setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);        
-        //        NeptusLog.pub().info("<###> "+FileUtil.getAsPrettyPrintFormatedXMLString(man.getManeuverAsDocument("RIPattern")));
-
+        man.setSpeed(new SpeedType(1, Units.MPS));
+        man.setSpeed(new SpeedType(2, Units.MPS));
 
         MissionType mission = new MissionType("./missions/rep10/rep10.nmisz");
         StateRenderer2D r2d = new StateRenderer2D(MapGroup.getMapGroupInstance(mission));

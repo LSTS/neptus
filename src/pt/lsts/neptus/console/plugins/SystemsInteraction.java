@@ -51,6 +51,8 @@ import pt.lsts.neptus.console.ConsoleInteraction;
 import pt.lsts.neptus.console.ConsoleSystem;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mystate.MyState;
+import pt.lsts.neptus.mp.SpeedType;
+import pt.lsts.neptus.mp.SpeedType.Units;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -252,7 +254,7 @@ public class SystemsInteraction extends ConsoleInteraction {
                     if (rateOfturn != null)
                         sb.append("/").append(I18n.textc("ROT", "Rate of Turn"));
                     sb.append(": ").append("</b>");
-                    sb.append(speed == null ? "- " : MathMiscUtils.round(((Number) speed).doubleValue(), 1)).append("m/s");
+                    sb.append(speed == null ? "- " : new SpeedType(((Number) speed).doubleValue(), Units.MPS).toStringAsDefaultUnits());
                     sb.append("<b> | </b>");
                     sb.append(course == null ? "- " : (int) MathMiscUtils.round(((Number) course).doubleValue(), 0)).append("\u00B0");
                     if (rateOfturn != null) {
@@ -308,7 +310,7 @@ public class SystemsInteraction extends ConsoleInteraction {
                         if (rateOfturn != null)
                             sb.append("/").append(I18n.textc("ROT", "Rate of Turn"));
                         sb.append(": ").append("</b>");
-                        sb.append(speed == null ? "- " : MathMiscUtils.round(((Number) speed).doubleValue(), 1)).append("m/s");
+                        sb.append(speed == null ? "- " : new SpeedType(((Number) speed).doubleValue(), Units.MPS).toStringAsDefaultUnits());
                         sb.append("<b> | </b>");
                         sb.append(course == null ? "- " : (int) MathMiscUtils.round(((Number) course).doubleValue(), 0)).append("\u00B0");
                         if (rateOfturn != null) {

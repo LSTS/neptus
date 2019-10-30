@@ -46,7 +46,8 @@ import pt.lsts.neptus.gui.ToolbarSwitch;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
-import pt.lsts.neptus.mp.preview.SpeedConversion;
+import pt.lsts.neptus.mp.SpeedType;
+import pt.lsts.neptus.mp.SpeedType.Units;
 import pt.lsts.neptus.renderer2d.InteractionAdapter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.renderer2d.StateRendererInteraction;
@@ -65,9 +66,9 @@ public class Magnetometer extends Maneuver implements LocatedManeuver, ManeuverW
     protected static final String DEFAULT_ROOT_ELEMENT = "Magnetometer";
 
     ManeuverLocation destination = new ManeuverLocation();
-    protected double speed = 1000, bearingRad = 0, width = 100;
+    protected double bearingRad = 0, width = 100;
     protected boolean firstClockwise = true;
-    protected SPEED_UNITS speedUnits = SPEED_UNITS.RPM;
+    protected SpeedType speed = new SpeedType(1000, Units.RPM);
 
     protected InteractionAdapter adapter = new InteractionAdapter(null);
     private Point2D lastDragPoint = null;
@@ -131,11 +132,7 @@ public class Magnetometer extends Maneuver implements LocatedManeuver, ManeuverW
                 setManeuverLocation(loc);
             }
 
-            // Velocity
-            Node speedNode = doc.selectSingleNode("//speed");
-            speed = Double.parseDouble(speedNode.getText());
-            SPEED_UNITS sUnits = ManeuversXMLUtil.parseSpeedUnits((Element) speedNode);
-            setSpeedUnits(sUnits);
+            SpeedType.parseManeuverSpeed(doc.getRootElement(), this);
 
             bearingRad = Math.toRadians(Double.parseDouble(doc.selectSingleNode("//bearing").getText()));
 
@@ -239,11 +236,8 @@ public class Magnetometer extends Maneuver implements LocatedManeuver, ManeuverW
         super.clone(clone);
         clone.setManeuverLocation(getManeuverLocation());
         clone.bearingRad = bearingRad;
-        clone.speed = speed;
-        clone.speedUnits = speedUnits;
+        clone.speed = new SpeedType(speed);
         clone.width = width;
-        //clone.ssRange.setShadowSize(ssRange.getShadowSize());
-        //clone.ssRange.setEnabled(ssRange.isEnabled());
         clone.firstClockwise = firstClockwise;
         clone.recalcPoints();
         return clone;
@@ -267,10 +261,7 @@ public class Magnetometer extends Maneuver implements LocatedManeuver, ManeuverW
         if (!firstClockwise)
             root.addElement("clockwise").setText("" + firstClockwise);
 
-        //speed
-        Element speedElem = root.addElement("speed");
-        speedElem.addAttribute("unit", speedUnits.getString());
-        speedElem.setText("" + speed);
+        SpeedType.addSpeedElement(root, this);
 
         return document;
     }
@@ -288,13 +279,9 @@ public class Magnetometer extends Maneuver implements LocatedManeuver, ManeuverW
         width.setShortDescription("Width of the volume to cover (meters)");
         props.add(width);
 
-        DefaultProperty speed = PropertiesEditor.getPropertyInstance("Speed", Double.class, this.speed, true);
+        DefaultProperty speed = PropertiesEditor.getPropertyInstance("Speed", SpeedType.class, this.speed, true);
         speed.setShortDescription("The vehicle's desired speed");
         props.add(speed);
-
-        DefaultProperty speedUnitsProp = PropertiesEditor.getPropertyInstance("Speed Units", SPEED_UNITS.class, speedUnits, true);
-        speedUnitsProp.setShortDescription("The units to consider in the speed parameters");
-        props.add(speedUnitsProp);
 
         DefaultProperty direction = PropertiesEditor.getPropertyInstance("Bearing (\u00B0)", Double.class, Math.toDegrees(bearingRad), true);
         direction.setShortDescription("The outgoing bearing from starting location (degrees)");
@@ -314,16 +301,11 @@ public class Magnetometer extends Maneuver implements LocatedManeuver, ManeuverW
             if (p.getName().equals("Width (m)")) {
                 width = (Double) p.getValue();
             } else if (p.getName().equals("Speed")) {
-                speed = (Double) p.getValue();
+                speed = (SpeedType) p.getValue();
             } else if (p.getName().equals("Bearing (\u00B0)")) {
                 bearingRad = Math.toRadians((Double) p.getValue());
             } else if (p.getName().equalsIgnoreCase("First Clockwise")) {
                 firstClockwise = (Boolean) p.getValue();
-            } else {
-                // Speed Units parse
-                SPEED_UNITS speedUnits = ManeuversUtil.getSpeedUnitsFromPropertyOrNullIfInvalidName(p);
-                if (speedUnits != null)
-                    setSpeedUnits(speedUnits);
             }
         }
         recalcPoints();
@@ -335,7 +317,7 @@ public class Magnetometer extends Maneuver implements LocatedManeuver, ManeuverW
         return super.getTooltipText() + "<hr/>" +
                 I18n.text("width") + ": <b>" + nf.format(width) + " " + I18n.textc("m", "meters") + "</b><br/>" +
                 I18n.text("bearing") + ": <b>" + nf.format(Math.toDegrees(bearingRad)) + " \u00B0</b><br/>" +
-                I18n.text("speed") + ": <b>" + nf.format(getSpeed()) + " " + getSpeedUnits() + "</b><br/>" +
+                I18n.text("speed") + ": <b>" + getSpeed().toStringAsDefaultUnits() + "</b><br/>" +
                 I18n.text("distance") + ": <b>" +
                 MathMiscUtils.parseToEngineeringNotation(getDistanceTravelled(getStartLocation()), 2) + I18n.textc("m", "meters") + "</b><br/>" +
                 "<br>" + I18n.text(destination.getZUnits().toString()) + ": <b>" + nf.format(destination.getZ()) + " " + I18n.textc("m", "meters") + "</b>";
@@ -527,28 +509,12 @@ public class Magnetometer extends Maneuver implements LocatedManeuver, ManeuverW
 
         man.setZ(getManeuverLocation().getZ());
         man.setZUnitsStr(getManeuverLocation().getZUnits().name());
-        man.setSpeed(speed);
+        man.setSpeed(speed.getMPS());
         man.setWidth(width);
         man.setBearing(bearingRad);
         man.setCustom(getCustomSettings());
         man.setDirection(firstClockwise ? pt.lsts.imc.Magnetometer.DIRECTION.CLOCKW_FIRST : pt.lsts.imc.Magnetometer.DIRECTION.CCLOCKW_FIRST);
 
-        try {
-            switch (this.getSpeedUnits()) {
-                case METERS_PS:
-                    man.setSpeedUnitsStr(SPEED_UNITS.METERS_PS.name());
-                    break;
-                case PERCENTAGE:
-                    man.setSpeedUnitsStr(SPEED_UNITS.PERCENTAGE.name());
-                    break;
-                case RPM:
-                default:
-                    man.setSpeedUnitsStr(SPEED_UNITS.RPM.name());
-                    break;
-            }
-        } catch (Exception ex) {
-            LOG.error(I18n.textf("error serializing %maneuver", getType()), ex);
-        }
         return man;
     }
 
@@ -578,17 +544,9 @@ public class Magnetometer extends Maneuver implements LocatedManeuver, ManeuverW
         setManeuverLocation(pos);
 
         setMaxTime(man.getTimeout());
-        speed = man.getSpeed();
+        speed = SpeedType.parseImcSpeed(message);
         width = man.getWidth();
         bearingRad = man.getBearing();
-
-        try {
-            String speedUnits = man.getString("speed_units");
-            setSpeedUnits(SPEED_UNITS.parse(speedUnits));
-        } catch (Exception e) {
-            setSpeedUnits(SPEED_UNITS.RPM);
-            LOG.error(I18n.textf("error parsing %maneuver speed units", getType()), e);
-        }
 
         firstClockwise = man.getDirection() == pt.lsts.imc.Magnetometer.DIRECTION.CLOCKW_FIRST;
 
@@ -596,31 +554,9 @@ public class Magnetometer extends Maneuver implements LocatedManeuver, ManeuverW
         recalcPoints();
     }
 
-    public double getSpeed() {
-        return speed;
-    }
-
-    public void setSpeed(double speed) {
-        this.speed = speed;
-    }
-
-    public SPEED_UNITS getSpeedUnits() {
-        return speedUnits;
-    }
-
-    public void setSpeedUnits(SPEED_UNITS speedUnits) {
-        this.speedUnits = speedUnits;
-    }
-
     @Override
     public double getCompletionTime(LocationType initialPosition) {
-        double speed = this.speed;
-        if (this.speedUnits == SPEED_UNITS.RPM)
-            speed = SpeedConversion.convertRpmtoMps(speed);
-        else if (this.speedUnits == SPEED_UNITS.PERCENTAGE)
-            speed = SpeedConversion.convertPercentageToMps(speed);
-
-        return getDistanceTravelled(initialPosition) / speed;
+        return getDistanceTravelled(initialPosition) / speed.getMPS();
     }
 
     @Override
@@ -656,6 +592,16 @@ public class Magnetometer extends Maneuver implements LocatedManeuver, ManeuverW
     @Override
     public double getMinDepth() {
         return destination.getZ();
+    }
+
+    @Override
+    public SpeedType getSpeed() {
+        return new SpeedType(speed);
+    }
+    
+    @Override
+    public void setSpeed(SpeedType speed) {
+        this.speed = new SpeedType(speed);       
     }
     
     public static void main(String[] args) {

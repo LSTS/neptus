@@ -47,11 +47,11 @@ import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.def.SpeedUnits;
 import pt.lsts.imc.def.ZUnits;
-import pt.lsts.neptus.gui.editor.SpeedUnitsEnumEditor;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.SpeedType;
+import pt.lsts.neptus.mp.SpeedType.Units;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.map.PlanElement;
@@ -71,9 +71,8 @@ public class Takeoff extends Maneuver implements LocatedManeuver, ManeuverWithSp
     protected ManeuverLocation.Z_UNITS zUnits = ManeuverLocation.Z_UNITS.NONE;
 
     @NeptusProperty(name = "Speed")
-    protected double speed = 17;
-    @NeptusProperty(name = "Speed Units", editorClass = SpeedUnitsEnumEditor.class)
-    protected SPEED_UNITS speedUnits = SPEED_UNITS.METERS_PS;
+    protected SpeedType speed = new SpeedType(17, Units.MPS);
+   
     @NeptusProperty(name = "Takeoff Pitch Angle", description = "Minimum pitch angle during automatic takeoff.", units = "\u00B0")
     protected double takeoffPitchAngleDegs = 10;
 
@@ -141,34 +140,6 @@ public class Takeoff extends Maneuver implements LocatedManeuver, ManeuverWithSp
     }
 
     /**
-     * @return the speed
-     */
-    public double getSpeed() {
-        return speed;
-    }
-    
-    /**
-     * @param speed the speed to set
-     */
-    public void setSpeed(double speed) {
-        this.speed = speed;
-    }
-    
-    /**
-     * @return the speedUnits
-     */
-    public SPEED_UNITS getSpeedUnits() {
-        return speedUnits;
-    }
-    
-    /**
-     * @param speedUnits the speedUnits to set
-     */
-    public void setSpeedUnits(SPEED_UNITS speedUnits) {
-        this.speedUnits = speedUnits;
-    }
-    
-    /**
      * @return the takeoffPitchAngleDegs
      */
     public double getTakeoffPitchAngleDegs() {
@@ -190,13 +161,8 @@ public class Takeoff extends Maneuver implements LocatedManeuver, ManeuverWithSp
             Document doc = DocumentHelper.parseText(xml);
     
             ManeuversXMLUtil.parseLocation(doc.getRootElement(), this);
-            try {
-                ManeuversXMLUtil.parseSpeed(doc.getRootElement(), this);
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
-
+            SpeedType.addSpeedElement(doc.getRootElement(), this);
+            
             Node node = doc.selectSingleNode("//takeoffPitch");
             if (node != null)
                 takeoffPitchAngleDegs = Double.parseDouble(node.getText());
@@ -214,12 +180,7 @@ public class Takeoff extends Maneuver implements LocatedManeuver, ManeuverWithSp
     public Document getManeuverAsDocument(String rootElementName) {
         Document doc = ManeuversXMLUtil.createBaseDoc(getType());
         ManeuversXMLUtil.addLocation(doc.getRootElement(), this);
-        try {
-            ManeuversXMLUtil.addSpeed(doc.getRootElement(), this);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
+        SpeedType.addSpeedElement(doc.getRootElement(), this);
 
         Element root = doc.getRootElement();
         root.addElement("takeoffPitch").setText(String.valueOf(takeoffPitchAngleDegs));
@@ -252,8 +213,7 @@ public class Takeoff extends Maneuver implements LocatedManeuver, ManeuverWithSp
         clone.lonDegs = lonDegs;
         clone.z = z;
         clone.zUnits = zUnits;
-        clone.speed = speed;
-        clone.speedUnits = speedUnits;
+        clone.speed = getSpeed();
         clone.takeoffPitchAngleDegs = takeoffPitchAngleDegs;
         return clone;
     }
@@ -268,21 +228,7 @@ public class Takeoff extends Maneuver implements LocatedManeuver, ManeuverWithSp
         man.setLon(Math.toRadians(lonDegs));
         man.setZ(z);
         man.setZUnits(ZUnits.valueOf(getManeuverLocation().getZUnits().toString()));        
-        man.setSpeed(speed);
-        
-        SPEED_UNITS speedU = this.getSpeedUnits();
-        switch (speedU) {
-            case RPM:
-                man.setSpeedUnits(SpeedUnits.RPM);
-                break;
-            case PERCENTAGE:
-                man.setSpeedUnits(SpeedUnits.PERCENTAGE);
-                break;
-            case METERS_PS:
-            default:
-                man.setSpeedUnits(SpeedUnits.METERS_PS);
-                break;
-        }
+        speed.setSpeedToMessage(man);
 
         man.setTakeoffPitch(Math.toRadians(takeoffPitchAngleDegs));
         
@@ -307,20 +253,7 @@ public class Takeoff extends Maneuver implements LocatedManeuver, ManeuverWithSp
         lonDegs = Math.toDegrees(man.getLon());
         z = man.getZ();
         zUnits = ManeuverLocation.Z_UNITS.valueOf(man.getZUnits().toString());
-
-        speed = man.getSpeed();
-        switch (man.getSpeedUnits()) {
-            case RPM:
-                speedUnits = SPEED_UNITS.RPM;
-                break;
-            case PERCENTAGE:
-                speedUnits = SPEED_UNITS.PERCENTAGE;
-                break;
-            default:
-            case METERS_PS:
-                speedUnits = SPEED_UNITS.METERS_PS;
-                break;
-        }
+        speed = SpeedType.parseImcSpeed(message);
         
         takeoffPitchAngleDegs = Math.toDegrees(man.getTakeoffPitch());
     }
@@ -345,6 +278,16 @@ public class Takeoff extends Maneuver implements LocatedManeuver, ManeuverWithSp
         g2d.drawString(str, 10, -10);
         g2d.setColor(color1);
         g2d.drawString(str, 11, -11);
+    }
+    
+    @Override
+    public SpeedType getSpeed() {
+        return new SpeedType(speed);
+    }
+    
+    @Override
+    public void setSpeed(SpeedType speed) {
+        this.speed = new SpeedType(speed);       
     }
     
     public static void main(String[] args) {

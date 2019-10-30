@@ -47,19 +47,33 @@ public class ManeuverLocation extends LocationType {
     private static final long serialVersionUID = 1L;
 
     public enum Z_UNITS {
-        NONE(0),
-        DEPTH(1),
-        ALTITUDE(2),
-        HEIGHT(3);
+        NONE(0, "None"),
+        DEPTH(1, "Depth"),
+        ALTITUDE(2, "Altitude"),
+        HEIGHT(3, "Height");
 
         protected long value;
+        protected String text;
 
         public long value() {
             return value;
         }
 
-        Z_UNITS(long value) {
+        public String text() {
+            return text;
+        }
+
+        Z_UNITS(long value, String text) {
             this.value = value;
+            this.text = text;
+        }
+        
+        public static  Z_UNITS from(String text) {
+            for (Z_UNITS elem : Z_UNITS.values()) {
+                if (elem.text().equalsIgnoreCase(text))
+                    return elem;
+            }
+            return null;
         }
     }
 

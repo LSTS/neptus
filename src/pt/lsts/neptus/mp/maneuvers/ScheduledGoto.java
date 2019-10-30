@@ -95,7 +95,6 @@ public class ScheduledGoto extends Goto {
         super.clone(clone);
         clone.setManeuverLocation(getManeuverLocation());
         clone.setRadiusTolerance(getRadiusTolerance());
-        clone.setSpeedUnits(getSpeedUnits());
         clone.setSpeed(getSpeed());
         clone.setSpeedTolerance(getSpeedTolerance());
         clone.setTravelUnits(getTravelUnits());
