@@ -61,6 +61,22 @@ public class CoordinateUtil {
 
     public static final char CHAR_DEGREE = '\u00B0'; // º Unicode
 
+    /**
+     * Used for indicating Lat/Lon decimal degrees decimal places.
+     * Don't change this
+     */
+    public static int LAT_LON_DDEGREES_DECIMAL_PLACES = 8;
+    /**
+     * Used for indicating Lat/Lon decimal minites decimal places.
+     * Don't change this
+     */
+    public static int LAT_LON_DM_DECIMAL_PLACES = 6;
+    /**
+     * Used for indicating Lat/Lon DMS decimal places.
+     * Don't change this
+     */
+    public static int LAT_LON_DMS_DECIMAL_PLACES = 5;
+
     public final static float MINUTE = 1 / 60.0f;
     public final static double MINUTE_D = 1 / 60.0d;
     public final static float SECOND = 1 / 3600.0f;
@@ -1073,7 +1089,7 @@ public class CoordinateUtil {
         switch (format) {
             case DECIMAL_DEGREES:
                 NumberFormat nformat = DecimalFormat.getInstance(Locale.US);
-                nformat.setMaximumFractionDigits(8);
+                nformat.setMaximumFractionDigits(LAT_LON_DDEGREES_DECIMAL_PLACES);
                 nformat.setMinimumFractionDigits(5);
                 nformat.setGroupingUsed(false);
                 return (Math.signum(latlongitudeDegs) >= 0 ? (isLat ? "N" : "E") : (isLat ? "S" : "W"))
@@ -1082,8 +1098,11 @@ public class CoordinateUtil {
                 showSeconds = false;
             case DMS:
             default:
-                return isLat ? latitudeAsString(latlongitudeDegs, !showSeconds, showSeconds ? 3 : 5)
-                        : longitudeAsString(latlongitudeDegs, !showSeconds, showSeconds ? 3 : 5);
+                return isLat
+                        ? latitudeAsString(latlongitudeDegs, !showSeconds,
+                                showSeconds ? LAT_LON_DMS_DECIMAL_PLACES : LAT_LON_DM_DECIMAL_PLACES)
+                        : longitudeAsString(latlongitudeDegs, !showSeconds,
+                                showSeconds ? LAT_LON_DMS_DECIMAL_PLACES : LAT_LON_DM_DECIMAL_PLACES);
         }
     }
 

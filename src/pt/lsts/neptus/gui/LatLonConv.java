@@ -276,7 +276,7 @@ public class LatLonConv extends JPanel {
 	private JButton getOkButton() {
 		if (okButton == null) {
 			okButton = new JButton();
-			okButton.setBounds(new Rectangle(317, 156, 87, 20));
+			okButton.setBounds(new Rectangle(317+35, 156, 87, 20));
 			okButton.setText(I18n.text("OK"));
 			okButton.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -305,7 +305,7 @@ public class LatLonConv extends JPanel {
 			jFrame = new JFrame();
 			jFrame.setIconImage(Toolkit.getDefaultToolkit().getImage(
 					getClass().getResource("/images/neptus-icon.png")));
-			jFrame.setSize(new Dimension(419, 224));
+			jFrame.setSize(new Dimension(419+120, 224));
 			jFrame.setTitle(I18n.text("Lat/Lon"));
 			jFrame.setContentPane(getFrameContentPane());
 			jFrame.add(this);
@@ -334,7 +334,7 @@ public class LatLonConv extends JPanel {
 	public JDialog getJDialog() {
 		if (jDialog == null) {
 			jDialog = new JDialog(getJFrame());
-			jDialog.setSize(new Dimension(419, 224));
+			jDialog.setSize(new Dimension(419+120, 224));
 			jDialog.setContentPane(getDialogContentPane());
 			jDialog.add(this);
 		}
@@ -362,10 +362,10 @@ public class LatLonConv extends JPanel {
 		switch (type) {
 		case DECIMAL_DEGREES:
 			latLongSelector.setLatitude(new double[] {
-					MathMiscUtils.round(loc.getLatitudeDegs(), 6), 0,
+					MathMiscUtils.round(loc.getLatitudeDegs(), CoordinateUtil.LAT_LON_DDEGREES_DECIMAL_PLACES), 0,
 					0 });
 			latLongSelector.setLongitude(new double[] {
-					MathMiscUtils.round(loc.getLongitudeDegs(), 6), 0,
+					MathMiscUtils.round(loc.getLongitudeDegs(), CoordinateUtil.LAT_LON_DDEGREES_DECIMAL_PLACES), 0,
 					0 });
 			break;
 
@@ -375,9 +375,9 @@ public class LatLonConv extends JPanel {
 			double[] dmLon = CoordinateUtil.decimalDegreesToDM(loc
 					.getLongitudeDegs());
 			latLongSelector.setLatitude(new double[] { dmLat[0],
-					MathMiscUtils.round(dmLat[1], 4), 0 });
+					MathMiscUtils.round(dmLat[1], CoordinateUtil.LAT_LON_DM_DECIMAL_PLACES), 0 });
 			latLongSelector.setLongitude(new double[] { dmLon[0],
-					MathMiscUtils.round(dmLon[1], 4), 0 });
+					MathMiscUtils.round(dmLon[1], CoordinateUtil.LAT_LON_DM_DECIMAL_PLACES), 0 });
 			break;
 
 		case DMS:
@@ -386,9 +386,9 @@ public class LatLonConv extends JPanel {
 			double[] dmsLon = CoordinateUtil.decimalDegreesToDMS(loc
 					.getLongitudeDegs());
 			latLongSelector.setLatitude(new double[] { dmsLat[0], dmsLat[1],
-					MathMiscUtils.round(dmsLat[2], 2) });
+					MathMiscUtils.round(dmsLat[2], CoordinateUtil.LAT_LON_DMS_DECIMAL_PLACES) });
 			latLongSelector.setLongitude(new double[] { dmsLon[0], dmsLon[1],
-					MathMiscUtils.round(dmsLon[2], 2) });
+					MathMiscUtils.round(dmsLon[2], CoordinateUtil.LAT_LON_DMS_DECIMAL_PLACES) });
 			break;
 
 		default:
@@ -406,7 +406,7 @@ public class LatLonConv extends JPanel {
 		if (cardsPanel == null) {
 			cardsPanel = new JPanel();
 			cardsPanel.setLayout(new CardLayout());
-			cardsPanel.setSize(new Dimension(401, 134));
+			cardsPanel.setSize(new Dimension(401+33, 134));
 			cardsPanel.setLocation(new Point(10, 9));
 			/// Angles Degrees
 			cardsPanel.add(getLatLongSelector(), I18n.text("degs"));
