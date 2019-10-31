@@ -161,6 +161,13 @@ public class CoordinateUtil {
 
     public static Double parseCoordString(String coord) {
 
+        try {
+            return Double.parseDouble(coord);
+        }
+        catch (Exception e) {
+            // Let us try other formats
+        }
+
         Matcher m = COORD_DECIMAL.matcher(coord.trim()); 
         if (m.matches()) {            
             if (m.group(1).equals("N") || m.group(1).equals("E"))
