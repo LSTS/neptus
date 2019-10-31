@@ -94,7 +94,7 @@ public class TransponderParameters extends ParametersPanel {
 		this.idEditor = idEditor;
 		this.homeRef = homeRef;
 		initialize();
-		setPreferredSize(new Dimension(470,530));
+		setPreferredSize(new Dimension(470, 530-130));
 	}
 	
 	/**
