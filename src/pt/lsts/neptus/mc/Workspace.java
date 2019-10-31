@@ -998,7 +998,7 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
         jif.setSize(400, 340);
 
         if (newComponent instanceof LatLonConv) {
-            jif.setSize(419, 224);
+            jif.setSize(419+35, 224);
         }
 
         if (newComponent instanceof ChronometerPanel) {

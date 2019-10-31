@@ -494,7 +494,7 @@ public class LatLongSelector extends ParametersPanel implements KeyListener {
             convPanel.setBorder(BorderFactory.createTitledBorder(null, I18n.text("Format"),
                     TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION,
                     new Font("Dialog", Font.BOLD, 12), new Color(51, 51, 51)));
-			convPanel.setBounds(new Rectangle(261+23+10+10, 30, 149-(23+10+10), 98));
+			convPanel.setBounds(new Rectangle(261+23+10+10+5, 30, 149-(23+10+10-10), 98));
 			convPanel.add(getDdegreesRadioButton(), null);
 			convPanel.add(getDmRadioButton(), null);
 			convPanel.add(getDmsRadioButton(), null);

@@ -173,7 +173,8 @@ public class LocationPanel extends ParametersPanel implements ActionListener {
 	 *
 	 * @return javax.swing.JTabbedPane
 	 */
-	public JTabbedPane getOffsetTabs() {
+	@Deprecated
+	private JTabbedPane getOffsetTabs() {
 		if (OffsetTabs == null) {
 			OffsetTabs = new JTabbedPane();
 			OffsetTabs.addTab(I18n.text("Orthogonal Offsets"), null, getNedOffsetPanel(), null);
@@ -189,7 +190,8 @@ public class LocationPanel extends ParametersPanel implements ActionListener {
 	 *
 	 * @return javax.swing.JPanel
 	 */
-	public JPanel getNedOffsetPanel() {
+    @Deprecated
+	private JPanel getNedOffsetPanel() {
 		if (nedOffsetPanel == null) {
 			nedOffsetPanel = new JPanel();
 			nedOffsetPanel.add(getRegularOffset(), null);
@@ -201,7 +203,8 @@ public class LocationPanel extends ParametersPanel implements ActionListener {
 	 *
 	 * @return javax.swing.JPanel
 	 */
-	public JPanel getJPanel2() {
+    @Deprecated
+	private JPanel getJPanel2() {
 		if (panel1 == null) {
 			panel1 = new JPanel();
 			panel1.add(getPolarOffsetPanel(), null);
@@ -278,6 +281,7 @@ public class LocationPanel extends ParametersPanel implements ActionListener {
 	 *
 	 * @return pt.lsts.neptus.gui.RegularOffset
 	 */
+    @Deprecated
 	private RegularOffset getRegularOffset() {
 		if (regularOffset == null) {
 			regularOffset = new RegularOffset();
@@ -290,6 +294,7 @@ public class LocationPanel extends ParametersPanel implements ActionListener {
 	 *
 	 * @return pt.lsts.neptus.gui.PolarOffsetPanel
 	 */
+    @Deprecated
 	private PolarOffsetPanel getPolarOffsetPanel() {
 		if (polarOffsetPanel == null) {
 			polarOffsetPanel = new PolarOffsetPanel();
@@ -397,7 +402,7 @@ public class LocationPanel extends ParametersPanel implements ActionListener {
 	 * @return void
 	 */
 	private  void initialize() {
-		this.setBounds(0, 0, 467, 428);
+		this.setBounds(0, 0, 467, 428-130);
 		
 		GuiUtils.reactEnterKeyPress(getOkBtn());
 		GuiUtils.reactEscapeKeyPress(getCancelBtn());
