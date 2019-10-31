@@ -1174,6 +1174,11 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
             sb = mainSb;
             
             String name = ep.getName();
+
+            // Ignore LOG_ON_LINES_ONLY_STRING
+            if (LOG_ON_LINES_ONLY_STRING.equalsIgnoreCase(name))
+                continue;
+
             boolean activeKey = false;
             boolean activeValue = false;
             boolean isFunctionPayload = false;
