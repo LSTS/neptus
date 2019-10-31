@@ -637,5 +637,8 @@ public class LocationPanel extends ParametersPanel implements ActionListener {
         loc = LocationPanel.showCoordinatesDialog("Testing", null, loc);
         NeptusLog.pub().info("<###>AFTER:");
         NeptusLog.pub().info("<###> "+loc.asXML());
+
+        loc = LocationPanel.showLocationDialog(null, "Testing", loc, new MissionType(), true);
+
     }
 }
