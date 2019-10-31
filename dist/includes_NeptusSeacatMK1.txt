@@ -27,5 +27,4 @@ plugins/map.jar
 plugins/position.jar
 plugins/s57.jar
 plugins/tiles-extra.jar
-plugins/transas-maps.jar
 vehicles-defs/*-seacat-mk1-*.nvcl
