@@ -79,7 +79,7 @@
       <type>integer</type>
       <visibility>user</visibility>
       <scope>plan</scope>
-      <default>10</default>
+      <default>15</default>
       <units>%</units>
       <desc></desc>
       <min>0</min>
