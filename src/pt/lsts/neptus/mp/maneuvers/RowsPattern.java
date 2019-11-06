@@ -549,12 +549,14 @@ public class RowsPattern extends FollowPath {
         DefaultProperty width = PropertiesEditor.getPropertyInstance("Width", Double.class, this.width, true);
         width.setShortDescription(I18n.text("Width of the volume to cover, in meters") + "<br/>(m)");
         props.add(width);
-
-        DefaultProperty halt = PropertiesEditor.getPropertyInstance("Horizontal Alternation", Short.class, (short)(this.alternationPercentage*100), true);
-        halt.setShortDescription(I18n
-                .text("Horizontal alternation in percentage. 100 will make all rows separated by the Horizontal Step")
-                + "<br/>(%)");
-        props.add(halt);
+        
+        if (!ignoreAlternationPercentage) {
+            DefaultProperty halt = PropertiesEditor.getPropertyInstance("Horizontal Alternation", Short.class, (short)(this.alternationPercentage*100), true);
+            halt.setShortDescription(I18n
+                    .text("Horizontal alternation in percentage. 100 will make all rows separated by the Horizontal Step")
+                    + "<br/>(%)");
+            props.add(halt);
+        }
 
         DefaultProperty hstep = PropertiesEditor.getPropertyInstance("Horizontal Step", Double.class, this.hstep, true);
         hstep.setShortDescription(I18n.text("Horizontal distance between rows, in meters") + "<br/>(m)");
