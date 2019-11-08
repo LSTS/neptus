@@ -51,6 +51,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Vector;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
@@ -259,8 +261,9 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
     private Map<String, Vector<EntityParameter>> logOnSettingParams = new HashMap<>();
     
     // Debug
-    public static boolean debug = false;
+    public static boolean debug = true;
     public static ArrayList<Shape> planShapes = new ArrayList<>();
+    public static ArrayList<LocationType> planWPPoints = new ArrayList<>();
     public static ArrayList<LocationType> planPoints = new ArrayList<>();
     public static ArrayList<LocationType> planControlPoints = new ArrayList<>();
     public static StateRenderer2D renderer = null;
@@ -270,10 +273,12 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
             Graphics2D g0 = (Graphics2D) g.create();
             
             Ellipse2D.Float ellipse = new Ellipse2D.Float(-5, -5, 10, 10); 
+            Ellipse2D.Float ellipse2 = new Ellipse2D.Float(-8, -8, 16, 16); 
             final Color color = new Color(210, 176, 106, 160); // KHAKI
             // final Color color2 = new Color(210, 176, 106); // KHAKI
             final Color color3 = new Color(255, 0, 255, 160); // PLUM_RED
             final Color color4 = new Color(255, 0, 255); // PLUM_RED
+            final Color color5 = new Color(0, 0, 0, 128); // PLUM_RED
 
             for (int i = 1; i < planPoints.size(); i++) {
                 Graphics2D g2 = (Graphics2D) g0.create();
@@ -284,6 +289,18 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                 g2.draw(line);
                 g2.dispose();
             }
+            
+            final AtomicInteger c0 = new AtomicInteger(1);
+            planWPPoints.stream().sequential().forEach(lt -> {
+                Graphics2D g2 = (Graphics2D) g0.create();
+                Point2D pt = renderer.getScreenPosition(lt);
+                g2.translate(pt.getX(), pt.getY());
+                g2.setColor(color5);
+                g2.fill(ellipse2);
+                g2.setColor(color5);
+                g2.drawString(""+ c0.getAndIncrement(), 0, 12);
+                g2.dispose();
+            });
             
             planShapes.parallelStream().forEach(sp -> {
                 LocationType lt = planPoints.get(0);
@@ -297,22 +314,28 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                 g2.draw(sp);
                 g2.dispose();
             });
-
-            planControlPoints.parallelStream().forEach(lt -> {
+            
+            final AtomicInteger c1 = new AtomicInteger(1);
+            planControlPoints.stream().sequential().forEach(lt -> {
                 Graphics2D g2 = (Graphics2D) g0.create();
                 Point2D pt = renderer.getScreenPosition(lt);
                 g2.translate(pt.getX(), pt.getY());
                 g2.setColor(color3);
                 g2.fill(ellipse);
+                g2.setColor(Color.BLACK);
+                g2.drawString(""+ c1.getAndIncrement(), 0, 0);
                 g2.dispose();
             });
 
-            planPoints.parallelStream().forEach(lt -> {
+            final AtomicInteger c2 = new AtomicInteger(1);
+            planPoints.stream().sequential().forEach(lt -> {
                 Graphics2D g2 = (Graphics2D) g0.create();
                 Point2D pt = renderer.getScreenPosition(lt);
                 g2.translate(pt.getX(), pt.getY());
                 g2.setColor(color);
                 g2.fill(ellipse);
+                g2.setColor(Color.BLACK);
+                g2.drawString(""+ c2.getAndIncrement(), 0, 0);
                 g2.dispose();
             });
 
@@ -786,6 +809,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
         planShapes.clear();
         planPoints.clear();
         planControlPoints.clear();
+        planWPPoints.clear();
         
         for (Maneuver m : plan.getGraph().getManeuversSequence()) {
             double speedMS = ManeuversUtil.getSpeedMps(m);
@@ -799,7 +823,9 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                 ManeuverLocation prevWp = null;
                 double curHeadingRad = Double.NaN;
                 boolean prevWasCurve = false;
+                AtomicBoolean evenOrOdd = new AtomicBoolean(false);
                 for (ManeuverLocation wp : ((LocatedManeuver) m).getWaypoints()) {
+                    evenOrOdd.set(!evenOrOdd.get());
                     if (prevWp != null) {
                         boolean curveAdded = false;
                         if (!Double.isNaN(curHeadingRad) && !prevWasCurve) {
@@ -808,7 +834,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                                 double nextHeadingRad = AngleUtils.nomalizeAngleRadsPi(wp.getXYAngle(prevWp));
                                 double deltaAngleCurveRad = AngleUtils
                                         .nomalizeAngleRadsPi(nextHeadingRad - curHeadingRad);
-                                if (Math.abs(Math.abs(Math.toDegrees(deltaAngleCurveRad)) - 90) < 2) {
+                                if (evenOrOdd.get() && Math.abs(Math.abs(Math.toDegrees(deltaAngleCurveRad)) - 90) < 2) {
                                     double distBetweenWp = wp.getDistanceInMeters(prevWp);
                                     boolean distLessThanTurnRadius = distBetweenWp < turnRadius * 2;
                                     
@@ -853,6 +879,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                                             planControlPoints.add(centerLocation);
                                             planPoints.add(curvCtrlLocation);
                                             planPoints.add(wp);
+                                            planWPPoints.add(wp);
                                             double xDelta = -turnRadius * Math.cos(curHeadingRad);
                                             double yDelta = -turnRadius * Math.sin(curHeadingRad);
 
@@ -936,6 +963,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                                             planPoints.add(curvStartLocation);
                                             planPoints.add(curvEndLocation);
                                             planPoints.add(wp);
+                                            planWPPoints.add(wp);
                                             planControlPoints.add(curvCtrlStartLocation);
                                             planControlPoints.add(curvCtrlEndLocation);
 
@@ -976,6 +1004,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                             speedMS));
                     if (debug) {
                         planPoints.add(wp);
+                        planWPPoints.add(wp);
                     }
                     prevWp = wp;
                     prevWasCurve = false;

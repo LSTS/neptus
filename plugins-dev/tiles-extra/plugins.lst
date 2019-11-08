@@ -3,7 +3,6 @@
 # COMPILED BY=@COMPILED BY@
 # LEGAL_COPY=@LEGAL_COPY@
 
-pt.lsts.neptus.renderer2d.tiles.TileGoogleMaps
 pt.lsts.neptus.renderer2d.tiles.TileVirtualEarth
 pt.lsts.neptus.renderer2d.tiles.TileVirtualEarthHybrid
 pt.lsts.neptus.renderer2d.tiles.TileOpenPtMap
