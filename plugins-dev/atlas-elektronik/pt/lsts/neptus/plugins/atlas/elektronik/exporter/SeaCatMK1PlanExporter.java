@@ -261,7 +261,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
     private Map<String, Vector<EntityParameter>> logOnSettingParams = new HashMap<>();
     
     // Debug
-    public static boolean debug = false;
+    public static boolean debug = true;
     public static ArrayList<Shape> planShapes = new ArrayList<>();
     public static ArrayList<LocationType> planWPPoints = new ArrayList<>();
     public static ArrayList<LocationType> planPoints = new ArrayList<>();
@@ -823,7 +823,9 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                 ManeuverLocation prevWp = null;
                 double curHeadingRad = Double.NaN;
                 boolean prevWasCurve = false;
+                AtomicBoolean evenOrOdd = new AtomicBoolean(false);
                 for (ManeuverLocation wp : ((LocatedManeuver) m).getWaypoints()) {
+                    evenOrOdd.set(!evenOrOdd.get());
                     if (prevWp != null) {
                         boolean curveAdded = false;
                         if (!Double.isNaN(curHeadingRad) && !prevWasCurve) {
@@ -832,7 +834,7 @@ public class SeaCatMK1PlanExporter implements IPlanFileExporter {
                                 double nextHeadingRad = AngleUtils.nomalizeAngleRadsPi(wp.getXYAngle(prevWp));
                                 double deltaAngleCurveRad = AngleUtils
                                         .nomalizeAngleRadsPi(nextHeadingRad - curHeadingRad);
-                                if (Math.abs(Math.abs(Math.toDegrees(deltaAngleCurveRad)) - 90) < 2) {
+                                if (evenOrOdd.get() && Math.abs(Math.abs(Math.toDegrees(deltaAngleCurveRad)) - 90) < 2) {
                                     double distBetweenWp = wp.getDistanceInMeters(prevWp);
                                     boolean distLessThanTurnRadius = distBetweenWp < turnRadius * 2;
                                     
