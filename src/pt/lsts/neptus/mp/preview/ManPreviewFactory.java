@@ -171,9 +171,10 @@ public class ManPreviewFactory {
             return false;
         
         synchronized (previewImpl) {
-            if (previewImpl.containsKey(maneuver)) {
-                if (previewImpl.get(maneuver) == null) {
-                    previewImpl.put(Pair.of(vehicleId, maneuver), preview);
+            Pair<String, Class<?>> keyPair = Pair.of(vehicleId, maneuver);
+            if (previewImpl.containsKey(keyPair)) {
+                if (previewImpl.get(keyPair) == null) {
+                    previewImpl.put(keyPair, preview);
                     return true;
                 }
                 else {
@@ -181,11 +182,9 @@ public class ManPreviewFactory {
                 }
             }
             else {
-                previewImpl.put(Pair.of(vehicleId, maneuver), preview);
+                previewImpl.put(keyPair, preview);
                 return true;
             }
         }
-        
-        
     }
 }
