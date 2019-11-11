@@ -43,6 +43,7 @@ import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.types.vehicle.VehicleType;
 
 /**
  * This class simulates the execution of a plan (roughly)
@@ -82,7 +83,8 @@ public class PlanSimulator {
             }
         }
 
-        simulatedPath = new PlanSimulationOverlay(plan, 0, 4, start);
+        VehicleType vt = plan.getVehicleType();
+        simulatedPath = new PlanSimulationOverlay(plan, 0, vt == null ? VehicleType.MAX_DURATION_H : vt.getMaxDurationHours(), start);
     }
 
     public SystemPositionAndAttitude getState() {
