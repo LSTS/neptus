@@ -184,9 +184,9 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
                             if (value != null)
                                 setText(fmt.format(new Date((Long) value)));
                         }
-                        if (markerList.containsKey(row)) {
+                        if (markerList.containsKey(table.getRowSorter().convertRowIndexToModel(row))) {
                             setForeground(Color.RED);
-                            setToolTipText(I18n.text("Marker") + ": " + markerList.get(row).getLabel());
+                            setToolTipText(I18n.text("Marker") + ": " + markerList.get(table.getRowSorter().convertRowIndexToModel(row)).getLabel());
                         }
                         return this;
                     }
@@ -350,8 +350,8 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
         long smallestTimestampDiff = Long.MAX_VALUE;
         int iTSMarker = -1;
         
-        for (int i = 0; i < log.getNumberOfEntries() - 1; i++) {
-            long timestampDiff = Math.abs(((long) model.getValueAt(i, 0)) - timestamp);
+        for (int i = 0; i < log.getNumberOfEntries(); i++) {
+            long timestampDiff = Math.abs(((long) model.getValueAt(table.getRowSorter().convertRowIndexToModel(i), 0)) - timestamp);
             if(timestampDiff > 500) {
                 continue;
             }
