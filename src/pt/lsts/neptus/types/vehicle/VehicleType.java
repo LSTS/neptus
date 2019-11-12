@@ -1061,9 +1061,12 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
             limitsElm.addElement("valid-zunits")
                     .addText(Arrays.asList(validZUnits).stream().map((e) -> e.text()).collect(Collectors.joining(",")));
         }
-        limitsElm.addElement("min-speed").addText(Double.toString(getMinSpeedMS()));
-        limitsElm.addElement("max-speed").addText(Double.toString(getMaxSpeedMS()));
-        limitsElm.addElement("max-duration-hours").addText(Double.toString(getMaxDurationHours()));
+        if (getMinSpeedMS() != MIN_SPEED_MS)
+            limitsElm.addElement("min-speed").addText(Double.toString(getMinSpeedMS()));
+        if (getMaxSpeedMS() != MAX_SPEED_MS)
+            limitsElm.addElement("max-speed").addText(Double.toString(getMaxSpeedMS()));
+        if (getMaxDurationHours() != MAX_DURATION_H)
+            limitsElm.addElement("max-duration-hours").addText(Double.toString(getMaxDurationHours()));
         
         if ("".equals(coordinateSystemLabel))
             properties.add(coordinateSystem.asElement());
