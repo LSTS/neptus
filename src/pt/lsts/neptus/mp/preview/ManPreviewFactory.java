@@ -51,9 +51,23 @@ import pt.lsts.neptus.mp.maneuvers.Launch;
  */
 public class ManPreviewFactory {
 
-    private static Map<org.apache.commons.lang3.tuple.Pair<String, Class<?>>, Class<?>> previewImpl = Collections.synchronizedMap(new HashMap<>());
+    private static Map<Pair<String, Class<?>>, Class<?>> previewImpl = Collections.synchronizedMap(new HashMap<>());
     private static final String GENERIC_STRING = "any";
     
+    @SuppressWarnings("unchecked")
+    public static Class<IManeuverPreview<?>> createPreviewClass(String classFileName) {
+        ClassLoader loader = ManPreviewFactory.class.getClassLoader();
+        try {
+            Class<?> clazz = loader.loadClass(classFileName);
+            return (Class<IManeuverPreview<?>>) clazz;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            NeptusLog.pub().warn("class not found: " + classFileName);
+        }
+        return null;
+    }
+
     /**
      * If finds and instantiate a preview for the maneuver. It looks for a preview in the current package of the
      * maneuver class and in the sibling package "preview". The name of the preview class should be the name of the

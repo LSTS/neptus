@@ -60,6 +60,9 @@ import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverFactory;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
+import pt.lsts.neptus.mp.maneuvers.DefaultManeuver;
+import pt.lsts.neptus.mp.preview.IManeuverPreview;
+import pt.lsts.neptus.mp.preview.ManPreviewFactory;
 import pt.lsts.neptus.types.XmlInputMethods;
 import pt.lsts.neptus.types.XmlInputMethodsFromFile;
 import pt.lsts.neptus.types.XmlOutputMethods;
@@ -153,6 +156,7 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
     private String originalFilePath = "";
 
     private LinkedHashMap<String, String> feasibleManeuvers = new LinkedHashMap<String, String>();
+    private LinkedHashMap<String, String> customManeuverPreviews = new LinkedHashMap<String, String>();
     private Element xmlFeasibleManeuvers = null;
 
     /**
@@ -249,24 +253,6 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
                 rootElemName = DEFAULT_ROOT_ELEMENT;
             else if (doc.selectSingleNode("/" + DEFAULT_ROOT_ELEMENT_DEPREC) != null)
                 rootElemName = DEFAULT_ROOT_ELEMENT_DEPREC;
-
-            try {
-                // FIXME get feasible maneuvers!
-                xmlFeasibleManeuvers = (Element) doc.selectSingleNode("/" + rootElemName + "/feasibleManeuvers");
-                xmlFeasibleManeuvers = (Element) xmlFeasibleManeuvers.createCopy().detach();
-                List<?> maneuvers = doc.selectNodes("/" + rootElemName
-                        + "/feasibleManeuvers/maneuver/*/annotation/implementation-class");
-
-                for (int i = 0; i < maneuvers.size(); i++) {
-                    Node tmpMan = (Node) maneuvers.get(i);
-                    String manName = tmpMan.getParent().getParent().getName();
-                    feasibleManeuvers.put(manName, tmpMan.getText());
-                }
-            }
-            catch (Exception e) {
-                NeptusLog.pub().debug(e.getMessage());
-                NeptusLog.pub().warn("No maneuvers found for system " + id + "!!");
-            }
 
             this.setId(doc.selectSingleNode("/" + rootElemName + "/properties/id").getText());
             this.setName(doc.selectSingleNode("/" + rootElemName + "/properties/name").getText());
@@ -406,6 +392,37 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
             }
             else {
                 maxDurationHours = MAX_DURATION_H;
+            }
+
+            try {
+                // FIXME get feasible maneuvers!
+                xmlFeasibleManeuvers = (Element) doc.selectSingleNode("/" + rootElemName + "/feasibleManeuvers");
+                xmlFeasibleManeuvers = (Element) xmlFeasibleManeuvers.createCopy().detach();
+                List<?> maneuvers = doc.selectNodes("/" + rootElemName
+                        + "/feasibleManeuvers/maneuver/*/annotation/implementation-class");
+
+                for (int i = 0; i < maneuvers.size(); i++) {
+                    Node tmpMan = (Node) maneuvers.get(i);
+                    String manName = tmpMan.getParent().getParent().getName();
+                    feasibleManeuvers.put(manName, tmpMan.getText());
+                    
+                    // Let us register custom previews
+                    Node previewClassNode = tmpMan.selectSingleNode("../preview-class");
+                    if (previewClassNode != null) {
+                        Maneuver man = ManeuverFactory.createManeuver(manName, feasibleManeuvers.get(manName));
+                        if (man != null && !(man instanceof DefaultManeuver)) {
+                            Class<IManeuverPreview<?>> previewClass = ManPreviewFactory.createPreviewClass(previewClassNode.getText());
+                            if (previewClass != null) {
+                                customManeuverPreviews.put(manName, previewClassNode.getText());
+                                ManPreviewFactory.registerPreview(id, man.getClass(), previewClass);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception e) {
+                NeptusLog.pub().debug(e.getMessage());
+                NeptusLog.pub().warn("No maneuvers found for system " + id + "!!");
             }
 
             nd = doc.selectSingleNode("/" + rootElemName + "/protocols-supported/protocols");
