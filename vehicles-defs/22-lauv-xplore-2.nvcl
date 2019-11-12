@@ -22,6 +22,9 @@
         </appearance>
         <limits>
             <valid-zunits>depth</valid-zunits>
+            <min-speed>0.5</min-speed>
+            <max-speed>2</max-speed>
+            <max-duration-hours>12</max-duration-hours>
         </limits>
         <coordinate-system-label>SNAME</coordinate-system-label>
     </properties>

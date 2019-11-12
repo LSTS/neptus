@@ -22,6 +22,9 @@
         </appearance>
         <limits>
             <valid-zunits>altitude, height</valid-zunits>
+            <min-speed>0</min-speed>
+            <max-speed>10</max-speed>
+            <max-duration-hours>0.3</max-duration-hours>
         </limits>
         <coordinate-system-label>SNAME</coordinate-system-label>
     </properties>
