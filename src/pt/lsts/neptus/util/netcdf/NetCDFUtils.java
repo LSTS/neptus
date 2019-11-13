@@ -77,6 +77,11 @@ public class NetCDFUtils {
     
     public static final String NETCDF_GRP_NAVIGATION_DATA = "navigation_data";
     public static final String NETCDF_GRP_GEOPHYSICAL_DATA = "geophysical_data";
+    
+    public static final String NETCDF_DEGREES_NORTH = "degrees_north";
+    public static final String NETCDF_DEGREE_NORTH = "degree_north";
+    public static final String NETCDF_DEGREES_EAST = "degrees_east";
+    public static final String NETCDF_DEGREE_EAST = "degree_east";
 
     /**
      * Counts the evolution of a multi-for loop variables counters.

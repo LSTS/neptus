@@ -215,10 +215,26 @@ public class NetCDFLoader {
                         searchPair = new Pair<String, Variable>(varL.getShortName(), varL);
                 }
                 if (searchPair == null)
-                    searchPair = NetCDFUtils.findVariableForStandardNameOrName(dataFile, fileName, true, dimDimStrLst,
+                    searchPair = NetCDFUtils.findVariableForStandardNameOrName(dataFile, fileName, false, dimDimStrLst,
                             "latitude", "lat");
-                latName = searchPair.first();
-                latVar = searchPair.second(); 
+                
+                if (searchPair == null) {
+                    // Last try
+                    for (String name : dimVars.keySet()) {
+                        Variable v = dimVars.get(name);
+                        if (v == null)
+                            continue;
+                        String unitsStr = v.getUnitsString();
+                        if (unitsStr != null && (NetCDFUtils.NETCDF_DEGREES_NORTH.equalsIgnoreCase(unitsStr)
+                                || NetCDFUtils.NETCDF_DEGREE_NORTH.equalsIgnoreCase(unitsStr))) {
+                            searchPair = new Pair<String, Variable>(v.getShortName(), v);
+                            break;
+                        }
+                    }
+                }
+
+                latName = searchPair == null ? null : searchPair.first();
+                latVar = searchPair == null ? null : searchPair.second();
             }
 
             if (lonVar == null) {
@@ -232,10 +248,26 @@ public class NetCDFLoader {
                         searchPair = new Pair<String, Variable>(varL.getShortName(), varL);
                 }
                 if (searchPair == null)
-                    searchPair = NetCDFUtils.findVariableForStandardNameOrName(dataFile, fileName, true, dimDimStrLst,
+                    searchPair = NetCDFUtils.findVariableForStandardNameOrName(dataFile, fileName, false, dimDimStrLst,
                             "longitude", "lon");
-                lonName = searchPair.first();
-                lonVar = searchPair.second();
+
+                if (searchPair == null) {
+                    // Last try
+                    for (String name : dimVars.keySet()) {
+                        Variable v = dimVars.get(name);
+                        if (v == null)
+                            continue;
+                        String unitsStr = v.getUnitsString();
+                        if (unitsStr != null && (NetCDFUtils.NETCDF_DEGREES_EAST.equalsIgnoreCase(unitsStr))
+                                || NetCDFUtils.NETCDF_DEGREE_EAST.equalsIgnoreCase(unitsStr)) {
+                            searchPair = new Pair<String, Variable>(v.getShortName(), v);
+                            break;
+                        }
+                    }
+                }
+                
+                lonName = searchPair == null ? null : searchPair.first();
+                lonVar = searchPair == null ? null : searchPair.second();
             }
 
             if (timeVar == null) {

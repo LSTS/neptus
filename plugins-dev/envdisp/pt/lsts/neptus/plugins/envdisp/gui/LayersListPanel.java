@@ -157,7 +157,7 @@ public class LayersListPanel extends JPanel implements PropertiesProvider, Confi
     
     public <W extends Window> LayersListPanel(W parentWindow) {
         this.parentWindow = parentWindow;
-        this.setPreferredSize(new Dimension(600, 400));
+        this.setPreferredSize(new Dimension(680, 400));
         initializeActions();
         initialize();
     }
