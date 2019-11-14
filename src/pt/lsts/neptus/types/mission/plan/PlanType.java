@@ -70,6 +70,7 @@ import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
 import pt.lsts.neptus.mp.SpeedType;
 import pt.lsts.neptus.mp.SpeedType.Units;
 import pt.lsts.neptus.mp.actions.PlanActions;
+import pt.lsts.neptus.mp.element.PlanElements;
 import pt.lsts.neptus.mp.maneuvers.IMCSerialization;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.mp.maneuvers.RowsManeuver;
@@ -89,6 +90,7 @@ import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.ByteUtil;
+import pt.lsts.neptus.util.Dom4JUtil;
 import pt.lsts.neptus.util.NameNormalizer;
 
 /**
@@ -106,6 +108,8 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, NameId {
 
     protected PlanActions startActions = new PlanActions();
     protected PlanActions endActions = new PlanActions();
+    
+    protected PlanElements planElements = new PlanElements();
 
     private MapType planMap = new MapType();
     private MapGroup mapGroup = null;
@@ -198,6 +202,7 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, NameId {
         graph = null;
         startActions.clearMessages();
         endActions.clearMessages();
+        planElements.getPlanElements().clear();
 
         try {
             Document doc = DocumentHelper.parseText(xml);
@@ -234,6 +239,11 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, NameId {
             nd = doc.selectSingleNode("/node()/actions/end-actions");
             if (nd != null) {
                 endActions.load((Element)nd);
+            }
+
+            nd = doc.selectSingleNode("/node()/elements");
+            if (nd != null) {
+                planElements.load(nd.asXML());
             }
         }
         catch (Exception e) {
@@ -394,6 +404,12 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, NameId {
                 acElm.add(eActionsElm);
         }
 
+        org.w3c.dom.Document w3cDoc = planElements.asElement("elements").getOwnerDocument();
+        Document d4jDoc = Dom4JUtil.convertDOMtoDOM4J(w3cDoc);
+        Element planElementsElm = (Element) d4jDoc.getRootElement();
+        if (planElementsElm.hasContent())
+            root.add(planElementsElm);
+
         //        NeptusLog.pub().info("<###>Plan-----------------\n"+document.asXML());
         return document;
     }
@@ -535,6 +551,20 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, NameId {
     public PlanType clonePlan() {
         PlanType plan = new PlanType(this.missionType);
         plan.load(asXML());
+//        plan.setId(getId());
+//        Vector<VehicleType> vehicles = new Vector<VehicleType>();
+//        vehicles.addAll(getVehicles());
+//        plan.setVehicles(vehicles);
+//
+//        plan.graph = graph.clone();
+//
+//        plan.startActions = new PlanActions();
+//        plan.startActions.load(startActions.asElement("start-actions"));
+//        plan.endActions = new PlanActions();
+//        plan.endActions.load(endActions.asElement("end-actions"));
+//
+//        plan.planElements = new PlanElements();
+//        plan.planElements.load(planElements.asElement("elements"));
         return plan;		
     }
 
@@ -787,6 +817,13 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, NameId {
      */
     public PlanActions getEndActions() {
         return endActions;
+    }
+    
+    /**
+     * @return the planElements
+     */
+    public PlanElements getPlanElements() {
+        return planElements;
     }
     
     public static void main(String[] args) throws Exception {

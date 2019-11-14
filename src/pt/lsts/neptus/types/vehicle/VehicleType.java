@@ -63,6 +63,7 @@ import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
 import pt.lsts.neptus.mp.maneuvers.DefaultManeuver;
 import pt.lsts.neptus.mp.preview.IManeuverPreview;
 import pt.lsts.neptus.mp.preview.ManPreviewFactory;
+import pt.lsts.neptus.mp.element.PlanElementsFactory;
 import pt.lsts.neptus.types.XmlInputMethods;
 import pt.lsts.neptus.types.XmlInputMethodsFromFile;
 import pt.lsts.neptus.types.XmlOutputMethods;
@@ -172,6 +173,8 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
 
     private ManeuverFactory manFactory = null;
     
+    private PlanElementsFactory planElementsFactory = null;
+
     private ManeuverLocation.Z_UNITS[] validZUnits = null;
 
     public VehicleType() {
@@ -423,6 +426,18 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
             catch (Exception e) {
                 NeptusLog.pub().debug(e.getMessage());
                 NeptusLog.pub().warn("No maneuvers found for system " + id + "!!");
+            }
+
+            try {
+                Node planElementsNds = doc.selectSingleNode("/" + rootElemName + "/planElements");
+                if (planElementsNds != null) {
+                    String xmlStr = planElementsNds.detach().asXML();
+                    PlanElementsFactory pef = new PlanElementsFactory(this.getId(), xmlStr);
+                    planElementsFactory = pef;
+                }
+            }
+            catch (Exception e) {
+                NeptusLog.pub().debug(e);
             }
 
             nd = doc.selectSingleNode("/" + rootElemName + "/protocols-supported/protocols");
@@ -1085,6 +1100,20 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
             NeptusLog.pub().warn("No maneuvers found for system " + id + "!!");
         }
 
+        try {
+            if (planElementsFactory != null) {
+                org.w3c.dom.Element elmW3c = planElementsFactory.asXmlElement();
+                if (elmW3c != null) {
+                    Document docPE = Dom4JUtil.convertDOMtoDOM4J(elmW3c.getOwnerDocument());
+                    root.add(docPE.getRootElement().detach());
+                }
+            }
+        }
+        catch (Exception e) {
+            NeptusLog.pub().debug(e);
+            NeptusLog.pub().warn("No plan elements found for system " + id + "!!");
+        }
+        
         // Element sensors = root.addElement( "sensors" );
 
         String protocolsStr = "";
@@ -1269,5 +1298,12 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
      */
     public void setValidZUnits(ManeuverLocation.Z_UNITS[] validZUnits) {
         this.validZUnits = validZUnits == null || validZUnits.length == 0 ? null : validZUnits;
+    }
+    
+    /**
+     * @return the planElementsFactory
+     */
+    public PlanElementsFactory getPlanElementsFactory() {
+        return planElementsFactory;
     }
 }

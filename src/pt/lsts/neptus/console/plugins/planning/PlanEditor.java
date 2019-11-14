@@ -79,6 +79,7 @@ import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -107,6 +108,8 @@ import pt.lsts.neptus.console.plugins.planning.edit.ManeuverChanged;
 import pt.lsts.neptus.console.plugins.planning.edit.ManeuverPropertiesPanel;
 import pt.lsts.neptus.console.plugins.planning.edit.ManeuverRemoved;
 import pt.lsts.neptus.console.plugins.planning.edit.ManeuverTranslated;
+import pt.lsts.neptus.console.plugins.planning.edit.PlanElementChanged;
+import pt.lsts.neptus.console.plugins.planning.edit.PlanPayloadSettingsChange;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanRotated;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanSettingsChanged;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanTransitionsChanged;
@@ -115,6 +118,7 @@ import pt.lsts.neptus.console.plugins.planning.edit.PlanTranslated;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanVehiclesChange;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanZChanged;
 import pt.lsts.neptus.console.plugins.planning.overview.MissionOverviewPanel;
+import pt.lsts.neptus.gui.MenuScroller;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.VehicleChooser;
 import pt.lsts.neptus.gui.VehicleSelectionDialog;
@@ -128,11 +132,15 @@ import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
 import pt.lsts.neptus.mp.SpeedType;
 import pt.lsts.neptus.mp.SpeedType.Units;
 import pt.lsts.neptus.mp.actions.PlanActions;
+import pt.lsts.neptus.mp.element.IPlanElement;
+import pt.lsts.neptus.mp.element.IPlanElementEditorInteraction;
+import pt.lsts.neptus.mp.element.PlanElementsFactory;
 import pt.lsts.neptus.mp.maneuvers.Goto;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.mp.preview.PlanSimulationOverlay;
 import pt.lsts.neptus.mp.preview.SimDepthProfile;
 import pt.lsts.neptus.params.ManeuverPayloadConfig;
+import pt.lsts.neptus.params.PlanPayloadConfig;
 import pt.lsts.neptus.planeditor.PlanTransitionsSimpleEditor;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
@@ -194,6 +202,9 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
     protected PlanSimulationOverlay overlay = null;
     protected SimDepthProfile sdp = null;
 
+    protected IPlanElement<?> activePlanElement = null;
+    protected PlanElementsFactory pef = null;
+    
     protected MissionOverviewPanel overviewPanel = null;
     protected JPanel bottomPanel = new JPanel(new BorderLayout());
     private boolean overviewIsVisible = false;
@@ -219,6 +230,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
     private String planStatistics = "";
 
     private String maneuverUndoRedoXml = null;
+    private String planElementUndoRedoXml = null;
 
     private SwingWorker<Void, Void> editExitDoubleClickSwingWorker = null;
 
@@ -440,7 +452,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
             if (delegate != null) {
                 delegate.setActive(false, source);
                 getPropertiesPanel().getEditBtn().setSelected(false);
-                delegate = null;
+                resetDelegate();
             }
             Container c = source;
             while (c.getParent() != null && !(c.getLayout() instanceof BorderLayout))
@@ -520,17 +532,18 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                     Maneuver man = getPropertiesPanel().getManeuver();
                     if (man instanceof StateRendererInteraction) {
                         if (getPropertiesPanel().getEditBtn().isSelected()) {
-                            delegate = (StateRendererInteraction) man;
-                            delegate.setActive(true, renderer);
+                            updateDelegate((StateRendererInteraction) man, renderer);
                             
                             saveManeuverXmlState();
+                            savePlanElementXmlState();
                         }
                         else {
                             delegate.setActive(false, renderer);
-                            delegate = null;
+                            resetDelegate();
                             planElem.recalculateManeuverPositions(renderer);
                             
                             saveManeuverXmlToUndoManager();
+                            savePlanElementXmlToUndoManager();
                         }
                     }
                 }
@@ -818,6 +831,17 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
         
         g.setTransform(renderer.getIdentity());
         
+        if (plan != null) {
+            for (IPlanElement<?> pe : plan.getPlanElements().getPlanElements()) {
+                Renderer2DPainter painter = pe.getPainter();
+                if (painter != null) {
+                    Graphics2D gt = (Graphics2D) g.create();
+                    pe.getPainter().paint(gt, renderer);
+                    gt.dispose();
+                }
+            }
+        }
+        
         if (planElem != null) {
             planElem.setRenderer(renderer);
             planElem.paint((Graphics2D) g.create(), renderer);
@@ -825,8 +849,14 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
 
         g.setFont(new Font("Helvetica", Font.BOLD, 14));
         if (delegate != null) {
-            String txt = I18n.textf("Editing %manName - Double click or press ESC to end",
-                    ((Maneuver) delegate).getId());
+            delegate.paintInteraction(g, renderer);
+            
+            String txtDelegate;
+            if (delegate instanceof Maneuver)
+                txtDelegate = ((Maneuver) delegate).getId();
+            else
+                txtDelegate = delegate.getName();
+            String txt = I18n.textf("Editing %manName - Double click or press ESC to end", txtDelegate);
             g.setColor(Color.black);
             g.drawString(txt, 55, 15);
             g.setColor(Color.white);
@@ -908,10 +938,12 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
 
         if (vt != null) {
             this.mf = vt.getManeuverFactory();
+            this.pef = vt.getPlanElementsFactory();
         }
         else {
             NeptusLog.pub().warn("No vehicle type creating empty maneuver factory for plan " + plan.getId());
             this.mf = new ManeuverFactory(null);
+            this.pef = new PlanElementsFactory(getMainVehicleId());
         }
 
         for (Maneuver man : plan.getGraph().getAllManeuvers()) {
@@ -957,8 +989,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    delegate = (StateRendererInteraction) man;
-                    delegate.setActive(true, renderer);
+                    updateDelegate((StateRendererInteraction) man, renderer);
                 }
             };
             actions.add(editMan);
@@ -1070,6 +1101,19 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
             }
         }
 
+        if (event.getClickCount() == 2) {
+            planElem.iterateManeuverBack(event.getPoint());
+            final Maneuver man = planElem.iterateManeuverBack(event.getPoint());
+            if (man != null) {
+                if (man instanceof StateRendererInteraction) {
+                    updateDelegate((StateRendererInteraction) man, source);
+                    getPropertiesPanel().getEditBtn().setSelected(true);
+                    saveManeuverXmlState();
+                }
+                return;
+            }
+        }
+
         if (event.isControlDown() && event.getButton() == MouseEvent.BUTTON1) {
             Maneuver m = plan.getGraph().getLastManeuver();
             addManeuverAtEnd(event.getPoint(), m.getType());
@@ -1160,9 +1204,8 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                             }
 
                             boolean newZ = ZValueSelector.showHeightDepthDialog(getConsole().getMainPanel(),
-                                    plan.getVehicle(), loc, I18n.text("Plan depth / altitude"));
+                                    plan.getVehicle(), loc, I18n.text("Plan Z "));
                             if (newZ) {
-                                
                                 LinkedHashMap<String, Z_UNITS> prevUnits = new LinkedHashMap<String, ManeuverLocation.Z_UNITS>();
                                 LinkedHashMap<String, Double> prevValues = new LinkedHashMap<String, Double>();
                                 for (Maneuver m : plan.getGraph().getAllManeuvers()) {
@@ -1237,7 +1280,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                             new ImageIcon(ImageUtils.getScaledImage("images/buttons/wizard.png", 16, 16)));
                     planSettings.add(pVel);
 
-                    AbstractAction pPayload = new AbstractAction(I18n.text("Payload settings...")) {
+                    AbstractAction pPayload = new AbstractAction(I18n.text("Maneuvers payload settings...")) {
                         private static final long serialVersionUID = 1L;
 
                         @Override
@@ -1277,8 +1320,9 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                             psp.setProperties(properties);
 
                             final PropertySheetDialog propertySheetDialog = PropertiesEditor.createWindow(getConsole(),
-                                    true, psp, I18n.text("Payload Settings to apply to entire plan"),
-                                    "<html>" + I18n.text("Payload Settings to apply to entire plan") + extraTxt);
+                                    true, psp, I18n.text("Maneuvers Payload Settings"),
+                                    "<html>" + I18n.text("Maneuvers Payload Settings to Apply to entire plan maneuvers")
+                                            + extraTxt);
                             if (propertySheetDialog.ask()) {
                                 payloadConfig.setProperties(properties);
                                 PlanActions newPlanActions = pivot.getStartActions();
@@ -1289,7 +1333,8 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                                         sa = (PlanActions) sa.clone();
                                     originalPlanActionsPerManeuver.put(m.getId(), sa);
                                 });
-                                AllManeuversPayloadSettingsChanged undoRedo = new AllManeuversPayloadSettingsChanged(plan, newPlanActions, originalPlanActionsPerManeuver);
+                                AllManeuversPayloadSettingsChanged undoRedo = new AllManeuversPayloadSettingsChanged(
+                                        plan, newPlanActions, originalPlanActionsPerManeuver);
                                 undoRedo.redo();
                                 manager.addEdit(undoRedo);
                                 
@@ -1403,6 +1448,56 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
 
                     // popup.addSeparator();
                 }
+                
+                AbstractAction planPayload = new AbstractAction(I18n.text("Plan General Settings")) {
+                    private static final long serialVersionUID = 1L;
+                    @SuppressWarnings("serial")
+                    private PropertySheetPanel psp = new PropertySheetPanel() {{
+                        setEditorFactory(PropertiesEditor.getPropertyEditorRegistry());
+                        setRendererFactory(PropertiesEditor.getPropertyRendererRegistry());
+                    }};
+                    
+                    private String beforeStartActions = plan.getStartActions().asDocument("startActions").asXML();
+                    private String beforeEndActions = plan.getEndActions().asDocument("endActions").asXML();
+                    
+                    private PlanPayloadConfig payloadConfig = new PlanPayloadConfig(plan.getVehicle(), plan,
+                            psp);
+                    private DefaultProperty[] properties = payloadConfig.getProperties();
+                    
+                    {
+                        if (properties.length == 0)
+                            this.setEnabled(false);
+                    }
+
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        psp.setMode(PropertySheet.VIEW_AS_CATEGORIES);
+                        psp.setToolBarVisible(false);
+                        psp.setSortingCategories(true);
+
+                        psp.setDescriptionVisible(true);
+
+                        if (properties.length > 0)
+                            ((JMenuItem) e.getSource()).setEnabled(false);
+                        
+                        psp.setProperties(properties);
+
+                        final PropertySheetDialog propertySheetDialog = PropertiesEditor.createWindow(getConsole(),
+                                true, psp, I18n.text("Plan General Settings"),
+                                "<html>" + I18n.text("Plan General Settings"));
+                        if (propertySheetDialog.ask()) {
+                            payloadConfig.setProperties(properties);
+                            
+                            PlanPayloadSettingsChange ppsc = new PlanPayloadSettingsChange(plan, beforeStartActions,
+                                    beforeEndActions);
+                            manager.addEdit(ppsc);
+                        }
+                    }
+                };
+                planPayload.putValue(AbstractAction.SMALL_ICON,
+                        new ImageIcon(ImageUtils.getScaledImage("images/buttons/wizard.png", 16, 16)));
+                popup.add(planPayload).setEnabled(planPayload.isEnabled());
+
                 AbstractAction pTransitions = new AbstractAction(I18n.text("Plan Transitions")) {
                     private static final long serialVersionUID = 1L;
 
@@ -1460,6 +1555,8 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                 JMenu pStatistics = PlanUtil.getPlanStatisticsAsJMenu(plan, I18n.text("Edited Plan Statistics"));
                 pStatistics.setIcon(new ImageIcon(ImageUtils.getScaledImage("images/buttons/wizard.png", 16, 16)));
                 popup.add(pStatistics);
+
+                PlanEditorMenus.addPlanElementsMenuItems(this, plan, event, source, popup, manager);
 
                 popup.addSeparator();
 
@@ -1524,8 +1621,36 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                 // popup.add(act);
             }
 
+            MenuScroller.setScrollerFor(popup, getConsole(), 150, 0, 0);
             popup.show(source, (int) mousePoint.getX(), (int) mousePoint.getY());
         }
+    }
+
+    protected void updateDelegate(IPlanElement<?> pel, StateRenderer2D renderer) {
+        activePlanElement = pel;
+        savePlanElementXmlState();
+        delegate = pel.getEditor();
+        delegate.setActive(true, renderer);
+    }
+
+    protected void updateDelegate(StateRendererInteraction sri, StateRenderer2D renderer) {
+        activePlanElement = null;
+        delegate = sri;
+        delegate.setActive(true, renderer);
+    }
+
+    protected void resetDelegate() {
+        if (delegate == null)
+            return;
+        if (delegate instanceof IPlanElementEditorInteraction<?> && activePlanElement != null) {
+            IPlanElementEditorInteraction<?> pai = (IPlanElementEditorInteraction<?>) delegate;
+            if (pai.hasChanges()) {
+                activePlanElement.setElement(pai.getUpdatedElement());
+                savePlanElementXmlToUndoManager();
+            }
+        }
+        activePlanElement = null;
+        delegate = null;
     }
 
     /**
@@ -1536,19 +1661,35 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
         getPropertiesPanel().setManeuver(getPropertiesPanel().getManeuver());
         getPropertiesPanel().getEditBtn().setSelected(false);
         planElem.recalculateManeuverPositions(source);
-        delegate = null;
+        resetDelegate();
         saveManeuverXmlToUndoManager();
     }
 
     private void saveManeuverXmlState() {
-        maneuverUndoRedoXml = getPropertiesPanel().getManeuver().getManeuverXml();
+        Maneuver man = getPropertiesPanel().getManeuver();
+        if (man != null)
+            maneuverUndoRedoXml = getPropertiesPanel().getManeuver().getManeuverXml();
     }
 
     private void saveManeuverXmlToUndoManager() {
-        if (maneuverUndoRedoXml != null) {
-            ManeuverChanged edit = new ManeuverChanged(getPropertiesPanel().getManeuver(), plan, maneuverUndoRedoXml);
+        Maneuver man = getPropertiesPanel().getManeuver();
+        if (maneuverUndoRedoXml != null && man != null) {
+            ManeuverChanged edit = new ManeuverChanged(man, plan, maneuverUndoRedoXml);
             maneuverUndoRedoXml = null;
             manager.addEdit(edit);
+        }
+    }
+
+    private void savePlanElementXmlState() {
+        if (activePlanElement != null)
+            planElementUndoRedoXml = activePlanElement.getElementAsXml();
+    }
+
+    private void savePlanElementXmlToUndoManager() {
+        if (planElementUndoRedoXml != null && activePlanElement != null) {
+            PlanElementChanged pecEvt = new PlanElementChanged(activePlanElement, plan, planElementUndoRedoXml);
+            planElementUndoRedoXml = null;
+            manager.addEdit(pecEvt);
         }
     }
 
@@ -1910,7 +2051,8 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
 
         if (delegate != null) {
             delegate.mousePressed(event, renderer);
-            getPropertiesPanel().setManeuver((Maneuver) delegate);
+            if (delegate instanceof Maneuver)
+                getPropertiesPanel().setManeuver((Maneuver) delegate);
             return;
         }
 
@@ -1951,7 +2093,8 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
 
         if (delegate != null) {
             delegate.mouseReleased(e, renderer);
-            getPropertiesPanel().setManeuver((Maneuver) delegate);
+            if (delegate instanceof Maneuver)
+                getPropertiesPanel().setManeuver((Maneuver) delegate);
             return;
         }
 

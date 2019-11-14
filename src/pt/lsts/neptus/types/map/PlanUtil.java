@@ -36,13 +36,16 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Vector;
+import java.util.stream.Collectors;
 
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
+import com.l2fprod.common.propertysheet.PropertySheetPanel;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.plugins.planning.edit.ManeuverPropertiesPanel;
@@ -55,12 +58,17 @@ import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
 import pt.lsts.neptus.mp.SpeedType;
 import pt.lsts.neptus.mp.SpeedType.Units;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.mp.element.IPlanElement;
+import pt.lsts.neptus.mp.element.PlanElements;
+import pt.lsts.neptus.mp.element.PlanElementsFactory;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.mp.maneuvers.ManeuverWithSpeed;
 import pt.lsts.neptus.mp.maneuvers.StatisticsProvider;
 import pt.lsts.neptus.mp.preview.PlanSimulator;
 import pt.lsts.neptus.plugins.PluginProperty;
 import pt.lsts.neptus.plugins.PluginUtils;
+import pt.lsts.neptus.mp.preview.SpeedConversion;
+import pt.lsts.neptus.params.PlanPayloadConfig;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
@@ -554,13 +562,45 @@ public class PlanUtil {
             });
         }
 
-        // FIXME Fix plan actions
-        
+        VehicleType newVehicle = plan.getVehicleType();
+
+        // Change the plan actions
+        @SuppressWarnings("serial")
+        PropertySheetPanel propsPanel = new PropertySheetPanel() {{
+            setEditorFactory(PropertiesEditor.getPropertyEditorRegistry());
+            setRendererFactory(PropertiesEditor.getPropertyRendererRegistry());
+        }};
+        PlanPayloadConfig planPayloadConfig = new PlanPayloadConfig(plan.getVehicle(), plan, propsPanel);
+        planPayloadConfig.getProperties();
+
+        // Change the maneuvers actions
         ManeuverPropertiesPanel propertiesPanel = new ManeuverPropertiesPanel();
         propertiesPanel.setPlan(plan); // This call has to be before setManeuver (pdias 20130822)
         for (Maneuver man : plan.getGraph().getAllManeuvers()) {
             propertiesPanel.setManeuver(man);
             propertiesPanel.setProps();
+        }
+        
+        // Change the plan elements
+        PlanElementsFactory pef = newVehicle.getPlanElementsFactory();
+        if (pef == null || pef.getPlanElementsSize() == 0) {
+            plan.getPlanElements().getPlanElements().clear();
+        }
+        else {
+            List<Class<IPlanElement<?>>> peiClasses = pef.getPlanElementsClasses();
+            List<IPlanElement<?>> toRemoveElements = plan.getPlanElements().getPlanElements().stream()
+                    .filter(t -> !peiClasses.contains(t.getClass())).collect(Collectors.toList());
+            toRemoveElements.stream().forEach(e -> {
+                plan.getPlanElements().getPlanElements().remove(e);
+            });
+            peiClasses.stream().forEach(peClass -> {
+                PlanElements pElems = plan.getPlanElements();
+                IPlanElement<?> pe = pElems.getPlanElements().stream().filter(t -> t.getClass() == peClass)
+                        .findFirst().orElse(null);
+                if (pe != null)
+                    pef.configureInstance(pe);
+            });
+            
         }
         
         NeptusLog.pub().debug(String.format("ORIGINAL PLAN:\n%s\n\nNEW PLAN:\\n%s\n", originalPlan.asXML(), plan.asXML()));
