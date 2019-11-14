@@ -70,7 +70,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Vector;
-import java.util.function.Predicate;
 
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
@@ -1205,9 +1204,8 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                             }
 
                             boolean newZ = ZValueSelector.showHeightDepthDialog(getConsole().getMainPanel(),
-                                    plan.getVehicle(), loc, I18n.text("Plan depth / altitude"));
+                                    plan.getVehicle(), loc, I18n.text("Plan Z "));
                             if (newZ) {
-                                
                                 LinkedHashMap<String, Z_UNITS> prevUnits = new LinkedHashMap<String, ManeuverLocation.Z_UNITS>();
                                 LinkedHashMap<String, Double> prevValues = new LinkedHashMap<String, Double>();
                                 for (Maneuver m : plan.getGraph().getAllManeuvers()) {
@@ -1322,8 +1320,9 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                             psp.setProperties(properties);
 
                             final PropertySheetDialog propertySheetDialog = PropertiesEditor.createWindow(getConsole(),
-                                    true, psp, I18n.text("Payload Settings to apply to entire plan"),
-                                    "<html>" + I18n.text("Payload Settings to apply to entire plan") + extraTxt);
+                                    true, psp, I18n.text("Maneuvers Payload Settings"),
+                                    "<html>" + I18n.text("Maneuvers Payload Settings to Apply to entire plan maneuvers")
+                                            + extraTxt);
                             if (propertySheetDialog.ask()) {
                                 payloadConfig.setProperties(properties);
                                 PlanActions newPlanActions = pivot.getStartActions();
@@ -1334,7 +1333,8 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                                         sa = (PlanActions) sa.clone();
                                     originalPlanActionsPerManeuver.put(m.getId(), sa);
                                 });
-                                AllManeuversPayloadSettingsChanged undoRedo = new AllManeuversPayloadSettingsChanged(plan, newPlanActions, originalPlanActionsPerManeuver);
+                                AllManeuversPayloadSettingsChanged undoRedo = new AllManeuversPayloadSettingsChanged(
+                                        plan, newPlanActions, originalPlanActionsPerManeuver);
                                 undoRedo.redo();
                                 manager.addEdit(undoRedo);
                                 
