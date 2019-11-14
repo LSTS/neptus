@@ -1321,7 +1321,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
 
                             final PropertySheetDialog propertySheetDialog = PropertiesEditor.createWindow(getConsole(),
                                     true, psp, I18n.text("Maneuvers Payload Settings"),
-                                    "<html>" + I18n.text("Maneuvers Payload Settings to Apply to entire plan maneuvers")
+                                    "<html>" + I18n.text("Maneuvers payload settings to apply to entire plan maneuvers")
                                             + extraTxt);
                             if (propertySheetDialog.ask()) {
                                 payloadConfig.setProperties(properties);
