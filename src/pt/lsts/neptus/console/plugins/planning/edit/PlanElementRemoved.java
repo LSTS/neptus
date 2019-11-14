@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -15,7 +15,7 @@
  *
  * Modified European Union Public Licence - EUPL v.1.1 Usage
  * Alternatively, this file may be used under the terms of the Modified EUPL,
- * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
+ * Version 1.1 only (the "Licence"), appearing in the file LICENSE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
  * law or agreed to in writing, software distributed under the Licence is
@@ -27,8 +27,8 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: José Pinto
- * Nov 29, 2011
+ * Author: pdias
+ * 10/05/2017
  */
 package pt.lsts.neptus.console.plugins.planning.edit;
 
@@ -37,67 +37,47 @@ import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.mp.Maneuver;
-import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
+import pt.lsts.neptus.mp.element.IPlanElement;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 
 /**
- * @author zp
+ * @author pdias
  *
  */
-public class PlanTranslated extends AbstractUndoableEdit {
+public class PlanElementRemoved extends AbstractUndoableEdit {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 5622630152933197602L;
+
     protected PlanType plan;
-    protected double deltaEast, deltaNorth;
+    protected IPlanElement<?> planElement;
 
-    public PlanTranslated(PlanType plan, double deltaEast, double deltaNorth) {
-        this.plan = plan;     
-        this.deltaEast = deltaEast;
-        this.deltaNorth = deltaNorth;
+    public PlanElementRemoved(IPlanElement<?> planElement, PlanType plan) {
+        this.planElement = planElement;
+        this.plan = plan;
     }
 
     @Override
     public boolean canUndo() {
         return true;
     }
-
+    
     @Override
     public boolean canRedo() {
         return true;
     }
-
+    
     @Override
     public String getPresentationName() {
-        return I18n.text("Move the entire plan");
+        return I18n.textf("Remove the planElement %maneuverId", planElement.getName());
     }
-
+    
     @Override
     public void undo() throws CannotUndoException {
-        for (Maneuver man : plan.getGraph().getAllManeuvers()) {
-            if (man != null && man instanceof LocatedManeuver) {
-                ((LocatedManeuver)man).translate(-deltaNorth, -deltaEast, 0);
-            }
-        }
-        
-        plan.getPlanElements().getPlanElements().stream().forEach(pe -> pe.translate(-deltaNorth, -deltaEast, 0));
+        plan.getPlanElements().getPlanElements().add(planElement);
     }
-
+    
     @Override
-    public void redo() throws CannotRedoException {      
-        for (Maneuver man : plan.getGraph().getAllManeuvers()) {
-            if (man != null && man instanceof LocatedManeuver) {
-                ((LocatedManeuver)man).translate(deltaNorth, deltaEast, 0);
-            }
-        }
-
-        plan.getPlanElements().getPlanElements().stream().forEach(pe -> pe.translate(-deltaNorth, -deltaEast, 0));
+    public void redo() throws CannotRedoException {
+        plan.getPlanElements().getPlanElements().remove(planElement);
     }
-
-    /**
-     * @return the plan
-     */
-    public PlanType getPlan() {
-        return plan;
-    }       
 }
