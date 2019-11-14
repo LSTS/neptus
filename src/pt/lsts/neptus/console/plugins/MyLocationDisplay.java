@@ -591,7 +591,8 @@ public class MyLocationDisplay extends ConsolePanel implements Renderer2DPainter
                             + I18n.textc("Heading external", "indication that the heading comes from external source")
                             : "");
         }
-        g.drawString(meTextToDraw, 18, 14);
+        
+        GuiUtils.drawText(meTextToDraw, 18, 14, Color.WHITE, Color.BLACK, g);
 
         g.dispose();
     }

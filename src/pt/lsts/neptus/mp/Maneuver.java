@@ -319,14 +319,7 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
         Rectangle2D stringBounds = g2d.getFontMetrics().getStringBounds(text, g2d);
 
         int x = (int) (-stringBounds.getWidth() / 2), y = (int) (stringBounds.getHeight() + 5);
-        g2d.setColor(Color.BLACK);
-        g2d.drawString(text, x + 1, y + 1);
-        g2d.drawString(text, x - 1, y + 1);
-        g2d.drawString(text, x + 1, y - 1);
-        g2d.drawString(text, x - 1, y - 1);
-
-        g2d.setColor(Color.WHITE);
-        g2d.drawString(text, x, y);
+        GuiUtils.drawText(text, x, y, Color.WHITE, Color.BLACK, g2d);
         g2d.setFont(oldFont);
     }
 
