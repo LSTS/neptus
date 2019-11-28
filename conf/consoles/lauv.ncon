@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <console name="Neptus Console" width="1366" height="727" resizable="true" mission-file="../../missions/APDL/missao-apdl.nmisz" main-vehicle="lauv-xplore-1">
-  <!-- Data saved on 2019-10-15T15:57:02.0Z with Neptus version 2019.08.1-dev (compiled on 2019-10-15, gtag/20170721-rep17-arpao-994-ga1f67c523). -->
+  <!-- Data saved on 2019-11-28T15:46:17.0Z with Neptus version 2019.10.2-dev (compiled on 2019-11-28, gneptus-2019.10.1-177-g47997f090-dirty). -->
   <mainpanel name="console main panel">
     <subpanel class="pt.lsts.neptus.console.plugins.containers.MigLayoutContainer" x="0" y="0" width="1366" height="643">
       <properties>
@@ -202,6 +202,12 @@
     </layer>
     <layer class="pt.lsts.neptus.plugins.position.painter.SystemInfoPainter" opacity="1.0">
       <properties/>
+    </layer>
+    <layer class="pt.lsts.neptus.plugins.envdisp.NetCDFDataVisualization" opacity="1.0">
+      <properties/>
+      <aux>
+        <properties/>
+      </aux>
     </layer>
   </layers>
   <interactions>
