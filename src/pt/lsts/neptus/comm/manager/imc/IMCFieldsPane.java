@@ -150,7 +150,7 @@ public class IMCFieldsPane {
         
         IMCMessage msg = IMCDefinition.getInstance().create(getMessageName());
         JLabel previousLabel = null;
-        
+        System.err.println("Numer of fields: "+m_fields.size());
         for (int i = 0; i < m_fields.size(); i++) {
             String field = m_fields.get(i);
             
@@ -173,11 +173,23 @@ public class IMCFieldsPane {
                     
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        IMCFieldsPane inceptionFields = new IMCFieldsPane((String) messagesComboBox.getSelectedItem()); 
+                        IMCFieldsPane inceptionFields = new IMCFieldsPane((String) messagesComboBox.getSelectedItem());
+                        JPanel panelCeption = inceptionFields.getContents();
                         JDialog dg = new JDialog(SwingUtilities.getWindowAncestor(IMCFieldsPane.this.getContents()),
                                 ModalityType.DOCUMENT_MODAL);
+                        JButton insert = new JButton("Insert");
+                        insert.addActionListener(new ActionListener() {
+                            
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                // TODO Gerar msg com os campos
+                                
+                                
+                            }
+                        });
+                        panelCeption.add(insert, BorderLayout.SOUTH);
                         dg.setTitle("Insert Inline IMC Message");
-                        dg.setContentPane(inceptionFields.getContents());
+                        dg.setContentPane(panelCeption);
                         dg.setSize(500, 500);
                         dg.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
                         GuiUtils.centerParent(dg, (Window) dg.getParent());
@@ -191,10 +203,10 @@ public class IMCFieldsPane {
                 vertical.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).
                     addComponent(label).addComponent(messagesComboBox).addComponent(edit));
             }
-            else if(dType.equalsIgnoreCase("message-list")) {
-                //TODO list of Message?
-                
-            }
+//            else if(dType.equalsIgnoreCase("message-list")) {
+//                //TODO list of Message?
+//                
+//            }
             else {
                 JTextField tField = new JTextField(String.valueOf(msg.getValue(field)));
                 label.setLabelFor(tField);
@@ -228,8 +240,8 @@ public class IMCFieldsPane {
                 return new Dimension(450, 250);
             }
         };
-        this.content.add(holder_Hfields, BorderLayout.CENTER);
-        this.content.add(scrollable, BorderLayout.SOUTH);
+        this.content.add(holder_Hfields, BorderLayout.NORTH);
+        this.content.add(scrollable, BorderLayout.CENTER);
 
     }
 

@@ -127,7 +127,7 @@ public class ImcMessageSenderPanel extends JPanel {
     /**
      * 
      */
-    public ImcMessageSenderPanel2() {
+    public ImcMessageSenderPanel() {
         initialize();
     }
 
@@ -197,9 +197,9 @@ public class ImcMessageSenderPanel extends JPanel {
         String mgsName = (String) getMessagesComboBox().getSelectedItem();
         System.err.println("Creating IMCFieldsPane for message: "+mgsName);
         fields = new IMCFieldsPane(mgsName);
+        holder_footer.setPreferredSize(new Dimension((80*8+20), 46));
         tabs.add("General Settings", holder_config);
         tabs.add("Message Fields", fields.getContents());
-        holder_footer.setPreferredSize(new Dimension((80*8), 46));
         this.setLayout(new BorderLayout());
         add(tabs, BorderLayout.CENTER);
         add(holder_footer, BorderLayout.SOUTH);
@@ -223,12 +223,12 @@ public class ImcMessageSenderPanel extends JPanel {
                         }
                         // all components have been created
                         String mName = (String) getMessagesComboBox().getSelectedItem();
-                        if (ImcMessageSenderPanel2.this.fields == null) {
+                        if (ImcMessageSenderPanel.this.fields == null) {
                             fields = new IMCFieldsPane(mName);
                             tabs.setComponentAt(1,fields.getContents());
                             tabs.repaint();
                         }
-                        else if (!mName.equals(ImcMessageSenderPanel2.this.fields.getMessageName())) {
+                        else if (!mName.equals(ImcMessageSenderPanel.this.fields.getMessageName())) {
                             System.err.println("changed IMC Message");
                             fields = new IMCFieldsPane(mName);
                             tabs.setComponentAt(1,fields.getContents());
@@ -371,7 +371,7 @@ public class ImcMessageSenderPanel extends JPanel {
                     String mName = (String) getMessagesComboBox().getSelectedItem();
                     IMCMessage sMsg = getOrCreateMessage(mName);
                     editor.setMessage(sMsg);
-                    JDialog dg = new JDialog(SwingUtilities.getWindowAncestor(ImcMessageSenderPanel2.this),
+                    JDialog dg = new JDialog(SwingUtilities.getWindowAncestor(ImcMessageSenderPanel.this),
                             ModalityType.DOCUMENT_MODAL);
                     dg.setContentPane(editor);
                     dg.setSize(500, 500);
@@ -550,7 +550,7 @@ public class ImcMessageSenderPanel extends JPanel {
     }
 
     public static JFrame getFrame() {
-        JFrame frame = GuiUtils.testFrame(new ImcMessageSenderPanel2(), "Teste 1,2", 500, 500);
+        JFrame frame = GuiUtils.testFrame(new ImcMessageSenderPanel(), "Teste 1,2", 500, 500);
         frame.setSize(600, 500);
         frame.setTitle("IMC Message Sender (by UDP)");
         ArrayList<Image> imageList = new ArrayList<Image>();
@@ -567,7 +567,7 @@ public class ImcMessageSenderPanel extends JPanel {
     @SuppressWarnings("static-access")
     public static void main(String[] args) {
         ConfigFetch.initialize();
-        new ImcMessageSenderPanel2().getFrame().setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        new ImcMessageSenderPanel().getFrame().setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         // Collection<MessageType> mtypes = IMCDefinition.getInstance().getParser().getMessageTypes();
         // for (MessageType mt : mtypes)
         // {
