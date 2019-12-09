@@ -160,6 +160,15 @@ public class CompassCalibration extends Maneuver
 
             radius = Float.parseFloat(doc.selectSingleNode(DEFAULT_ROOT_ELEMENT+ "/radius").getText());
 
+            direction = DIRECTION.CLOCKW;
+            try {
+                int dirVal = (int) Long.parseLong(doc.selectSingleNode(DEFAULT_ROOT_ELEMENT + "/direction").getText());
+                direction = Arrays.asList(DIRECTION.values()).stream().filter(p -> p.value() == dirVal).findFirst()
+                        .orElse(DIRECTION.CLOCKW);
+            }
+            catch (Exception e) {
+                NeptusLog.pub().warn("Error parsing direction from maneuver");
+            }
         }
         catch (Exception e) {
             NeptusLog.pub().error(this, e);

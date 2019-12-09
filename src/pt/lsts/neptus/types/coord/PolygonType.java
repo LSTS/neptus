@@ -160,6 +160,10 @@ public class PolygonType implements Renderer2DPainter {
         recomputePath();
     }
 
+    public int getVerticesSize() {
+        return vertices.size();
+    }
+    
     public void setColor(Color c) {
         color = c;
         if (elem != null)

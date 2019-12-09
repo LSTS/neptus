@@ -249,6 +249,9 @@ public class ZValueSelector extends ParametersPanel {
         });
 
         dialog.add(controls, BorderLayout.SOUTH);        
+
+        GuiUtils.reactEscapeKeyPress(btnCancel);
+
         dialog.setVisible(true);
         
         if (!selector.canceled) {

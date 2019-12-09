@@ -54,6 +54,7 @@ import pt.lsts.neptus.types.NameId;
 import pt.lsts.neptus.types.coord.CoordinateSystem;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.misc.FileType;
+import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.PropertiesLoader;
 import pt.lsts.neptus.util.conf.ConfigFetch;
@@ -458,9 +459,12 @@ public class TransponderElement extends AbstractElement implements NameId{
         g.drawImage(transponderImg, -transponderImg.getWidth(renderer) / 2, -transponderImg.getHeight(renderer) / 2,
                 transponderImg.getWidth(null), transponderImg.getHeight(null), null);
 
-        g.setColor(Color.WHITE);
-        g.drawString(getId(), 7, 16);
-
+        
+        String text = getId();
+        Rectangle2D stringBounds = g.getFontMetrics().getStringBounds(text, g);
+        int x = (int) (-stringBounds.getWidth() / 2), y = (int) (stringBounds.getHeight() + 5);
+        GuiUtils.drawText(text, x, y, Color.WHITE, Color.BLACK, g);
+//        g.drawString(getId(), 7, 16);
     }
 
     @Override

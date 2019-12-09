@@ -40,6 +40,7 @@ import pt.lsts.neptus.gui.objparams.MarkParameters;
 import pt.lsts.neptus.gui.objparams.ParametersPanel;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * Refactored in 06/11/2006.
@@ -139,15 +140,18 @@ public class MarkElement extends AbstractElement {
 
         g.drawOval(-5, -5, 10, 10);
 
+        Color fgColor;
         if (!isSelected())
-            g.setColor(Color.BLACK);
+            fgColor = Color.BLACK;
         else
-            g.setColor(Color.RED);
+            fgColor = Color.RED;
+
+        g.setColor(fgColor);
 
         g.drawLine(-3, -3, 3, 3);
         g.drawLine(-3, 3, 3, -3);
 
-        g.drawString(getId(), 6, 6);
+        String text = getId();
+        GuiUtils.drawText(text, 6, 6, Color.WHITE, fgColor, g);
     }
-
 }

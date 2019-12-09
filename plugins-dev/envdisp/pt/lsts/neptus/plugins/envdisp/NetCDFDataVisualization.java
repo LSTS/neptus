@@ -183,6 +183,11 @@ public class NetCDFDataVisualization extends ConsoleLayer implements PropertiesP
     @Override
     public void parseXmlElement(Element elem) {
         super.parseXmlElement(elem);
-        layerList.parseXmlElement(elem.element("aux").element("properties"));      
+        Element auxElem = elem.element("aux");
+        if (auxElem != null) {
+            Element propsElem = auxElem.element("properties");
+            if (propsElem != null)
+                layerList.parseXmlElement(propsElem);
+        }
     }
 }

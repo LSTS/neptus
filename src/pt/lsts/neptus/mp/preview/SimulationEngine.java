@@ -143,7 +143,7 @@ public class SimulationEngine {
                 NeptusLog.pub().debug("now simulating using " + curPreview.getClass().getSimpleName());
             }
         }
-        
+        state.setAltitude(SimulatedBathymetry.getInstance().getSimulatedDepth(state.getPosition()) - state.getDepth());
         if (curPreview != null)
             state = curPreview.step(state, timestep, ellapsedTime);
         
