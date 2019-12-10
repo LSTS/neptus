@@ -35,6 +35,7 @@ package pt.lsts.neptus.comm.manager.imc;
 import java.awt.BorderLayout;
 import java.awt.Dialog.ModalityType;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Image;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -79,6 +80,7 @@ import pt.lsts.imc.IMCOutputStream;
 import pt.lsts.imc.sender.MessageEditor;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.LocationCopyPastePanel;
+import pt.lsts.neptus.gui.MessagePreviewer;
 import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.ByteUtil;
@@ -86,7 +88,6 @@ import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
-import javax.swing.Box;
 
 /**
  * @author pdias
@@ -116,7 +117,7 @@ public class ImcMessageSenderPanel extends JPanel {
     private JTextField port = null;
     private JTextField bindPort = new JTextField("");
 
-    private MessageEditor editor = new MessageEditor();
+    private MessagePreviewer msgPreview;
 
     private JTabbedPane tabs = null;
 
@@ -147,11 +148,7 @@ public class ImcMessageSenderPanel extends JPanel {
         layout_config.setAutoCreateContainerGaps(true);
 
         // Footer panel
-        JPanel holder_footer = new JPanel();
-        GroupLayout layout_footer = new GroupLayout(holder_footer);
-        holder_footer.setLayout(layout_footer);
-        layout_footer.setAutoCreateGaps(true);
-        layout_footer.setAutoCreateContainerGaps(true);
+        JPanel holder_footer = new JPanel(new FlowLayout(FlowLayout.CENTER));
 
         // Main Tab components
         JLabel addressLabel = new JLabel("Address and Port to UDP send");
@@ -175,29 +172,17 @@ public class ImcMessageSenderPanel extends JPanel {
                 .addGroup(layout_config.createSequentialGroup().addComponent(msgNameLabel)
                         .addComponent(getMessagesComboBox(), 25, 25, 25)));
 
-        // Footer
-        layout_footer.setHorizontalGroup(layout_footer.createParallelGroup(GroupLayout.Alignment.CENTER)
-                .addGroup(layout_footer.createSequentialGroup().addComponent(getLocCopyPastPanel())
-                        .addComponent(getEditMessageButton()).addComponent(getCreateButton())
-                        .addComponent(getPublishButton()).addComponent(getBurstPublishButton())
-                        .addComponent(getPreviewButton())));
-
-        layout_footer.setVerticalGroup(layout_footer.createSequentialGroup()
-                .addGroup(layout_footer.createParallelGroup(GroupLayout.Alignment.CENTER)
-                        .addComponent(getLocCopyPastPanel()).addComponent(getEditMessageButton())
-                        .addComponent(getCreateButton()).addComponent(getPublishButton())
-                        .addComponent(getBurstPublishButton()).addComponent(getPreviewButton())));
-
-        layout_footer.linkSize(SwingConstants.CENTER, getCreateButton(), getEditMessageButton(), getPublishButton(),
-                getBurstPublishButton());
-        layout_footer.linkSize(SwingConstants.VERTICAL, getCreateButton(), getEditMessageButton(), getPublishButton(),
-                getBurstPublishButton());
+        // Buttons container in the bottom
+        holder_footer.add(getLocCopyPastPanel());
+        holder_footer.add(getEditMessageButton());
+        holder_footer.add(getCreateButton());
+        holder_footer.add(getPublishButton());
+        holder_footer.add(getPreviewButton());
 
         tabs = getTabedPane();
         String mgsName = (String) getMessagesComboBox().getSelectedItem();
         System.err.println("Creating IMCFieldsPane for message: "+mgsName);
         fields = new IMCFieldsPane(mgsName);
-        holder_footer.setPreferredSize(new Dimension((80*8+20), 46));
         tabs.add("General Settings", holder_config);
         tabs.add("Message Fields", fields.getContents());
         this.setLayout(new BorderLayout());
@@ -370,16 +355,16 @@ public class ImcMessageSenderPanel extends JPanel {
                     // TODO
                     String mName = (String) getMessagesComboBox().getSelectedItem();
                     IMCMessage sMsg = getOrCreateMessage(mName);
-                    editor.setMessage(sMsg);
+                    msgPreview = new MessagePreviewer(sMsg,true,true,true);
                     JDialog dg = new JDialog(SwingUtilities.getWindowAncestor(ImcMessageSenderPanel.this),
                             ModalityType.DOCUMENT_MODAL);
-                    dg.setContentPane(editor);
+                    dg.setContentPane(msgPreview);
                     dg.setSize(500, 500);
                     dg.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
                     GuiUtils.centerParent(dg, (Window) dg.getParent());
                     dg.setVisible(true);
 
-                    sMsg = editor.getMessage();
+                    sMsg = msgPreview.getMessage();
                     mName = sMsg.getAbbrev();
                     messagesPool.put(mName, sMsg);
                     getMessagesComboBox().setSelectedItem(mName);
@@ -560,7 +545,7 @@ public class ImcMessageSenderPanel extends JPanel {
         frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         return frame;
     }
-
+    
     /**
      * @param args
      */
