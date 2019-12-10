@@ -54,6 +54,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -62,22 +63,17 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
-import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.WindowConstants;
-import javax.swing.GroupLayout.Alignment;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCOutputStream;
-import pt.lsts.imc.sender.MessageEditor;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.LocationCopyPastePanel;
 import pt.lsts.neptus.gui.MessagePreviewer;
@@ -133,11 +129,7 @@ public class ImcMessageSenderPanel extends JPanel {
     }
 
     private void initialize() {
-        // try {
-        // port = new JTextField(nf.format(GeneralPreferences.getPropertyLong(GeneralPreferences.CONSOLE_LOCAL_PORT)));
-        // } catch (GeneralPreferencesException e) {
-        // port = new JTextField(nf.format(6001));
-        // }
+        
         port = new JTextField(nf.format(GeneralPreferences.commsLocalPortUDP));
 
         // Main Tab Panel
@@ -176,12 +168,12 @@ public class ImcMessageSenderPanel extends JPanel {
         holder_footer.add(getLocCopyPastPanel());
         holder_footer.add(getEditMessageButton());
         holder_footer.add(getCreateButton());
+        holder_footer.add(getBurstPublishButton());
         holder_footer.add(getPublishButton());
         holder_footer.add(getPreviewButton());
 
         tabs = getTabedPane();
         String mgsName = (String) getMessagesComboBox().getSelectedItem();
-        System.err.println("Creating IMCFieldsPane for message: "+mgsName);
         fields = new IMCFieldsPane(mgsName);
         tabs.add("General Settings", holder_config);
         tabs.add("Message Fields", fields.getContents());
@@ -214,7 +206,6 @@ public class ImcMessageSenderPanel extends JPanel {
                             tabs.repaint();
                         }
                         else if (!mName.equals(ImcMessageSenderPanel.this.fields.getMessageName())) {
-                            System.err.println("changed IMC Message");
                             fields = new IMCFieldsPane(mName);
                             tabs.setComponentAt(1,fields.getContents());
                             tabs.repaint();
@@ -266,7 +257,7 @@ public class ImcMessageSenderPanel extends JPanel {
         if (editMessageButton == null) {
             editMessageButton = new JButton();
             editMessageButton.setText("Edit");
-//            editMessageButton.setPreferredSize(new Dimension(85, 26));
+            editMessageButton.setPreferredSize(new Dimension(90, 26));
             editMessageButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     tabs.setSelectedIndex(1);
@@ -283,7 +274,7 @@ public class ImcMessageSenderPanel extends JPanel {
         if (createButton == null) {
             createButton = new JButton();
             createButton.setText("Generate");
-//            createButton.setPreferredSize(new Dimension(85, 26));
+            createButton.setPreferredSize(new Dimension(102, 26));
             createButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     String mName = (String) getMessagesComboBox().getSelectedItem();
@@ -303,7 +294,7 @@ public class ImcMessageSenderPanel extends JPanel {
         if (publishButton == null) {
             publishButton = new JButton();
             publishButton.setText("Publish");
-//            publishButton.setPreferredSize(new Dimension(85, 26));
+            publishButton.setPreferredSize(new Dimension(90, 26));
             publishButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     String msgName = (String) messagesComboBox.getSelectedItem();
@@ -347,15 +338,16 @@ public class ImcMessageSenderPanel extends JPanel {
         if (previewButton == null) {
             previewButton = new JButton();
             previewButton.setText("Preview");
-//            previewButton.setPreferredSize(new Dimension(85, 26));
+            previewButton.setPreferredSize(new Dimension(90, 26));
             ActionListener previewAction = new ActionListener() {
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    // TODO
-                    String mName = (String) getMessagesComboBox().getSelectedItem();
-                    IMCMessage sMsg = getOrCreateMessage(mName);
+                    IMCMessage sMsg = fields.getImcMessage();
+                    String mName = sMsg.getAbbrev();
+                    messagesPool.put(mName, sMsg);
                     msgPreview = new MessagePreviewer(sMsg,true,true,true);
+                    getMessagesComboBox().setSelectedItem(mName);
                     JDialog dg = new JDialog(SwingUtilities.getWindowAncestor(ImcMessageSenderPanel.this),
                             ModalityType.DOCUMENT_MODAL);
                     dg.setContentPane(msgPreview);
@@ -363,12 +355,6 @@ public class ImcMessageSenderPanel extends JPanel {
                     dg.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
                     GuiUtils.centerParent(dg, (Window) dg.getParent());
                     dg.setVisible(true);
-
-                    sMsg = msgPreview.getMessage();
-                    mName = sMsg.getAbbrev();
-                    messagesPool.put(mName, sMsg);
-                    getMessagesComboBox().setSelectedItem(mName);
-
                 }
             };
             previewButton.addActionListener(previewAction);
@@ -383,7 +369,7 @@ public class ImcMessageSenderPanel extends JPanel {
         if (burstPublishButton == null) {
             burstPublishButton = new JButton();
             burstPublishButton.setText("Burst");
-//            burstPublishButton.setPreferredSize(new Dimension(85, 26));
+            burstPublishButton.setPreferredSize(new Dimension(85, 26));
             burstPublishButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     burstPublishButton.setEnabled(false);
@@ -392,7 +378,6 @@ public class ImcMessageSenderPanel extends JPanel {
                         protected Boolean doInBackground() throws Exception {
                             Collection<String> mtypes = IMCDefinition.getInstance().getMessageNames();
                             for (String mt : mtypes) {
-                                // System.out.printf("Message type: %s\n", mt.getShortName());
                                 String msgName = mt;
                                 String msg = null;
                                 IMCMessage sMsg = getOrCreateMessage(msgName);
@@ -408,7 +393,7 @@ public class ImcMessageSenderPanel extends JPanel {
                                     msg = sendUdpMsg(baos.toByteArray(), baos.size());
                                 }
                                 catch (Exception e1) {
-                                    System.err.println("Msg: " + msg);
+                                    NeptusLog.pub().error(e1);
                                     e1.printStackTrace();
                                 }
                             }
@@ -553,11 +538,5 @@ public class ImcMessageSenderPanel extends JPanel {
     public static void main(String[] args) {
         ConfigFetch.initialize();
         new ImcMessageSenderPanel().getFrame().setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        // Collection<MessageType> mtypes = IMCDefinition.getInstance().getParser().getMessageTypes();
-        // for (MessageType mt : mtypes)
-        // {
-        // System.out.printf("Message type: %s\n", mt.getShortName());
-        // }
-        // getFrame().setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     }
 }
