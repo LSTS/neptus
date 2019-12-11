@@ -162,6 +162,10 @@ public class MessageHtmlVisualization implements MRAVisualization {
     public Component getComponent(IMraLogGroup source, double timestep) {
         return scroll;
     }
+    
+    public Component getComponent() {
+        return this.scroll;
+    }
 
     public Type getType() {
         return Type.TABLE;
