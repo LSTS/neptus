@@ -99,7 +99,7 @@ public class ImcMessageSenderPanel extends JPanel {
     private static ImageIcon ICON1 = new ImageIcon(
             ImageUtils.getImage("images/imc.png").getScaledInstance(48, 48, Image.SCALE_SMOOTH));
 
-    private JComboBox<?> messagesComboBox = null;
+    private JComboBox<String> messagesComboBox = null;
     private JButton editMessageButton = null;
     private JButton publishButton = null;
     private JButton burstPublishButton = null;
@@ -221,27 +221,26 @@ public class ImcMessageSenderPanel extends JPanel {
         return tabs;
     }
 
-    private JComboBox<?> getMessagesComboBox() {
+    private JComboBox<String> getMessagesComboBox() {
         if (messagesComboBox == null) {
             List<String> mList = new ArrayList<String>(IMCDefinition.getInstance().getMessageCount());
             for (String mt : IMCDefinition.getInstance().getMessageNames()) {
                 mList.add(mt);
             }
             Collections.sort(mList);
-            messagesComboBox = new JComboBox<Object>(mList.toArray(new String[mList.size()]));
+            messagesComboBox = new JComboBox<String>(mList.toArray(new String[mList.size()]));
             messagesComboBox.addActionListener(new ActionListener() {
                 
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    @SuppressWarnings("unchecked")
-                    JComboBox<String> comboBox = (JComboBox<String>) e.getSource();
-                    if(!(comboBox.getSelectedItem().equals(messagesComboBox.getSelectedItem()))) {
-                            fields = new IMCFieldsPane((String)messagesComboBox.getSelectedItem());
-                            tabs.setComponentAt(1,fields.getContents());
-                            tabs.repaint();
+                    if(fields == null)
+                        fields = new IMCFieldsPane((String) messagesComboBox.getSelectedItem());
+                    if (!(fields.getMessageName().equals(messagesComboBox.getSelectedItem()))) {
+                        fields = new IMCFieldsPane((String) messagesComboBox.getSelectedItem());
+                        tabs.setComponentAt(1, fields.getContents());
+                        tabs.repaint();
 
                     }
-                    
                 }
             });
         }
@@ -339,26 +338,32 @@ public class ImcMessageSenderPanel extends JPanel {
             previewButton = new JButton();
             previewButton.setText("Preview");
             previewButton.setPreferredSize(new Dimension(90, 26));
-            ActionListener previewAction = new ActionListener() {
-
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    IMCMessage sMsg = fields.getImcMessage();
-                    String mName = sMsg.getAbbrev();
-                    messagesPool.put(mName, sMsg);
-                    msgPreview = new MessagePreviewer(sMsg,true,true,true);
-                    getMessagesComboBox().setSelectedItem(mName);
-                    JDialog dg = new JDialog(SwingUtilities.getWindowAncestor(ImcMessageSenderPanel.this),
-                            ModalityType.DOCUMENT_MODAL);
-                    dg.setContentPane(msgPreview);
-                    dg.setSize(500, 500);
-                    dg.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-                    GuiUtils.centerParent(dg, (Window) dg.getParent());
-                    dg.setVisible(true);
-                }
-            };
-            previewButton.addActionListener(previewAction);
         }
+        ActionListener previewAction = new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                
+                String mName = (String) messagesComboBox.getSelectedItem();
+                if(fields == null)
+                    fields = new IMCFieldsPane(mName);
+                else if(!mName.equals(fields.getMessageName())) {
+                    fields = new IMCFieldsPane(mName);
+                }
+                
+                IMCMessage sMsg = fields.getImcMessage();
+                messagesPool.put(mName, sMsg);
+                msgPreview = new MessagePreviewer(sMsg, true, true, true);
+                JDialog dg = new JDialog(SwingUtilities.getWindowAncestor(ImcMessageSenderPanel.this),
+                        ModalityType.DOCUMENT_MODAL);
+                dg.setContentPane(msgPreview);
+                dg.setSize(500, 500);
+                dg.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+                GuiUtils.centerParent(dg, (Window) dg.getParent());
+                dg.setVisible(true);
+            }
+        };
+        previewButton.addActionListener(previewAction);
         return previewButton;
     }
 
