@@ -42,7 +42,10 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -64,6 +67,7 @@ import javax.swing.event.DocumentListener;
 
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.Header;
 import pt.lsts.imc.IMCUtil;
 import pt.lsts.imc.sender.UIUtils;
 import pt.lsts.neptus.util.GuiUtils;
@@ -86,6 +90,13 @@ public class IMCFieldsPane {
     private JScrollPane scrollable;
 
     private final IMCMessage msg;
+    private final Header header;
+
+    private Map<String, Object> inlineMsgs = new LinkedHashMap<>();
+    private LinkedHashMap<String, List<IMCMessage>> msgList = new LinkedHashMap<>();
+    private JButton edit;
+
+    IMCFieldsPane parent;
 
     /**
      * @return the holder_fields
@@ -94,12 +105,14 @@ public class IMCFieldsPane {
         return this.content;
     }
 
-    public IMCFieldsPane(String name) {
-        mid = IMCDefinition.getInstance().getMessageId(name);
-        m_fields = new ArrayList<>();
-        msg = IMCDefinition.getInstance().create(name);
-        m_fields.addAll(Arrays.asList(msg.getFieldNames()));
-        initializePanel();
+    public IMCFieldsPane(IMCFieldsPane p, String name) {
+        this.parent = p;
+        this.mid = IMCDefinition.getInstance().getMessageId(name);
+        this.m_fields = new ArrayList<>();
+        this.msg = IMCDefinition.getInstance().create(name);
+        this.header = new Header();
+        this.m_fields.addAll(Arrays.asList(msg.getFieldNames()));
+        this.initializePanel();
 
     }
 
@@ -121,6 +134,9 @@ public class IMCFieldsPane {
         holder_Hfields.setLayout(layout_fields);
         layout_fields.setAutoCreateGaps(true);
         layout_fields.setAutoCreateContainerGaps(true);
+        
+        // Panel with fields for main IMC Message -> requires header fields
+        if(this.parent == null) {
 
         JLabel srcDstIdLabel = new JLabel("Source and Destination IMC IDs (can be blanc)");
         JLabel srcDestEntLabel = new JLabel("Source and Destination Entities IDs (can be blanc)");
@@ -136,6 +152,7 @@ public class IMCFieldsPane {
                         .addComponent(srcId, 25, 25, 25).addComponent(dstId, 25, 25, 25))
                 .addComponent(srcDestEntLabel).addGroup(layout_fields.createParallelGroup(GroupLayout.Alignment.CENTER)
                         .addComponent(srcEntId, 25, 25, 25).addComponent(dstEntId, 25, 25, 25)));
+        }
 
         holder_fields = new JPanel();
         GroupLayout layout = new GroupLayout(holder_fields);
@@ -172,22 +189,40 @@ public class IMCFieldsPane {
             if (dType.equalsIgnoreCase("message")) { // Inline Message
                 List<String> mList = getMessagesFilter(msg, field);
                 Collections.sort(mList);
+                mList.add(0, "None");
                 JComboBox<String> messagesComboBox = new JComboBox<String>(mList.toArray(new String[mList.size()]));
-                
+                if (this.parent != null) {
+                    System.err.println("Parent MSg: " + this.parent.getMessageName());
+                    if (this.parent.inlineMsgs.containsKey(field)) {
+                        IMCMessage m = (IMCMessage) this.parent.inlineMsgs.get(field);
+                        System.err.println("field " + field + " msg name " + m.getAbbrev());
+                        messagesComboBox.setSelectedItem(m.getAbbrev());
+                    }
+                    else
+                        messagesComboBox.setSelectedIndex(0);
+                }
+                else {
+                    messagesComboBox.setSelectedIndex(0);
+                }
+                System.err.println("Calling from here");
+                edit = getEditButtonForMsg((String) messagesComboBox.getSelectedItem(), field);
                 messagesComboBox.addActionListener(new ActionListener() {
 
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        IMCFieldsPane.this.msg.setValue(field, messagesComboBox.getSelectedIndex());
-
+                        String name = (String) messagesComboBox.getSelectedItem();
+                        if (!name.equals("None")) {
+                            IMCMessage value = IMCDefinition.getInstance().create(name);
+                            IMCFieldsPane.this.inlineMsgs.put(field, value);
+                            System.err.println("Getting button for: " + name);
+                            edit = getEditButtonForMsg(name, field);
+                        }
                     }
                 });
-                
-                JButton edit = getEditButton((String) messagesComboBox.getSelectedItem());
 
                 label.setLabelFor(messagesComboBox);
                 horizontal.addGroup(layout.createSequentialGroup().addComponent(label).addComponent(messagesComboBox)
-                        .addComponent(edit));
+                        .addComponent(this.edit));
                 vertical.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(label)
                         .addComponent(messagesComboBox).addComponent(edit));
             }
@@ -207,7 +242,7 @@ public class IMCFieldsPane {
                     List<String> mList = new ArrayList<String>();
                     mList.addAll(msg.getIMCMessageType().getFieldPossibleValues(field).values());
                     JComboBox<String> messagesComboBox = new JComboBox<String>(mList.toArray(new String[mList.size()]));
-
+                    messagesComboBox.setSelectedIndex(0);
                     messagesComboBox.addActionListener(new ActionListener() {
 
                         @Override
@@ -297,63 +332,134 @@ public class IMCFieldsPane {
 
     }
 
+    private void fillHeader() {
+
+        String srcId_txt = srcId.getText();
+        String srcEnt_txt = srcEntId.getText();
+
+        String dstId_txt = dstId.getText();
+        String dstEnt_txt = dstEntId.getText();
+
+        try {
+            int value = Integer.parseInt(srcId_txt);
+            if(value < 0 )
+                value = Header.DEFAULT_SYSTEM_ID;
+            this.header.set_src(value);
+        }
+        catch (NumberFormatException ne) {
+            this.header.set_src(Header.DEFAULT_SYSTEM_ID);
+        }
+        try {
+            short value = Short.parseShort(srcEnt_txt);
+            if(value < 0 )
+                value = (short) Header.DEFAULT_ENTITY_ID;
+            this.header.set_src_ent(value);
+        }
+        catch (NumberFormatException ne) {
+            this.header.set_src_ent((short) Header.DEFAULT_ENTITY_ID);
+        }
+
+        try {
+            int value = Integer.parseInt(dstId_txt);
+            if(value < 0 )
+                value = Header.DEFAULT_SYSTEM_ID;
+            this.header.set_dst(value);
+        }
+        catch (NumberFormatException ne) {
+            this.header.set_dst(Header.DEFAULT_SYSTEM_ID);
+        }
+        try {
+            short value = Short.parseShort(dstEnt_txt);
+            this.header.set_dst_ent(value);
+        }
+        catch (NumberFormatException ne) {
+            this.header.set_dst_ent((short) Header.DEFAULT_ENTITY_ID);
+        }
+
+    }
+
     /**
      * @return
      */
-    private JButton getEditButton(String msgName) {
-        JButton edit = new JButton("Edit");
-        edit.addActionListener(new ActionListener() {
+    private JButton getEditButtonForMsg(String msgName, String fieldName) {
+        System.err.println("MSGNAME: " + msgName);
+        if (this.edit == null)
+            this.edit = new JButton("Edit");
+        else {
+            ActionListener action = this.edit.getAction();
+            if (action != null)
+                this.edit.removeActionListener(action);
+        }
+        this.edit.addActionListener(getActionForMsg(msgName, fieldName));
+
+        return this.edit;
+    }
+
+    private ActionListener getActionForMsg(String msgName, String field) {
+        // Add new action listener
+        ActionListener action = new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                IMCFieldsPane inceptionFields = new IMCFieldsPane(msgName);
-                JPanel panelCeption = inceptionFields.getContents();
-                JDialog dg = new JDialog(SwingUtilities.getWindowAncestor(IMCFieldsPane.this.getContents()),
-                        ModalityType.DOCUMENT_MODAL);
-                JPanel buttons = new JPanel(new FlowLayout(FlowLayout.CENTER));
-                JButton validate = new JButton("Validate");
-                validate.addActionListener(new ActionListener() {
+                System.err.println("Out: " + msgName);
+                System.err.println("Bool: " + msgName.equals("None"));
+                System.err.println("Event ID: " + e.getID() + " Source: " + e.getSource());
+                if (!msgName.equals("None")) {
+                    System.err.println("inside out");
+                    IMCFieldsPane inceptionFields = new IMCFieldsPane(IMCFieldsPane.this, msgName);
+                    JPanel panelCeption = inceptionFields.getContents();
+                    JDialog dg = new JDialog(SwingUtilities.getWindowAncestor(IMCFieldsPane.this.getContents()),
+                            ModalityType.DOCUMENT_MODAL);
+                    JPanel buttons = new JPanel(new FlowLayout(FlowLayout.CENTER));
+                    JButton validate = new JButton("Validate");
 
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        try {
-                            inceptionFields.getImcMessage().validate();
+                    validate.addActionListener(new ActionListener() {
+
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            try {
+                                inceptionFields.getImcMessage().validate();
+                            }
+                            catch (Exception ex) {
+                                ex.printStackTrace();
+                                UIUtils.exceptionDialog(IMCFieldsPane.this.getContents(), ex, "Error parsing message",
+                                        "Validate message");
+                                return;
+                            }
+                            JOptionPane.showMessageDialog(IMCFieldsPane.this.getContents(),
+                                    "Message parsed successfully.", "Validate message",
+                                    JOptionPane.INFORMATION_MESSAGE);
                         }
-                        catch (Exception ex) {
-                            ex.printStackTrace();
-                            UIUtils.exceptionDialog(IMCFieldsPane.this.getContents(), ex, "Error parsing message",
-                                    "Validate message");
-                            return;
+                    });
+
+                    JButton insert = new JButton("Insert");
+                    insert.addActionListener(new ActionListener() {
+
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            validate.doClick();
+                            IMCMessage value = inceptionFields.getImcMessage();
+                            System.err.println("before");
+                            IMCFieldsPane.this.inlineMsgs.put(field, value);
+                            JComponent comp = (JComponent) e.getSource();
+                            Window win = SwingUtilities.getWindowAncestor(comp);
+                            win.dispose();
+
                         }
-                        JOptionPane.showMessageDialog(IMCFieldsPane.this.getContents(), "Message parsed successfully.",
-                                "Validate message", JOptionPane.INFORMATION_MESSAGE);
-                    }
-                });
-                JButton insert = new JButton("Insert");
-                insert.addActionListener(new ActionListener() {
-
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        validate.doClick();
-                        JComponent comp = (JComponent) e.getSource();
-                        Window win = SwingUtilities.getWindowAncestor(comp);
-                        win.dispose();
-
-                    }
-                });
-                buttons.add(validate);
-                buttons.add(insert);
-                panelCeption.add(buttons, BorderLayout.SOUTH);
-                dg.setTitle("Insert Inline IMC Message");
-                dg.setContentPane(panelCeption);
-                dg.setSize(500, 500);
-                dg.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-                GuiUtils.centerParent(dg, (Window) dg.getParent());
-                dg.setVisible(true);
-
+                    });
+                    buttons.add(validate);
+                    buttons.add(insert);
+                    panelCeption.add(buttons, BorderLayout.SOUTH);
+                    dg.setTitle("Edit Inline IMC Message - " + msgName);
+                    dg.setContentPane(panelCeption);
+                    dg.setSize(500, 500);
+                    dg.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+                    GuiUtils.centerParent(dg, (Window) dg.getParent());
+                    dg.setVisible(true);
+                }
             }
-        });
-        return edit;
+        };
+        return action;
     }
 
     /**
@@ -387,10 +493,17 @@ public class IMCFieldsPane {
     }
 
     public IMCMessage getImcMessage() {
-        // TODO collect all values from fields
+        fillHeader();
+        this.msg.setHeader(this.header);
         this.msg.setTimestampMillis(System.currentTimeMillis());
-        // fillSrcDstId
         // TODO validate message -> return it
+        if (!this.inlineMsgs.isEmpty())
+            this.msg.setValues(this.inlineMsgs);
+
+        for (Entry<String, List<IMCMessage>> msgs : this.msgList.entrySet()) {
+            if (msgs.getValue() != null)
+                this.msg.setValue(msgs.getKey(), msgs.getValue());
+        }
         return this.msg;
     }
 
@@ -401,65 +514,9 @@ public class IMCFieldsPane {
         return IMCDefinition.getInstance().getMessageName(mid);
     }
 
-    /**
-     * @param sMsg
-     */
-    protected void fillSrcDstId(IMCMessage sMsg) {
-        if (!"".equalsIgnoreCase(srcId.getText())) {
-            int id = -1;
-            try {
-                id = (int) ImcId16.parseImcId16(srcId.getText());
-            }
-            catch (NumberFormatException e) {
-                try {
-                    id = Integer.parseInt(srcId.getText());
-                }
-                catch (NumberFormatException e1) {
-                    try {
-                        id = Integer.parseInt(srcId.getText(), 16);
-                    }
-                    catch (NumberFormatException e2) {
-                        e2.printStackTrace();
-                    }
-                }
-            }
-            if (id < 0) {
-                srcId.setText("");
-            }
-            else {
-                sMsg.getHeader().setValue("src", id);
-            }
-        }
-
-        if (!"".equalsIgnoreCase(dstId.getText())) {
-            int id = -1;
-            try {
-                id = (int) ImcId16.parseImcId16(dstId.getText());
-            }
-            catch (NumberFormatException e) {
-                try {
-                    id = Integer.parseInt(dstId.getText());
-                }
-                catch (NumberFormatException e1) {
-                    try {
-                        id = Integer.parseInt(dstId.getText(), 16);
-                    }
-                    catch (NumberFormatException e2) {
-                    }
-                }
-            }
-            if (id < 0) {
-                dstId.setText("");
-            }
-            else {
-                sMsg.getHeader().setValue("dst", id);
-            }
-        }
-    }
-
     public static void main(String[] args) {
         JFrame frame = new JFrame("IMC Fields Tab");
-        JPanel content = new IMCFieldsPane("LblEstimate").getContents();
+        JPanel content = new IMCFieldsPane(null, "TransmissionRequest").getContents();
         frame.setSize(500, 500);
         frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         frame.setContentPane(content);
