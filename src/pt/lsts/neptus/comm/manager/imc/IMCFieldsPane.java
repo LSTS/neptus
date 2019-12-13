@@ -65,12 +65,16 @@ import javax.swing.WindowConstants;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.Header;
 import pt.lsts.imc.IMCUtil;
 import pt.lsts.imc.sender.UIUtils;
+import pt.lsts.neptus.gui.BitmaskPanel;
+import pt.lsts.neptus.messages.Bitmask;
 import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**
  * @author keila 3/12/19
@@ -85,7 +89,7 @@ public class IMCFieldsPane {
     private JTextField srcEntId = new JTextField("");
     private JTextField dstEntId = new JTextField("");
 
-    private JPanel holder_Hfields;
+    private JPanel holder_Hfields = null;
     private JPanel content, holder_fields;
     private JScrollPane scrollable;
 
@@ -94,7 +98,12 @@ public class IMCFieldsPane {
 
     private Map<String, Object> inlineMsgs = new LinkedHashMap<>();
     private LinkedHashMap<String, List<IMCMessage>> msgList = new LinkedHashMap<>();
+    private LinkedHashMap<String, BitmaskPanel> bitfields = new LinkedHashMap<>();
     private JButton edit;
+    private MigLayout layout = new MigLayout(
+            "",//new LC().wrapAfter(3), // Layout Constraints
+            "", //new AX().grow(1,3,4).size("10px",1,2), // Column constraints
+            ""); //new AX().noGrid(1,4)); // Row constraints
 
     IMCFieldsPane parent;
 
@@ -111,7 +120,7 @@ public class IMCFieldsPane {
         this.m_fields = new ArrayList<>();
         this.msg = IMCDefinition.getInstance().create(name);
         this.header = new Header();
-        this.m_fields.addAll(Arrays.asList(msg.getFieldNames()));
+        this.m_fields.addAll(Arrays.asList(this.msg.getFieldNames()));
         this.initializePanel();
 
     }
@@ -122,36 +131,38 @@ public class IMCFieldsPane {
     @SuppressWarnings("serial")
     private void initializePanel() {
 
-        // Fixed components from IMC Headers
-        holder_Hfields = new JPanel() {
-            @Override
-            public Dimension getPreferredSize() {
-                return new Dimension(450, 130);
-            }
-        };
 
-        GroupLayout layout_fields = new GroupLayout(holder_Hfields);
-        holder_Hfields.setLayout(layout_fields);
-        layout_fields.setAutoCreateGaps(true);
-        layout_fields.setAutoCreateContainerGaps(true);
         
         // Panel with fields for main IMC Message -> requires header fields
         if(this.parent == null) {
+            // Fixed components from IMC Headers
+            holder_Hfields = new JPanel() {
+                @Override
+                public Dimension getPreferredSize() {
+                    return new Dimension(450, 130);
+                }
+            };
 
-        JLabel srcDstIdLabel = new JLabel("Source and Destination IMC IDs (can be blanc)");
-        JLabel srcDestEntLabel = new JLabel("Source and Destination Entities IDs (can be blanc)");
+            GroupLayout layout_fields = new GroupLayout(holder_Hfields);
+            holder_Hfields.setLayout(layout_fields);
+            layout_fields.setAutoCreateGaps(true);
+            layout_fields.setAutoCreateContainerGaps(true);
 
-        layout_fields.setHorizontalGroup(
-                layout_fields.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(srcDstIdLabel)
-                        .addGroup(layout_fields.createSequentialGroup().addComponent(srcId).addComponent(dstId))
-                        .addComponent(srcDestEntLabel)
-                        .addGroup(layout_fields.createSequentialGroup().addComponent(srcEntId).addComponent(dstEntId)));
+            JLabel srcDstIdLabel = new JLabel("Source and Destination IMC IDs");
+            JLabel srcDestEntLabel = new JLabel("Source and Destination Entities IDs (can be blanc)");
 
-        layout_fields.setVerticalGroup(layout_fields.createSequentialGroup().addComponent(srcDstIdLabel)
-                .addGroup(layout_fields.createParallelGroup(GroupLayout.Alignment.CENTER)
-                        .addComponent(srcId, 25, 25, 25).addComponent(dstId, 25, 25, 25))
-                .addComponent(srcDestEntLabel).addGroup(layout_fields.createParallelGroup(GroupLayout.Alignment.CENTER)
-                        .addComponent(srcEntId, 25, 25, 25).addComponent(dstEntId, 25, 25, 25)));
+            layout_fields.setHorizontalGroup(layout_fields.createParallelGroup(GroupLayout.Alignment.CENTER)
+                    .addComponent(srcDstIdLabel)
+                    .addGroup(layout_fields.createSequentialGroup().addComponent(srcId).addComponent(dstId))
+                    .addComponent(srcDestEntLabel)
+                    .addGroup(layout_fields.createSequentialGroup().addComponent(srcEntId).addComponent(dstEntId)));
+
+            layout_fields.setVerticalGroup(layout_fields.createSequentialGroup().addComponent(srcDstIdLabel)
+                    .addGroup(layout_fields.createParallelGroup(GroupLayout.Alignment.CENTER)
+                            .addComponent(srcId, 25, 25, 25).addComponent(dstId, 25, 25, 25))
+                    .addComponent(srcDestEntLabel)
+                    .addGroup(layout_fields.createParallelGroup(GroupLayout.Alignment.CENTER)
+                            .addComponent(srcEntId, 25, 25, 25).addComponent(dstEntId, 25, 25, 25)));
         }
 
         holder_fields = new JPanel();
@@ -168,7 +179,7 @@ public class IMCFieldsPane {
         JLabel previousLabel = null;
         for (int i = 0; i < m_fields.size(); i++) {
             String field = m_fields.get(i);
-            boolean enumerated = false;
+            boolean enumerated = false, bitfield = false;
             JLabel label = new JLabel(field);
             String dType = msg.getTypeOf(field);
             String units = msg.getUnitsOf(field);
@@ -181,6 +192,8 @@ public class IMCFieldsPane {
                     sufix = " (deg/s)";
                 else if (units.equalsIgnoreCase("enumerated"))
                     enumerated = true;
+                else if(units.equalsIgnoreCase("Bitfield"))
+                    bitfield = true;
                 else
                     sufix = " (" + units + ")";
                 label = new JLabel(field + sufix);
@@ -225,6 +238,10 @@ public class IMCFieldsPane {
                         .addComponent(this.edit));
                 vertical.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(label)
                         .addComponent(messagesComboBox).addComponent(edit));
+                if (i > 0) {
+                    layout.linkSize(SwingConstants.HORIZONTAL, label, previousLabel);
+                }
+                previousLabel = label;
             }
             // else if(dType.equalsIgnoreCase("message-list")) {
             // ButtonGroup bgGroup = new ButtonGroup();
@@ -257,6 +274,37 @@ public class IMCFieldsPane {
                             layout.createSequentialGroup().addComponent(label).addComponent(messagesComboBox));
                     vertical.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(label)
                             .addComponent(messagesComboBox));
+                    if (i > 0) {
+                        layout.linkSize(SwingConstants.HORIZONTAL, label, previousLabel);
+                    }
+                    previousLabel = label;
+                }
+                else if(bitfield) {
+                    label = new JLabel("Edit "+field);
+                    Bitmask bitmask = new Bitmask(this.msg.getIMCMessageType().getFieldPossibleValues(field),0);
+//                    JButton editFlags = new JButton(field);
+//                    this.bitfields.put(field, bitmask);
+//               
+//                    editFlags.addActionListener(new ActionListener() {
+//                        
+//                        @Override
+//                        public void actionPerformed(ActionEvent e) {
+//                            BitmaskPanel.showBitmaskDialog(bitmask);
+//                            IMCFieldsPane.this.bitfields.put(field, bitmask);
+//                            
+//                        }
+//                    });
+                    
+                    BitmaskPanel bitfieldPanel = BitmaskPanel.getBitmaskPanel(bitmask);
+                    this.bitfields.put(field, bitfieldPanel);
+                    label.setLabelFor(bitfieldPanel);
+                    horizontal.addGroup(layout.createSequentialGroup().addComponent(label).addComponent(bitfieldPanel));
+                    vertical.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(label)
+                            .addComponent(bitfieldPanel));
+                    if (i > 0) {
+                        layout.linkSize(SwingConstants.HORIZONTAL, label, previousLabel);
+                    }
+                    previousLabel = label;
                 }
                 else {
                     String default_value = String.valueOf(msg.getValue(field));
@@ -302,13 +350,17 @@ public class IMCFieldsPane {
                     horizontal.addGroup(layout.createSequentialGroup().addComponent(label).addComponent(tField));
                     vertical.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(label)
                             .addComponent(tField));
+                    if (i > 0) {
+                        layout.linkSize(SwingConstants.HORIZONTAL, label, previousLabel);
+                    }
+                    previousLabel = label;
                 }
             }
 
-            if (i > 0) {
-                layout.linkSize(SwingConstants.HORIZONTAL, label, previousLabel);
-            }
-            previousLabel = label;
+//            if (i > 0) {
+//                layout.linkSize(SwingConstants.HORIZONTAL, label, previousLabel);
+//            }
+//            previousLabel = label;
 
         }
         // layout.linkSize(SwingConstants.HORIZONTAL, labels[i], labels[0]);
@@ -317,18 +369,21 @@ public class IMCFieldsPane {
 
             @Override
             public Dimension getPreferredSize() {
-                return new Dimension(500, 300);
+                int height = IMCFieldsPane.this.m_fields.size() < 2 ? 100 : IMCFieldsPane.this.m_fields.size()*5; //TODO fix
+                System.err.println("Height: "+height);
+                return new Dimension(500, height);
             }
         };
-        this.scrollable = new JScrollPane(holder_fields) {
+        this.scrollable = new JScrollPane(this.holder_fields) {
 
             @Override
             public Dimension getPreferredSize() {
                 return new Dimension(450, 250);
             }
         };
-        this.content.add(holder_Hfields, BorderLayout.NORTH);
-        this.content.add(scrollable, BorderLayout.CENTER);
+        if(this.holder_Hfields != null)
+        this.content.add(this.holder_Hfields, BorderLayout.NORTH);
+        this.content.add(this.scrollable, BorderLayout.CENTER);
 
     }
 
@@ -341,17 +396,17 @@ public class IMCFieldsPane {
         String dstEnt_txt = dstEntId.getText();
 
         try {
-            int value = Integer.parseInt(srcId_txt);
-            if(value < 0 )
-                value = Header.DEFAULT_SYSTEM_ID;
+            int value = getImcId(srcId_txt);
+            if(value < 0 || srcId_txt.isEmpty())
+                value = GeneralPreferences.imcCcuId.intValue();
             this.header.set_src(value);
         }
         catch (NumberFormatException ne) {
-            this.header.set_src(Header.DEFAULT_SYSTEM_ID);
+            this.header.set_src(GeneralPreferences.imcCcuId.intValue());
         }
         try {
             short value = Short.parseShort(srcEnt_txt);
-            if(value < 0 )
+            if(value < 0 || srcEnt_txt.isEmpty())
                 value = (short) Header.DEFAULT_ENTITY_ID;
             this.header.set_src_ent(value);
         }
@@ -360,8 +415,8 @@ public class IMCFieldsPane {
         }
 
         try {
-            int value = Integer.parseInt(dstId_txt);
-            if(value < 0 )
+            int value = getImcId(dstId_txt);
+            if(value < 0 || dstId_txt.isEmpty())
                 value = Header.DEFAULT_SYSTEM_ID;
             this.header.set_dst(value);
         }
@@ -370,12 +425,38 @@ public class IMCFieldsPane {
         }
         try {
             short value = Short.parseShort(dstEnt_txt);
+            if(value < 0 || dstEnt_txt.isEmpty())
             this.header.set_dst_ent(value);
         }
         catch (NumberFormatException ne) {
             this.header.set_dst_ent((short) Header.DEFAULT_ENTITY_ID);
         }
 
+    }
+
+    /**
+     * @param txt
+     * @return
+     */
+    private int getImcId(String txt) {
+        int id;
+        try {
+            id = (int) ImcId16.parseImcId16(txt);
+        }
+        catch (NumberFormatException e) {
+            try {
+                id = Integer.parseInt(txt);
+            }
+            catch (NumberFormatException e1) {
+                try {
+                    id = Integer.parseInt(txt, 16);
+                }
+                catch (NumberFormatException e2) {
+                    throw e2;
+                }
+            }
+        }
+        return id;
     }
 
     /**
@@ -497,6 +578,10 @@ public class IMCFieldsPane {
         this.msg.setHeader(this.header);
         this.msg.setTimestampMillis(System.currentTimeMillis());
         // TODO validate message -> return it
+        if(!this.bitfields.isEmpty()) {
+            for(Entry<String, BitmaskPanel> entry: this.bitfields.entrySet())
+                this.msg.setValue(entry.getKey(),entry.getValue().getValue());
+        }
         if (!this.inlineMsgs.isEmpty())
             this.msg.setValues(this.inlineMsgs);
 
