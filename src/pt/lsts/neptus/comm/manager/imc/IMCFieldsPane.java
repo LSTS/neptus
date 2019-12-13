@@ -36,6 +36,7 @@ import java.awt.BorderLayout;
 import java.awt.Dialog.ModalityType;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -100,10 +101,10 @@ public class IMCFieldsPane {
     private LinkedHashMap<String, List<IMCMessage>> msgList = new LinkedHashMap<>();
     private LinkedHashMap<String, BitmaskPanel> bitfields = new LinkedHashMap<>();
     private JButton edit;
-    private MigLayout layout = new MigLayout(
-            "",//new LC().wrapAfter(3), // Layout Constraints
-            "", //new AX().grow(1,3,4).size("10px",1,2), // Column constraints
-            ""); //new AX().noGrid(1,4)); // Row constraints
+    private MigLayout bitFieldLayout = new MigLayout(
+            "wrap 3");//new LC().wrapAfter(3), // Layout Constraints
+//            "growy", //new AX().grow(1,3,4).size("10px",1,2), // Column constraints
+//            ""); //new AX().noGrid(1,4)); // Row constraints
 
     IMCFieldsPane parent;
 
@@ -139,9 +140,12 @@ public class IMCFieldsPane {
             holder_Hfields = new JPanel() {
                 @Override
                 public Dimension getPreferredSize() {
-                    return new Dimension(450, 130);
+                    return new Dimension(450, 150);
                 }
             };
+            
+            JLabel title = new JLabel("Edit "+this.getMessageName()+" Fields");
+            title.setFont(new Font(Font.SANS_SERIF,Font.BOLD,20));
 
             GroupLayout layout_fields = new GroupLayout(holder_Hfields);
             holder_Hfields.setLayout(layout_fields);
@@ -152,12 +156,13 @@ public class IMCFieldsPane {
             JLabel srcDestEntLabel = new JLabel("Source and Destination Entities IDs (can be blanc)");
 
             layout_fields.setHorizontalGroup(layout_fields.createParallelGroup(GroupLayout.Alignment.CENTER)
+                    .addComponent(title)
                     .addComponent(srcDstIdLabel)
                     .addGroup(layout_fields.createSequentialGroup().addComponent(srcId).addComponent(dstId))
                     .addComponent(srcDestEntLabel)
                     .addGroup(layout_fields.createSequentialGroup().addComponent(srcEntId).addComponent(dstEntId)));
 
-            layout_fields.setVerticalGroup(layout_fields.createSequentialGroup().addComponent(srcDstIdLabel)
+            layout_fields.setVerticalGroup(layout_fields.createSequentialGroup().addComponent(title).addComponent(srcDstIdLabel)
                     .addGroup(layout_fields.createParallelGroup(GroupLayout.Alignment.CENTER)
                             .addComponent(srcId, 25, 25, 25).addComponent(dstId, 25, 25, 25))
                     .addComponent(srcDestEntLabel)
@@ -280,23 +285,10 @@ public class IMCFieldsPane {
                     previousLabel = label;
                 }
                 else if(bitfield) {
-                    label = new JLabel("Edit "+field);
                     Bitmask bitmask = new Bitmask(this.msg.getIMCMessageType().getFieldPossibleValues(field),0);
-//                    JButton editFlags = new JButton(field);
-//                    this.bitfields.put(field, bitmask);
-//               
-//                    editFlags.addActionListener(new ActionListener() {
-//                        
-//                        @Override
-//                        public void actionPerformed(ActionEvent e) {
-//                            BitmaskPanel.showBitmaskDialog(bitmask);
-//                            IMCFieldsPane.this.bitfields.put(field, bitmask);
-//                            
-//                        }
-//                    });
-                    
                     BitmaskPanel bitfieldPanel = BitmaskPanel.getBitmaskPanel(bitmask);
                     this.bitfields.put(field, bitfieldPanel);
+                    bitfieldPanel.setMainComponentLayout(bitFieldLayout);
                     label.setLabelFor(bitfieldPanel);
                     horizontal.addGroup(layout.createSequentialGroup().addComponent(label).addComponent(bitfieldPanel));
                     vertical.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(label)
