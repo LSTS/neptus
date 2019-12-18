@@ -80,6 +80,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
+import javax.swing.event.MenuEvent;
+import javax.swing.event.MenuListener;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
@@ -603,6 +605,56 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
          * VIEW MENU
          */
         JMenu viewMenu = new JMenu(I18n.text("View"));
+        viewMenu.addMenuListener(new MenuListener() {
+            final Collator collator = Collator.getInstance(Locale.US);
+            @Override
+            public void menuSelected(MenuEvent e) {
+                
+                JMenu jmenu = (JMenu) e.getSource();
+                if(jmenu.getItemCount() > 2)
+                for(int i=1;i<jmenu.getItemCount();i++) {
+                    JMenuItem current = jmenu.getItem(i);
+                    String name = current.getText().replaceAll("_\\d*$", "");
+                    String previous = jmenu.getItem(i-1).getText().replaceAll("_\\d*$", "");
+                    System.err.println("Adding "+name+" previous item: "+previous);
+                    String [] split = jmenu.getItem(i-1).getText().split("_");
+                    int count = split.length == 2 ? Integer.parseInt(split[1]) : 0;
+                    if(collator.compare(name, previous) < 0 && count>=1) { // When the first instance of the plugins was removed
+                        count--;
+                        if(count > 0) {
+                            name+="_"+count;
+                            current.setText(name);
+                            }
+                    }
+                    else if (collator.compare(name, previous) < 0)
+                        continue;
+                    else if(collator.compare(name, previous) == 0) {
+                        System.err.println("Comparing "+name+" and "+previous);
+                        if(count >= 1) {
+                            count++;
+                            name+="_"+count;
+                        }
+                        else if(count == 0)
+                            name+="_1";
+                    }
+                    System.err.println("New name "+name);
+                    current.setText(name);
+                }
+                
+                
+            }
+            
+            @Override
+            public void menuDeselected(MenuEvent e) {
+                // TODO Auto-generated method stub
+                
+            }
+            
+            @Override
+            public void menuCanceled(MenuEvent e) {
+             // TODO Auto-generated method stub
+            }
+        });
         menuBar.add(viewMenu);
 
         /*
@@ -1957,7 +2009,6 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
 
     public synchronized void addJMenuIntoViewMenu(JMenuItem menu) {
         JMenu viewMenu = getConsole().getOrCreateJMenu(new String[] { I18n.text("View") });
-        
         if (settingsWindowName == null) {
             Popup cAction = settingsWindow != null ? settingsWindow.getClass().getAnnotation(Popup.class)
                     : SettingsWindow.class.getAnnotation(Popup.class);
