@@ -434,8 +434,6 @@ public class ImcMessageSenderPanel extends JPanel {
                 public void setLocationType(LocationType locationType) {
                     super.setLocationType(locationType);
                     applyLocation();
-                    // String mName = "EstimatedState";
-                    // IMCMessage sMsgES = getOrCreateMessage(mName);
                 }
             };
             locCopyPastePanel.setPreferredSize(new Dimension(85, 26));
@@ -484,6 +482,7 @@ public class ImcMessageSenderPanel extends JPanel {
      * @param mName
      */
     private void applyLocation() {
+        applyLocation(this.fields.getImcMessage());
         for (IMCMessage sMsg : messagesPool.values()) {
             applyLocation(sMsg);
         }
