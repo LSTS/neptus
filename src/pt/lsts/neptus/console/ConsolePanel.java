@@ -372,23 +372,24 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
     private void unRegisterOrPassKey(JMenu jmenu, AbstractAction popUpAction2, String consoleName) {
         String[] split = consoleName.split("_");
         int count = split.length == 2 ? Integer.parseInt(split[1]) : 0;
-        if(count > 0) {
+        if (count > 0) {
             getConsole().unRegisterGlobalKeyBinding(popUpAction2);
             return;
         }
         final Collator collator = Collator.getInstance(Locale.US);
         if (jmenu.getItemCount() > 2)
             for (int i = 0; i < jmenu.getItemCount(); i++) {
-                System.err.println("Inside loop "+i+" for consoleName "+consoleName);
+                System.err.println("Inside loop " + i + " for consoleName " + consoleName);
                 String previous = consoleName.replaceAll("_\\d*$", "");
                 String name = jmenu.getItem(i).getText().replaceAll("_\\d*$", "");
                 split = jmenu.getItem(i).getText().split("_");
-                System.err.println("Comparing "+consoleName+" and "+jmenu.getItem(i).getText());
+                System.err.println("Comparing " + consoleName + " and " + jmenu.getItem(i).getText());
                 count = split.length == 2 ? Integer.parseInt(split[1]) : 0;
                 if (count > 1)
                     return; // only the first plugin has the accelerator
-                if (collator.compare(name, previous) == 0 && count == 1) {
-                    // More than one console for this plugin, but the previous is gone
+                if ((collator.compare(name, previous) == 0 && count == 1)
+                        || collator.compare(consoleName, jmenu.getItem(i).getText()) == 0) { // before the @JMenu is updated with count suffix
+                    // More than one @consolePanel for this plugin, but the previous is gone
                     if (getConsole().unRegisterGlobalKeyBinding(popUpAction2)) { // The binding existed
                         System.err.println("Removing " + consoleName + " passing accelerator to item: "
                                 + jmenu.getItem(i).getText());
@@ -411,7 +412,6 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         getConsole().unRegisterGlobalKeyBinding(popUpAction2);
 
     }
-
 
     /**
      * @param popupPosition
