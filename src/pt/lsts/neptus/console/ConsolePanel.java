@@ -39,11 +39,14 @@ import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Locale;
 import java.util.Vector;
 
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JDialog;
@@ -110,7 +113,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
 
     /** This is use to disable some configurations to be able to be used inside another {@link ConsolePanel} */
     private boolean usedInsideAnotherConsolePanel = false;
-    
+
     private final Vector<String> addedMenus = new Vector<String>();
     private final ConsoleLayout console;
     private final MainPanel mainpanel;
@@ -124,7 +127,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
     private JMenuItem menuItem = null;
 
     private double percentXPos, percentYPos, percentWidth, percentHeight;
-    
+
     private boolean editmode;
     private boolean fixedPosition = false;
     private boolean fixedSize = false;
@@ -142,8 +145,8 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
     }
 
     /**
-     * The constructor if you intend to use it inside another {@link ConsolePanel}
-     * (usedInsideAnotherConsolePanel should be true).
+     * The constructor if you intend to use it inside another {@link ConsolePanel} (usedInsideAnotherConsolePanel should
+     * be true).
      * 
      * If you don't intend to use it, don't need to override it.
      * 
@@ -166,8 +169,9 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
     /**
      * Creates and retrieves a console check menu item (toggle)
      * 
-     * @param itemPath The path to the menu item separated by ">". Examples: <li>
-     *            <b>"Tools > Local Network > Test Network"</b> <li><b>"Tools>Test Network"</b>
+     * @param itemPath The path to the menu item separated by ">". Examples:
+     *            <li><b>"Tools > Local Network > Test Network"</b>
+     *            <li><b>"Tools>Test Network"</b>
      * @param icon The icon to be used in the menu item. <br>
      *            Size is automatically adjusted to 16x16 pixels.
      * @param actionListener The {@link CheckMenuChangeListener} that will be warned on menu selection changes
@@ -188,19 +192,19 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         JMenu menu = getConsole().getOrCreateJMenu(path);
 
         final CheckMenuChangeListener l = checkListener;
-        JCheckBoxMenuItem item = new JCheckBoxMenuItem(new AbstractAction(menuName, icon == null ? null
-                : ImageUtils.getScaledIcon(icon.getImage(), 16, 16)) {
+        JCheckBoxMenuItem item = new JCheckBoxMenuItem(
+                new AbstractAction(menuName, icon == null ? null : ImageUtils.getScaledIcon(icon.getImage(), 16, 16)) {
 
-            private static final long serialVersionUID = 1L;
+                    private static final long serialVersionUID = 1L;
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (((JCheckBoxMenuItem) e.getSource()).getState())
-                    l.menuChecked(e);
-                else
-                    l.menuUnchecked(e);
-            }
-        });
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        if (((JCheckBoxMenuItem) e.getSource()).getState())
+                            l.menuChecked(e);
+                        else
+                            l.menuUnchecked(e);
+                    }
+                });
         menu.add(item);
         addedMenus.add(itemPath);
         return item;
@@ -224,8 +228,9 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
     /**
      * Creates and retrieves a console menu item
      * 
-     * @param itemPath The path to the menu item separated by ">". Examples: <li>
-     *            <b>"Tools > Local Network > Test Network"</b> <li><b>"Tools>Test Network"</b>
+     * @param itemPath The path to the menu item separated by ">". Examples:
+     *            <li><b>"Tools > Local Network > Test Network"</b>
+     *            <li><b>"Tools>Test Network"</b>
      * @param icon The icon to be used in the menu item. <br>
      *            Size is automatically adjusted to 16x16 pixels.
      * @param actionListener The {@link ActionListener} that will be warned on menu activation
@@ -297,8 +302,8 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         KeyStroke accelerator = null;
         if (cAction.accelerator() != KeyEvent.VK_UNDEFINED) {
             int key = cAction.accelerator();
-            if (key == KeyEvent.VK_C || key == KeyEvent.VK_V || key == KeyEvent.VK_X
-                    || key == KeyEvent.VK_Z || key == KeyEvent.VK_Y) {
+            if (key == KeyEvent.VK_C || key == KeyEvent.VK_V || key == KeyEvent.VK_X || key == KeyEvent.VK_Z
+                    || key == KeyEvent.VK_Y) {
                 NeptusLog.pub().error("Can't assign CTRL-X, CTRL-C, CTRL-V, CTRL-Z or CTRL-Y to popups.");
             }
             else {
@@ -308,6 +313,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         // Build menu
         ImageIcon icon = ImageUtils.getIcon(iconPath);
         menuItem = createMenuItem(popupPosition, name2, icon);
+        System.err.println("Name 2: " + name2);
         getConsole().addJMenuIntoViewMenu(menuItem);
 
         // Build Dialog
@@ -332,28 +338,80 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
             if (res)
                 menuItem.setAccelerator(accelerator);
         }
-        // dialog.add(this); This cannot be done here, because if the component is on the initial layout it will not show
+        // dialog.add(this); This cannot be done here, because if the component is on the initial layout it will not
+        // show
     }
 
     private void cleanPopup() {
         if (menuItem != null || dialog != null) {
             JMenu menu = getConsole().getOrCreateJMenu(new String[] { I18n.text("View") });
-            if(menu != null)
+            if (menu != null) {
                 menu.remove(menuItem);
+            }
             if (dialog != null) {
                 NeptusLog.pub().info("Closing popup dialog for: " + this.getName());
                 dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
                 dialog.dispose();
             }
-            
-            if (popUpAction != null)
-                getConsole().unRegisterGlobalKeyBinding(popUpAction);
+
+            if (popUpAction != null) {
+                if (menuItem != null)
+                    unRegisterOrPassKey(menu, popUpAction, menuItem.getText());
+            }
         }
-        
+
         menuItem = null;
         dialog = null;
         popUpAction = null;
     }
+
+    /**
+     * @param menu
+     * @param popUpAction2
+     */
+    private void unRegisterOrPassKey(JMenu jmenu, AbstractAction popUpAction2, String consoleName) {
+        String[] split = consoleName.split("_");
+        int count = split.length == 2 ? Integer.parseInt(split[1]) : 0;
+        if(count > 0) {
+            getConsole().unRegisterGlobalKeyBinding(popUpAction2);
+            return;
+        }
+        final Collator collator = Collator.getInstance(Locale.US);
+        if (jmenu.getItemCount() > 2)
+            for (int i = 0; i < jmenu.getItemCount(); i++) {
+                System.err.println("Inside loop "+i+" for consoleName "+consoleName);
+                String previous = consoleName.replaceAll("_\\d*$", "");
+                String name = jmenu.getItem(i).getText().replaceAll("_\\d*$", "");
+                split = jmenu.getItem(i).getText().split("_");
+                System.err.println("Comparing "+consoleName+" and "+jmenu.getItem(i).getText());
+                count = split.length == 2 ? Integer.parseInt(split[1]) : 0;
+                if (count > 1)
+                    return; // only the first plugin has the accelerator
+                if (collator.compare(name, previous) == 0 && count == 1) {
+                    // More than one console for this plugin, but the previous is gone
+                    if (getConsole().unRegisterGlobalKeyBinding(popUpAction2)) { // The binding existed
+                        System.err.println("Removing " + consoleName + " passing accelerator to item: "
+                                + jmenu.getItem(i).getText());
+                        final Popup cAction = getClass().getAnnotation(Popup.class);
+                        Action newPopUpAction = jmenu.getAction();
+                        if (newPopUpAction == null) {
+                            System.err.println("popupAction null");
+                            break;
+                        }
+                        KeyStroke accelerator = KeyStroke.getKeyStroke(cAction.accelerator(), KeyEvent.CTRL_DOWN_MASK);
+                        getConsole().registerGlobalKeyBinding(accelerator, newPopUpAction);
+                        jmenu.getItem(i).setAccelerator(accelerator);
+                        return;
+                    }
+
+                }
+
+            }
+        System.err.println("Getting Here");
+        getConsole().unRegisterGlobalKeyBinding(popUpAction2);
+
+    }
+
 
     /**
      * @param popupPosition
@@ -364,19 +422,19 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         }
         else {
             Container prt = ConsolePanel.this.getParent();
-            NeptusLog.pub().debug("Popup ConsolePanel " + getClass().getSimpleName() + " :: Parent " 
-                    + (prt == null ? "null" : prt.getClass().getSimpleName() 
-                    + "  isAssignableFrom ContainerSubPanel=" + ContainerSubPanel.class.isAssignableFrom(prt.getClass())
-                    + "  isDescendingFrom Dialog=" + SwingUtilities.isDescendingFrom(ConsolePanel.this.getParent(), dialog))
+            NeptusLog.pub().debug("Popup ConsolePanel " + getClass().getSimpleName() + " :: Parent " + (prt == null
+                    ? "null"
+                    : prt.getClass().getSimpleName() + "  isAssignableFrom ContainerSubPanel="
+                            + ContainerSubPanel.class.isAssignableFrom(prt.getClass()) + "  isDescendingFrom Dialog="
+                            + SwingUtilities.isDescendingFrom(ConsolePanel.this.getParent(), dialog))
                     + "  isVisible=" + ConsolePanel.this.isVisible() + "  isShowing=" + ConsolePanel.this.isShowing()
-                    + "  isValid=" + ConsolePanel.this.isValid() + "  isDisplayable=" + ConsolePanel.this.isDisplayable()
-                    + "  isEnabled=" + ConsolePanel.this.isEnabled()
-                    + "  dialog size=" + dialog.getSize()
-                    + "  Parent: " + prt);
+                    + "  isValid=" + ConsolePanel.this.isValid() + "  isDisplayable="
+                    + ConsolePanel.this.isDisplayable() + "  isEnabled=" + ConsolePanel.this.isEnabled()
+                    + "  dialog size=" + dialog.getSize() + "  Parent: " + prt);
             if (prt == null || (!ConsolePanel.this.isShowing()
                     && !SwingUtilities.isDescendingFrom(ConsolePanel.this.getParent(), dialog)))
                 dialog.add(ConsolePanel.this);
-            
+
             if (SwingUtilities.isDescendingFrom(ConsolePanel.this.getParent(), dialog)) {
                 dialog.setVisible(!dialog.isVisible());
                 if (dialog.isVisible())
@@ -394,21 +452,22 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
                 && !SwingUtilities.isDescendingFrom(ConsolePanel.this.getParent(), dialog))
             dialog.setVisible(false);
 
-        NeptusLog.pub().debug("Paint ConsolePanel " + getClass().getSimpleName() + " :: Parent " 
-                + (getParent() == null ? "null" : getParent().getClass().getSimpleName() 
-                + "  isAssignableFrom ContainerSubPanel=" + ContainerSubPanel.class.isAssignableFrom(getParent().getClass())
-                + "  isDescendingFrom Dialog=" + SwingUtilities.isDescendingFrom(ConsolePanel.this.getParent(), dialog))
+        NeptusLog.pub().debug("Paint ConsolePanel " + getClass().getSimpleName() + " :: Parent "
+                + (getParent() == null ? "null"
+                        : getParent().getClass().getSimpleName() + "  isAssignableFrom ContainerSubPanel="
+                                + ContainerSubPanel.class.isAssignableFrom(getParent().getClass())
+                                + "  isDescendingFrom Dialog="
+                                + SwingUtilities.isDescendingFrom(ConsolePanel.this.getParent(), dialog))
                 + "  isVisible=" + ConsolePanel.this.isVisible() + "  isShowing=" + ConsolePanel.this.isShowing()
                 + "  isValid=" + ConsolePanel.this.isValid() + "  isDisplayable=" + ConsolePanel.this.isDisplayable()
-                + "  isEnabled=" + ConsolePanel.this.isEnabled()
-                + "  Parent: " + getParent());
+                + "  isEnabled=" + ConsolePanel.this.isEnabled() + "  Parent: " + getParent());
 
         super.paint(g);
     }
 
     /**
-     * This is called when the console wants to remove the panel from the console (override it if
-     * needed to properly disposal of the component).
+     * This is called when the console wants to remove the panel from the console (override it if needed to properly
+     * disposal of the component).
      */
     public void clean() {
         NeptusEvents.unregister(this, this.console);
@@ -425,13 +484,13 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         }
 
         getConsole().removeMainVehicleListener(this);
-        
+
         if (this instanceof IPeriodicUpdates)
             PeriodicUpdatesService.unregister((IPeriodicUpdates) this);
 
         PeriodicUpdatesService.unregisterPojo(this);
         PluginMenuUtils.removePluginMenus(console, this);
-        
+
         if (this instanceof NeptusMessageListener) {
             if (getConsole() != null) {
                 messagesToListen.clear();
@@ -453,16 +512,16 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
             for (MapPanel p : pp)
                 p.removePostRenderPainter((Renderer2DPainter) this);
         }
-        
+
         if (this instanceof StateRendererInteraction) {
-            Vector<CustomInteractionSupport> panels = getConsole().getSubPanelsOfInterface(
-                    CustomInteractionSupport.class);
+            Vector<CustomInteractionSupport> panels = getConsole()
+                    .getSubPanelsOfInterface(CustomInteractionSupport.class);
             for (CustomInteractionSupport cis : panels)
                 cis.removeInteraction((StateRendererInteraction) this);
         }
 
         cleanPopup();
-        
+
         cleanSubPanel();
     }
 
@@ -523,7 +582,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
     public final String getName() {
         return PluginUtils.getPluginName(this.getClass());
     }
-    
+
     @Override
     public DefaultProperty[] getProperties() {
         return PluginUtils.getPluginProperties(this);
@@ -563,7 +622,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         mainVehicleId = getConsole().getMainSystem();
 
         getConsole().addMainVehicleListener(this);
-        
+
         if (this instanceof MissionChangeListener)
             getConsole().addMissionListener((MissionChangeListener) this);
 
@@ -577,8 +636,8 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         }
 
         if (this instanceof StateRendererInteraction) {
-            Vector<CustomInteractionSupport> panels = getConsole().getSubPanelsOfInterface(
-                    CustomInteractionSupport.class);
+            Vector<CustomInteractionSupport> panels = getConsole()
+                    .getSubPanelsOfInterface(CustomInteractionSupport.class);
             for (CustomInteractionSupport cis : panels)
                 cis.addInteraction((StateRendererInteraction) this);
         }
@@ -589,22 +648,22 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
 
         if (!usedInsideAnotherConsolePanel)
             this.buildPopup();
-        
+
         initSubPanel();
 
         // After all setup let us register the IPeriodicUpdates and Message callbacks
 
         if (this instanceof IPeriodicUpdates)
             PeriodicUpdatesService.register((IPeriodicUpdates) this);
-        
+
         PeriodicUpdatesService.registerPojo(this);
         PluginMenuUtils.addPluginMenus(console, this);
-        
+
         getConsole().getImcMsgManager().registerBusListener(this);
 
         if (this instanceof NeptusMessageListener) {
             getConsole().addMainVehicleListener((MainVehicleChangeListener) this);
-            
+
             for (String msg : ((NeptusMessageListener) this).getObservedMessages()) {
                 int id = -1;
                 try {
@@ -616,9 +675,9 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
                 if (id != -1 && !messagesToListen.contains(id))
                     messagesToListen.add(id);
                 else if (id == -1)
-                    System.err.println("Message " + msg
-                            + " is not valid in the current IMC specification (requested by "
-                            + PluginUtils.getPluginName(this.getClass()) + ")");
+                    System.err
+                            .println("Message " + msg + " is not valid in the current IMC specification (requested by "
+                                    + PluginUtils.getPluginName(this.getClass()) + ")");
             }
 
             if (getConsole() != null && !messagesToListen.isEmpty())
@@ -630,11 +689,11 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
     }
 
     public abstract void initSubPanel();
-    
+
     public void popupShown() {
         // do nothing by default
     }
-    
+
     public void popupHidden() {
         // do nothing by default
     }
@@ -765,7 +824,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         String destination = getConsole().getMainSystem();
         return send(destination, message);
     }
-    
+
     public void sendViaIridium(String destination, IMCMessage message) {
         if (message.getTimestamp() == 0)
             message.setTimestampMillis(System.currentTimeMillis());
@@ -781,7 +840,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         int dst = IMCDefinition.getInstance().getResolver().resolve(destination);
         int count = 0;
         try {
-            NeptusLog.pub().warn(message.getAbbrev()+" resulted in "+irMsgs.size()+" iridium SBD messages.");
+            NeptusLog.pub().warn(message.getAbbrev() + " resulted in " + irMsgs.size() + " iridium SBD messages.");
             for (ImcIridiumMessage irMsg : irMsgs) {
                 irMsg.setDestination(dst);
                 irMsg.setSource(src);
@@ -789,28 +848,29 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
                 if (irMsg.timestampMillis == 0)
                     irMsg.timestampMillis = System.currentTimeMillis();
                 IridiumManager.getManager().send(irMsg);
-                count ++;
+                count++;
             }
-            
-           getConsole().post(Notification.success("Iridium message sent", count+" Iridium messages were sent using "+IridiumManager.getManager().getCurrentMessenger().getName()));
+
+            getConsole().post(Notification.success("Iridium message sent", count + " Iridium messages were sent using "
+                    + IridiumManager.getManager().getCurrentMessenger().getName()));
         }
         catch (Exception e) {
             GuiUtils.errorMessage(getConsole(), e);
             return;
         }
     }
-    
+
     public boolean sendToOtherCCUs(IMCMessage message) {
         ImcSystem[] ccus = ImcSystemsHolder.lookupSystemCCUs();
-        
+
         boolean sent = false;
-        
+
         for (ImcSystem s : ccus) {
             boolean success = getConsole().getImcMsgManager().sendMessageToSystem(message, s.getName());
-//            System.out.println("Sending "+message.getAbbrev()+" to "+s.getName()+": "+success);
+            // System.out.println("Sending "+message.getAbbrev()+" to "+s.getName()+": "+success);
             sent |= success;
         }
-        
+
         return sent;
     }
 
