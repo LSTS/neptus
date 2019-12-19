@@ -483,12 +483,14 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
             return false;
         }
         else {
+            System.err.println("Registing "+name.toString());
             this.globalKeybindings.put(name.toString(), action);
             return true;
         }
     }
 
     public boolean unRegisterGlobalKeyBinding(Action action) {
+        System.err.println("Unregistering key");
         for (String ky : this.globalKeybindings.keySet()) {
             Action ac = this.globalKeybindings.get(ky);
             if (ac == action)
@@ -621,10 +623,8 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
                     int count = split.length == 2 ? Integer.parseInt(split[1]) : 0;
                     if(collator.compare(name, previous) < 0 && count>=1) { // When the first instance of the plugins was removed
                         count--;
-                        if(count > 0) {
                             name+="_"+count;
                             current.setText(name);
-                            }
                     }
                     else if (collator.compare(name, previous) < 0)
                         continue;
