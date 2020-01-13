@@ -313,7 +313,6 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         // Build menu
         ImageIcon icon = ImageUtils.getIcon(iconPath);
         menuItem = createMenuItem(popupPosition, name2, icon);
-        System.err.println("Name 2: " + name2);
         getConsole().addJMenuIntoViewMenu(menuItem);
 
         // Build Dialog
@@ -379,38 +378,33 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         final Collator collator = Collator.getInstance(Locale.US);
         if (jmenu.getItemCount() > 2)
             for (int i = 0; i < jmenu.getItemCount(); i++) {
-                System.err.println("Inside loop " + i + " for consoleName " + consoleName);
                 String previous = consoleName.replaceAll("_\\d*$", "");
                 String name = jmenu.getItem(i).getText().replaceAll("_\\d*$", "");
                 split = jmenu.getItem(i).getText().split("_");
-                System.err.println("Comparing " + consoleName + " and " + jmenu.getItem(i).getText());
                 count = split.length == 2 ? Integer.parseInt(split[1]) : 0;
                 if (count > 1)
                     return; // only the first plugin has the accelerator
                 if ((collator.compare(name, previous) == 0 && count == 1)
-                        || collator.compare(consoleName, jmenu.getItem(i).getText()) == 0) { // before the @JMenu is updated with count suffix
+                        || collator.compare(consoleName, jmenu.getItem(i).getText()) == 0) { // before the @JMenu is
+                                                                                             // updated with count
+                                                                                             // suffix
                     // More than one @consolePanel for this plugin, but the previous is gone
                     if (getConsole().unRegisterGlobalKeyBinding(popUpAction2)) { // The binding existed
-                        System.err.println("Removing " + consoleName + " passing accelerator to item: "
-                                + jmenu.getItem(i).getText());
+                        NeptusLog.pub().warn(I18n.text("Removing " + consoleName + " passing accelerator to item: "
+                                + jmenu.getItem(i).getText()));
+                        Action a = jmenu.getItem(i).getAction();
+                        if(a == null)
+                            return;
                         final Popup cAction = getClass().getAnnotation(Popup.class);
-                        Action newPopUpAction = jmenu.getAction();
-                        if (newPopUpAction == null) {
-                            System.err.println("popupAction null");
-                            break;
-                        }
                         KeyStroke accelerator = KeyStroke.getKeyStroke(cAction.accelerator(), KeyEvent.CTRL_DOWN_MASK);
-                        getConsole().registerGlobalKeyBinding(accelerator, newPopUpAction);
-                        jmenu.getItem(i).setAccelerator(accelerator);
+                        if (getConsole().registerGlobalKeyBinding(accelerator, a))
+                            jmenu.getItem(i).setAccelerator(accelerator);
                         return;
                     }
 
                 }
 
             }
-        System.err.println("Getting Here");
-        getConsole().unRegisterGlobalKeyBinding(popUpAction2);
-
     }
 
     /**
