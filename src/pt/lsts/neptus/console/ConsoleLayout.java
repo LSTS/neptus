@@ -483,14 +483,13 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
             return false;
         }
         else {
-            System.err.println("Registing "+name.toString());
             this.globalKeybindings.put(name.toString(), action);
             return true;
         }
     }
 
     public boolean unRegisterGlobalKeyBinding(Action action) {
-        System.err.println("Unregistering key");
+        NeptusLog.pub().warn(I18n.text("Unregistering Key Accelerator"));
         for (String ky : this.globalKeybindings.keySet()) {
             Action ac = this.globalKeybindings.get(ky);
             if (ac == action)
@@ -618,7 +617,6 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
                     JMenuItem current = jmenu.getItem(i);
                     String name = current.getText().replaceAll("_\\d*$", "");
                     String previous = jmenu.getItem(i-1).getText().replaceAll("_\\d*$", "");
-                    System.err.println("Adding "+name+" previous item: "+previous);
                     String [] split = jmenu.getItem(i-1).getText().split("_");
                     int count = split.length == 2 ? Integer.parseInt(split[1]) : 0;
                     if(collator.compare(name, previous) < 0 && count>=1) { // When the first instance of the plugins was removed
@@ -626,24 +624,40 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
                             name+="_"+count;
                             current.setText(name);
                     }
-                    else if (collator.compare(name, previous) < 0)
-                        continue;
-                    else if(collator.compare(name, previous) == 0) {
-                        System.err.println("Comparing "+name+" and "+previous);
-                        if(count >= 1) {
-                            count++;
-                            name+="_"+count;
+                    else {
+                        if (collator.compare(name, previous) < 0)
+                            continue;
+                        else if (collator.compare(name, previous) == 0) {
+                            if(i < jmenu.getItemCount()-1) {
+                                String next = jmenu.getItem(i+1).getText().replaceAll("_\\d*$", "");
+                                String [] splited = jmenu.getItem(i).getText().split("_");
+                                int count_this = splited.length == 2 ? Integer.parseInt(splited[1]) : 0;
+                                if(collator.compare(name, next) == 0 && count_this==0) {
+                                    swapMenuitems(jmenu,i);
+                                    continue;
+                                }
+                                    
+                            }
+                            if (count >= 1) {
+                                count++;
+                                name += "_" + count;
+                            }
+                            else if (count == 0)
+                                name += "_1";
                         }
-                        else if(count == 0)
-                            name+="_1";
+                        current.setText(name);
                     }
-                    System.err.println("New name "+name);
-                    current.setText(name);
                 }
-                
-                
+            
             }
             
+            private void swapMenuitems(JMenu jmenu, int i) {
+                JMenuItem first  = jmenu.getItem(i);
+                jmenu.remove(i);
+                jmenu.add(first, i+1);
+                
+            }
+
             @Override
             public void menuDeselected(MenuEvent e) {
                 // TODO Auto-generated method stub
