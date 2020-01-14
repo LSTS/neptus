@@ -52,7 +52,7 @@ public class ClassPropertiesInfo {
     private final String name;
     private PropertySheetPanel propertiesPanel;
     private final ImageIcon icon;
-    String defaultIcon = "images/menus/settings.png";
+    private String defaultIcon = "images/menus/settings.png";
 
 
     /**
@@ -82,6 +82,7 @@ public class ClassPropertiesInfo {
                 raw = ImageUtils.createImageIcon(defaultIcon);
             }
             else {
+                defaultIcon = pathToIcon;
                 raw = new ImageIcon(ImageUtils.getFastScaledImage(raw.getImage(), 12, 12, false));
             }
         }
@@ -107,6 +108,13 @@ public class ClassPropertiesInfo {
      */
     public String getName() {
         return name;
+    }
+
+    /**
+     * @return the defaultIcon
+     */
+    public String getDefaultIconPath() {
+        return defaultIcon;
     }
 
     /**

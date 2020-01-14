@@ -166,7 +166,7 @@ public class FunctionalitiesSettings extends JPanel {
         levelTrees.clear();
         setupTreeModels(subPanels);
     }
-    
+
     /**
      * Create all the components of the panel: JSplitPane with a scroll pane with the tree on the left side and a holder
      * JPanel for properties on the right.
@@ -534,15 +534,37 @@ public class FunctionalitiesSettings extends JPanel {
     }
 
     private ArrayList<DefaultMutableTreeNode> sortNodes(ArrayList<DefaultMutableTreeNode> unsortedNodes) {
+        Collator collator = Collator.getInstance(Locale.US);
         Collections.sort(unsortedNodes, new Comparator<DefaultMutableTreeNode>() {
             @Override
             public int compare(DefaultMutableTreeNode n1, DefaultMutableTreeNode n2) {
                 String s1 = I18n.text(((ClassPropertiesInfo) n1.getUserObject()).getName());
                 String s2 = I18n.text(((ClassPropertiesInfo) n2.getUserObject()).getName());
-                Collator collator = Collator.getInstance(Locale.US);
                 return collator.compare(s1, s2);
             }
         });
+        if (unsortedNodes.size() > 1)
+            for (int i = 1; i < unsortedNodes.size(); i++) {
+                DefaultMutableTreeNode n1 = unsortedNodes.get(i-1);
+                DefaultMutableTreeNode n2 = unsortedNodes.get(i);
+                String s11 = I18n.text(((ClassPropertiesInfo) n1.getUserObject()).getName());
+                String s1 = s11.replaceAll("_\\d*$", "");
+                String s2 = I18n.text(((ClassPropertiesInfo) n2.getUserObject()).getName()).replaceAll("_\\d*$", "");
+                //TODO trim names 
+                String[] split = s11.split("_");
+                int count = split.length == 2 ? Integer.parseInt(split[1]) : 0;
+                if (collator.compare(s1, s2) == 0) {
+                    count++;
+                    s2 += "_" + count;
+                    
+                    // Replace object in the source list
+                    ClassPropertiesInfo n22 = (ClassPropertiesInfo) n2.getUserObject();
+                    ClassPropertiesInfo node2 = new ClassPropertiesInfo(n22.getClassInstance(), n22.getFunctionality(),
+                            s2, n22.getPropertiesPanel(), n22.getDefaultIconPath());
+                    n2.setUserObject(node2);
+                    unsortedNodes.set(i, n2);
+                }
+            }
         return unsortedNodes;
     }
 
@@ -582,9 +604,9 @@ public class FunctionalitiesSettings extends JPanel {
             neptusProperty = f.getAnnotation(NeptusProperty.class);
             if (neptusProperty == null)
                 continue;
-            
+
             f.setAccessible(true); // To be able to access private and protected NeptusProperties
-            
+
             // CLIENT / DEVELOPER
             if (clientConsole && neptusProperty.distribution() == DistributionEnum.DEVELOPER)
                 continue;
@@ -598,9 +620,8 @@ public class FunctionalitiesSettings extends JPanel {
                 String defaultStr = null;
                 if (defaults.containsKey(f.getName()))
                     defaultStr = defaults.get(f.getName()).serialize();
-                
-                pp = PluginUtils.createPluginProperty(funcClass, f, defaultStr, true, pEditorRegistry,
-                        pRenderRegistry);
+
+                pp = PluginUtils.createPluginProperty(funcClass, f, defaultStr, true, pEditorRegistry, pRenderRegistry);
 
             }
             catch (Exception e) {
@@ -610,12 +631,13 @@ public class FunctionalitiesSettings extends JPanel {
             if (pp != null)
                 propertiesPanel.addProperty(pp);
         }
-        
-//        LinkedHashMap<String, PluginProperty> props = PluginUtils.getProperties(funcClass, true, pEditorRegistry, pRenderRegistry);
-//        for (PluginProperty pp : props.values()) {
-//            if (pp != null)
-//                propertiesPanel.addProperty(pp);
-//        }
+
+        // LinkedHashMap<String, PluginProperty> props = PluginUtils.getProperties(funcClass, true, pEditorRegistry,
+        // pRenderRegistry);
+        // for (PluginProperty pp : props.values()) {
+        // if (pp != null)
+        // propertiesPanel.addProperty(pp);
+        // }
         return propertiesPanel;
     }
 
@@ -738,4 +760,3 @@ public class FunctionalitiesSettings extends JPanel {
         }
     }
 }
-
