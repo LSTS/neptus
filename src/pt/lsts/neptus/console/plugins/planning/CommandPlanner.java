@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2020 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -57,12 +57,11 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
-import pt.lsts.neptus.gui.editor.SpeedUnitsEnumEditor;
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.mp.Maneuver;
-import pt.lsts.neptus.mp.Maneuver.SPEED_UNITS;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
+import pt.lsts.neptus.mp.SpeedType;
+import pt.lsts.neptus.mp.SpeedType.Units;
 import pt.lsts.neptus.mp.maneuvers.Goto;
 import pt.lsts.neptus.mp.maneuvers.Loiter;
 import pt.lsts.neptus.mp.maneuvers.StationKeeping;
@@ -93,10 +92,7 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
     public double auvDepth = 0;
 
     @NeptusProperty(name = "AUV travelling speed", category = "AUV", userLevel = LEVEL.REGULAR)
-    public double auvSpeed = 1000;
-
-    @NeptusProperty(name = "AUV travelling speed units", category = "AUV", editorClass = SpeedUnitsEnumEditor.class, userLevel = LEVEL.REGULAR)
-    public Maneuver.SPEED_UNITS auvSpeedUnits = SPEED_UNITS.RPM;
+    public SpeedType auvSpeed = new SpeedType(1000, Units.RPM);
 
     @NeptusProperty(name = "AUV loiter depth", category = "AUV", userLevel = LEVEL.REGULAR)
     public double auvLtDepth = 3;
@@ -117,19 +113,13 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
     private pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS uavZUnits = ManeuverLocation.Z_UNITS.HEIGHT;
 
     @NeptusProperty(name = "UAV flying speed", category = "UAV", userLevel = LEVEL.REGULAR)
-    public double uavSpeed = 18;
-
-    @NeptusProperty(name = "UAV flying speed units", category = "UAV", editorClass = SpeedUnitsEnumEditor.class, userLevel = LEVEL.REGULAR)
-    public Maneuver.SPEED_UNITS uavSpeedUnits = SPEED_UNITS.METERS_PS;
+    public SpeedType uavSpeed = new SpeedType(18, Units.MPS);
 
     @NeptusProperty(name = "UAV loiter radius", category = "UAV", userLevel = LEVEL.REGULAR)
     public double uavLoiterRadius = 180;
 
     @NeptusProperty(name = "ASV speed", category = "ASV", userLevel = LEVEL.REGULAR)
-    public double asvSpeed = 1000;
-
-    @NeptusProperty(name = "ASV speed units", category = "ASV", editorClass = SpeedUnitsEnumEditor.class, userLevel = LEVEL.REGULAR)
-    public Maneuver.SPEED_UNITS asvSpeedUnits = SPEED_UNITS.RPM;
+    public SpeedType asvSpeed = new SpeedType(1000, Units.RPM);
 
     @NeptusProperty(name = "ASV Station Keeping radius", category = "ASV", description = "Radius of the circle where the ASV should keep its position", userLevel = LEVEL.REGULAR)
     public double asvSkRadius = 20;
@@ -210,21 +200,22 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
         Vector<JMenuItem> items = new Vector<JMenuItem>();
         final LocationType target = loc;
         for (final VehicleType v : avVehicles) {
-            JMenu menu = new JMenu(I18n.textf("Command %vehicle", v.getId()));
-            ImageIcon vicon;
-            if (vehIconPool.containsKey(v.getId())) {
-                vicon = vehIconPool.get(v.getId());
-            }
-            else {
-                String imgFile;
-                if (!v.getPresentationImageHref().equalsIgnoreCase(""))
-                    imgFile = v.getPresentationImageHref();
-                else
-                    imgFile = v.getSideImageHref();
-                Image vimg = new ImageIcon(imgFile).getImage();
-                vicon = new ImageIcon(vimg.getScaledInstance(40, -1, Image.SCALE_SMOOTH));
-                vehIconPool.put(v.getId(), vicon);
-            }
+            try {
+                JMenu menu = new JMenu(I18n.textf("Command %vehicle", v.getId()));
+                ImageIcon vicon;
+                if (vehIconPool.containsKey(v.getId())) {
+                    vicon = vehIconPool.get(v.getId());
+                }
+                else {
+                    String imgFile;
+                    if (!v.getPresentationImageHref().equalsIgnoreCase(""))
+                        imgFile = v.getPresentationImageHref();
+                    else
+                        imgFile = v.getSideImageHref();
+                    Image vimg = new ImageIcon(imgFile).getImage();
+                    vicon = new ImageIcon(vimg.getScaledInstance(40, -1, Image.SCALE_SMOOTH));
+                    vehIconPool.put(v.getId(), vicon);
+                }
 
             menu.setIcon(vicon);
 
@@ -235,22 +226,21 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
                 case "auv":
                 case "uuv":
                     loiterSettings += "D="+nf.format(auvLtDepth);
-                    loiterSettings += " / S="+nf.format(auvSpeed)+" "+auvSpeedUnits.getString()+")";
+                    loiterSettings += " / S="+auvSpeed.toStringAsDefaultUnits()+")";
                     settings += "D="+nf.format(auvDepth);
-                    settings += " / S="+nf.format(auvSpeed)+" "+auvSpeedUnits.getString()+")";                    
+                    settings += " / S="+auvSpeed.toStringAsDefaultUnits()+")";                    
                     break;
                 case "asv":
                 case "usv":
-                    settings += " / S="+nf.format(asvSpeed)+" "+asvSpeedUnits.getString()+")";                    
+                    settings += " / S="+asvSpeed.toStringAsDefaultUnits()+")";                    
                     break;
                 case "uav":
                     settings += uavZUnits.name().substring(0, 1)+"="+nf.format(uavZ) ;
-                    settings += " S="+nf.format(uavSpeed)+" "+uavSpeedUnits.getString()+")";     
+                    settings += " S="+uavSpeed.toStringAsDefaultUnits()+")";     
                     break;
                 default:
                     break;
             }
-            
             
             boolean ok = false;
             if (v.getFeasibleManeuvers().containsValue(Goto.class.getName())) {
@@ -260,32 +250,26 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
                         new Thread() {
                             @Override
                             public void run() {
-                                double speed = 0;
                                 double z = 0;
                                 ManeuverLocation.Z_UNITS zunits = Z_UNITS.NONE;
-                                Maneuver.SPEED_UNITS speedUnit = SPEED_UNITS.RPM;
 
                                 PlanCreator creator = new PlanCreator(getConsole().getMission());
                                 creator.setLocation(target);
                                 if ("auv".equalsIgnoreCase(v.getType()) || "uuv".equalsIgnoreCase(v.getType())) {
-                                    speed = auvSpeed;
                                     z = auvDepth;
                                     zunits = ManeuverLocation.Z_UNITS.DEPTH;
-                                    speedUnit = auvSpeedUnits;
                                     creator.setZ(z, zunits);
-                                }
+                                    creator.setSpeed(auvSpeed);                                }
                                 else if ("uav".equalsIgnoreCase(v.getType())) {
-                                    speed = uavSpeed;
                                     z = uavZ;
                                     zunits = uavZUnits;
-                                    speedUnit = uavSpeedUnits;
+                                    creator.setSpeed(uavSpeed);
                                     creator.setZ(z, zunits);
                                 }
                                 else if ("asv".equalsIgnoreCase(v.getType()) || "usv".equalsIgnoreCase(v.getType())) {
-                                    speed = asvSpeed;
                                     z = 0;
                                     zunits = ManeuverLocation.Z_UNITS.DEPTH;
-                                    speedUnit = asvSpeedUnits;
+                                    creator.setSpeed(asvSpeed);
                                     creator.setZ(z, zunits);
                                 }
                                 else {
@@ -293,7 +277,7 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
                                     return;
                                 }
                                 creator.setZ(z, zunits);
-                                creator.addManeuver("Goto", "speed", speed, "speedUnits", speedUnit.getString());
+                                creator.addManeuver("Goto");
                                 PlanType plan = creator.getPlan();
                                 plan.setVehicle(v);
                                 plan.setId("cmd-"+v);
@@ -314,29 +298,24 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
                             @Override
                             public void run() {
 
-                                double speed = 0;
-                                Maneuver.SPEED_UNITS speedUnit = SPEED_UNITS.RPM;
+                                PlanCreator creator = new PlanCreator(getConsole().getMission());
                                 double radius = 10;
                                 int duration = 0;
                                 if ("auv".equalsIgnoreCase(v.getType()) || "uuv".equalsIgnoreCase(v.getType())) {
-                                    speed = auvSpeed;
-                                    speedUnit = auvSpeedUnits;
                                     radius = auvSkRadius;
+                                    creator.setSpeed(auvSpeed);
                                 }
                                 else if ("asv".equalsIgnoreCase(v.getType()) || "usv".equalsIgnoreCase(v.getType())) {
-                                    speed = asvSpeed;
-                                    speedUnit = asvSpeedUnits;
                                     radius = asvSkRadius;
+                                    creator.setSpeed(asvSpeed);
                                 }
                                 else {
                                     return;
                                 }
 
-                                PlanCreator creator = new PlanCreator(getConsole().getMission());
                                 creator.setLocation(target);
                                 creator.setZ(0, Z_UNITS.DEPTH);
-                                creator.addManeuver("StationKeeping", "speed", speed, "speedUnits", speedUnit.getString(),
-                                        "duration", duration, "radius", radius);
+                                creator.addManeuver("StationKeeping", "duration", duration, "radius", radius);
                                 PlanType plan = creator.getPlan();
                                 plan.setVehicle(v);
                                 plan.setId("cmd-"+v);
@@ -357,31 +336,27 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
                             @Override
                             public void run() {
 
-                                double speed = 0;
-                                Maneuver.SPEED_UNITS speedUnit = SPEED_UNITS.RPM;
                                 double radius = 10;
                                 int duration = 0;
                                 double z = 0;
                                 Z_UNITS zunits = Z_UNITS.NONE;
+                                PlanCreator creator = new PlanCreator(getConsole().getMission());
 
                                 if ("auv".equalsIgnoreCase(v.getType()) || "uuv".equalsIgnoreCase(v.getType())) {
-                                    speed = auvSpeed;
-                                    speedUnit = auvSpeedUnits;
+                                    creator.setSpeed(auvSpeed);
                                     radius = auvLoiterRadius;
                                     z = auvLtDepth;
                                     duration = auvLtDuration;
                                     zunits = Z_UNITS.DEPTH;
                                 }
                                 else if ("asv".equalsIgnoreCase(v.getType()) || "usv".equalsIgnoreCase(v.getType())) {
-                                    speed = asvSpeed;
-                                    speedUnit = asvSpeedUnits;
+                                    creator.setSpeed(asvSpeed);
                                     radius = asvLoiterRadius;
                                     z = 0;
                                     zunits = Z_UNITS.DEPTH;
                                 }
                                 else if ("uav".equalsIgnoreCase(v.getType())) {
-                                    speed = uavSpeed;
-                                    speedUnit = uavSpeedUnits;
+                                    creator.setSpeed(uavSpeed);
                                     radius = uavLoiterRadius;
                                     z = uavZ;
                                     zunits = uavZUnits;
@@ -390,35 +365,36 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
                                     return;
                                 }
 
-                                PlanCreator creator = new PlanCreator(getConsole().getMission());
-                                creator.setLocation(target);
-                                creator.setZ(z, zunits);
-                                creator.addManeuver("Loiter", "speed", speed, "speedUnits", speedUnit.getString(),
-                                        "loiterDuration", duration, "radius", radius);
-                                PlanType plan = creator.getPlan();
-                                plan.setVehicle(v);
-                                plan.setId("cmd-"+v);
-                                plan = addPlanToMission(plan);
-                                startPlan(plan, false, (arg0.getModifiers() & ActionEvent.CTRL_MASK) != 0);
-                            }
-                        }.start();
-                    }
-                });
-                ok = true;
-            }
+                                    creator.setLocation(target);
+                                    creator.setZ(z, zunits);
+                                    creator.addManeuver("Loiter", "loiterDuration", duration, "radius", radius);
+                                    PlanType plan = creator.getPlan();
+                                    plan.setVehicle(v);
+                                    plan.setId("cmd-"+v);
+                                    plan = addPlanToMission(plan);
+                                    startPlan(plan, false, (arg0.getModifiers() & ActionEvent.CTRL_MASK) != 0);
+                                }
+                            }.start();
+                        }
+                    });
+                    ok = true;
+                }
 
-            if (ok) {
-                menu.addSeparator();
-                menu.add(new AbstractAction(I18n.text("Change settings")) {
-                    
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        PluginUtils.editPluginProperties(CommandPlanner.this, getConsole(), true);
-                    }
-                });
-                items.add(menu);
+	        if (ok) {
+	            menu.addSeparator();
+	            menu.add(new AbstractAction(I18n.text("Change settings")) {
+	                
+  	                @Override
+	                public void actionPerformed(ActionEvent e) {
+	                    PluginUtils.editPluginProperties(CommandPlanner.this, getConsole(), true);
+	                }
+	            });
+	            items.add(menu);
+	        }
             }
-
+            catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         return items;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2020 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -39,6 +39,7 @@ import pt.lsts.neptus.console.ConsoleInteraction;
 import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.mp.element.IPlanElement;
 import pt.lsts.neptus.mra.exporters.MRAExporter;
 import pt.lsts.neptus.mra.replay.LogReplayLayer;
 import pt.lsts.neptus.mra.replay.LogReplayPanel;
@@ -59,7 +60,8 @@ public class PluginsRepository {
             MRAExporter.class,
             LogReplayLayer.class,
             LogReplayPanel.class,
-            IPlanFileExporter.class
+            IPlanFileExporter.class,
+            IPlanElement.class
             );
       
     private static LinkedHashMap<String, Class<? extends MapTileProvider>> tileProviders = new LinkedHashMap<String, Class<? extends MapTileProvider>>();
@@ -126,6 +128,17 @@ public class PluginsRepository {
         }
     }
     
+    public static IPlanElement<?> getPlanElement(String pluginName) {
+        try {
+            IPlanElement<?> spprov = extensions.getPlugin(pluginName, IPlanElement.class);
+            return spprov;
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error("loading layer plugin ", e);
+            return null;
+        }
+    }
+    
     public static <T> LinkedHashMap<String, Class<? extends T>> listExtensions(Class<T> type) {
         return extensions.listExtensions(type);
     }
@@ -152,6 +165,11 @@ public class PluginsRepository {
     
     public static LinkedHashMap<String, Class<? extends LogReplayLayer>> getReplayLayers() {
         return extensions.listExtensions(LogReplayLayer.class);
+    }
+
+    @SuppressWarnings("rawtypes")
+    public static LinkedHashMap<String, Class<? extends IPlanElement>> getPlanElements() {
+        return extensions.listExtensions(IPlanElement.class);
     }
 
     public static LinkedHashMap<String, Class<? extends MapTileProvider>> getTileProviders() {

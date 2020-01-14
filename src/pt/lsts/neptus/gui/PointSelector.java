@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2020 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -38,6 +38,7 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.objparams.ParametersPanel;
 import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 /**
  * @author Zé Carlos
  */
@@ -102,10 +103,23 @@ public class PointSelector extends ParametersPanel {
 	}
 	
 	public void setLocationType(LocationType location) {
-		getHeightDepthSelector().setZ(location.getDepth());		
-		getLatLongSelector().setLatitude(CoordinateUtil.parseLatitudeStringToDMS(location.getLatitudeStr()));
-		getLatLongSelector().setLongitude(CoordinateUtil.parseLongitudeStringToDMS(location.getLongitudeStr()));
-		getLatLongSelector().setDMSStyleIndicatorTo(LatLongSelector.DMS_DISPLAY);
+		getHeightDepthSelector().setZ(location.getDepth());
+		double[] lld = location.getAbsoluteLatLonDepth();
+		getLatLongSelector().setLatitude(CoordinateUtil.decimalDegreesToDMS(lld[0]));
+		getLatLongSelector().setLongitude(CoordinateUtil.decimalDegreesToDMS(lld[1]));
+		
+		switch (GeneralPreferences.latLonPrefFormat) {
+            case DMS:
+                getLatLongSelector().setDMSStyleIndicatorTo(LatLongSelector.DMS_DISPLAY);
+                break;
+            case DM:
+                getLatLongSelector().setDMSStyleIndicatorTo(LatLongSelector.DM_DISPLAY);
+                break;                
+            default:
+                getLatLongSelector().setDMSStyleIndicatorTo(LatLongSelector.DECIMAL_DEGREES_DISPLAY);
+                break;
+        }
+		
 	}
 	
 	/**

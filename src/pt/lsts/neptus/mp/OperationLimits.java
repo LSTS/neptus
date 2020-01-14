@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2020 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -65,12 +65,12 @@ public class OperationLimits implements Renderer2DPainter {
 
     public static final String FOLDER_CONF_OPLIMITS = ConfigFetch.getConfFolder() + "/oplimits/";
 
-    private static final Color STRIPES_YELLOW_TRAMP = ColorUtils.setTransparencyToColor(ColorUtils.STRIPES_YELLOW, 130);
-    private static final Paint PAINT_STRIPES = ColorUtils.createStripesPaint(ColorUtils.STRIPES_YELLOW, Color.BLACK);
-    private static final Paint PAINT_STRIPES_TRAMSP = ColorUtils.createStripesPaint(STRIPES_YELLOW_TRAMP,
+    public static final Color STRIPES_YELLOW_TRAMP = ColorUtils.setTransparencyToColor(ColorUtils.STRIPES_YELLOW, 130);
+    public static final Paint PAINT_STRIPES = ColorUtils.createStripesPaint(ColorUtils.STRIPES_YELLOW, Color.BLACK);
+    public static final Paint PAINT_STRIPES_TRAMSP = ColorUtils.createStripesPaint(STRIPES_YELLOW_TRAMP,
             ColorUtils.setTransparencyToColor(Color.BLACK, 130));
-    private static final Paint PAINT_STRIPES_NOT_SYNC = ColorUtils.createStripesPaint(ColorUtils.STRIPES_YELLOW, Color.RED);
-    private static final Paint PAINT_STRIPES_NOT_SYNC_TRAMSP = ColorUtils.createStripesPaint(STRIPES_YELLOW_TRAMP,
+    public static final Paint PAINT_STRIPES_NOT_SYNC = ColorUtils.createStripesPaint(ColorUtils.STRIPES_YELLOW, Color.RED);
+    public static final Paint PAINT_STRIPES_NOT_SYNC_TRAMSP = ColorUtils.createStripesPaint(STRIPES_YELLOW_TRAMP,
             ColorUtils.setTransparencyToColor(Color.RED, 130));
 
     protected Double maxDepth = null;

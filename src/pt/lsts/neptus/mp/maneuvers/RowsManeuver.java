@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2020 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -59,7 +59,6 @@ import com.l2fprod.common.propertysheet.Property;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.Rows;
-import pt.lsts.imc.def.SpeedUnits;
 import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
@@ -67,6 +66,8 @@ import pt.lsts.neptus.gui.ToolbarSwitch;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.SpeedType;
+import pt.lsts.neptus.mp.SpeedType.Units;
 import pt.lsts.neptus.renderer2d.InteractionAdapter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.renderer2d.StateRendererInteraction;
@@ -92,14 +93,14 @@ IMCSerialization, StatisticsProvider, PathProvider {
             unblockNewRows = true;
     }
 
-    protected double latRad = 0, lonRad = 0, z = 2, speed = 1000, bearingRad = 0, width = 100,
+    protected double latRad = 0, lonRad = 0, z = 2, bearingRad = 0, width = 100,
             length = 200, hstep = 27, ssRangeShadow = 30;
     protected double crossAngleRadians = 0;
     protected double curvOff = 15;
     protected float alternationPercentage = 1.0f;
     protected boolean squareCurve = true, firstCurveRight = true;
     protected boolean paintSSRangeShadow = true;
-    protected Maneuver.SPEED_UNITS speedUnits = SPEED_UNITS.RPM;
+    protected SpeedType speed = new SpeedType(1000, Units.RPM);
     protected ManeuverLocation.Z_UNITS zunits = ManeuverLocation.Z_UNITS.NONE;
 
     protected InteractionAdapter adapter = new InteractionAdapter(null);
@@ -148,14 +149,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
             lonRad = getManeuverLocation().getLongitudeRads();
             z = getManeuverLocation().getZ();
             zunits = getManeuverLocation().getZUnits();
-
-            // Velocity
-            Node speedNode = doc.selectSingleNode("//speed");
-            speed = Double.parseDouble(speedNode.getText());
-//            speed_units = speedNode.valueOf("@unit");
-            SPEED_UNITS sUnits = ManeuversXMLUtil.parseSpeedUnits((Element) speedNode);
-            setSpeedUnits(sUnits);
-
+            SpeedType.parseManeuverSpeed(doc.getRootElement(), this);
             bearingRad = Math.toRadians(Double.parseDouble(doc.selectSingleNode("//bearing").getText()));
 
             // area
@@ -243,8 +237,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
         clone.bearingRad = bearingRad;
         clone.hstep = hstep;        
         clone.length = length;
-        clone.speed = speed;
-        clone.speedUnits = speedUnits;
+        clone.speed = getSpeed();
         clone.width = width;
 
         clone.alternationPercentage = alternationPercentage;
@@ -293,11 +286,8 @@ IMCSerialization, StatisticsProvider, PathProvider {
         if (!firstCurveRight)
             root.addElement("firstCurveRight").setText(""+firstCurveRight);
 
-        //speed
-        Element speedElem = root.addElement("speed");        
-        speedElem.addAttribute("unit", speedUnits.getString());
-        speedElem.setText(""+speed);
-
+        SpeedType.addSpeedElement(root, this);
+        
         if (!paintSSRangeShadow) {
             root.addElement("paintSSRangeShadow").setText(""+paintSSRangeShadow);
         }
@@ -674,7 +664,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
         man.setLon(lonRad);
         man.setZ(z);
         man.setZUnits(ZUnits.valueOf(getManeuverLocation().getZUnits().toString()));        
-        man.setSpeed(speed);
+        
         man.setWidth(width);
         man.setLength(length);
         man.setBearing(bearingRad);
@@ -684,24 +674,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
         man.setAlternation((short)(alternationPercentage*100));
         man.setCustom(getCustomSettings());
         man.setFlags((short) ((squareCurve ? Rows.FLG_SQUARE_CURVE : 0) + (firstCurveRight ? Rows.FLG_CURVE_RIGHT : 0)));
-
-        try {
-            switch (this.getSpeedUnits()) {
-                case METERS_PS:
-                    man.setSpeedUnits(SpeedUnits.METERS_PS);
-                    break;
-                case PERCENTAGE:
-                    man.setSpeedUnits(SpeedUnits.PERCENTAGE);
-                    break;
-                case RPM:
-                default:
-                    man.setSpeedUnits(SpeedUnits.RPM);
-                    break;
-            }
-        }
-        catch (Exception ex) {
-            NeptusLog.pub().error(this, ex);                     
-        }
+        speed.setSpeedToMessage(man);
         return man;
     }
 
@@ -722,20 +695,12 @@ IMCSerialization, StatisticsProvider, PathProvider {
         lonRad = man.getLon();
         z = man.getZ();
         zunits = ManeuverLocation.Z_UNITS.valueOf(man.getZUnits().toString());
-        speed = man.getSpeed();
+        
         width = man.getWidth();
         length = man.getLength();
         bearingRad = man.getBearing();
         hstep = man.getHstep();
-
-        try {
-            String speedUnits = message.getString("speed_units");
-            setSpeedUnits(Maneuver.SPEED_UNITS.parse(speedUnits));
-        }
-        catch (Exception e) {
-            setSpeedUnits(Maneuver.SPEED_UNITS.RPM);
-            e.printStackTrace();
-        }
+        speed = SpeedType.parseImcSpeed(message);
         crossAngleRadians = man.getCrossAngle();
         curvOff = man.getCoff();
         alternationPercentage = man.getAlternation()/100f;
@@ -774,14 +739,9 @@ IMCSerialization, StatisticsProvider, PathProvider {
             }
 
             if (p.getName().equals("Speed")) {
-                speed = (Double)p.getValue();
+                speed = (SpeedType)p.getValue();
                 continue;
             }
-
-//            if (p.getName().equalsIgnoreCase("Speed Units")) {
-//                speed_units = (String)p.getValue();
-//                continue;
-//            }
 
             if (p.getName().equals("Bearing")) {
                 bearingRad = Math.toRadians((Double)p.getValue());
@@ -822,12 +782,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
                 ssRangeShadow = (Short)p.getValue();
                 ssRangeShadow = ssRangeShadow < 0 ? 0 : ssRangeShadow;
                 continue;
-            }
-            
-            // Speed Units parse
-            SPEED_UNITS speedUnits = ManeuversUtil.getSpeedUnitsFromPropertyOrNullIfInvalidName(p);
-            if (speedUnits != null)
-                setSpeedUnits(speedUnits);
+            }            
         }
         recalcPoints();
     }
@@ -862,13 +817,9 @@ IMCSerialization, StatisticsProvider, PathProvider {
         cross.setShortDescription(I18n.text("The tilt angle of the search box in degrees") + "<br/>(\u00B0)");
         props.add(cross);
 
-        DefaultProperty speed = PropertiesEditor.getPropertyInstance("Speed", Double.class, this.speed, true);
+        DefaultProperty speed = PropertiesEditor.getPropertyInstance("Speed", SpeedType.class, this.speed, true);
         speed.setShortDescription(I18n.text("The vehicle's desired speed"));
         props.add(speed);
-
-        DefaultProperty speedUnitsProp = PropertiesEditor.getPropertyInstance("Speed Units", Maneuver.SPEED_UNITS.class, speedUnits, true);
-        speedUnitsProp.setShortDescription(I18n.text("The units to consider in the speed parameters"));
-        props.add(speedUnitsProp);
 
         DefaultProperty curvOffset = PropertiesEditor.getPropertyInstance("Curve Offset", Double.class, curvOff, true);
         curvOffset.setShortDescription(I18n.text("The extra length to use for the curve") + "<br/>(m)");
@@ -920,37 +871,9 @@ IMCSerialization, StatisticsProvider, PathProvider {
         return null;
     }
 
-    public double getSpeed() {
-        return speed;
-    }
-
-    public void setSpeed(double speed) {
-        this.speed = speed;
-    }
-
-    public SPEED_UNITS getSpeedUnits() {
-        return speedUnits;
-    }
-
-    public void setSpeedUnits(SPEED_UNITS speedUnits) {
-        this.speedUnits = speedUnits;
-    }
-
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.mp.maneuvers.StatisticsProvider#getCompletionTime(pt.lsts.neptus.types.coord.LocationType, double)
-     */
     @Override
     public double getCompletionTime(LocationType initialPosition) {
-
-        double speed = this.speed;
-        if (this.speedUnits == Maneuver.SPEED_UNITS.RPM) {
-            speed = speed/769.230769231; //1.3 m/s for 1000 RPMs
-        }
-        else if (this.speedUnits == Maneuver.SPEED_UNITS.PERCENTAGE) {
-            speed = speed/76.923076923; //1.3 m/s for 100% speed
-        }
-
-        return getDistanceTravelled(initialPosition) / speed;
+        return getDistanceTravelled(initialPosition) / speed.getMPS();
     }
 
     /* (non-Javadoc)
@@ -1006,7 +929,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
         I18n.text("hstep") + ": <b>"+nf.format(hstep)+" " + I18n.textc("m", "meters") + "</b><br/>"+
         I18n.text("bearing") + ": <b>"+nf.format(Math.toDegrees(bearingRad))+" \u00B0</b><br/>"+
         I18n.text("cross angle") + ": <b>"+nf.format(Math.toDegrees(crossAngleRadians))+" \u00B0</b><br/>"+
-        I18n.text("speed") + ": <b>"+nf.format(getSpeed())+" "+getSpeedUnits()+"</b><br/>"+
+        I18n.text("speed") + ": <b>"+getSpeed()+"</b><br/>"+
         I18n.text("distance") + ": <b>"+MathMiscUtils.parseToEngineeringNotation(getDistanceTravelled((LocationType)getStartLocation()), 2)+I18n.textc("m", "meters") + "</b><br/>"+
         (paintSSRangeShadow ? I18n.textc("ss range", "sidescan range") + ": <b>"+(short)(ssRangeShadow)+" " + I18n.textc("m", "meters") + "</b><br/>" : "") +
         "<br>" + I18n.text("depth") + ": <b>"+nf.format(z)+" " + I18n.textc("m", "meters") + "</b>";    }
@@ -1034,6 +957,16 @@ IMCSerialization, StatisticsProvider, PathProvider {
             locs.add(loc);
         }
         return locs;
+    }
+    
+    @Override
+    public SpeedType getSpeed() {
+        return new SpeedType(speed);
+    }
+    
+    @Override
+    public void setSpeed(SpeedType speed) {
+        this.speed = new SpeedType(speed);       
     }
 
     public static void main(String[] args) {

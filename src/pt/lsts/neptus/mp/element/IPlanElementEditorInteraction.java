@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -15,7 +15,7 @@
  *
  * Modified European Union Public Licence - EUPL v.1.1 Usage
  * Alternatively, this file may be used under the terms of the Modified EUPL,
- * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
+ * Version 1.1 only (the "Licence"), appearing in the file LICENSE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
  * law or agreed to in writing, software distributed under the Licence is
@@ -27,32 +27,19 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: Paulo Dias
- * 18 de Nov de 2011
+ * Author: pdias
+ * 16/04/2017
  */
-package pt.lsts.neptus.gui.editor;
+package pt.lsts.neptus.mp.element;
 
-import pt.lsts.neptus.mp.Maneuver.SPEED_UNITS;
+import pt.lsts.neptus.renderer2d.StateRendererInteraction;
 
 /**
  * @author pdias
+ * @param <T>
  *
  */
-public class SpeedUnitsEnumEditor extends ComboEditor<SPEED_UNITS> {
-    private static SPEED_UNITS[] values = SPEED_UNITS.values();
-    private static String[] strValues = new String[values.length];
-
-    static {
-        for (int i = 0; i < values.length; i++) {
-            strValues[i] = values[i].getString();
-        }
-    }
-
-    /**
-     * @param options
-     */
-    public SpeedUnitsEnumEditor() {
-        //Don't I18n.text this. See super implementation
-        super(values, strValues);
-    }
+public interface IPlanElementEditorInteraction<T> extends StateRendererInteraction {
+    public T getUpdatedElement();
+    public boolean hasChanges();
 }

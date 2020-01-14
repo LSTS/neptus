@@ -21,6 +21,12 @@
                 <b>51</b>
             </icon-color>
         </appearance>
+        <limits>
+        	<valid-zunits>depth, altitude</valid-zunits>
+            <min-speed>0.5</min-speed>
+            <max-speed>2</max-speed>
+            <max-duration-hours>8</max-duration-hours>
+        </limits>
         <coordinate-system-label>SNAME</coordinate-system-label>
     </properties>
     <feasibleManeuvers>

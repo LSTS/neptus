@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2020 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -296,7 +296,7 @@ public class IridiumComms extends SimpleRendererInteraction {
                 pc.setArg(msg);
                 pc.setOp(OP.START);
                 pc.setType(TYPE.REQUEST);
-                pc.setPlanId(selectedPlan.replaceAll("(_)*[^\\w\\d]*", ""));
+                selectedPlan = selectedPlan.replaceAll("(_)*[^\\w\\d]*", "");
                 pc.setPlanId(selectedPlan);
                 sendViaIridium(getMainVehicleId(), pc);
             };

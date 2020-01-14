@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2020 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -88,7 +88,6 @@ public class LocationPanel extends ParametersPanel implements ActionListener {
 	private LocationType location = new LocationType();
 	private JPanel jPanel = null;
 	private JTabbedPane refPointTabs = null;
-	private JPanel jPanel1 = null;
 	private JButton cancelBtn = null;
 	private JTabbedPane OffsetTabs = null;
 	private JPanel nedOffsetPanel = null;
@@ -105,7 +104,6 @@ public class LocationPanel extends ParametersPanel implements ActionListener {
 	private JButton btnCopy = null;
 	private JButton btnPaste = null;
 	private JButton findOnMap = null;
-    private JButton makeLocAbsolute = null;
 	private Component hg1 = Box.createHorizontalGlue();
 	private Component hg2 = Box.createHorizontalGlue();
 	private boolean hideOkCancelButtons = false;
@@ -154,23 +152,7 @@ public class LocationPanel extends ParametersPanel implements ActionListener {
 		}
 		return refPointTabs;
 	}
-	/**
-	 * This method initializes jPanel1
-	 *
-	 * @return javax.swing.JPanel
-	 */
-	private JPanel getJPanel1() {
-		if (jPanel1 == null) {
-			jPanel1 = new JPanel();
-			jPanel1.setLayout(new BorderLayout());
-			jPanel1.setBounds(16, 244, 412, 109);
-            jPanel1.setBorder(BorderFactory.createTitledBorder(null, I18n.text("Offset"),
-                    TitledBorder.DEFAULT_JUSTIFICATION,
-                    TitledBorder.DEFAULT_POSITION, null, null));
-			jPanel1.add(getOffsetTabs(), BorderLayout.CENTER);
-		}
-		return jPanel1;
-	}
+
 	/**
 	 * This method initializes cancelBtn1
 	 *
@@ -191,7 +173,8 @@ public class LocationPanel extends ParametersPanel implements ActionListener {
 	 *
 	 * @return javax.swing.JTabbedPane
 	 */
-	public JTabbedPane getOffsetTabs() {
+	@Deprecated
+	private JTabbedPane getOffsetTabs() {
 		if (OffsetTabs == null) {
 			OffsetTabs = new JTabbedPane();
 			OffsetTabs.addTab(I18n.text("Orthogonal Offsets"), null, getNedOffsetPanel(), null);
@@ -207,7 +190,8 @@ public class LocationPanel extends ParametersPanel implements ActionListener {
 	 *
 	 * @return javax.swing.JPanel
 	 */
-	public JPanel getNedOffsetPanel() {
+    @Deprecated
+	private JPanel getNedOffsetPanel() {
 		if (nedOffsetPanel == null) {
 			nedOffsetPanel = new JPanel();
 			nedOffsetPanel.add(getRegularOffset(), null);
@@ -219,7 +203,8 @@ public class LocationPanel extends ParametersPanel implements ActionListener {
 	 *
 	 * @return javax.swing.JPanel
 	 */
-	public JPanel getJPanel2() {
+    @Deprecated
+	private JPanel getJPanel2() {
 		if (panel1 == null) {
 			panel1 = new JPanel();
 			panel1.add(getPolarOffsetPanel(), null);
@@ -296,6 +281,7 @@ public class LocationPanel extends ParametersPanel implements ActionListener {
 	 *
 	 * @return pt.lsts.neptus.gui.RegularOffset
 	 */
+    @Deprecated
 	private RegularOffset getRegularOffset() {
 		if (regularOffset == null) {
 			regularOffset = new RegularOffset();
@@ -308,6 +294,7 @@ public class LocationPanel extends ParametersPanel implements ActionListener {
 	 *
 	 * @return pt.lsts.neptus.gui.PolarOffsetPanel
 	 */
+    @Deprecated
 	private PolarOffsetPanel getPolarOffsetPanel() {
 		if (polarOffsetPanel == null) {
 			polarOffsetPanel = new PolarOffsetPanel();
@@ -355,34 +342,30 @@ public class LocationPanel extends ParametersPanel implements ActionListener {
 			btnPaste.setBounds(new java.awt.Rectangle(42,360,20,20));
 			btnPaste.setIcon(new ImageIcon(ImageUtils.getImage("images/menus/editpaste.png")));
 			btnPaste.setToolTipText(I18n.text("Paste from clipboard"));
-			btnPaste.addActionListener(new ActionListener() {
-				
-				public void actionPerformed(ActionEvent arg0) {
-					btnPaste.setEnabled(isEditable());
+			btnPaste.addActionListener(arg0 -> {
+                btnPaste.setEnabled(isEditable());
 
-					@SuppressWarnings({ "unused" })
-                    ClipboardOwner owner = new ClipboardOwner() {
-						public void lostOwnership(Clipboard clipboard, Transferable contents) {};						
-					};
-					
-					Transferable contents = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
-					
-                    boolean hasTransferableText = (contents != null)
-                            && contents.isDataFlavorSupported(DataFlavor.stringFlavor);
-					
-					if ( hasTransferableText ) {
-						try {
-							String text = (String)contents.getTransferData(DataFlavor.stringFlavor);
-							LocationType lt = new LocationType();
-							lt.fromClipboardText(text);
-							setLocationType(lt);
-						}
-						catch (Exception e) {
-							NeptusLog.pub().error(e);
-						}
-					}				
-				}
-			});
+                @SuppressWarnings({ "unused" })
+				ClipboardOwner owner = (clipboard, contents) -> {};
+
+                Transferable contents = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
+
+				boolean hasTransferableText = (contents != null)
+						&& contents.isDataFlavorSupported(DataFlavor.stringFlavor);
+
+                if ( hasTransferableText ) {
+                    try {
+                        String text = (String)contents.getTransferData(DataFlavor.stringFlavor);
+                        LocationType lt = new LocationType();
+                        lt.fromClipboardText(text);
+                        lt.convertToAbsoluteLatLonDepth();
+                        setLocationType(lt);
+                    }
+                    catch (Exception e) {
+                        NeptusLog.pub().error(e);
+                    }
+                }
+            });
 		}
 		return btnPaste;
 	}
@@ -414,35 +397,12 @@ public class LocationPanel extends ParametersPanel implements ActionListener {
 	}
 
 	/**
-	 * @return
-	 */
-	private JButton getMakeLocAbsolute() {
-        if (makeLocAbsolute == null) {
-            makeLocAbsolute = new JButton();
-            makeLocAbsolute.setBounds(new Rectangle(68,360,80,20));
-            //makeLocAbsolute.setIcon(new ImageIcon(GuiUtils.getImage("images/buttons/findOnMap.png")));
-            
-            makeLocAbsolute.setText(I18n.textc("Abs", "Abs is the absolute value, don't use more than 3 letters"));
-            makeLocAbsolute.setFont(makeLocAbsolute.getFont().deriveFont(10));
-            makeLocAbsolute.setMargin(new Insets(0, 0, 0, 0));
-            makeLocAbsolute.setEnabled(true);
-            makeLocAbsolute.setToolTipText(I18n.text("Make the location absolute"));
-            makeLocAbsolute.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent arg0) {
-                    setLocationType((LocationType) getLocationType().getNewAbsoluteLatLonDepth());                    
-                }
-            });
-        }
-        return makeLocAbsolute;
-    }
-
-	/**
 	 * This method initializes this
 	 *
 	 * @return void
 	 */
 	private  void initialize() {
-		this.setBounds(0, 0, 467, 428);
+		this.setBounds(0, 0, 467, 428-130);
 		
 		GuiUtils.reactEnterKeyPress(getOkBtn());
 		GuiUtils.reactEscapeKeyPress(getCancelBtn());
@@ -453,13 +413,11 @@ public class LocationPanel extends ParametersPanel implements ActionListener {
 		this.setLayout(gl);
 		gl.setHorizontalGroup(gl.createParallelGroup(Alignment.CENTER)
 		        .addComponent(getJPanel())
-		        .addComponent(getJPanel1())
 		        .addGroup(gl.createSequentialGroup()
 		                .addComponent(getBtnCopy())
 		                .addComponent(getBtnPaste())
 		                .addComponent(getFindOnMap())
 		                .addGap(20)
-		                .addComponent(getMakeLocAbsolute())
 		                .addComponent(hg1))
 		        .addGroup(gl.createSequentialGroup()
                         .addComponent(hg2)
@@ -469,12 +427,10 @@ public class LocationPanel extends ParametersPanel implements ActionListener {
 
 		gl.setVerticalGroup(gl.createSequentialGroup()
 		        .addComponent(getJPanel())
-		        .addComponent(getJPanel1(), 100, 100, 100)
 		        .addGroup(gl.createParallelGroup(Alignment.LEADING)
 		                .addComponent(getBtnCopy())
 		                .addComponent(getBtnPaste())
 		                .addComponent(getFindOnMap())
-                        .addComponent(getMakeLocAbsolute())
                         .addComponent(hg1))
                 .addGroup(gl.createParallelGroup(Alignment.TRAILING)
                         .addComponent(hg2)
@@ -484,8 +440,7 @@ public class LocationPanel extends ParametersPanel implements ActionListener {
 		
 		gl.linkSize(SwingConstants.HORIZONTAL, getOkBtn(), getCancelBtn());
 		gl.linkSize(SwingConstants.HORIZONTAL, getBtnCopy(), getBtnPaste(), getFindOnMap());
-        gl.linkSize(SwingConstants.VERTICAL, getBtnCopy(), getBtnPaste(), getFindOnMap(),
-                getMakeLocAbsolute());
+        gl.linkSize(SwingConstants.VERTICAL, getBtnCopy(), getBtnPaste(), getFindOnMap());
 	}
 
 	public void actionPerformed(ActionEvent ae) {
@@ -554,7 +509,6 @@ public class LocationPanel extends ParametersPanel implements ActionListener {
         getCancelBtn().setVisible(!hideOkCancelButtons && editable);
         getBtnPaste().setEnabled(editable);
         //getFindOnMap().setEnabled(editable);
-        getMakeLocAbsolute().setEnabled(editable);
     }
 
 	private JDialog getLocationDialog(Component parent, String title) {
@@ -688,5 +642,8 @@ public class LocationPanel extends ParametersPanel implements ActionListener {
         loc = LocationPanel.showCoordinatesDialog("Testing", null, loc);
         NeptusLog.pub().info("<###>AFTER:");
         NeptusLog.pub().info("<###> "+loc.asXML());
+
+        loc = LocationPanel.showLocationDialog(null, "Testing", loc, new MissionType(), true);
+
     }
 }

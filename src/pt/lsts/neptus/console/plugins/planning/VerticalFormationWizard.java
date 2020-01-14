@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2020 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -54,9 +54,10 @@ import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.MissionChangeListener;
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
+import pt.lsts.neptus.mp.SpeedType;
+import pt.lsts.neptus.mp.SpeedType.Units;
 import pt.lsts.neptus.mp.maneuvers.FollowTrajectory;
 import pt.lsts.neptus.mp.maneuvers.Goto;
 import pt.lsts.neptus.mp.maneuvers.ScheduledGoto;
@@ -241,8 +242,7 @@ public class VerticalFormationWizard extends ConsolePanel implements MissionChan
             first.setZUnits(Z_UNITS.DEPTH);
             FollowTrajectory formation = new FollowTrajectory();
             formation.setManeuverLocation(new ManeuverLocation(first));
-            formation.setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);
-            formation.setSpeed(params.speedMps);
+            formation.setSpeed(new SpeedType(params.speedMps, Units.MPS));
             formation.setId("3");
             Vector<double[]> waypoints = new Vector<>();
             LocationType previous = first;

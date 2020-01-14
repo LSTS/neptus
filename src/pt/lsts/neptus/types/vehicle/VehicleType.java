@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2020 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -35,6 +35,7 @@ package pt.lsts.neptus.types.vehicle;
 import java.awt.Color;
 import java.awt.Image;
 import java.io.File;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -42,6 +43,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.StringTokenizer;
 import java.util.Vector;
+import java.util.stream.Collectors;
 
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
@@ -56,6 +58,12 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverFactory;
+import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
+import pt.lsts.neptus.mp.maneuvers.DefaultManeuver;
+import pt.lsts.neptus.mp.preview.IManeuverPreview;
+import pt.lsts.neptus.mp.preview.ManPreviewFactory;
+import pt.lsts.neptus.mp.element.PlanElementsFactory;
 import pt.lsts.neptus.types.XmlInputMethods;
 import pt.lsts.neptus.types.XmlInputMethodsFromFile;
 import pt.lsts.neptus.types.XmlOutputMethods;
@@ -80,6 +88,10 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
  * 
  */
 public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputMethodsFromFile {
+
+    public static final int MAX_SPEED_MS = 2;
+    public static final double MIN_SPEED_MS = 0.5;
+    public static final double MAX_DURATION_H = 6;
 
     /*
      * <def prefix="SYSTEMTYPE" name="System Type" abbrev="SystemType"> <enum id="0" name="CCU" abbrev="CCU"/> <enum
@@ -134,12 +146,18 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
     private String coordinateSystemLabel = null;
     private CoordinateSystem coordinateSystem = null;
 
+    private double minSpeedMS = MIN_SPEED_MS; // min stable speed
+    private double maxSpeedMS = MAX_SPEED_MS; //max speed
+    
+    private double maxDurationHours = MAX_DURATION_H; // In "normal" operation
+    
     private Document doc = null;
     protected boolean isLoadOk = true;
 
     private String originalFilePath = "";
 
     private LinkedHashMap<String, String> feasibleManeuvers = new LinkedHashMap<String, String>();
+    private LinkedHashMap<String, String> customManeuverPreviews = new LinkedHashMap<String, String>();
     private Element xmlFeasibleManeuvers = null;
 
     /**
@@ -154,6 +172,10 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
     private LinkedHashMap<String, String> consolesType = new LinkedHashMap<String, String>();
 
     private ManeuverFactory manFactory = null;
+    
+    private PlanElementsFactory planElementsFactory = null;
+
+    private ManeuverLocation.Z_UNITS[] validZUnits = null;
 
     public VehicleType() {
 
@@ -235,24 +257,6 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
             else if (doc.selectSingleNode("/" + DEFAULT_ROOT_ELEMENT_DEPREC) != null)
                 rootElemName = DEFAULT_ROOT_ELEMENT_DEPREC;
 
-            try {
-                // FIXME get feasible maneuvers!
-                xmlFeasibleManeuvers = (Element) doc.selectSingleNode("/" + rootElemName + "/feasibleManeuvers");
-                xmlFeasibleManeuvers = (Element) xmlFeasibleManeuvers.createCopy().detach();
-                List<?> maneuvers = doc.selectNodes("/" + rootElemName
-                        + "/feasibleManeuvers/maneuver/*/annotation/implementation-class");
-
-                for (int i = 0; i < maneuvers.size(); i++) {
-                    Node tmpMan = (Node) maneuvers.get(i);
-                    String manName = tmpMan.getParent().getParent().getName();
-                    feasibleManeuvers.put(manName, tmpMan.getText());
-                }
-            }
-            catch (Exception e) {
-                NeptusLog.pub().debug(e.getMessage());
-                NeptusLog.pub().warn("No maneuvers found for system " + id + "!!");
-            }
-
             this.setId(doc.selectSingleNode("/" + rootElemName + "/properties/id").getText());
             this.setName(doc.selectSingleNode("/" + rootElemName + "/properties/name").getText());
             this.setType(doc.selectSingleNode("/" + rootElemName + "/properties/type").getText());
@@ -333,6 +337,107 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
                     CoordinateSystem cs = new CoordinateSystem();
                     this.setCoordinateSystem(cs);
                 }
+            }
+
+            nd = doc.selectSingleNode("/" + rootElemName + "/properties/limits/valid-zunits");
+            validZUnits = null;
+            if (nd != null) {
+                String valueListStr = nd.getText();
+                if (valueListStr != null) {
+                    Z_UNITS[] res = Arrays.asList(valueListStr.split("\\s*[,;:]\\s*")).stream()
+                            .map((s) -> ManeuverLocation.Z_UNITS.from(s.trim()))
+                            .filter((e) -> e != null).toArray(Z_UNITS[]::new);
+                    if (res.length > 0)
+                        validZUnits = res;
+                }
+            }
+
+            nd = doc.selectSingleNode("/" + rootElemName + "/properties/limits/min-speed");
+            if (nd != null) {
+                try {
+                    minSpeedMS = Double.parseDouble(nd.getText());
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().warn(e.getMessage());
+                    minSpeedMS = MIN_SPEED_MS;
+                }
+            }
+            else {
+                minSpeedMS = MIN_SPEED_MS;
+            }
+            
+            nd = doc.selectSingleNode("/" + rootElemName + "/properties/limits/max-speed");
+            if (nd != null) {
+                try {
+                    maxSpeedMS = Double.parseDouble(nd.getText());
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().warn(e.getMessage());
+                    maxSpeedMS = MAX_SPEED_MS;
+                }
+            }
+            else {
+                maxSpeedMS = MAX_SPEED_MS;
+            }
+            
+            if (maxSpeedMS < minSpeedMS)
+                maxSpeedMS = minSpeedMS;
+
+            nd = doc.selectSingleNode("/" + rootElemName + "/properties/limits/max-duration-hours");
+            if (nd != null) {
+                try {
+                    maxDurationHours = Double.parseDouble(nd.getText());
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().warn(e.getMessage());
+                    maxDurationHours = MAX_DURATION_H;
+                }
+            }
+            else {
+                maxDurationHours = MAX_DURATION_H;
+            }
+
+            try {
+                // FIXME get feasible maneuvers!
+                xmlFeasibleManeuvers = (Element) doc.selectSingleNode("/" + rootElemName + "/feasibleManeuvers");
+                xmlFeasibleManeuvers = (Element) xmlFeasibleManeuvers.createCopy().detach();
+                List<?> maneuvers = doc.selectNodes("/" + rootElemName
+                        + "/feasibleManeuvers/maneuver/*/annotation/implementation-class");
+
+                for (int i = 0; i < maneuvers.size(); i++) {
+                    Node tmpMan = (Node) maneuvers.get(i);
+                    String manName = tmpMan.getParent().getParent().getName();
+                    feasibleManeuvers.put(manName, tmpMan.getText());
+                    
+                    // Let us register custom previews
+                    Node previewClassNode = tmpMan.selectSingleNode("../preview-class");
+                    if (previewClassNode != null) {
+                        Maneuver man = ManeuverFactory.createManeuver(manName, feasibleManeuvers.get(manName));
+                        if (man != null && !(man instanceof DefaultManeuver)) {
+                            Class<IManeuverPreview<?>> previewClass = ManPreviewFactory.createPreviewClass(previewClassNode.getText());
+                            if (previewClass != null) {
+                                customManeuverPreviews.put(manName, previewClassNode.getText());
+                                ManPreviewFactory.registerPreview(id, man.getClass(), previewClass);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception e) {
+                NeptusLog.pub().debug(e.getMessage());
+                NeptusLog.pub().warn("No maneuvers found for system " + id + "!!");
+            }
+
+            try {
+                Node planElementsNds = doc.selectSingleNode("/" + rootElemName + "/planElements");
+                if (planElementsNds != null) {
+                    String xmlStr = planElementsNds.detach().asXML();
+                    PlanElementsFactory pef = new PlanElementsFactory(this.getId(), xmlStr);
+                    planElementsFactory = pef;
+                }
+            }
+            catch (Exception e) {
+                NeptusLog.pub().debug(e);
             }
 
             nd = doc.selectSingleNode("/" + rootElemName + "/protocols-supported/protocols");
@@ -625,6 +730,48 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
      */
     public void setZSize(float size) {
         zSize = size;
+    }
+
+    /**
+     * @return the minSpeedMS
+     */
+    public double getMinSpeedMS() {
+        return minSpeedMS;
+    }
+
+    /**
+     * @param minSpeedMS the minSpeedMS to set
+     */
+    public void setMinSpeedMS(double minSpeedMS) {
+        this.minSpeedMS = minSpeedMS;
+    }
+
+    /**
+     * @return the maxSpeedMS
+     */
+    public double getMaxSpeedMS() {
+        return maxSpeedMS;
+    }
+
+    /**
+     * @param maxSpeedMS the maxSpeedMS to set
+     */
+    public void setMaxSpeedMS(double maxSpeedMS) {
+        this.maxSpeedMS = maxSpeedMS;
+    }
+
+    /**
+     * @return the maxDurationHours
+     */
+    public double getMaxDurationHours() {
+        return maxDurationHours;
+    }
+
+    /**
+     * @param maxDurationHours the maxDurationHours to set
+     */
+    public void setMaxDurationHours(double maxDurationHours) {
+        this.maxDurationHours = maxDurationHours;
     }
 
     /**
@@ -923,7 +1070,19 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
             colorE.addElement("g").setText(Integer.toString(getIconColor().getGreen()));
             colorE.addElement("b").setText(Integer.toString(getIconColor().getBlue()));
         }
-
+        
+        Element limitsElm = properties.addElement("limits");
+        if (validZUnits != null && validZUnits.length > 0) {
+            limitsElm.addElement("valid-zunits")
+                    .addText(Arrays.asList(validZUnits).stream().map((e) -> e.text()).collect(Collectors.joining(",")));
+        }
+        if (getMinSpeedMS() != MIN_SPEED_MS)
+            limitsElm.addElement("min-speed").addText(Double.toString(getMinSpeedMS()));
+        if (getMaxSpeedMS() != MAX_SPEED_MS)
+            limitsElm.addElement("max-speed").addText(Double.toString(getMaxSpeedMS()));
+        if (getMaxDurationHours() != MAX_DURATION_H)
+            limitsElm.addElement("max-duration-hours").addText(Double.toString(getMaxDurationHours()));
+        
         if ("".equals(coordinateSystemLabel))
             properties.add(coordinateSystem.asElement());
         else
@@ -941,6 +1100,20 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
             NeptusLog.pub().warn("No maneuvers found for system " + id + "!!");
         }
 
+        try {
+            if (planElementsFactory != null) {
+                org.w3c.dom.Element elmW3c = planElementsFactory.asXmlElement();
+                if (elmW3c != null) {
+                    Document docPE = Dom4JUtil.convertDOMtoDOM4J(elmW3c.getOwnerDocument());
+                    root.add(docPE.getRootElement().detach());
+                }
+            }
+        }
+        catch (Exception e) {
+            NeptusLog.pub().debug(e);
+            NeptusLog.pub().warn("No plan elements found for system " + id + "!!");
+        }
+        
         // Element sensors = root.addElement( "sensors" );
 
         String protocolsStr = "";
@@ -1111,5 +1284,26 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
         }
 
         return manFactory;
+    }
+    
+    /**
+     * @return the validZUnits
+     */
+    public ManeuverLocation.Z_UNITS[] getValidZUnits() {
+        return validZUnits;
+    }
+    
+    /**
+     * @param validZUnits the validZUnits to set
+     */
+    public void setValidZUnits(ManeuverLocation.Z_UNITS[] validZUnits) {
+        this.validZUnits = validZUnits == null || validZUnits.length == 0 ? null : validZUnits;
+    }
+    
+    /**
+     * @return the planElementsFactory
+     */
+    public PlanElementsFactory getPlanElementsFactory() {
+        return planElementsFactory;
     }
 }

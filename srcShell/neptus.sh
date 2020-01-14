@@ -1,6 +1,6 @@
 #!/bin/bash
 #############################################################################
-# Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia   #
+# Copyright (c) 2004-2020 Universidade do Porto - Faculdade de Engenharia   #
 # Laboratório de Sistemas e Tecnologia Subaquática (LSTS)                   #
 # All rights reserved.                                                      #
 # Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal            #

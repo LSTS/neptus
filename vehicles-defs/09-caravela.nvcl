@@ -21,6 +21,9 @@
                 <b>153</b>
             </icon-color>
         </appearance>
+        <limits>
+            <valid-zunits>depth</valid-zunits>
+        </limits>
         <coordinate-system-label>SNAME</coordinate-system-label>
     </properties>
     <feasibleManeuvers>

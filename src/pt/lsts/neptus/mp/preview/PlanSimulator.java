@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2020 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -43,6 +43,7 @@ import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.types.vehicle.VehicleType;
 
 /**
  * This class simulates the execution of a plan (roughly)
@@ -82,7 +83,8 @@ public class PlanSimulator {
             }
         }
 
-        simulatedPath = new PlanSimulationOverlay(plan, 0, 4, start);
+        VehicleType vt = plan.getVehicleType();
+        simulatedPath = new PlanSimulationOverlay(plan, 0, vt == null ? VehicleType.MAX_DURATION_H : vt.getMaxDurationHours(), start);
     }
 
     public SystemPositionAndAttitude getState() {

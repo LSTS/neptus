@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2020 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -64,10 +64,10 @@ import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.PropertiesProvider;
-import pt.lsts.neptus.gui.editor.SpeedUnitsEnumEditor;
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.mp.Maneuver.SPEED_UNITS;
 import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
+import pt.lsts.neptus.mp.SpeedType;
+import pt.lsts.neptus.mp.SpeedType.Units;
 import pt.lsts.neptus.mp.templates.PlanCreator;
 import pt.lsts.neptus.planeditor.IEditorMenuExtension;
 import pt.lsts.neptus.planeditor.IMapPopup;
@@ -100,11 +100,8 @@ public class RightClickPlanner extends ConsolePanel implements IEditorMenuExtens
     public double depth = 0;
 
     @NeptusProperty(name = "Speed", userLevel = LEVEL.REGULAR)
-    public double speed = 1.3;
+    public SpeedType speed = new SpeedType(1.3, Units.MPS);
 
-    @NeptusProperty(name = "Speed units", editorClass = SpeedUnitsEnumEditor.class, userLevel = LEVEL.REGULAR)
-    public SPEED_UNITS speedUnits = SPEED_UNITS.METERS_PS;
-   
     @NeptusProperty(category="Loiter Specific", name = "Loiter Duration", description = "Duration, in seconds, for loitering behavior", userLevel = LEVEL.REGULAR)
     public int duration = 300;
 
@@ -232,16 +229,19 @@ public class RightClickPlanner extends ConsolePanel implements IEditorMenuExtens
             PlanCreator creator = new PlanCreator(getConsole().getMission());
             creator.setLocation(loc);
             creator.setZ(depth, Z_UNITS.DEPTH);
-            creator.addManeuver("Goto", "speed", speed, "speedUnits", speedUnits);
+            creator.setSpeed(speed);
+            creator.addManeuver("Goto");
 
             switch (endBehavior) {
                 case Loiter:
-                    creator.addManeuver("Loiter", "speed", speed, "speedUnits", speedUnits, "loiterDuration", duration,
+                    creator.setSpeed(speed);
+                    creator.addManeuver("Loiter", "loiterDuration", duration,
                             "radius", radius);
                     /* FALLTHROUGH */
                 case StationKeeping:
                     creator.setZ(0, Z_UNITS.DEPTH);
-                    creator.addManeuver("StationKeeping", "speed", speed, "speedUnits", speedUnits, "duration", 0);
+                    creator.setSpeed(speed);
+                    creator.addManeuver("StationKeeping", "duration", 0);
                     break;
                 default:
                     break;

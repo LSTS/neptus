@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2020 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -51,6 +51,7 @@ import pt.lsts.neptus.console.plugins.planning.UavPiccoloControl.WaypointColors;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.coord.LatLonFormatEnum;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.ColorUtils;
@@ -626,9 +627,8 @@ class PCCWaypoint {
 	
 	@Override
 	public String toString() {
-		return "WPT["+number+"]:\n\tlat: "+location.getLatitudeAsPrettyString()+", lon: "+location.getLongitudeAsPrettyString()+", depth: "+location.getAllZ() +
-		"\n\tlradius: "+radius+", next: "+next;		
+        return "WPT[" + number + "]:\n\tlat: " + location.getLatitudeAsPrettyString(LatLonFormatEnum.DMS) + ", lon: "
+                + location.getLongitudeAsPrettyString(LatLonFormatEnum.DMS) + ", depth: " + location.getAllZ()
+                + "\n\tlradius: " + radius + ", next: " + next;
 	}
-	
-	
 }

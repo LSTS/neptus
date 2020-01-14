@@ -1,6 +1,6 @@
 @echo off
 rem #############################################################################
-rem # Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia   #
+rem # Copyright (c) 2004-2020 Universidade do Porto - Faculdade de Engenharia   #
 rem # Laboratório de Sistemas e Tecnologia Subaquática (LSTS)                   #
 rem # All rights reserved.                                                      #
 rem # Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal            #

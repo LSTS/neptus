@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2020 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -51,7 +51,11 @@ import pt.lsts.neptus.comm.iridium.IridiumManager.IridiumMessengerEnum;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.PropertiesProvider;
+import pt.lsts.neptus.gui.editor.renderer.ArrayAsStringRenderer;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.SpeedType;
+import pt.lsts.neptus.mp.SpeedType.Units;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.types.coord.LatLonFormatEnum;
@@ -253,6 +257,19 @@ public class GeneralPreferences implements PropertiesProvider {
 
     @NeptusProperty(name = "Lat/Lon Preferable Display Format", category = "Location", userLevel = LEVEL.REGULAR)
     public static LatLonFormatEnum latLonPrefFormat = LatLonFormatEnum.DM;
+
+    @NeptusProperty(name = "Preferred Speed Units", category = "Speed", userLevel = LEVEL.REGULAR)
+    public static SpeedType.Units speedUnits = Units.MPS;
+    
+    @NeptusProperty(name = "Force Speed Units", category = "Speed", userLevel = LEVEL.ADVANCED, 
+            description = "If speed units are forced, the user cannot set other units.")
+    public static boolean forceSpeedUnits = false;
+    
+    @NeptusProperty(name = "Preferred Z Units Array", category = "Z Value", userLevel = LEVEL.ADVANCED, 
+            editable = false, rendererClass = ArrayAsStringRenderer.class,
+            description = "This lists the valid Z units to show. This can be overided by the per vehicle settings. "
+                    + "Leeave it empty for no restrictions.")
+    public static ManeuverLocation.Z_UNITS[] validZUnits = {};
 
     // -------------------------------------------------------------------------
 
@@ -538,6 +555,8 @@ public class GeneralPreferences implements PropertiesProvider {
                 }
 
                 PropertiesEditor.editProperties(gp, true);
+                
+                validZUnits = new ManeuverLocation.Z_UNITS[] { ManeuverLocation.Z_UNITS.NONE };
                 
                 try {
                     PluginUtils.saveProperties(filenameProps, true, GeneralPreferences.class);

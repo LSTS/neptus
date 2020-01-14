@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2020 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -35,7 +35,8 @@ package pt.lsts.neptus.mp.maneuvers;
 import java.awt.Graphics2D;
 import java.util.Vector;
 
-import pt.lsts.neptus.mp.Maneuver;
+import pt.lsts.neptus.mp.SpeedType;
+import pt.lsts.neptus.mp.SpeedType.Units;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.map.PlanElement;
@@ -116,14 +117,8 @@ public class RIPattern extends RowsPattern {
         RIPattern man = new RIPattern();
         //man("<FollowPath kind=\"automatic\"><basePoint type=\"pointType\"><point><id>id_53802104</id><name>id_53802104</name><coordinate><latitude>0N0'0''</latitude><longitude>0E0'0''</longitude><depth>0.0</depth></coordinate></point><radiusTolerance>0.0</radiusTolerance></basePoint><path><nedOffsets northOffset=\"0.0\" eastOffset=\"1.0\" depthOffset=\"2.0\" timeOffset=\"3.0\"/><nedOffsets northOffset=\"4.0\" eastOffset=\"5.0\" depthOffset=\"6.0\" timeOffset=\"7.0\"/></path><speed unit=\"RPM\">1000.0</speed></FollowPath>");
         //NeptusLog.pub().info("<###> "+FileUtil.getAsPrettyPrintFormatedXMLString(man.getManeuverAsDocument("FollowTrajectory")));
-        man.setSpeed(1);
-        man.setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);        
-//        NeptusLog.pub().info("<###> "+FileUtil.getAsPrettyPrintFormatedXMLString(man.getManeuverAsDocument("RIPattern")));
-
-        man.setSpeed(2);
-        man.setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);        
-//        NeptusLog.pub().info("<###> "+FileUtil.getAsPrettyPrintFormatedXMLString(man.getManeuverAsDocument("RIPattern")));
-
+        man.setSpeed(new SpeedType(1.0, Units.MPS));
+        man.setSpeed(new SpeedType(2.0, Units.MPS));        
         
       MissionType mission = new MissionType("./missions/rep10/rep10.nmisz");
       StateRenderer2D r2d = new StateRenderer2D(MapGroup.getMapGroupInstance(mission));

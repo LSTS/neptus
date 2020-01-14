@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2020 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -34,7 +34,6 @@ package pt.lsts.neptus.plugins.uavs.panels;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.text.DecimalFormat;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -61,6 +60,8 @@ import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mp.SpeedType;
+import pt.lsts.neptus.mp.SpeedType.Units;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -82,14 +83,11 @@ public class SpeedIndicatorPanel extends ConsolePanel implements MainVehicleChan
 
     private static final long serialVersionUID = 1L;
 
-    @NeptusProperty(name = "Minimum Speed", description = "Speed below which the vehicle enters VStall (m/s)", userLevel = LEVEL.REGULAR)
-    public double minSpeed = 12.0;
+    @NeptusProperty(name = "Minimum Speed", description = "Speed below which the vehicle enters VStall", userLevel = LEVEL.REGULAR)
+    public SpeedType minSpeed = new SpeedType(12.0, Units.MPS);
 
-    @NeptusProperty(name = "Maximum Speed", description = "Speed above which it's undesirable to fly (m/s)", userLevel = LEVEL.REGULAR)
-    public double maxSpeed = 25.0;
-
-    // To be used if other speed units are desired
-    static public final double MS_TO_KNOTS_CONV = 1.94384449244;
+    @NeptusProperty(name = "Maximum Speed", description = "Speed above which it's undesirable to fly", userLevel = LEVEL.REGULAR)
+    public SpeedType maxSpeed = new SpeedType(25.0, Units.MPS);
 
     // Illustrative icons to differentiate speeds
     private ImageIcon ICON_TSPEED;
@@ -105,9 +103,9 @@ public class SpeedIndicatorPanel extends ConsolePanel implements MainVehicleChan
     private PlanSpecification planSpec = null;
 
     // various speeds
-    private double aSpeed = 0.0;
-    private double gSpeed = 0.0;
-    private double tSpeed = 0.0;
+    private SpeedType aSpeed = new SpeedType(0, Units.MPS);
+    private SpeedType gSpeed = new SpeedType(0, Units.MPS);
+    private SpeedType tSpeed = new SpeedType(0, Units.MPS);
 
     // sub panels used to better accommodate the information through the use of the layout manager
     private JPanel titlePanel = null;
@@ -123,9 +121,6 @@ public class SpeedIndicatorPanel extends ConsolePanel implements MainVehicleChan
     private JLabel tSpeedIcon = null;
     private JLabel tSpeedValue = null;
 
-    // display output formatter
-    private DecimalFormat formatter = new DecimalFormat("0.0");
-
     public SpeedIndicatorPanel(ConsoleLayout console) {
         super(console);
 
@@ -137,7 +132,7 @@ public class SpeedIndicatorPanel extends ConsolePanel implements MainVehicleChan
     @Subscribe
     public void on(TrueSpeed msg) {
         if (msg.getSourceName().equals(getConsole().getMainSystem())) {
-            gSpeed = msg.getValue();
+            gSpeed.setMPS(msg.getValue());
 
             // speeds updated
             speedLabelUpdate();
@@ -147,7 +142,7 @@ public class SpeedIndicatorPanel extends ConsolePanel implements MainVehicleChan
     @Subscribe
     public void on(IndicatedSpeed msg) {
         if (msg.getSourceName().equals(getConsole().getMainSystem())) {
-            aSpeed = msg.getValue();
+            aSpeed.setMPS(msg.getValue());
 
             // speeds updated
             speedLabelUpdate();
@@ -171,10 +166,9 @@ public class SpeedIndicatorPanel extends ConsolePanel implements MainVehicleChan
                     for (PlanManeuver planMan : planSpec.getManeuvers()) {
                         if (planMan.getManeuverId().equals(currentManeuver)) {
                             Maneuver man = planMan.getData();
-                            double speed = man.getAsNumber("speed").doubleValue();
-
-                            if (speed >= 0) {
-                                tSpeed = speed;
+                            SpeedType st = SpeedType.parseImcSpeed(man, "speed", "speed_units");
+                            if (st.getValue() >= 0) {
+                                tSpeed.set(st);
                                 // plan updated
                                 speedLabelUpdate();
                             }
@@ -201,7 +195,7 @@ public class SpeedIndicatorPanel extends ConsolePanel implements MainVehicleChan
     @Subscribe
     public void on(DesiredPath msg) {
         if (msg.getSourceName().equals(getConsole().getMainSystem())) {
-            tSpeed = msg.getAsNumber("speed").doubleValue();
+            tSpeed.set(SpeedType.parseImcSpeed(msg, "speed", "speed_units"));
             speedLabelUpdate();
         }
     }
@@ -234,9 +228,6 @@ public class SpeedIndicatorPanel extends ConsolePanel implements MainVehicleChan
         this.add(speedPanel, "w 100%, h 85%, wrap");
     }
 
-    /**
-     *
-     */
     private void titlePanelSetup() {
         titlePanel = new JPanel(new MigLayout("gap 0 0, ins 0"));
         JLabel titleLabel = new JLabel(I18n.text("Speed Indicator"), SwingConstants.LEFT);
@@ -244,9 +235,6 @@ public class SpeedIndicatorPanel extends ConsolePanel implements MainVehicleChan
         titlePanel.add(titleLabel, "w 100%, h 100%");
     }
 
-    /**
-     *
-     */
     private void speedPanelSetup() {
         speedPanel = new JPanel(new MigLayout("gap 0 0, ins 0"));
 
@@ -260,13 +248,13 @@ public class SpeedIndicatorPanel extends ConsolePanel implements MainVehicleChan
 
         speedGraphPanel = new JPanel(new MigLayout("ins 0, rtl"));
 
-        tSpeedValue = new JLabel(formatter.format(tSpeed), SwingConstants.CENTER);
+        tSpeedValue = new JLabel(tSpeed.toString(), SwingConstants.CENTER);
 
-        aSpeedBar = new JProgressBar(0, (int) ((maxSpeed + 10) * 10));
+        aSpeedBar = new JProgressBar(0, (int) ((maxSpeed.getMPS() + 10) * 10));
         aSpeedBar.setForeground(Color.cyan.darker());
         aSpeedBar.setBorderPainted(false);
 
-        gSpeedBar = new JProgressBar(0, (int) ((maxSpeed + 10) * 10));
+        gSpeedBar = new JProgressBar(0, (int) ((maxSpeed.getMPS() + 10) * 10));
         gSpeedBar.setForeground(Color.green.darker());
         gSpeedBar.setBorderPainted(false);
 
@@ -280,24 +268,21 @@ public class SpeedIndicatorPanel extends ConsolePanel implements MainVehicleChan
         speedPanel.add(speedGraphPanel, "w 80%, h 100%");
     }
 
-    /**
-     *
-     */
     private void speedLabelUpdate() {
-        aSpeedBar.setValue((int) (aSpeed * 10));
-        if (aSpeed < minSpeed) {
+        aSpeedBar.setValue((int) (aSpeed.getMPS() * 10));
+        if (aSpeed.getMPS() < minSpeed.getMPS()) {
             aSpeedBar.setForeground(Color.red.darker());
         }
         else {
             aSpeedBar.setForeground(Color.cyan.darker());
         }
-        aSpeedBar.setString(formatter.format(aSpeed));
+        aSpeedBar.setString(aSpeed.toStringAsDefaultUnits());
         aSpeedBar.setStringPainted(true);
-        gSpeedBar.setValue((int) (gSpeed * 10));
-        gSpeedBar.setString(formatter.format(gSpeed));
+        gSpeedBar.setValue((int) (gSpeed.getMPS() * 10));
+        gSpeedBar.setString(gSpeed.toStringAsDefaultUnits());
         gSpeedBar.setStringPainted(true);
 
-        tSpeedValue.setText(formatter.format(tSpeed));
+        tSpeedValue.setText(tSpeed.toString());
 
         revalidate();
     }
@@ -309,7 +294,5 @@ public class SpeedIndicatorPanel extends ConsolePanel implements MainVehicleChan
      */
     @Override
     public void cleanSubPanel() {
-        // TODO Auto-generated method stub
-
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2020 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -53,6 +53,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mystate.MyState;
+import pt.lsts.neptus.types.coord.LatLonFormatEnum;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.FileUtil;
@@ -149,7 +150,7 @@ public class LocalStateServlet extends HttpServlet implements IConsoleMenuItemSe
             
             ret += "<h2>Location</h2><blockquote>";
             LocationType home = MyState.getLocation();
-            String homeLoc = home.getLatitudeAsPrettyString()+", "+home.getLongitudeAsPrettyString();
+            String homeLoc = home.getLatitudeAsPrettyString(LatLonFormatEnum.DMS)+", "+home.getLongitudeAsPrettyString(LatLonFormatEnum.DMS);
             //ret += homeLoc+"<br/>";
             ret += "<a href='/localstate/location'>"+homeLoc+"</a><br/>";
             ret += "</blockquote><br>";

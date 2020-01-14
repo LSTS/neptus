@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2020 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -31,35 +31,23 @@
  */
 package pt.lsts.neptus.mp.maneuvers;
 
-import pt.lsts.neptus.mp.Maneuver;
-import pt.lsts.neptus.mp.Maneuver.SPEED_UNITS;
+import pt.lsts.neptus.mp.SpeedType;
 
 /**
  * @author pdias
- *
+ * @author zp
  */
 public interface ManeuverWithSpeed {
-    /**
-     * @return The speed value.
-     */
-    public double getSpeed();
     
     /**
-     * Sets the speed value
+     * @return The speed
+     */
+    public SpeedType getSpeed();
+    
+    /**
+     * Sets the speed
      * 
      * @param speed
      */
-    public void setSpeed(double speed);
-    
-    /**
-     * @return The speed units.
-     */
-    public SPEED_UNITS getSpeedUnits();
-    
-    /**
-     * Sets the speed units
-     * 
-     * @param units
-     */
-    public void setSpeedUnits(Maneuver.SPEED_UNITS units);
+    public void setSpeed(SpeedType speed);
 }

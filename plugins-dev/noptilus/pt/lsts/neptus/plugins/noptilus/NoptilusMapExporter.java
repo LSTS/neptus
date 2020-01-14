@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2020 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -62,6 +62,7 @@ import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.importers.deltat.DeltaTParser;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
+import pt.lsts.neptus.types.coord.LatLonFormatEnum;
 import pt.lsts.neptus.types.coord.LocationType;
 
 /**
@@ -173,7 +174,7 @@ public class NoptilusMapExporter implements MRAExporter, PropertiesProvider {
         ColorMapUtils.generateColorMap(lowRes.getDataPoints(), imgLow.createGraphics(), numRows/10, numCols/10, 0, ColorMapFactory.createGrayScaleColorMap());
 
         try {
-            String desc = "Map centered in "+coords.squareCenter.getLatitudeAsPrettyString()+" / "+coords.squareCenter.getLongitudeAsPrettyString();
+            String desc = "Map centered in "+coords.squareCenter.getLatitudeAsPrettyString(LatLonFormatEnum.DMS)+" / "+coords.squareCenter.getLongitudeAsPrettyString(LatLonFormatEnum.DMS);
             pathToFile(pathHigh, (float)cellSize, new File(dirOut+"/path_highres.txt"), desc);
             pathToFile(pathLow, (float)cellSize*10, new File(dirOut+"/path_lowres.txt"), desc);
             ImageToFile(imgHigh, (float)cellSize, new File(dirOut+"/highres.txt"), desc);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2020 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -75,7 +75,6 @@ import com.l2fprod.common.propertysheet.Property;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.PathPoint;
 import pt.lsts.imc.TrajectoryPoint;
-import pt.lsts.imc.def.SpeedUnits;
 import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
@@ -83,6 +82,8 @@ import pt.lsts.neptus.gui.ToolbarSwitch;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.SpeedType;
+import pt.lsts.neptus.mp.SpeedType.Units;
 import pt.lsts.neptus.renderer2d.InteractionAdapter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.renderer2d.StateRendererInteraction;
@@ -110,9 +111,8 @@ StateRendererInteraction, IMCSerialization, PathProvider {
 
     protected ManeuverLocation startLoc = new ManeuverLocation();
     LocationType previousLoc = null;
-    protected double speed = 1;
-    protected SPEED_UNITS speedUnits = SPEED_UNITS.METERS_PS;
-
+    protected SpeedType speed = new SpeedType(1, Units.MPS);
+    
     // points are [x,y,z,t] offsets 
     protected Vector<double[]> points = new Vector<double[]>();
 
@@ -157,13 +157,9 @@ StateRendererInteraction, IMCSerialization, PathProvider {
 
             setManeuverLocation(loc);
 
-            // Speed
-            Node speedNode = doc.selectSingleNode("//speed");
-            speed = Double.parseDouble(speedNode.getText());
-//            speed_units = speedNode.valueOf("@unit");
-            SPEED_UNITS sUnits = ManeuversXMLUtil.parseSpeedUnits((Element) speedNode);
-            setSpeedUnits(sUnits);
 
+            SpeedType.parseManeuverSpeed(doc.getRootElement(), this);
+            
             List<?> list = doc.selectNodes("//*/nedOffsets");
 
             for (Object o : list) {
@@ -210,11 +206,7 @@ StateRendererInteraction, IMCSerialization, PathProvider {
                 tmp.addAttribute("timeOffset", ""+pt[T]);            
         }
 
-        //velocity
-        Element velocity = root.addElement("speed");        
-        velocity.addAttribute("unit", speedUnits.getString());
-        velocity.setText(""+speed);
-
+        SpeedType.addSpeedElement(root, this);
         return document;
     }
 
@@ -229,8 +221,7 @@ StateRendererInteraction, IMCSerialization, PathProvider {
             clone = hasTime ? new FollowTrajectory() : new FollowPath();
         }
         super.clone(clone);
-        clone.speed = speed;
-        clone.speedUnits = speedUnits;
+        clone.setSpeed(getSpeed());
         clone.setManeuverLocation(startLoc);
         for (double[] val : points)
             clone.points.add(Arrays.copyOf(val, val.length));
@@ -326,14 +317,14 @@ StateRendererInteraction, IMCSerialization, PathProvider {
                             }
                             catch (Exception e1) {
                                 parseLatLon++;
-                                pt[0] = CoordinateUtil.parseLatitudeCoordToDoubleValue(parts[0]);
+                                pt[0] = CoordinateUtil.parseCoordString(parts[0]);
                             }
                             try {
                                 pt[1] = Double.parseDouble(parts[1].trim());
                             }
                             catch (Exception e1) {
                                 parseLatLon++;
-                                pt[1] = CoordinateUtil.parseLongitudeCoordToDoubleValue(parts[1]);
+                                pt[1] = CoordinateUtil.parseCoordString(parts[1]);
                             }
                             
                             pt[2] = Double.parseDouble(parts[2].trim());
@@ -402,12 +393,8 @@ StateRendererInteraction, IMCSerialization, PathProvider {
                 double distance, _speed;
 
                 // do any required speed conversions
-                _speed = speed;            
-                if (speedUnits == SPEED_UNITS.RPM)
-                    _speed /= RPM_MPS_CONVERSION;
-                else if (speedUnits == SPEED_UNITS.PERCENTAGE)
-                    _speed /= PERCENT_MPS_CONVERSION;
-
+                _speed = speed.getMPS();        
+                
                 double[] offsets = source.getRealWorldLocation(clicked).getOffsetFrom(startLoc);
 
                 double xyzt[] = new double[4];
@@ -533,15 +520,8 @@ StateRendererInteraction, IMCSerialization, PathProvider {
     public double getCompletionTime(LocationType initialPosition) {
 
         double initialDistance = startLoc.getDistanceInMeters(initialPosition);
-        double speed = this.speed;
-
-        if (this.speedUnits == SPEED_UNITS.RPM)
-            speed = speed/RPM_MPS_CONVERSION;
-
-        else if (this.speedUnits == SPEED_UNITS.PERCENTAGE)
-            speed = speed/PERCENT_MPS_CONVERSION;
-
-        double time = initialDistance / speed;
+        
+        double time = initialDistance / speed.getMPS();
 
         for (double[] p : points)
             time += p[3];
@@ -691,24 +671,7 @@ StateRendererInteraction, IMCSerialization, PathProvider {
             trajMessage.setZ(getManeuverLocation().getZ());
             trajMessage.setZUnits(ZUnits.valueOf(
                     getManeuverLocation().getZUnits().toString()));
-            trajMessage.setSpeed(speed);
-            try {
-                switch (this.getSpeedUnits()) {
-                    case METERS_PS:
-                        trajMessage.setSpeedUnits(SpeedUnits.METERS_PS);
-                        break;
-                    case PERCENTAGE:
-                        trajMessage.setSpeedUnits(SpeedUnits.PERCENTAGE);
-                        break;
-                    case RPM:
-                    default:
-                        trajMessage.setSpeedUnits(SpeedUnits.RPM);
-                        break;
-                }
-            }
-            catch (Exception ex) {
-                NeptusLog.pub().error(this, ex);                     
-            }
+            speed.setSpeedToMessage(trajMessage);
             trajMessage.setCustom(getCustomSettings());
             trajMessage.setTimeout(getMaxTime());
             return trajMessage;
@@ -730,24 +693,8 @@ StateRendererInteraction, IMCSerialization, PathProvider {
             pathMessage.setLon(Math.toRadians(lld[1]));
             pathMessage.setZ(getManeuverLocation().getZ());
             pathMessage.setZUnits(ZUnits.valueOf(
-                    getManeuverLocation().getZUnits().toString()));            
-            pathMessage.setSpeed(speed);
-            try {
-                switch (this.getSpeedUnits()) {
-                    case METERS_PS:
-                        pathMessage.setSpeedUnits(SpeedUnits.METERS_PS);
-                        break;
-                    case PERCENTAGE:
-                        pathMessage.setSpeedUnits(SpeedUnits.PERCENTAGE);
-                        break;
-                    case RPM:
-                    default:
-                        pathMessage.setSpeedUnits(SpeedUnits.RPM);
-                        break;
-                }            }
-            catch (Exception ex) {
-                NeptusLog.pub().error(this, ex);                     
-            }
+                    getManeuverLocation().getZUnits().toString()));       
+            speed.setSpeedToMessage(pathMessage);
             pathMessage.setCustom(getCustomSettings());
             pathMessage.setTimeout(getMaxTime());
             return pathMessage;
@@ -763,17 +710,10 @@ StateRendererInteraction, IMCSerialization, PathProvider {
         String units = message.getString("z_units");
         if (units != null)
             startLoc.setZUnits(ManeuverLocation.Z_UNITS.valueOf(units));
-        speed = message.getDouble("speed");
+        
         customSettings = message.getTupleList("custom");
-        try {
-            String speedUnits = message.getString("speed_units");
-            setSpeedUnits(Maneuver.SPEED_UNITS.parse(speedUnits));
-        }
-        catch (Exception e) {
-            setSpeedUnits(Maneuver.SPEED_UNITS.RPM);
-            e.printStackTrace();
-        }
-
+        
+        speed = SpeedType.parseImcSpeed(message);
         points.clear();
         Vector<IMCMessage> pts = message.getMessageList("points");
         for (IMCMessage pt : pts) {
@@ -794,22 +734,6 @@ StateRendererInteraction, IMCSerialization, PathProvider {
         }
     }
 
-    public SPEED_UNITS getSpeedUnits() {
-        return speedUnits;
-    }
-
-    public void setSpeedUnits(SPEED_UNITS speedUnits) {
-        this.speedUnits = speedUnits;
-        recalculateTimes();
-    }
-
-    public double getSpeed() {
-        return speed;
-    }
-
-    public void setSpeed(double speed) {
-        this.speed = speed;
-    }
 
     protected void recalculateTimes() {
         if (!hasTime)
@@ -817,13 +741,8 @@ StateRendererInteraction, IMCSerialization, PathProvider {
 
         double dist, _speed;
 
-        // do any required speed conversions
-        _speed = speed;            
-        if (speedUnits == SPEED_UNITS.RPM)
-            _speed /= RPM_MPS_CONVERSION;
-        else if (speedUnits == SPEED_UNITS.PERCENTAGE)
-            _speed /= PERCENT_MPS_CONVERSION;
-
+        _speed = speed.getMPS();            
+        
         for (int i = 0; i < points.size(); i++) {
             if (i == 0)
                 dist = Math.sqrt(points.get(0)[X]*points.get(0)[X] + points.get(0)[Y]*points.get(0)[Y] + points.get(0)[Z]*points.get(0)[Z]);
@@ -839,10 +758,8 @@ StateRendererInteraction, IMCSerialization, PathProvider {
 
     @Override
     public String getTooltipText() {
-        NumberFormat nf = GuiUtils.getNeptusDecimalFormat(2);
-        return super.getTooltipText() + "<hr>" + I18n.text("speed") + ": <b>" + nf.format(speed) + " "
-                + I18n.text(speedUnits.getString()) + "</b>" + "<br>" + I18n.text("points") + ": <b>" + points.size()
-                + "</b>";
+        return super.getTooltipText() + "<hr>" + I18n.text("speed") + ": <b>" + speed + "</b>" + "<br>"
+                + I18n.text("points") + ": <b>" + points.size() + "</b>";
     }
 
     protected static void test1() {
@@ -861,11 +778,7 @@ StateRendererInteraction, IMCSerialization, PathProvider {
     protected Vector<DefaultProperty> additionalProperties() {
         Vector<DefaultProperty> properties = new Vector<DefaultProperty>();
 
-        DefaultProperty units = PropertiesEditor.getPropertyInstance("Speed units", Maneuver.SPEED_UNITS.class, getSpeedUnits(), true);
-        units.setShortDescription("The speed units");
-
-        properties.add(PropertiesEditor.getPropertyInstance("Speed", Double.class, getSpeed(), true));
-        properties.add(units);
+        properties.add(PropertiesEditor.getPropertyInstance("Speed", SpeedType.class, getSpeed(), true));
 
         return properties;
     }
@@ -876,12 +789,7 @@ StateRendererInteraction, IMCSerialization, PathProvider {
 
         for (Property p : properties) {
             if (p.getName().equals("Speed")) {
-                setSpeed((Double)p.getValue());
-            }
-            else {
-                SPEED_UNITS speedUnits = ManeuversUtil.getSpeedUnitsFromPropertyOrNullIfInvalidName(p);
-                if (speedUnits != null)
-                    setSpeedUnits(speedUnits);
+                setSpeed((SpeedType)p.getValue());
             }
         }
     }
@@ -890,6 +798,16 @@ StateRendererInteraction, IMCSerialization, PathProvider {
     public void paintInteraction(Graphics2D g, StateRenderer2D source) {
         
     }
+    
+    @Override
+    public SpeedType getSpeed() {
+        return new SpeedType(speed);
+    }
+    
+    @Override
+    public void setSpeed(SpeedType speed) {
+        this.speed = new SpeedType(speed);       
+    }
 
     public static void main(String[] args) {
         // test1();
@@ -897,12 +815,10 @@ StateRendererInteraction, IMCSerialization, PathProvider {
         FollowTrajectory traj = new FollowTrajectory();
         traj.loadManeuverFromXML("<FollowTrajectory kind=\"automatic\"><basePoint type=\"pointType\"><point><id>id_53802104</id><name>id_53802104</name><coordinate><latitude>0N0'0''</latitude><longitude>0E0'0''</longitude><depth>0.0</depth></coordinate></point><radiusTolerance>0.0</radiusTolerance></basePoint><trajectory><nedOffsets northOffset=\"0.0\" eastOffset=\"1.0\" depthOffset=\"2.0\" timeOffset=\"3.0\"/><nedOffsets northOffset=\"4.0\" eastOffset=\"5.0\" depthOffset=\"6.0\" timeOffset=\"7.0\"/></trajectory><speed unit=\"RPM\">1000.0</speed></FollowTrajectory>");
         //NeptusLog.pub().info("<###> "+FileUtil.getAsPrettyPrintFormatedXMLString(traj.getManeuverAsDocument("FollowTrajectory")));
-        traj.setSpeed(1);
-        traj.setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);        
+        traj.setSpeed(new SpeedType(1, Units.MPS));
         NeptusLog.pub().info("<###> "+FileUtil.getAsPrettyPrintFormatedXMLString(traj.getManeuverAsDocument("FollowTrajectory")));
 
-        traj.setSpeed(2);
-        traj.setSpeedUnits(Maneuver.SPEED_UNITS.METERS_PS);        
+        traj.setSpeed(new SpeedType(2, Units.MPS));               
         NeptusLog.pub().info("<###> "+FileUtil.getAsPrettyPrintFormatedXMLString(traj.getManeuverAsDocument("FollowTrajectory")));
         //test2();
     }

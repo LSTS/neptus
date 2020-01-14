@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2017 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -28,36 +28,59 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: pdias
- * 19/05/2016
+ * 10/05/2017
  */
-package pt.lsts.neptus.gui.editor.renderer;
+package pt.lsts.neptus.console.plugins.planning.edit;
 
-import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
+import javax.swing.undo.AbstractUndoableEdit;
+import javax.swing.undo.CannotRedoException;
+import javax.swing.undo.CannotUndoException;
 
-import pt.lsts.neptus.mp.Maneuver.SPEED_UNITS;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mp.element.IPlanElement;
+import pt.lsts.neptus.types.mission.plan.PlanType;
 
 /**
  * @author pdias
  *
  */
-@SuppressWarnings("serial")
-public class SpeedUnitsEnumRenderer extends DefaultCellRenderer {
+public class PlanElementChanged extends AbstractUndoableEdit {
 
-    {
-        setShowOddAndEvenRows(false);
+    private static final long serialVersionUID = -3249013393530057483L;
+
+    protected PlanType plan;
+    protected IPlanElement<?> planElement;
+    protected String beforeXml, afterXml;
+
+    public PlanElementChanged(IPlanElement<?> planElement, PlanType plan, String beforeXml) {
+        this.planElement = planElement;
+        this.plan = plan;
+        this.beforeXml = beforeXml;
+        this.afterXml = planElement.getElementAsXml();        
     }
 
-    public SpeedUnitsEnumRenderer() {
+    @Override
+    public boolean canUndo() {
+        return true;
     }
     
     @Override
-    protected String convertToString(Object value) {
-        try {
-            SPEED_UNITS unit = (SPEED_UNITS) value;
-            return unit.getString();
-        }
-        catch (Exception e) {
-            return super.convertToString(value);
-        }
+    public boolean canRedo() {
+        return true;
+    }
+    
+    @Override
+    public String getPresentationName() {
+        return I18n.textf("Change the planElement %maneuverId", planElement.getName());
+    }
+    
+    @Override
+    public void undo() throws CannotUndoException {
+        planElement.loadElementXml(beforeXml);
+    }
+
+    @Override
+    public void redo() throws CannotRedoException {
+        planElement.loadElementXml(afterXml);
     }
 }

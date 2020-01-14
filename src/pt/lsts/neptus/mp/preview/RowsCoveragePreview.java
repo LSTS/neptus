@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2020 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -34,7 +34,6 @@ package pt.lsts.neptus.mp.preview;
 
 import java.util.Vector;
 
-import pt.lsts.neptus.mp.Maneuver.SPEED_UNITS;
 import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mp.maneuvers.RowsCoverage;
@@ -108,12 +107,7 @@ public class RowsCoveragePreview implements IManeuverPreview<RowsCoverage> {
         }        
 
         this.vehicleId = vehicleId;
-        speed = man.getSpeed();
-        if (man.getSpeedUnits() == SPEED_UNITS.RPM) 
-            speed = SpeedConversion.convertRpmtoMps(speed);
-        else if (man.getSpeedUnits() == SPEED_UNITS.PERCENTAGE) // convert to RPM and then to m/s
-            speed = SpeedConversion.convertPercentageToMps(speed);
-
+        speed = man.getSpeed().getMPS();
         speed = Math.min(speed, SpeedConversion.MAX_SPEED);    
         
         model.setState(state);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2020 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -46,11 +46,8 @@ import java.util.Vector;
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
-import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.mp.Maneuver;
-import pt.lsts.neptus.mp.Maneuver.SPEED_UNITS;
-import pt.lsts.neptus.mp.preview.SpeedConversion;
 import pt.lsts.neptus.plugins.PluginProperty;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.util.AngleUtils;
@@ -510,45 +507,10 @@ public class ManeuversUtil {
     }
     
     public static double getSpeedMps(Maneuver man) {
-        
-        DefaultProperty speedProp = null, unitsProp = null;
-        
-        for (DefaultProperty dp : man.getProperties()) {
-            if (dp.getName().equalsIgnoreCase("Speed"))
-                speedProp = dp;
-            else if (dp.getName().equalsIgnoreCase("Speed units"))
-                unitsProp = dp;
-        }
-        
-        if (speedProp == null || unitsProp == null)
+        if (!(man instanceof ManeuverWithSpeed))
             return Double.NaN;
-
-        if (unitsProp.getValue() instanceof Maneuver.SPEED_UNITS) {
-            switch ((Maneuver.SPEED_UNITS) unitsProp.getValue()) {
-                case METERS_PS:
-                    return Double.parseDouble(""+speedProp.getValue());
-                case RPM:
-                    return SpeedConversion.convertPercentageToMps(Double.parseDouble(""+speedProp.getValue()));
-                case PERCENTAGE:
-                    return SpeedConversion.convertPercentageToMps(Double.parseDouble(""+speedProp.getValue()));
-                default:
-                    NeptusLog.pub().error("Unrecognized speed units: "+unitsProp.getValue());
-                    return Double.NaN;
-            }
-        }
-        else {
-            switch (""+unitsProp.getValue()) {
-                case "m/s":
-                    return Double.parseDouble(""+speedProp.getValue());
-                case "RPM":
-                    return SpeedConversion.convertRpmtoMps(Double.parseDouble(""+speedProp.getValue()));
-                case "%":
-                    return SpeedConversion.convertPercentageToMps(Double.parseDouble(""+speedProp.getValue()));
-                default:
-                    NeptusLog.pub().error("Unrecognized speed units: "+unitsProp.getValue());
-                    return Double.NaN;
-            }
-        }
+        
+        return ((ManeuverWithSpeed)man).getSpeed().getMPS();        
     }
     
     /**
@@ -572,35 +534,5 @@ public class ManeuversUtil {
     
     public static <M extends Maneuver> Class<M> getManeuverFromType(String type) {
         return IMCUtils.getManeuverFromType(type);
-    }
-    
-    /**
-     * Check if the property has a name proper to "Speed Units", if yes parses the value
-     * and if not valid return a default value.
-     * If not with the right name return null.
-     * 
-     * @param p
-     * @return
-     */
-    public static Maneuver.SPEED_UNITS getSpeedUnitsFromPropertyOrNullIfInvalidName(Property p) {
-        if (p.getName().equalsIgnoreCase("Speed units") || p.getName().equalsIgnoreCase("SpeedUnits")) {
-            Object val = p.getValue();
-            if (val instanceof String) {
-                SPEED_UNITS units;
-                try {
-                    units = Maneuver.SPEED_UNITS.parse((String) val);
-                }
-                catch (Exception e) {
-                    units = SPEED_UNITS.RPM;
-                    e.printStackTrace();
-                }
-                return units;
-            }
-            else if (val instanceof Maneuver.SPEED_UNITS) {
-                return (SPEED_UNITS) val;
-            }
-        }
-
-        return null;
     }
 }

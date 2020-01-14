@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2020 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -35,6 +35,7 @@ package pt.lsts.neptus.plugins.txtcmd;
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
+import pt.lsts.neptus.mp.SpeedType;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.MissionType;
@@ -80,6 +81,10 @@ public abstract class AbstractTextCommand implements ITextCommand {
                 loc.convertToAbsoluteLatLonDepth();
                 ret +="lat="+GuiUtils.getNeptusDecimalFormat(8).format(loc.getLatitudeDegs());
                 ret +=";lon="+GuiUtils.getNeptusDecimalFormat(8).format(loc.getLongitudeDegs());
+            }
+            if (p.getType() == SpeedType.class) {
+                SpeedType speed = (SpeedType)p.getValue();
+                ret +="speed="+GuiUtils.getNeptusDecimalFormat(1).format(speed.getMPS());                
             }
             else {
                 ret += p.getName()+"="+p.getValue();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2020 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -44,7 +44,6 @@ import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.planeditor.IEditorMenuExtension;
 import pt.lsts.neptus.planeditor.IMapPopup;
-import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -64,12 +63,6 @@ public class PlanStatistics extends ConsolePanel implements IEditorMenuExtension
     NumberFormat format = GuiUtils.getNeptusDecimalFormat(0);
 	boolean initCalled = false;
 	
-	@NeptusProperty(name="Maximum Top Speed (100%)")
-	public double maxSpeed = 1.3;
-	
-	@NeptusProperty(name="Maximum Number of RPMs")
-	public double maxRpms = 1000;
-
     /**
      * @param console
      */
@@ -97,17 +90,8 @@ public class PlanStatistics extends ConsolePanel implements IEditorMenuExtension
 		Vector<JMenuItem> items = new Vector<JMenuItem>();
 		
 		if (getConsole().getPlan() != null) {
-//			JMenu menu = new JMenu("Plan Statistics");
 			PlanType plan = getConsole().getPlan();
-//            Vector<LocationProvider> mans = PlanUtil.getLocationsAsSequence(plan);
-//            menu.add("length: " + MathMiscUtils.parseToEngineeringNotation(PlanUtil.getPlanLength(mans), 2) + "m");
-//            menu.add("est. time: " + PlanUtil.estimatedTime(mans, maxSpeed, maxRpms));
-//            menu.add("max depth: " + format.format(PlanUtil.getMaxPlannedDepth(mans)) + " m");
-//            menu.add("# maneuvers: " + PlanUtil.numManeuvers(plan));
-//            menu.addSeparator();
-//            menu.add("using max speed: " + maxSpeed + "m/s (" + maxRpms + "RPM)");
-
-            JMenu menu = PlanUtil.getPlanStatisticsAsJMenu(plan, I18n.text("Active Plan Statistics"), maxSpeed, maxRpms);
+            JMenu menu = PlanUtil.getPlanStatisticsAsJMenu(plan, I18n.text("Active Plan Statistics"));
             items.add(menu);
 			return items;
 		}

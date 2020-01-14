@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2020 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -32,7 +32,8 @@
  */
 package pt.lsts.neptus.plugins.txtcmd;
 
-import pt.lsts.neptus.mp.Maneuver.SPEED_UNITS;
+import pt.lsts.neptus.mp.SpeedType;
+import pt.lsts.neptus.mp.SpeedType.Units;
 import pt.lsts.neptus.mp.templates.PlanCreator;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginUtils;
@@ -52,8 +53,8 @@ public class CommandYoyo extends AbstractTextCommand {
     @NeptusProperty(description="Side length of the survey (in meters)")
     double size=50;
     
-    @NeptusProperty(description="Vehicle speed during the survey, in meters per second")
-    double speed = 1.1;
+    @NeptusProperty(description="Vehicle speed during the survey")
+    SpeedType speed = new SpeedType(1.1, Units.MPS);
     
     @NeptusProperty(description="Speed of the point of interest towards North")
     double vn = 0;
@@ -84,7 +85,7 @@ public class CommandYoyo extends AbstractTextCommand {
     @Override
     public PlanType resultingPlan(MissionType mt) {
         PlanCreator planCreator = new PlanCreator(mt);
-        planCreator.setSpeed(speed, SPEED_UNITS.METERS_PS);
+        planCreator.setSpeed(speed);
         
         LocationType center = new LocationType(dest);
         double radius = Math.sqrt((size * size)/2);
@@ -102,7 +103,7 @@ public class CommandYoyo extends AbstractTextCommand {
         double depth = (maxdepth + minDepth) / 2;
         
         for (int i = 0; i < 4; i++) {
-            time += size * speed;
+            time += size * speed.getMPS();
             ang = Math.toRadians(i * 90 + 135 + rot);
             planCreator.setLocation(center);
             planCreator.move(Math.sin(ang) * radius + time * vn, Math.cos(ang) * radius + time * ve);

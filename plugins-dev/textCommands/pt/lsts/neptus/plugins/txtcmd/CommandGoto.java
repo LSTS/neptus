@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2020 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -32,7 +32,8 @@
  */
 package pt.lsts.neptus.plugins.txtcmd;
 
-import pt.lsts.neptus.mp.Maneuver.SPEED_UNITS;
+import pt.lsts.neptus.mp.SpeedType;
+import pt.lsts.neptus.mp.SpeedType.Units;
 import pt.lsts.neptus.mp.templates.PlanCreator;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginUtils;
@@ -53,7 +54,7 @@ public class CommandGoto extends AbstractTextCommand {
     double depth = 0;
     
     @NeptusProperty
-    double speed = 1.2;
+    SpeedType speed = new SpeedType(1.2, Units.MPS);
     
     @Override
     public String getCommand() {
@@ -63,7 +64,7 @@ public class CommandGoto extends AbstractTextCommand {
     @Override
     public PlanType resultingPlan(MissionType mt) {
         PlanCreator planCreator = new PlanCreator(mt);
-        planCreator.setSpeed(speed, SPEED_UNITS.METERS_PS);
+        planCreator.setSpeed(speed);
         planCreator.setLocation(dest);
         planCreator.setDepth(depth);
         planCreator.addGoto(null);

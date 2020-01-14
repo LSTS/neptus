@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2020 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -591,7 +591,8 @@ public class MyLocationDisplay extends ConsolePanel implements Renderer2DPainter
                             + I18n.textc("Heading external", "indication that the heading comes from external source")
                             : "");
         }
-        g.drawString(meTextToDraw, 18, 14);
+        
+        GuiUtils.drawText(meTextToDraw, 18, 14, Color.WHITE, Color.BLACK, g);
 
         g.dispose();
     }

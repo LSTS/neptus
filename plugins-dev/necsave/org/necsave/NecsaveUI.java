@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2020 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -103,12 +103,10 @@ import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
-import pt.lsts.neptus.mp.Maneuver.SPEED_UNITS;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.mp.maneuvers.ManeuverWithSpeed;
-import pt.lsts.neptus.mp.preview.SpeedConversion;
 import pt.lsts.neptus.plugins.NeptusMenuItem;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -487,11 +485,7 @@ public class NecsaveUI extends ConsoleLayer {
 
                 double speed = 0;
                 if (firstMan instanceof ManeuverWithSpeed) {
-                    speed = ((ManeuverWithSpeed) firstMan).getSpeed();
-                    if (((ManeuverWithSpeed) firstMan).getSpeedUnits().equals(SPEED_UNITS.RPM))
-                        speed = SpeedConversion.convertRpmtoMps(speed);
-                    else if (((ManeuverWithSpeed) firstMan).getSpeedUnits().equals(SPEED_UNITS.RPM))
-                        speed = SpeedConversion.convertPercentageToMps(speed);
+                    speed = ((ManeuverWithSpeed) firstMan).getSpeed().getMPS();                    
                 }
                 
                 Collection<Coordinate> points_list = new ArrayList<>();

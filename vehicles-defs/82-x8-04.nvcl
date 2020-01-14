@@ -20,6 +20,12 @@
                 <b>255</b>
             </icon-color>
         </appearance>
+        <limits>
+            <valid-zunits>altitude, height</valid-zunits>
+            <min-speed>15</min-speed>
+            <max-speed>22</max-speed>
+            <max-duration-hours>1</max-duration-hours>
+        </limits>
         <coordinate-system-label>SNAME</coordinate-system-label>
     </properties>
     <feasibleManeuvers>

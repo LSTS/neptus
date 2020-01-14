@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2020 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -157,7 +157,7 @@ public class LayersListPanel extends JPanel implements PropertiesProvider, Confi
     
     public <W extends Window> LayersListPanel(W parentWindow) {
         this.parentWindow = parentWindow;
-        this.setPreferredSize(new Dimension(600, 400));
+        this.setPreferredSize(new Dimension(680, 400));
         initializeActions();
         initialize();
     }

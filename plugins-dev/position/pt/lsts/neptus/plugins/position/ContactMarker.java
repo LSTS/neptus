@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2020 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -45,6 +45,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Vector;
 
 import javax.swing.AbstractAction;
@@ -114,6 +115,10 @@ SubPanelChangeListener, MainVehicleChangeListener {
     @NeptusProperty(name = "Use Single Mark Addition Mode", userLevel = LEVEL.ADVANCED, 
             description = "Ability to only add marks by inputing the location or using an active system")
     public boolean useSingleMarkAdditionMode = true;
+
+    @NeptusProperty(name = "Allow mark dissemination", userLevel = LEVEL.ADVANCED,
+            description = "Ability disseminate marks")
+    public boolean showDisseminateOption = true;
 
     private Vector<IMapPopup> renderersPopups = new Vector<IMapPopup>();
     protected ArrayList<MarkElement> intersectedObjects = new ArrayList<>();
@@ -333,7 +338,8 @@ SubPanelChangeListener, MainVehicleChangeListener {
                 }
 
                 JMenu dissem = new JMenu(I18n.text("Disseminate mark"));
-                menus.add(dissem);
+                if(showDisseminateOption)
+                    menus.add(dissem);
                 for (final AbstractElement elem : marks) {
                     final String markId = elem.getId();
                     AbstractAction rem = new AbstractAction(markId) {
@@ -349,6 +355,43 @@ SubPanelChangeListener, MainVehicleChangeListener {
                     dissem.add(rem);
                     MenuScroller.setScrollerFor(dissem, 25);
                 }
+
+                JMenuItem importMarks = new JMenuItem(I18n.text("Import marks"));
+                importMarks.addActionListener(e -> {
+                    List<MarkElement> importedMarks = MarksImporterPanel.showPanel(getConsole());
+
+                    if(importedMarks == null || importedMarks.isEmpty())
+                        return;
+
+                    // place marks on map
+                    importedMarks.stream().forEach(m -> {
+                        MapType mapType = MapGroup.getMapGroupInstance(getConsole().getMission()).getMaps()[0];
+                        m.setMapGroup(mapType.getMapGroup());
+                        m.setParentMap(mapType);
+                        mapType.addObject(m);
+                    });
+
+                    getConsole().getMission().save(true);
+                });
+                menus.add(importMarks);
+
+                JMenuItem exportMarks = new JMenuItem(I18n.text("Export marks"));
+                exportMarks.addActionListener(e -> {
+                    List<MarkElement> availableMarks = new ArrayList<>(MapGroup.getMapGroupInstance(getConsole()
+                            .getMission())
+                            .getMaps()[0].getMarksList().values());
+                    NeptusLog.pub().info("There are " + availableMarks.size() + " marks");
+
+                    if(availableMarks.size() <= 0) {
+                        GuiUtils.showErrorPopup("Error", "No available marks to export");
+                        return;
+                    }
+
+                    if(!MarksExporterPanel.showPanel(getConsole(), availableMarks))
+                        GuiUtils.showErrorPopup("Error", "Something went wrong while exporting, check the logs");
+
+                });
+                menus.add(exportMarks);
             }
         }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2020 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -74,18 +74,24 @@ public class PlanTranslated extends AbstractUndoableEdit {
 
     @Override
     public void undo() throws CannotUndoException {
-        for (Maneuver man : plan.getGraph().getAllManeuvers())
+        for (Maneuver man : plan.getGraph().getAllManeuvers()) {
             if (man != null && man instanceof LocatedManeuver) {
                 ((LocatedManeuver)man).translate(-deltaNorth, -deltaEast, 0);
             }
+        }
+        
+        plan.getPlanElements().getPlanElements().stream().forEach(pe -> pe.translate(-deltaNorth, -deltaEast, 0));
     }
 
     @Override
     public void redo() throws CannotRedoException {      
-        for (Maneuver man : plan.getGraph().getAllManeuvers())
+        for (Maneuver man : plan.getGraph().getAllManeuvers()) {
             if (man != null && man instanceof LocatedManeuver) {
                 ((LocatedManeuver)man).translate(deltaNorth, deltaEast, 0);
-            }        
+            }
+        }
+
+        plan.getPlanElements().getPlanElements().stream().forEach(pe -> pe.translate(-deltaNorth, -deltaEast, 0));
     }
 
     /**

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2020 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -77,6 +77,11 @@ public class NetCDFUtils {
     
     public static final String NETCDF_GRP_NAVIGATION_DATA = "navigation_data";
     public static final String NETCDF_GRP_GEOPHYSICAL_DATA = "geophysical_data";
+    
+    public static final String NETCDF_DEGREES_NORTH = "degrees_north";
+    public static final String NETCDF_DEGREE_NORTH = "degree_north";
+    public static final String NETCDF_DEGREES_EAST = "degrees_east";
+    public static final String NETCDF_DEGREE_EAST = "degree_east";
 
     /**
      * Counts the evolution of a multi-for loop variables counters.

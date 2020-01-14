@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2020 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -187,8 +187,8 @@ public class WaypointPlanner extends ConsolePanel implements Renderer2DPainter, 
                 while (line != null) {
                     if (!line.startsWith("#")) {
                         String ll[] = line.split(" ");
-                        double lat = CoordinateUtil.parseLatitudeCoordToDoubleValue(ll[0]);
-                        double lon = CoordinateUtil.parseLongitudeCoordToDoubleValue(ll[1]);
+                        double lat = CoordinateUtil.parseCoordString(ll[0]);
+                        double lon = CoordinateUtil.parseCoordString(ll[1]);
                         LocationType l = new LocationType();
                         l.setLatitudeDegs(lat);
                         l.setLongitudeDegs(lon);

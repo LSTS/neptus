@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2020 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -81,7 +81,8 @@ import pt.lsts.neptus.comm.manager.imc.MessageDeliveryListener;
 import pt.lsts.neptus.comm.transports.DeliveryListener;
 import pt.lsts.neptus.console.ConsoleInteraction;
 import pt.lsts.neptus.console.notifications.Notification;
-import pt.lsts.neptus.mp.Maneuver.SPEED_UNITS;
+import pt.lsts.neptus.mp.SpeedType;
+import pt.lsts.neptus.mp.SpeedType.Units;
 import pt.lsts.neptus.mp.templates.PlanCreator;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -912,7 +913,7 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
     private PlanType asNeptusPlan(AUVDrifterSurvey survey) {
 
         PlanCreator pc = new PlanCreator(getConsole().getMission());
-        pc.setSpeed(1.25, SPEED_UNITS.METERS_PS);
+        pc.setSpeed(new SpeedType(1.25, Units.MPS));
         pc.setLocation(survey.getLocation());
         AffineTransform transform = new AffineTransform();
         transform.rotate(survey.getRotationRads());
