@@ -187,7 +187,7 @@ public class GroovyPanel extends ConsolePanel {
             }
         };
         
-        Action autosaveAction = new AbstractAction(I18n.text(""), ImageUtils.getScaledIcon("pt/lsts/neptus/plugins/groovy/images/save.png", 16, 16)) {
+        Action autosaveAction = new AbstractAction("", ImageUtils.getScaledIcon("pt/lsts/neptus/plugins/groovy/images/save.png", 16, 16)) {
 
             @Override
             public void actionPerformed(ActionEvent e) {
