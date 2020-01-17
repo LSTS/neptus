@@ -314,6 +314,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         ImageIcon icon = ImageUtils.getIcon(iconPath);
         menuItem = createMenuItem(popupPosition, name2, icon);
         getConsole().addJMenuIntoViewMenu(menuItem);
+        getConsole().updateJMenuView(); //order view menu items
 
         // Build Dialog
         dialog = new JDialog(getConsole());
