@@ -123,7 +123,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
 
     // PopUp variables
     protected JDialog dialog = null;
-    protected AbstractAction popUpAction = null;
+    protected Action popUpAction = null;
     private JMenuItem menuItem = null;
 
     private double percentXPos, percentYPos, percentWidth, percentHeight;
@@ -325,14 +325,17 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         // dialog.setFocusable(true);
 
         if (accelerator != null) {
-            popUpAction = new AbstractAction() {
-                private static final long serialVersionUID = 1L;
+            popUpAction = menuItem.getAction(); //use same action as the one used on object creation
+            if(popUpAction == null) {
+                popUpAction = new AbstractAction() {
+                    private static final long serialVersionUID = 1L;
 
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    decideToShowPopupDialog(popupPosition);
-                }
-            };
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        decideToShowPopupDialog(popupPosition);
+                    }
+                };
+            }
             boolean res = getConsole().registerGlobalKeyBinding(accelerator, popUpAction);
             if (res)
                 menuItem.setAccelerator(accelerator);
@@ -354,11 +357,15 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
             }
 
             if (popUpAction != null) {
-                if (menuItem != null)
-                    unRegisterOrPassKey(menu, popUpAction, menuItem.getText());
+                boolean res = getConsole().unRegisterGlobalKeyBinding(popUpAction);
+                if (!res) {
+                    NeptusLog.pub().error(I18n.text("Unable to remove key binding "+menuItem.getAccelerator()));
+                    return;
+                }
+                passKey(menu, menuItem.getText());
             }
         }
-
+        
         menuItem = null;
         dialog = null;
         popUpAction = null;
@@ -368,43 +375,29 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
      * @param menu
      * @param popUpAction2
      */
-    private void unRegisterOrPassKey(JMenu jmenu, AbstractAction popUpAction2, String consoleName) {
-        String[] split = consoleName.split("_");
-        int count = split.length == 2 ? Integer.parseInt(split[1]) : 0;
-        if (count > 0) {
-            getConsole().unRegisterGlobalKeyBinding(popUpAction2);
-            return;
-        }
+    private void passKey(JMenu menu, String consoleName) {
         final Collator collator = Collator.getInstance(Locale.US);
-        if (jmenu.getItemCount() > 2)
-            for (int i = 0; i < jmenu.getItemCount(); i++) {
-                String previous = consoleName.replaceAll("_\\d*$", "");
-                String name = jmenu.getItem(i).getText().replaceAll("_\\d*$", "");
-                split = jmenu.getItem(i).getText().split("_");
-                count = split.length == 2 ? Integer.parseInt(split[1]) : 0;
-                if (count > 1)
-                    return; // only the first plugin has the accelerator
-                if ((collator.compare(name, previous) == 0 && count == 1)
-                        || collator.compare(consoleName, jmenu.getItem(i).getText()) == 0) { // before the @JMenu is
-                                                                                             // updated with count
-                                                                                             // suffix
-                    // More than one @consolePanel for this plugin, but the previous is gone
-                    if (getConsole().unRegisterGlobalKeyBinding(popUpAction2)) { // The binding existed
-                        NeptusLog.pub().warn(I18n.text("Removing " + consoleName + " passing accelerator to item: "
-                                + jmenu.getItem(i).getText()));
-                        Action a = jmenu.getItem(i).getAction();
-                        if(a == null)
-                            return;
-                        final Popup cAction = getClass().getAnnotation(Popup.class);
-                        KeyStroke accelerator = KeyStroke.getKeyStroke(cAction.accelerator(), KeyEvent.CTRL_DOWN_MASK);
-                        if (getConsole().registerGlobalKeyBinding(accelerator, a))
-                            jmenu.getItem(i).setAccelerator(accelerator);
+        String previous = consoleName.replaceAll("_\\d*$", "");
+        if (menu.getItemCount() > 2) {
+            for (int i = 0; i < menu.getItemCount(); i++) {
+                String name = menu.getItem(i).getText().replaceAll("_\\d*$", "");
+                if ((collator.compare(name, previous) == 0)) {
+                    NeptusLog.pub().warn(I18n.text(
+                            "Removing " + consoleName + " passing accelerator to item: " + menu.getItem(i).getText()));
+                    Action a = menu.getItem(i).getAction(); //retrieve the action on item's creation
+                    if (a == null)
                         return;
-                    }
-
+                    final Popup cAction = getClass().getAnnotation(Popup.class);
+                    KeyStroke accelerator = KeyStroke.getKeyStroke(cAction.accelerator(), KeyEvent.CTRL_DOWN_MASK);
+                    if (getConsole().registerGlobalKeyBinding(accelerator, a))
+                        menu.getItem(i).setAccelerator(accelerator);
+                    else
+                        NeptusLog.pub().warn(I18n.text("Unable to Register Key Binding for "+cAction.accelerator()));
+                    return;
                 }
 
             }
+        }
     }
 
     /**
