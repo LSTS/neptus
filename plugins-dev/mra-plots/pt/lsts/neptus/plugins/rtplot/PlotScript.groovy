@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2020 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -66,24 +66,24 @@ class PlotScript {
     static void configPlot(RealTimePlotGroovy p) {
         realTimePlot = p
     }
-    
+
     static public sum = {double1, double2 -> double1+double2}
-    
+
     static public diff = { double1, double2 -> double1-double2}
-    
+
     static public prod = { double1, double2 -> double1*double2}
-    
+
     static public div = { double1, double2 ->
         if(double2 != 0.0)
             double1/double2
         else
             Double.NaN
-            }
+    }
 
     static String newName(String dottedName, String serieName) {
         dottedName.split(/(\.)/)[0] + "." +serieName
     }
-    
+
     static LinkedHashMap apply (LinkedHashMap map, Object function)  {
         def result = [:]
         map.each {
@@ -93,9 +93,28 @@ class PlotScript {
         result
     }
 
-    static def value = { msgDotField -> 
+    static LinkedHashMap apply (LinkedHashMap map1, LinkedHashMap map2, Object function, String name="custom_series")  {
+        def result = [:]
+        def lookup
+        map1.keySet().each { key ->
+            def sys = key.split(/(\.)/)[0]
+            def id = sys+"."+name
+            if((lookup = map2.keySet().find{it.startsWith(sys)}) != null) {
+                double val1  = map1.get key 
+                double val2  = map2.get lookup
+                if(val1!=null && val2!=null) {
+                    double value = function.call(val1,val2)
+                    result.put id, value
+                }
+            }
+        }
+        result
+    }
+
+    static def value = { msgDotField ->
         if(realTimePlot!=null && realTimePlot.getSystems() != null)
-            realTimePlot.getSystems().collectEntries{ [(it+"."+msgDotField): ImcMsgManager.getManager().getState(it).expr(msgDotField)]
+            realTimePlot.getSystems().collectEntries{
+                [(it+"."+msgDotField): ImcMsgManager.getManager().getState(it).expr(msgDotField)]
             }
         else  [:]
     }
@@ -113,7 +132,7 @@ class PlotScript {
     static def yaw() {
         apply(state("psi"),{i -> i*180/Math.PI})
     }
-    
+
     static def setDrawLineForXY(boolean toDraw) {
         realTimePlot.drawLineForXY(toDraw);
     }
@@ -163,7 +182,7 @@ class PlotScript {
             }
         }
     }
-    
+
     static def addSeries(LinkedHashMap map,String serieName=null) {
         if(map.size()>0) {
             map.each {
@@ -178,7 +197,7 @@ class PlotScript {
     }
 
     static def plotAbsoluteLatLong() {
-       synchronized(realTimePlot) {
+        synchronized(realTimePlot) {
             realTimePlot.getSystems().each {
                 EstimatedState state = ImcMsgManager.getManager().getState(it).get("EstimatedState")
                 if(state != null) {
@@ -197,7 +216,7 @@ class PlotScript {
             }
         }
     }
-    
+
     static def plotNED() {
         synchronized(realTimePlot) {
             realTimePlot.getSystems().each {
@@ -215,8 +234,8 @@ class PlotScript {
             }
         }
     }
-    
-    
+
+
     static def plotNEDFrom(double lat,double lon,double h) {
         synchronized(realTimePlot) {
             realTimePlot.getSystems().each {
@@ -281,7 +300,8 @@ class PlotScript {
         }
     }
 
-    static def plotNEDFrom(LinkedHashMap lat, LinkedHashMap lon, LinkedHashMap h) { //TODO xyz offset from this coordinates?
+    static def plotNEDFrom(LinkedHashMap lat, LinkedHashMap lon, LinkedHashMap h) {
+        //TODO xyz offset from this coordinates?
         def closure = {arg -> Math.toDegrees(arg)}
         def la = apply ( value ("EstimatedState.lat"), closure)
         def ln = apply ( value ("EstimatedState.lon"), closure)
@@ -289,5 +309,5 @@ class PlotScript {
 
         return plotNEDFrom(lat,lon,h,la, ln, he,value("EstimatedState.x"),value("EstimatedState.y"),value("EstimatedState.z"))
     }
-    
+
 }
