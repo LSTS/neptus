@@ -35,6 +35,8 @@ package pt.lsts.neptus.plugins.rtplot;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.Window;
+import java.awt.Dialog.ModalityType;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -55,6 +57,8 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
+import javax.swing.WindowConstants;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
@@ -100,7 +104,8 @@ public class RealTimePlotScript extends JPanel {
         this.editorPane.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_GROOVY);
         this.editorPane.setCodeFoldingEnabled(true);
         this.plot = rtplot;
-        this.dialog = new JDialog(plot.getConsole());
+        this.dialog = new JDialog(SwingUtilities.getWindowAncestor(plot.getConsole()),
+                ModalityType.DOCUMENT_MODAL);
         this.dialog.setTitle("Real-time plot settings");
         // create script editor
         setLayout(new BorderLayout(3, 3));
@@ -192,7 +197,7 @@ public class RealTimePlotScript extends JPanel {
         bar.add(methods);
         
         dialog.setSize(400, 400);
-        dialog.setModal(true);
+        //dialog.setModal(true);
 
         dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
         dialog.addWindowListener(new WindowAdapter() {
@@ -312,8 +317,8 @@ public class RealTimePlotScript extends JPanel {
         fillPlotOptions();
         fillMathOptions();
         fillStoredScripts();
-        this.dialog.getContentPane().add(this);
-        GuiUtils.centerParent(this.dialog, plot.getConsole());
+        this.dialog.setContentPane(this);
+        GuiUtils.centerParent(this.dialog, (Window) this.plot.getConsole());
         this.dialog.setVisible(true);
     }
 
