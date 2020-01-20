@@ -689,15 +689,20 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
                 JMenuItem item = jmenu.getItem(i);
                 String current_text = jmenu.getItem(i).getText();
                 String current = current_text.replaceAll("_\\d*$", "");
+                String[] split2 = item.getText().split("_");
+                int count = split2.length == 2 ? Integer.parseInt(split2[1]) : 0;
                 String previous_text = jmenu.getItem(i - 1).getText();
                 String previous = previous_text.replaceAll("_\\d*$", "");
                 String[] split = previous_text.split("_");
                 int count_prev = split.length == 2 ? Integer.parseInt(split[1]) : 0;
-                if (collator.compare(previous, current) < 0)
+                if (collator.compare(previous, current) < 0 && count > 0) { // When the first instance of the
+                    // plugins was removed
+                    item.setText(current);
+                    continue;
+                }
+                else if (collator.compare(previous, current) < 0)
                     continue;
                 else if (collator.compare(previous, current) == 0) {
-                    String[] split2 = item.getText().split("_");
-                    int count = split2.length == 2 ? Integer.parseInt(split2[1]) : 0;
                     if (i < jmenu.getItemCount() - 1) {
                         String next_text = jmenu.getItem(i + 1).getText();
                         String next = next_text.replaceAll("_\\d*$", "");
