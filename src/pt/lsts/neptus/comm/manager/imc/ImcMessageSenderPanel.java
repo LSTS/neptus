@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2020 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -174,7 +174,7 @@ public class ImcMessageSenderPanel extends JPanel {
 
         tabs = getTabedPane();
         String mgsName = (String) getMessagesComboBox().getSelectedItem();
-        fields = new IMCFieldsPane(null, mgsName);
+        fields = new IMCFieldsPane(null, mgsName,null);
         tabs.add("General Settings", holder_config);
         tabs.add("Message Fields", fields.getContents());
         this.setLayout(new BorderLayout());
@@ -200,13 +200,14 @@ public class ImcMessageSenderPanel extends JPanel {
                         }
                         // all components have been created
                         String mName = (String) getMessagesComboBox().getSelectedItem();
+                        IMCMessage m = ImcMessageSenderPanel.this.messagesPool.get(mName);
                         if (ImcMessageSenderPanel.this.fields == null) {
-                            fields = new IMCFieldsPane(null, mName);
+                            fields = new IMCFieldsPane(null, mName, m);
                             tabs.setComponentAt(1,fields.getContents());
                             tabs.repaint();
                         }
                         else if (!mName.equals(ImcMessageSenderPanel.this.fields.getMessageName())) {
-                            fields = new IMCFieldsPane(null, mName);
+                            fields = new IMCFieldsPane(null, mName, m);
                             tabs.setComponentAt(1,fields.getContents());
                             tabs.repaint();
                         }
@@ -233,10 +234,14 @@ public class ImcMessageSenderPanel extends JPanel {
                 
                 @Override
                 public void actionPerformed(ActionEvent e) {
+                    String selectedItem = (String) messagesComboBox.getSelectedItem();
+                    IMCMessage m = ImcMessageSenderPanel.this.messagesPool.get(selectedItem);
                     if(fields == null)
-                        fields = new IMCFieldsPane(null, (String) messagesComboBox.getSelectedItem());
-                    if (!(fields.getMessageName().equals(messagesComboBox.getSelectedItem()))) {
-                        fields = new IMCFieldsPane(null, (String) messagesComboBox.getSelectedItem());
+                        fields = new IMCFieldsPane(null, selectedItem, m);
+                    if (!(fields.getMessageName().equals(selectedItem))) {
+                        IMCMessage toCache = fields.getImcMessage();
+                        ImcMessageSenderPanel.this.messagesPool.put(fields.getMessageName(),toCache);
+                        fields = new IMCFieldsPane(null, selectedItem, m);
                         tabs.setComponentAt(1, fields.getContents());
                         tabs.repaint();
 
@@ -344,10 +349,13 @@ public class ImcMessageSenderPanel extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 
                 String mName = (String) messagesComboBox.getSelectedItem();
+                IMCMessage m = ImcMessageSenderPanel.this.messagesPool.get(mName);
                 if(fields == null)
-                    fields = new IMCFieldsPane(null, mName);
+                    fields = new IMCFieldsPane(null, mName,m);
                 else if(!mName.equals(fields.getMessageName())) {
-                    fields = new IMCFieldsPane(null, mName);
+                    IMCMessage toCache = fields.getImcMessage();
+                    ImcMessageSenderPanel.this.messagesPool.put(fields.getMessageName(),toCache);
+                    fields = new IMCFieldsPane(null, mName,m);
                 }
                 
                 IMCMessage sMsg = fields.getImcMessage();
