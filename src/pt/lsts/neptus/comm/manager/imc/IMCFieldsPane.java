@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2020 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -122,7 +122,7 @@ public class IMCFieldsPane {
      * 
      * @param p - parent panel
      * @param name - The @IMCMessage Abbrev Name
-     * @param m - The @IMCMessage to use if feasable
+     * @param m - The @IMCMessage to use if feasible
      */
     public IMCFieldsPane(IMCFieldsPane p, String name, IMCMessage m) {
         this.parent = p;
@@ -130,8 +130,10 @@ public class IMCFieldsPane {
         this.m_fields = new ArrayList<>();
         if (m == null)
             this.msg = IMCDefinition.getInstance().create(name);
-        else
+        else {
             this.msg = m.cloneMessage();
+            Arrays.stream(this.msg.getFieldNames()).forEach(item -> fillPanel(item));
+        }
         this.header = new Header();
         this.m_fields.addAll(Arrays.asList(this.msg.getFieldNames()));
         this.initializePanel();
@@ -139,11 +141,38 @@ public class IMCFieldsPane {
     }
 
     /**
+     * Fills the current Panel with field values already defined for the message being edited.
+     * 
+     * @param item - field name
+     * @return
+     */
+    private void fillPanel(String item) {
+        switch (this.msg.getTypeOf(item)) {
+            case "message":
+                this.inlineMsgs.put(item, this.msg.getMessage(item));
+                return;
+            case "message-list":
+                this.msgList.put(item, this.msg.getMessageList(item));
+                return;
+        }
+        String b = this.msg.getUnitsOf(item);
+        if (b == null)
+            return;
+        boolean bitfield = b.equalsIgnoreCase("Bitfield");
+        if (bitfield) {
+            Bitmask bitmask = new Bitmask(this.msg.getIMCMessageType().getFieldPossibleValues(item),
+                    this.msg.getLong(item));
+            BitmaskPanel bitfieldPanel = BitmaskPanel.getBitmaskPanel(bitmask);
+            this.bitfields.put(item, bitfieldPanel);
+        }
+    }
+
+    /**
      * 
      */
     @SuppressWarnings("serial")
     private void initializePanel() {
-        
+
         JLabel title;
         holder_Hfields = new JPanel();
 
@@ -177,9 +206,9 @@ public class IMCFieldsPane {
         }
         else {
             holder_Hfields.setSize(new Dimension(450, 50));
-            title = new JLabel("Edit Inline " +  this.getMessageName() + " Fields");
+            title = new JLabel("Edit Inline " + this.getMessageName() + " Fields");
             title.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 18));
-            holder_Hfields.add(title,Component.CENTER_ALIGNMENT);
+            holder_Hfields.add(title, Component.CENTER_ALIGNMENT);
 
         }
 
@@ -223,15 +252,12 @@ public class IMCFieldsPane {
                 mList.add(0, "None");
                 messagesComboBox = new JComboBox<String>(mList.toArray(new String[mList.size()]));
                 if (this.inlineMsgs.containsKey(field)) {
-                    System.err.println("Field " + field + " was edited previously");
                     IMCMessage m = (IMCMessage) this.inlineMsgs.get(field);
-                    System.err.println("field " + field + " msg name " + m.getAbbrev());
                     messagesComboBox.setSelectedItem(m.getAbbrev());
                 }
                 else
                     messagesComboBox.setSelectedIndex(0);
-                System.err.println("Calling from here");
-                edit = getEditButtonForMsg((IMCMessage) this.inlineMsgs.get(field), field);
+                edit = getEditButtonForMsg(field);
                 label.setLabelFor(messagesComboBox);
                 horizontal.addGroup(layout.createSequentialGroup().addComponent(label).addComponent(messagesComboBox)
                         .addComponent(this.edit));
@@ -279,8 +305,14 @@ public class IMCFieldsPane {
                     previousLabel = label;
                 }
                 else if (bitfield) {
-                    Bitmask bitmask = new Bitmask(this.msg.getIMCMessageType().getFieldPossibleValues(field), 0);
-                    BitmaskPanel bitfieldPanel = BitmaskPanel.getBitmaskPanel(bitmask);
+
+                    BitmaskPanel bitfieldPanel;
+                    if (this.bitfields.containsKey(field))
+                        bitfieldPanel = this.bitfields.get(field);
+                    else {
+                        Bitmask bitmask = new Bitmask(this.msg.getIMCMessageType().getFieldPossibleValues(field), 0);
+                        bitfieldPanel = BitmaskPanel.getBitmaskPanel(bitmask);
+                    }
                     this.bitfields.put(field, bitfieldPanel);
                     bitfieldPanel.setMainComponentLayout(bitFieldLayout);
                     label.setLabelFor(bitfieldPanel);
@@ -355,8 +387,8 @@ public class IMCFieldsPane {
 
             @Override
             public Dimension getPreferredSize() {
-                int height = IMCFieldsPane.this.m_fields.size() < 2 ? 100 : IMCFieldsPane.this.m_fields.size() * 5; // TODO fix
-                System.err.println("Height: " + height);
+                int height = IMCFieldsPane.this.m_fields.size() < 2 ? 100 : IMCFieldsPane.this.m_fields.size() * 5; // TODO
+                                                                                                                    // fix
                 return new Dimension(500, height);
             }
         };
@@ -367,8 +399,8 @@ public class IMCFieldsPane {
                 return new Dimension(450, 250);
             }
         };
-        if (this.holder_Hfields != null)
-            this.content.add(this.holder_Hfields, BorderLayout.NORTH);
+
+        this.content.add(this.holder_Hfields, BorderLayout.NORTH);
         this.content.add(this.scrollable, BorderLayout.CENTER);
 
     }
@@ -449,37 +481,41 @@ public class IMCFieldsPane {
      * @param inlineMsg
      * @return
      */
-    private JButton getEditButtonForMsg(IMCMessage inlineMsg, String field) {
-        if (this.edit == null)
+    private JButton getEditButtonForMsg(String field) {
+        if (this.edit == null) {
             this.edit = new JButton("Edit");
+            this.edit.addActionListener(getActionForMsg(field));
+        }
         else {
             ActionListener action = this.edit.getAction();
-            if (action != null)
-                this.edit.removeActionListener(action);
+            if (action == null)
+                this.edit.addActionListener(getActionForMsg(field));
         }
-        this.edit.addActionListener(getActionForMsg(inlineMsg, field));
 
         return this.edit;
     }
 
-    private ActionListener getActionForMsg(IMCMessage m, String field) {
+    private ActionListener getActionForMsg(String field) {
         // Add new action listener
         ActionListener action = new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-
                 String msgName = (String) messagesComboBox.getSelectedItem();
-                System.err.println("MSGNAME: " + msgName + " field: " + field);
                 if (msgName.equals("None")) {
                     return;
                 }
 
                 else {
-                    System.err.println("inside out");
-                    IMCFieldsPane inceptionFields = new IMCFieldsPane(IMCFieldsPane.this, msgName,
-                            (IMCMessage) IMCFieldsPane.this.inlineMsgs.get(msgName)); // last argument can be null
+                    IMCMessage init = (IMCMessage) IMCFieldsPane.this.inlineMsgs.get(field);
+                    IMCFieldsPane inceptionFields = new IMCFieldsPane(IMCFieldsPane.this, msgName, init); // last
+                                                                                                          // argument
+                                                                                                          // can be null
                     JPanel panelCeption = inceptionFields.getContents();
+                    IMCMessage defaultMsg = IMCFieldsPane.this.inlineMsgs.containsKey(field)
+                            ? ((IMCMessage) IMCFieldsPane.this.inlineMsgs.get(field))
+                            : inceptionFields.getImcMessage();
+                    IMCFieldsPane.this.inlineMsgs.put(field, defaultMsg);
                     JDialog dg = new JDialog(SwingUtilities.getWindowAncestor(IMCFieldsPane.this.getContents()),
                             ModalityType.DOCUMENT_MODAL);
                     JPanel buttons = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -491,6 +527,9 @@ public class IMCFieldsPane {
                         public void actionPerformed(ActionEvent e) {
                             try {
                                 inceptionFields.getImcMessage().validate();
+                                JOptionPane.showMessageDialog(IMCFieldsPane.this.getContents(),
+                                        "Message parsed successfully.", "Validate message",
+                                        JOptionPane.INFORMATION_MESSAGE);
                             }
                             catch (Exception ex) {
                                 ex.printStackTrace();
@@ -498,9 +537,6 @@ public class IMCFieldsPane {
                                         "Validate message");
                                 return;
                             }
-                            JOptionPane.showMessageDialog(IMCFieldsPane.this.getContents(),
-                                    "Message parsed successfully.", "Validate message",
-                                    JOptionPane.INFORMATION_MESSAGE);
                         }
                     });
 
@@ -511,9 +547,6 @@ public class IMCFieldsPane {
                         public void actionPerformed(ActionEvent e) {
                             validate.doClick();
                             IMCMessage value = inceptionFields.getImcMessage();
-                            System.err.println("before");
-                            System.err.println("Adding inline imc msg " + value.getAbbrev() + " to field: " + field
-                                    + " from: " + IMCFieldsPane.this.getMessageName());
                             IMCFieldsPane.this.inlineMsgs.put(field, value);
                             JComponent comp = (JComponent) e.getSource();
                             Window win = SwingUtilities.getWindowAncestor(comp);
@@ -575,14 +608,23 @@ public class IMCFieldsPane {
             for (Entry<String, BitmaskPanel> entry : this.bitfields.entrySet())
                 this.msg.setValue(entry.getKey(), entry.getValue().getValue());
         }
-        if (!this.inlineMsgs.isEmpty())
+        if (!this.inlineMsgs.isEmpty()) {
             this.msg.setValues(this.inlineMsgs);
+        }
 
         for (Entry<String, List<IMCMessage>> msgs : this.msgList.entrySet()) {
             if (msgs.getValue() != null)
                 this.msg.setValue(msgs.getKey(), msgs.getValue());
         }
-        return this.msg;
+        try {
+            this.msg.validate();
+            return this.msg;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            UIUtils.exceptionDialog(IMCFieldsPane.this.getContents(), e, "Error parsing message", "Validate message");
+            return null;
+        }
     }
 
     /**
@@ -596,7 +638,7 @@ public class IMCFieldsPane {
         JFrame frame = new JFrame("IMC Fields Tab");
         JPanel content = new IMCFieldsPane(null, "TransmissionRequest", null).getContents();
         frame.setSize(500, 500);
-        frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setContentPane(content);
         frame.setVisible(true);
     }
