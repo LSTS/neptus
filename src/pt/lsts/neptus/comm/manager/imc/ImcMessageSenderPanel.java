@@ -117,7 +117,7 @@ public class ImcMessageSenderPanel extends JPanel {
 
     private JTabbedPane tabs = null;
 
-    private IMCFieldsPane fields = null;
+    private IMCFieldsPanel fields = null;
 
     private HashMap<String, IMCMessage> messagesPool = new HashMap<String, IMCMessage>();
 
@@ -174,7 +174,7 @@ public class ImcMessageSenderPanel extends JPanel {
 
         tabs = getTabedPane();
         String mgsName = (String) getMessagesComboBox().getSelectedItem();
-        fields = new IMCFieldsPane(null, mgsName,null);
+        fields = new IMCFieldsPanel(null, mgsName,null);
         tabs.add("General Settings", holder_config);
         tabs.add("Message Fields", fields.getContents());
         this.setLayout(new BorderLayout());
@@ -202,12 +202,12 @@ public class ImcMessageSenderPanel extends JPanel {
                         String mName = (String) getMessagesComboBox().getSelectedItem();
                         IMCMessage m = ImcMessageSenderPanel.this.messagesPool.get(mName);
                         if (ImcMessageSenderPanel.this.fields == null) {
-                            fields = new IMCFieldsPane(null, mName, m);
+                            fields = new IMCFieldsPanel(null, mName, m);
                             tabs.setComponentAt(1,fields.getContents());
                             tabs.repaint();
                         }
                         else if (!mName.equals(ImcMessageSenderPanel.this.fields.getMessageName())) {
-                            fields = new IMCFieldsPane(null, mName, m);
+                            fields = new IMCFieldsPanel(null, mName, m);
                             tabs.setComponentAt(1,fields.getContents());
                             tabs.repaint();
                         }
@@ -237,11 +237,11 @@ public class ImcMessageSenderPanel extends JPanel {
                     String selectedItem = (String) messagesComboBox.getSelectedItem();
                     IMCMessage m = ImcMessageSenderPanel.this.messagesPool.get(selectedItem);
                     if(fields == null)
-                        fields = new IMCFieldsPane(null, selectedItem, m);
+                        fields = new IMCFieldsPanel(null, selectedItem, m);
                     if (!(fields.getMessageName().equals(selectedItem))) {
                         IMCMessage toCache = fields.getImcMessage();
                         ImcMessageSenderPanel.this.messagesPool.put(fields.getMessageName(),toCache);
-                        fields = new IMCFieldsPane(null, selectedItem, m);
+                        fields = new IMCFieldsPanel(null, selectedItem, m);
                         tabs.setComponentAt(1, fields.getContents());
                         tabs.repaint();
 
@@ -351,11 +351,11 @@ public class ImcMessageSenderPanel extends JPanel {
                 String mName = (String) messagesComboBox.getSelectedItem();
                 IMCMessage m = ImcMessageSenderPanel.this.messagesPool.get(mName);
                 if(fields == null)
-                    fields = new IMCFieldsPane(null, mName,m);
+                    fields = new IMCFieldsPanel(null, mName,m);
                 else if(!mName.equals(fields.getMessageName())) {
                     IMCMessage toCache = fields.getImcMessage();
                     ImcMessageSenderPanel.this.messagesPool.put(fields.getMessageName(),toCache);
-                    fields = new IMCFieldsPane(null, mName,m);
+                    fields = new IMCFieldsPanel(null, mName,m);
                 }
                 
                 IMCMessage sMsg = fields.getImcMessage();

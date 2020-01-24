@@ -81,7 +81,7 @@ import pt.lsts.neptus.util.conf.GeneralPreferences;
 /**
  * @author keila 3/12/19
  */
-public class IMCFieldsPane {
+public class IMCFieldsPanel {
 
     private final int mid;
     private final List<String> m_fields;
@@ -106,7 +106,7 @@ public class IMCFieldsPane {
     // "growy", //new AX().grow(1,3,4).size("10px",1,2), // Column constraints
     // ""); //new AX().noGrid(1,4)); // Row constraints
 
-    IMCFieldsPane parent;
+    IMCFieldsPanel parent;
     private JComboBox<String> messagesComboBox = null;
 
     /**
@@ -124,7 +124,7 @@ public class IMCFieldsPane {
      * @param name - The @IMCMessage Abbrev Name
      * @param m - The @IMCMessage to use if feasible
      */
-    public IMCFieldsPane(IMCFieldsPane p, String name, IMCMessage m) {
+    public IMCFieldsPanel(IMCFieldsPanel p, String name, IMCMessage m) {
         this.parent = p;
         this.mid = IMCDefinition.getInstance().getMessageId(name);
         this.m_fields = new ArrayList<>();
@@ -265,11 +265,11 @@ public class IMCFieldsPane {
                         JComboBox<String> jcb  = (JComboBox<String>) e.getSource();
                         String selectedItem = (String) jcb.getSelectedItem();
                         if(!selectedItem.equalsIgnoreCase("None")) {
-                            if(IMCFieldsPane.this.inlineMsgs.containsKey(field)) {
-                                IMCMessage m = IMCFieldsPane.this.inlineMsgs.get(field);
+                            if(IMCFieldsPanel.this.inlineMsgs.containsKey(field)) {
+                                IMCMessage m = IMCFieldsPanel.this.inlineMsgs.get(field);
                                 if(!m.getAbbrev().equals(selectedItem)) {
                                     m = IMCDefinition.getInstance().create(selectedItem);
-                                    IMCFieldsPane.this.inlineMsgs.put(field,m);
+                                    IMCFieldsPanel.this.inlineMsgs.put(field,m);
                                 }
                             }
                         }
@@ -309,7 +309,7 @@ public class IMCFieldsPane {
 
                         @Override
                         public void actionPerformed(ActionEvent e) {
-                            IMCFieldsPane.this.msg.setValue(field, enumComboBox.getSelectedIndex());
+                            IMCFieldsPanel.this.msg.setValue(field, enumComboBox.getSelectedIndex());
 
                         }
                     });
@@ -378,7 +378,7 @@ public class IMCFieldsPane {
                                     value = Math.toRadians((double) value);
                                 }
                             }
-                            IMCFieldsPane.this.msg.setValue(field, value);
+                            IMCFieldsPanel.this.msg.setValue(field, value);
                         }
 
                     });
@@ -406,7 +406,7 @@ public class IMCFieldsPane {
 
             @Override
             public Dimension getPreferredSize() {
-                int height = IMCFieldsPane.this.m_fields.size() < 2 ? 100 : IMCFieldsPane.this.m_fields.size() * 5; // TODO
+                int height = IMCFieldsPanel.this.m_fields.size() < 2 ? 100 : IMCFieldsPanel.this.m_fields.size() * 5; // TODO
                                                                                                                     // fix
                 return new Dimension(500, height);
             }
@@ -526,18 +526,18 @@ public class IMCFieldsPane {
                 }
 
                 else {
-                    IMCMessage init = IMCFieldsPane.this.inlineMsgs.get(field);
+                    IMCMessage init = IMCFieldsPanel.this.inlineMsgs.get(field);
                     if (init != null) {
                         if (init.getAbbrev() != msgName)
                             init = IMCDefinition.getInstance().create(msgName);
                     }
-                    IMCFieldsPane inceptionFields = new IMCFieldsPane(IMCFieldsPane.this, msgName, init);
+                    IMCFieldsPanel inceptionFields = new IMCFieldsPanel(IMCFieldsPanel.this, msgName, init);
                     JPanel panelCeption = inceptionFields.getContents();
-                    IMCMessage defaultMsg = IMCFieldsPane.this.inlineMsgs.containsKey(field)
-                            ? IMCFieldsPane.this.inlineMsgs.get(field)
+                    IMCMessage defaultMsg = IMCFieldsPanel.this.inlineMsgs.containsKey(field)
+                            ? IMCFieldsPanel.this.inlineMsgs.get(field)
                             : inceptionFields.getImcMessage();
-                    IMCFieldsPane.this.inlineMsgs.put(field, defaultMsg);
-                    JDialog dg = new JDialog(SwingUtilities.getWindowAncestor(IMCFieldsPane.this.getContents()),
+                    IMCFieldsPanel.this.inlineMsgs.put(field, defaultMsg);
+                    JDialog dg = new JDialog(SwingUtilities.getWindowAncestor(IMCFieldsPanel.this.getContents()),
                             ModalityType.DOCUMENT_MODAL);
                     JPanel buttons = new JPanel(new FlowLayout(FlowLayout.CENTER));
                     JButton validate = new JButton("Validate");
@@ -548,13 +548,13 @@ public class IMCFieldsPane {
                         public void actionPerformed(ActionEvent e) {
                             try {
                                 inceptionFields.getImcMessage().validate();
-                                JOptionPane.showMessageDialog(IMCFieldsPane.this.getContents(),
+                                JOptionPane.showMessageDialog(IMCFieldsPanel.this.getContents(),
                                         "Message parsed successfully.", "Validate message",
                                         JOptionPane.INFORMATION_MESSAGE);
                             }
                             catch (Exception ex) {
                                 ex.printStackTrace();
-                                UIUtils.exceptionDialog(IMCFieldsPane.this.getContents(), ex, "Error parsing message",
+                                UIUtils.exceptionDialog(IMCFieldsPanel.this.getContents(), ex, "Error parsing message",
                                         "Validate message");
                                 return;
                             }
@@ -568,7 +568,7 @@ public class IMCFieldsPane {
                         public void actionPerformed(ActionEvent e) {
                             validate.doClick();
                             IMCMessage value = inceptionFields.getImcMessage();
-                            IMCFieldsPane.this.inlineMsgs.put(field, value);
+                            IMCFieldsPanel.this.inlineMsgs.put(field, value);
                             JComponent comp = (JComponent) e.getSource();
                             Window win = SwingUtilities.getWindowAncestor(comp);
                             win.dispose();
@@ -644,7 +644,7 @@ public class IMCFieldsPane {
         }
         catch (Exception e) {
             e.printStackTrace();
-            UIUtils.exceptionDialog(IMCFieldsPane.this.getContents(), e, "Error parsing message", "Validate message");
+            UIUtils.exceptionDialog(IMCFieldsPanel.this.getContents(), e, "Error parsing message", "Validate message");
             return null;
         }
     }
@@ -658,7 +658,7 @@ public class IMCFieldsPane {
 
     public static void main(String[] args) {
         JFrame frame = new JFrame("IMC Fields Tab");
-        JPanel content = new IMCFieldsPane(null, "TransmissionRequest", null).getContents();
+        JPanel content = new IMCFieldsPanel(null, "TransmissionRequest", null).getContents();
         frame.setSize(500, 500);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setContentPane(content);
