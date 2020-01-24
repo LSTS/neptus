@@ -98,7 +98,7 @@ public class IMCFieldsPane {
     private final IMCMessage msg;
     private final Header header;
 
-    private Map<String, Object> inlineMsgs = new LinkedHashMap<>();
+    private Map<String, IMCMessage> inlineMsgs = new LinkedHashMap<>();
     private LinkedHashMap<String, List<IMCMessage>> msgList = new LinkedHashMap<>();
     private LinkedHashMap<String, BitmaskPanel> bitfields = new LinkedHashMap<>();
     private JButton edit;
@@ -252,11 +252,30 @@ public class IMCFieldsPane {
                 mList.add(0, "None");
                 messagesComboBox = new JComboBox<String>(mList.toArray(new String[mList.size()]));
                 if (this.inlineMsgs.containsKey(field)) {
-                    IMCMessage m = (IMCMessage) this.inlineMsgs.get(field);
+                    IMCMessage m = this.inlineMsgs.get(field);
                     messagesComboBox.setSelectedItem(m.getAbbrev());
                 }
                 else
                     messagesComboBox.setSelectedIndex(0);
+                messagesComboBox.addActionListener(new ActionListener() {
+                    
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        @SuppressWarnings("unchecked")
+                        JComboBox<String> jcb  = (JComboBox<String>) e.getSource();
+                        String selectedItem = (String) jcb.getSelectedItem();
+                        if(!selectedItem.equalsIgnoreCase("None")) {
+                            if(IMCFieldsPane.this.inlineMsgs.containsKey(field)) {
+                                IMCMessage m = IMCFieldsPane.this.inlineMsgs.get(field);
+                                if(!m.getAbbrev().equals(selectedItem)) {
+                                    m = IMCDefinition.getInstance().create(selectedItem);
+                                    IMCFieldsPane.this.inlineMsgs.put(field,m);
+                                }
+                            }
+                        }
+                        
+                    }
+                });
                 edit = getEditButtonForMsg(field);
                 label.setLabelFor(messagesComboBox);
                 horizontal.addGroup(layout.createSequentialGroup().addComponent(label).addComponent(messagesComboBox)
@@ -507,13 +526,15 @@ public class IMCFieldsPane {
                 }
 
                 else {
-                    IMCMessage init = (IMCMessage) IMCFieldsPane.this.inlineMsgs.get(field);
-                    IMCFieldsPane inceptionFields = new IMCFieldsPane(IMCFieldsPane.this, msgName, init); // last
-                                                                                                          // argument
-                                                                                                          // can be null
+                    IMCMessage init = IMCFieldsPane.this.inlineMsgs.get(field);
+                    if (init != null) {
+                        if (init.getAbbrev() != msgName)
+                            init = IMCDefinition.getInstance().create(msgName);
+                    }
+                    IMCFieldsPane inceptionFields = new IMCFieldsPane(IMCFieldsPane.this, msgName, init);
                     JPanel panelCeption = inceptionFields.getContents();
                     IMCMessage defaultMsg = IMCFieldsPane.this.inlineMsgs.containsKey(field)
-                            ? ((IMCMessage) IMCFieldsPane.this.inlineMsgs.get(field))
+                            ? IMCFieldsPane.this.inlineMsgs.get(field)
                             : inceptionFields.getImcMessage();
                     IMCFieldsPane.this.inlineMsgs.put(field, defaultMsg);
                     JDialog dg = new JDialog(SwingUtilities.getWindowAncestor(IMCFieldsPane.this.getContents()),
@@ -609,7 +630,8 @@ public class IMCFieldsPane {
                 this.msg.setValue(entry.getKey(), entry.getValue().getValue());
         }
         if (!this.inlineMsgs.isEmpty()) {
-            this.msg.setValues(this.inlineMsgs);
+            for(Entry<String, IMCMessage> entry: this.inlineMsgs.entrySet())
+                this.msg.setValue(entry.getKey(), entry.getValue());
         }
 
         for (Entry<String, List<IMCMessage>> msgs : this.msgList.entrySet()) {
