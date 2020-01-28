@@ -101,7 +101,7 @@ public class IMCFieldsPanel {
     private final IMCMessage msg;
     private final Header header;
 
-    private Map<String, IMCMessage> inlineMsgs = new LinkedHashMap<>();
+    private Map<String, IMCMessage> inlineMsgs = Collections.synchronizedMap(new LinkedHashMap<>());
     private LinkedHashMap<String, List<IMCMessage>> msgList = new LinkedHashMap<>();
     private LinkedHashMap<String, BitmaskPanel> bitfields = new LinkedHashMap<>();
     private JButton edit;
@@ -152,10 +152,12 @@ public class IMCFieldsPanel {
     private void fillPanel(String item) {
         switch (this.msg.getTypeOf(item)) {
             case "message":
-                this.inlineMsgs.put(item, this.msg.getMessage(item));
+                if (this.msg.getMessage(item) != null)
+                    this.inlineMsgs.put(item, this.msg.getMessage(item));
                 return;
             case "message-list":
-                this.msgList.put(item, this.msg.getMessageList(item));
+                if (!this.msg.getMessageList(item).isEmpty())
+                    this.msgList.put(item, this.msg.getMessageList(item));
                 return;
         }
         String b = this.msg.getUnitsOf(item);
@@ -260,20 +262,30 @@ public class IMCFieldsPanel {
                     public void actionPerformed(ActionEvent e) {
                         @SuppressWarnings("unchecked")
                         String selectedItem = (String) ((JComboBox<String>) e.getSource()).getSelectedItem();
-                        if (IMCFieldsPanel.this.inlineMsgs.containsKey(field)) {
-                            IMCMessage m = IMCFieldsPanel.this.inlineMsgs.get(field);
-                            String abbrev = m.getAbbrev();
-                            if (!abbrev.equals(selectedItem)) {
-                                IMCMessage newMsg = IMCDefinition.getInstance().create(selectedItem);
-                                IMCFieldsPanel.this.inlineMsgs.put(field, newMsg);
+                        IMCMessage newMsg = IMCDefinition.getInstance().create(selectedItem);
+                        synchronized (IMCFieldsPanel.this.inlineMsgs) {
+                            if (newMsg == null)
+                            if (IMCFieldsPanel.this.inlineMsgs.containsKey(field)) {
+                                IMCMessage m = IMCFieldsPanel.this.inlineMsgs.get(field);
+                                String abbrev = m.getAbbrev();
+                                if (!abbrev.equals(selectedItem)) {
+                                    IMCFieldsPanel.this.inlineMsgs.put(field, newMsg);
+                                }
+                            }
+                            else {
+                                if (!selectedItem.equalsIgnoreCase("None")) {
+                                    IMCFieldsPanel.this.inlineMsgs.put(field, newMsg);
+                                }
                             }
                         }
 
                     }
                 });
-
+                System.err.println("Inline Msg keys after " + Arrays.toString(this.inlineMsgs.keySet().toArray()));
+                System.err.println("Inline Msg values after " + Arrays.toString(this.inlineMsgs.values().toArray()));
                 if (this.inlineMsgs.containsKey(field)) {
                     IMCMessage m = this.inlineMsgs.get(field);
+                    System.err.println("m  is null ?" + (m == null));
                     String selectedItem = m.getAbbrev();
                     messagesComboBox.setSelectedItem(selectedItem);
                 }
@@ -533,18 +545,28 @@ public class IMCFieldsPanel {
                     if (init != null) {
                         if (init.getAbbrev() != msgName)
                             init = IMCDefinition.getInstance().create(msgName);
+                        System.err.println("Getting " + init.getAbbrev());
                     }
+                    System.err.println("Creating Panel to Msg: " + msgName);
+                    System.err.println("Inline Msg keys during0 "
+                            + Arrays.toString(IMCFieldsPanel.this.inlineMsgs.keySet().toArray()));
+                    System.err.println("Inline Msg values during0 "
+                            + Arrays.toString(IMCFieldsPanel.this.inlineMsgs.values().toArray()));
                     IMCFieldsPanel inceptionFields = new IMCFieldsPanel(IMCFieldsPanel.this, msgName, init);
                     JPanel panelCeption = inceptionFields.getContents();
                     // IMCMessage defaultMsg = IMCFieldsPanel.this.inlineMsgs.containsKey(field)
                     // ? IMCFieldsPanel.this.inlineMsgs.get(field)
                     // : inceptionFields.getImcMessage();
                     IMCFieldsPanel.this.inlineMsgs.put(field, init);
+                    System.err.println("Inline Msg keys during1 "
+                            + Arrays.toString(IMCFieldsPanel.this.inlineMsgs.keySet().toArray()));
+                    System.err.println("Inline Msg values during1 "
+                            + Arrays.toString(IMCFieldsPanel.this.inlineMsgs.values().toArray()));
                     JDialog dg = new JDialog(SwingUtilities.getWindowAncestor(IMCFieldsPanel.this.getContents()),
                             ModalityType.DOCUMENT_MODAL);
                     JPanel buttons = new JPanel(new FlowLayout(FlowLayout.CENTER));
                     JButton validate = new JButton("Validate");
-                    LocationCopyPastePanel locCopyPastePanel = getLocCopyPastPanel();
+
                     validate.addActionListener(new ActionListener() {
 
                         @Override
@@ -578,6 +600,7 @@ public class IMCFieldsPanel {
 
                         }
                     });
+
                     buttons.add(validate);
                     buttons.add(insert);
                     panelCeption.add(buttons, BorderLayout.SOUTH);
