@@ -1249,7 +1249,7 @@ public class CoordinateUtil {
 
         ret[0] = -slat * clon * ox - slat * slon * oy + clat * oz; // North
         ret[1] = -slon * ox + clon * oy; // East
-        ret[2] = depth1 - depth2;
+        ret[2] = -clat * clon * ox - clat * slon * oy - slat * oz; // Down
 
         return ret;
     }
@@ -1267,7 +1267,12 @@ public class CoordinateUtil {
         double[] xyz = toECEF(latDegrees, lonDegrees, depth);
         double[] lld = {latDegrees, lonDegrees, depth };
         // Compute Geocentric latitude
-        double phi = Math.atan2(xyz[2], Math.sqrt(xyz[0] * xyz[0] + xyz[1] * xyz[1]));
+        double c_wgs84_a = 6378137.0;
+        double c_wgs84_e2 = 0.00669437999013;
+        double p = Math.sqrt(xyz[0] * xyz[0] + xyz[1] * xyz[1]);
+        double lat_sin = Math.sin(Math.toRadians(lld[1]));
+        double ell_N = c_wgs84_a / Math.sqrt(1 - c_wgs84_e2 * (lat_sin * lat_sin));
+        double phi = Math.atan2(xyz[2],p*(1 - c_wgs84_e2 * ell_N / (ell_N - depth)));
 
         // Compute all needed sine and cosine terms for conversion.
         double slon = Math.sin(Math.toRadians(lld[1]));
@@ -1284,11 +1289,8 @@ public class CoordinateUtil {
 
         // Convert back to WGS-84 coordinates
         lld = toGeodetic(xyz[0], xyz[1], xyz[2]);
-
-        if (d != 0d)
-            lld[2] = depth + d;
-        else
-            lld[2] = depth;
+        
+        lld[2] = -lld[2];
         return lld;
     }
 
