@@ -47,7 +47,6 @@ import java.net.InetSocketAddress;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -63,6 +62,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
@@ -77,7 +77,6 @@ import pt.lsts.imc.IMCOutputStream;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.LocationCopyPastePanel;
 import pt.lsts.neptus.gui.MessagePreviewer;
-import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.ByteUtil;
 import pt.lsts.neptus.util.GuiUtils;
@@ -125,11 +124,12 @@ public class ImcMessageSenderPanel extends JPanel {
      * 
      */
     public ImcMessageSenderPanel() {
+//        this.setPreferredSize(new Dimension(500,600));
         initialize();
     }
 
     private void initialize() {
-        
+
         port = new JTextField(nf.format(GeneralPreferences.commsLocalPortUDP));
 
         // Main Tab Panel
@@ -171,18 +171,24 @@ public class ImcMessageSenderPanel extends JPanel {
         holder_footer.add(getBurstPublishButton());
         holder_footer.add(getPublishButton());
         holder_footer.add(getPreviewButton());
+        JScrollPane scrollFooter = new JScrollPane(holder_footer) {
+            @Override
+            public Dimension getPreferredSize() {
+                return new Dimension(450, 40);
+            }  
+        };
 
         tabs = getTabedPane();
         String mgsName = (String) getMessagesComboBox().getSelectedItem();
-        fields = new IMCFieldsPanel(null, mgsName,null);
+        fields = new IMCFieldsPanel(null, mgsName, null);
         tabs.add("General Settings", holder_config);
         tabs.add("Message Fields", fields.getContents());
         this.setLayout(new BorderLayout());
         add(tabs, BorderLayout.CENTER);
-        add(holder_footer, BorderLayout.SOUTH);
+        add(scrollFooter, BorderLayout.SOUTH);
 
     }
-    
+
     /**
      * @return
      */
@@ -203,12 +209,12 @@ public class ImcMessageSenderPanel extends JPanel {
                         IMCMessage m = ImcMessageSenderPanel.this.messagesPool.get(mName);
                         if (ImcMessageSenderPanel.this.fields == null) {
                             fields = new IMCFieldsPanel(null, mName, m);
-                            tabs.setComponentAt(1,fields.getContents());
+                            tabs.setComponentAt(1, fields.getContents());
                             tabs.repaint();
                         }
                         else if (!mName.equals(ImcMessageSenderPanel.this.fields.getMessageName())) {
                             fields = new IMCFieldsPanel(null, mName, m);
-                            tabs.setComponentAt(1,fields.getContents());
+                            tabs.setComponentAt(1, fields.getContents());
                             tabs.repaint();
                         }
                     }
@@ -231,16 +237,16 @@ public class ImcMessageSenderPanel extends JPanel {
             Collections.sort(mList);
             messagesComboBox = new JComboBox<String>(mList.toArray(new String[mList.size()]));
             messagesComboBox.addActionListener(new ActionListener() {
-                
+
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     String selectedItem = (String) messagesComboBox.getSelectedItem();
                     IMCMessage m = ImcMessageSenderPanel.this.messagesPool.get(selectedItem);
-                    if(fields == null)
+                    if (fields == null)
                         fields = new IMCFieldsPanel(null, selectedItem, m);
                     if (!(fields.getMessageName().equals(selectedItem))) {
                         IMCMessage toCache = fields.getImcMessage();
-                        ImcMessageSenderPanel.this.messagesPool.put(fields.getMessageName(),toCache);
+                        ImcMessageSenderPanel.this.messagesPool.put(fields.getMessageName(), toCache);
                         fields = new IMCFieldsPanel(null, selectedItem, m);
                         tabs.setComponentAt(1, fields.getContents());
                         tabs.repaint();
@@ -347,17 +353,17 @@ public class ImcMessageSenderPanel extends JPanel {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                
+
                 String mName = (String) messagesComboBox.getSelectedItem();
                 IMCMessage m = ImcMessageSenderPanel.this.messagesPool.get(mName);
-                if(fields == null)
-                    fields = new IMCFieldsPanel(null, mName,m);
-                else if(!mName.equals(fields.getMessageName())) {
+                if (fields == null)
+                    fields = new IMCFieldsPanel(null, mName, m);
+                else if (!mName.equals(fields.getMessageName())) {
                     IMCMessage toCache = fields.getImcMessage();
-                    ImcMessageSenderPanel.this.messagesPool.put(fields.getMessageName(),toCache);
-                    fields = new IMCFieldsPanel(null, mName,m);
+                    ImcMessageSenderPanel.this.messagesPool.put(fields.getMessageName(), toCache);
+                    fields = new IMCFieldsPanel(null, mName, m);
                 }
-                
+
                 IMCMessage sMsg = fields.getImcMessage();
                 messagesPool.put(mName, sMsg);
                 msgPreview = new MessagePreviewer(sMsg, true, true, true);
@@ -391,7 +397,6 @@ public class ImcMessageSenderPanel extends JPanel {
                             Collection<String> mtypes = IMCDefinition.getInstance().getMessageNames();
                             for (String mt : mtypes) {
                                 String msgName = mt;
-                                String msg = null;
                                 IMCMessage sMsg = getOrCreateMessage(msgName);
                                 sMsg.setTimestampMillis(System.currentTimeMillis());
                                 sMsg.dump(System.out);
@@ -401,7 +406,7 @@ public class ImcMessageSenderPanel extends JPanel {
                                     sMsg.serialize(ios);
                                     ByteUtil.dumpAsHex(msgName + " [size=" + baos.size() + "]", baos.toByteArray(),
                                             System.out);
-                                    msg = sendUdpMsg(baos.toByteArray(), baos.size());
+                                    String msg = sendUdpMsg(baos.toByteArray(), baos.size());
                                 }
                                 catch (Exception e1) {
                                     NeptusLog.pub().error(e1);
@@ -441,9 +446,15 @@ public class ImcMessageSenderPanel extends JPanel {
                 @Override
                 public void setLocationType(LocationType locationType) {
                     super.setLocationType(locationType);
-                    applyLocation();
+                    ImcMessageSenderPanel.this.fields = ImcMessageSenderPanel.this.fields
+                            .applyLocation(getLocCopyPastPanel().getLocationType(), ImcMessageSenderPanel.this.fields.getImcMessage());
+                    tabs.removeTabAt(1);
+                    ImcMessageSenderPanel.this.tabs.add("Message Fields",
+                            ImcMessageSenderPanel.this.fields.getContents());
+                    ImcMessageSenderPanel.this.tabs.repaint();
                 }
             };
+            // TODO add paste button for imc messages
             locCopyPastePanel.setPreferredSize(new Dimension(85, 26));
             locCopyPastePanel.setMaximumSize(new Dimension(85, 26));
             // locCopyPastPanel.setBorder(null);
@@ -481,52 +492,8 @@ public class ImcMessageSenderPanel extends JPanel {
             msg = IMCDefinition.getInstance().create(mName);
             messagesPool.put(mName, msg);
         }
-        applyLocation(msg);
+        // applyLocation(msg);
         return msg;
-    }
-
-    /**
-     * @param locationType
-     * @param mName
-     */
-    private void applyLocation() {
-        applyLocation(this.fields.getImcMessage());
-        for (IMCMessage sMsg : messagesPool.values()) {
-            applyLocation(sMsg);
-        }
-    }
-
-    private void applyLocation(IMCMessage sMsg) {
-        LocationType locationType = getLocCopyPastPanel().getLocationType();
-
-        List<String> fieldNames = Arrays.asList(sMsg.getFieldNames());
-        boolean hasLatLon = false, hasXY = false, hasDepthOrHeight = false;
-        if (fieldNames.contains("lat") || fieldNames.contains("lon"))
-            hasLatLon = true;
-        if (fieldNames.contains("x") || fieldNames.contains("y"))
-            hasXY = true;
-        if (fieldNames.contains("depth") || fieldNames.contains("height"))
-            hasDepthOrHeight = true;
-
-        if (hasLatLon && !hasXY)
-            locationType = locationType.getNewAbsoluteLatLonDepth();
-
-        sMsg.setValue("lat", locationType.getLatitudeRads());
-        sMsg.setValue("lon", locationType.getLongitudeRads());
-        sMsg.setValue("depth", locationType.getDepth());
-        sMsg.setValue("height", locationType.getHeight());
-
-        double[] val = CoordinateUtil.sphericalToCartesianCoordinates(locationType.getOffsetDistance(),
-                locationType.getAzimuth(), locationType.getZenith());
-        sMsg.setValue("x", locationType.getOffsetNorth() + val[0]);
-        sMsg.setValue("y", locationType.getOffsetEast() + val[1]);
-
-        if (!hasDepthOrHeight) {
-            sMsg.setValue("z", locationType.getAllZ());
-        }
-        else {
-            sMsg.setValue("z", locationType.getOffsetDown() + val[2]);
-        }
     }
 
     public static JFrame getFrame() {
@@ -540,7 +507,7 @@ public class ImcMessageSenderPanel extends JPanel {
         frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         return frame;
     }
-    
+
     /**
      * @param args
      */

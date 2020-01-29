@@ -264,7 +264,6 @@ public class IMCFieldsPanel {
                         String selectedItem = (String) ((JComboBox<String>) e.getSource()).getSelectedItem();
                         IMCMessage newMsg = IMCDefinition.getInstance().create(selectedItem);
                         synchronized (IMCFieldsPanel.this.inlineMsgs) {
-                            if (newMsg == null)
                             if (IMCFieldsPanel.this.inlineMsgs.containsKey(field)) {
                                 IMCMessage m = IMCFieldsPanel.this.inlineMsgs.get(field);
                                 String abbrev = m.getAbbrev();
@@ -281,11 +280,8 @@ public class IMCFieldsPanel {
 
                     }
                 });
-                System.err.println("Inline Msg keys after " + Arrays.toString(this.inlineMsgs.keySet().toArray()));
-                System.err.println("Inline Msg values after " + Arrays.toString(this.inlineMsgs.values().toArray()));
                 if (this.inlineMsgs.containsKey(field)) {
                     IMCMessage m = this.inlineMsgs.get(field);
-                    System.err.println("m  is null ?" + (m == null));
                     String selectedItem = m.getAbbrev();
                     messagesComboBox.setSelectedItem(selectedItem);
                 }
@@ -512,6 +508,73 @@ public class IMCFieldsPanel {
     }
 
     /**
+     * @return the locCopyPastPanel
+     */
+    private LocationCopyPastePanel getLocCopyPastPanel() {
+        LocationCopyPastePanel cp = new LocationCopyPastePanel() {
+            private static final long serialVersionUID = -4084168490231715332L;
+
+            @Override
+            public void setLocationType(LocationType locationType) {
+                super.setLocationType(locationType);
+                
+                IMCFieldsPanel newPanel = applyLocation(locationType, msg);
+                //TODO replace current panel to new one
+            }
+        };
+        cp.setPreferredSize(new Dimension(85, 26));
+        cp.setMaximumSize(new Dimension(85, 26));
+        // locCopyPastPanel.setBorder(null);
+        cp.setToolTipText("Pastes to fields lat and lon");
+        return cp;
+    }
+
+    protected IMCFieldsPanel applyLocation(LocationType locationType, IMCMessage sMsg) {
+        List<String> fieldNames = Arrays.asList(sMsg.getFieldNames());
+        boolean hasLatLon = false, hasXY = false, hasDepthOrHeight = false;
+        if (fieldNames.contains("lat") && fieldNames.contains("lon"))
+            hasLatLon = true;
+        if (fieldNames.contains("x") && fieldNames.contains("y"))
+            hasXY = true;
+        if (fieldNames.contains("depth") || fieldNames.contains("height"))
+            hasDepthOrHeight = true;
+
+        if (hasLatLon) {
+            if (!hasXY)
+                locationType = locationType.getNewAbsoluteLatLonDepth();
+
+            sMsg.setValue("lat", locationType.getLatitudeRads());
+            sMsg.setValue("lon", locationType.getLongitudeRads());
+
+            if (fieldNames.contains("depth"))
+                sMsg.setValue("depth", locationType.getDepth());
+
+            if (fieldNames.contains("height"))
+                sMsg.setValue("height", locationType.getHeight());
+
+            double[] val = CoordinateUtil.sphericalToCartesianCoordinates(locationType.getOffsetDistance(),
+                    locationType.getAzimuth(), locationType.getZenith());
+
+            if (hasXY) {
+                sMsg.setValue("x", locationType.getOffsetNorth() + val[0]);
+                sMsg.setValue("y", locationType.getOffsetEast() + val[1]);
+            }
+
+            if (fieldNames.contains("z")) {
+
+                if (!hasDepthOrHeight) {
+                    sMsg.setValue("z", locationType.getAllZ());
+                }
+                else {
+                    sMsg.setValue("z", locationType.getOffsetDown() + val[2]);
+                }
+            }
+            return new IMCFieldsPanel(this.parent, this.getMessageName(), sMsg.cloneMessage());
+        }
+        return this;
+    }
+
+    /**
      * @param inlineMsg
      * @return
      */
@@ -545,23 +608,13 @@ public class IMCFieldsPanel {
                     if (init != null) {
                         if (init.getAbbrev() != msgName)
                             init = IMCDefinition.getInstance().create(msgName);
-                        System.err.println("Getting " + init.getAbbrev());
                     }
-                    System.err.println("Creating Panel to Msg: " + msgName);
-                    System.err.println("Inline Msg keys during0 "
-                            + Arrays.toString(IMCFieldsPanel.this.inlineMsgs.keySet().toArray()));
-                    System.err.println("Inline Msg values during0 "
-                            + Arrays.toString(IMCFieldsPanel.this.inlineMsgs.values().toArray()));
                     IMCFieldsPanel inceptionFields = new IMCFieldsPanel(IMCFieldsPanel.this, msgName, init);
                     JPanel panelCeption = inceptionFields.getContents();
                     // IMCMessage defaultMsg = IMCFieldsPanel.this.inlineMsgs.containsKey(field)
                     // ? IMCFieldsPanel.this.inlineMsgs.get(field)
                     // : inceptionFields.getImcMessage();
                     IMCFieldsPanel.this.inlineMsgs.put(field, init);
-                    System.err.println("Inline Msg keys during1 "
-                            + Arrays.toString(IMCFieldsPanel.this.inlineMsgs.keySet().toArray()));
-                    System.err.println("Inline Msg values during1 "
-                            + Arrays.toString(IMCFieldsPanel.this.inlineMsgs.values().toArray()));
                     JDialog dg = new JDialog(SwingUtilities.getWindowAncestor(IMCFieldsPanel.this.getContents()),
                             ModalityType.DOCUMENT_MODAL);
                     JPanel buttons = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -600,6 +653,8 @@ public class IMCFieldsPanel {
 
                         }
                     });
+
+                    LocationCopyPastePanel locCopyPastePanel = getLocCopyPastPanel();
 
                     buttons.add(validate);
                     buttons.add(insert);
@@ -650,7 +705,6 @@ public class IMCFieldsPanel {
         fillHeader();
         this.msg.setHeader(this.header);
         this.msg.setTimestampMillis(System.currentTimeMillis());
-        // TODO validate message -> return it
         if (!this.bitfields.isEmpty()) {
             for (Entry<String, BitmaskPanel> entry : this.bitfields.entrySet())
                 this.msg.setValue(entry.getKey(), entry.getValue().getValue());
