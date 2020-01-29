@@ -73,8 +73,10 @@ import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.Header;
 import pt.lsts.imc.IMCUtil;
 import pt.lsts.imc.sender.UIUtils;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.BitmaskPanel;
 import pt.lsts.neptus.gui.LocationCopyPastePanel;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.messages.Bitmask;
 import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -315,7 +317,14 @@ public class IMCFieldsPanel {
                     List<String> mList = new ArrayList<String>();
                     mList.addAll(msg.getIMCMessageType().getFieldPossibleValues(field).values());
                     JComboBox<String> enumComboBox = new JComboBox<String>(mList.toArray(new String[mList.size()]));
-                    enumComboBox.setSelectedIndex(0);
+                    try {
+                        String defined_val = String.valueOf(this.msg.getValue(field));
+                        int index = Integer.parseInt(defined_val);
+                        enumComboBox.setSelectedIndex(index);
+                    }
+                    catch (Exception e) {
+                        enumComboBox.setSelectedIndex(0);
+                    }
                     enumComboBox.addActionListener(new ActionListener() {
 
                         @Override
@@ -356,6 +365,18 @@ public class IMCFieldsPanel {
                 }
                 else {
                     String default_value = String.valueOf(msg.getValue(field));
+                    try {
+                        if (units != null)
+                            if (units.equalsIgnoreCase("rad") || units.equalsIgnoreCase("rad/s")) {
+                                Object val = IMCUtil.parseString(msg.getIMCMessageType().getFieldType(field),
+                                        default_value);
+                                double deg = Math.toDegrees((double) val);
+                                default_value = String.valueOf(deg);
+                            }
+                    }
+                    catch (Exception e) {
+                        NeptusLog.pub().warn(I18n.text("Unable to convert value: "+default_value), e);
+                    }
                     JTextField tField = new JTextField(default_value);
 
                     tField.getDocument().addDocumentListener(new DocumentListener() {
@@ -518,7 +539,7 @@ public class IMCFieldsPanel {
             public void setLocationType(LocationType locationType) {
                 super.setLocationType(locationType);
                 
-                IMCFieldsPanel newPanel = applyLocation(locationType, msg);
+                IMCFieldsPanel newPanel = applyLocation(locationType);
                 //TODO replace current panel to new one
             }
         };
@@ -529,7 +550,8 @@ public class IMCFieldsPanel {
         return cp;
     }
 
-    protected IMCFieldsPanel applyLocation(LocationType locationType, IMCMessage sMsg) {
+    protected IMCFieldsPanel applyLocation(LocationType locationType) {
+        IMCMessage sMsg = this.getImcMessage();
         List<String> fieldNames = Arrays.asList(sMsg.getFieldNames());
         boolean hasLatLon = false, hasXY = false, hasDepthOrHeight = false;
         if (fieldNames.contains("lat") && fieldNames.contains("lon"))
@@ -544,7 +566,7 @@ public class IMCFieldsPanel {
                 locationType = locationType.getNewAbsoluteLatLonDepth();
 
             sMsg.setValue("lat", locationType.getLatitudeRads());
-            sMsg.setValue("lon", locationType.getLongitudeRads());
+            sMsg.setValue("lon", locationType.getLatitudeRads());
 
             if (fieldNames.contains("depth"))
                 sMsg.setValue("depth", locationType.getDepth());
@@ -569,6 +591,7 @@ public class IMCFieldsPanel {
                     sMsg.setValue("z", locationType.getOffsetDown() + val[2]);
                 }
             }
+            
             return new IMCFieldsPanel(this.parent, this.getMessageName(), sMsg.cloneMessage());
         }
         return this;

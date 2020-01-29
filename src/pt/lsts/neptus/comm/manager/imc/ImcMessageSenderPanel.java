@@ -447,7 +447,7 @@ public class ImcMessageSenderPanel extends JPanel {
                 public void setLocationType(LocationType locationType) {
                     super.setLocationType(locationType);
                     ImcMessageSenderPanel.this.fields = ImcMessageSenderPanel.this.fields
-                            .applyLocation(getLocCopyPastPanel().getLocationType(), ImcMessageSenderPanel.this.fields.getImcMessage());
+                            .applyLocation(getLocCopyPastPanel().getLocationType());
                     tabs.removeTabAt(1);
                     ImcMessageSenderPanel.this.tabs.add("Message Fields",
                             ImcMessageSenderPanel.this.fields.getContents());
