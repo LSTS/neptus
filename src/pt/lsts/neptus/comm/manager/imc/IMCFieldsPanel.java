@@ -107,9 +107,7 @@ public class IMCFieldsPanel {
     private LinkedHashMap<String, List<IMCMessage>> msgList = new LinkedHashMap<>();
     private LinkedHashMap<String, BitmaskPanel> bitfields = new LinkedHashMap<>();
     private JButton edit;
-    private MigLayout bitFieldLayout = new MigLayout("wrap 3");// new LC().wrapAfter(3), // Layout Constraints
-    // "growy", //new AX().grow(1,3,4).size("10px",1,2), // Column constraints
-    // ""); //new AX().noGrid(1,4)); // Row constraints
+    private MigLayout bitFieldLayout = new MigLayout("wrap 3");
 
     IMCFieldsPanel parent;
     private JComboBox<String> messagesComboBox = null;
@@ -529,9 +527,12 @@ public class IMCFieldsPanel {
     }
 
     /**
+     * @param inceptionFields 
+     * @param dg 
+     * @param panelCeption 
      * @return the locCopyPastPanel
      */
-    private LocationCopyPastePanel getLocCopyPastPanel() {
+    private LocationCopyPastePanel getLocCopyPastPanel(IMCFieldsPanel inceptionFields, JDialog dg, JPanel panelCeption) {
         LocationCopyPastePanel cp = new LocationCopyPastePanel() {
             private static final long serialVersionUID = -4084168490231715332L;
 
@@ -539,8 +540,18 @@ public class IMCFieldsPanel {
             public void setLocationType(LocationType locationType) {
                 super.setLocationType(locationType);
                 
-                IMCFieldsPanel newPanel = applyLocation(locationType);
-                //TODO replace current panel to new one
+                boolean res = inceptionFields.applyLocation(locationType);
+                JPanel newPanel = inceptionFields.getContents();
+                inceptionFields.content.repaint();
+                if( dg != null && res) {
+                    dg.setVisible(false);
+                    Component buttons = panelCeption.getComponent(panelCeption.getComponentCount()-1);
+                    newPanel.add(buttons,BorderLayout.SOUTH,-1);
+                    dg.setContentPane(newPanel);
+                    dg.revalidate();
+                    dg.setVisible(true);
+                }
+                
             }
         };
         cp.setPreferredSize(new Dimension(85, 26));
@@ -550,7 +561,7 @@ public class IMCFieldsPanel {
         return cp;
     }
 
-    protected IMCFieldsPanel applyLocation(LocationType locationType) {
+    protected boolean applyLocation(LocationType locationType) {
         IMCMessage sMsg = this.getImcMessage();
         List<String> fieldNames = Arrays.asList(sMsg.getFieldNames());
         boolean hasLatLon = false, hasXY = false, hasDepthOrHeight = false;
@@ -591,10 +602,13 @@ public class IMCFieldsPanel {
                     sMsg.setValue("z", locationType.getOffsetDown() + val[2]);
                 }
             }
-            
-            return new IMCFieldsPanel(this.parent, this.getMessageName(), sMsg.cloneMessage());
+            this.msg.setValues(sMsg.getValues());
+            this.msg.setHeader(sMsg.getHeader());
+            this.msg.setTimestamp(sMsg.getTimestamp());
+            this.initializePanel();
+            return true;
         }
-        return this;
+        return false;
     }
 
     /**
@@ -640,6 +654,7 @@ public class IMCFieldsPanel {
                     IMCFieldsPanel.this.inlineMsgs.put(field, init);
                     JDialog dg = new JDialog(SwingUtilities.getWindowAncestor(IMCFieldsPanel.this.getContents()),
                             ModalityType.DOCUMENT_MODAL);
+                    
                     JPanel buttons = new JPanel(new FlowLayout(FlowLayout.CENTER));
                     JButton validate = new JButton("Validate");
 
@@ -677,11 +692,14 @@ public class IMCFieldsPanel {
                         }
                     });
 
-                    LocationCopyPastePanel locCopyPastePanel = getLocCopyPastPanel();
+                    LocationCopyPastePanel locCopyPastePanel = getLocCopyPastPanel(inceptionFields,dg,panelCeption);
 
+                    buttons.add(locCopyPastePanel);
                     buttons.add(validate);
                     buttons.add(insert);
-                    panelCeption.add(buttons, BorderLayout.SOUTH);
+                    buttons.setSize(new Dimension(400,20));
+                    panelCeption.add(buttons,BorderLayout.SOUTH,-1);
+                    //panelCeption.add(buttons, BorderLayout.SOUTH);
                     dg.setTitle("Edit Inline IMC Message - " + msgName);
                     dg.setContentPane(panelCeption);
                     dg.setSize(500, 500);
