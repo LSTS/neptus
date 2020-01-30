@@ -446,12 +446,14 @@ public class ImcMessageSenderPanel extends JPanel {
                 @Override
                 public void setLocationType(LocationType locationType) {
                     super.setLocationType(locationType);
-                    ImcMessageSenderPanel.this.fields = ImcMessageSenderPanel.this.fields
-                            .applyLocation(getLocCopyPastPanel().getLocationType());
-                    tabs.removeTabAt(1);
-                    ImcMessageSenderPanel.this.tabs.add("Message Fields",
-                            ImcMessageSenderPanel.this.fields.getContents());
-                    ImcMessageSenderPanel.this.tabs.repaint();
+                    boolean res = ImcMessageSenderPanel.this.fields.applyLocation(getLocCopyPastPanel().getLocationType());
+                    if (res) { // changes to be applied to panel
+                        JPanel newPanel = ImcMessageSenderPanel.this.fields.getContents();
+                        tabs.removeTabAt(1);
+                        ImcMessageSenderPanel.this.tabs.add("Message Fields", newPanel);
+                        ImcMessageSenderPanel.this.tabs.repaint();
+                        ImcMessageSenderPanel.this.tabs.setSelectedIndex(1);
+                    }
                 }
             };
             // TODO add paste button for imc messages
