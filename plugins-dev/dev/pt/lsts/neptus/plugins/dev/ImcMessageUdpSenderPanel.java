@@ -48,7 +48,7 @@ import pt.lsts.neptus.plugins.Popup.POSITION;
 @PluginDescription(name = "IMC Message UDP Sender",
     icon = "images/imc.png",
     description = "Send IMC messages using UDP. Use for test purposes")
-@Popup(pos = POSITION.TOP_LEFT, width = 500, height = 290)
+@Popup(pos = POSITION.TOP_LEFT, width = 600, height = 300)
 @SuppressWarnings("serial")
 public class ImcMessageUdpSenderPanel extends ConsolePanel {
 
