@@ -787,14 +787,19 @@ public class IMCFieldsPanel {
 
                         @Override
                         public void actionPerformed(ActionEvent e) {
-                            inlineMsgPanel.remove(msgHolder);
+                            inlineMsgPanel.remove(c);
+                            //TODO remove from msgList Map
                             inlineMsgPanel.revalidate();
                             inlineMsgPanel.repaint();
 
                         }
                     });
+                    //Add this message to Map
+                    if(IMCFieldsPanel.this.msgList.get(field) == null)
+                        IMCFieldsPanel.this.msgList.put(field, new ArrayList<IMCMessage>());
+                    IMCFieldsPanel.this.msgList.get(field).add(newMsg); //TODO fix -> getMessage from panel or update it
                     inlineMsgPanel.add(msgHolder, 0);
-                    inlineMsgPanel.add(c, -1); // FIXME check index if overlaps last component
+                    //inlineMsgPanel.add(c, -1); // FIXME check index if overlaps last component
                     inlineMsgPanel.revalidate();
                     inlineMsgPanel.repaint();
                 }
