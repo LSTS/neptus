@@ -489,12 +489,19 @@ public class ImcMessageSenderPanel extends JPanel {
     }
 
     private IMCMessage getOrCreateMessage(String mName) {
-        IMCMessage msg = messagesPool.get(mName);
-        if (msg == null) {
-            msg = IMCDefinition.getInstance().create(mName);
-            messagesPool.put(mName, msg);
+
+        IMCMessage msg = ImcMessageSenderPanel.this.messagesPool.get(mName);
+        if (fields == null)
+            fields = new IMCFieldsPanel(null, mName, msg);
+        else if (!mName.equals(fields.getMessageName())) {
+            IMCMessage toCache = fields.getImcMessage();
+            ImcMessageSenderPanel.this.messagesPool.put(fields.getMessageName(), toCache);
+            fields = new IMCFieldsPanel(null, mName, msg);
         }
-        // applyLocation(msg);
+
+        IMCMessage sMsg = fields.getImcMessage();
+        messagesPool.put(mName, sMsg);
+        
         return msg;
     }
 
