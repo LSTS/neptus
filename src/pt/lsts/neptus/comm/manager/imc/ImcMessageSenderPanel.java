@@ -75,6 +75,7 @@ import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCOutputStream;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.ImcCopyPastePanel;
 import pt.lsts.neptus.gui.LocationCopyPastePanel;
 import pt.lsts.neptus.gui.MessagePreviewer;
 import pt.lsts.neptus.i18n.I18n;
@@ -107,6 +108,8 @@ public class ImcMessageSenderPanel extends JPanel {
     private JButton previewButton = null;
 
     private LocationCopyPastePanel locCopyPastePanel = null;
+    
+    private ImcCopyPastePanel msgCopyPastePanel = null;
 
     private JTextField address = new JTextField("127.0.0.1");
     private NumberFormat nf = new DecimalFormat("#####");
@@ -125,7 +128,6 @@ public class ImcMessageSenderPanel extends JPanel {
      * 
      */
     public ImcMessageSenderPanel() {
-//        this.setPreferredSize(new Dimension(500,600));
         initialize();
     }
 
@@ -165,7 +167,12 @@ public class ImcMessageSenderPanel extends JPanel {
                 .addGroup(layout_config.createSequentialGroup().addComponent(msgNameLabel)
                         .addComponent(getMessagesComboBox(), 25, 25, 25)));
 
+        tabs = getTabedPane();
+        String mgsName = (String) getMessagesComboBox().getSelectedItem();
+        fields = new IMCFieldsPanel(null, mgsName, null);
+        
         // Buttons container in the bottom
+        holder_footer.add(getMsgCopyPastePanel());
         holder_footer.add(getLocCopyPastPanel());
         holder_footer.add(getEditMessageButton());
         holder_footer.add(getCreateButton());
@@ -175,13 +182,10 @@ public class ImcMessageSenderPanel extends JPanel {
         JScrollPane scrollFooter = new JScrollPane(holder_footer) {
             @Override
             public Dimension getPreferredSize() {
-                return new Dimension(450, 40);
+                return new Dimension(650, 40);
             }  
         };
 
-        tabs = getTabedPane();
-        String mgsName = (String) getMessagesComboBox().getSelectedItem();
-        fields = new IMCFieldsPanel(null, mgsName, null);
         tabs.add("General Settings", holder_config);
         tabs.add("Message Fields", fields.getContents());
         this.setLayout(new BorderLayout());
@@ -457,14 +461,39 @@ public class ImcMessageSenderPanel extends JPanel {
                     }
                 }
             };
-            // TODO add paste button for imc messages
             locCopyPastePanel.setPreferredSize(new Dimension(85, 26));
             locCopyPastePanel.setMaximumSize(new Dimension(85, 26));
-            // locCopyPastPanel.setBorder(null);
             locCopyPastePanel
-                    .setToolTipText("Pastes to EstimatedState Message (but doesn't copy from there nor touches ref)");
+                    .setToolTipText(I18n.text("Pastes to lat and lon fields"));
         }
         return locCopyPastePanel;
+    }
+    
+    private ImcCopyPastePanel getMsgCopyPastePanel() {
+        if(msgCopyPastePanel == null) {
+            msgCopyPastePanel = new ImcCopyPastePanel() {
+
+                @Override
+                public IMCMessage copyImcMessage() {
+                    return fields.getImcMessage();
+                }
+                
+                @Override
+                public void setMsg(IMCMessage msg){
+                    messagesPool.put(fields.getMessageName(), fields.getImcMessage());
+                    String mgsName = msg.getAbbrev();
+                    getMessagesComboBox().setSelectedItem(mgsName);
+                    fields = new IMCFieldsPanel(null, mgsName, msg);
+                    JPanel newPanel = ImcMessageSenderPanel.this.fields.getContents();
+                    tabs.removeTabAt(1);
+                    ImcMessageSenderPanel.this.tabs.add("Message Fields", newPanel);
+                    ImcMessageSenderPanel.this.tabs.repaint();
+                }
+            };
+        }
+        this.msgCopyPastePanel.setPreferredSize(new Dimension(85, 26));
+        this.msgCopyPastePanel.setMaximumSize(new Dimension(85, 26));
+        return this.msgCopyPastePanel;
     }
 
     public String sendUdpMsg(byte[] msg, int size) {
