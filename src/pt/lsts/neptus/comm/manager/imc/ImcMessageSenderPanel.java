@@ -77,6 +77,7 @@ import pt.lsts.imc.IMCOutputStream;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.LocationCopyPastePanel;
 import pt.lsts.neptus.gui.MessagePreviewer;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.ByteUtil;
 import pt.lsts.neptus.util.GuiUtils;
@@ -266,7 +267,7 @@ public class ImcMessageSenderPanel extends JPanel {
     private JButton getEditMessageButton() {
         if (editMessageButton == null) {
             editMessageButton = new JButton();
-            editMessageButton.setText("Edit");
+            editMessageButton.setText(I18n.text("Edit"));
             editMessageButton.setPreferredSize(new Dimension(90, 26));
             editMessageButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
@@ -283,7 +284,7 @@ public class ImcMessageSenderPanel extends JPanel {
     private JButton getCreateButton() {
         if (createButton == null) {
             createButton = new JButton();
-            createButton.setText("Generate");
+            createButton.setText(I18n.text("Generate"));
             createButton.setPreferredSize(new Dimension(102, 26));
             createButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
@@ -303,7 +304,7 @@ public class ImcMessageSenderPanel extends JPanel {
     private JButton getPublishButton() {
         if (publishButton == null) {
             publishButton = new JButton();
-            publishButton.setText("Publish");
+            publishButton.setText(I18n.text("Publish"));
             publishButton.setPreferredSize(new Dimension(90, 26));
             publishButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
@@ -346,7 +347,7 @@ public class ImcMessageSenderPanel extends JPanel {
     private JButton getPreviewButton() {
         if (previewButton == null) {
             previewButton = new JButton();
-            previewButton.setText("Preview");
+            previewButton.setText(I18n.text("Preview"));
             previewButton.setPreferredSize(new Dimension(90, 26));
         }
         ActionListener previewAction = new ActionListener() {
@@ -386,7 +387,7 @@ public class ImcMessageSenderPanel extends JPanel {
     private JButton getBurstPublishButton() {
         if (burstPublishButton == null) {
             burstPublishButton = new JButton();
-            burstPublishButton.setText("Burst");
+            burstPublishButton.setText(I18n.text("Burst"));
             burstPublishButton.setPreferredSize(new Dimension(85, 26));
             burstPublishButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {

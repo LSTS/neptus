@@ -678,7 +678,7 @@ public class IMCFieldsPanel {
      * @return
      */
     private JButton getEditButtonForMsg(String field, JComboBox<String> messagesComboBox, boolean b, IMCMessage m) {
-        JButton edit = new JButton("Edit");
+        JButton edit = new JButton(I18n.text("Edit"));
         edit.addActionListener(getActionForMsg(field, messagesComboBox, b, m));
         return edit;
     }
@@ -723,7 +723,7 @@ public class IMCFieldsPanel {
                             ModalityType.DOCUMENT_MODAL);
 
                     JPanel buttons = new JPanel(new FlowLayout(FlowLayout.CENTER));
-                    JButton validate = new JButton("Validate");
+                    JButton validate = new JButton(I18n.text("Validate"));
 
                     validate.addActionListener(new ActionListener() {
 
@@ -744,7 +744,7 @@ public class IMCFieldsPanel {
                         }
                     });
 
-                    JButton insert = new JButton("Insert");
+                    JButton insert = new JButton(I18n.text("Insert"));
                     insert.addActionListener(new ActionListener() {
 
                         @Override
