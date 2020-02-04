@@ -68,8 +68,6 @@ import javax.swing.WindowConstants;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import org.junit.internal.runners.InitializationError;
-
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
@@ -280,16 +278,39 @@ public class IMCFieldsPanel {
                 inlineMsgPanel.setLayout(new BoxLayout(inlineMsgPanel, BoxLayout.Y_AXIS));
                 // TODO dynamic insertion all over again
                 JComboBox<String> mListComboBox = getMessageComboBox(field, true);
-//                JButton ediT = new JButton("Edit");
-//                ActionListener editMsgList = getActionForMsg(field, mListComboBox, true, null);
-//                ediT.addActionListener(editMsgList);
                 JButton plus = new JButton("+");
                 ActionListener messageListAction = getMsgListAction(field, inlineMsgPanel, plus, mListComboBox);
                 plus.addActionListener(messageListAction);
                 msgHolder.add(mListComboBox);
-//                msgHolder.add(ediT);
                 msgHolder.add(plus);
                 inlineMsgPanel.add(msgHolder, 0);
+                if(this.msgList.get(field)!= null) {
+                    if(!this.msgList.get(field).isEmpty()) {
+                      for(IMCMessage m: this.msgList.get(field)) {
+                          JPanel nMsgHolder = new JPanel(new FlowLayout(FlowLayout.LEFT));
+                          inlineMsgPanel.setLayout(new BoxLayout(inlineMsgPanel, BoxLayout.Y_AXIS));
+                          JComboBox<String> comboBox = getMessageComboBox(field, true);
+                          comboBox.setSelectedItem(m.getAbbrev());
+                          JButton ediT = getEditButtonForMsg(field, comboBox, true, m);
+                          JButton minus = new JButton("-");
+                          nMsgHolder.add(comboBox);
+                          nMsgHolder.add(ediT);
+                          nMsgHolder.add(minus);
+                          minus.addActionListener(new ActionListener() {
+
+                              @Override
+                              public void actionPerformed(ActionEvent e) {
+                                  inlineMsgPanel.remove(nMsgHolder);
+                                  if (IMCFieldsPanel.this.msgList.get(field) != null) {
+                                      IMCFieldsPanel.this.msgList.get(field).remove(m);
+                                  }
+                              }
+                          });
+                          comboBox.setEnabled(false);
+                          inlineMsgPanel.add(nMsgHolder);
+                      }
+                    }
+                }
 
                 label.setLabelFor(inlineMsgPanel);
                 horizontal.addGroup(layout.createSequentialGroup().addComponent(label).addComponent(inlineMsgPanel));
@@ -530,7 +551,8 @@ public class IMCFieldsPanel {
         try {
             short value = Short.parseShort(dstEnt_txt);
             if (value < 0 || dstEnt_txt.isEmpty())
-                this.header.set_dst_ent(value);
+                value = (short) Header.DEFAULT_ENTITY_ID;
+            this.header.set_dst_ent(value);
         }
         catch (NumberFormatException ne) {
             this.header.set_dst_ent((short) Header.DEFAULT_ENTITY_ID);
@@ -678,13 +700,21 @@ public class IMCFieldsPanel {
                     if (!msgList) {
                         init = IMCFieldsPanel.this.inlineMsgs.get(field);
                         if (init != null) {
-                            if (init.getAbbrev() != msgName)
+                            if (init.getAbbrev() != msgName) {
                                 init = IMCDefinition.getInstance().create(msgName);
+                            }
                         }
                     }
-                    else if(msgList && m!=null) {
-                        if(msgName.equals(m.getAbbrev()))
+                    else if (msgList && m != null) {
+                        if (msgName.equals(m.getAbbrev()))
                             init = m;
+                        else {
+                            boolean hasField = IMCFieldsPanel.this.msgList.get(field) != null;
+                            if (hasField) {
+                                IMCFieldsPanel.this.msgList.get(field).remove(m);
+                                IMCFieldsPanel.this.msgList.get(field).add(init);
+                            }
+                        }
                     }
                     IMCFieldsPanel inceptionFields = new IMCFieldsPanel(IMCFieldsPanel.this, msgName, init);
                     JPanel panelCeption = inceptionFields.getContents();
@@ -730,7 +760,7 @@ public class IMCFieldsPanel {
                                     IMCFieldsPanel.this.msgList.put(field, new ArrayList<IMCMessage>());
                                 IMCFieldsPanel.this.msgList.get(field).remove(m);
                                 m.setValues(value.getValues());
-                                IMCFieldsPanel.this.msgList.get(field).add(m); //add IMCMessage with updated fields
+                                IMCFieldsPanel.this.msgList.get(field).add(m); // add IMCMessage with updated fields
 
                             }
                             JComponent comp = (JComponent) e.getSource();
@@ -777,10 +807,9 @@ public class IMCFieldsPanel {
                 String selectedItem = (String) mListComboBox.getSelectedItem();
                 if (!selectedItem.equalsIgnoreCase("None")) {
                     IMCMessage newMsg = IMCDefinition.getInstance().create(selectedItem);
-
                     JPanel msgHolder = new JPanel(new FlowLayout(FlowLayout.LEFT));
                     inlineMsgPanel.setLayout(new BoxLayout(inlineMsgPanel, BoxLayout.Y_AXIS));
-                    // TODO dynamic insertion all over again
+                    // dynamic insertion all over again
                     JComboBox<String> comboCeption = getMessageComboBox(field, true);
                     JButton ediT = getEditButtonForMsg(field, mListComboBox, true, newMsg);
                     JButton minus = new JButton("-");
@@ -806,6 +835,7 @@ public class IMCFieldsPanel {
 
                         }
                     });
+                    mListComboBox.setEnabled(false);
                     // Add this message to Map
                     if (IMCFieldsPanel.this.msgList.get(field) == null)
                         IMCFieldsPanel.this.msgList.put(field, new ArrayList<IMCMessage>());
