@@ -80,7 +80,7 @@ public abstract class ImcCopyPastePanel extends JPanel{
         gridBagConstraints3.gridy = 0;
         gridBagConstraints3.gridx = 0;
         this.setLayout(new GridBagLayout());
-        this.setBounds(new Rectangle(12, 147, 115, 35));//FIXME
+        this.setBounds(new Rectangle(12, 147, 95, 30));//FIXME
         this.setBorder(BorderFactory.createTitledBorder(null, "",
                 TitledBorder.DEFAULT_JUSTIFICATION,
                 TitledBorder.DEFAULT_POSITION, new Font("Dialog",
@@ -88,11 +88,6 @@ public abstract class ImcCopyPastePanel extends JPanel{
         this.add(getBtnCopy(), gridBagConstraints3);
         this.add(getBtnPaste(), gridBagConstraints4);
     }
-    
-    /***
-     * This method updates the @IMCMessage associated to the copy button
-     */
-    public abstract IMCMessage copyImcMessage();
     
     public IMCMessage pasteImcMessage() {
         return this.msg;
@@ -106,7 +101,6 @@ public abstract class ImcCopyPastePanel extends JPanel{
                     .getImage("images/menus/editcopy.png")));
             btnCopy.setMargin(new Insets(0, 0, 0, 0));
             btnCopy.setToolTipText(I18n.text("Copy this IMC message to the clipboard"));
-            this.msg = copyImcMessage();
             btnCopy.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent arg0) {
                     btnPaste.setEnabled(true);

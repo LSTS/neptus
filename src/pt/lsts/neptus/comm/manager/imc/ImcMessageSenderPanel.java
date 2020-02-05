@@ -74,6 +74,7 @@ import javax.swing.event.ChangeListener;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCOutputStream;
+import pt.lsts.imc.sender.UIUtils;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.ImcCopyPastePanel;
 import pt.lsts.neptus.gui.LocationCopyPastePanel;
@@ -108,7 +109,7 @@ public class ImcMessageSenderPanel extends JPanel {
     private JButton previewButton = null;
 
     private LocationCopyPastePanel locCopyPastePanel = null;
-    
+
     private ImcCopyPastePanel msgCopyPastePanel = null;
 
     private JTextField address = new JTextField("127.0.0.1");
@@ -170,7 +171,7 @@ public class ImcMessageSenderPanel extends JPanel {
         tabs = getTabedPane();
         String mgsName = (String) getMessagesComboBox().getSelectedItem();
         fields = new IMCFieldsPanel(null, mgsName, null);
-        
+
         // Buttons container in the bottom
         holder_footer.add(getMsgCopyPastePanel());
         holder_footer.add(getLocCopyPastPanel());
@@ -183,7 +184,7 @@ public class ImcMessageSenderPanel extends JPanel {
             @Override
             public Dimension getPreferredSize() {
                 return new Dimension(650, 40);
-            }  
+            }
         };
 
         tabs.add("General Settings", holder_config);
@@ -325,17 +326,20 @@ public class ImcMessageSenderPanel extends JPanel {
 
                             ByteUtil.dumpAsHex(msgName + " [size=" + baos.size() + "]", baos.toByteArray(), System.out);
                             msg = sendUdpMsg(baos.toByteArray(), baos.size());
+                            if (msg != null)
+                                UIUtils.exceptionDialog(ImcMessageSenderPanel.this, new Exception(msg), "Error sending message by UDP",
+                                        "Validate message");
+                            else {
+                                JOptionPane.showMessageDialog(ImcMessageSenderPanel.this,
+                                        "Message sent successfully by UDP.", "Message Sent",
+                                        JOptionPane.INFORMATION_MESSAGE);
+                            }
+
                         }
                         catch (Exception e1) {
+                            NeptusLog.pub().warn(I18n.text(""));
                             e1.printStackTrace();
                         }
-                        if (msg != null)
-                            JOptionPane.showMessageDialog(publishButton,
-                                    "Error sending " + msgName + " [" + msg + "]!");
-                    }
-                    else {
-                        JOptionPane.showMessageDialog(publishButton,
-                                "Edit first message " + msgName + " to create it!");
                     }
                 }
             });
@@ -451,7 +455,8 @@ public class ImcMessageSenderPanel extends JPanel {
                 @Override
                 public void setLocationType(LocationType locationType) {
                     super.setLocationType(locationType);
-                    boolean res = ImcMessageSenderPanel.this.fields.applyLocation(getLocCopyPastPanel().getLocationType());
+                    boolean res = ImcMessageSenderPanel.this.fields
+                            .applyLocation(getLocCopyPastPanel().getLocationType());
                     if (res) { // changes to be applied to panel
                         JPanel newPanel = ImcMessageSenderPanel.this.fields.getContents();
                         tabs.removeTabAt(1);
@@ -463,31 +468,33 @@ public class ImcMessageSenderPanel extends JPanel {
             };
             locCopyPastePanel.setPreferredSize(new Dimension(85, 26));
             locCopyPastePanel.setMaximumSize(new Dimension(85, 26));
-            locCopyPastePanel
-                    .setToolTipText(I18n.text("Pastes to lat and lon fields"));
+            locCopyPastePanel.setToolTipText(I18n.text("Pastes to lat and lon fields"));
         }
         return locCopyPastePanel;
     }
-    
+
     private ImcCopyPastePanel getMsgCopyPastePanel() {
-        if(msgCopyPastePanel == null) {
+        if (msgCopyPastePanel == null) {
             msgCopyPastePanel = new ImcCopyPastePanel() {
 
                 @Override
-                public IMCMessage copyImcMessage() {
-                    return fields.getImcMessage();
+                public IMCMessage getMsg() {
+                    return ImcMessageSenderPanel.this.fields.getImcMessage();
                 }
-                
+
                 @Override
-                public void setMsg(IMCMessage msg){
+                public void setMsg(IMCMessage msg) {
                     messagesPool.put(fields.getMessageName(), fields.getImcMessage());
                     String mgsName = msg.getAbbrev();
                     getMessagesComboBox().setSelectedItem(mgsName);
                     fields = new IMCFieldsPanel(null, mgsName, msg);
                     JPanel newPanel = ImcMessageSenderPanel.this.fields.getContents();
+                    int selTab = tabs.getSelectedIndex();
                     tabs.removeTabAt(1);
                     ImcMessageSenderPanel.this.tabs.add("Message Fields", newPanel);
                     ImcMessageSenderPanel.this.tabs.repaint();
+                    if (selTab < tabs.getTabCount())
+                        tabs.setSelectedIndex(selTab);
                 }
             };
         }
@@ -531,7 +538,7 @@ public class ImcMessageSenderPanel extends JPanel {
 
         IMCMessage sMsg = fields.getImcMessage();
         messagesPool.put(mName, sMsg);
-        
+
         return msg;
     }
 
