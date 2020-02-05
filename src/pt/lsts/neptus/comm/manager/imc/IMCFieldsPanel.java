@@ -380,7 +380,8 @@ public class IMCFieldsPanel {
                             if (units.equalsIgnoreCase("rad") || units.equalsIgnoreCase("rad/s")) {
                                 Object val = IMCUtil.parseString(msg.getIMCMessageType().getFieldType(field),
                                         default_value);
-                                double deg = Math.toDegrees((double) val);
+//                                double deg = Math.toDegrees((double) val);
+                                double deg = Math.toDegrees(new Double(default_value).doubleValue());
                                 default_value = String.valueOf(deg);
                             }
                     }
