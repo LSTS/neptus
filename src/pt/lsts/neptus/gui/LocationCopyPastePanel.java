@@ -135,7 +135,7 @@ public class LocationCopyPastePanel extends JPanel {
 		if (btnPaste == null) {
 			btnPaste = new JButton();
 			btnPaste.setPreferredSize(new Dimension(20, 20));
-			btnPaste.setToolTipText(I18n.text("Paste from clipboard"));
+			btnPaste.setToolTipText(I18n.text("Paste location from clipboard"));
 			btnPaste.setIcon(new ImageIcon(ImageUtils
 					.getImage("images/menus/editpaste.png")));
 			btnPaste.setMargin(new Insets(0, 0, 0, 0));
