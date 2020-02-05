@@ -183,7 +183,7 @@ public class ImcMessageSenderPanel extends JPanel {
         JScrollPane scrollFooter = new JScrollPane(holder_footer) {
             @Override
             public Dimension getPreferredSize() {
-                return new Dimension(650, 40);
+                return new Dimension(700, 40);
             }
         };
 
@@ -416,6 +416,14 @@ public class ImcMessageSenderPanel extends JPanel {
                                     ByteUtil.dumpAsHex(msgName + " [size=" + baos.size() + "]", baos.toByteArray(),
                                             System.out);
                                     String msg = sendUdpMsg(baos.toByteArray(), baos.size());
+                                    if (msg != null)
+                                        UIUtils.exceptionDialog(ImcMessageSenderPanel.this, new Exception(msg), "Error sending message by UDP",
+                                                "Validate message");
+                                    else {
+                                        JOptionPane.showMessageDialog(ImcMessageSenderPanel.this,
+                                                "Message sent successfully by UDP.", "Message Sent",
+                                                JOptionPane.INFORMATION_MESSAGE);
+                                    }
                                 }
                                 catch (Exception e1) {
                                     NeptusLog.pub().error(e1);
