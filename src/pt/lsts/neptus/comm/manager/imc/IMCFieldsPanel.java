@@ -76,6 +76,7 @@ import pt.lsts.imc.IMCUtil;
 import pt.lsts.imc.sender.UIUtils;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.BitmaskPanel;
+import pt.lsts.neptus.gui.ImcCopyPastePanel;
 import pt.lsts.neptus.gui.LocationCopyPastePanel;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.messages.Bitmask;
@@ -284,31 +285,31 @@ public class IMCFieldsPanel {
                 msgHolder.add(mListComboBox);
                 msgHolder.add(plus);
                 inlineMsgPanel.add(msgHolder, 0);
-                if(this.msgList.get(field)!= null) {
-                    if(!this.msgList.get(field).isEmpty()) {
-                      for(IMCMessage m: this.msgList.get(field)) {
-                          JPanel nMsgHolder = new JPanel(new FlowLayout(FlowLayout.LEFT));
-                          inlineMsgPanel.setLayout(new BoxLayout(inlineMsgPanel, BoxLayout.Y_AXIS));
-                          JComboBox<String> comboBox = getMessageComboBox(field, true);
-                          comboBox.setSelectedItem(m.getAbbrev());
-                          JButton ediT = getEditButtonForMsg(field, comboBox, true, m);
-                          JButton minus = new JButton("-");
-                          nMsgHolder.add(comboBox);
-                          nMsgHolder.add(ediT);
-                          nMsgHolder.add(minus);
-                          minus.addActionListener(new ActionListener() {
+                if (this.msgList.get(field) != null) {
+                    if (!this.msgList.get(field).isEmpty()) {
+                        for (IMCMessage m : this.msgList.get(field)) {
+                            JPanel nMsgHolder = new JPanel(new FlowLayout(FlowLayout.LEFT));
+                            inlineMsgPanel.setLayout(new BoxLayout(inlineMsgPanel, BoxLayout.Y_AXIS));
+                            JComboBox<String> comboBox = getMessageComboBox(field, true);
+                            comboBox.setSelectedItem(m.getAbbrev());
+                            JButton ediT = getEditButtonForMsg(field, comboBox, true, m);
+                            JButton minus = new JButton("-");
+                            nMsgHolder.add(comboBox);
+                            nMsgHolder.add(ediT);
+                            nMsgHolder.add(minus);
+                            minus.addActionListener(new ActionListener() {
 
-                              @Override
-                              public void actionPerformed(ActionEvent e) {
-                                  inlineMsgPanel.remove(nMsgHolder);
-                                  if (IMCFieldsPanel.this.msgList.get(field) != null) {
-                                      IMCFieldsPanel.this.msgList.get(field).remove(m);
-                                  }
-                              }
-                          });
-                          comboBox.setEnabled(false);
-                          inlineMsgPanel.add(nMsgHolder);
-                      }
+                                @Override
+                                public void actionPerformed(ActionEvent e) {
+                                    inlineMsgPanel.remove(nMsgHolder);
+                                    if (IMCFieldsPanel.this.msgList.get(field) != null) {
+                                        IMCFieldsPanel.this.msgList.get(field).remove(m);
+                                    }
+                                }
+                            });
+                            comboBox.setEnabled(false);
+                            inlineMsgPanel.add(nMsgHolder);
+                        }
                     }
                 }
 
@@ -378,9 +379,9 @@ public class IMCFieldsPanel {
                     try {
                         if (units != null)
                             if (units.equalsIgnoreCase("rad") || units.equalsIgnoreCase("rad/s")) {
-                                Object val = IMCUtil.parseString(msg.getIMCMessageType().getFieldType(field),
-                                        default_value);
-//                                double deg = Math.toDegrees((double) val);
+                                // Object val = IMCUtil.parseString(msg.getIMCMessageType().getFieldType(field),
+                                // default_value);
+                                // double deg = Math.toDegrees((double) val);
                                 double deg = Math.toDegrees(new Double(default_value).doubleValue());
                                 default_value = String.valueOf(deg);
                             }
@@ -605,12 +606,12 @@ public class IMCFieldsPanel {
                 JPanel newPanel = inceptionFields.getContents();
                 inceptionFields.content.repaint();
                 if (dg != null && res) {
-                    dg.setVisible(false);
+                    // dg.setVisible(false); - keep commented prevent from blinking
                     Component buttons = panelCeption.getComponent(panelCeption.getComponentCount() - 1);
                     newPanel.add(buttons, BorderLayout.SOUTH, -1);
                     dg.setContentPane(newPanel);
                     dg.revalidate();
-                    dg.setVisible(true);
+                    // dg.setVisible(true); - keep commented prevent from blinking
                 }
 
             }
@@ -620,6 +621,45 @@ public class IMCFieldsPanel {
         // locCopyPastPanel.setBorder(null);
         cp.setToolTipText("Pastes to fields lat and lon");
         return cp;
+    }
+
+    private ImcCopyPastePanel getMsgCopyPastePanel(JDialog dg, JPanel panelCeption, String field, IMCMessage m, boolean msgList2) {
+        ImcCopyPastePanel msgCopyPastePanel = new ImcCopyPastePanel() {
+
+            @Override
+            public IMCMessage getMsg() {
+                super.setMsg(IMCFieldsPanel.this.getImcMessage());
+                return IMCFieldsPanel.this.getImcMessage();
+            }
+
+            @Override
+            public void setMsg(IMCMessage msg) {
+                super.setMsg(msg);
+                IMCFieldsPanel inceptionFields = new IMCFieldsPanel(IMCFieldsPanel.this, msg.getAbbrev(), msg);
+                IMCFieldsPanel.this.msg.setValues(msg.getValues());
+                IMCFieldsPanel.this.msg.setHeader(msg.getHeader());
+                IMCFieldsPanel.this.msg.setTimestamp(msg.getTimestamp());
+                IMCFieldsPanel.this.initializePanel();
+                JPanel newPanel = inceptionFields.getContents();
+                if (dg != null) {
+                    JPanel buttons = (JPanel) panelCeption.getComponent(panelCeption.getComponentCount() - 1);
+                    int buttonsN = buttons.getComponentCount();
+                    if(buttonsN==4) {
+                        buttons.remove(buttons.getComponentCount()-1);
+                        buttons.remove(buttons.getComponentCount()-1);
+                        JButton validate = getValidateButtonFor(inceptionFields);
+                        JButton insert = getInsertButtonFor(inceptionFields, field, validate, msgList2, m);
+
+                    }
+                    newPanel.add(buttons, BorderLayout.SOUTH, -1);
+                    dg.setContentPane(newPanel);
+                    dg.repaint();
+                    dg.revalidate();
+                }
+            }
+        };
+        return msgCopyPastePanel;
+
     }
 
     protected boolean applyLocation(LocationType locationType) {
@@ -638,7 +678,7 @@ public class IMCFieldsPanel {
                 locationType = locationType.getNewAbsoluteLatLonDepth();
 
             sMsg.setValue("lat", locationType.getLatitudeRads());
-            sMsg.setValue("lon", locationType.getLatitudeRads());
+            sMsg.setValue("lon", locationType.getLongitudeRads());
 
             if (fieldNames.contains("depth"))
                 sMsg.setValue("depth", locationType.getDepth());
@@ -724,55 +764,13 @@ public class IMCFieldsPanel {
                             ModalityType.DOCUMENT_MODAL);
 
                     JPanel buttons = new JPanel(new FlowLayout(FlowLayout.CENTER));
-                    JButton validate = new JButton(I18n.text("Validate"));
+                    JButton validate = getValidateButtonFor(inceptionFields);
+                    JButton insert = getInsertButtonFor(inceptionFields, field, validate, msgList, m);
 
-                    validate.addActionListener(new ActionListener() {
-
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            try {
-                                inceptionFields.getImcMessage().validate();
-                                JOptionPane.showMessageDialog(IMCFieldsPanel.this.getContents(),
-                                        "Message parsed successfully.", "Validate message",
-                                        JOptionPane.INFORMATION_MESSAGE);
-                            }
-                            catch (Exception ex) {
-                                ex.printStackTrace();
-                                UIUtils.exceptionDialog(IMCFieldsPanel.this.getContents(), ex, "Error parsing message",
-                                        "Validate message");
-                                return;
-                            }
-                        }
-                    });
-
-                    JButton insert = new JButton(I18n.text("Insert"));
-                    insert.addActionListener(new ActionListener() {
-
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            validate.doClick();
-                            IMCMessage value = inceptionFields.getImcMessage();
-                            if (!msgList) {
-                                IMCFieldsPanel.this.inlineMsgs.put(field, value);
-                            }
-                            else if (msgList && m != null) {
-                                boolean hasField = IMCFieldsPanel.this.msgList.get(field) != null;
-                                if (!hasField)
-                                    IMCFieldsPanel.this.msgList.put(field, new ArrayList<IMCMessage>());
-                                IMCFieldsPanel.this.msgList.get(field).remove(m);
-                                m.setValues(value.getValues());
-                                IMCFieldsPanel.this.msgList.get(field).add(m); // add IMCMessage with updated fields
-
-                            }
-                            JComponent comp = (JComponent) e.getSource();
-                            Window win = SwingUtilities.getWindowAncestor(comp);
-                            win.dispose();
-
-                        }
-                    });
-
+                    ImcCopyPastePanel msgCopyPastePanel = getMsgCopyPastePanel(dg, panelCeption, field, m, msgList);
                     LocationCopyPastePanel locCopyPastePanel = getLocCopyPastPanel(inceptionFields, dg, panelCeption);
 
+                    buttons.add(msgCopyPastePanel);
                     buttons.add(locCopyPastePanel);
                     buttons.add(validate);
                     buttons.add(insert);
@@ -789,6 +787,69 @@ public class IMCFieldsPanel {
             }
         };
         return action;
+    }
+
+    /**
+     * @param inceptionFields
+     * @param m 
+     * @return
+     */
+    protected JButton getInsertButtonFor(IMCFieldsPanel inceptionFields, String field, JButton validate, boolean msgList, IMCMessage m) {
+        JButton i = new JButton(I18n.text("Insert"));
+        i.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                validate.doClick();
+                IMCMessage value = inceptionFields.getImcMessage();
+                if (!msgList) {
+                    IMCFieldsPanel.this.inlineMsgs.put(field, value);
+                }
+                else if (msgList && m != null) {
+                    boolean hasField = IMCFieldsPanel.this.msgList.get(field) != null;
+                    if (!hasField)
+                        IMCFieldsPanel.this.msgList.put(field, new ArrayList<IMCMessage>());
+                    IMCFieldsPanel.this.msgList.get(field).remove(m);
+                    m.setValues(value.getValues());
+                    IMCFieldsPanel.this.msgList.get(field).add(m); // add IMCMessage with updated fields
+                }
+                JComponent comp = (JComponent) e.getSource();
+                Window win = SwingUtilities.getWindowAncestor(comp);
+                win.dispose();
+
+            }
+        });
+        return i;
+    }
+
+    /**
+     * @param inceptionFields
+     * @return
+     */
+    protected JButton getValidateButtonFor(IMCFieldsPanel inceptionFields) {
+        JButton v = new JButton(I18n.text("Validate"));
+
+        v.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    inceptionFields.getImcMessage().validate();
+                    if (inceptionFields.parent != null)
+                        JOptionPane.showMessageDialog(inceptionFields.parent.getContents(),
+                                "Message parsed successfully.", "Validate message", JOptionPane.INFORMATION_MESSAGE);
+                }
+                catch (Exception ex) {
+                    ex.printStackTrace();
+                    if (inceptionFields.parent != null)
+                        UIUtils.exceptionDialog(inceptionFields.parent.getContents(), ex, "Error parsing message",
+                                "Validate message");
+                    return;
+                }
+            }
+        });
+        return v;
+
     }
 
     /***
