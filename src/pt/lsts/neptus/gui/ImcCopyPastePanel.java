@@ -160,6 +160,7 @@ public abstract class ImcCopyPastePanel extends JPanel{
                             }
                         } catch (Exception e) {
                             NeptusLog.pub().error(e);
+                            e.printStackTrace();
                         }
                     }
                 }
