@@ -649,12 +649,15 @@ public class IMCFieldsPanel {
                         buttons.remove(buttons.getComponentCount()-1);
                         JButton validate = getValidateButtonFor(inceptionFields);
                         JButton insert = getInsertButtonFor(inceptionFields, field, validate, msgList2, m);
+                        buttons.add(insert);
+                        buttons.add(validate);
 
                     }
                     newPanel.add(buttons, BorderLayout.SOUTH, -1);
                     dg.setContentPane(newPanel);
                     dg.repaint();
                     dg.revalidate();
+                    System.err.println("dialog parent: "+dg.getParent()+" "+m.getAbbrev());
                 }
             }
         };
@@ -781,6 +784,7 @@ public class IMCFieldsPanel {
                     dg.setContentPane(panelCeption);
                     dg.setSize(500, 500);
                     dg.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+                    System.err.println("dialog parent: "+(dg==null)+" "+m==null);
                     GuiUtils.centerParent(dg, (Window) dg.getParent());
                     dg.setVisible(true);
                 }
