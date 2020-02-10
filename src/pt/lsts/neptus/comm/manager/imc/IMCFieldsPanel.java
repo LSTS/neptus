@@ -623,42 +623,70 @@ public class IMCFieldsPanel {
         return cp;
     }
 
-    private ImcCopyPastePanel getMsgCopyPastePanel(JDialog dg, JPanel panelCeption, String field, IMCMessage m, boolean msgList2) {
+    private ImcCopyPastePanel getMsgCopyPastePanel(JDialog dg, JPanel panelCeption, String field, IMCMessage m, boolean isMsgList, JComboBox<String> messagesComboBox) {
         ImcCopyPastePanel msgCopyPastePanel = new ImcCopyPastePanel() {
 
             @Override
             public IMCMessage getMsg() {
-                super.setMsg(IMCFieldsPanel.this.getImcMessage());
-                return IMCFieldsPanel.this.getImcMessage();
+                if(IMCFieldsPanel.this.inlineMsgs.containsKey(field) && !isMsgList) {
+                    IMCMessage imcMessage = IMCFieldsPanel.this.inlineMsgs.get(field);
+                    super.setMsg(imcMessage);
+                    return imcMessage;
+                }
+                return m;
             }
 
             @Override
             public void setMsg(IMCMessage msg) {
-                super.setMsg(msg);
-                IMCFieldsPanel inceptionFields = new IMCFieldsPanel(IMCFieldsPanel.this, msg.getAbbrev(), msg);
-                IMCFieldsPanel.this.msg.setValues(msg.getValues());
-                IMCFieldsPanel.this.msg.setHeader(msg.getHeader());
-                IMCFieldsPanel.this.msg.setTimestamp(msg.getTimestamp());
-                IMCFieldsPanel.this.initializePanel();
-                JPanel newPanel = inceptionFields.getContents();
-                if (dg != null) {
-                    JPanel buttons = (JPanel) panelCeption.getComponent(panelCeption.getComponentCount() - 1);
-                    int buttonsN = buttons.getComponentCount();
-                    if(buttonsN==4) {
-                        buttons.remove(buttons.getComponentCount()-1);
-                        buttons.remove(buttons.getComponentCount()-1);
-                        JButton validate = getValidateButtonFor(inceptionFields);
-                        JButton insert = getInsertButtonFor(inceptionFields, field, validate, msgList2, m);
-                        buttons.add(insert);
-                        buttons.add(validate);
-
+                if (msgBelongToComboBox(messagesComboBox, msg.getAbbrev())) {
+                    messagesComboBox.setSelectedItem(msg.getAbbrev());
+                    super.setMsg(msg);
+                    IMCFieldsPanel inceptionFields = new IMCFieldsPanel(IMCFieldsPanel.this, msg.getAbbrev(), msg);
+                    if (!isMsgList) {
+                        if (IMCFieldsPanel.this.inlineMsgs.containsKey(field)) {
+                            IMCFieldsPanel.this.inlineMsgs.remove(field);
+                        }
+                        IMCFieldsPanel.this.inlineMsgs.put(field, msg);
                     }
-                    newPanel.add(buttons, BorderLayout.SOUTH, -1);
-                    dg.setContentPane(newPanel);
-                    dg.repaint();
-                    dg.revalidate();
-                    System.err.println("dialog parent: "+dg.getParent()+" "+m.getAbbrev());
+                    else {
+                        if (IMCFieldsPanel.this.msgList.get(field) == null)
+                            IMCFieldsPanel.this.msgList.put(field, new ArrayList<IMCMessage>());
+                        else {
+                            boolean res = IMCFieldsPanel.this.msgList.get(field).remove(m);
+                            System.err.println("Removed "+m.getAbbrev()+" "+res);
+                        }
+                        IMCFieldsPanel.this.msgList.get(field).add(msg);
+                        String str =Arrays.toString(IMCFieldsPanel.this.msgList.get(field).toArray());
+                        System.err.println(str);
+                    }
+                    JPanel newPanel = inceptionFields.getContents();
+                    if (dg != null) {
+                        JPanel buttons = (JPanel) panelCeption.getComponent(panelCeption.getComponentCount() - 1);
+                        int buttonsN = buttons.getComponentCount();
+                        if (buttonsN == 4) {
+                            buttons.remove(buttons.getComponentCount() - 1);
+                            buttons.remove(buttons.getComponentCount() - 1);
+                            JButton validate = getValidateButtonFor(inceptionFields);
+                            JButton insert = getInsertButtonFor(inceptionFields, field, validate, isMsgList, msg);
+                            buttons.add(validate);
+                            buttons.add(insert);
+
+                        }
+                        newPanel.add(buttons, BorderLayout.SOUTH, -1);
+                        dg.setContentPane(newPanel);
+                        dg.revalidate();
+                        dg.repaint();
                 }
+            }
+        }
+
+            private boolean msgBelongToComboBox(JComboBox<String> messagesComboBox, String abbrev) {
+                for(int i=0;i<messagesComboBox.getItemCount();i++) {
+                    String msgName = messagesComboBox.getItemAt(i);
+                    if(msgName.equalsIgnoreCase(abbrev))
+                        return true;
+                }
+                return false;
             }
         };
         return msgCopyPastePanel;
@@ -770,7 +798,7 @@ public class IMCFieldsPanel {
                     JButton validate = getValidateButtonFor(inceptionFields);
                     JButton insert = getInsertButtonFor(inceptionFields, field, validate, msgList, m);
 
-                    ImcCopyPastePanel msgCopyPastePanel = getMsgCopyPastePanel(dg, panelCeption, field, m, msgList);
+                    ImcCopyPastePanel msgCopyPastePanel = getMsgCopyPastePanel(dg, panelCeption, field, init, msgList, messagesComboBox);
                     LocationCopyPastePanel locCopyPastePanel = getLocCopyPastPanel(inceptionFields, dg, panelCeption);
 
                     buttons.add(msgCopyPastePanel);
@@ -784,8 +812,7 @@ public class IMCFieldsPanel {
                     dg.setContentPane(panelCeption);
                     dg.setSize(500, 500);
                     dg.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-                    System.err.println("dialog parent: "+(dg==null)+" "+m==null);
-                    GuiUtils.centerParent(dg, (Window) dg.getParent());
+                    GuiUtils.centerParent(dg, SwingUtilities.getWindowAncestor(IMCFieldsPanel.this.getContents()));
                     dg.setVisible(true);
                 }
             }
@@ -838,10 +865,11 @@ public class IMCFieldsPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    inceptionFields.getImcMessage().validate();
+                    IMCMessage imcMessage = inceptionFields.getImcMessage();
+                    imcMessage.validate();
                     if (inceptionFields.parent != null)
                         JOptionPane.showMessageDialog(inceptionFields.parent.getContents(),
-                                "Message parsed successfully.", "Validate message", JOptionPane.INFORMATION_MESSAGE);
+                                "Message "+ imcMessage.getAbbrev() + " parsed successfully.", "Validate message", JOptionPane.INFORMATION_MESSAGE);
                 }
                 catch (Exception ex) {
                     ex.printStackTrace();
