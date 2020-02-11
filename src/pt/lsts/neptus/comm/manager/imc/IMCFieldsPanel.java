@@ -623,7 +623,7 @@ public class IMCFieldsPanel {
         return cp;
     }
 
-    private ImcCopyPastePanel getMsgCopyPastePanel(JDialog dg, JPanel panelCeption, String field, IMCMessage m, boolean isMsgList, JComboBox<String> messagesComboBox) {
+    private ImcCopyPastePanel getMsgCopyPastePanel(JDialog dg, JPanel panelCeption, String field, IMCMessage m, boolean isMsgList, JComboBox<String> messagesComboBox, JButton button) {
         ImcCopyPastePanel msgCopyPastePanel = new ImcCopyPastePanel() {
 
             @Override
@@ -656,6 +656,9 @@ public class IMCFieldsPanel {
                             System.err.println("Removed "+m.getAbbrev()+" "+res);
                         }
                         IMCFieldsPanel.this.msgList.get(field).add(msg);
+                        for(ActionListener l: button.getActionListeners())
+                            button.removeActionListener(l);
+                        button.addActionListener(getActionForMsg(field, messagesComboBox, isMsgList, msg));
                         String str =Arrays.toString(IMCFieldsPanel.this.msgList.get(field).toArray());
                         System.err.println(str);
                     }
@@ -788,6 +791,8 @@ public class IMCFieldsPanel {
                             }
                         }
                     }
+                    System.err.println("M: "+m);
+                    System.err.println("init: "+init.asJSON());
                     IMCFieldsPanel inceptionFields = new IMCFieldsPanel(IMCFieldsPanel.this, msgName, init);
                     JPanel panelCeption = inceptionFields.getContents();
                     IMCFieldsPanel.this.inlineMsgs.put(field, init);
@@ -798,7 +803,7 @@ public class IMCFieldsPanel {
                     JButton validate = getValidateButtonFor(inceptionFields);
                     JButton insert = getInsertButtonFor(inceptionFields, field, validate, msgList, m);
 
-                    ImcCopyPastePanel msgCopyPastePanel = getMsgCopyPastePanel(dg, panelCeption, field, init, msgList, messagesComboBox);
+                    ImcCopyPastePanel msgCopyPastePanel = getMsgCopyPastePanel(dg, panelCeption, field, init, msgList, messagesComboBox, (JButton) e.getSource());
                     LocationCopyPastePanel locCopyPastePanel = getLocCopyPastPanel(inceptionFields, dg, panelCeption);
 
                     buttons.add(msgCopyPastePanel);
@@ -905,30 +910,18 @@ public class IMCFieldsPanel {
                     inlineMsgPanel.setLayout(new BoxLayout(inlineMsgPanel, BoxLayout.Y_AXIS));
                     // dynamic insertion all over again
                     JComboBox<String> comboCeption = getMessageComboBox(field, true);
-                    JButton ediT = getEditButtonForMsg(field, mListComboBox, true, newMsg);
+                    JPanel c = (JPanel) inlineMsgPanel.getComponent(0);
                     JButton minus = new JButton("-");
+                    ActionListener removalAction = getRemovalAction(field, inlineMsgPanel, newMsg, c);
+                    JButton ediT = getEditButtonForMsg(field, mListComboBox, true, newMsg);
+                    minus.addActionListener(removalAction);
                     mais.removeActionListener(this);
                     mais.addActionListener(getMsgListAction(field, inlineMsgPanel, mais, comboCeption));
                     msgHolder.add(comboCeption);
                     msgHolder.add(mais);
-                    JPanel c = (JPanel) inlineMsgPanel.getComponent(0);
                     c.remove(mais);
                     c.add(ediT);
                     c.add(minus);
-                    minus.addActionListener(new ActionListener() {
-
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            inlineMsgPanel.remove(c);
-                            // TODO remove from msgList Map
-                            if (IMCFieldsPanel.this.msgList.get(field) != null) {
-                                IMCFieldsPanel.this.msgList.get(field).remove(newMsg);
-                            }
-                            inlineMsgPanel.revalidate();
-                            inlineMsgPanel.repaint();
-
-                        }
-                    });
                     mListComboBox.setEnabled(false);
                     // Add this message to Map
                     if (IMCFieldsPanel.this.msgList.get(field) == null)
@@ -946,6 +939,30 @@ public class IMCFieldsPanel {
         return action;
     }
 
+    /**
+     * Get Removal button for each message inserted into the message-list panel
+     * @param field
+     * @param inlineMsgPanel
+     * @param newMsg
+     * @param c
+     * @return
+     */
+    private ActionListener getRemovalAction(String field, JPanel inlineMsgPanel, IMCMessage newMsg, JPanel c) {
+        return new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                inlineMsgPanel.remove(c);
+                if (IMCFieldsPanel.this.msgList.get(field) != null) {
+                    IMCFieldsPanel.this.msgList.get(field).remove(newMsg);
+                }
+                inlineMsgPanel.revalidate();
+                inlineMsgPanel.repaint();
+
+            }
+        };
+    }
+    
     /**
      * @param msg
      * @return
