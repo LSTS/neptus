@@ -104,7 +104,7 @@ public class LocationCopyPastePanel extends JPanel {
 		if (btnCopy == null) {
 			btnCopy = new JButton();
 			btnCopy.setIcon(new ImageIcon(ImageUtils
-					.getImage("images/menus/editcopy.png")));
+					.getImage("images/menus/copyLocation.png")));
 			btnCopy.setMargin(new Insets(0, 0, 0, 0));
 			btnCopy.setToolTipText(I18n.text("Copy this location to the clipboard"));
 			btnCopy.addActionListener(new ActionListener() {
@@ -137,7 +137,7 @@ public class LocationCopyPastePanel extends JPanel {
 			btnPaste.setPreferredSize(new Dimension(20, 20));
 			btnPaste.setToolTipText(I18n.text("Paste location from clipboard"));
 			btnPaste.setIcon(new ImageIcon(ImageUtils
-					.getImage("images/menus/editpaste.png")));
+					.getImage("images/menus/pasteLocation.png")));
 			btnPaste.setMargin(new Insets(0, 0, 0, 0));
 			btnPaste.setEnabled(true);
 			btnPaste.addActionListener(new ActionListener() {
