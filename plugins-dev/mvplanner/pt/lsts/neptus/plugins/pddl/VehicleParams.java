@@ -99,7 +99,7 @@ public class VehicleParams {
         payloads.put("lauv-noptilus-2", new PayloadRequirement[] { PayloadRequirement.sidescan, 
                 PayloadRequirement.edgetech });
         payloads.put("lauv-noptilus-3", new PayloadRequirement[] { 
-                PayloadRequirement.multibeam, PayloadRequirement.camera });
+                PayloadRequirement.sidescan, PayloadRequirement.multibeam, PayloadRequirement.camera });
     }
     
     public static PayloadRequirement[] payloadsFor(VehicleType vehicle) {
