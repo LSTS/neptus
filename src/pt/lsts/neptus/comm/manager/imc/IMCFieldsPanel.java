@@ -654,7 +654,7 @@ private ImcCopyPastePanel getMsgCopyPastePanel(JDialog dg, JPanel panelCeption, 
                             IMCFieldsPanel.this.msgList.put(field, new ArrayList<IMCMessage>());
                         else {
                             index = IMCFieldsPanel.this.msgList.get(field).indexOf(m);
-//                            boolean res = IMCFieldsPanel.this.msgList.get(field).remove(m);
+                            IMCFieldsPanel.this.msgList.get(field).remove(m);
                         }
                         
                         if(index>=0)
