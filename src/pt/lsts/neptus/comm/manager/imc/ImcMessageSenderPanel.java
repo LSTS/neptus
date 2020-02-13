@@ -315,7 +315,7 @@ public class ImcMessageSenderPanel extends JPanel {
                 public void actionPerformed(ActionEvent e) {
                     String msgName = (String) messagesComboBox.getSelectedItem();
                     String msg = null;
-                    IMCMessage sMsg = messagesPool.get(msgName);
+                    IMCMessage sMsg = getOrCreateMessage(msgName);
                     if (sMsg != null) {
                         try {
                             sMsg.setTimestampMillis(System.currentTimeMillis());
