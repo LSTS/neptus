@@ -121,7 +121,7 @@ public class TileOpenStreetMap extends TileHttpFetcher {
 //            urlGet = "http://" + sv + "." + "tile.opencyclemap.org/cycle/" + levelOfDetail + "/"
 //                    + tileX + "/" + tileY + ".png";
 //        else
-        String urlGet = "http://" + sv + "." + "tile.openstreetmap.org/" + levelOfDetail + "/"
+        String urlGet = "http://" + sv + ".tile.openstreetmap.org/" + levelOfDetail + "/"
                     + tileX + "/" + tileY + ".png";
         
         return urlGet;

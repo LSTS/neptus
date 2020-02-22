@@ -32,6 +32,7 @@
  */
 package pt.lsts.neptus.renderer2d.tiles;
 
+import com.sun.imageio.plugins.png.PNGMetadata;
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Font;
@@ -39,17 +40,38 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.ImageTypeSpecifier;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.metadata.IIOMetadata;
+import javax.imageio.metadata.IIOMetadataNode;
+import javax.imageio.stream.ImageOutputStream;
 
+import org.apache.commons.io.FileUtils;
+
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.i18n.I18n;
@@ -78,7 +100,7 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
     
     protected static String TILE_BASE_CACHE_DIR;
     
-    {
+    static {
         if (new File("../" + ".cache/wmcache").exists())
             TILE_BASE_CACHE_DIR = "../" + ".cache/wmcache";
         else
@@ -86,6 +108,8 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
     }
     
     protected static final String TILE_FX_EXTENSION = "png";
+
+    static HashMap<String, HashMap<String, Long>> cacheExpiration = new HashMap<>();
     
     public static final long MILISECONDS_TO_TILE_MEM_REMOVAL = 20000;
     private static final int MILLIS_TO_NOT_TRY_LOAD_LOW_LEVEL_IMAGE = 30000;
@@ -103,6 +127,7 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
     public final int levelOfDetail;
     public final int tileX, tileY;
     public final int worldX, worldY;
+    public long expiration;
     protected BufferedImage image = null;
     protected boolean temporaryTransparencyDetectedOnImageOnDisk = false; //only for base layers
     private boolean showTileId = false;
@@ -114,7 +139,11 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
     
     private Timer timer = null; // new Timer(this.getClass().getSimpleName() + " [" + Integer.toHexString(this.hashCode()) + "]");
     private TimerTask timerTask = null;
-    
+
+    private static Timer saveTimer = new Timer("TileExpirationMapSaveTimer");
+    private static AtomicBoolean hasSaveTimer = new AtomicBoolean(false);
+    private static final long SAVE_INTERVAL = 120000; //2 minutes
+
     /**
      * @param levelOfDetail
      * @param tileX
@@ -391,8 +420,62 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
         tileCacheDiskClearOrTileSaveLock.readLock().lock();
         try {
             File outFile = new File(getTileFilePath());
-            outFile.mkdirs();
-            return ImageIO.write(image, TILE_FX_EXTENSION.toUpperCase(), outFile);
+            outFile.getParentFile().mkdirs();
+            outFile.createNewFile();
+            NeptusLog.pub().debug("Saving expiration date for tile: " + getId() + " from map: " + getClass().getSimpleName());
+            NeptusLog.pub().debug("expiration = " + new Date(expiration));
+
+
+            // https://docs.oracle.com/javase/8/docs/api/javax/imageio/metadata/doc-files/png_metadata.html
+            ImageWriter writer = ImageIO.getImageWritersByFormatName("png").next();
+
+            ImageWriteParam writeParam = writer.getDefaultWriteParam();
+            ImageTypeSpecifier typeSpecifier = ImageTypeSpecifier.createFromBufferedImageType(BufferedImage.TYPE_INT_RGB);
+
+            //adding metadata
+            IIOMetadata metadata = writer.getDefaultImageMetadata(typeSpecifier, writeParam);
+
+            IIOMetadataNode textEntry = new IIOMetadataNode("tEXtEntry");
+            textEntry.setAttribute("keyword", "expiration");
+            textEntry.setAttribute("value", Long.toString(expiration));
+
+            IIOMetadataNode text = new IIOMetadataNode("tEXt");
+            text.appendChild(textEntry);
+
+            IIOMetadataNode root = new IIOMetadataNode("javax_imageio_png_1.0");
+            root.appendChild(text);
+
+            metadata.mergeTree("javax_imageio_png_1.0", root);
+
+            //writing the data
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageOutputStream stream = ImageIO.createImageOutputStream(baos);
+            writer.setOutput(stream);
+            writer.write(metadata, new IIOImage(image, null, metadata), writeParam);
+            stream.close();
+
+            FileUtils.writeByteArrayToFile(outFile, baos.toByteArray());
+
+            HashMap<String, Long> currMapStyleCache = cacheExpiration.get(getClass().getAnnotation(MapTileProvider.class).name());
+            if(currMapStyleCache != null){
+                currMapStyleCache.put(id, expiration);
+            } else {
+                HashMap<String, Long> newMap = new HashMap<>();
+                newMap.put(id, expiration);
+                cacheExpiration.put(getClass().getAnnotation(MapTileProvider.class).name(), newMap);
+            }
+            if(!hasSaveTimer.get()) {
+                saveTimer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        saveCacheExpiration();
+                        hasSaveTimer.set(false);
+                    }
+                }, SAVE_INTERVAL);
+                hasSaveTimer.set(true);
+            }
+
+            return true;
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -415,12 +498,21 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
             if (image == null)
                 state = TileState.LOADING;
             File inFile = new File(getTileFilePath());
-            if (!inFile.exists()) {
-                lasErrorMessage = "Error loading tile from file not existing!";
-                if (image == null)
-                    state = TileState.ERROR;
-//                scheduleLoadImageFromLowerLevelOfDetail();
-                return false;
+
+            if(hasExpired()){
+                if (!inFile.exists()) {
+                    lasErrorMessage = "Error loading tile from file not existing!";
+                    if (image == null)
+                        state = TileState.ERROR;
+                    // scheduleLoadImageFromLowerLevelOfDetail();
+                    return false;
+                } else {
+                    NeptusLog.pub().debug("Checking file expiration");
+                    if(hasExpired(inFile)){
+                        state = TileState.ERROR;
+                        return false;
+                    }
+                }
             }
             
             BufferedImage img;
@@ -447,6 +539,115 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
         finally {
             tileCacheDiskClearOrTileSaveLock.readLock().unlock();
         }
+    }
+
+    private boolean hasExpired() {
+        HashMap<String, Long> currMapStyleCache = cacheExpiration.get(getClass().getAnnotation(MapTileProvider.class).name());
+        Long expiration = currMapStyleCache.get(id);
+        if(expiration != null) {
+            return expiration <= System.currentTimeMillis();
+        } else {
+            return true;
+        }
+    }
+
+    private boolean hasExpired(File inFile) throws IOException {
+        // https://docs.oracle.com/javase/8/docs/api/javax/imageio/metadata/doc-files/png_metadata.html
+        ImageReader imageReader = ImageIO.getImageReadersByFormatName("png").next();
+
+        imageReader.setInput(ImageIO.createImageInputStream(inFile), true);
+
+        // read metadata of first image
+        IIOMetadata metadata = imageReader.getImageMetadata(0);
+
+        // the PNG image reader already create a PNGMetadata Object
+        PNGMetadata pngmeta = (PNGMetadata) metadata;
+        NodeList childNodes = pngmeta.getStandardTextNode().getChildNodes();
+
+        for (int i = 0; i < childNodes.getLength(); i++) {
+            Node node = childNodes.item(i);
+            String keyword = node.getAttributes().getNamedItem("keyword").getNodeValue();
+            String value = node.getAttributes().getNamedItem("value").getNodeValue();
+            if("expiration".equals(keyword)){
+                try {
+                    expiration = Long.valueOf(value);
+
+                    // add new entry to cache map
+                    HashMap<String, Long> currMapStyleCache = cacheExpiration.get(getClass().getAnnotation(MapTileProvider.class).name());
+                    if(currMapStyleCache != null){
+                        currMapStyleCache.put(id, expiration);
+                    } else {
+                        HashMap<String, Long> newMap = new HashMap<>();
+                        newMap.put(id, expiration);
+                        cacheExpiration.put(getClass().getAnnotation(MapTileProvider.class).name(), newMap);
+                    }
+
+                    return expiration <= System.currentTimeMillis();
+                } catch (NumberFormatException e) {
+                    NeptusLog.pub().info(String.format("Could not load expiration metadata for map tile %s of style '%s'",
+                            id,
+                            getClass().getSimpleName()));
+                    return true;
+                }
+            }
+        }
+        return true;
+    }
+
+    public static void setCache(String mapKey, boolean state) {
+        if(state) {
+            cacheExpiration.put(mapKey,loadCacheExpiration(mapKey));
+        } else {
+            cacheExpiration.remove(mapKey);
+        }
+    }
+
+    private static HashMap<String, Long> loadCacheExpiration(String mapKey) {
+        NeptusLog.pub().info("Loading cache file for: " + mapKey);
+        File serFile = new File(TILE_BASE_CACHE_DIR + "/serializedCaches/" + mapKey);
+        if(!serFile.exists()) {
+            NeptusLog.pub().error(String.format("No cache expiration found at '%s'", serFile.getPath()));
+            return new HashMap<>();
+        }
+
+        try (FileInputStream fis = new FileInputStream(serFile);
+             ObjectInputStream ois = new ObjectInputStream(fis)) {
+            Object savedObject = ois.readObject();
+            if (savedObject instanceof HashMap){
+                return ((HashMap) savedObject);
+            } else {
+                throw new Exception("Saved Object is not instance of HashMap");
+            }
+        } catch(Exception e) {
+            NeptusLog.pub().error("An error occurred while saving cache expiration data");
+            e.printStackTrace();
+            return new HashMap<>();
+        }
+    }
+
+    private static void saveCacheExpiration() {
+        NeptusLog.pub().debug("Saving tile cache");
+        for (Map.Entry<String, HashMap<String, Long>> mapEntry : cacheExpiration.entrySet()) {
+            NeptusLog.pub().debug("Saving Map Style: " + mapEntry.getKey());
+            try {
+                File serFile = new File(TILE_BASE_CACHE_DIR + "/serializedCaches/" + mapEntry.getKey());
+                serFile.getParentFile().mkdirs();
+                serFile.createNewFile();
+                FileOutputStream fos = new FileOutputStream(serFile);
+                ObjectOutputStream oos = new ObjectOutputStream(fos);
+                oos.writeObject(mapEntry.getValue());
+                oos.close();
+                fos.close();
+            } catch(IOException ioe) {
+                NeptusLog.pub().error("An error occurred while saving cache expiration data for map style: " + mapEntry.getKey());
+                ioe.printStackTrace();
+            }
+        }
+    }
+
+    public static void cleanup() {
+        saveTimer.cancel();
+        saveCacheExpiration();
     }
 
     /**
