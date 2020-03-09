@@ -355,7 +355,7 @@ public class SystemProperty extends DefaultProperty implements PropertyChangeLis
             }
         }
         catch (Exception e) {
-            NeptusLog.pub().error(e.getMessage() + " :: valType='" + getValueType() + "' :: val='" + getValue()
+            NeptusLog.pub().error(e.getMessage() + " :: " + getName() + " :: valType='" + getValueType() + "' :: val='" + getValue()
                     + "' :: defaultVal='" + defaultValue + "'", e);
         }
     }
