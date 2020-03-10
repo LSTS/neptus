@@ -5,3 +5,4 @@
 
 pt.lsts.neptus.plugins.mjpeg.Viewer
 pt.lsts.neptus.plugins.mjpeg.VideoToPhotosFilter
+pt.lsts.neptus.plugins.mjpeg.VideoHudExporter
