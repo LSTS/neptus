@@ -78,7 +78,7 @@ public class VideoHudExporter implements MRAExporter {
     public VideoHudExporter(IMraLogGroup source) {
         this.positions = new CorrectedPosition(source);
         this.frameDecoder = new FrameDecoderMotionJPEG();    
-        hud = new MraVehiclePosHud(source, 150, 150);
+        hud = new MraVehiclePosHud(source, 180, 180);
     }
     
     @Override
@@ -161,7 +161,7 @@ public class VideoHudExporter implements MRAExporter {
             BufferedImage overlay = hud.getImage(frm.getTimeStamp()/1000.0);
             SystemPositionAndAttitude pose = positions.getPosition(frm.getTimeStamp() / 1000.0);
             Graphics2D g2d = (Graphics2D) img.getGraphics();
-            g2d.drawImage(overlay, 10, img.getHeight()-160, null);
+            g2d.drawImage(overlay, 10, 110, null);
             drawLegend(pose, g2d);
             time += (1000/frameDecoder.getFrameRate());
             creator.addFrame(img, time);
