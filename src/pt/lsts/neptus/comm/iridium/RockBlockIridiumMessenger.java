@@ -33,7 +33,6 @@
 package pt.lsts.neptus.comm.iridium;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -65,7 +64,6 @@ import javax.net.ssl.SSLContext;
 import javax.xml.bind.DatatypeConverter;
 
 import org.apache.commons.codec.binary.StringUtils;
-import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -101,7 +99,7 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
  * @see http://rockblock.rock7mobile.com/downloads/RockBLOCK-Web-Services-User-Guide.pdf
  * @author zp
  */
-@IridiumProvider(id="rock7", name="RockBlock Messenger", description="Sends Iridium messages directly via RockBlock web service and receives new messages by polling a gmail address")
+@IridiumProvider(id = "rock7", name = "RockBlock Messenger", description = "Sends Iridium messages directly via RockBlock web service and receives new messages by polling a gmail address")
 public class RockBlockIridiumMessenger implements IridiumMessenger {
 
     protected boolean available = true;
@@ -206,7 +204,7 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
             PluginUtils.saveProperties("conf/rockblock.props", this);
             askRockBlockPassword = false;
         }
-        
+
         String result = sendToRockBlockHttp(args.getImei(), getRockBlockUsername(), getRockBlockPassword(),
                 msg.serialize());
 
@@ -217,35 +215,50 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
         }
     }
 
-    static final SSLConnectionSocketFactory sslsf;
-    static final Registry<ConnectionSocketFactory> registry;
-    static final PoolingHttpClientConnectionManager cm;
-    
+    static SSLConnectionSocketFactory sslsf;
+    static Registry<ConnectionSocketFactory> registry;
+    static PoolingHttpClientConnectionManager cm;
+
     static {
-        
+        initconnections();
+    }
+
+    public static void initconnections() {
         try {
-            sslsf = new SSLConnectionSocketFactory(SSLContext.getDefault(),
-                    NoopHostnameVerifier.INSTANCE);
-        } catch (NoSuchAlgorithmException e) {
+            sslsf = new SSLConnectionSocketFactory(SSLContext.getDefault(), NoopHostnameVerifier.INSTANCE);
+        }
+        catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
 
-        registry = RegistryBuilder.<ConnectionSocketFactory>create()
-                .register("http", new PlainConnectionSocketFactory())
-                .register("https", sslsf)
-                .build();
+        registry = RegistryBuilder.<ConnectionSocketFactory> create()
+                .register("http", new PlainConnectionSocketFactory()).register("https", sslsf).build();
         cm = new PoolingHttpClientConnectionManager(registry);
         cm.setMaxTotal(100);
     }
-    
-    public static String sendToRockBlockHttp(String destImei, String username, String password, byte[] data)
-            throws HttpException, IOException {
 
-        CloseableHttpClient client = HttpClients.custom()
-                .setSSLSocketFactory(sslsf)
-                .setConnectionManager(cm)
-                .build();
-                
+    public static CloseableHttpClient createClient() throws Exception {
+        return createClient(true);
+    }
+    
+    public static CloseableHttpClient createClient(boolean retry) throws Exception {
+        try {
+            return HttpClients.custom().setSSLSocketFactory(sslsf).setConnectionManager(cm).build();
+        }
+        catch (Exception e) {
+            if (retry) {
+                e.printStackTrace();
+                initconnections();
+                return createClient(false);    
+            }
+            throw e;
+        }
+    }
+
+    public static String sendToRockBlockHttp(String destImei, String username, String password, byte[] data)
+            throws Exception {
+
+        CloseableHttpClient client = createClient();
 
         HttpPost post = new HttpPost("https://secure.rock7mobile.com/rockblock/MT");
         List<NameValuePair> urlParameters = new ArrayList<NameValuePair>();
@@ -253,8 +266,6 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
         urlParameters.add(new BasicNameValuePair("username", username));
         urlParameters.add(new BasicNameValuePair("password", password));
         urlParameters.add(new BasicNameValuePair("data", ByteUtil.encodeToHex(data)));
-        
-        
 
         post.setEntity(new UrlEncodedFormEntity(urlParameters));
         post.setHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -267,14 +278,14 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
         while ((line = rd.readLine()) != null) {
             result.append(line);
         }
-        
+
         try {
             client.close();
         }
         catch (Exception e) {
             e.printStackTrace();
         }
-        
+
         return result.toString();
     }
 
@@ -343,7 +354,7 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
         try {
             return IridiumMessage.deserialize(data);
         }
-        catch (Exception e){
+        catch (Exception e) {
             e.printStackTrace();
             return null;
         }
@@ -420,8 +431,8 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
             }
 
             @Override
-            public Boolean get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException,
-                    TimeoutException {
+            public Boolean get(long timeout, TimeUnit unit)
+                    throws InterruptedException, ExecutionException, TimeoutException {
                 while (result == null) {
                     Thread.sleep(100);
                     if (System.currentTimeMillis() - start > unit.toMillis(timeout))
@@ -441,10 +452,10 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
             }
         };
     }
-    
+
     @Override
     public String toString() {
-        return getName();                
+        return getName();
     }
 
     public static void main(String[] args) throws Exception {
