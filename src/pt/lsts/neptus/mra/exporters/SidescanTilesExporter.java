@@ -32,47 +32,39 @@
  */
 package pt.lsts.neptus.mra.exporters;
 
+import java.util.Date;
+
 import javax.swing.ProgressMonitor;
 
-import pt.lsts.neptus.mra.api.LsfTreeSet;
-import pt.lsts.neptus.mra.api.LsfTreeSet.LsfLog;
+import pt.lsts.neptus.mra.api.CorrectedPosition;
+import pt.lsts.neptus.mra.api.SidescanParser;
+import pt.lsts.neptus.mra.api.SidescanParserFactory;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
-import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.plugins.mjpeg.VideoHudExporter;
-import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.llf.LsfLogSource;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.util.llf.LogUtils;
 
 /**
  * @author zp
  *
  */
-public class BatchMraExporter {
-    
-    @SafeVarargs
-    public static void apply(Class<? extends MRAExporter>... exporters) {
-        LsfTreeSet lsfFiles = LsfTreeSet.selectFolders();
-        for (LsfLog log : lsfFiles) {
-            try {
-                LsfLogSource mraSource = new LsfLogSource(log.lsfSource, null);
-                for (Class<? extends MRAExporter> e : exporters) {
-                    MRAExporter exporter = e.getConstructor(IMraLogGroup.class).newInstance(mraSource);
-                    if (exporter.canBeApplied(mraSource)) {
-                        System.out.println("Applying  "+PluginUtils.getPluginName(e)+" to "+log.root);    
-                        ProgressMonitor pmon = new ProgressMonitor(null, "Processing "+log.root, "Processing "+log.root, 0, 1024);
-                        exporter.process(mraSource, pmon);    
-                        pmon.close();
-                    }    
-                }
-                mraSource.cleanup();
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }            
-        }
+@PluginDescription(name = "Sidescan Tiles Exporter")
+public class SidescanTilesExporter implements MRAExporter {
+
+    public SidescanTilesExporter(IMraLogGroup source) {
+        /* nothing to do */
     }
     
-    public static void main(String[] args) throws Exception {
-        GuiUtils.setLookAndFeelNimbus();
-        BatchMraExporter.apply(SidescanTilesExporter.class);
+    @Override
+    public boolean canBeApplied(IMraLogGroup source) {
+        return LogUtils.hasIMCSidescan(source) || SidescanParserFactory.existsSidescanParser(source);
     }
+
+    @Override
+    public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
+        SidescanParser ss = SidescanParserFactory.build(source);
+        new CorrectedPosition(source);
+        System.out.println(new Date(ss.firstPingTimestamp())+" --> "+new Date(ss.lastPingTimestamp()));
+        return "done.";
+    }
+
 }
