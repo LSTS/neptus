@@ -54,11 +54,9 @@ public class LsfTreeSet extends TreeSet<LsfLog> {
 
     private static final long serialVersionUID = 1L;
 
-    private LsfTreeSet() {        
-    }
-    
-    public LsfTreeSet(File root) {
-        addRecursively(root);
+    public LsfTreeSet(File... roots) {
+        for (File f : roots)
+        addRecursively(f);
     }
 
     public UnserializedMessage next() {

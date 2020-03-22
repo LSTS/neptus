@@ -38,7 +38,6 @@ import pt.lsts.neptus.mra.api.LsfTreeSet;
 import pt.lsts.neptus.mra.api.LsfTreeSet.LsfLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.plugins.mjpeg.VideoHudExporter;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.llf.LsfLogSource;
 
@@ -51,6 +50,11 @@ public class BatchMraExporter {
     @SafeVarargs
     public static void apply(Class<? extends MRAExporter>... exporters) {
         LsfTreeSet lsfFiles = LsfTreeSet.selectFolders();
+        apply(lsfFiles, exporters);
+    }
+    
+    @SafeVarargs
+    public static void apply(LsfTreeSet lsfFiles, Class<? extends MRAExporter>... exporters) {
         for (LsfLog log : lsfFiles) {
             try {
                 LsfLogSource mraSource = new LsfLogSource(log.lsfSource, null);
@@ -70,6 +74,7 @@ public class BatchMraExporter {
             }            
         }
     }
+    
     
     public static void main(String[] args) throws Exception {
         GuiUtils.setLookAndFeelNimbus();
