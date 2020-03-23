@@ -58,8 +58,8 @@ import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.bathymetry.TideDataFetcher;
-import pt.lsts.neptus.util.bathymetry.TideDataFetcher.Harbor;
+import pt.lsts.neptus.util.bathymetry.TidePredictionFactory;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 import pt.lsts.neptus.util.llf.LogUtils;
 import pt.lsts.neptus.util.sidescan.SlantRangeImageFilter;
 
@@ -92,9 +92,10 @@ public class SidescanTilesExporter implements MRAExporter {
     public boolean separateCells = true;
     
     @NeptusProperty
-    public TideDataFetcher.Harbor tideStation = Harbor.VianaDoCastelo;
+    public File tidesFile = GeneralPreferences.tidesFile;
     
-    SidescanParameters params = new SidescanParameters(normalization, timeVariableGain);
+    
+    private SidescanParameters params = new SidescanParameters(normalization, timeVariableGain);
 
     public SidescanTilesExporter(IMraLogGroup source) {
         /* nothing to do */
@@ -109,6 +110,8 @@ public class SidescanTilesExporter implements MRAExporter {
     @Override
     public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
         SidescanParser ss = SidescanParserFactory.build(source);
+        
+        
         
         int yCount = 1;
         if (ss.getSubsystemList().isEmpty())
@@ -135,7 +138,7 @@ public class SidescanTilesExporter implements MRAExporter {
         
         try {
             writer = new BufferedWriter(new FileWriter(new File(out, "cells.csv")));  
-            writer.write("filename,time,frequency,range,latitude,longitude,depth,speed");
+            writer.write("filename,time,frequency,range,latitude,longitude,tide,depth,speed");
         }
         catch (Exception e) {
             NeptusLog.pub().error(e);
@@ -160,6 +163,7 @@ public class SidescanTilesExporter implements MRAExporter {
             SidescanLine pivot = lines.get(cellSize/2);
             int imgWidth = pivot.getData().length;
             
+            double tideLevel = TidePredictionFactory.getTideLevel(pivot.getTimestampMillis());
             
             // create an image that will to store the sidescan data from these lines  
             BufferedImage img = new BufferedImage(imgWidth, cellSize, BufferedImage.TYPE_INT_RGB);
@@ -197,12 +201,15 @@ public class SidescanTilesExporter implements MRAExporter {
                     File file = new File(out, String.format("t%03d_%02d", yCount, xCount) + ".png");
                     if (separateCells) {
                         BufferedImage cell = new BufferedImage(cellSize, cellSize, BufferedImage.TYPE_INT_RGB);
-                        cell.getGraphics().drawImage(img, 0, 0, cellSize-1, cellSize-1, px, 0, px+cellSize, cellSize-1, null);
+                        if (px > imgWidth/2)
+                            cell.getGraphics().drawImage(img, 0, 0, cellSize-1, cellSize-1, px, 0, px+cellSize, cellSize-1, null);
+                        else
+                            cell.getGraphics().drawImage(img, 0, 0, cellSize-1, cellSize-1, px+cellSize, 0, px, cellSize-1, null);
                         ImageIO.write(cell, "PNG", file);                            
                     }
                     LocationType loc = pivot.calcPointFromIndex(px+imgWidth/2, true).location;
                     
-                    String text = String.format("t%03d_%02d", yCount, xCount)+","+pivot.getTimestampMillis()+","+pivot.getFrequency()+","+pivot.getRange()+","+loc.getLatitudeDegs()+","+loc.getLongitudeDegs()+","+avgDepth+","+avgSpeed; 
+                    String text = String.format("t%03d_%02d", yCount, xCount)+","+pivot.getTimestampMillis()+","+pivot.getFrequency()+","+pivot.getRange()+","+loc.getLatitudeDegs()+","+loc.getLongitudeDegs()+","+tideLevel+","+avgDepth+","+avgSpeed; 
                     writer.write(text+"\n");
                     System.out.println(text);                    
                 }
@@ -234,7 +241,8 @@ public class SidescanTilesExporter implements MRAExporter {
     }
 
     public static void main(String[] args) {
-        GuiUtils.setLookAndFeelNimbus();
+        GeneralPreferences.initialize();
+        GuiUtils.setLookAndFeelNimbus();        
         BatchMraExporter.apply(SidescanTilesExporter.class);
     }
 
