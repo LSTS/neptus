@@ -34,6 +34,7 @@ package pt.lsts.neptus.mra.exporters;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -49,6 +50,7 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mra.api.LsfTreeSet;
 import pt.lsts.neptus.mra.api.SidescanLine;
 import pt.lsts.neptus.mra.api.SidescanParameters;
 import pt.lsts.neptus.mra.api.SidescanParser;
@@ -80,13 +82,13 @@ public class SidescanTilesExporter implements MRAExporter {
     public boolean slantRangeCorrection = false;
 
     @NeptusProperty
-    ColorMap cmap = ColorMapFactory.createBronzeColormap();
+    ColorMap cmap = ColorMapFactory.createGrayScaleColorMap();
 
     @NeptusProperty
     public int frequencyIndex = 0;
 
     @NeptusProperty
-    public int cellSize = 64;
+    public int cellSize = 50;
     
     @NeptusProperty
     public boolean separateCells = true;
@@ -138,7 +140,7 @@ public class SidescanTilesExporter implements MRAExporter {
         
         try {
             writer = new BufferedWriter(new FileWriter(new File(out, "cells.csv")));  
-            writer.write("filename,time,frequency,range,latitude,longitude,tide,depth,speed");
+            writer.write("filename,time,frequency,range,latitude,longitude,depth,distance,speed\n");
         }
         catch (Exception e) {
             NeptusLog.pub().error(e);
@@ -182,8 +184,14 @@ public class SidescanTilesExporter implements MRAExporter {
 
             if (avgSpeed < 0.8)
                 continue;
-            if (imgWidth > 2000)
-                img = Scalr.resize(img, 2000, cellSize);
+            if (imgWidth > 2000) {
+                BufferedImage copy = new BufferedImage(2000, cellSize, BufferedImage.TYPE_INT_RGB);
+                Graphics2D g2d = (Graphics2D)copy.getGraphics();
+                g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+                g2d.drawImage(img, 0, 0, 2000-1, cellSize-1, 0, 0, img.getWidth()-1, img.getHeight()-1, null);
+                img = copy;
+            }
+                
             imgWidth = img.getWidth();
             
             // optionally apply slant range correction to the image
@@ -208,8 +216,8 @@ public class SidescanTilesExporter implements MRAExporter {
                         ImageIO.write(cell, "PNG", file);                            
                     }
                     LocationType loc = pivot.calcPointFromIndex(px+imgWidth/2, true).location;
-                    
-                    String text = String.format("t%03d_%02d", yCount, xCount)+","+pivot.getTimestampMillis()+","+pivot.getFrequency()+","+pivot.getRange()+","+loc.getLatitudeDegs()+","+loc.getLongitudeDegs()+","+tideLevel+","+avgDepth+","+avgSpeed; 
+                    float distance = Math.abs((px + cellSize/2f) - imgWidth/2.0f) * (pivot.getRange()/(float)imgWidth);
+                    String text = String.format("t%03d_%02d", yCount, xCount)+","+pivot.getTimestampMillis()+","+pivot.getFrequency()+","+pivot.getRange()+","+loc.getLatitudeDegs()+","+loc.getLongitudeDegs()+","+(tideLevel+avgDepth)+","+distance+","+avgSpeed; 
                     writer.write(text+"\n");
                     System.out.println(text);                    
                 }
@@ -242,8 +250,10 @@ public class SidescanTilesExporter implements MRAExporter {
 
     public static void main(String[] args) {
         GeneralPreferences.initialize();
-        GuiUtils.setLookAndFeelNimbus();        
-        BatchMraExporter.apply(SidescanTilesExporter.class);
+        GuiUtils.setLookAndFeelNimbus();
+        LsfTreeSet sampleSSS = new LsfTreeSet(new File("/media/zp/5e169b60-ba8d-47db-b25d-9048fe40eed1/OMARE/SampleSSS"));
+        
+        BatchMraExporter.apply(sampleSSS, SidescanTilesExporter.class);
     }
 
 }
