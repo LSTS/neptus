@@ -38,7 +38,6 @@ import pt.lsts.neptus.mra.api.LsfTreeSet;
 import pt.lsts.neptus.mra.api.LsfTreeSet.LsfLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.llf.LsfLogSource;
 
 /**
@@ -73,11 +72,5 @@ public class BatchMraExporter {
                 e.printStackTrace();
             }            
         }
-    }
-    
-    
-    public static void main(String[] args) throws Exception {
-        GuiUtils.setLookAndFeelNimbus();
-        BatchMraExporter.apply(SidescanTilesExporter.class);
     }
 }
