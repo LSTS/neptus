@@ -178,7 +178,7 @@
 	<classpathentry kind="lib" path="plugins-dev/odss/lib/rabbitmq-client.jar"/>
 	<classpathentry kind="lib" path="lib/gson-2.2.2.jar"/>
 	<classpathentry kind="lib" path="lib/wms.jar"/>
-	<classpathentry kind="lib" path="lib/netcdfAll-4.6.10.jar"/>
+	<classpathentry kind="lib" path="lib/netcdfAll-5.2.0.jar"/>
 	<classpathentry kind="lib" path="lib/imgscalr-lib-4.2.jar"/>
 	<classpathentry kind="lib" path="lib/xuggle-xuggler-5.4.jar"/>
 	<classpathentry kind="lib" path="lib/jh_image_filters.jar"/>
