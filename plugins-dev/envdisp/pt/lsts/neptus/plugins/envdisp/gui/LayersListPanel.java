@@ -39,7 +39,9 @@ import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -49,6 +51,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -57,6 +61,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
@@ -66,6 +71,8 @@ import javax.swing.SwingWorker;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
+import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.io.FileUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
@@ -87,6 +94,7 @@ import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.envdisp.loader.NetCDFLoader;
+import pt.lsts.neptus.plugins.envdisp.loader.XyzLoader;
 import pt.lsts.neptus.plugins.envdisp.painter.GenericNetCDFDataPainter;
 import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.FileUtil;
@@ -113,6 +121,12 @@ public class LayersListPanel extends JPanel implements PropertiesProvider, Confi
         DOWN
     }
 
+    enum DataFileTypeEnum {
+        UNKNOWN,
+        NETCDF,
+        XYZ
+    }
+    
     private Date dateLimit = null;
     @NeptusProperty(name = "Lat min", userLevel = LEVEL.REGULAR)
     private double latDegMin = -90;
@@ -286,57 +300,18 @@ public class LayersListPanel extends JPanel implements PropertiesProvider, Confi
                 setBusy(true);
                 
                 for (File fx : fxList) {
-                    try {
-                        NetcdfFile dataFile = NetcdfFile.open(fx.getPath());
-                        
-                        Variable choiceVarOpt = NetCDFLoader.showChooseVar(fx.getName(), dataFile, parentWindow);
-                        if (choiceVarOpt != null) {
-                            Future<GenericNetCDFDataPainter> fTask = NetCDFLoader.loadNetCDFPainterFor(fx.getPath(),
-                                    dataFile, choiceVarOpt.getShortName(), plotCounter.getAndIncrement(), dateLimit,
-                                    new Pair<Double, Double>(latDegMin, latDegMax),
-                                    new Pair<Double, Double>(lonDegMin, lonDegMax),
-                                    new Pair<Double, Double>(depthMin, depthMax));
-                            SwingWorker<GenericNetCDFDataPainter, Void> sw = new SwingWorker<GenericNetCDFDataPainter, Void>() {
-                                @Override
-                                protected GenericNetCDFDataPainter doInBackground() throws Exception {
-                                    return fTask.get();
-                                }
-                                
-                                @Override
-                                protected void done() {
-                                    try {
-                                        GenericNetCDFDataPainter viz = get();
-                                        if (viz != null) {
-                                            // PluginUtils.editPluginProperties(viz, parentWindow, true);
-                                            addVisualizationLayer(viz);
-                                        }
-                                    }
-                                    catch (Exception e) {
-                                        NeptusLog.pub().error(e.getMessage(), e);
-                                        GuiUtils.errorMessage(parentWindow,
-                                                I18n.textf("Loading netCDF variable %s", choiceVarOpt.getShortName()),
-                                                e.getMessage());
-                                    }
-                                    NetCDFLoader.deleteNetCDFUnzippedFile(fx);
-                                    source.setEnabled(true);
-                                    setBusy(false);
-                                }
-                            };
-                            sw.execute();
-                        }
-                        else {
+                    DataFileTypeEnum dataFileType = findDataFileType(fx);
+                    switch (dataFileType) {
+                        case NETCDF:
+                            openNetCdfFileWorker(source, fx);
+                            break;
+                        case XYZ:
+                            openXyzFileWorker(source, fx);
+                            break;
+                        default:
                             source.setEnabled(true);
-                            NetCDFLoader.deleteNetCDFUnzippedFile(fx);
                             setBusy(false);
-                        }
-                        
-                        recentFolder = fx;
-                    }
-                    catch (Exception e1) {
-                        e1.printStackTrace();
-                        source.setEnabled(true);
-                        NetCDFLoader.deleteNetCDFUnzippedFile(fx);
-                        setBusy(false);
+                            break;
                     }
                 }
             }
@@ -500,6 +475,154 @@ public class LayersListPanel extends JPanel implements PropertiesProvider, Confi
                 }
             }
         }; 
+    }
+
+    /**
+     * @param fx
+     * @return
+     */
+    private DataFileTypeEnum findDataFileType(File fx) {
+        Pattern pat = Pattern.compile(NetCDFLoader.NETCDF_FILE_PATTERN);
+        Matcher m = pat.matcher(fx.getName());
+        if (m.find())
+            return DataFileTypeEnum.NETCDF;
+
+        pat = Pattern.compile(XyzLoader.XYZ_FILE_PATTERN);
+        m = pat.matcher(fx.getName());
+        if (m.find())
+            return DataFileTypeEnum.XYZ;
+
+        return DataFileTypeEnum.UNKNOWN;
+    }
+
+    /**
+     * @param source
+     * @param fx
+     */
+    private void openNetCdfFileWorker(JButton source, File fx) {
+        try {
+            NetcdfFile dataFile = NetcdfFile.open(fx.getPath());
+            
+            Variable choiceVarOpt = NetCDFLoader.showChooseVar(fx.getName(), dataFile, parentWindow);
+            if (choiceVarOpt != null) {
+                Future<GenericNetCDFDataPainter> fTask = NetCDFLoader.loadNetCDFPainterFor(fx.getPath(),
+                        dataFile, choiceVarOpt.getShortName(), plotCounter.getAndIncrement(), dateLimit,
+                        new Pair<Double, Double>(latDegMin, latDegMax),
+                        new Pair<Double, Double>(lonDegMin, lonDegMax),
+                        new Pair<Double, Double>(depthMin, depthMax));
+                SwingWorker<GenericNetCDFDataPainter, Void> sw = new SwingWorker<GenericNetCDFDataPainter, Void>() {
+                    @Override
+                    protected GenericNetCDFDataPainter doInBackground() throws Exception {
+                        return fTask.get();
+                    }
+                    
+                    @Override
+                    protected void done() {
+                        try {
+                            GenericNetCDFDataPainter viz = get();
+                            if (viz != null) {
+                                // PluginUtils.editPluginProperties(viz, parentWindow, true);
+                                addVisualizationLayer(viz);
+                            }
+                        }
+                        catch (Exception e) {
+                            NeptusLog.pub().error(e.getMessage(), e);
+                            GuiUtils.errorMessage(parentWindow,
+                                    I18n.textf("Loading netCDF variable %s", choiceVarOpt.getShortName()),
+                                    e.getMessage());
+                        }
+                        NetCDFLoader.deleteNetCDFUnzippedFile(fx);
+                        source.setEnabled(true);
+                        setBusy(false);
+                    }
+                };
+                sw.execute();
+            }
+            else {
+                source.setEnabled(true);
+                NetCDFLoader.deleteNetCDFUnzippedFile(fx);
+                setBusy(false);
+            }
+            
+            recentFolder = fx;
+        }
+        catch (Exception e1) {
+            e1.printStackTrace();
+            source.setEnabled(true);
+            NetCDFLoader.deleteNetCDFUnzippedFile(fx);
+            setBusy(false);
+        }
+    }
+
+    private void openXyzFileWorker(JButton source, File fx) {
+        try {
+            InputStream dataStream;
+            if (fx.getPath().toLowerCase().endsWith(".xyz"))
+                dataStream = new FileInputStream(fx);
+            else if (fx.getPath().toLowerCase().endsWith(".gz"))
+                dataStream = new GzipCompressorInputStream(new FileInputStream(fx), true);
+            else if (fx.getPath().toLowerCase().endsWith(".bz2"))
+                dataStream = new BZip2CompressorInputStream(new FileInputStream(fx), true);
+            else {
+                source.setEnabled(true);
+                setBusy(false);
+                return;
+            }
+            
+            String[] optionsStrs = new String[] {"Lon / Lat / Z", "Lat / Lon / Z"};
+            Object ret = JOptionPane.showInputDialog(source, I18n.text("Choose variables ordering"), I18n.text("Choose"), 
+                    JOptionPane.QUESTION_MESSAGE, null, 
+                    optionsStrs, optionsStrs[0]);
+            if (ret == null) {
+                source.setEnabled(true);
+                setBusy(false);
+                dataStream.close();
+                return;
+            }
+            
+            boolean lonLatZOrder = true;
+            if (!optionsStrs[0].equals(ret))
+                lonLatZOrder = false;
+            
+            Future<GenericNetCDFDataPainter> fTask = XyzLoader.loadXyzPainterFor(fx.getPath(),
+                    dataStream, "z", lonLatZOrder, plotCounter.getAndIncrement(), dateLimit,
+                    new Pair<Double, Double>(latDegMin, latDegMax),
+                    new Pair<Double, Double>(lonDegMin, lonDegMax),
+                    new Pair<Double, Double>(depthMin, depthMax));
+            SwingWorker<GenericNetCDFDataPainter, Void> sw = new SwingWorker<GenericNetCDFDataPainter, Void>() {
+                @Override
+                protected GenericNetCDFDataPainter doInBackground() throws Exception {
+                    return fTask.get();
+                }
+                
+                @Override
+                protected void done() {
+                    try {
+                        GenericNetCDFDataPainter viz = get();
+                        if (viz != null) {
+                            // PluginUtils.editPluginProperties(viz, parentWindow, true);
+                            addVisualizationLayer(viz);
+                        }
+                    }
+                    catch (Exception e) {
+                        NeptusLog.pub().error(e.getMessage(), e);
+                        GuiUtils.errorMessage(parentWindow,
+                                I18n.textf("Loading XYZ variable %s", ret),
+                                e.getMessage());
+                    }
+                    source.setEnabled(true);
+                    setBusy(false);
+                }
+            };
+            sw.execute();
+            
+            recentFolder = fx;
+        }
+        catch (Exception e1) {
+            e1.printStackTrace();
+            source.setEnabled(true);
+            setBusy(false);
+        }
     }
 
     private void setBusy(boolean busy) {

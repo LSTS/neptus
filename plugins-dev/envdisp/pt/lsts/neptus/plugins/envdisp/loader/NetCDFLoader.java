@@ -798,7 +798,7 @@ public class NetCDFLoader {
         final JFileChooser chooser = new JFileChooser();
         chooser.setFileView(new NeptusFileView());
         chooser.setCurrentDirectory(recentFolder);
-        chooser.setFileFilter(GuiUtils.getCustomFileFilter(I18n.text("netCDF files"), "nc", "nc.gz"));
+        chooser.setFileFilter(GuiUtils.getCustomFileFilter(I18n.text("netCDF or XYZ files"), "nc", "nc.gz", "xyz", "xyz.gz"));
         chooser.setApproveButtonText(I18n.text("Open file"));
         chooser.setMultiSelectionEnabled(true);
         chooser.showOpenDialog(parentWindow);

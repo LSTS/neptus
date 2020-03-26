@@ -770,7 +770,7 @@ public class EnvDataPaintHelper {
                                     return -1;
                                 else
                                     return 1;
-                            }).get();
+                            }).orElse(dp);
                             GenericDataPoint minDateDp = (GenericDataPoint) dp.getHistoricalData().stream().min((p1, p2) -> { 
                                 if (p1.getDateUTC() != null && p2.getDateUTC() != null)
                                     return p1.getDateUTC().compareTo(p2.getDateUTC());
@@ -778,12 +778,12 @@ public class EnvDataPaintHelper {
                                     return -1;
                                 else
                                     return 1;
-                            }).get();
+                            }).orElse(dp);
                             
                             Date minDate = dateLimits.first();
                             Date maxDate = dateLimits.second();
-                            if (minDateDp.getDateUTC().compareTo(maxDate) <= 0
-                                    && maxDateDp.getDateUTC().compareTo(minDate) >= 0)
+                            if ((minDateDp.getDateUTC() == null || minDateDp.getDateUTC().compareTo(maxDate) <= 0)
+                                    && (maxDateDp.getDateUTC() == null || maxDateDp.getDateUTC().compareTo(minDate) >= 0))
                                 dateOk = true;
                             else
                                 dateOk = false;
