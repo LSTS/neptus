@@ -544,14 +544,19 @@ public class NetCDFLoader {
                         }
 
                         ArrayList<GenericDataPoint> lst = dpo.getHistoricalData();
-                        boolean alreadyIn = false;
-                        for (GenericDataPoint tmpDp : lst) {
+//                        boolean alreadyIn = false;
+//                        for (GenericDataPoint tmpDp : lst) {
+//                            // Check also depth and see if no time
+//                            if (tmpDp.getDateUTC().equals(dp.getDateUTC()) && tmpDp.getDepth() == dp.getDepth()) {
+//                                alreadyIn = true;
+//                                break;
+//                            }
+//                        }
+                        boolean alreadyIn = lst.parallelStream().anyMatch((tmpDp) -> {
                             // Check also depth and see if no time
-                            if (tmpDp.getDateUTC().equals(dp.getDateUTC()) && tmpDp.getDepth() == dp.getDepth()) {
-                                alreadyIn = true;
-                                break;
-                            }
-                        }
+                            return (tmpDp.getDateUTC().equals(dp.getDateUTC()) && tmpDp.getDepth() == dp.getDepth());
+                        });
+                        
                         if (!alreadyIn)
                             dpo.getHistoricalData().add(dp);
 
