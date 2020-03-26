@@ -36,6 +36,8 @@ import java.awt.Window;
 import java.io.File;
 import java.io.IOException;
 import java.text.Collator;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -69,6 +71,7 @@ import pt.lsts.neptus.plugins.envdisp.datapoints.GenericDataPoint.Info.ScalarOrL
 import pt.lsts.neptus.plugins.envdisp.datapoints.GenericDataPoint.Type;
 import pt.lsts.neptus.plugins.envdisp.painter.GenericNetCDFDataPainter;
 import pt.lsts.neptus.util.AngleUtils;
+import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.StringUtils;
 import pt.lsts.neptus.util.netcdf.NetCDFUnitsUtils;
@@ -325,6 +328,8 @@ public class NetCDFLoader {
                     Double.MAX_VALUE);
           
             // Let us process
+            Instant timeStart = Instant.now();
+            NeptusLog.pub().warn(String.format("Start processing metadata for %s.", varName));
             try {
                 double varFillValue = NetCDFUtils.findFillValue(vVar);
                 Pair<Double, Double> varValidRange = NetCDFUtils.findValidRange(vVar);
@@ -398,10 +403,16 @@ public class NetCDFLoader {
                 if (depthCollumsIndexMap.values().stream().anyMatch(i -> i < 0))
                     depthCollumsIndexMap.clear();
 
+                Instant timeFinish = Instant.now();
+                long timeElapsed = Duration.between(timeStart, timeFinish).toMillis();
+                NeptusLog.pub().warn(String.format("End processing metadata for %s (took %s).", varName,
+                        DateTimeUtil.milliSecondsToFormatedString(timeElapsed)));
+                NeptusLog.pub().warn(String.format("Start processing values for %s.", varName));
+
                 do {
                     Date dateValue = null;
                     Date[] timeVals = !timeCollumsIndexMap.isEmpty()
-                            ? NetCDFUtils.getTimeValues(timeArray, buildConterFrom(counter, timeCollumsIndexMap),
+                            ? NetCDFUtils.getTimeValues(timeArray, buildCounterFrom(counter, timeCollumsIndexMap),
                                     timeMultiplier, timeOffset, fromDate, toDate, ignoreDateLimitToLoad, dateLimit)
                             : null;
                     
@@ -556,6 +567,12 @@ public class NetCDFLoader {
             catch (Exception e) {
                 e.printStackTrace();
             }
+            finally {
+                Instant timeFinish = Instant.now();
+                long timeElapsed = Duration.between(timeStart, timeFinish).toMillis();
+                NeptusLog.pub().warn(String.format("End processing %s (took %s).", varName,
+                        DateTimeUtil.milliSecondsToFormatedString(timeElapsed)));
+            }
 
             // Gradient calculation
             if (minGradient.doubleValue() < Double.MAX_VALUE && maxGradient.doubleValue() > Double.MIN_VALUE) {
@@ -639,7 +656,7 @@ public class NetCDFLoader {
      * @return
      */
     private static Index buildIndexFrom(Array varArray, int[] counter, Map<String, Integer> collumsIndexMap) {
-        int[] idxCounter = buildConterFrom(counter, collumsIndexMap);
+        int[] idxCounter = buildCounterFrom(counter, collumsIndexMap);
         Index ret = varArray.getIndex();
         ret.set(idxCounter);
         return ret;
@@ -650,7 +667,7 @@ public class NetCDFLoader {
      * @param collumsIndexMap
      * @return
      */
-    private static int[] buildConterFrom(int[] counter, Map<String, Integer> collumsIndexMap) {
+    private static int[] buildCounterFrom(int[] counter, Map<String, Integer> collumsIndexMap) {
         int[] ret = new int[collumsIndexMap.size()];
         Iterator<Integer> ci = collumsIndexMap.values().iterator();
         for (int i = 0; i < ret.length; i++)
