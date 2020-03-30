@@ -40,17 +40,25 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.swing.ProgressMonitor;
 
+import org.geojson.Feature;
+import org.geojson.FeatureCollection;
+import org.geojson.GeoJsonObject;
+import org.geojson.LngLatAlt;
+import org.geojson.Polygon;
 import org.imgscalr.Scalr;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.io.Files;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.mra.api.LsfTreeSet;
 import pt.lsts.neptus.mra.api.SidescanLine;
 import pt.lsts.neptus.mra.api.SidescanParameters;
 import pt.lsts.neptus.mra.api.SidescanParser;
@@ -59,6 +67,7 @@ import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.coord.PolygonType;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.bathymetry.TidePredictionFactory;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
@@ -79,7 +88,7 @@ public class SidescanTilesExporter implements MRAExporter {
     public double normalization = 0.2;
 
     @NeptusProperty
-    public boolean slantRangeCorrection = false;
+    public boolean slantRangeCorrection = true;
 
     @NeptusProperty
     ColorMap cmap = ColorMapFactory.createGrayScaleColorMap();
@@ -88,7 +97,7 @@ public class SidescanTilesExporter implements MRAExporter {
     public int frequencyIndex = 0;
 
     @NeptusProperty
-    public int cellSize = 50;
+    public int cellSize = 64;
     
     @NeptusProperty
     public boolean separateCells = true;
@@ -96,6 +105,12 @@ public class SidescanTilesExporter implements MRAExporter {
     @NeptusProperty
     public File tidesFile = GeneralPreferences.tidesFile;
     
+    @NeptusProperty(description = "GeoJson file with polygons denoting sand and rock for training")
+    public File classificationFile = new File("/home/zp/Desktop/xt2-training.geojson");    
+    
+    private ArrayList<PolygonType> sandPolygons = new ArrayList<PolygonType>();
+    private ArrayList<PolygonType> rockPolygons = new ArrayList<PolygonType>();
+    private boolean doTraining = false;
     
     private SidescanParameters params = new SidescanParameters(normalization, timeVariableGain);
 
@@ -107,14 +122,64 @@ public class SidescanTilesExporter implements MRAExporter {
     public boolean canBeApplied(IMraLogGroup source) {
         return LogUtils.hasIMCSidescan(source) || SidescanParserFactory.existsSidescanParser(source);
     }
+    
+    public void loadGeoJsonPolygons(File f) throws Exception {
+        FeatureCollection features = new ObjectMapper().readValue(Files.toByteArray(f), FeatureCollection.class);
+        for (Feature feature : features.getFeatures()) {
+            GeoJsonObject obj = feature.getGeometry();
+            
+            if (obj instanceof Polygon) {
+                String type = ""+feature.getProperties().get("TYPE");
+                Polygon polygon = (Polygon)obj;
+                PolygonType ptype = new PolygonType();
+                for (List<LngLatAlt> pts : polygon.getCoordinates())
+                    for (LngLatAlt pt : pts)
+                        ptype.addVertex(0, new LocationType(pt.getLatitude(), pt.getLongitude()));                    
+                
+                if (type.toLowerCase().contains("sand"))
+                    sandPolygons.add(ptype);
+                if (type.toLowerCase().contains("rock"))
+                    rockPolygons.add(ptype);                            
+            }
+        }
+        
+        System.out.println("Loaded "+sandPolygons.size()+" sand polygons and "+rockPolygons+" rock polygons.");
+    }
+    
+    
+    boolean isContained(LocationType location, ArrayList<PolygonType> polygons) {
+        if (polygons.isEmpty())
+            return false;
+        for (PolygonType poly : polygons) {
+            
+            if (poly.containsPoint(location))
+                return true;
+        }        
+        return false;
+    }
+    
+    boolean isSand(LocationType location) {
+       return isContained(location, sandPolygons);
+    }
+    
+    boolean isRock(LocationType location) {
+        return isContained(location, rockPolygons); 
+    }
 
     @SuppressWarnings("resource")
     @Override
     public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
         SidescanParser ss = SidescanParserFactory.build(source);
-        
-        
-        
+        if (classificationFile.canRead()) {
+            try {
+                loadGeoJsonPolygons(classificationFile);    
+                doTraining = true;
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(e);
+                return e.getMessage();
+            }            
+        }
         int yCount = 1;
         if (ss.getSubsystemList().isEmpty())
             return "no sidescan data to be processed.";
@@ -206,6 +271,19 @@ public class SidescanTilesExporter implements MRAExporter {
             // write all cells to separate image files
             for (int px = (imgWidth%cellSize)/2; px < imgWidth; px += cellSize, xCount++) {
                 try {
+                    LocationType loc = pivot.calcPointFromIndex(px+imgWidth/2, true).location;
+                    float distance = Math.abs((px + cellSize/2f) - imgWidth/2.0f) * (pivot.getRange()/(float)imgWidth);
+                    String text = String.format("t%03d_%02d", yCount, xCount)+","+pivot.getTimestampMillis()+","+pivot.getFrequency()+","+pivot.getRange()+","+loc.getLatitudeDegs()+","+loc.getLongitudeDegs()+","+(tideLevel+avgDepth)+","+distance+","+avgSpeed; 
+                    if (doTraining) {
+                        if (isRock(loc))
+                            text += ",rock";
+                        else if (isSand(loc))
+                            text += ",sand";
+                        else
+                            continue;
+                    }
+                    writer.write(text+"\n");
+                    System.out.println(text);
                     File file = new File(out, String.format("t%03d_%02d", yCount, xCount) + ".png");
                     if (separateCells) {
                         BufferedImage cell = new BufferedImage(cellSize, cellSize, BufferedImage.TYPE_INT_RGB);
@@ -215,11 +293,7 @@ public class SidescanTilesExporter implements MRAExporter {
                             cell.getGraphics().drawImage(img, 0, 0, cellSize-1, cellSize-1, px+cellSize, 0, px, cellSize-1, null);
                         ImageIO.write(cell, "PNG", file);                            
                     }
-                    LocationType loc = pivot.calcPointFromIndex(px+imgWidth/2, true).location;
-                    float distance = Math.abs((px + cellSize/2f) - imgWidth/2.0f) * (pivot.getRange()/(float)imgWidth);
-                    String text = String.format("t%03d_%02d", yCount, xCount)+","+pivot.getTimestampMillis()+","+pivot.getFrequency()+","+pivot.getRange()+","+loc.getLatitudeDegs()+","+loc.getLongitudeDegs()+","+(tideLevel+avgDepth)+","+distance+","+avgSpeed; 
-                    writer.write(text+"\n");
-                    System.out.println(text);                    
+                                        
                 }
                 catch (Exception e) {
                     e.printStackTrace();
@@ -251,9 +325,9 @@ public class SidescanTilesExporter implements MRAExporter {
     public static void main(String[] args) {
         GeneralPreferences.initialize();
         GuiUtils.setLookAndFeelNimbus();
-        LsfTreeSet sampleSSS = new LsfTreeSet(new File("/media/zp/5e169b60-ba8d-47db-b25d-9048fe40eed1/OMARE/SampleSSS"));
+        //LsfTreeSet sampleSSS = new LsfTreeSet(new File("/media/zp/5e169b60-ba8d-47db-b25d-9048fe40eed1/OMARE/SampleSSS"));
         
-        BatchMraExporter.apply(sampleSSS, SidescanTilesExporter.class);
+        BatchMraExporter.apply(SidescanTilesExporter.class);
     }
 
 }
