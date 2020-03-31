@@ -33,7 +33,6 @@
 package pt.lsts.neptus.plugins.envdisp.loader;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.time.Duration;
@@ -47,21 +46,15 @@ import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.DoubleAccumulator;
 import java.util.concurrent.atomic.LongAccumulator;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.plugins.envdisp.datapoints.GenericDataPoint;
 import pt.lsts.neptus.plugins.envdisp.datapoints.GenericDataPoint.Info;
 import pt.lsts.neptus.plugins.envdisp.datapoints.GenericDataPoint.Type;
-import pt.lsts.neptus.plugins.envdisp.datapoints.GenericDataPoint.Info.ScalarOrLogPreference;
 import pt.lsts.neptus.plugins.envdisp.painter.GenericNetCDFDataPainter;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.netcdf.NetCDFUtils;
-import ucar.nc2.Attribute;
-import ucar.nc2.NetcdfFile;
-import ucar.nc2.Variable;
 
 /**
  * @author pdias
