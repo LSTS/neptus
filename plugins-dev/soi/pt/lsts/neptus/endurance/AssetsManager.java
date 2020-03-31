@@ -338,10 +338,10 @@ public class AssetsManager {
             }
         }
         catch (TimeoutException e) {
-            e.printStackTrace();
+            NeptusLog.pub().warn(e);
         }
         catch (Exception e) {
-            e.printStackTrace();
+            NeptusLog.pub().warn(e);
         }
     }
 
