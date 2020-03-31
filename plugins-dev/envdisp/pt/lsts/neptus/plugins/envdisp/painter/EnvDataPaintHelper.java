@@ -1172,11 +1172,13 @@ public class EnvDataPaintHelper {
         MovingAverage maX = new MovingAverage((short) (points.size() * 0.1));
         MovingAverage maY = new MovingAverage((short) (points.size() * 0.1));
         
-        ArrayList<Point2D> pointsXSorted = new ArrayList<>(points);
-        pointsXSorted.sort((p, o) -> Double.compare(p.getX(), o.getX()));
+        ArrayList<Point2D> pointsXSorted = points.parallelStream().sorted((p, o) -> Double.compare(p.getX(), o.getX()))
+                .collect(Collectors.toCollection(ArrayList<Point2D>::new));
+                //.collect(ArrayList<Point2D>::new, ArrayList<Point2D>::add, ArrayList<Point2D>::addAll);
 
-        ArrayList<Point2D> pointsYSorted = new ArrayList<>(points);
-        pointsYSorted.sort((p, o) -> Double.compare(p.getY(), o.getY()));
+        ArrayList<Point2D> pointsYSorted = points.parallelStream().sorted((p, o) -> Double.compare(p.getY(), o.getY()))
+                .collect(Collectors.toCollection(ArrayList<Point2D>::new));
+                //.collect(ArrayList<Point2D>::new, ArrayList<Point2D>::add, ArrayList<Point2D>::addAll);
         
         Point2D po = null;
         for (Point2D p : pointsXSorted) {
