@@ -461,6 +461,8 @@ public class GenericNetCDFDataPainter {
                 try {
                     abortIndicator.set(true);
                     painterThread.interrupt();
+                    //System.out.println("WWWWWWWWWW " + abortIndicator + "  " +  painterThread.isInterrupted() + " " + painterThread.isAlive());
+                    painterThread = null;
                 }
                 catch (Exception e) {
                     e.printStackTrace();

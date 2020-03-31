@@ -741,6 +741,9 @@ public class EnvDataPaintHelper {
                 showVarLegendFromZoomLevel, font8Pt, showDataDebugLegend, 1,
                 // Acceptor
                 dp -> {
+                    if (abortIndicator.get())
+                        return false;
+
                     boolean depthOk = true;
                     if (!Double.isFinite(depthLimits.first()) && !Double.isFinite(depthLimits.second())
                             || !Double.isFinite(dp.getDepth())) {
@@ -763,7 +766,8 @@ public class EnvDataPaintHelper {
                             dateOk = true;
                         }
                         else {
-                            GenericDataPoint maxDateDp = (GenericDataPoint) dp.getHistoricalData().stream().max((p1, p2) -> {
+                            GenericDataPoint maxDateDp = (GenericDataPoint) dp.getHistoricalData().stream()
+                                    .filter((d) -> !abortIndicator.get()).max((p1, p2) -> {
                                 if (p1.getDateUTC() != null && p2.getDateUTC() != null)
                                     return p1.getDateUTC().compareTo(p2.getDateUTC());
                                 else if (p2.getDateUTC() != null)
@@ -771,7 +775,8 @@ public class EnvDataPaintHelper {
                                 else
                                     return 1;
                             }).orElse(dp);
-                            GenericDataPoint minDateDp = (GenericDataPoint) dp.getHistoricalData().stream().min((p1, p2) -> { 
+                            GenericDataPoint minDateDp = (GenericDataPoint) dp.getHistoricalData().stream()
+                                    .filter((d) -> !abortIndicator.get()).min((p1, p2) -> {
                                 if (p1.getDateUTC() != null && p2.getDateUTC() != null)
                                     return p1.getDateUTC().compareTo(p2.getDateUTC());
                                 else if (p2.getDateUTC() != null)
@@ -794,6 +799,9 @@ public class EnvDataPaintHelper {
                 },
                 // Extractor
                 dp -> {
+                    if (abortIndicator.get())
+                        return new ArrayList<Object>();
+
                     Date minDate = dateLimits.first();
                     Date maxDate = dateLimits.second();
                     if (minDate.getTime() == 0 && maxDate.getTime() == 0)
@@ -828,6 +836,9 @@ public class EnvDataPaintHelper {
                 },
                 // Painter for points
                 paintType == PointPaintEnum.INTERPOLATE ? null : (pt, dataMap) -> {
+                    if (abortIndicator.get())
+                        return;
+
                     Graphics2D gt = null;
                     try {
                         Pair<ArrayList<Object>, Date> pVal = dataMap.get(pt);
@@ -881,6 +892,9 @@ public class EnvDataPaintHelper {
                 },
                 // Painter for interpolation
                 (ptDataMap) -> {
+                    if (abortIndicator.get())
+                        return;
+
                     Set<Point2D> points = ptDataMap.keySet();
 
                     double fullImgWidth = rendererCalculator.getSize().getWidth() + offScreenBufferPixel * 2.;
@@ -904,9 +918,15 @@ public class EnvDataPaintHelper {
                     double cacheImgHeight = fullImgHeight;
                     cacheImgWidth *= cacheImgScaleX;
                     cacheImgHeight *= cacheImgScaleY;
-                    
+
+                    if (abortIndicator.get())
+                        return;
+
                     BufferedImage cacheImg = createBufferedImage((int) cacheImgWidth, (int) cacheImgHeight, Transparency.TRANSLUCENT);
-                    points.parallelStream().forEach(pt -> {
+                    points.parallelStream().filter((d) -> !abortIndicator.get()).forEach(pt -> {
+                        if (abortIndicator.get())
+                            return;
+
                         try {
                             Pair<ArrayList<Object>, Date> pVal = ptDataMap.get(pt);
                             double v = (double) pVal.first().get(0);
@@ -933,6 +953,9 @@ public class EnvDataPaintHelper {
                         }
                     });
 
+                    if (abortIndicator.get())
+                        return;
+
                     Graphics2D gt = (Graphics2D) g2.create();
                     try {
                         gt.translate(rendererCalculator.getWidth() / 2., rendererCalculator.getHeight() / 2.);
@@ -949,9 +972,15 @@ public class EnvDataPaintHelper {
                     }
                     if (gt != null)
                         gt.dispose();
-                    
+
+                    if (abortIndicator.get())
+                        return;
+
                     if (showVarLegend && rendererCalculator.getLevelOfDetail() >= showVarLegendFromZoomLevel) {
-                        points.parallelStream().forEach(pt -> {
+                        points.parallelStream().filter((d) -> !abortIndicator.get()).forEach(pt -> {
+                            if (abortIndicator.get())
+                                return;
+
                             Graphics2D gt1 = null;
                             try {
                                 Pair<ArrayList<Object>, Date> pVal = ptDataMap.get(pt);
@@ -1048,6 +1077,7 @@ public class EnvDataPaintHelper {
             LongAccumulator toDatePts = dataCollector.toDatePts;
             LongAccumulator fromDatePts = dataCollector.fromDatePts;
             ArrayList<Map<Point2D, Pair<ArrayList<Object>, Date>>> ptFilt = dest.parallelStream()
+                    .filter((d) -> !abortIndicator.get())
                     .collect(dataCollector);
             
             if (ptFilt.isEmpty()) {
@@ -1056,13 +1086,20 @@ public class EnvDataPaintHelper {
             }
             double usePercent = (ptFilt.get(0) == null ? -1 : ptFilt.get(0).size() * 1. / visiblePts.longValue()) * 100;
             final int idx = 1; //getIndexForData(rendererCalculator.getLevelOfDetail(), usePercent);
-            debugOut(showDataDebugLegend, String.format("%s stg 1 took %ss :: using %d of %d visible from original %d (%.1f%% of visible) | %d not gridded %sused",
+            debugOut(showDataDebugLegend, String.format("%s stg 1 took %ss :: using %d of %d visible from original %d (%.1f%% of visible) | %d not gridded %sused | %s",
                     varName, MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1), (ptFilt.get(0) == null ? -1 : ptFilt.get(0).size()), 
-                    visiblePts.longValue(), dest.size(), usePercent, (ptFilt.get(1) == null ? -1 : ptFilt.get(1).size()), ""));
+                    visiblePts.longValue(), dest.size(), usePercent, (ptFilt.get(1) == null ? -1 : ptFilt.get(1).size()), "", abortIndicator.get() ? "aborted" : ""));
             stMillis = System.currentTimeMillis();
 
+            if (abortIndicator.get()) {
+                debugOut(showDataDebugLegend, String.format("%s stg 2 took %ss %s", varName,
+                        MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1),
+                        abortIndicator.get() ? "aborted" : ""));
+                return;
+            }
+
             if (eachPointPainter != null) {
-                ptFilt.get(idx).keySet().parallelStream().forEach(pt -> {
+                ptFilt.get(idx).keySet().parallelStream().filter((d) -> !abortIndicator.get()).forEach(pt -> {
                     if (abortIndicator.get())
                         return;
                     
@@ -1082,8 +1119,9 @@ public class EnvDataPaintHelper {
                     NeptusLog.pub().trace(e);
                 }
             }
-            debugOut(showDataDebugLegend, String.format("%s stg 2 took %ss", varName,
-                    MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1)));
+            debugOut(showDataDebugLegend, String.format("%s stg 2 took %ss %s", varName,
+                    MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1),
+                    abortIndicator.get() ? "aborted" : ""));
             
             int offset = OFFSET_REND_TXT_DATE_RANGES + OFFSET_REND_TXT_DATE_RANGES_DELTA * debugPainterForDatesOffserIndex;
             String typeName = varName;
