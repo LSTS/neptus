@@ -106,12 +106,15 @@ public class SidescanTilesExporter implements MRAExporter {
     public File tidesFile = GeneralPreferences.tidesFile;
     
     @NeptusProperty(description = "GeoJson file with polygons denoting sand and rock for training")
-    public File classificationFile = new File("/home/zp/Desktop/xt2-training.geojson");    
+    public File classificationFile = new File("/home/zp/Desktop/xt2-training.geojson");
     
+    @NeptusProperty(description = "Directory where to put all output")
+    public File outDir = new File("/home/zp/Desktop/ml-training");
+
+    /* variables below are not parameters */
+    private boolean doTraining = false;
     private ArrayList<PolygonType> sandPolygons = new ArrayList<PolygonType>();
     private ArrayList<PolygonType> rockPolygons = new ArrayList<PolygonType>();
-    private boolean doTraining = false;
-    
     private SidescanParameters params = new SidescanParameters(normalization, timeVariableGain);
 
     public SidescanTilesExporter(IMraLogGroup source) {
@@ -143,10 +146,15 @@ public class SidescanTilesExporter implements MRAExporter {
             }
         }
         
-        System.out.println("Loaded "+sandPolygons.size()+" sand polygons and "+rockPolygons+" rock polygons.");
+        System.out.println("Loaded "+sandPolygons.size()+" sand polygons and "+rockPolygons.size()+" rock polygons.");
     }
     
-    
+    /**
+     * This method tests if a location is contained inside any polygon on the given list
+     * @param location Location to check
+     * @param polygons List of polygons to check for containment
+     * @return <code>true</code> if the point is inside any of the given containers
+     */
     boolean isContained(LocationType location, ArrayList<PolygonType> polygons) {
         if (polygons.isEmpty())
             return false;
@@ -158,10 +166,20 @@ public class SidescanTilesExporter implements MRAExporter {
         return false;
     }
     
+    /**
+     * Check if a location is inside any of the sand polygons
+     * @param location Location to check
+     * @return <code>true</code> if the location resides inside any of the sand polygons
+     */
     boolean isSand(LocationType location) {
        return isContained(location, sandPolygons);
     }
     
+    /**
+     * Check if a location is inside any of the rock polygons
+     * @param location Location to check
+     * @return <code>true</code> if the location resides inside any of the rock polygons
+     */
     boolean isRock(LocationType location) {
         return isContained(location, rockPolygons); 
     }
@@ -169,7 +187,18 @@ public class SidescanTilesExporter implements MRAExporter {
     @SuppressWarnings("resource")
     @Override
     public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
+
+        // Create sidescan parser and skip this log if no sss data is available
         SidescanParser ss = SidescanParserFactory.build(source);
+        if (ss.getSubsystemList().isEmpty())
+            return "no sidescan data to be processed.";
+        
+        // Create output directory
+        if (outDir != null)
+            outDir.mkdirs();
+        
+        
+        // if the classification file is set, build a training set
         if (classificationFile.canRead()) {
             try {
                 loadGeoJsonPolygons(classificationFile);    
@@ -181,9 +210,7 @@ public class SidescanTilesExporter implements MRAExporter {
             }            
         }
         int yCount = 1;
-        if (ss.getSubsystemList().isEmpty())
-            return "no sidescan data to be processed.";
-
+        
         long start = ss.firstPingTimestamp();
         long end = ss.lastPingTimestamp();
         int sys = ss.getSubsystemList().get(frequencyIndex);
@@ -191,27 +218,27 @@ public class SidescanTilesExporter implements MRAExporter {
         pmonitor.setMinimum(0);
         pmonitor.setMaximum((int) ((end - start) / 1000));
 
-        File out;
         BufferedWriter writer = null;
         try {
-            pmonitor.setNote("Creating output dir");
-            out = new File(source.getFile("mra"), "sss_tiles");
-            out.mkdirs();            
+            pmonitor.setNote("Creating output file");
+            
+            File csvFile = new File(outDir, "tiles.csv");
+            
+            if (doTraining)
+                csvFile = new File(outDir, "training.csv");
+            
+            boolean appending = true;
+            if (!csvFile.exists())
+                appending = false;
+            writer = new BufferedWriter(new FileWriter(csvFile, true));
+            // if the file didn't exist previously, write the header
+            if (!appending)
+                writer.write("filename,time,frequency,range,latitude,longitude,depth,distance,speed,classification\n");            
         }
         catch (Exception e) {
             NeptusLog.pub().error(e);
             return e.getMessage();
         }
-        
-        try {
-            writer = new BufferedWriter(new FileWriter(new File(out, "cells.csv")));  
-            writer.write("filename,time,frequency,range,latitude,longitude,depth,distance,speed\n");
-        }
-        catch (Exception e) {
-            NeptusLog.pub().error(e);
-            return e.getMessage();
-        }
-        
         ArrayList<SidescanLine> lines = new ArrayList<SidescanLine>();
         
         for (long time = start; time < end; time += 1000) {
@@ -226,14 +253,16 @@ public class SidescanTilesExporter implements MRAExporter {
             if (lines.size() <= cellSize)
                 continue;
             
-            // assumes all lines will be similar to first one
+            // assumes all lines will be similar to middle one
             SidescanLine pivot = lines.get(cellSize/2);
-            int imgWidth = pivot.getData().length;
+            int originalLength = pivot.getData().length;
             
+            // calculate tide level using tide station configured in GeneralPreferences
             double tideLevel = TidePredictionFactory.getTideLevel(pivot.getTimestampMillis());
             
+            int dataLength = originalLength;
             // create an image that will to store the sidescan data from these lines  
-            BufferedImage img = new BufferedImage(imgWidth, cellSize, BufferedImage.TYPE_INT_RGB);
+            BufferedImage img = new BufferedImage(dataLength, cellSize, BufferedImage.TYPE_INT_RGB);
             
             double avgDepth = 0;
             double avgSpeed = 0;
@@ -249,7 +278,9 @@ public class SidescanTilesExporter implements MRAExporter {
 
             if (avgSpeed < 0.8)
                 continue;
-            if (imgWidth > 2000) {
+            
+            
+            if (dataLength > 2000) {
                 BufferedImage copy = new BufferedImage(2000, cellSize, BufferedImage.TYPE_INT_RGB);
                 Graphics2D g2d = (Graphics2D)copy.getGraphics();
                 g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
@@ -257,7 +288,7 @@ public class SidescanTilesExporter implements MRAExporter {
                 img = copy;
             }
                 
-            imgWidth = img.getWidth();
+            dataLength = img.getWidth();
             
             // optionally apply slant range correction to the image
             if (slantRangeCorrection) {
@@ -268,12 +299,16 @@ public class SidescanTilesExporter implements MRAExporter {
             Graphics2D g = (Graphics2D) img.getGraphics();
             g.setColor(Color.white);
             int xCount = 1;
+            String logName = source.getDir().getName();
+            double ratio = originalLength / (double) dataLength;
+            
             // write all cells to separate image files
-            for (int px = (imgWidth%cellSize)/2; px < imgWidth; px += cellSize, xCount++) {
+            for (int px = (dataLength%cellSize)/2; px < dataLength; px += cellSize, xCount++) {
                 try {
-                    LocationType loc = pivot.calcPointFromIndex(px+imgWidth/2, true).location;
-                    float distance = Math.abs((px + cellSize/2f) - imgWidth/2.0f) * (pivot.getRange()/(float)imgWidth);
-                    String text = String.format("t%03d_%02d", yCount, xCount)+","+pivot.getTimestampMillis()+","+pivot.getFrequency()+","+pivot.getRange()+","+loc.getLatitudeDegs()+","+loc.getLongitudeDegs()+","+(tideLevel+avgDepth)+","+distance+","+avgSpeed; 
+                    int originalPx = (int) ((px+cellSize/2.0) * ratio);
+                    LocationType loc = pivot.calcPointFromIndex(originalPx, true).location;
+                    float distance = (float) loc.getDistanceInMeters(pivot.getState().getPosition());
+                    String text = logName+"_"+String.format("t%03d_%02d", yCount, xCount)+","+pivot.getTimestampMillis()+","+pivot.getFrequency()+","+pivot.getRange()+","+loc.getLatitudeDegs()+","+loc.getLongitudeDegs()+","+(tideLevel+avgDepth)+","+distance+","+avgSpeed; 
                     if (doTraining) {
                         if (isRock(loc))
                             text += ",rock";
@@ -284,10 +319,11 @@ public class SidescanTilesExporter implements MRAExporter {
                     }
                     writer.write(text+"\n");
                     System.out.println(text);
-                    File file = new File(out, String.format("t%03d_%02d", yCount, xCount) + ".png");
+                    
+                    File file = new File(outDir, logName+"_"+String.format("t%03d_%02d", yCount, xCount) + ".png");
                     if (separateCells) {
                         BufferedImage cell = new BufferedImage(cellSize, cellSize, BufferedImage.TYPE_INT_RGB);
-                        if (px > imgWidth/2)
+                        if (px > dataLength/2)
                             cell.getGraphics().drawImage(img, 0, 0, cellSize-1, cellSize-1, px, 0, px+cellSize, cellSize-1, null);
                         else
                             cell.getGraphics().drawImage(img, 0, 0, cellSize-1, cellSize-1, px+cellSize, 0, px, cellSize-1, null);
@@ -299,18 +335,19 @@ public class SidescanTilesExporter implements MRAExporter {
                     e.printStackTrace();
                 }
                 
-                g.drawLine(px, 0, px, cellSize-1);
-                g.drawString(String.format("t%03d_%02d", yCount, xCount), px+5, 15);
+                //g.drawLine(px, 0, px, cellSize-1);
+                //g.drawString(String.format("t%03d_%02d", yCount, xCount), px+5, 15);
             }
-            
+            /*
             try {
-                File file = new File(out, String.format("l%03d", yCount++) + ".png");
+                File file = new File(outDir, logName+"_"+String.format("l%03d", yCount++) + ".png");
                 ImageIO.write(img, "PNG", file);
                 System.out.println("wrote " + file);
             }
             catch (Exception e) {
                 e.printStackTrace();
-            }
+            }*/
+            yCount++;
         }
         try {
             writer.close();    
