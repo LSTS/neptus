@@ -45,6 +45,8 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -53,12 +55,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.DoubleAccumulator;
 import java.util.concurrent.atomic.LongAccumulator;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -632,7 +637,7 @@ public class EnvDataPaintHelper {
 
                     double xMin = fullImgWidth;
                     double yMin = fullImgHeight;
-                    Pair<Double, Double> minXY = calculateMinimumPointDistanceXY(points, xMin, yMin);
+                    Pair<Double, Double> minXY = calculateMinimumPointDistanceXY(points, xMin, yMin, abortIndicator);
                     xMin = minXY.first();
                     yMin = minXY.second();
 
@@ -892,6 +897,7 @@ public class EnvDataPaintHelper {
                 },
                 // Painter for interpolation
                 (ptDataMap) -> {
+                    System.out.println("Start painter");
                     if (abortIndicator.get())
                         return;
 
@@ -902,7 +908,9 @@ public class EnvDataPaintHelper {
 
                     double xMin = fullImgWidth;
                     double yMin = fullImgHeight;
-                    Pair<Double, Double> minXY = calculateMinimumPointDistanceXY(points, xMin, yMin);
+                    System.out.println(" painter 1");
+                    Pair<Double, Double> minXY = calculateMinimumPointDistanceXY(points, xMin, yMin, abortIndicator);
+                    System.out.println(" painter 2");
                     xMin = minXY.first();
                     yMin = minXY.second();
 
@@ -1160,59 +1168,109 @@ public class EnvDataPaintHelper {
     
     /**
      * @param points
+     * @param abortIndicator 
      * @param xMin
      * @param yMin
      * @return
      */
     private static Pair<Double, Double> calculateMinimumPointDistanceXY(Collection<Point2D> points,
-            double xMinStartValue, double yMinStartValue) {
-        double xMin = xMinStartValue;
-        double yMin = yMinStartValue;
+            double xMinStartValue, double yMinStartValue, AtomicBoolean abortIndicator) {
+        DoubleAccumulator xMin = new DoubleAccumulator((c, n) -> n < c ? n : c, xMinStartValue);
+        DoubleAccumulator yMin = new DoubleAccumulator((c, n) -> n < c ? n : c, yMinStartValue);
         
+        Instant ts = Instant.now();
+        System.out.println(" min/max 1");
+
         MovingAverage maX = new MovingAverage((short) (points.size() * 0.1));
         MovingAverage maY = new MovingAverage((short) (points.size() * 0.1));
         
-        ArrayList<Point2D> pointsXSorted = points.parallelStream().sorted((p, o) -> Double.compare(p.getX(), o.getX()))
-                .collect(Collectors.toCollection(ArrayList<Point2D>::new));
-                //.collect(ArrayList<Point2D>::new, ArrayList<Point2D>::add, ArrayList<Point2D>::addAll);
+        System.out.println(" min/max 2 " + (Duration.between(ts, Instant.now()).toMillis()) + "ms");
+        ts = Instant.now();
 
-        ArrayList<Point2D> pointsYSorted = points.parallelStream().sorted((p, o) -> Double.compare(p.getY(), o.getY()))
-                .collect(Collectors.toCollection(ArrayList<Point2D>::new));
-                //.collect(ArrayList<Point2D>::new, ArrayList<Point2D>::add, ArrayList<Point2D>::addAll);
+//        ArrayList<Point2D> pointsXSorted = 
+//                points.parallelStream().filter((p) -> !abortIndicator.get())
+//                .sorted((p, o) -> Double.compare(p.getX(), o.getX()))
+//                .collect(Collectors.toCollection(ArrayList<Point2D>::new));
+//                //.collect(ArrayList<Point2D>::new, ArrayList<Point2D>::add, ArrayList<Point2D>::addAll);
+
+        System.out.println(" min/max 3 " + (Duration.between(ts, Instant.now()).toMillis()) + "ms");
+        ts = Instant.now();
+
+//        ArrayList<Point2D> pointsYSorted = points.parallelStream().filter((p) -> !abortIndicator.get())
+//                .sorted((p, o) -> Double.compare(p.getY(), o.getY()))
+//                .collect(Collectors.toCollection(ArrayList<Point2D>::new));
+//                //.collect(ArrayList<Point2D>::new, ArrayList<Point2D>::add, ArrayList<Point2D>::addAll);
         
-        Point2D po = null;
-        for (Point2D p : pointsXSorted) {
-            if (po == null) {
-                po = p;
-                continue;
-            }
-            
-            if (po.getX() == p.getX())
-                continue;
-            
-            double d = Math.abs(po.getX() - p.getX());
-            maX.update(d);
-            xMin = d < xMin ? d : xMin;
-            po = p;
-        }
+        System.out.println(" min/max 4 " + (Duration.between(ts, Instant.now()).toMillis()) + "ms");
+        ts = Instant.now();
 
-        po = null;
-        for (Point2D p : pointsYSorted) {
-            if (po == null) {
-                po = p;
-                continue;
+        final ArrayList<Point2D> tmpPt = new ArrayList<>(1);
+//        points.parallelStream()
+//                .filter((p) -> !abortIndicator.get())
+//                .sorted((p, o) -> Double.compare(p.getX(), o.getX()))
+//                //.sequential()
+//                .filter((p) -> !abortIndicator.get())
+//                .forEachOrdered((p) -> {
+//            if (tmpPt.isEmpty()) {
+//                tmpPt.add(p);
+//                return;
+//            }
+//            Point2D pot = tmpPt.get(0);
+//            if (pot.getX() == p.getX())
+//                return;
+//            
+//            double d = Math.abs(pot.getX() - p.getX());
+//            maX.update(d);
+//            xMin.accumulate(d);
+//            tmpPt.set(0, p);
+//        });
+
+        
+        ArrayList<Point2D> pointsXSorted = points.parallelStream().filter((p) -> !abortIndicator.get())
+                .sorted((p, o) -> Double.compare(p.getX(), o.getX()))
+                .collect(Collectors.toCollection(ArrayList<Point2D>::new));
+        IntStream.range(0, pointsXSorted.size() - 1).parallel().forEach((i) -> {
+            if (i == 0)
+                return;
+            Point2D pot = pointsXSorted.get(i - 1);
+            Point2D p = pointsXSorted.get(i);
+            if (pot.getX() == p.getX())
+                return;
+            double d = Math.abs(pot.getX() - p.getX());
+            synchronized (maX) {
+                maX.update(d);
             }
+            xMin.accumulate(d);
+        });
+
+        System.out.println(" min/max 5 " + (Duration.between(ts, Instant.now()).toMillis()) + "ms");
+        ts = Instant.now();
+
+        tmpPt.clear();
+        points.parallelStream()
+                .filter((p) -> !abortIndicator.get())
+                .sorted((p, o) -> Double.compare(p.getY(), o.getY()))
+                //.sequential()
+                .filter((p) -> !abortIndicator.get())
+                .forEachOrdered((p) -> {
+            if (tmpPt.isEmpty()) {
+                tmpPt.add(p);
+                return;
+            }
+            Point2D pot = tmpPt.get(0);
+            if (pot.getY() == p.getY())
+                return;
             
-            if (po.getY() == p.getY())
-                continue;
-            
-            double d = Math.abs(po.getY() - p.getY());
+            double d = Math.abs(pot.getY() - p.getY());
             maY.update(d);
-            yMin = d < yMin ? d : yMin;
-            po = p;
-        }
-        
-        System.out.println(String.format("MinMax %f x %f   with avg %f x %f  stddev %f x %f", xMin, yMin, maX.mean(), maY.mean(), maX.stdev(), maY.stdev()));
+            yMin.accumulate(d);
+            tmpPt.set(0, p);
+        });
+
+        System.out.println(" min/max 6 " + (Duration.between(ts, Instant.now()).toMillis()) + "ms");
+        ts = Instant.now();
+
+        System.out.println(String.format("MinMax %f x %f   with avg %f x %f  stddev %f x %f", xMin.doubleValue(), yMin.doubleValue(), maX.mean(), maY.mean(), maX.stdev(), maY.stdev()));
         
         // return new Pair<Double, Double>(xMin, yMin);
         return new Pair<Double, Double>(maX.mean() + maX.stdev(), maY.mean() + maY.stdev());
