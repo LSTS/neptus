@@ -1184,52 +1184,13 @@ public class EnvDataPaintHelper {
         MovingAverage maX = new MovingAverage((short) (points.size() * 0.1));
         MovingAverage maY = new MovingAverage((short) (points.size() * 0.1));
         
-        System.out.println(" min/max 2 " + (Duration.between(ts, Instant.now()).toMillis()) + "ms");
-        ts = Instant.now();
-
-//        ArrayList<Point2D> pointsXSorted = 
-//                points.parallelStream().filter((p) -> !abortIndicator.get())
-//                .sorted((p, o) -> Double.compare(p.getX(), o.getX()))
-//                .collect(Collectors.toCollection(ArrayList<Point2D>::new));
-//                //.collect(ArrayList<Point2D>::new, ArrayList<Point2D>::add, ArrayList<Point2D>::addAll);
-
-        System.out.println(" min/max 3 " + (Duration.between(ts, Instant.now()).toMillis()) + "ms");
-        ts = Instant.now();
-
-//        ArrayList<Point2D> pointsYSorted = points.parallelStream().filter((p) -> !abortIndicator.get())
-//                .sorted((p, o) -> Double.compare(p.getY(), o.getY()))
-//                .collect(Collectors.toCollection(ArrayList<Point2D>::new));
-//                //.collect(ArrayList<Point2D>::new, ArrayList<Point2D>::add, ArrayList<Point2D>::addAll);
-        
-        System.out.println(" min/max 4 " + (Duration.between(ts, Instant.now()).toMillis()) + "ms");
-        ts = Instant.now();
-
-        final ArrayList<Point2D> tmpPt = new ArrayList<>(1);
-//        points.parallelStream()
-//                .filter((p) -> !abortIndicator.get())
-//                .sorted((p, o) -> Double.compare(p.getX(), o.getX()))
-//                //.sequential()
-//                .filter((p) -> !abortIndicator.get())
-//                .forEachOrdered((p) -> {
-//            if (tmpPt.isEmpty()) {
-//                tmpPt.add(p);
-//                return;
-//            }
-//            Point2D pot = tmpPt.get(0);
-//            if (pot.getX() == p.getX())
-//                return;
-//            
-//            double d = Math.abs(pot.getX() - p.getX());
-//            maX.update(d);
-//            xMin.accumulate(d);
-//            tmpPt.set(0, p);
-//        });
-
-        
         ArrayList<Point2D> pointsXSorted = points.parallelStream().filter((p) -> !abortIndicator.get())
                 .sorted((p, o) -> Double.compare(p.getX(), o.getX()))
                 .collect(Collectors.toCollection(ArrayList<Point2D>::new));
-        IntStream.range(0, pointsXSorted.size() - 1).parallel().forEach((i) -> {
+                //.collect(Collectors.toCollection(() -> new ArrayList<Point2D>(points.size())));
+        IntStream.range(0, pointsXSorted.size() - 1).parallel()
+                .filter((p) -> !abortIndicator.get())
+                .forEach((i) -> {
             if (i == 0)
                 return;
             Point2D pot = pointsXSorted.get(i - 1);
@@ -1246,25 +1207,24 @@ public class EnvDataPaintHelper {
         System.out.println(" min/max 5 " + (Duration.between(ts, Instant.now()).toMillis()) + "ms");
         ts = Instant.now();
 
-        tmpPt.clear();
-        points.parallelStream()
-                .filter((p) -> !abortIndicator.get())
+        ArrayList<Point2D> pointsYSorted = points.parallelStream().filter((p) -> !abortIndicator.get())
                 .sorted((p, o) -> Double.compare(p.getY(), o.getY()))
-                //.sequential()
+                .collect(Collectors.toCollection(ArrayList<Point2D>::new));
+                //.collect(Collectors.toCollection(() -> new ArrayList<Point2D>(points.size())));
+        IntStream.range(0, pointsYSorted.size() - 1).parallel()
                 .filter((p) -> !abortIndicator.get())
-                .forEachOrdered((p) -> {
-            if (tmpPt.isEmpty()) {
-                tmpPt.add(p);
+                .forEach((i) -> {
+            if (i == 0)
                 return;
-            }
-            Point2D pot = tmpPt.get(0);
+            Point2D pot = pointsYSorted.get(i - 1);
+            Point2D p = pointsYSorted.get(i);
             if (pot.getY() == p.getY())
                 return;
-            
             double d = Math.abs(pot.getY() - p.getY());
-            maY.update(d);
+            synchronized (maY) {
+                maY.update(d);
+            }
             yMin.accumulate(d);
-            tmpPt.set(0, p);
         });
 
         System.out.println(" min/max 6 " + (Duration.between(ts, Instant.now()).toMillis()) + "ms");
