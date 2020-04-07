@@ -346,6 +346,15 @@
       <units/>
       <desc>Activates sensor operation</desc>
     </param>
+    <param name="Log On Lines Only">
+      <name-i18n>Log On Lines Only</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>false</default>
+      <units/>
+      <desc>Deactivates logging on curves in selected maneuvers.</desc>
+    </param>
     <param name="Mission Critical">
       <name-i18n>Mission Critical</name-i18n>
       <type>boolean</type>
@@ -441,6 +450,15 @@
       <default>false</default>
       <units/>
       <desc>Activates camera</desc>
+    </param>
+    <param name="Log On Lines Only">
+      <name-i18n>Log On Lines Only</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>false</default>
+      <units/>
+      <desc>Deactivates logging on curves in selected maneuvers.</desc>
     </param>
     <param name="Mission Critical">
       <name-i18n>Mission Critical</name-i18n>
@@ -544,6 +562,43 @@
       <default>false</default>
       <units/>
       <desc>Activates sensor data recording</desc>
+    </param>
+    <param name="Log On Lines Only">
+      <name-i18n>Log On Lines Only</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>false</default>
+      <units/>
+      <desc>Deactivates logging on curves in selected maneuvers.</desc>
+    </param>
+    <param name="Mission Critical">
+      <name-i18n>Mission Critical</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>plan</scope>
+      <default>false</default>
+      <units/>
+    </param>
+  </section>
+  <section name="MagWing" name-i18n="MagWing">
+    <param name="Active">
+      <name-i18n>Active</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>false</default>
+      <units/>
+      <desc>Activates sensor data recording</desc>
+    </param>
+    <param name="Log On Lines Only">
+      <name-i18n>Log On Lines Only</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>false</default>
+      <units/>
+      <desc>Deactivates logging on curves in selected maneuvers.</desc>
     </param>
     <param name="Mission Critical">
       <name-i18n>Mission Critical</name-i18n>
