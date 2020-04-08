@@ -89,9 +89,9 @@ import ucar.nc2.Variable;
  *
  */
 public class NetCDFLoader {
-    
+
     public static final String NETCDF_FILE_PATTERN = ".+\\.nc(\\.gz)?$";
-    
+
     /**
      * @param dataFile
      * @param varName
@@ -106,9 +106,9 @@ public class NetCDFLoader {
         boolean ignoreDateLimitToLoad = false;
         if (dateLimit == null)
             ignoreDateLimitToLoad = true;
-        
+
         String fileName = dataFile.getLocation();
-        
+
         NeptusLog.pub().info("Starting processing " + varName + " file '" + dataFile.getLocation() + "'."
                 + (ignoreDateLimitToLoad ? " ignoring dateTime limit" : " Accepting data after " + dateLimit + "."));
 
@@ -116,7 +116,7 @@ public class NetCDFLoader {
 
         Date fromDate = null;
         Date toDate = null;
-        
+
         try {
             // Get the Variable.
             Pair<String, Variable> searchPair = NetCDFUtils.findVariableForStandardNameOrName(dataFile, fileName, true, varName);
@@ -220,7 +220,7 @@ public class NetCDFLoader {
                 if (searchPair == null)
                     searchPair = NetCDFUtils.findVariableForStandardNameOrName(dataFile, fileName, false, dimDimStrLst,
                             "latitude", "lat");
-                
+
                 if (searchPair == null) {
                     // Last try
                     for (String name : dimVars.keySet()) {
@@ -268,7 +268,7 @@ public class NetCDFLoader {
                         }
                     }
                 }
-                
+
                 lonName = searchPair == null ? null : searchPair.first();
                 lonVar = searchPair == null ? null : searchPair.second();
             }
@@ -290,7 +290,7 @@ public class NetCDFLoader {
                 NeptusLog.pub().debug(String.format("Variable %s IS NOT georeference in data fiel %s", varName, fileName));
                 return null;
             }
-            
+
             // Get the lat/lon data from the file.
             Array latArray;  // ArrayFloat.D?
             Array lonArray;  // ArrayFloat.D?
@@ -303,14 +303,14 @@ public class NetCDFLoader {
             timeArray = timeVar != null ? timeVar.read() : null;
             depthArray = depthVar != null ? depthVar.read() : null;
             vArray = vVar.read();
-          
+
             double[] multAndOffset = timeVar != null ? NetCDFUtils.getTimeMultiplierAndOffset(timeVar, fileName) : null;
             double timeMultiplier = timeVar != null ? multAndOffset[0] : 1;
             double timeOffset = timeVar != null ? multAndOffset[1] : 0;
 
             Info info = createInfoBase(vVar);
             info.fileName = fileName;
-            
+
             // Gradient calc
             boolean calculateGradient = true;
             if (info.type == Type.GEO_2D)
@@ -326,7 +326,7 @@ public class NetCDFLoader {
                     Double.MAX_VALUE);
             DoubleAccumulator minLatYDelta = new DoubleAccumulator((o, n) -> Double.compare(n, o) < 0 ? n : o,
                     Double.MAX_VALUE);
-          
+
             // Let us process
             Instant timeStart = Instant.now();
             NeptusLog.pub().warn(String.format("Start processing metadata for %s.", varName));
@@ -375,7 +375,7 @@ public class NetCDFLoader {
                         break;
                 }
 
-                
+
                 // The null values are ignored
                 Map<String, Integer> timeCollumsIndexMap = timeVar == null ? new HashMap<>()
                         : NetCDFUtils.getIndexesForVar(dimStr, timeVar.getDimensionsString().split(" "));
@@ -417,11 +417,11 @@ public class NetCDFLoader {
                             ? NetCDFUtils.getTimeValues(timeArray, buildCounterFrom(counter, timeCollumsIndexMap),
                                     timeMultiplier, timeOffset, fromDate, toDate, ignoreDateLimitToLoad, dateLimit)
                             : null;
-                    
+
                     if (timeVals == null)
                         timeVals = NetCDFUtils.getTimeValuesByGlobalAttributes(dataFile, fromDate, toDate,
                                 ignoreDateLimitToLoad, dateLimit);
-                    
+
                     if (timeVals == null)
                         timeVals = NetCDFUtils.getDatesAndDateLimits(new Date(0), fromDate, toDate);
 
@@ -446,12 +446,12 @@ public class NetCDFLoader {
 
                         continue;
                     }
-                    
+
                     lat = lat * latScaleFactorAndAddOffset.first() + latScaleFactorAndAddOffset.second();
                     lon = lon * lonScaleFactorAndAddOffset.first() + lonScaleFactorAndAddOffset.second();
                     lat = AngleUtils.nomalizeAngleDegrees180(lat);
                     lon = AngleUtils.nomalizeAngleDegrees180(lon);
-                    
+
                     double depth = !depthCollumsIndexMap.isEmpty()
                             ? depthArray.getDouble(buildIndexFrom(depthArray, counter, depthCollumsIndexMap))
                             : Double.NaN;
@@ -488,10 +488,10 @@ public class NetCDFLoader {
                                 maxGradient, minLonXDelta, minLatYDelta, counter, null);
                         continue;
                     }
-                    
+
 //                    if (!checkLimitsDepthOk)
 //                        depth = Double.NaN;
-                    
+
                     Index index = vArray.getIndex();
                     index.set(counter);
 
@@ -513,7 +513,7 @@ public class NetCDFLoader {
                             dp.getInfo().minVal = v;
                         if (dp.getInfo().maxVal == Double.MAX_VALUE || v > dp.getInfo().maxVal)
                             dp.getInfo().maxVal = v;
-                        
+
                         dp.setDateUTC(dateValue);
                         if (dp.getInfo().minDate.getTime() == 0 || dp.getInfo().minDate.after(dateValue))
                             dp.getInfo().minDate = dateValue;
@@ -569,7 +569,7 @@ public class NetCDFLoader {
                             // Check also depth and see if no time
                             return (tmpDp.getDateUTC().equals(dp.getDateUTC()) && tmpDp.getDepth() == dp.getDepth());
                         });
-                        
+
                         if (!alreadyIn)
                             dpo.getHistoricalData().add(dp);
 
@@ -655,7 +655,7 @@ public class NetCDFLoader {
                     maxGradient.accumulate(gradient);
                     dpUpX.setGradientValue(gradient);
                 }
-                
+
                 if (dpUpXNext != null) {
                     double dist = Math.sqrt(Math.pow(dpUpX.getLat() - dpUpXNext.getLat(), 2)
                             + Math.pow(dpUpX.getLon() - dpUpX.getLon(), 2));
@@ -667,7 +667,6 @@ public class NetCDFLoader {
                     minLatYDelta.accumulate(distY);
                 }
             }
-            
         }
         gradBuffer.set(counter[counter.length -1], dpY);
     }
@@ -722,17 +721,17 @@ public class NetCDFLoader {
                 info.scalarOrLogPreference = ScalarOrLogPreference.LOG10;
             }
         }
-        
+
         vAtt = vVar.findAttribute(NetCDFUtils.NETCDF_ATT_COMMENT);
         info.comment = vAtt == null ? "" : vAtt.getStringValue();
-        
+
         if (vVar.getDimensions().size() == 1)
             info.type = Type.GEO_TRAJECTORY;
         else if (vVar.getDimensions().size() >= 2)
             info.type = Type.GEO_2D;
         else
             info.type = Type.UNKNOWN;
-        
+
         return info;
     }
 
@@ -766,7 +765,7 @@ public class NetCDFLoader {
             }
         }
     }
-    
+
     /**
      * Shows a {@link JFileChooser} for the operator to choose a netCDF file.
      * 
@@ -783,7 +782,7 @@ public class NetCDFLoader {
         chooser.showOpenDialog(parentWindow);
         if (chooser.getSelectedFile() == null)
             return null;
-        
+
         return chooser.getSelectedFile();
     }
 
@@ -804,7 +803,7 @@ public class NetCDFLoader {
         chooser.showOpenDialog(parentWindow);
         if (chooser.getSelectedFiles() == null || chooser.getSelectedFiles().length == 0)
             return null;
-        
+
         return chooser.getSelectedFiles();
     }
 
@@ -818,11 +817,11 @@ public class NetCDFLoader {
      */
     public static <W extends Window> Variable showChooseVar(String fileName, NetcdfFile dataFile, W parentWindow) {
         List<Dimension> dimsRoot = dataFile.getDimensions();
-        
+
         Map<String, Group> groupList = new HashMap<>();
-        
+
         Map<String, Variable> varToConsider = NetCDFUtils.getVariables(dataFile, 1); // Choose variables with dim > 2
-        
+
         for (String varStr : varToConsider.keySet().toArray(new String[varToConsider.size()])) {
             boolean isRemoved = false;
 
@@ -834,7 +833,7 @@ public class NetCDFLoader {
                     break;
                 }
             }
-            
+
             if (isRemoved)
                 continue;
 
@@ -869,7 +868,7 @@ public class NetCDFLoader {
                 }
             }
         }
-        
+
         boolean geoVarGroupExist = groupList.keySet().stream()
                 .anyMatch(s -> s.equalsIgnoreCase(NetCDFUtils.NETCDF_GRP_GEOPHYSICAL_DATA));
         if (geoVarGroupExist) {
@@ -880,15 +879,15 @@ public class NetCDFLoader {
                     varToConsider.remove(varStr);
             }
         }
-        
+
         if (varToConsider.isEmpty()) {
             GuiUtils.infoMessage(parentWindow, I18n.text("Error loading"), I18n.text("Missing variables in data"));
             return null;
         }
-        
+
         // Removing the ones that don't have location info
         // TODO
-        
+
         ArrayList<JLabel> choicesVarsLbl = new ArrayList<>();
         ArrayList<String> keys = new ArrayList<>(varToConsider.keySet());
         Collections.sort(keys, (e1, e2) -> Collator.getInstance().compare(varToConsider.get(e1).getFullName(),
@@ -934,7 +933,7 @@ public class NetCDFLoader {
         Object choiceOpt = JOptionPane.showInputDialog(parentWindow, I18n.text("Choose one of the vars"),
                 I18n.textf("Chooser for %f", fileName), JOptionPane.QUESTION_MESSAGE, null,
                 choicesVarsLbl.toArray(new JLabel[choicesVarsLbl.size()]), 0);
-    
+
         return choiceOpt == null ? null : varToConsider.get(((JLabel) choiceOpt).getText());
     }
 
@@ -977,20 +976,20 @@ public class NetCDFLoader {
 
     @SuppressWarnings("unused")
     public static void main(String[] args) throws Exception {
-        
+
         if (false) {
             NetcdfFile dataFile = null;
-            
+
             String fileName = "../nrt_global_allsat_phy_l4_latest.nc.gz";
             dataFile = NetcdfFile.open(fileName, null);
-            
+
             List<Variable> vars = dataFile.getVariables();
             for (Variable v : vars) {
                 System.out.println(String.format("'%s'  '%s' '%s' '%d' '%s'  '%s'", v.getShortName(), v.getFullName(), v.getDescription(), v.getDimensions().size(),
                         v.getDimensionsString(), v.getRanges()));
             }
             System.out.println();
-            
+
             Map<String, GenericDataPoint> data = processFileForVariable(dataFile, "sla", null, null, null, null);
             // data.keySet().stream().forEachOrdered(k -> System.out.println(data.get(k)));
             String[] keys = data.keySet().toArray(new String[0]);
@@ -998,7 +997,7 @@ public class NetCDFLoader {
                 System.out.println(keys[i] + " -> " + data.get(keys[i]));
             }
         }
-        
+
         if (true) {
 
             Pattern pattern = Pattern.compile("^ *?lo?g\\((.*)\\) *?$");
@@ -1008,29 +1007,29 @@ public class NetCDFLoader {
             }
 
             NetcdfFile dataFile = null;
-            
+
             String baseFolder = "../NetCDF/";
 //            baseFolder = "../../../netCDF/";
-            
+
 //            String fileName = baseFolder + "A2018116215500.L2_LAC.S3160_SOI.nc";
             String fileName = baseFolder + "nrt_global_allsat_phy_l4_latest.nc.gz";
             dataFile = NetcdfFile.open(fileName, null);
-            
+
             List<Dimension> dims = dataFile.getDimensions();
             for (Dimension d : dims) {
                 System.out.println("dim " + d.getShortName() + "   " + d.getLength());
             }
-            
+
            Group rootGroup = dataFile.getRootGroup();
            System.out.println(String.format("root group: ", rootGroup.getShortName()));
-           
+
            List<Attribute> globalAtt = dataFile.getGlobalAttributes();
            for (Attribute att : globalAtt) {
                System.out.println(String.format("Global Att: %s == %s", att.getShortName(), att.getValues()));
            }
-           
+
            System.out.println(dataFile.getDetailInfo());
-           
+
            List<Variable> varsL = dataFile.getVariables();
            for (Variable v : varsL) {
                 System.out.println(String.format("Variable: %s :: %s >> Group='%s'::'%s' ParentGroup='%s'  Dim='%s'::'%s'", v.getShortName(), v.getFullName(),
@@ -1040,17 +1039,17 @@ public class NetCDFLoader {
                     System.out.println(String.format("     Var Att: %s == %s", att.getShortName(), att.getValues()));
                 }
            }
-           
-                      
+
+
            fileName = baseFolder + "A2018116215500.L2_LAC.S3160_SOI.nc";
            Variable choiceVar = showChooseVar(fileName, dataFile, null);
            System.out.println(String.format("Choice is '%s'", choiceVar.getShortName()));
-           
+
            fileName = baseFolder + "nrt_global_allsat_phy_l4_latest.nc.gz";
            dataFile = NetcdfFile.open(fileName, null);
            choiceVar = showChooseVar(fileName, dataFile, null);
            System.out.println(String.format("Choice is '%s'", choiceVar.getShortName()));
-           
+
            fileName = baseFolder + "20180416184057-MAR-L2P_GHRSST-SSTskin-SLSTRA-20180416204859-v02.0-fv01.0.nc";
            dataFile = NetcdfFile.open(fileName, null);
            choiceVar = showChooseVar(fileName, dataFile, null);
@@ -1060,7 +1059,7 @@ public class NetCDFLoader {
            dataFile = NetcdfFile.open(fileName, null);
            choiceVar = showChooseVar(fileName, dataFile, null);
            System.out.println(String.format("Choice is '%s'", choiceVar.getShortName()));
-           
+
            fileName = baseFolder + "temperature_salinity_STF_10042018.nc";
            dataFile = NetcdfFile.open(fileName, null);
            choiceVar = showChooseVar(fileName, dataFile, null);
