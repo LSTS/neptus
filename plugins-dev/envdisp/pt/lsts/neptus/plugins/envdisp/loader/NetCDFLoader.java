@@ -680,7 +680,14 @@ public class NetCDFLoader {
     private static Index buildIndexFrom(Array varArray, int[] counter, Map<String, Integer> collumsIndexMap) {
         int[] idxCounter = buildCounterFrom(counter, collumsIndexMap);
         Index ret = varArray.getIndex();
-        ret.set(idxCounter);
+        try {
+            ret.set(idxCounter);
+        }
+        catch (Exception e) {
+            System.err.println(">>  " + Arrays.toString(idxCounter) + "  " + Arrays.toString(varArray.getShape()));
+            e.printStackTrace();
+            throw e;
+        }
         return ret;
     }
 
