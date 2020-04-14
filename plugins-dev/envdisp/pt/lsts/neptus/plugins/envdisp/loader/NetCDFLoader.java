@@ -49,11 +49,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.atomic.DoubleAccumulator;
 import java.util.concurrent.atomic.LongAccumulator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import javax.swing.JFileChooser;
@@ -854,6 +856,9 @@ public class NetCDFLoader {
            // Let us process
            Instant timeStart = Instant.now();
            NeptusLog.pub().warn(String.format("Start processing metadata for %s.", varName));
+           int elemTotal = -1;
+           final AtomicInteger elemCounter = new AtomicInteger(-1);
+           final AtomicInteger elemCounterAccepted = new AtomicInteger(-1);
            try {
                double varFillValue = NetCDFUtils.findFillValue(vVar);
                Pair<Double, Double> varValidRange = NetCDFUtils.findValidRange(vVar);
@@ -927,24 +932,33 @@ public class NetCDFLoader {
                if (depthCollumsIndexMap.values().stream().anyMatch(i -> i < 0))
                    depthCollumsIndexMap.clear();
 
-//               Instant timeFinish = Instant.now();
-//               long timeElapsed = Duration.between(timeStart, timeFinish).toMillis();
-//               NeptusLog.pub().warn(String.format("End processing metadata for %s (took %s).", varName,
-//                       DateTimeUtil.milliSecondsToFormatedString(timeElapsed)));
-//               NeptusLog.pub().warn(String.format("Start processing values for %s.", varName));
+               Instant timeFinish = Instant.now();
+               long timeElapsed = Duration.between(timeStart, timeFinish).toMillis();
+               NeptusLog.pub().warn(String.format("End processing metadata for %s (took %s).", varName,
+                       DateTimeUtil.milliSecondsToFormatedString(timeElapsed)));
+               NeptusLog.pub().warn(String.format("Start processing values for %s.", varName));
 
                final int[] gradShapeFinal = gradShape;
                final Variable depthVarFinal = depthVar;
-               Stream.generate(() -> {
-                           synchronized (counterIdx) {
-                               int[] val = NetCDFUtils.advanceLoopCounter(shape, counterIdx);
-                               return val == null ? null : Arrays.copyOf(val, val.length);
-                           }
-                       })
-                       .limit(Arrays.stream(shape).reduce(1, (x, y) -> (x+1) * y)).filter((v) -> v != null)
+               elemTotal = Arrays.stream(shape).reduce(1, (x, y) -> x * y);
+               elemCounter.set(0);
+               elemCounterAccepted.set(0);
+//               Stream.generate(() -> {
+//                           synchronized (counterIdx) {
+//                               int[] val = NetCDFUtils.advanceLoopCounter(shape, counterIdx);
+//                               return val == null ? null : Arrays.copyOf(val, val.length);
+//                           }
+//                       })
+//                       .limit(elemTotal).filter((v) -> v != null)
+//                       .parallel()
+//                       .forEach((counter) -> {
+               AtomicReference<int[]> counterAtomicRef = new AtomicReference<>(counterIdx);
+               IntStream.range(0, elemTotal)
                        .parallel()
-                       .forEach((counter) -> {
-
+                       .forEach((i) -> {
+                   int[] counter = counterAtomicRef.getAndUpdate((c) -> NetCDFUtils.advanceLoopCounter(shape, Arrays.copyOf(c, c.length)));
+                   
+                   elemCounter.addAndGet(1);
                    Instant timeEachLoopStart = Instant.now();
 
                    Date dateValue = null;
@@ -991,7 +1005,7 @@ public class NetCDFLoader {
 //                       NeptusLog.pub().warn(String.format("Loop counter %s processing for %s (took %s ns).", Arrays.toString(counter), varName,
 //                               timeEachLoopElapsed));
 
-                       avgTime.accumulate(Duration.between(timeEachLoopStart, Instant.now()).toNanos());
+                       // avgTime.accumulate(Duration.between(timeEachLoopStart, Instant.now()).toNanos());
                        return;
                    }
 
@@ -1028,10 +1042,10 @@ public class NetCDFLoader {
                                            && Double.compare(depth, depthMinMax.second()) > 0))
                        checkLimitsDepthOk = false;
                    if (!checkLimitsLatOk || !checkLimitsLonOk || !checkLimitsDepthOk) {
-                       NeptusLog.pub().debug(String.format(
-                               "While processing %s found a valid value outside passed limits (lat:%s, lon:%s, depth:%s)!",
-                               varName, checkLimitsLatOk ? "ok" : "rejected", checkLimitsLonOk ? "ok" : "rejected",
-                               checkLimitsDepthOk ? "ok" : "rejected"));
+//                       NeptusLog.pub().debug(String.format(
+//                               "While processing %s found a valid value outside passed limits (lat:%s, lon:%s, depth:%s)!",
+//                               varName, checkLimitsLatOk ? "ok" : "rejected", checkLimitsLonOk ? "ok" : "rejected",
+//                               checkLimitsDepthOk ? "ok" : "rejected"));
                        fillGradient(calculateGradient, gradBuffer, gradShapeFinal, xyGrad3DimCounter, minGradient,
                                maxGradient, minLonXDelta, minLatYDelta, counter, null);
 
@@ -1138,6 +1152,7 @@ public class NetCDFLoader {
 //                   NeptusLog.pub().warn(String.format("Loop counter %s processing for %s (took %s ns).", Arrays.toString(counter), varName,
 //                           timeEachLoopElapsed));
                    avgTime.accumulate(Duration.between(timeEachLoopStart, Instant.now()).toNanos());
+                   elemCounterAccepted.addAndGet(1);
                });
            }
            catch (Exception e) {
@@ -1146,8 +1161,10 @@ public class NetCDFLoader {
            finally {
                Instant timeFinish = Instant.now();
                long timeElapsed = Duration.between(timeStart, timeFinish).toMillis();
-               NeptusLog.pub().warn(String.format("End processing %s (took %s) (mean per read %s us).", varName,
-                       DateTimeUtil.milliSecondsToFormatedString(timeElapsed), avgTime.get() / 1E3));
+               NeptusLog.pub().warn(String.format("End processing %s (took %s) (mean per read %s us) [total: %s | proc: %s | accep: %s].",
+                       varName,
+                       DateTimeUtil.milliSecondsToFormatedString(timeElapsed), avgTime.get() / 1E3,
+                       elemTotal, elemCounter.get(), elemCounterAccepted.get()));
            }
 
            // Gradient calculation
