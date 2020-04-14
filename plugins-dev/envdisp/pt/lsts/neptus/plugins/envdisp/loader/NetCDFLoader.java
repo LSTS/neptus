@@ -646,7 +646,7 @@ public class NetCDFLoader {
            Variable vVar = searchPair == null ? null : searchPair.second();
 
            if (vName == null || vVar == null) {
-               NeptusLog.pub().debug(String.format("Variable %s not found in data fiel %s", varName, fileName));
+               NeptusLog.pub().debug(String.format("Variable %s not found in data field %s", varName, fileName));
                return null;
            }
 
@@ -809,7 +809,7 @@ public class NetCDFLoader {
            }
 
            if (latVar == null || lonVar == null) {
-               NeptusLog.pub().debug(String.format("Variable %s IS NOT georeference in data fiel %s", varName, fileName));
+               NeptusLog.pub().debug(String.format("Variable %s IS NOT georeference in data field %s", varName, fileName));
                return null;
            }
 
