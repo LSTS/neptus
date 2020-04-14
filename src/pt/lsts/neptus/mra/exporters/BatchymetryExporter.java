@@ -96,7 +96,7 @@ public class BatchymetryExporter implements MRAExporter {
                     continue;
                 
                 double tide = TidePredictionFactory.getTideLevel((long)(time*1000));
-                String line = time+","+medium.getSourceName()+","+pos.getPosition().getLatitudeDegs()+","+pos.getPosition().getLongitudeDegs()+","+(tide+pos.getAltitude()+pos.getDepth());
+                String line = time+","+medium.getSourceName()+","+pos.getPosition().getLatitudeDegs()+","+pos.getPosition().getLongitudeDegs()+","+(pos.getAltitude()+pos.getDepth()-tide);
                 if (medium.getMedium() == MEDIUM.UNDERWATER || medium.getMedium() == MEDIUM.WATER) {
                     System.out.println(line);
                     writer.write(line+"\n");                    
