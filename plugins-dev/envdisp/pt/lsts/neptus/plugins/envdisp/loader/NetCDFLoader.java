@@ -481,10 +481,10 @@ public class NetCDFLoader {
                                             && Double.compare(depth, depthMinMax.second()) > 0))
                         checkLimitsDepthOk = false;
                     if (!checkLimitsLatOk || !checkLimitsLonOk || !checkLimitsDepthOk) {
-                        NeptusLog.pub().debug(String.format(
-                                "While processing %s found a valid value outside passed limits (lat:%s, lon:%s, depth:%s)!",
-                                varName, checkLimitsLatOk ? "ok" : "rejected", checkLimitsLonOk ? "ok" : "rejected",
-                                checkLimitsDepthOk ? "ok" : "rejected"));
+//                        NeptusLog.pub().debug(String.format(
+//                                "While processing %s found a valid value outside passed limits (lat:%s, lon:%s, depth:%s)!",
+//                                varName, checkLimitsLatOk ? "ok" : "rejected", checkLimitsLonOk ? "ok" : "rejected",
+//                                checkLimitsDepthOk ? "ok" : "rejected"));
                         fillGradient(calculateGradient, gradBuffer, gradShape, xyGrad3DimCounter, minGradient,
                                 maxGradient, minLonXDelta, minLatYDelta, counter, null);
                         continue;
