@@ -102,7 +102,7 @@ public class NetCDFLoader {
      * @param depthMinMax If null no filter is applied
      * @return
      */
-    public static final Map<String, GenericDataPoint> processFileForVariable2(NetcdfFile dataFile, String varName, Date dateLimit,
+    public static final Map<String, GenericDataPoint> processFileForVariable1(NetcdfFile dataFile, String varName, Date dateLimit,
              Pair<Double, Double> latDegMinMax, Pair<Double, Double> lonDegMinMax, Pair<Double, Double> depthMinMax) {
         boolean ignoreDateLimitToLoad = false;
         if (dateLimit == null)
