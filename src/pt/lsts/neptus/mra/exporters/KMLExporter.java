@@ -100,7 +100,6 @@ import pt.lsts.neptus.util.llf.LogUtils;
 import pt.lsts.neptus.util.sidescan.AcousticCommsFilter;
 import pt.lsts.neptus.util.sidescan.SideScanComposite;
 import pt.lsts.neptus.util.sidescan.SlantRangeImageFilter;
-import pt.lsts.util.WGS84Utilities;
 
 /**
  * @author zp
@@ -113,16 +112,16 @@ public class KMLExporter implements MRAExporter {
     private ProgressMonitor pmonitor;
 
     @NeptusProperty(category = "SideScan", name="Time Variable Gain")
-    public double timeVariableGain = 300;
+    public double timeVariableGain = 180;
 
     @NeptusProperty(category = "SideScan", name="Normalization")
     public double normalization = 0.1;
     
     @NeptusProperty(category = "SideScan", name="Swath transparency")
-    public double swathTransparency = 0.25;
+    public double swathTransparency = 0.0;
 
     @NeptusProperty(category="Output", name="Generated layers transparency")
-    public double layerTransparency = 0.5;
+    public double layerTransparency = 0;
 
     @NeptusProperty(category = "SideScan", name="Separate transducers")
     public boolean separateTransducers = false;
@@ -139,7 +138,7 @@ public class KMLExporter implements MRAExporter {
     @NeptusProperty(category = "Output", name="Compress Output")
     public boolean compressOutput = true;
 
-    public double maximumSidescanRange = 50;
+    public double maximumSidescanRange = 0;
 
     @NeptusProperty(name = "Interval (seconds) for path separation", description = "If two vehicle states have a further time separation they will originate two separate paths")
     public int secondsGapInEstimatedStateForPathBreak = 30;
@@ -175,7 +174,7 @@ public class KMLExporter implements MRAExporter {
     public double sssResolution = 3;
         
     @NeptusProperty(category = "SideScan", name="Truncate Range", description="Ignore data further than this range")
-    public int truncRange = 0;
+    public int truncRange = 100;
     
     @NeptusProperty(category = "SideScan", name="Use Corrected positions", description="Use locations corrected by GPS")
     public boolean correctedPositions = true;
@@ -446,7 +445,7 @@ public class KMLExporter implements MRAExporter {
         long end = Math.min(ssParser.lastPingTimestamp(), endTime);
         
         
-        int sys = ssParser.getSubsystemList().get(0);
+        int sys = ssParser.getSubsystemList().get(ssParser.getSubsystemList().size()-1);
         SidescanParameters params = new SidescanParameters(normalization, timeVariableGain);
         String filename = fname;
 
@@ -598,6 +597,7 @@ public class KMLExporter implements MRAExporter {
 
         try {
             ImageIO.write(img, "PNG", new File(dir, filename + ".png"));
+            
             ImageLayer il = new ImageLayer("Sidescan mosaic from " + source.name(), img, topLeft, bottomRight);
             il.setTransparency(layerTransparency);
             String sufix = "";
@@ -612,6 +612,7 @@ public class KMLExporter implements MRAExporter {
                     break;
             }
             il.saveToFile(new File(dir.getParentFile(), filename + ".layer"));
+            il.saveAsPng(new File(dir.getParentFile(), filename + ".png"), true);
             return overlay(new File(dir, filename + ".png"), "Sidescan mosaic" + sufix, 
                     new LocationType(bottomRight.getLatitudeDegs(), topLeft.getLongitudeDegs()),
                     new LocationType(topLeft.getLatitudeDegs(), bottomRight.getLongitudeDegs()), ducer == Ducer.both ? visibilityForSideScan : false) ;
@@ -744,8 +745,8 @@ public class KMLExporter implements MRAExporter {
 
             for (BathymetryPoint bp : swath.getData()) {
 
-                // if (Math.random() < 0.2)
-                // continue;
+                if (Math.random() < 0.2)
+                    continue;
                 LocationType loc2 = new LocationType(loc);
                 if (bp == null)
                     continue;
@@ -865,8 +866,7 @@ public class KMLExporter implements MRAExporter {
             // To account for multiple systems paths
             Hashtable<String, ArrayList<ManeuverLocation>> pathsForSystems = new Hashtable<>();
             Hashtable<String, IMCMessage> lastEstimatedStateForSystems = new Hashtable<>();
-            // Vector<LocationType> states = new Vector<>();
-
+           
             LocationType bottomRight = null, topLeft = null;
 
             int vehicle = -1;
@@ -925,8 +925,7 @@ public class KMLExporter implements MRAExporter {
                 bw.close();
                 throw new Exception("This log doesn't have required data (EstimatedState)");
             }
-            pmonitor.setNote(I18n.text("Writing path to file"));
-            // bw.write(path(states, "Estimated State", "estate"));
+            pmonitor.setNote(I18n.text("Writing paths to file"));
             for (String sys : pathsForSystems.keySet()) {
                 ArrayList<ManeuverLocation> st = pathsForSystems.get(sys);
                 bw.write(path(st, "Estimated State " + sys, "estate"));
@@ -1051,14 +1050,7 @@ public class KMLExporter implements MRAExporter {
     }
 
     public static void main(String[] args) {
-        LocationType loc1 = new LocationType(41.08, -8.2343);
-        LocationType loc2 = new LocationType(41.12, -8.2324);
-        System.out.println(loc1.getDistanceInMeters(loc2));
-        System.out.println(loc2.getDistanceInMeters(loc1));
-        double[] res1 = loc2.getOffsetFrom(loc1);
-        double[] res2 = WGS84Utilities.WGS84displacement(loc1.getLatitudeDegs(), loc1.getLongitudeDegs(), 0, loc2.getLatitudeDegs(), loc2.getLongitudeDegs(), 0);
-        System.out.println(Math.sqrt(res2[0] * res2[0] + res2[1] * res2[1]));
-        System.out.println(Math.sqrt(res1[0] * res1[0] + res1[1] * res1[1]));
+        BatchMraExporter.apply(KMLExporter.class);
     }
 
 }
