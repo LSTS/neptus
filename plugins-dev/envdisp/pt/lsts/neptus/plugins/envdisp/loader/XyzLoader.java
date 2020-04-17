@@ -105,7 +105,7 @@ public class XyzLoader {
             info.fileName = fileName;
             
             // Gradient calc
-            boolean calculateGradient = true;
+            boolean calculateGradient = false;
             if (info.type == Type.GEO_2D)
                 calculateGradient = true;
             LongAccumulator xyGrad3DimCounter = new LongAccumulator((o, i) -> i, 0);
@@ -262,7 +262,7 @@ public class XyzLoader {
             return null;
         } 
         finally {
-            NeptusLog.pub().info("Ending processing " + varName + " netCDF file '" + fileName
+            NeptusLog.pub().info("Ending processing " + varName + " XYZ file '" + fileName
                     + "'. Reading from date '" + fromDate + "' till '" + toDate + "'.");
         }
         return dataDp;
@@ -299,8 +299,11 @@ public class XyzLoader {
                 NeptusLog.pub().error(e.getMessage(), e);
                 return null;
             }
+            finally {
+                dataFile.close();
+            }
         });
-        Thread t = new Thread(() -> fTask.run(), NetCDFLoader.class.getSimpleName() + ":: loadNetCDFPainterFor " + varName);
+        Thread t = new Thread(() -> fTask.run(), NetCDFLoader.class.getSimpleName() + ":: loadXyzPainterFor " + varName);
         t.setDaemon(true);
         t.start();
         return fTask;
