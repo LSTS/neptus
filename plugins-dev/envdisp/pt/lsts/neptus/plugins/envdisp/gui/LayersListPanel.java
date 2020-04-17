@@ -40,6 +40,7 @@ import java.awt.event.ActionEvent;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
@@ -410,17 +411,40 @@ public class LayersListPanel extends JPanel implements PropertiesProvider, Confi
 
                             String fxProps = (String) properties.get("netCDFFile");
                             File fxNC = new File(fxProps);
-                            NetcdfFile dataFile = NetcdfFile.open(fxNC.getPath());
 
                             String varProps = (String) properties.get("varName");
 
-                            Future<GenericNetCDFDataPainter> fTask = NetCDFLoader.loadNetCDFPainterFor(fxNC.getPath(),
-                                    dataFile, varProps, plotCounter.getAndIncrement(), dateLimit,
-                                    new Pair<Double, Double>(latDegMin, latDegMax),
-                                    new Pair<Double, Double>(lonDegMin, lonDegMax),
-                                    new Pair<Double, Double>(depthMin, depthMax));
+                            DataFileTypeEnum dataType = findDataFileType(fxNC);
+                            switch (dataType) {
+                                case NETCDF:
+                                    NetcdfFile dataFile = NetcdfFile.open(fxNC.getPath());
+                                    Future<GenericNetCDFDataPainter> fTask = NetCDFLoader.loadNetCDFPainterFor(fxNC.getPath(),
+                                            dataFile, varProps, plotCounter.getAndIncrement(), dateLimit,
+                                            new Pair<Double, Double>(latDegMin, latDegMax),
+                                            new Pair<Double, Double>(lonDegMin, lonDegMax),
+                                            new Pair<Double, Double>(depthMin, depthMax));
 
-                            workers.put(fTask, props);
+                                    workers.put(fTask, props);
+                                    break;
+                                case XYZ:
+                                    boolean lonLatZOrder = true;
+                                    String llzProps = (String) properties.get("additionalParams");
+                                    if (llzProps != null && llzProps.contains("lonLatZOrder=false"))
+                                        lonLatZOrder = false;
+                                    InputStream dataFileXyz = getInputStreamForXyzFile(fxNC);
+                                    fTask = XyzLoader.loadXyzPainterFor(
+                                            fxNC.getPath(),
+                                            dataFileXyz, varProps, lonLatZOrder,
+                                            plotCounter.getAndIncrement(), dateLimit,
+                                            new Pair<Double, Double>(latDegMin, latDegMax),
+                                            new Pair<Double, Double>(lonDegMin, lonDegMax),
+                                            new Pair<Double, Double>(depthMin, depthMax));
+
+                                    workers.put(fTask, props);
+                                default:
+                                    break;
+                            }
+
                         }
                         catch (Exception e2) {
                             e2.printStackTrace();
@@ -556,14 +580,8 @@ public class LayersListPanel extends JPanel implements PropertiesProvider, Confi
 
     private void openXyzFileWorker(JButton source, File fx) {
         try {
-            InputStream dataStream;
-            if (fx.getPath().toLowerCase().endsWith(".xyz"))
-                dataStream = new FileInputStream(fx);
-            else if (fx.getPath().toLowerCase().endsWith(".gz"))
-                dataStream = new GzipCompressorInputStream(new FileInputStream(fx), true);
-            else if (fx.getPath().toLowerCase().endsWith(".bz2"))
-                dataStream = new BZip2CompressorInputStream(new FileInputStream(fx), true);
-            else {
+            InputStream dataStream = getInputStreamForXyzFile(fx);
+            if (dataStream == null) {
                 source.setEnabled(true);
                 setBusy(false);
                 return;
@@ -622,6 +640,31 @@ public class LayersListPanel extends JPanel implements PropertiesProvider, Confi
             e1.printStackTrace();
             source.setEnabled(true);
             setBusy(false);
+        }
+    }
+
+    /**
+     * @param fx
+     * @return
+     * @throws FileNotFoundException
+     * @throws IOException
+     */
+    private InputStream getInputStreamForXyzFile(File fx) {
+        try {
+            InputStream dataStream;
+            if (fx.getPath().toLowerCase().endsWith(".xyz"))
+                dataStream = new FileInputStream(fx);
+            else if (fx.getPath().toLowerCase().endsWith(".gz"))
+                dataStream = new GzipCompressorInputStream(new FileInputStream(fx), true);
+            else if (fx.getPath().toLowerCase().endsWith(".bz2"))
+                dataStream = new BZip2CompressorInputStream(new FileInputStream(fx), true);
+            else
+                return null;
+            return dataStream;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
     }
 
