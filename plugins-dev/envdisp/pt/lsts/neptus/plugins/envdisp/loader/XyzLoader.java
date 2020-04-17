@@ -292,6 +292,7 @@ public class XyzLoader {
                         varName, lonLatZOrder,
                         dateLimit, latDegMinMax, lonDegMinMax, depthMinMax);
                 GenericNetCDFDataPainter gDataViz = new GenericNetCDFDataPainter(plotUniqueId, dataPoints);
+                gDataViz.getAdditionalParams().put("lonLatZOrder", Boolean.valueOf(lonLatZOrder).toString());
                 gDataViz.setNetCDFFile(filePath);
                 return gDataViz;
             }

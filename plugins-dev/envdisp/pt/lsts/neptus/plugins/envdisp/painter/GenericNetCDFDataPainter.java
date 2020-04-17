@@ -35,6 +35,7 @@ package pt.lsts.neptus.plugins.envdisp.painter;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -116,6 +117,9 @@ public class GenericNetCDFDataPainter {
     private double minDepth = Double.MIN_VALUE;
     @NeptusProperty
     private double maxDepth = Double.MAX_VALUE;
+    
+    @NeptusProperty(editable = false)
+    private Map<String, String> additionalParams = new HashMap<>();    
 
     public GenericNetCDFDataPainter(long plotUniqueId, Map<String, GenericDataPoint> dataPointsVar) throws Exception {
         if (dataPointsVar == null || dataPointsVar.isEmpty())
@@ -454,6 +458,20 @@ public class GenericNetCDFDataPainter {
         this.transparency = transparency;
     }
     
+    /**
+     * @return the additionalParams
+     */
+    public Map<String, String> getAdditionalParams() {
+        return additionalParams;
+    }
+
+    /**
+     * @param additionalParams the additionalParams to set
+     */
+    public void setAdditionalParams(Map<String, String> additionalParams) {
+        this.additionalParams = additionalParams;
+    }
+
     public void paint(Graphics2D go, StateRenderer2D renderer, boolean showDataDebugLegend) {
         boolean recreateImage = offScreen.paintPhaseStartTestRecreateImageAndRecreate(go, renderer);
         if (recreateImage) {
