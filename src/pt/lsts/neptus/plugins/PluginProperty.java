@@ -34,19 +34,17 @@ package pt.lsts.neptus.plugins;
 
 import java.awt.Color;
 import java.io.File;
-import java.lang.reflect.Array;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TimeZone;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.BooleanUtils;
 
-import com.google.common.collect.Collections2;
-import com.google.common.primitives.Primitives;
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
@@ -262,6 +260,41 @@ public class PluginProperty extends DefaultProperty {
                         + "[" + getType().getComponentType() + "]", e);
             }
             return;
+        }
+
+        if (Map.class.isAssignableFrom(getType())) {
+            // Only Map<String, String>
+            try {
+                Map<String, String> curMap = (Map<String, String>) getValue();
+                String[] tk = value.trim().replaceFirst("^\\{", "").replaceFirst("\\}$", "").split(" *, *");
+                Map<String, String> newMap = curMap != null ? curMap.getClass().newInstance() : (Map<String, String>) getType().newInstance();
+                for (int i = 0; i < tk.length; i++) {
+                    String[] tk1 = tk[i].trim().split("=");
+                    if (tk1.length != 2)
+                        continue;
+                    newMap.put(tk1[0].trim(), tk1[1].trim());
+                }
+                setValue(newMap);
+                return;
+            }
+            catch (Exception e) {
+                throw new Exception ("Map object type not supported: " + getName() + "@" + getType().getSimpleName()
+                        + "[" + getType().getComponentType() + "]", e);
+            }
+        }
+
+        if (Date.class.isAssignableFrom(getType())) {
+            try {
+                SimpleDateFormat dateFormatter = new SimpleDateFormat("EEE MMM dd hh:mm:ss zzz yyyy") {{setTimeZone(TimeZone.getTimeZone("UTC"));}}; // This one should be UTC (Zulu)
+                Date date = dateFormatter.parse(value.trim());
+                setValue(date);
+                return;
+            }
+            catch (Exception e) {
+                throw new Exception ("Date object type format not supported (should be \"dow mon dd hh:mm:ss zzz yyyy\"): "
+                        + getName() + "@" + getType().getSimpleName()
+                        + "[" + getType().getComponentType() + "]", e);
+            }
         }
 
         // if it's a Number then it has a method for parsing its string representation
