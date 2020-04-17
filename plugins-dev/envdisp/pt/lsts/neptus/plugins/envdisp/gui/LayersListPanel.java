@@ -97,10 +97,13 @@ import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.envdisp.loader.NetCDFLoader;
 import pt.lsts.neptus.plugins.envdisp.loader.XyzLoader;
 import pt.lsts.neptus.plugins.envdisp.painter.GenericNetCDFDataPainter;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.renderer2d.WorldRenderPainter;
 import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.MathMiscUtils;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
@@ -159,13 +162,19 @@ public class LayersListPanel extends JPanel implements PropertiesProvider, Confi
     private AbstractAction saveOpenVizAction;
     private JButton loadVizButton;
     private AbstractAction loadVizAction;
-    
+    private JButton latLonRenderBoxButton;
+    private AbstractAction latLonRenderBoxAction;
+    private JButton latLonResetRenderBoxButton;
+    private AbstractAction latLonResetRenderBoxAction;
+
     private JSpinner spinnerLatMin;
     private JSpinner spinnerLatMax;
     private JSpinner spinnerLonMin;
     private JSpinner spinnerLonMax;
     private JSpinner spinnerDepthMax;
-    
+
+    private StateRenderer2D stateRenderer2D = null;
+
     public LayersListPanel() {
         this(null);
     }
@@ -195,6 +204,11 @@ public class LayersListPanel extends JPanel implements PropertiesProvider, Confi
 
         saveOpenVizButton = new JButton(saveOpenVizAction);
         loadVizButton = new JButton(loadVizAction);
+
+        latLonRenderBoxButton = new JButton(latLonRenderBoxAction);
+        latLonRenderBoxButton.setEnabled(false);
+        latLonResetRenderBoxButton = new JButton(latLonResetRenderBoxAction);
+        latLonResetRenderBoxButton.setEnabled(true);
 
         spinnerLatMin = new JSpinner(new SpinnerNumberModel(latDegMin, -90, 90, 1));
         spinnerLatMin.setSize(new Dimension(100, 20));
@@ -264,19 +278,21 @@ public class LayersListPanel extends JPanel implements PropertiesProvider, Confi
         buttonBarPanel.add(logoLabel);
         buttonBarPanel.add(addButton, "sg button");
         buttonBarPanel.add(loadVizButton, "sg button");
+        buttonBarPanel.add(new JLabel(I18n.text("Lat min") + ":"));
+        buttonBarPanel.add(spinnerLatMin, "sg spinnerloc");
         buttonBarPanel.add(new JLabel(I18n.text("Lat max") + ":"));
-        buttonBarPanel.add(spinnerLatMax);
-        buttonBarPanel.add(new JLabel(I18n.text("Lon max") + ":"));
-        buttonBarPanel.add(spinnerLonMax);
-        buttonBarPanel.add(new JLabel(I18n.text("Depth max") + ":"), "span 1 2");
-        buttonBarPanel.add(spinnerDepthMax, "span 1 2, wrap");
+        buttonBarPanel.add(spinnerLatMax, "sg spinnerloc");
+        buttonBarPanel.add(new JLabel(I18n.text("Depth max") + ":"), "");
+        buttonBarPanel.add(spinnerDepthMax, "wrap");
         buttonBarPanel.add(busyPanel);
         buttonBarPanel.add(hideAllButton, "sg button");
         buttonBarPanel.add(saveOpenVizButton, "sg button");
-        buttonBarPanel.add(new JLabel(I18n.text("Lat min") + ":"));
-        buttonBarPanel.add(spinnerLatMin);
         buttonBarPanel.add(new JLabel(I18n.text("Lon min") + ":"));
-        buttonBarPanel.add(spinnerLonMin);
+        buttonBarPanel.add(spinnerLonMin, "sg spinnerloc");
+        buttonBarPanel.add(new JLabel(I18n.text("Lon max") + ":"));
+        buttonBarPanel.add(spinnerLonMax, "sg spinnerloc");
+        buttonBarPanel.add(latLonRenderBoxButton, "sg button");
+        buttonBarPanel.add(latLonResetRenderBoxButton, "sg button");
         
         add(buttonBarPanel, "w 100%");
 
@@ -498,7 +514,50 @@ public class LayersListPanel extends JPanel implements PropertiesProvider, Confi
                     setBusy(false);
                 }
             }
-        }; 
+        };
+
+        latLonRenderBoxAction = new AbstractAction(I18n.text("Viz. Box")) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                StateRenderer2D sr = getStateRenderer2D();
+                if (sr != null) {
+                    double[] llbox = WorldRenderPainter.getRendererWorldLatLonDegsMinMax(sr);
+                    double latMax = MathMiscUtils.clamp(Math.floor(llbox[2]), -90, 90);
+                    double latMin = MathMiscUtils.clamp(Math.ceil(llbox[0]), -90, 90);
+                    double lonMax = MathMiscUtils.clamp(Math.floor(llbox[3]), -180, 180);
+                    double lonMin = MathMiscUtils.clamp(Math.ceil(llbox[1]), -180, 180);
+                    spinnerLatMin.setValue(latMin);
+                    spinnerLatMax.setValue(latMax);
+                    spinnerLonMin.setValue(lonMin);
+                    spinnerLonMax.setValue(lonMax);
+                }
+            }
+        };
+
+        latLonResetRenderBoxAction = new AbstractAction(I18n.text("Box Reset")) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                spinnerLatMin.setValue(-90d);
+                spinnerLatMax.setValue(90d);
+                spinnerLonMin.setValue(-180d);
+                spinnerLonMax.setValue(180d);
+            }
+        };
+    }
+
+    /**
+     * @return the stateRenderer2D
+     */
+    StateRenderer2D getStateRenderer2D() {
+        return stateRenderer2D;
+    }
+
+    /**
+     * @param stateRenderer2D the stateRenderer2D to set
+     */
+    public void setStateRenderer2D(StateRenderer2D stateRenderer2D) {
+        this.stateRenderer2D = stateRenderer2D;
+        latLonRenderBoxButton.setEnabled(this.stateRenderer2D == null ? false : true);
     }
 
     /**
