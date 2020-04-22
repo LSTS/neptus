@@ -137,7 +137,7 @@ public class IMCFieldsPanel {
             this.msg = m.cloneMessage();
             Arrays.stream(this.msg.getFieldNames()).forEach(item -> fillPanel(item));
         }
-        this.header = new Header();
+        this.header = this.msg.getHeader();
         this.m_fields.addAll(Arrays.asList(this.msg.getFieldNames()));
         this.initializePanel();
 
@@ -194,6 +194,19 @@ public class IMCFieldsPanel {
 
             JLabel srcDstIdLabel = new JLabel("Source and Destination IMC IDs");
             JLabel srcDestEntLabel = new JLabel("Source and Destination Entities IDs (can be blanc)");
+            
+            if(this.header.get_src() >= 0){
+                srcId.setText(String.valueOf(this.header.get_src()));
+            }
+            if(this.header.get_dst() >= 0){
+                dstId.setText(String.valueOf(this.header.get_dst()));
+            }
+            if(this.header.get_dst_ent() >= 0){
+                dstEntId.setText(String.valueOf(this.header.get_dst_ent()));
+            }
+            if(this.header.get_src_ent() >= 0){
+                srcEntId.setText(String.valueOf(this.header.get_src_ent()));
+            }
 
             layout_fields.setHorizontalGroup(layout_fields.createParallelGroup(GroupLayout.Alignment.CENTER)
                     .addComponent(title).addComponent(srcDstIdLabel)
