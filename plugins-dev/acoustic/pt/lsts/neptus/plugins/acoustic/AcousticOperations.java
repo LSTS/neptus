@@ -71,6 +71,7 @@ import pt.lsts.imc.net.IMCFragmentHandler;
 import pt.lsts.imc.sender.MessageEditor;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
+import pt.lsts.neptus.comm.manager.imc.ImcMessageSenderPanel;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
@@ -137,7 +138,7 @@ public class AcousticOperations extends ConsolePanel implements ConfigurationLis
     private JComboBox<String> targetsCombo;
     private JTextArea infoArea = null;
 
-    protected MessageEditor editor = new MessageEditor();
+    protected ImcMessageSenderPanel editor;
     protected boolean initialized = false;
 
     public AcousticOperations(ConsoleLayout console) {
@@ -365,16 +366,17 @@ public class AcousticOperations extends ConsolePanel implements ConfigurationLis
         messageBtn.addActionListener(event -> {
             JDialog dialog = new JDialog(getConsole(), I18n.text("Send message acoustically"));
             dialog.setLayout(new BorderLayout());
-            dialog.getContentPane().add(editor, BorderLayout.CENTER);
-            JPanel bottom = new JPanel(new FlowLayout(FlowLayout.TRAILING));
             JButton btn = new JButton(I18n.text("Send"));
+            editor = new ImcMessageSenderPanel(btn);
+//            JPanel bottom = new JPanel(new FlowLayout(FlowLayout.TRAILING));
             btn.addActionListener(e -> {
                 ImcSystem gw = ImcSystemsHolder.lookupSystemByName(selectedGateway);
                 IMCSendMessageUtils.sendMessageByAcousticModem(editor.getMessage(), selectedTarget, true,
                         new ImcSystem[] { gw });
             });
-            bottom.add(btn);
-            dialog.getContentPane().add(bottom, BorderLayout.SOUTH);
+            dialog.getContentPane().add(editor, BorderLayout.CENTER);
+//            bottom.add(btn);
+//            dialog.getContentPane().add(bottom, BorderLayout.SOUTH);
             dialog.setSize(600, 500);
             dialog.setModalityType(ModalityType.DOCUMENT_MODAL);
             GuiUtils.centerParent(dialog, getConsole());
