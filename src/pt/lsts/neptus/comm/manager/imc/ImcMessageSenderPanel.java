@@ -40,14 +40,9 @@ import java.awt.Image;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.ByteArrayOutputStream;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetSocketAddress;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -60,28 +55,22 @@ import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
 import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.IMCOutputStream;
-import pt.lsts.imc.sender.UIUtils;
-import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.ImcCopyPastePanel;
 import pt.lsts.neptus.gui.LocationCopyPastePanel;
 import pt.lsts.neptus.gui.MessagePreviewer;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.types.coord.LocationType;
-import pt.lsts.neptus.util.ByteUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
@@ -103,9 +92,6 @@ public class ImcMessageSenderPanel extends JPanel {
 
     private JComboBox<String> messagesComboBox = null;
     private JButton editMessageButton = null;
-    private JButton publishButton = null;
-    private JButton burstPublishButton = null;
-    private JButton createButton = null;
     private JButton previewButton = null;
 
     private LocationCopyPastePanel locCopyPastePanel = null;
@@ -126,13 +112,18 @@ public class ImcMessageSenderPanel extends JPanel {
     private HashMap<String, IMCMessage> messagesPool = new HashMap<String, IMCMessage>();
 
     /**
-     * 
+     * Creates a @JPanel to construct a @IMCMessage.
+     * By default the footer of the panel has an Edit and Preview button.
+     * More buttons can be created adding them on this constructor method. 
+     * The message created by this panel can be accessed in runtime events 
+     * by using the {@link #getMessage()} or {@link #getOrCreateMessage(String abbrev)}.
+     * @param custom list of custom buttons 
      */
-    public ImcMessageSenderPanel() {
-        initialize();
+    public ImcMessageSenderPanel(JButton... custom) {
+        initialize(custom);
     }
 
-    private void initialize() {
+    private void initialize(JButton... custom) {
 
         port = new JTextField(nf.format(GeneralPreferences.commsLocalPortUDP));
 
@@ -176,10 +167,14 @@ public class ImcMessageSenderPanel extends JPanel {
         holder_footer.add(getMsgCopyPastePanel());
         holder_footer.add(getLocCopyPastPanel());
         holder_footer.add(getEditMessageButton());
-        holder_footer.add(getCreateButton());
-        holder_footer.add(getBurstPublishButton());
-        holder_footer.add(getPublishButton());
         holder_footer.add(getPreviewButton());
+        //holder_footer.add(getCreateButton());
+        for(JButton button: custom) {
+            button.setPreferredSize(new Dimension(90, 26));
+            button.setText(I18n.text(button.getText()));
+            holder_footer.add(button);
+        }
+        
         JScrollPane scrollFooter = new JScrollPane(holder_footer) {
             @Override
             public Dimension getPreferredSize() {
@@ -284,70 +279,6 @@ public class ImcMessageSenderPanel extends JPanel {
     }
 
     /**
-     * @return the createButton
-     */
-    private JButton getCreateButton() {
-        if (createButton == null) {
-            createButton = new JButton();
-            createButton.setText(I18n.text("Generate"));
-            createButton.setPreferredSize(new Dimension(102, 26));
-            createButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    String mName = (String) getMessagesComboBox().getSelectedItem();
-                    getOrCreateMessage(mName);
-                }
-            });
-        }
-        return createButton;
-    }
-
-    /**
-     * This method initializes publishButton
-     * 
-     * @return javax.swing.JButton
-     */
-    private JButton getPublishButton() {
-        if (publishButton == null) {
-            publishButton = new JButton();
-            publishButton.setText(I18n.text("Publish"));
-            publishButton.setPreferredSize(new Dimension(90, 26));
-            publishButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    String msgName = (String) messagesComboBox.getSelectedItem();
-                    String msg = null;
-                    IMCMessage sMsg = getOrCreateMessage(msgName);
-                    if (sMsg != null) {
-                        try {
-                            sMsg.setTimestampMillis(System.currentTimeMillis());
-                            sMsg.dump(System.out);
-                            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                            IMCOutputStream ios = new IMCOutputStream(baos);
-                            sMsg.serialize(ios);
-
-                            ByteUtil.dumpAsHex(msgName + " [size=" + baos.size() + "]", baos.toByteArray(), System.out);
-                            msg = sendUdpMsg(baos.toByteArray(), baos.size());
-                            if (msg != null)
-                                UIUtils.exceptionDialog(ImcMessageSenderPanel.this, new Exception(msg), "Error sending message by UDP",
-                                        "Validate message");
-                            else {
-                                JOptionPane.showMessageDialog(ImcMessageSenderPanel.this,
-                                        "Message sent successfully by UDP.", "Message Sent",
-                                        JOptionPane.INFORMATION_MESSAGE);
-                            }
-
-                        }
-                        catch (Exception e1) {
-                            NeptusLog.pub().warn(I18n.text(""));
-                            e1.printStackTrace();
-                        }
-                    }
-                }
-            });
-        }
-        return publishButton;
-    }
-
-    /**
      * This method associates a @pt.lsts.imc.sender.MessageEditor to the currently selected message on the panel
      * 
      * @return
@@ -387,69 +318,6 @@ public class ImcMessageSenderPanel extends JPanel {
         };
         previewButton.addActionListener(previewAction);
         return previewButton;
-    }
-
-    /**
-     * @return the burstPublishButton
-     */
-    private JButton getBurstPublishButton() {
-        if (burstPublishButton == null) {
-            burstPublishButton = new JButton();
-            burstPublishButton.setText(I18n.text("Burst"));
-            burstPublishButton.setPreferredSize(new Dimension(85, 26));
-            burstPublishButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    burstPublishButton.setEnabled(false);
-                    SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
-                        @Override
-                        protected Boolean doInBackground() throws Exception {
-                            Collection<String> mtypes = IMCDefinition.getInstance().getMessageNames();
-                            for (String mt : mtypes) {
-                                String msgName = mt;
-                                IMCMessage sMsg = getOrCreateMessage(msgName);
-                                sMsg.setTimestampMillis(System.currentTimeMillis());
-                                sMsg.dump(System.out);
-                                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                                IMCOutputStream ios = new IMCOutputStream(baos);
-                                try {
-                                    sMsg.serialize(ios);
-                                    ByteUtil.dumpAsHex(msgName + " [size=" + baos.size() + "]", baos.toByteArray(),
-                                            System.out);
-                                    String msg = sendUdpMsg(baos.toByteArray(), baos.size());
-                                    if (msg != null)
-                                        UIUtils.exceptionDialog(ImcMessageSenderPanel.this, new Exception(msg), "Error sending message by UDP",
-                                                "Validate message");
-                                    else {
-                                        JOptionPane.showMessageDialog(ImcMessageSenderPanel.this,
-                                                "Message sent successfully by UDP.", "Message Sent",
-                                                JOptionPane.INFORMATION_MESSAGE);
-                                    }
-                                }
-                                catch (Exception e1) {
-                                    NeptusLog.pub().error(e1);
-                                    e1.printStackTrace();
-                                }
-                            }
-                            return false;
-                        }
-
-                        @Override
-                        protected void done() {
-                            try {
-                                get();
-                            }
-                            catch (Exception e) {
-                                NeptusLog.pub().error(e);
-                            }
-                            if (burstPublishButton != null)
-                                burstPublishButton.setEnabled(true);
-                        }
-                    };
-                    worker.execute();
-                }
-            });
-        }
-        return burstPublishButton;
     }
 
     /**
@@ -511,29 +379,7 @@ public class ImcMessageSenderPanel extends JPanel {
         return this.msgCopyPastePanel;
     }
 
-    public String sendUdpMsg(byte[] msg, int size) {
-
-        try {
-            DatagramSocket sock = null;
-            if ("".equalsIgnoreCase(bindPort.getText())) {
-                sock = new DatagramSocket();
-            }
-            else {
-                int bport = Integer.parseInt(bindPort.getText());
-                sock = new DatagramSocket(bport);
-            }
-            sock.connect(new InetSocketAddress(address.getText(), Integer.parseInt(port.getText())));
-            sock.send(new DatagramPacket(msg, size));
-            sock.close();
-            return null;
-        }
-        catch (Exception e) {
-            NeptusLog.pub().error(e);
-            return "Error sending the UDP message: " + e.getMessage();
-        }
-    }
-
-    private IMCMessage getOrCreateMessage(String mName) {
+    public IMCMessage getOrCreateMessage(String mName) {
 
         IMCMessage msg = ImcMessageSenderPanel.this.messagesPool.get(mName);
         if (fields == null)
@@ -548,6 +394,17 @@ public class ImcMessageSenderPanel extends JPanel {
         messagesPool.put(mName, sMsg);
 
         return msg;
+    }
+    
+    public IMCMessage getMessage() {
+        String mName = (String) getMessagesComboBox().getSelectedItem();
+        if(mName == null)
+            mName = "Abort";
+        return this.getOrCreateMessage(mName);
+    }
+    
+    public void addTemplate(IMCMessage m) {
+        messagesPool.put(m.getAbbrev(), m);
     }
 
     public static JFrame getFrame() {
@@ -569,5 +426,26 @@ public class ImcMessageSenderPanel extends JPanel {
     public static void main(String[] args) {
         ConfigFetch.initialize();
         new ImcMessageSenderPanel().getFrame().setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+    }
+
+    /**
+     * @return the bindPort
+     */
+    public String getBindPort() {
+        return bindPort.getText();
+    }
+
+    /**
+     * @return the address to send this message
+     */
+    public String getAddress() {
+        return address.getText();
+    }
+
+    /**
+     * @return the port to send this message
+     */
+    public String getPort() {
+        return port.getText();
     }
 }
