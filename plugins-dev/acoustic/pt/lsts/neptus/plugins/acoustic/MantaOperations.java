@@ -36,7 +36,6 @@ import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dialog.ModalityType;
-import java.awt.FlowLayout;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.Rectangle;
@@ -91,10 +90,10 @@ import pt.lsts.imc.TransmissionStatus;
 import pt.lsts.imc.Voltage;
 import pt.lsts.imc.def.SpeedUnits;
 import pt.lsts.imc.def.ZUnits;
-import pt.lsts.imc.sender.MessageEditor;
 import pt.lsts.imc.state.ImcSystemState;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
+import pt.lsts.neptus.comm.manager.imc.ImcMessageSenderPanel;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
@@ -144,7 +143,7 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
     protected String selectedSystem = null;
     protected String gateway = "any";
     protected JLabel lblState = new JLabel("<html><h1>" + I18n.text("Please select a gateway") + "</h1>");
-    protected MessageEditor editor = new MessageEditor();
+    protected ImcMessageSenderPanel editor;
     protected LinkedHashMap<Integer, PlanControl> pendingRequests = new LinkedHashMap<>();
 
     public HashSet<String> knownSystems = new HashSet<>();
@@ -179,18 +178,9 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
      */
     public MantaOperations(ConsoleLayout console) {
         super(console);      
-        addTemplates();
     }
 
     private void addTemplates() {
-        PlanControl pc = new PlanControl();
-        pc.setPlanId("dislodge");
-        pc.setType(TYPE.REQUEST);
-        pc.setRequestId(1);
-        pc.setFlags(PlanControl.FLG_IGNORE_ERRORS);
-        pc.setOp(OP.START);
-
-        editor.addTemplate("(Template) Dislodge", pc);
 
         PlanControl surf = new PlanControl();
         Elevator elev = new Elevator();
@@ -208,7 +198,7 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
         surf.setFlags(PlanControl.FLG_IGNORE_ERRORS);
         surf.setOp(OP.START);
 
-        editor.addTemplate("(Template) Surface", surf);
+        editor.addTemplate(surf);
 
         SetEntityParameters setParams = new SetEntityParameters();
         setParams.setName("Report Supervisor");
@@ -220,12 +210,12 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
         p2.setValue("60");
         setParams.setParams(Arrays.asList(p1, p2));
 
-        editor.addTemplate("(Template) Acoustic Reports", setParams);
+        editor.addTemplate(setParams);
 
         TextMessage txt = new TextMessage().setText("info");
         txt.setOrigin("neptus");
         
-        editor.addTemplate("(Template) Text Message", txt);
+        editor.addTemplate(txt);
     }
 
     protected ActionListener systemActionListener = new ActionListener() {
@@ -282,19 +272,21 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
     public void sendMessage() {
         JDialog dialog = new JDialog(getConsole(), I18n.text("Send message acoustically"), true);
         dialog.setLayout(new BorderLayout());
-        dialog.getContentPane().add(editor, BorderLayout.CENTER);
-        JPanel bottom = new JPanel(new FlowLayout(FlowLayout.TRAILING));
         JButton btn = new JButton(I18n.text("Send"));
+        editor = new ImcMessageSenderPanel(btn);
+        addTemplates();
+        dialog.getContentPane().add(editor, BorderLayout.CENTER);
+//        JPanel bottom = new JPanel(new FlowLayout(FlowLayout.TRAILING));
         btn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                sendAcoustically(getConsole().getMainSystem(), editor.getMessage());
+                sendAcoustically(getConsole().getMainSystem(),editor.getMessage() );
                 dialog.dispose();
                 dialog.setVisible(false);
             }
         });
-        bottom.add(btn);
-        dialog.getContentPane().add(bottom, BorderLayout.SOUTH);
+//        bottom.add(btn);
+//        dialog.getContentPane().add(bottom, BorderLayout.SOUTH);
         dialog.setSize(600, 500);
         dialog.setModalityType(ModalityType.DOCUMENT_MODAL);
         GuiUtils.centerParent(dialog, getConsole());
@@ -530,17 +522,19 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
             public void actionPerformed(ActionEvent event) {
                 JDialog dialog = new JDialog(getConsole(), I18n.text("Send message acoustically"));
                 dialog.setLayout(new BorderLayout());
-                dialog.getContentPane().add(editor, BorderLayout.CENTER);
-                JPanel bottom = new JPanel(new FlowLayout(FlowLayout.TRAILING));
                 JButton btn = new JButton(I18n.text("Send"));
+                editor = new ImcMessageSenderPanel(btn);
+                addTemplates();
+                dialog.getContentPane().add(editor, BorderLayout.CENTER);
+                //JPanel bottom = new JPanel(new FlowLayout(FlowLayout.TRAILING));
                 btn.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         sendAcoustically(selectedSystem, editor.getMessage());
                     }
                 });
-                bottom.add(btn);
-                dialog.getContentPane().add(bottom, BorderLayout.SOUTH);
+//                bottom.add(btn);
+//                dialog.getContentPane().add(bottom, BorderLayout.SOUTH);
                 dialog.setSize(600, 500);
                 dialog.setModalityType(ModalityType.DOCUMENT_MODAL);
                 GuiUtils.centerParent(dialog, getConsole());
