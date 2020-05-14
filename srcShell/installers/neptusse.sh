@@ -57,7 +57,7 @@ esac
 
 cd $NEPTUS_HOME
 
-CLASSPATH=".:bin/neptus.jar:conf@NEPTUS_LIBS@":$CLASSPATH
+CLASSPATH=".:bin/neptus.jar:conf@NEPTUS_LIBS@":plugins/*:$CLASSPATH
 
 LIBS=".:libJNI"
 

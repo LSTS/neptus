@@ -34,10 +34,7 @@ package pt.lsts.neptus.plugins;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.net.URI;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.charset.Charset;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -67,7 +64,7 @@ import pt.lsts.neptus.util.conf.ConfigFetch.Environment;
  */
 public class PluginsLoader {
 
-    private static final Class<?>[] parameters = new Class[] { URL.class };
+//    private static final Class<?>[] parameters = new Class[] { URL.class };
 
     /**
      * Loads Plugins according to the ENVIROMENT<br>
@@ -82,7 +79,7 @@ public class PluginsLoader {
             try {
                 for (Path jar : pluginsJars) {
                     try {
-                        addToSysClassLoader(jar.toUri().toURL());
+//                        addToSysClassLoader(jar.toUri().toURL());
                         FindPlugins plugins = new FindPlugins();
                         FileSystem zipFileSystem = createZipFileSystem(jar.toAbsolutePath().toString(), false);
                         final Path root = zipFileSystem.getPath("/");
@@ -103,21 +100,21 @@ public class PluginsLoader {
         }
 
         if (ConfigFetch.getRunEnvironment() == Environment.DEVELOPMENT) {
-            List<Path> externalJars = findExternalPluginsJars();
-
-            try {
-                for (Path jar : externalJars) {
-                    try {
-                        addToSysClassLoader(jar.toUri().toURL());
-                    }
-                    catch (Exception e) {
-                        NeptusLog.pub().error("Error loading plugin jar from dev", e);
-                    }
-                }
-            }
-            catch (Exception e) {
-                NeptusLog.pub().error("Error getting plugins from dev", e);
-            }
+//            List<Path> externalJars = findExternalPluginsJars();
+//
+//            try {
+//                for (Path jar : externalJars) {
+//                    try {
+//                        addToSysClassLoader(jar.toUri().toURL());
+//                    }
+//                    catch (Exception e) {
+//                        NeptusLog.pub().error("Error loading plugin jar from dev", e);
+//                    }
+//                }
+//            }
+//            catch (Exception e) {
+//                NeptusLog.pub().error("Error getting plugins from dev", e);
+//            }
 
             FindPlugins plugins = new FindPlugins();
             Path start = Paths.get("plugins-dev");
@@ -178,21 +175,22 @@ public class PluginsLoader {
         return null;
     }
 
-    private static void addToSysClassLoader(URL u) throws Exception {
-
-        URLClassLoader sysloader = (URLClassLoader) ClassLoader.getSystemClassLoader();
-        Class<?> sysclass = URLClassLoader.class;
-
-        try {
-            Method method = sysclass.getDeclaredMethod("addURL", parameters);
-            method.setAccessible(true);
-            method.invoke(sysloader, new Object[] { u });
-        }
-        catch (Throwable t) {
-            t.printStackTrace();
-            throw new Exception("Error, could not add URL to system classloader: " + t.getMessage());
-        }
-    }
+//    private static void addToSysClassLoader(URL u) throws Exception {
+//
+////        URLClassLoader sysloader = (URLClassLoader) ClassLoader.getSystemClassLoader();
+////        Class<?> sysclass = URLClassLoader.class;
+//
+//        try {
+////            Method method = sysclass.getDeclaredMethod("addURL", parameters);
+////            method.setAccessible(true);
+////            method.invoke(sysloader, new Object[] { u });
+//            PluginsClassLoader.classLoader.addURL(u);
+//        }
+//        catch (Throwable t) {
+//            t.printStackTrace();
+//            throw new Exception("Error, could not add URL to system classloader: " + t.getMessage());
+//        }
+//    }
 
     private static void loadPluginFromLST(Path file) {
         Charset charset = Charset.forName("UTF-8");
