@@ -48,7 +48,6 @@ import javax.swing.ListCellRenderer;
 import javax.swing.SwingConstants;
 
 import com.google.common.eventbus.Subscribe;
-import com.sun.java.swing.plaf.windows.WindowsComboBoxUI;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -101,7 +100,6 @@ public class MainSystemSelectionCombo extends JComboBox<String> implements ItemL
         this.setRenderer(new MainSystemRenderer());
         this.addItemListener(this);
         this.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 12));
-        this.setUI(new WindowsComboBoxUI());
         setFocusable(false);
     }
 
