@@ -65,8 +65,6 @@ import javax.swing.SwingWorker;
 import org.apache.commons.lang3.text.WordUtils;
 import org.jdesktop.swingx.JXBusyLabel;
 
-import com.sun.java.swing.plaf.windows.WindowsButtonUI;
-
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.AbstractConsolePlugin;
@@ -170,7 +168,6 @@ public class PluginManager extends ConsolePanel {
         availablePluginsPanel.add(availablePluginsLabel, "h 7%");
         // buttons
         btnAdd = new JButton();
-        btnAdd.setUI(new WindowsButtonUI());
         availablePluginsPanel.add(btnAdd, "w 80px::, h 7%, wrap");
 
         // list
@@ -188,11 +185,9 @@ public class PluginManager extends ConsolePanel {
         activePluginsPanel.add(activePluginsLabel, "h 7%");
         // buttons
         btnRemove = new JButton();
-        btnRemove.setUI(new WindowsButtonUI());
         activePluginsPanel.add(btnRemove, "w 80px::, h 7%");
 
         btnSettings = new JButton();
-        btnSettings.setUI(new WindowsButtonUI());
         activePluginsPanel.add(btnSettings, "w 80px::, h 7%, wrap");
 
         // list
