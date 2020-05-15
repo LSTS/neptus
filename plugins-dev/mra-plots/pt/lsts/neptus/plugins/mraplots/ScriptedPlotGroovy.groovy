@@ -36,6 +36,7 @@ import org.jfree.data.time.Millisecond
 import org.jfree.data.time.TimeSeries
 import org.jfree.data.time.TimeSeriesDataItem
 import org.jfree.data.time.TimeSeriesCollection
+import org.jfree.data.time.RegularTimePeriod
 import org.jfree.data.xy.XYDataItem
 import org.jfree.data.xy.XYSeries
 import pt.lsts.neptus.mra.plots.ScriptedPlot
@@ -88,38 +89,39 @@ class ScriptedPlotGroovy  {
                 tsc.getSeries().each { TimeSeries ts ->
                     String name = ts.getKey().toString()
                     TimeSeries s = new TimeSeries(name)
-                    for(int i = 0;i<ts.getItemCount();i++) {
-                        def value = ts.getDataItem(i)
-                        def val = function.call(value.getValue())
-                        TimeSeriesDataItem item = new TimeSeriesDataItem(value.getPeriod(),val)
-                        s.add(item)
+                    for(TimeSeriesDataItem item: s.getItems()) {
+                        def value = function.call(item.getValue())
+                        s.addOrUpdate(item.getPeriod(),value)
                     }
                     result.addSeries(s)
                 }
         result
     }
     
-    static public TimeSeriesCollection apply(String name,String queryID, Object function) {
-        TimeSeriesCollection tsc = scriptedPlot.getTimeSeriesFor(queryID)
+    static public TimeSeriesCollection apply(String name,String queryID, Closure<Number> function) {
         TimeSeriesCollection result = new TimeSeriesCollection()
+        if(!scriptedPlot.isProcessed())
+            return result
+        TimeSeriesCollection tsc = scriptedPlot.getTimeSeriesFor(queryID)
                 tsc.getSeries().each { TimeSeries ts ->
                     def newName = ts.getKey().toString().split("\\.")[0]+ "."+name
                     TimeSeries s = new TimeSeries(newName)
-                    for(int i = 0;i<ts.getItemCount();i++) {
-                        def value = ts.getDataItem(i)
-                        def val = function.call(value.getValue())
-                        TimeSeriesDataItem item = new TimeSeriesDataItem(value.getPeriod(),val)
-                        s.add(item)
+                    for(TimeSeriesDataItem item: ts.getItems()) {
+                        def value = item.getValue()
+                        def new_value = function.call(value)
+                        s.addOrUpdate(item.getPeriod(),new_value)
                     }
                     result.addSeries(s)
                 }
         result
     }
     
-    static public TimeSeriesCollection apply(String id,String queryID1,String queryID2, Object function) {
+    static public TimeSeriesCollection apply(String id,String queryID1,String queryID2, Closure<Number> function) {
+        TimeSeriesCollection result = new TimeSeriesCollection()
+        if(!scriptedPlot.isProcessed())
+            return result
         TimeSeriesCollection tsc1 = scriptedPlot.getTimeSeriesFor(queryID1)
         TimeSeriesCollection tsc2 = scriptedPlot.getTimeSeriesFor(queryID2)
-        TimeSeriesCollection result = new TimeSeriesCollection()
         int min_tsc = Math.min(tsc1.getSeriesCount(), tsc2.getSeriesCount())
         TimeSeries ts1, ts2,ts
         for(int j=0;j<min_tsc;j++) {
@@ -130,13 +132,16 @@ class ScriptedPlotGroovy  {
             if(ts1.getKey().toString().split("\\.")[0].equals(ts2.getKey().toString().split("\\.")[0])) { //Same source vehicle lauv-noptilus-1.<Query_ID>
                 def newName = ts1.getKey().toString().split("\\.")[0]+ "."+id
                 ts = new TimeSeries(newName)
-                int min = Math.min(ts1.getItemCount(), ts2.getItemCount())
-                for (int i=0; i<min;i++) {
-                    def val1 = ts1.getDataItem(i)
-                    def val2 = ts2.getDataItem(i)
-                    def val  = function.call(val1.getValue(),val2.getValue())
-                    TimeSeriesDataItem item = new TimeSeriesDataItem(val1.getPeriod(), val)
-                    ts.add(item)
+                for (TimeSeriesDataItem val1: ts1.getItems()) {
+                    RegularTimePeriod p = val1.getPeriod()
+                    int index = ts2.getIndex(p)
+                    if(index < 0)
+                        continue;
+                    TimeSeriesDataItem val2 = ts2.getDataItem(index)
+                    double v1 = val1.getValue()
+                    double v2 = val2.getValue()
+                    double val  = function.call(v1,v2)
+                    ts.addOrUpdate(p, val)
                 }
                 result.addSeries(ts)
             }
@@ -237,7 +242,7 @@ class ScriptedPlotGroovy  {
                     int n = ts.getItemCount()
                     for(int i=0;i<n;i++) {
                         double aux = new Double(ts.getDataItem(i).getValue()).doubleValue()
-                        if(aux != Double.NaN)
+                        if(Double.isNaN(aux))
                             total = total + aux
                     }
                     result = total/(double)n
@@ -250,7 +255,7 @@ class ScriptedPlotGroovy  {
     }
     
     static public void plotRangeMarker(String id,double value) {
-        if(scriptedPlot!= null || value == Double.NaN) {
+        if(scriptedPlot!= null || !Double.isNaN(value)) {
             scriptedPlot.addRangeMarker(id, value)
         }
     }

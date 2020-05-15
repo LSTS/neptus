@@ -189,8 +189,9 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
     }
 
     public void addTimeSeries(String id, String query) {
-        if(!processed)
+        if(!processed) {
             traces.put(id, query);
+        }
     }
 
     public TimeSeriesCollection getTimeSeriesFor(String id) {
@@ -249,13 +250,13 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
         double step = Math.max(timestep, 0.01);
         for (int i = index.advanceToTime(0, step); i != -1; 
                 i = index.advanceToTime(i, index.timeOf(i) + step)) {
-
-            scIndex.lsfPos = i;
+            
             for (Entry<String, String> entry : traces.entrySet()) {
+                scIndex.lsfPos = i;
                 String src = index.getMessage(i).getSourceName();
                 String seriesName = src + "." + entry.getKey();
                 double value = scIndex.val(entry.getValue(),src);
-                if (value != Double.NaN && src != null) {
+                if (!Double.isNaN(value) && src != null) {
                     if(forbiddenSeries.contains(seriesName) && !hiddenFiles.contains(entry.getKey())) {
                         hiddenFiles.add(entry.getKey());
                     }
@@ -275,7 +276,7 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
         for (TimeSeries t : (List<TimeSeries>) customTsc.getSeries()) {
             for (int i = 0; i < t.getItemCount(); i++) {
                 TimeSeriesDataItem item = t.getDataItem(i);
-                if (item.getValue().doubleValue() != Double.NaN) {
+                if (!Double.isNaN(item.getValue().doubleValue())) {
                     if (!forbiddenSeries.contains(t.getKey().toString())) {
                         addValue(item.getPeriod().getFirstMillisecond(), t.getKey().toString(),
                                 item.getValue().doubleValue());
@@ -443,14 +444,17 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
             }
 
             int msgType = index.getDefinitions().getMessageId(message);
-
+            
             if (entity == null) {
                 int msgIdx = index.getPreviousMessageOfType(msgType, lsfPos);
                 while (msgIdx >= prevPos) {
-                    if (msgIdx == -1)
+                    if (msgIdx == -1) {
                         return Double.NaN;
-                    else if (index.getMessage(msgIdx).getSourceName().equals(source))
-                            return index.getMessage(msgIdx).getDouble(field);
+                    }
+                    else if (index.getMessage(msgIdx).getSourceName().equals(source)) {
+                        prevPos = msgIdx;
+                        return index.getMessage(msgIdx).getDouble(field);
+                    }
                     else {
                         msgIdx = index.getPreviousMessageOfType(msgType, msgIdx);
                     }
