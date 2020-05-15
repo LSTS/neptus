@@ -201,6 +201,9 @@ public class DataCollector<T extends BaseDataPoint<?>> implements
 //                        System.out.println(Thread.currentThread().getName() + " :: DataCollector::idx-" + idx + " :: " + res.get(idx).containsKey(ptI));
 //                        if (abortIndicator.get())
 //                            System.out.println("abortIndicator " + abortIndicator.get());
+                        if (abortIndicator.get())
+                            break;
+
                         Map<Point2D, Pair<ArrayList<Object>, Date>> rd = res.get(idx);
                         if (!rd.containsKey(ptI)) {
                             rd.put(ptI, new Pair<>(vals, dateV));
@@ -235,8 +238,14 @@ public class DataCollector<T extends BaseDataPoint<?>> implements
                     return res;
                 
                 for (int idxc = 0; idxc < 2; idxc++) {
+                    if (abortIndicator.get())
+                        break;
+
                     final int idx = idxc;
                     resInt.get(idx).keySet().stream().forEach(k1 -> {
+                        if (abortIndicator.get())
+                            return;
+
                         try {
                             Pair<ArrayList<Object>, Date> sI = resInt.get(idx).get(k1);
                             if (res.get(idx).containsKey(k1)) {

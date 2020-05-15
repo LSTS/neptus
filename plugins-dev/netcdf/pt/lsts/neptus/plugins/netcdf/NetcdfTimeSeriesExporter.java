@@ -33,7 +33,9 @@
 package pt.lsts.neptus.plugins.netcdf;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Vector;
 
 import pt.lsts.imc.IMCMessage;
@@ -42,7 +44,8 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.types.coord.LocationType;
 import ucar.ma2.DataType;
 import ucar.nc2.Dimension;
-import ucar.nc2.NetcdfFileWriteable;
+import ucar.nc2.NetcdfFileWriter;
+//import ucar.nc2.NetcdfFileWriteable;
 
 /**
  * @author zp
@@ -62,15 +65,17 @@ public class NetcdfTimeSeriesExporter {
     }
 
     public void export(File outputFile) throws Exception {
-        try(NetcdfFileWriteable file = new NetcdfFileWriteable(outputFile.getAbsolutePath(), true)) {
+        try(NetcdfFileWriter file = NetcdfFileWriter.createNew(outputFile.getAbsolutePath(), true)) {
             Dimension timeDim = file.addDimension("time", (int) (endTime-startTime));
             Vector<LocationType> locations = new Vector<>();
             LinkedHashMap<String, Vector<Double>> scalars = new LinkedHashMap<>();
             LinkedHashMap<String, Integer> lsfIndexes = new LinkedHashMap<>();
             
-            file.addVariable("latitude", DataType.DOUBLE, new Dimension[] { timeDim });
-            file.addVariable("longitude", DataType.DOUBLE, new Dimension[] { timeDim });
-            file.addVariable("depth", DataType.DOUBLE, new Dimension[] { timeDim });
+            List<Dimension> tmpDims = new ArrayList<Dimension>();
+            tmpDims.add(timeDim);
+            file.addVariable("latitude", DataType.DOUBLE, tmpDims);
+            file.addVariable("longitude", DataType.DOUBLE, tmpDims);
+            file.addVariable("depth", DataType.DOUBLE, tmpDims);
             
             scalars.put("latitude", new Vector<Double>());
             scalars.put("longitude", new Vector<Double>());
@@ -80,7 +85,7 @@ public class NetcdfTimeSeriesExporter {
             file.addVariableAttribute("depth", "units", "meters");
             
             for (ImcField f : scalarsToExport) {
-                file.addVariable(f.getVarName(), DataType.DOUBLE, new Dimension[] { timeDim });
+                file.addVariable(f.getVarName(), DataType.DOUBLE, tmpDims);
                 scalars.put(f.getVarName(), new Vector<Double>());
                 lsfIndexes.put(f.getVarName(), 0);
             }

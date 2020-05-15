@@ -113,7 +113,7 @@ public class NetCDFExportWriter {
         dims.add(lonDim);
         Variable t = writer.addVariable(null, "temperature", DataType.DOUBLE, dims);
         t.addAttribute(new Attribute("units", "K")); // add a 1D attribute of length 3
-        Array data = Array.factory(int.class, new int[] { 3 }, new int[] { 1, 2, 3 });
+        Array data = Array.factory(DataType.INT, new int[] { 3 }, new int[] { 1, 2, 3 });
         t.addAttribute(new Attribute("scale", data));
         
         writer.addDimension(null, "svar_len", 80);

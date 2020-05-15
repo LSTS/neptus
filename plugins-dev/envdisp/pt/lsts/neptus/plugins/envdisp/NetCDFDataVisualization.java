@@ -118,6 +118,8 @@ public class NetCDFDataVisualization extends ConsoleLayer implements PropertiesP
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         try {
+            layerList.setStateRenderer2D(renderer);
+
             for (int i = layerList.getVarLayersList().size() - 1; i >= 0 ; i--) {
                 GenericNetCDFDataPainter l = layerList.getVarLayersList().get(i);
                 if (!l.isShowVar())
