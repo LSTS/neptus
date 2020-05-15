@@ -100,8 +100,8 @@ public class IMCFieldsPanel {
     private JTextField srcEntId = new JTextField("");
     private JTextField dstEntId = new JTextField("");
 
-    private JPanel holder_Hfields = null;
-    private JPanel content, holder_fields;
+    private JPanel holderHFields = null;
+    private JPanel content, holderFields;
     private JScrollPane scrollable;
 
     private final IMCMessage msg;
@@ -174,23 +174,19 @@ public class IMCFieldsPanel {
         }
     }
 
-    /**
-     * 
-     */
     @SuppressWarnings("serial")
     private void initializePanel() {
-
         JLabel title;
-        holder_Hfields = new JPanel();
+        holderHFields = new JPanel();
 
         // Panel with fields for main IMC Message -> requires header fields
         if (this.parent == null) {
             // Fixed components from IMC Headers
-            GroupLayout layout_fields = new GroupLayout(holder_Hfields);
-            holder_Hfields.setLayout(layout_fields);
-            layout_fields.setAutoCreateGaps(true);
-            layout_fields.setAutoCreateContainerGaps(true);
-            holder_Hfields.setSize(new Dimension(450, 150));
+            GroupLayout layoutFields = new GroupLayout(holderHFields);
+            holderHFields.setLayout(layoutFields);
+            layoutFields.setAutoCreateGaps(true);
+            layoutFields.setAutoCreateContainerGaps(true);
+            holderHFields.setSize(new Dimension(450, 150));
             title = new JLabel("Edit " + this.getMessageName() + " Fields");
             title.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 20));
 
@@ -210,31 +206,30 @@ public class IMCFieldsPanel {
                 srcEntId.setText(String.valueOf(this.header.get_src_ent()));
             }
 
-            layout_fields.setHorizontalGroup(layout_fields.createParallelGroup(GroupLayout.Alignment.CENTER)
+            layoutFields.setHorizontalGroup(layoutFields.createParallelGroup(GroupLayout.Alignment.CENTER)
                     .addComponent(title).addComponent(srcDstIdLabel)
-                    .addGroup(layout_fields.createSequentialGroup().addComponent(srcId).addComponent(dstId))
+                    .addGroup(layoutFields.createSequentialGroup().addComponent(srcId).addComponent(dstId))
                     .addComponent(srcDestEntLabel)
-                    .addGroup(layout_fields.createSequentialGroup().addComponent(srcEntId).addComponent(dstEntId)));
+                    .addGroup(layoutFields.createSequentialGroup().addComponent(srcEntId).addComponent(dstEntId)));
 
-            layout_fields.setVerticalGroup(
-                    layout_fields.createSequentialGroup().addComponent(title).addComponent(srcDstIdLabel)
-                            .addGroup(layout_fields.createParallelGroup(GroupLayout.Alignment.CENTER)
+            layoutFields.setVerticalGroup(
+                    layoutFields.createSequentialGroup().addComponent(title).addComponent(srcDstIdLabel)
+                            .addGroup(layoutFields.createParallelGroup(GroupLayout.Alignment.CENTER)
                                     .addComponent(srcId, 25, 25, 25).addComponent(dstId, 25, 25, 25))
                             .addComponent(srcDestEntLabel)
-                            .addGroup(layout_fields.createParallelGroup(GroupLayout.Alignment.CENTER)
+                            .addGroup(layoutFields.createParallelGroup(GroupLayout.Alignment.CENTER)
                                     .addComponent(srcEntId, 25, 25, 25).addComponent(dstEntId, 25, 25, 25)));
         }
         else {
-            holder_Hfields.setSize(new Dimension(450, 50));
+            holderHFields.setSize(new Dimension(450, 50));
             title = new JLabel("Edit Inline " + this.getMessageName() + " Fields");
             title.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 18));
-            holder_Hfields.add(title, Component.CENTER_ALIGNMENT);
-
+            holderHFields.add(title, Component.CENTER_ALIGNMENT);
         }
 
-        holder_fields = new JPanel();
-        GroupLayout layout = new GroupLayout(holder_fields);
-        holder_fields.setLayout(layout);
+        holderFields = new JPanel();
+        GroupLayout layout = new GroupLayout(holderFields);
+        holderFields.setLayout(layout);
         layout.setAutoCreateGaps(true);
         layout.setAutoCreateContainerGaps(true);
 
@@ -307,13 +302,12 @@ public class IMCFieldsPanel {
                             inlineMsgPanel.setLayout(new BoxLayout(inlineMsgPanel, BoxLayout.Y_AXIS));
                             JComboBox<String> comboBox = getMessageComboBox(field, true);
                             comboBox.setSelectedItem(m.getAbbrev());
-                            JButton minus = new JButton("-");
-                            JButton ediT = getEditButtonForMsg(field, comboBox, true, m, minus);
+                            JButton minus = new JButton(" - ");
+                            JButton edit = getEditButtonForMsg(field, comboBox, true, m, minus);
                             nMsgHolder.add(comboBox);
-                            nMsgHolder.add(ediT);
+                            nMsgHolder.add(edit);
                             nMsgHolder.add(minus);
                             minus.addActionListener(new ActionListener() {
-
                                 @Override
                                 public void actionPerformed(ActionEvent e) {
                                     inlineMsgPanel.remove(nMsgHolder);
@@ -337,7 +331,6 @@ public class IMCFieldsPanel {
                     layout.linkSize(SwingConstants.HORIZONTAL, label, previousLabel);
                 }
                 previousLabel = label;
-
             }
             else {
                 if (enumerated) {
@@ -345,8 +338,8 @@ public class IMCFieldsPanel {
                     mList.addAll(msg.getIMCMessageType().getFieldPossibleValues(field).values());
                     JComboBox<String> enumComboBox = new JComboBox<String>(mList.toArray(new String[mList.size()]));
                     try {
-                        String defined_val = String.valueOf(this.msg.getValue(field));
-                        int index = Integer.parseInt(defined_val);
+                        String definedVal = String.valueOf(this.msg.getValue(field));
+                        int index = Integer.parseInt(definedVal);
                         enumComboBox.setSelectedIndex(index);
                     }
                     catch (Exception e) {
@@ -357,7 +350,6 @@ public class IMCFieldsPanel {
                         @Override
                         public void actionPerformed(ActionEvent e) {
                             IMCFieldsPanel.this.msg.setValue(field, enumComboBox.getSelectedIndex());
-
                         }
                     });
 
@@ -371,7 +363,6 @@ public class IMCFieldsPanel {
                     previousLabel = label;
                 }
                 else if (bitfield) {
-
                     BitmaskPanel bitfieldPanel;
                     if (this.bitfields.containsKey(field))
                         bitfieldPanel = this.bitfields.get(field);
@@ -408,18 +399,15 @@ public class IMCFieldsPanel {
                     JTextField tField = new JTextField(default_value);
 
                     tField.getDocument().addDocumentListener(new DocumentListener() {
-
                         @Override
                         public void insertUpdate(DocumentEvent e) {
                             setValue();
-
                         }
 
                         @Override
                         public void removeUpdate(DocumentEvent e) {
                             String value = String.valueOf(msg.getIMCMessageType().getDefaultValue(field));
                             setValue(value);
-
                         }
 
                         @Override
@@ -440,7 +428,6 @@ public class IMCFieldsPanel {
                             }
                             IMCFieldsPanel.this.msg.setValue(field, value);
                         }
-
                     });
 
                     label.setLabelFor(tField);
@@ -471,7 +458,7 @@ public class IMCFieldsPanel {
                 return new Dimension(500, height);
             }
         };
-        this.scrollable = new JScrollPane(this.holder_fields) {
+        this.scrollable = new JScrollPane(this.holderFields) {
 
             @Override
             public Dimension getPreferredSize() {
@@ -479,9 +466,8 @@ public class IMCFieldsPanel {
             }
         };
 
-        this.content.add(this.holder_Hfields, BorderLayout.NORTH);
+        this.content.add(this.holderHFields, BorderLayout.NORTH);
         this.content.add(this.scrollable, BorderLayout.CENTER);
-
     }
 
     /**
@@ -495,7 +481,6 @@ public class IMCFieldsPanel {
         mList.add(0, "None");
         JComboBox<String> comboBox = new JComboBox<String>(mList.toArray(new String[mList.size()]));
         comboBox.addActionListener(new ActionListener() {
-
             @Override
             public void actionPerformed(ActionEvent e) {
                 @SuppressWarnings("unchecked")
@@ -629,7 +614,6 @@ public class IMCFieldsPanel {
                     dg.revalidate();
                     // dg.setVisible(true); - keep commented prevent from blinking
                 }
-
             }
         };
         cp.setPreferredSize(new Dimension(85, 26));
@@ -639,9 +623,9 @@ public class IMCFieldsPanel {
         return cp;
     }
 
-private ImcCopyPastePanel getMsgCopyPastePanel(JDialog dg, JPanel panelCeption, String field, IMCMessage m, boolean isMsgList, JComboBox<String> messagesComboBox, JButton editButton, JButton removal) {
+    private ImcCopyPastePanel getMsgCopyPastePanel(JDialog dg, JPanel panelCeption, String field, IMCMessage m, boolean isMsgList, JComboBox<String> messagesComboBox, JButton editButton, JButton removal) {
+        @SuppressWarnings("serial")
         ImcCopyPastePanel msgCopyPastePanel = new ImcCopyPastePanel() {
-
             @Override
             public IMCMessage getMsg() {
                 if(IMCFieldsPanel.this.inlineMsgs.containsKey(field) && !isMsgList) {
@@ -700,15 +684,14 @@ private ImcCopyPastePanel getMsgCopyPastePanel(JDialog dg, JPanel panelCeption, 
                             JButton insert = getInsertButtonFor(inceptionFields, field, validate, isMsgList, msg);
                             buttons.add(validate);
                             buttons.add(insert);
-
                         }
                         newPanel.add(buttons, BorderLayout.SOUTH, -1);
                         dg.setContentPane(newPanel);
                         dg.revalidate();
                         dg.repaint();
+                    }
                 }
             }
-        }
 
             private boolean msgBelongToComboBox(JComboBox<String> messagesComboBox, String abbrev) {
                 for(int i=0;i<messagesComboBox.getItemCount();i++) {
@@ -720,7 +703,6 @@ private ImcCopyPastePanel getMsgCopyPastePanel(JDialog dg, JPanel panelCeption, 
             }
         };
         return msgCopyPastePanel;
-
     }
 
     protected boolean applyLocation(LocationType locationType) {
@@ -800,14 +782,12 @@ private ImcCopyPastePanel getMsgCopyPastePanel(JDialog dg, JPanel panelCeption, 
             IMCMessage m, JButton removal) {
         // Add new action listener
         ActionListener action = new ActionListener() {
-
             @Override
             public void actionPerformed(ActionEvent e) {
                 String msgName = (String) messagesComboBox.getSelectedItem();
                 if (msgName.equals("None")) {
                     return;
                 }
-
                 else {
                     IMCMessage init = IMCDefinition.getInstance().create(msgName);
                     if (!msgList) {
@@ -913,7 +893,6 @@ private ImcCopyPastePanel getMsgCopyPastePanel(JDialog dg, JPanel panelCeption, 
         JButton v = new JButton(I18n.text("Validate"));
 
         v.addActionListener(new ActionListener() {
-
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
@@ -940,14 +919,13 @@ private ImcCopyPastePanel getMsgCopyPastePanel(JDialog dg, JPanel panelCeption, 
      * 
      * @param field
      * @param inlineMsgPanel
-     * @param mais
+     * @param more
      * @param mListComboBox
      * @return
      */
-    private ActionListener getMsgListAction(String field, JPanel inlineMsgPanel, JButton mais,
+    private ActionListener getMsgListAction(String field, JPanel inlineMsgPanel, JButton more,
             JComboBox<String> mListComboBox) {
         ActionListener action = new ActionListener() {
-
             @Override
             public void actionPerformed(ActionEvent e) {
                 String selectedItem = (String) mListComboBox.getSelectedItem();
@@ -957,26 +935,27 @@ private ImcCopyPastePanel getMsgCopyPastePanel(JDialog dg, JPanel panelCeption, 
                     inlineMsgPanel.setLayout(new BoxLayout(inlineMsgPanel, BoxLayout.Y_AXIS));
                     // dynamic insertion all over again
                     JComboBox<String> comboCeption = getMessageComboBox(field, true);
+                    comboCeption.setSelectedItem(selectedItem);
                     JPanel c = (JPanel) inlineMsgPanel.getComponent(0);
-                    JButton minus = new JButton("-");
+                    JButton minus = new JButton(" - ");
                     ActionListener removalAction = getRemovalAction(field, inlineMsgPanel, newMsg, c);
                     ActionListener logicRemoval  = getLogicRemovalAction(field, newMsg);
                     minus.addActionListener(removalAction);
                     minus.addActionListener(logicRemoval);
-                    JButton ediT = getEditButtonForMsg(field, mListComboBox, true, newMsg, minus);
-                    mais.removeActionListener(this);
-                    mais.addActionListener(getMsgListAction(field, inlineMsgPanel, mais, comboCeption));
+                    JButton edit = getEditButtonForMsg(field, mListComboBox, true, newMsg, minus);
+                    more.removeActionListener(this);
+                    more.addActionListener(getMsgListAction(field, inlineMsgPanel, more, comboCeption));
                     msgHolder.add(comboCeption);
-                    msgHolder.add(mais);
-                    c.remove(mais);
-                    c.add(ediT);
+                    msgHolder.add(more);
+                    c.remove(more);
+                    c.add(edit);
                     c.add(minus);
                     mListComboBox.setEnabled(false);
                     // Add this message to Map
                     if (IMCFieldsPanel.this.msgList.get(field) == null)
                         IMCFieldsPanel.this.msgList.put(field, new ArrayList<IMCMessage>());
-                    IMCFieldsPanel.this.msgList.get(field).add(newMsg); // getMessage from panel or update
-                                                                        // it
+                    // getMessage from panel or update it
+                    IMCFieldsPanel.this.msgList.get(field).add(newMsg);
                     inlineMsgPanel.add(msgHolder, 0);
                     inlineMsgPanel.revalidate();
                     inlineMsgPanel.repaint();
