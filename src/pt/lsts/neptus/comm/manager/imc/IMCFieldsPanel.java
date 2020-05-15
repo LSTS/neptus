@@ -41,6 +41,7 @@ import java.awt.Font;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -62,6 +63,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
@@ -854,6 +856,8 @@ private ImcCopyPastePanel getMsgCopyPastePanel(JDialog dg, JPanel panelCeption, 
                     dg.setContentPane(panelCeption);
                     dg.setSize(500, 500);
                     dg.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+                    dg.getRootPane().registerKeyboardAction(ev -> { dg.dispose(); },
+                            KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
                     GuiUtils.centerParent(dg, SwingUtilities.getWindowAncestor(IMCFieldsPanel.this.getContents()));
                     dg.setVisible(true);
                 }
