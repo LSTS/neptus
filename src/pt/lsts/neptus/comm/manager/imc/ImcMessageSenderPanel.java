@@ -40,6 +40,7 @@ import java.awt.Image;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -59,6 +60,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
@@ -312,6 +314,8 @@ public class ImcMessageSenderPanel extends JPanel {
                 dg.setContentPane(msgPreview);
                 dg.setSize(500, 500);
                 dg.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+                dg.getRootPane().registerKeyboardAction(ev -> { dg.dispose(); },
+                        KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
                 GuiUtils.centerParent(dg, (Window) dg.getParent());
                 dg.setVisible(true);
             }
