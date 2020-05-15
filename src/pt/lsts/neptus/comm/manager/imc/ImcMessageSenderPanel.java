@@ -53,6 +53,7 @@ import javax.swing.GroupLayout.Alignment;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -126,39 +127,38 @@ public class ImcMessageSenderPanel extends JPanel {
     }
 
     private void initialize(JButton... custom) {
-
         port = new JTextField(nf.format(GeneralPreferences.commsLocalPortUDP));
 
         // Main Tab Panel
-        JPanel holder_config = new JPanel();
-        GroupLayout layout_config = new GroupLayout(holder_config);
-        holder_config.setLayout(layout_config);
-        layout_config.setAutoCreateGaps(true);
-        layout_config.setAutoCreateContainerGaps(true);
+        JPanel holderConfig = new JPanel();
+        GroupLayout layoutConfig = new GroupLayout(holderConfig);
+        holderConfig.setLayout(layoutConfig);
+        layoutConfig.setAutoCreateGaps(true);
+        layoutConfig.setAutoCreateContainerGaps(true);
 
         // Footer panel
-        JPanel holder_footer = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JPanel holderFooter = new JPanel(new FlowLayout(FlowLayout.CENTER));
 
         // Main Tab components
         JLabel addressLabel = new JLabel("Address and Port to UDP send");
         JLabel localBindLabel = new JLabel("Local Port to bind (can be blanc)");
         JLabel msgNameLabel = new JLabel("Choose IMC Message");
 
-        layout_config.setHorizontalGroup(layout_config.createParallelGroup(GroupLayout.Alignment.CENTER)
-                .addGroup(layout_config.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(localBindLabel)
+        layoutConfig.setHorizontalGroup(layoutConfig.createParallelGroup(GroupLayout.Alignment.CENTER)
+                .addGroup(layoutConfig.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(localBindLabel)
                         .addComponent(bindPort))
-                .addGroup(layout_config.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(addressLabel)
-                        .addGroup(layout_config.createSequentialGroup().addComponent(address).addComponent(port)))
-                .addGroup(layout_config.createParallelGroup(Alignment.CENTER).addComponent(msgNameLabel)
+                .addGroup(layoutConfig.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(addressLabel)
+                        .addGroup(layoutConfig.createSequentialGroup().addComponent(address).addComponent(port)))
+                .addGroup(layoutConfig.createParallelGroup(Alignment.CENTER).addComponent(msgNameLabel)
                         .addComponent(getMessagesComboBox())));
 
-        layout_config.setVerticalGroup(layout_config.createSequentialGroup()
-                .addGroup(layout_config.createSequentialGroup().addComponent(localBindLabel).addComponent(bindPort, 25,
+        layoutConfig.setVerticalGroup(layoutConfig.createSequentialGroup()
+                .addGroup(layoutConfig.createSequentialGroup().addComponent(localBindLabel).addComponent(bindPort, 25,
                         25, 25))
-                .addGroup(layout_config.createSequentialGroup().addComponent(addressLabel)
-                        .addGroup(layout_config.createParallelGroup(GroupLayout.Alignment.CENTER)
+                .addGroup(layoutConfig.createSequentialGroup().addComponent(addressLabel)
+                        .addGroup(layoutConfig.createParallelGroup(GroupLayout.Alignment.CENTER)
                                 .addComponent(address, 25, 25, 25).addComponent(port, 25, 25, 25)))
-                .addGroup(layout_config.createSequentialGroup().addComponent(msgNameLabel)
+                .addGroup(layoutConfig.createSequentialGroup().addComponent(msgNameLabel)
                         .addComponent(getMessagesComboBox(), 25, 25, 25)));
 
         tabs = getTabedPane();
@@ -166,30 +166,30 @@ public class ImcMessageSenderPanel extends JPanel {
         fields = new IMCFieldsPanel(null, mgsName, null);
 
         // Buttons container in the bottom
-        holder_footer.add(getMsgCopyPastePanel());
-        holder_footer.add(getLocCopyPastPanel());
-        holder_footer.add(getEditMessageButton());
-        holder_footer.add(getPreviewButton());
+        holderFooter.add(getMsgCopyPastePanel());
+        holderFooter.add(getLocCopyPastPanel());
+        holderFooter.add(getEditMessageButton());
+        holderFooter.add(getPreviewButton());
         //holder_footer.add(getCreateButton());
         for(JButton button: custom) {
             button.setPreferredSize(new Dimension(90, 26));
             button.setText(I18n.text(button.getText()));
-            holder_footer.add(button);
+            holderFooter.add(button);
         }
         
-        JScrollPane scrollFooter = new JScrollPane(holder_footer) {
+        @SuppressWarnings("serial")
+        JScrollPane scrollFooter = new JScrollPane(holderFooter) {
             @Override
             public Dimension getPreferredSize() {
                 return new Dimension(700, 40);
             }
         };
 
-        tabs.add("General Settings", holder_config);
+        tabs.add("General Settings", holderConfig);
         tabs.add("Message Fields", fields.getContents());
         this.setLayout(new BorderLayout());
         add(tabs, BorderLayout.CENTER);
         add(scrollFooter, BorderLayout.SOUTH);
-
     }
 
     /**
@@ -199,11 +199,9 @@ public class ImcMessageSenderPanel extends JPanel {
         if (tabs == null) {
             tabs = new JTabbedPane();
             ChangeListener changePane = new ChangeListener() {
-
                 @Override
                 public void stateChanged(ChangeEvent e) {
                     if (tabs.getSelectedIndex() == 1) { // fields
-
                         if (messagesComboBox == null) {
                             messagesComboBox = getMessagesComboBox();
                         }
@@ -221,12 +219,9 @@ public class ImcMessageSenderPanel extends JPanel {
                             tabs.repaint();
                         }
                     }
-
                 }
-
             };
             tabs.addChangeListener(changePane);
-
         }
         return tabs;
     }
@@ -253,7 +248,6 @@ public class ImcMessageSenderPanel extends JPanel {
                         fields = new IMCFieldsPanel(null, selectedItem, m);
                         tabs.setComponentAt(1, fields.getContents());
                         tabs.repaint();
-
                     }
                 }
             });
@@ -292,7 +286,6 @@ public class ImcMessageSenderPanel extends JPanel {
             previewButton.setPreferredSize(new Dimension(90, 26));
         }
         ActionListener previewAction = new ActionListener() {
-
             @Override
             public void actionPerformed(ActionEvent e) {
 
@@ -353,6 +346,7 @@ public class ImcMessageSenderPanel extends JPanel {
         return locCopyPastePanel;
     }
 
+    @SuppressWarnings("serial")
     private ImcCopyPastePanel getMsgCopyPastePanel() {
         if (msgCopyPastePanel == null) {
             msgCopyPastePanel = new ImcCopyPastePanel() {
