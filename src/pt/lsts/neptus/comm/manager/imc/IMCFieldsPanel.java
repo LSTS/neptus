@@ -320,6 +320,7 @@ public class IMCFieldsPanel {
                                     if (IMCFieldsPanel.this.msgList.get(field) != null) {
                                         IMCFieldsPanel.this.msgList.get(field).remove(m);
                                     }
+                                    inlineMsgPanel.repaint();
                                 }
                             });
                             comboBox.setEnabled(false);
