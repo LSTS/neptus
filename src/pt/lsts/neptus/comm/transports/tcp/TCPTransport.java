@@ -63,7 +63,6 @@ import pt.lsts.neptus.comm.transports.DeliveryListener;
 import pt.lsts.neptus.comm.transports.DeliveryListener.ResultEnum;
 import pt.lsts.neptus.util.ByteUtil;
 import pt.lsts.neptus.util.conf.ConfigFetch;
-import vrml.eai.ConnectionException;
 
 /**
  * @author pdias
