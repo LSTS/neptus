@@ -49,6 +49,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
+import javax.swing.plaf.basic.BasicButtonUI;
 
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -179,6 +180,7 @@ public class SoiPlanning extends SimpleMapPanel implements ILayerPainter, Config
                     planEditor.setActive(btn.isSelected(), renderer);
                 }
             });
+            plansEditModeButton.setUI(new BasicButtonUI());
             bottomPanel.add(plansEditModeButton, "push, al right, sg g1, gapright 10");
 
             paintPlansButton = new JToggleButton(I18n.text("Show cur. plans"));
@@ -190,6 +192,7 @@ public class SoiPlanning extends SimpleMapPanel implements ILayerPainter, Config
                     isPaintPlans = btn.isSelected();
                 }
             });
+            paintPlansButton.setUI(new BasicButtonUI());
             bottomPanel.add(paintPlansButton, "sg g1, gapright 10");
 
             mapSyncButton = new JToggleButton(I18n.text("Map move sync"));
@@ -202,6 +205,7 @@ public class SoiPlanning extends SimpleMapPanel implements ILayerPainter, Config
                     renderer.setRespondToRendererChangeEvents(isMapMoveSync);
                 }
             });
+            mapSyncButton.setUI(new BasicButtonUI());
             bottomPanel.add(mapSyncButton, "sg g1");
             
             zoomInButton = new JButton(new AbstractAction("+") {
@@ -210,6 +214,7 @@ public class SoiPlanning extends SimpleMapPanel implements ILayerPainter, Config
                     renderer.zoomIn();
                 }
             });
+            zoomInButton.setUI(new BasicButtonUI());
             bottomPanel.add(zoomInButton, "sg g2");
 
             zoomOutButton = new JButton(new AbstractAction("-") {
@@ -218,6 +223,7 @@ public class SoiPlanning extends SimpleMapPanel implements ILayerPainter, Config
                     renderer.zoomOut();
                 }
             });
+            zoomOutButton.setUI(new BasicButtonUI());
             bottomPanel.add(zoomOutButton, "sg g2");
         }
 
