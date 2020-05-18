@@ -61,6 +61,7 @@ import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
+import javax.swing.plaf.basic.BasicButtonUI;
 
 import org.apache.commons.lang3.text.WordUtils;
 import org.jdesktop.swingx.JXBusyLabel;
@@ -168,6 +169,7 @@ public class PluginManager extends ConsolePanel {
         availablePluginsPanel.add(availablePluginsLabel, "h 7%");
         // buttons
         btnAdd = new JButton();
+        btnAdd.setUI(new BasicButtonUI());
         availablePluginsPanel.add(btnAdd, "w 80px::, h 7%, wrap");
 
         // list
@@ -185,9 +187,11 @@ public class PluginManager extends ConsolePanel {
         activePluginsPanel.add(activePluginsLabel, "h 7%");
         // buttons
         btnRemove = new JButton();
+        btnRemove.setUI(new BasicButtonUI());
         activePluginsPanel.add(btnRemove, "w 80px::, h 7%");
 
         btnSettings = new JButton();
+        btnSettings.setUI(new BasicButtonUI());
         activePluginsPanel.add(btnSettings, "w 80px::, h 7%, wrap");
 
         // list
