@@ -1,0 +1,37 @@
+
+plugins {
+    id 'java'
+    id "com.gorylenko.gradle-git-properties" version "2.2.2"
+}
+
+description = ""
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // This dependency is used by the application.
+    //implementation 'com.google.guava:guava:28.2-jre'
+
+    // Use JUnit test framework
+    testImplementation 'junit:junit:4.12'
+}
+
+apply plugin: 'java'
+compileJava.options.encoding = 'UTF-8'
+
+apply plugin: "com.gorylenko.gradle-git-properties"
+
+sourceSets {
+    main {
+        java {
+	        srcDirs = ['src']
+        }
+        resources {
+           srcDirs = ['src']
+        }
+    }
+}
+
+

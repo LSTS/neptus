@@ -176,3 +176,11 @@ dev-scripts/grow_pot.sh
 conf/nddl/Europa.log
 
 plan.sh
+
+# Gradle move
+.gradle
+build
+
+.vscode
+.idea
+
