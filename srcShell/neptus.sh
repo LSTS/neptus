@@ -65,7 +65,7 @@ WORLDMAPPANEL="pt.lsts.neptus.app.tiles.WorldMapPanel"
 
 DEFAULT="pt.lsts.neptus.loader.NeptusMain"
 
-CLASSPATH=".:bin/neptus.jar:conf@NEPTUS_LIBS@":$CLASSPATH
+CLASSPATH=".:bin/neptus.jar:conf@NEPTUS_LIBS@":plugins/*:$CLASSPATH
 
 case $1 in
   "ws"       )  DEFAULT=$WORKSPACE

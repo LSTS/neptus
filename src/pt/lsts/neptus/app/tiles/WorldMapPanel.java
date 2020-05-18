@@ -106,6 +106,7 @@ import pt.lsts.neptus.gui.InfiniteProgressPanel;
 import pt.lsts.neptus.platform.OsInfo;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginUtils;
+import pt.lsts.neptus.plugins.PluginsLoader;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.renderer2d.WorldRenderPainter;
@@ -1137,7 +1138,8 @@ public class WorldMapPanel extends JPanel {
             else
                 GuiUtils.setSystemLookAndFeel();
             
-            PluginUtils.loadPlugins();
+            // PluginUtils.loadPlugins();
+            PluginsLoader.load();
             
             WorldMapPanel panel = new WorldMapPanel();
             panel.getJFrame(null);
