@@ -8,11 +8,131 @@ description = ""
 
 repositories {
     mavenCentral()
+    flatDir {
+       dirs 'lib'
+    }
+    maven {
+        url "https://artifacts.unidata.ucar.edu/content/repositories/unidata-releases/"
+    }
 }
 
 dependencies {
     // This dependency is used by the application.
-    //implementation 'com.google.guava:guava:28.2-jre'
+    implementation name: 'libimc'
+    implementation name: 'libMsgSender'
+
+    implementation name: 'aisparser-2.0.0'
+    implementation name: 'jssc' //dependency of aisparser
+    //implementation 'org.scream3r:jssc:2.8.0'
+
+
+    implementation name: 'ais-contact-manager-1.0'
+    implementation 'com.fifesoft:autocomplete:2.5.8'
+
+    implementation name: 'charsets-zip' // for zip, probably not needed anymore
+    implementation 'commons-cli:commons-cli:1.2' //1.4
+    implementation 'commons-codec:commons-codec:1.9' //1.14
+    implementation 'commons-collections:commons-collections:3.2.1' //3.2.2
+    implementation 'org.apache.commons:commons-compress:1.10' //1.20
+    implementation 'commons-configuration:commons-configuration:1.10'
+    implementation 'org.apache.commons:commons-email:1.3.2' //1.5
+    implementation 'commons-httpclient:commons-httpclient:3.1'
+    implementation 'commons-io:commons-io:2.4' //2.6
+    implementation 'org.apache.commons:commons-lang3:3.2.1' //3.10
+    implementation 'commons-lang:commons-lang:2.6'
+    implementation 'commons-logging:commons-logging:1.2'
+    implementation 'commons-net:commons-net:3.3' //3.6
+
+    implementation 'dom4j:dom4j:1.6.1'
+
+    implementation 'com.firebase:firebase-client-jvm:2.0.0' //2.5.2
+    implementation 'org.apache.xmlgraphics:fop:0.95'
+    //implementation group: 'foxtrot', name: 'foxtrot', version: '3.0', ext: 'pom'
+    implementation 'foxtrot.foxtrot:foxtrot:3.0' //4.0
+
+    implementation 'org.graphstream:gs-ui:1.3'
+    // gdal 1.8.2
+    implementation name: 'gdal'
+    implementation 'org.dinopolis.gpstool:gpsinput:0.5.3'
+    implementation name: 'gpxparser'
+    implementation 'org.codehaus.groovy:groovy:2.5.4' //3.0.3
+    implementation 'com.google.guava:guava:17.0' //28.2-jre
+    implementation 'com.google.code.gson:gson:2.2.2' //2.8.6
+
+    implementation 'org.apache.httpcomponents:httpclient:4.5.1' //4.5.12
+
+    implementation 'org.imgscalr:imgscalr-lib:4.2'
+    implementation 'org.ini4j:ini4j:0.5.2' //0.5.4
+    implementation 'com.lowagie:itext:2.1.5'
+
+    implementation 'java3d:j3d-core:1.3.1' // to delete
+    implementation 'java3d:j3d-core-utils:1.3.1' // to delete
+    implementation name: 'StarfireExt' // to delete
+    implementation name: 'vecmath' // to delete
+    implementation name: 'wrl/j3d-vrml97' // to delete
+
+    implementation 'gov.nist.math:jama:1.0.2' //1.0.3
+    implementation 'de.micromata.jak:JavaAPIforKml:2.2.0' //2.2.1
+    implementation 'net.sourceforge.javacsv:javacsv:2.0'
+    implementation 'org.javassist:javassist:3.18.0-GA' //3.27.0-GA
+    implementation 'net.sf.jchart2d:jchart2d:3.3.2' // devia ser o 1.03
+    implementation 'org.jfree:jcommon:1.0.24'
+    implementation 'org.mortbay.jetty:jetty:6.0.2'
+    implementation 'org.jfree:jfreechart:1.5.0'
+    implementation 'com.jgoodies:jgoodies-looks:2.5.3' //2.7.0
+    implementation 'com.jhlabs:filters:2.0.235-1' // don't know the orig version
+    implementation 'net.java.jinput:jinput:2.0.9' // was not this and should be before 2.0.4
+    implementation 'net.sourceforge.jmatio:jmatio:1.0'
+    implementation 'javax.media:jmf:2.1.1e'
+    implementation 'org.jogamp.jogl:jogl-all-main:2.0.2'
+    implementation 'com.jcraft:jsch:0.1.53' //0.1.55
+    implementation name: 'jtransform_thin' // from NOOA
+    implementation 'net.sf.jung:jung2:2.0.1'
+    implementation 'net.sf.jung:jung-api:2.0.1'
+    implementation 'net.sf.jung:jung-algorithms:2.0.1'
+    implementation 'net.sf.jung:jung-graph-impl:2.0.1'
+    implementation 'net.sf.jung:jung-visualization:2.0.1'
+    implementation 'org.swinglabs:jxlayer:3.0.2'
+
+    //implementation 'com.l2fprod.common:l2fprod-common-all:7.3.0'
+    implementation name: 'l2fprod-common-all'
+    implementation 'log4j:log4j:1.2.17'
+
+    implementation 'net.sf.marineapi:marineapi:0.11.0'
+    implementation 'com.drewnoakes:metadata-extractor:2.7.2' //2.13.0
+    implementation 'com.miglayout:miglayout-swing:4.2' //5.2
+    implementation 'com.eclipsesource.minimal-json:minimal-json:0.9.4' //0.9.5
+
+    //implementation  'edu.ucar:netcdfAll:5.3.2' //used 5.2 on the current develop, here was 4.6.10
+    implementation name: 'netcdfAll-4.6.10'
+
+    implementation name: 'opencv-2.4.11'
+    implementation 'oro:oro:2.0.8' // devia ser 0 2.1-dev
+
+    implementation name: 'percentlayout'
+    implementation name: 'PSEngine' // Europa planner
+    implementation name: 'PSEngine-javadoc'
+
+    implementation 'org.reflections:reflections:0.9.9' //was 0.9.9-RC1, 0.9.12
+    implementation 'org.mozilla:rhino:1.7R4' //1.7.12
+    implementation 'com.fifesoft:rsyntaxtextarea:2.5.8'
+    implementation 'org.rxtx:rxtxcomm:2.0-7pre1'
+
+    implementation 'org.apache.sanselan:sanselan:0.97-incubator'
+    implementation 'org.swinglabs.swingx:swingx-all:1.6.4'
+    implementation name: 'sqlitejdbc-v056'
+    implementation name: 'standby'
+    implementation 'org.swinglabs.swingx:swingx-all:1.6.4' //1.6.5-1
+
+    implementation name: 'vtk'
+
+    implementation name: 'wms'
+
+    implementation 'xerces:xercesImpl:2.7.1' //2.12.0
+    implementation 'com.google.zxing:javase:3.2.1' //3.4.0
+    implementation 'org.knowm.xchart:xchart-parent:3.5.1'
+    implementation 'com.adobe.xmp:xmpcore:5.1.2' //6.1.10
+    implementation 'xuggle:xuggle-xuggler:5.4'
 
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
