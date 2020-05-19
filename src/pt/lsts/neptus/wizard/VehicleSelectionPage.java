@@ -34,11 +34,10 @@ package pt.lsts.neptus.wizard;
 
 import java.awt.BorderLayout;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 
 import javax.swing.JScrollPane;
-
-import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Arrays;
 
 import pt.lsts.neptus.gui.CheckboxList;
 import pt.lsts.neptus.types.vehicle.VehicleType;
@@ -66,7 +65,6 @@ public class VehicleSelectionPage extends WizardPage<Collection<VehicleType>> {
         return "Select vehicle"+(multivehicle? "s" : "");
     }
     
-    @SuppressWarnings("unchecked")
     @Override
     public Collection<VehicleType> getSelection() throws InvalidUserInputException {
         ArrayList<VehicleType> result = new ArrayList<>();

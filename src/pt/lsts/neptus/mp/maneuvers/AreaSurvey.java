@@ -41,6 +41,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Vector;
@@ -52,7 +53,6 @@ import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
-import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Arrays;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
@@ -334,7 +334,6 @@ public class AreaSurvey extends FollowPath {
         super.translate(offsetNorth, offsetEast, offsetDown);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     protected Vector<DefaultProperty> additionalProperties() {
         Vector<DefaultProperty> props = super.additionalProperties();

@@ -33,13 +33,12 @@
 package pt.lsts.neptus.wizard;
 
 import java.awt.BorderLayout;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.swing.JScrollPane;
-
-import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Arrays;
 
 import pt.lsts.neptus.gui.CheckboxList;
 import pt.lsts.neptus.types.map.AbstractElement;
@@ -66,7 +65,6 @@ public class MapElementSelectionPage extends WizardPage<AbstractElement> {
     public void setMission(MissionType mission) {
         this.mission = mission;
         removeAll();
-        @SuppressWarnings("unchecked")
         List<ELEMENT_TYPE> validTypes = Arrays.asList(types);
         
         List<String> objs = Stream.of(MapGroup.getMapGroupInstance(mission).getAllObjects())

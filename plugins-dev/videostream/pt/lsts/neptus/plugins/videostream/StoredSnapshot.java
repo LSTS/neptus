@@ -38,12 +38,11 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 
 import javax.imageio.ImageIO;
 import javax.xml.bind.JAXB;
-
-import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 
 import pt.lsts.neptus.mp.preview.payloads.CameraFOV;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -113,7 +112,6 @@ public class StoredSnapshot implements Serializable {
     /**
      * @return the snapshots
      */
-    @SuppressWarnings("unchecked")
     public static Collection<StoredSnapshot> getSnapshots() {
         return Collections.unmodifiableCollection(snapshots);
     }

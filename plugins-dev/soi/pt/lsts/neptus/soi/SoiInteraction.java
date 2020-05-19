@@ -38,6 +38,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -45,8 +46,6 @@ import java.util.stream.Collectors;
 
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
-
-import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Arrays;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -230,7 +229,6 @@ public class SoiInteraction extends SimpleRendererInteraction {
 
         if (PluginUtils.editPluginProperties(AssetsManager.getInstance().getSettings().get(system), true))
             return;
-        @SuppressWarnings("unchecked")
         List<PluginProperty> after = Arrays.asList(PluginUtils.getPluginProperties(AssetsManager.getInstance().getSettings().get(system)));
         SoiCommand cmd = new SoiCommand();
         cmd.setType(TYPE.REQUEST);
@@ -252,7 +250,6 @@ public class SoiInteraction extends SimpleRendererInteraction {
 
         if (PluginUtils.editPluginProperties(AssetsManager.getInstance().getDripSettings().get(system), true))
             return;
-        @SuppressWarnings("unchecked")
         List<PluginProperty> after = Arrays.asList(PluginUtils.getPluginProperties(AssetsManager.getInstance().getDripSettings().get(system)));
         SoiCommand cmd = new SoiCommand();
         cmd.setType(TYPE.REQUEST);
