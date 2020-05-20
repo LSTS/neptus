@@ -6,16 +6,10 @@ plugins {
 }
 
 description = ""
+version = '2020.05.3-SNAPSHOT'
 
-repositories {
-    mavenCentral()
-    flatDir {
-       dirs 'lib'
-    }
-    maven {
-        url 'https://artifacts.unidata.ucar.edu/content/repositories/unidata-releases/'
-        url 'https://maven.jzy3d.org/releases/'
-    }
+ext {
+    copyYears = "2004-${new Date().format('yyyy')}"
 }
 
 dependencies {
@@ -169,7 +163,8 @@ dependencies {
     implementation name: 'wms'
 
     implementation 'xerces:xercesImpl:2.7.1' //2.12.0
-    implementation 'org.knowm.xchart:xchart-parent:3.5.1'
+    //implementation 'org.knowm.xchart:xchart-parent:3.5.1'
+    implementation name: 'xchart-3.5.1'
     implementation name: 'xj3d/xj3d-all'
     implementation 'com.adobe.xmp:xmpcore:5.1.2' //6.1.10
     implementation 'xuggle:xuggle-xuggler:5.4'
@@ -196,6 +191,177 @@ sourceSets {
     }
 }
 
+allprojects {
+    version = "$rootProject.version"
+
+    repositories {
+        mavenCentral()
+        flatDir {
+        dirs 'lib'
+        }
+        maven {
+            url 'https://artifacts.unidata.ucar.edu/content/repositories/unidata-releases/'
+            url 'https://maven.jzy3d.org/releases/'
+        }
+    }
+
+    apply plugin: 'java'
+    compileJava.options.encoding = 'UTF-8'
+    
+    apply plugin: "com.gorylenko.gradle-git-properties"
+    
+
+    processResources {
+        from (rootProject.projectDir) {
+            include 'LICENSE.md'
+        }
+    }
+
+    jar {
+        manifest {
+            attributes(
+                'Specification-Title': rootProject.name.capitalize(),
+                'Specification-Version': "$project.version, ${-> project.ext.gitProps['git.commit.time']}",
+                'Specification-Vendor': 'FEUP   USTL/LSTS (http://www.fe.up.pt/lsts)  Neptus (http://whale.fe.up.pt/neptus)',
+                'Implementation-Title': project.name,
+                'Implementation-Version': project.version,
+                'Implementation-Vendor': 'FEUP  USTL/LSTS (http://www.fe.up.pt/lsts)',
+                'Build-Revision': "${rootProject.name}-${project.version}-git#${-> project.ext.gitProps['git.commit.id.describe']}",
+                'Built-By': "${System.properties['user.name']}",
+                'Built-On': "${new Date()}",
+                )
+        }
+        version = ''
+    }
+
+    gitProperties {
+        extProperty = 'gitProps'
+        failOnNoGitDirectory = false
+
+        dateFormat = "yyyy-MM-dd'T'HH:mmZ"
+        dateFormatTimeZone = "UTC"
+
+        gitPropertiesName = "git.info"
+        keys = ['git.branch',
+                'git.build.version',
+                'git.closest.tag.commit.count',
+                'git.closest.tag.name',
+                'git.commit.id',
+                'git.commit.id.abbrev',
+                'git.commit.id.describe',
+                'git.commit.time',
+                'git.dirty',
+                'git.remote.origin.url',
+                'git.tags',
+                ]
+    }
+    generateGitProperties.outputs.upToDateWhen { false }
+}
+
+subprojects {
+    sourceSets {
+        main {
+            java {
+                srcDirs += ['java', '.']
+                exclude 'lib'
+                exclude '**/*.jar'
+            }
+            resources {
+                srcDirs += ['resources', '.']
+                exclude 'lib'
+                exclude '**/*.jar'
+            }
+        }
+    }
+
+    processResources {
+        outputs.upToDateWhen { false }
+        from('.'){
+            include 'plugins.lst'
+            filter{ it.replaceAll('@DATE@', "${new Date().format('yyyy-MM-dd')}") }
+            filter{ it.replaceAll('@TIME@', "${new Date().format('HH:mm Z')}") }
+            filter{ it.replaceAll('@COMPILED BY@', "${System.properties['user.name']}") }
+            filter{ it.replaceAll('@LEGAL_COPY@', "$rootProject.ext.copyYears") }
+        }
+    }
+
+    dependencies {
+        implementation fileTree(dir: 'lib', include: '*.jar')
+        implementation fileTree(dir: 'libs', include: '*.jar')
+        implementation fileTree(dir: '.', include: '*.jar')
+    }
+
+    buildDir = file("$rootProject.buildDir/plugins/$project.name")
+
+    jar {
+        // manifest {
+        //     attributes += ['Main-Class': 'pt.lsts.neptus.loader.NeptusMain',]
+        // }
+        archiveVersion = ''
+        destinationDir = file("$rootDir/plugins")
+
+        from sourceSets.main.output
+
+        dependsOn configurations.runtimeClasspath
+        from {
+            configurations.runtimeClasspath.findAll { it.name.endsWith('jar') }.collect { zipTree(it) }
+        }
+    }
+}
+
+jar {
+    manifest {
+        attributes += 
+            ['Main-Class': 'pt.lsts.neptus.loader.NeptusMain',]
+    }
+    archiveVersion = ''
+    destinationDir = file("$rootDir/bin")
+}
+
 application {
     mainClass = 'pt.lsts.neptus.loader.NeptusMain'
+    // https://dzone.com/articles/7-jvm-arguments-of-highly-effective-applications-1?edition=590292&utm_source=Weekly%20Digest&utm_medium=email&utm_campaign=Weekly%20Digest%202020-04-01
+    applicationDefaultJvmArgs = [
+        '-Xms10m',
+        '-Xmx2g',
+        '-XX:MaxMetaspaceSize=512m',
+        
+        '-XX:+UseG1GC', //for Java 8+
+        //'-XX:+UseZGC', //for Java 11+
+        
+        '-XX:+PrintGCDetails', '-XX:+PrintGCDateStamps', "-Xloggc:$rootDir/log", //for Java 8-
+        //"-Xlog:gc*:file=$rootDir/log", //for Java 9+
+        
+        '-XX:+HeapDumpOnOutOfMemoryError', "-XX:HeapDumpPath=$rootDir/log/heap-dump.hprof",
+        
+        '-Xss256k',
+        ]
+}
+
+
+
+configure(subprojects.findAll { it.name != 'neptus' }) {
+    dependencies {
+        compileOnly rootProject
+        compileOnly rootProject.sourceSets.main.runtimeClasspath
+    }
+}
+
+clean {
+    // delete fileTree(dir: "$rootDir/bin" , include: '**/*.jar')
+    // delete fileTree(dir: "$rootDir/plugins" , include: '**/*.jar')
+}
+
+task cleanEclipseFiles {
+    // delete fileTree(dir: "$rootDir" , include: '**/.project')
+    // delete fileTree(dir: "$rootDir" , include: '**/.classpath')
+    // delete fileTree(dir: "$rootDir" , include: '**/.settings')
+}
+
+task cleanIdeaFiles {
+    delete fileTree(dir: "$rootDir" , include: '**/.idea')
+}
+
+task cleanVSCodeFiles {
+    delete fileTree(dir: "$rootDir" , include: '.vscode')
 }

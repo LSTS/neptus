@@ -1,2 +1,7 @@
 
 rootProject.name = 'neptus'
+
+file('plugins-dev').eachDir { dir ->
+  include dir.name
+  project(":${dir.name}").projectDir = dir
+}
