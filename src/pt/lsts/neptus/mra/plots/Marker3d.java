@@ -58,7 +58,7 @@ public class Marker3d extends AbstractWireframeable implements ISortableDraw {
     public Marker3d(String text, Coord3d pos, java.awt.Color color) {
         this.label = text;
         this.center = pos;
-        this.color = new Color(color);        
+        this.color = new Color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
     }
     
     @Override
