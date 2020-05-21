@@ -31,7 +31,7 @@ rem ############################################################################
 rem # Author: Paulo Dias, José Pinto                                            #
 rem #############################################################################
 
-set CLASSPATH=.;bin/neptus.jar;conf@NEPTUS_LIBS@
+set CLASSPATH=.;bin/neptus.jar;conf@NEPTUS_LIBS@;plugins\*
 set LIBRARYPATH=.;libJNI
 
 if exist jre\bin ( 

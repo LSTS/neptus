@@ -42,10 +42,11 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Vector;
 
-import com.amazonaws.util.IOUtils;
 import com.google.common.eventbus.Subscribe;
 
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.io.IOUtils;
+
 import pt.lsts.imc.IridiumMsgRx;
 import pt.lsts.imc.IridiumMsgTx;
 import pt.lsts.neptus.NeptusLog;

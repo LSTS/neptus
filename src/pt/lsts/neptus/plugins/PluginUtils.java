@@ -45,15 +45,12 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.InvalidPropertiesFormatException;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -63,7 +60,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import javax.imageio.spi.ServiceRegistry;
 import javax.swing.table.TableCellRenderer;
 
 import org.apache.commons.io.IOUtils;
@@ -79,7 +75,6 @@ import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.PropertiesProvider;
 import pt.lsts.neptus.gui.editor.EnumEditor;
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.ReflectionUtil;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
@@ -89,18 +84,9 @@ import pt.lsts.neptus.util.conf.GeneralPreferences;
  * @author pdias
  *
  */
-/**
- * @author pdias
- *
- */
 public class PluginUtils {
 
     public static String DEFAULT_ICON = "images/plugin.png";
-
-    @SuppressWarnings("rawtypes")
-    private static final Class[] parameters = new Class[] { URL.class };
-    public static final File PLUGINS_DIR = new File(".", "plugins");
-    private static boolean pluginsLoaded = false;
 
     public static Map<Class<?>, LinkedHashMap<String, PluginProperty>> defaultValuesProperties = Collections
             .synchronizedMap(new LinkedHashMap<Class<?>, LinkedHashMap<String, PluginProperty>>());
@@ -1052,61 +1038,6 @@ public class PluginUtils {
         extractFieldsWorker(clazz.getSuperclass(), dFA);
     }
 
-    /**
-     * Adds all jars contained in the {@value #PLUGINS_DIR}UGINS_DIR to the system's classpath
-     */
-    public static void loadPlugins() {
-        if (!PLUGINS_DIR.isDirectory() || !PLUGINS_DIR.exists()) {
-            // PLUGINS_DIR.mkdirs();
-            NeptusLog.pub().warn("No plugins found to load at \"" + PLUGINS_DIR.getPath() + "\"");
-            return;
-        }
-
-        for (File f : PLUGINS_DIR.listFiles()) {
-            if (FileUtil.getFileExtension(f).equalsIgnoreCase("jar")) {
-                try {
-                    NeptusLog.pub().info("<###>Adding " + f + " to classpath...");
-                    addToClassPath(f.toURI().toURL());
-                }
-                catch (Exception e) {
-                    NeptusLog.pub().error(e);
-                }
-            }
-        }
-        pluginsLoaded = true;
-    }
-
-    /**
-     * Given the classname of an interface, gives all the classes that implement that interface
-     * 
-     * @param interfaceName the looked after interface
-     * @return A list of classes (names) that implement the given interface
-     */
-    public static String[] listPlugins(String interfaceName) {
-
-        if (!pluginsLoaded)
-            loadPlugins();
-
-        Vector<String> plugins = new Vector<String>();
-        try {
-            @SuppressWarnings("rawtypes")
-            Class c = Class.forName(interfaceName);
-            @SuppressWarnings({ "rawtypes", "unchecked" })
-            Iterator iter = ServiceRegistry.lookupProviders(c);
-
-            while (iter.hasNext()) {
-                plugins.add(iter.next().getClass().getCanonicalName());
-            }
-
-            return plugins.toArray(new String[] {});
-        }
-
-        catch (Exception e) {
-            NeptusLog.pub().error(e);
-            return new String[] {};
-        }
-    }
-    
     public static InputStream getResourceAsStream(String filename) {
         // Merge this with FileUtils
         return Thread.currentThread().getContextClassLoader()
@@ -1115,30 +1046,6 @@ public class PluginUtils {
     
     public static String getResourceAsString(String filename) throws IOException{
         return IOUtils.toString(getResourceAsStream(filename));
-    }
-    
-    /**
-     * Given an URL to a resource (.jar, .class, .png, ...), adds that resource to the system class path
-     * 
-     * @param u The URL of the resource to be added
-     * @throws IOException In the case that the resourse can not be read
-     */
-    public static void addToClassPath(URL u) throws IOException {
-
-        URLClassLoader sysloader = (URLClassLoader) ClassLoader.getSystemClassLoader();
-        @SuppressWarnings("rawtypes")
-        Class sysclass = URLClassLoader.class;
-
-        try {
-            @SuppressWarnings("unchecked")
-            Method method = sysclass.getDeclaredMethod("addURL", parameters);
-            method.setAccessible(true);
-            method.invoke(sysloader, new Object[] { u });
-        }
-        catch (Throwable t) {
-            t.printStackTrace();
-            throw new IOException("Error, could not add URL to system classloader");
-        }
     }
     
     private static String[] computeParamNameAlternatives(String name) {

@@ -57,10 +57,10 @@ For simple use the main targets are:
 	<!-- Defines variables used by the other targets                         -->
 	<!-- =================================================================== -->
 	<property name="version.MAJOR" value="2020" />
-	<property name="version.MINOR" value="01" />
-	<property name="version.PATCH" value="1" />
+	<property name="version.MINOR" value="05" />
+	<property name="version.PATCH" value="2" />
 	<!-- Set this to '-dev' if a developer release; blank "" if maintenance release; or '-rcX' for release candidate X (X number) -->
-	<property name="version.DEVELOPER" value="-dev" />
+	<property name="version.DEVELOPER" value="-SNAPSHOT" />
 	
 	<property name="release.NAME" value="${version.MAJOR}.${version.MINOR}.${version.PATCH}${version.DEVELOPER}" />
 

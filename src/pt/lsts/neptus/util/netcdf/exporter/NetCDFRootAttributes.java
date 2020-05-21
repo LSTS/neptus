@@ -358,7 +358,7 @@ public class NetCDFRootAttributes {
 
                 try {
                     if (val.getClass().isArray())
-                        writer.addGroupAttribute(null, new Attribute(name, Array.factory(val)));
+                        writer.addGroupAttribute(null, new Attribute(name, NetCDFVarElement.extractedArrayForAttribute(val)));
                     else if (val.getClass().isAssignableFrom(String.class))
                         writer.addGroupAttribute(null, new Attribute(name, (String) val));
                     else if (val.getClass().isAssignableFrom(Attribute.class))

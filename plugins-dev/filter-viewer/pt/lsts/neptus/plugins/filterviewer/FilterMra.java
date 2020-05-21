@@ -85,7 +85,6 @@ import pt.lsts.neptus.vtk.surface.MeshSmoothingLaplacian;
 import pt.lsts.neptus.vtk.surface.PointCloudMesh;
 import pt.lsts.neptus.vtk.utils.Utils;
 import pt.lsts.neptus.vtk.visualization.Canvas;
-import visad.browser.Convert;
 import vtk.vtkActor;
 import vtk.vtkActorCollection;
 import vtk.vtkArrowSource;
@@ -287,21 +286,21 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
             // Read header
             if ((ligne = br.readLine()) != null) { // LLH Offset
                 String[] str_point = ligne.split("[,:]");
-                map_ref.latitude = Convert.getDouble(str_point[1]);
-                map_ref.longitude = Convert.getDouble(str_point[2]);
-                map_ref.height = Convert.getDouble(str_point[3]);
+                map_ref.latitude = Double.parseDouble(str_point[1]);
+                map_ref.longitude = Double.parseDouble(str_point[2]);
+                map_ref.height = Double.parseDouble(str_point[3]);
             }
 
             if ((ligne = br.readLine()) != null) { // NED Offset
                 String[] str_point = ligne.split("[,:]");
-                map_ref.north = Convert.getDouble(str_point[1]);
-                map_ref.east = Convert.getDouble(str_point[2]);
-                map_ref.down = Convert.getDouble(str_point[3]);
+                map_ref.north = Double.parseDouble(str_point[1]);
+                map_ref.east = Double.parseDouble(str_point[2]);
+                map_ref.down = Double.parseDouble(str_point[3]);
             }
 
             if ((ligne = br.readLine()) != null) { // Number of Point
                 String[] str_point = ligne.split("[,:]");
-                map_ref.num_point = (int) Convert.getDouble(str_point[1]);
+                map_ref.num_point = (int) Double.parseDouble(str_point[1]);
             }
 
             vtkPoints pts = new vtkPoints();
@@ -317,9 +316,9 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
             // Read map pointcloud
             while ((ligne = br.readLine()) != null) {
                 String[] str_point = ligne.split("[,]");
-                double pos_x = Convert.getDouble(str_point[0]) - offsetLatLon[0];
-                double pos_y = Convert.getDouble(str_point[1]) - offsetLatLon[1];
-                double pos_z = Convert.getDouble(str_point[2]) - offsetHeight + map_ref.offset_checked;
+                double pos_x = Double.parseDouble(str_point[0]) - offsetLatLon[0];
+                double pos_y = Double.parseDouble(str_point[1]) - offsetLatLon[1];
+                double pos_z = Double.parseDouble(str_point[2]) - offsetHeight + map_ref.offset_checked;
                 pts.InsertNextPoint(pos_x, pos_y, pos_z);
             }
 
@@ -696,10 +695,10 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
             double wmin = 10;
     
             for (int n = 0; n < num_particle; n++) {
-                x = Convert.getDouble(list_str[i]);
-                y = Convert.getDouble(list_str[i + 1]);
-                d = Convert.getDouble(list_str[i + 2]);
-                w = Convert.getDouble(list_str[i + 3]);
+                x = Double.parseDouble(list_str[i]);
+                y = Double.parseDouble(list_str[i + 1]);
+                d = Double.parseDouble(list_str[i + 2]);
+                w = Double.parseDouble(list_str[i + 3]);
     
                 // Min/Max Weight for normalization
                 if (wmax < w) {
@@ -738,7 +737,7 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
     
                 i = 0;
                 for (int n = 0; n < num_particle; n++) {
-                    w = Convert.getDouble(list_str[i + 3]);
+                    w = Double.parseDouble(list_str[i + 3]);
                     i = i + 4;
         
                     // Weight normalization (0->wmax : 0->1)

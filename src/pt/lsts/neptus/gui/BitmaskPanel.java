@@ -35,6 +35,7 @@ package pt.lsts.neptus.gui;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.LinkedHashMap;
@@ -58,7 +59,8 @@ public class BitmaskPanel extends JPanel {
 	private boolean cancelled = false;
 	private JDialog dialog = null;
 
-	private LinkedHashMap<Long, JCheckBox> checks = new LinkedHashMap<Long, JCheckBox>();		
+	private LinkedHashMap<Long, JCheckBox> checks = new LinkedHashMap<Long, JCheckBox>();
+    private JPanel mainContent;		
 
 	private BitmaskPanel(Bitmask bitmask, JDialog dialog) {
 		this.oldValue = bitmask.getCurrentValue();
@@ -66,7 +68,7 @@ public class BitmaskPanel extends JPanel {
 
 		setLayout(new BorderLayout());
 
-		JPanel mainContent = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+		mainContent = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
 		for (long l : bitmask.getPossibleValues().keySet()) {
 			String bitName = bitmask.getPossibleValues().get(l);
 			JCheckBox check = new JCheckBox(bitName);
@@ -76,34 +78,41 @@ public class BitmaskPanel extends JPanel {
 			mainContent.add(check);
 		}
 		add(mainContent, BorderLayout.CENTER);
+		
+        if (this.dialog != null) {
+            JPanel controls = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 
-		JPanel controls = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		
-		JButton okBtn = new JButton("OK");
-		okBtn.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				BitmaskPanel.this.dialog.setVisible(false);
-				BitmaskPanel.this.dialog.dispose();
-			}
-		});
-		
-		okBtn.setPreferredSize(new Dimension(80, 25));
-		
-		JButton cancelBtn = new JButton("Cancel");
-		cancelBtn.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				cancelled = true;
-				BitmaskPanel.this.dialog.setVisible(false);
-				BitmaskPanel.this.dialog.dispose();
-			}
-		});
-		
-		cancelBtn.setPreferredSize(new Dimension(80, 25));
-		
-		controls.add(okBtn);
-		controls.add(cancelBtn);
-		add(controls, BorderLayout.SOUTH);
+            JButton okBtn = new JButton("OK");
+            okBtn.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    BitmaskPanel.this.dialog.setVisible(false);
+                    BitmaskPanel.this.dialog.dispose();
+                }
+            });
 
+            okBtn.setPreferredSize(new Dimension(80, 25));
+
+            JButton cancelBtn = new JButton("Cancel");
+            cancelBtn.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    cancelled = true;
+                    BitmaskPanel.this.dialog.setVisible(false);
+                    BitmaskPanel.this.dialog.dispose();
+                }
+            });
+
+            cancelBtn.setPreferredSize(new Dimension(80, 25));
+
+            controls.add(okBtn);
+            controls.add(cancelBtn);
+            add(controls, BorderLayout.SOUTH);
+        }
+
+	}
+	
+	public void setMainComponentLayout(LayoutManager l) {
+	    this.mainContent.setLayout(l);
+	    this.mainContent.repaint();
 	}
 
 	public long getValue() {
@@ -115,7 +124,12 @@ public class BitmaskPanel extends JPanel {
 				value = value | l; 
 		}
 		return value;
-	}		
+	}
+	
+	public static BitmaskPanel getBitmaskPanel(Bitmask bitmask) {
+	    BitmaskPanel bpanel = new BitmaskPanel(bitmask, null);
+	    return bpanel;
+	}
 
 	public static Bitmask showBitmaskDialog(Bitmask bitmask) {
 		

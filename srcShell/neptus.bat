@@ -45,7 +45,7 @@ set WORLDMAPPANEL=pt.lsts.neptus.app.tiles.WorldMapPanel
 
 set DEFAULT=pt.lsts.neptus.loader.NeptusMain
 
-set CLASSPATH=.;bin/neptus.jar;conf@NEPTUS_LIBS@
+set CLASSPATH=.;bin\neptus.jar;conf@NEPTUS_LIBS@;plugins\*
 
 set LIBRARYPATH=.;libJNI
 
