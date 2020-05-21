@@ -48,11 +48,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import javax.swing.AbstractAction;
+import javax.swing.InputVerifier;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -70,15 +73,16 @@ import com.google.common.eventbus.Subscribe;
 
 import net.java.games.input.Component;
 import net.miginfocom.swing.MigLayout;
-import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.RemoteActions;
 import pt.lsts.imc.RemoteActionsRequest;
+import pt.lsts.imc.RemoteActionsRequest.OP;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
@@ -96,6 +100,11 @@ import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
 @Popup(pos = POSITION.TOP_RIGHT, width = 200, height = 400, accelerator = 'J')
 @PluginDescription(author = "jquadrado", description = "Controllers Panel", name = "Controllers Panel", icon = "images/control-mode/teleoperation.png")
 public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
+    
+    @NeptusProperty(name = "Axis Range", description = "Varies between the range and its simetrical value.\nCan be edited in each field inside the plugin.")
+    protected static int RANGE = 127;
+
+
     private static final long serialVersionUID = 1L;
 
     private static final String ACTION_FILE_XML = "conf/controllers/actions.xml";
@@ -283,8 +292,8 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
 
     public void requestRemoteActions() {
         if (console.getMainSystem() != null) {
-            IMCMessage msg = RemoteActionsRequest.create("op", 1);
-            ImcMsgManager.getManager().sendMessageToSystem(msg, console.getMainSystem());
+            RemoteActionsRequest raq = new RemoteActionsRequest(OP.QUERY,"");
+            ImcMsgManager.getManager().sendMessageToSystem(raq, console.getMainSystem());
         }
     }
 
@@ -355,7 +364,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                             && Math.abs(poll.get(k).getPollData()) == 1.0) {
                         for (MapperComponent mcomp : mappedActions) {
                             if (mcomp.editFlag) {
-                                mcomp.component = k;
+                                mcomp.button = k;
                                 mcomp.inverted = poll.get(k).getPollData() < 0;
                                 model.fireTableDataChanged();
 
@@ -394,14 +403,14 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                 // Don't need to create an extra method for this one
                 MapperComponent comp = null;
                 for (MapperComponent c : mappedActions) {
-                    if (c.component.equals(k)) {
+                    if (c.button.equals(k)) {
                         comp = c;
                         break;
                     }
                 }
 
                 if (comp != null) {
-                    comp.value = poll.get(k).getPollData() * (actions.get(comp.action).equals("Axis") ? 127 : 1) * (comp.inverted ? -1 : 1);
+                    comp.value = poll.get(k).getPollData() * (actions.get(comp.action).equals("Axis") ? comp.getRange() : 1) * (comp.inverted ? -1 : 1);
                     ((AbstractTableModel)table.getModel()).fireTableDataChanged();
                     // Only if we are already sending that we build the msgActions LinkedHashMap
                     if (sending) {
@@ -445,9 +454,10 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
             
             for(MapperComponent mcomp : mappedActions) {
                 Element e = controller.addElement("entry");
-                e.addAttribute("component", mcomp.component);
+                e.addAttribute("component", mcomp.button);
                 e.addAttribute("action", mcomp.action);
                 e.addAttribute("inverted", String.valueOf(mcomp.inverted));
+                e.addAttribute("max", String.valueOf(mcomp.range));
             }
             
             File fx = new File(ACTION_FILE_XML);
@@ -481,21 +491,38 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
      */
     class MapperComponent {
         String action;
-        String component;
+        String button;
         float value;
         boolean inverted;
         JButton edit;
         JButton clear;
+        JTextField range;
         
         boolean editFlag = false;
         
         MapperComponent(final String action, String component, float value, boolean inverted) {
             this.action = action;
-            this.component = component;
+            this.button = component;
             this.value = value;
             this.inverted = inverted;
             this.edit = new JButton(I18n.text("Edit"));
             this.clear = new JButton(I18n.text("Clear"));
+            this.range = new JTextField();
+            InputVerifier intVer = new InputVerifier() {
+                
+                @Override
+                public boolean verify(JComponent input) {
+                    String txt = ((JTextField) input).getText();
+                    try {
+                        Integer.parseInt(txt);
+                        return true;
+                    }
+                    catch(NumberFormatException e) {
+                        return false;
+                    }
+                }
+            };
+            this.range.setInputVerifier(intVer);
             
             edit.addMouseListener(new MouseAdapter() {
                 @Override
@@ -511,11 +538,25 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                 @Override
                 public void mouseClicked(MouseEvent e) {
                     super.mouseClicked(e);
-                    MapperComponent.this.component = "";
+                    MapperComponent.this.button = "";
                     MapperComponent.this.inverted = false;
                 } 
             });
 
+        }
+        public int getRange() {
+            String txt = this.range.getText();
+            try {
+                return Integer.valueOf(txt);  
+            }
+            catch(NumberFormatException e) {
+                this.range.setText(String.valueOf(RANGE));
+                return RANGE;
+            }
+        }
+        
+        public void setRange(int r) {
+            this.range.setText(String.valueOf(r));
         }
     }
     
@@ -534,6 +575,8 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                     return I18n.text("Value");
                 case 3:
                     return I18n.text("Inverted");
+                case 6:
+                    return I18n.text("Range");
                 default:
                     return "";
             }
@@ -563,7 +606,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                 case 0:
                     return comp.action;
                 case 1:
-                    return comp.component;
+                    return comp.button;
                 case 2:
                     return comp.value;
                 case 3:
@@ -572,12 +615,14 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                     return comp.edit;
                 case 5:
                     return comp.clear;
+                case 6: 
+                    return comp.range;
             }
             return null;
         }
         
         public boolean isCellEditable(int row, int col) {
-            return col == 3 || col == 1 || col == 4 || col == 5; // Hard-coded for now
+            return col == 3 || col == 1 || col == 4 || col == 5 || col == 6; // Hard-coded for now
         }
 
         public void setValueAt(Object value, int row, int col) {
