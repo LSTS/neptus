@@ -174,7 +174,7 @@ dependencies {
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
 
-    runtime fileTree(dir: 'plugins', include: '*.jar')
+    runtimeOnly fileTree(dir: 'plugins', include: '*.jar')
 }
 
 apply plugin: 'java'
@@ -233,7 +233,7 @@ allprojects {
                 'Built-On': "${new Date()}",
                 )
         }
-        version = ''
+        archiveVersion = ''
     }
 
     gitProperties {
@@ -300,7 +300,7 @@ subprojects {
         //     attributes += ['Main-Class': 'pt.lsts.neptus.loader.NeptusMain',]
         // }
         archiveVersion = ''
-        destinationDir = file("$rootDir/plugins")
+        destinationDirectory = file("$rootDir/plugins")
 
         from sourceSets.main.output
 
@@ -317,7 +317,7 @@ jar {
             ['Main-Class': 'pt.lsts.neptus.loader.NeptusMain',]
     }
     archiveVersion = ''
-    destinationDir = file("$rootDir/bin")
+    destinationDirectory = file("$rootDir/bin")
 }
 
 application {
@@ -331,10 +331,10 @@ application {
         '-XX:+UseG1GC', //for Java 8+
         //'-XX:+UseZGC', //for Java 11+
         
-        '-XX:+PrintGCDetails', '-XX:+PrintGCDateStamps', "-Xloggc:$rootDir/log", //for Java 8-
-        //"-Xlog:gc*:file=$rootDir/log", //for Java 9+
+        '-XX:+PrintGCDetails', '-XX:+PrintGCDateStamps', "-Xloggc:./log", //for Java 8-
+        //"-Xlog:gc*:file=./log", //for Java 9+
         
-        '-XX:+HeapDumpOnOutOfMemoryError', "-XX:HeapDumpPath=$rootDir/log/heap-dump.hprof",
+        '-XX:+HeapDumpOnOutOfMemoryError', "-XX:HeapDumpPath=./log/heap-dump.hprof",
         
         '-Xss256k',
         ]
