@@ -10,7 +10,9 @@ version = '2020.05.3-SNAPSHOT'
 
 ext {
     copyYears = "2004-${new Date().format('yyyy')}"
+    libJNIPaths = ['.']
 }
+
 
 dependencies {
     // This dependency is used by the application.
@@ -84,7 +86,10 @@ dependencies {
     implementation 'org.jfree:jfreechart:1.5.0'
     implementation 'com.jgoodies:jgoodies-looks:2.5.3' //2.7.0
     implementation 'com.jhlabs:filters:2.0.235-1' // don't know the orig version
-    implementation 'net.java.jinput:jinput:2.0.9' // was not this and should be before 2.0.4
+
+    //implementation 'net.java.jinput:jinput:2.0.9' // was not this and should be before 2.0.4
+    implementation name: 'jinput'
+
     implementation 'net.sourceforge.jmatio:jmatio:1.0'
     implementation 'javax.media:jmf:2.1.1e'
     implementation 'org.jogamp.jogl:jogl-all-main:2.0.2'
@@ -199,7 +204,7 @@ allprojects {
     repositories {
         mavenCentral()
         flatDir {
-        dirs 'lib'
+            dirs 'lib'
         }
         maven {
             url 'https://artifacts.unidata.ucar.edu/content/repositories/unidata-releases/'
@@ -320,6 +325,51 @@ jar {
     destinationDirectory = file("$rootDir/bin")
 }
 
+import static org.apache.tools.ant.taskdefs.condition.Os.*
+task updateLibJNIPaths {
+    def familyLst = []
+    if (isFamily(FAMILY_WINDOWS))
+        familyLst += 'win'
+    if (isFamily(FAMILY_MAC))
+        familyLst += 'osx'
+    if (isFamily(FAMILY_UNIX))
+        familyLst += 'linux'
+    def archLst = []
+    if (isArch('x86'))
+        archLst += 'x86'
+    else
+        archLst += ['x64', 'x86']
+    familyLst.each({ family ->
+        archLst.each({ arch ->
+            fileTree(dir: 'libJNI', includes: ["*/$family/$arch/*"]).each({ libJNIPaths += it.getParentFile() })
+            fileTree(dir: 'libJNI', includes: ["$family/*", "*/$family/*"]).each({ libJNIPaths += it.getParentFile() })
+            fileTree(dir: 'libJNI', includes: ["$arch/*", "*/$arch/*"]).each({ libJNIPaths += it.getParentFile() })
+        })
+    })
+    libJNIPaths += file('libJNI')
+    if (isFamily(FAMILY_MAC))
+        libJNIPaths += file('/usr/lib/jni')
+
+    libJNIPaths.unique()
+
+    doLast {
+        println "Family:       ${OS_NAME}"
+        println "Version:      ${OS_VERSION}"
+        println "Architecture: ${OS_ARCH}"
+        println "libJNIPaths:  ${libJNIPaths.collect { "${relativePath(it)}" }.join(isFamily(FAMILY_WINDOWS) ? ';' : ':') }"
+    }
+}
+run.dependsOn updateLibJNIPaths
+
+run {
+    if (isFamily(FAMILY_WINDOWS))
+        environment 'PATH', "${libJNIPaths.collect { "${relativePath(it)}" }.join(';')};%PATH%"
+    else
+        environment 'LD_LIBRARY_PATH', "${libJNIPaths.collect { "${relativePath(it)}" }.join(':')}:\$LD_LIBRARY_PATH"
+
+    args 'auv'
+}
+
 application {
     mainClass = 'pt.lsts.neptus.loader.NeptusMain'
     // https://dzone.com/articles/7-jvm-arguments-of-highly-effective-applications-1?edition=590292&utm_source=Weekly%20Digest&utm_medium=email&utm_campaign=Weekly%20Digest%202020-04-01
@@ -327,19 +377,15 @@ application {
         '-Xms10m',
         '-Xmx2g',
         '-XX:MaxMetaspaceSize=512m',
-        
         '-XX:+UseG1GC', //for Java 8+
         //'-XX:+UseZGC', //for Java 11+
-        
         '-XX:+PrintGCDetails', '-XX:+PrintGCDateStamps', "-Xloggc:./log", //for Java 8-
         //"-Xlog:gc*:file=./log", //for Java 9+
-        
         '-XX:+HeapDumpOnOutOfMemoryError', "-XX:HeapDumpPath=./log/heap-dump.hprof",
-        
         '-Xss256k',
+        "-Djava.library.path=\"${libJNIPaths.collect { "${relativePath(it)}" }.join(isFamily(FAMILY_WINDOWS) ? ';' : ':') }\"",
         ]
 }
-
 
 
 configure(subprojects.findAll { it.name != 'neptus' }) {
