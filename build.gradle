@@ -214,7 +214,9 @@ allprojects {
 
     apply plugin: 'java'
     compileJava.options.encoding = 'UTF-8'
-    
+    java.sourceCompatibility = JavaVersion.VERSION_1_8
+    java.targetCompatibility = JavaVersion.VERSION_1_8
+
     apply plugin: "com.gorylenko.gradle-git-properties"
     
 
