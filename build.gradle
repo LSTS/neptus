@@ -303,9 +303,6 @@ subprojects {
     buildDir = file("$rootProject.buildDir/plugins/$project.name")
 
     jar {
-        // manifest {
-        //     attributes += ['Main-Class': 'pt.lsts.neptus.loader.NeptusMain',]
-        // }
         archiveVersion = ''
         destinationDirectory = file("$rootDir/plugins")
 
@@ -318,15 +315,40 @@ subprojects {
     }
 }
 
+configure(subprojects.findAll { it.name != 'neptus' }) {
+    dependencies {
+        compileOnly rootProject
+        compileOnly rootProject.sourceSets.main.runtimeClasspath
+    }
+}
+
 jar {
     manifest {
-        attributes += 
-            ['Main-Class': 'pt.lsts.neptus.loader.NeptusMain',]
+        attributes += [
+            'Main-Class': 'pt.lsts.neptus.loader.NeptusMain',
+            ]
     }
     archiveVersion = ''
     destinationDirectory = file("$rootDir/bin")
 }
 
+// Get the libJNI file collection for the familyLst and archLst
+def getLibJNIFor(familyLst, archLst) {
+    def libJNIPaths = [file('.')];
+    familyLst.each({ family ->
+        archLst.each({ arch ->
+            fileTree(dir: 'libJNI', includes: ["*/$family/$arch/*"]).each({ libJNIPaths += it.getParentFile() })
+            fileTree(dir: 'libJNI', includes: ["$family/*", "*/$family/*"]).each({ libJNIPaths += it.getParentFile() })
+            fileTree(dir: 'libJNI', includes: ["$arch/*", "*/$arch/*"]).each({ libJNIPaths += it.getParentFile() })
+        })
+    })
+    libJNIPaths += file('libJNI')
+    if (isFamily(FAMILY_UNIX))
+        libJNIPaths += file('/usr/lib/jni')
+
+    libJNIPaths.unique()
+    return libJNIPaths;
+}
 import static org.apache.tools.ant.taskdefs.condition.Os.*
 task updateLibJNIPaths {
     def familyLst = []
@@ -341,18 +363,8 @@ task updateLibJNIPaths {
         archLst += 'x86'
     else
         archLst += ['x64', 'x86']
-    familyLst.each({ family ->
-        archLst.each({ arch ->
-            fileTree(dir: 'libJNI', includes: ["*/$family/$arch/*"]).each({ libJNIPaths += it.getParentFile() })
-            fileTree(dir: 'libJNI', includes: ["$family/*", "*/$family/*"]).each({ libJNIPaths += it.getParentFile() })
-            fileTree(dir: 'libJNI', includes: ["$arch/*", "*/$arch/*"]).each({ libJNIPaths += it.getParentFile() })
-        })
-    })
-    libJNIPaths += file('libJNI')
-    if (isFamily(FAMILY_MAC))
-        libJNIPaths += file('/usr/lib/jni')
 
-    libJNIPaths.unique()
+    libJNIPaths = getLibJNIFor(familyLst, archLst);
 
     doLast {
         println "Family:       ${OS_NAME}"
@@ -389,11 +401,93 @@ application {
         ]
 }
 
+// tasks.withType(CreateStartScripts) {
+//     def tplName = 'unixStartScriptTemplate.txt'
+//     assert project.file(tplName).exists()
+//     unixStartScriptGenerator.template = resources.text.fromFile(tplName)
+// }
 
-configure(subprojects.findAll { it.name != 'neptus' }) {
-    dependencies {
-        compileOnly rootProject
-        compileOnly rootProject.sourceSets.main.runtimeClasspath
+def String relativePathIfOnProjectPath(fx, String prefixForRelative){
+    def fx1 = file(fx)
+    def rpFx = file(rootProject.rootDir)
+    if (fx1.getPath().startsWith(rpFx.getPath()))
+        return prefixForRelative + relativePath(fx1)
+    return fx1.getPath()
+}
+
+startScripts {
+    def unixTemplateName = 'srcShell/unixStartScript.txt'
+    assert project.file(unixTemplateName).exists();
+    def winTemplateName = 'srcShell/windowsStartScript.txt'
+    assert project.file(winTemplateName).exists();
+    unixStartScriptGenerator.template = resources.text.fromFile(unixTemplateName)
+    windowsStartScriptGenerator.template = resources.text.fromFile(winTemplateName)
+
+    // applicationName = 'neptus'
+    mainClass = 'pt.lsts.neptus.loader.NeptusMain'
+    classpath =  files(file('lib/*'))
+    defaultJvmOpts = [
+        '-Xms10m',
+        '-Xmx2g',
+        '-XX:MaxMetaspaceSize=512m',
+        '-XX:+UseG1GC', //for Java 8+
+        //'-XX:+UseZGC', //for Java 11+
+        '-XX:+PrintGCDetails', '-XX:+PrintGCDateStamps', '-Xloggc:$APP_HOME/log', //for Java 8-
+        //"-Xlog:gc*:file=\$APP_HOME/log", //for Java 9+
+        '-XX:+HeapDumpOnOutOfMemoryError', '-XX:HeapDumpPath=$APP_HOME/log/heap-dump.hprof',
+        '-Xss256k',
+        ]
+
+    doLast {
+        unixScript.text = unixScript.text.replace('@lib_jni_linux_x64@',
+            getLibJNIFor(['linux'], ['x64', 'x86']).collect { "${relativePathIfOnProjectPath(it, '\$APP_HOME/',)}" }.join(':'))
+        unixScript.text = unixScript.text.replace('@lib_jni_linux_x86@',
+            getLibJNIFor(['linux'], ['x86']).collect { "${relativePathIfOnProjectPath(it, '\$APP_HOME/')}" }.join(':'))
+        unixScript.text = unixScript.text.replace('@lib_jni_osx_x64@',
+            getLibJNIFor(['osx'], ['x64']).collect { "${relativePathIfOnProjectPath(it, '\$APP_HOME/')}" }.join(':'))
+        unixScript.text = unixScript.text.replace('@added_section@',
+            '''case \$1 in
+    "ws"       )  DEFAULT=\$WORKSPACE
+                    shift;;
+    "mra"      )  DEFAULT=\$MRA
+                    shift;;
+    "la"       )  DEFAULT=\$LAUVCONSOLE
+                    shift;;
+    "wm"       )  DEFAULT=\$WORLDMAPPANEL
+                    shift;;
+esac''')
+
+        windowsScript.text = windowsScript.text.replace('@lib_jni_windows_x64@',
+            getLibJNIFor(['win'], ['x64', 'x86']).collect { "${relativePathIfOnProjectPath(it, '@APP_HOME@/',)}" }.join(';'))
+        windowsScript.text = windowsScript.text.replace('@lib_jni_windows_x86@',
+            getLibJNIFor(['win'], ['x86']).collect { "${relativePathIfOnProjectPath(it, '@APP_HOME@/',)}" }.join(';'))
+        windowsScript.text = windowsScript.text.replace('@added_section@',
+            '''set WORKSPACE=pt.lsts.neptus.loader.NeptusMain ws
+set MRA=pt.lsts.neptus.loader.NeptusMain mra
+set LAUVCONSOLE=pt.lsts.neptus.mc.lauvconsole.LAUVConsole
+set WORLDMAPPANEL=pt.lsts.neptus.app.tiles.WorldMapPanel
+
+if not "%1"=="ws" goto end2
+	set DEFAULT=%WORKSPACE%
+	shift
+:end2
+if not "%1"=="v3d" goto end3
+	set DEFAULT=%VIEWER3D%
+	shift
+:end3
+if not "%1"=="mra" goto end4
+	set DEFAULT=%MRA%
+	shift
+:end4
+if not "%1"=="la" goto end8
+	set DEFAULT=%LAUVCONSOLE%
+	shift
+:end8
+if not "%1"=="wm" goto end10
+	set DEFAULT=%WORLDMAPPANEL%
+	shift
+:end10
+''')
     }
 }
 
