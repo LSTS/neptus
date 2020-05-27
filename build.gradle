@@ -401,11 +401,14 @@ application {
         ]
 }
 
-// tasks.withType(CreateStartScripts) {
-//     def tplName = 'unixStartScriptTemplate.txt'
-//     assert project.file(tplName).exists()
-//     unixStartScriptGenerator.template = resources.text.fromFile(tplName)
-// }
+tasks.withType(CreateStartScripts) {
+    def unixTemplateName = rootProject.file('srcShell/unixStartScript.txt')
+    assert project.file(unixTemplateName).exists();
+    def winTemplateName = rootProject.file('srcShell/windowsStartScript.txt')
+    assert project.file(winTemplateName).exists();
+    unixStartScriptGenerator.template = rootProject.resources.text.fromFile(unixTemplateName)
+    windowsStartScriptGenerator.template = rootProject.resources.text.fromFile(winTemplateName)
+}
 
 def String relativePathIfOnProjectPath(fx, String prefixForRelative){
     def fx1 = file(fx)
@@ -416,13 +419,6 @@ def String relativePathIfOnProjectPath(fx, String prefixForRelative){
 }
 
 startScripts {
-    def unixTemplateName = 'srcShell/unixStartScript.txt'
-    assert project.file(unixTemplateName).exists();
-    def winTemplateName = 'srcShell/windowsStartScript.txt'
-    assert project.file(winTemplateName).exists();
-    unixStartScriptGenerator.template = resources.text.fromFile(unixTemplateName)
-    windowsStartScriptGenerator.template = resources.text.fromFile(winTemplateName)
-
     // applicationName = 'neptus'
     mainClass = 'pt.lsts.neptus.loader.NeptusMain'
     classpath =  rootProject.files(rootProject.file('lib/*'))
