@@ -13,6 +13,39 @@ ext {
     libJNIPaths = ['.']
 }
 
+///////////////////////
+// Utilities Section //
+///////////////////////
+
+// Get the libJNI file collection for the familyLst and archLst
+def getLibJNIFor(familyLst, archLst) {
+    def libJNIPaths = [file('.')];
+    familyLst.each({ family ->
+        archLst.each({ arch ->
+            fileTree(dir: 'libJNI', includes: ["*/$family/$arch/*"]).each({ libJNIPaths += it.getParentFile() })
+            fileTree(dir: 'libJNI', includes: ["$family/*", "*/$family/*"]).each({ libJNIPaths += it.getParentFile() })
+            fileTree(dir: 'libJNI', includes: ["$arch/*", "*/$arch/*"]).each({ libJNIPaths += it.getParentFile() })
+        })
+    })
+    libJNIPaths += file('libJNI')
+    if (isFamily(FAMILY_UNIX))
+        libJNIPaths += file('/usr/lib/jni')
+
+    libJNIPaths.unique()
+    return libJNIPaths;
+}
+
+def String relativePathIfOnProjectPath(fx, String prefixForRelative){
+    def fx1 = file(fx)
+    def rpFx = file(rootProject.rootDir)
+    if (fx1.getPath().startsWith(rpFx.getPath()))
+        return prefixForRelative + relativePath(fx1)
+    return fx1.getPath()
+}
+
+//////////////////////////
+// Core-Project Section //
+//////////////////////////
 
 dependencies {
     // This dependency is used by the application.
@@ -183,8 +216,6 @@ dependencies {
 }
 
 apply plugin: 'java'
-compileJava.options.encoding = 'UTF-8'
-
 apply plugin: "com.gorylenko.gradle-git-properties"
 
 sourceSets {
@@ -197,6 +228,74 @@ sourceSets {
         }
     }
 }
+
+buildDir = file("$rootProject.rootDir/build/")
+
+jar {
+    manifest {
+        attributes += [
+            'Main-Class': 'pt.lsts.neptus.loader.NeptusMain',
+            ]
+    }
+    archiveVersion = ''
+    destinationDirectory = file("$rootDir/bin")
+}
+
+import static org.apache.tools.ant.taskdefs.condition.Os.*
+task updateLibJNIPaths {
+    def familyLst = []
+    if (isFamily(FAMILY_WINDOWS))
+        familyLst += 'win'
+    if (isFamily(FAMILY_MAC))
+        familyLst += 'osx'
+    if (isFamily(FAMILY_UNIX))
+        familyLst += 'linux'
+    def archLst = []
+    if (isArch('x86'))
+        archLst += 'x86'
+    else
+        archLst += ['x64', 'x86']
+
+    libJNIPaths = getLibJNIFor(familyLst, archLst);
+
+    doLast {
+        println "Family:       ${OS_NAME}"
+        println "Version:      ${OS_VERSION}"
+        println "Architecture: ${OS_ARCH}"
+        println "libJNIPaths:  ${libJNIPaths.collect { "${relativePath(it)}" }.join(isFamily(FAMILY_WINDOWS) ? ';' : ':') }"
+    }
+}
+
+run.dependsOn updateLibJNIPaths
+run {
+    if (isFamily(FAMILY_WINDOWS))
+        environment 'PATH', "${libJNIPaths.collect { "${relativePath(it)}" }.join(';')};%PATH%"
+    else
+        environment 'LD_LIBRARY_PATH', "${libJNIPaths.collect { "${relativePath(it)}" }.join(':')}:\$LD_LIBRARY_PATH"
+
+    args 'auv'
+}
+
+application {
+    mainClass = 'pt.lsts.neptus.loader.NeptusMain'
+    // https://dzone.com/articles/7-jvm-arguments-of-highly-effective-applications-1?edition=590292&utm_source=Weekly%20Digest&utm_medium=email&utm_campaign=Weekly%20Digest%202020-04-01
+    applicationDefaultJvmArgs = [
+        '-Xms10m',
+        '-Xmx2g',
+        '-XX:MaxMetaspaceSize=512m',
+        '-XX:+UseG1GC', //for Java 8+
+        //'-XX:+UseZGC', //for Java 11+
+        '-XX:+PrintGCDetails', '-XX:+PrintGCDateStamps', "-Xloggc:${relativePath('./log')}", //for Java 8-
+        //"-Xlog:gc*:file=${relativePath('./log')}", //for Java 9+
+        '-XX:+HeapDumpOnOutOfMemoryError', "-XX:HeapDumpPath=${relativePath('./log/heap-dump.hprof')}",
+        '-Xss256k',
+        "-Djava.library.path=\"${libJNIPaths.collect { "${relativePath(it)}" }.join(isFamily(FAMILY_WINDOWS) ? ';' : ':') }\"",
+        ]
+}
+
+//////////////////////////
+// All-Projects Section //
+//////////////////////////
 
 allprojects {
     version = "$rootProject.version"
@@ -218,7 +317,6 @@ allprojects {
     java.targetCompatibility = JavaVersion.VERSION_1_8
 
     apply plugin: "com.gorylenko.gradle-git-properties"
-    
 
     processResources {
         from (rootProject.projectDir) {
@@ -266,6 +364,30 @@ allprojects {
     }
     generateGitProperties.outputs.upToDateWhen { false }
 }
+
+////////////////////////////
+// Configurations Section //
+////////////////////////////
+
+configure(subprojects.findAll { it.name != 'neptus' }) {
+    dependencies {
+        compileOnly rootProject
+        compileOnly rootProject.sourceSets.main.runtimeClasspath
+    }
+}
+
+tasks.withType(CreateStartScripts) {
+    def unixTemplateName = rootProject.file('srcShell/unixStartScript.txt')
+    assert project.file(unixTemplateName).exists();
+    def winTemplateName = rootProject.file('srcShell/windowsStartScript.txt')
+    assert project.file(winTemplateName).exists();
+    unixStartScriptGenerator.template = rootProject.resources.text.fromFile(unixTemplateName)
+    windowsStartScriptGenerator.template = rootProject.resources.text.fromFile(winTemplateName)
+}
+
+//////////////////////////
+// Sub-Projects Section //
+//////////////////////////
 
 subprojects {
     sourceSets {
@@ -315,108 +437,9 @@ subprojects {
     }
 }
 
-configure(subprojects.findAll { it.name != 'neptus' }) {
-    dependencies {
-        compileOnly rootProject
-        compileOnly rootProject.sourceSets.main.runtimeClasspath
-    }
-}
-
-jar {
-    manifest {
-        attributes += [
-            'Main-Class': 'pt.lsts.neptus.loader.NeptusMain',
-            ]
-    }
-    archiveVersion = ''
-    destinationDirectory = file("$rootDir/bin")
-}
-
-// Get the libJNI file collection for the familyLst and archLst
-def getLibJNIFor(familyLst, archLst) {
-    def libJNIPaths = [file('.')];
-    familyLst.each({ family ->
-        archLst.each({ arch ->
-            fileTree(dir: 'libJNI', includes: ["*/$family/$arch/*"]).each({ libJNIPaths += it.getParentFile() })
-            fileTree(dir: 'libJNI', includes: ["$family/*", "*/$family/*"]).each({ libJNIPaths += it.getParentFile() })
-            fileTree(dir: 'libJNI', includes: ["$arch/*", "*/$arch/*"]).each({ libJNIPaths += it.getParentFile() })
-        })
-    })
-    libJNIPaths += file('libJNI')
-    if (isFamily(FAMILY_UNIX))
-        libJNIPaths += file('/usr/lib/jni')
-
-    libJNIPaths.unique()
-    return libJNIPaths;
-}
-import static org.apache.tools.ant.taskdefs.condition.Os.*
-task updateLibJNIPaths {
-    def familyLst = []
-    if (isFamily(FAMILY_WINDOWS))
-        familyLst += 'win'
-    if (isFamily(FAMILY_MAC))
-        familyLst += 'osx'
-    if (isFamily(FAMILY_UNIX))
-        familyLst += 'linux'
-    def archLst = []
-    if (isArch('x86'))
-        archLst += 'x86'
-    else
-        archLst += ['x64', 'x86']
-
-    libJNIPaths = getLibJNIFor(familyLst, archLst);
-
-    doLast {
-        println "Family:       ${OS_NAME}"
-        println "Version:      ${OS_VERSION}"
-        println "Architecture: ${OS_ARCH}"
-        println "libJNIPaths:  ${libJNIPaths.collect { "${relativePath(it)}" }.join(isFamily(FAMILY_WINDOWS) ? ';' : ':') }"
-    }
-}
-run.dependsOn updateLibJNIPaths
-
-run {
-    if (isFamily(FAMILY_WINDOWS))
-        environment 'PATH', "${libJNIPaths.collect { "${relativePath(it)}" }.join(';')};%PATH%"
-    else
-        environment 'LD_LIBRARY_PATH', "${libJNIPaths.collect { "${relativePath(it)}" }.join(':')}:\$LD_LIBRARY_PATH"
-
-    args 'auv'
-}
-
-application {
-    mainClass = 'pt.lsts.neptus.loader.NeptusMain'
-    // https://dzone.com/articles/7-jvm-arguments-of-highly-effective-applications-1?edition=590292&utm_source=Weekly%20Digest&utm_medium=email&utm_campaign=Weekly%20Digest%202020-04-01
-    applicationDefaultJvmArgs = [
-        '-Xms10m',
-        '-Xmx2g',
-        '-XX:MaxMetaspaceSize=512m',
-        '-XX:+UseG1GC', //for Java 8+
-        //'-XX:+UseZGC', //for Java 11+
-        '-XX:+PrintGCDetails', '-XX:+PrintGCDateStamps', "-Xloggc:./log", //for Java 8-
-        //"-Xlog:gc*:file=./log", //for Java 9+
-        '-XX:+HeapDumpOnOutOfMemoryError', "-XX:HeapDumpPath=./log/heap-dump.hprof",
-        '-Xss256k',
-        "-Djava.library.path=\"${libJNIPaths.collect { "${relativePath(it)}" }.join(isFamily(FAMILY_WINDOWS) ? ';' : ':') }\"",
-        ]
-}
-
-tasks.withType(CreateStartScripts) {
-    def unixTemplateName = rootProject.file('srcShell/unixStartScript.txt')
-    assert project.file(unixTemplateName).exists();
-    def winTemplateName = rootProject.file('srcShell/windowsStartScript.txt')
-    assert project.file(winTemplateName).exists();
-    unixStartScriptGenerator.template = rootProject.resources.text.fromFile(unixTemplateName)
-    windowsStartScriptGenerator.template = rootProject.resources.text.fromFile(winTemplateName)
-}
-
-def String relativePathIfOnProjectPath(fx, String prefixForRelative){
-    def fx1 = file(fx)
-    def rpFx = file(rootProject.rootDir)
-    if (fx1.getPath().startsWith(rpFx.getPath()))
-        return prefixForRelative + relativePath(fx1)
-    return fx1.getPath()
-}
+//////////////////////////
+// Distribution Section //
+//////////////////////////
 
 startScripts {
     // applicationName = 'neptus'
@@ -429,7 +452,7 @@ startScripts {
         '-XX:+UseG1GC', //for Java 8+
         //'-XX:+UseZGC', //for Java 11+
         '-XX:+PrintGCDetails', '-XX:+PrintGCDateStamps', '-Xloggc:$APP_HOME/log', //for Java 8-
-        //"-Xlog:gc*:file=\$APP_HOME/log", //for Java 9+
+        //"-Xlog:gc*:file=$APP_HOME/log", //for Java 9+
         '-XX:+HeapDumpOnOutOfMemoryError', '-XX:HeapDumpPath=$APP_HOME/log/heap-dump.hprof',
         '-Xss256k',
         ]
@@ -450,6 +473,10 @@ startScripts {
         windowsScript.text = windowsScript.text.replace('@added_section@', rootProject.file('srcShell/windowsSnippetRunOptions.txt').getText('UTF-8'))
     }
 }
+
+///////////////////
+// Clean Section //
+///////////////////
 
 clean {
     // delete fileTree(dir: "$rootDir/bin" , include: '**/*.jar')
