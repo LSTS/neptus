@@ -44,6 +44,47 @@ def String relativePathIfOnProjectPath(fx, String prefixForRelative){
     return fx1.getPath()
 }
 
+def generateStartScriptsFor(String applicationNameOpt, String taskPrefixName,
+        String mainclass, String appHomeRelativePathOpt, String addedSectionSnippetName,
+        FileCollection classpathCollection) {
+    return tasks.create("${taskPrefixName}StartScripts", CreateStartScripts) {
+        applicationName = "$applicationNameOpt"
+        mainClass = "$mainclass"
+        classpath =  classpathCollection
+        outputDir = file("$buildDir/scripts/$taskPrefixName")
+        executableDir = "$appHomeRelativePathOpt"
+        defaultJvmOpts = [
+            '-Xms10m',
+            '-Xmx2g',
+            '-XX:MaxMetaspaceSize=512m',
+            '-XX:+UseG1GC', //for Java 8+
+            //'-XX:+UseZGC', //for Java 11+
+            '-XX:+PrintGCDetails', '-XX:+PrintGCDateStamps', '-Xloggc:$APP_HOME/log', //for Java 8-
+            //"-Xlog:gc*:file=$APP_HOME/log", //for Java 9+
+            '-XX:+HeapDumpOnOutOfMemoryError', '-XX:HeapDumpPath=$APP_HOME/log/heap-dump.hprof',
+            '-Xss256k',
+            ]
+
+        doLast {
+            unixScript.text = unixScript.text.replace('@lib_jni_linux_x64@',
+                getLibJNIFor(['linux'], ['x64', 'x86']).collect { "${relativePathIfOnProjectPath(it, '\$APP_HOME/',)}" }.join(':'))
+            unixScript.text = unixScript.text.replace('@lib_jni_linux_x86@',
+                getLibJNIFor(['linux'], ['x86']).collect { "${relativePathIfOnProjectPath(it, '\$APP_HOME/')}" }.join(':'))
+            unixScript.text = unixScript.text.replace('@lib_jni_osx_x64@',
+                getLibJNIFor(['osx'], ['x64']).collect { "${relativePathIfOnProjectPath(it, '\$APP_HOME/')}" }.join(':'))
+            unixScript.text = unixScript.text.replace('@added_section@', addedSectionSnippetName.isEmpty() ? ''
+                : rootProject.file("srcShell/unixSnippet${addedSectionSnippetName}.txt").getText('UTF-8'))
+
+            windowsScript.text = windowsScript.text.replace('@lib_jni_windows_x64@',
+                getLibJNIFor(['win'], ['x64', 'x86']).collect { "${relativePathIfOnProjectPath(it, '@APP_HOME@/',)}" }.join(';'))
+            windowsScript.text = windowsScript.text.replace('@lib_jni_windows_x86@',
+                getLibJNIFor(['win'], ['x86']).collect { "${relativePathIfOnProjectPath(it, '@APP_HOME@/',)}" }.join(';'))
+            windowsScript.text = windowsScript.text.replace('@added_section@', addedSectionSnippetName.isEmpty() ? ''
+                : rootProject.file("srcShell/windowsSnippet${addedSectionSnippetName}.txt").getText('UTF-8'))
+        }
+    }
+}
+
 //////////////////////////
 // Core-Project Section //
 //////////////////////////
@@ -237,6 +278,15 @@ sourceSets {
 
 buildDir = file("$rootProject.rootDir/build/")
 
+generateStartScriptsFor(rootProject.name, 'run', 'pt.lsts.neptus.loader.NeptusMain', '', 'RunOptions',
+    (configurations.runtimeClasspath))
+
+task generateRunScripts(type: Copy) {
+    from runStartScripts
+    into file("$rootDir")
+}
+
+jar.dependsOn generateRunScripts
 jar {
     manifest {
         attributes += [
@@ -395,6 +445,7 @@ tasks.withType(CreateStartScripts) {
 
 tasks.withType(Tar){
     compression = Compression.GZIP
+    archiveExtension = 'tar.gz'
 }
 
 //////////////////////////
@@ -491,54 +542,23 @@ startScripts {
     }
 }
 
-def generateStartScriptsFor(String applicationNameOpt, String taskPrefixName,
-        String mainclass, String appHomeRelativePathOpt, String addedSectionSnippetName) {
-    return tasks.create("${taskPrefixName}StartScripts", CreateStartScripts) {
-        applicationName = "$applicationNameOpt"
-        mainClass = "$mainclass"
-        outputDir = file("$buildDir/scripts/taskPrefixName")
-        executableDir = "$appHomeRelativePathOpt"
-        defaultJvmOpts = [
-            '-Xms10m',
-            '-Xmx2g',
-            '-XX:MaxMetaspaceSize=512m',
-            '-XX:+UseG1GC', //for Java 8+
-            //'-XX:+UseZGC', //for Java 11+
-            '-XX:+PrintGCDetails', '-XX:+PrintGCDateStamps', '-Xloggc:$APP_HOME/log', //for Java 8-
-            //"-Xlog:gc*:file=$APP_HOME/log", //for Java 9+
-            '-XX:+HeapDumpOnOutOfMemoryError', '-XX:HeapDumpPath=$APP_HOME/log/heap-dump.hprof',
-            '-Xss256k',
-            ]
-
-        doLast {
-            unixScript.text = unixScript.text.replace('@lib_jni_linux_x64@',
-                getLibJNIFor(['linux'], ['x64', 'x86']).collect { "${relativePathIfOnProjectPath(it, '\$APP_HOME/',)}" }.join(':'))
-            unixScript.text = unixScript.text.replace('@lib_jni_linux_x86@',
-                getLibJNIFor(['linux'], ['x86']).collect { "${relativePathIfOnProjectPath(it, '\$APP_HOME/')}" }.join(':'))
-            unixScript.text = unixScript.text.replace('@lib_jni_osx_x64@',
-                getLibJNIFor(['osx'], ['x64']).collect { "${relativePathIfOnProjectPath(it, '\$APP_HOME/')}" }.join(':'))
-            unixScript.text = unixScript.text.replace('@added_section@', addedSectionSnippetName.isEmpty() ? ''
-                : rootProject.file("srcShell/unixSnippet${addedSectionSnippetName}.txt").getText('UTF-8'))
-
-            windowsScript.text = windowsScript.text.replace('@lib_jni_windows_x64@',
-                getLibJNIFor(['win'], ['x64', 'x86']).collect { "${relativePathIfOnProjectPath(it, '@APP_HOME@/',)}" }.join(';'))
-            windowsScript.text = windowsScript.text.replace('@lib_jni_windows_x86@',
-                getLibJNIFor(['win'], ['x86']).collect { "${relativePathIfOnProjectPath(it, '@APP_HOME@/',)}" }.join(';'))
-            windowsScript.text = windowsScript.text.replace('@added_section@', addedSectionSnippetName.isEmpty() ? ''
-                : rootProject.file("srcShell/windowsSnippet${addedSectionSnippetName}.txt").getText('UTF-8'))
-        }
-    }
-}
-
-generateStartScriptsFor(rootProject.name, 'full', 'pt.lsts.neptus.loader.NeptusMain', '', 'RunOptions')
-generateStartScriptsFor(rootProject.name, 'le', 'pt.lsts.neptus.mc.lauvconsole.LAUVConsole', '', '')
-generateStartScriptsFor(rootProject.name, 'seacon', 'pt.lsts.neptus.mc.lauvconsole.LAUVConsole', '', '')
+generateStartScriptsFor(rootProject.name, 'full', 'pt.lsts.neptus.loader.NeptusMain',
+    '', 'RunOptions', rootProject.files(rootProject.file('lib/*')))
+generateStartScriptsFor(rootProject.name, 'le', 'pt.lsts.neptus.mc.lauvconsole.LAUVConsole',
+    '', '', rootProject.files(rootProject.file('lib/*')))
+generateStartScriptsFor(rootProject.name, 'seacon', 'pt.lsts.neptus.mc.lauvconsole.LAUVConsole',
+    '', '', rootProject.files(rootProject.file('lib/*')))
 
 def distCommonSpec = project.copySpec {
     into('lib') {
         from configurations.runtimeClasspath
     }
 }
+
+// file("${buildDir}/install.sh").withOutputStream {
+//     it.write file('src/install.sh').bytes
+//     it.write createArchive.outputs.files.singleFile.bytes
+// }
 
 distributions {
     full {
