@@ -98,6 +98,8 @@ else
   echo "No VTK Java wrappers found"
 fi
 
+mkdir \$APP_HOME/log
+
 # Escape application args
 escapeArgs () {
     for i do printf %s\\\\n "\$i" | sed "s/'/'\\\\\\\\''/g;1s/^/'/;\\\$s/\\\$/' \\\\\\\\/" ; done
@@ -108,7 +110,6 @@ APP_ARGS=`escapeArgs "\$@"`
 export DEFAULT_JVM_OPTS=${defaultJvmOpts}
 
 export LD_LIBRARY_PATH=\$LIB_JNI:\$LD_LIBRARY_PATH
-#\$JAVA_BIN_FOLDER"java" \$DEFAULT_JVM_OPTS \$JAVA_OPTS \$${optsEnvironmentVar} -Djava.library.path=\$LIB_JNI \$VTKPROP -cp \$CLASSPATH \$DEFAULT "\$APP_ARGS"
 
 # Collect all arguments for the java command, following the shell quoting and substitution rules
 eval set -- \$DEFAULT_JVM_OPTS \$JAVA_OPTS \$${optsEnvironmentVar} -Djava.library.path=\$LIB_JNI \$VTKPROP -classpath "\"\$CLASSPATH\"" \$DEFAULT "\$APP_ARGS"

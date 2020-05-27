@@ -127,6 +127,8 @@ if %JAVA_MACHINE_TYPE%==windows-x86 (
 
 :endCheckApp
 
+mkdir %APP_HOME%\\log
+
 @rem @echo on
 
 set CMD_LINE_ARGS=%*
