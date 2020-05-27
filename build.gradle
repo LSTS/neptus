@@ -2,6 +2,7 @@
 plugins {
     id 'java'
     id 'application'
+    id 'distribution'
     id "com.gorylenko.gradle-git-properties" version "2.2.2"
 }
 
@@ -46,6 +47,10 @@ def String relativePathIfOnProjectPath(fx, String prefixForRelative){
 //////////////////////////
 // Core-Project Section //
 //////////////////////////
+
+configurations {
+    fullRuntimeOnly.extendsFrom(runtimeOnly)
+}
 
 dependencies {
     // This dependency is used by the application.
@@ -212,10 +217,11 @@ dependencies {
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
 
-    runtimeOnly fileTree(dir: 'plugins', include: '*.jar')
+    fullRuntimeOnly fileTree(dir: 'plugins', include: '*.jar')
 }
 
 apply plugin: 'java'
+apply plugin: 'distribution'
 apply plugin: "com.gorylenko.gradle-git-properties"
 
 sourceSets {
@@ -274,6 +280,8 @@ run {
         environment 'LD_LIBRARY_PATH', "${libJNIPaths.collect { "${relativePath(it)}" }.join(':')}:\$LD_LIBRARY_PATH"
 
     args 'auv'
+
+    classpath configurations.fullRuntimeOnly
 }
 
 application {
@@ -385,6 +393,10 @@ tasks.withType(CreateStartScripts) {
     windowsStartScriptGenerator.template = rootProject.resources.text.fromFile(winTemplateName)
 }
 
+tasks.withType(Tar){
+    compression = Compression.GZIP
+}
+
 //////////////////////////
 // Sub-Projects Section //
 //////////////////////////
@@ -441,10 +453,15 @@ subprojects {
 // Distribution Section //
 //////////////////////////
 
+tasks.distZip.enabled = false
+tasks.distTar.enabled = false
+tasks.startScripts.enabled = false
+
 startScripts {
     // applicationName = 'neptus'
     mainClass = 'pt.lsts.neptus.loader.NeptusMain'
     classpath =  rootProject.files(rootProject.file('lib/*'))
+    executableDir = '.'
     defaultJvmOpts = [
         '-Xms10m',
         '-Xmx2g',
@@ -471,6 +488,115 @@ startScripts {
         windowsScript.text = windowsScript.text.replace('@lib_jni_windows_x86@',
             getLibJNIFor(['win'], ['x86']).collect { "${relativePathIfOnProjectPath(it, '@APP_HOME@/',)}" }.join(';'))
         windowsScript.text = windowsScript.text.replace('@added_section@', rootProject.file('srcShell/windowsSnippetRunOptions.txt').getText('UTF-8'))
+    }
+}
+
+def generateStartScriptsFor(String applicationNameOpt, String taskPrefixName,
+        String mainclass, String appHomeRelativePathOpt, String addedSectionSnippetName) {
+    return tasks.create("${taskPrefixName}StartScripts", CreateStartScripts) {
+        applicationName = "$applicationNameOpt"
+        mainClass = "$mainclass"
+        outputDir = file("$buildDir/scripts/taskPrefixName")
+        executableDir = "$appHomeRelativePathOpt"
+        defaultJvmOpts = [
+            '-Xms10m',
+            '-Xmx2g',
+            '-XX:MaxMetaspaceSize=512m',
+            '-XX:+UseG1GC', //for Java 8+
+            //'-XX:+UseZGC', //for Java 11+
+            '-XX:+PrintGCDetails', '-XX:+PrintGCDateStamps', '-Xloggc:$APP_HOME/log', //for Java 8-
+            //"-Xlog:gc*:file=$APP_HOME/log", //for Java 9+
+            '-XX:+HeapDumpOnOutOfMemoryError', '-XX:HeapDumpPath=$APP_HOME/log/heap-dump.hprof',
+            '-Xss256k',
+            ]
+
+        doLast {
+            unixScript.text = unixScript.text.replace('@lib_jni_linux_x64@',
+                getLibJNIFor(['linux'], ['x64', 'x86']).collect { "${relativePathIfOnProjectPath(it, '\$APP_HOME/',)}" }.join(':'))
+            unixScript.text = unixScript.text.replace('@lib_jni_linux_x86@',
+                getLibJNIFor(['linux'], ['x86']).collect { "${relativePathIfOnProjectPath(it, '\$APP_HOME/')}" }.join(':'))
+            unixScript.text = unixScript.text.replace('@lib_jni_osx_x64@',
+                getLibJNIFor(['osx'], ['x64']).collect { "${relativePathIfOnProjectPath(it, '\$APP_HOME/')}" }.join(':'))
+            unixScript.text = unixScript.text.replace('@added_section@', addedSectionSnippetName.isEmpty() ? ''
+                : rootProject.file("srcShell/unixSnippet${addedSectionSnippetName}.txt").getText('UTF-8'))
+
+            windowsScript.text = windowsScript.text.replace('@lib_jni_windows_x64@',
+                getLibJNIFor(['win'], ['x64', 'x86']).collect { "${relativePathIfOnProjectPath(it, '@APP_HOME@/',)}" }.join(';'))
+            windowsScript.text = windowsScript.text.replace('@lib_jni_windows_x86@',
+                getLibJNIFor(['win'], ['x86']).collect { "${relativePathIfOnProjectPath(it, '@APP_HOME@/',)}" }.join(';'))
+            windowsScript.text = windowsScript.text.replace('@added_section@', addedSectionSnippetName.isEmpty() ? ''
+                : rootProject.file("srcShell/windowsSnippet${addedSectionSnippetName}.txt").getText('UTF-8'))
+        }
+    }
+}
+
+generateStartScriptsFor(rootProject.name, 'full', 'pt.lsts.neptus.loader.NeptusMain', '', 'RunOptions')
+generateStartScriptsFor(rootProject.name, 'le', 'pt.lsts.neptus.mc.lauvconsole.LAUVConsole', '', '')
+generateStartScriptsFor(rootProject.name, 'seacon', 'pt.lsts.neptus.mc.lauvconsole.LAUVConsole', '', '')
+
+def distCommonSpec = project.copySpec {
+    into('lib') {
+        from configurations.runtimeClasspath
+    }
+}
+
+distributions {
+    full {
+        contents {
+            with distCommonSpec
+            // with distributions.main.contents
+            with project.copySpec { // without this the into will shadow the other content
+                into('') {
+                    from '.'
+                    (file('dist/includes_NeptusCommon.txt') as String[]).each({include it})
+                    (file('dist/includes_NeptusFull.txt') as String[]).each({include it})
+                    (file('dist/excludes_NeptusFull.txt') as String[]).each({exclude it})
+                }
+            }
+            with project.copySpec { // without this the into will shadow the other content
+                into('') {
+                    from fullStartScripts
+                }
+            }
+        }
+    }
+
+    le {
+        contents {
+            with distCommonSpec
+            with project.copySpec { // without this the into will shadow the other content
+                into('') {
+                    from '.'
+                    (file('dist/includes_NeptusCommon.txt') as String[]).each({include it})
+                    (file('dist/includes_NeptusLE.txt') as String[]).each({include it})
+                    (file('dist/excludes_NeptusLE.txt') as String[]).each({exclude it})
+                }
+            }
+            with project.copySpec { // without this the into will shadow the other content
+                into('') {
+                    from leStartScripts
+                }
+            }
+        }
+    }
+
+    seacon {
+        contents {
+            with distCommonSpec
+            with project.copySpec { // without this the into will shadow the other content
+                into('') {
+                    from '.'
+                    (file('dist/includes_NeptusCommon.txt') as String[]).each({include it})
+                    (file('dist/includes_NeptusSeacon.txt') as String[]).each({include it})
+                    (file('dist/excludes_NeptusSeacon.txt') as String[]).each({exclude it})
+                }
+            }
+            with project.copySpec { // without this the into will shadow the other content
+                into('') {
+                    from seaconStartScripts
+                }
+            }
+        }
     }
 }
 
