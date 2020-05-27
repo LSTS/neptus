@@ -278,8 +278,15 @@ sourceSets {
 
 buildDir = file("$rootProject.rootDir/build/")
 
-generateStartScriptsFor(rootProject.name, 'run', 'pt.lsts.neptus.loader.NeptusMain', '', 'RunOptions',
-    (configurations.runtimeClasspath))
+generateStartScriptsFor(rootProject.name, 'run', 'pt.lsts.neptus.loader.NeptusMain',
+    '', 'RunOptions', files('SUBSTITUTE')).doLast {
+        def unixCp = configurations.runtimeClasspath
+            .collect({relativePathIfOnProjectPath(it, '$APP_HOME/')}).join(':')
+        def winCp = configurations.runtimeClasspath
+            .collect({relativePathIfOnProjectPath(it, '%APP_HOME%\\')}).join(';')
+        unixScript.text = unixScript.text.replace('$APP_HOME/lib/SUBSTITUTE', "${unixCp}")
+        windowsScript.text = windowsScript.text.replace('%APP_HOME%\\lib\\SUBSTITUTE', "${winCp}")
+    }
 
 task generateRunScripts(type: Copy) {
     from runStartScripts
