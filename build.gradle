@@ -4,6 +4,7 @@ plugins {
     id 'application'
     id 'distribution'
     id "com.gorylenko.gradle-git-properties" version "2.2.2"
+    id "com.github.langmo.gradlensis" version "0.1.0"
 }
 
 description = ""
@@ -482,7 +483,7 @@ subprojects {
             filter{ it.replaceAll('@DATE@', "${new Date().format('yyyy-MM-dd')}") }
             filter{ it.replaceAll('@TIME@', "${new Date().format('HH:mm Z')}") }
             filter{ it.replaceAll('@COMPILED BY@', "${System.properties['user.name']}") }
-            filter{ it.replaceAll('@LEGAL_COPY@', "$rootProject.ext.copyYears") }
+            filter{ it.replaceAll('@LEGAL_COPY@', "$rootProject.ext.copyYears FEUP LSTS/USTL") }
         }
     }
 
@@ -572,11 +573,6 @@ def distCommonSpec = project.copySpec {
     }
 }
 
-// file("${buildDir}/install.sh").withOutputStream {
-//     it.write file('src/install.sh').bytes
-//     it.write createArchive.outputs.files.singleFile.bytes
-// }
-
 distributions {
     full {
         contents {
@@ -647,6 +643,55 @@ subprojects.findAll().each { sp ->
             it.dependsOn sp.jar, buildJars
     }
 }
+
+/////////////////////////////////////
+// Distribution Installers Section //
+/////////////////////////////////////
+
+// file("${buildDir}/install.sh").withOutputStream {
+//     it.write file('src/install.sh').bytes
+//     it.write createArchive.outputs.files.singleFile.bytes
+// }
+
+// Common configuration for nsis
+nsis {
+    configuration = file("${rootProject.projectDir}/NSIS_release/install_scripts/neptus.nsi")
+}
+
+//installerFullWindowsDist
+def createInstallerWindowsDistFor(String distName, Sync installDistTask) {
+    return rootProject.tasks.create("installer${distName.capitalize()}Dist", com.github.langmo.gradlensis.GradleNsisTask) {
+        description = "Generate $name Windows installer"
+        group = 'Distribution'
+        doFirst {
+            copy {
+                from("${rootProject.projectDir}/NSIS_release/static_files")
+                include 'neptus_include.nsi'
+                into("${rootProject.projectDir}/NSIS_release/install_scripts")
+                filter{ it.replaceAll("@NEPTUS_NAME@", "${rootProject.name.capitalize()}-${distName.capitalize()}") }
+                filter{ it.replaceAll("@NUMERIC_VERSION@.0", "${rootProject.version.split('[-+]')[0]}.0") }
+                filter{ it.replaceAll("@VERSION@", rootProject.version) }
+                filter{ it.replaceAll('@DATE@', "${new Date().format('yyyy-MM-dd')}") }
+                filter{ it.replaceAll('@TIME@', "${new Date().format('HH:mm Z')}") }
+                filter{ it.replaceAll('@COMPILED BY@', "${System.properties['user.name']}") }
+                filter{ it.replaceAll("@NAMED_RELEASE@", rootProject.version) }
+                filter{ it.replaceAll('@LEGAL_COPY@', "$rootProject.ext.copyYears FEUP USTL/LSTS (http://www.fe.up.pt/lsts)") }
+                filter{ it.replaceAll("@DIST_EXE@", "${installDistTask.destinationDir}/neptus.bat") }
+            }
+        }
+
+        dependsOn installDistTask
+        runIn =  file("${installDistTask.destinationDir}")
+
+        doLast {
+            delete runIn
+        }
+    }
+}
+
+createInstallerWindowsDistFor('full', installFullDist)
+createInstallerWindowsDistFor('le', installLeDist)
+createInstallerWindowsDistFor('seacon', installSeaconDist)
 
 ///////////////////
 // Clean Section //
