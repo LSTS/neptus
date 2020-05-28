@@ -441,17 +441,6 @@ configure(subprojects.findAll { it.name != 'neptus' }) {
     }
 }
 
-subprojects.findAll().each { sp ->
-    tasks.withType(Zip).each {
-        if (it.name.endsWith('distZip') || it.name.endsWith('DistZip'))
-            it.dependsOn sp.jar
-    }
-    tasks.withType(Tar).each {
-        if (it.name.toLowerCase().endsWith('distTar') || it.name.toLowerCase().endsWith('DistTar'))
-            it.dependsOn sp.jar
-    }
-}
-
 tasks.withType(CreateStartScripts) {
     def unixTemplateName = rootProject.file('srcShell/unixStartScript.txt')
     assert project.file(unixTemplateName).exists();
@@ -648,12 +637,16 @@ distributions {
     }
 }
 
-fullDistZip.dependsOn buildJars
-fullDistTar.dependsOn buildJars
-leDistZip.dependsOn buildJars
-leDistTar.dependsOn buildJars
-seaconDistZip.dependsOn buildJars
-seaconDistTar.dependsOn buildJars
+subprojects.findAll().each { sp ->
+    tasks.withType(Zip).each {
+        if (it.name.endsWith('distZip') || it.name.endsWith('DistZip'))
+            it.dependsOn sp.jar, buildJars
+    }
+    tasks.withType(Tar).each {
+        if (it.name.toLowerCase().endsWith('distTar') || it.name.toLowerCase().endsWith('DistTar'))
+            it.dependsOn sp.jar, buildJars
+    }
+}
 
 ///////////////////
 // Clean Section //
