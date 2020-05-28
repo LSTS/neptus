@@ -648,19 +648,69 @@ subprojects.findAll().each { sp ->
 // Distribution Installers Section //
 /////////////////////////////////////
 
+// Distribution Installers Section - Linux //
+
 // file("${buildDir}/install.sh").withOutputStream {
 //     it.write file('src/install.sh').bytes
 //     it.write createArchive.outputs.files.singleFile.bytes
 // }
+
+def createInstallerLinuxDistFor(String distName, Tar distTarTask) {
+    return rootProject.tasks.create("installer${distName.capitalize()}LinuxDist") {
+        def workTmpDirectory = "${rootProject.buildDir}/tmp/sfx/${distName}/"
+        description = "Generate $name Linux installer"
+        group = 'Distribution'
+        doFirst {
+            copy {
+                from("${rootProject.projectDir}/NSIS_release/static_files")
+                include 'linux_sfx_header.txt'
+                into workTmpDirectory
+                // filter{ it.replaceAll("@NEPTUS_NAME@", "${rootProject.name.capitalize()}-${distName.capitalize()}") }
+                filter{ it.replaceAll("@NUMERIC_VERSION@", "${rootProject.version.split('[-+]')[0]}") }
+                filter{ it.replaceAll("@VERSION@", rootProject.version) }
+                filter{ it.replaceAll('@DATE@', "${new Date().format('yyyy-MM-dd')}") }
+                // filter{ it.replaceAll('@TIME@', "${new Date().format('HH:mm Z')}") }
+                // filter{ it.replaceAll('@COMPILED BY@', "${System.properties['user.name']}") }
+                // filter{ it.replaceAll("@NAMED_RELEASE@", rootProject.version) }
+                filter{ it.replaceAll('@YEAR@', "$rootProject.ext.copyYears") }
+                // filter{ it.replaceAll("@DIST_EXE@", "${distTarTask.archiveFileName.get().replaceAll("\\.${distTarTask.archiveExtension.get()}", "")}") }
+                
+                filter{ it.replaceAll("@EXTRA_DIST_NAME@", "${distName.capitalize()}") }
+                filter{ it.replaceAll("@INSTALL_DIR@", "${rootProject.name.capitalize()}${distName != 'full' ? distName.capitalize() : ''}") }
+                filter{ it.replaceAll("@LICENSE@", file("${rootProject.rootDir}/LICENSE.md").getText('UTF-8')) }
+            }
+        }
+
+        dependsOn distTarTask
+
+        doLast {
+            file("${distTarTask.destinationDirectory.getAsFile().get()}/${distTarTask.archiveFileName.get().replaceAll("\\.${distTarTask.archiveExtension.get()}", "")}.sh")
+                    .withWriter { writer ->
+                file("${workTmpDirectory}/linux_sfx_header.txt").withReader { reader ->
+                    writer << reader
+                }
+                file("${distTarTask.destinationDirectory.getAsFile().get()}/${distTarTask.archiveFileName.get()}").withReader { reader ->
+                    writer << reader
+                }
+                //it.write createArchive.outputs.files.singleFile.bytes
+            }
+        }
+    }
+}
+
+createInstallerLinuxDistFor('full', fullDistTar)
+createInstallerLinuxDistFor('le', leDistTar)
+createInstallerLinuxDistFor('seacon', seaconDistTar)
+
+// Distribution Installers Section - Windows //
 
 // Common configuration for nsis
 nsis {
     configuration = file("${rootProject.projectDir}/NSIS_release/install_scripts/neptus.nsi")
 }
 
-//installerFullWindowsDist
-def createInstallerWindowsDistFor(String distName, Sync installDistTask) {
-    return rootProject.tasks.create("installer${distName.capitalize()}Dist", com.github.langmo.gradlensis.GradleNsisTask) {
+def createInstallerWindowsDistFor(String distName, Sync installDistTask, Zip distZipTask) {
+    return rootProject.tasks.create("installer${distName.capitalize()}WindowsDist", com.github.langmo.gradlensis.GradleNsisTask) {
         description = "Generate $name Windows installer"
         group = 'Distribution'
         doFirst {
@@ -669,14 +719,14 @@ def createInstallerWindowsDistFor(String distName, Sync installDistTask) {
                 include 'neptus_include.nsi'
                 into("${rootProject.projectDir}/NSIS_release/install_scripts")
                 filter{ it.replaceAll("@NEPTUS_NAME@", "${rootProject.name.capitalize()}-${distName.capitalize()}") }
-                filter{ it.replaceAll("@NUMERIC_VERSION@.0", "${rootProject.version.split('[-+]')[0]}.0") }
+                filter{ it.replaceAll("@NUMERIC_VERSION@", "${rootProject.version.split('[-+]')[0]}") }
                 filter{ it.replaceAll("@VERSION@", rootProject.version) }
                 filter{ it.replaceAll('@DATE@', "${new Date().format('yyyy-MM-dd')}") }
                 filter{ it.replaceAll('@TIME@', "${new Date().format('HH:mm Z')}") }
                 filter{ it.replaceAll('@COMPILED BY@', "${System.properties['user.name']}") }
                 filter{ it.replaceAll("@NAMED_RELEASE@", rootProject.version) }
                 filter{ it.replaceAll('@LEGAL_COPY@', "$rootProject.ext.copyYears FEUP USTL/LSTS (http://www.fe.up.pt/lsts)") }
-                filter{ it.replaceAll("@DIST_EXE@", "${installDistTask.destinationDir}/neptus.bat") }
+                filter{ it.replaceAll("@DIST_EXE@", "${distZipTask.archiveFileName.get().replaceAll("\\.${distZipTask.archiveExtension.get()}", "")}") }
             }
         }
 
@@ -689,9 +739,9 @@ def createInstallerWindowsDistFor(String distName, Sync installDistTask) {
     }
 }
 
-createInstallerWindowsDistFor('full', installFullDist)
-createInstallerWindowsDistFor('le', installLeDist)
-createInstallerWindowsDistFor('seacon', installSeaconDist)
+createInstallerWindowsDistFor('full', installFullDist, fullDistZip)
+createInstallerWindowsDistFor('le', installLeDist, leDistZip)
+createInstallerWindowsDistFor('seacon', installSeaconDist, seaconDistZip)
 
 ///////////////////
 // Clean Section //

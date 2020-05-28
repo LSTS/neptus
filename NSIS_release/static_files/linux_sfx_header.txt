@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 if [ -z "$BASH_VERSION" ]; then
     /bin/bash $0
@@ -79,7 +79,7 @@ createLauncher()
   echo "Terminal=false" >> "$1.desktop"
   echo "Icon[en]=$fullPath/neptus.png" >> "$1.desktop"
   echo "Name[en]=$1" >> "$1.desktop"
-  echo "Exec=\"$fullPath/neptus.sh\" $2" >> "$1.desktop"
+  echo "Exec=\"$fullPath/neptus\" $2" >> "$1.desktop"
   echo "Name=$1" >> "$1.desktop"
   echo "Icon=$fullPath/neptus.png" >> "$1.desktop"
 
@@ -110,7 +110,7 @@ createLauncher "Neptus MRA" mra
 # checkForUnity
 cd -
 
-echo "Done. Type './neptus.sh' in the @INSTALL_DIR@ directory to launch Neptus"
+echo "Done. Type './neptus' in the @INSTALL_DIR@ directory to launch Neptus"
 echo ""
 exit 0
 
