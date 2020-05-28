@@ -518,6 +518,16 @@ subprojects {
     }
 }
 
+///////////////////
+// Build Section //
+///////////////////
+
+task buildJars {
+    description = "Generate $rootProject.name and plugins"
+    group = 'Build'
+    dependsOn jar, subprojects.findAll().collect {it.tasks.withType(Jar).collect{it}}
+}
+
 //////////////////////////
 // Distribution Section //
 //////////////////////////
@@ -637,6 +647,13 @@ distributions {
         }
     }
 }
+
+fullDistZip.dependsOn buildJars
+fullDistTar.dependsOn buildJars
+leDistZip.dependsOn buildJars
+leDistTar.dependsOn buildJars
+seaconDistZip.dependsOn buildJars
+seaconDistTar.dependsOn buildJars
 
 ///////////////////
 // Clean Section //
