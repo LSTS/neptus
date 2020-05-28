@@ -441,6 +441,17 @@ configure(subprojects.findAll { it.name != 'neptus' }) {
     }
 }
 
+subprojects.findAll().each { sp ->
+    tasks.withType(Zip).each {
+        if (it.name.endsWith('distZip') || it.name.endsWith('DistZip'))
+            it.dependsOn sp.jar
+    }
+    tasks.withType(Tar).each {
+        if (it.name.toLowerCase().endsWith('distTar') || it.name.toLowerCase().endsWith('DistTar'))
+            it.dependsOn sp.jar
+    }
+}
+
 tasks.withType(CreateStartScripts) {
     def unixTemplateName = rootProject.file('srcShell/unixStartScript.txt')
     assert project.file(unixTemplateName).exists();
