@@ -650,11 +650,6 @@ subprojects.findAll().each { sp ->
 
 // Distribution Installers Section - Linux //
 
-// file("${buildDir}/install.sh").withOutputStream {
-//     it.write file('src/install.sh').bytes
-//     it.write createArchive.outputs.files.singleFile.bytes
-// }
-
 def createInstallerLinuxDistFor(String distName, Tar distTarTask) {
     return rootProject.tasks.create("installer${distName.capitalize()}LinuxDist") {
         def workTmpDirectory = "${rootProject.buildDir}/tmp/sfx/${distName}/"
@@ -665,18 +660,14 @@ def createInstallerLinuxDistFor(String distName, Tar distTarTask) {
                 from("${rootProject.projectDir}/NSIS_release/static_files")
                 include 'linux_sfx_header.txt'
                 into workTmpDirectory
-                // filter{ it.replaceAll("@NEPTUS_NAME@", "${rootProject.name.capitalize()}-${distName.capitalize()}") }
                 filter{ it.replaceAll("@NUMERIC_VERSION@", "${rootProject.version.split('[-+]')[0]}") }
                 filter{ it.replaceAll("@VERSION@", rootProject.version) }
                 filter{ it.replaceAll('@DATE@', "${new Date().format('yyyy-MM-dd')}") }
-                // filter{ it.replaceAll('@TIME@', "${new Date().format('HH:mm Z')}") }
-                // filter{ it.replaceAll('@COMPILED BY@', "${System.properties['user.name']}") }
-                // filter{ it.replaceAll("@NAMED_RELEASE@", rootProject.version) }
                 filter{ it.replaceAll('@YEAR@', "$rootProject.ext.copyYears") }
-                // filter{ it.replaceAll("@DIST_EXE@", "${distTarTask.archiveFileName.get().replaceAll("\\.${distTarTask.archiveExtension.get()}", "")}") }
                 
                 filter{ it.replaceAll("@EXTRA_DIST_NAME@", "${distName.capitalize()}") }
-                filter{ it.replaceAll("@INSTALL_DIR@", "${rootProject.name.capitalize()}${distName != 'full' ? distName.capitalize() : ''}") }
+                //filter{ it.replaceAll("@INSTALL_DIR@", "${rootProject.name.capitalize()}${distName != 'full' ? distName.capitalize() : ''}") }
+                filter{ it.replaceAll("@INSTALL_DIR@", "${distTarTask.destinationDirectory.getAsFile().get()}/${distTarTask.archiveFileName.get().replaceAll("\\.${distTarTask.archiveExtension.get()}", "")}}") }
                 filter{ it.replaceAll("@LICENSE@", file("${rootProject.rootDir}/LICENSE.md").getText('UTF-8')) }
             }
         }
@@ -685,14 +676,14 @@ def createInstallerLinuxDistFor(String distName, Tar distTarTask) {
 
         doLast {
             file("${distTarTask.destinationDirectory.getAsFile().get()}/${distTarTask.archiveFileName.get().replaceAll("\\.${distTarTask.archiveExtension.get()}", "")}.sh")
-                    .withWriter { writer ->
-                file("${workTmpDirectory}/linux_sfx_header.txt").withReader { reader ->
+                    .withOutputStream { writer ->
+                file("${workTmpDirectory}/linux_sfx_header.txt").withInputStream { reader ->
                     writer << reader
                 }
-                file("${distTarTask.destinationDirectory.getAsFile().get()}/${distTarTask.archiveFileName.get()}").withReader { reader ->
+                file("${distTarTask.destinationDirectory.getAsFile().get()}/${distTarTask.archiveFileName.get()}")
+                        .withInputStream { reader ->
                     writer << reader
                 }
-                //it.write createArchive.outputs.files.singleFile.bytes
             }
         }
     }
