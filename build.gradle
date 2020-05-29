@@ -277,8 +277,23 @@ sourceSets {
     }
 }
 
+processResources {
+    from (rootProject.sourceSets.main.java.srcDirs) {
+        include 'version.txt'
+        filter{ it.replaceAll("@VERSION@", rootProject.version) }
+        filter{ it.replaceAll("@NAMED_RELEASE@", rootProject.version) }
+        filter{ it.replaceAll('@DATE@', "${new Date().format('yyyy-MM-dd')}") }
+        filter{ it.replaceAll('@TIME@', "${new Date().format('HH:mm Z')}") }
+        filter{ it.replaceAll('@COMPILED BY@', "${System.properties['user.name']}") }
+        filter{ it.replaceAll('@LEGAL_COPY@', "$rootProject.ext.copyYears FEUP USTL/LSTS (http://www.fe.up.pt/lsts)") }
+        filter{ it.replaceAll("@SCM_REV@", "${-> project.ext.gitProps['git.commit.id.describe']}") }
+        filter{ it.replaceAll("@SCM_PATH@", "${-> project.ext.gitProps['git.remote.origin.url']}") }
+    }
+}
+
 buildDir = file("$rootProject.rootDir/build/")
 
+// Generating start scripts for the development environment
 generateStartScriptsFor(rootProject.name, 'run', 'pt.lsts.neptus.loader.NeptusMain',
     '', 'RunOptions', files('SUBSTITUTE')).doLast {
         def unixCp = configurations.runtimeClasspath
