@@ -859,7 +859,7 @@ cleanEclipse {
     }
 }
 
-task cleanEclipseBuildFiles {
+task cleanEclipseBuild {
     description = "Cleanup build folders"
     group = 'IDE'
     doLast {
