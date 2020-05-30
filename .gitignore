@@ -182,6 +182,9 @@ plan.sh
 .gradle
 build
 
+.classpath
+.project
+.settings
 .vscode
 .idea
 
