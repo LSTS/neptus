@@ -5,6 +5,8 @@ plugins {
     id 'distribution'
     id "com.gorylenko.gradle-git-properties" version "2.2.2"
     id "com.github.langmo.gradlensis" version "0.1.0"
+
+    id "eclipse"
 }
 
 description = ""
@@ -265,6 +267,7 @@ dependencies {
 apply plugin: 'java'
 apply plugin: 'distribution'
 apply plugin: "com.gorylenko.gradle-git-properties"
+apply plugin: 'eclipse'
 
 sourceSets {
     main {
@@ -292,6 +295,42 @@ processResources {
 }
 
 buildDir = file("$rootProject.rootDir/build/")
+
+eclipse {
+    classpath {
+        defaultOutputDir = file("${buildDir.getName()}/eclipse/core")
+        file.whenMerged {
+            entries.each { entry ->
+                if (entry.kind == 'src' && entry.hasProperty('output')) {
+                    entry.output = entry.output.replace('bin/', "${buildDir.getName()}/eclipse/core/")
+                }
+            }
+        }
+    }
+    project {
+        resourceFilter {
+            appliesTo = 'FOLDERS'
+            type = 'EXCLUDE_ALL'
+            matcher {
+                id = 'org.eclipse.ui.ide.multiFilter'
+                arguments = '1.0-name-matches-false-false-build'
+            }
+        }
+    }
+    jdt {
+        file {
+            withProperties { properties ->
+                def formaterFx = rootProject.file('dev-utils/eclipse-java-formater.props')
+                assert rootProject.file(formaterFx).exists();
+                formaterFx.eachLine { String line ->
+                def tks = line.split('=')
+                    // set properties for the file org.eclipse.jdt.core.prefs
+                    properties[tks[0]] = tks[1]
+                }
+            }
+        }
+    }
+}
 
 // Generating start scripts for the development environment
 generateStartScriptsFor(rootProject.name, 'run', 'pt.lsts.neptus.loader.NeptusMain',
@@ -482,11 +521,13 @@ subprojects {
                 srcDirs += ['java', '.']
                 exclude 'lib'
                 exclude '**/*.jar'
+                exclude "${rootProject.buildDir.getName()}"
             }
             resources {
                 srcDirs += ['resources', '.']
                 exclude 'lib'
                 exclude '**/*.jar'
+                exclude "${rootProject.buildDir.getName()}"
             }
         }
     }
@@ -509,6 +550,43 @@ subprojects {
     }
 
     buildDir = file("$rootProject.buildDir/plugins/$project.name")
+
+    apply plugin: 'eclipse'
+    eclipse {
+        classpath {
+            defaultOutputDir = file("${rootProject.buildDir.getName()}/eclipse/$project.name")
+            file.whenMerged {
+                entries.each { entry ->
+                    if (entry.kind == 'src' && entry.hasProperty('output')) {
+                        entry.output = entry.output.replace('bin/', "${rootProject.buildDir.getName()}/eclipse/$project.name/")
+                    }
+                }
+            }
+        }
+        project {
+            resourceFilter {
+                appliesTo = 'FOLDERS'
+                type = 'EXCLUDE_ALL'
+                matcher {
+                    id = 'org.eclipse.ui.ide.multiFilter'
+                    arguments = '1.0-name-matches-false-false-build'
+                }
+            }
+        }
+        jdt {
+            file {
+                withProperties { properties ->
+                    def formaterFx = rootProject.file('dev-utils/eclipse-java-formater.props')
+                    assert rootProject.file(formaterFx).exists();
+                    formaterFx.eachLine { String line ->
+                    def tks = line.split('=')
+                        // set properties for the file org.eclipse.jdt.core.prefs
+                        properties[tks[0]] = tks[1]
+                    }
+                }
+            }
+        }
+    }
 
     jar {
         archiveVersion = ''
@@ -663,6 +741,7 @@ subprojects.findAll().each { sp ->
 // Distribution Installers Section //
 /////////////////////////////////////
 
+/////////////////////////////////////////////
 // Distribution Installers Section - Linux //
 
 def createInstallerLinuxDistFor(String distName, Tar distTarTask) {
@@ -708,6 +787,7 @@ createInstallerLinuxDistFor('full', fullDistTar)
 createInstallerLinuxDistFor('le', leDistTar)
 createInstallerLinuxDistFor('seacon', seaconDistTar)
 
+///////////////////////////////////////////////
 // Distribution Installers Section - Windows //
 
 // Common configuration for nsis
