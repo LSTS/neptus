@@ -522,12 +522,18 @@ subprojects {
                 exclude 'lib'
                 exclude '**/*.jar'
                 exclude "${rootProject.buildDir.getName()}"
+                exclude '.classpath'
+                exclude '.project'
+                exclude '.settings'
             }
             resources {
                 srcDirs += ['resources', '.']
                 exclude 'lib'
                 exclude '**/*.jar'
                 exclude "${rootProject.buildDir.getName()}"
+                exclude '.classpath'
+                exclude '.project'
+                exclude '.settings'
             }
         }
     }
@@ -834,22 +840,46 @@ createInstallerWindowsDistFor('seacon', installSeaconDist, seaconDistZip)
 ///////////////////
 
 clean {
-    delete fileTree(dir: "$rootDir/bin" , include: '**/*.jar')
-    delete fileTree(dir: "$rootDir/plugins" , include: '**/*.jar')
-    // delete file("$rootDir/neptus")
-    // delete file("$rootDir/neptus.bat")
+    doLast {
+        delete fileTree(dir: "$rootDir/bin" , include: '**/*.jar')
+        delete fileTree(dir: "$rootDir/plugins" , include: '**/*.jar')
+        // delete file("$rootDir/neptus")
+        // delete file("$rootDir/neptus.bat")
+    }
 }
 
-task cleanEclipseFiles {
-    // delete fileTree(dir: "$rootDir" , include: '**/.project')
-    // delete fileTree(dir: "$rootDir" , include: '**/.classpath')
-    // delete fileTree(dir: "$rootDir" , include: '**/.settings')
+cleanEclipse {
+    doLast {
+        delete file("$rootDir/.settings")
+        file("$rootDir/plugins-dev").listFiles({it.isDirectory()} as FileFilter).each {
+            it.listFiles({file -> file.isDirectory() && file.name ==~ '.settings'} as FileFilter).each {
+                delete it
+            }
+        }
+    }
+}
+
+task cleanEclipseBuildFiles {
+    description = "Cleanup build folders"
+    group = 'IDE'
+    doLast {
+        delete fileTree(dir: "${rootProject.buildDir}" , include: 'eclipse')
+        file("$rootDir/plugins-dev").listFiles({it.isDirectory()} as FileFilter).each {
+            it.listFiles({file -> file.isDirectory() && file.name ==~ 'build'} as FileFilter).each {
+                delete it
+            }
+        }
+    }
 }
 
 task cleanIdeaFiles {
-    delete fileTree(dir: "$rootDir" , include: '**/.idea')
+    doLast {
+        delete fileTree(dir: "$rootDir" , include: '**/.idea')
+    }
 }
 
 task cleanVSCodeFiles {
-    delete fileTree(dir: "$rootDir" , include: '.vscode')
+    doLast {
+        delete fileTree(dir: "$rootDir" , include: '.vscode')
+    }
 }
