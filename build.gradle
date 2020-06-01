@@ -628,6 +628,7 @@ task buildJars {
     group = 'Build'
     dependsOn jar, subprojects.findAll().collect {it.tasks.withType(Jar).collect{it}}
 }
+run.dependsOn buildJars
 
 //////////////////////////
 // Distribution Section //
@@ -852,12 +853,10 @@ createInstallerWindowsDistFor('seacon', installSeaconDist, seaconDistZip)
 ///////////////////
 
 clean {
-    doLast {
-        delete fileTree(dir: "$rootDir/bin" , include: '**/*.jar')
-        delete fileTree(dir: "$rootDir/plugins" , include: '**/*.jar')
-        // delete file("$rootDir/neptus")
-        // delete file("$rootDir/neptus.bat")
-    }
+    delete fileTree(dir: "$rootDir/bin" , include: '**/*.jar')
+    delete fileTree(dir: "$rootDir/plugins" , include: '**/*.jar')
+    // delete file("$rootDir/neptus")
+    // delete file("$rootDir/neptus.bat")
 }
 
 cleanEclipse {
