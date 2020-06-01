@@ -276,10 +276,10 @@ apply plugin: 'eclipse'
 sourceSets {
     main {
         java {
-	        srcDirs = ['src']
+	        srcDirs = ['src/java']
         }
         resources {
-           srcDirs = ['src']
+           srcDirs = ['src/resources']
         }
     }
 }
