@@ -210,8 +210,11 @@ dependencies {
     implementation 'com.miglayout:miglayout-swing:4.2' //5.2
     implementation 'com.eclipsesource.minimal-json:minimal-json:0.9.4' //0.9.5
 
-    //implementation  'edu.ucar:netcdfAll:5.3.2' //used 5.2 on the current develop, here was 4.6.10
-    implementation name: 'netcdfAll-4.6.10'
+    //implementation 'edu.ucar:cdm-core:5.2.0'
+    //runtimeOnly 'org.slf4j:slf4j-jdk14:${slf4jVersion}''
+    implementation  'edu.ucar:netcdfAll:5.2.0' //5.3.2, used 5.2 on the current develop, here was 4.6.10
+    //implementation name: 'netcdfAll-5.2'
+    implementation 'org.jsoup:jsoup:1.13.1'
 
     implementation name: 'opencv-2.4.11'
     implementation 'oro:oro:2.0.8' // devia ser 0 2.1-dev
@@ -426,7 +429,7 @@ allprojects {
             dirs 'lib'
         }
         maven {
-            url 'https://artifacts.unidata.ucar.edu/content/repositories/unidata-releases/'
+            url 'https://artifacts.unidata.ucar.edu/repository/unidata-all/'
             url 'https://maven.jzy3d.org/releases/'
         }
     }
