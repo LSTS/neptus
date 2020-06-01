@@ -101,9 +101,9 @@ dependencies {
     implementation name: 'libimc'
     implementation name: 'libMsgSender'
 
-    implementation name: 'aisparser-2.0.0'
-    implementation name: 'jssc' //dependency of aisparser
-    //implementation 'org.scream3r:jssc:2.8.0'
+    // implementation name: 'aisparser-2.0.0'
+    // implementation name: 'jssc' //dependency of aisparser
+    // //implementation 'org.scream3r:jssc:2.8.0'
 
 
     implementation name: 'ais-contact-manager-1.0'
