@@ -45,6 +45,8 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -53,12 +55,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.DoubleAccumulator;
 import java.util.concurrent.atomic.LongAccumulator;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -632,7 +637,7 @@ public class EnvDataPaintHelper {
 
                     double xMin = fullImgWidth;
                     double yMin = fullImgHeight;
-                    Pair<Double, Double> minXY = calculateMinimumPointDistanceXY(points, xMin, yMin);
+                    Pair<Double, Double> minXY = calculateMinimumPointDistanceXY(points, xMin, yMin, abortIndicator);
                     xMin = minXY.first();
                     yMin = minXY.second();
 
@@ -741,6 +746,9 @@ public class EnvDataPaintHelper {
                 showVarLegendFromZoomLevel, font8Pt, showDataDebugLegend, 1,
                 // Acceptor
                 dp -> {
+                    if (abortIndicator.get())
+                        return false;
+
                     boolean depthOk = true;
                     if (!Double.isFinite(depthLimits.first()) && !Double.isFinite(depthLimits.second())
                             || !Double.isFinite(dp.getDepth())) {
@@ -763,27 +771,29 @@ public class EnvDataPaintHelper {
                             dateOk = true;
                         }
                         else {
-                            GenericDataPoint maxDateDp = (GenericDataPoint) dp.getHistoricalData().stream().max((p1, p2) -> {
+                            GenericDataPoint maxDateDp = (GenericDataPoint) dp.getHistoricalData().stream()
+                                    .filter((d) -> !abortIndicator.get()).max((p1, p2) -> {
                                 if (p1.getDateUTC() != null && p2.getDateUTC() != null)
                                     return p1.getDateUTC().compareTo(p2.getDateUTC());
                                 else if (p2.getDateUTC() != null)
                                     return -1;
                                 else
                                     return 1;
-                            }).get();
-                            GenericDataPoint minDateDp = (GenericDataPoint) dp.getHistoricalData().stream().min((p1, p2) -> { 
+                            }).orElse(dp);
+                            GenericDataPoint minDateDp = (GenericDataPoint) dp.getHistoricalData().stream()
+                                    .filter((d) -> !abortIndicator.get()).min((p1, p2) -> {
                                 if (p1.getDateUTC() != null && p2.getDateUTC() != null)
                                     return p1.getDateUTC().compareTo(p2.getDateUTC());
                                 else if (p2.getDateUTC() != null)
                                     return -1;
                                 else
                                     return 1;
-                            }).get();
+                            }).orElse(dp);
                             
                             Date minDate = dateLimits.first();
                             Date maxDate = dateLimits.second();
-                            if (minDateDp.getDateUTC().compareTo(maxDate) <= 0
-                                    && maxDateDp.getDateUTC().compareTo(minDate) >= 0)
+                            if ((minDateDp.getDateUTC() == null || minDateDp.getDateUTC().compareTo(maxDate) <= 0)
+                                    && (maxDateDp.getDateUTC() == null || maxDateDp.getDateUTC().compareTo(minDate) >= 0))
                                 dateOk = true;
                             else
                                 dateOk = false;
@@ -794,6 +804,9 @@ public class EnvDataPaintHelper {
                 },
                 // Extractor
                 dp -> {
+                    if (abortIndicator.get())
+                        return new ArrayList<Object>();
+
                     Date minDate = dateLimits.first();
                     Date maxDate = dateLimits.second();
                     if (minDate.getTime() == 0 && maxDate.getTime() == 0)
@@ -828,6 +841,9 @@ public class EnvDataPaintHelper {
                 },
                 // Painter for points
                 paintType == PointPaintEnum.INTERPOLATE ? null : (pt, dataMap) -> {
+                    if (abortIndicator.get())
+                        return;
+
                     Graphics2D gt = null;
                     try {
                         Pair<ArrayList<Object>, Date> pVal = dataMap.get(pt);
@@ -881,6 +897,10 @@ public class EnvDataPaintHelper {
                 },
                 // Painter for interpolation
                 (ptDataMap) -> {
+                    System.out.println("Start painter");
+                    if (abortIndicator.get())
+                        return;
+
                     Set<Point2D> points = ptDataMap.keySet();
 
                     double fullImgWidth = rendererCalculator.getSize().getWidth() + offScreenBufferPixel * 2.;
@@ -888,7 +908,9 @@ public class EnvDataPaintHelper {
 
                     double xMin = fullImgWidth;
                     double yMin = fullImgHeight;
-                    Pair<Double, Double> minXY = calculateMinimumPointDistanceXY(points, xMin, yMin);
+                    System.out.println(" painter 1");
+                    Pair<Double, Double> minXY = calculateMinimumPointDistanceXY(points, xMin, yMin, abortIndicator);
+                    System.out.println(" painter 2");
                     xMin = minXY.first();
                     yMin = minXY.second();
 
@@ -904,9 +926,15 @@ public class EnvDataPaintHelper {
                     double cacheImgHeight = fullImgHeight;
                     cacheImgWidth *= cacheImgScaleX;
                     cacheImgHeight *= cacheImgScaleY;
-                    
+
+                    if (abortIndicator.get())
+                        return;
+
                     BufferedImage cacheImg = createBufferedImage((int) cacheImgWidth, (int) cacheImgHeight, Transparency.TRANSLUCENT);
-                    points.parallelStream().forEach(pt -> {
+                    points.parallelStream().filter((d) -> !abortIndicator.get()).forEach(pt -> {
+                        if (abortIndicator.get())
+                            return;
+
                         try {
                             Pair<ArrayList<Object>, Date> pVal = ptDataMap.get(pt);
                             double v = (double) pVal.first().get(0);
@@ -933,6 +961,9 @@ public class EnvDataPaintHelper {
                         }
                     });
 
+                    if (abortIndicator.get())
+                        return;
+
                     Graphics2D gt = (Graphics2D) g2.create();
                     try {
                         gt.translate(rendererCalculator.getWidth() / 2., rendererCalculator.getHeight() / 2.);
@@ -949,9 +980,15 @@ public class EnvDataPaintHelper {
                     }
                     if (gt != null)
                         gt.dispose();
-                    
+
+                    if (abortIndicator.get())
+                        return;
+
                     if (showVarLegend && rendererCalculator.getLevelOfDetail() >= showVarLegendFromZoomLevel) {
-                        points.parallelStream().forEach(pt -> {
+                        points.parallelStream().filter((d) -> !abortIndicator.get()).forEach(pt -> {
+                            if (abortIndicator.get())
+                                return;
+
                             Graphics2D gt1 = null;
                             try {
                                 Pair<ArrayList<Object>, Date> pVal = ptDataMap.get(pt);
@@ -1048,6 +1085,7 @@ public class EnvDataPaintHelper {
             LongAccumulator toDatePts = dataCollector.toDatePts;
             LongAccumulator fromDatePts = dataCollector.fromDatePts;
             ArrayList<Map<Point2D, Pair<ArrayList<Object>, Date>>> ptFilt = dest.parallelStream()
+                    .filter((d) -> !abortIndicator.get())
                     .collect(dataCollector);
             
             if (ptFilt.isEmpty()) {
@@ -1056,13 +1094,20 @@ public class EnvDataPaintHelper {
             }
             double usePercent = (ptFilt.get(0) == null ? -1 : ptFilt.get(0).size() * 1. / visiblePts.longValue()) * 100;
             final int idx = 1; //getIndexForData(rendererCalculator.getLevelOfDetail(), usePercent);
-            debugOut(showDataDebugLegend, String.format("%s stg 1 took %ss :: using %d of %d visible from original %d (%.1f%% of visible) | %d not gridded %sused",
+            debugOut(showDataDebugLegend, String.format("%s stg 1 took %ss :: using %d of %d visible from original %d (%.1f%% of visible) | %d not gridded %sused | %s",
                     varName, MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1), (ptFilt.get(0) == null ? -1 : ptFilt.get(0).size()), 
-                    visiblePts.longValue(), dest.size(), usePercent, (ptFilt.get(1) == null ? -1 : ptFilt.get(1).size()), ""));
+                    visiblePts.longValue(), dest.size(), usePercent, (ptFilt.get(1) == null ? -1 : ptFilt.get(1).size()), "", abortIndicator.get() ? "aborted" : ""));
             stMillis = System.currentTimeMillis();
 
+            if (abortIndicator.get()) {
+                debugOut(showDataDebugLegend, String.format("%s stg 2 took %ss %s", varName,
+                        MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1),
+                        abortIndicator.get() ? "aborted" : ""));
+                return;
+            }
+
             if (eachPointPainter != null) {
-                ptFilt.get(idx).keySet().parallelStream().forEach(pt -> {
+                ptFilt.get(idx).keySet().parallelStream().filter((d) -> !abortIndicator.get()).forEach(pt -> {
                     if (abortIndicator.get())
                         return;
                     
@@ -1082,8 +1127,9 @@ public class EnvDataPaintHelper {
                     NeptusLog.pub().trace(e);
                 }
             }
-            debugOut(showDataDebugLegend, String.format("%s stg 2 took %ss", varName,
-                    MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1)));
+            debugOut(showDataDebugLegend, String.format("%s stg 2 took %ss %s", varName,
+                    MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - stMillis) / 1E3, 1),
+                    abortIndicator.get() ? "aborted" : ""));
             
             int offset = OFFSET_REND_TXT_DATE_RANGES + OFFSET_REND_TXT_DATE_RANGES_DELTA * debugPainterForDatesOffserIndex;
             String typeName = varName;
@@ -1122,57 +1168,69 @@ public class EnvDataPaintHelper {
     
     /**
      * @param points
+     * @param abortIndicator 
      * @param xMin
      * @param yMin
      * @return
      */
     private static Pair<Double, Double> calculateMinimumPointDistanceXY(Collection<Point2D> points,
-            double xMinStartValue, double yMinStartValue) {
-        double xMin = xMinStartValue;
-        double yMin = yMinStartValue;
+            double xMinStartValue, double yMinStartValue, AtomicBoolean abortIndicator) {
+        DoubleAccumulator xMin = new DoubleAccumulator((c, n) -> n < c ? n : c, xMinStartValue);
+        DoubleAccumulator yMin = new DoubleAccumulator((c, n) -> n < c ? n : c, yMinStartValue);
         
+        Instant ts = Instant.now();
+        System.out.println(" min/max 1");
+
         MovingAverage maX = new MovingAverage((short) (points.size() * 0.1));
         MovingAverage maY = new MovingAverage((short) (points.size() * 0.1));
         
-        ArrayList<Point2D> pointsXSorted = new ArrayList<>(points);
-        pointsXSorted.sort((p, o) -> Double.compare(p.getX(), o.getX()));
-
-        ArrayList<Point2D> pointsYSorted = new ArrayList<>(points);
-        pointsYSorted.sort((p, o) -> Double.compare(p.getY(), o.getY()));
-        
-        Point2D po = null;
-        for (Point2D p : pointsXSorted) {
-            if (po == null) {
-                po = p;
-                continue;
+        ArrayList<Point2D> pointsXSorted = points.parallelStream().filter((p) -> !abortIndicator.get())
+                .sorted((p, o) -> Double.compare(p.getX(), o.getX()))
+                .collect(Collectors.toCollection(ArrayList<Point2D>::new));
+                //.collect(Collectors.toCollection(() -> new ArrayList<Point2D>(points.size())));
+        IntStream.range(0, pointsXSorted.size() - 1).parallel()
+                .filter((p) -> !abortIndicator.get())
+                .forEach((i) -> {
+            if (i == 0)
+                return;
+            Point2D pot = pointsXSorted.get(i - 1);
+            Point2D p = pointsXSorted.get(i);
+            if (pot.getX() == p.getX())
+                return;
+            double d = Math.abs(pot.getX() - p.getX());
+            synchronized (maX) {
+                maX.update(d);
             }
-            
-            if (po.getX() == p.getX())
-                continue;
-            
-            double d = Math.abs(po.getX() - p.getX());
-            maX.update(d);
-            xMin = d < xMin ? d : xMin;
-            po = p;
-        }
+            xMin.accumulate(d);
+        });
 
-        po = null;
-        for (Point2D p : pointsYSorted) {
-            if (po == null) {
-                po = p;
-                continue;
+        System.out.println(" min/max 5 " + (Duration.between(ts, Instant.now()).toMillis()) + "ms");
+        ts = Instant.now();
+
+        ArrayList<Point2D> pointsYSorted = points.parallelStream().filter((p) -> !abortIndicator.get())
+                .sorted((p, o) -> Double.compare(p.getY(), o.getY()))
+                .collect(Collectors.toCollection(ArrayList<Point2D>::new));
+                //.collect(Collectors.toCollection(() -> new ArrayList<Point2D>(points.size())));
+        IntStream.range(0, pointsYSorted.size() - 1).parallel()
+                .filter((p) -> !abortIndicator.get())
+                .forEach((i) -> {
+            if (i == 0)
+                return;
+            Point2D pot = pointsYSorted.get(i - 1);
+            Point2D p = pointsYSorted.get(i);
+            if (pot.getY() == p.getY())
+                return;
+            double d = Math.abs(pot.getY() - p.getY());
+            synchronized (maY) {
+                maY.update(d);
             }
-            
-            if (po.getY() == p.getY())
-                continue;
-            
-            double d = Math.abs(po.getY() - p.getY());
-            maY.update(d);
-            yMin = d < yMin ? d : yMin;
-            po = p;
-        }
-        
-        System.out.println(String.format("MinMax %f x %f   with avg %f x %f  stddev %f x %f", xMin, yMin, maX.mean(), maY.mean(), maX.stdev(), maY.stdev()));
+            yMin.accumulate(d);
+        });
+
+        System.out.println(" min/max 6 " + (Duration.between(ts, Instant.now()).toMillis()) + "ms");
+        ts = Instant.now();
+
+        System.out.println(String.format("MinMax %f x %f   with avg %f x %f  stddev %f x %f", xMin.doubleValue(), yMin.doubleValue(), maX.mean(), maY.mean(), maX.stdev(), maY.stdev()));
         
         // return new Pair<Double, Double>(xMin, yMin);
         return new Pair<Double, Double>(maX.mean() + maX.stdev(), maY.mean() + maY.stdev());

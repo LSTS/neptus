@@ -79,6 +79,7 @@ import pt.lsts.imc.sender.MessageEditor;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
+import pt.lsts.neptus.comm.manager.imc.ImcMessageSenderPanel;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleInteraction;
@@ -305,7 +306,7 @@ public class HistoricDataInteraction extends ConsoleInteraction {
     
     
     
-    private MessageEditor editor = new MessageEditor();
+    private ImcMessageSenderPanel editor;
     private JFormattedTextField timeoutMins = new JFormattedTextField(GuiUtils.getNeptusIntegerFormat());
     {
         timeoutMins.setColumns(3);
@@ -388,6 +389,8 @@ public class HistoricDataInteraction extends ConsoleInteraction {
     private void cmdMessage(ActionEvent evt) {
         JDialog dialog = new JDialog(getConsole(), I18n.text("Send message via web"));
         dialog.setLayout(new BorderLayout());
+        JButton btn = new JButton(I18n.text("Send"));
+        editor = new ImcMessageSenderPanel(btn);
         dialog.getContentPane().add(editor, BorderLayout.CENTER);
         JPanel bottom = new JPanel(new FlowLayout(FlowLayout.TRAILING));
         JComboBox<String> vehiclesCombo = GuiUtils.vehiclesCombo(false);
@@ -397,7 +400,6 @@ public class HistoricDataInteraction extends ConsoleInteraction {
         bottom.add(timeoutMins);
         bottom.add(new JLabel("                " + I18n.text("Destination: ")));
         bottom.add(vehiclesCombo);
-        JButton btn = new JButton(I18n.text("Send"));
         btn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -409,7 +411,7 @@ public class HistoricDataInteraction extends ConsoleInteraction {
                 }
             }
         });
-        bottom.add(btn);
+//        bottom.add(btn);
         dialog.getContentPane().add(bottom, BorderLayout.SOUTH);
         dialog.setSize(600, 500);
         dialog.setModalityType(ModalityType.DOCUMENT_MODAL);

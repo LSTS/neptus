@@ -968,7 +968,6 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
      * @return wXMin, wYMin, wXMax, wYMax array
      */
     public static double[] getRendererWorldXYMinMax(StateRenderer2D renderer) {
-
         Point2D xyWC = renderer.getCenter().getPointInPixel(renderer.getLevelOfDetail());
         double wXMin = xyWC.getX() - renderer.getWidth() / 2.0;
         double wXMax = xyWC.getX() + renderer.getWidth() / 2.0;
@@ -976,26 +975,11 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
         double wYMax = xyWC.getY() + renderer.getHeight() / 2.0;
 
         if (renderer.getRotation() != 0) {
-            LocationType topLeft = renderer.getRealWorldLocation(new Point2D.Double(0,0));
-            LocationType bottomRight = renderer.getRealWorldLocation(new Point2D.Double(renderer.getWidth(),renderer.getHeight()));
-            LocationType topRight = renderer.getRealWorldLocation(new Point2D.Double(renderer.getWidth(),0));
-            LocationType bottomLeft = renderer.getRealWorldLocation(new Point2D.Double(0, renderer.getHeight()));
-
-            double lat1, lat2, lat3, lat4, lon1, lon2, lon3, lon4;
-            lat1 = topLeft.getLatitudeDegs();
-            lat2 = bottomRight.getLatitudeDegs();
-            lat3 = topRight.getLatitudeDegs();
-            lat4 = bottomLeft.getLatitudeDegs();
-
-            lon1 = topLeft.getLongitudeDegs();
-            lon2 = bottomRight.getLongitudeDegs();
-            lon3 = topRight.getLongitudeDegs();
-            lon4 = bottomLeft.getLongitudeDegs();
-
-            double latMax = Math.max(Math.max(Math.max(lat1,lat2),lat3),lat4); 
-            double latMin = Math.min(Math.min(Math.min(lat1,lat2),lat3),lat4); 
-            double lonMax = Math.max(Math.max(Math.max(lon1,lon2),lon3),lon4); 
-            double lonMin = Math.min(Math.min(Math.min(lon1,lon2),lon3),lon4);
+            double[] llbox = getRendererWorldLatLonDegsMinMax(renderer);
+            double latMax = llbox[2];
+            double latMin = llbox[0];
+            double lonMax = llbox[3];
+            double lonMin = llbox[1];
 
             Point2D lmin = MapTileUtil.degreesToXY(latMin, lonMin, renderer.getLevelOfDetail());
             Point2D lmax = MapTileUtil.degreesToXY(latMax, lonMax, renderer.getLevelOfDetail());
@@ -1006,6 +990,42 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
         }
 
         return new double[] { wXMin, wYMin, wXMax, wYMax };
+    }
+
+    /**
+     * @param renderer
+     * @return latMin, lonMin, latMax, lonMax array
+     */
+    public static double[] getRendererWorldLatLonDegsMinMax(StateRenderer2D renderer) {
+        LocationType topLeft = renderer.getRealWorldLocation(new Point2D.Double(0,0));
+        LocationType bottomRight = renderer.getRealWorldLocation(new Point2D.Double(renderer.getWidth(),renderer.getHeight()));
+        LocationType topRight = renderer.getRealWorldLocation(new Point2D.Double(renderer.getWidth(),0));
+        LocationType bottomLeft = renderer.getRealWorldLocation(new Point2D.Double(0, renderer.getHeight()));
+
+        double lat1, lat2, lat3, lat4, lon1, lon2, lon3, lon4;
+        lat1 = topLeft.getLatitudeDegs();
+        lat2 = bottomRight.getLatitudeDegs();
+        lat3 = topRight.getLatitudeDegs();
+        lat4 = bottomLeft.getLatitudeDegs();
+
+        lon1 = topLeft.getLongitudeDegs();
+        lon2 = bottomRight.getLongitudeDegs();
+        lon3 = topRight.getLongitudeDegs();
+        lon4 = bottomLeft.getLongitudeDegs();
+
+        double latMax = Math.max(Math.max(Math.max(lat1,lat2),lat3),lat4);
+        double latMin = Math.min(Math.min(Math.min(lat1,lat2),lat3),lat4);
+        double lonMax = Math.max(Math.max(Math.max(lon1,lon2),lon3),lon4);
+        double lonMin = Math.min(Math.min(Math.min(lon1,lon2),lon3),lon4);
+
+        if (renderer.getRotation() != 0) {
+            latMax = Math.max(Math.max(Math.max(lat1,lat2),lat3),lat4);
+            latMin = Math.min(Math.min(Math.min(lat1,lat2),lat3),lat4);
+            lonMax = Math.max(Math.max(Math.max(lon1,lon2),lon3),lon4);
+            lonMin = Math.min(Math.min(Math.min(lon1,lon2),lon3),lon4);
+        }
+
+        return new double[] { latMin, lonMin, latMax, lonMax };
     }
 
     /**

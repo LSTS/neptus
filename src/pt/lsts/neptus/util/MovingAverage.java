@@ -90,8 +90,7 @@ public class MovingAverage {
         }
 
         accum += value - window.get(oldest);
-        window.remove(oldest);
-        window.add(oldest, value);
+        window.set(oldest, value);
         oldest = (oldest + 1) % windowSize;
         return accum / windowSize;
     }

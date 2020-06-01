@@ -42,7 +42,10 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.data.Pair;
@@ -731,5 +734,43 @@ public class NetCDFUtils {
                     break;
             }
         }
+        
+        {
+            AtomicInteger ct = new AtomicInteger(0);
+            AtomicInteger ct1 = new AtomicInteger(0);
+            AtomicInteger ct2 = new AtomicInteger(0);
+            AtomicInteger ct3 = new AtomicInteger(0);
+            System.out.println("\n\n\n\n-------------------------------");
+            int[] shape = {2, 1, 2, 3};
+            int[] counterIdx = new int[shape.length];
+            Arrays.fill(counterIdx, 0);
+//            counterIdx[counterIdx.length - 1] = -1;
+            AtomicReference<int[]> counterAtomicRef = new AtomicReference<>(counterIdx); 
+            System.out.println(Arrays.stream(shape).reduce(1, (x, y) -> x * y));
+//            Stream.generate(() -> {
+//                synchronized (counterIdx) {
+//                    ct1.addAndGet(1);
+////                    int[] val = NetCDFUtils.advanceLoopCounter(shape, counterIdx);
+//                    int[] val = counterAtomicRef.get() == null ? null : counterAtomicRef.getAndSet(NetCDFUtils.advanceLoopCounter(shape, Arrays.copyOf(counterAtomicRef.get(), counterAtomicRef.get().length)));
+////                    System.out.println("  >" + Arrays.toString(val));
+////                    System.out.flush();
+//                    return val == null ? null : Arrays.copyOf(val, val.length);
+//                }
+//            })
+            IntStream.range(0, Arrays.stream(shape).reduce(1, (x, y) -> (x+0) * y))
+//            .limit(Arrays.stream(shape).reduce(1, (x, y) -> (x+0) * y))
+//            .peek((e) -> {if(e == null) ct3.addAndGet(1); else ct2.addAndGet(1);})
+//            .filter((v) -> v != null)
+            .parallel()
+            .forEach((i) -> {
+                int[] counter = counterAtomicRef.getAndUpdate((c) -> NetCDFUtils.advanceLoopCounter(shape, Arrays.copyOf(c, c.length)));
+                System.out.println(Arrays.toString(counter));
+                System.out.flush();
+                ct.addAndGet(1);
+            });
+            System.out.println(ct.get() + " | " + ct1.get() + " | " + ct2.get() + " | " + ct3.get());
+        }
+//        Thread.currentThread().join();
     }
 }
+

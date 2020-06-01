@@ -221,7 +221,10 @@ public class NetCDFVarElement {
                 dataArray = new ArrayBoolean(dim);
                 break;
             case BYTE:
-                dataArray = new ArrayByte(dim);
+                dataArray = new ArrayByte(dim, false);
+                break;
+            case UBYTE: // TODO Add support
+                dataArray = new ArrayByte(dim, true);
                 break;
             case CHAR:
                 dataArray = new ArrayChar(dim);
@@ -233,13 +236,22 @@ public class NetCDFVarElement {
                 dataArray = new ArrayFloat(dim);
                 break;
             case INT:
-                dataArray = new ArrayInt(dim);
+                dataArray = new ArrayInt(dim, false);
+                break;
+            case UINT: // TODO Add support
+                dataArray = new ArrayInt(dim, true);
                 break;
             case LONG:
-                dataArray = new ArrayLong(dim);
+                dataArray = new ArrayLong(dim, false);
+                break;
+            case ULONG: // TODO Add support
+                dataArray = new ArrayLong(dim, true);
                 break;
             case SHORT:
-                dataArray = new ArrayShort(dim);
+                dataArray = new ArrayShort(dim, false);
+                break;
+            case USHORT: // TODO Add support
+                dataArray = new ArrayShort(dim, true);
                 break;
             case STRING:
                 dataArray = new ArrayString(dim);
@@ -461,7 +473,7 @@ public class NetCDFVarElement {
                 
                 try {
                     if (val.getClass().isArray())
-                        var.addAttribute(new Attribute(name, Array.factory(val)));
+                        var.addAttribute(new Attribute(name, extractedArrayForAttribute(val)));
                     else if (val.getClass().isAssignableFrom(String.class))
                         var.addAttribute(new Attribute(name, (String) val));
                     else if (val.getClass().isAssignableFrom(Attribute.class))
@@ -496,6 +508,64 @@ public class NetCDFVarElement {
             return false;
         }
         return true;
+    }
+
+    /**
+     * @param val
+     * @throws Exception 
+     */
+    static Array extractedArrayForAttribute(Object val) throws Exception {
+        // Array.factory(val);
+        try {
+            Class<? extends Object> clazz = val.getClass();
+            NeptusLog.pub().warn(String.format("Processing type class %s", clazz));
+            if (clazz == boolean[].class) {
+                boolean[] aArray = (boolean[]) val;
+                return Array.factory(DataType.BOOLEAN, new int[] {aArray.length}, val);
+            }
+            else if (clazz == byte[].class) {
+                byte[] aArray = (byte[]) val;
+                return Array.factory(DataType.BYTE, new int[] {aArray.length}, val);
+            }
+            // UBYTE: // TODO Add support
+            else if (clazz == char[].class) {
+                char[] aArray = (char[]) val;
+                return Array.factory(DataType.CHAR, new int[] {aArray.length}, val);
+            }
+            else if (clazz == double[].class) {
+                double[] aArray = (double[]) val;
+                return Array.factory(DataType.DOUBLE, new int[] {aArray.length}, val);
+            }
+            else if (clazz == float[].class) {
+                float[] aArray = (float[]) val;
+                return Array.factory(DataType.FLOAT, new int[] {aArray.length}, val);
+            }
+            else if (clazz == int[].class) {
+                int[] aArray = (int[]) val;
+                return Array.factory(DataType.INT, new int[] {aArray.length}, val);
+            }
+            // UINT: // TODO Add support
+            else if (clazz == long[].class) {
+                long[] aArray = (long[]) val;
+                return Array.factory(DataType.LONG, new int[] {aArray.length}, val);
+            }
+            // ULONG: // TODO Add support
+            else if (clazz == short[].class) {
+                short[] aArray = (short[]) val;
+                return Array.factory(DataType.SHORT, new int[] {aArray.length}, val);
+            }
+            // USHORT: // TODO Add support
+            else if (clazz == String[].class) {
+                String[] aArray = (String[]) val;
+                return Array.factory(DataType.STRING, new int[] {aArray.length}, val);
+            }
+            else {
+                throw new Exception(String.format("Not hable to process type! [%s]", clazz.toString()));
+            }
+        }
+        catch (Exception e) {
+            throw new Exception(String.format("Not valid attribute type! [%s]", e.getMessage()));
+        }
     }
     
     public boolean writeData(NetcdfFileWriter writer) {
