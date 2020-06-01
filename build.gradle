@@ -133,16 +133,16 @@ dependencies {
     implementation 'com.firebase:firebase-client-jvm:2.0.0' //2.5.2
     implementation 'org.apache.xmlgraphics:fop:0.95'
     //implementation group: 'foxtrot', name: 'foxtrot', version: '3.0', ext: 'pom'
-    implementation 'foxtrot.foxtrot:foxtrot:3.0' //4.0
+    implementation name: 'foxtrot' //4.0, used 3.0
 
     implementation 'org.graphstream:gs-ui:1.3'
     // gdal 1.8.2
     implementation name: 'gdal'
-    implementation 'org.dinopolis.gpstool:gpsinput:0.5.3'
+    implementation name: 'gpsinput-0.5.3'
     implementation name: 'gpxparser'
     implementation 'org.codehaus.groovy:groovy:2.5.4' //3.0.3
-    implementation 'com.google.guava:guava:17.0' //28.2-jre
     implementation 'com.google.code.gson:gson:2.2.2' //2.8.6
+    implementation 'com.google.guava:guava:17.0' //28.2-jre
 
     implementation 'org.apache.httpcomponents:httpclient:4.5.1' //4.5.12
 
@@ -258,7 +258,7 @@ dependencies {
     implementation name: 'xchart-3.5.1'
     implementation name: 'xj3d/xj3d-all'
     implementation 'com.adobe.xmp:xmpcore:5.1.2' //6.1.10
-    implementation 'xuggle:xuggle-xuggler:5.4'
+    implementation name: 'xuggle-xuggler-5.4'
 
     implementation 'com.google.zxing:javase:3.2.1' //3.4.0
 
