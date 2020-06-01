@@ -212,7 +212,8 @@ dependencies {
 
     //implementation 'edu.ucar:cdm-core:5.2.0'
     //runtimeOnly 'org.slf4j:slf4j-jdk14:${slf4jVersion}''
-    implementation  'edu.ucar:netcdfAll:5.2.0' //5.3.2, used 5.2 on the current develop, here was 4.6.10
+    //implementation  'edu.ucar:netcdfAll:5.3.2' //5.3.2, used 5.2 on the current develop, here was 4.6.10
+    implementation "edu.ucar:cdm-core:5.2.0"
     //implementation name: 'netcdfAll-5.2'
     implementation 'org.jsoup:jsoup:1.13.1'
 
@@ -430,6 +431,8 @@ allprojects {
         }
         maven {
             url 'https://artifacts.unidata.ucar.edu/repository/unidata-all/'
+        }
+        maven {
             url 'https://maven.jzy3d.org/releases/'
         }
     }
