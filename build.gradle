@@ -162,7 +162,7 @@ dependencies {
     implementation 'de.micromata.jak:JavaAPIforKml:2.2.0' //2.2.1
     implementation 'net.sourceforge.javacsv:javacsv:2.0'
     implementation 'org.javassist:javassist:3.18.0-GA' //3.27.0-GA
-    implementation 'net.sf.jchart2d:jchart2d:3.3.2' // devia ser o 1.03
+    // implementation 'net.sf.jchart2d:jchart2d:3.3.2' // devia ser o 1.03
     implementation 'org.jfree:jcommon:1.0.24'
     implementation 'org.mortbay.jetty:jetty:6.0.2'
     implementation 'org.jfree:jfreechart:1.5.0'
