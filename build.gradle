@@ -431,10 +431,16 @@ allprojects {
         }
         maven {
             url 'https://artifacts.unidata.ucar.edu/repository/unidata-all/'
+            content {
+                includeGroup "edu.ucar"
+            }
         }
-        maven {
-            url 'https://maven.jzy3d.org/releases/'
-        }
+        // maven {
+        //     url 'https://maven.jzy3d.org/releases/'
+        //     content {
+        //         includeGroup "org.jzy3d"
+        //     }
+        // }
     }
 
     apply plugin: 'java'
@@ -556,9 +562,9 @@ subprojects {
     }
 
     dependencies {
-        implementation fileTree(dir: 'lib', include: '*.jar')
-        implementation fileTree(dir: 'libs', include: '*.jar')
-        implementation fileTree(dir: '.', include: '*.jar')
+        // implementation fileTree(dir: 'lib', include: '*.jar')
+        // implementation fileTree(dir: 'libs', include: '*.jar')
+        // implementation fileTree(dir: '.', include: '*.jar')
     }
 
     buildDir = file("$rootProject.buildDir/plugins/$project.name")
