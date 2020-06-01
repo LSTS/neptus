@@ -530,22 +530,10 @@ subprojects {
     sourceSets {
         main {
             java {
-                srcDirs += ['java', '.']
-                exclude 'lib'
-                exclude '**/*.jar'
-                exclude "${rootProject.buildDir.getName()}"
-                exclude '.classpath'
-                exclude '.project'
-                exclude '.settings'
+                srcDirs += ['src/java']
             }
             resources {
-                srcDirs += ['resources', '.']
-                exclude 'lib'
-                exclude '**/*.jar'
-                exclude "${rootProject.buildDir.getName()}"
-                exclude '.classpath'
-                exclude '.project'
-                exclude '.settings'
+                srcDirs += ['src/resources']
             }
         }
     }
@@ -562,9 +550,6 @@ subprojects {
     }
 
     dependencies {
-        // implementation fileTree(dir: 'lib', include: '*.jar')
-        // implementation fileTree(dir: 'libs', include: '*.jar')
-        // implementation fileTree(dir: '.', include: '*.jar')
     }
 
     buildDir = file("$rootProject.buildDir/plugins/$project.name")
