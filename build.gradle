@@ -281,7 +281,7 @@ sourceSets {
 }
 
 processResources {
-    from (rootProject.sourceSets.main.java.srcDirs) {
+    from (rootProject.sourceSets.main.resources.srcDirs) {
         include 'version.txt'
         filter{ it.replaceAll("@VERSION@", rootProject.version) }
         filter{ it.replaceAll("@NAMED_RELEASE@", rootProject.version) }
