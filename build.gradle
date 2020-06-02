@@ -880,14 +880,14 @@ task cleanEclipseBuild {
     }
 }
 
-task cleanIdeaFiles {
+task cleanIdea {
     doLast {
-        delete fileTree(dir: "$rootDir" , include: '**/.idea')
+        delete file("$rootDir/.idea")
     }
 }
 
-task cleanVSCodeFiles {
+task cleanVSCode {
     doLast {
-        delete fileTree(dir: "$rootDir" , include: '.vscode')
+        delete file("$rootDir/.vscode")
     }
 }
