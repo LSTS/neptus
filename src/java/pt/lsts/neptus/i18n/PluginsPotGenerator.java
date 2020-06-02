@@ -78,8 +78,8 @@ import pt.lsts.neptus.util.FileUtil;
  */
 public class PluginsPotGenerator {
 
-    protected static final String outFile = I18n.I18N_BASE_LOCALIZATION + "/neptus.pot";
-    protected static final String inFile = "dev-scripts/i18n/empty.pot";
+    protected static final String OUT_FILE = I18n.I18N_BASE_LOCALIZATION + "/neptus.pot";
+    protected static final String IN_FILE = "dev-scripts/i18n/empty.pot";
 
     public static Vector<AbstractElement> mapElements() {
         return MapType.getMapElements();
@@ -188,6 +188,16 @@ public class PluginsPotGenerator {
     }
 
     public static void main(String[] args) throws Exception {
+        String inFile = IN_FILE;
+        String outFile = OUT_FILE;
+
+        if (args.length == 1) {
+            inFile = args[0];
+        }
+        else if (args.length == 2) {
+            inFile = args[0];
+            outFile = args[1];
+        }
 
         BufferedWriter writer = new BufferedWriter(new FileWriter(new File(outFile)));
 

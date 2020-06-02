@@ -1008,9 +1008,33 @@ createInstallerWindowsDistFor('seacon', installSeaconDist, seaconDistZip)
 ///////////////////
 
 task agregateI18N(type: JavaExec) {
+    def emptyTemplateFile = file("${rootProject.buildDir}/tmp/pot/empty.pot")
+    doFirst {
+        emptyTemplateFile.getParentFile().mkdirs()
+        emptyTemplateFile.text = """# Neptus POT file.
+# Copyright (C) ${project.ext.copyYears} FEUP-LSTS
+# This file is distributed under the same license as the Neptus package.
+# LSTS <lsts@fe.up.pt>, 2012.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Neptus\\n"
+"Report-Msgid-Bugs-To: neptus.i18n@lsts.pt\\n"
+"POT-Creation-Date: 2012-09-11 16:05+0100\\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\\n"
+"Language-Team: LANGUAGE <LL@li.org>\\n"
+"Language: \\n"
+"MIME-Version: 1.0\\n"
+"Content-Type: text/plain; charset=UTF-8\\n"
+"Content-Transfer-Encoding: 8bit\\n"
+
+"""
+}
     dependsOn buildJars
     main 'pt.lsts.neptus.i18n.PluginsPotGenerator'
-    args 'auv'
+    args "${emptyTemplateFile.getPath()}"
     classpath jar.outputs.files + configurations.runtimeClasspath
     jvmArgs = [
         '-Xms10m',
