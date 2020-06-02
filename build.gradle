@@ -265,6 +265,7 @@ dependencies {
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
 
+    runtimeOnly fileTree(dir: 'plugins', include: '*.jar')
     fullRuntimeOnly fileTree(dir: 'plugins', include: '*.jar')
 }
 
@@ -339,9 +340,9 @@ eclipse {
 // Generating start scripts for the development environment
 generateStartScriptsFor(rootProject.name, 'run', 'pt.lsts.neptus.loader.NeptusMain',
     '', 'RunOptions', files('SUBSTITUTE')).doLast {
-        def unixCp = configurations.runtimeClasspath
+        def unixCp = (configurations.runtimeClasspath - configurations.fullRuntimeOnly)
             .collect({relativePathIfOnProjectPath(it, '$APP_HOME/')}).join(':')
-        def winCp = configurations.runtimeClasspath
+        def winCp = (configurations.runtimeClasspath - configurations.fullRuntimeOnly)
             .collect({relativePathIfOnProjectPath(it, '%APP_HOME%\\')}).join(';')
         unixScript.text = unixScript.text.replace('$APP_HOME/lib/SUBSTITUTE', "${unixCp}")
         windowsScript.text = windowsScript.text.replace('%APP_HOME%\\lib\\SUBSTITUTE', "${winCp}")
@@ -504,7 +505,7 @@ allprojects {
 configure(subprojects.findAll { it.name != 'neptus' }) {
     dependencies {
         compileOnly rootProject
-        compileOnly rootProject.sourceSets.main.runtimeClasspath
+        compileOnly rootProject.sourceSets.main.runtimeClasspath - rootProject.configurations.fullRuntimeOnly
     }
 }
 
@@ -677,7 +678,7 @@ generateStartScriptsFor(rootProject.name, 'seacon', 'pt.lsts.neptus.mc.lauvconso
 
 def distCommonSpec = project.copySpec {
     into('lib') {
-        from configurations.runtimeClasspath
+        from (configurations.runtimeClasspath - configurations.fullRuntimeOnly)
     }
 }
 
