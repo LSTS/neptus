@@ -20,6 +20,11 @@ Distribution
 * `./gradlew installer<Dist-name>WindowsDist` with `<Dist-name>` the same as above but capitalized, creates an exe installer for Windows (NOT WORKING YET)
 * `./gradlew generateI18N` to generate POT I18N files
 
+Other related tasks:
+
+* `./gradlew buildBundleJars` task to generate the bundle Jars
+* `./gradlew generateI18N` task to generate I18N files
+
 Eclipse
 -------
 
