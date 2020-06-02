@@ -14,7 +14,10 @@ plugins {
     id "eclipse"
 }
 
-description = ""
+description = """
+This is the Neptus C2 Framework for controlling autonomous vehicles.
+https://www.lsts.pt/toolchain/neptus/
+"""
 version = '2020.05.3-SNAPSHOT'
 
 ext {
