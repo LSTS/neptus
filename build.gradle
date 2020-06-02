@@ -627,6 +627,164 @@ task buildJars {
 }
 run.dependsOn buildJars
 
+/////////////////////
+// Bundles Section //
+/////////////////////
+
+// Creates the bin/bundles neptus-worldmap.jar
+task buildWorldmapBundleJar(type: Jar) {
+    dependsOn buildJars
+    archiveBaseName = "${rootProject.name}"
+    archiveClassifier = 'worldmap'
+    archiveVersion = ''
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    destinationDirectory = file("$rootDir/bin-bundles")
+    manifest {
+        attributes(
+            'Specification-Title': rootProject.name.capitalize(),
+            'Specification-Version': "$project.version, ${-> project.ext.gitProps['git.commit.time']}",
+            'Specification-Vendor': 'FEUP   USTL/LSTS (http://www.fe.up.pt/lsts)  Neptus (http://whale.fe.up.pt/neptus)',
+            'Implementation-Title': "${project.name}-worldmap",
+            'Implementation-Version': project.version,
+            'Implementation-Vendor': 'FEUP  USTL/LSTS (http://www.fe.up.pt/lsts)',
+            'Build-Revision': "${rootProject.name}-${project.version}-git#${-> project.ext.gitProps['git.commit.id.describe']}",
+            'Built-By': "${System.properties['user.name']}",
+            'Built-On': "${new Date()}",
+            'Main-Class': 'pt.lsts.neptus.app.tiles.WorldMapPanel',
+            )
+    }
+    dependsOn configurations.runtimeClasspath
+    from {
+        configurations.runtimeClasspath.findAll {
+            if (!it.name.endsWith('jar'))
+                return false
+
+            def ret = false
+            ret |= it.name.contains('dom4j')
+            ret |= it.name.contains('jaxen')
+            ret |= it.name.contains('l2fprod-common-all')
+            ret |= it.name.contains('swingx')
+            ret |= it.name.contains('jgoodies-looks')
+            ret |= it.name.contains('jgoodies-common')
+            ret |= it.name.contains('standby')
+            ret |= it.name.contains('log4j')
+            // ret |= it.name.contains('itext"/')
+            ret |= it.name.contains('commons-cli')
+            ret |= it.name.contains('commons-io')
+            ret |= it.name.contains('foxtrot')
+            ret |= it.name.contains('httpclient')
+            ret |= it.name.contains('httpcore')
+            ret |= it.name.contains('commons-codec')
+            ret |= it.name.contains('batik')
+            ret |= it.name.contains('xml-apis-ext')
+            ret |= it.name.contains('xmlgraphics-commons')
+            ret |= it.name.contains('commons-logging')
+            ret |= it.name.contains('commons-lang3')
+            ret |= it.name.contains('libimc')
+            ret |= it.name.contains('miglayout-core')
+            ret |= it.name.contains('miglayout-swing')
+            ret |= it.name.contains('reflections')
+            ret |= it.name.contains('guava')
+            ret |= it.name.contains('javassist')
+
+            ret |= it.getPath().contains('plugins/tiles-extra.jar')
+
+            return ret
+        }.collect { zipTree(it) }
+    }
+
+    from (sourceSets.main.output) {
+        include 'LICEN*'
+        include 'git.*'
+        include 'version.*'
+        include 'info*'
+        include 'images/neptus-icon.png'
+        include 'images/neptus-icon1.png'
+        include 'images/neptus-icon2.png'
+        include 'images/World_Blank_Map_Mercator_projection.svg'
+        include 'images/ssh-connect.png'
+        include 'images/cursors/*.png'
+        include 'images/files-icons/*.png'
+        include 'images/menus/*.png'
+        include 'images/world/*.png'
+        include '**/*.class'
+    }
+    from ("${rootProject.rootDir}/legal") {
+        into 'legal'
+    }
+}
+
+// Creates the bin/bundles neptus-check.jar
+task buildCheckBundleJar(type: Jar) {
+    dependsOn buildJars
+    archiveBaseName = "${rootProject.name}"
+    archiveClassifier = 'check'
+    archiveVersion = ''
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    destinationDirectory = file("$rootDir/bin-bundles")
+    manifest {
+        attributes(
+            'Specification-Title': rootProject.name.capitalize(),
+            'Specification-Version': "$project.version, ${-> project.ext.gitProps['git.commit.time']}",
+            'Specification-Vendor': 'FEUP   USTL/LSTS (http://www.fe.up.pt/lsts)  Neptus (http://whale.fe.up.pt/neptus)',
+            'Implementation-Title': "${project.name}-check",
+            'Implementation-Version': project.version,
+            'Implementation-Vendor': 'FEUP  USTL/LSTS (http://www.fe.up.pt/lsts)',
+            'Build-Revision': "${rootProject.name}-${project.version}-git#${-> project.ext.gitProps['git.commit.id.describe']}",
+            'Built-By': "${System.properties['user.name']}",
+            'Built-On': "${new Date()}",
+            'Main-Class': 'pt.lsts.neptus.gui.checklist.ChecklistPanel',
+            )
+    }
+    dependsOn configurations.runtimeClasspath
+    from {
+        configurations.runtimeClasspath.findAll {
+            if (!it.name.endsWith('jar'))
+                return false
+
+            def ret = false
+            ret |= it.name.contains('dom4j')
+            ret |= it.name.contains('jaxen')
+            ret |= it.name.contains('l2fprod-common-all')
+            ret |= it.name.contains('swingx')
+            ret |= it.name.contains('jgoodies-looks')
+            ret |= it.name.contains('jgoodies-common')
+            ret |= it.name.contains('standby')
+            ret |= it.name.contains('log4j')
+            ret |= it.name.contains('itext')
+            ret |= it.name.contains('commons-cli')
+            ret |= it.name.contains('libimc')
+            ret |= it.getPath().contains('zxing')
+
+            return ret
+        }.collect { zipTree(it) }
+    }
+
+    from (sourceSets.main.output) {
+        include 'LICEN*'
+        include 'git.*'
+        include 'version.*'
+        include 'info*'
+        include 'images/neptus-icon.png'
+        include 'images/neptus-icon1.png'
+        include 'images/neptus-icon2.png'
+        include 'images/checklists/*.png'
+        include 'images/files-icons/*.png'
+        include 'schemas/neptus-checklist.xsd'
+        include '**/*.class'
+    }
+    from ("${rootProject.rootDir}/legal") {
+        into 'legal'
+    }
+}
+
+task buildBundleJars {
+    description = "Generate the bundle Jars"
+    group = 'Distribution'
+
+    dependsOn buildWorldmapBundleJar, buildCheckBundleJar
+}
+
 //////////////////////////
 // Distribution Section //
 //////////////////////////
@@ -844,164 +1002,6 @@ def createInstallerWindowsDistFor(String distName, Sync installDistTask, Zip dis
 createInstallerWindowsDistFor('full', installFullDist, fullDistZip)
 createInstallerWindowsDistFor('le', installLeDist, leDistZip)
 createInstallerWindowsDistFor('seacon', installSeaconDist, seaconDistZip)
-
-/////////////////////
-// Bundles Section //
-/////////////////////
-
-// Creats the bin/bundles neptus-worldmap.jar
-task buildWorldmapBundleJar(type: Jar) {
-    dependsOn buildJars
-    archiveBaseName = "${rootProject.name}"
-    archiveClassifier = 'worldmap'
-    archiveVersion = ''
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    destinationDirectory = file("$rootDir/bin-bundles")
-    manifest {
-        attributes(
-            'Specification-Title': rootProject.name.capitalize(),
-            'Specification-Version': "$project.version, ${-> project.ext.gitProps['git.commit.time']}",
-            'Specification-Vendor': 'FEUP   USTL/LSTS (http://www.fe.up.pt/lsts)  Neptus (http://whale.fe.up.pt/neptus)',
-            'Implementation-Title': "${project.name}-worldmap",
-            'Implementation-Version': project.version,
-            'Implementation-Vendor': 'FEUP  USTL/LSTS (http://www.fe.up.pt/lsts)',
-            'Build-Revision': "${rootProject.name}-${project.version}-git#${-> project.ext.gitProps['git.commit.id.describe']}",
-            'Built-By': "${System.properties['user.name']}",
-            'Built-On': "${new Date()}",
-            'Main-Class': 'pt.lsts.neptus.app.tiles.WorldMapPanel',
-            )
-    }
-    dependsOn configurations.runtimeClasspath
-    from {
-        configurations.runtimeClasspath.findAll {
-            if (!it.name.endsWith('jar'))
-                return false
-
-            def ret = false
-            ret |= it.name.contains('dom4j')
-            ret |= it.name.contains('jaxen')
-            ret |= it.name.contains('l2fprod-common-all')
-            ret |= it.name.contains('swingx')
-            ret |= it.name.contains('jgoodies-looks')
-            ret |= it.name.contains('jgoodies-common')
-            ret |= it.name.contains('standby')
-            ret |= it.name.contains('log4j')
-            // ret |= it.name.contains('itext"/')
-            ret |= it.name.contains('commons-cli')
-            ret |= it.name.contains('commons-io')
-            ret |= it.name.contains('foxtrot')
-            ret |= it.name.contains('httpclient')
-            ret |= it.name.contains('httpcore')
-            ret |= it.name.contains('commons-codec')
-            ret |= it.name.contains('batik')
-            ret |= it.name.contains('xml-apis-ext')
-            ret |= it.name.contains('xmlgraphics-commons')
-            ret |= it.name.contains('commons-logging')
-            ret |= it.name.contains('commons-lang3')
-            ret |= it.name.contains('libimc')
-            ret |= it.name.contains('miglayout-core')
-            ret |= it.name.contains('miglayout-swing')
-            ret |= it.name.contains('reflections')
-            ret |= it.name.contains('guava')
-            ret |= it.name.contains('javassist')
-
-            ret |= it.getPath().contains('plugins/tiles-extra.jar')
-
-            return ret
-        }.collect { zipTree(it) }
-    }
-
-    from (sourceSets.main.output) {
-        include 'LICEN*'
-        include 'git.*'
-        include 'version.*'
-        include 'info*'
-        include 'images/neptus-icon.png'
-        include 'images/neptus-icon1.png'
-        include 'images/neptus-icon2.png'
-        include 'images/World_Blank_Map_Mercator_projection.svg'
-        include 'images/ssh-connect.png'
-        include 'images/cursors/*.png'
-        include 'images/files-icons/*.png'
-        include 'images/menus/*.png'
-        include 'images/world/*.png'
-        include '**/*.class'
-    }
-    from ("${rootProject.rootDir}/legal") {
-        into 'legal'
-    }
-}
-
-// Creats the bin/bundles neptus-check.jar
-task buildCheckBundleJar(type: Jar) {
-    dependsOn buildJars
-    archiveBaseName = "${rootProject.name}"
-    archiveClassifier = 'check'
-    archiveVersion = ''
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    destinationDirectory = file("$rootDir/bin-bundles")
-    manifest {
-        attributes(
-            'Specification-Title': rootProject.name.capitalize(),
-            'Specification-Version': "$project.version, ${-> project.ext.gitProps['git.commit.time']}",
-            'Specification-Vendor': 'FEUP   USTL/LSTS (http://www.fe.up.pt/lsts)  Neptus (http://whale.fe.up.pt/neptus)',
-            'Implementation-Title': "${project.name}-check",
-            'Implementation-Version': project.version,
-            'Implementation-Vendor': 'FEUP  USTL/LSTS (http://www.fe.up.pt/lsts)',
-            'Build-Revision': "${rootProject.name}-${project.version}-git#${-> project.ext.gitProps['git.commit.id.describe']}",
-            'Built-By': "${System.properties['user.name']}",
-            'Built-On': "${new Date()}",
-            'Main-Class': 'pt.lsts.neptus.gui.checklist.ChecklistPanel',
-            )
-    }
-    dependsOn configurations.runtimeClasspath
-    from {
-        configurations.runtimeClasspath.findAll {
-            if (!it.name.endsWith('jar'))
-                return false
-
-            def ret = false
-            ret |= it.name.contains('dom4j')
-            ret |= it.name.contains('jaxen')
-            ret |= it.name.contains('l2fprod-common-all')
-            ret |= it.name.contains('swingx')
-            ret |= it.name.contains('jgoodies-looks')
-            ret |= it.name.contains('jgoodies-common')
-            ret |= it.name.contains('standby')
-            ret |= it.name.contains('log4j')
-            ret |= it.name.contains('itext')
-            ret |= it.name.contains('commons-cli')
-            ret |= it.name.contains('libimc')
-            ret |= it.getPath().contains('zxing')
-
-            return ret
-        }.collect { zipTree(it) }
-    }
-
-    from (sourceSets.main.output) {
-        include 'LICEN*'
-        include 'git.*'
-        include 'version.*'
-        include 'info*'
-        include 'images/neptus-icon.png'
-        include 'images/neptus-icon1.png'
-        include 'images/neptus-icon2.png'
-        include 'images/checklists/*.png'
-        include 'images/files-icons/*.png'
-        include 'schemas/neptus-checklist.xsd'
-        include '**/*.class'
-    }
-    from ("${rootProject.rootDir}/legal") {
-        into 'legal'
-    }
-}
-
-task buildBundleJars {
-    description = "Generate the bundle Jars"
-    group = 'Distribution'
-
-    dependsOn buildWorldmapBundleJar, buildCheckBundleJar
-}
 
 ///////////////////
 // Tools Section //
