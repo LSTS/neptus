@@ -767,7 +767,7 @@ def createInstallerLinuxDistFor(String distName, Tar distTarTask) {
         group = 'Distribution'
         doFirst {
             copy {
-                from("${rootProject.projectDir}/NSIS_release/static_files")
+                from("${rootProject.projectDir}/dist")
                 include 'linux_sfx_header.txt'
                 into workTmpDirectory
                 filter{ it.replaceAll("@NUMERIC_VERSION@", "${rootProject.version.split('[-+]')[0]}") }
