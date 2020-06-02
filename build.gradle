@@ -302,11 +302,11 @@ buildDir = file("$rootProject.rootDir/build/")
 
 eclipse {
     classpath {
-        defaultOutputDir = file("${buildDir.getName()}/eclipse/core")
+        defaultOutputDir = file("${buildDir.getName()}/eclipse/default")
         file.whenMerged {
             entries.each { entry ->
                 if (entry.kind == 'src' && entry.hasProperty('output')) {
-                    entry.output = entry.output.replace('bin/', "${buildDir.getName()}/eclipse/core/")
+                    entry.output = entry.output.replace('bin/', "${buildDir.getName()}/eclipse/")
                 }
             }
         }
@@ -557,12 +557,23 @@ subprojects {
     apply plugin: 'eclipse'
     eclipse {
         classpath {
-            defaultOutputDir = file("${rootProject.buildDir.getName()}/eclipse/$project.name")
+            defaultOutputDir = file("${rootProject.buildDir.getName()}/eclipse/default")
             file.whenMerged {
+                def entriesToRemove = []
                 entries.each { entry ->
+                    // Fix so eclipse depends on eclipse compiled files and not gradle
                     if (entry.kind == 'src' && entry.hasProperty('output')) {
-                        entry.output = entry.output.replace('bin/', "${rootProject.buildDir.getName()}/eclipse/$project.name/")
+                        entry.output = entry.output.replace('bin/', "${rootProject.buildDir.getName()}/eclipse/")
                     }
+                    else if (entry.kind == 'lib' && entry.hasProperty('path')) {
+                        if (entry.path.contains("${rootProject.buildDir.getName()}/classes/java/"))
+                            entry.path = entry.path.replace("${rootProject.buildDir.getName()}/classes/java/", "${rootProject.buildDir.getName()}/eclipse/")
+                        else if (entry.path.contains("${rootProject.buildDir.getName()}/resources/"))
+                            entriesToRemove += entry
+                    }
+                }
+                entriesToRemove.each {
+                    entries.remove(it)
                 }
             }
         }
@@ -859,7 +870,7 @@ task cleanEclipseBuild {
     description = "Cleanup build folders"
     group = 'IDE'
     doLast {
-        delete fileTree(dir: "${rootProject.buildDir}" , include: 'eclipse')
+        delete file("${rootProject.buildDir}/eclipse")
         file("$rootDir/plugins-dev").listFiles({it.isDirectory()} as FileFilter).each {
             it.listFiles({file -> file.isDirectory() && file.name ==~ 'build'} as FileFilter).each {
                 delete it
