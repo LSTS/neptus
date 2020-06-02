@@ -17,7 +17,8 @@ Distribution
   * `seacon` - for seacon version
   * `le` - for light edition
 * `./gradlew installer<Dist-name>LinuxDist` with `<Dist-name>` the same as above but capitalized, creates a sh installer for Linux.
-* `./gradlew installer<Dist-name>WindowsDist` with `<Dist-name>` the same as above but capitalized, creates an exe installer for Windows (NOT WORKING YET).
+* `./gradlew installer<Dist-name>WindowsDist` with `<Dist-name>` the same as above but capitalized, creates an exe installer for Windows (NOT WORKING YET)
+* `./gradlew generateI18N` to generate POT I18N files
 
 Eclipse
 -------

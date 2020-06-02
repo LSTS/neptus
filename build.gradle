@@ -846,6 +846,66 @@ createInstallerWindowsDistFor('le', installLeDist, leDistZip)
 createInstallerWindowsDistFor('seacon', installSeaconDist, seaconDistZip)
 
 ///////////////////
+// Tools Section //
+///////////////////
+
+task agregateI18N(type: JavaExec) {
+    dependsOn buildJars
+    main 'pt.lsts.neptus.i18n.PluginsPotGenerator'
+    args 'auv'
+    classpath jar.outputs.files + configurations.runtimeClasspath
+    jvmArgs = [
+        '-Xms10m',
+        '-Xmx1g',
+    ]
+}
+
+task processI18N(type: Exec) {
+    workingDir file(rootProject.rootDir)
+    executable 'xgettext'
+    args = [
+        '--language=java',
+        '--keyword',
+        '--keyword=I18n.text',
+        '--keyword=I18n.textc:1,2c',
+        '--keyword=I18n.textf',
+        '--keyword=I18n.textfc:1,2c',
+        '--keyword=I18n.textmark',
+        '--keyword=I18n.textmarkc:1,2c',
+        '--keyword=PropertiesEditor.getPropertyInstance',
+        '--add-location',
+        '--from-code=UTF-8',
+        '--add-comments=/',
+        '--sort-output',
+        '--package-name=Neptus',
+        '--msgid-bugs-address=neptus.i18n@lsts-feup.org',
+        '--copyright-holder="2004-$(date +%Y) FEUP-LSTS"',
+        '-j',
+        '-o', "$rootDir/conf/i18n/neptus.pot",
+    ]
+    fileTree(dir: "$rootDir/src", include: '**/*.java').each {
+        args "${relativePath(it)}"
+    }
+    fileTree(dir: "$rootDir/plugins-dev", include: '**/*.java').each {
+        args "${relativePath(it)}"
+    }
+    ignoreExitValue true
+
+    doLast {
+        if (execResult.getExitValue() > 0) {
+            println "ERROR: Generation of I18N exit with error ${execResult.getExitValue()}"
+        }
+    }
+}
+processI18N.mustRunAfter agregateI18N
+
+task generateI18N {
+    description = "Generate the I18N POT files"
+    group = 'Distribution'
+    dependsOn agregateI18N, processI18N
+}
+
+///////////////////
 // Clean Section //
 ///////////////////
 
