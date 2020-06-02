@@ -76,14 +76,14 @@ def generateStartScriptsFor(String applicationNameOpt, String taskPrefixName,
             unixScript.text = unixScript.text.replace('@lib_jni_osx_x64@',
                 getLibJNIFor(['osx'], ['x64']).collect { "${relativePathIfOnProjectPath(it, '\$APP_HOME/')}" }.join(':'))
             unixScript.text = unixScript.text.replace('@added_section@', addedSectionSnippetName.isEmpty() ? ''
-                : rootProject.file("srcShell/unixSnippet${addedSectionSnippetName}.txt").getText('UTF-8'))
+                : rootProject.file("dist/scripts/unixSnippet${addedSectionSnippetName}.txt").getText('UTF-8'))
 
             windowsScript.text = windowsScript.text.replace('@lib_jni_windows_x64@',
                 getLibJNIFor(['win'], ['x64', 'x86']).collect { "${relativePathIfOnProjectPath(it, '@APP_HOME@/',)}" }.join(';'))
             windowsScript.text = windowsScript.text.replace('@lib_jni_windows_x86@',
                 getLibJNIFor(['win'], ['x86']).collect { "${relativePathIfOnProjectPath(it, '@APP_HOME@/',)}" }.join(';'))
             windowsScript.text = windowsScript.text.replace('@added_section@', addedSectionSnippetName.isEmpty() ? ''
-                : rootProject.file("srcShell/windowsSnippet${addedSectionSnippetName}.txt").getText('UTF-8'))
+                : rootProject.file("dist/scripts/windowsSnippet${addedSectionSnippetName}.txt").getText('UTF-8'))
         }
     }
 }
@@ -510,9 +510,9 @@ configure(subprojects.findAll { it.name != 'neptus' }) {
 }
 
 tasks.withType(CreateStartScripts) {
-    def unixTemplateName = rootProject.file('srcShell/unixStartScript.txt')
+    def unixTemplateName = rootProject.file('dist/scripts/unixStartScript.txt')
     assert project.file(unixTemplateName).exists();
-    def winTemplateName = rootProject.file('srcShell/windowsStartScript.txt')
+    def winTemplateName = rootProject.file('dist/scripts/windowsStartScript.txt')
     assert project.file(winTemplateName).exists();
     unixStartScriptGenerator.template = rootProject.resources.text.fromFile(unixTemplateName)
     windowsStartScriptGenerator.template = rootProject.resources.text.fromFile(winTemplateName)
@@ -659,13 +659,13 @@ startScripts {
             getLibJNIFor(['linux'], ['x86']).collect { "${relativePathIfOnProjectPath(it, '\$APP_HOME/')}" }.join(':'))
         unixScript.text = unixScript.text.replace('@lib_jni_osx_x64@',
             getLibJNIFor(['osx'], ['x64']).collect { "${relativePathIfOnProjectPath(it, '\$APP_HOME/')}" }.join(':'))
-        unixScript.text = unixScript.text.replace('@added_section@', rootProject.file('srcShell/unixSnippetRunOptions.txt').getText('UTF-8'))
+        unixScript.text = unixScript.text.replace('@added_section@', rootProject.file('dist/scripts/unixSnippetRunOptions.txt').getText('UTF-8'))
 
         windowsScript.text = windowsScript.text.replace('@lib_jni_windows_x64@',
             getLibJNIFor(['win'], ['x64', 'x86']).collect { "${relativePathIfOnProjectPath(it, '@APP_HOME@/',)}" }.join(';'))
         windowsScript.text = windowsScript.text.replace('@lib_jni_windows_x86@',
             getLibJNIFor(['win'], ['x86']).collect { "${relativePathIfOnProjectPath(it, '@APP_HOME@/',)}" }.join(';'))
-        windowsScript.text = windowsScript.text.replace('@added_section@', rootProject.file('srcShell/windowsSnippetRunOptions.txt').getText('UTF-8'))
+        windowsScript.text = windowsScript.text.replace('@added_section@', rootProject.file('dist/scripts/windowsSnippetRunOptions.txt').getText('UTF-8'))
     }
 }
 
