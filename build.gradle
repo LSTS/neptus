@@ -25,6 +25,8 @@ ext {
     libJNIPaths = ['.']
 }
 
+defaultTasks 'buildJars', 'buildBundleJars'
+
 ///////////////////////
 // Utilities Section //
 ///////////////////////
