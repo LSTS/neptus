@@ -1164,91 +1164,67 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         String sia = info.getPublisherInetAddress();
         NeptusLog.pub().debug("processAnnounceMessage for " + ann.getSysName() + "@" + id + " :: publisher host address " + sia);
         
-        boolean hostWasGuessed = true;
+        int udpPort = -1, tcpPort = -1;
+        String udpHost = "", tcpHost = "";
         
-        InetSocketAddress[] retId = announceWorker.getImcIpsPortsFromMessageImcUdp(ann);
-        int portUdp = 0;
-        String hostUdp = "";
-        boolean udpIpPortFound = false;
-        if (retId.length > 0) {
-            portUdp = retId[0].getPort();
-            hostUdp = retId[0].getAddress().getHostAddress();
-        }
-        for (InetSocketAddress add : retId) {
-            if (sia.equalsIgnoreCase(add.getAddress().getHostAddress())) {
-                if (add.getAddress().isReachable(10)) {
-                    udpIpPortFound = true;
-                    portUdp = add.getPort();
-                    hostUdp = add.getAddress().getHostAddress();
-                    hostWasGuessed = false;
-                    NeptusLog.pub().debug("processAnnounceMessage for " + ann.getSysName() + "@" + id + " :: " + "UDP reachable @ " + hostUdp + ":" + portUdp);
-                    break;
-                }
+        InetSocketAddress[] imcUdpAddrs = announceWorker.getImcIpsPortsFromMessageImcUdp(ann);
+        InetSocketAddress reachable;
+        
+        if (imcUdpAddrs.length > 0) {
+            udpPort = imcUdpAddrs[0].getPort();
+            udpHost = imcUdpAddrs[0].getHostString();
+            
+            reachable = ReachableCache.firstReachable(3000, imcUdpAddrs);
+            //NeptusLog.pub().info("Ip address for "+ann.getSysName()+" is "+reachable);
+            if (reachable != null) {
+                udpHost = reachable.getHostString();
+                udpPort = reachable.getPort();
             }
-        }
-        if (!udpIpPortFound) {
-            // Lets try to see if we received a message from any of the IPs
-            String ipReceived = hostUdp.isEmpty() ? info.getPublisherInetAddress() : hostUdp;
-            hostWasGuessed = hostUdp.isEmpty() ? hostWasGuessed : true;
-            hostUdp = ipReceived;
-            udpIpPortFound = true;
-            NeptusLog.pub().debug("processAnnounceMessage for " + ann.getSysName() + "@" + id + " :: " + "no UDP reachable using " + hostUdp + ":" + portUdp);
-        }
-
-        InetSocketAddress[] retIdT = announceWorker.getImcIpsPortsFromMessageImcTcp(ann);
-        int portTcp = 0;
-        boolean tcpIpPortFound = false;
-        if (retIdT.length > 0) {
-            portTcp = retIdT[0].getPort();
-            if ("".equalsIgnoreCase(hostUdp))
-                hostUdp = retIdT[0].getAddress().getHostAddress();
-        }
-        for (InetSocketAddress add : retIdT) {
-            if (sia.equalsIgnoreCase(add.getAddress().getHostAddress())) {
-                if ("".equalsIgnoreCase(hostUdp)) {
-                    if (add.getAddress().isReachable(10)) {
-                        tcpIpPortFound = true;
-                        hostUdp = add.getAddress().getHostAddress();
-                        hostWasGuessed = false;
-                        portTcp = add.getPort();
-                        NeptusLog.pub().debug("processAnnounceMessage for " + ann.getSysName() + "@" + id + " :: " + "TCP reachable @ " + hostUdp + ":" + portTcp);
-                        break;
-                    }
-                    else
-                        continue;
-                }
-                portTcp = add.getPort();
-                tcpIpPortFound = true;
-                NeptusLog.pub().debug("processAnnounceMessage for " + ann.getSysName() + "@" + id + " :: " + "no TCP reachable using " + hostUdp + ":" + portTcp);
-                break;
+            else {
+                NeptusLog.pub().warn("None of the announced UDP addresses is reachable for "+ann.getSysName()+", using "+udpHost);
             }
-        }
-
-        NeptusLog.pub().debug("processAnnounceMessage for " + ann.getSysName() + "@" + id + " :: " + "using UDP@" + hostUdp
-                        + ":" + portUdp + " and using TCP@" + hostUdp + ":" + portTcp + "  with host "
-                        + (hostWasGuessed ? "guessed" : "found"));
+        }        
+        
+        
+        
+        InetSocketAddress[] imcTcpAddrs = announceWorker.getImcIpsPortsFromMessageImcTcp(ann);
+        
+        if (imcTcpAddrs.length > 0) {
+            tcpPort = imcTcpAddrs[0].getPort();
+            tcpHost = imcTcpAddrs[0].getHostName();
+            reachable = ReachableCache.firstReachable(3000, imcTcpAddrs);
+            if (reachable != null) {
+                tcpHost = reachable.getHostString();
+                tcpPort = reachable.getPort();
+            }
+            else {
+                NeptusLog.pub().warn("None of the announced TCP addresses is reachable for "+ann.getSysName()+", using "+udpHost);
+            }
+       }   
+        
+        
+     
+        NeptusLog.pub().debug("processAnnounceMessage for " + ann.getSysName() + "@" + id + " :: " + "using UDP@" + udpHost
+                        + ":" + udpPort + " and using TCP@" + udpHost + ":" + tcpPort + ".");
 
         boolean requestEntityList = false;
         if (vci == null) {
             // Create a new system
             vci = initSystemCommInfo(id, info.getPublisherInetAddress() + ":"
-                    + (portUdp == 0 ? DEFAULT_UDP_VEH_PORT : portUdp));
+                    + (udpPort == 0 ? DEFAULT_UDP_VEH_PORT : udpPort));
             updateUdpOnIpMapper(vci);
             requestEntityList = true;
         }
-        // announceWorker.processAnnouceMessage(msg);
+
         String name = ann.getSysName();
         String type = ann.getSysType().toString();
         vci.setSystemIdName(name);
         ImcSystem resSys = ImcSystemsHolder.lookupSystem(id);
-        // NeptusLog.pub().info("<###>......................Announce..." + name + " | " + type + " :: " + hostUdp + "  " +
-        // portUdp);
-        // NeptusLog.pub().warn(ReflectionUtil.getCallerStamp()+ " ..........................| " + name + " | " + type);
+        
         if (resSys != null) {
             resSys.setServicesProvided(announceWorker.getImcServicesFromMessage(ann));
             AnnounceWorker.processUidFromServices(resSys);
 
-            // new 2012-06-23
             if (resSys.isOnIdErrorState()) {
                 EntitiesResolver.clearAliases(resSys.getName());
                 EntitiesResolver.clearAliases(resSys.getId());
@@ -1257,111 +1233,27 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
             resSys.setName(name);
             resSys.setType(ImcSystem.translateSystemTypeFromMessage(type));
             resSys.setTypeVehicle(ImcSystem.translateVehicleTypeFromMessage(type));
-            // NeptusLog.pub().info(ReflectionUtil.getCallerStamp()+ " ------------------------| " + resSys.getName() +
-            // " | " + resSys.getType());
-            if (portUdp != 0 && udpIpPortFound) {
-                resSys.setRemoteUDPPort(portUdp);
+                        
+            if (tcpPort > 0) {
+                resSys.setRemoteTCPPort(tcpPort);
+                resSys.setTCPOn(true);
+                resSys.setHostAddress(tcpHost);
             }
             else {
-                if (resSys.getRemoteUDPPort() == 0)
-                    resSys.setRemoteUDPPort(DEFAULT_UDP_VEH_PORT);
-            }
-            if (!"".equalsIgnoreCase(hostUdp) && !AnnounceWorker.NONE_IP.equalsIgnoreCase(hostUdp)) {
-                hostWasGuessed = true;
-                if (AnnounceWorker.USE_REMOTE_IP.equalsIgnoreCase(hostUdp)) {
-                    if (dontIgnoreIpSourceRequest)
-                        resSys.setHostAddress(info.getPublisherInetAddress());
-                }
-                else {
-                    if ((udpIpPortFound || tcpIpPortFound) && !hostWasGuessed) {
-                        resSys.setHostAddress(hostUdp);
-                    }
-                    else if (hostWasGuessed) {
-                        boolean alreadyFound = false;
-                        try {
-                            Map<InetSocketAddress, Integer> fAddr = new LinkedHashMap<>();
-                            InetAddress publisherIAddr = InetAddress.getByName(sia);
-                            byte[] pba = publisherIAddr.getAddress();
-                            int i = 0;
-                            for (InetSocketAddress inetSAddr : retId) {
-                                byte[] lta = inetSAddr.getAddress().getAddress();
-                                if (lta.length != pba.length)
-                                    continue;
-                                i = 0;
-                                for (; i < lta.length; i++) {
-                                    if (pba[i] != lta[i])
-                                        break;
-                                }
-                                if (i > 0 && i <= pba.length)
-                                    fAddr.put(inetSAddr, i);
-                            }
-                            for (InetSocketAddress inetSAddr : retIdT) {
-                                if (fAddr.containsKey(inetSAddr))
-                                    continue;
-                                byte[] lta = inetSAddr.getAddress().getAddress();
-                                if (lta.length != pba.length)
-                                    continue;
-                                i = 0;
-                                for (; i < lta.length; i++) {
-                                    if (pba[i] != lta[i])
-                                        break;
-                                }
-                                if (i > 0 && i <= pba.length)
-                                    fAddr.put(inetSAddr, i);
-                            }
-                            
-                            InetSocketAddress foundCandidateAddr = fAddr.keySet().stream().max((a1, a2) -> {
-                                    return fAddr.get(a1) - fAddr.get(a2);
-                                }).orElse(null);
-                            if (foundCandidateAddr != null) {
-                                resSys.setHostAddress(foundCandidateAddr.getAddress().getHostAddress());
-                                alreadyFound = true;
-                            }
-                        }
-                        catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        
-                        if (!alreadyFound) {
-                            String curHostAddr = resSys.getHostAddress();
-                            boolean currIsInAnnounce = false;
-                            for (InetSocketAddress inetSAddr : retId) {
-                                if (curHostAddr.equalsIgnoreCase(inetSAddr.getAddress().getHostAddress())) {
-                                    currIsInAnnounce = true;
-                                    break;
-                                }
-                            }
-                            if (!currIsInAnnounce) {
-                                for (InetSocketAddress inetSAddr : retIdT) {
-                                    if (curHostAddr.equalsIgnoreCase(inetSAddr.getAddress().getHostAddress())) {
-                                        currIsInAnnounce = true;
-                                        break;
-                                    }
-                                }
-                            }
-                            
-                            if (!currIsInAnnounce)
-                                resSys.setHostAddress(hostUdp);
-                        }
-                    }
-                }
-            }
-            if (portTcp != 0 && tcpIpPortFound) {
-                resSys.setTCPOn(true);
-                resSys.setRemoteTCPPort(portTcp);
-            }
-            else if (portTcp == 0) {
                 resSys.setTCPOn(false);
             }
-
-            if (resSys.isTCPOn() && retId.length == 0) {
-                resSys.setUDPOn(false);
+            
+            if (udpPort > 0) {
+                resSys.setRemoteUDPPort(udpPort);                
+                resSys.setUDPOn(true);
+                resSys.setHostAddress(tcpHost);
             }
             else {
-                resSys.setUDPOn(true);
+                resSys.setRemoteUDPPort(DEFAULT_UDP_VEH_PORT);
+                resSys.setUDPOn(false);
             }
-
-            NeptusLog.pub().debug("processAnnounceMessage for " + ann.getSysName() + "@" + id + " :: " + "final setup UDP@" + resSys.getHostAddress()
+            
+            NeptusLog.pub().info("processAnnounceMessage for " + ann.getSysName() + "@" + id + " :: " + "final setup UDP@" + resSys.getHostAddress()
                     + ":" + resSys.getRemoteUDPPort() + " and using TCP@" + resSys.getHostAddress() + ":" + resSys.getRemoteTCPPort());
 
             resSys.setOnAnnounceState(true);
