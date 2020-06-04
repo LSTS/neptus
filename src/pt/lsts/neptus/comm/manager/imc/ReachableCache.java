@@ -47,16 +47,16 @@ public class ReachableCache {
     static LinkedHashMap<String, HostReachability> reachabilityCache = new LinkedHashMap<>();
     static ExecutorService executorService = Executors.newCachedThreadPool();
     
-    public static Future<Boolean> isReachable(String hostname) {
+    public static Future<Boolean> isReachable(int timeout, String hostname) {
         return executorService.submit(new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
-                return isReachableBlocking(hostname);
+                return isReachableBlocking(timeout, hostname);
             }
         });
     }
 
-    public static boolean isReachableBlocking(String hostname) {
+    public static boolean isReachableBlocking(int timeout, String hostname) {
 
         synchronized (reachabilityCache) {
             HostReachability reachability = reachabilityCache.get(hostname);
@@ -65,7 +65,7 @@ public class ReachableCache {
             }
             else {
                 try {
-                    if (InetAddress.getByName(hostname).isReachable(2500))
+                    if (InetAddress.getByName(hostname).isReachable(timeout))
                         reachabilityCache.put(hostname, new HostReachability(true));
                     else
                         reachabilityCache.put(hostname, new HostReachability(false));
@@ -80,14 +80,14 @@ public class ReachableCache {
         }
     }
 
-    public static InetSocketAddress firstReachable(long timeout, InetSocketAddress... addrs) {
+    public static InetSocketAddress firstReachable(int timeout, InetSocketAddress... addrs) {
         
         long endTime = System.currentTimeMillis() + timeout;
 
         LinkedHashMap<InetSocketAddress, Future<Boolean>> pings = new LinkedHashMap<>();
 
         for (InetSocketAddress addr : addrs)
-            pings.put(addr, isReachable(addr.getHostName()));
+            pings.put(addr, isReachable(timeout, addr.getHostName()));
 
         while(System.currentTimeMillis() < endTime) {
             try {

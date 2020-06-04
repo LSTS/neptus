@@ -1172,12 +1172,11 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         
         if (imcUdpAddrs.length > 0) {
             udpPort = imcUdpAddrs[0].getPort();
-            udpHost = imcUdpAddrs[0].getHostString();
+            udpHost = imcUdpAddrs[0].getAddress().getHostAddress();
             
-            reachable = ReachableCache.firstReachable(3000, imcUdpAddrs);
-            //NeptusLog.pub().info("Ip address for "+ann.getSysName()+" is "+reachable);
+            reachable = ReachableCache.firstReachable(3000, imcUdpAddrs);            
             if (reachable != null) {
-                udpHost = reachable.getHostString();
+                udpHost = reachable.getAddress().getHostAddress();
                 udpPort = reachable.getPort();
             }
             else {
@@ -1191,18 +1190,16 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         
         if (imcTcpAddrs.length > 0) {
             tcpPort = imcTcpAddrs[0].getPort();
-            tcpHost = imcTcpAddrs[0].getHostName();
+            tcpHost = imcTcpAddrs[0].getAddress().getHostAddress();
             reachable = ReachableCache.firstReachable(3000, imcTcpAddrs);
             if (reachable != null) {
-                tcpHost = reachable.getHostString();
+                tcpHost = reachable.getAddress().getHostAddress();
                 tcpPort = reachable.getPort();
             }
             else {
                 NeptusLog.pub().warn("None of the announced TCP addresses is reachable for "+ann.getSysName()+", using "+udpHost);
             }
-       }   
-        
-        
+       }                  
      
         NeptusLog.pub().debug("processAnnounceMessage for " + ann.getSysName() + "@" + id + " :: " + "using UDP@" + udpHost
                         + ":" + udpPort + " and using TCP@" + udpHost + ":" + tcpPort + ".");
@@ -1246,14 +1243,14 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
             if (udpPort > 0) {
                 resSys.setRemoteUDPPort(udpPort);                
                 resSys.setUDPOn(true);
-                resSys.setHostAddress(tcpHost);
+                resSys.setHostAddress(udpHost);
             }
             else {
                 resSys.setRemoteUDPPort(DEFAULT_UDP_VEH_PORT);
                 resSys.setUDPOn(false);
             }
             
-            NeptusLog.pub().info("processAnnounceMessage for " + ann.getSysName() + "@" + id + " :: " + "final setup UDP@" + resSys.getHostAddress()
+            NeptusLog.pub().debug("processAnnounceMessage for " + ann.getSysName() + "@" + id + " :: " + "final setup UDP@" + resSys.getHostAddress()
                     + ":" + resSys.getRemoteUDPPort() + " and using TCP@" + resSys.getHostAddress() + ":" + resSys.getRemoteTCPPort());
 
             resSys.setOnAnnounceState(true);
