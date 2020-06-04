@@ -126,6 +126,10 @@ public class GeneralPreferences implements PropertiesProvider {
             description = "To send announce also by Unicast. Enable or disable")
     public static boolean imcUnicastAnnounceEnable = true;
 
+    @NeptusProperty(name = "Reachability Test Timeout", units = "ms", category = "IMC Communications", userLevel = LEVEL.ADVANCED, 
+            description = "Timeout to test reachability of IPs (in ms)")
+    public static int imcReachabilityTestTimeout = 3000;
+
     // -------------------------------------------------------------------------
 
     @NeptusProperty(name = "Logs Downloader - Enable Parcial Download", category = "IMC Logs Downloader", userLevel = LEVEL.ADVANCED, 

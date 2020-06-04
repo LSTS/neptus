@@ -1176,7 +1176,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         }
         for (InetSocketAddress add : retId) {
             if (sia.equalsIgnoreCase(add.getAddress().getHostAddress())) {
-                if (ReachableCache.firstReachable(500, add) != null) {
+                if (ReachableCache.firstReachable(GeneralPreferences.imcReachabilityTestTimeout, add) != null) {
                     udpIpPortFound = true;
                     portUdp = add.getPort();
                     hostUdp = add.getAddress().getHostAddress();
@@ -1188,7 +1188,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         }
         // Let us try know any one in the announce IPs
         if (!udpIpPortFound) {
-            InetSocketAddress reachableAddr = ReachableCache.firstReachable(500, retId);
+            InetSocketAddress reachableAddr = ReachableCache.firstReachable(GeneralPreferences.imcReachabilityTestTimeout, retId);
             if (reachableAddr != null) {
                 udpIpPortFound = true;
                 portUdp = reachableAddr.getPort();
@@ -1217,7 +1217,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         for (InetSocketAddress add : retIdT) {
             if (sia.equalsIgnoreCase(add.getAddress().getHostAddress())) {
                 if ("".equalsIgnoreCase(hostUdp)) {
-                    if (ReachableCache.firstReachable(500, add) != null) {
+                    if (ReachableCache.firstReachable(GeneralPreferences.imcReachabilityTestTimeout, add) != null) {
                         tcpIpPortFound = true;
                         hostUdp = add.getAddress().getHostAddress();
                         hostWasGuessed = false;
@@ -1237,7 +1237,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         
         // Let us try know any one in the announce IPs
         if (!tcpIpPortFound) {
-            InetSocketAddress reachableAddr = ReachableCache.firstReachable(500, retId);
+            InetSocketAddress reachableAddr = ReachableCache.firstReachable(GeneralPreferences.imcReachabilityTestTimeout, retId);
             if (reachableAddr != null) {
                 if ("".equalsIgnoreCase(hostUdp)) {
                     tcpIpPortFound = true;
