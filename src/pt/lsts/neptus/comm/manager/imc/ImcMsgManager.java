@@ -1176,7 +1176,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         }
         for (InetSocketAddress add : retId) {
             if (sia.equalsIgnoreCase(add.getAddress().getHostAddress())) {
-                if (add.getAddress().isReachable(10)) {
+                if (ReachableCache.firstReachable(500, add) != null) {
                     udpIpPortFound = true;
                     portUdp = add.getPort();
                     hostUdp = add.getAddress().getHostAddress();
@@ -1184,6 +1184,17 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                     NeptusLog.pub().debug("processAnnounceMessage for " + ann.getSysName() + "@" + id + " :: " + "UDP reachable @ " + hostUdp + ":" + portUdp);
                     break;
                 }
+            }
+        }
+        // Let us try know any one in the announce IPs
+        if (!udpIpPortFound) {
+            InetSocketAddress reachableAddr = ReachableCache.firstReachable(500, retId);
+            if (reachableAddr != null) {
+                udpIpPortFound = true;
+                portUdp = reachableAddr.getPort();
+                hostUdp = reachableAddr.getAddress().getHostAddress();
+                hostWasGuessed = false;
+                NeptusLog.pub().debug("processAnnounceMessage for " + ann.getSysName() + "@" + id + " :: " + "UDP reachable @ " + hostUdp + ":" + portUdp);
             }
         }
         if (!udpIpPortFound) {
@@ -1206,7 +1217,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         for (InetSocketAddress add : retIdT) {
             if (sia.equalsIgnoreCase(add.getAddress().getHostAddress())) {
                 if ("".equalsIgnoreCase(hostUdp)) {
-                    if (add.getAddress().isReachable(10)) {
+                    if (ReachableCache.firstReachable(500, add) != null) {
                         tcpIpPortFound = true;
                         hostUdp = add.getAddress().getHostAddress();
                         hostWasGuessed = false;
@@ -1221,6 +1232,23 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                 tcpIpPortFound = true;
                 NeptusLog.pub().debug("processAnnounceMessage for " + ann.getSysName() + "@" + id + " :: " + "no TCP reachable using " + hostUdp + ":" + portTcp);
                 break;
+            }
+        }
+        
+        // Let us try know any one in the announce IPs
+        if (!tcpIpPortFound) {
+            InetSocketAddress reachableAddr = ReachableCache.firstReachable(500, retId);
+            if (reachableAddr != null) {
+                if ("".equalsIgnoreCase(hostUdp)) {
+                    tcpIpPortFound = true;
+                    hostUdp = reachableAddr.getAddress().getHostAddress();
+                    hostWasGuessed = false;
+                    portTcp = reachableAddr.getPort();
+                    NeptusLog.pub().debug("processAnnounceMessage for " + ann.getSysName() + "@" + id + " :: " + "TCP reachable @ " + hostUdp + ":" + portTcp);
+                }
+                portTcp = reachableAddr.getPort();
+                tcpIpPortFound = true;
+                NeptusLog.pub().debug("processAnnounceMessage for " + ann.getSysName() + "@" + id + " :: " + "no TCP reachable using " + hostUdp + ":" + portTcp);
             }
         }
 
@@ -1267,7 +1295,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                     resSys.setRemoteUDPPort(DEFAULT_UDP_VEH_PORT);
             }
             if (!"".equalsIgnoreCase(hostUdp) && !AnnounceWorker.NONE_IP.equalsIgnoreCase(hostUdp)) {
-                hostWasGuessed = true;
+//                hostWasGuessed = true;
                 if (AnnounceWorker.USE_REMOTE_IP.equalsIgnoreCase(hostUdp)) {
                     if (dontIgnoreIpSourceRequest)
                         resSys.setHostAddress(info.getPublisherInetAddress());
