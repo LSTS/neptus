@@ -824,6 +824,10 @@ def distCommonSpec = project.copySpec {
             exclude 'xj3d-all.jar'
         }
     }
+    from("$rootDir/src/resources/images") {
+        include 'neptus-icon2.png'
+        rename '(neptus)-.*(\\.png)', '$1$2'
+    }
 }
 
 distributions {
