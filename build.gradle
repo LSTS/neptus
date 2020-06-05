@@ -266,8 +266,7 @@ dependencies {
     implementation 'xerces:xercesImpl:2.7.1' //2.12.0
     //implementation 'org.knowm.xchart:xchart-parent:3.5.1'
     implementation name: 'xchart-3.5.1'
-    // implementation name: 'xj3d/xj3d-all'
-    implementation fileTree(dir: 'lib/xj3d', include: '*.jar')
+    implementation name: 'xj3d/xj3d-all' // if removed also remove from "def distCommonSpec"
     implementation 'com.adobe.xmp:xmpcore:5.1.2' //6.1.10
     implementation name: 'xuggle-xuggler-5.4'
 
@@ -851,6 +850,13 @@ generateStartScriptsFor(rootProject.name, 'seacon', 'pt.lsts.neptus.mc.lauvconso
 def distCommonSpec = project.copySpec {
     into('lib') {
         from (configurations.runtimeClasspath - configurations.fullRuntimeOnly)
+    }
+    // For xj3d-all.jar
+    into('lib') {
+        from("$rootDir/lib/xj3d") {
+            include '**/*.jar'
+            exclude 'xj3d-all.jar'
+        }
     }
 }
 
