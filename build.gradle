@@ -72,8 +72,8 @@ def generateStartScriptsFor(String applicationNameOpt, String taskPrefixName,
             '-XX:MaxMetaspaceSize=512m',
             '-XX:+UseG1GC', //for Java 8+
             //'-XX:+UseZGC', //for Java 11+
-            '-XX:+PrintGCDetails', '-XX:+PrintGCDateStamps', '-Xloggc:$APP_HOME/log', //for Java 8-
-            //"-Xlog:gc*:file=$APP_HOME/log", //for Java 9+
+            //'-XX:+PrintGCDetails', '-XX:+PrintGCDateStamps', '-Xloggc:$APP_HOME/log', //for Java 8-
+            //'-Xlog:gc*:file=$APP_HOME/log', //for Java 9+
             '-XX:+HeapDumpOnOutOfMemoryError', '-XX:HeapDumpPath=$APP_HOME/log/heap-dump.hprof',
             '-Xss256k',
             ]
@@ -421,10 +421,10 @@ application {
         '-Xms10m',
         '-Xmx2g',
         '-XX:MaxMetaspaceSize=512m',
-        //'-XX:+UseG1GC', //for Java 8+
+        '-XX:+UseG1GC', //for Java 8+
         //'-XX:+UseZGC', //for Java 11+
         //'-XX:+PrintGCDetails', '-XX:+PrintGCDateStamps', "-Xloggc:${relativePath('./log')}", //for Java 8-
-        "-Xlog:gc*:file=${relativePath('./log')}", //for Java 9+
+        //"-Xlog:gc*:file=${relativePath('./log')}", //for Java 9+
         '-XX:+HeapDumpOnOutOfMemoryError', "-XX:HeapDumpPath=${relativePath('./log/heap-dump.hprof')}",
         '-Xss256k',
         "-Djava.library.path=\"${libJNIPaths.collect { "${relativePath(it)}" }.join(isFamily(FAMILY_WINDOWS) ? ';' : ':') }\"",
