@@ -1111,10 +1111,10 @@ clean {
 cleanEclipse {
     doLast {
         delete file("$rootDir/.settings")
-        file("$rootDir/plugins-dev").listFiles({it.isDirectory()} as FileFilter).each {
-            it.listFiles({file -> file.isDirectory() && file.name ==~ '.settings'} as FileFilter).each {
-                delete it
-            }
+        subprojects.each { project ->
+            file("$project.projectDir").listFiles({
+                    file -> file.isDirectory() && file.name ==~ '.settings'
+                } as FileFilter).each { delete it }
         }
     }
 }
@@ -1124,10 +1124,10 @@ task cleanEclipseBuild {
     group = 'IDE'
     doLast {
         delete file("${rootProject.buildDir}/eclipse")
-        file("$rootDir/plugins-dev").listFiles({it.isDirectory()} as FileFilter).each {
-            it.listFiles({file -> file.isDirectory() && file.name ==~ 'build'} as FileFilter).each {
-                delete it
-            }
+        subprojects.each { project ->
+            file("$project.projectDir").listFiles({
+                    file -> file.isDirectory() && file.name ==~ 'build'
+                } as FileFilter).each { delete it }
         }
     }
 }
