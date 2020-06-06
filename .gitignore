@@ -141,6 +141,7 @@
 /bin
 /bin-bundles
 /plugins
+/plugins-dev?*
 /dist/jre*
 /conf/plugins/
 /tmpBuild/

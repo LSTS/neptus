@@ -1,7 +1,10 @@
 
 rootProject.name = 'neptus'
 
-file('plugins-dev').eachDir { dir ->
-  include dir.name
-  project(":${dir.name}").projectDir = dir
+file("$rootDir").listFiles({file ->
+        file.isDirectory() && file.name ==~ 'plugins-dev.*'} as FileFilter).each {
+    it.eachDir { dir ->
+        include dir.name
+        project(":${dir.name}").projectDir = dir
+    }
 }
