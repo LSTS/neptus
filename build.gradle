@@ -509,6 +509,24 @@ allprojects {
                 ]
     }
     generateGitProperties.outputs.upToDateWhen { false }
+    // If the subproject is on the same Git as the root,
+    // just copy from it and don't run generateGitProperties
+    task copyGitPropertisFromRoot {
+        doLast {
+            project.ext['gitProps'] = rootProject.ext.gitProps
+            copy {
+                from (rootProject.sourceSets.main.output.resourcesDir)
+                include 'git.info'
+                into project.sourceSets.main.output.resourcesDir
+            }
+        }
+    }
+    if (!file("${project.projectDir}/.git").exists())
+        tasks.generateGitProperties.enabled = false
+    else
+        tasks.copyGitPropertisFromRoot.enabled = false
+    generateGitProperties.dependsOn copyGitPropertisFromRoot
+    classes.dependsOn copyGitPropertisFromRoot
 }
 
 ////////////////////////////
