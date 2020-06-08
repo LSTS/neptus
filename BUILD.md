@@ -28,9 +28,14 @@
 
 This is not stable yet.
 
-* `./gradlew eclipse` to create the project (not advised yet)
+* `./gradlew eclipse` to create the project
 * `./gradlew cleanEclipseBuild` to delete the project build folders
 * `./gradlew cleanEclipse` to delete the project
+
+This is sometimes not stable. If problems with building do:
+
+* If problem with duplicated resource on neptus project do:
+    ** `./gradlew cleanEclipseBuild createEclipseBuild`
 
 ### IntelliJ
 
