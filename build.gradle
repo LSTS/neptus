@@ -381,14 +381,14 @@ eclipse {
         }
     }
 }
-task createEclipseBuildFolders {
+task createEclipseBuild {
     doLast {
         subprojects.each { project ->
             file("${project.projectDir}/build/eclipse/main").mkdirs()
         }
     }
 }
-tasks.eclipse.dependsOn cleanEclipse, createEclipseBuildFolders, jar
+tasks.eclipse.dependsOn cleanEclipse, createEclipseBuild, jar
 
 
 // Generating start scripts for the development environment
@@ -678,6 +678,7 @@ subprojects {
             }
         }
     }
+    tasks.eclipse.dependsOn cleanEclipse
 
     jar {
         archiveVersion = ''
