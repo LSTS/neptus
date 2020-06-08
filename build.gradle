@@ -1180,13 +1180,13 @@ task cleanEclipseBuild {
     }
 }
 
-task cleanIdea {
+task cleanIdeaBuild {
     doLast {
         delete file("$rootDir/.idea")
     }
 }
 
-task cleanVSCode {
+task cleanVSCodeBuild {
     doLast {
         delete file("$rootDir/.vscode")
     }
