@@ -383,8 +383,9 @@ eclipse {
 }
 task createEclipseBuild {
     doLast {
+        file("${rootProject.buildDir.getName()}/eclipse/main")
         subprojects.each { project ->
-            file("${project.projectDir}/build/eclipse/main").mkdirs()
+            file("${project.projectDir}/${rootProject.buildDir.getName()}/eclipse/main").mkdirs()
         }
     }
 }
