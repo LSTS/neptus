@@ -668,7 +668,8 @@ subprojects {
 
         dependsOn configurations.runtimeClasspath
         from {
-            configurations.runtimeClasspath.findAll { it.name.endsWith('jar') }.collect { zipTree(it) }
+            (project.configurations.runtimeClasspath - rootProject.configurations.runtimeClasspath)
+                    .findAll { it.name.endsWith('jar') }.collect { zipTree(it) }
         }
     }
 }
