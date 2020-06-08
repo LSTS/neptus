@@ -339,9 +339,19 @@ eclipse {
             subprojects.each { subproject ->
                 if (!subProjectJarWasIn.contains(subproject.name)) {
                     // If the project did not had the plugins jars generated we need to add it here
+                    // def entry = new org.gradle.plugins.ide.eclipse.model.Library()
+                    def entry = new org.gradle.plugins.ide.eclipse.model.Library(fileReference(
+                        file("${subproject.projectDir}/${rootProject.buildDir.getName()}/eclipse/main/")
+                    ))
+                    entry['sourcePath'] = fileReference("/${subproject.name}/src/java".toString())
+                    entry.getEntryAttributes()put('gradle_used_by_scope', 'main,test')
+                    entries += entry
                 }
+            }
+            subprojects.each { subproject ->
                 (subproject.configurations.runtimeClasspath - rootProject.configurations.runtimeClasspath).findAll { it.name.endsWith('jar') }.each {
                     def entry = new org.gradle.plugins.ide.eclipse.model.Library(fileReference(it))
+                    entry.getEntryAttributes()put('gradle_used_by_scope', '')
                     entries += entry
                 }
             }
@@ -371,6 +381,15 @@ eclipse {
         }
     }
 }
+task createEclipseBuildFolders {
+    doLast {
+        subprojects.each { project ->
+            file("${project.projectDir}/build/eclipse/main").mkdirs()
+        }
+    }
+}
+tasks.eclipse.dependsOn createEclipseBuildFolders
+
 
 // Generating start scripts for the development environment
 generateStartScriptsFor(rootProject.name, 'run', 'pt.lsts.neptus.loader.NeptusMain',
