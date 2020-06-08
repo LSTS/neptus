@@ -388,7 +388,7 @@ task createEclipseBuildFolders {
         }
     }
 }
-tasks.eclipse.dependsOn createEclipseBuildFolders
+tasks.eclipse.dependsOn cleanEclipse, createEclipseBuildFolders, jar
 
 
 // Generating start scripts for the development environment
