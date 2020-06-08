@@ -317,9 +317,32 @@ eclipse {
     classpath {
         defaultOutputDir = file("${buildDir.getName()}/eclipse/default")
         file.whenMerged {
+            def subProjectJarWasIn = []
             entries.each { entry ->
                 if (entry.kind == 'src' && entry.hasProperty('output')) {
+                    // Let us replace the output from bin to the proper build folder
                     entry.output = entry.output.replace('bin/', "${buildDir.getName()}/eclipse/")
+                }
+                else if (entry.kind == 'lib' && entry.hasProperty('path')) {
+                    // Let us depend on plugin compile and not the jar
+                    // We will need to add each plugin libs
+                    subprojects.each { subproject ->
+                        if (entry.path.contains("plugins/${subproject.name}.jar")) {
+                            entry.path = "${subproject.projectDir}/${rootProject.buildDir.getName()}/eclipse/main/"
+                            entry['sourcePath'] = fileReference("/${subproject.name}/src/java".toString())
+                            subProjectJarWasIn += subproject.name
+                        }
+                    }
+                }
+            }
+            // Let us add plugins lib dependencies
+            subprojects.each { subproject ->
+                if (!subProjectJarWasIn.contains(subproject.name)) {
+                    // If the project did not had the plugins jars generated we need to add it here
+                }
+                (subproject.configurations.runtimeClasspath - rootProject.configurations.runtimeClasspath).findAll { it.name.endsWith('jar') }.each {
+                    def entry = new org.gradle.plugins.ide.eclipse.model.Library(fileReference(it))
+                    entries += entry
                 }
             }
         }
@@ -599,8 +622,10 @@ subprojects {
                         entry.output = entry.output.replace('bin/', "${rootProject.buildDir.getName()}/eclipse/")
                     }
                     else if (entry.kind == 'lib' && entry.hasProperty('path')) {
+                        // Let us depend on the eclipse compiled core classes and not the jar
                         if (entry.path.contains("${rootProject.buildDir.getName()}/classes/java/"))
-                            entry.path = entry.path.replace("${rootProject.buildDir.getName()}/classes/java/", "${rootProject.buildDir.getName()}/eclipse/")
+                            entry.path = entry.path.replace("${rootProject.buildDir.getName()}/classes/java/"
+                                , "${rootProject.buildDir.getName()}/eclipse/")
                         else if (entry.path.contains("${rootProject.buildDir.getName()}/resources/"))
                             entriesToRemove += entry
                     }
