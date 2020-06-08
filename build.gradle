@@ -245,7 +245,6 @@ dependencies {
     implementation name: 'RXTXcomm'
 
     implementation 'org.apache.sanselan:sanselan:0.97-incubator'
-    implementation 'org.swinglabs.swingx:swingx-all:1.6.4'
     implementation name: 'sqlitejdbc-v056'
     implementation name: 'standby'
     implementation 'org.swinglabs.swingx:swingx-all:1.6.4' //1.6.5-1
