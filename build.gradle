@@ -521,10 +521,12 @@ allprojects {
             }
         }
     }
-    if (!file("${project.projectDir}/.git").exists())
-        tasks.generateGitProperties.enabled = false
-    else
+    if (file("${project.projectDir}/.git").exists()
+            || file("${project.projectDir}/../.git").exists()
+            && file("${project.projectDir}/../") != file("${rootProject.projectDir}"))
         tasks.copyGitPropertisFromRoot.enabled = false
+    else
+        tasks.generateGitProperties.enabled = false
     generateGitProperties.dependsOn copyGitPropertisFromRoot
     classes.dependsOn copyGitPropertisFromRoot
 }
