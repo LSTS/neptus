@@ -183,10 +183,15 @@ plan.sh
 .gradle
 build
 
+# Eclipse related
 .classpath
 .project
 .settings
+
+# VSCode related
 .vscode
+
+# IDEA related
 .idea
 .run
-
+out/
