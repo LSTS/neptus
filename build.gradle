@@ -5,7 +5,7 @@
 /////////////////////////////////////////////////////////////////////
 
 plugins {
-    id 'java'
+    id 'java' //apply false
     id 'application'
     id 'distribution'
     id "com.gorylenko.gradle-git-properties" version "2.2.2"
@@ -99,305 +99,27 @@ def generateStartScriptsFor(String applicationNameOpt, String taskPrefixName,
 }
 
 //////////////////////////
-// Core-Project Section //
+// Root-Project Section //
 //////////////////////////
 
-configurations {
-    fullRuntimeOnly.extendsFrom(runtimeOnly)
-}
-
-dependencies {
-    // This dependency is used by the application.
-    implementation name: 'libimc'
-    implementation name: 'libMsgSender'
-
-    implementation name: 'aisparser-2.0.0'
-    implementation name: 'jssc' //dependency of aisparser, and serial port reader
-    //implementation 'org.scream3r:jssc:2.8.0'
-
-
-    implementation name: 'ais-contact-manager-1.0'
-
-    //implementation 'org.apache.xmlgraphics:batik-transcoder:1.7' //1.13 was from fop
-    //implementation 'org.apache.xmlgraphics:batik-all:1.9.1' //1.13 was 1.7.1
-    implementation 'org.apache.xmlgraphics:batik-gui-util:1.7' //1.13
-
-
-    implementation name: 'charsets-zip' // for zip, probably not needed anymore
-    implementation 'commons-cli:commons-cli:1.2' //1.4
-    implementation 'commons-codec:commons-codec:1.9' //1.14
-    implementation 'commons-collections:commons-collections:3.2.1' //3.2.2
-    implementation 'org.apache.commons:commons-compress:1.10' //1.20
-    implementation 'commons-configuration:commons-configuration:1.10'
-    implementation 'org.apache.commons:commons-email:1.3.2' //1.5
-    implementation 'commons-httpclient:commons-httpclient:3.1'
-    implementation 'commons-io:commons-io:2.4' //2.6
-    implementation 'org.apache.commons:commons-lang3:3.2.1' //3.10
-    implementation 'commons-lang:commons-lang:2.6'
-    implementation 'commons-logging:commons-logging:1.2'
-    implementation 'commons-net:commons-net:3.3' //3.6
-
-    implementation 'dom4j:dom4j:1.6.1'
-    implementation 'jaxen:jaxen:1.1.1' //1.2.0
-
-    implementation 'com.firebase:firebase-client-jvm:2.0.0' //2.5.2
-    implementation 'org.apache.xmlgraphics:fop:0.95'
-    //implementation group: 'foxtrot', name: 'foxtrot', version: '3.0', ext: 'pom'
-    implementation name: 'foxtrot' //4.0, used 3.0
-
-    implementation 'org.graphstream:gs-ui:1.3'
-    // gdal 1.8.2
-    implementation name: 'gdal'
-    implementation name: 'gpsinput-0.5.3'
-    implementation name: 'gpxparser'
-    implementation 'org.codehaus.groovy:groovy:2.5.4' //3.0.3
-    implementation 'com.google.code.gson:gson:2.2.2' //2.8.6
-    implementation 'com.google.guava:guava:17.0' //28.2-jre
-
-    implementation 'org.apache.httpcomponents:httpclient:4.5.1' //4.5.12
-
-    implementation 'org.imgscalr:imgscalr-lib:4.2'
-    implementation 'org.ini4j:ini4j:0.5.2' //0.5.4
-    implementation 'com.lowagie:itext:2.1.5'
-
-    //implementation 'java3d:j3d-core:1.3.1' // to delete
-    implementation name: 'j3dcore'
-    //implementation 'java3d:j3d-core-utils:1.3.1' // to delete
-    implementation name: 'j3dutils'
-    implementation name: 'StarfireExt' // to delete
-    implementation name: 'vecmath' // to delete
-    implementation name: 'wrl/j3d-vrml97' // to delete
-
-    implementation 'gov.nist.math:jama:1.0.2' //1.0.3
-    implementation 'de.micromata.jak:JavaAPIforKml:2.2.0' //2.2.1
-    implementation 'net.sourceforge.javacsv:javacsv:2.0'
-    implementation 'org.javassist:javassist:3.18.0-GA' //3.27.0-GA
-    // implementation 'net.sf.jchart2d:jchart2d:3.3.2' // devia ser o 1.03
-    implementation 'org.jfree:jcommon:1.0.24'
-    implementation 'org.mortbay.jetty:jetty:6.0.2'
-    implementation 'org.jfree:jfreechart:1.5.0'
-    implementation 'com.jgoodies:jgoodies-looks:2.5.3' //2.7.0
-    implementation 'com.jhlabs:filters:2.0.235-1' // don't know the orig version
-
-    //implementation 'net.java.jinput:jinput:2.0.9' // was not this and should be before 2.0.4
-    implementation name: 'jinput'
-
-    implementation 'net.sourceforge.jmatio:jmatio:1.0'
-    implementation 'javax.media:jmf:2.1.1e'
-    implementation 'org.jogamp.jogl:jogl-all-main:2.0.2'
-    implementation 'com.jcraft:jsch:0.1.53' //0.1.55
-    implementation name: 'jtransform_thin' // from NOOA
-    implementation 'net.sf.jung:jung2:2.0.1'
-    implementation 'net.sf.jung:jung-api:2.0.1'
-    implementation 'net.sf.jung:jung-algorithms:2.0.1'
-    implementation 'net.sf.jung:jung-graph-impl:2.0.1'
-    implementation 'net.sf.jung:jung-visualization:2.0.1'
-    implementation 'org.swinglabs:jxlayer:3.0.2'
-    
-    //implementation 'org.jzy3d:jzy3d-api:0.9.1' //incompatible with used 0.9.0!, 1.0.2  
-    implementation name: 'jogl2/gluegen'
-    implementation name: 'jogl2/jogl-all'
-    implementation name: 'jogl2/gluegen-rt'
-    implementation name: 'jogl2/jogl-all-natives-linux-amd64'
-    implementation name: 'jogl2/gluegen-rt-natives-linux-amd64'
-    implementation name: 'jogl2/jogl-all-natives-linux-i586'
-    implementation name: 'jogl2/gluegen-rt-natives-linux-i586'
-    implementation name: 'jogl2/jogl-all-natives-macosx-universal'
-    implementation name: 'jogl2/gluegen-rt-natives-macosx-universal'
-    implementation name: 'jogl2/jogl-all-natives-windows-amd64'
-    implementation name: 'jogl2/gluegen-rt-natives-windows-amd64'
-    implementation name: 'jogl2/jogl-all-natives-windows-i586'
-    implementation name: 'jogl2/gluegen-rt-natives-windows-i586'
-    implementation name: 'jogl2/org.jzy3d-0.9'
-
-
-    //implementation 'com.l2fprod.common:l2fprod-common-all:7.3.0'
-    implementation name: 'l2fprod-common-all'
-    implementation 'log4j:log4j:1.2.17'
-
-    implementation 'net.sf.marineapi:marineapi:0.11.0'
-    implementation 'com.drewnoakes:metadata-extractor:2.7.2' //2.13.0
-    implementation 'com.miglayout:miglayout-swing:4.2' //5.2
-    implementation 'com.eclipsesource.minimal-json:minimal-json:0.9.4' //0.9.5
-
-    //implementation 'edu.ucar:cdm-core:5.2.0'
-    //runtimeOnly 'org.slf4j:slf4j-jdk14:${slf4jVersion}''
-    //implementation  'edu.ucar:netcdfAll:5.3.2' //5.3.2, used 5.2 on the current develop, here was 4.6.10
-    implementation "edu.ucar:cdm-core:5.2.0"
-    //implementation name: 'netcdfAll-5.2'
-    implementation 'org.jsoup:jsoup:1.13.1'
-
-    implementation name: 'opencv-2.4.11'
-    implementation 'oro:oro:2.0.8' // devia ser 0 2.1-dev
-
-    implementation name: 'percentlayout'
-    implementation name: 'PSEngine' // Europa planner
-    implementation name: 'PSEngine-javadoc'
-
-    implementation 'org.reflections:reflections:0.9.9' //was 0.9.9-RC1, 0.9.12
-    implementation 'org.mozilla:rhino:1.7R4' //1.7.12
-
-    implementation 'com.fifesoft:rsyntaxtextarea:2.5.8' //3.1.0
-    implementation 'com.fifesoft:autocomplete:2.5.8' //3.1.0
-    implementation 'com.fifesoft:languagesupport:2.5.8' //3.1.0
-    
-    //implementation 'org.rxtx:rxtxcomm:2.0-7pre1'
-    implementation name: 'RXTXcomm'
-
-    implementation 'org.apache.sanselan:sanselan:0.97-incubator'
-    implementation name: 'sqlitejdbc-v056'
-    implementation name: 'standby'
-    implementation 'org.swinglabs.swingx:swingx-all:1.6.4' //1.6.5-1
-
-    implementation name: 'speech/cmudict04'
-    implementation name: 'speech/cmu_time_awb'
-    implementation name: 'speech/cmu_us_kal'
-    implementation name: 'speech/freetts'
-    implementation name: 'speech/cmulex'
-    implementation name: 'speech/cmutimelex'
-    implementation name: 'speech/en_us'
-    implementation name: 'speech/jsapi'
-
-    implementation name: 'vtk'
-
-    implementation name: 'wms'
-
-    implementation 'xerces:xercesImpl:2.7.1' //2.12.0
-    //implementation 'org.knowm.xchart:xchart-parent:3.5.1'
-    implementation name: 'xchart-3.5.1'
-    implementation name: 'xj3d/xj3d-all' // if removed also remove from "def distCommonSpec"
-    implementation 'com.adobe.xmp:xmpcore:5.1.2' //6.1.10
-    implementation name: 'xuggle-xuggler-5.4'
-
-    implementation 'com.google.zxing:javase:3.2.1' //3.4.0
-
-    // Java 11 related
-    implementation 'javax.annotation:javax.annotation-api:1.3.2'
-
-    // Use JUnit test framework
-    testImplementation 'junit:junit:4.12'
-
-    runtimeOnly fileTree(dir: 'plugins', include: '*.jar')
-    fullRuntimeOnly fileTree(dir: 'plugins', include: '*.jar')
-}
-
-apply plugin: 'java'
+apply plugin: 'application'
 apply plugin: 'distribution'
 apply plugin: "com.gorylenko.gradle-git-properties"
 apply plugin: 'eclipse'
-
-sourceSets {
-    main {
-        java {
-	        srcDirs = ['src/java']
-        }
-        resources {
-           srcDirs = ['src/resources']
-        }
-    }
-}
-
-processResources {
-    from (rootProject.sourceSets.main.resources.srcDirs) {
-        include 'version.txt'
-        filter{ it.replaceAll("@VERSION@", rootProject.version) }
-        filter{ it.replaceAll("@NAMED_RELEASE@", rootProject.version) }
-        filter{ it.replaceAll('@DATE@', "${new Date().format('yyyy-MM-dd')}") }
-        filter{ it.replaceAll('@TIME@', "${new Date().format('HH:mm Z')}") }
-        filter{ it.replaceAll('@COMPILED BY@', "${System.properties['user.name']}") }
-        filter{ it.replaceAll('@LEGAL_COPY@', "$rootProject.ext.copyYears FEUP USTL/LSTS (http://www.fe.up.pt/lsts)") }
-        filter{ it.replaceAll("@SCM_REV@", "${-> project.ext.gitProps['git.commit.id.describe']}") }
-        filter{ it.replaceAll("@SCM_PATH@", "${-> project.ext.gitProps['git.remote.origin.url']}") }
-    }
-}
-
-buildDir = file("$rootProject.rootDir/build/")
-
-eclipse {
-    classpath {
-        defaultOutputDir = file("${buildDir.getName()}/eclipse/default")
-        file.whenMerged {
-            def subProjectJarWasIn = []
-            entries.each { entry ->
-                if (entry.kind == 'src' && entry.hasProperty('output')) {
-                    // Let us replace the output from bin to the proper build folder
-                    entry.output = entry.output.replace('bin/', "${buildDir.getName()}/eclipse/")
-                }
-                else if (entry.kind == 'lib' && entry.hasProperty('path')) {
-                    // Let us depend on plugin compile and not the jar
-                    // We will need to add each plugin libs
-                    subprojects.each { subproject ->
-                        if (entry.path.contains("plugins/${subproject.name}.jar")) {
-                            entry.path = "${subproject.projectDir}/${rootProject.buildDir.getName()}/eclipse/main/"
-                            entry['sourcePath'] = fileReference("/${subproject.name}/src/java".toString())
-                            subProjectJarWasIn += subproject.name
-                        }
-                    }
-                }
-            }
-            // Let us add plugins lib dependencies
-            subprojects.each { subproject ->
-                if (!subProjectJarWasIn.contains(subproject.name)) {
-                    // If the project did not had the plugins jars generated we need to add it here
-                    // def entry = new org.gradle.plugins.ide.eclipse.model.Library()
-                    def entry = new org.gradle.plugins.ide.eclipse.model.Library(fileReference(
-                        file("${subproject.projectDir}/${rootProject.buildDir.getName()}/eclipse/main/")
-                    ))
-                    entry['sourcePath'] = fileReference("/${subproject.name}/src/java".toString())
-                    entry.getEntryAttributes()put('gradle_used_by_scope', 'main,test')
-                    entries += entry
-                }
-            }
-            subprojects.each { subproject ->
-                (subproject.configurations.runtimeClasspath - rootProject.configurations.runtimeClasspath).findAll { it.name.endsWith('jar') }.each {
-                    def entry = new org.gradle.plugins.ide.eclipse.model.Library(fileReference(it))
-                    entry.getEntryAttributes()put('gradle_used_by_scope', '')
-                    entries += entry
-                }
-            }
-        }
-    }
-    project {
-        resourceFilter {
-            appliesTo = 'FOLDERS'
-            type = 'EXCLUDE_ALL'
-            matcher {
-                id = 'org.eclipse.ui.ide.multiFilter'
-                arguments = '1.0-name-matches-false-false-build'
-            }
-        }
-    }
-    jdt {
-        file {
-            withProperties { properties ->
-                def formaterFx = rootProject.file('dev-utils/eclipse-java-formater.props')
-                assert rootProject.file(formaterFx).exists();
-                formaterFx.eachLine { String line ->
-                def tks = line.split('=')
-                    // set properties for the file org.eclipse.jdt.core.prefs
-                    properties[tks[0]] = tks[1]
-                }
-            }
-        }
-    }
-}
-task createEclipseBuild {
-    doLast {
-        file("${rootProject.buildDir.getName()}/eclipse/main")
-        subprojects.each { project ->
-            file("${project.projectDir}/${rootProject.buildDir.getName()}/eclipse/main").mkdirs()
-        }
-    }
-}
-tasks.eclipse.dependsOn cleanEclipse, createEclipseBuild, jar
 
 
 // Generating start scripts for the development environment
 generateStartScriptsFor(rootProject.name, 'run', 'pt.lsts.neptus.loader.NeptusMain',
     '', 'RunOptions', files('SUBSTITUTE')).doLast {
-        def unixCp = (configurations.runtimeClasspath - configurations.fullRuntimeOnly)
+        println ">>>> ${project(':core').configurations.core.allArtifacts.files.collect{it}}"
+        def configurationClasspath = configurations.runtimeClasspath
+        configurationClasspath -= project(':core').configurations.core.allArtifacts.files
+        subprojects.findAll({it.name != 'core'}).each {
+            configurationClasspath -= it.configurations.plugin.allArtifacts.files
+        }
+        def unixCp = configurationClasspath //(configurations.runtimeClasspath - configurations.fullRuntimeOnly)
             .collect({relativePathIfOnProjectPath(it, '$APP_HOME/')}).join(':')
-        def winCp = (configurations.runtimeClasspath - configurations.fullRuntimeOnly)
+        def winCp = configurationClasspath //(configurations.runtimeClasspath - configurations.fullRuntimeOnly)
             .collect({relativePathIfOnProjectPath(it, '%APP_HOME%\\')}).join(';')
         unixScript.text = unixScript.text.replace('$APP_HOME/lib/SUBSTITUTE', "${unixCp}")
         windowsScript.text = windowsScript.text.replace('%APP_HOME%\\lib\\SUBSTITUTE', "${winCp}")
@@ -409,15 +131,16 @@ task generateRunScripts(type: Copy) {
 }
 
 jar.dependsOn generateRunScripts
-jar {
-    manifest {
-        attributes += [
-            'Main-Class': 'pt.lsts.neptus.loader.NeptusMain',
-            ]
-    }
-    archiveVersion = ''
-    destinationDirectory = file("$rootDir/bin")
-}
+jar.enabled = false
+// jar {
+//     manifest {
+//         attributes += [
+//             'Main-Class': 'pt.lsts.neptus.loader.NeptusMain',
+//             ]
+//     }
+//     archiveVersion = ''
+//     destinationDirectory = file("$rootDir/bin")
+// }
 
 import static org.apache.tools.ant.taskdefs.condition.Os.*
 task updateLibJNIPaths {
@@ -453,7 +176,8 @@ run {
 
     args 'auv'
 
-    classpath configurations.fullRuntimeOnly
+    // classpath configurations.fullRuntimeOnly
+    classpath configurations.runtimeClasspath
 }
 
 application {
@@ -483,7 +207,7 @@ allprojects {
     repositories {
         mavenCentral()
         flatDir {
-            dirs 'lib'
+            dirs 'lib', "${rootProject.projectDir}/lib"
         }
         maven {
             url 'https://artifacts.unidata.ucar.edu/repository/unidata-all/'
@@ -503,8 +227,6 @@ allprojects {
     compileJava.options.encoding = 'UTF-8'
     java.sourceCompatibility = JavaVersion.VERSION_1_8
     java.targetCompatibility = JavaVersion.VERSION_1_8
-
-    apply plugin: "com.gorylenko.gradle-git-properties"
 
     processResources {
         from (rootProject.projectDir) {
@@ -529,6 +251,7 @@ allprojects {
         archiveVersion = ''
     }
 
+    apply plugin: "com.gorylenko.gradle-git-properties"
     gitProperties {
         extProperty = 'gitProps'
         failOnNoGitDirectory = false
@@ -553,7 +276,9 @@ allprojects {
     generateGitProperties.outputs.upToDateWhen { false }
     // If the subproject is on the same Git as the root,
     // just copy from it and don't run generateGitProperties
-    task copyGitPropertisFromRoot {
+    task copyGitPropertiesFromRoot {
+        if (project != rootProject)
+            dependsOn rootProject.tasks.generateGitProperties
         doLast {
             project.ext['gitProps'] = rootProject.ext.gitProps
             copy {
@@ -566,23 +291,334 @@ allprojects {
     if (file("${project.projectDir}/.git").exists()
             || file("${project.projectDir}/../.git").exists()
             && file("${project.projectDir}/../") != file("${rootProject.projectDir}"))
-        tasks.copyGitPropertisFromRoot.enabled = false
+        tasks.copyGitPropertiesFromRoot.enabled = false
     else
         tasks.generateGitProperties.enabled = false
-    generateGitProperties.dependsOn copyGitPropertisFromRoot
-    classes.dependsOn copyGitPropertisFromRoot
+    generateGitProperties.dependsOn copyGitPropertiesFromRoot
+    classes.dependsOn copyGitPropertiesFromRoot
+}
+
+project(':core') {
+    apply plugin: 'java'
+    apply plugin: "com.gorylenko.gradle-git-properties"
+    apply plugin: 'eclipse'
+
+    configurations {
+        // fullRuntimeOnly.extendsFrom(runtimeOnly)
+        core
+    }
+
+    dependencies {
+        // This dependency is used by the application.
+        implementation name: 'libimc'
+        implementation name: 'libMsgSender'
+
+        implementation name: 'aisparser-2.0.0'
+        implementation name: 'jssc' //dependency of aisparser, and serial port reader
+        //implementation 'org.scream3r:jssc:2.8.0'
+
+
+        implementation name: 'ais-contact-manager-1.0'
+
+        //implementation 'org.apache.xmlgraphics:batik-transcoder:1.7' //1.13 was from fop
+        //implementation 'org.apache.xmlgraphics:batik-all:1.9.1' //1.13 was 1.7.1
+        implementation 'org.apache.xmlgraphics:batik-gui-util:1.7' //1.13
+
+
+        implementation name: 'charsets-zip' // for zip, probably not needed anymore
+        implementation 'commons-cli:commons-cli:1.2' //1.4
+        implementation 'commons-codec:commons-codec:1.9' //1.14
+        implementation 'commons-collections:commons-collections:3.2.1' //3.2.2
+        implementation 'org.apache.commons:commons-compress:1.10' //1.20
+        implementation 'commons-configuration:commons-configuration:1.10'
+        implementation 'org.apache.commons:commons-email:1.3.2' //1.5
+        implementation 'commons-httpclient:commons-httpclient:3.1'
+        implementation 'commons-io:commons-io:2.4' //2.6
+        implementation 'org.apache.commons:commons-lang3:3.2.1' //3.10
+        implementation 'commons-lang:commons-lang:2.6'
+        implementation 'commons-logging:commons-logging:1.2'
+        implementation 'commons-net:commons-net:3.3' //3.6
+
+        implementation 'dom4j:dom4j:1.6.1'
+        implementation 'jaxen:jaxen:1.1.1' //1.2.0
+
+        implementation 'com.firebase:firebase-client-jvm:2.0.0' //2.5.2
+        implementation 'org.apache.xmlgraphics:fop:0.95'
+        //implementation group: 'foxtrot', name: 'foxtrot', version: '3.0', ext: 'pom'
+        implementation name: 'foxtrot' //4.0, used 3.0
+
+        implementation 'org.graphstream:gs-ui:1.3'
+        // gdal 1.8.2
+        implementation name: 'gdal'
+        implementation name: 'gpsinput-0.5.3'
+        implementation name: 'gpxparser'
+        implementation 'org.codehaus.groovy:groovy:2.5.4' //3.0.3
+        implementation 'com.google.code.gson:gson:2.2.2' //2.8.6
+        implementation 'com.google.guava:guava:17.0' //28.2-jre
+
+        implementation 'org.apache.httpcomponents:httpclient:4.5.1' //4.5.12
+
+        implementation 'org.imgscalr:imgscalr-lib:4.2'
+        implementation 'org.ini4j:ini4j:0.5.2' //0.5.4
+        implementation 'com.lowagie:itext:2.1.5'
+
+        //implementation 'java3d:j3d-core:1.3.1' // to delete
+        implementation name: 'j3dcore'
+        //implementation 'java3d:j3d-core-utils:1.3.1' // to delete
+        implementation name: 'j3dutils'
+        implementation name: 'StarfireExt' // to delete
+        implementation name: 'vecmath' // to delete
+        implementation name: 'wrl/j3d-vrml97' // to delete
+
+        implementation 'gov.nist.math:jama:1.0.2' //1.0.3
+        implementation 'de.micromata.jak:JavaAPIforKml:2.2.0' //2.2.1
+        implementation 'net.sourceforge.javacsv:javacsv:2.0'
+        implementation 'org.javassist:javassist:3.18.0-GA' //3.27.0-GA
+        // implementation 'net.sf.jchart2d:jchart2d:3.3.2' // devia ser o 1.03
+        implementation 'org.jfree:jcommon:1.0.24'
+        implementation 'org.mortbay.jetty:jetty:6.0.2'
+        implementation 'org.jfree:jfreechart:1.5.0'
+        implementation 'com.jgoodies:jgoodies-looks:2.5.3' //2.7.0
+        implementation 'com.jhlabs:filters:2.0.235-1' // don't know the orig version
+
+        //implementation 'net.java.jinput:jinput:2.0.9' // was not this and should be before 2.0.4
+        implementation name: 'jinput'
+
+        implementation 'net.sourceforge.jmatio:jmatio:1.0'
+        implementation 'javax.media:jmf:2.1.1e'
+        implementation 'org.jogamp.jogl:jogl-all-main:2.0.2'
+        implementation 'com.jcraft:jsch:0.1.53' //0.1.55
+        implementation name: 'jtransform_thin' // from NOOA
+        implementation 'net.sf.jung:jung2:2.0.1'
+        implementation 'net.sf.jung:jung-api:2.0.1'
+        implementation 'net.sf.jung:jung-algorithms:2.0.1'
+        implementation 'net.sf.jung:jung-graph-impl:2.0.1'
+        implementation 'net.sf.jung:jung-visualization:2.0.1'
+        implementation 'org.swinglabs:jxlayer:3.0.2'
+
+        //implementation 'org.jzy3d:jzy3d-api:0.9.1' //incompatible with used 0.9.0!, 1.0.2
+        implementation name: 'jogl2/gluegen'
+        implementation name: 'jogl2/jogl-all'
+        implementation name: 'jogl2/gluegen-rt'
+        implementation name: 'jogl2/jogl-all-natives-linux-amd64'
+        implementation name: 'jogl2/gluegen-rt-natives-linux-amd64'
+        implementation name: 'jogl2/jogl-all-natives-linux-i586'
+        implementation name: 'jogl2/gluegen-rt-natives-linux-i586'
+        implementation name: 'jogl2/jogl-all-natives-macosx-universal'
+        implementation name: 'jogl2/gluegen-rt-natives-macosx-universal'
+        implementation name: 'jogl2/jogl-all-natives-windows-amd64'
+        implementation name: 'jogl2/gluegen-rt-natives-windows-amd64'
+        implementation name: 'jogl2/jogl-all-natives-windows-i586'
+        implementation name: 'jogl2/gluegen-rt-natives-windows-i586'
+        implementation name: 'jogl2/org.jzy3d-0.9'
+
+
+        //implementation 'com.l2fprod.common:l2fprod-common-all:7.3.0'
+        implementation name: 'l2fprod-common-all'
+        implementation 'log4j:log4j:1.2.17'
+
+        implementation 'net.sf.marineapi:marineapi:0.11.0'
+        implementation 'com.drewnoakes:metadata-extractor:2.7.2' //2.13.0
+        implementation 'com.miglayout:miglayout-swing:4.2' //5.2
+        implementation 'com.eclipsesource.minimal-json:minimal-json:0.9.4' //0.9.5
+
+        //implementation 'edu.ucar:cdm-core:5.2.0'
+        //runtimeOnly 'org.slf4j:slf4j-jdk14:${slf4jVersion}''
+        //implementation  'edu.ucar:netcdfAll:5.3.2' //5.3.2, used 5.2 on the current develop, here was 4.6.10
+        implementation "edu.ucar:cdm-core:5.2.0"
+        //implementation name: 'netcdfAll-5.2'
+        implementation 'org.jsoup:jsoup:1.13.1'
+
+        implementation name: 'opencv-2.4.11'
+        implementation 'oro:oro:2.0.8' // devia ser 0 2.1-dev
+
+        implementation name: 'percentlayout'
+        implementation name: 'PSEngine' // Europa planner
+        implementation name: 'PSEngine-javadoc'
+
+        implementation 'org.reflections:reflections:0.9.9' //was 0.9.9-RC1, 0.9.12
+        implementation 'org.mozilla:rhino:1.7R4' //1.7.12
+
+        implementation 'com.fifesoft:rsyntaxtextarea:2.5.8' //3.1.0
+        implementation 'com.fifesoft:autocomplete:2.5.8' //3.1.0
+        implementation 'com.fifesoft:languagesupport:2.5.8' //3.1.0
+
+        //implementation 'org.rxtx:rxtxcomm:2.0-7pre1'
+        implementation name: 'RXTXcomm'
+
+        implementation 'org.apache.sanselan:sanselan:0.97-incubator'
+        implementation name: 'sqlitejdbc-v056'
+        implementation name: 'standby'
+        implementation 'org.swinglabs.swingx:swingx-all:1.6.4' //1.6.5-1
+
+        implementation name: 'speech/cmudict04'
+        implementation name: 'speech/cmu_time_awb'
+        implementation name: 'speech/cmu_us_kal'
+        implementation name: 'speech/freetts'
+        implementation name: 'speech/cmulex'
+        implementation name: 'speech/cmutimelex'
+        implementation name: 'speech/en_us'
+        implementation name: 'speech/jsapi'
+
+        implementation name: 'vtk'
+
+        implementation name: 'wms'
+
+        implementation 'xerces:xercesImpl:2.7.1' //2.12.0
+        //implementation 'org.knowm.xchart:xchart-parent:3.5.1'
+        implementation name: 'xchart-3.5.1'
+        implementation name: 'xj3d/xj3d-all' // if removed also remove from "def distCommonSpec"
+        implementation 'com.adobe.xmp:xmpcore:5.1.2' //6.1.10
+        implementation name: 'xuggle-xuggler-5.4'
+
+        implementation 'com.google.zxing:javase:3.2.1' //3.4.0
+
+        // Java 11 related
+        implementation 'javax.annotation:javax.annotation-api:1.3.2'
+
+        // Use JUnit test framework
+        testImplementation 'junit:junit:4.12'
+
+        // runtimeOnly fileTree(dir: 'plugins', include: '*.jar')
+        // fullRuntimeOnly fileTree(dir: 'plugins', include: '*.jar')
+    }
+
+    sourceSets {
+        main {
+            java {
+                // srcDirs = ['src/java']
+                srcDirs = ['java']
+            }
+            resources {
+                // srcDirs = ['src/resources']
+                srcDirs = ['resources']
+            }
+        }
+    }
+
+    processResources {
+        // from (rootProject.sourceSets.main.resources.srcDirs) {
+        from (project.sourceSets.main.resources.srcDirs) {
+            include 'version.txt'
+            filter{ it.replaceAll("@VERSION@", rootProject.version) }
+            filter{ it.replaceAll("@NAMED_RELEASE@", rootProject.version) }
+            filter{ it.replaceAll('@DATE@', "${new Date().format('yyyy-MM-dd')}") }
+            filter{ it.replaceAll('@TIME@', "${new Date().format('HH:mm Z')}") }
+            filter{ it.replaceAll('@COMPILED BY@', "${System.properties['user.name']}") }
+            filter{ it.replaceAll('@LEGAL_COPY@', "$rootProject.ext.copyYears FEUP USTL/LSTS (http://www.fe.up.pt/lsts)") }
+            filter{ it.replaceAll("@SCM_REV@", "${-> project.ext.gitProps['git.commit.id.describe']}") }
+            filter{ it.replaceAll("@SCM_PATH@", "${-> project.ext.gitProps['git.remote.origin.url']}") }
+        }
+    }
+
+    buildDir = file("$rootProject.rootDir/build/$project.name")
+
+    eclipse {
+        classpath {
+            defaultOutputDir = file("${buildDir.getName()}/eclipse/default")
+            file.whenMerged {
+                def subProjectJarWasIn = []
+                entries.each { entry ->
+                    if (entry.kind == 'src' && entry.hasProperty('output')) {
+                        // Let us replace the output from bin to the proper build folder
+                        entry.output = entry.output.replace('bin/', "${buildDir.getName()}/eclipse/")
+                    }
+                    else if (entry.kind == 'lib' && entry.hasProperty('path')) {
+                        // Let us depend on plugin compile and not the jar
+                        // We will need to add each plugin libs
+                        subprojects.each { subproject ->
+                            if (entry.path.contains("plugins/${subproject.name}.jar")) {
+                                entry.path = "${subproject.projectDir}/${rootProject.buildDir.getName()}/eclipse/main/"
+                                entry['sourcePath'] = fileReference("/${subproject.name}/src/java".toString())
+                                subProjectJarWasIn += subproject.name
+                            }
+                        }
+                    }
+                }
+                // Let us add plugins lib dependencies
+                subprojects.each { subproject ->
+                    if (!subProjectJarWasIn.contains(subproject.name)) {
+                        // If the project did not had the plugins jars generated we need to add it here
+                        // def entry = new org.gradle.plugins.ide.eclipse.model.Library()
+                        def entry = new org.gradle.plugins.ide.eclipse.model.Library(fileReference(
+                            file("${subproject.projectDir}/${rootProject.buildDir.getName()}/eclipse/main/")
+                        ))
+                        entry['sourcePath'] = fileReference("/${subproject.name}/src/java".toString())
+                        entry.getEntryAttributes()put('gradle_used_by_scope', 'main,test')
+                        entries += entry
+                    }
+                }
+                subprojects.each { subproject ->
+                    (subproject.configurations.runtimeClasspath - rootProject.configurations.runtimeClasspath).findAll { it.name.endsWith('jar') }.each {
+                        def entry = new org.gradle.plugins.ide.eclipse.model.Library(fileReference(it))
+                        entry.getEntryAttributes()put('gradle_used_by_scope', '')
+                        entries += entry
+                    }
+                }
+            }
+        }
+        project {
+            resourceFilter {
+                appliesTo = 'FOLDERS'
+                type = 'EXCLUDE_ALL'
+                matcher {
+                    id = 'org.eclipse.ui.ide.multiFilter'
+                    arguments = '1.0-name-matches-false-false-build'
+                }
+            }
+        }
+        jdt {
+            file {
+                withProperties { properties ->
+                    def formaterFx = rootProject.file('dev-utils/eclipse-java-formater.props')
+                    assert rootProject.file(formaterFx).exists();
+                    formaterFx.eachLine { String line ->
+                    def tks = line.split('=')
+                        // set properties for the file org.eclipse.jdt.core.prefs
+                        properties[tks[0]] = tks[1]
+                    }
+                }
+            }
+        }
+    }
+    task createEclipseBuild {
+        doLast {
+            file("${rootProject.buildDir.getName()}/eclipse/main")
+            subprojects.each { project ->
+                file("${project.projectDir}/${rootProject.buildDir.getName()}/eclipse/main").mkdirs()
+            }
+        }
+    }
+    tasks.eclipse.dependsOn cleanEclipse, createEclipseBuild, jar
+
+    // jar.dependsOn generateRunScripts
+    jar {
+        archiveBaseName = rootProject.name
+        manifest {
+            attributes += [
+                'Main-Class': 'pt.lsts.neptus.loader.NeptusMain',
+                ]
+        }
+        archiveVersion = ''
+        destinationDirectory = file("$rootDir/bin")
+    }
+
+    artifacts {
+        // plugin (file("${buildDir}/somepath/dist")) { builtBy smartBuildTask }
+        core jar
+    }
 }
 
 ////////////////////////////
 // Configurations Section //
 ////////////////////////////
 
-configure(subprojects.findAll { it.name != 'neptus' }) {
-    dependencies {
-        compileOnly rootProject
-        compileOnly rootProject.sourceSets.main.runtimeClasspath - rootProject.configurations.fullRuntimeOnly
-    }
-}
+// configure(subprojects.findAll { it.name != 'core' }) {
+//     dependencies {
+//         compileOnly project(':core')
+//         // compileOnly rootProject.sourceSets.main.runtimeClasspath - rootProject.configurations.fullRuntimeOnly
+//     }
+// }
 
 tasks.withType(CreateStartScripts) {
     def unixTemplateName = rootProject.file('dist/scripts/unixStartScript.txt')
@@ -598,11 +634,29 @@ tasks.withType(Tar){
     archiveExtension = 'tar.gz'
 }
 
+repositories {
+    flatDir {
+        // Adding flat dir lib from plugins for running from Gradle
+        dirs subprojects.findAll( { it.name != 'core' } ).collect {file("${it.projectDir}/lib")}
+    }
+}
+
+dependencies {
+    runtimeOnly project(':core')
+    subprojects.findAll( { it.name != 'core' } ).each {
+        runtimeOnly it
+    }
+}
+
 //////////////////////////
 // Sub-Projects Section //
 //////////////////////////
 
-subprojects {
+configure(subprojects.findAll { it.name != 'core' }) {
+    configurations {
+        plugin
+    }
+
     sourceSets {
         main {
             java {
@@ -626,6 +680,8 @@ subprojects {
     }
 
     dependencies {
+        compileOnly project(':core')
+        compileOnly project(':core').sourceSets.main.runtimeClasspath
     }
 
     buildDir = file("$rootProject.buildDir/plugins/$project.name")
@@ -692,6 +748,11 @@ subprojects {
             (project.configurations.runtimeClasspath - rootProject.configurations.runtimeClasspath)
                     .findAll { it.name.endsWith('jar') }.collect { zipTree(it) }
         }
+    }
+
+    artifacts {
+        // plugin (file("${buildDir}/somepath/dist")) { builtBy smartBuildTask }
+        plugin jar
     }
 }
 
@@ -881,7 +942,8 @@ generateStartScriptsFor(rootProject.name, 'seacon', 'pt.lsts.neptus.mc.lauvconso
 
 def distCommonSpec = project.copySpec {
     into('lib') {
-        from (configurations.runtimeClasspath - configurations.fullRuntimeOnly)
+        // from (configurations.runtimeClasspath - configurations.fullRuntimeOnly)
+        from (configurations.runtimeClasspath)
     }
     // For xj3d-all.jar
     into('lib') {
@@ -1183,6 +1245,13 @@ task cleanEclipseBuild {
 task cleanIdeaBuild {
     doLast {
         delete file("$rootDir/.idea")
+
+        delete file("src/out")
+        subprojects.each { project ->
+            file("$project.projectDir").listFiles({
+                    file -> file.isDirectory() && file.name ==~ 'out'
+                } as FileFilter).each { delete it }
+        }
     }
 }
 
