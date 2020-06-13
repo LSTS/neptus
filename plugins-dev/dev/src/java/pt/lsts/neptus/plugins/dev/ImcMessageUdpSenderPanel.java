@@ -208,8 +208,7 @@ public class ImcMessageUdpSenderPanel extends ConsolePanel {
 
                         }
                         catch (Exception e1) {
-                            NeptusLog.pub().warn(I18n.text(""));
-                            e1.printStackTrace();
+                            NeptusLog.pub().warn(e1.getMessage(), e1);
                         }
                     }
                 }
