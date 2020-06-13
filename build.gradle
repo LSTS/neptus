@@ -1111,7 +1111,7 @@ task processI18N(type: Exec) {
         '--sort-output',
         '--package-name=Neptus',
         '--msgid-bugs-address=neptus.i18n@lsts-feup.org',
-        '--copyright-holder="2004-$(date +%Y) FEUP-LSTS"',
+        "--copyright-holder=${rootProject.ext.copyYears} FEUP-LSTS",
         '-j',
         '-o', "$rootDir/conf/i18n/neptus.pot",
     ]
