@@ -1187,7 +1187,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
             }
         }
         // Let us try know any one in the announce IPs
-        if (!udpIpPortFound) {
+        if (portUdp > 0 && !udpIpPortFound) {
             InetSocketAddress reachableAddr = ReachableCache.firstReachable(GeneralPreferences.imcReachabilityTestTimeout, retId);
             if (reachableAddr != null) {
                 udpIpPortFound = true;
@@ -1197,7 +1197,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                 NeptusLog.pub().debug("processAnnounceMessage for " + ann.getSysName() + "@" + id + " :: " + "UDP reachable @ " + hostUdp + ":" + portUdp);
             }
         }
-        if (!udpIpPortFound) {
+        if (portUdp > 0 && !udpIpPortFound) {
             // Lets try to see if we received a message from any of the IPs
             String ipReceived = hostUdp.isEmpty() ? info.getPublisherInetAddress() : hostUdp;
             hostWasGuessed = hostUdp.isEmpty() ? hostWasGuessed : true;
@@ -1236,7 +1236,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         }
         
         // Let us try know any one in the announce IPs
-        if (!tcpIpPortFound) {
+        if (portTcp > 0 && !tcpIpPortFound) {
             InetSocketAddress reachableAddr = ReachableCache.firstReachable(GeneralPreferences.imcReachabilityTestTimeout, retId);
             if (reachableAddr != null) {
                 if ("".equalsIgnoreCase(hostUdp)) {
