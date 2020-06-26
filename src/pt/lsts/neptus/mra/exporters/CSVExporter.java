@@ -49,6 +49,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -59,21 +61,28 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JFrame;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
 import javax.swing.ProgressMonitor;
 import javax.swing.Scrollable;
+import javax.swing.SwingWorker;
 import javax.swing.UIManager;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
+import org.jdesktop.swingx.JXBusyLabel;
 
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCMessageType;
+import pt.lsts.neptus.gui.InfiniteProgressPanel;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 
@@ -100,6 +109,8 @@ public class CSVExporter implements MRAExporter {
 
     private Filter filter;
     private LinkedHashMap<Short, String> entityNames = new LinkedHashMap<>();
+    private HashMap<String, Set<String>> msgEntitiesMapOriginal;
+    private HashMap<String, Set<String>> entityMsgsMapOriginal;
     private HashMap<String, Set<String>> msgEntitiesMap;
     private HashMap<String, Set<String>> entityMsgsMap;
     
@@ -180,18 +191,25 @@ public class CSVExporter implements MRAExporter {
 
     @Override
     public String process(IMraLogGroup source, ProgressMonitor pMonitor) {
-        pmonitor = new ProgressMonitor(ConfigFetch.getSuperParentFrame(), I18n.text("Exporting to CSV"),
-                I18n.text("Starting up"), 0, source.listLogs().length);
+        if (pMonitor != null) {
+            pmonitor = pMonitor;
+            pmonitor.setNote(I18n.text("Processing"));
+            pmonitor.setMillisToDecideToPopup(Integer.MAX_VALUE);
+        }
 
-        if (pmonitor.isCanceled())
+        if (pmonitor != null && pmonitor.isCanceled())
             return I18n.text("Cancelled by the user");
 
         filter = new Filter(ConfigFetch.getSuperParentAsFrame());
+        filter.updateMsgListOnInterface();
 
         this.progress = 0;
         this.progressMax = msgEntitiesMap.size() + entityMsgsMap.size();
 
-        while (filter.isShowing() && progress < progressMax && !pmonitor.isCanceled()) {
+        if (pmonitor != null)
+            pmonitor.setMaximum(this.progressMax);
+
+        while (filter.isShowing() && progress < progressMax && pmonitor != null && !pmonitor.isCanceled()) {
             try {
                 Thread.sleep(100);
             }
@@ -257,6 +275,9 @@ public class CSVExporter implements MRAExporter {
         for (String message : msgEntitiesMap.keySet()) {
             Set<String> entities = msgEntitiesMap.get(message);
 
+            if (!filter.isVisible())
+                break;
+
             // export
             try {
                 File out = new File(dir, message + ".csv");
@@ -269,6 +290,8 @@ public class CSVExporter implements MRAExporter {
                             bw.write(getLine(source.getLsfIndex().getMessage(row)));
                         }
                     }
+                    if (!filter.isVisible())
+                        break;
                 }
                 bw.close();
                 progress++;
@@ -285,6 +308,9 @@ public class CSVExporter implements MRAExporter {
         for (String entity : entityMsgsMap.keySet()) {
             Set<String> messages = entityMsgsMap.get(entity);
 
+            if (!filter.isVisible())
+                break;
+
             for (String message : messages) {
                 // export
                 try {
@@ -297,6 +323,8 @@ public class CSVExporter implements MRAExporter {
                                 && source.getLsfIndex().entityNameOf(row).equals(entity)) {
                             bw.write(getLine(source.getLsfIndex().getMessage(row)));
                         }
+                        if (!filter.isVisible())
+                            break;
                     }
                     bw.close();
                     progress++;
@@ -305,7 +333,6 @@ public class CSVExporter implements MRAExporter {
                     e.printStackTrace();
                     pmonitor.close();
                 }
-
             }
         }
     }
@@ -322,7 +349,7 @@ public class CSVExporter implements MRAExporter {
             setLayout(new BorderLayout());
             JPanel header = new JPanel(new FlowLayout(FlowLayout.LEFT, 1, 1));
 
-            all = new JCheckBox("Select All...");
+            all = new JCheckBox(I18n.text("Select All"));
             all.setSelected(true);
 
             all.addActionListener(new ActionListener() {
@@ -343,19 +370,20 @@ public class CSVExporter implements MRAExporter {
                 gbc.gridwidth = GridBagConstraints.REMAINDER;
                 gbc.anchor = GridBagConstraints.NORTHWEST;
                 gbc.weightx = 1;
-                for (int index = 0; index < options.length - 1; index++) {
-                    JCheckBox cb = new JCheckBox(options[index]);
+                List<String> optionsList = Arrays.asList(options);
+                Collections.sort(optionsList);
+                optionsList.stream().forEachOrdered(op -> {
+                    JCheckBox cb = new JCheckBox(op);
                     cb.setOpaque(false);
                     checkBoxes.add(cb);
                     content.add(cb, gbc);
-                }
+                });
 
                 JCheckBox cb = new JCheckBox(options[options.length - 1]);
                 cb.setOpaque(false);
                 checkBoxes.add(cb);
                 gbc.weighty = 1;
                 content.add(cb, gbc);
-
             }
 
             for (JCheckBox cb : checkBoxes) {
@@ -410,20 +438,25 @@ public class CSVExporter implements MRAExporter {
         }
     }
 
-    private class Filter extends JFrame {
+    private class Filter extends JDialog {
         private static final long serialVersionUID = 1L;
 
         private JPanel mainContent, entitiesFilter, msgFilter;
         private CheckBoxGroup msgBox, entitiesBox;
-        private JButton okEntityFilterButton, okMsgFilterButton;
-        private JCheckBox entFilescheckBox;
+        private JButton okEntityFilterButton, okMsgFilterButton, resetButton, exportButton;
+        private JCheckBox entFilescheckBox, textualizeEnumChecbox;
+        private JXBusyLabel busyPanel;
 
         public Filter(Window parent) {
+            super(parent);
             setType(Type.NORMAL);
+            setTitle(PluginUtils.getPluginName(CSVExporter.this.getClass()));
 
+            msgEntitiesMapOriginal = new HashMap<>();
+            entityMsgsMapOriginal = new HashMap<>();
             msgEntitiesMap = new HashMap<>();
             entityMsgsMap = new HashMap<>();
-            getMaps();
+            //getMaps();
 
             setSize(500, 500);
             setLayout(new BorderLayout());
@@ -452,24 +485,68 @@ public class CSVExporter implements MRAExporter {
             getContentPane().add(mainContent, BorderLayout.CENTER);
 
             JPanel footerPnl = new JPanel();
-            entFilescheckBox = new JCheckBox("Export entities by file");
+
+            busyPanel = InfiniteProgressPanel.createBusyAnimationInfiniteBeans(20);
+            footerPnl.add(busyPanel);
+
+            textualizeEnumChecbox = new JCheckBox(I18n.text("Textualize Enum"), textualizeEnum);
+            textualizeEnumChecbox.addChangeListener(new ChangeListener() {
+                @Override
+                public void stateChanged(ChangeEvent e) {
+                    textualizeEnum = textualizeEnumChecbox.isSelected();
+                }
+            });
+            // footerPnl.add(textualizeEnumChecbox); TODO Check this textualize of entities
+
+            entFilescheckBox = new JCheckBox(I18n.text("Export entities by file"));
             entFilescheckBox.setBounds(100, 100, 50, 50);
             footerPnl.add(entFilescheckBox);
 
-            JButton resetButton = new JButton("Reset");
+            resetButton = new JButton(I18n.text("Reset"));
             resetButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    getMaps();
-                    updateInterface();
-                    progress = 0;
+                    setButtonsEnabled(false);
+                    busyPanel.setBusy(true);
+                    SwingWorker<Void, Void> sw = new SwingWorker<Void, Void>() {
+                        @Override
+                        protected Void doInBackground() {
+                            getMaps();
+                            return null;
+                        }
+
+                        @Override
+                        protected void done() {
+                            updateInterface();
+                            setButtonsEnabled(true);
+                            busyPanel.setBusy(false);
+                        }
+                    };
+                    sw.execute();
                 }
             });
             footerPnl.add(resetButton, BorderLayout.EAST);
 
-            JButton exportButton = new JButton("Export");
+            exportButton = new JButton(I18n.text("Export"));
             exportButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    applyFilter(entFilescheckBox.isSelected());
+                    setButtonsEnabled(false);
+                    busyPanel.setBusy(true);
+                    SwingWorker<Void, Void> sw = new SwingWorker<Void, Void>() {
+                        @Override
+                        protected Void doInBackground() {
+                            applyMsgsFilterToMaps();
+                            applyEntFilterToMaps();
+                            applyFilter(entFilescheckBox.isSelected());
+                            return null;
+                        }
+
+                        @Override
+                        protected void done() {
+                            setButtonsEnabled(true);
+                            busyPanel.setBusy(false);
+                        }
+                    };
+                    sw.execute();
                 }
             });
             footerPnl.add(exportButton, BorderLayout.WEST);
@@ -479,7 +556,23 @@ public class CSVExporter implements MRAExporter {
             Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
             this.setLocation(dim.width / 2 - this.getSize().width / 2, dim.height / 2 - this.getSize().height / 2);
             setResizable(false);
+            setAlwaysOnTop(true);
+            setModalityType(ModalityType.MODELESS);
             setVisible(true);
+        }
+
+        void updateMsgListOnInterface() {
+            resetButton.doClick();
+            while(!resetButton.isEnabled()) {
+                Thread.yield();
+            }
+        }
+
+        void setButtonsEnabled(boolean state) {
+            okEntityFilterButton.setEnabled(state);
+            okMsgFilterButton.setEnabled(state);
+            resetButton.setEnabled(state);
+            exportButton.setEnabled(state);
         }
 
         private void addMsgFilter() {
@@ -487,7 +580,7 @@ public class CSVExporter implements MRAExporter {
             LayoutManager layout = new BoxLayout(msgFilter, BoxLayout.PAGE_AXIS);
             msgFilter.setLayout(layout);
 
-            msgFilter.setBorder(BorderFactory.createTitledBorder("Messages: "));
+            msgFilter.setBorder(BorderFactory.createTitledBorder(I18n.text("Messages")));
             msgFilter.setBounds(30, 30, 200, 200);
 
             Set<String> msg = msgEntitiesMap.keySet();
@@ -496,12 +589,10 @@ public class CSVExporter implements MRAExporter {
             msgBox.setBounds(30, 30, 100, 100);
             msgFilter.add(msgBox);
 
-            okMsgFilterButton = new JButton("OK");
+            okMsgFilterButton = new JButton(I18n.text("Apply"));
             okMsgFilterButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    setMaps(msgBox, msgEntitiesMap, entityMsgsMap);
-                    updateInterface();
-                    progress = 0;
+                    applyMsgsFilterToMaps();
                 }
             });
 
@@ -510,12 +601,18 @@ public class CSVExporter implements MRAExporter {
         }
 
         private void getMaps() {
-            for (int row = 0; row < source.getLsfIndex().getNumberOfMessages(); row++) {
-                String message = source.getLsfIndex().getMessage(row).getMessageType().getShortName();
-                String entity = source.getLsfIndex().entityNameOf(row);
-                putInMap(msgEntitiesMap, message, entity);
-                putInMap(entityMsgsMap, entity, message);
+            if (msgEntitiesMapOriginal.isEmpty()) {
+                for (int row = 0; row < source.getLsfIndex().getNumberOfMessages(); row++) {
+                    String message = source.getLsfIndex().getMessage(row).getMessageType().getShortName();
+                    String entity = source.getLsfIndex().entityNameOf(row);
+                    putInMap(msgEntitiesMapOriginal, message, entity);
+                    putInMap(entityMsgsMapOriginal, entity, message);
+                }
             }
+            msgEntitiesMap.clear();
+            msgEntitiesMap.putAll(msgEntitiesMapOriginal);
+            entityMsgsMap.clear();
+            entityMsgsMap.putAll(entityMsgsMapOriginal);
         }
 
         private void addEntityFilter() {
@@ -523,7 +620,7 @@ public class CSVExporter implements MRAExporter {
             LayoutManager layout = new BoxLayout(entitiesFilter, BoxLayout.PAGE_AXIS);
             entitiesFilter.setLayout(layout);
 
-            entitiesFilter.setBorder(BorderFactory.createTitledBorder("Entities: "));
+            entitiesFilter.setBorder(BorderFactory.createTitledBorder(I18n.text("Entities")));
             entitiesFilter.setBounds(30, 30, 300, 200);
 
             Set<String> entities = entityMsgsMap.keySet();
@@ -532,12 +629,10 @@ public class CSVExporter implements MRAExporter {
             entitiesBox.setBounds(30, 30, 100, 100);
             entitiesFilter.add(entitiesBox);
 
-            okEntityFilterButton = new JButton("OK");
+            okEntityFilterButton = new JButton(I18n.text("Apply"));
             okEntityFilterButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    setMaps(entitiesBox, entityMsgsMap, msgEntitiesMap);
-                    updateInterface();
-                    progress = 0;
+                    applyEntFilterToMaps();
                 }
             });
 
@@ -564,6 +659,18 @@ public class CSVExporter implements MRAExporter {
         public void close() {
             setVisible(false);
             dispose();
+        }
+
+        private void applyMsgsFilterToMaps() {
+            setMaps(msgBox, msgEntitiesMap, entityMsgsMap);
+            updateInterface();
+            progress = 0;
+        }
+
+        private void applyEntFilterToMaps() {
+            setMaps(entitiesBox, entityMsgsMap, msgEntitiesMap);
+            updateInterface();
+            progress = 0;
         }
     }
 }
