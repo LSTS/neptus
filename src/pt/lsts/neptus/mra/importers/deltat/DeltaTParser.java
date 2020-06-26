@@ -545,7 +545,7 @@ public class DeltaTParser implements BathymetryParser {
                 }
                 
                 double angle = header.startAngle + header.angleIncrement * c;
-                float height = (float) (range * Math.cos(Math.toRadians(angle)) + pose.getPosition().getDepth());
+                float height = (float) (range * Math.cos(Math.toRadians(MRAProperties.rollBias+angle)) + pose.getPosition().getDepth());
                 
                 double x = range * Math.sin(Math.toRadians(angle));
                 double yawAngle = -pose.getYaw();

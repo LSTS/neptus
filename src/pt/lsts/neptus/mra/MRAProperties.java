@@ -93,6 +93,9 @@ public class MRAProperties implements PropertiesProvider {
     @NeptusProperty(name = "Apply Sound Speed Correction", description = "Apply sound speed correction.", category = "Multibeam")
     public static boolean soundSpeedCorrection = false;
 
+    @NeptusProperty(name = "Multibeam roll bias", description = "Roll bias, in degrees.", category = "Multibeam")
+    public static double rollBias = 0;
+
     @NeptusProperty(name = "Generate DeltaT Process Report", description = "Generate DeltaT process report. Does not generate if already exist the report or the bathy.info is present. (Re-generate the index for successful generation.)", category = "Multibeam")
     public static boolean generateDeltaTProcessReport = false;
 
