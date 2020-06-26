@@ -32,27 +32,50 @@
  */
 package pt.lsts.neptus.mra.exporters;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.LayoutManager;
+import java.awt.Rectangle;
+import java.awt.Toolkit;
+import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.text.NumberFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
-import javax.swing.*;
+import java.util.Set;
+
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JViewport;
+import javax.swing.ProgressMonitor;
+import javax.swing.Scrollable;
+import javax.swing.UIManager;
 
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCMessageType;
-import pt.lsts.neptus.gui.editor.StringListEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
-
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
-
 
 /**
  * @author zp
@@ -186,35 +209,33 @@ public class CSVExporter implements MRAExporter {
         return I18n.text("Process complete");
     }
     
-
-    private void putInMap(HashMap<String,Set<String>> map, String s1, String s2) {
+    private void putInMap(HashMap<String, Set<String>> map, String s1, String s2) {
         Set<String> set;
-        if(map.containsKey(s1)) {
+        if (map.containsKey(s1)) {
             set = new HashSet<>(map.get(s1));
             set.add(s2);
             map.replace(s1, set);
         }
-        else{
+        else {
             set = new HashSet<>();
             set.add(s2);
-            map.put(s1,set);
+            map.put(s1, set);
         }
     }
-    
 
-    private void setMaps(CheckBoxGroup box, HashMap<String,Set<String>> map1, HashMap<String,Set<String>> map2) {
-        for(int i = 0; i < box.checkBoxes.size(); i++){
-            if(!box.checkBoxes.get(i).isSelected()) {
+    private void setMaps(CheckBoxGroup box, HashMap<String, Set<String>> map1, HashMap<String, Set<String>> map2) {
+        for (int i = 0; i < box.checkBoxes.size(); i++) {
+            if (!box.checkBoxes.get(i).isSelected()) {
                 String key = box.checkBoxes.get(i).getText();
-                if(!map1.containsKey(key))
+                if (!map1.containsKey(key))
                     continue;
                 Set<String> set = map1.get(key);
                 for (String s : set) {
-                    if (map2.containsKey(s)){
+                    if (map2.containsKey(s)) {
                         Set<String> aux = map2.get(s);
-                        if(aux.contains(key)) {
+                        if (aux.contains(key)) {
                             aux.remove(key);
-                            if(aux.size() == 0)
+                            if (aux.size() == 0)
                                 map2.remove(s);
                         }
                     }
@@ -225,8 +246,7 @@ public class CSVExporter implements MRAExporter {
     }
 
     private void applyFilter(boolean entFiles) {
-
-        if(entFiles)
+        if (entFiles)
             progressMax = msgEntitiesMap.size() + entityMsgsMap.size();
         else
             progressMax = msgEntitiesMap.size();
@@ -237,7 +257,7 @@ public class CSVExporter implements MRAExporter {
         for (String message : msgEntitiesMap.keySet()) {
             Set<String> entities = msgEntitiesMap.get(message);
 
-            //export
+            // export
             try {
                 File out = new File(dir, message + ".csv");
                 BufferedWriter bw = new BufferedWriter(new FileWriter(out));
@@ -252,34 +272,36 @@ public class CSVExporter implements MRAExporter {
                 }
                 bw.close();
                 progress++;
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 e.printStackTrace();
                 pmonitor.close();
             }
         }
 
-        if(!entFiles)
+        if (!entFiles)
             return;
 
         for (String entity : entityMsgsMap.keySet()) {
             Set<String> messages = entityMsgsMap.get(entity);
 
-            for(String message : messages) {
-                //export
+            for (String message : messages) {
+                // export
                 try {
                     File out = new File(dir, message + "_" + entity + ".csv");
                     BufferedWriter bw = new BufferedWriter(new FileWriter(out));
                     bw.write(getHeader(message));
 
                     for (int row = 0; row < source.getLsfIndex().getNumberOfMessages(); row++) {
-                        if (source.getLsfIndex().getMessage(row).getMessageType().getShortName().equals(message) &&
-                                source.getLsfIndex().entityNameOf(row).equals(entity)) {
-                                    bw.write(getLine(source.getLsfIndex().getMessage(row)));
+                        if (source.getLsfIndex().getMessage(row).getMessageType().getShortName().equals(message)
+                                && source.getLsfIndex().entityNameOf(row).equals(entity)) {
+                            bw.write(getLine(source.getLsfIndex().getMessage(row)));
                         }
                     }
                     bw.close();
                     progress++;
-                } catch (Exception e) {
+                }
+                catch (Exception e) {
                     e.printStackTrace();
                     pmonitor.close();
                 }
@@ -288,6 +310,7 @@ public class CSVExporter implements MRAExporter {
         }
     }
 
+    @SuppressWarnings("serial")
     public class CheckBoxGroup extends JPanel {
 
         private JCheckBox all;
@@ -316,7 +339,6 @@ public class CSVExporter implements MRAExporter {
             content = new ScrollablePane(new GridBagLayout());
             content.setBackground(UIManager.getColor("List.background"));
             if (options.length > 0) {
-
                 GridBagConstraints gbc = new GridBagConstraints();
                 gbc.gridwidth = GridBagConstraints.REMAINDER;
                 gbc.anchor = GridBagConstraints.NORTHWEST;
@@ -326,7 +348,6 @@ public class CSVExporter implements MRAExporter {
                     cb.setOpaque(false);
                     checkBoxes.add(cb);
                     content.add(cb, gbc);
-
                 }
 
                 JCheckBox cb = new JCheckBox(options[options.length - 1]);
@@ -386,20 +407,17 @@ public class CSVExporter implements MRAExporter {
                 }
                 return track;
             }
-
         }
-
     }
 
     private class Filter extends JFrame {
         private static final long serialVersionUID = 1L;
-        
+
         private JPanel mainContent, entitiesFilter, msgFilter;
         private CheckBoxGroup msgBox, entitiesBox;
         private JButton okEntityFilterButton, okMsgFilterButton;
         private JCheckBox entFilescheckBox;
 
-        @SuppressWarnings({ "unchecked", "serial" })
         public Filter(Window parent) {
             setType(Type.NORMAL);
 
@@ -435,13 +453,12 @@ public class CSVExporter implements MRAExporter {
 
             JPanel footerPnl = new JPanel();
             entFilescheckBox = new JCheckBox("Export entities by file");
-            entFilescheckBox.setBounds(100,100, 50,50);
+            entFilescheckBox.setBounds(100, 100, 50, 50);
             footerPnl.add(entFilescheckBox);
 
             JButton resetButton = new JButton("Reset");
             resetButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e)
-                {
+                public void actionPerformed(ActionEvent e) {
                     getMaps();
                     updateInterface();
                     progress = 0;
@@ -451,8 +468,7 @@ public class CSVExporter implements MRAExporter {
 
             JButton exportButton = new JButton("Export");
             exportButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e)
-                {
+                public void actionPerformed(ActionEvent e) {
                     applyFilter(entFilescheckBox.isSelected());
                 }
             });
@@ -472,25 +488,24 @@ public class CSVExporter implements MRAExporter {
             msgFilter.setLayout(layout);
 
             msgFilter.setBorder(BorderFactory.createTitledBorder("Messages: "));
-            msgFilter.setBounds(30,30,200,200);
+            msgFilter.setBounds(30, 30, 200, 200);
 
             Set<String> msg = msgEntitiesMap.keySet();
-            msgBox = new CheckBoxGroup(msg.toArray( new String[msg.size()]));
-            msgBox.setSize(new Dimension(100,100));
-            msgBox.setBounds(30,30,100,100);
+            msgBox = new CheckBoxGroup(msg.toArray(new String[msg.size()]));
+            msgBox.setSize(new Dimension(100, 100));
+            msgBox.setBounds(30, 30, 100, 100);
             msgFilter.add(msgBox);
 
             okMsgFilterButton = new JButton("OK");
             okMsgFilterButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e)
-                {
+                public void actionPerformed(ActionEvent e) {
                     setMaps(msgBox, msgEntitiesMap, entityMsgsMap);
                     updateInterface();
                     progress = 0;
                 }
             });
 
-            okMsgFilterButton.setBounds(30,30,100,100);
+            okMsgFilterButton.setBounds(30, 30, 100, 100);
             msgFilter.add(okMsgFilterButton);
         }
 
@@ -509,39 +524,38 @@ public class CSVExporter implements MRAExporter {
             entitiesFilter.setLayout(layout);
 
             entitiesFilter.setBorder(BorderFactory.createTitledBorder("Entities: "));
-            entitiesFilter.setBounds(30,30,300,200);
+            entitiesFilter.setBounds(30, 30, 300, 200);
 
             Set<String> entities = entityMsgsMap.keySet();
-            entitiesBox = new CheckBoxGroup(entities.toArray( new String[entities.size()]));
-            entitiesBox.setSize(new Dimension(100,100));
-            entitiesBox.setBounds(30,30,100,100);
+            entitiesBox = new CheckBoxGroup(entities.toArray(new String[entities.size()]));
+            entitiesBox.setSize(new Dimension(100, 100));
+            entitiesBox.setBounds(30, 30, 100, 100);
             entitiesFilter.add(entitiesBox);
 
             okEntityFilterButton = new JButton("OK");
             okEntityFilterButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e)
-                {
+                public void actionPerformed(ActionEvent e) {
                     setMaps(entitiesBox, entityMsgsMap, msgEntitiesMap);
                     updateInterface();
                     progress = 0;
                 }
             });
 
-            okEntityFilterButton.setBounds(30,30,100,100);
+            okEntityFilterButton.setBounds(30, 30, 100, 100);
             entitiesFilter.add(okEntityFilterButton);
         }
 
         private void updateInterface() {
             msgFilter.remove(msgBox);
             Set<String> msg = msgEntitiesMap.keySet();
-            msgBox = new CheckBoxGroup(msg.toArray( new String[msg.size()]));
+            msgBox = new CheckBoxGroup(msg.toArray(new String[msg.size()]));
             msgFilter.add(msgBox);
             msgFilter.add(okMsgFilterButton);
             msgFilter.revalidate();
 
             entitiesFilter.remove(entitiesBox);
             Set<String> entities = entityMsgsMap.keySet();
-            entitiesBox = new CheckBoxGroup(entities.toArray( new String[entities.size()]));
+            entitiesBox = new CheckBoxGroup(entities.toArray(new String[entities.size()]));
             entitiesFilter.add(entitiesBox);
             entitiesFilter.add(okEntityFilterButton);
             entitiesBox.revalidate();
