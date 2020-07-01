@@ -106,7 +106,7 @@ public class CSVExporter implements MRAExporter {
 
     @NeptusProperty(name = "Decimal places",
             description = "Maximum number of decimal places desired. Minimum is 3. If this value is < 3 it will default to 8")
-    public int maxDecimalPlace = 3;
+    public int maxDecimalPlace = 6;
 
     private IMraLogGroup source;
     private int progress;
