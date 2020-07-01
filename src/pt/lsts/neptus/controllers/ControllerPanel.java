@@ -50,12 +50,15 @@ import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.InputVerifier;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.JToggleButton;
 import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -95,6 +98,7 @@ import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
  * controller mapping
  * 
  * @author jqcorreia
+ * @author keila (May 2020)
  * 
  */
 @Popup(pos = POSITION.TOP_RIGHT, width = 200, height = 400, accelerator = 'J')
@@ -124,7 +128,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
     @SuppressWarnings("serial")
     private JTable table = new JTable() {
         public javax.swing.table.TableCellRenderer getCellRenderer(int row, int column) {
-            if(column != 3)
+            if(column != 3 || column!=6)
                 return renderer;
             else
                 return super.getCellRenderer(row, column);
@@ -144,6 +148,11 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
             updateControllers();
         }
     });
+    
+    private JCheckBox cb = new JCheckBox("Input\nHold");
+    
+    //some controllers don't hava a shift button so we can provide one -> duplicates the available
+    private JToggleButton shift = new JToggleButton("Shift");
     
     private int timeIncrement = 0;
     private int periodicDelay = 100;
@@ -246,6 +255,9 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         }
         
         add(btnRefresh);
+        add(cb,"w 200::, wrap");
+        add(shift,"w 200::, wrap");
+
         
         dialog.pack();
     }
@@ -272,7 +284,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         for (String action : actions.keySet()) {
             MapperComponent comp = getMapperComponentByName(systemName, controllerName, action);
             if (comp == null)
-                result.add(new MapperComponent(action, "", 0.0f, false));               
+                result.add(new MapperComponent(action, "", 0.0f, false,RANGE));               
             else
                 result.add(comp);
         }
@@ -285,7 +297,8 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         for (Iterator<?> iter = list.iterator(); iter.hasNext();) {
             Element el = (Element) iter.next();
             if (el.attributeValue("action").equalsIgnoreCase(actionName))
-                return new MapperComponent(el.attributeValue("action"), el.attributeValue("component"), 0.0f, Boolean.parseBoolean(el.attributeValue("inverted")));
+                return new MapperComponent(el.attributeValue("action"), el.attributeValue("component"), 0.0f, 
+                        Boolean.parseBoolean(el.attributeValue("inverted")),Integer.parseInt(el.attributeValue("range")));
         }
         return null;
     }
@@ -322,8 +335,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         else
             add(new JLabel(I18n.text("No main vehicle selected in the console")));
         
-        invalidate();
-        revalidate();
+        this.repaint();
 
         requestRemoteActions();
     }
@@ -344,6 +356,9 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         if(manager == null || currentController == null) {
             return true;
         }
+        
+        if(!this.isVisible())
+            return true;
         
         sending = dialog.isVisible();
         
@@ -413,12 +428,12 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                     comp.value = poll.get(k).getPollData() * (actions.get(comp.action).equals("Axis") ? comp.getRange() : 1) * (comp.inverted ? -1 : 1);
                     ((AbstractTableModel)table.getModel()).fireTableDataChanged();
                     // Only if we are already sending that we build the msgActions LinkedHashMap
-                    if (sending) {
+                    if (sending || cb.isSelected()) {
                         msgActions.put(comp.action, comp.value + "");
                     }
                 }
             }
-            if (sending) {
+            if (sending || cb.isSelected()) {
                 // Finally send the message
                 RemoteActions msg = new RemoteActions();
                 msg.setActions(msgActions);
@@ -457,7 +472,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                 e.addAttribute("component", mcomp.button);
                 e.addAttribute("action", mcomp.action);
                 e.addAttribute("inverted", String.valueOf(mcomp.inverted));
-                e.addAttribute("max", String.valueOf(mcomp.range));
+                e.addAttribute("range", String.valueOf(mcomp.getRange()));
             }
             
             File fx = new File(ACTION_FILE_XML);
@@ -475,6 +490,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
     
     @Subscribe
     public void consume(RemoteActionsRequest message) {
+//        System.err.println("Received RemoteActionsRequest");
         if(actions == null) {
             actions = new LinkedHashMap<String, String>();
         }
@@ -496,18 +512,19 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         boolean inverted;
         JButton edit;
         JButton clear;
-        JTextField range;
+        int range;
         
         boolean editFlag = false;
         
-        MapperComponent(final String action, String component, float value, boolean inverted) {
+        MapperComponent(final String action, String component, float value, boolean inverted, int r) {
             this.action = action;
             this.button = component;
             this.value = value;
             this.inverted = inverted;
             this.edit = new JButton(I18n.text("Edit"));
             this.clear = new JButton(I18n.text("Clear"));
-            this.range = new JTextField();
+            this.range = r;
+            
             InputVerifier intVer = new InputVerifier() {
                 
                 @Override
@@ -522,7 +539,6 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                     }
                 }
             };
-            this.range.setInputVerifier(intVer);
             
             edit.addMouseListener(new MouseAdapter() {
                 @Override
@@ -545,18 +561,11 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
 
         }
         public int getRange() {
-            String txt = this.range.getText();
-            try {
-                return Integer.valueOf(txt);  
-            }
-            catch(NumberFormatException e) {
-                this.range.setText(String.valueOf(RANGE));
-                return RANGE;
-            }
+            return this.range;
         }
         
         public void setRange(int r) {
-            this.range.setText(String.valueOf(r));
+            this.range = r;
         }
     }
     
@@ -596,7 +605,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
 
         @Override
         public int getColumnCount() {
-            return 6;
+            return 7;
         }
 
         @Override
@@ -629,6 +638,17 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
             if(col == 3) {
                 list.get(row).inverted = (Boolean)value;
                 fireTableCellUpdated(row, col);
+            }
+            else if(col == 6) {
+                try {
+                    int v = (int) value;
+                    list.get(row).setRange(v);
+                    fireTableCellUpdated(row, col);
+                }
+                catch(NumberFormatException e) {
+                    //TODO
+                    //User popup warning
+                }
             }
         }
         
