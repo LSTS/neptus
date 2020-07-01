@@ -58,6 +58,7 @@ import java.util.List;
 import java.util.Set;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -72,6 +73,7 @@ import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.plaf.basic.BasicButtonUI;
 
 import org.jdesktop.swingx.JXBusyLabel;
 
@@ -83,8 +85,8 @@ import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
 
 /**
@@ -498,6 +500,17 @@ public class CSVExporter implements MRAExporter {
             busyPanel = InfiniteProgressPanel.createBusyAnimationInfiniteBeans(20);
             footerPnl.add(busyPanel);
 
+            footerPnl.add(Box.createHorizontalStrut(7));
+
+            JButton configButton = new JButton(I18n.text("Config"));
+            configButton.setUI(new BasicButtonUI());
+            configButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    PluginUtils.editPluginProperties(CSVExporter.this, Filter.this, true);
+                }
+            });
+            footerPnl.add(configButton);
+
             textualizeEnumChecbox = new JCheckBox(I18n.text("Textualize Enum"), textualizeEnum);
             textualizeEnumChecbox.addChangeListener(new ChangeListener() {
                 @Override
@@ -505,11 +518,12 @@ public class CSVExporter implements MRAExporter {
                     textualizeEnum = textualizeEnumChecbox.isSelected();
                 }
             });
-            // footerPnl.add(textualizeEnumChecbox); TODO Check this textualize of entities
 
             entFilescheckBox = new JCheckBox(I18n.text("Export entities by file"));
             entFilescheckBox.setBounds(100, 100, 50, 50);
             footerPnl.add(entFilescheckBox);
+
+            footerPnl.add(Box.createHorizontalStrut(7));
 
             resetButton = new JButton(I18n.text("Reset"));
             resetButton.addActionListener(new ActionListener() {
@@ -559,6 +573,17 @@ public class CSVExporter implements MRAExporter {
                 }
             });
             footerPnl.add(exportButton, BorderLayout.WEST);
+
+            footerPnl.add(Box.createHorizontalStrut(7));
+
+            JButton cancelButton = new JButton(I18n.text("Cancel"));
+            cancelButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    Filter.this.close();
+                }
+            });
+            GuiUtils.reactEscapeKeyPress(cancelButton);
+            footerPnl.add(cancelButton);
 
             getContentPane().add(footerPnl, BorderLayout.SOUTH);
 
@@ -612,6 +637,9 @@ public class CSVExporter implements MRAExporter {
         private void getMaps() {
             if (msgEntitiesMapOriginal.isEmpty()) {
                 for (int row = 0; row < source.getLsfIndex().getNumberOfMessages(); row++) {
+                    if (!Filter.this.isVisible())
+                        break;
+
                     String message = source.getLsfIndex().getMessage(row).getMessageType().getShortName();
                     String entity = source.getLsfIndex().entityNameOf(row);
                     if (entity == null)
