@@ -843,7 +843,7 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
 
         // Find Shortest Distance Corner
         for (int i = 0; i < 4; i++) {
-            ArrayList<LocationType> tempCoverage = task.getCoveragePath(angle, finalSwathWidth, i);
+            ArrayList<LocationType> tempCoverage = task.getCoveragePath(angle, finalSwathWidth, generalOptions.swathWidthIncrement, i);
             LocationType covStart = tempCoverage.get(0);
             LocationType covEnd = tempCoverage.get(tempCoverage.size() - 1);
             double distance = 0;
@@ -869,7 +869,7 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
         if (generalOptions.corner != -1)
             corner = generalOptions.corner;
 
-        ArrayList<LocationType> coverage = task.getCoveragePath(angle, finalSwathWidth, corner);
+        ArrayList<LocationType> coverage = task.getCoveragePath(angle, finalSwathWidth, generalOptions.swathWidthIncrement, corner);
         coverage = splitIfNeeded(coverage, generalOptions.popupMins * 60 * generalOptions.speedMps);
         
         if (generalOptions.reversed)
@@ -1078,7 +1078,10 @@ public class SweepPlanGen extends InteractionAdapter implements Renderer2DPainte
     public static class MultiVehicleDynamicSurveyOptions {
         @NeptusProperty(name = "Swath Width", description = "Cross-track region covered by each vehicle")
         double swathWidth = 180;
-
+        
+        @NeptusProperty(name = "Swath Width Increment", description = "Swath width increment in meters (on each turn)")
+        double swathWidthIncrement = 0;
+        
         @NeptusProperty(name = "Depth", description = "Depth at which to travel (negative for altitude)")
         double depth = 4;
 

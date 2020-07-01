@@ -445,6 +445,10 @@ public class PolygonType implements Renderer2DPainter {
     }
 
     public ArrayList<LocationType> getCoveragePath(double angle, double swathWidth, int corner) {
+        return getCoveragePath(angle, swathWidth, 0, corner);
+    }
+    
+    public ArrayList<LocationType> getCoveragePath(double angle, double swathWidth, double swathIncrement, int corner) {
         List<Point2D> points = new ArrayList<>();
         coverage = new GeneralPath();
         synchronized (vertices) {
@@ -479,7 +483,9 @@ public class PolygonType implements Renderer2DPainter {
         ArrayList<LocationType> ret = new ArrayList<>();
 
         int count = corner % 2;
-        for (double y = margin; y < rect.getHeight(); y += swathWidth, count++) {
+        double increment = 0;
+        
+        for (double y = margin; y < rect.getHeight(); y += swathWidth + increment, count++, increment += swathIncrement) {
 
             double pos = y;
 
@@ -515,8 +521,12 @@ public class PolygonType implements Renderer2DPainter {
     }
 
     public ArrayList<LocationType> getCoveragePath(double swathWidth, int corner) {
+        return getCoveragePath(swathWidth, 0, corner);
+    }
+    
+    public ArrayList<LocationType> getCoveragePathInc(double swathWidth, double swathIncrement, int corner) {
         Pair<Double, Double> diamAng = getDiameterAndAngle();
-        return getCoveragePath(diamAng.second(), swathWidth, corner);
+        return getCoveragePath(diamAng.second(), swathWidth, swathIncrement, corner);
     }
 
     public double getPathLength(double swathWidth, int corner) {
@@ -531,7 +541,11 @@ public class PolygonType implements Renderer2DPainter {
     }
 
     public double getPathLength(double angle, double swathWidth, int corner) {
-        ArrayList<LocationType> path = getCoveragePath(angle, swathWidth, corner);
+        return getPathLength(angle, swathWidth, 0, corner);
+    }
+    
+    public double getPathLength(double angle, double swathWidth, double swathIncrement, int corner) {
+        ArrayList<LocationType> path = getCoveragePath(angle, swathWidth, swathIncrement, corner);
         double length = 0;
 
         for (int i = 1; i < path.size(); i++) {

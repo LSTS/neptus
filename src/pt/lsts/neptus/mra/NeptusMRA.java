@@ -34,7 +34,6 @@ package pt.lsts.neptus.mra;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -94,7 +93,7 @@ public class NeptusMRA extends JFrame {
 
         setSize(1200, 700);
 
-        setIconImage(Toolkit.getDefaultToolkit().getImage(ConfigFetch.class.getResource("/images/neptus-icon.png")));
+        setIconImages(ConfigFetch.getIconImagesForFrames());
 
         GuiUtils.centerOnScreen(this);
 
