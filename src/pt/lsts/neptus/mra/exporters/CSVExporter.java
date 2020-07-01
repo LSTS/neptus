@@ -614,6 +614,8 @@ public class CSVExporter implements MRAExporter {
                 for (int row = 0; row < source.getLsfIndex().getNumberOfMessages(); row++) {
                     String message = source.getLsfIndex().getMessage(row).getMessageType().getShortName();
                     String entity = source.getLsfIndex().entityNameOf(row);
+                    if (entity == null)
+                        entity = "" + source.getLsfIndex().entityOf(row);
                     putInMap(msgEntitiesMapOriginal, message, entity);
                     putInMap(entityMsgsMapOriginal, entity, message);
                 }
