@@ -56,9 +56,11 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -126,7 +128,17 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
     private ArrayList<JComboBox<String>> controllerSelectors = new ArrayList<JComboBox<String>>();
     
     @SuppressWarnings("serial")
-    private JTable table = new JTable() {
+    private JTable axisTable = new JTable() {
+        public javax.swing.table.TableCellRenderer getCellRenderer(int row, int column) {
+            if(column != 3 || column!=6)
+                return renderer;
+            else
+                return super.getCellRenderer(row, column);
+        };
+    };
+    
+    @SuppressWarnings("serial")
+    private JTable buttonsTable = new JTable() {
         public javax.swing.table.TableCellRenderer getCellRenderer(int row, int column) {
             if(column != 3 || column!=6)
                 return renderer;
@@ -245,10 +257,18 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         setSize(300, 200);
         setLayout(new MigLayout());
         model = new TableModel(mappedActions);
-        table.setModel(model);
-        table.addMouseListener(new JTableButtonMouseListener(table));
+        axisTable.setModel(model);
+        axisTable.addMouseListener(new JTableButtonMouseListener(axisTable));
         
-        add(new JScrollPane(table), "wrap");
+        add(new JScrollPane(axisTable), "wrap");
+        add(new JSeparator(SwingConstants.VERTICAL));
+
+        
+        buttonsTable.setModel(model);
+        buttonsTable.addMouseListener(new JTableButtonMouseListener(buttonsTable));
+        
+        add(new JScrollPane(buttonsTable), "wrap");
+        add(new JSeparator(SwingConstants.VERTICAL));
         
         for(JComboBox<String> selector : controllerSelectors) { 
             add(selector, "w 200::, wrap");
@@ -426,7 +446,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
 
                 if (comp != null) {
                     comp.value = poll.get(k).getPollData() * (actions.get(comp.action).equals("Axis") ? comp.getRange() : 1) * (comp.inverted ? -1 : 1);
-                    ((AbstractTableModel)table.getModel()).fireTableDataChanged();
+                    ((AbstractTableModel)axisTable.getModel()).fireTableDataChanged();
                     // Only if we are already sending that we build the msgActions LinkedHashMap
                     if (sending || cb.isSelected()) {
                         msgActions.put(comp.action, comp.value + "");
@@ -496,6 +516,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         }
         for(String k: message.getActions().keySet()) {
             actions.put(k, message.getActions().get(k));
+            System.err.println(actions);
         }
         
         mappedActions = getMappedActions(console.getMainSystem(), currentController);
