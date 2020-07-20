@@ -46,6 +46,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map.Entry;
 
 import javax.swing.AbstractAction;
 import javax.swing.InputVerifier;
@@ -110,6 +111,10 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
     @NeptusProperty(name = "Axis Range", description = "Varies between the range and its simetrical value.\nCan be edited in each field inside the plugin.")
     protected static int RANGE = 127;
 
+    private enum ActionType {
+        Axis,
+        Button
+    }
 
     private static final long serialVersionUID = 1L;
 
@@ -119,8 +124,10 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
     // Vehicle action received via RemoteActionRequest (i.e Heading=axis, Accelerate=Button)
     private LinkedHashMap<String, String> actions = new LinkedHashMap<String, String>();
     // Mapped actions based on XML actions.xml for the current vehicle and selected controller
-    private ArrayList<MapperComponent> mappedActions = new ArrayList<MapperComponent>();
+    private ArrayList<MapperComponent> mappedButtons = new ArrayList<MapperComponent>();
     // A list of actions to be added to a RemoteActions message
+    private ArrayList<MapperComponent> mappedAxis = new ArrayList<MapperComponent>();
+    // Mapped actions based on XML actions.xml for the current vehicle and selected controller
     private LinkedHashMap<String, String> msgActions  = new LinkedHashMap<String, String>();
     // The current controller poll
     private LinkedHashMap<String, Component> poll;
@@ -131,7 +138,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
     private JTable axisTable = new JTable() {
         public javax.swing.table.TableCellRenderer getCellRenderer(int row, int column) {
             if(column != 3 || column!=6)
-                return renderer;
+                return axisRenderer;
             else
                 return super.getCellRenderer(row, column);
         };
@@ -141,14 +148,16 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
     private JTable buttonsTable = new JTable() {
         public javax.swing.table.TableCellRenderer getCellRenderer(int row, int column) {
             if(column != 3 || column!=6)
-                return renderer;
+                return btnRenderer;
             else
                 return super.getCellRenderer(row, column);
         };
     };
     
-    private AbstractTableModel model;
-    private TableRenderer renderer = new TableRenderer();
+    private AbstractTableModel axisModel;
+    private AbstractTableModel buttonsModel;
+    private TableRenderer axisRenderer = new TableRenderer(ActionType.Axis);
+    private TableRenderer btnRenderer = new TableRenderer(ActionType.Button);
     
     private ControllerManager manager;
     
@@ -256,15 +265,15 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         removeAll();
         setSize(300, 200);
         setLayout(new MigLayout());
-        model = new TableModel(mappedActions);
-        axisTable.setModel(model);
+        axisModel = new TableModel(mappedAxis, ActionType.Axis);
+        axisTable.setModel(axisModel);
         axisTable.addMouseListener(new JTableButtonMouseListener(axisTable));
         
         add(new JScrollPane(axisTable), "wrap");
         add(new JSeparator(SwingConstants.VERTICAL));
 
-        
-        buttonsTable.setModel(model);
+        buttonsModel = new TableModel(mappedButtons, ActionType.Button);
+        buttonsTable.setModel(buttonsModel);
         buttonsTable.addMouseListener(new JTableButtonMouseListener(buttonsTable));
         
         add(new JScrollPane(buttonsTable), "wrap");
@@ -291,22 +300,27 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                 @SuppressWarnings("unchecked")
                 JComboBox<String> cb = (JComboBox<String>) e.getSource();
                 currentController = (String) cb.getSelectedItem();
-                mappedActions = getMappedActions(console.getMainSystem(), currentController);
+                mappedAxis = getMappedActions(console.getMainSystem(), currentController, ActionType.Axis);
+                mappedButtons = getMappedActions(console.getMainSystem(), currentController, ActionType.Button);
                 buildDialog();
             }
         });
         return comboBox;
     }
     
-    public ArrayList<MapperComponent> getMappedActions(String systemName, String controllerName) {
+    public ArrayList<MapperComponent> getMappedActions(String systemName, String controllerName, ActionType actionType) {
         ArrayList<MapperComponent> result = new ArrayList<MapperComponent>();
 
-        for (String action : actions.keySet()) {
+        for (Entry<String,String> entry : actions.entrySet()) {
+            String action = entry.getKey();
+            String aType  = entry.getValue(); 
             MapperComponent comp = getMapperComponentByName(systemName, controllerName, action);
-            if (comp == null)
-                result.add(new MapperComponent(action, "", 0.0f, false,RANGE));               
-            else
-                result.add(comp);
+            if(aType.equalsIgnoreCase(actionType.name())) { //verify if action is Axis or Button 
+                if (comp == null)
+                    result.add(new MapperComponent(action, "", 0.0f, false, RANGE));
+                else
+                    result.add(comp);
+            }
         }
         return result;
     }
@@ -397,11 +411,14 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                 for (String k : poll.keySet()) {
                     if (poll.get(k).getPollData() != oldPoll.get(k).floatValue()
                             && Math.abs(poll.get(k).getPollData()) == 1.0) {
-                        for (MapperComponent mcomp : mappedActions) {
+                        ArrayList<MapperComponent> remoteActions = new ArrayList<MapperComponent>();
+                        remoteActions.addAll(mappedAxis);
+                        remoteActions.addAll(mappedButtons);
+                        for (MapperComponent mcomp : remoteActions) { 
                             if (mcomp.editFlag) {
                                 mcomp.button = k;
                                 mcomp.inverted = poll.get(k).getPollData() < 0;
-                                model.fireTableDataChanged();
+                                axisModel.fireTableDataChanged();
 
                                 // Finish editing and save mappings
                                 editing = false;
@@ -437,7 +454,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                 // Find the suitable MapperComponent to get data from
                 // Don't need to create an extra method for this one
                 MapperComponent comp = null;
-                for (MapperComponent c : mappedActions) {
+                for (MapperComponent c : mappedButtons) { //TODO the same with mappedAxis
                     if (c.button.equals(k)) {
                         comp = c;
                         break;
@@ -487,12 +504,19 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                 controller.remove((Element)l.get(i));
             }
             
-            for(MapperComponent mcomp : mappedActions) {
+            for(MapperComponent mcomp : mappedAxis) {
                 Element e = controller.addElement("entry");
                 e.addAttribute("component", mcomp.button);
                 e.addAttribute("action", mcomp.action);
                 e.addAttribute("inverted", String.valueOf(mcomp.inverted));
                 e.addAttribute("range", String.valueOf(mcomp.getRange()));
+            }
+            
+            for(MapperComponent mcomp : mappedButtons) { //TODO verify
+                Element e = controller.addElement("entry");
+                e.addAttribute("component", mcomp.button);
+                e.addAttribute("action", mcomp.action);
+                e.addAttribute("inverted", String.valueOf(mcomp.inverted));
             }
             
             File fx = new File(ACTION_FILE_XML);
@@ -510,16 +534,15 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
     
     @Subscribe
     public void consume(RemoteActionsRequest message) {
-//        System.err.println("Received RemoteActionsRequest");
         if(actions == null) {
             actions = new LinkedHashMap<String, String>();
         }
-        for(String k: message.getActions().keySet()) {
+        for(Entry<String, String> entry: message.getActions().entrySet()) {
+            String k = entry.getKey();
             actions.put(k, message.getActions().get(k));
-            System.err.println(actions);
         }
-        
-        mappedActions = getMappedActions(console.getMainSystem(), currentController);
+        mappedAxis = getMappedActions(console.getMainSystem(), currentController,ActionType.Axis);
+        mappedButtons = getMappedActions(console.getMainSystem(), currentController,ActionType.Button);
         buildDialog();
     }
 
@@ -546,7 +569,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
             this.clear = new JButton(I18n.text("Clear"));
             this.range = r;
             
-            InputVerifier intVer = new InputVerifier() {
+            InputVerifier intVer = new InputVerifier() { //TODO
                 
                 @Override
                 public boolean verify(JComponent input) {
@@ -593,6 +616,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
     @SuppressWarnings("serial")
     private class TableModel extends AbstractTableModel {
         public ArrayList<MapperComponent> list;
+        private ActionType actionType;
         
         @Override
         public String getColumnName(int column) {
@@ -612,12 +636,13 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
             }
         }
         
-        public TableModel(ArrayList<MapperComponent> list) {
+        public TableModel(ArrayList<MapperComponent> list, ActionType type) {
             this.list = list;
+            this.actionType = type;
         }
         
         public ArrayList<MapperComponent> getList() {
-            return list;
+            return this.list;
         }
         @Override
         public int getRowCount() {
@@ -626,7 +651,10 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
 
         @Override
         public int getColumnCount() {
-            return 7;
+            if(actionType.equals(ActionType.Axis))
+                return 7; //extra Range column
+
+            return 6;
         }
 
         @Override
@@ -652,18 +680,18 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         }
         
         public boolean isCellEditable(int row, int col) {
-            return col == 3 || col == 1 || col == 4 || col == 5 || col == 6; // Hard-coded for now
+            return col != 0 && col !=1 && col !=2; // Hard-coded for now
         }
 
         public void setValueAt(Object value, int row, int col) {
             if(col == 3) {
-                list.get(row).inverted = (Boolean)value;
+                this.list.get(row).inverted = (Boolean)value;
                 fireTableCellUpdated(row, col);
             }
             else if(col == 6) {
                 try {
                     int v = (int) value;
-                    list.get(row).setRange(v);
+                    this.list.get(row).setRange(v);
                     fireTableCellUpdated(row, col);
                 }
                 catch(NumberFormatException e) {
@@ -684,10 +712,17 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
     
     @SuppressWarnings("serial")
     private class TableRenderer extends DefaultTableCellRenderer {
+        private ActionType actionType;
+        public TableRenderer(ActionType type) {
+            actionType = type;
+        }
         public java.awt.Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
                 boolean hasFocus, final int row, int column) {
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-            MapperComponent comp = (MapperComponent) ((TableModel)model).getList().get(row);
+            MapperComponent comp = this.actionType.equals(ActionType.Axis) ?
+                      (MapperComponent) ((TableModel) axisModel).getList().get(row)
+                    : (MapperComponent) ((TableModel) buttonsModel).getList().get(row);
+            //MapperComponent comp = (MapperComponent) ((TableModel)axisModel).getList().get(row);
             if(comp.editFlag) {
                 setBackground(Color.green);
             }
@@ -695,12 +730,25 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                 setBackground(Color.white);
             }
             if(column == 4) {
-                JButton b = (JButton)model.getValueAt(row, column);
-                b.setEnabled(!editing); // Disable if we are editing
-                return (JButton)model.getValueAt(row, column);
+                JButton b;
+                if(this.actionType.equals(ActionType.Axis)) {
+                    b = (JButton) axisModel.getValueAt(row, column);
+                    b.setEnabled(!editing); // Disable if we are editing
+                    return (JButton) axisModel.getValueAt(row, column);
+                }
+                else if(this.actionType.equals(ActionType.Button)) {
+                    b = (JButton) buttonsModel.getValueAt(row, column);
+                    b.setEnabled(!editing); // Disable if we are editing
+                    return (JButton) buttonsModel.getValueAt(row, column);
+                }
             }
             if(column == 5) {
-                return (JButton)model.getValueAt(row, column);
+                if(this.actionType.equals(ActionType.Axis)) {
+                    return (JButton)axisModel.getValueAt(row, column);
+                }
+                else if(this.actionType.equals(ActionType.Button)) {
+                    return (JButton)buttonsModel.getValueAt(row, column);
+                }
             }
             return this;
         }
