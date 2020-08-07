@@ -43,9 +43,11 @@ import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.io.File;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -53,6 +55,15 @@ import java.util.stream.Collectors;
 import javax.xml.bind.JAXB;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
+
+import org.geojson.Feature;
+import org.geojson.FeatureCollection;
+import org.geojson.GeoJsonObject;
+import org.geojson.LngLatAlt;
+import org.geojson.Polygon;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.io.Files;
 
 import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
@@ -123,14 +134,15 @@ public class PolygonType implements Renderer2DPainter {
         synchronized (vertices) {
             vertices.add(new Vertex(loc));
         }
+        recomputePath();
     }
-    
+
     public void addVertex(int index, LocationType loc) {
         synchronized (vertices) {
             vertices.add(index, new Vertex(loc));
         }
+        recomputePath();
     }
-
 
     /**
      * Remove all polygon vertices
@@ -163,7 +175,7 @@ public class PolygonType implements Renderer2DPainter {
     public int getVerticesSize() {
         return vertices.size();
     }
-    
+
     public void setColor(Color c) {
         color = c;
         if (elem != null)
@@ -288,7 +300,8 @@ public class PolygonType implements Renderer2DPainter {
 
     public void translate(double offsetNorth, double offsetEast) {
         synchronized (vertices) {
-            vertices.forEach(v -> v.getLocation().translatePosition(offsetNorth, offsetEast, 0).convertToAbsoluteLatLonDepth());
+            vertices.forEach(
+                    v -> v.getLocation().translatePosition(offsetNorth, offsetEast, 0).convertToAbsoluteLatLonDepth());
         }
         recomputePath();
     }
@@ -455,11 +468,9 @@ public class PolygonType implements Renderer2DPainter {
             if (vertices.isEmpty())
                 return new ArrayList<>();
             LocationType pivot = vertices.get(0).getLocation();
-            
-            points = vertices.stream()
-                .map(v -> v.getLocation().getOffsetFrom(pivot))
-                .map(offsets -> new Point2D.Double(offsets[0], offsets[1]))
-                .collect(Collectors.toList());
+
+            points = vertices.stream().map(v -> v.getLocation().getOffsetFrom(pivot))
+                    .map(offsets -> new Point2D.Double(offsets[0], offsets[1])).collect(Collectors.toList());
         }
 
         Point2D[] original = points.toArray(new Point2D[0]);
@@ -471,10 +482,10 @@ public class PolygonType implements Renderer2DPainter {
 
         GeneralPath path = new GeneralPath();
         path.moveTo(0, 0);
-        
+
         for (int i = 0; i < dest.length; i++)
             path.lineTo(dest[i].getX(), dest[i].getY());
-        
+
         path.lineTo(0, 0);
         path.closePath();
         Rectangle2D rect = path.getBounds2D();
@@ -532,7 +543,7 @@ public class PolygonType implements Renderer2DPainter {
     public double getPathLength(double swathWidth, int corner) {
         ArrayList<LocationType> path = getCoveragePath(swathWidth, corner);
         double length = 0;
-        
+
         for (int i = 1; i < path.size(); i++) {
             length += path.get(i - 1).getHorizontalDistanceInMeters(path.get(i));
         }
@@ -555,7 +566,25 @@ public class PolygonType implements Renderer2DPainter {
         return length;
     }
 
+    public static Collection<PolygonType> loadGeoJsonPolygons(File f) throws Exception {
+        ArrayList<PolygonType> result = new ArrayList<PolygonType>();
+        FeatureCollection features = new ObjectMapper().readValue(Files.toByteArray(f), FeatureCollection.class);
+        for (Feature feature : features.getFeatures()) {
+            GeoJsonObject obj = feature.getGeometry();
+
+            if (obj instanceof Polygon) {
+                Polygon polygon = (Polygon) obj;
+                PolygonType ptype = new PolygonType();
+                for (List<LngLatAlt> pts : polygon.getCoordinates())
+                    for (LngLatAlt pt : pts)
+                        ptype.addVertex(new LocationType(pt.getLatitude(), pt.getLongitude()));
+            }
+        }
+        return result;
+    }
+
     public static void main(String[] args) {
+
         PolygonType pt = new PolygonType();
         pt.setColor(Color.yellow);
         LocationType loc = new LocationType(41, -8);
@@ -576,7 +605,7 @@ public class PolygonType implements Renderer2DPainter {
         StateRenderer2D r2d = new StateRenderer2D(loc);
         r2d.addPostRenderPainter(pt, "Polygon");
         int i = 1;
-        for (PolygonType p : pt.subAreas(2, Math.PI/3)) {
+        for (PolygonType p : pt.subAreas(2, Math.PI / 3)) {
             r2d.addPostRenderPainter(p, "Polygon" + (i++));
         }
 

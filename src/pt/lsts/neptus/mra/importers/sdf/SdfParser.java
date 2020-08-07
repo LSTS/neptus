@@ -71,6 +71,7 @@ public class SdfParser {
 
     final static int SUBSYS_LOW = 3501;
     final static int SUBSYS_HIGH = 3502;
+    final static int BATHY_PULSE_COMPRESSED = 3503;
 
     public SdfParser(File file) {
         try {
@@ -303,6 +304,49 @@ public class SdfParser {
         }
     }
 
+    private int hasAnyPageVersion(String... pageVersions) {
+        ArrayList<Integer> pageVersionList = new ArrayList<>();
+
+        Arrays.stream(pageVersions).forEachOrdered((pv) -> {
+            try {
+                pageVersionList.add(Integer.parseInt(pv));
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+
+        if (pageVersionList.isEmpty())
+            return 0;
+
+        SdfHeader header = new SdfHeader();
+        curPosition = 0;
+        try {
+            while (true) {
+                // Read the header
+                ByteBuffer buf = channel.map(MapMode.READ_ONLY, curPosition, 512); //header size 512bytes
+                buf.order(ByteOrder.LITTLE_ENDIAN);
+                header.parse(buf);
+                curPosition += header.getHeaderSize();
+                //System.out.println("curPos " + curPosition);
+
+                if (pageVersionList.stream().anyMatch((p) -> p == header.getPageVersion()))
+                    return 1;
+
+                curPosition += (header.getNumberBytes()+4) - header.getHeaderSize();
+                if (curPosition >= channel.size()) //check if curPosition is at the end of file
+                    break;
+                else
+                    continue;
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return 0;
+    }
+
     public boolean loadIndex() {
         try {
             ObjectInputStream in = new ObjectInputStream(new FileInputStream(indexPath));
@@ -505,7 +549,7 @@ public class SdfParser {
 
     }
 
-    public static void main(String[] args) {
+    public static int main(String[] args) throws Exception {
         //        SdfParser parser = new SdfParser(new File("C://Users//Manuel//workspace//neptus-dev//SDF-datasamples//test.sdf"));
         //        
         //        System.out.println();
@@ -541,5 +585,10 @@ public class SdfParser {
         //            System.out.println(ping.get(0).getTimestamp());
         //        }
 
+        if (args.length < 2)
+            throw new Exception("Usage: <sdf_file> <page_version>  example 3503 for Bathy Pulse Compressed Data");
+
+        SdfParser parser = new SdfParser(new File(args[0]));
+        return parser.hasAnyPageVersion(Arrays.copyOfRange(args, 1, args.length - 1));
     }
 }

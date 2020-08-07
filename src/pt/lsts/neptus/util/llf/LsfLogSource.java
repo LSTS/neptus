@@ -80,6 +80,7 @@ public class LsfLogSource implements IMraLogGroup {
     public void cleanup() {
         if (index != null)
             index.cleanup();
+        index = null;
     }
 
     private void loadLog(File f) throws Exception {
