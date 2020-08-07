@@ -256,6 +256,8 @@
 	<classpathentry kind="lib" path="lib/marineapi-0.11.0.jar"/>
 	<classpathentry kind="lib" path="lib/jsoup-1.13.1.jar"/>
 	<classpathentry kind="lib" path="lib/geojson-jackson-1.14.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-databind-2.11.2.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-core-2.11.2.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="lib/ini4j-0.5.2.jar"/>
