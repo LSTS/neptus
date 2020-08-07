@@ -254,6 +254,7 @@
 	<classpathentry kind="lib" path="lib/xchart-3.5.1.jar"/>
 	<classpathentry kind="lib" path="lib/ais-contact-manager-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/marineapi-0.11.0.jar"/>
+	<classpathentry kind="lib" path="lib/geojson-jackson-1.14.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="lib/ini4j-0.5.2.jar"/>
@@ -269,6 +270,5 @@
 	<classpathentry kind="lib" path="plugins-dev/imc-groovy/lib/imc_plan_dsl-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/rsyntaxtextarea-2.5.8.jar"/>
 	<classpathentry kind="lib" path="lib/groovy-2.5.4.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/geojson-jackson"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>
