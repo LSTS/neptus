@@ -210,7 +210,10 @@ public class MainSystemSelectionCombo extends JComboBox<String> implements ItemL
         @Override
         public Component getListCellRendererComponent(JList<? extends String> list, String value, int index,
                 boolean isSelected, boolean cellHasFocus) {
-            if(systemState.isEmpty()){
+            if (value == null)
+                NeptusLog.pub().warn("Value is null!!");
+
+            if(systemState.isEmpty() || value == null) {
                 return this;
             }
             if (isSelected) {
