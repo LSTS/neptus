@@ -34,6 +34,7 @@ package pt.lsts.neptus.mra.exporters;
 
 import javax.swing.ProgressMonitor;
 
+import pt.lsts.neptus.mra.MRAProperties;
 import pt.lsts.neptus.mra.api.LsfTreeSet;
 import pt.lsts.neptus.mra.api.LsfTreeSet.LsfLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
@@ -54,6 +55,7 @@ public class BatchMraExporter {
     
     @SafeVarargs
     public static void apply(LsfTreeSet lsfFiles, Class<? extends MRAExporter>... exporters) {
+        MRAProperties.batchMode = true;
         for (LsfLog log : lsfFiles) {
             try {
                 LsfLogSource mraSource = new LsfLogSource(log.lsfSource, null);

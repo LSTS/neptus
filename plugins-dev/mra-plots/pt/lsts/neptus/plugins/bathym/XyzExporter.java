@@ -52,6 +52,7 @@ import pt.lsts.imc.PopUp;
 import pt.lsts.imc.StationKeeping;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.mra.MRAProperties;
 import pt.lsts.neptus.mra.api.BathymetryParser;
 import pt.lsts.neptus.mra.api.BathymetryPoint;
 import pt.lsts.neptus.mra.api.BathymetrySwath;
@@ -67,7 +68,6 @@ import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.ZipUtils;
 import pt.lsts.neptus.util.bathymetry.TidePredictionFactory;
-import pt.lsts.neptus.util.bathymetry.TidePredictionFinder;
 
 /**
  * @author zp
@@ -133,17 +133,32 @@ public class XyzExporter implements MRAExporter {
     @NeptusProperty(name = "Write XYZ header")
     public boolean writeHeader = false;
     
-    private TidePredictionFinder finder = null;
+    //private TidePredictionFinder finder = null;
     private BufferedWriter writer = null;
     private ProgressMonitor pmonitor;
     
     public XyzExporter(IMraLogGroup source) {
-        file = new File(source.getDir(), "mra/bathymetry.xyz");
+        file = new File(source.getDir(), "bathymetry.xyz");
     }
 
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
-        return source.getLsfIndex().containsMessagesOfType("EstimatedState");        
+        
+        boolean applicable = false;
+        if (exportEstimatedState)
+            applicable |= source.getLsfIndex().containsMessagesOfType("EstimatedState");
+        if (exportDistance)
+            applicable |= source.getLsfIndex().containsMessagesOfType("Distance");
+        if (exportMultibeam) {
+            if (source.getDir().isDirectory()) {
+                for (File temp : source.getDir().listFiles()) {
+                    if((temp.toString()).endsWith(".83P"))
+                        applicable |= true;                    
+                }
+            }
+        }
+        
+        return applicable;
     }
 
     private IMraLogGroup source;
@@ -156,8 +171,8 @@ public class XyzExporter implements MRAExporter {
             writer.write(COMMENT_STRING + "Date of data: " 
                     + DateTimeUtil.dateFormatterUTC.format(new Date((long) (startTimeSeconds * 1E3))) 
                     + LINE_ENDING);
-            writer.write(COMMENT_STRING + "Tide corrected: " + (tideCorrection ? "yes (" 
-                    + finder.getName() + ")" : "no") + LINE_ENDING);
+            //writer.write(COMMENT_STRING + "Tide corrected: " + (tideCorrection ? "yes (" 
+            //        + finder.getName() + ")" : "no") + LINE_ENDING);
             
             // Data source info
             String dataSource = "";
@@ -176,18 +191,23 @@ public class XyzExporter implements MRAExporter {
     
     @Override
     public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
-        pmonitor.setMaximum(100);
-        PluginUtils.editPluginProperties(this, true);
+        if (!MRAProperties.batchMode)
+            if (PluginUtils.editPluginProperties(this, true))
+                return I18n.text("Cancelled by the user.");
+        
         this.pmonitor = pmonitor;
+        this.pmonitor.setMaximum(100);
         this.pmonitor.setMillisToDecideToPopup(0);
-
         this.pmonitor.setProgress(0);
+        
         this.source = source;
 
-        finder = TidePredictionFactory.create(source);
+        //finder = TidePredictionFactory.create(source);
 
-        if (finder == null)
+        /*if (finder == null) {
             tideCorrection = false;
+            NeptusLog.pub().warn("Could not calculate tide level for log.");
+        }*/
         
         try {
             writer = new BufferedWriter(new FileWriter(file));
@@ -343,7 +363,7 @@ public class XyzExporter implements MRAExporter {
         double tide = 0;
         if (tideCorrection) {
             try {
-                tide = finder.getTidePrediction(date, false);            
+                tide = TidePredictionFactory.getTideLevel(date);            
             }
             catch (Exception e) {           
             }
@@ -366,6 +386,7 @@ public class XyzExporter implements MRAExporter {
      * @param args
      */
     public static void main(String[] args) throws Exception {
+        
         BufferedReader reader = new BufferedReader(new FileReader(new File("/home/zp/Desktop/BathymFunchal/Stripped/data.xyz")));
         String line = reader.readLine();
         LocationType ref = null;

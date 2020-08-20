@@ -849,8 +849,9 @@ public class KMLExporter implements MRAExporter {
         pmonitor.setMinimum(0);
         pmonitor.setMaximum(320);
 
-        if (PluginUtils.editPluginProperties(this, true))
-            return I18n.text("Cancelled by the user.");
+        if (!MRAProperties.batchMode)
+            if (PluginUtils.editPluginProperties(this, true))
+                return I18n.text("Cancelled by the user.");
 
         try {
             pmonitor.setNote(I18n.text("Generating output dirs"));
