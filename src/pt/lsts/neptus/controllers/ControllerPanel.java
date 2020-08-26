@@ -86,7 +86,6 @@ import pt.lsts.imc.RemoteActions;
 import pt.lsts.imc.RemoteActionsRequest;
 import pt.lsts.imc.RemoteActionsRequest.OP;
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
@@ -359,7 +358,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
     public void requestRemoteActions() {
         if (console.getMainSystem() != null) {
             RemoteActionsRequest raq = new RemoteActionsRequest(OP.QUERY, "");
-            ImcMsgManager.getManager().sendMessageToSystem(raq, console.getMainSystem());
+            getConsole().getImcMsgManager().sendMessageToSystem(raq, console.getMainSystem());
         }
     }
 
@@ -495,7 +494,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                 // Finally send the message
                 RemoteActions msg = new RemoteActions();
                 msg.setActions(msgActions);
-                ImcMsgManager.getManager().sendMessageToSystem(msg, console.getMainSystem());
+                getConsole().getImcMsgManager().sendMessageToSystem(msg, console.getMainSystem());
             }
         }
         return true;
