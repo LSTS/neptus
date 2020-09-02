@@ -35,6 +35,8 @@ package pt.lsts.neptus.controllers;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
@@ -49,7 +51,6 @@ import java.util.Map.Entry;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -74,12 +75,10 @@ import com.google.common.eventbus.Subscribe;
 
 import net.java.games.input.Component;
 import net.miginfocom.swing.MigLayout;
-import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.RemoteActions;
 import pt.lsts.imc.RemoteActionsRequest;
 import pt.lsts.imc.RemoteActionsRequest.OP;
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
@@ -89,7 +88,6 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
-import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
 
 /**
  * Controller Panel This panel is responsible for providing a away to teleoperate the vehicle, as well as edit the
@@ -234,7 +232,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
             public void actionPerformed(ActionEvent e) {
                JToggleButton button = (JToggleButton) e.getSource();
                if(!button.isSelected()) {
-                   
+                   //TODO
                }
                 
             }
@@ -248,9 +246,8 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         if(actions != null) {
 //            System.out.println("Actions Not null"); //TODO
             buildDialog();
-            this.dialog.setVisible(true);
         }
-        this.setVisible(true);
+        //this.setVisible(true);
     }
 
     @Override
@@ -439,6 +436,9 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
 
         if (!this.isVisible())
             return true;
+        
+//        if(dialog == null)
+//            System.out.println("Dialog Null in Update method");
 
         sending = dialog.isVisible();
 
@@ -455,6 +455,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         if (editing) {
             if (oldPoll.size() == poll.size()) {
                 for (String k : poll.keySet()) {
+//                    System.out.println("Editing KEY compnents");
                     if (poll.get(k).getPollData() != oldPoll.get(k).floatValue()
                             && Math.abs(poll.get(k).getPollData()) == 1.0) {
                         ArrayList<MapperComponent> remoteActions = new ArrayList<MapperComponent>();
@@ -485,9 +486,8 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         }
         else {
             // Use the periodic update to keep asking for RemoteActions list
-            if (timeIncrement >= 5000 && actions == null) {
+            if (sending && actions == null) {
                 requestRemoteActions();
-                timeIncrement = 0;
             }
             timeIncrement += periodicDelay;
 
@@ -560,7 +560,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                 e.addAttribute("range", String.valueOf(mcomp.getRange()));
             }
 
-            for (MapperComponent mcomp : mappedButtons) { // TODO verify
+            for (MapperComponent mcomp : mappedButtons) {
                 Element e = controller.addElement("entry");
                 e.addAttribute("component", mcomp.button);
                 e.addAttribute("action", mcomp.action);
@@ -612,7 +612,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         String button;
         float value;
         boolean inverted;
-        JButton edit;
+        JToggleButton edit;
         JButton clear;
         int range;
 
@@ -623,7 +623,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
             this.button = component;
             this.value = value;
             this.inverted = inverted;
-            this.edit = new JButton(I18n.text("Edit"));
+            this.edit = new JToggleButton(I18n.text("Edit"));
             this.clear = new JButton(I18n.text("Clear"));
             this.range = r;
 
@@ -636,7 +636,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
             this.button = component;
             this.value = value;
             this.inverted = inverted;
-            this.edit = new JButton(I18n.text("Edit"));
+            this.edit = new JToggleButton(I18n.text("Edit"));
             this.clear = new JButton(I18n.text("Clear"));
             this.range = 0;
             
@@ -656,15 +656,23 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
          */
         private void initButtons() {
             this.edit.addMouseListener(new MouseAdapter() {
+
                 @Override
                 public void mouseClicked(MouseEvent e) {
                     super.mouseClicked(e);
-                    if (!editing) {
+                    JToggleButton jtb  = (JToggleButton) e.getSource();
+                    if(jtb.isSelected()){ //ItemEvent.SELECTED
+//                        System.out.println("Selected Edit togglebutton");
                         editing = true;
                         editFlag = true;
-                    }
+                      } else { // if(e.getStateChange()==ItemEvent.DESELECTED){
+                          editing = false;
+                          editFlag = false;
+                          saveMappings(); // Save every time we edit a single action
+                      }
+                    
                 }
-            });
+             });
             this.clear.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
@@ -698,15 +706,15 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
             }
             
             if (column == 4) {
-                JButton b;
+                JToggleButton b;
                 if (this.actionType.equals(ActionType.Axis)) {
-                    b = (JButton) axisModel.getValueAt(row, column);
-                    b.setEnabled(!editing); // Disable if we are editing
+                    b = (JToggleButton) axisModel.getValueAt(row, column);
+                    //b.setEnabled(!editing); // Disable if we are editing
                     return b;
                 }
                 else if (this.actionType.equals(ActionType.Button)) {
-                    b = (JButton) buttonsModel.getValueAt(row, column);
-                    b.setEnabled(!editing); // Disable if we are editing
+                    b = (JToggleButton) buttonsModel.getValueAt(row, column);
+                    //b.setEnabled(!editing); // Disable if we are editing
                     return b;
                 }
             }
