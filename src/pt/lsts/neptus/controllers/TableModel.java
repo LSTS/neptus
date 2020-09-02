@@ -38,6 +38,7 @@ import java.util.ArrayList;
 
 import javax.swing.table.AbstractTableModel;
 
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.controllers.ControllerPanel.ActionType;
 import pt.lsts.neptus.controllers.ControllerPanel.MapperComponent;
 import pt.lsts.neptus.i18n.I18n;
@@ -110,12 +111,12 @@ class TableModel extends AbstractTableModel {
     }
 
     public boolean isCellEditable(int row, int col) {
-        return col != 0 && col != 1 && col != 2; // Hard-coded for now
+        return col == 3 || col == 1 || col == 4 || col == 5 || col == 6; // Hard-coded for now
     }
 
     public void setValueAt(Object value, int row, int col) {
         if (col == 3) {
-            this.list.get(row).inverted = (Boolean) value;
+            list.get(row).inverted = (Boolean)value;
             fireTableCellUpdated(row, col);
         }
         else if (col == 6) {
@@ -125,14 +126,16 @@ class TableModel extends AbstractTableModel {
                 fireTableCellUpdated(row, col);
             }
             catch (NumberFormatException e) {
-                // TODO
-                // User popup warning
+                NeptusLog.pub().error(I18n.text("Invalid Number Format for Range."), e);
             }
         }
     }
 
     public Class<?> getColumnClass(int c) {
         Object cl = getValueAt(0, c);
-        return cl.getClass();
+        if (cl == null)
+            return Object.class;
+        else
+            return cl.getClass();
     }
 }
