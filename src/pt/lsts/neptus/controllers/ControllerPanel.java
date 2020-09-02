@@ -32,7 +32,6 @@
  */
 package pt.lsts.neptus.controllers;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -49,24 +48,17 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import javax.swing.AbstractAction;
-import javax.swing.InputVerifier;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
 import javax.swing.JTable;
-import javax.swing.JTextField;
 import javax.swing.JToggleButton;
-import javax.swing.SwingConstants;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 
@@ -82,10 +74,12 @@ import com.google.common.eventbus.Subscribe;
 
 import net.java.games.input.Component;
 import net.miginfocom.swing.MigLayout;
+import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.RemoteActions;
 import pt.lsts.imc.RemoteActionsRequest;
 import pt.lsts.imc.RemoteActionsRequest.OP;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
@@ -163,7 +157,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
 
     private ControllerManager manager;
 
-    private JButton btnRefresh = new JButton(new AbstractAction(I18n.text("Refresh Controllers")) {
+    private JButton btnReset = new JButton(new AbstractAction(I18n.text("Reset Controllers")) {
         private static final long serialVersionUID = 1L;
 
         @Override
@@ -191,9 +185,9 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         this.removeAll();
 
         // Register listeners
-        console.addMainVehicleListener(this);
-        PeriodicUpdatesService.register(this);
-        getConsole().getImcMsgManager().addListener(this);
+        //console.addMainVehicleListener(this);
+        // PeriodicUpdatesService.register(this);
+        // getConsole().getImcMsgManager().addListener(this);
     }
 
     @Override
@@ -233,20 +227,42 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                 sending = false;
             }
         });
+        
+        btnInHold.addActionListener(new ActionListener() {
+            
+            @Override
+            public void actionPerformed(ActionEvent e) {
+               JToggleButton button = (JToggleButton) e.getSource();
+               if(!button.isSelected()) {
+                   
+               }
+                
+            }
+        });
+        
+//        System.out.println("Init Subpanel: "+actions.keySet().toString());
+//        System.out.println("Dialog Visible: "+dialog.isVisible());
 
         // Start the interface
         refreshInterface();
+        if(actions != null) {
+//            System.out.println("Actions Not null"); //TODO
+            buildDialog();
+            this.dialog.setVisible(true);
+        }
+        this.setVisible(true);
     }
 
     @Override
     public void cleanSubPanel() {
         // Unregister listeners
-        console.removeMainVehicleListener(this);
-        PeriodicUpdatesService.unregister(this);
-        getConsole().getImcMsgManager().removeListener(this);
+        //console.removeMainVehicleListener(this);
+        //PeriodicUpdatesService.unregister(this);
+        //getConsole().getImcMsgManager().removeListener(this);
     }
 
     public void buildDialog() {
+//        System.out.println("Building Dialog for: "+console.getMainSystem());
         removeAll();
         setSize(300, 200);
         setLayout(new MigLayout("","[center]",""));
@@ -296,7 +312,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         }
 
         footerRight.add(btnInHold,  "w 150::, wrap");
-        footerRight.add(btnRefresh, "w 150::, wrap");
+        footerRight.add(btnReset, "w 150::, wrap");
         
 
         footer.add(footerLeft);
@@ -314,8 +330,8 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
             @Override
             public void actionPerformed(ActionEvent e) {
                 @SuppressWarnings("unchecked")
-                JComboBox<String> cb = (JComboBox<String>) e.getSource();
-                currentController = (String) cb.getSelectedItem();
+                JComboBox<String> cbox = (JComboBox<String>) e.getSource();
+                currentController = (String) cbox.getSelectedItem();
                 mappedAxis = getMappedActions(console.getMainSystem(), currentController, ActionType.Axis);
                 mappedButtons = getMappedActions(console.getMainSystem(), currentController, ActionType.Button);
                 buildDialog();
@@ -347,18 +363,31 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                 "/systems/system[@name='" + systemName + "']/controller[@name='" + controllerName + "']/*");
         for (Iterator<?> iter = list.iterator(); iter.hasNext();) {
             Element el = (Element) iter.next();
-            if (el.attributeValue("action").equalsIgnoreCase(actionName))
-                return new MapperComponent(el.attributeValue("action"), el.attributeValue("component"), 0.0f,
-                        Boolean.parseBoolean(el.attributeValue("inverted")),
-                        Integer.parseInt(el.attributeValue("range")));
+            if (el.attributeValue("action").equalsIgnoreCase(actionName)) {
+                try {
+                    if(el.attribute("range") == null) //Button
+                        return new MapperComponent(el.attributeValue("action"), el.attributeValue("component"), 0.0f,
+                                Boolean.parseBoolean(el.attributeValue("inverted")));
+                    else // Axis Component
+                        return new MapperComponent(el.attributeValue("action"), el.attributeValue("component"), 0.0f,
+                                Boolean.parseBoolean(el.attributeValue("inverted")), Integer.parseInt(el.attributeValue("range")));
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().warn(I18n.text("Error parsing controllers configuration file."), e);
+                }
+            }
         }
         return null;
     }
 
     public void requestRemoteActions() {
         if (console.getMainSystem() != null) {
-            RemoteActionsRequest raq = new RemoteActionsRequest(OP.QUERY, "");
+            RemoteActionsRequest raq = new RemoteActionsRequest();
+            raq.setOp(OP.QUERY);
+            //IMCDefinition.getInstance().getResolver().resolve(console.getMainSystem());
             getConsole().getImcMsgManager().sendMessageToSystem(raq, console.getMainSystem());
+//            System.out.println("Requesting Remote Actions form: "+console.getMainSystem());
+//            System.out.println(raq);
         }
     }
 
@@ -387,9 +416,8 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         else
             add(new JLabel(I18n.text("No main vehicle selected in the console")));
 
-        this.repaint();
-
         requestRemoteActions();
+        this.repaint();
     }
 
     @Subscribe
@@ -421,7 +449,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
             return true;
         }
 
-        btnRefresh.setEnabled(!editing);
+        btnReset.setEnabled(!editing);
         // comboBox.setEnabled(!editing);
 
         if (editing) {
@@ -457,7 +485,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         }
         else {
             // Use the periodic update to keep asking for RemoteActions list
-            if (timeIncrement >= 2000 && actions == null) {
+            if (timeIncrement >= 5000 && actions == null) {
                 requestRemoteActions();
                 timeIncrement = 0;
             }
@@ -554,19 +582,26 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
     }
 
     @Subscribe
-    public void consume(RemoteActionsRequest message) {
-        if (!message.getOp().equals(OP.REPORT))
-            return;
-        if (actions == null) {
-            actions = new LinkedHashMap<String, String>();
+    public void on(RemoteActionsRequest message) {
+        try {
+//            System.out.println("Received RemoteActions:\n" + message);
+            if (!message.getOp().equals(OP.REPORT))
+                return;
+            if (actions == null) {
+                actions = new LinkedHashMap<String, String>();
+            }
+            for (Entry<String, String> entry : message.getActions().entrySet()) {
+                String k = entry.getKey();
+                actions.put(k, message.getActions().get(k));
+            }
+            mappedAxis = getMappedActions(console.getMainSystem(), currentController, ActionType.Axis);
+            mappedButtons = getMappedActions(console.getMainSystem(), currentController, ActionType.Button);
+            buildDialog();
         }
-        for (Entry<String, String> entry : message.getActions().entrySet()) {
-            String k = entry.getKey();
-            actions.put(k, message.getActions().get(k));
+        catch (Exception e) {
+            NeptusLog.pub().error(I18n.text("Error parsing incoming RemoteActionRequest"),e);
+            e.printStackTrace();
         }
-        mappedAxis = getMappedActions(console.getMainSystem(), currentController, ActionType.Axis);
-        mappedButtons = getMappedActions(console.getMainSystem(), currentController, ActionType.Button);
-        buildDialog();
     }
 
     /**
@@ -592,22 +627,35 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
             this.clear = new JButton(I18n.text("Clear"));
             this.range = r;
 
-            InputVerifier intVer = new InputVerifier() { // TODO
+            initButtons();
 
-                @Override
-                public boolean verify(JComponent input) {
-                    String txt = ((JTextField) input).getText();
-                    try {
-                        Integer.parseInt(txt);
-                        return true;
-                    }
-                    catch (NumberFormatException e) {
-                        return false;
-                    }
-                }
-            };
+        }
+        
+        MapperComponent(final String action, String component, float value, boolean inverted) {
+            this.action = action;
+            this.button = component;
+            this.value = value;
+            this.inverted = inverted;
+            this.edit = new JButton(I18n.text("Edit"));
+            this.clear = new JButton(I18n.text("Clear"));
+            this.range = 0;
+            
+            initButtons();
+        }
 
-            edit.addMouseListener(new MouseAdapter() {
+        public int getRange() {
+            return this.range;
+        }
+
+        public void setRange(int r) {
+            this.range = r;
+        }
+        
+        /**
+         * 
+         */
+        private void initButtons() {
+            this.edit.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
                     super.mouseClicked(e);
@@ -617,7 +665,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                     }
                 }
             });
-            clear.addMouseListener(new MouseAdapter() {
+            this.clear.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
                     super.mouseClicked(e);
@@ -625,15 +673,6 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                     MapperComponent.this.inverted = false;
                 }
             });
-
-        }
-
-        public int getRange() {
-            return this.range;
-        }
-
-        public void setRange(int r) {
-            this.range = r;
         }
     }
 
@@ -651,24 +690,24 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
             MapperComponent comp = this.actionType.equals(ActionType.Axis)
                     ? (MapperComponent) ((TableModel) axisModel).getList().get(row)
                     : (MapperComponent) ((TableModel) buttonsModel).getList().get(row);
-            // MapperComponent comp = (MapperComponent) ((TableModel)axisModel).getList().get(row);
             if (comp.editFlag) {
                 setBackground(Color.green);
             }
             else {
                 setBackground(Color.white);
             }
+            
             if (column == 4) {
                 JButton b;
                 if (this.actionType.equals(ActionType.Axis)) {
                     b = (JButton) axisModel.getValueAt(row, column);
                     b.setEnabled(!editing); // Disable if we are editing
-                    return (JButton) axisModel.getValueAt(row, column);
+                    return b;
                 }
                 else if (this.actionType.equals(ActionType.Button)) {
                     b = (JButton) buttonsModel.getValueAt(row, column);
                     b.setEnabled(!editing); // Disable if we are editing
-                    return (JButton) buttonsModel.getValueAt(row, column);
+                    return b;
                 }
             }
             if (column == 5) {
