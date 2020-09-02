@@ -32,9 +32,13 @@
  */
 package pt.lsts.neptus.controllers;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dialog.ModalityType;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
@@ -50,6 +54,8 @@ import java.util.Map.Entry;
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -57,7 +63,11 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
+import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
+import javax.swing.WindowConstants;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 
@@ -86,6 +96,7 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
+import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * Controller Panel This panel is responsible for providing a away to teleoperate the vehicle, as well as edit the
@@ -237,6 +248,17 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
             }
         });
         
+        // Start the interface
+        refreshInterface();
+        if (actions != null) {
+            buildDialog();
+        }
+    }
+
+    /**
+     * 
+     */
+    private void buildInstructions() {
         JMenuBar menu = new JMenuBar();
         JMenu help = new JMenu("Help");
         JMenuItem instructions = new JMenuItem("Instructions");
@@ -244,8 +266,37 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO Auto-generated method stub
-                // Console Informative Panel
+                JDialog dg = new JDialog(SwingUtilities.getWindowAncestor(ControllerPanel.this),
+                        ModalityType.DOCUMENT_MODAL);
+                JPanel content = new JPanel(new BorderLayout());
+                JTextPane txt = new JTextPane();
+                txt.setContentType("text/html");
+//                txt.setText(I18n.text("<html>To assign a button from the Joystick to the Main System Available RemoteActions:\n"
+//                        + "  1. Click on the Edit button of the  intended RemoteAction on the Table.\n"
+//                        + "  2. Once the RemoteAction line gets green you are in edition mode of the Table.\n"
+//                        + "  3. Select the intended button on the Joystick.\n"
+//                        + "  4. After the editing mode is disable, verify if the axis is in the correct direction, otherwise inverted on the in the respective column.\n\n"
+//                        + "After configuring all the RemoteActions of the Main System, youcan enable Teleoperation mode and start controlling with the joystick.</html>"));
+                txt.setText(I18n.text("<html>"
+                        + "<h1 style=\"text-align: center;\"><strong>Instructions</strong></h1>\n" + 
+                        "<h2>To assign a button from the Joystick<br /> to the Main System Available RemoteActions:</h2>\n" + 
+                        "<ol>\n" + 
+                        "<li>Click on the Edit button of the intended <br />RemoteAction on the Table.</li>\n" + 
+                        "<li>Once the RemoteAction line gets green <br />you are in edition mode of the Table.</li>\n" + 
+                        "<li>Select the intended button on the Joystick.</li>\n" + 
+                        "<li>After the editing mode is disable, <br />&nbsp;verify if the axis is in the correct direction,<br />&nbsp;otherwise inverted on the in the respective column.</li>\n" + 
+                        "</ol>\n" + 
+                        "<h2>After configuring all the RemoteActions of the Main System, you can enable Teleoperation mode and start controlling with the Joystick.</h2>"
+                        + "</html>"));
+                txt.setEditable(false);
+                content.add(txt,BorderLayout.CENTER);
+                dg.setContentPane(content);
+                dg.setSize(500, 350);
+                dg.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+                dg.getRootPane().registerKeyboardAction(ev -> { dg.dispose(); },
+                        KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
+                GuiUtils.centerParent(dg, (Window) dg.getParent());
+                dg.setVisible(true);
 
             }
         });
@@ -253,12 +304,6 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         menu.add(help);
 
         add(menu, "dock north");
-
-        // Start the interface
-        refreshInterface();
-        if (actions != null) {
-            buildDialog();
-        }
     }
 
     @Override
@@ -271,6 +316,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
 
     public void buildDialog() {
         removeAll();
+        buildInstructions();
         setSize(300, 200);
         axisModel = new TableModel(mappedAxis, ActionType.Axis);
         axisTable.setModel(axisModel);
@@ -407,6 +453,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
             add(new JLabel(I18n.text("No main vehicle selected in the console")));
 
         requestRemoteActions();
+        buildInstructions();
         this.repaint();
     }
 
