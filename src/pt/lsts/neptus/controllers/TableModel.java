@@ -117,18 +117,17 @@ class TableModel extends AbstractTableModel {
     public void setValueAt(Object value, int row, int col) {
         if (col == 3) {
             list.get(row).inverted = (Boolean)value;
-            fireTableCellUpdated(row, col);
         }
         else if (col == 6) {
             try {
                 int v = (int) value;
                 this.list.get(row).setRange(v);
-                fireTableCellUpdated(row, col);
             }
             catch (NumberFormatException e) {
                 NeptusLog.pub().error(I18n.text("Invalid Number Format for Range."), e);
             }
         }
+        fireTableCellUpdated(row, col);
     }
 
     public Class<?> getColumnClass(int c) {

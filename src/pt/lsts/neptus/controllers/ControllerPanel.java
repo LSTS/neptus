@@ -38,6 +38,8 @@ import java.awt.Dialog.ModalityType;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -85,11 +87,17 @@ import net.java.games.input.Component;
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.RemoteActions;
 import pt.lsts.imc.RemoteActionsRequest;
+import pt.lsts.imc.VehicleState;
 import pt.lsts.imc.RemoteActionsRequest.OP;
+import pt.lsts.imc.VehicleState.OP_MODE;
+import pt.lsts.imc.state.ImcSystemState;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
+import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged.STATE;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -112,7 +120,7 @@ import pt.lsts.neptus.util.GuiUtils;
 public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
 
     @NeptusProperty(name = "Axis Range", description = "Varies between the range and its simetrical value.\nCan be edited in each field inside the plugin.")
-    protected static int RANGE = 127;
+    protected static float RANGE = (float) 127.0;
 
     enum ActionType {
         Axis,
@@ -122,7 +130,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
     private static final long serialVersionUID = 1L;
 
     private static final String ACTION_FILE_XML = "conf/controllers/actions.xml";
-    private boolean sending = false;
+    // private boolean sending = false;
 
     // Vehicle action received via RemoteActionRequest (i.e Heading=axis, Accelerate=Button)
     private LinkedHashMap<String, String> actions = new LinkedHashMap<String, String>();
@@ -222,32 +230,21 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         // Initialize current controller
         currentController = (String) controllerSelectors.get(0).getSelectedItem();
 
-        dialog.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowActivated(WindowEvent e) {
-                sending = true;
-            }
-
-            @Override
-            public void windowClosing(WindowEvent e) {
-                sending = false;
-            }
-        });
-
         setLayout(new MigLayout("", "[center]", ""));
-        
-        btnInHold.addActionListener(new ActionListener() {
+        btnInHold.addItemListener(new ItemListener() {
 
             @Override
-            public void actionPerformed(ActionEvent e) {
-                JToggleButton button = (JToggleButton) e.getSource();
-                if (!button.isSelected()) {
-                    // TODO
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    NeptusLog.pub().warn(I18n.text("Entering Input Hold Mode on Teleoperation."));
+                }
+                else if (e.getStateChange() == ItemEvent.DESELECTED) {
+                    msgActions.clear(); // clean on hold remote actions
                 }
 
             }
         });
-        
+
         // Start the interface
         refreshInterface();
         if (actions != null) {
@@ -271,30 +268,35 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                 JPanel content = new JPanel(new BorderLayout());
                 JTextPane txt = new JTextPane();
                 txt.setContentType("text/html");
-//                txt.setText(I18n.text("<html>To assign a button from the Joystick to the Main System Available RemoteActions:\n"
-//                        + "  1. Click on the Edit button of the  intended RemoteAction on the Table.\n"
-//                        + "  2. Once the RemoteAction line gets green you are in edition mode of the Table.\n"
-//                        + "  3. Select the intended button on the Joystick.\n"
-//                        + "  4. After the editing mode is disable, verify if the axis is in the correct direction, otherwise inverted on the in the respective column.\n\n"
-//                        + "After configuring all the RemoteActions of the Main System, youcan enable Teleoperation mode and start controlling with the joystick.</html>"));
+                // txt.setText(I18n.text("<html>To assign a button from the Joystick to the Main System Available
+                // RemoteActions:\n"
+                // + " 1. Click on the Edit button of the intended RemoteAction on the Table.\n"
+                // + " 2. Once the RemoteAction line gets green you are in edition mode of the Table.\n"
+                // + " 3. Select the intended button on the Joystick.\n"
+                // + " 4. After the editing mode is disable, verify if the axis is in the correct direction, otherwise
+                // inverted on the in the respective column.\n\n"
+                // + "After configuring all the RemoteActions of the Main System, youcan enable Teleoperation mode and
+                // start controlling with the joystick.</html>"));
                 txt.setText(I18n.text("<html>"
-                        + "<h1 style=\"text-align: center;\"><strong>Instructions</strong></h1>\n" + 
-                        "<h2>To assign a button from the Joystick<br /> to the Main System Available RemoteActions:</h2>\n" + 
-                        "<ol>\n" + 
-                        "<li>Click on the Edit button of the intended <br />RemoteAction on the Table.</li>\n" + 
-                        "<li>Once the RemoteAction line gets green <br />you are in edition mode of the Table.</li>\n" + 
-                        "<li>Select the intended button on the Joystick.</li>\n" + 
-                        "<li>After the editing mode is disable, <br />&nbsp;verify if the axis is in the correct direction,<br />&nbsp;otherwise inverted on the in the respective column.</li>\n" + 
-                        "</ol>\n" + 
-                        "<h2>After configuring all the RemoteActions of the Main System, you can enable Teleoperation mode and start controlling with the Joystick.</h2>"
+                        + "<h1 style=\"text-align: center;\"><strong>Instructions</strong></h1>\n"
+                        + "<h2>To assign a button from the Joystick<br /> to the Main System Available RemoteActions:</h2>\n"
+                        + "<ol>\n"
+                        + "<li>Click on the Edit button of the intended <br />RemoteAction on the Table.</li>\n"
+                        + "<li>Once the RemoteAction line gets green <br />you are in edition mode of the Table.</li>\n"
+                        + "<li>Select the intended button on the Joystick.</li>\n"
+                        + "<li>After the editing mode is disable, <br />&nbsp;verify if the axis is in the correct direction,<br />&nbsp;otherwise you can invert it on the in the respective column.</li>\n"
+                        + "</ol>\n"
+                        + "<h2>After configuring all the RemoteActions of the Main System, you can enable Teleoperation mode and start controlling with the Joystick.</h2>"
+                        + "<h2>Once in Input Hold Mode, the list of Remote Actions will only increment according to the new buttons selected.</h2>"
                         + "</html>"));
                 txt.setEditable(false);
-                content.add(txt,BorderLayout.CENTER);
+                content.add(txt, BorderLayout.CENTER);
                 dg.setContentPane(content);
-                dg.setSize(500, 350);
+                dg.setSize(500, 400);
                 dg.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-                dg.getRootPane().registerKeyboardAction(ev -> { dg.dispose(); },
-                        KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
+                dg.getRootPane().registerKeyboardAction(ev -> {
+                    dg.dispose();
+                }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
                 GuiUtils.centerParent(dg, (Window) dg.getParent());
                 dg.setVisible(true);
 
@@ -379,13 +381,12 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         for (Entry<String, String> entry : actions.entrySet()) {
             String action = entry.getKey();
             String aType = entry.getValue();
-//            System.out.println("Action: "+action+" Action Type:"+aType);
             MapperComponent comp = getMapperComponentByName(systemName, controllerName, action);
             if (aType.equalsIgnoreCase(actionType.name())) { // verify if action is Axis or Button
                 if (comp == null) {
-                    if(actionType.equals(ActionType.Axis))
+                    if (actionType.equals(ActionType.Axis))
                         result.add(new MapperComponent(action, "", 0.0f, false, RANGE));
-                    else if(actionType.equals(ActionType.Button))
+                    else if (actionType.equals(ActionType.Button))
                         result.add(new MapperComponent(action, "", 0.0f, false));
                 }
                 else
@@ -444,17 +445,32 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
      */
     public void refreshInterface() {
         actions = null;
+        editing = false;
 
         removeAll();
+        buildInstructions();
 
         if (console.getMainSystem() != null)
             add(new JLabel(I18n.text("Waiting for vehicle action list")));
         else
             add(new JLabel(I18n.text("No main vehicle selected in the console")));
 
-        requestRemoteActions();
-        buildInstructions();
+        if (connected())
+            requestRemoteActions();
         this.repaint();
+    }
+
+    private boolean sending() {
+        return dialog.isVisible() //TODO find solution with window/dialog closed
+                && console.getSystem(console.getMainSystem()).getVehicleState().equals(STATE.TELEOPERATION);
+    }
+
+    private boolean connected() {
+//        System.out.println("Is " + console.getSystem(console.getMainSystem()).getName() + " connected? "
+//                + !console.getSystem(console.getMainSystem()).getVehicleState().equals(STATE.DISCONNECTED) + " state "
+//                + console.getSystem(console.getMainSystem()).getVehicleState());
+
+        return !console.getSystem(console.getMainSystem()).getVehicleState().equals(STATE.DISCONNECTED);
     }
 
     @Subscribe
@@ -473,12 +489,10 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         if (manager == null || currentController == null) {
             return true;
         }
-        
+
         if (dialog == null)
             return true;
 
-        sending = dialog.isVisible();
-        
         try {
             poll = manager.pollController(currentController);
         }
@@ -507,8 +521,10 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                             if (mcomp.editFlag) {
                                 mcomp.button = k;
                                 mcomp.inverted = poll.get(k).getPollData() < 0;
-                                
-                                if(actions.get(mcomp.action).equals("Axis"))
+//                                System.out.println("Get Poll Data for: " + mcomp.action + " " + k + " Value: "
+//                                        + poll.get(k).getPollData() + " final value: " + mcomp.value);
+
+                                if (actions.get(mcomp.action).equals("Axis"))
                                     axisModel.fireTableDataChanged();
                                 else
                                     buttonsModel.fireTableDataChanged();
@@ -532,14 +548,16 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         }
         else {
             // Use the periodic update to keep asking for RemoteActions list
-            if (sending && actions == null) {
+            if (connected() && actions == null) {
                 requestRemoteActions();
             }
 
             if (currentController == null || actions == null || console.getMainSystem() == null) {
                 return true;
             }
-            msgActions.clear();
+            
+            if(!btnInHold.isSelected())
+                msgActions.clear();
 
             for (String k : poll.keySet()) {
                 // Find the suitable MapperComponent to get data from
@@ -548,38 +566,62 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                 ArrayList<MapperComponent> remoteActions = new ArrayList<MapperComponent>();
                 remoteActions.addAll(mappedAxis);
                 remoteActions.addAll(mappedButtons);
-                for (MapperComponent c : remoteActions) { 
+                for (MapperComponent c : remoteActions) {
                     if (c.button.equals(k)) {
                         comp = c;
                         break;
                     }
                 }
 
-                if (comp != null) {
+                if (comp != null && poll.get(k) != null) {
+                    // update Model list
+//                    System.out.println("MATH ABS VALUE for: " + comp.action + " value=" + comp.value + " Bool: "
+//                            + (Float.compare(Math.abs(comp.value), (float) 0.0) != 0)); //FIXME poll.get(k).getDeadZone() instead of 0.0
                     comp.value = poll.get(k).getPollData()
-                            * (actions.get(comp.action).equals("Axis") ? comp.getRange() : 1)
-                            * (comp.inverted ? -1 : 1);
-                    if (actions.get(comp.action).equals("Axis"))
+                            * (actions.get(comp.action).equals("Axis") ? comp.getRange() * ((comp.inverted ? -1 : 1))
+                                    : 1);
+
+                    if (actions.get(comp.action).equals("Axis")) {
+                        int index = mappedAxis.indexOf(comp);
+                        if(index != -1) {
+                            ((AbstractTableModel) axisTable.getModel()).setValueAt(comp.value, index, 2);
+                            ((AbstractTableModel) axisTable.getModel()).fireTableCellUpdated(index, 2);
+                        }
                         ((AbstractTableModel) axisTable.getModel()).fireTableDataChanged();
-                    else
+                    }
+                    else {
+                        int index = mappedButtons.indexOf(comp);
+                        if(index != -1) {
+                            ((AbstractTableModel) buttonsTable.getModel()).setValueAt(comp.value, index, 2);
+                            ((AbstractTableModel) buttonsTable.getModel()).fireTableCellUpdated(index, 2);
+                        }
                         ((AbstractTableModel) buttonsTable.getModel()).fireTableDataChanged();
-                    // Only if we are already sending that we build the msgActions LinkedHashMap
-                    if (sending || btnInHold.isSelected()) {
+                    }
+
+
+                    if (sending() && (Float.compare(Math.abs(comp.value), (float) 0.0) != 0)) {     
                         msgActions.put(comp.action, comp.value + "");
-                        //TODO send rigth away
-//                        System.out.println("Clicking "+comp.action);
+//                        System.out.println("Adding " + comp.action);
                     }
                 }
             }
-            if (sending || btnInHold.isSelected()) {
-                // Finally send the message
-                RemoteActions msg = new RemoteActions();
-                msg.setActions(msgActions);
-//                System.out.println("Sending: "+msg);
-                getConsole().getImcMsgManager().sendMessageToSystem(msg, console.getMainSystem());
+            // If no new button is selected and we are still in input old mode
+            // Sends the last saved buttons in the Tupple list
+            if (sending() ) {//&& btnInHold.isSelected()
+                sendRemoteActions();
             }
         }
         return true;
+    }
+
+    /**
+     * 
+     */
+    private void sendRemoteActions() {
+        RemoteActions msg = new RemoteActions();
+        msg.setActions(msgActions);
+//        System.out.println("Sending: " + msg);
+        getConsole().getImcMsgManager().sendMessageToSystem(msg, console.getMainSystem());
     }
 
     private void saveMappings() {
@@ -667,11 +709,11 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         boolean inverted;
         JButton edit;
         JButton clear;
-        int range;
+        float range;
 
         boolean editFlag = false;
 
-        MapperComponent(final String action, String component, float value, boolean inverted, int r) {
+        MapperComponent(final String action, String component, float value, boolean inverted, float r) {
             this.action = action;
             this.button = component;
             this.value = value;
@@ -691,39 +733,46 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
             this.inverted = inverted;
             this.edit = new JButton(I18n.text("Edit"));
             this.clear = new JButton(I18n.text("Clear"));
-            this.range = 0;
+            this.range = (float) 0.0;
 
             initButtons();
         }
 
-        public int getRange() {
+        public float getRange() {
             return this.range;
         }
 
-        public void setRange(int r) {
+        public void setRange(float  r) {
             this.range = r;
+        }
+        
+        public void clear() {
+            this.button = "";
+            this.inverted = false;
+            this.value = (float) 0.0;
+            this.inverted = false;
+            this.editFlag = false;
         }
 
         /**
          * 
          */
         private void initButtons() {
-            //editing = false; //TODO
+            // editing = false; //TODO
             edit.addMouseListener(new MouseAdapter() {
 
                 @Override
                 public void mouseClicked(MouseEvent e) {
-                    super.mouseClicked(e); //edit.doClick();
+                    super.mouseClicked(e); // edit.doClick();
                     if (!editing) { // ItemEvent.SELECTED
-//                        System.out.println("Selected Edit togglebutton");
                         editing = true;
                         editFlag = true;
                     }
-//                    else { // if(e.getStateChange()==ItemEvent.DESELECTED){
-//                        editing = false;
-//                        editFlag = false;
-//                        saveMappings(); // Save every time we edit a single action
-//                    }
+                    // else { // if(e.getStateChange()==ItemEvent.DESELECTED){
+                    // editing = false;
+                    // editFlag = false;
+                    // saveMappings(); // Save every time we edit a single action
+                    // }
 
                 }
             });
@@ -731,8 +780,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                 @Override
                 public void mouseClicked(MouseEvent e) {
                     super.mouseClicked(e);
-                    MapperComponent.this.button = "";
-                    MapperComponent.this.inverted = false;
+                    MapperComponent.this.clear();
                 }
             });
         }
@@ -753,24 +801,28 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
             MapperComponent comp = this.actionType.equals(ActionType.Axis)
                     ? (MapperComponent) ((TableModel) axisModel).getList().get(row)
                     : (MapperComponent) ((TableModel) buttonsModel).getList().get(row);
-                    
+
             if (comp.editFlag) {
                 setBackground(Color.green);
             }
             else {
                 setBackground(Color.white);
             }
-
+            
+            if(column == 2) {
+//                System.out.println("Value on Row"+row+"="+comp.value);
+            }
+            
             if (column == 4) {
-                JButton b; //JToggleButton
+                JButton b; // JToggleButton
                 if (this.actionType.equals(ActionType.Axis)) {
                     b = (JButton) axisModel.getValueAt(row, column);
                     b.setEnabled(!editing); // Disable if we are editing //TODO
                     return b;
                 }
                 else if (this.actionType.equals(ActionType.Button)) {
-                    b = (JButton) buttonsModel.getValueAt(row, column); //Toggle
-                    b.setEnabled(!editing); // Disable if we are editing //TODO 
+                    b = (JButton) buttonsModel.getValueAt(row, column); // Toggle
+                    b.setEnabled(!editing); // Disable if we are editing //TODO
                     return b;
                 }
             }
