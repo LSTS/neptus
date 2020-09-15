@@ -44,6 +44,7 @@ import pt.lsts.imc.PopUp;
 import pt.lsts.imc.StationKeeping;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.mra.MRAProperties;
 import pt.lsts.neptus.mra.api.BathymetryPoint;
 import pt.lsts.neptus.mra.api.BathymetrySwath;
 import pt.lsts.neptus.mra.api.CorrectedPosition;
@@ -93,7 +94,9 @@ public class XyzTilesExporter implements MRAExporter {
     @Override
     public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
         pmonitor.setMaximum(100);
-        PluginUtils.editPluginProperties(this, true);
+        if (!MRAProperties.batchMode)
+            PluginUtils.editPluginProperties(this, true);
+        
         pmonitor.setMillisToDecideToPopup(0);
 
         pmonitor.setProgress(0);
