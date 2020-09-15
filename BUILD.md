@@ -1,13 +1,19 @@
 # Neptus, Command and Control Framework
 
+## TL:DR
+
+* Run `./gradlew clean && ./gradlew && ./gradlew run`
+
 ## Build Instructions
+
+* `./gradlew` Will run with default tasks `buildJars` and `buildBundleJars`
+* `./gradlew clean` will cleanup the build (can be run for subproject)
+* `./gradlew run` will run the build inside Gradle (use the `neptus` and `neptus.bat` 
+  on the root folder to run on the shell)
 
 * `./gradlew buildJars` will build main jar and plugin jars (and tasks of type jar)
 * `./gradlew classes` will compile the classes
 * `./gradlew jar` will create the jars
-* `./gradlew clean` will cleanup the build (can be run for subproject)
-* `./gradlew run` will run the build inside Gradle (use the `neptus` and `neptus.bat` 
-  on the root folder to run on the shell)
 
 ## Distribution
 
