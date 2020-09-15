@@ -745,6 +745,7 @@ task buildWorldmapBundleJar(type: Jar) {
     archiveVersion = ''
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     destinationDirectory = file("$rootDir/bin-bundles")
+    includeEmptyDirs = false
     manifest {
         attributes(
             'Specification-Title': rootProject.name.capitalize(),
@@ -804,6 +805,11 @@ task buildWorldmapBundleJar(type: Jar) {
         include 'git.*'
         include 'version.*'
         include 'info*'
+    }
+    from ("${rootProject.rootDir}/legal") {
+        into 'legal'
+    }
+    from (project(':core').sourceSets.main.output) {
         include 'images/neptus-icon.png'
         include 'images/neptus-icon1.png'
         include 'images/neptus-icon2.png'
@@ -815,9 +821,6 @@ task buildWorldmapBundleJar(type: Jar) {
         include 'images/world/*.png'
         include '**/*.class'
     }
-    from ("${rootProject.rootDir}/legal") {
-        into 'legal'
-    }
 }
 
 // Creates the bin/bundles neptus-check.jar
@@ -828,6 +831,7 @@ task buildCheckBundleJar(type: Jar) {
     archiveVersion = ''
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     destinationDirectory = file("$rootDir/bin-bundles")
+    includeEmptyDirs = false
     manifest {
         attributes(
             'Specification-Title': rootProject.name.capitalize(),
@@ -871,6 +875,11 @@ task buildCheckBundleJar(type: Jar) {
         include 'git.*'
         include 'version.*'
         include 'info*'
+    }
+    from ("${rootProject.rootDir}/legal") {
+        into 'legal'
+    }
+    from (project(':core').sourceSets.main.output) {
         include 'images/neptus-icon.png'
         include 'images/neptus-icon1.png'
         include 'images/neptus-icon2.png'
@@ -878,9 +887,6 @@ task buildCheckBundleJar(type: Jar) {
         include 'images/files-icons/*.png'
         include 'schemas/neptus-checklist.xsd'
         include '**/*.class'
-    }
-    from ("${rootProject.rootDir}/legal") {
-        into 'legal'
     }
 }
 
