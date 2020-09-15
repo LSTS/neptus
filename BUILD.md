@@ -1,6 +1,6 @@
 # Neptus, Command and Control Framework
 
-## TL:DR
+## TL;DR
 
 * Run `./gradlew clean && ./gradlew && ./gradlew run`
 
