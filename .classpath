@@ -258,6 +258,7 @@
 	<classpathentry kind="lib" path="lib/geojson-jackson-1.14.jar"/>
 	<classpathentry kind="lib" path="lib/jackson-databind-2.11.2.jar"/>
 	<classpathentry kind="lib" path="lib/jackson-core-2.11.2.jar"/>
+	<classpathentry kind="lib" path="plugins-dev/mra-plots/lib/proj4j-1.1.1.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="lib/ini4j-0.5.2.jar"/>

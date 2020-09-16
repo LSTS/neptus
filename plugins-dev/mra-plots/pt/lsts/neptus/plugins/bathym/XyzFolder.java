@@ -28,6 +28,17 @@ public class XyzFolder {
 		this.root = folder;
 		if (!root.exists())
 			root.mkdirs();
+		
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+		    public void run() {
+		        try {
+		            close();
+		        }
+		        catch (Exception e) {
+		            e.printStackTrace();
+                }
+		    };
+		});
 	}
 	
 	/**
