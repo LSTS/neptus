@@ -160,6 +160,14 @@ public class XyzTilesExporter implements MRAExporter {
         }
 
         pmonitor.setProgress(100);
+        
+        try {
+            folder.close();    
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        
 
         return I18n.textf("Data written to %file.", new File(source.getDir(), "mra/xyz"));
     }

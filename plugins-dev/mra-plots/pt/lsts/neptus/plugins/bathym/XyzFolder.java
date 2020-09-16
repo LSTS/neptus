@@ -92,4 +92,9 @@ public class XyzFolder {
 		});
 		return writers.get(filename);
 	}
+	
+	public void close() throws Exception {
+	    for (BufferedWriter writer : writers.values())
+	        writer.close();
+	}
 }
