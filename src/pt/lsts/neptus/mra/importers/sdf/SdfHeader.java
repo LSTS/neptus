@@ -37,11 +37,13 @@ import java.nio.ByteBuffer;
 public class SdfHeader {
     private int numberBytes; // total number of bytes in page
 
-    /*---------pageVersion-----------------------
-    | UUV 3500 sonar data(Obsolete)      | 3500 |
-    | UUV 3500 sonar data Low Frequency  | 3501 |
-    | UUV 3500 sonar data High Frequency | 3502 |
-    ---------------------------------------------
+    /*---------pageVersion-------------------------------
+    | UUV 3500 sonar data(Obsolete)              | 3500 |
+    | UUV 3500 sonar data Low Frequency          | 3501 |
+    | UUV 3500 sonar data High Frequency         | 3502 |
+    | UUV 3500 sonar data Bathy Pulse Compressed | 3503 |
+    | UUV 3500 sonar data Bathy Processed        | 3511 |
+    -----------------------------------------------------
      */
     private int pageVersion; // data page structure
 
@@ -957,7 +959,13 @@ public class SdfHeader {
         this.sonarFreq = sonarFreq;
     }
 
-    void parse(ByteBuffer buffer) {
+    public void parse(ByteBuffer buffer) {
+        // The SonarPro® generated Sonar Data Files (SDF) have an “.sdf” file
+        // extensions. These files are in the form; [data page][data page] … etc
+        // – where each data page is the ping marker followed by the SDF data
+        // page as described in section 3. The ping marker is a 32-bit value
+        // that never changes and is equal to 0xFFFFFFFF (2^32-1).
+        
         setNumberBytes(buffer.getInt(4));
         setPageVersion(buffer.getInt(8));
         setConfiguration(buffer.getInt(12));

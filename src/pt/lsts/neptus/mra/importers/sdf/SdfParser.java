@@ -36,6 +36,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -49,6 +50,7 @@ import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
 
 public class SdfParser {
     // Minimum valid timestamp (2000-01-01 00:00:00).
@@ -69,9 +71,10 @@ public class SdfParser {
     private ArrayList<Long[]> tsSHigh = new ArrayList<>();
     private ArrayList<Long[]> tsSLow = new ArrayList<>();
 
-    final static int SUBSYS_LOW = 3501;
-    final static int SUBSYS_HIGH = 3502;
-    final static int BATHY_PULSE_COMPRESSED = 3503;
+    public final static int SUBSYS_LOW = 3501;
+    public final static int SUBSYS_HIGH = 3502;
+    public final static int BATHY_PULSE_COMPRESSED = 3503;
+    public final static int BATHY_PROCESSED = 3511;
 
     public SdfParser(File file) {
         try {
@@ -547,6 +550,31 @@ public class SdfParser {
             e.printStackTrace();
         }
 
+    }
+
+    public static boolean canBeApplied(IMraLogGroup source) {
+        File[] file = findDataSource(source);
+        if (file != null && file.length > 0)
+            return true;
+        return false;
+    }
+
+    /**
+     * @param source
+     */
+    public static File[] findDataSource(IMraLogGroup source) {
+        File dir = source.getDir();
+        File[] retSdfFiles = dir.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File fileDir, String name) {
+                if (dir.getAbsolutePath().equals(fileDir.getAbsolutePath())) {
+                    if (name.toLowerCase().endsWith(".sdf"))
+                        return true;
+                }
+                return false;
+            }
+        });
+        return retSdfFiles;
     }
 
     public static int main(String[] args) throws Exception {

@@ -109,22 +109,27 @@ public class SdfData {
      * 
      */
     public void calculateTimeStamp() {
-        int year = header.getYear();
-        int month = header.getMonth();
-        int day = header.getDay();
-        int hour = header.getHour();
-        int minute = header.getMinute();
-        int seconds = header.getSecond();
-        double fSeconds = header.getfSecond();
+        long tsm = calculateTimeStampMillis(header.getYear(), header.getMonth(), header.getDay(), header.getHour(),
+                header.getMinute(), header.getSecond(), header.getfSecond());
+        setTimestamp(tsm);
+    }
+
+    public static long calculateTimeStampMillis(SdfHeader header) {
+        long tsm = calculateTimeStampMillis(header.getYear(), header.getMonth(), header.getDay(), header.getHour(),
+                header.getMinute(), header.getSecond(), header.getfSecond());
+        return tsm;
+    }
+    
+    public static long calculateTimeStampMillis(int year, int month, int day, int hour, int minute, int seconds,
+            double fSeconds) {
         int milis = (int) (fSeconds*1000) ;
-        
         Calendar cal =  Calendar.getInstance();
         cal.setTimeZone(TimeZone.getTimeZone("UTC"));
         cal.set(year, month-1, day, hour, minute, seconds);
         cal.set(Calendar.MILLISECOND, milis);
-        setTimestamp(cal.getTimeInMillis());
+        long tsm = cal.getTimeInMillis();
+        return tsm;
     }
-
 
     /**
      * @return the timestamp

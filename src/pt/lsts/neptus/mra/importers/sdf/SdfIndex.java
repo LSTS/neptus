@@ -39,22 +39,21 @@ import java.util.LinkedHashMap;
 public class SdfIndex implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    long firstTimestampHigh = -1;
-    long lastTimestampHigh = -1;
+    public long firstTimestampHigh = -1;
+    public long lastTimestampHigh = -1;
     
-    long firstTimestampLow = -1;
-    long lastTimestampLow = -1;
+    public long firstTimestampLow = -1;
+    public long lastTimestampLow = -1;
 
-    long numberOfPackets = -1;
+    public long numberOfPackets = -1;
     
-    boolean hasHigh = false;
-    boolean hasLow = false;
+    public boolean hasHigh = false;
+    public boolean hasLow = false;
     
-    LinkedHashMap<Long, ArrayList<Long>> positionMapHigh = new LinkedHashMap<Long, ArrayList<Long>>();
-    LinkedHashMap<Long, ArrayList<Long>> positionMapLow = new LinkedHashMap<Long, ArrayList<Long>>();
+    public LinkedHashMap<Long, ArrayList<Long>> positionMapHigh = new LinkedHashMap<Long, ArrayList<Long>>();
+    public LinkedHashMap<Long, ArrayList<Long>> positionMapLow = new LinkedHashMap<Long, ArrayList<Long>>();
     
-    ArrayList<Integer> frequenciesList = new ArrayList<Integer>();
-    ArrayList<Integer> subSystemsList = new ArrayList<Integer>();
-    
+    public ArrayList<Integer> frequenciesList = new ArrayList<Integer>();
+    public ArrayList<Integer> subSystemsList = new ArrayList<Integer>();
 }
 
