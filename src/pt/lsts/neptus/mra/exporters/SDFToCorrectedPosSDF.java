@@ -57,6 +57,7 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.bathymetry.TidePredictionFactory;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
  * Apply corrected position to 83P and re-exported.  
@@ -207,6 +208,7 @@ public class SDFToCorrectedPosSDF implements MRAExporter {
     }
 
     public static void main(String[] args) {
+        ConfigFetch.initialize(); // Don't touch this, leave it as it his
         BatchMraExporter.apply(SDFToCorrectedPosSDF.class);
     }
 }
