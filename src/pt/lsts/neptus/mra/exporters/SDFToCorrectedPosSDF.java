@@ -69,13 +69,8 @@ public class SDFToCorrectedPosSDF implements MRAExporter {
     private IMraLogGroup log = null;
     private CorrectedPosition correctedPosition = null;
 
-    private SdfParser sdfParser = null;
-
-//    private FileInputStream fis;
     private RandomAccessFile raFile;
     private FileChannel channel;
-    private ByteBuffer buf;
-    private long curPos = 0;
 
     public SDFToCorrectedPosSDF(IMraLogGroup log) {
         this.log = log;
@@ -139,10 +134,7 @@ public class SDFToCorrectedPosSDF implements MRAExporter {
             correctedPosition = getCorrectedPosition(source);
             
             SdfHeader header = new SdfHeader();
-            SdfData ping = new SdfData();
             
-            long count = 0;
-//            long pos = 0;
             long curPosition = 0;
             
             try {
@@ -174,7 +166,6 @@ public class SDFToCorrectedPosSDF implements MRAExporter {
                     
                     // ping marker is the plus 4 bytes before the SDF Page
                     curPosition += (4 + header.getNumberBytes());
-                    count++;
 
                     if (curPosition >= channel.size())
                         break;
