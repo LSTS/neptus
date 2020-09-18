@@ -89,7 +89,7 @@ public class SidescanParserFactory {
     }
 
     private static int countSDFFiles(IMraLogGroup log) {
-        FilenameFilter sdfFilter = SDFFilter();
+        FilenameFilter sdfFilter = sdfFilter(false);
         File[] files = log.getDir().listFiles(sdfFilter);
         return files.length;
     }
@@ -108,7 +108,7 @@ public class SidescanParserFactory {
             if(file.exists()) {
                 return new Imagenex872SidescanParser(file);
             }
-            FilenameFilter sdfFilter = SDFFilter();
+            FilenameFilter sdfFilter = sdfFilter(true);
             File[] files = source.getDir().listFiles(sdfFilter);
             if (files.length == 1)
                 return new SdfSidescanParser(files[0]);
@@ -131,10 +131,14 @@ public class SidescanParserFactory {
         return null;
     }
     
-    private static FilenameFilter SDFFilter() {
+    public static FilenameFilter sdfFilter(boolean ignoreCorrected) {
         FilenameFilter sdfFilter = new FilenameFilter() {
             public boolean accept(File dir, String name) {
-                return name.toLowerCase().endsWith(".sdf"); // Possibly test if it starts with "Data"
+                boolean test = true;
+                if (ignoreCorrected) {
+                    test = !name.toLowerCase().endsWith("corrected.sdf");
+                }
+                return test && name.toLowerCase().endsWith(".sdf"); // Possibly test if it starts with "Data"
             }
         };
         return sdfFilter;

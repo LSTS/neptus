@@ -35,7 +35,7 @@ package pt.lsts.neptus.mra.importers.sdf;
 import java.nio.ByteBuffer;
 
 public class SdfHeader {
-    private int numberBytes; // total number of bytes in page
+    private long numberBytes; // total number of bytes in page
 
     /*---------pageVersion-------------------------------
     | UUV 3500 sonar data(Obsolete)              | 3500 |
@@ -45,7 +45,7 @@ public class SdfHeader {
     | UUV 3500 sonar data Bathy Processed        | 3511 |
     -----------------------------------------------------
      */
-    private int pageVersion; // data page structure
+    private long pageVersion; // data page structure
 
     /*
      * configuration Bit 0 – Channel 0 (LF Port side scan/Bathy) Bit 1 – Channel 1 (LF Stbd side scan/Bathy) Bit 2 –
@@ -55,9 +55,9 @@ public class SdfHeader {
      * Reserved (LF Bathy only) 5 – LF Side Scan and LF Bathy only 6 – LF Bathy and HF Side Scan 7 – LF and HF Side Scan
      * and LF Bathy 8 – 255 – Reserved.
      */
-    private int configuration; // Bit field indicates which channels have been enabled for data acquisition
-    private int pingNumber; // number of sonar pings
-    private int numSamples; // count of samples in processed side-scan data
+    private long configuration; // Bit field indicates which channels have been enabled for data acquisition
+    private long pingNumber; // number of sonar pings
+    private long numSamples; // count of samples in processed side-scan data
 
     /*
      * errorFlags Bit field: Bit 0: Invalid speed Bit 1: GPS data error Bit 2: Telemetry error Bit 3: Sensor Checksum
@@ -66,17 +66,17 @@ public class SdfHeader {
      * Unit or MRU error Bit 12: No 1 PPS input Not all bits are valid for all sonar configurations. For example,
      * towfish must be equipped with a leak sensor to set the towfish leak flag.
      */
-    private int errorFlags;
-    private int rangeMeters;
-    private int speedFish; // cm/s
+    private long errorFlags;
+    private long rangeMeters;
+    private long speedFish; // cm/s
 
-    private int speedSound; // speed of sound at the transducer arrays from a specified source (in cm/s)
+    private long speedSound; // speed of sound at the transducer arrays from a specified source (in cm/s)
 
     /*
      * Transmit waveform number Bits 0 thru 7 represent the Low Frequency transmit waveform number Bits 8 thru 15
      * represent the High Frequency transmit waveform number
      */
-    private int txWaveform;
+    private long txWaveform;
 
     private int year; // TPU Time of ping, Calendar Year
     private int month; // TPU Time of ping, Calendar month
@@ -99,8 +99,8 @@ public class SdfHeader {
     private double shipLon; // from serial NMEA, radians
     private double fishLat; // from serial NMEA, radians
     private double fishLon; // from serial NMEA, radians
-    private int tvgPage; // time-varied gain (0 = Low Gain ; 1 = High Gain)
-    private int headerSize; // number of bytes in header
+    private long tvgPage; // time-varied gain (0 = Low Gain ; 1 = High Gain)
+    private long headerSize; // number of bytes in header
 
     private int fixTimeYear; // Time of last serial NMEA message, year
     private int fixTimeMonth; // Time of last serial NMEA message, month
@@ -115,17 +115,17 @@ public class SdfHeader {
     private float auxAlt; // Altitude in meter.
     private float cableOut;
 
-    private int sampleFreq; // in Hz
+    private long sampleFreq; // in Hz
 
     private float GPSheight; // Vertical GPS Offset from datum (m) // F32;
-    private int rawDataConfig; // System UUV-3500, Hydroscan: (0 = standard operation ; 1 = factory test mode)
-    private int header3ExtensionSize; // Size of only this header extension. Must be equal to 256 bytes.
+    private long rawDataConfig; // System UUV-3500, Hydroscan: (0 = standard operation ; 1 = factory test mode)
+    private long header3ExtensionSize; // Size of only this header extension. Must be equal to 256 bytes.
 
     /*
      * tpuSwVersion Version of the TPU s/w, 0xVVNNMMDD where VV = Major Version Number NN = Minor Version Number MM =
      * Month DD = Day
      */
-    private int tpuSwVersion;
+    private long tpuSwVersion;
 
     /*
      * capabilityMask Bit mask defining various system capabilities. Bit 0 = Configured for raw data (System 5000 only)
@@ -140,14 +140,14 @@ public class SdfHeader {
      * This is a “3000-like” multi-channel single beam system. Bit 15 = System configured with 5900 gap filler sonar Bit
      * 16 = System has 1PPS trigger mode
      */
-    private int capabilityMask;
+    private long capabilityMask;
 
     /*
      * The extra number of samples included in each data channel to account for chirp Tx waveforms. This value is zero
      * for other waveforms.
      */
-    private int numSamplesExtra;
-    private int postProcessVersion;
+    private long numSamplesExtra;
+    private long postProcessVersion;
 
     /*
      * The type of motion sensor present in the towfish 0 = Standard TCM Compass 1 = KMS-01 Configuration 1 2 = POS MV
@@ -155,114 +155,114 @@ public class SdfHeader {
      */
     private short motionSensorType;
     private float pingInterval; // The ping interval in seconds // F32 pingInterval
-    private int sdfExtensionSize; // Size (in bytes), of the SDF extension area. If 0, no extension present.
+    private long sdfExtensionSize; // Size (in bytes), of the SDF extension area. If 0, no extension present.
 
     /*
      * The source of the header speedSound value: 0 = manual speed of sound 1 = array speed of sound sensor
      */
-    private int speedSoundSource;
+    private long speedSoundSource;
     private float pressureSensorMax; // maximum pressure reading of pressure sensor // F32
     private float pressureSensorVoltageMin; // minimum voltage reading from pressure sensor (Volts) //F32
     private float pressureSensorVoltageMax; // maximum voltage reading from pressure sensor (Volts) //F32
     private float temperatureAmbient; // Towfish internal temperature (Degrees C) //F32
-    private int saturationDetectThreshold; // Saturation Detect Threshold
-    private int sonarFreq; // The operating frequency of the Sonar (kHz)
+    private long saturationDetectThreshold; // Saturation Detect Threshold
+    private long sonarFreq; // The operating frequency of the Sonar (kHz)
 
     /**
      * @return the txWaveform
      */
-    public int getTxWaveform() {
+    public long getTxWaveform() {
         return txWaveform;
     }
 
     /**
      * @param txWaveform the txWaveform to set
      */
-    public void setTxWaveform(int txWaveform) {
+    public void setTxWaveform(long txWaveform) {
         this.txWaveform = txWaveform;
     }
 
-    public int getNumberBytes() {
+    public long getNumberBytes() {
         return numberBytes;
     }
 
-    public void setNumberBytes(int numberBytes) {
+    public void setNumberBytes(long numberBytes) {
         this.numberBytes = numberBytes;
     }
 
-    public int getPageVersion() {
+    public long getPageVersion() {
         return pageVersion;
     }
 
-    public void setPageVersion(int pageVersion) {
+    public void setPageVersion(long pageVersion) {
         this.pageVersion = pageVersion;
     }
 
-    public int getConfiguration() {
+    public long getConfiguration() {
         return configuration;
     }
 
-    public void setConfiguration(int configuration) {
+    public void setConfiguration(long configuration) {
         this.configuration = configuration;
     }
 
-    public int getPingNumber() {
+    public long getPingNumber() {
         return pingNumber;
     }
 
-    public void setPingNumber(int pingNumber) {
+    public void setPingNumber(long pingNumber) {
         this.pingNumber = pingNumber;
     }
 
-    public int getNumSamples() {
+    public long getNumSamples() {
         return numSamples;
     }
 
-    public void setNumSamples(int numSamples) {
+    public void setNumSamples(long numSamples) {
         this.numSamples = numSamples;
     }
 
-    public int getErrorFlags() {
+    public long getErrorFlags() {
         return errorFlags;
     }
 
-    public void setErrorFlags(int errorFlags) {
+    public void setErrorFlags(long errorFlags) {
         this.errorFlags = errorFlags;
     }
 
-    public int getRange() {
+    public long getRange() {
         return rangeMeters;
     }
 
-    public void setRange(int range) {
+    public void setRange(long range) {
         this.rangeMeters = range;
     }
 
     /**
      * @return the speedFish
      */
-    public int getSpeedFish() {
+    public long getSpeedFish() {
         return speedFish;
     }
 
     /**
      * @param speedFish the speedFish to set
      */
-    public void setSpeedFish(int speedFish) {
+    public void setSpeedFish(long speedFish) {
         this.speedFish = speedFish;
     }
 
     /**
      * @return the speedSound
      */
-    public int getSpeedSound() {
+    public long getSpeedSound() {
         return speedSound;
     }
 
     /**
      * @param speedSound the speedSound to set
      */
-    public void setSpeedSound(int speedSound) {
+    public void setSpeedSound(long speedSound) {
         this.speedSound = speedSound;
     }
 
@@ -549,35 +549,35 @@ public class SdfHeader {
     /**
      * @return the tvgPage
      */
-    public int getTvgPage() {
+    public long getTvgPage() {
         return tvgPage;
     }
 
     /**
      * @param tvgPage the tvgPage to set
      */
-    public void setTvgPage(int tvgPage) {
+    public void setTvgPage(long tvgPage) {
         this.tvgPage = tvgPage;
     }
 
     /**
      * @return the headerSize
      */
-    public int getHeaderSize() {
+    public long getHeaderSize() {
         return headerSize;
     }
 
     /**
      * @param headerSize the headerSize to set
      */
-    public void setHeaderSize(int headerSize) {
+    public void setHeaderSize(long headerSize) {
         this.headerSize = headerSize;
     }
 
     /**
      * @return the fixTimeYear
      */
-    public int getFixTimeYear() {
+    public long getFixTimeYear() {
         return fixTimeYear;
     }
 
@@ -717,42 +717,42 @@ public class SdfHeader {
     /**
      * @return the sampleFreq
      */
-    public int getSampleFreq() {
+    public long getSampleFreq() {
         return sampleFreq;
     }
 
     /**
      * @param sampleFreq the sampleFreq to set
      */
-    public void setSampleFreq(int sampleFreq) {
+    public void setSampleFreq(long sampleFreq) {
         this.sampleFreq = sampleFreq;
     }
 
     /**
      * @return the capabilityMask
      */
-    public int getCapabilityMask() {
+    public long getCapabilityMask() {
         return capabilityMask;
     }
 
     /**
      * @param capabilityMask the capabilityMask to set
      */
-    public void setCapabilityMask(int capabilityMask) {
+    public void setCapabilityMask(long capabilityMask) {
         this.capabilityMask = capabilityMask;
     }
 
     /**
      * @return the tpuSwVersion
      */
-    public int getTPUSwVersion() {
+    public long getTPUSwVersion() {
         return tpuSwVersion;
     }
 
     /**
      * @param tpuSwVersion the tpuSwVersion to set
      */
-    public void setTPUSwVersion(int tpuSwVersion) {
+    public void setTPUSwVersion(long tpuSwVersion) {
         this.tpuSwVersion = tpuSwVersion;
     }
 
@@ -773,56 +773,56 @@ public class SdfHeader {
     /**
      * @return the rawDataConfig
      */
-    public int getRawDataConfig() {
+    public long getRawDataConfig() {
         return rawDataConfig;
     }
 
     /**
      * @param rawDataConfig the rawDataConfig to set
      */
-    public void setRawDataConfig(int rawDataConfig) {
+    public void setRawDataConfig(long rawDataConfig) {
         this.rawDataConfig = rawDataConfig;
     }
 
     /**
      * @return the header3ExtensionSize
      */
-    public int getHeader3ExtensionSize() {
+    public long getHeader3ExtensionSize() {
         return header3ExtensionSize;
     }
 
     /**
      * @param header3ExtensionSize the header3ExtensionSize to set
      */
-    public void setHeader3ExtensionSize(int header3ExtensionSize) {
+    public void setHeader3ExtensionSize(long header3ExtensionSize) {
         this.header3ExtensionSize = header3ExtensionSize;
     }
 
     /**
      * @return the numSamplesExtra
      */
-    public int getNumSamplesExtra() {
+    public long getNumSamplesExtra() {
         return numSamplesExtra;
     }
 
     /**
      * @param numSamplesExtra the numSamplesExtra to set
      */
-    public void setNumSamplesExtra(int numSamplesExtra) {
+    public void setNumSamplesExtra(long numSamplesExtra) {
         this.numSamplesExtra = numSamplesExtra;
     }
 
     /**
      * @return the postProcessVersion
      */
-    public int getPostProcessVersion() {
+    public long getPostProcessVersion() {
         return postProcessVersion;
     }
 
     /**
      * @param postProcessVersion the postProcessVersion to set
      */
-    public void setPostProcessVersion(int postProcessVersion) {
+    public void setPostProcessVersion(long postProcessVersion) {
         this.postProcessVersion = postProcessVersion;
     }
 
@@ -850,28 +850,28 @@ public class SdfHeader {
     /**
      * @return the sdfExtensionSize
      */
-    public int getSDFExtensionSize() {
+    public long getSDFExtensionSize() {
         return sdfExtensionSize;
     }
 
     /**
      * @param sdfExtensionSize the sdfExtensionSize to set
      */
-    public void setSDFExtensionSize(int sdfExtensionSize) {
+    public void setSDFExtensionSize(long sdfExtensionSize) {
         this.sdfExtensionSize = sdfExtensionSize;
     }
 
     /**
      * @return the speedSoundSource
      */
-    public int getSpeedSoundSource() {
+    public long getSpeedSoundSource() {
         return speedSoundSource;
     }
 
     /**
      * @param speedSoundSource the speedSoundSource to set
      */
-    public void setSpeedSoundSource(int speedSoundSource) {
+    public void setSpeedSoundSource(long speedSoundSource) {
         this.speedSoundSource = speedSoundSource;
     }
 
@@ -934,28 +934,28 @@ public class SdfHeader {
     /**
      * @return the saturationDetectThreshold
      */
-    public int getSaturationDetectThreshold() {
+    public long getSaturationDetectThreshold() {
         return saturationDetectThreshold;
     }
 
     /**
      * @param saturationDetectThreshold the saturationDetectThreshold to set
      */
-    public void setSaturationDetectThreshold(int saturationDetectThreshold) {
+    public void setSaturationDetectThreshold(long saturationDetectThreshold) {
         this.saturationDetectThreshold = saturationDetectThreshold;
     }
 
     /**
      * @return the sonarFreq
      */
-    public int getSonarFreq() {
+    public long getSonarFreq() {
         return sonarFreq;
     }
 
     /**
      * @param sonarFreq the sonarFreq to set
      */
-    public void setSonarFreq(int sonarFreq) {
+    public void setSonarFreq(long sonarFreq) {
         this.sonarFreq = sonarFreq;
     }
 
@@ -965,14 +965,14 @@ public class SdfHeader {
         // – where each data page is the ping marker followed by the SDF data
         // page as described in section 3. The ping marker is a 32-bit value
         // that never changes and is equal to 0xFFFFFFFF (2^32-1).
-        
-        setNumberBytes(buffer.getInt(4));
-        setPageVersion(buffer.getInt(8));
-        setConfiguration(buffer.getInt(12));
-        setPingNumber(buffer.getInt(16));
-        setNumSamples(buffer.getInt(20));
-        setRange(buffer.getInt(32));
-        setSpeedFish(buffer.getInt(36));
+
+        setNumberBytes(buffer.getInt(4) & 0xffffffffL);
+        setPageVersion(buffer.getInt(8) & 0xffffffffL);
+        setConfiguration(buffer.getInt(12) & 0xffffffffL);
+        setPingNumber(buffer.getInt(16) & 0xffffffffL);
+        setNumSamples(buffer.getInt(20) & 0xffffffffL);
+        setRange(buffer.getInt(32) & 0xffffffffL);
+        setSpeedFish(buffer.getInt(36) & 0xffffffffL);
 
         // TPU Time of ping
         setYear(buffer.getInt(72));
@@ -991,76 +991,41 @@ public class SdfHeader {
         setShipHeading(buffer.getFloat(140));
         setShipLat(buffer.getDouble(148));
         setShipLon(buffer.getDouble(156));
-        setHeaderSize(buffer.getInt(184));
+        setHeaderSize(buffer.getInt(184) & 0xffffffffL);
         setAuxPitch(buffer.getFloat(200));
         setAuxRoll(buffer.getFloat(204));
         setAuxDepth(buffer.getFloat(208));
         setAuxAlt(buffer.getFloat(212));
-        setSampleFreq(buffer.getInt(228));
-        setSonarFreq(buffer.getInt(408));
-
+        setSampleFreq(buffer.getInt(228) & 0xffffffffL);
+        setSonarFreq(buffer.getInt(408) & 0xffffffffL);
     }
 
     @Override
     public String toString() {
-        return "number of Bytes " + getNumberBytes()
-        + "\npage version " + getPageVersion()
-        + "\nconfig " + Integer.toHexString(getConfiguration())
-        + "\nping number " + getPingNumber()
-        + "\nnumber of samples " + getNumSamples()
-        + "\nerror flags " + getErrorFlags()
-        + "\nrange " + getRange()
-        + "\nspeedFish " + getSpeedFish()
-        + "\nspeedSound " + getSpeedSound()
-        + "\ntxWaveForm " + Integer.toHexString(getTxWaveform())
-        + "\nyear " + getYear()
-        + "\nmonth " + getMonth()
-        + "\nday " + getDay()
-        + "\nhour " + getHour()
-        + "\nminute " + getMinute()
-        + "\nsecond " + getSecond()
-        + "\nhSecond " + gethSecond()
-        + "\nfixTimeHour " + getFixTimeHour()
-        + "\nfixTimeMinute " + getFixTimeMinute()
-        + "\nfixTimeSecond " + getFixTimeSecond()
-        + "\nfish heading" + getFishHeading()
-        + "\npitch " + getPitch()
-        + "\nroll " + getRoll()
-        + "\ndepth " + getDepth()
-        + "\ntemperature " + getTemperature()
-        + "\nspeed " + getSpeed()
-        + "\nshipHeading " + getShipHeading()
-        + "\nshipLat " + getShipLat()
-        + "\nshipLon " + getShipLon()
-        + "\nfishLat " + getFishLat()
-        + "\nfishLon " + getFishLon()
-        + "\ntvgPage " + getTvgPage()
-        + "\nheaderSize " + getHeaderSize()
-        + "\nfixTimeYear " + getFixTimeYear()
-        + "\nfixTimeMonth " + getFixTimeMonth()
-        + "\nfixTimeDay " + getFixTimeDay()
-        + "\nauxPitch " + getAuxPitch()
-        + "\nauxRoll " + getAuxRoll()
-        + "\nauxDepth " + getAuxDepth()
-        + "\nauxAlt " + getAuxAlt()
-        + "\ncableOut " + getCableOut()
-        + "\nfseconds " + getfSecond()
-        + "\nsampleFreq " + getSampleFreq()
-        + "\nrawDataConfig " + getRawDataConfig()
-        + "\nheader3ExtensionSize " + getHeader3ExtensionSize()
-        + "\ntpuSwVersion " + Integer.toHexString(getTPUSwVersion())
-        + "\ncapabilityMask " + Integer.toHexString(getCapabilityMask())
-        + "\nnumSamplesExtra " + getNumSamplesExtra()
-        + "\npostProcessVersion " + getPostProcessVersion()
-        + "\nmotionSensorType " + getMotionSensorType()
-        + "\npingInterval " + getPingInterval()
-        + "\nsdfExtensionSize " + getSDFExtensionSize()
-        + "\nspeedSoundSource " + getSpeedSoundSource()
-        + "\npressureSensorMax " + getPressureSensorMax()
-        + "\npressureSensorVoltageMin " + getPressureSensorVoltMin()
-        + "\npressureSensorVoltageMax " + getPressureSensorVoltMax()
-        + "\ntemperatureAmbient " + getTemperatureAmbient()
-        + "\nsaturationDetectThreshold " + getSaturationDetectThreshold()
-        + "\nsonarFreq " + getSonarFreq();
+        return "number of Bytes " + getNumberBytes() + "\npage version " + getPageVersion() + "\nconfig "
+                + Long.toHexString(getConfiguration()) + "\nping number " + getPingNumber() + "\nnumber of samples "
+                + getNumSamples() + "\nerror flags " + getErrorFlags() + "\nrange " + getRange() + "\nspeedFish "
+                + getSpeedFish() + "\nspeedSound " + getSpeedSound() + "\ntxWaveForm "
+                + Long.toHexString(getTxWaveform()) + "\nyear " + getYear() + "\nmonth " + getMonth() + "\nday "
+                + getDay() + "\nhour " + getHour() + "\nminute " + getMinute() + "\nsecond " + getSecond()
+                + "\nhSecond " + gethSecond() + "\nfixTimeHour " + getFixTimeHour() + "\nfixTimeMinute "
+                + getFixTimeMinute() + "\nfixTimeSecond " + getFixTimeSecond() + "\nfish heading" + getFishHeading()
+                + "\npitch " + getPitch() + "\nroll " + getRoll() + "\ndepth " + getDepth() + "\ntemperature "
+                + getTemperature() + "\nspeed " + getSpeed() + "\nshipHeading " + getShipHeading() + "\nshipLat "
+                + getShipLat() + "\nshipLon " + getShipLon() + "\nfishLat " + getFishLat() + "\nfishLon " + getFishLon()
+                + "\ntvgPage " + getTvgPage() + "\nheaderSize " + getHeaderSize() + "\nfixTimeYear " + getFixTimeYear()
+                + "\nfixTimeMonth " + getFixTimeMonth() + "\nfixTimeDay " + getFixTimeDay() + "\nauxPitch "
+                + getAuxPitch() + "\nauxRoll " + getAuxRoll() + "\nauxDepth " + getAuxDepth() + "\nauxAlt "
+                + getAuxAlt() + "\ncableOut " + getCableOut() + "\nfseconds " + getfSecond() + "\nsampleFreq "
+                + getSampleFreq() + "\nrawDataConfig " + getRawDataConfig() + "\nheader3ExtensionSize "
+                + getHeader3ExtensionSize() + "\ntpuSwVersion " + Long.toHexString(getTPUSwVersion())
+                + "\ncapabilityMask " + Long.toHexString(getCapabilityMask()) + "\nnumSamplesExtra "
+                + getNumSamplesExtra() + "\npostProcessVersion " + getPostProcessVersion() + "\nmotionSensorType "
+                + getMotionSensorType() + "\npingInterval " + getPingInterval() + "\nsdfExtensionSize "
+                + getSDFExtensionSize() + "\nspeedSoundSource " + getSpeedSoundSource() + "\npressureSensorMax "
+                + getPressureSensorMax() + "\npressureSensorVoltageMin " + getPressureSensorVoltMin()
+                + "\npressureSensorVoltageMax " + getPressureSensorVoltMax() + "\ntemperatureAmbient "
+                + getTemperatureAmbient() + "\nsaturationDetectThreshold " + getSaturationDetectThreshold()
+                + "\nsonarFreq " + getSonarFreq();
     }
 }

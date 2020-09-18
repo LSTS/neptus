@@ -46,9 +46,10 @@ public class SdfData {
     private int numSamples;
 
     void parseData(ByteBuffer buf) {
-        numSamples = header.getNumSamples();
-        //index 4 of buf ( integer ) has number of samples (that must be equal to header numSamples)
-        if (numSamples!=buf.getInt(4)) {
+        numSamples = (int) header.getNumSamples();
+        //index 0 of buf ( integer ) has number of samples (that must be equal to header numSamples)
+        long nsData = buf.getInt(0) & 0xffffffffL;
+        if (numSamples != nsData) {
             NeptusLog.pub().info("<###> "+SdfParser.class.getSimpleName() + " :: Sample size mismatch");
             return;
         }
@@ -56,13 +57,13 @@ public class SdfData {
         portData = new long[numSamples];
         stbdData = new long[numSamples];
 
-        // index = first 4bytes (marker) + next 4bytes (indicate num of samples)
-        int index = 8; 
-        // index2 = numSamples * int (size 4bytes) + 12bytes ([4] marker + [4] num samples first array + [4] num samples 2nd array)
-        int index2 = (numSamples*4)+12; 
+        // index = first 4bytes (indicate num of samples)
+        int index = 4; 
+        // index2 = numSamples * int (size 4bytes) + 8bytes ([4] num samples first array + [4] num samples 2nd array)
+        int index2 = (numSamples * 4) + 8;
         
-        for (int i=0;i<numSamples; i++){
-            long portValue = buf.getInt(index) & 0xffffffffL;  //signed int to unsigned long
+        for (int i = 0; i < numSamples; i++) {
+            long portValue = buf.getInt(index)  & 0xffffffffL;  //signed int to unsigned long
             long stbdValue = buf.getInt(index2) & 0xffffffffL; //signed int to unsigned long
             portData[i] = portValue;
             stbdData[i] = stbdValue;
@@ -71,7 +72,6 @@ public class SdfData {
             index2+=4;
         }
     }
-
 
     /**
      * @return the numSamples

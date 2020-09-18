@@ -36,7 +36,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -50,11 +49,15 @@ import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.mra.api.SidescanParserFactory;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 
 public class SdfParser {
     // Minimum valid timestamp (2000-01-01 00:00:00).
     private static final long minimumValidTimestamp = 946684800000L;
+
+    public static final int PING_MARKER_BYTES_SIZE = 4;
+
     private File file;
     private FileInputStream fis;
     private FileChannel channel;
@@ -192,7 +195,7 @@ public class SdfParser {
                 ByteBuffer buf = channel.map(MapMode.READ_ONLY, curPosition, 512); //header size 512bytes
                 buf.order(ByteOrder.LITTLE_ENDIAN);
                 header.parse(buf);
-                curPosition += header.getHeaderSize();
+                curPosition += PING_MARKER_BYTES_SIZE + header.getHeaderSize();
                 //System.out.println("curPos " + curPosition);
 
 
@@ -200,11 +203,11 @@ public class SdfParser {
                     //set header of this ping
                     ping.setHeader(header);
                     ping.calculateTimeStamp();
-                    pos = curPosition-header.getHeaderSize();
+                    pos = curPosition - PING_MARKER_BYTES_SIZE - header.getHeaderSize();
 
                 } else { //ignore other pageVersions
-                    NeptusLog.pub().info("SDF Data file contains unimplemented pageVersion # "+header.getPageVersion());
-                    curPosition += (header.getNumberBytes()+4) - header.getHeaderSize();
+                    NeptusLog.pub().debug("SDF Data file contains unimplemented pageVersion # "+header.getPageVersion());
+                    curPosition += header.getNumberBytes() - PING_MARKER_BYTES_SIZE - header.getHeaderSize();
                     pos = curPosition;
                     if (curPosition >= channel.size()) //check if curPosition is at the end of file
                         break;
@@ -215,8 +218,8 @@ public class SdfParser {
 
                 //get timestamp, freq and subsystem used
                 long t = ping.getTimestamp(); // Timestamp
-                int f = ping.getHeader().getSonarFreq(); // Frequency
-                int subsystem = ping.getHeader().getPageVersion();
+                int f = (int) ping.getHeader().getSonarFreq(); // Frequency
+                int subsystem = (int) ping.getHeader().getPageVersion();
                 //  System.out.println(pos+": ["+header.getPingNumber()+"] timestamp "+ t + " freq "+f + " subsys "+subsystem);
 
                 if (!index2.frequenciesList.contains(f)) {
@@ -267,7 +270,7 @@ public class SdfParser {
 
                 //end processing data
 
-                curPosition += (header.getNumberBytes()+4) - header.getHeaderSize();
+                curPosition += header.getNumberBytes() - PING_MARKER_BYTES_SIZE - header.getHeaderSize();
                 count++;
 
                 if (curPosition >= channel.size())
@@ -330,13 +333,13 @@ public class SdfParser {
                 ByteBuffer buf = channel.map(MapMode.READ_ONLY, curPosition, 512); //header size 512bytes
                 buf.order(ByteOrder.LITTLE_ENDIAN);
                 header.parse(buf);
-                curPosition += header.getHeaderSize();
+                curPosition += PING_MARKER_BYTES_SIZE + header.getHeaderSize();
                 //System.out.println("curPos " + curPosition);
 
                 if (pageVersionList.stream().anyMatch((p) -> p == header.getPageVersion()))
                     return 1;
 
-                curPosition += (header.getNumberBytes()+4) - header.getHeaderSize();
+                curPosition += header.getNumberBytes() - PING_MARKER_BYTES_SIZE - header.getHeaderSize();
                 if (curPosition >= channel.size()) //check if curPosition is at the end of file
                     break;
                 else
@@ -456,7 +459,7 @@ public class SdfParser {
             ByteBuffer buf = channel.map(MapMode.READ_ONLY, pos, 512);
             buf.order(ByteOrder.LITTLE_ENDIAN);
             header.parse(buf);
-            pos += header.getHeaderSize();
+            pos += PING_MARKER_BYTES_SIZE + header.getHeaderSize();
 
             if(header.getPageVersion() != subsystem) 
                 return null;
@@ -466,7 +469,7 @@ public class SdfParser {
             ping.calculateTimeStamp(); 
 
             //handle data 
-            buf = channel.map(MapMode.READ_ONLY, pos, (header.getNumberBytes() - header.getHeaderSize() - header.getSDFExtensionSize()+4));
+            buf = channel.map(MapMode.READ_ONLY, pos, (header.getNumberBytes() - header.getHeaderSize() - header.getSDFExtensionSize()));
             buf.order(ByteOrder.LITTLE_ENDIAN);
 
             ping.parseData(buf);
@@ -553,7 +556,7 @@ public class SdfParser {
     }
 
     public static boolean canBeApplied(IMraLogGroup source) {
-        File[] file = findDataSource(source);
+        File[] file = findDataSource(source, true);
         if (file != null && file.length > 0)
             return true;
         return false;
@@ -561,19 +564,11 @@ public class SdfParser {
 
     /**
      * @param source
+     * @param ignoreCorrected 
      */
-    public static File[] findDataSource(IMraLogGroup source) {
+    public static File[] findDataSource(IMraLogGroup source, boolean ignoreCorrected) {
         File dir = source.getDir();
-        File[] retSdfFiles = dir.listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(File fileDir, String name) {
-                if (dir.getAbsolutePath().equals(fileDir.getAbsolutePath())) {
-                    if (name.toLowerCase().endsWith(".sdf"))
-                        return true;
-                }
-                return false;
-            }
-        });
+        File[] retSdfFiles = dir.listFiles(SidescanParserFactory.sdfFilter(ignoreCorrected));
         return retSdfFiles;
     }
 
