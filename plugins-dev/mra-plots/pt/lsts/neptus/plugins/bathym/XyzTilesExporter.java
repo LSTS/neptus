@@ -68,7 +68,7 @@ public class XyzTilesExporter implements MRAExporter {
     private CorrectedPosition positions;
 
     @NeptusProperty(name = "Skip surface data")
-    public boolean skipSurface = true;
+    public boolean skipSurface = false;
 
     @NeptusProperty(name = "Skip Popup Maneuvers")
     public boolean skipPopup = true;
@@ -77,10 +77,13 @@ public class XyzTilesExporter implements MRAExporter {
     public boolean skipStationKeeping = true;
     
     @NeptusProperty(name = "Maximum roll degrees")
-    public double maxRollDegrees = 10;
+    public double maxRollDegrees = 7;
     
     @NeptusProperty(name = "Tiles zoom level")
     public int tilesZoom = 16;
+    
+    @NeptusProperty(name = "Process every other point (instead of everyone = 1)")
+    public int pointsToSkip = 5;
     
     
     public XyzTilesExporter(IMraLogGroup source) {
@@ -134,7 +137,8 @@ public class XyzTilesExporter implements MRAExporter {
             int prog = (int) (100 * ((swath.getTimestamp() - firstTime) / timeSpan));
             pmonitor.setProgress(prog);
 
-            for (BathymetryPoint bp : swath.getData()) {
+            for (int i = 0; i < swath.getData().length; i+= pointsToSkip) {
+                BathymetryPoint bp = swath.getData()[i];
                 LocationType loc2 = new LocationType(loc);
                 if (bp == null)
                     continue;
@@ -143,13 +147,9 @@ public class XyzTilesExporter implements MRAExporter {
                 Date d = new Date(swath.getTimestamp());
                 pmonitor.setNote(sdf.format(d));
                 try {
-                    double depth = Math.max(loc2.getDepth(), 0);
                     double tide = TidePredictionFactory.getTideLevel(d);
-
-                    double bathym = bp.depth + tide + depth;
-                    folder.addSample(loc2.getLatitudeDegs(), loc2.getLongitudeDegs(), bathym);//,
-                            //sdf.format(swath.getTimestamp()), source.getDir().getName(), String.format("%.2f", tide),
-                            //String.format("%.2f", depth));
+                    double bathym = bp.depth - tide;
+                    folder.addSample(loc2.getLatitudeDegs(), loc2.getLongitudeDegs(), bathym);
                 }
 
                 catch (Exception e) {

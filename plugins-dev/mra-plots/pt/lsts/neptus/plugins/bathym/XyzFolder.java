@@ -18,7 +18,7 @@ public class XyzFolder {
 	
 	private int zoom = 16;
 	private File root;
-	private boolean appendToExistingFiles = true;
+	private boolean appendToExistingFiles = false;
 	
 	/**
 	 * Creates 
