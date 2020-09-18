@@ -106,7 +106,7 @@ public class SDFToCorrectedPosSDF implements MRAExporter {
         if (pmonitor != null)
             pmonitor.setNote(I18n.text("Copying file"));
         
-        File[] sourceFiles = SdfParser.findDataSource(source);
+        File[] sourceFiles = SdfParser.findDataSource(source, true);
         
         // Removed the corrected files
         List<File> sourceList = Arrays.asList(sourceFiles);
@@ -142,7 +142,7 @@ public class SDFToCorrectedPosSDF implements MRAExporter {
             SdfData ping = new SdfData();
             
             long count = 0;
-            long pos = 0;
+//            long pos = 0;
             long curPosition = 0;
             
             try {
@@ -216,5 +216,6 @@ public class SDFToCorrectedPosSDF implements MRAExporter {
     }
 
     public static void main(String[] args) {
+        BatchMraExporter.apply(SDFToCorrectedPosSDF.class);
     }
 }
