@@ -385,9 +385,9 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
             if (aType.equalsIgnoreCase(actionType.name())) { // verify if action is Axis or Button
                 if (comp == null) {
                     if (actionType.equals(ActionType.Axis))
-                        result.add(new MapperComponent(action, "", 0.0f, false, RANGE));
+                        result.add(new MapperComponent(action, "", 0.0f, false, RANGE,0.0f));
                     else if (actionType.equals(ActionType.Button))
-                        result.add(new MapperComponent(action, "", 0.0f, false));
+                        result.add(new MapperComponent(action, "", 0.0f, false,0.0f,0.0f));
                 }
                 else
                     result.add(comp);
@@ -405,11 +405,11 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                 try {
                     if (el.attribute("range") == null) // Button
                         return new MapperComponent(el.attributeValue("action"), el.attributeValue("component"), 0.0f,
-                                Boolean.parseBoolean(el.attributeValue("inverted")));
+                                Boolean.parseBoolean(el.attributeValue("inverted")), 0.0f);
                     else // Axis Component
-                        return new MapperComponent(el.attributeValue("action"), el.attributeValue("component"), 0.0f,
-                                Boolean.parseBoolean(el.attributeValue("inverted")),
-                                Integer.parseInt(el.attributeValue("range")));
+                        return new MapperComponent(el.attributeValue("action"), el.attributeValue("component"),
+                                Float.parseFloat(el.attributeValue("range")),
+                                Boolean.parseBoolean(el.attributeValue("inverted")),0.0f);
                 }
                 catch (Exception e) {
                     NeptusLog.pub().warn(I18n.text("Error parsing controllers configuration file."), e);
@@ -522,7 +522,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                                 mcomp.button = k;
                                 mcomp.inverted = poll.get(k).getPollData() < 0;
 //                                System.out.println("Get Poll Data for: " + mcomp.action + " " + k + " Value: "
-//                                        + poll.get(k).getPollData() + " final value: " + mcomp.value);
+//                                        + poll.get(k).getPollData() + " final value: " + mcomp.value+" deadzone "+poll.get(k).getDeadZone());
 
                                 if (actions.get(mcomp.action).equals("Axis"))
                                     axisModel.fireTableDataChanged();
@@ -532,6 +532,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                                 // Finish editing and save mappings
                                 editing = false;
                                 mcomp.editFlag = false;
+                                mcomp.setDeadZone(poll.get(k).getDeadZone());
                                 saveMappings(); // Save every time we edit a single action
                                 break;
                             }
@@ -576,7 +577,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                 if (comp != null && poll.get(k) != null) {
                     // update Model list
 //                    System.out.println("MATH ABS VALUE for: " + comp.action + " value=" + comp.value + " Bool: "
-//                            + (Float.compare(Math.abs(comp.value), (float) 0.0) != 0)); //FIXME poll.get(k).getDeadZone() instead of 0.0
+//                            + (Float.compare(Math.abs(comp.value), poll.get(k).getDeadZone()) != 0)); 
                     comp.value = poll.get(k).getPollData()
                             * (actions.get(comp.action).equals("Axis") ? comp.getRange() * ((comp.inverted ? -1 : 1))
                                     : 1);
@@ -599,7 +600,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                     }
 
 
-                    if (sending() && (Float.compare(Math.abs(comp.value), (float) 0.0) != 0)) {     
+                    if (sending() && (Float.compare(Math.abs(comp.value), poll.get(k).getDeadZone()) != 0)) {     
                         msgActions.put(comp.action, comp.value + "");
 //                        System.out.println("Adding " + comp.action);
                     }
@@ -710,10 +711,11 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         JButton edit;
         JButton clear;
         float range;
+        float deadZone;
 
         boolean editFlag = false;
 
-        MapperComponent(final String action, String component, float value, boolean inverted, float r) {
+        MapperComponent(final String action, String component, float value, boolean inverted, float r, float zero) {
             this.action = action;
             this.button = component;
             this.value = value;
@@ -721,19 +723,21 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
             this.edit = new JButton(I18n.text("Edit"));
             this.clear = new JButton(I18n.text("Clear"));
             this.range = r;
+            this.deadZone = zero;
 
             initButtons();
 
         }
 
-        MapperComponent(final String action, String component, float value, boolean inverted) {
+        MapperComponent(final String action, String component, float value, boolean inverted, float zero) {
             this.action = action;
             this.button = component;
             this.value = value;
             this.inverted = inverted;
             this.edit = new JButton(I18n.text("Edit"));
             this.clear = new JButton(I18n.text("Clear"));
-            this.range = (float) 0.0;
+            this.range = 0.0f;
+            this.deadZone = zero;
 
             initButtons();
         }
@@ -746,6 +750,20 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
             this.range = r;
         }
         
+        /**
+         * @return the deadZone
+         */
+        public float getDeadZone() {
+            return deadZone;
+        }
+
+        /**
+         * @param deadZone the deadZone to set
+         */
+        public void setDeadZone(float deadZone) {
+            this.deadZone = deadZone;
+        }
+
         public void clear() {
             this.button = "";
             this.inverted = false;
@@ -801,6 +819,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
             MapperComponent comp = this.actionType.equals(ActionType.Axis)
                     ? (MapperComponent) ((TableModel) axisModel).getList().get(row)
                     : (MapperComponent) ((TableModel) buttonsModel).getList().get(row);
+                    
 
             if (comp.editFlag) {
                 setBackground(Color.green);
@@ -811,6 +830,29 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
             
             if(column == 2) {
 //                System.out.println("Value on Row"+row+"="+comp.value);
+                if(!sending())
+                    return this;
+                String action = comp.action;
+                
+                float updated_value = comp.value;
+                try {
+                    updated_value = msgActions.containsKey(action) ? new Float(msgActions.get(action)) : comp.value;
+                }
+                catch (NumberFormatException nfe) {
+                    
+                };
+                if(updated_value != comp.value && (Float.compare(Math.abs(updated_value), comp.deadZone) != 0) && btnInHold.isSelected()) {
+//                    System.out.println("Updating "+comp.action+" from "+comp.value+" to "+updated_value);
+                    comp.value = updated_value;
+                    if (this.actionType.equals(ActionType.Axis)) {
+                        ((TableModel) axisModel).setValueAt(updated_value, row, 2);
+                        ((AbstractTableModel) axisTable.getModel()).fireTableDataChanged();
+                    }
+                    else if (this.actionType.equals(ActionType.Button)) {
+                        ((TableModel) buttonsModel).setValueAt(updated_value, row, 2);
+                        ((AbstractTableModel) buttonsTable.getModel()).fireTableDataChanged();
+                    }
+                }
             }
             
             if (column == 4) {
