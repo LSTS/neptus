@@ -230,8 +230,7 @@ public class DeltaTHeader {
         sonarIsOperatingInOverlappedMode = isBitSet(vel123, 2); // Bit 2 - 1 = sonar is operating in overlapped mode
         
         numberOfPingsAveraged = b.get(125); // Number of Pings Averaged - 0 to 25
-        
-        altitude = b.getFloat(133);
+        altitude = Float.intBitsToFloat(Integer.reverseBytes(b.getInt(133)));
     }
     
     /**
