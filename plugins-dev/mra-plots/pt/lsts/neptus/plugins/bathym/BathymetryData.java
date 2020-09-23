@@ -139,8 +139,8 @@ public class BathymetryData implements Serializable {
         return ret;
     }
 
-    public void process(File f) {
-        
+    public void process(File f, String crs) {
+
         if (f.isDirectory()) {
             System.out.println("Processing folder " + f);
             for (File sub : f.listFiles()) {
@@ -150,25 +150,21 @@ public class BathymetryData implements Serializable {
         }
         else if (f.getName().toUpperCase().endsWith(".XYZ")) {
             System.out.println("Processing file " + f);
-            double offset = 0;
-            int count = 0;
             try {
                 BufferedReader reader = new BufferedReader(new FileReader(f));
 
                 String line = reader.readLine();
 
                 while (line != null) {
-                    String[] parts = line.split("\\t");
+                    String[] parts = line.split(" ");
                     line = reader.readLine();
                     double x = Double.valueOf(parts[0]);
                     double y = Double.valueOf(parts[1]);
-                    double z = Double.valueOf(parts[2]);
+                    double z = 0;
+                    
                     try {
-                        double off = addSample(CoordTranslator.CRS_WGS84, y, x, z+offset);
-                        if (off > 3) {
-                            offset = ((offset * count) + off) / (++count);
-                            System.out.println("offset: "+offset);                            
-                        }
+                        z = Double.valueOf(parts[2]);
+                        addSample(crs, x, y, z);
                     }
                     catch (Exception e) {
                         System.err.println("Invalid line: '" + line + "' (" + e.getMessage() + ")");
@@ -182,6 +178,10 @@ public class BathymetryData implements Serializable {
                 e.printStackTrace();
             }
         }
+    }
+    
+    public void process(File f) {
+        process(f, CoordTranslator.CRS_WGS84);
     }
 
     public void writeImage(ColorMap colormap, double minZ, double maxZ, boolean transparent, File out)
@@ -217,6 +217,26 @@ public class BathymetryData implements Serializable {
         
         writer.close();
     }
+    public double getBathymetry(double lat, double lon) {
+        return getBathymetry(CoordTranslator.CRS_WGS84, lon, lat);
+    }
+    
+    public double getBathymetry(String CRS, double x, double y) {
+        CoordTranslator trans = inboundTranslators.computeIfAbsent(CRS, c -> new CoordTranslator(c, this.crs));
+        double[] coords = trans.translate(x, y);
+        
+        int xCell = (int) ((coords[0] - minX) / stepX);
+        int yCell = (int) ((coords[1] - minY) / stepY);
+       
+        try {
+            return data[xCell][yCell].average;    
+        }
+        catch (Exception e) {
+            if (DEBUG)
+                e.printStackTrace();
+            return 0;
+        }        
+    }
 
     static class DataPoint implements Serializable {
         private static final long serialVersionUID = -5034715092526074440L;
@@ -226,10 +246,17 @@ public class BathymetryData implements Serializable {
 
     public static void main(String[] args) throws Exception {
         // BathymetryData omare = new BathymetryData(CoordTranslator.CRS_ETRS89, 2759000, 2769000, 5, 2235000, 2255000, 5);
+        BathymetryData omare = BathymetryData.load(new File("/home/zp/Desktop/omare.bathym"));
+        omare.getBathymetry(41.5648339, -8.82761343);
         
-        System.out.println("reading from disk");
-
-        //BathymetryData d = BathymetryData.load(new File("/home/zp/Desktop/pnln5.bathym"));
+                
+        //d.process(new File("/media/zp/5e169b60-ba8d-47db-b25d-9048fe40eed1/OMARE/VF"), CoordTranslator.CRS_ETRS89);
+        //d.process(new File("/media/zp/5e169b60-ba8d-47db-b25d-9048fe40eed1/OMARE/Raw/"));
+        //d.process(new File("/media/zp/5e169b60-ba8d-47db-b25d-9048fe40eed1/OMARE/Raw/lauv-noptilus-3/20200910/092416_mb2"));
+        //d.store(new File("/home/zp/Desktop/pnln-all.bathym"));
+        //d.writeImage(ColorMapFactory.createRedGreenBlueColorMap(), -20, 50, true, new File("/home/zp/Desktop/pnln-LIP.png"));
+        //d.writeXyz(new File("/home/zp/Desktop/pnln-bathymetry.xyz"));
+        
         //d.writeXyz(new File("/media/zp/5e169b60-ba8d-47db-b25d-9048fe40eed1/OMARE/bathymetry.xyz"));
         
         /*System.out.println("adding data");
