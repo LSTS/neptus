@@ -54,7 +54,10 @@ import org.imgscalr.Scalr;
 
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.mra.MRAProperties;
 import pt.lsts.neptus.mra.api.CorrectedPosition;
+import pt.lsts.neptus.mra.api.LsfTreeSet;
+import pt.lsts.neptus.mra.exporters.BatchMraExporter;
 import pt.lsts.neptus.mra.exporters.MRAExporter;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.replay.MraVehiclePosHud;
@@ -165,7 +168,7 @@ public class VideoHudExporter implements MRAExporter {
     @Override
     public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
         
-        if (!GraphicsEnvironment.isHeadless())
+        if (!MRAProperties.batchMode && !GraphicsEnvironment.isHeadless())
             PluginUtils.editPluginProperties(this, true);
         
         frameDecoder.load(source.getDir());
@@ -219,6 +222,18 @@ public class VideoHudExporter implements MRAExporter {
     }
     
     public static void main(String[] args) {
-        
+        MRAProperties.batchMode = true;
+        GuiUtils.setLookAndFeelNimbus();
+        if (args.length == 0)
+            BatchMraExporter.apply(VideoHudExporter.class);
+        else {
+            File[] roots = new File[args.length];
+            for (int i = 0; i < roots.length; i++)
+                roots[i] = new File(args[i]);
+
+            LsfTreeSet set = new LsfTreeSet(roots);
+            BatchMraExporter.apply(set, VideoHudExporter.class);
+        }
     }
+
 }
