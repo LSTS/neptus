@@ -52,7 +52,7 @@ class TableModel extends AbstractTableModel {
     public String getColumnName(int column) {
         switch (column) {
             case 0:
-                return this.actionType.equals(ActionType.Axis) ? I18n.text("Axis") : I18n.text("Action");
+                return this.actionType.equals(ActionType.Axis) ? I18n.text("Axis") : I18n.text("Button");
             case 1:
                 return I18n.text("Component");
             case 2:
@@ -117,10 +117,11 @@ class TableModel extends AbstractTableModel {
     public void setValueAt(Object value, int row, int col) {
         if (col == 3) {
             list.get(row).inverted = (Boolean)value;
+            fireTableCellUpdated(row, col);
         }
         else if (col == 6) {
             try {
-                int v = (int) value;
+                float v = (float) value;
                 this.list.get(row).setRange(v);
             }
             catch (NumberFormatException e) {
