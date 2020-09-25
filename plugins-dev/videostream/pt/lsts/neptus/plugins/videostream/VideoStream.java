@@ -90,8 +90,9 @@ import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
-import org.opencv.highgui.VideoCapture;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.videoio.VideoCapture;
+import org.opencv.videoio.Videoio;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -141,7 +142,7 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
 @SuppressWarnings("serial")
 @Popup(pos = POSITION.RIGHT, width = 640, height = 480, accelerator = 'R')
 @LayerPriority(priority = 0)
-@PluginDescription(name = "Video Stream", version = "1.3", author = "Pedro Gonçalves", description = "Plugin for View video Stream TCP-Ip/IPCam", icon = "pt/lsts/neptus/plugins/IPCam/camera.png")
+@PluginDescription(name = "Video Stream", version = "1.4", author = "Pedro Gonçalves", description = "Plugin for View video Stream TCP-Ip/IPCam", icon = "pt/lsts/neptus/plugins/IPCam/camera.png")
 public class VideoStream extends ConsolePanel implements ItemListener {
 
     private static final String BASE_FOLDER_FOR_IMAGES = ConfigFetch.getLogsFolder() + "/images";
@@ -1279,7 +1280,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                 while (true) {
                     if (ipCam && !stateSetUrl) {
                         captureSave = new VideoCapture();
-                        captureSave.open(camRtpsUrl);
+                        captureSave.open(camRtpsUrl, Videoio.CAP_ANY);
                         if (captureSave.isOpened()) {
                             stateSetUrl = true;
                         }
