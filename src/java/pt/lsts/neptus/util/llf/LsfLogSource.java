@@ -80,6 +80,7 @@ public class LsfLogSource implements IMraLogGroup {
     public void cleanup() {
         if (index != null)
             index.cleanup();
+        index = null;
     }
 
     private void loadLog(File f) throws Exception {
@@ -255,8 +256,11 @@ public class LsfLogSource implements IMraLogGroup {
     public Collection<Integer> getVehicleSources() {
         // Actually only vehicles generate EntityInfo messages so it is a good way to  
         // differentiate between vehicles and other nodes.
-        if(vehicleSources == null)
+        if(vehicleSources == null) {
             vehicleSources = getMessageGenerators("EntityInfo"); // Just generate this collection once
+            if (vehicleSources.isEmpty())
+                vehicleSources.add(index.getMessage(0).getSrc());
+        }
         
         // Filter out Id's over 0x4000 (CCU id range start value)
         ArrayList<Integer> toRemove = new ArrayList<Integer>();

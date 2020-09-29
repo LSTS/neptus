@@ -731,6 +731,21 @@ public class MathMiscUtils {
 	public static double clamp(double val, double min, double max) {
 	    return Math.max(min, Math.min(max, val));
 	}
+
+	/**
+	 * Returns a number limited by [minFractionDigits, maxFractionDigits]
+	 * @param maxFractionDigits
+	 * @param minFractionDigits
+	 * @return NumberFormat
+	 * */
+	public static NumberFormat getNumberFormat(int maxFractionDigits, int minFractionDigits) {
+		NumberFormat df = DecimalFormat.getInstance(Locale.US);
+		df.setGroupingUsed(false);
+
+		df.setMaximumFractionDigits(maxFractionDigits);
+		df.setMinimumFractionDigits(minFractionDigits);
+		return df;
+	}
 	/*-------------------------------------------------------------*/
 
 	public static void main(String[] args) {

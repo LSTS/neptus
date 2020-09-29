@@ -55,6 +55,7 @@ import pt.lsts.neptus.mra.visualizations.MRAVisualization;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.PluginsRepository;
+import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 
 /**
  * These are Neptus MRA default properties
@@ -93,6 +94,9 @@ public class MRAProperties implements PropertiesProvider {
     @NeptusProperty(name = "Apply Sound Speed Correction", description = "Apply sound speed correction.", category = "Multibeam")
     public static boolean soundSpeedCorrection = false;
 
+    @NeptusProperty(name = "Multibeam roll bias", description = "Roll bias, in degrees.", category = "Multibeam")
+    public static double rollBias = 0;
+
     @NeptusProperty(name = "Generate DeltaT Process Report", description = "Generate DeltaT process report. Does not generate if already exist the report or the bathy.info is present. (Re-generate the index for successful generation.)", category = "Multibeam")
     public static boolean generateDeltaTProcessReport = false;
 
@@ -110,6 +114,10 @@ public class MRAProperties implements PropertiesProvider {
     
     @NeptusProperty(name = "Magnetometer Layer Cell Width")
     public static int magCellW = 5;
+    
+    @NeptusProperty(name = "Batch Mode", description = "Do not ask user for inputs, use defaults", userLevel = LEVEL.ADVANCED, editable = false)
+    public static boolean batchMode = false;
+    
 
     private LinkedHashMap<Class<?>, Boolean> visiblePlots = new LinkedHashMap<Class<?>, Boolean>();
 

@@ -1,5 +1,6 @@
 pt.lsts.neptus.plugins.actualstate.ActualPosition
 pt.lsts.neptus.plugins.bathym.XyzExporter
+pt.lsts.neptus.plugins.bathym.XyzTilesExporter
 pt.lsts.neptus.plugins.ctd.CTDSidePlot
 pt.lsts.neptus.plugins.mraplots.BathymetryPlotter
 pt.lsts.neptus.plugins.mraplots.MraPhotosVisualization

@@ -80,6 +80,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
+import javax.swing.event.MenuEvent;
+import javax.swing.event.MenuListener;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
@@ -190,7 +192,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     // Controller Manager to be used by every plugin that uses an external controller (Gamepad, etc...)
     private final ControllerManager controllerManager;
 
-    // Holders for all console panels, map layers, and map interactions 
+    // Holders for all console panels, map layers, and map interactions
     private final List<ConsolePanel> subPanels = new ArrayList<>();
     private final Map<IConsoleLayer, Boolean> layers = new LinkedHashMap<>();
     private final Map<IConsoleInteraction, Boolean> interactions = new LinkedHashMap<>();
@@ -228,10 +230,10 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     // -------------------------------- XML console
     public File fileName = null;
     public boolean resizableConsole = false;
-    
+
     private boolean systemComboOnMenu = true;
     private boolean useMainVehicleComboOnConsoles = true;
-    
+
     protected PluginManager pluginManager = null;
     protected SettingsWindow settingsWindow = null;
     protected String pluginManagerName = null;
@@ -268,13 +270,14 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
 
     /**
      * Creates a new empty editable console.
+     * 
      * @param loader
      * @return
      */
     public static ConsoleLayout forge(Loader loader) {
         ConsoleLayout instance = new ConsoleLayout();
         instance.imcOn();
-        
+
         MigLayoutContainer migCont = new MigLayoutContainer(instance);
         instance.getMainPanel().addSubPanel(migCont, 0, 0);
         migCont.init();
@@ -284,6 +287,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
 
     /**
      * Creates a new empty editable console.
+     * 
      * @return
      */
     public static ConsoleLayout forge() {
@@ -297,7 +301,8 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         return instance;
     }
 
-    protected static ConsoleLayout forge(ConsoleLayout instance, String consoleURL, boolean editable, boolean monoConsoleMode, Loader loader) {
+    protected static ConsoleLayout forge(ConsoleLayout instance, String consoleURL, boolean editable,
+            boolean monoConsoleMode, Loader loader) {
         forgeWorkerLoadLayout(instance, consoleURL, loader);
         forgeWorkerTidyUp(instance, editable, monoConsoleMode, loader);
         instance.setConsoleChanged(false);
@@ -309,10 +314,10 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         ConsoleParse.parseFile(consoleURL, instance);
         return instance;
     }
-    
+
     private static ConsoleLayout forgeWorkerTidyUp(ConsoleLayout instance, boolean editable, boolean monoConsoleMode,
             Loader loader) {
-        
+
         instance.imcOn();
 
         // load core plugins
@@ -337,7 +342,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
             instance.removeJMenuAction(RunChecklistConsoleAction.class);
         }
 
-//        instance.setConsoleChanged(false);
+        // instance.setConsoleChanged(false);
 
         if (loader != null)
             loader.end();
@@ -345,7 +350,6 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         return instance;
     }
 
-    
     /**
      * Constructor: begins an empty Console
      */
@@ -353,7 +357,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         systemComboOnMenu = GeneralPreferences.placeMainVehicleComboOnMenuOrStatusBar;
         useMainVehicleComboOnConsoles = GeneralPreferences.useMainVehicleComboOnConsoles;
         boolean placeNotificationButtonOnConsoleStatusBar = GeneralPreferences.placeNotificationButtonOnConsoleStatusBar;
-        
+
         NeptusEvents.create(this);
         this.setupListeners();
         this.setupKeyBindings();
@@ -399,9 +403,8 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
             public void windowClosing(WindowEvent e) {
                 JFrame frame = (JFrame) e.getComponent();
                 if (isConsoleChanged()) {
-                    int answer = JOptionPane.showConfirmDialog(
-                            getConsole(),
-                            I18n.text("<html>Do you want to save the changes to the current <strong>Console Configuration</strong>?</html>"),
+                    int answer = JOptionPane.showConfirmDialog(getConsole(), I18n.text(
+                            "<html>Do you want to save the changes to the current <strong>Console Configuration</strong>?</html>"),
                             I18n.text("Save changes?"), JOptionPane.YES_NO_CANCEL_OPTION);
                     if (answer == JOptionPane.YES_OPTION) {
                         saveFile();
@@ -447,8 +450,8 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
             public boolean dispatchKeyEvent(KeyEvent e) {
                 int eventType = e.getID(); // KeyEvent.KEY_PRESSED KeyEvent.KEY_RELEASED KEY_TYPED
 
-                Action action = globalKeybindings.get(KeyStroke.getKeyStroke(e.getKeyCode(), e.getModifiers())
-                        .toString());
+                Action action = globalKeybindings
+                        .get(KeyStroke.getKeyStroke(e.getKeyCode(), e.getModifiers()).toString());
                 if (action != null && eventType == KeyEvent.KEY_PRESSED) {
                     action.actionPerformed(null);
                     return true;
@@ -468,7 +471,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     private void clearGlobalKeyBindings() {
         this.globalKeybindings.clear();
     }
-    
+
     /**
      * Register a global key binding with the console
      * 
@@ -487,6 +490,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     }
 
     public boolean unRegisterGlobalKeyBinding(Action action) {
+        NeptusLog.pub().warn(I18n.text("Unregistering Key Accelerator"));
         for (String ky : this.globalKeybindings.keySet()) {
             Action ac = this.globalKeybindings.get(ky);
             if (ac == action)
@@ -579,7 +583,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         ConsoleAction openNew = new OpenNewConsoleAction(this);
         actions.put(OpenNewConsoleAction.class, openNew);
         file.add(openNew);
-        
+
         file.addSeparator();
 
         // create mission
@@ -603,6 +607,24 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
          * VIEW MENU
          */
         JMenu viewMenu = new JMenu(I18n.text("View"));
+        viewMenu.addMenuListener(new MenuListener() {
+
+            @Override
+            public void menuSelected(MenuEvent e) {
+                updateJmenuTexts((JMenu) e.getSource());
+            }
+
+            @Override
+            public void menuDeselected(MenuEvent e) {
+                // TODO Auto-generated method stub
+
+            }
+
+            @Override
+            public void menuCanceled(MenuEvent e) {
+                // TODO Auto-generated method stub
+            }
+        });
         menuBar.add(viewMenu);
 
         /*
@@ -652,6 +674,61 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
 
         includeExtraMainMenus();
     }
+    
+    public void updateJMenuView() {
+        JMenu viewMenu = getConsole().getOrCreateJMenu(new String[] { I18n.text("View") });
+        updateJmenuTexts(viewMenu);
+    }
+    /**
+     * @param jmenu
+     */
+    private synchronized void updateJmenuTexts(JMenu jmenu) {
+        if (jmenu.getItemCount() > 2) {
+            final Collator collator = Collator.getInstance(Locale.US);
+            for (int i = 1; i < jmenu.getItemCount(); i++) {
+                JMenuItem item = jmenu.getItem(i);
+                String current_text = jmenu.getItem(i).getText();
+                String current = current_text.replaceAll("_\\d*$", "");
+                String[] split2 = item.getText().split("_");
+                int count = split2.length == 2 ? Integer.parseInt(split2[1]) : 0;
+                String previous_text = jmenu.getItem(i - 1).getText();
+                String previous = previous_text.replaceAll("_\\d*$", "");
+                String[] split = previous_text.split("_");
+                int count_prev = split.length == 2 ? Integer.parseInt(split[1]) : 0;
+                if (collator.compare(previous, current) < 0 && count > 0) { // When the first instance of the
+                    // plugins was removed
+                    item.setText(current);
+                    continue;
+                }
+                else if (collator.compare(previous, current) < 0)
+                    continue;
+                else if (collator.compare(previous, current) == 0) {
+                    if (i < jmenu.getItemCount() - 1) {
+                        String next_text = jmenu.getItem(i + 1).getText();
+                        String next = next_text.replaceAll("_\\d*$", "");
+                        String[] splited = next_text.split("_");
+                        int count_next = splited.length == 2 ? Integer.parseInt(splited[1]) : 0;
+                        if ((collator.compare(previous_text, current_text) == 0
+                                && collator.compare(current, next) == 0 && count_next > 0)
+                                || (count_prev > count && count_prev < count_next)) { // To keep moving the newly
+                            swapMenuitems(jmenu, i);
+                            continue;
+                        }
+                    }
+                    count_prev++;
+                    current += "_" + count_prev;
+                    item.setText(current);
+                }
+            }
+        }
+    }
+
+    private void swapMenuitems(JMenu jmenu, int i) {
+        JMenuItem first = jmenu.getItem(i);
+        jmenu.remove(i);
+        jmenu.add(first, i + 1);
+
+    }
 
     protected boolean removeJMenuAction(Class<? extends ConsoleAction> consoleAction) {
         JMenuItem mn = getJMenuForAction(consoleAction);
@@ -661,13 +738,13 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         Container parent = mn.getParent();
         if (parent == null)
             return false;
-        
+
         parent.remove(mn);
-        
+
         Component pef = parent.getComponent(0);
         if (pef != null && pef instanceof JPopupMenu.Separator)
             parent.remove(0);
-        
+
         return true;
     }
 
@@ -803,7 +880,6 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         return mission;
     }
 
-    
     /**
      * Set new mission or if mission param = null remove current mission
      * 
@@ -815,15 +891,14 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         this.setPlan(null);
         if (old != null)
             MapGroup.getMapGroupInstance(old).removeChangeListener(this);
-        
-        
+
         if (mission != null) {
             NeptusLog.pub().debug("Mission changed to " + mission.getId());
             MapGroup.getMapGroupInstance(mission).addChangeListener(this);
         }
         else
             NeptusLog.pub().info("Mission set to null");
-        
+
         for (MissionChangeListener mlistener : missionListeners) {
             try {
                 mlistener.missionReplaced(mission);
@@ -917,7 +992,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
                     + " :: Test for system name malformed '" + systemName + "' != '" + systemName.trim() + "'");
             Thread.dumpStack();
         }
-        
+
         ConsoleSystem system;
         if (imcSystem == null) {
             NeptusLog.pub().warn("tried to add a vehicle from imc with comms disabled: '" + systemName + "'");
@@ -928,21 +1003,18 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         }
 
         if (consoleSystems.get(systemName) != null) {
-            NeptusLog.pub().warn(
-                    ReflectionUtil.getCallerStamp() + " tried to add a vehicle that already exist in the console: "
-                            + systemName);
+            NeptusLog.pub().warn(ReflectionUtil.getCallerStamp()
+                    + " tried to add a vehicle that already exist in the console: " + systemName);
             return;
         }
         else {
             system = new ConsoleSystem(systemName, this, imcSystem, imcMsgManager);
             consoleSystems.put(systemName, system);
-            
-            post(Notification.info("Console",
-                    "New main system added to console: " + systemName).requireHumanAction(false));
-            String msgTxt = "New main system added to console: '" + systemName + "'";
-            post(Notification
-                    .info("Console", msgTxt)
+
+            post(Notification.info("Console", "New main system added to console: " + systemName)
                     .requireHumanAction(false));
+            String msgTxt = "New main system added to console: '" + systemName + "'";
+            post(Notification.info("Console", msgTxt).requireHumanAction(false));
             NeptusLog.pub().info(ConsoleLayout.this.getClass() + " :: " + msgTxt);
 
             if (this.mainVehicle == null) {
@@ -1001,11 +1073,11 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         for (ConsolePanel sp : subPanels) {
             sp.init();
         }
-        
+
         for (IConsoleLayer layer : layers.keySet()) {
             layer.init(this);
         }
-        
+
         for (IConsoleInteraction inter : interactions.keySet()) {
             inter.init(this);
         }
@@ -1118,23 +1190,23 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
 
         if (getMission() != null)
             if (!mission.getOriginalFilePath().equals(""))
-                root.addAttribute("mission-file", FileUtil.relativizeFilePathAsURI(fileName.getAbsolutePath(), mission
-                        .getMissionFile().getAbsolutePath()));
+                root.addAttribute("mission-file", FileUtil.relativizeFilePathAsURI(fileName.getAbsolutePath(),
+                        mission.getMissionFile().getAbsolutePath()));
 
         if (getMainSystem() != null)
             root.addAttribute("main-vehicle", getMainSystem());
 
         Element mainpanel = root.addElement("mainpanel");
         mainpanel.addAttribute("name", "console main panel");
-        
+
         for (Component c : getMainPanel().getComponents()) {
             if (c instanceof XmlOutputMethods) {
                 try {
                     mainpanel.add(((XmlOutputMethods) c).asElement());
                 }
                 catch (Exception e) {
-                    GuiUtils.errorMessage(ConsoleLayout.this, "Error saving XML of " + c.getName(), "[" + c.getName()
-                            + "]: " + e.getMessage());
+                    GuiUtils.errorMessage(ConsoleLayout.this, "Error saving XML of " + c.getName(),
+                            "[" + c.getName() + "]: " + e.getMessage());
                     e.printStackTrace();
                 }
             }
@@ -1142,7 +1214,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
 
         Element alarmpanel = root.addElement("mainpanel");
         alarmpanel.addAttribute("name", "console alarm panel");
-        
+
         if (!layers.isEmpty()) {
             Element layersElem = root.addElement("layers");
             for (IConsoleLayer l : layers.keySet()) {
@@ -1150,12 +1222,12 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
                     layersElem.add(l.asElement("layer"));
             }
         }
-        
+
         if (!interactions.isEmpty()) {
             Element interactionsElem = root.addElement("interactions");
             for (IConsoleInteraction i : interactions.keySet()) {
-                    if (interactions.get(i))
-                interactionsElem.add(i.asElement("interaction"));
+                if (interactions.get(i))
+                    interactionsElem.add(i.asElement("interaction"));
             }
         }
 
@@ -1178,17 +1250,18 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     }
 
     /**
-     * This will not go to the children of {@link ContainerSubPanel}
-     * Don't use this to add or remove {@link ConsolePanel}s.
+     * This will not go to the children of {@link ContainerSubPanel} Don't use this to add or remove
+     * {@link ConsolePanel}s.
      * 
      * @return
      */
     public List<ConsolePanel> getSubPanels() {
         return subPanels;
     }
-    
+
     public void addSubPanel(ConsolePanel panel) {
-        getMainPanel().addSubPanel(panel);;
+        getMainPanel().addSubPanel(panel);
+        ;
     }
 
     public void addSubPanel(ConsolePanel panel, int x, int y) {
@@ -1204,14 +1277,14 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         for (ConsolePanel sp : subPanels) {
             if (sp instanceof PropertiesProvider)
                 ret.add((PropertiesProvider) sp);
-            
-//            // Process Containers (one level only)
-//            if (sp instanceof ContainerSubPanel) {
-//                for (ConsolePanel s : ((ContainerSubPanel) sp).getSubPanels()) {
-//                    if (s instanceof PropertiesProvider)
-//                        ret.add((PropertiesProvider) s);
-//                }
-//            }
+
+            // // Process Containers (one level only)
+            // if (sp instanceof ContainerSubPanel) {
+            // for (ConsolePanel s : ((ContainerSubPanel) sp).getSubPanels()) {
+            // if (s instanceof PropertiesProvider)
+            // ret.add((PropertiesProvider) s);
+            // }
+            // }
         }
         for (IConsoleLayer ly : layers.keySet()) {
             if (layers.get(ly)) {
@@ -1227,7 +1300,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         }
         return ret;
     }
-    
+
     /**
      * 
      * @param subPanelType
@@ -1252,7 +1325,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
             return new Vector<T>();
         }
     }
-    
+
     /**
      * 
      * @param subPanelType
@@ -1265,12 +1338,12 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
 
             for (IConsoleLayer l : layers.keySet())
                 if (pluginType.isAssignableFrom(l.getClass()))
-                    ret.add((T)l);
-            
+                    ret.add((T) l);
+
             for (IConsoleInteraction l : interactions.keySet())
                 if (pluginType.isAssignableFrom(l.getClass()))
-                    ret.add((T)l);
-           
+                    ret.add((T) l);
+
             return ret;
         }
         catch (Exception e) {
@@ -1308,8 +1381,9 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
      * @param interfaceType Just pass an empty array of the desired type as in:
      * 
      *            <pre>
-     * Vector&lt;MissionChangeListener&gt; mcls = getSubPanelImplementations(new MissionChangeListener[0]);
-     * </pre>
+     *            Vector&lt;MissionChangeListener&gt; mcls = getSubPanelImplementations(new MissionChangeListener[0]);
+     *            </pre>
+     * 
      * @return A vector of subpanels that implement the given interface
      */
     public <T> Vector<T> getSubPanelsOfInterface(Class<T> interfaceType) {
@@ -1401,46 +1475,47 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     public void informSubPanelListener(ConsolePanel sub, SubPanelChangeAction action) {
         for (SubPanelChangeListener spcl : subPanelListeners)
             spcl.subPanelChanged(new SubPanelChangeEvent(sub, action));
-        
-        // If there is a new map, add all existing layers to it        
+
+        // If there is a new map, add all existing layers to it
         if (action == SubPanelChangeAction.ADDED && sub instanceof MapPanel) {
             for (IConsoleLayer layer : layers.keySet()) {
-                ((MapPanel)sub).addPostRenderPainter(layer, layer.getName());
+                ((MapPanel) sub).addPostRenderPainter(layer, layer.getName());
             }
             for (IConsoleInteraction i : interactions.keySet()) {
-                ((MapPanel)sub).addInteraction(i);
+                ((MapPanel) sub).addInteraction(i);
             }
         }
     }
-    
+
     /**
-     * Add a layer that (optionally) is not preserved in the console's layout file)
-     * Use this for interactions added by ConsolePanels so they don't get added a second time.
+     * Add a layer that (optionally) is not preserved in the console's layout file) Use this for interactions added by
+     * ConsolePanels so they don't get added a second time.
+     * 
      * @param interaction
-     * @param storeInConsoleXml Whether the layer should be added to the console's configuration. 
-     * Use <code>false</code> if it's an internal layer.
-     * @return Whether the interaction was correctly added. 
+     * @param storeInConsoleXml Whether the layer should be added to the console's configuration. Use <code>false</code>
+     *            if it's an internal layer.
+     * @return Whether the interaction was correctly added.
      */
     public boolean addInteraction(IConsoleInteraction interaction, boolean storeInConsoleXml) {
         Vector<MapPanel> maps = getSubPanelsOfClass(MapPanel.class);
-        
+
         if (interactions.containsKey(interaction)) {
             NeptusLog.pub().error("Interation was already present in this console.");
             return false;
         }
-        
+
         if (maps.isEmpty()) {
             NeptusLog.pub().error("Cannot add interaction because there is no MapPanel in the console.");
             return false;
         }
-        
+
         interaction.init(this);
         interactions.put(interaction, storeInConsoleXml);
-        
+
         for (MapPanel map : maps) {
-            map.addInteraction(interaction);            
+            map.addInteraction(interaction);
         }
-        
+
         return true;
     }
 
@@ -1453,71 +1528,72 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
             NeptusLog.pub().error("Interaction not found in this console.");
             return false;
         }
-        
+
         for (MapPanel map : getSubPanelsOfClass(MapPanel.class)) {
             map.removeInteraction(interaction);
         }
-        
+
         interaction.clean();
-        
+
         return interactions.remove(interaction) == null ? false : true;
     }
-    
+
     /**
-     * Add a layer that (optionally) is not preserved in the console's layout file)
-     * Use this for layers added by ConsolePanels so they don't get added a second time.
+     * Add a layer that (optionally) is not preserved in the console's layout file) Use this for layers added by
+     * ConsolePanels so they don't get added a second time.
+     * 
      * @param layer The layer to be added
-     * @param storeInConsoleXml Whether the layer should be added to the console's configuration. 
-     * Use <code>false</code> if it's an internal layer.
-     * @return Whether the layer was correctly added. 
+     * @param storeInConsoleXml Whether the layer should be added to the console's configuration. Use <code>false</code>
+     *            if it's an internal layer.
+     * @return Whether the layer was correctly added.
      */
     public boolean addMapLayer(IConsoleLayer layer, boolean storeInConsoleXml) {
         Vector<MapPanel> maps = getSubPanelsOfClass(MapPanel.class);
-        
+
         if (layers.containsKey(layer)) {
             NeptusLog.pub().error("Layer was already present in this console.");
             return false;
         }
-        
+
         if (maps.isEmpty()) {
             NeptusLog.pub().error("Cannot add layer beacause there is no MapPanel in the console.");
             return false;
         }
-        
+
         layer.init(this);
-        
+
         layers.put(layer, storeInConsoleXml);
-        
+
         for (MapPanel map : maps) {
-            map.addLayer(layer);            
+            map.addLayer(layer);
         }
-        
+
         return true;
     }
-    
+
     public boolean addMapLayer(IConsoleLayer layer) {
-       return addMapLayer(layer, true);
+        return addMapLayer(layer, true);
     }
-    
+
     public boolean removeMapLayer(IConsoleLayer layer) {
         for (MapPanel map : getSubPanelsOfClass(MapPanel.class)) {
             try {
                 map.removeLayer(layer);
             }
             catch (Exception e) {
-                NeptusLog.pub()
-                        .error("Error removing layer '" + layer.getName() + "' from '" + MapPanel.class.getSimpleName()
-                                + "'!", e);
+                NeptusLog.pub().error(
+                        "Error removing layer '" + layer.getName() + "' from '" + MapPanel.class.getSimpleName() + "'!",
+                        e);
             }
         }
-        
+
         try {
             layer.clean();
         }
         catch (Exception e) {
             NeptusLog.pub().error("Error calling clean from layer '" + layer.getName() + "'!", e);
         }
-        
+
         try {
             return layers.remove(layer) == null ? false : true;
         }
@@ -1530,18 +1606,18 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     public void resetTidyUp() {
         if (pluginManager != null)
             pluginManager.reset();
-        
+
         if (settingsWindow != null) {
             settingsWindow.setIgnoreSubPanelChangedEvents(false);
             settingsWindow.reset();
         }
-        
+
         cleanEmptyJMenusOnMenuBar();
     }
-    
+
     /**
-     * Reset the console for a new one use when a new console is open
-     * Call also {@link #resetTidyUp()} after this if you load a new console (or empty one).
+     * Reset the console for a new one use when a new console is open Call also {@link #resetTidyUp()} after this if you
+     * load a new console (or empty one).
      */
     public void reset() {
         this.remove(mainPanel);
@@ -1556,9 +1632,9 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         changed = false;
 
         this.revalidate();
-        this.repaint();    
+        this.repaint();
     }
-    
+
     private void resetConsoleElementsCommon() {
         missionListeners.clear();
         planListeners.clear();
@@ -1593,7 +1669,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
             }
         }
         interactions.clear();
-        
+
         for (ConsoleSystem system : consoleSystems.values()) {
             system.clean();
         }
@@ -1601,9 +1677,9 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         mainSystemCombo.removeAllItems();
 
         mainPanel.clean();
-        
+
         clearGlobalKeyBindings();
-        
+
         if (pluginManager != null)
             pluginManager.reset();
         if (settingsWindow != null) {
@@ -1627,19 +1703,21 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
             autosnapshot.cleanClose();
 
             resetConsoleElementsCommon();
-            
+
             statusBar.clean();
-            
+
             this.cleanGlobalKeyBindings();
             this.imcOff();
 
             NeptusEvents.delete(this);
         }
         catch (Exception e) {
-            NeptusLog.pub().error("Error cleaning " + ConsoleLayout.this.getClass().getSimpleName() + " :: " + e.getMessage(), e);
+            NeptusLog.pub().error(
+                    "Error cleaning " + ConsoleLayout.this.getClass().getSimpleName() + " :: " + e.getMessage(), e);
         }
 
-        NeptusLog.pub().info(ConsoleLayout.this.getClass().getSimpleName() + " cleanup end in " + ((System.currentTimeMillis() - start) / 1E3) + "s");
+        NeptusLog.pub().info(ConsoleLayout.this.getClass().getSimpleName() + " cleanup end in "
+                + ((System.currentTimeMillis() - start) / 1E3) + "s");
     }
 
     public void minimizePanel(ConsolePanel p) {
@@ -1790,12 +1868,13 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
             }
         }
     }
-    
+
     /**
      * Creates and retrieves a console menu item
      * 
-     * @param itemPath The path to the menu item separated by ">". Examples: <li>
-     *            <b>"Tools > Local Network > Test Network"</b> <li><b>"Tools>Test Network"</b>
+     * @param itemPath The path to the menu item separated by ">". Examples:
+     *            <li><b>"Tools > Local Network > Test Network"</b>
+     *            <li><b>"Tools>Test Network"</b>
      * @param icon The icon to be used in the menu item. <br>
      *            Size is automatically adjusted to 16x16 pixels.
      * @param actionListener The {@link ActionListener} that will be warned on menu activation
@@ -1837,7 +1916,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
             String[] tks = menuPath[0].split(">");
             menuPath = tks;
         }
-        
+
         JMenu parent = null;
         for (int i = 0; i < this.menuBar.getMenuCount(); i++) {
             JMenu menu = getConsole().getJMenuBar().getMenu(i);
@@ -1957,7 +2036,6 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
 
     public synchronized void addJMenuIntoViewMenu(JMenuItem menu) {
         JMenu viewMenu = getConsole().getOrCreateJMenu(new String[] { I18n.text("View") });
-        
         if (settingsWindowName == null) {
             Popup cAction = settingsWindow != null ? settingsWindow.getClass().getAnnotation(Popup.class)
                     : SettingsWindow.class.getAnnotation(Popup.class);
@@ -1968,7 +2046,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
                     : PluginManager.class.getAnnotation(Popup.class);
             pluginManagerName = I18n.text(cAction.name());
         }
-        
+
         int elms = viewMenu.getItemCount();
         if (elms == 0 || settingsWindowName.equals(menu.getText())) {
             viewMenu.add(menu); // Add to last
@@ -1988,13 +2066,14 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
                     viewMenu.add(menu);
                 return;
             }
-        } 
+        }
 
         // If we got here at least one element we have in the menu
         Collator collator = Collator.getInstance(Locale.US);
         for (int i = elms - 1; i >= 0; i--) {
             JMenuItem itemM = viewMenu.getItem(i);
-            if (settingsWindowName.equalsIgnoreCase(itemM.getText()) || pluginManagerName.equalsIgnoreCase(itemM.getText())) {
+            if (settingsWindowName.equalsIgnoreCase(itemM.getText())
+                    || pluginManagerName.equalsIgnoreCase(itemM.getText())) {
                 if (i == 0) {
                     viewMenu.add(menu, 0);
                     return;
@@ -2009,7 +2088,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
             }
         }
     }
-    
+
     @Override
     public void componentResized(ComponentEvent e) {
         notificationsDialog.setVisible(false);
@@ -2232,15 +2311,15 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
             };
         });
 
-        String op = ""
-                + JOptionPane.showInputDialog(null, I18n.text("Select console to open"), I18n.text("Neptus Console"),
-                        JOptionPane.QUESTION_MESSAGE, ImageUtils.getIcon("images/neptus-icon1.png"),
-                        options.toArray(new String[0]), "lauv");
+        String op = "" + JOptionPane.showInputDialog(null, I18n.text("Select console to open"),
+                I18n.text("Neptus Console"), JOptionPane.QUESTION_MESSAGE,
+                ImageUtils.getIcon("images/neptus-icon1.png"), options.toArray(new String[0]), "lauv");
 
         if (op.equals("null")) {
             return;
         }
-        NeptusMain.main(new String[] { "-f", new File(new File(ConfigFetch.getConsolesFolder()), op + ".ncon").getAbsolutePath() });
+        NeptusMain.main(new String[] { "-f",
+                new File(new File(ConfigFetch.getConsolesFolder()), op + ".ncon").getAbsolutePath() });
     }
 
     @Override
