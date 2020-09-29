@@ -403,7 +403,7 @@ project(':core') {
         implementation 'log4j:log4j:1.2.17'
 
         implementation 'net.sf.marineapi:marineapi:0.11.0'
-        implementation 'com.drewnoakes:metadata-extractor:2.7.2' //2.13.0
+        implementation 'com.drewnoakes:metadata-extractor:2.11.0' //2.13.0
         implementation 'com.miglayout:miglayout-swing:4.2' //5.2
         implementation 'com.eclipsesource.minimal-json:minimal-json:0.9.4' //0.9.5
 
