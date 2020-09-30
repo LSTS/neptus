@@ -126,7 +126,7 @@ public class SearchOpenCv {
         }
 
         if (!resultState)
-            NeptusLog.pub().error("Opencv not found - please install OpenCv 4.4 and dependencies. www.adicionar_url.pt");
+            NeptusLog.pub().error("Opencv not found - please install OpenCv 4.4 and dependencies at https://www.lsts.pt/bin/opencv/v4.4.0-x64_x86/deb/");
             
         return resultState;
     }
