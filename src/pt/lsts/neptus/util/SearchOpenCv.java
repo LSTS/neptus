@@ -34,6 +34,8 @@ package pt.lsts.neptus.util;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.util.Arrays;
+import java.lang.reflect.Field;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.platform.OsInfo;
@@ -60,12 +62,21 @@ public class SearchOpenCv {
         resultState = false;
 
         if (OsInfo.getFamily() == Family.UNIX) {
-            File path = new File("/usr/lib/jni");
+            File path = new File("/usr/share/java/opencv4/");
             String libOpencv = "";
+            if(path.exists())
+                try {
+                    addLibraryPath("/usr/share/java/opencv4/");
+                }
+                catch (Exception e1) {
+                    NeptusLog.pub().error("Opencv path not found - " + e1.getMessage());
+                    //e1.printStackTrace();
+                }
+
             String[] children = !path.exists() ? new String[0] : path.list(new FilenameFilter() {
                 @Override
                 public boolean accept(File dir, String name) {
-                    boolean ret = name.toLowerCase().startsWith("libopencv_java24");
+                    boolean ret = name.toLowerCase().startsWith("libopencv_java440");
                     ret = ret && name.toLowerCase().endsWith(".so");
                     return ret;
                 }
@@ -73,10 +84,10 @@ public class SearchOpenCv {
             if (children.length > 0) {
                 String filename = children[0];
                 libOpencv = filename.toString().replaceAll("lib", "").replaceAll(".so", "");
-
                 try {
                     System.loadLibrary(libOpencv);
                     resultState = true;
+                    NeptusLog.pub().info("Opencv found: "+libOpencv);
                     return true;
                 }
                 catch (Exception e) {
@@ -90,17 +101,17 @@ public class SearchOpenCv {
         else {
          // If we are here is not loaded yet
             try {
-                System.loadLibrary("opencv_java2411");
-                System.loadLibrary("libopencv_core2411");
-                System.loadLibrary("libopencv_highgui2411");
+                System.loadLibrary("opencv_java440");
+                System.loadLibrary("libopencv_core440");
+                System.loadLibrary("libopencv_highgui440");
                 try {
-                    System.loadLibrary("opencv_ffmpeg2411"+ (OsInfo.getDataModel() == DataModel.B64 ? "_64" : ""));
+                    System.loadLibrary("opencv_ffmpeg440"+ (OsInfo.getDataModel() == DataModel.B64 ? "_64" : ""));
                 }
                 catch (Exception e1) {
-                    System.loadLibrary("opencv_ffmpeg2411");
+                    System.loadLibrary("opencv_ffmpeg440");
                 }
                 catch (Error e1) {
-                    System.loadLibrary("opencv_ffmpeg2411");
+                    System.loadLibrary("opencv_ffmpeg440");
                 }
                 resultState = true;
             }
@@ -113,9 +124,29 @@ public class SearchOpenCv {
                 NeptusLog.pub().error("Opencv not found - " + e.getMessage());
             }
         }
+
         if (!resultState)
-            NeptusLog.pub().error("Opencv not found - please install OpenCv 2.4 and dependencies.");
+            NeptusLog.pub().error("Opencv not found - please install OpenCv 4.4 and dependencies at https://www.lsts.pt/bin/opencv/v4.4.0-x64_x86/deb/");
             
         return resultState;
+    }
+
+    public static void addLibraryPath(String pathToAdd) throws Exception{
+        final Field usrPathsField = ClassLoader.class.getDeclaredField("usr_paths");
+        usrPathsField.setAccessible(true);
+
+        //get array of paths
+        final String[] paths = (String[])usrPathsField.get(null);
+
+        //check if the path to add is already present
+        for(String path : paths) {
+            if(path.equals(pathToAdd)) {
+                return;
+            }
+        }
+        //add the new path
+        final String[] newPaths = Arrays.copyOf(paths, paths.length + 1);
+        newPaths[newPaths.length-1] = pathToAdd;
+        usrPathsField.set(null, newPaths);
     }
 }

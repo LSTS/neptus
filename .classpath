@@ -270,12 +270,12 @@
 	<classpathentry kind="lib" path="lib/zxing-3.2.1.jar"/>
 	<classpathentry kind="lib" path="lib/zxing-core-3.2.1.jar"/>
 	<classpathentry kind="lib" path="plugins-dev/shapefiles/lib/shapefilereader-1.0.jar"/>
-	<classpathentry kind="lib" path="lib/opencv-2.4.11.jar"/>
 	<classpathentry kind="lib" path="plugins-dev/imc-groovy/lib/imc_plan_dsl-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/rsyntaxtextarea-2.5.8.jar"/>
 	<classpathentry kind="lib" path="lib/groovy-2.5.4.jar"/>
 	<classpathentry kind="lib" path="lib/metadata-extractor-2.11.0.jar"/>
 	<classpathentry kind="lib" path="lib/xmpcore-5.1.3.jar"/>
 	<classpathentry kind="lib" path="plugins-dev/dji-photo-importer/lib/jts-core-1.16.0.jar"/>
+	<classpathentry kind="lib" path="lib/opencv_440.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>
