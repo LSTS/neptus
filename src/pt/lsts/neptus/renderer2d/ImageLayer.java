@@ -38,9 +38,11 @@ import java.awt.RenderingHints;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -148,4 +150,40 @@ public class ImageLayer implements Serializable, Renderer2DPainter {
         out.defaultWriteObject();
         ImageIO.write(image, "PNG", out);
     }    
+    
+    public void saveAsPng(File f, boolean writeWorldFile) throws Exception {
+        
+        if (writeWorldFile) {
+            File out = new File(f.getParent(), f.getName().replaceAll(".png", ".pgw"));
+            BufferedWriter writer = new BufferedWriter(new FileWriter(out));
+            LocationType bottomRight = new LocationType(topLeft);
+            bottomRight.translatePosition(-image.getHeight()*zoom, image.getWidth()*zoom, 0).convertToAbsoluteLatLonDepth();
+            
+            
+            System.out.println(zoom+", "+image.getWidth());
+            double degsPerPixel = (topLeft.getLatitudeDegs() - bottomRight.getLatitudeDegs()) / image.getHeight();
+            double degsPerPixel2 = (bottomRight.getLongitudeDegs() - topLeft.getLongitudeDegs()) / image.getWidth();
+            writer.write(String.format("%.10f\n",degsPerPixel2));
+            writer.write("0\n");
+            writer.write("0\n");
+            writer.write(String.format("-%.10f\n",degsPerPixel));
+            writer.write(topLeft.getLongitudeDegs() + "\n");
+            writer.write(topLeft.getLatitudeDegs() + "\n");
+            writer.close();
+        }
+        
+        ImageIO.write(image, "PNG", f);
+    }
+
+    public static void main(String[] args) throws Exception {
+     
+        
+        ImageLayer imgLayer = ImageLayer.read(new File(
+                "/media/zp/5e169b60-ba8d-47db-b25d-9048fe40eed1/OMARE/Raw/lauv-noptilus-2/20180711/110508_A042_NP2/mra/sidescan.layer"));
+        
+        imgLayer.saveAsPng(new File("/media/zp/5e169b60-ba8d-47db-b25d-9048fe40eed1/OMARE/Raw/lauv-noptilus-2/20180711/110508_A042_NP2/mra/sidescan.png"), true);
+        /*StateRenderer2D r2d = new StateRenderer2D(imgLayer.topLeft);
+        r2d.addPostRenderPainter(imgLayer, "imgLayer");
+        GuiUtils.testFrame(r2d);*/
+    }
 }

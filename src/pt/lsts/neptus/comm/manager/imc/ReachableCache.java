@@ -32,7 +32,6 @@
  */
 package pt.lsts.neptus.comm.manager.imc;
 
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -44,39 +43,40 @@ import java.util.concurrent.*;
  */
 public class ReachableCache {
 
-    static LinkedHashMap<String, HostReachability> reachabilityCache = new LinkedHashMap<>();
+    private static final int REACHABILITY_CACHE_MAX_AGE_MS = 120000;
+
+    static LinkedHashMap<InetSocketAddress, HostReachability> reachabilityCache = new LinkedHashMap<>();
     static ExecutorService executorService = Executors.newCachedThreadPool();
     
-    public static Future<Boolean> isReachable(int timeout, String hostname) {
+    public static Future<Boolean> isReachable(int timeout, InetSocketAddress addr) {
         return executorService.submit(new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
-                return isReachableBlocking(timeout, hostname);
+                return isReachableBlocking(timeout, addr);
             }
         });
     }
 
-    public static boolean isReachableBlocking(int timeout, String hostname) {
+    public static boolean isReachableBlocking(int timeout, InetSocketAddress addr) {
 
         synchronized (reachabilityCache) {
-            HostReachability reachability = reachabilityCache.get(hostname);
-            if (reachability != null && reachability.getAge() < 120000) {
+            HostReachability reachability = reachabilityCache.get(addr);
+            if (reachability != null && reachability.getAge() < REACHABILITY_CACHE_MAX_AGE_MS) {
                 return reachability.isReachable();
             }
             else {
                 try {
-                    if (InetAddress.getByName(hostname).isReachable(timeout))
-                        reachabilityCache.put(hostname, new HostReachability(true));
+                    if (addr.getAddress().isReachable(timeout))
+                        reachabilityCache.put(addr, new HostReachability(true));
                     else
-                        reachabilityCache.put(hostname, new HostReachability(false));
+                        reachabilityCache.put(addr, new HostReachability(false));
                 }
                 catch (Exception e) {
                     e.printStackTrace();
-                    reachabilityCache.put(hostname, new HostReachability(false));
+                    reachabilityCache.put(addr, new HostReachability(false));
                 }
-
             }
-            return reachabilityCache.get(hostname).isReachable();
+            return reachabilityCache.get(addr).isReachable();
         }
     }
 
@@ -87,7 +87,7 @@ public class ReachableCache {
         LinkedHashMap<InetSocketAddress, Future<Boolean>> pings = new LinkedHashMap<>();
 
         for (InetSocketAddress addr : addrs)
-            pings.put(addr, isReachable(timeout, addr.getHostName()));
+            pings.put(addr, isReachable(timeout, addr));
 
         while(System.currentTimeMillis() < endTime) {
             try {

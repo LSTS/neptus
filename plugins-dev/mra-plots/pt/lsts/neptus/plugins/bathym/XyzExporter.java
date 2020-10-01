@@ -46,7 +46,12 @@ import javax.swing.ProgressMonitor;
 import org.apache.commons.io.FileUtils;
 
 import pt.lsts.imc.EstimatedState;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.PlanControlState;
+import pt.lsts.imc.PopUp;
+import pt.lsts.imc.StationKeeping;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mra.api.BathymetryParser;
 import pt.lsts.neptus.mra.api.BathymetryPoint;
 import pt.lsts.neptus.mra.api.BathymetrySwath;
@@ -115,7 +120,19 @@ public class XyzExporter implements MRAExporter {
 
     @NeptusProperty(name = "Data spacer")
     public SeparatorChar spacer = SeparatorChar.COMMA;
-
+    
+    @NeptusProperty(name = "Skip surface data")
+    public boolean skipSurface = false;
+    
+    @NeptusProperty(name = "Skip Popup Maneuvers")
+    public boolean skipPopup = true;
+        
+    @NeptusProperty(name = "Skip StationKeeping Maneuvers")
+    public boolean skipStationKeeping = true;
+        
+    @NeptusProperty(name = "Write XYZ header")
+    public boolean writeHeader = false;
+    
     private TidePredictionFinder finder = null;
     private BufferedWriter writer = null;
     private ProgressMonitor pmonitor;
@@ -129,22 +146,10 @@ public class XyzExporter implements MRAExporter {
         return source.getLsfIndex().containsMessagesOfType("EstimatedState");        
     }
 
-    @Override
-    public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
-        pmonitor.setMaximum(100);
-        PluginUtils.editPluginProperties(this, true);
-        this.pmonitor = pmonitor;
-        this.pmonitor.setMillisToDecideToPopup(0);
+    private IMraLogGroup source;
+    
+    private void writeCustomHeader() throws Exception {
         
-        this.pmonitor.setProgress(0);
-        
-        finder = TidePredictionFactory.create(source);
-        if (finder == null)
-            tideCorrection = false;
-        
-        try {
-            writer = new BufferedWriter(new FileWriter(file));
-
             // Writing header
             writer.write(COMMENT_STRING + "XYZ Data" + LINE_ENDING);
             double startTimeSeconds = source.getLsfIndex().getStartTime();
@@ -166,11 +171,34 @@ public class XyzExporter implements MRAExporter {
             writer.write(COMMENT_STRING + LINE_ENDING);
 
             writer.write(COMMENT_STRING + "Longitude, Latitude, Depth" + LINE_ENDING);
-            writer.write(COMMENT_STRING + "(decimal degrees, decimal degrees, meters)" + LINE_ENDING);
+            writer.write(COMMENT_STRING + "(decimal degrees, decimal degrees, meters)" + LINE_ENDING);        
+    }
+    
+    @Override
+    public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
+        pmonitor.setMaximum(100);
+        PluginUtils.editPluginProperties(this, true);
+        this.pmonitor = pmonitor;
+        this.pmonitor.setMillisToDecideToPopup(0);
+
+        this.pmonitor.setProgress(0);
+        this.source = source;
+
+        finder = TidePredictionFactory.create(source);
+
+        if (finder == null)
+            tideCorrection = false;
+        
+        try {
+            writer = new BufferedWriter(new FileWriter(file));
+
+            if (writeHeader)
+               writeCustomHeader();            
         }
         catch (Exception e) {
             e.printStackTrace();
-            return I18n.textf("%name while trying to write to file: %message.", e.getClass().getSimpleName(), e.getMessage()); 
+            return I18n.textf("%name while trying to write to file: %message.", e.getClass().getSimpleName(),
+                    e.getMessage());
         }
 
         this.pmonitor.setProgress(10);
@@ -214,6 +242,32 @@ public class XyzExporter implements MRAExporter {
         
         return I18n.textf("File written to %file.", outputPath);
     }
+    
+    private int maneuverType(double timestamp) {
+        IMCMessage msg = source.getLsfIndex().getMessageAt(PlanControlState.class.getSimpleName(), timestamp);
+        
+        if (msg == null)
+            return -1;
+        
+        return ((PlanControlState)msg).getManType();
+    }
+    
+    private boolean shouldSkip(SystemPositionAndAttitude pos) {
+        
+        if (skipSurface && pos.getDepth() < 0.5)
+            return true;
+                    
+        if (skipPopup || skipStationKeeping) {
+            int manType = maneuverType(pos.getTime()/1000.0);
+            if (manType == StationKeeping.ID_STATIC && skipStationKeeping)
+                return true;
+            
+            if (manType == PopUp.ID_STATIC && skipPopup)
+                return true;            
+        }
+        
+        return false;
+    }
 
     private void processEstimatedStates(IMraLogGroup source) {
         CorrectedPosition pos = new CorrectedPosition(source);
@@ -231,7 +285,10 @@ public class XyzExporter implements MRAExporter {
             
             Date d = s.getDate();
             double depth = s.getDepth() + s.getAlt();
-            addSample(d, pos.getPosition(s.getTimestamp()).getPosition(), depth);
+            
+            SystemPositionAndAttitude position = pos.getPosition(s.getTimestamp());
+            if (!shouldSkip(position))
+                addSample(d, position.getPosition(), depth);
         }
     }
 
@@ -244,16 +301,20 @@ public class XyzExporter implements MRAExporter {
         double timeSpan = lastTime - firstTime;
         if (timeSpan == 0)
             timeSpan = 1;
-        
-//        System.out.println(parser.getLastTimestamp());
-//        System.out.println(parser.getFirstTimestamp());
+
         SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd hh:mm");
+        CorrectedPosition pos = new CorrectedPosition(source);
         
         while ((swath = parser.nextSwath()) != null) {
             if (pmonitor.isCanceled())
                 break;
 
-            LocationType loc = swath.getPose().getPosition();
+            SystemPositionAndAttitude position = pos.getPosition(swath.getTimestamp()/1000.0);
+            
+            if (shouldSkip(position))
+                continue;
+            
+            LocationType loc = position.getPosition();
             
             int prog = (int) (100 * ((swath.getTimestamp() - firstTime) / timeSpan));
             pmonitor.setProgress(prog);

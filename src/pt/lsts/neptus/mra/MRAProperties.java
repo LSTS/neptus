@@ -55,6 +55,7 @@ import pt.lsts.neptus.mra.visualizations.MRAVisualization;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.PluginsRepository;
+import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 
 /**
  * These are Neptus MRA default properties
@@ -113,6 +114,10 @@ public class MRAProperties implements PropertiesProvider {
     
     @NeptusProperty(name = "Magnetometer Layer Cell Width")
     public static int magCellW = 5;
+    
+    @NeptusProperty(name = "Batch Mode", description = "Do not ask user for inputs, use defaults", userLevel = LEVEL.ADVANCED, editable = false)
+    public static boolean batchMode = false;
+    
 
     private LinkedHashMap<Class<?>, Boolean> visiblePlots = new LinkedHashMap<Class<?>, Boolean>();
 

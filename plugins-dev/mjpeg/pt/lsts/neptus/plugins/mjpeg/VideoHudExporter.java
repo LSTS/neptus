@@ -35,17 +35,22 @@ package pt.lsts.neptus.plugins.mjpeg;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.GraphicsEnvironment;
 import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.awt.image.BufferedImageOp;
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.TimeZone;
 import java.util.Vector;
 
 import javax.swing.ProgressMonitor;
+
+import org.imgscalr.Scalr;
 
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
@@ -53,8 +58,11 @@ import pt.lsts.neptus.mra.api.CorrectedPosition;
 import pt.lsts.neptus.mra.exporters.MRAExporter;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.replay.MraVehiclePosHud;
+import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.VideoCreator;
 
 /**
@@ -68,6 +76,23 @@ public class VideoHudExporter implements MRAExporter {
     private FrameDecoderMotionJPEG frameDecoder;
     private VideoCreator creator = null;
     private MraVehiclePosHud hud;
+    
+    @NeptusProperty(name = "Sharpen filter")
+    boolean applySharpen = false;
+    
+    @NeptusProperty(name = "Contrast filter")
+    boolean applyContrast = false;
+    
+    @NeptusProperty(name = "Brighten filter")
+    boolean applyBrighten = false;
+    
+    @NeptusProperty(name = "Grayscale filter")
+    boolean applyGraysclae = false;
+    
+    protected BufferedImageOp contrastOp = ImageUtils.contrastOp();
+    protected BufferedImageOp sharpenOp = ImageUtils.sharpenOp();
+    protected BufferedImageOp brightenOp = ImageUtils.brightenOp(1.2f, 0);
+    protected BufferedImageOp grayscaleOp = ImageUtils.grayscaleOp();
     
     protected SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
     {
@@ -139,6 +164,10 @@ public class VideoHudExporter implements MRAExporter {
 
     @Override
     public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
+        
+        if (!GraphicsEnvironment.isHeadless())
+            PluginUtils.editPluginProperties(this, true);
+        
         frameDecoder.load(source.getDir());
         int nFrames = frameDecoder.getFrameCount();  
         VideoFrame first = frameDecoder.next();
@@ -152,12 +181,25 @@ public class VideoHudExporter implements MRAExporter {
             e1.printStackTrace();         
         }
         
+        ArrayList<BufferedImageOp> ops = new ArrayList<BufferedImageOp>();
+        if (applyBrighten)
+            ops.add(brightenOp);
+        if (applyContrast)
+            ops.add(contrastOp);
+        if (applyGraysclae)
+            ops.add(grayscaleOp);
+        if (applySharpen)
+            ops.add(sharpenOp);
+        if (ops.isEmpty())
+            ops.add(ImageUtils.identityOp());
+        
         pmonitor.setMaximum(nFrames);
         pmonitor.setProgress(0);
         for (int i = 0; i < nFrames; i++) {
             frameDecoder.seekToFrame(i); 
             VideoFrame frm = frameDecoder.getCurrentFrame();
             BufferedImage img = toBufferedImage(frm.getImage());
+            img = Scalr.apply(img, ops.toArray(new BufferedImageOp[0]));                        
             BufferedImage overlay = hud.getImage(frm.getTimeStamp()/1000.0);
             SystemPositionAndAttitude pose = positions.getPosition(frm.getTimeStamp() / 1000.0);
             Graphics2D g2d = (Graphics2D) img.getGraphics();
