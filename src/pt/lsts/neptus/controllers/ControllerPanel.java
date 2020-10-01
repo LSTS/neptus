@@ -43,8 +43,6 @@ import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
@@ -87,13 +85,8 @@ import net.java.games.input.Component;
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.RemoteActions;
 import pt.lsts.imc.RemoteActionsRequest;
-import pt.lsts.imc.VehicleState;
 import pt.lsts.imc.RemoteActionsRequest.OP;
-import pt.lsts.imc.VehicleState.OP_MODE;
-import pt.lsts.imc.state.ImcSystemState;
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
-import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
@@ -429,6 +422,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
     }
 
     public void updateControllers() {
+        editing = false;
         manager.fetchControllers();
         String list[] = manager.getControllerList().keySet().toArray(new String[0]);
         for (JComboBox<String> cb : controllerSelectors) {
@@ -489,6 +483,9 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         if (manager == null || currentController == null) {
             return true;
         }
+        
+        if(!isVisible() || !isShowing() || !isEnabled())
+            return true;
 
         if (dialog == null)
             return true;
