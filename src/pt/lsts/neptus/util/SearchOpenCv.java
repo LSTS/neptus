@@ -49,12 +49,12 @@ import pt.lsts.neptus.platform.OsInfo.Family;
  *
  */
 public class SearchOpenCv {
-    
+
     private static Boolean resultState = null;
-    
+
     private SearchOpenCv() {
     }
-    
+
     public synchronized static boolean searchJni() {
         if (resultState != null)
             return resultState;
@@ -68,10 +68,9 @@ public class SearchOpenCv {
                 try {
                     addLibraryPath("/usr/share/java/opencv4/");
                 }
-                catch (Exception e1) {
-                    NeptusLog.pub().error("Opencv path not found - " + e1.getMessage());
-                    //e1.printStackTrace();
-                }
+            catch (Exception e1) {
+                NeptusLog.pub().error("Opencv path not found - " + e1.getMessage());
+            }
 
             String[] children = !path.exists() ? new String[0] : path.list(new FilenameFilter() {
                 @Override
@@ -98,36 +97,62 @@ public class SearchOpenCv {
                 }
             }
         }
-        else {
-         // If we are here is not loaded yet
-            try {
-                System.loadLibrary("opencv_java440");
-                System.loadLibrary("libopencv_core440");
-                System.loadLibrary("libopencv_highgui440");
+        else if(OsInfo.getFamily() == Family.WINDOWS){
+            boolean fail = false;
+            if(OsInfo.getDataModel() == DataModel.B64) {
                 try {
-                    System.loadLibrary("opencv_ffmpeg440"+ (OsInfo.getDataModel() == DataModel.B64 ? "_64" : ""));
+                    String libpath = System.getProperty("java.library.path");
+                    libpath = libpath + ";C:\\opencv4.40-x64_86\\x64";
+                    System.setProperty("java.library.path",libpath);
                 }
-                catch (Exception e1) {
-                    System.loadLibrary("opencv_ffmpeg440");
+                catch (Exception e) {
+                    System.err.println("Add OpenCv path to java.library.path: " + e);
+                    fail = true;
                 }
-                catch (Error e1) {
-                    System.loadLibrary("opencv_ffmpeg440");
+
+                if(!fail) {
+                    File path = new File("C:\\opencv4.40-x64_86\\x64");
+                    String []libOpencvDll = {"opencv_videoio_ffmpeg440_64.dll", "libopencv_core440.dll", "libopencv_imgproc440.dll",
+                            "libopencv_dnn440.dll", "libopencv_flann440.dll", "libopencv_imgcodecs440.dll", "libopencv_ml440.dll",
+                            "libopencv_photo440.dll", "libopencv_videoio440.dll", "libopencv_highgui440.dll", "libopencv_features2d440.dll",
+                            "libopencv_calib3d440.dll", "libopencv_objdetect440.dll", "libopencv_stitching440.dll", "libopencv_video440.dll",
+                            "libopencv_gapi440.dll", "libopencv_java440.dll"};
+                    if(path.exists()) {
+                        try {
+                            for(int i = 0; i < libOpencvDll.length; i++) {
+                                System.load("C:\\opencv4.40-x64_86\\x64\\" + libOpencvDll[i]);
+                                NeptusLog.pub().info("OpenCv - Load DLL: "+libOpencvDll[i]);
+                            }
+                            resultState = true;
+                        }
+                        catch (Exception e) {
+                            NeptusLog.pub().error("Opencv not found - " + e.getMessage());
+                            resultState = false;
+                        }
+                        catch (Error e) {
+                            NeptusLog.pub().error("Opencv not found - " + e.getMessage());
+                            resultState = false;
+                        }
+                    }
+                    else {
+                        NeptusLog.pub().error("Opencv path not found");
+                        resultState = false;
+                    }
                 }
-                resultState = true;
-            }
-            catch (Exception e) {
-                resultState = false;
-                NeptusLog.pub().error("Opencv not found - " + e.getMessage());
-            }
-            catch (Error e) {
-                resultState = false;
-                NeptusLog.pub().error("Opencv not found - " + e.getMessage());
             }
         }
+        else {
+            NeptusLog.pub().error("Only compatible with x64 architecture");
+            resultState = false;
+        }
 
-        if (!resultState)
-            NeptusLog.pub().error("Opencv not found - please install OpenCv 4.4 and dependencies at https://www.lsts.pt/bin/opencv/v4.4.0-x64_x86/deb/");
-            
+        if (!resultState) {
+            if (OsInfo.getFamily() == Family.UNIX)
+                NeptusLog.pub().error("Opencv not found - please install OpenCv 4.4 and dependencies at https://www.lsts.pt/bin/opencv/v4.4.0-x64_x86/deb/");
+            else if(OsInfo.getFamily() == Family.WINDOWS)
+                NeptusLog.pub().error("Opencv not found - please install OpenCv 4.4 and dependencies at https://www.lsts.pt/bin/opencv/v4.4.0-x64_x86/win-x64_86/");
+        }
+
         return resultState;
     }
 
