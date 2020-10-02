@@ -351,6 +351,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
         updateSizeVariables(this);
         
         if (findOpenCV()) {
+            getConsole().post(Notification.success(I18n.text("OpenCv"), I18n.text("OpenCv-4.4.0 found.")));
             // clears all the unused initializations of the standard ConsolePanel
             removeAll();
             // Resize Console
@@ -444,6 +445,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
         }
         else {
             NeptusLog.pub().error("Opencv not found.");
+            getConsole().post(Notification.warning(I18n.text("OpenCv"), I18n.text("OpenCv not found.")));
             closingPanel = true;
             setBackground(Color.BLACK);
             // JLabel for image
