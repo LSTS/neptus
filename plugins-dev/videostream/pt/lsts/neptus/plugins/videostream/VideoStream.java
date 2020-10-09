@@ -114,6 +114,8 @@ import pt.lsts.neptus.params.ConfigurationManager;
 import pt.lsts.neptus.params.SystemProperty;
 import pt.lsts.neptus.params.SystemProperty.Scope;
 import pt.lsts.neptus.params.SystemProperty.Visibility;
+import pt.lsts.neptus.platform.OsInfo;
+import pt.lsts.neptus.platform.OsInfo.Family;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
@@ -351,7 +353,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
         updateSizeVariables(this);
         
         if (findOpenCV()) {
-            getConsole().post(Notification.success(I18n.text("OpenCv"), I18n.text("OpenCv-4.4.0 found.")));
+            NeptusLog.pub().info(I18n.text("OpenCv-4.4.0 found."));
             // clears all the unused initializations of the standard ConsolePanel
             removeAll();
             // Resize Console
@@ -445,14 +447,18 @@ public class VideoStream extends ConsolePanel implements ItemListener {
         }
         else {
             NeptusLog.pub().error("Opencv not found.");
-            getConsole().post(Notification.warning(I18n.text("OpenCv"), I18n.text("OpenCv not found.")));
             closingPanel = true;
             setBackground(Color.BLACK);
             // JLabel for image
-            this.setLayout(new MigLayout("filly"));
+            this.setLayout(new MigLayout("al center center"));
             // JLabel info
-            warningText = new JLabel("  " + I18n.text("Please install OpenCV 2.4 and its dependencies.") + "  ");
-            warningText.setForeground(new Color(252, 68, 35));
+            String opencvInstallLink = "";
+            if (OsInfo.getFamily() == Family.UNIX)
+                opencvInstallLink = "<br>" + I18n.text("Install OpenCv 4.4 and dependencies at <br>https://www.lsts.pt/bin/opencv/v4.4.0-x64_x86/deb/");
+            else if(OsInfo.getFamily() == Family.WINDOWS)
+                opencvInstallLink = "<br>" + I18n.text("Install OpenCv 4.4 and dependencies at <br>https://www.lsts.pt/bin/opencv/v4.4.0-x64_x86/win-x64_86/");
+            warningText = new JLabel("<html>" + I18n.text("Please install OpenCV 4.4.0 and its dependencies." + opencvInstallLink));
+            warningText.setForeground(Color.BLACK);
             warningText.setFont(new Font("Courier New", Font.ITALIC, 18));
             this.add(warningText);
         }

@@ -35,6 +35,7 @@ package pt.lsts.neptus.util;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.Arrays;
+import java.util.List;
 import java.lang.reflect.Field;
 
 import pt.lsts.neptus.NeptusLog;
@@ -112,16 +113,18 @@ public class SearchOpenCv {
 
                 if(!fail) {
                     File path = new File("C:\\opencv4.40-x64_86\\x64");
-                    String []libOpencvDll = {"opencv_videoio_ffmpeg440_64.dll", "libopencv_core440.dll", "libopencv_imgproc440.dll",
-                            "libopencv_dnn440.dll", "libopencv_flann440.dll", "libopencv_imgcodecs440.dll", "libopencv_ml440.dll",
-                            "libopencv_photo440.dll", "libopencv_videoio440.dll", "libopencv_highgui440.dll", "libopencv_features2d440.dll",
-                            "libopencv_calib3d440.dll", "libopencv_objdetect440.dll", "libopencv_stitching440.dll", "libopencv_video440.dll",
-                            "libopencv_gapi440.dll", "libopencv_java440.dll"};
-                    if(path.exists()) {
+                    List<String> libOpencvDll = Arrays.asList("opencv_videoio_ffmpeg440_64.dll",
+                            "libopencv_core440.dll", "libopencv_imgproc440.dll", "libopencv_dnn440.dll",
+                            "libopencv_flann440.dll", "libopencv_imgcodecs440.dll", "libopencv_ml440.dll",
+                            "libopencv_photo440.dll", "libopencv_videoio440.dll", "libopencv_highgui440.dll",
+                            "libopencv_features2d440.dll", "libopencv_calib3d440.dll", "libopencv_objdetect440.dll",
+                            "libopencv_stitching440.dll", "libopencv_video440.dll", "libopencv_gapi440.dll",
+                            "libopencv_java440.dll");
+                    if (path.exists()) {
                         try {
-                            for(int i = 0; i < libOpencvDll.length; i++) {
-                                System.load("C:\\opencv4.40-x64_86\\x64\\" + libOpencvDll[i]);
-                                NeptusLog.pub().info("OpenCv - Load DLL: "+libOpencvDll[i]);
+                            for (String lib : libOpencvDll) {
+                                System.load("C:\\opencv4.40-x64_86\\x64\\" + lib);
+                                NeptusLog.pub().info("OpenCv - Load DLL: " + lib);
                             }
                             resultState = true;
                         }
