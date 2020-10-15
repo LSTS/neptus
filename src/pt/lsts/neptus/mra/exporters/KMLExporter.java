@@ -75,6 +75,8 @@ import pt.lsts.neptus.mra.api.BathymetryParserFactory;
 import pt.lsts.neptus.mra.api.BathymetryPoint;
 import pt.lsts.neptus.mra.api.BathymetrySwath;
 import pt.lsts.neptus.mra.api.CorrectedPosition;
+import pt.lsts.neptus.mra.api.LsfTreeSet;
+import pt.lsts.neptus.mra.api.SidescanHistogramNormalizer;
 import pt.lsts.neptus.mra.api.SidescanLine;
 import pt.lsts.neptus.mra.api.SidescanParameters;
 import pt.lsts.neptus.mra.api.SidescanParser;
@@ -112,13 +114,21 @@ public class KMLExporter implements MRAExporter {
     private ProgressMonitor pmonitor;
 
     @NeptusProperty(category = "SideScan", name="Time Variable Gain")
-    public double timeVariableGain = 180;
+    public double timeVariableGain = 45;
 
     @NeptusProperty(category = "SideScan", name="Normalization")
-    public double normalization = 0.1;
+    public double normalization = 0.05;
+    
+    @NeptusProperty(category = "SideScan", name="Gain Normalization", description = "Perform an empirical analysis of the data to achieve optimal gain normalization.")
+    public boolean egnNormalization = true;
+    
     
     @NeptusProperty(category = "SideScan", name="Swath transparency")
     public double swathTransparency = 0.0;
+    
+    @NeptusProperty(category = "SideScan", name="Background Blur")
+    public boolean bgBlur = true;
+    
 
     @NeptusProperty(category="Output", name="Generated layers transparency")
     public double layerTransparency = 0;
@@ -133,7 +143,7 @@ public class KMLExporter implements MRAExporter {
     public boolean slantRangeCorrection = true;
     
     @NeptusProperty(category = "SideScan", name="Pixel blending mode", description="How to blend multiple measurements on same location")
-    public SideScanComposite.MODE blendMode = SideScanComposite.MODE.MAX;
+    public SideScanComposite.MODE blendMode = SideScanComposite.MODE.NONE;
     
     @NeptusProperty(category = "Output", name="Compress Output")
     public boolean compressOutput = true;
@@ -156,7 +166,7 @@ public class KMLExporter implements MRAExporter {
     public boolean filterMicromodem = false;
 
     @NeptusProperty(category = "Export", name="Export Bathymetry")
-    public boolean exportBathymetry = true;
+    public boolean exportBathymetry = false;
 
     @NeptusProperty(category = "Export", name="Export Sidescan")
     public boolean exportSidescan = true;
@@ -173,14 +183,19 @@ public class KMLExporter implements MRAExporter {
     @NeptusProperty(category = "SideScan", name="Resolution (px/meter)", description="Resolution of generated mosaic")
     public double sssResolution = 3;
         
-    @NeptusProperty(category = "SideScan", name="Truncate Range", description="Ignore data further than this range")
-    public int truncRange = 100;
+    @NeptusProperty(category = "SideScan", name="Truncate Range (%)", description="Ignore data further than this range")
+    public int truncRangePercent = 95;
     
     @NeptusProperty(category = "SideScan", name="Use Corrected positions", description="Use locations corrected by GPS")
     public boolean correctedPositions = true;
     
+    @NeptusProperty(category = "SideScan", name="Sub System to process", description="In case of multiple frequencies / ranges")
+    public int subSystem = 0;
+    
     @NeptusProperty(category = "Export", name="Export Marks")
     public boolean exportMarks = true;
+    
+    
     
     public KMLExporter(IMraLogGroup source) {
         this.source = source;
@@ -407,13 +422,16 @@ public class KMLExporter implements MRAExporter {
             String fname, long startTime, long endTime, Ducer ducer) {
         SidescanParser ssParser = SidescanParserFactory.build(source);
         CorrectedPosition positions = new CorrectedPosition(source);
+        SidescanHistogramNormalizer histogram = null;
+        if (egnNormalization) {
+            histogram = SidescanHistogramNormalizer.create(source);
+        }
         
         double totalProg = 100;
         double startProg = 100;
+
         // FIXME temporary fix
         boolean makeAbs = (ssParser instanceof JsfSidescanParser);
-
-        // System.out.println("makeAbs: "+makeAbs);
 
         if (ssParser == null || ssParser.getSubsystemList().isEmpty())
             return "";
@@ -445,8 +463,11 @@ public class KMLExporter implements MRAExporter {
         long end = Math.min(ssParser.lastPingTimestamp(), endTime);
         
         
-        int sys = ssParser.getSubsystemList().get(ssParser.getSubsystemList().size()-1);
+        int sys = ssParser.getSubsystemList().get(subSystem);
         SidescanParameters params = new SidescanParameters(normalization, timeVariableGain);
+        if (egnNormalization)
+            params = SidescanHistogramNormalizer.HISTOGRAM_DEFAULT_PARAMATERS;
+        
         String filename = fname;
 
         BufferedImage swath = null;
@@ -488,12 +509,15 @@ public class KMLExporter implements MRAExporter {
                 continue;
             }
 
-            BufferedImage previous = new BufferedImage(3, 3, BufferedImage.TYPE_INT_ARGB);
-            
             Integer margin = null;
             
             for (SidescanLine sl : lines) {
-
+                double[] data = sl.getData();
+                if (histogram != null)
+                    data = histogram.normalize(data, sys);
+                
+                int truncRange = (int) (.01*truncRangePercent * sl.getRange());
+                
                 if (margin == null) {
                     margin = 0;
                     if (truncRange > 0 && truncRange < sl.getRange()) {
@@ -505,13 +529,9 @@ public class KMLExporter implements MRAExporter {
                     continue;
                 
                 int widthPixels = (int) (sl.getRange() * resolution * 2);
-
+                
                 if (swath == null || swath.getWidth() != widthPixels)
-                    swath = new BufferedImage(widthPixels, 3, BufferedImage.TYPE_INT_ARGB);
-
-                if (previous != null)
-                    swath.getGraphics().drawImage(previous, 0, 0, swath.getWidth(), 1, 1, 0, 2, previous.getWidth(),
-                            null);
+                    swath = new BufferedImage(widthPixels, 1, BufferedImage.TYPE_INT_ARGB);
 
                 int samplesPerPixel = (int) Math.round(1.0 * sl.getData().length / widthPixels);
                 if (samplesPerPixel == 0)
@@ -526,17 +546,17 @@ public class KMLExporter implements MRAExporter {
                 switch (ducer) {
                     case board:
                         startPixel = margin;
-                        endPixel = sl.getData().length / 2;
+                        endPixel = data.length / 2;
                         filename = fname+"_board";
                         break;
                     case starboard:
-                        startPixel = sl.getData().length / 2;
-                        endPixel = sl.getData().length - margin;
+                        startPixel = data.length / 2;
+                        endPixel = data.length - margin;
                         filename = fname+"_starboard";
                         break;
                     default:
                         startPixel = margin;
-                        endPixel = sl.getData().length - margin;
+                        endPixel = data.length - margin;
                         filename = fname;
                         break;
                 }
@@ -549,17 +569,24 @@ public class KMLExporter implements MRAExporter {
 
                         int pixelInImgToWrite = (i / samplesPerPixel - 1) + pixelOffset;
 
+                        
                         if (Double.isNaN(val) || Double.isInfinite(val))
                             alpha = 255;
-                        if (pixelInImgToWrite >= 0 && pixelInImgToWrite < widthPixels)
-                            swath.setRGB(pixelInImgToWrite, 0, cmap.getColor(val).getRGB()
-                                    ^ ((alpha & 0xFF) << 24));
+                        else {
+                            double dist = Math.abs(i - data.length/2) / (double)data.length;
+                            alpha = (int) (350*dist);
+                        }
+                        
+                        if (pixelInImgToWrite >= 0 && pixelInImgToWrite < widthPixels) {
+                            int color = cmap.getColor(val).getRGB() ^ ((alpha & 0xFF) << 24);
+                            swath.setRGB(pixelInImgToWrite, 0, color);               
+                        }
                         sum = 0;
                         count = 0;
                     }
-                    if (!Double.isNaN(sl.getData()[i]) && !Double.isInfinite(sl.getData()[i])) { 
+                    if (!Double.isNaN(data[i]) && !Double.isInfinite(data[i])) { 
                         count++;
-                        sum += sl.getData()[i];
+                        sum += data[i];
                     }
                 }
                 Graphics2D g2 = (Graphics2D) g.create();
@@ -587,7 +614,6 @@ public class KMLExporter implements MRAExporter {
 
                 g2.drawImage(swath, -swath.getWidth() / 2, 0, null);
                 g2.dispose();
-                previous = swath;
                 lbl.repaint();
             }
         }
@@ -595,10 +621,22 @@ public class KMLExporter implements MRAExporter {
         frm.setVisible(false);
         frm.dispose();
 
+        
+        
         try {
-            ImageIO.write(img, "PNG", new File(dir, filename + ".png"));
+            BufferedImage behind = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_INT_ARGB);
             
-            ImageLayer il = new ImageLayer("Sidescan mosaic from " + source.name(), img, topLeft, bottomRight);
+            // Fill in the empty pixels in the background
+            behind.getGraphics().drawImage(img, 1, 0, null);
+            behind.getGraphics().drawImage(img, -1, 0, null);
+            behind.getGraphics().drawImage(img, 0, 1, null);
+            behind.getGraphics().drawImage(img, 0, -1, null);            
+            behind = Scalr.apply(behind, new com.jhlabs.image.GaussianFilter(25));  
+            behind.getGraphics().drawImage(img, 0, 0, null);
+            
+            ImageIO.write(behind, "PNG", new File(dir, filename + ".png"));
+            
+            ImageLayer il = new ImageLayer("Sidescan mosaic from " + source.name(), behind, topLeft, bottomRight);
             il.setTransparency(layerTransparency);
             String sufix = "";
             switch (ducer) {
@@ -848,8 +886,7 @@ public class KMLExporter implements MRAExporter {
         this.pmonitor = pmonitor;
         pmonitor.setMinimum(0);
         pmonitor.setMaximum(320);
-
-        if (PluginUtils.editPluginProperties(this, true))
+        if (!MRAProperties.batchMode && PluginUtils.editPluginProperties(this, true))
             return I18n.text("Cancelled by the user.");
 
         try {
@@ -1049,8 +1086,18 @@ public class KMLExporter implements MRAExporter {
         }
     }
 
-    public static void main(String[] args) {
-        BatchMraExporter.apply(KMLExporter.class);
-    }
+    public static void main(String[] args) throws Exception {
+        MRAProperties.batchMode = true;
+        GuiUtils.setLookAndFeelNimbus();
+        if (args.length == 0)
+            BatchMraExporter.apply(KMLExporter.class);
+        else {
+            File[] roots = new File[args.length];
+            for (int i = 0; i < roots.length; i++)
+                roots[i] = new File(args[i]);
 
+            LsfTreeSet set = new LsfTreeSet(roots);
+            BatchMraExporter.apply(set, KMLExporter.class);
+        }
+    }
 }
