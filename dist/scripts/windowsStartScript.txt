@@ -127,7 +127,7 @@ if %JAVA_MACHINE_TYPE%==windows-x86 (
 
 :endCheckApp
 
-mkdir %APP_HOME%\\log
+if not exist "%APP_HOME%\\log\\" mkdir "%APP_HOME%\\log"
 
 @rem @echo on
 
