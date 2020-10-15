@@ -51,6 +51,7 @@ import javax.imageio.ImageIO;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorMap;
+import pt.lsts.neptus.colormap.ColorMapFactory;
 
 /**
  * This class is used to process data from one or more XYZ files into a raster (gridded file)
@@ -139,7 +140,7 @@ public class BathymetryData implements Serializable {
         return ret;
     }
 
-    public void process(File f, String crs) {
+    public void process(File f, String crs, boolean inverted, String separator) {
 
         if (f.isDirectory()) {
             System.out.println("Processing folder " + f);
@@ -156,7 +157,7 @@ public class BathymetryData implements Serializable {
                 String line = reader.readLine();
 
                 while (line != null) {
-                    String[] parts = line.split(" ");
+                    String[] parts = line.split(separator);
                     line = reader.readLine();
                     double x = Double.valueOf(parts[0]);
                     double y = Double.valueOf(parts[1]);
@@ -164,7 +165,13 @@ public class BathymetryData implements Serializable {
                     
                     try {
                         z = Double.valueOf(parts[2]);
-                        addSample(crs, x, y, z);
+                        //if (z < -0.5) {
+                            //continue;
+                            if (!inverted)
+                                addSample(crs, x, y, z);
+                            else
+                                addSample(crs, y, x, z);
+                        //}
                     }
                     catch (Exception e) {
                         System.err.println("Invalid line: '" + line + "' (" + e.getMessage() + ")");
@@ -180,6 +187,14 @@ public class BathymetryData implements Serializable {
         }
     }
     
+    public void process(File f, String crs, boolean inverted) {
+        process(f, crs, inverted, ", ");
+    }
+    
+    public void process(File f, String crs) {
+        process(f, crs, true);
+    }
+    
     public void process(File f) {
         process(f, CoordTranslator.CRS_WGS84);
     }
@@ -189,8 +204,7 @@ public class BathymetryData implements Serializable {
         BufferedImage img = new BufferedImage(ncols, nrows,
                 transparent ? BufferedImage.TYPE_INT_ARGB : BufferedImage.TYPE_INT_RGB);
         double extent = (maxZ - minZ);
-        for (int x = 0; x < ncols; x++) {
-            System.out.println(x + "...");
+        for (int x = 0; x < ncols; x++) {            
             for (int y = 0; y < nrows; y++) {
                 DataPoint dp = data[x][y];
                 if (dp != null) {
@@ -245,9 +259,71 @@ public class BathymetryData implements Serializable {
     }
 
     public static void main(String[] args) throws Exception {
-        // BathymetryData omare = new BathymetryData(CoordTranslator.CRS_ETRS89, 2759000, 2769000, 5, 2235000, 2255000, 5);
-        BathymetryData omare = BathymetryData.load(new File("/home/zp/Desktop/omare.bathym"));
-        omare.getBathymetry(41.5648339, -8.82761343);
+        BathymetryData omare = new BathymetryData(CoordTranslator.CRS_ETRS89, 2759000, 2769000, 5, 2235000, 2255000, 5);
+        omare.process(new File("/home/zp/Desktop/Bathymetry/pnln.xyz"), CoordTranslator.CRS_ETRS89, false, " ");
+        omare.writeImage(ColorMapFactory.createRedGreenBlueColorMap(), -20, 50, true, new File("/home/zp/Desktop/Bathymetry/pnln.png"));
+                
+        //BathymetryData pnln5 = BathymetryData.load(new File("/home/zp/Desktop/Bathymetry/pnln_5m.bathym"));
+        //pnln5.writeXyz(new File("/home/zp/Desktop/Bathymetry/pnln_5m.xyz"));
+        
+        /*
+        BathymetryData omare = new BathymetryData(CoordTranslator.CRS_ETRS89, 2759000, 2769000, 1, 2235000, 2255000, 1);
+        omare.process(new File("/home/zp/Desktop/Bathymetry/ih_2006"));
+        omare.process(new File("/media/zp/5e169b60-ba8d-47db-b25d-9048fe40eed1/OMARE/Raw/"));
+        omare.process(new File("/home/zp/Desktop/Bathymetry/kongsberg"));
+        omare.process(new File("/home/zp/Desktop/Bathymetry/lidar"));        
+        
+        omare.store(new File("/home/zp/Desktop/Bathymetry/btm_1m.bathym"));
+        omare.writeImage(ColorMapFactory.createRedGreenBlueColorMap(), -20, 50, true, new File("/home/zp/Desktop/Bathymetry/btm_1m.png"));
+        omare.writeXyz(new File("/home/zp/Desktop/Bathymetry/btm_1m.xyz"));
+        */
+        
+        /* 1
+        BathymetryData highres = new BathymetryData(CoordTranslator.CRS_ETRS89, 2759000, 2769000, 1, 2235000, 2255000, 1);
+        highres.process(new File("/home/zp/Desktop/Bathymetry/kongsberg"));
+        highres.store(new File("/home/zp/Desktop/Bathymetry/highres1.bathym"));
+        */
+        
+        /* 2       
+        BathymetryData highres = BathymetryData.load(new File("/home/zp/Desktop/Bathymetry/highres1.bathym"));
+        highres.process(new File("/home/zp/Desktop/Bathymetry/LIP-DEM"));
+        highres.store(new File("/home/zp/Desktop/Bathymetry/highres2.bathym"));
+        highres.writeImage(ColorMapFactory.createRedGreenBlueColorMap(), -20, 50, true, new File("/home/zp/Desktop/Bathymetry/highres2.png"));
+        */
+        /* 3
+        BathymetryData highres = BathymetryData.load(new File("/home/zp/Desktop/Bathymetry/highres1.bathym"));
+        highres.process(new File("/home/zp/Desktop/Bathymetry/ih"));
+        highres.process(new File("/home/zp/Desktop/Bathymetry/lidar"));
+        highres.process(new File("/home/zp/Desktop/Bathymetry/LIP-DEM"));
+        highres.store(new File("/home/zp/Desktop/Bathymetry/highres3.bathym"));
+        highres.writeImage(ColorMapFactory.createRedGreenBlueColorMap(), -20, 50, true, new File("/home/zp/Desktop/Bathymetry/highres3.png"));
+        */
+        
+        /* 4
+        BathymetryData highres = BathymetryData.load(new File("/home/zp/Desktop/Bathymetry/highres3.bathym"));
+        highres.process(new File("/media/zp/5e169b60-ba8d-47db-b25d-9048fe40eed1/OMARE/Raw"));
+        highres.store(new File("/home/zp/Desktop/Bathymetry/highres4.bathym"));
+        highres.writeImage(ColorMapFactory.createRedGreenBlueColorMap(), -20, 50, true, new File("/home/zp/Desktop/Bathymetry/highres4.png"));
+        highres.writeXyz(new File("/home/zp/Desktop/Bathymetry/highres4.xyz"));
+        */
+        /*
+        BathymetryData highres = BathymetryData.load(new File("/home/zp/Desktop/Bathymetry/pnln2.bathym"));
+        highres.process(new File("/home/zp/Desktop/Bathymetry/pnln-bathymetry.xyz"), CoordTranslator.CRS_ETRS89);
+        System.out.println("Storing");
+        highres.store(new File("/home/zp/Desktop/Bathymetry/pnln.bathym"));
+        System.out.println("Generating image");
+        highres.writeImage(ColorMapFactory.createRedGreenBlueColorMap(), -20, 50, true, new File("/home/zp/Desktop/Bathymetry/highres4.png"));
+        */
+        
+        /*
+        BathymetryData highres = BathymetryData.load(new File("/home/zp/Desktop/Bathymetry/highres4.bathym"));
+        highres.process(new File("/home/zp/Desktop/Bathymetry/IH"));
+        highres.store(new File("/home/zp/Desktop/Bathymetry/pnln.bathym"));
+        highres.writeImage(ColorMapFactory.createRedGreenBlueColorMap(), -20, 50, true, new File("/home/zp/Desktop/Bathymetry/pnln.png"));
+        highres.writeXyz(new File("/home/zp/Desktop/Bathymetry/pnln.xyz"));
+        */
+        //BathymetryData omare = BathymetryData.load(new File("/home/zp/Desktop/omare.bathym"));
+        //omare.getBathymetry(41.5648339, -8.82761343);
         
                 
         //d.process(new File("/media/zp/5e169b60-ba8d-47db-b25d-9048fe40eed1/OMARE/VF"), CoordTranslator.CRS_ETRS89);
