@@ -459,7 +459,7 @@ public class DeltaTParser implements BathymetryParser {
                 pose.setPitch(Math.toRadians(header.pitchAngleDegreesOrientModule));
                 pose.setYaw(Math.toRadians(header.headingAngleDegreesOrientModule));
                 
-                NeptusLog.pub().warn("No position found on navigation, using partial data from Sonar");
+                NeptusLog.pub().debug("No position found on navigation, using partial data from Sonar");
             }
 
             boolean doSpeedCorrection = MRAProperties.soundSpeedCorrection;
