@@ -98,7 +98,7 @@ else
   echo "No VTK Java wrappers found"
 fi
 
-[[ -e "\$APP_HOME/log" ]] || mkdir "\$APP_HOME/log"
+[[ -e "\$APP_HOME/log/" ]] || mkdir "\$APP_HOME/log"
 
 # Escape application args
 escapeArgs () {
