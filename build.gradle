@@ -1209,6 +1209,7 @@ clean {
     delete file("$rootDir/neptus")
     delete file("$rootDir/neptus.sh") // To account for the changing from Ant
     delete file("$rootDir/neptus.bat")
+    delete file("$rootDir/cp.jar")
 }
 
 cleanEclipse {
