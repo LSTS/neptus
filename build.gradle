@@ -139,7 +139,7 @@ generateStartScriptsFor(rootProject.name, 'run', 'pt.lsts.neptus.loader.NeptusMa
         unixScript.text = unixScript.text.replace('$APP_HOME/lib/SUBSTITUTE', "${unixCp}")
         // windowsScript.text = windowsScript.text.replace('%APP_HOME%\\lib\\SUBSTITUTE', "${winCp}")
         //unixScript.text = unixScript.text.replace('$APP_HOME/lib/SUBSTITUTE', "cp.jar")
-        windowsScript.text = windowsScript.text.replace('%APP_HOME%\\lib\\SUBSTITUTE', "cp.jar")
+        windowsScript.text = windowsScript.text.replace('%APP_HOME%\\lib\\SUBSTITUTE', "%APP_HOME%\\cp.jar")
     }
 
 task generateRunScripts(type: Copy) {
