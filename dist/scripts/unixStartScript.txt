@@ -75,9 +75,23 @@ CLASSPATH="\$APP_HOME:\$APP_HOME/bin/neptus.jar:\$APP_HOME/conf:${classpath}:\$A
 
 LIB_JNI=".:libJNI"
 
-if test -d "\$APP_HOME/jre/bin"; then JAVA_BIN_FOLDER="\$APP_HOME/jre/bin/"; else JAVA_BIN_FOLDER=""; fi
+if test -d "\$APP_HOME/jre/bin"; then
+  JAVA_BIN_FOLDER="\$APP_HOME/jre/bin/";
+else
+  if [ -n "\$JAVA_HOME" ] ; then
+    JAVA_BIN_FOLDER="\$JAVA_HOME/bin/";
+  else
+    JAVA_BIN_FOLDER="";
+  fi
+fi
 
-JAVA_MACHINE_TYPE=\$(\$JAVA_BIN_FOLDER"java" -cp \$APP_HOME/bin/neptus.jar pt.lsts.neptus.loader.helper.CheckJavaOSArch)
+JAVACMD=\${JAVA_BIN_FOLDER}java
+if [ ! -x "\$JAVACMD" ] ; then
+  echo "Java executable was not found in '\$JAVACMD'"
+  exit 1
+fi
+
+JAVA_MACHINE_TYPE=\$("\$JAVACMD" -classpath "\$APP_HOME/bin/neptus.jar" pt.lsts.neptus.loader.helper.CheckJavaOSArch)
 echo "Found machine type: \$JAVA_MACHINE_TYPE"
 if [[ \${JAVA_MACHINE_TYPE} == 'linux-x64' ]]; then
  LIB_JNI="@lib_jni_linux_x64@"
@@ -114,4 +128,4 @@ export LD_LIBRARY_PATH=\$LIB_JNI:\$LD_LIBRARY_PATH
 # Collect all arguments for the java command, following the shell quoting and substitution rules
 eval set -- \$DEFAULT_JVM_OPTS \$JAVA_OPTS \$${optsEnvironmentVar} -Djava.library.path=\$LIB_JNI \$VTKPROP -classpath "\"\$CLASSPATH\"" \$DEFAULT "\$APP_ARGS"
 
-exec "\${JAVA_BIN_FOLDER}java" "\$@"
+exec "\$JAVACMD" "\$@"
