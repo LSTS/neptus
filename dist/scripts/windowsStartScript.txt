@@ -65,7 +65,7 @@ if exist "%APP_HOME%\\jre\\bin" (
 
 set JAVA_EXE=%JAVA_BIN_FOLDER%java.exe
 
-for /f "delims=" %%a in ('%JAVA_BIN_FOLDER%java -cp %APP_HOME%\\bin\\neptus.jar pt.lsts.neptus.loader.helper.CheckJavaOSArch') do (@set JAVA_MACHINE_TYPE=%%a)
+for /f "delims=" %%a in ('%JAVA_EXE% -classpath "%APP_HOME%\\bin\\neptus.jar" pt.lsts.neptus.loader.helper.CheckJavaOSArch') do (@set JAVA_MACHINE_TYPE=%%a)
 
 if %JAVA_MACHINE_TYPE%==windows-x86 (
   if %PROCESSOR_ARCHITECTURE%==x86 (
