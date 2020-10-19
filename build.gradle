@@ -89,9 +89,9 @@ def generateStartScriptsFor(String applicationNameOpt, String taskPrefixName,
                 : rootProject.file("dist/scripts/unixSnippet${addedSectionSnippetName}.txt").getText('UTF-8'))
 
             windowsScript.text = windowsScript.text.replace('@lib_jni_windows_x64@',
-                getLibJNIFor(['win'], ['x64', 'x86']).collect { "${relativePathIfOnProjectPath(it, '@APP_HOME@/',)}" }.join(';'))
+                getLibJNIFor(['win'], ['x64', 'x86']).collect { "${relativePathIfOnProjectPath(it, '%APP_HOME%\\',)}" }.join(';'))
             windowsScript.text = windowsScript.text.replace('@lib_jni_windows_x86@',
-                getLibJNIFor(['win'], ['x86']).collect { "${relativePathIfOnProjectPath(it, '@APP_HOME@/',)}" }.join(';'))
+                getLibJNIFor(['win'], ['x86']).collect { "${relativePathIfOnProjectPath(it, '%APP_HOME%\\',)}" }.join(';'))
             windowsScript.text = windowsScript.text.replace('@added_section@', addedSectionSnippetName.isEmpty() ? ''
                 : rootProject.file("dist/scripts/windowsSnippet${addedSectionSnippetName}.txt").getText('UTF-8'))
         }
