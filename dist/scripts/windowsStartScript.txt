@@ -57,11 +57,13 @@ set CLASSPATH=%APP_HOME%;%APP_HOME%\\bin\\neptus.jar;%APP_HOME%\\conf;${classpat
 
 set LIBRARYPATH=.;libJNI
 
-if exist %APP_HOME%\\jre\\bin (
-    set JAVA_BIN_FOLDER=%APP_HOME%\\jre\\bin\\
+if exist "%APP_HOME%\\jre\\bin" (
+    set JAVA_BIN_FOLDER="%APP_HOME%\\jre\\bin\\"
 ) else (
     set JAVA_BIN_FOLDER=
 )
+
+set JAVA_EXE=%JAVA_BIN_FOLDER%java.exe
 
 for /f "delims=" %%a in ('%JAVA_BIN_FOLDER%java -cp %APP_HOME%\\bin\\neptus.jar pt.lsts.neptus.loader.helper.CheckJavaOSArch') do (@set JAVA_MACHINE_TYPE=%%a)
 
@@ -138,5 +140,5 @@ set CMD_LINE_ARGS=%*
 set OLDPATH=%PATH%
 set PATH=%LIBRARYPATH%;%PATH%
 @rem Execute ${applicationName}
-%JAVA_BIN_FOLDER%java -Dj3d.rend=d3d -Dsun.java2d.d3d=true %DEFAULT_JVM_OPTS% %JAVA_OPTS% %${optsEnvironmentVar}% -Djava.library.path="%LIBRARYPATH%" -cp %CLASSPATH% %DEFAULT% %CMD_LINE_ARGS%
+"%JAVA_EXE%" -Dj3d.rend=d3d -Dsun.java2d.d3d=true %DEFAULT_JVM_OPTS% %JAVA_OPTS% %${optsEnvironmentVar}% -Djava.library.path="%LIBRARYPATH%" -classpath "%CLASSPATH%" %DEFAULT% %CMD_LINE_ARGS%
 set PATH=%OLDPATH%
