@@ -942,9 +942,9 @@ tasks.startScripts.enabled = false
 generateStartScriptsFor(rootProject.name, 'full', 'pt.lsts.neptus.loader.NeptusMain',
     '', 'RunOptions', rootProject.files(rootProject.file('lib/*')))
 generateStartScriptsFor(rootProject.name, 'le', 'pt.lsts.neptus.mc.lauvconsole.LAUVConsole',
-    '', '', rootProject.files(rootProject.file('lib/*')))
+    '', 'SmallOptions', rootProject.files(rootProject.file('lib/*')))
 generateStartScriptsFor(rootProject.name, 'seacon', 'pt.lsts.neptus.mc.lauvconsole.LAUVConsole',
-    '', '', rootProject.files(rootProject.file('lib/*')))
+    '', 'SmallOptions', rootProject.files(rootProject.file('lib/*')))
 
 def distCommonSpec = project.copySpec {
     def configurationClasspath = configurations.runtimeClasspath
