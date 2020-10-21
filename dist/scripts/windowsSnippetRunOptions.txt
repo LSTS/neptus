@@ -23,4 +23,7 @@ if not "%1"=="wm" goto end10
 	set DEFAULT=%WORLDMAPPANEL%
 	shift
 :end10
-
+if not "%1"=="run" goto end10
+	set DEFAULT=
+	shift
+:end10

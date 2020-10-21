@@ -58,7 +58,7 @@ case "\${unameOut}" in
 esac
 
 cd "\$SHELL_DIR/${appHomeRelativePath}" > /dev/null
-APP_HOME="`pwd -P`"
+APP_HOME="\$(pwd -P)"
 #cd "\$SHELL_DIR" >/dev/null
 
 APP_NAME="${applicationName}"
@@ -119,9 +119,7 @@ escapeArgs () {
     for i do printf %s\\\\n "\$i" | sed "s/'/'\\\\\\\\''/g;1s/^/'/;\\\$s/\\\$/' \\\\\\\\/" ; done
     echo " "
 }
-APP_ARGS=`escapeArgs "\$@"`
-
-export DEFAULT_JVM_OPTS=${defaultJvmOpts}
+APP_ARGS=\$(escapeArgs "\$@")
 
 export LD_LIBRARY_PATH=\$LIB_JNI:\$LD_LIBRARY_PATH
 
