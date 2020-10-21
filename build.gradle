@@ -57,6 +57,18 @@ def String relativePathIfOnProjectPath(fx, String prefixForRelative){
     return fx1.getPath()
 }
 
+// Creates tasks named ${taskPrefixName}StartScripts extending the CreateStartScripts task.
+// This will generate Linux and Windows scripts to run the application.
+//
+// applicationNameOpt: Its the CreateStartScripts applicationName param
+// taskPrefixName: Its the created task name prefix (${taskPrefixName}StartScripts)
+// mainClass : Its the CreateStartScripts mainClass param
+// appHomeRelativePathOpt: It's the CreateStartScripts executableDir param
+// addedSectionSnippetName: This is the sufix name for the options (such as adding arg processing.
+//                          This is expected to be "dist/scripts/unixSnippet${addedSectionSnippetName}.txt"
+//                          for linux and "dist/scripts/windowsSnippet${addedSectionSnippetName}.txt"
+//                          for windows.
+// classpathCollection: Its the CreateStartScripts classpath param
 def generateStartScriptsFor(String applicationNameOpt, String taskPrefixName,
         String mainclass, String appHomeRelativePathOpt, String addedSectionSnippetName,
         FileCollection classpathCollection) {
