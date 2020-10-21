@@ -104,10 +104,9 @@ public class NeptusMain {
     }
 
     /**
-     * @param loader
      * @param appargs
      */
-    public static void launch(String appargs[]) {
+    public static void launch(String[] appargs) {
         ConfigFetch.initialize(); // Don't touch this, leave it as it his
         if (appNames.isEmpty())
             init();
@@ -115,7 +114,11 @@ public class NeptusMain {
         launch(new Loader(), appargs);
     }
 
-    public static void launch(Loader loader, String appargs[]) {
+    /**
+     * @param loader
+     * @param appargs
+     */
+    public static void launch(Loader loader, String[] appargs) {
         ConfigFetch.initialize(); // Don't touch this, leave it as it his
         // benchmark
         long start = System.currentTimeMillis();
@@ -129,13 +132,7 @@ public class NeptusMain {
         loader.start();
         ConfigFetch.setSuperParentFrameForced(loader);
 
-        boolean neptusLookAndFeel = true;
-        //        for (int i = 0; i < appargs.length; i++) {
-        //            if (appargs[i].equals("-nlf"))
-        //                neptusLookAndFeel = false;
-        //        }
-
-        loadPreRequirementsDataExceptConfigFetch(loader, neptusLookAndFeel);
+        loadPreRequirementsDataExceptConfigFetch(loader, true);
 
         // When loading one can type the application to start
         String typ = loader.getTypedString();
