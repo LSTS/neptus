@@ -350,7 +350,7 @@ public class NeptusMain {
      */
     public static void main(String[] args) {
         if (args.length < 1) {
-            launch(new Loader(), new String[] { "ws" });
+            launch(new Loader(), new String[] { "auv" });
         }
         else {
             launch(new Loader(), args);
