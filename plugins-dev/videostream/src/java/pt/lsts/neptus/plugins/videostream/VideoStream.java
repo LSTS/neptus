@@ -90,8 +90,9 @@ import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
-import org.opencv.highgui.VideoCapture;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.videoio.VideoCapture;
+import org.opencv.videoio.Videoio;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -113,6 +114,8 @@ import pt.lsts.neptus.params.ConfigurationManager;
 import pt.lsts.neptus.params.SystemProperty;
 import pt.lsts.neptus.params.SystemProperty.Scope;
 import pt.lsts.neptus.params.SystemProperty.Visibility;
+import pt.lsts.neptus.platform.OsInfo;
+import pt.lsts.neptus.platform.OsInfo.Family;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
@@ -141,7 +144,7 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
 @SuppressWarnings("serial")
 @Popup(pos = POSITION.RIGHT, width = 640, height = 480, accelerator = 'R')
 @LayerPriority(priority = 0)
-@PluginDescription(name = "Video Stream", version = "1.3", author = "Pedro Gonçalves", description = "Plugin for View video Stream TCP-Ip/IPCam", icon = "pt/lsts/neptus/plugins/IPCam/camera.png")
+@PluginDescription(name = "Video Stream", version = "1.4", author = "Pedro Gonçalves", description = "Plugin for View video Stream TCP-Ip/IPCam", icon = "pt/lsts/neptus/plugins/IPCam/camera.png")
 public class VideoStream extends ConsolePanel implements ItemListener {
 
     private static final String BASE_FOLDER_FOR_IMAGES = ConfigFetch.getLogsFolder() + "/images";
@@ -350,6 +353,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
         updateSizeVariables(this);
         
         if (findOpenCV()) {
+            NeptusLog.pub().info(I18n.text("OpenCv-4.4.0 found."));
             // clears all the unused initializations of the standard ConsolePanel
             removeAll();
             // Resize Console
@@ -446,10 +450,15 @@ public class VideoStream extends ConsolePanel implements ItemListener {
             closingPanel = true;
             setBackground(Color.BLACK);
             // JLabel for image
-            this.setLayout(new MigLayout("filly"));
+            this.setLayout(new MigLayout("al center center"));
             // JLabel info
-            warningText = new JLabel("  " + I18n.text("Please install OpenCV 2.4 and its dependencies.") + "  ");
-            warningText.setForeground(new Color(252, 68, 35));
+            String opencvInstallLink = "";
+            if (OsInfo.getFamily() == Family.UNIX)
+                opencvInstallLink = "<br>" + I18n.text("Install OpenCv 4.4 and dependencies at <br>https://www.lsts.pt/bin/opencv/v4.4.0-x64_x86/deb/");
+            else if(OsInfo.getFamily() == Family.WINDOWS)
+                opencvInstallLink = "<br>" + I18n.text("Install OpenCv 4.4 and dependencies at <br>https://www.lsts.pt/bin/opencv/v4.4.0-x64_x86/win-x64_86/");
+            warningText = new JLabel("<html>" + I18n.text("Please install OpenCV 4.4.0 and its dependencies." + opencvInstallLink));
+            warningText.setForeground(Color.BLACK);
             warningText.setFont(new Font("Courier New", Font.ITALIC, 18));
             this.add(warningText);
         }
@@ -1279,7 +1288,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                 while (true) {
                     if (ipCam && !stateSetUrl) {
                         captureSave = new VideoCapture();
-                        captureSave.open(camRtpsUrl);
+                        captureSave.open(camRtpsUrl, Videoio.CAP_ANY);
                         if (captureSave.isOpened()) {
                             stateSetUrl = true;
                         }
