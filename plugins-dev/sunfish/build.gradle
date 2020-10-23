@@ -1,0 +1,5 @@
+dependencies {
+    // Java 11 related
+    implementation 'jakarta.xml.ws:jakarta.xml.ws-api:2.3.3'
+    implementation 'jakarta.jws:jakarta.jws-api:2.1.0'
+}

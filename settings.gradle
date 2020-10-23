@@ -1,0 +1,13 @@
+
+rootProject.name = 'neptus'
+
+include 'core'
+project(':core').projectDir = file('src')
+
+file("$rootDir").listFiles({file ->
+        file.isDirectory() && file.name ==~ 'plugins-dev.*'} as FileFilter).each {
+    it.eachDir { dir ->
+        include dir.name
+        project(":${dir.name}").projectDir = dir
+    }
+}

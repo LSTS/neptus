@@ -1,0 +1,5 @@
+case $1 in
+  "run"      )  DEFAULT=
+                shift;;
+esac
+
