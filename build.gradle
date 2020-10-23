@@ -373,7 +373,7 @@ project(':core') {
         implementation 'com.google.code.gson:gson:2.2.2' //2.8.6
         implementation 'com.google.guava:guava:17.0' //28.2-jre
 
-	implementation 'de.grundid.opendatalab:geojson-jackson:1.14'
+        implementation 'de.grundid.opendatalab:geojson-jackson:1.14'
 
         implementation 'org.apache.httpcomponents:httpclient:4.5.1' //4.5.12
 
