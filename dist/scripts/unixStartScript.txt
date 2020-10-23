@@ -86,8 +86,9 @@ else
 fi
 
 JAVACMD=\${JAVA_BIN_FOLDER}java
-if [ ! -x "\$JAVACMD" ] ; then
-  echo "Java executable was not found in '\$JAVACMD'"
+"\$JAVACMD" -version 1>/dev/null 2>&1
+if [ \$? -ne 0 ] ; then
+  echo "Java executable was not found for '\$JAVACMD'"
   exit 1
 fi
 
