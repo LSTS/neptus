@@ -1,0 +1,5 @@
+if not "%1"=="run" goto end10
+	set DEFAULT=
+	shift
+:end10
+

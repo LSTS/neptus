@@ -1,0 +1,21 @@
+WORKSPACE="pt.lsts.neptus.loader.NeptusMain ws"
+VIEWER3D="pt.lsts.neptus.loader.Viewer3DLoader"
+MRA="pt.lsts.neptus.loader.NeptusMain mra"
+LAUVCONSOLE="pt.lsts.neptus.mc.lauvconsole.LAUVConsole"
+WORLDMAPPANEL="pt.lsts.neptus.app.tiles.WorldMapPanel"
+
+case $1 in
+  "ws"       )  DEFAULT=$WORKSPACE
+                shift;;
+  "v3d"      )  DEFAULT=$VIEWER3D
+                shift;;
+  "mra"      )  DEFAULT=$MRA
+                shift;;
+  "la"       )  DEFAULT=$LAUVCONSOLE
+                shift;;
+  "wm"       )  DEFAULT=$WORLDMAPPANEL
+                shift;;
+  "run"      )  DEFAULT=
+                shift;;
+esac
+

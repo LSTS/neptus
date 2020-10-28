@@ -1,0 +1,4 @@
+dependencies {
+    implementation name: 's57-package', version: '2.4.4'
+}
+
