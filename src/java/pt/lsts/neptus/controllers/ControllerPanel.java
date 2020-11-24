@@ -112,8 +112,8 @@ import pt.lsts.neptus.util.GuiUtils;
 @PluginDescription(author = "jquadrado", description = "Controllers Panel", name = "Controllers Panel", icon = "images/control-mode/teleoperation.png")
 public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
 
-    @NeptusProperty(name = "Axis Range", description = "Varies between the range and its simetrical value.\nCan be edited in each field inside the plugin.")
-    protected static float RANGE = (float) 127.0;
+    @NeptusProperty(name = "Axis Range", description = "Varies between the range and its symmetrical value.")
+    protected static float RANGE = (float) 1.0;
 
     enum ActionType {
         Axis,
@@ -234,7 +234,6 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                 else if (e.getStateChange() == ItemEvent.DESELECTED) {
                     msgActions.clear(); // clean on hold remote actions
                 }
-
             }
         });
 
@@ -348,6 +347,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         add(footer, "dock south");
 
         dialog.pack();
+        this.repaint();
     }
 
     public JComboBox<String> generateControllerSelector() {
@@ -398,11 +398,11 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                 try {
                     if (el.attribute("range") == null) // Button
                         return new MapperComponent(el.attributeValue("action"), el.attributeValue("component"), 0.0f,
-                                Boolean.parseBoolean(el.attributeValue("inverted")), 0.0f);
+                                Boolean.parseBoolean(el.attributeValue("inverted")), 0.0f,0.0f);
                     else // Axis Component
                         return new MapperComponent(el.attributeValue("action"), el.attributeValue("component"),
                                 Float.parseFloat(el.attributeValue("range")),
-                                Boolean.parseBoolean(el.attributeValue("inverted")),0.0f);
+                                Boolean.parseBoolean(el.attributeValue("inverted")),0.0f, 0.0f);
                 }
                 catch (Exception e) {
                     NeptusLog.pub().warn(I18n.text("Error parsing controllers configuration file."), e);
@@ -724,19 +724,6 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
 
             initButtons();
 
-        }
-
-        MapperComponent(final String action, String component, float value, boolean inverted, float zero) {
-            this.action = action;
-            this.button = component;
-            this.value = value;
-            this.inverted = inverted;
-            this.edit = new JButton(I18n.text("Edit"));
-            this.clear = new JButton(I18n.text("Clear"));
-            this.range = 0.0f;
-            this.deadZone = zero;
-
-            initButtons();
         }
 
         public float getRange() {
