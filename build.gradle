@@ -235,19 +235,6 @@ allprojects {
                 includeGroup "edu.ucar"
             }
         }
-        // maven {
-        //     url 'https://maven.jzy3d.org/releases/'
-        //     content {
-        //         includeGroup "org.jzy3d"
-        //     }
-        // }
-        maven {
-            url 'https://mvnrepository.com/artifact/net.java.jinput/jinput'
-            artifactUrls 'https://repo1.maven.org/maven2/net/java/jinput/jinput/2.0.9/jinput-2.0.9.jar'
-            content {
-               includeGroup "net.java.jinput"
-	}
-      }
     }
 
     apply plugin: 'java'
