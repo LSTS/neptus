@@ -2,12 +2,12 @@
 <system xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="..\src\schemas\neptus-vehicle.xsd">
     <properties>
         <id>squirtle</id>
-        <name>Adamastor</name>
+        <name>Squirtle</name>
         <type>ROV</type>
         <appearance>
-            <x-size>0.7</x-size>
-            <y-size>0.5</y-size>
-            <z-size>0.3</z-size>
+            <x-size>0.457</x-size>
+            <y-size>0.338</y-size>
+            <z-size>0.254</z-size>
             <top-image-2D>../vehicles-files/adamastor/adamastor_top.png</top-image-2D>
             <side-image-2D>../vehicles-files/adamastor/adamastor_side.png</side-image-2D>
             <presentation-image-2D>../vehicles-files/adamastor/adamastor_presentation.png</presentation-image-2D>
@@ -56,7 +56,7 @@
         <comm-mean>
             <name>ethernet</name>
             <type>ethernet</type>
-            <host-address>192.168.2.2</host-address>
+            <host-address>192.168.2.1</host-address>
             <protocols>imc</protocols>
             <latency value="100M" unit="bps"/>
             <protocols-args>
