@@ -115,6 +115,7 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
 
     public ScriptedPlot(MRAPanel panel, String path) {
         super(panel);
+        this.mra = panel;
         scriptPath = path;
         index = panel.getSource().getLsfIndex();
 
@@ -131,7 +132,7 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
     /**
      * Runs the Groovy script after verifying its validity by parsing it.
      * 
-     * @param script Text script
+     * @param path Path to text script
      */
     public void runScript(String path) {
         StringBuilder sb = new StringBuilder();
@@ -368,7 +369,7 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
     }
     
     /**
-     * @param l
+     * @param timeMillis
      * @param seriesName
      * @param value
      */
@@ -416,7 +417,7 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
         }
 
         /**
-         * This method evaluates a field expression (like "EstimatedState[Navigation].x") and returns its current value
+         * This method evaluates a field expression (like "EstimatedState[.Navigation].x") and returns its current value
          * in the log
          * 
          * @param expression The expression to be evaluated
