@@ -282,4 +282,13 @@ class ScriptedPlotGroovy  {
     	scriptedPlot.title(t);
     }
 
+    static TimeSeries crop(String id, long from, long to=null){
+        TimeSeries result = scriptedPlot.getTimeSeriesFor(id)
+        Millisecond start = new Millisecond(new Date(from), TimeZone.getTimeZone("UTC"), Locale.getDefault())
+        Millisecond end   = to ? result.getNextTimePeriod().getMiddleMillisecond() : new Millisecond(new Date(from), TimeZone.getTimeZone("UTC"), Locale.getDefault())
+
+        result.createCopy(start,end) //return
+
+    }
+
 }
