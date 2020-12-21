@@ -13,6 +13,9 @@
             <presentation-image-2D>../vehicles-files/adamastor/adamastor_presentation.png</presentation-image-2D>
             <model-3D>../vehicles-files/adamastor/adamastor.j3d</model-3D>
         </appearance>
+        <limits>
+            <valid-zunits>depth</valid-zunits>
+        </limits>
         <coordinate-system-label>SNAME</coordinate-system-label>
     </properties>
     <feasibleManeuvers>

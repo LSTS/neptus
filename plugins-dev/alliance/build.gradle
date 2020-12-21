@@ -1,0 +1,5 @@
+dependencies {
+    implementation 'dk.dma.ais.lib:ais-lib-messages:2.4'
+    implementation 'dk.dma.commons:dma-commons-util:0.5'
+    implementation 'dk.dma.enav:enav-model:0.6'
+}

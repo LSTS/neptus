@@ -20,7 +20,10 @@
                 <b>255</b>
             </icon-color>
         </appearance>
-        <coordinate-system-label>SNAME</coordinate-system-label>
+         <limits>
+            <valid-zunits>altitude, height</valid-zunits>
+        </limits>
+       <coordinate-system-label>SNAME</coordinate-system-label>
     </properties>
     <feasibleManeuvers>
         <maneuver>

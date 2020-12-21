@@ -4,7 +4,6 @@ LICENSE.*
 LICENCE.*
 README.*
 CHANGES.md
-lib/
 libJNI/
 schemas/
 conf/messages/IMC.xml
@@ -24,6 +23,4 @@ conf/params/lauv-simulator*.xml
 maps/*.conf
 helper-scripts/
 neptus.exe
-neptus.bat
-neptus.sh
 neptus-config.xml

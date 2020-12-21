@@ -3,7 +3,6 @@ plugins/accu.jar
 plugins/blue-eye.jar
 plugins/caoAgent.jar
 plugins/cmre*.jar
-plugins/envdisp*.jar
 plugins/europa.jar
 plugins/filter-viewer.jar
 plugins/matlab*.jar

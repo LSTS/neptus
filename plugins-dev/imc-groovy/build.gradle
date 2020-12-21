@@ -1,0 +1,3 @@
+dependencies {
+    implementation name: 'imc_plan_dsl', version: '1.0'
+}

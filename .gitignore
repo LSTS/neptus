@@ -13,6 +13,7 @@
 /.wmcache-copia
 /.codepro
 /Neptus*
+/neptus
 /Neptus-installer.sh
 /ProfilerDLL.dll
 /build
@@ -140,6 +141,7 @@
 /bin
 /bin-bundles
 /plugins
+/plugins-dev?*
 /dist/jre*
 /conf/plugins/
 /tmpBuild/
@@ -160,6 +162,7 @@ TCL*.tmp
 *.diff
 /to_upload_*
 *.hprof
+/cp.jar
 
 NSIS_release/static_files/batch_files/
 dev-scripts/grow_pot.sh
@@ -176,3 +179,20 @@ dev-scripts/grow_pot.sh
 conf/nddl/Europa.log
 
 plan.sh
+
+# Gradle move
+.gradle
+build
+
+# Eclipse related
+.classpath
+.project
+.settings
+
+# VSCode related
+.vscode
+
+# IDEA related
+.idea
+.run
+out/

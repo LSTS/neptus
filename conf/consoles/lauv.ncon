@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <console name="Neptus Console" width="1366" height="727" resizable="true" mission-file="../../missions/APDL/missao-apdl.nmisz" main-vehicle="lauv-xplore-1">
-  <!-- Data saved on 2019-02-27T14:59:33.0Z with Neptus version 2019.02.1-dev (compiled on 2019-02-26, gtag/20170721-rep17-arpao-835-g588198cf5-dirty). -->
+  <!-- Data saved on 2019-11-28T15:46:17.0Z with Neptus version 2019.10.2-dev (compiled on 2019-11-28, gneptus-2019.10.1-177-g47997f090-dirty). -->
   <mainpanel name="console main panel">
     <subpanel class="pt.lsts.neptus.console.plugins.containers.MigLayoutContainer" x="0" y="0" width="1366" height="643">
       <properties>
@@ -122,11 +122,18 @@
       <child class="pt.lsts.neptus.console.plugins.planning.PlanStatistics" x="0" y="0" width="0" height="0">
         <properties/>
       </child>
-      <child class="pt.lsts.neptus.plugins.rtplot.RealTimePlot" x="0" y="0" width="0" height="0">
+      <child class="pt.lsts.neptus.plugins.s57.S57SoundingsExporter" x="0" y="0" width="0" height="0">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.plugins.sim.SimulationActionsPlugin" x="0" y="0" width="0" height="0">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.params.SystemConfiguration" x="0" y="0" width="0" height="0">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.console.plugins.SystemsList" x="0" y="0" width="220" height="250">
         <properties>
-          <entry key="Traces Script">depth: ${EstimatedState.depth};
-altitude: ${EstimatedState.alt};
-</entry>        </properties>      </child>      <child class="pt.lsts.neptus.plugins.s57.S57SoundingsExporter" x="0" y="0" width="0" height="0">        <properties/>      </child>      <child class="pt.lsts.neptus.plugins.sim.SimulationActionsPlugin" x="0" y="0" width="0" height="0">        <properties/>      </child>      <child class="pt.lsts.neptus.params.SystemConfiguration" x="0" y="0" width="0" height="0">        <properties/>      </child>      <child class="pt.lsts.neptus.console.plugins.SystemsList" x="0" y="0" width="220" height="250">        <properties>          <entry key="Enable Selection">false</entry>
+          <entry key="Enable Selection">false</entry>
         </properties>
       </child>
       <child class="pt.lsts.neptus.plugins.txtcmd.TextCommands" x="0" y="0" width="0" height="0">
@@ -162,11 +169,12 @@ altitude: ${EstimatedState.alt};
       <child class="pt.lsts.neptus.plugins.sweepplangen.SweepPlanGen" x="0" y="0" width="0" height="0">
         <properties/>
       </child>
-      <child class="pt.lsts.ripples.RipplesUpload" x="0" y="0" width="0" height="0">
+      <child class="pt.lsts.neptus.plugins.rtplot.RealTimePlotGroovy" x="0" y="0" width="300" height="272">
+        <properties/>
+      </child>
+      <child class="pt.lsts.ripples.RipplesUpdater" x="0" y="0" width="0" height="0">
         <properties>
-          <entry key="synch">false</entry>
-          <entry key="Poll also systems from server">false</entry>
-          <entry key="Synch external systems">false</entry>
+          <entry key="connected">false</entry>
         </properties>
       </child>
     </subpanel>
@@ -194,6 +202,12 @@ altitude: ${EstimatedState.alt};
     </layer>
     <layer class="pt.lsts.neptus.plugins.position.painter.SystemInfoPainter" opacity="1.0">
       <properties/>
+    </layer>
+    <layer class="pt.lsts.neptus.plugins.envdisp.NetCDFDataVisualization" opacity="1.0">
+      <properties/>
+      <aux>
+        <properties/>
+      </aux>
     </layer>
   </layers>
   <interactions>
