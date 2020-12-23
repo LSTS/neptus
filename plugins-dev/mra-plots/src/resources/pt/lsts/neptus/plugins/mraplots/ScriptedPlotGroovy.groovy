@@ -41,6 +41,8 @@ import org.jfree.data.xy.XYDataItem
 import org.jfree.data.xy.XYSeries
 import pt.lsts.neptus.mra.plots.ScriptedPlot
 
+import java.text.SimpleDateFormat
+
 /**
  * @author keila
  *
@@ -285,10 +287,20 @@ class ScriptedPlotGroovy  {
     static TimeSeries crop(String id, long from, long to=null){
         TimeSeries result = scriptedPlot.getTimeSeriesFor(id)
         Millisecond start = new Millisecond(new Date(from), TimeZone.getTimeZone("UTC"), Locale.getDefault())
-        Millisecond end   = to ? result.getNextTimePeriod().getMiddleMillisecond() : new Millisecond(new Date(from), TimeZone.getTimeZone("UTC"), Locale.getDefault())
-
+        Millisecond end   = to ? result.getNextTimePeriod().getLastMillisecond() : new Millisecond(new Date(to), TimeZone.getTimeZone("UTC"), Locale.getDefault())
         result.createCopy(start,end) //return
 
     }
+    static TimeSeries crop(String id, String from, String to=null){
+        SimpleDateFormat sdf=new SimpleDateFormat("dd-MM-yyyy HH:mm:ss.SSS z")
+        try {
+            crop(id, sdf.parse(from).getTime(), to ? null : sdf.parse(to).getTime())
+        }
+        catch (Exception e) {
+            System.err.println("Please enter datetime in the following format: dd-MMM-yyyy HH:mm:ss")
+            throw e;
+        }
+    }
+
 
 }
