@@ -190,14 +190,14 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
     }
 
     public void addTimeSeries(String id, String query) {
-        if(!processed) {
+        if(!isProcessed()) {
             traces.put(id, query);
         }
     }
 
     public TimeSeriesCollection getTimeSeriesFor(String id) {
         TimeSeriesCollection tsc = new TimeSeriesCollection();
-        if(!processed)
+        if(!isProcessed())
             return tsc;
 
         if(hiddenFiles.contains(id)) { 
@@ -238,7 +238,7 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
     }
 
     public void title(String t) {
-        if(!processed)
+        if(!isProcessed())
             title = t;
     }
 
@@ -246,15 +246,16 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
     public void process(LsfIndex source) {
         series.clear();
 
-        this.scIndex = new ScriptableIndex(source, 0);
         this.index = source;
+        this.scIndex = new ScriptableIndex(this.index , 0);
+
         double step = Math.max(timestep, 0.01);
         for (int i = index.advanceToTime(0, step); i != -1; 
                 i = index.advanceToTime(i, index.timeOf(i) + step)) {
-            
             for (Entry<String, String> entry : traces.entrySet()) {
                 scIndex.lsfPos = i;
-                String src = index.getMessage(i).getSourceName();
+
+                String src = index.sourceNameOf(0);
                 String seriesName = src + "." + entry.getKey();
                 double value = scIndex.val(entry.getValue(),src);
                 if (!Double.isNaN(value) && src != null) {
@@ -269,6 +270,7 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
                     }
                 }
             }
+            scIndex.prevPos = scIndex.lsfPos;
         }
 
         processed = true;
@@ -300,7 +302,7 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
     }
     
     public void addRangeMarker (String label,double value) {
-        if (processed) {
+        if (isProcessed()) {
             ValueMarker marker = new ValueMarker(value);
             LogMarker lm = new LogMarker(label, value, 0, 0);
             marker.setLabel(label);
@@ -382,7 +384,7 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
     }
 
     public void mark(double time, String label) {
-        if(processed)
+        if(isProcessed())
             mraPanel.addMarker(new LogMarker(label, time, 0, 0));
     }
     /**
@@ -395,7 +397,7 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
 
         protected LsfIndex lsfIndex;
         protected int lsfPos;
-        protected int prevPos = 0;
+        protected int prevPos;
 
         /**
          * Class constructor is passed the LsfIndex and an initial index (usually 0)
@@ -404,6 +406,7 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
          * @param curIndex The position in the index
          */
         public ScriptableIndex(LsfIndex source, int curIndex) {
+            this.prevPos  = 0;
             this.lsfIndex = source;
             this.lsfPos = curIndex;            
         }
@@ -417,7 +420,7 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
         }
 
         /**
-         * This method evaluates a field expression (like "EstimatedState[.Navigation].x") and returns its current value
+         * This method evaluates a field expression (like "EstimatedState[.Navigation.ahrs_heading].x") and returns its current value
          * in the log
          * 
          * @param expression The expression to be evaluated
@@ -426,7 +429,7 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
          */
         public double val(String expression, String source) {
 
-            Pattern p = Pattern.compile("(\\w+)(\\.(\\w+(\\s\\w+)*))?\\.(\\w+)");
+            Pattern p = Pattern.compile("(\\w+)(\\.(\\w+(\\s\\w+)*))*\\.(\\w+)");
             Matcher m = p.matcher(expression);
 
             if (!m.matches()) {
@@ -435,44 +438,37 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
             String message, entity, field;
             message = m.group(1);
 
-            if (m.groupCount() > 2) {
-                entity = m.group(3);
-                field = m.group(m.groupCount());
-            }
-            else {
+            //entity=  m.group(3);
+            if(m.end(2) != -1) // group represents the number of parenthesis pairs in the pattern searched
+                entity = expression.substring(m.end(1)+1,m.end(2));
+            else
                 entity = null;
-                field = m.group(2);
-            }
+
+            field = m.group(m.groupCount());
 
             int msgType = index.getDefinitions().getMessageId(message);
-            
-            if (entity == null) {
-                int msgIdx = index.getPreviousMessageOfType(msgType, lsfPos);
+            int msgIdx = index.getPreviousMessageOfType(msgType, lsfPos);
+            if(entity == null) {
+
                 while (msgIdx >= prevPos) {
-                    if (msgIdx == -1) {
-                        return Double.NaN;
-                    }
-                    else if (index.getMessage(msgIdx).getSourceName().equals(source)) {
-                        prevPos = msgIdx;
+                    if (index.getMessage(msgIdx).getSourceName().equals(source)) {
                         return index.getMessage(msgIdx).getDouble(field);
                     }
-                    else {
-                        msgIdx = index.getPreviousMessageOfType(msgType, msgIdx);
+                    msgIdx = index.getPreviousMessageOfType(msgType, msgIdx);
+                    if (msgIdx == -1) {
+                        return Double.NaN;
                     }
                 }
             }
             else {
-                int msgIdx = index.getPreviousMessageOfType(msgType, lsfPos);
                 while (msgIdx >= prevPos) {
-                    String src = index.getMessage(msgIdx).getSourceName(); 
-                    if (msgIdx == -1 || src == null)
-                        return Double.NaN;
-                    else if (index.entityNameOf(msgIdx).equals(entity) && src.equals(source)) {
-                        prevPos = msgIdx;
+                    String src = index.getMessage(msgIdx).getSourceName();
+                    if (index.entityNameOf(msgIdx).equals(entity) && src.equals(source)) {
                         return index.getMessage(msgIdx).getDouble(field);
                     }
-                    else {
-                        msgIdx = index.getPreviousMessageOfType(msgType, msgIdx);
+                    msgIdx = index.getPreviousMessageOfType(msgType, msgIdx);
+                    if (msgIdx == -1 || src == null) {
+                        return Double.NaN;
                     }
                 }
             }
