@@ -2,7 +2,7 @@
 <system xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="..\src\schemas\neptus-vehicle.xsd">
     <properties>
         <id>squirtle</id>
-        <name>Adamastor</name>
+        <name>Squirtle</name>
         <type>ROV</type>
         <appearance>
             <x-size>0.7</x-size>
