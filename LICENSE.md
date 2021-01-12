@@ -1,7 +1,7 @@
 
 # The Dual-License for Neptus
 
-Neptus © Universidade do Porto - Faculdade de Engenharia 2004-2020.
+Neptus © Universidade do Porto - Faculdade de Engenharia 2004-2021.
 
 ## Commercial Licence Usage
 

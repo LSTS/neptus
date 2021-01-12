@@ -1,1 +1,325 @@
-<?xml version="1.0" encoding="UTF-8"?><!--Copyright (c) 2004-2016 Universidade do Porto - Faculdade de EngenhariaLaboratório de Sistemas e Tecnologia Subaquática (LSTS)All rights reserved.Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, PortugalThis file is part of Neptus, Command and Control Framework.Commercial Licence UsageLicencees holding valid commercial Neptus licences may use this filein accordance with the commercial licence agreement provided with theSoftware or, alternatively, in accordance with the terms contained in awritten agreement between you and Universidade do Porto. For licensing terms, conditions, and further information contact lsts@fe.up.pt.European Union Public Licence - EUPL v.1.1 UsageAlternatively, this file may be used under the terms of the EUPL,Version 1.1 only (the "Licence"), appearing in the file LICENCE.mdincluded in the packaging of this file. You may not use this  workexcept in compliance with the Licence. Unless required by  applicablelaw or agreed to in writing, software distributed under the Licence  isdistributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OFANY KIND, either express or implied. See the Licence for the specificlanguage governing permissions and limitations athttps://www.lsts.pt/neptus/licence.For more information please see <http://lsts.fe.up.pt/neptus>.Author: Paulo Dias, José Pinto--><xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">	<xs:annotation>		<xs:documentation>v1.2</xs:documentation>	</xs:annotation>	<xs:include schemaLocation="neptus-maneuvers.xsd"/>	<xs:element name="mission-def">		<xs:annotation>			<xs:documentation>Root element</xs:documentation>		</xs:annotation>		<xs:complexType>			<xs:sequence>				<xs:element name="header" type="headerType"/>				<xs:element name="definitions" type="definitionsType"/>				<xs:element name="labels" type="labelsType" minOccurs="0"/>				<xs:element name="body" type="bodyType"/>			</xs:sequence>		</xs:complexType>	</xs:element>	<xs:complexType name="bodyType">		<xs:choice maxOccurs="unbounded">			<xs:element name="individual-plan" type="planType">				<xs:annotation>					<xs:documentation>@Deprecated - For backward compatibility</xs:documentation>				</xs:annotation>			</xs:element>			<xs:element name="plan" type="planType"/>		</xs:choice>	</xs:complexType>	<xs:complexType name="definitionsType">		<xs:sequence>			<xs:element name="vehicles" type="vehiclesType"/>			<xs:element name="maps" type="mapsType"/>			<xs:element name="checklists" minOccurs="0">				<xs:complexType>					<xs:sequence minOccurs="0" maxOccurs="unbounded">						<xs:element name="checklist">							<xs:complexType>								<xs:sequence>									<xs:element name="id" type="xs:ID"/>									<xs:element name="name" type="xs:string"/>									<xs:element name="href" type="xs:anyURI"/>								</xs:sequence>							</xs:complexType>						</xs:element>					</xs:sequence>				</xs:complexType>			</xs:element>			<xs:choice>				<xs:element name="home-referential" type="coordinateSystem">					<xs:annotation>						<xs:documentation>@Deprecated - For backward compatibility</xs:documentation>					</xs:annotation>				</xs:element>				<xs:element name="home-reference" type="coordinateSystem"/>			</xs:choice>		</xs:sequence>	</xs:complexType>	<xs:complexType name="planType">		<xs:choice>			<xs:element name="graph" type="graphType"/>			<xs:element name="stage" maxOccurs="unbounded">				<xs:complexType>					<xs:complexContent>						<xs:extension base="stageType"/>					</xs:complexContent>				</xs:complexType>			</xs:element>			<xs:element name="actions" type="PlanStartEndActionsType" minOccurs="0"/>		</xs:choice>		<xs:attribute name="id" type="xs:ID" use="required"/>		<xs:attribute name="vehicle" type="xs:IDREF" use="optional"/>		<xs:attribute name="uniqueId" type="xs:string">			<xs:annotation>				<xs:documentation>experimental</xs:documentation>			</xs:annotation>		</xs:attribute>	</xs:complexType>	<xs:complexType name="stageType">		<xs:sequence>			<xs:element name="graph" type="graphType"/>		</xs:sequence>		<xs:attribute name="label" type="xs:ID" use="required"/>	</xs:complexType>	<xs:complexType name="nodeType">		<xs:annotation>			<xs:documentation>The start attribute is to be used with the value "true" if this is the entry node.</xs:documentation>		</xs:annotation>		<xs:sequence>			<xs:element name="id" type="xs:string"/>			<xs:element name="maneuver">				<xs:complexType>					<xs:complexContent>						<xs:extension base="ManeuverType"/>					</xs:complexContent>				</xs:complexType>			</xs:element>			<xs:element name="actions" type="PlanStartEndActionsType" minOccurs="0"/>		</xs:sequence>		<xs:attribute name="start" type="xs:boolean" default="false"/>		<xs:attribute name="xPos"/>		<xs:attribute name="yPos"/>	</xs:complexType>	<xs:complexType name="graphType">		<xs:sequence>			<xs:element name="node" type="nodeType" maxOccurs="unbounded"/>			<xs:element name="edge" minOccurs="0" maxOccurs="unbounded">				<xs:complexType>					<xs:sequence>						<xs:element name="id" type="xs:string"/>						<xs:element name="source" type="xs:string"/>						<xs:element name="target" type="xs:string"/>						<xs:element name="guard" type="xs:string"/>						<xs:element name="actions" type="xs:string" minOccurs="0"/>					</xs:sequence>				</xs:complexType>			</xs:element>		</xs:sequence>	</xs:complexType>	<xs:complexType name="vehiclesType">		<xs:sequence maxOccurs="unbounded">			<xs:element name="vehicle">				<xs:complexType>					<xs:sequence>						<xs:element name="id" type="xs:ID"/>						<xs:element name="name" type="xs:string"/>						<xs:choice minOccurs="0">							<xs:element name="vehicle-referential" type="coordinateSystem">								<xs:annotation>									<xs:documentation>For backward compatibility. If not indicated, home-reference will be used.</xs:documentation>								</xs:annotation>							</xs:element>							<xs:element name="vehicle-reference" type="coordinateSystem">								<xs:annotation>									<xs:documentation>If not indicated, home-reference will be used.</xs:documentation>								</xs:annotation>							</xs:element>						</xs:choice>					</xs:sequence>				</xs:complexType>			</xs:element>		</xs:sequence>	</xs:complexType>	<xs:complexType name="mapsType">		<xs:sequence maxOccurs="unbounded">			<xs:element name="map">				<xs:complexType>					<xs:sequence>						<xs:element name="id" type="xs:ID"/>						<xs:element name="name" type="xs:string"/>						<xs:element name="href" type="xs:anyURI"/>					</xs:sequence>				</xs:complexType>			</xs:element>		</xs:sequence>	</xs:complexType>	<xs:complexType name="headerType">		<xs:sequence>			<xs:element name="id" type="xs:ID"/>			<xs:element name="name" type="xs:string"/>			<xs:element name="type" type="xs:string"/>			<xs:element name="description" minOccurs="0"/>			<xs:element name="notes" minOccurs="0">				<xs:complexType>					<xs:sequence maxOccurs="unbounded">						<xs:element name="note" type="xs:string"/>					</xs:sequence>				</xs:complexType>			</xs:element>		</xs:sequence>	</xs:complexType>	<xs:complexType name="labelsType">		<xs:sequence>			<xs:element name="teams" minOccurs="0">				<xs:complexType>					<xs:sequence>						<xs:element name="team">							<xs:complexType>								<xs:sequence>									<xs:element name="id" type="xs:ID"/>									<xs:element name="name" type="xs:string"/>									<xs:element name="members" type="xs:IDREFS"/>								</xs:sequence>							</xs:complexType>						</xs:element>					</xs:sequence>				</xs:complexType>			</xs:element>		</xs:sequence>	</xs:complexType>	<xs:element name="mission-res">		<xs:complexType>			<xs:sequence>				<xs:element name="header" type="headerType" minOccurs="0"/>				<xs:element name="definitions" type="definitionsType" minOccurs="0"/>				<xs:element name="labels" type="labelsType" minOccurs="0"/>				<xs:element name="start-conditions">					<xs:complexType>						<xs:sequence>							<xs:element name="initial-date" type="xs:date"/>							<xs:element name="initial-time" type="xs:time"/>						</xs:sequence>					</xs:complexType>				</xs:element>				<xs:element name="data">					<xs:complexType>						<xs:sequence minOccurs="0" maxOccurs="unbounded">							<xs:choice>								<xs:element name="tag">									<xs:complexType>										<xs:attribute name="name" use="required"/>										<xs:attributeGroup ref="timeStampGroup"/>									</xs:complexType>								</xs:element>								<xs:element name="reset-conditions">									<xs:complexType>										<xs:sequence>											<xs:element name="initial-date" type="xs:date" minOccurs="0"/>											<xs:element name="initial-time" type="xs:time"/>										</xs:sequence>										<xs:attributeGroup ref="timeStampGroup"/>									</xs:complexType>								</xs:element>								<xs:element name="sampledData">									<xs:complexType>										<xs:sequence>											<xs:element name="telemetry" minOccurs="0">												<xs:complexType>													<xs:sequence>														<xs:choice>															<xs:element name="position" type="generalPointType"/>															<xs:element name="relative-position" type="simplePointType"/>														</xs:choice>														<xs:element name="orientation" type="orientationElementType"/>														<xs:element name="worldCoordinateVelocity" type="worldCoordinateVelocityElementType" minOccurs="0"/>														<xs:element name="bodyCoordinateVelocity" type="bodyCoordinateVelocityElementType"/>														<xs:element name="dopplerVelocity" type="dopplerVelocityElementType" minOccurs="0"/>													</xs:sequence>												</xs:complexType>											</xs:element>											<xs:element name="sensor" minOccurs="0"/>										</xs:sequence>										<xs:attributeGroup ref="timeStampGroup"/>										<xs:attributeGroup ref="idGroup"/>									</xs:complexType>								</xs:element>							</xs:choice>						</xs:sequence>					</xs:complexType>				</xs:element>			</xs:sequence>		</xs:complexType>	</xs:element>	<xs:attributeGroup name="timeStampGroup">		<xs:attribute name="time-stamp" use="optional">			<xs:simpleType>				<xs:restriction base="xs:double">					<xs:minInclusive value="0"/>				</xs:restriction>			</xs:simpleType>		</xs:attribute>		<xs:attribute name="description" type="xs:string" use="optional"/>	</xs:attributeGroup>	<xs:attributeGroup name="idGroup">		<xs:attribute name="vehicle-id" type="xs:token" use="optional"/>		<xs:attribute name="system-id" type="xs:token" use="optional"/>	</xs:attributeGroup>	<xs:complexType name="PlanActionsType">		<xs:sequence>			<xs:element name="payload-config" minOccurs="0">				<xs:complexType>					<xs:sequence maxOccurs="unbounded">						<xs:element name="payload">							<xs:complexType>								<xs:complexContent>									<xs:extension base="xs:anyType">										<xs:attribute name="id" type="xs:string" use="required"/>									</xs:extension>								</xs:complexContent>							</xs:complexType>						</xs:element>					</xs:sequence>				</xs:complexType>			</xs:element>			<xs:element name="messages" type="xs:anyType" minOccurs="0"/>			<xs:element name="monitoring-entities" type="xs:string" minOccurs="0"/>		</xs:sequence>	</xs:complexType>	<xs:complexType name="PlanStartEndActionsType">		<xs:sequence>			<xs:element name="start-actions" type="PlanActionsType" minOccurs="0"/>			<xs:element name="end-actions" type="PlanActionsType" minOccurs="0"/>		</xs:sequence>	</xs:complexType></xs:schema>
+<?xml version="1.0" encoding="UTF-8"?>2004-2021 Uni
+<!--
+Copyright (c) 2004-2021 Universidade do Porto - Faculdade de Engenharia
+Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
+All rights reserved.
+Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
+
+This file is part of Neptus, Command and Control Framework.
+
+Commercial Licence Usage
+Licencees holding valid commercial Neptus licences may use this file
+in accordance with the commercial licence agreement provided with the
+Software or, alternatively, in accordance with the terms contained in a
+written agreement between you and Universidade do Porto. For licensing 
+terms, conditions, and further information contact lsts@fe.up.pt.
+
+European Union Public Licence - EUPL v.1.1 Usage
+Alternatively, this file may be used under the terms of the EUPL,
+Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
+included in the packaging of this file. You may not use this  work
+except in compliance with the Licence. Unless required by  applicable
+law or agreed to in writing, software distributed under the Licence  is
+distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
+ANY KIND, either express or implied. See the Licence for the specific
+language governing permissions and limitations at
+https://www.lsts.pt/neptus/licence.
+
+For more information please see <http://lsts.fe.up.pt/neptus>.
+
+Author: Paulo Dias, José Pinto
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+	<xs:annotation>
+		<xs:documentation>v1.2</xs:documentation>
+	</xs:annotation>
+	<xs:include schemaLocation="neptus-maneuvers.xsd"/>
+	<xs:element name="mission-def">
+		<xs:annotation>
+			<xs:documentation>Root element</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="header" type="headerType"/>
+				<xs:element name="definitions" type="definitionsType"/>
+				<xs:element name="labels" type="labelsType" minOccurs="0"/>
+				<xs:element name="body" type="bodyType"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="bodyType">
+		<xs:choice maxOccurs="unbounded">
+			<xs:element name="individual-plan" type="planType">
+				<xs:annotation>
+					<xs:documentation>@Deprecated - For backward compatibility</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="plan" type="planType"/>
+		</xs:choice>
+	</xs:complexType>
+	<xs:complexType name="definitionsType">
+		<xs:sequence>
+			<xs:element name="vehicles" type="vehiclesType"/>
+			<xs:element name="maps" type="mapsType"/>
+			<xs:element name="checklists" minOccurs="0">
+				<xs:complexType>
+					<xs:sequence minOccurs="0" maxOccurs="unbounded">
+						<xs:element name="checklist">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="id" type="xs:ID"/>
+									<xs:element name="name" type="xs:string"/>
+									<xs:element name="href" type="xs:anyURI"/>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:choice>
+				<xs:element name="home-referential" type="coordinateSystem">
+					<xs:annotation>
+						<xs:documentation>@Deprecated - For backward compatibility</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="home-reference" type="coordinateSystem"/>
+			</xs:choice>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="planType">
+		<xs:choice>
+			<xs:element name="graph" type="graphType"/>
+			<xs:element name="stage" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:complexContent>
+						<xs:extension base="stageType"/>
+					</xs:complexContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="actions" type="PlanStartEndActionsType" minOccurs="0"/>
+		</xs:choice>
+		<xs:attribute name="id" type="xs:ID" use="required"/>
+		<xs:attribute name="vehicle" type="xs:IDREF" use="optional"/>
+		<xs:attribute name="uniqueId" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>experimental</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="stageType">
+		<xs:sequence>
+			<xs:element name="graph" type="graphType"/>
+		</xs:sequence>
+		<xs:attribute name="label" type="xs:ID" use="required"/>
+	</xs:complexType>
+	<xs:complexType name="nodeType">
+		<xs:annotation>
+			<xs:documentation>The start attribute is to be used with the value "true" if this is the entry node.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="id" type="xs:string"/>
+			<xs:element name="maneuver">
+				<xs:complexType>
+					<xs:complexContent>
+						<xs:extension base="ManeuverType"/>
+					</xs:complexContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="actions" type="PlanStartEndActionsType" minOccurs="0"/>
+		</xs:sequence>
+		<xs:attribute name="start" type="xs:boolean" default="false"/>
+		<xs:attribute name="xPos"/>
+		<xs:attribute name="yPos"/>
+	</xs:complexType>
+	<xs:complexType name="graphType">
+		<xs:sequence>
+			<xs:element name="node" type="nodeType" maxOccurs="unbounded"/>
+			<xs:element name="edge" minOccurs="0" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="id" type="xs:string"/>
+						<xs:element name="source" type="xs:string"/>
+						<xs:element name="target" type="xs:string"/>
+						<xs:element name="guard" type="xs:string"/>
+						<xs:element name="actions" type="xs:string" minOccurs="0"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="vehiclesType">
+		<xs:sequence maxOccurs="unbounded">
+			<xs:element name="vehicle">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="id" type="xs:ID"/>
+						<xs:element name="name" type="xs:string"/>
+						<xs:choice minOccurs="0">
+							<xs:element name="vehicle-referential" type="coordinateSystem">
+								<xs:annotation>
+									<xs:documentation>For backward compatibility. If not indicated, home-reference will be used.</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+							<xs:element name="vehicle-reference" type="coordinateSystem">
+								<xs:annotation>
+									<xs:documentation>If not indicated, home-reference will be used.</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+						</xs:choice>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="mapsType">
+		<xs:sequence maxOccurs="unbounded">
+			<xs:element name="map">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="id" type="xs:ID"/>
+						<xs:element name="name" type="xs:string"/>
+						<xs:element name="href" type="xs:anyURI"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="headerType">
+		<xs:sequence>
+			<xs:element name="id" type="xs:ID"/>
+			<xs:element name="name" type="xs:string"/>
+			<xs:element name="type" type="xs:string"/>
+			<xs:element name="description" minOccurs="0"/>
+			<xs:element name="notes" minOccurs="0">
+				<xs:complexType>
+					<xs:sequence maxOccurs="unbounded">
+						<xs:element name="note" type="xs:string"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="labelsType">
+		<xs:sequence>
+			<xs:element name="teams" minOccurs="0">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="team">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="id" type="xs:ID"/>
+									<xs:element name="name" type="xs:string"/>
+									<xs:element name="members" type="xs:IDREFS"/>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="mission-res">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="header" type="headerType" minOccurs="0"/>
+				<xs:element name="definitions" type="definitionsType" minOccurs="0"/>
+				<xs:element name="labels" type="labelsType" minOccurs="0"/>
+				<xs:element name="start-conditions">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="initial-date" type="xs:date"/>
+							<xs:element name="initial-time" type="xs:time"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="data">
+					<xs:complexType>
+						<xs:sequence minOccurs="0" maxOccurs="unbounded">
+							<xs:choice>
+								<xs:element name="tag">
+									<xs:complexType>
+										<xs:attribute name="name" use="required"/>
+										<xs:attributeGroup ref="timeStampGroup"/>
+									</xs:complexType>
+								</xs:element>
+								<xs:element name="reset-conditions">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:element name="initial-date" type="xs:date" minOccurs="0"/>
+											<xs:element name="initial-time" type="xs:time"/>
+										</xs:sequence>
+										<xs:attributeGroup ref="timeStampGroup"/>
+									</xs:complexType>
+								</xs:element>
+								<xs:element name="sampledData">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:element name="telemetry" minOccurs="0">
+												<xs:complexType>
+													<xs:sequence>
+														<xs:choice>
+															<xs:element name="position" type="generalPointType"/>
+															<xs:element name="relative-position" type="simplePointType"/>
+														</xs:choice>
+														<xs:element name="orientation" type="orientationElementType"/>
+														<xs:element name="worldCoordinateVelocity" type="worldCoordinateVelocityElementType" minOccurs="0"/>
+														<xs:element name="bodyCoordinateVelocity" type="bodyCoordinateVelocityElementType"/>
+														<xs:element name="dopplerVelocity" type="dopplerVelocityElementType" minOccurs="0"/>
+													</xs:sequence>
+												</xs:complexType>
+											</xs:element>
+											<xs:element name="sensor" minOccurs="0"/>
+										</xs:sequence>
+										<xs:attributeGroup ref="timeStampGroup"/>
+										<xs:attributeGroup ref="idGroup"/>
+									</xs:complexType>
+								</xs:element>
+							</xs:choice>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:attributeGroup name="timeStampGroup">
+		<xs:attribute name="time-stamp" use="optional">
+			<xs:simpleType>
+				<xs:restriction base="xs:double">
+					<xs:minInclusive value="0"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="description" type="xs:string" use="optional"/>
+	</xs:attributeGroup>
+	<xs:attributeGroup name="idGroup">
+		<xs:attribute name="vehicle-id" type="xs:token" use="optional"/>
+		<xs:attribute name="system-id" type="xs:token" use="optional"/>
+	</xs:attributeGroup>
+	<xs:complexType name="PlanActionsType">
+		<xs:sequence>
+			<xs:element name="payload-config" minOccurs="0">
+				<xs:complexType>
+					<xs:sequence maxOccurs="unbounded">
+						<xs:element name="payload">
+							<xs:complexType>
+								<xs:complexContent>
+									<xs:extension base="xs:anyType">
+										<xs:attribute name="id" type="xs:string" use="required"/>
+									</xs:extension>
+								</xs:complexContent>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="messages" type="xs:anyType" minOccurs="0"/>
+			<xs:element name="monitoring-entities" type="xs:string" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PlanStartEndActionsType">
+		<xs:sequence>
+			<xs:element name="start-actions" type="PlanActionsType" minOccurs="0"/>
+			<xs:element name="end-actions" type="PlanActionsType" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>
