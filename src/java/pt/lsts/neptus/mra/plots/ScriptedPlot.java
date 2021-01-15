@@ -32,20 +32,13 @@
  */
 package pt.lsts.neptus.mra.plots;
 
-import java.awt.Color;
+import java.awt.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 import java.util.Map.Entry;
-import java.util.TimeZone;
-import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -91,6 +84,7 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
     private MRAPanel mra;
     private String title = null;
     private boolean processed = false;
+    private StringBuilder sb = new StringBuilder();
 
     public boolean isProcessed() {
         return processed;
@@ -135,25 +129,30 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
      * @param path Path to text script
      */
     public void runScript(String path) {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder strb = new StringBuilder();
+        String fileNAme = FileUtil.getFileNameWithoutExtension(new File(scriptPath));
+        String scriptRef = title==null ? fileNAme : getName();
         try {
             BufferedReader reader = new BufferedReader(new FileReader(path));
             int c;
             while ((c = reader.read()) != -1) {
-                sb.append((char) c);
+                strb.append((char) c);
             }
             shell.setVariable("plot_", ScriptedPlot.this);
             String defplot = "configPlot plot_";
             shell.evaluate(defplot);
-            String script = sb.toString();
+            String script = strb.toString();
             shell.parse(script);
             shell.evaluate(script);
+            String toShow = this.sb.toString();
+            if(toShow.length() != 0 && isProcessed())
+                //GuiUtils.infoMessage(this.mra,"Show data from Script "+scriptRef,toShow);
+                GuiUtils.htmlMessage(this.mra,"Show Method Panel","Script "+scriptRef+" output",toShow);
             reader.close();
             shell.getContext().getVariables().clear();
+            sb = new StringBuilder(); //reset String to avoid duplicated text when re-processing the script
         }
         catch (Exception e) {
-            String fileNAme = FileUtil.getFileNameWithoutExtension(new File(scriptPath));
-            String scriptRef = title==null ? fileNAme : getName();
             GuiUtils.errorMessage(mra, "Error Parsing Script "+scriptRef, e.getClass().getName()+" "+e.getLocalizedMessage());
             e.printStackTrace();
         }
@@ -200,7 +199,7 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
         if(!isProcessed())
             return tsc;
 
-        if(hiddenFiles.contains(id)) { 
+        if(hiddenFiles.contains(id)) {
             for(TimeSeries s: hiddenSeries.values()) {
                 String variable = getSeriesId(s);
                 if(variable.equals(id)) {
@@ -208,7 +207,7 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
                 }
             }
         }
-        else {
+        else if(series.containsKey(id)){
 
             for(TimeSeries s: series.values()) {
                 String fields[] = s.getKey().toString().split("\\.");
@@ -218,7 +217,83 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
                 }
             }
         }
+        else { //look into custom series
+            for(TimeSeries s: (List<TimeSeries>) customTsc.getSeries()) {
+                String fields[] = s.getKey().toString().split("\\.");
+                String variable = s.getKey().toString().substring(fields[0].length()+1);
+                if(variable.equals(id)) {
+                    tsc.addSeries(s);
+                }
+            }
+        }
         return tsc;
+    }
+
+    public void hideTimeSeries(String id,TimeSeries ts){
+        if(series.containsKey(id)){
+            Object removed = series.remove(id);
+            hiddenFiles.add(id);
+            hiddenSeries.put(id,ts);
+            return;
+        }
+        else if(hiddenFiles.contains(id)){
+            hiddenFiles.add(id);
+        }
+        else if (customTsc != null){
+            if(customTsc.getSeries().isEmpty())
+                return;
+            for (Iterator<TimeSeries> itr = customTsc.getSeries().iterator(); itr.hasNext();) {
+                TimeSeries s = itr.next();
+                String fields[] = s.getKey().toString().split("\\.");
+                String variable = s.getKey().toString().substring(fields[0].length() + 1);
+                if (variable.equals(id)) {
+                    customTsc.removeSeries(s);
+                    hiddenFiles.add(id);
+                    hiddenSeries.put(id,ts);
+                    return;
+                }
+            }
+        }
+
+    }
+
+    public void removeTimeSeries(String id) {
+        if (!isProcessed())
+            return;
+
+        if (hiddenFiles.contains(id)) {
+            for (Iterator<TimeSeries> itr = hiddenSeries.values().iterator(); itr.hasNext();) {
+                TimeSeries s = itr.next();
+                String variable = getSeriesId(s);
+                if (variable.equals(id)) {
+                    hiddenSeries.remove(id,s);
+                    return;
+                }
+            }
+        }
+        else if (series.containsKey(id)) {
+
+            for (Iterator<TimeSeries> itr = series.values().iterator(); itr.hasNext();) {
+                TimeSeries s = itr.next();
+                String fields[] = s.getKey().toString().split("\\.");
+                String variable = s.getKey().toString().substring(fields[0].length() + 1);
+                if (variable.equals(id)) {
+                    series.remove(id,s);
+                    return;
+                }
+            }
+        }
+        else if(customTsc != null){ //look into custom series
+            for (Iterator<TimeSeries> itr = customTsc.getSeries().iterator(); itr.hasNext();) {
+                TimeSeries s = itr.next();
+                String fields[] = s.getKey().toString().split("\\.");
+                String variable = s.getKey().toString().substring(fields[0].length() + 1);
+                if (variable.equals(id)) {
+                    customTsc.removeSeries(s);
+                    return;
+                }
+            }
+        }
     }
 
     /**
@@ -387,6 +462,16 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
         if(isProcessed())
             mraPanel.addMarker(new LogMarker(label, time, 0, 0));
     }
+
+    public String addTextToShow(String s) {
+        if(!isProcessed() || s == null)
+            return "";
+        sb.append("<p>");
+        sb.append(s);
+        sb.append("</p>");
+        return this.sb.toString();
+    }
+
     /**
      * This internal class allows plot scripts to access the current log time and message fields in the log
      * 
