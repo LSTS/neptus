@@ -59,6 +59,8 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mra.api.CorrectedPosition;
+import pt.lsts.neptus.mra.api.SidescanHistogramNormalizer;
 import pt.lsts.neptus.mra.api.SidescanLine;
 import pt.lsts.neptus.mra.api.SidescanParameters;
 import pt.lsts.neptus.mra.api.SidescanParser;
@@ -91,13 +93,13 @@ public class SidescanTilesExporter implements MRAExporter {
     public boolean slantRangeCorrection = true;
 
     @NeptusProperty
-    ColorMap cmap = ColorMapFactory.createGrayScaleColorMap();
+    ColorMap cmap = ColorMapFactory.createJetColorMap();
 
     @NeptusProperty
-    public int frequencyIndex = 0;
+    public int frequencyIndex = 1;
 
     @NeptusProperty
-    public int cellSize = 64;
+    public int cellSize = 32;
     
     @NeptusProperty
     public boolean separateCells = true;
@@ -106,10 +108,16 @@ public class SidescanTilesExporter implements MRAExporter {
     public File tidesFile = GeneralPreferences.tidesFile;
     
     @NeptusProperty(description = "GeoJson file with polygons denoting sand and rock for training")
-    public File classificationFile = new File("/home/zp/Desktop/xt2-training.geojson");
+    public File classificationFile = new File("/home/zp/Desktop/ml-training/NP2/NP2.geojson");
     
     @NeptusProperty(description = "Directory where to put all output")
-    public File outDir = new File("/home/zp/Desktop/ml-training");
+    public File outDir = new File("/home/zp/Desktop/ml-training/NP2");
+    
+    @NeptusProperty(description = "Enhanced Gain Normalization")
+    public boolean useEGN = true;
+    
+    @NeptusProperty(description = "Use Corrected Position")
+    public boolean useCorrectedPosition = true;
 
     /* variables below are not parameters */
     private boolean doTraining = false;
@@ -188,6 +196,7 @@ public class SidescanTilesExporter implements MRAExporter {
     @Override
     public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
 
+    	CorrectedPosition correctedPosition = new CorrectedPosition(source);
         // Create sidescan parser and skip this log if no sss data is available
         SidescanParser ss = SidescanParserFactory.build(source);
         if (ss.getSubsystemList().isEmpty())
@@ -213,7 +222,7 @@ public class SidescanTilesExporter implements MRAExporter {
         
         long start = ss.firstPingTimestamp();
         long end = ss.lastPingTimestamp();
-        int sys = ss.getSubsystemList().get(frequencyIndex);
+        int sys = ss.getSubsystemList().get(ss.getSubsystemList().size()-1);
 
         pmonitor.setMinimum(0);
         pmonitor.setMaximum((int) ((end - start) / 1000));
@@ -255,6 +264,9 @@ public class SidescanTilesExporter implements MRAExporter {
             
             // assumes all lines will be similar to middle one
             SidescanLine pivot = lines.get(cellSize/2);
+            if (useCorrectedPosition)
+            	pivot.getState().setPosition(correctedPosition.getPosition(pivot.getTimestampMillis()/1000.0).getPosition());
+            
             int originalLength = pivot.getData().length;
             
             // calculate tide level using tide station configured in GeneralPreferences
@@ -302,6 +314,10 @@ public class SidescanTilesExporter implements MRAExporter {
             String logName = source.getDir().getName();
             double ratio = originalLength / (double) dataLength;
             
+            new File(outDir+"/tiles").mkdirs();
+            
+            
+            
             // write all cells to separate image files
             for (int px = (dataLength%cellSize)/2; px < dataLength; px += cellSize, xCount++) {
                 try {
@@ -317,6 +333,7 @@ public class SidescanTilesExporter implements MRAExporter {
                         else
                             continue;
                     }
+                    
                     writer.write(text+"\n");
                     System.out.println(text);
                     
@@ -328,8 +345,7 @@ public class SidescanTilesExporter implements MRAExporter {
                         else
                             cell.getGraphics().drawImage(img, 0, 0, cellSize-1, cellSize-1, px+cellSize, 0, px, cellSize-1, null);
                         ImageIO.write(cell, "PNG", file);                            
-                    }
-                                        
+                    }           
                 }
                 catch (Exception e) {
                     e.printStackTrace();
@@ -362,8 +378,6 @@ public class SidescanTilesExporter implements MRAExporter {
     public static void main(String[] args) {
         GeneralPreferences.initialize();
         GuiUtils.setLookAndFeelNimbus();
-        //LsfTreeSet sampleSSS = new LsfTreeSet(new File("/media/zp/5e169b60-ba8d-47db-b25d-9048fe40eed1/OMARE/SampleSSS"));
-        
         BatchMraExporter.apply(SidescanTilesExporter.class);
     }
 
