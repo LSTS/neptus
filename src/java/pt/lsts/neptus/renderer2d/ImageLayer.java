@@ -50,6 +50,7 @@ import java.io.Serializable;
 
 import javax.imageio.ImageIO;
 
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.types.coord.LocationType;
 
 /**
@@ -158,9 +159,6 @@ public class ImageLayer implements Serializable, Renderer2DPainter {
             BufferedWriter writer = new BufferedWriter(new FileWriter(out));
             LocationType bottomRight = new LocationType(topLeft);
             bottomRight.translatePosition(-image.getHeight()*zoom, image.getWidth()*zoom, 0).convertToAbsoluteLatLonDepth();
-            
-            
-            System.out.println(zoom+", "+image.getWidth());
             double degsPerPixel = (topLeft.getLatitudeDegs() - bottomRight.getLatitudeDegs()) / image.getHeight();
             double degsPerPixel2 = (bottomRight.getLongitudeDegs() - topLeft.getLongitudeDegs()) / image.getWidth();
             writer.write(String.format("%.10f\n",degsPerPixel2));
@@ -170,6 +168,7 @@ public class ImageLayer implements Serializable, Renderer2DPainter {
             writer.write(topLeft.getLongitudeDegs() + "\n");
             writer.write(topLeft.getLatitudeDegs() + "\n");
             writer.close();
+            NeptusLog.pub().info("Created World image in "+out.getAbsolutePath());
         }
         
         ImageIO.write(image, "PNG", f);
