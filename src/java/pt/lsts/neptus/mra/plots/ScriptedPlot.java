@@ -110,8 +110,19 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
     public ScriptedPlot(MRAPanel panel, String path) {
         super(panel);
         this.mra = panel;
-        scriptPath = path;
-        index = panel.getSource().getLsfIndex();
+        this.scriptPath = path;
+        init(panel.getSource().getLsfIndex());
+    }
+
+    public ScriptedPlot(LsfIndex idx, String path){ // Bash script version
+        super(null);
+        this.mra = null;
+        this.scriptPath = path;
+        init(idx);
+    }
+
+    private void init(LsfIndex idx) {
+        this.index = idx;
 
         // init shell
         CompilerConfiguration cnfg = new CompilerConfiguration();
@@ -145,15 +156,22 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
             shell.parse(script);
             shell.evaluate(script);
             String toShow = this.sb.toString();
-            if(toShow.length() != 0 && isProcessed())
+            if(toShow.length() != 0 && isProcessed() && this.mra != null)
                 //GuiUtils.infoMessage(this.mra,"Show data from Script "+scriptRef,toShow);
                 GuiUtils.htmlMessage(this.mra,"Show Method Panel","Script "+scriptRef+" output",toShow);
+            else if(this.mra == null)
+                System.out.println(toShow); //Bash version
             reader.close();
             shell.getContext().getVariables().clear();
             sb = new StringBuilder(); //reset String to avoid duplicated text when re-processing the script
         }
         catch (Exception e) {
-            GuiUtils.errorMessage(mra, "Error Parsing Script "+scriptRef, e.getClass().getName()+" "+e.getLocalizedMessage());
+            if(this.mra != null)
+                GuiUtils.errorMessage(mra, "Error Parsing Script "+scriptRef, e.getClass().getName()+" "+e.getLocalizedMessage());
+            else {
+                System.err.println("Error Parsing Script " + scriptRef);
+                System.err.println(e.getClass().getName() + " " + e.getLocalizedMessage());
+            }
             e.printStackTrace();
         }
     }
@@ -370,7 +388,7 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
     }
 
     private void addRangeMarker(ValueMarker marker) {
-        if(chart!=null) {
+        if(chart!=null && this.mra != null) {
             chart.getXYPlot().addRangeMarker(marker);
             mraPanel.getLogTree().addMarker(rangeMarks.get(marker));
         }
@@ -390,6 +408,8 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
     
     @Override
     public void removeLogMarker(LogMarker e) {
+        if(this.mra == null)
+            return;
         for (Entry<ValueMarker, LogMarker> entry : rangeMarks.entrySet()) {
             ValueMarker m = entry.getKey();
             if (m.getLabel().equals(e.getLabel()) && e.equals(entry.getValue())) {
@@ -405,6 +425,8 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
     
     @Override
     public JFreeChart getChart(IMraLogGroup source, double timestep) {
+        if(this.mra == null)
+            return null;
         this.timestep = timestep;
         this.index = source.getLsfIndex();
         tsc = new TimeSeriesCollection();
@@ -436,6 +458,8 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
      * Remove markers from logTree to avoid duplicates
      */
     private void clearRangeMarkers() {
+        if(this.mra == null)
+            return;
         for (Entry<ValueMarker, LogMarker> entry : rangeMarks.entrySet()) {
             ValueMarker m = entry.getKey();
                 mraPanel.getLogTree().removeMarker(entry.getValue());
@@ -459,16 +483,22 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
     }
 
     public void mark(double time, String label) {
-        if(isProcessed())
+        if(isProcessed() && this.mra != null)
             mraPanel.addMarker(new LogMarker(label, time, 0, 0));
     }
 
     public String addTextToShow(String s) {
         if(!isProcessed() || s == null)
             return "";
-        sb.append("<p>");
-        sb.append(s);
-        sb.append("</p>");
+        if(this.mra != null) {
+            sb.append("<p>");
+            sb.append(s);
+            sb.append("</p>");
+        }
+        else { // bash script version
+            sb.append(s);
+            sb.append('\n');
+        }
         return this.sb.toString();
     }
 
@@ -497,6 +527,9 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
         }
 
         public void mark(double time, String label) {
+            if(mraPanel == null)
+                return;
+
             mraPanel.addMarker(new LogMarker(label, time * 1000,0,0));
         }
 
