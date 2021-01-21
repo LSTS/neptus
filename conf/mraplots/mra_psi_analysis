@@ -1,0 +1,62 @@
+title "Analysis Script"
+//PARAMETERS
+def FILE = "mn_tests.csv" //Path to CSV file
+String[] columns =  ["log","distance (m)","imu_ahrs_error","psi_bias_error",
+    "alignment time (s)"]
+
+// INIT
+File csv = new File(FILE)
+Writer writer = new FileWriter(csv,true)
+BufferedReader br = new BufferedReader(new FileReader(csv))
+
+
+//Conv Method
+toRadians = {deg -> Math.toRadians(deg)}
+
+//IMC Vars
+addQuery "Dist":"Distance.NavTest.distance.value"
+addQuery "imu_ahrs_error":"EulerAngles.imu_error.psi"
+addQuery "Alignment":"AlignmentState.Navigation.state" // 0: NOT_ALIGNED | 1: ALIGNED
+addQuery "IMU_state":"EntityActivationState.IMU.state"
+addQuery "psi_bias_error":"NavigationUncertainty.bias_psi"
+
+if(!processed())
+    return
+
+def max_dist = getTimeSeriesMaxValue "Dist"
+
+def max_imu_ahrs_error = getTimeSeriesMaxValue "imu_ahrs_error"
+def max_bias_psi_deg   = getTimeSeriesMaxValue "psi_bias_error"
+def max_bias_psi_rad   = toRadians(max_bias_psi_deg)
+def time_max_align     = getTimeSeriesMaxTime "Alignment"
+def init_imu_time      = getTimeSeriesMaxTime "IMU_state"
+def align_time = (time_max_align - init_imu_time) / 1000.0
+def log_name = logName()
+
+// Script CSV
+if (csv.isFile() && br.readLine() == null) { //verify is file is empty
+    columns.eachWithIndex { it,index ->
+        writer.append(it)
+        if(index < (columns.length-1))
+            writer.append(',')
+    }
+    writer.write("\n")
+}
+if(csv.exists() && csv.isFile()) {
+    String[] data = [log_name,max_dist,max_imu_ahrs_error,max_bias_psi_rad,align_time]
+    data.eachWithIndex { it,index ->
+        println "index: "+index+" it: "+it
+        writer.append(it)
+        if(index < (columns.length-1))
+            writer.append(',')
+        }
+    writer.append("\n")
+}
+writer.flush()
+writer.close()
+
+
+
+
+
+
