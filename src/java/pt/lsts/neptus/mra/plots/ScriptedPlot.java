@@ -134,6 +134,10 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
         runScript(scriptPath);
     }
 
+    public String getLogName(){
+        return this.index.getLsfFile().getParentFile().getName();
+    }
+
     /**
      * Runs the Groovy script after verifying its validity by parsing it.
      * 
@@ -165,7 +169,7 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
             shell.getContext().getVariables().clear();
             sb = new StringBuilder(); //reset String to avoid duplicated text when re-processing the script
         }
-        catch (Exception e) {
+        catch (NoClassDefFoundError | Exception e) {
             if(this.mra != null)
                 GuiUtils.errorMessage(mra, "Error Parsing Script "+scriptRef, e.getClass().getName()+" "+e.getLocalizedMessage());
             else {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2019 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2021 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -51,6 +51,10 @@ class ScriptedPlotGroovy  {
     
     static void configPlot(ScriptedPlot p) {
         scriptedPlot = p
+    }
+
+    static boolean processed(){
+        scriptedPlot.isProcessed()
     }
 
 	static void plot(LinkedHashMap<String,String> queries) {
@@ -311,6 +315,10 @@ class ScriptedPlotGroovy  {
 
     static String show (Object o) {
         scriptedPlot.addTextToShow(o.toString());
+    }
+
+    static String logName(){
+        scriptedPlot.getLogName()
     }
 
 
