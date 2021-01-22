@@ -1,4 +1,4 @@
-title "Analysis Script"
+title "Psi Analysis Script"
 //PARAMETERS
 def FILE = "mn_tests.csv" //Path to CSV file
 String[] columns =  ["log","distance (m)","imu_ahrs_error","psi_bias_error",
@@ -45,7 +45,6 @@ if (csv.isFile() && br.readLine() == null) { //verify is file is empty
 if(csv.exists() && csv.isFile()) {
     String[] data = [log_name,max_dist,max_imu_ahrs_error,max_bias_psi_rad,align_time]
     data.eachWithIndex { it,index ->
-        println "index: "+index+" it: "+it
         writer.append(it)
         if(index < (columns.length-1))
             writer.append(',')
