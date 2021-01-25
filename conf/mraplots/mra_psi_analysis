@@ -11,10 +11,10 @@ BufferedReader br = new BufferedReader(new FileReader(csv))
 
 
 //Conv Method
-toRadians = {deg -> Math.toRadians(deg)}
+toDegrees = {rad -> Math.toDegrees(rad)}
 
 //IMC Vars
-addQuery "Dist":"Distance.NavTest.distance.value"
+addQuery "Dist":"Distance.distance_error.value"
 addQuery "imu_ahrs_error":"EulerAngles.imu_error.psi"
 addQuery "Alignment":"AlignmentState.Navigation.state" // 0: NOT_ALIGNED | 1: ALIGNED
 addQuery "IMU_state":"EntityActivationState.IMU.state"
@@ -25,13 +25,17 @@ if(!processed())
 
 def max_dist = getTimeSeriesMaxValue "Dist"
 
-def max_imu_ahrs_error = getTimeSeriesMaxValue "imu_ahrs_error"
-def max_bias_psi_deg   = getTimeSeriesMaxValue "psi_bias_error"
-def max_bias_psi_rad   = toRadians(max_bias_psi_deg)
+def max_imu_ahrs_error_rad = getTimeSeriesMaxValue "imu_ahrs_error"
+def max_imu_ahrs_error_deg = toDegrees(max_imu_ahrs_error_rad)
 def time_max_align     = getTimeSeriesMaxTime "Alignment"
 def init_imu_time      = getTimeSeriesMaxTime "IMU_state"
 def align_time = (time_max_align - init_imu_time) / 1000.0
 def log_name = logName()
+
+// Crop
+def cropped_psi_bias_error = crop("psi_bias_error", time_max_align)
+def max_bias_psi_rad = getTimeSeriesMaxValue "psi_bias_error.cropped"
+show(max_bias_psi_rad)
 
 // Script CSV
 if (csv.isFile() && br.readLine() == null) { //verify is file is empty
@@ -43,7 +47,7 @@ if (csv.isFile() && br.readLine() == null) { //verify is file is empty
     writer.write("\n")
 }
 if(csv.exists() && csv.isFile()) {
-    String[] data = [log_name,max_dist,max_imu_ahrs_error,max_bias_psi_rad,align_time]
+    String[] data = [log_name,max_dist,max_imu_ahrs_error_deg,max_bias_psi_rad,align_time]
     data.eachWithIndex { it,index ->
         writer.append(it)
         if(index < (columns.length-1))
@@ -53,9 +57,4 @@ if(csv.exists() && csv.isFile()) {
 }
 writer.flush()
 writer.close()
-
-
-
-
-
 
