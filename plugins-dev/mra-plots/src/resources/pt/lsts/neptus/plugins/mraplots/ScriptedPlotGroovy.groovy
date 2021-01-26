@@ -292,11 +292,11 @@ class ScriptedPlotGroovy  {
         TimeSeriesCollection result = scriptedPlot.getTimeSeriesFor(id)
         TimeSeries ts = result.getSeries()[0];
         scriptedPlot.hideTimeSeries(id,ts)
-
+        def newName = ts.getKey().toString()+".cropped"
         Millisecond start = new Millisecond(new Date(from), TimeZone.getTimeZone("UTC"), Locale.getDefault())
         Millisecond end   = new Millisecond(new Date( to==0? ts.getNextTimePeriod().getLastMillisecond(): to ), TimeZone.getTimeZone("UTC"), Locale.getDefault())
         result.removeAllSeries()
-        TimeSeries newTs = new TimeSeries(id+".cropped")
+        TimeSeries newTs = new TimeSeries(newName)
         newTs.addAndOrUpdate(ts.createCopy(start,end))
         result.addSeries(newTs)
         plot(result)
