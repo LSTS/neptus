@@ -34,6 +34,7 @@ def log_name = logName()
 
 // Crop
 def cropped_psi_bias_error = crop("psi_bias_error", time_max_align)
+plot cropped_psi_bias_error
 def max_bias_psi_rad = getTimeSeriesMaxValue "psi_bias_error.cropped"
 show(max_bias_psi_rad)
 

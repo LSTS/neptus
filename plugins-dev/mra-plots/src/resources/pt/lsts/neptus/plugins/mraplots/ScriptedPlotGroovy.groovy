@@ -289,17 +289,15 @@ class ScriptedPlotGroovy  {
     static TimeSeriesCollection crop(String id, long from, long to=0){
         if(!scriptedPlot.isProcessed() || scriptedPlot == null || from == 0)
             return null
-        TimeSeriesCollection result = scriptedPlot.getTimeSeriesFor(id)
-        TimeSeries ts = result.getSeries()[0];
-        scriptedPlot.hideTimeSeries(id,ts)
+        TimeSeries ts = scriptedPlot.getTimeSeriesFor(id).getSeries()[0];
         def newName = ts.getKey().toString()+".cropped"
         Millisecond start = new Millisecond(new Date(from), TimeZone.getTimeZone("UTC"), Locale.getDefault())
         Millisecond end   = new Millisecond(new Date( to==0? ts.getNextTimePeriod().getLastMillisecond(): to ), TimeZone.getTimeZone("UTC"), Locale.getDefault())
-        result.removeAllSeries()
+        TimeSeriesCollection result = new TimeSeriesCollection()
         TimeSeries newTs = new TimeSeries(newName)
         newTs.addAndOrUpdate(ts.createCopy(start,end))
         result.addSeries(newTs)
-        plot(result)
+        result
 
     }
     static TimeSeriesCollection crop(String id, String from, String to=null){
@@ -319,6 +317,15 @@ class ScriptedPlotGroovy  {
 
     static String logName(){
         scriptedPlot.getLogName()
+    }
+
+    static TimeSeries hideTimeSeries (String id){
+        if(!scriptedPlot.isProcessed() || scriptedPlot == null)
+            return null
+        TimeSeriesCollection result = scriptedPlot.getTimeSeriesFor(id)
+        TimeSeries ts = result.getSeries()[0];
+        scriptedPlot.hideTimeSeries(id,ts)
+        ts
     }
 
 

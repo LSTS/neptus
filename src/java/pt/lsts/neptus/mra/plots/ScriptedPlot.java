@@ -221,30 +221,31 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
         if(!isProcessed())
             return tsc;
 
+        String variable;
+
         if(hiddenFiles.contains(id)) {
             for(TimeSeries s: hiddenSeries.values()) {
-                String variable = getSeriesId(s);
+                variable = getSeriesId(s);
                 if(variable.equals(id)) {
                     tsc.addSeries(s);
                 }
             }
         }
-        else if(series.containsKey(id)){
-
+        else {
+            //look into series
             for(TimeSeries s: series.values()) {
-                String fields[] = s.getKey().toString().split("\\.");
-                String variable = s.getKey().toString().substring(fields[0].length()+1);
+                variable = getSeriesId(s);
                 if(variable.equals(id)) {
                     tsc.addSeries(s);
+                    return tsc;
                 }
             }
-        }
-        else { //look into custom series
+            //look into custom series
             for(TimeSeries s: (List<TimeSeries>) customTsc.getSeries()) {
-                String fields[] = s.getKey().toString().split("\\.");
-                String variable = s.getKey().toString().substring(fields[0].length()+1);
+                variable = getSeriesId(s);
                 if(variable.equals(id)) {
                     tsc.addSeries(s);
+                    return tsc;
                 }
             }
         }
@@ -342,7 +343,6 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
     @Override
     public void process(LsfIndex source) {
         series.clear();
-
         this.index = source;
         this.scIndex = new ScriptableIndex(this.index , 0);
 
