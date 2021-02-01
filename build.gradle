@@ -369,7 +369,7 @@ project(':core') {
         implementation name: 'gdal'
         implementation name: 'gpsinput-0.5.3'
         implementation name: 'gpxparser'
-        implementation 'org.codehaus.groovy:groovy:2.5.4' //3.0.3
+        implementation 'org.codehaus.groovy:groovy:3.0.3' //2.5.4
         implementation 'com.google.code.gson:gson:2.2.2' //2.8.6
         implementation 'com.google.guava:guava:17.0' //28.2-jre
 
