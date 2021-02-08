@@ -127,7 +127,7 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
         // init shell
         CompilerConfiguration cnfg = new CompilerConfiguration();
         ImportCustomizer imports = new ImportCustomizer();
-        imports.addStarImports("pt.lsts.imc", "java.lang.Math", "pt.lsts.neptus.mra.plots");
+        imports.addStarImports("pt.lsts.imc");
         imports.addStaticStars("pt.lsts.neptus.plugins.mraplots.ScriptedPlotGroovy");
         cnfg.addCompilationCustomizers(imports);
         shell = new GroovyShell(this.getClass().getClassLoader(), cnfg);

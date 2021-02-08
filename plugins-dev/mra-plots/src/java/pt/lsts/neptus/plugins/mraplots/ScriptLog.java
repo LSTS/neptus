@@ -40,12 +40,6 @@ import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 import java.io.File;
 
-// imports for the scripts
-import pt.lsts.imc.*;
-import java.lang.Math;
-import pt.lsts.neptus.mra.plots.*;
-
-
 public class ScriptLog {
 
     public static void main(String args[]){
