@@ -307,7 +307,7 @@ public class PluginUtils {
             PluginProperty pp = new PluginProperty(name, f.getType(), o);
             pp.setShortDescription((forEdit ? I18n.text(desc) : desc) + defaultAndUnitsStr);
             pp.setEditable(a.editable());
-            pp.setDisplayName(forEdit ? (obj.getClass().equals(GeneralPreferences.class) ? "* " : "") + I18n.text(name) : name);
+            pp.setDisplayName(forEdit ? (obj != null && obj.getClass().equals(GeneralPreferences.class) ? "* " : "") + I18n.text(name) : name);
             if (category != null && category.length() > 0) {
                 pp.setCategory(category);
             }
