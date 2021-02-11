@@ -401,8 +401,8 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                                 Boolean.parseBoolean(el.attributeValue("inverted")), 0.0f,0.0f);
                     else // Axis Component
                         return new MapperComponent(el.attributeValue("action"), el.attributeValue("component"),
-                                Float.parseFloat(el.attributeValue("range")),
-                                Boolean.parseBoolean(el.attributeValue("inverted")),0.0f, 0.0f);
+                                0.0f,
+                                Boolean.parseBoolean(el.attributeValue("inverted")),RANGE, 0.0f);
                 }
                 catch (Exception e) {
                     NeptusLog.pub().warn(I18n.text("Error parsing controllers configuration file."), e);
@@ -427,7 +427,6 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         String list[] = manager.getControllerList().keySet().toArray(new String[0]);
         for (JComboBox<String> cb : controllerSelectors) {
             cb.removeAllItems();
-
             for (String s : list) {
                 cb.addItem(s);
             }
@@ -460,9 +459,6 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
     }
 
     private boolean connected() {
-//        System.out.println("Is " + console.getSystem(console.getMainSystem()).getName() + " connected? "
-//                + !console.getSystem(console.getMainSystem()).getVehicleState().equals(STATE.DISCONNECTED) + " state "
-//                + console.getSystem(console.getMainSystem()).getVehicleState());
 
         return !console.getSystem(console.getMainSystem()).getVehicleState().equals(STATE.DISCONNECTED);
     }
@@ -481,6 +477,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
     public boolean update() {
 
         if (manager == null || currentController == null) {
+            manager.pollError(currentController);
             return true;
         }
         
@@ -494,6 +491,8 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
             poll = manager.pollController(currentController);
         }
         catch (Exception e) {
+            //Remove device not working properly and trigger new search of devices
+            manager.pollError(currentController);
             e.printStackTrace();
         }
 
@@ -508,7 +507,6 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         if (editing) {
             if (oldPoll.size() == poll.size()) {
                 for (String k : poll.keySet()) {
-//                    System.out.println("Editing KEY components");
                     if (poll.get(k).getPollData() != oldPoll.get(k).floatValue()
                             && Math.abs(poll.get(k).getPollData()) == 1.0) {
                         ArrayList<MapperComponent> remoteActions = new ArrayList<MapperComponent>();
@@ -518,8 +516,6 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                             if (mcomp.editFlag) {
                                 mcomp.button = k;
                                 mcomp.inverted = poll.get(k).getPollData() < 0;
-//                                System.out.println("Get Poll Data for: " + mcomp.action + " " + k + " Value: "
-//                                        + poll.get(k).getPollData() + " final value: " + mcomp.value+" deadzone "+poll.get(k).getDeadZone());
 
                                 if (actions.get(mcomp.action).equals("Axis"))
                                     axisModel.fireTableDataChanged();
@@ -573,8 +569,6 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
 
                 if (comp != null && poll.get(k) != null) {
                     // update Model list
-//                    System.out.println("MATH ABS VALUE for: " + comp.action + " value=" + comp.value + " Bool: "
-//                            + (Float.compare(Math.abs(comp.value), poll.get(k).getDeadZone()) != 0)); 
                     comp.value = poll.get(k).getPollData()
                             * (actions.get(comp.action).equals("Axis") ? comp.getRange() * ((comp.inverted ? -1 : 1))
                                     : 1);
@@ -599,7 +593,6 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
 
                     if (sending() && (Float.compare(Math.abs(comp.value), poll.get(k).getDeadZone()) != 0)) {     
                         msgActions.put(comp.action, comp.value + "");
-//                        System.out.println("Adding " + comp.action);
                     }
                 }
             }
@@ -618,7 +611,6 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
     private void sendRemoteActions() {
         RemoteActions msg = new RemoteActions();
         msg.setActions(msgActions);
-//        System.out.println("Sending: " + msg);
         getConsole().getImcMsgManager().sendMessageToSystem(msg, console.getMainSystem());
     }
 
@@ -813,7 +805,6 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
             }
             
             if(column == 2) {
-//                System.out.println("Value on Row"+row+"="+comp.value);
                 if(!sending())
                     return this;
                 String action = comp.action;
@@ -826,7 +817,6 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                     
                 };
                 if(updated_value != comp.value && (Float.compare(Math.abs(updated_value), comp.deadZone) != 0) && btnInHold.isSelected()) {
-//                    System.out.println("Updating "+comp.action+" from "+comp.value+" to "+updated_value);
                     comp.value = updated_value;
                     if (this.actionType.equals(ActionType.Axis)) {
                         ((TableModel) axisModel).setValueAt(updated_value, row, 2);

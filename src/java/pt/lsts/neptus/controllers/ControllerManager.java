@@ -28,16 +28,16 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: José Quadrado Correia ?
+ * Author: Keila (changes in Feb 2021)
  * 
  */
 package pt.lsts.neptus.controllers;
 
 import java.util.LinkedHashMap;
 
-import net.java.games.input.Component;
-import net.java.games.input.Controller;
-import net.java.games.input.JoyEnvironment;
+import net.java.games.input.*;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.i18n.I18n;
 
 /**
  * ControllerManager class 
@@ -45,54 +45,89 @@ import pt.lsts.neptus.NeptusLog;
  * Manages the controllers and serves as an abstraction to JInput.
  * Every console instantiates this class during initialization.
  * @author jqcorreia
- * 
+ * @author keila (changes in Feb 2021)
  */
 public class ControllerManager {
 	private LinkedHashMap<String, Controller> controllerList = new LinkedHashMap<String, Controller>();
+	private ControllerEnvironment env;
+	private boolean pollError,reseted;
 	
 	public ControllerManager() {
-		fetchControllers();
+
+        initControllerEnvironment();
+	    fetchControllers();
+        pollError = false;
+        reseted   = false;
 	}
 
-	public void fetchControllers() {
+	private void initControllerEnvironment() {
+        String osName = System.getProperty("os.name").trim();
+        if (osName.equals("Linux")) {
+            env = new LinuxEnvironmentPlugin();
+        }
+        else if(osName.equals("Mac OS X")) {
+            env = new OSXEnvironmentPlugin();
+        }
+        else if(osName.equals("Windows 98") || osName.equals("Windows 2000")) { //you probably shouldnt do this at this point
+            env = new DirectInputEnvironmentPlugin();
+        }
+        else if(osName.startsWith("Windows")){
+            env = new DirectAndRawInputEnvironmentPlugin();
+        }
+        else
+            env = ControllerEnvironment.getDefaultEnvironment(); //FIXME dynamic changes on input devices wont work in this case
+        NeptusLog.pub().debug(I18n.text("Initializing Controllers Environment"));
+        reseted = true;
+
+    }
+
+    public void fetchControllers() {
 		// Copy current controllers to oldMap
 		LinkedHashMap<String, Controller> oldMap = new LinkedHashMap<String, Controller>();
 		for (String s : controllerList.keySet()) {
 			oldMap.put(s, controllerList.get(s));
 		}
 
-		controllerList.clear();
-
-		// Fectch controllers list
-		Controller controllers[] = new JoyEnvironment().getControllers();
+        controllerList.clear();
+		// Update in case new controllers are connected in runtime
+        if(pollError) {
+            initControllerEnvironment();
+            reseted = true;
+        }
+		// Fetch controllers list
+		Controller controllers[] = env.getControllers();
 
 		// Create new controllerMap
 		for (Controller c : controllers) {
+		    pollError = false;
+		    reseted   = false;
 		    if( null!=c && null!=c.getName() ) // Protect from rare case where a Controller has a null name
 			if(!c.getName().toLowerCase().contains("keyboard") && !c.getName().toLowerCase().contains("mouse"))
-			    if(c.getType() == Controller.Type.GAMEPAD || c.getType() == Controller.Type.STICK)
-				controllerList.put(c.getName(), c);
+			    if(c.getType() == Controller.Type.GAMEPAD || c.getType() == Controller.Type.STICK) {
+                    controllerList.put(c.getName(), c);
+                }
 		}
 
 		// Look for changes
 		for (String k : oldMap.keySet()) {
 			if (!controllerList.containsKey(k)) {
-				NeptusLog.pub().info("Removed " + oldMap.get(k).getName());
 			}
 		}
 		for (String k : controllerList.keySet()) {
 			if (!oldMap.containsKey(k)) {
-				NeptusLog.pub().info("Added " + controllerList.get(k).getName());
 			}
 		}
 	}
 
-	public LinkedHashMap<String, Component> pollController(Controller c) {
+    public LinkedHashMap<String, Component> pollController(Controller c) {
 		LinkedHashMap<String, Component> pollResult = new LinkedHashMap<String, Component>();
-		
+
 		// In case of failed device poll NULL should be returned for error capture
-		if(!c.poll())
-		    return null;
+		if(!c.poll()) {
+            //Update controllers if removed
+            pollError(c.getName());
+            return null;
+        }
 
 		for (Component comp : c.getComponents()) {
 			pollResult.put(comp.getName(), comp);
@@ -100,12 +135,29 @@ public class ControllerManager {
 		return pollResult;
 	}
 
-	public LinkedHashMap<String, Component> pollController(String device) {
+    public void pollError(String name) {
+        if(!reseted || !pollError)
+            pollError = true;
+        fetchControllers();
+        if(name != null)
+            controllerList.remove(name);
+    }
+
+    public LinkedHashMap<String, Component> pollController(String device) {
 		Controller c = controllerList.get(device);
+		if(c == null) {
+		    if(!reseted || !pollError)
+                pollError = true;
+		    controllerList.remove(device);
+            fetchControllers();
+		    return null;
+        }
 		return pollController(c);
 	}
 
 	public LinkedHashMap<String, Controller> getControllerList() {
+        //Update devices info
+        controllerList.keySet().forEach(device -> pollController(device));
 		return controllerList;
 	}
 }
