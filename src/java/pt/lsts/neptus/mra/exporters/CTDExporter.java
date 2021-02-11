@@ -39,11 +39,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
-import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.ProgressMonitor;
 
 import pt.lsts.imc.Conductivity;
+import pt.lsts.imc.EntityList;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.Salinity;
 import pt.lsts.imc.Temperature;
@@ -52,12 +52,16 @@ import pt.lsts.imc.lsf.IndexScanner;
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
+import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.mra.MRAProperties;
 import pt.lsts.neptus.mra.api.CorrectedPosition;
+import pt.lsts.neptus.mra.api.LsfTreeSet;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.llf.LsfLogSource;
 
@@ -69,7 +73,7 @@ import pt.lsts.neptus.util.llf.LsfLogSource;
 public class CTDExporter implements MRAExporter {
 
     public CTDExporter(IMraLogGroup source) {
-
+        
     }
     
     String ctdEntity = "CTD";
@@ -91,13 +95,18 @@ public class CTDExporter implements MRAExporter {
     @SuppressWarnings("resource")
     @Override
     public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
-        ctdEntity = source.getLsfIndex().getFirst(Conductivity.class).getEntityName();
-        
+
+        Conductivity firstConductivity = source.getLsfIndex().getFirst(Conductivity.class);
+        String ctdEntity = source.getLsfIndex().getEntityName(firstConductivity.getSrc(), firstConductivity.getSrcEnt());
+
+        if (ctdEntity == null) {
+            NeptusLog.pub().error("Could not determine CTD entity name.");            
+        }
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy'-'MM'-'dd HH:mm:ss");
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
         Date start = new Date((long)(source.getLsfIndex().getStartTime()*1000));
         Date end = new Date((long)(source.getLsfIndex().getEndTime()*1000));
-        String startSel = "";
+        String startSel = MRAProperties.batchMode? sdf.format(start) : "";
         while(startSel.isEmpty()) {
         startSel = JOptionPane.showInputDialog(ConfigFetch.getSuperParentFrame(), I18n.text("Select start time (UTC)"), sdf.format(start));        
             if (startSel == null)
@@ -112,7 +121,7 @@ public class CTDExporter implements MRAExporter {
             }
         }
         
-        String endSel = "";
+        String endSel = MRAProperties.batchMode? sdf.format(end) : "";
         while (endSel.isEmpty()) {
             endSel = JOptionPane.showInputDialog(ConfigFetch.getSuperParentFrame(), I18n.text("Select end time (UTC)"), sdf.format(end));
             if (endSel == null)
@@ -128,10 +137,9 @@ public class CTDExporter implements MRAExporter {
         }
         
         if (start.after(end)) {
+            System.err.println("Start time must be before end time");
             return I18n.text("Start time must be before end time");
         }
-        
-        //System.out.println(start +" --> "+end);
         
         LsfIndex index = source.getLsfIndex();
         IndexScanner scanner = new IndexScanner(index);
@@ -145,15 +153,14 @@ public class CTDExporter implements MRAExporter {
         pmonitor.setNote(I18n.text("Generating corrected positions..."));
         pmonitor.setProgress(10);
         CorrectedPosition cp = new CorrectedPosition(source);
-        
+        System.out.println("Exporting...");
         pmonitor.setNote("Exporting...");
         int count = 0;
         File out = new File(dir, "CTD.csv");
         BufferedWriter writer;
         try {
             writer = new BufferedWriter(new FileWriter(out));
-
-            writer.write("timestamp, gmt_time, latitude, longitude, corrected_lat, corrected_lon, conductivity, temperature"+(containsSalinity? ",salinity ": "")+", depth, medium\n");
+            writer.write("timestamp, gmt_time, latitude, longitude, corrected_lat, corrected_lon, conductivity, temperature"+(containsSalinity? ", salinity": "")+", depth, medium\n");
         }
         catch (Exception e) {
             NeptusLog.pub().error(e);
@@ -248,8 +255,7 @@ public class CTDExporter implements MRAExporter {
         }
     }
 
-    private static String export(File source) throws Exception {
-
+    private static String export(File source) throws Exception {        
         IMraLogGroup group = new LsfLogSource(source, null);
         CTDExporter exporter = new CTDExporter(group);
         ProgressMonitor pm = new ProgressMonitor(null, "Processing "+source.getAbsolutePath(), "processing", 0, 1000);
@@ -264,13 +270,17 @@ public class CTDExporter implements MRAExporter {
 
     public static void main(String[] args) {
 
-        JFileChooser chooser = new JFileChooser();
-        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        int op = chooser.showOpenDialog(null);
-        if (op == JFileChooser.APPROVE_OPTION) {
-            File root = chooser.getSelectedFile();
-            exportRecursively(root);
+        MRAProperties.batchMode = true;
+        GuiUtils.setLookAndFeelNimbus();
+        if (args.length == 0)
+            BatchMraExporter.apply(CTDExporter.class);
+        else {
+            File[] roots = new File[args.length];
+            for (int i = 0; i < roots.length; i++)
+                roots[i] = new File(args[i]);
 
+            LsfTreeSet set = new LsfTreeSet(roots);
+            BatchMraExporter.apply(set, CTDExporter.class);
         }
     }
 }
