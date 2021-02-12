@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2020 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2021 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -307,7 +307,7 @@ public class PluginUtils {
             PluginProperty pp = new PluginProperty(name, f.getType(), o);
             pp.setShortDescription((forEdit ? I18n.text(desc) : desc) + defaultAndUnitsStr);
             pp.setEditable(a.editable());
-            pp.setDisplayName(forEdit ? (obj.getClass().equals(GeneralPreferences.class) ? "* " : "") + I18n.text(name) : name);
+            pp.setDisplayName(forEdit ? (obj != null && obj.getClass().equals(GeneralPreferences.class) ? "* " : "") + I18n.text(name) : name);
             if (category != null && category.length() > 0) {
                 pp.setCategory(category);
             }

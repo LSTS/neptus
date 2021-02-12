@@ -139,7 +139,7 @@ task buildClasspathJar(type: Jar) {
 // Generating start scripts for the development environment
 generateStartScriptsFor(rootProject.name, 'run', 'pt.lsts.neptus.loader.NeptusMain',
     '', 'RunOptions', files('SUBSTITUTE')).doLast {
-        def configurationClasspath = configurations.runtimeClasspath
+        def configurationClasspath = project(':core').sourceSets.main.runtimeClasspath
         configurationClasspath -= project(':core').configurations.core.allArtifacts.files
         subprojects.findAll({it.name != 'core'}).each {
             configurationClasspath -= it.configurations.plugin.allArtifacts.files
@@ -323,8 +323,8 @@ project(':core') {
     }
 
     dependencies {
-        implementation name: 'libimc'
-        implementation name: 'libMsgSender'
+        implementation name: 'libimc-5.90.1'
+        implementation name: 'libimcsender-5.90.1'
 
         implementation name: 'aisparser-2.0.0'
         implementation name: 'jssc' //dependency of aisparser, and serial port reader
@@ -740,9 +740,14 @@ configure(subprojects.findAll { it.name != 'core' }) {
 
         dependsOn configurations.runtimeClasspath
         from {
-            (project.configurations.runtimeClasspath - rootProject.configurations.runtimeClasspath)
+            (project.configurations.runtimeClasspath - project(':core').sourceSets.main.runtimeClasspath)
                     .findAll { it.name.endsWith('jar') }.collect { zipTree(it) }
         }
+
+//        doLast {
+//		(project.configurations.runtimeClasspath - project(':core').sourceSets.main.runtimeClasspath)
+//                    .findAll { it.name.endsWith('jar') }.each {print "$project >>>> "; println it}
+//        }
     }
 
     artifacts {
