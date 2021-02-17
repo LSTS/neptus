@@ -87,7 +87,7 @@ public class VrpManager {
         try {
             for (int i = 1; i < sizeVisitPoints + 1; i++) {
 
-                pointGraph.addVertex(new Integer(i), new PointIdoubleI(1, pointList.get(i - 1)));
+                pointGraph.addVertex(i, new PointIdoubleI(1, pointList.get(i - 1)));
             }
         }
         catch (DuplicateVertexException e) {
@@ -381,7 +381,7 @@ public class VrpManager {
             try {
                 for (int i = 1; i < sizeVisitPoints + 1; i++) {
                     arrayVRP = new PointIdoubleI[sizeVisitPoints + 1];
-                    key = new Integer(i);
+                    key = i;
                     arrayVRP[i] = new PointIdoubleI(0, pointList.get(i - 1));
                     for (int x = 0; x < hull.size(); x++) {
                         if (hull.get(x) == arrayVRP[i].getPoint2d()) {
@@ -407,7 +407,7 @@ public class VrpManager {
             try {
                 for (int i = 1; i < sizeVisitPoints + 1; i++) {
 
-                    key = new Integer(i);
+                    key = i;
                     arrayVRP[i] = new PointIdoubleI(0, pointList.get(i - 1));
                     for (int x = 0; x < hull.size(); x++) {
                         if (hull.get(x) == arrayVRP[i].getPoint2d()) {
