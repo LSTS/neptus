@@ -245,6 +245,8 @@ allprojects {
 
     apply plugin: 'java'
     compileJava.options.encoding = 'UTF-8'
+    // compileJava.options.compilerArgs << '-Xlint:unchecked'
+    // compileJava.options.deprecation = true
     java.sourceCompatibility = JavaVersion.VERSION_1_8
     java.targetCompatibility = JavaVersion.VERSION_1_8
 
