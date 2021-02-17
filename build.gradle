@@ -249,6 +249,7 @@ allprojects {
     java.targetCompatibility = JavaVersion.VERSION_1_8
 
     processResources {
+        duplicatesStrategy DuplicatesStrategy.EXCLUDE
         from (rootProject.projectDir) {
             include 'LICENSE.md'
         }
@@ -545,6 +546,7 @@ project(':core') {
     }
 
     processResources {
+        duplicatesStrategy DuplicatesStrategy.INCLUDE
         from (project.sourceSets.main.resources.srcDirs) {
             include 'version.txt'
             filter{ it.replaceAll("@VERSION@", rootProject.version) }
@@ -682,6 +684,7 @@ configure(subprojects.findAll { it.name != 'core' }) {
     }
 
     processResources {
+        duplicatesStrategy DuplicatesStrategy.EXCLUDE
         outputs.upToDateWhen { false }
         from('.'){
             include 'plugins.lst'
@@ -741,10 +744,11 @@ configure(subprojects.findAll { it.name != 'core' }) {
     jar {
         archiveVersion = ''
         destinationDirectory = file("$rootDir/plugins")
-
+        duplicatesStrategy DuplicatesStrategy.EXCLUDE
         from sourceSets.main.output
 
         dependsOn configurations.runtimeClasspath
+        duplicatesStrategy DuplicatesStrategy.INCLUDE
         from {
             (project.configurations.runtimeClasspath - project(':core').sourceSets.main.runtimeClasspath)
                     .findAll { it.name.endsWith('jar') }.collect { zipTree(it) }
