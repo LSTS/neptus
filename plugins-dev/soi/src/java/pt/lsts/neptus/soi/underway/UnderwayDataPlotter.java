@@ -201,11 +201,11 @@ public class UnderwayDataPlotter extends ConsoleLayer implements NmeaListener, P
             }
             
             try {
-                Salinity msgSal = new Salinity((float) pt.salinity);
+                Salinity msgSal = new Salinity(Double.valueOf(pt.salinity).floatValue());
                 msgSal.setSrc(GeneralPreferences.imcCcuId.intValue());
                 msgSal.setTimestampMillis(System.currentTimeMillis());
                 LsfMessageLogger.log(msgSal);
-                Temperature msgTemp = new Temperature((float) pt.temperature);
+                Temperature msgTemp = new Temperature(Double.valueOf(pt.temperature).floatValue());
                 msgTemp.setSrc(GeneralPreferences.imcCcuId.intValue());
                 msgTemp.setTimestampMillis(System.currentTimeMillis());
                 LsfMessageLogger.log(msgTemp);
