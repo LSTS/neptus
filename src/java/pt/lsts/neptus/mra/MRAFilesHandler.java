@@ -467,7 +467,7 @@ public class MRAFilesHandler implements FileHandler {
     private void openPDFInExternalViewer(String pdf) {
         try {
             if (OsInfo.getName() == OsInfo.Name.WINDOWS) {
-                Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler " + pdf);
+                Runtime.getRuntime().exec(new String[]{"rundll32", "url.dll,FileProtocolHandler", pdf});
             }
             else {
                 String[] readers = { "xpdf", "kpdf", "FoxitReader", "evince", "acroread" };
