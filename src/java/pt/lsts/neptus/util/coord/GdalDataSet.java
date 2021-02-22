@@ -235,15 +235,12 @@ public class GdalDataSet {
 
                 @SuppressWarnings("resource")
                 Scanner s = new Scanner(
-                        Runtime.getRuntime().exec("gdalinfo " + file.getAbsolutePath()).getInputStream())
-                                .useDelimiter("\\A");
+                        Runtime.getRuntime().exec(new String[]{"gdalinfo", file.getAbsolutePath()}).getInputStream())
+                            .useDelimiter("\\A");
                 System.out.println("GDALINFO:");
                 System.out.println(s.next());
                 s.close();
             }
         }
-        
-       
     }
-
 }
