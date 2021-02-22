@@ -96,14 +96,22 @@ public class UtilVideoStream {
         boolean ping = false;
         boolean ping2 = false;
         try {
-            String cmd = "";
+            String[] cmd;
             if (System.getProperty("os.name").startsWith("Windows")) {
                 // For Windows
-                cmd = "ping -n 1 " + host;
+                cmd = new String[]{
+                        "ping",
+                        "-n",
+                        "1",
+                        host};
             }
             else {
                 // For Linux and OSX
-                cmd = "ping -c 1 " + host;
+                cmd = new String[]{
+                        "ping",
+                        "-c",
+                        "1",
+                        host};
             }
             Process myProcess = Runtime.getRuntime().exec(cmd);
             try {
