@@ -375,7 +375,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
      */
     @Override
     public long millisBetweenUpdates() {
-        return updateSeconds * 1000;
+        return updateSeconds * 1000L;
     }
 
     /* (non-Javadoc)
