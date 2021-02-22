@@ -353,13 +353,13 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
     }
     
     public String validateUpdateFileDataMinutes(int value) {
-        if (value < 1 && value > 10)
+        if (value < 1 || value > 10)
             return "Keep it between 1 and 10";
         return null;
     }
 
     public String validateDateLimitHours(int value) {
-        if (value < 3 && value > 24 * 5)
+        if (value < 3 || value > 24 * 5)
             return "Keep it between 3 and 24*5=120";
         return null;
     }
