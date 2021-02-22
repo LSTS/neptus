@@ -56,6 +56,7 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -173,6 +174,12 @@ public class RemotePositionFetcherUpdater extends ConsolePanel implements IPerio
         docBuilderFactory.setIgnoringComments(true);
         docBuilderFactory.setIgnoringElementContentWhitespace(true);
         docBuilderFactory.setNamespaceAware(false);
+        try {
+            docBuilderFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+        }
+        catch (ParserConfigurationException e) {
+            NeptusLog.pub().error(e.getMessage());
+        }
     }
 
     /**
