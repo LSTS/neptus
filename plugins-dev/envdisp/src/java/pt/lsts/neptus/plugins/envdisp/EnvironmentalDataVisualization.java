@@ -690,12 +690,16 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
                 getHttpRequest.abort();
                 return null;
             }
-            InputStream streamGetResponseBody = iGetResultCode.getEntity().getContent();
             @SuppressWarnings("unused")
             long fullSize = iGetResultCode.getEntity().getContentLength();
-            InputStreamReader isr = new InputStreamReader(streamGetResponseBody);
-            HashMap<String, HFRadarDataPoint> lst = processNoaaHFRadar(isr);
-            return lst;
+            try (InputStream streamGetResponseBody = iGetResultCode.getEntity().getContent();
+                 InputStreamReader isr = new InputStreamReader(streamGetResponseBody);) {
+                HashMap<String, HFRadarDataPoint> lst = processNoaaHFRadar(isr);
+                return lst;
+            }
+            catch (Exception e) {
+                throw e;
+            }
         }
         catch (Exception e) {
             NeptusLog.pub().debug(e);
