@@ -40,6 +40,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.common.escape.Escaper;
+import com.google.common.html.HtmlEscapers;
 import pt.lsts.imc.state.ImcSystemState;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -78,10 +80,10 @@ public class StateServlet extends HttpServlet implements IConsoleServlet {
             page.close();
         }
         else {
+            Escaper htmlEscaper = HtmlEscapers.htmlEscaper();
             String parts[] = req.getPathInfo().split("/");
-            String vehicle = parts[1];
+            String vehicle = htmlEscaper.escape(parts[1]);
             
-
             ImcSystemState state = console.getImcState(vehicle);
 
             if (state != null && parts.length < 3) {
@@ -96,7 +98,7 @@ public class StateServlet extends HttpServlet implements IConsoleServlet {
                 page.close();				
             }
             else {
-                String variable = parts[2];
+                String variable = htmlEscaper.escape(parts[2]);
                 resp.setContentType("text/html");
                 PrintWriter page = resp.getWriter();
                 
