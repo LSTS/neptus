@@ -850,7 +850,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
         int offsetWidth = 5;
         int offsetDelta = 130;
         int counter = 2;
-        if (showCurrents && showCurrentsColorbar && counter > 0) {
+        if (showCurrents && showCurrentsColorbar) { // no need for "&& counter > 0" here
             counter--;
             Graphics2D gl = (Graphics2D) go.create();
             gl.translate(offsetWidth, offsetHeight);
@@ -858,7 +858,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
             gl.dispose();
             offsetHeight += offsetDelta;
         }
-        if (showSST && showSSTColorbar && counter > 0) {
+        if (showSST && showSSTColorbar) {  // no need for "&& counter > 0" here
             counter--;
             Graphics2D gl = (Graphics2D) go.create();
             gl.translate(offsetWidth, offsetHeight);
