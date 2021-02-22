@@ -720,7 +720,7 @@ public class CheckListExe extends JDialog implements CheckSubItemProvider {
 
                         try {
                             if (OsInfo.getName() == OsInfo.Name.WINDOWS)
-                                Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler " + pdf);
+                                Runtime.getRuntime().exec(new String[]{"rundll32", "url.dll,FileProtocolHandler", pdf});
                             else {
                                 String[] readers = { "acroread", "xpdf" };
                                 String reader = null;
