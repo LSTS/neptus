@@ -687,9 +687,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
             if (iGetResultCode.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
                 NeptusLog.pub().info("<###>getRemoteImcData [" + iGetResultCode.getStatusLine().getStatusCode() + "] "
                         + iGetResultCode.getStatusLine().getReasonPhrase() + " code was return from the server");
-                if (getHttpRequest != null) {
-                    getHttpRequest.abort();
-                }
+                getHttpRequest.abort();
                 return null;
             }
             InputStream streamGetResponseBody = iGetResultCode.getEntity().getContent();
