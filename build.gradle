@@ -131,7 +131,13 @@ task buildClasspathJar(type: Jar) {
         }
 
         manifest {
-            attributes("Class-Path": configurationClasspath.collect({relativePath(it)}).join(' '))
+            attributes("Class-Path": configurationClasspath.collect({
+                try {
+                    relativePath(it)
+                } catch (e) {
+                    it
+                }
+            }).join(' '))
         }
     }
 }
