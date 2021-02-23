@@ -205,7 +205,7 @@ public class ControllerManager {
         };
         
         Timer t = new Timer(controller.getControllerName()+" control timer", true);
-        long time = controlLatencySeconds * 1000;
+        long time = controlLatencySeconds * 1000L;
         t.schedule(task, 0, time);
         timers.put(vehicle.getId(), t);
     }
