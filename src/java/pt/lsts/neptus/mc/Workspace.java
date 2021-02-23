@@ -38,7 +38,6 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.Dimension;
-import java.awt.Event;
 import java.awt.Graphics;
 import java.awt.HeadlessException;
 import java.awt.Image;
@@ -46,6 +45,7 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -926,7 +926,7 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
             editFileMenuItem.setText(I18n.text("File editor"));
             editFileMenuItem.setIcon(new ImageIcon(this.getClass().getClassLoader()
                     .getResource("images/menus/edit.png")));
-            editFileMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, Event.CTRL_MASK, true));
+            editFileMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.CTRL_DOWN_MASK, true));
             editFileMenuItem.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -1348,7 +1348,7 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
         if (viewer3DMenuItem == null) {
             viewer3DMenuItem = new JMenuItem();
             viewer3DMenuItem.setText(I18n.text("3D Model Viewer"));
-            viewer3DMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, Event.CTRL_MASK, true));
+            viewer3DMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, InputEvent.CTRL_DOWN_MASK, true));
             viewer3DMenuItem
             .setIcon(new ImageIcon(this.getClass().getClassLoader().getResource("images/menus/3d.png")));
             viewer3DMenuItem.addActionListener(new ActionListener() {
@@ -1487,7 +1487,7 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
             snapShotMenuItem.setText("Snapshot");
             // snapShotMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(
             // java.awt.event.KeyEvent.VK_Q, java.awt.Event.CTRL_MASK, true));
-            snapShotMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_PRINTSCREEN, Event.CTRL_MASK, true));
+            snapShotMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_PRINTSCREEN, InputEvent.CTRL_DOWN_MASK, true));
             snapShotMenuItem.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -1524,7 +1524,7 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
         if (showConsoleMenuItem == null) {
             showConsoleMenuItem = new JMenuItem();
             showConsoleMenuItem.setIcon(new ImageIcon(ImageUtils.getImage("images/menus/display.png")));
-            showConsoleMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, Event.CTRL_MASK, true));
+            showConsoleMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK, true));
             showConsoleMenuItem.setText(I18n.text("Show Console"));
             // snapShotMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(
             // java.awt.event.KeyEvent.VK_Q, java.awt.Event.CTRL_MASK, true));
