@@ -32,9 +32,9 @@
  */
 package pt.lsts.neptus.console.actions;
 
-import java.awt.Event;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 
@@ -59,7 +59,7 @@ public class ExitAction extends ConsoleAction {
 
     public ExitAction() {
         super(I18n.text("Exit"), ImageUtils.createImageIcon("images/menus/exit.png"), I18n.text("Exit Window"),
-                KeyStroke.getKeyStroke(KeyEvent.VK_Q, Event.CTRL_MASK, true));
+                KeyStroke.getKeyStroke(KeyEvent.VK_Q, InputEvent.CTRL_DOWN_MASK, true));
     }
 
     @Override

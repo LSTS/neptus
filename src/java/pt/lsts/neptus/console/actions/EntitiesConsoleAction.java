@@ -32,8 +32,8 @@
  */
 package pt.lsts.neptus.console.actions;
 
-import java.awt.Event;
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
@@ -57,7 +57,7 @@ public class EntitiesConsoleAction extends ConsoleAction {
 
     public EntitiesConsoleAction(ConsoleLayout console) {
         super(I18n.text("Entities"), ImageUtils.getScaledIcon("images/buttons/events.png", 16, 16), KeyStroke
-                .getKeyStroke(KeyEvent.VK_E, Event.CTRL_MASK, true));
+                .getKeyStroke(KeyEvent.VK_E, InputEvent.CTRL_DOWN_MASK, true));
         this.console = console;
 
     }
