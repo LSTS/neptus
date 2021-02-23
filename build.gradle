@@ -1216,7 +1216,7 @@ task processI18N(type: Exec) {
 processI18N.mustRunAfter agregateI18N
 
 task generateI18N {
-    description = "Generate the I18N POT files"
+    description = "Generate the I18N POT files (needs gettext installed)"
     group = 'Distribution'
     dependsOn agregateI18N, processI18N
 }

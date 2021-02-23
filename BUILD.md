@@ -30,7 +30,7 @@
 ### Other related tasks:
 
 * `./gradlew buildBundleJars` task to generate the bundle Jars
-* `./gradlew generateI18N` task to generate I18N files
+* `./gradlew generateI18N` task to generate I18N files (needs gettext installed)
 
 ## IDE
 
