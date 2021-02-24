@@ -70,7 +70,8 @@ public class TileMercatorSVG extends Tile {
     private static Map<String, TileMercatorSVG> tilesMap = Collections.synchronizedMap(new HashMap<String, TileMercatorSVG>());
     
     private static final Object lock = new Object();
-    private static Boolean docLoaded = false;
+    private static boolean docLoaded = false;
+    private static final Object docLoadedLock = new Object();
 
     protected static final String fxWM = "/images/World_Blank_Map_Mercator_projection.svg";
 
@@ -93,7 +94,7 @@ public class TileMercatorSVG extends Tile {
 
     {
         if (!docLoaded) {
-            synchronized (docLoaded) {
+            synchronized (docLoadedLock) {
                 if (!docLoaded) {
                     prm = loadWorld(fxWM, w, h);
                     Paper paper = new Paper();
