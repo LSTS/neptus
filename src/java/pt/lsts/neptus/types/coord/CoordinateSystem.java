@@ -531,7 +531,16 @@ public class CoordinateSystem extends LocationType { //implements XmlOutputMetho
     	
     	return true;
     }
-    
+
+    @Override
+    public int hashCode() {
+        int hash = super.hashCode();
+        hash = 31 * hash + Double.hashCode(roll);
+        hash = 31 * hash + Double.hashCode(pitch);
+        hash = 31 * hash + Double.hashCode(yaw);
+        return hash;
+    }
+
     @Override
     public String toString() {
     	String ang = "   ::   ";
