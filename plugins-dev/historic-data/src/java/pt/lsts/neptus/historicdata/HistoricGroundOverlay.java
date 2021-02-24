@@ -75,7 +75,8 @@ public class HistoricGroundOverlay extends ConsoleLayer {
     private ImageElement image = null;
     private DATA_TYPE typeToPaint = DATA_TYPE.None;
 
-    private Boolean processing = false;
+    private boolean processing = false;
+    private final Object processingLock = new Object();
 
     public void clear() {
         imgTemp = new WorldImage(3, ColorMapFactory.createJetColorMap());
@@ -124,7 +125,7 @@ public class HistoricGroundOverlay extends ConsoleLayer {
         if (cache == dataType)
             return image;
         else {
-            synchronized (processing) {
+            synchronized (processingLock) {
                 if (!processing) {
                     processing = true;
                     Thread t = new Thread("Historic Overlay: Generate image") {
