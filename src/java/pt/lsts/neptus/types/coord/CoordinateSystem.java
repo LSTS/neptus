@@ -121,7 +121,7 @@ public class CoordinateSystem extends LocationType { //implements XmlOutputMetho
     }
     
     /**
-     * @param xml
+     * @param doc
      * @return
      */
     public boolean load(Document doc) {
@@ -256,7 +256,7 @@ public class CoordinateSystem extends LocationType { //implements XmlOutputMetho
     }
 
     /**
-     * @param roll
+     * @param rollDegrees
      *            The roll to set.
      */
     public void setRoll(double rollDegrees) {
@@ -265,7 +265,7 @@ public class CoordinateSystem extends LocationType { //implements XmlOutputMetho
     }
 
     /**
-     * @param roll
+     * @param rollDegrees
      * @param useAnglesInXMLOutput
      *            updates the {@link #isAnglesUsed()}.
      */
@@ -282,7 +282,7 @@ public class CoordinateSystem extends LocationType { //implements XmlOutputMetho
     }
 
     /**
-     * @param pitch
+     * @param pitchDegrees
      *            The pitch to set.
      */
     public void setPitch(double pitchDegrees) {
@@ -291,7 +291,7 @@ public class CoordinateSystem extends LocationType { //implements XmlOutputMetho
     }
 
     /**
-     * @param pitch
+     * @param pitchDegrees
      * @param useAnglesInXMLOutput
      *            updates the {@link #isAnglesUsed()}.
      */
@@ -308,7 +308,7 @@ public class CoordinateSystem extends LocationType { //implements XmlOutputMetho
     }
 
     /**
-     * @param yaw
+     * @param yawDegrees
      *            The yaw to set.
      */
     public void setYaw(double yawDegrees) {
@@ -317,7 +317,7 @@ public class CoordinateSystem extends LocationType { //implements XmlOutputMetho
     }
 
     /**
-     * @param yaw
+     * @param yawDegrees
      * @param useAnglesInXMLOutput
      *            updates the {@link #isAnglesUsed()}.
      */
