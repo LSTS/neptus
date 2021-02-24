@@ -126,7 +126,8 @@ public class RemotePlanControl extends ConsolePanel implements ConfigurationList
     private AbstractAction sendUploadPlanAction, sendStartAction, sendStopAction;
 
     private boolean locked = false;
-    private Integer requestId = 0xFFFF;
+    private int requestId = 0xFFFF;
+    private final Object requestIdLock = new Object();
     private LinkedHashMap<Integer, Long> registerRequestIdsTime = new LinkedHashMap<Integer, Long>();
     private String[] messagesToObserve = new String[] { "PlanControl", "PlanControlState" };
 
@@ -288,7 +289,7 @@ public class RemotePlanControl extends ConsolePanel implements ConfigurationList
      * @return the next requestId
      */
     private int getNextRequestId() {
-        synchronized (requestId) {
+        synchronized (requestIdLock) {
             ++requestId;
             if (requestId > 0xFFFF)
                 requestId = 0;
