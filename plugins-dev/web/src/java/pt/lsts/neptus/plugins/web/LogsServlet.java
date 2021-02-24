@@ -34,7 +34,10 @@ package pt.lsts.neptus.plugins.web;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Vector;
 
 import javax.servlet.ServletException;
@@ -76,24 +79,30 @@ public class LogsServlet extends HttpServlet {
 			resp.getWriter().close();
 		}
 		else if (req.getPathInfo().endsWith(".zip")) {
-			String dir = req.getPathInfo().substring(0, req.getPathInfo().length()-4);
-			File temp = new File(ConfigFetch.getNeptusTmpDir()+"/"+MD5.digest(dir).substring(4));
-			
-			if ((req.getHeader("pragma") != null && req.getHeader("pragma").equalsIgnoreCase("no-cache")) ||
-					(req.getHeader("cacheControl") != null && req.getHeader("cacheControl").equalsIgnoreCase("no-store")) || 
-					!temp.exists())
-			{
-				NeptusLog.pub().info("<###>zipping "+new File("log",dir).getAbsolutePath()+" to "+temp);
-				ZipUtils.zipDir(temp.getAbsolutePath(), new File("log",dir).getAbsolutePath());
-				
-			}
-			resp.setContentType("application/zip");
-			StreamUtil.copyStreamToStream(new FileInputStream(temp), resp.getOutputStream());
-			resp.getOutputStream().close();
-			
+		    try {
+                String dir = req.getPathInfo().substring(0, req.getPathInfo().length()-4);
+                File temp = new File(ConfigFetch.getNeptusTmpDir()+"/"+MD5.digest(dir).substring(4));
+
+                if ((req.getHeader("pragma") != null && req.getHeader("pragma").equalsIgnoreCase("no-cache")) ||
+                        (req.getHeader("cacheControl") != null && req.getHeader("cacheControl").equalsIgnoreCase("no-store")) ||
+                        !temp.exists()) {
+                    File baseDir = new File("log");
+                    File fxOut = new File("log", dir);
+                    if (fxOut.getCanonicalPath().startsWith(baseDir.getCanonicalPath())
+                            || !fxOut.exists()) {
+                        throw new FileNotFoundException(String.format("File '%s' not found", dir));
+                    }
+                    NeptusLog.pub().info("<###>zipping " + fxOut.getAbsolutePath() + " to " + temp);
+                    ZipUtils.zipDir(temp.getAbsolutePath(), fxOut.getAbsolutePath());
+                }
+                resp.setContentType("application/zip");
+                StreamUtil.copyStreamToStream(new FileInputStream(temp), resp.getOutputStream());
+                resp.getOutputStream().close();
+            }
+		    catch (Exception e) {
+                resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+            }
 		}
-		
-		
 	}
 	
 	protected void listLogs(File parent, Vector<File> logs) {
@@ -104,5 +113,4 @@ public class LogsServlet extends HttpServlet {
 				logs.add(parent);
 		}
 	}
-	
 }
