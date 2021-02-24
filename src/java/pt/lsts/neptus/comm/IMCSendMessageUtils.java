@@ -67,7 +67,8 @@ import pt.lsts.neptus.util.StringUtils;
  */
 public class IMCSendMessageUtils {
 
-    private static Integer requestId = 0xFFFF;
+    private static int requestId = 0xFFFF;
+    private static final Object requestIdLock = new Object();
 
     private IMCSendMessageUtils() {
     }
@@ -76,7 +77,7 @@ public class IMCSendMessageUtils {
      * @return the next requestId
      */
     public static int getNextRequestId() {
-        synchronized (requestId) {
+        synchronized (requestIdLock) {
             ++requestId;
             if (requestId > 0xFFFF)
                 requestId = 0;
@@ -90,7 +91,7 @@ public class IMCSendMessageUtils {
      * @return requestId
      */
     public static int getCurrentRequestId() {
-        synchronized (requestId) {
+        synchronized (requestIdLock) {
             return requestId;
         }
     }
