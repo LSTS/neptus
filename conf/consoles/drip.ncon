@@ -120,7 +120,7 @@
       <child class="pt.lsts.neptus.console.plugins.planning.PlanStatistics" x="0" y="0" width="0" height="0">
         <properties/>
       </child>
-      <child class="pt.lsts.neptus.plugins.rtplot.RealTimePlot" x="0" y="0" width="690" height="542">
+      <child class="pt.lsts.neptus.plugins.rtplot.RealTimePlotGroovy" x="0" y="0" width="690" height="542">
         <properties>
           <entry key="Traces Script">depth: ${EstimatedState.depth};
 salinity: ${Salinity.value};
