@@ -266,7 +266,7 @@ public class ImcId16 extends Number implements Comparable<ImcId16>{
         if(slzType.equals("uint8_t")
                 || slzType.equals("int8_t")
                 || slzType.equals("int16_t")) {
-            slzNumber = new Short((short)id);
+            slzNumber = Short.valueOf((short)id);
         }
         else if(slzType.equals("int32_t")
              || slzType.equals("uint16_t")) {
