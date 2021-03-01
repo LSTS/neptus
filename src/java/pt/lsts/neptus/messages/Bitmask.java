@@ -157,7 +157,7 @@ public class Bitmask extends Number implements Comparable<Bitmask> {
         if(slzType.equals("uint8_t") 
                 || slzType.equals("int8_t")
                 || slzType.equals("int16_t")){
-            slzNumber = new Short((short) currentValue);
+            slzNumber = Short.valueOf((short) currentValue);
         }
         else if(slzType.equals("int32_t")
              || slzType.equals("uint16_t")){
