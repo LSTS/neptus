@@ -107,7 +107,7 @@ public class Enumerated extends Number implements Comparable<Enumerated> {
                 || slzType.equals("int8_t")
                 || slzType.equals("int16_t"))
         {
-            slzNumber = new Short((short) currentValue);
+            slzNumber = Short.valueOf((short) currentValue);
         }
         else
         if(slzType.equals("int32_t")
