@@ -734,7 +734,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         SidescanLine old = null;
         Graphics2D g = (Graphics2D) g0.create();
         for (LogMarker m : parent.getMarkerList()) {
-            long timestamp = new Double(m.getTimestamp()).longValue();
+            long timestamp = Double.valueOf(m.getTimestamp()).longValue();
 
             Color color = ColorUtils.setTransparencyToColor(Color.WHITE, 200);
             Color colorConstrast = ColorUtils.setTransparencyToColor(Color.BLACK, 200);
@@ -1323,7 +1323,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                 while (i.hasNext()) {
                     line = i.next();
                     if (old != null) {
-                        long timestamp = new Double(m.getTimestamp()).longValue();
+                        long timestamp = Double.valueOf(m.getTimestamp()).longValue();
                         if (timestamp >= old.getTimestampMillis() && timestamp <= line.getTimestampMillis()) {
                             double distanceToNadirSlant = m.getX();
                             int ssX = line.getIndexFromDistance(distanceToNadirSlant, false);
