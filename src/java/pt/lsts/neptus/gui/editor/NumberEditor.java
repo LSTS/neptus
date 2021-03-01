@@ -120,9 +120,9 @@ public class NumberEditor<T extends Number> extends NumberPropertyEditor impleme
         }
         else if (type == Long.class) {
             if (minValue == null)
-                minValue = (T) new Long(Long.MIN_VALUE);
+                minValue = (T) Long.valueOf(Long.MIN_VALUE);
             if (maxValue == null)
-                maxValue = (T) new Long(Long.MAX_VALUE);
+                maxValue = (T) Long.valueOf(Long.MAX_VALUE);
             if (minValue.longValue() > maxValue.longValue())
                 minValue = maxValue;
         }
