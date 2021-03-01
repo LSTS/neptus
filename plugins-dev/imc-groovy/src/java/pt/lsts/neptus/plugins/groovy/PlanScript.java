@@ -273,7 +273,7 @@ public class PlanScript extends DSLPlan {
 //            
 //            ImcMsgManager.getManager().getState(ImcSystemsHolder.getSystemWithName(vehicle).getName()).last(VehicleState.class);
 //            try {
-//                result.add(new Double(PlanUtil.getEstimatedDelay(null, plan))); //calculates estimated time from plan initial location if previousPos = null
+//                result.add(Double.valueOf(PlanUtil.getEstimatedDelay(null, plan))); //calculates estimated time from plan initial location if previousPos = null
 //            }
 //            catch (Exception e) {
 //                NeptusLog.pub().error("Error trying to estimate time spent by vehicle to cover area.\n",e);
