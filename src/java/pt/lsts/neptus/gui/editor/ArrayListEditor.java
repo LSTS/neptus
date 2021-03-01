@@ -112,9 +112,9 @@ public class ArrayListEditor<E extends ArrayList<T>, T extends Object> extends S
         
         if (classType == Double.class) {
             if (minValue == null)
-                minValue = (T) new Double(Double.MIN_VALUE);
+                minValue = (T) Double.valueOf(Double.MIN_VALUE);
             if (maxValue == null)
-                maxValue = (T) new Double(Double.MAX_VALUE);
+                maxValue = (T) Double.valueOf(Double.MAX_VALUE);
             if (((Double) minValue).doubleValue() > ((Double) maxValue).doubleValue())
                 minValue = maxValue;
         }
