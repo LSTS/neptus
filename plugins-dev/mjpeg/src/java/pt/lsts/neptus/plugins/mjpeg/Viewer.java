@@ -184,7 +184,7 @@ public class Viewer extends JComponent implements MRAVisualization, LogMarkerLis
             public void paintTicks(Graphics g) {
                 super.paintTicks(g);
                 for (LogMarker m : markers) {
-                    long markTime = new Double(m.getTimestamp()).longValue();
+                    long markTime = Double.valueOf(m.getTimestamp()).longValue();
                     int timelineValue = decoder.getFrameNumberByTime(markTime);
                     int timelinePosition = xPositionForValue(timelineValue);
                     g.drawLine(timelinePosition, 0, timelinePosition, timeline.getSlider().getHeight() / 2);
