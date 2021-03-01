@@ -181,10 +181,11 @@ public class DataDiscretizer {
 
         public double[] getValues() {
             double[] ret = new double[sum.length];
-            for (int i = 0; i < sum.length; i++)
+            for (int i = 0; i < sum.length; i++) {
                 ret[i] = (numValues > 0)? sum[i]/numValues : Double.NaN;
+            }
 
-                return ret; 
+            return ret; 
         }
 
         public Point2D getPoint2D() {
