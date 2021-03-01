@@ -89,7 +89,7 @@ public class AngleEditorRads extends AbstractPropertyEditor {
 		if (valueClass == Float.class)
 			return new Float(angleRads);
 		else
-			return new Double(angleRads);
+			return Double.valueOf(angleRads);
 	}
 	
 	public void setValue(Object arg0) {
