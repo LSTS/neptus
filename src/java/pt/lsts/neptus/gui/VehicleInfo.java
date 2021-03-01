@@ -1074,10 +1074,10 @@ public class VehicleInfo extends JPanel implements PropertiesProvider {
                 comP = PropertiesEditor.getPropertyInstance("imc.portTCP", categoryBase, Integer.class, new Integer(
                         nArgs.getPortTCP()), true);
                 propertiesList.add(comP);
-                comP = PropertiesEditor.getPropertyInstance("imc.udp-on", categoryBase, Boolean.class, new Boolean(
+                comP = PropertiesEditor.getPropertyInstance("imc.udp-on", categoryBase, Boolean.class, Boolean.valueOf(
                         nArgs.isUdpOn()), true);
                 propertiesList.add(comP);
-                comP = PropertiesEditor.getPropertyInstance("imc.tcp-on", categoryBase, Boolean.class, new Boolean(
+                comP = PropertiesEditor.getPropertyInstance("imc.tcp-on", categoryBase, Boolean.class, Boolean.valueOf(
                         nArgs.isTcpOn()), true);
                 propertiesList.add(comP);
                 comP = PropertiesEditor.getPropertyInstance("imc.imc-id", categoryBase, ImcId16.class,
@@ -1128,10 +1128,10 @@ public class VehicleInfo extends JPanel implements PropertiesProvider {
                     comP = PropertiesEditor.getPropertyInstance("imc.portTCP", category, Integer.class, new Integer(
                             nArgs.getPortTCP()), true);
                     propertiesList.add(comP);
-                    comP = PropertiesEditor.getPropertyInstance("imc.udp-on", category, Boolean.class, new Boolean(
+                    comP = PropertiesEditor.getPropertyInstance("imc.udp-on", category, Boolean.class, Boolean.valueOf(
                             nArgs.isUdpOn()), true);
                     propertiesList.add(comP);
-                    comP = PropertiesEditor.getPropertyInstance("imc.tcp-on", category, Boolean.class, new Boolean(
+                    comP = PropertiesEditor.getPropertyInstance("imc.tcp-on", category, Boolean.class, Boolean.valueOf(
                             nArgs.isTcpOn()), true);
                     propertiesList.add(comP);
                     comP = PropertiesEditor.getPropertyInstance("imc.imc-id", category, ImcId16.class,
