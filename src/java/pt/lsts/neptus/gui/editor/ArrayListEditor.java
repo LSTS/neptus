@@ -120,9 +120,9 @@ public class ArrayListEditor<E extends ArrayList<T>, T extends Object> extends S
         }
         else if (classType == Float.class) {
             if (minValue == null)
-                minValue = (T) new Float(Float.MIN_VALUE);
+                minValue = (T) Float.valueOf(Float.MIN_VALUE);
             if (maxValue == null)
-                maxValue = (T) new Float(Float.MAX_VALUE);
+                maxValue = (T) Float.valueOf(Float.MAX_VALUE);
             if (((Float) minValue).floatValue() > ((Float) maxValue).floatValue())
                 minValue = maxValue;
         }
