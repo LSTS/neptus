@@ -128,9 +128,9 @@ public class ArrayListEditor<E extends ArrayList<T>, T extends Object> extends S
         }
         else if (classType == Long.class) {
             if (minValue == null)
-                minValue = (T) new Long(Long.MIN_VALUE);
+                minValue = (T) Long.valueOf(Long.MIN_VALUE);
             if (maxValue == null)
-                maxValue = (T) new Long(Long.MAX_VALUE);
+                maxValue = (T) Long.valueOf(Long.MAX_VALUE);
             if (((Long) minValue).longValue() > ((Long) maxValue).longValue())
                 minValue = maxValue;
         }
