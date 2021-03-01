@@ -112,9 +112,9 @@ public class NumberEditor<T extends Number> extends NumberPropertyEditor impleme
         }
         else if (type == Float.class) {
             if (minValue == null)
-                minValue = (T) new Float(Float.MIN_VALUE);
+                minValue = (T) Float.valueOf(Float.MIN_VALUE);
             if (maxValue == null)
-                maxValue = (T) new Float(Float.MAX_VALUE);
+                maxValue = (T) Float.valueOf(Float.MAX_VALUE);
             if (minValue.floatValue() > maxValue.floatValue())
                 minValue = maxValue;
         }
