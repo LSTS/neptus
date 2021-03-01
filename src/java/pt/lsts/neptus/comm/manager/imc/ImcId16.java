@@ -270,7 +270,7 @@ public class ImcId16 extends Number implements Comparable<ImcId16>{
         }
         else if(slzType.equals("int32_t")
              || slzType.equals("uint16_t")) {
-          slzNumber = new Integer((int)id);
+          slzNumber = Integer.valueOf((int)id);
         }
         else {
            slzNumber = new Long((long)id);
