@@ -104,9 +104,9 @@ public class NumberEditor<T extends Number> extends NumberPropertyEditor impleme
         
         if (type == Double.class) {
             if (minValue == null)
-                minValue = (T) new Double(Double.MIN_VALUE);
+                minValue = (T) Double.valueOf(Double.MIN_VALUE);
             if (maxValue == null)
-                maxValue = (T) new Double(Double.MAX_VALUE);
+                maxValue = (T) Double.valueOf(Double.MAX_VALUE);
             if (minValue.doubleValue() > maxValue.doubleValue())
                 minValue = maxValue;
         }
