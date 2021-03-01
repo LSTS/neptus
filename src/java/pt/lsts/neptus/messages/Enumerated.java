@@ -112,7 +112,7 @@ public class Enumerated extends Number implements Comparable<Enumerated> {
         else
         if(slzType.equals("int32_t")
         || slzType.equals("uint16_t")) {
-           slzNumber = new Integer((int) currentValue);
+           slzNumber = Integer.valueOf((int) currentValue);
         }
         else{
            slzNumber = new Long(currentValue);
