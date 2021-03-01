@@ -136,9 +136,9 @@ public class NumberEditor<T extends Number> extends NumberPropertyEditor impleme
         }
         else if (type == Short.class) {
             if (minValue == null)
-                minValue = (T) new Short(Short.MIN_VALUE);
+                minValue = (T) Short.valueOf(Short.MIN_VALUE);
             if (maxValue == null)
-                maxValue = (T) new Short(Short.MAX_VALUE);
+                maxValue = (T) Short.valueOf(Short.MAX_VALUE);
             if (minValue.shortValue() > maxValue.shortValue())
                 minValue = maxValue;
         }
