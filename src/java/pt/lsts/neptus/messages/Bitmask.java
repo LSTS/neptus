@@ -163,7 +163,7 @@ public class Bitmask extends Number implements Comparable<Bitmask> {
              || slzType.equals("uint16_t")){
           slzNumber = Integer.valueOf((int) currentValue);
         }else {
-          slzNumber = new Long(currentValue);
+          slzNumber = Long.valueOf(currentValue);
         }
         return slzNumber;
     }
