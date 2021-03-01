@@ -128,9 +128,9 @@ public class NumberEditor<T extends Number> extends NumberPropertyEditor impleme
         }
         else if (type == Integer.class) {
             if (minValue == null)
-                minValue = (T) new Integer(Integer.MIN_VALUE);
+                minValue = (T) Integer.valueOf(Integer.MIN_VALUE);
             if (maxValue == null)
-                maxValue = (T) new Integer(Integer.MAX_VALUE);
+                maxValue = (T) Integer.valueOf(Integer.MAX_VALUE);
             if (minValue.intValue() > maxValue.intValue())
                 minValue = maxValue;
         }
