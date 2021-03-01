@@ -265,7 +265,7 @@ public class AnglePanel extends JPanel {
 			angleRads = 0;
 
 		this.angleRads = angleRads;
-		degsField.setValue(new Double(Math.toDegrees(angleRads)));
+		degsField.setValue(Double.valueOf(Math.toDegrees(angleRads)));
 		radsField.setValue(angleRads);
 		trigo.setAngleRads(angleRads);
 	}
