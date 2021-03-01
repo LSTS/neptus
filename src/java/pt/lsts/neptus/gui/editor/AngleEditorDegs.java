@@ -78,7 +78,7 @@ public class AngleEditorDegs extends AbstractPropertyEditor {
 		if (valueClass == Float.class)
 			return new Float(Math.toDegrees(angleRads));
 		else
-			return new Double(Math.toDegrees(angleRads));
+			return Double.valueOf(Math.toDegrees(angleRads));
 	}
 	
 	public void setValue(Object arg0) {
