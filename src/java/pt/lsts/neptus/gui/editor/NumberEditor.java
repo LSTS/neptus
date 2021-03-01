@@ -144,9 +144,9 @@ public class NumberEditor<T extends Number> extends NumberPropertyEditor impleme
         }
         else if (type == Byte.class) {
             if (minValue == null)
-                minValue = (T) new Byte(Byte.MIN_VALUE);
+                minValue = (T) Byte.valueOf(Byte.MIN_VALUE);
             if (maxValue == null)
-                maxValue = (T) new Byte(Byte.MAX_VALUE);
+                maxValue = (T) Byte.valueOf(Byte.MAX_VALUE);
             if (minValue.byteValue() > maxValue.byteValue())
                 minValue = maxValue;
         }
