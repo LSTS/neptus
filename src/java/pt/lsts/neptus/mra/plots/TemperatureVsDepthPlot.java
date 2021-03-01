@@ -118,8 +118,8 @@ public class TemperatureVsDepthPlot extends XYPlot {
 
         XYSeries markerSeries = getMarkerSeries();
 
-        IMCMessage es = mraPanel.getSource().getLog("EstimatedState").getEntryAtOrAfter(new Double(marker.getTimestamp()).longValue());
-        IMCMessage temp = mraPanel.getSource().getLog("Temperature").getEntryAtOrAfter(new Double(marker.getTimestamp()).longValue());
+        IMCMessage es = mraPanel.getSource().getLog("EstimatedState").getEntryAtOrAfter(Double.valueOf(marker.getTimestamp()).longValue());
+        IMCMessage temp = mraPanel.getSource().getLog("Temperature").getEntryAtOrAfter(Double.valueOf(marker.getTimestamp()).longValue());
 
         if(markerSeries != null) {
             markerSeries.add(new TimedXYDataItem(-es.getDouble("depth"), ((Temperature) temp).getValue(), temp.getTimestampMillis(), marker.getLabel()));
