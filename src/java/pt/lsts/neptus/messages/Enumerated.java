@@ -115,7 +115,7 @@ public class Enumerated extends Number implements Comparable<Enumerated> {
            slzNumber = Integer.valueOf((int) currentValue);
         }
         else{
-           slzNumber = new Long(currentValue);
+           slzNumber = Long.valueOf(currentValue);
         }
         return slzNumber;
     }
