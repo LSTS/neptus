@@ -128,8 +128,8 @@ public class TileMercatorSVG extends Tile {
             Document wDoc = f.createDocument(null, new StringReader((String) data));
             wDoc = SvgUtil.cleanInkscapeSVG(wDoc);
             PrintTranscoder prm = new PrintTranscoder();
-            prm.addTranscodingHint(SVGAbstractTranscoder.KEY_WIDTH, new Float(w));
-            prm.addTranscodingHint(SVGAbstractTranscoder.KEY_HEIGHT, new Float(h));
+            prm.addTranscodingHint(SVGAbstractTranscoder.KEY_WIDTH, Float.valueOf(Double.valueOf(w).floatValue()));
+            prm.addTranscodingHint(SVGAbstractTranscoder.KEY_HEIGHT, Float.valueOf(Double.valueOf(h).floatValue()));
             TranscoderInput ti = new TranscoderInput(wDoc);
             prm.transcode(ti, null);
             return prm;
