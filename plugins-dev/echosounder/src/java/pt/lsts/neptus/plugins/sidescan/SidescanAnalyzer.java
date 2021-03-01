@@ -98,7 +98,7 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
             public void paintTicks(Graphics g) {
                 super.paintTicks(g);
                 for (LogMarker m : markerList) {
-                    long mtime = new Double(m.getTimestamp()).longValue();
+                    long mtime = Double.valueOf(m.getTimestamp()).longValue();
                     g.drawLine(xPositionForValue((int) (mtime - firstPingTime)), 0,
                             xPositionForValue((int) (mtime - firstPingTime)), timeline.getSlider().getHeight() / 2);
                     // g.drawString(m.label, xPositionForValue((int)(mtime-firstPingTime))-10, 22);
