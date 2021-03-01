@@ -207,9 +207,9 @@ public class DataDiscretizer {
             public int compare(Point2D pt1, Point2D pt2) {
                 double r = pt1.getX() - pt2.getX();
                 if (r != 0)
-                    return new Double(pt1.getX()).compareTo(pt2.getX());
+                    return Double.valueOf(pt1.getX()).compareTo(pt2.getX());
                 else
-                    return new Double(pt1.getY()).compareTo(pt2.getY());
+                    return Double.valueOf(pt1.getY()).compareTo(pt2.getY());
             }
         });
 
