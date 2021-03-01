@@ -263,7 +263,7 @@ public class NMEAUtils {
 			LocationType loc = new LocationType();
 			loc.setLatitudeDegs(wgs84_lat);
 			loc.setLongitudeDegs(wgs84_long);
-			loc.setDepth(-new Float((String)data_fields.get(8)));
+			loc.setDepth(-Float.valueOf((String)data_fields.get(8)));
 	
 			return loc;
 		}
