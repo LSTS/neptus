@@ -191,8 +191,8 @@ public class LsfReport {
             BaseFont bf = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
             if (getLogoDoc() != null) {
                 PrintTranscoder prm = new PrintTranscoder();
-                prm.addTranscodingHint(SVGAbstractTranscoder.KEY_WIDTH, new Float(500));
-                prm.addTranscodingHint(SVGAbstractTranscoder.KEY_HEIGHT, new Float(193));
+                prm.addTranscodingHint(SVGAbstractTranscoder.KEY_WIDTH, Float.valueOf(500));
+                prm.addTranscodingHint(SVGAbstractTranscoder.KEY_HEIGHT, Float.valueOf(193));
                 TranscoderInput ti = new TranscoderInput(getLogoDoc());
                 prm.transcode(ti, null);
                 PdfTemplate tp = cb.createTemplate(500, 200);
