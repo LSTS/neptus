@@ -136,7 +136,7 @@ public class NeptusFileView extends FileView {
     @Override
     public Boolean isTraversable(File f) {
         // if (isDirLink(f)) {
-        // return new Boolean(true);
+        // return Boolean.valueOf(true);
         // }
         return null;
     }
