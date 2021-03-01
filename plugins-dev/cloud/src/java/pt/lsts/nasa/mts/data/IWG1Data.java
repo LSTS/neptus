@@ -863,7 +863,7 @@ public class IWG1Data {
                 case 33:
                     double id = parseDouble(tk);
                     if (!Double.isNaN(id)) {
-                        ret.sourceId = new Double(id).longValue();
+                        ret.sourceId = Double.valueOf(id).longValue();
                     }
                     break;
                 case 34:
@@ -959,7 +959,7 @@ public class IWG1Data {
             
             sb.append(",");
             if (timeStampMillis >= 0) {
-                sb.append(DateTimeUtil.dateTimeFormatterISO8601.format(new Date(new Double(timeStampMillis).longValue())));
+                sb.append(DateTimeUtil.dateTimeFormatterISO8601.format(new Date(Double.valueOf(timeStampMillis).longValue())));
             }
             sb.append(",");
             if (!Double.isNaN(latitudeDegs)) {
