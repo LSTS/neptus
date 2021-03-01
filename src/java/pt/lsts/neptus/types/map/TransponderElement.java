@@ -271,7 +271,7 @@ public class TransponderElement extends AbstractElement implements NameId{
                 this.setFile(new FileType(nd.asXML()));
             nd = doc.selectSingleNode("//buoy-attached");
             if (nd != null)
-                this.setBuoyAttached(new Boolean(nd.getText()).booleanValue());
+                this.setBuoyAttached(Boolean.valueOf(nd.getText()).booleanValue());
         }
         catch (Exception e) {
             NeptusLog.pub().error(this, e);
@@ -402,7 +402,7 @@ public class TransponderElement extends AbstractElement implements NameId{
         document.add(root);
 
         root.add(getFile().asElement());
-        root.addElement("buoy-attached").addText(new Boolean(isBuoyAttached()).toString());
+        root.addElement("buoy-attached").addText(Boolean.valueOf(isBuoyAttached()).toString());
 
         return document;
     }
