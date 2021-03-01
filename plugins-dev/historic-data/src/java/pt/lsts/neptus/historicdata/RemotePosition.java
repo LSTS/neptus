@@ -50,7 +50,7 @@ public class RemotePosition implements Comparable<RemotePosition> {
     
     @Override
     public int compareTo(RemotePosition o) {
-        return new Long(timestamp).compareTo(o.timestamp);
+        return Long.valueOf(timestamp).compareTo(o.timestamp);
     }
 
     /**
