@@ -279,11 +279,11 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
                 operationalActive = true;
             }
 
-            this.setXSize(new Float(doc.selectSingleNode("/" + rootElemName + "/properties/appearance/x-size")
+            this.setXSize(Float.valueOf(doc.selectSingleNode("/" + rootElemName + "/properties/appearance/x-size")
                     .getText()).floatValue());
-            this.setYSize(new Float(doc.selectSingleNode("/" + rootElemName + "/properties/appearance/y-size")
+            this.setYSize(Float.valueOf(doc.selectSingleNode("/" + rootElemName + "/properties/appearance/y-size")
                     .getText()).floatValue());
-            this.setZSize(new Float(doc.selectSingleNode("/" + rootElemName + "/properties/appearance/z-size")
+            this.setZSize(Float.valueOf(doc.selectSingleNode("/" + rootElemName + "/properties/appearance/z-size")
                     .getText()).floatValue());
 
             this.setTopImageHref(doc.selectSingleNode("/" + rootElemName + "/properties/appearance/top-image-2D")
