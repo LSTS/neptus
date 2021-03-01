@@ -106,7 +106,7 @@ public class Waypoint implements Comparable<Waypoint> {
     public int compareTo(Waypoint o) {
 
         if (arrivalTime == null && o.arrivalTime == null)
-            return new Long(getId()).compareTo(new Long(o.getId()));
+            return Long.valueOf(getId()).compareTo(Long.valueOf(o.getId()));
 
         if (arrivalTime == null && o.arrivalTime != null)
             return 1;
