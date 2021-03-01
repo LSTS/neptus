@@ -415,7 +415,7 @@ public class MRAPanel extends JPanel {
 
         // Calculate marker location
         if (marker.getLatRads() == 0 && marker.getLonRads() == 0) {
-            IMCMessage m = source.getLog("EstimatedState").getEntryAtOrAfter(new Double(marker.getTimestamp()).longValue());
+            IMCMessage m = source.getLog("EstimatedState").getEntryAtOrAfter(Double.valueOf(marker.getTimestamp()).longValue());
             LocationType loc = LogUtils.getLocation(m);
 
             marker.setLatRads(loc.getLatitudeRads());
