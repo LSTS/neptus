@@ -133,8 +133,8 @@ public class NMEAUtils {
 
 			gpsFix.setValue("id", uid);
 			gpsFix.setValue("time", (int)time);
-			gpsFix.setValue("lat", Math.toRadians(new Double(wgs84_lat)));
-			gpsFix.setValue("lon", Math.toRadians(new Double(wgs84_long)));           
+			gpsFix.setValue("lat", Math.toRadians(Double.valueOf(wgs84_lat)));
+			gpsFix.setValue("lon", Math.toRadians(Double.valueOf(wgs84_long)));           
 			if (isExtGpsFix) {
                 int valitity = (valid_fix > 0 ? 0x4/* VALID_POS */: 0x0) | 0x80/* VALID_HDOP */;
 			    gpsFix.setValue("validity", valitity);
