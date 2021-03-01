@@ -927,7 +927,7 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
             Object valObj = null;
             try {
                 if (CT_NUMBER.equalsIgnoreCase(typeHint))
-                    valObj = new Double(value);
+                    valObj = Double.valueOf(value);
                 else if (CT_BOOLEAN.equalsIgnoreCase(typeHint))
                     valObj = Boolean.valueOf(value);
                 else
