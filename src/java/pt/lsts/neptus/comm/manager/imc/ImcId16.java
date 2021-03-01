@@ -273,7 +273,7 @@ public class ImcId16 extends Number implements Comparable<ImcId16>{
           slzNumber = Integer.valueOf((int)id);
         }
         else {
-           slzNumber = new Long((long)id);
+           slzNumber = Long.valueOf((long)id);
         }
         return slzNumber;
     }
@@ -317,7 +317,7 @@ public class ImcId16 extends Number implements Comparable<ImcId16>{
         NeptusLog.pub().info("<###> "+idC1.equals(idC2));
         NeptusLog.pub().info("<###> "+(idC1 == idC2));
         
-        NeptusLog.pub().info("<###> "+(new Long(8) == new Long(8)));
+        NeptusLog.pub().info("<###> "+(Long.valueOf(8) == Long.valueOf(8)));
 
         ImcId16 id3 = new ImcId16("0xa001");
         NeptusLog.pub().info("<###> "+id3.intValue());
