@@ -152,9 +152,9 @@ public class ArrayListEditor<E extends ArrayList<T>, T extends Object> extends S
         }
         else if (classType == Byte.class) {
             if (minValue == null)
-                minValue = (T) new Byte(Byte.MIN_VALUE);
+                minValue = (T) Byte.valueOf(Byte.MIN_VALUE);
             if (maxValue == null)
-                maxValue = (T) new Byte(Byte.MAX_VALUE);
+                maxValue = (T) Byte.valueOf(Byte.MAX_VALUE);
             if (((Byte) minValue).byteValue() > ((Byte) maxValue).byteValue())
                 minValue = maxValue;
         }
