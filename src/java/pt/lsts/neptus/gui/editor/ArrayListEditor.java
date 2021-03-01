@@ -136,9 +136,9 @@ public class ArrayListEditor<E extends ArrayList<T>, T extends Object> extends S
         }
         else if (classType == Integer.class) {
             if (minValue == null)
-                minValue = (T) new Integer(Integer.MIN_VALUE);
+                minValue = (T) Integer.valueOf(Integer.MIN_VALUE);
             if (maxValue == null)
-                maxValue = (T) new Integer(Integer.MAX_VALUE);
+                maxValue = (T) Integer.valueOf(Integer.MAX_VALUE);
             if (((Integer) minValue).intValue() > ((Integer) maxValue).intValue())
                 minValue = maxValue;
         }
