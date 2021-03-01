@@ -345,7 +345,7 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
 
     @Override
     public void addLogMarker(LogMarker marker) {
-        Long timestamp = new Double(marker.getTimestamp()).longValue();
+        Long timestamp = Double.valueOf(marker.getTimestamp()).longValue();
         
         long smallestTimestampDiff = Long.MAX_VALUE;
         int iTSMarker = -1;
