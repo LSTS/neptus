@@ -1069,9 +1069,9 @@ public class VehicleInfo extends JPanel implements PropertiesProvider {
             if (pArgs instanceof IMCArgs) {
                 IMCArgs nArgs = (IMCArgs) pArgs;
                 comP = PropertiesEditor.getPropertyInstance("imc.port", categoryBase, Integer.class,
-                        new Integer(nArgs.getPort()), true);
+                        Integer.valueOf(nArgs.getPort()), true);
                 propertiesList.add(comP);
-                comP = PropertiesEditor.getPropertyInstance("imc.portTCP", categoryBase, Integer.class, new Integer(
+                comP = PropertiesEditor.getPropertyInstance("imc.portTCP", categoryBase, Integer.class, Integer.valueOf(
                         nArgs.getPortTCP()), true);
                 propertiesList.add(comP);
                 comP = PropertiesEditor.getPropertyInstance("imc.udp-on", categoryBase, Boolean.class, Boolean.valueOf(
@@ -1123,9 +1123,9 @@ public class VehicleInfo extends JPanel implements PropertiesProvider {
                 if (pArgs instanceof IMCArgs) {
                     IMCArgs nArgs = (IMCArgs) pArgs;
                     comP = PropertiesEditor.getPropertyInstance("imc.port", category, Integer.class,
-                            new Integer(nArgs.getPort()), true);
+                            Integer.valueOf(nArgs.getPort()), true);
                     propertiesList.add(comP);
-                    comP = PropertiesEditor.getPropertyInstance("imc.portTCP", category, Integer.class, new Integer(
+                    comP = PropertiesEditor.getPropertyInstance("imc.portTCP", category, Integer.class, Integer.valueOf(
                             nArgs.getPortTCP()), true);
                     propertiesList.add(comP);
                     comP = PropertiesEditor.getPropertyInstance("imc.udp-on", category, Boolean.class, Boolean.valueOf(
