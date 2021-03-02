@@ -40,6 +40,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.comm.IMCUtils;
@@ -127,7 +128,7 @@ public class RESTServlet extends HttpServlet {
 		
 		resp.setContentType("text/plain");		
 		for (String e : errors)
-			resp.getWriter().println(e);
+			resp.getWriter().println(StringEscapeUtils.escapeCsv(e));
 		resp.getWriter().close();
 	}
 	
@@ -197,7 +198,7 @@ public class RESTServlet extends HttpServlet {
 		
 		resp.setContentType("text/plain");				
 		for (String e : errors)
-			resp.getWriter().println(e);
+			resp.getWriter().println(StringEscapeUtils.escapeCsv(e));
 		//resp.getWriter().close();
 	}
 	
