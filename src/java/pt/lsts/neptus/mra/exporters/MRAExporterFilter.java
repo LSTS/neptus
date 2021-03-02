@@ -413,7 +413,7 @@ public class MRAExporterFilter implements MRAExporter {
             };
 
             p.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
-                    .put(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.CTRL_MASK), "finder");
+                    .put(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.CTRL_DOWN_MASK), "finder");
             p.getActionMap().put("finder", finder);
 
             getContentPane().add(p, "cell 0 1,alignx left,aligny top");
