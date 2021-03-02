@@ -342,7 +342,7 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
 
                 try {
                     Class<Maneuver> manClass = ManeuversUtil.getManeuverFromType(manType);
-                    man = manClass.newInstance();
+                    man = manClass.getDeclaredConstructor().newInstance();
                 }
                 catch (Exception e) {
                     NeptusLog.pub().error("Maneuver not found: " + manType + " (" + e.getMessage() + ")");
@@ -544,7 +544,7 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
     public Object clone() {
         Maneuver m;
         try {
-            m = getClass().newInstance();
+            m = getClass().getDeclaredConstructor().newInstance();
         }
         catch (Exception e) {
             e.printStackTrace();
