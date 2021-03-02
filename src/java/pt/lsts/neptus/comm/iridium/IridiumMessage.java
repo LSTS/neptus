@@ -92,7 +92,7 @@ public abstract class IridiumMessage implements Comparable<IridiumMessage> {
         int mgid = iis.readUnsignedShort();
         IridiumMessage m = null;
         if (iridiumTypes.containsKey(mgid)) {
-            m = iridiumTypes.get(mgid).newInstance();
+            m = iridiumTypes.get(mgid).getDeclaredConstructor().newInstance();
         }
         else {
             iis.close();
