@@ -205,7 +205,6 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
      */
     public void addTimeSeries(TimeSeries ts) {
         String trace = ts.getKey().toString();
-        String id    = getSeriesId(ts);
         if (!forbiddenSeries.contains(trace)) {
             if (!series.containsKey(trace)) {
                 addTrace(trace);
@@ -264,7 +263,7 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
 
     public void hideTimeSeries(String id,TimeSeries ts){
         if(series.containsKey(id)){
-            Object removed = series.remove(id);
+            series.remove(id);
             hiddenFiles.add(id);
             hiddenSeries.put(id,ts);
             return;
