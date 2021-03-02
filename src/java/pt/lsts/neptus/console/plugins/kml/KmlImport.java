@@ -814,19 +814,6 @@ public class KmlImport extends ConsolePanel {
         
         mapType.addObject(pathElem);
     }
-//    private void calculate(double nLat, double sLat, double eLon, double wLon, ImageElement img) {
-//        double pixelDistance = mark1.getCenterLocation().getHorizontalDistanceInMeters(mark2.getCenterLocation());
-//        double meterDistance = lt1.getHorizontalDistanceInMeters(lt2);      
-//        double scale = meterDistance / pixelDistance;
-//        
-//        double[] pixelOffsets = (new LocationType()).getOffsetFrom(mark1.getCenterLocation());
-//        
-//        LocationType finalLoc = new LocationType(lt1);
-//        finalLoc.translatePosition(pixelOffsets[0]*scale, pixelOffsets[1]*scale, pixelOffsets[2]*scale);        
-//        
-//        imgObject.setCenterLocation(finalLoc);
-//        imgObject.setImageScale(scale);
-//    }
 
     private MapType getMapToAddElements() {
         return MapGroup.getMapGroupInstance(getConsole().getMission()).getMaps()[0];
