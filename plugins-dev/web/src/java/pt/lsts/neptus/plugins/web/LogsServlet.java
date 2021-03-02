@@ -78,6 +78,7 @@ public class LogsServlet extends HttpServlet {
 		else if (req.getPathInfo().endsWith(".zip")) {
 		    try {
                 String dir = req.getPathInfo().substring(0, req.getPathInfo().length()-4);
+                dir = dir.replaceAll("\\.+\\\\", ""); // Adding some sanitizing before testing bellow the path
                 File temp = new File(ConfigFetch.getNeptusTmpDir()+"/"+MD5.digest(dir).substring(4));
 
                 if ((req.getHeader("pragma") != null && req.getHeader("pragma").equalsIgnoreCase("no-cache")) ||
