@@ -324,7 +324,7 @@ public class NeptusMain {
             String extension = FileUtil.getFileExtension(f).toLowerCase();
             if (fileHandlers.containsKey(extension)) {
                 try {
-                    FileHandler fh = ((FileHandler) fileHandlers.get(extension).newInstance());
+                    FileHandler fh = ((FileHandler) fileHandlers.get(extension).getDeclaredConstructor().newInstance());
                     loader.setText(I18n.textf("Starting %program %arg...", fh.getName(),f.getName()));
                     if (fh instanceof JFrame) {
                         ((JFrame) fh).setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
