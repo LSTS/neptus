@@ -771,8 +771,11 @@ public class KmlImport extends ConsolePanel {
                         ZipEntry entry;
                         while ((entry = zip.getNextEntry()) != null) {
                             String nm = entry.getName();
-                            if (fHref.equals(entry.getName())) {
-                                File outFx = new File(new File(ConfigFetch.getNeptusTmpDir()), nm);
+                            if (fHref.equals(nm)) {
+                                File destinationDir = new File(ConfigFetch.getNeptusTmpDir());
+                                File outFx = new File(destinationDir, nm);
+                                if (!outFx.toPath().normalize().startsWith(destinationDir.toPath()))
+                                    throw new Exception("Bad zip entry");
                                 outFx.getParentFile().mkdirs();
                                 outFx.createNewFile();
                                 outFx.deleteOnExit();
