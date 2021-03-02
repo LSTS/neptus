@@ -202,7 +202,7 @@ public class TransformFOP
 //            driver.setOutputStream(out);
 //
 //            // Setup XSLT
-//            TransformerFactory factory = TransformerFactory.newInstance();
+//            TransformerFactory factory = TransformerFactory.getDeclaredConstructor().newInstance();
 //            Transformer transformer = factory.newTransformer(new StreamSource(
 //                    xslt));
 //
