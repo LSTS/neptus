@@ -38,7 +38,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Vector;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -62,13 +61,13 @@ public class LogsServlet extends HttpServlet {
 
     @Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException, IOException {
+			throws IOException {
 		
 		if (req.getPathInfo().equals("/")) {
 			resp.setContentType("text/html");
 			resp.getWriter().write("<html><head><title>Recorded Logs</title></head><body>");
 			File f = new File("log");
-			Vector<File> logs = new Vector<File>();
+			Vector<File> logs = new Vector<>();
 			listLogs(f, logs);
 			for (File logDir : logs) {
 				String shorter = FileUtil.relativizeFilePath(f.getAbsolutePath(), logDir.getAbsolutePath()).replaceAll("\\\\", "/");				
