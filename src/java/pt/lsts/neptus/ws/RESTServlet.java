@@ -43,6 +43,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringEscapeUtils;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.messages.listener.MessageInfo;
@@ -109,12 +110,13 @@ public class RESTServlet extends HttpServlet {
 					}
 					else {
 						resp.setStatus(500);
-						errors.add("Currently only IMC-XML and LSF are suppported");
+						errors.add("Currently only IMC-XML and LSF are supported");
 					}
 				}
 				catch (Exception e) {
 					resp.setStatus(500);
-					errors.add(e.getMessage());
+                    NeptusLog.pub().error(e.getMessage());
+                    errors.add("Internal error!");
 				}
 			}
 			else {
@@ -156,7 +158,8 @@ public class RESTServlet extends HttpServlet {
                         }
                         catch (Exception e) {
                             resp.setStatus(500);
-                            errors.add(e.getMessage());
+                            NeptusLog.pub().error(e.getMessage());
+                            errors.add("Internal error!");
                         }
                         break;
                     case "lsf":
@@ -166,7 +169,8 @@ public class RESTServlet extends HttpServlet {
                         }
                         catch (Exception e) {
                             resp.setStatus(500);
-                            errors.add(e.getMessage());
+                            NeptusLog.pub().error(e.getMessage());
+                            errors.add("Internal error!");
                         }
                         break;
                     case "txt":
@@ -177,7 +181,8 @@ public class RESTServlet extends HttpServlet {
                         }
                         catch (Exception e) {
                             resp.setStatus(500);
-                            errors.add(e.getMessage());
+                            NeptusLog.pub().error(e.getMessage());
+                            errors.add("Internal error!");
                         }
                         break;
                 }
