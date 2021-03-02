@@ -198,7 +198,7 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
 
         for (Class<? extends ILocationProvider> c : reflections.getSubTypesOf(ILocationProvider.class)) {
             try {
-                ILocationProvider localizer = c.newInstance();
+                ILocationProvider localizer = c.getDeclaredConstructor().newInstance();
                 updaters.addAll(PeriodicUpdatesService.inspect(localizer));
                 localizer.onInit(this);
                 localizers.add(localizer);
