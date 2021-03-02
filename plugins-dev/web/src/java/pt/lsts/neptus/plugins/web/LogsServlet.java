@@ -103,7 +103,11 @@ public class LogsServlet extends HttpServlet {
 	}
 	
 	protected void listLogs(File parent, Vector<File> logs) {
-		for (File f : parent.listFiles()) {
+        File[] lstFx = parent != null ? parent.listFiles() : null;
+        if (lstFx == null) {
+            return;
+        }
+		for (File f : lstFx) {
 			if (f.isDirectory())
 				listLogs(f, logs);
 			else if (f.getName().equalsIgnoreCase("Data.lsf") || f.getName().equalsIgnoreCase("EstimatedState.llf"))
