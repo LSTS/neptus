@@ -237,7 +237,7 @@ public class MRAPanel extends JPanel {
                     }
                 }
                 if (!instantiated) {
-                    visualization = (MRAVisualization)vis.newInstance();
+                    visualization = (MRAVisualization)vis.getDeclaredConstructor().newInstance();
                     PluginUtils.loadProperties(visualization, "mra");
                     instantiated = true;
                 }
