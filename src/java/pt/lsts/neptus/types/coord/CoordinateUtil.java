@@ -254,7 +254,7 @@ public class CoordinateUtil {
             decimalDegress = -decimalDegress;
         }
 
-        double remainder = decimalDegress - ((int) decimalDegress);
+        double remainder = decimalDegress - Double.valueOf(decimalDegress).intValue();
 
         dms[0] = (double) Math.floor((double) decimalDegress);
 
