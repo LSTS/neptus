@@ -87,7 +87,7 @@ public class MapGroup implements MapChangeListener {
 	
 	public static MapGroup getNewInstance(CoordinateSystem cs) {
 		
-		NeptusLog.pub().debug("[MapGroup] getNewInstance() called. Not stored in the hashtable");
+		NeptusLog.pub().debug("[MapGroup] getgetDeclaredConstructor().newInstance() called. Not stored in the hashtable");
 		if (cs == null) {
 			cs = new CoordinateSystem();
 		}
