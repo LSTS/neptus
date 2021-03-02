@@ -915,7 +915,7 @@ public abstract class AbstractElement
     
     public AbstractElement getClone() throws Exception {
         String xml = asXML();
-        AbstractElement clone = getClass().newInstance();
+        AbstractElement clone = getClass().getDeclaredConstructor().newInstance();
         clone.load(xml);        
         return clone;
     }
