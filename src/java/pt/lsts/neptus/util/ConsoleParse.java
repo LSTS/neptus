@@ -242,7 +242,7 @@ public class ConsoleParse implements FileHandler {
             Element element = (Element) iter.next();
             try {
                 String className = element.attribute("class").getValue();
-                IConsoleLayer cp = (IConsoleLayer) Class.forName(className).newInstance();
+                IConsoleLayer cp = (IConsoleLayer) Class.forName(className).getDeclaredConstructor().newInstance();
                 cp.parseXmlElement(element);
                 ret.add(cp);
             }
@@ -270,7 +270,7 @@ public class ConsoleParse implements FileHandler {
             try {
                 String className = element.attribute("class").getValue();
                 //FIXME
-                IConsoleInteraction cp = (IConsoleInteraction) Class.forName(className).newInstance();
+                IConsoleInteraction cp = (IConsoleInteraction) Class.forName(className).getDeclaredConstructor().newInstance();
                 cp.parseXmlElement(element);
                 ret.add(cp);
             }
