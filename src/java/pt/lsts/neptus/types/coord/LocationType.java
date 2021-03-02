@@ -950,7 +950,7 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
         double latlondepth[] = getAbsoluteLatLonDepth();
         L loc;
         try {
-            loc = (L) this.getClass().newInstance();
+            loc = (L) this.getClass().getDeclaredConstructor().newInstance();
         }
         catch (Exception e) {
             loc = (L) new LocationType();
