@@ -38,8 +38,6 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -113,8 +111,7 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
  * @author tsmarques
  * @author pdias
  */
-@SuppressWarnings("serial")
-@PluginDescription(name = "Kml Import", description = "Import map features from KML, from a file or URL", 
+@PluginDescription(name = "Kml Import", description = "Import map features from KML, from a file or URL",
     author = "tsmarques, pdias", version = "0.7", icon = "pt/lsts/neptus/console/plugins/kml/kml-icon.png")
 @Popup(name = "Kml Import", pos = POSITION.CENTER, width = 230, height = 500)
 @LayerPriority(priority = 50)
@@ -172,78 +169,70 @@ public class KmlImport extends ConsolePanel {
         rightClickAddItem = new JMenuItem(I18n.text("Add to map"));
         rightClickPopup.add(rightClickAddItem);
 
-        rightClickAddItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int selectedFeatureIndex = listingPanel.getSelectedIndex();
-                String featName = ((JLabel) listModel.getElementAt(selectedFeatureIndex)).getText();
-                String validID = NameNormalizer.asIdentifier(featName);
-                String idByUser = JOptionPane.showInputDialog(I18n.text("Element ID"), validID);
-                
-                if(idByUser != null && !idByUser.isEmpty()) {
-                    SwingWorker<String, Void> sw = new SwingWorker<String, Void>() {
-                        String ret = null;
+        rightClickAddItem.addActionListener(e -> {
+            int selectedFeatureIndex = listingPanel.getSelectedIndex();
+            String featName = listModel.getElementAt(selectedFeatureIndex).getText();
+            String validID = NameNormalizer.asIdentifier(featName);
+            String idByUser = JOptionPane.showInputDialog(I18n.text("Element ID"), validID);
 
-                        @Override
-                        protected String doInBackground() throws Exception {
-                            try {
-                                ret = addFeatureToMap(featName, idByUser, false);
-                            }
-                            catch (Exception e1) {
-                                ret = e1.getMessage();
-                            }
-                            return ret;
+            if(idByUser != null && !idByUser.isEmpty()) {
+                SwingWorker<String, Void> sw = new SwingWorker<String, Void>() {
+                    String ret = null;
+
+                    @Override
+                    protected String doInBackground() {
+                        try {
+                            ret = addFeatureToMap(featName, idByUser, false);
                         }
-                        
-                        @Override
-                        protected void done() {
-                            if (ret != null && !ret.isEmpty()) {
-                                if (ret != null && !ret.isEmpty())
-                                    GuiUtils.errorMessage(SwingUtilities.windowForComponent(KmlImport.this), KmlImport.this.getName(),
-                                            ret);
-                            }
+                        catch (Exception e1) {
+                            ret = e1.getMessage();
                         }
-                    };
-                    sw.execute();
-                }
+                        return ret;
+                    }
+
+                    @Override
+                    protected void done() {
+                        if (ret != null && !ret.isEmpty()) {
+                            GuiUtils.errorMessage(SwingUtilities.windowForComponent(KmlImport.this),
+                                    KmlImport.this.getName(), ret);
+                        }
+                    }
+                };
+                sw.execute();
             }
         });
         
         rightClickAddAsPlan = new JMenuItem(I18n.text("Add as plan"));
-        rightClickAddAsPlan.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int selectedFeatureIndex = listingPanel.getSelectedIndex();
-                String featName = ((JLabel) listModel.getElementAt(selectedFeatureIndex)).getText();
-                String validID = NameNormalizer.asIdentifier(featName);
-                String idByUser = JOptionPane.showInputDialog(I18n.text("Plan ID"), validID);
-                
-                if(idByUser != null && !idByUser.isEmpty()) {
-                    SwingWorker<String, Void> sw = new SwingWorker<String, Void>() {
-                        String ret = null;
+        rightClickAddAsPlan.addActionListener(e -> {
+            int selectedFeatureIndex = listingPanel.getSelectedIndex();
+            String featName = listModel.getElementAt(selectedFeatureIndex).getText();
+            String validID = NameNormalizer.asIdentifier(featName);
+            String idByUser = JOptionPane.showInputDialog(I18n.text("Plan ID"), validID);
 
-                        @Override
-                        protected String doInBackground() throws Exception {
-                            try {
-                                ret = addFeatureToMap(featName, idByUser, true);
-                            }
-                            catch (Exception e1) {
-                                ret = e1.getMessage();
-                            }
-                            return ret;
+            if(idByUser != null && !idByUser.isEmpty()) {
+                SwingWorker<String, Void> sw = new SwingWorker<String, Void>() {
+                    String ret = null;
+
+                    @Override
+                    protected String doInBackground() {
+                        try {
+                            ret = addFeatureToMap(featName, idByUser, true);
                         }
-                        
-                        @Override
-                        protected void done() {
-                            if (ret != null && !ret.isEmpty()) {
-                                if (ret != null && !ret.isEmpty())
-                                    GuiUtils.errorMessage(SwingUtilities.windowForComponent(KmlImport.this), KmlImport.this.getName(),
-                                            ret);
-                            }
+                        catch (Exception e1) {
+                            ret = e1.getMessage();
                         }
-                    };
-                    sw.execute();
-                }
+                        return ret;
+                    }
+
+                    @Override
+                    protected void done() {
+                        if (ret != null && !ret.isEmpty()) {
+                            GuiUtils.errorMessage(SwingUtilities.windowForComponent(KmlImport.this),
+                                    KmlImport.this.getName(), ret);
+                        }
+                    }
+                };
+                sw.execute();
             }
         });
     }
@@ -264,7 +253,7 @@ public class KmlImport extends ConsolePanel {
                 rightClickPopup.add(rightClickAddItem);
                 
                 int selectedFeatureIndex = listingPanel.getSelectedIndex();
-                String featName = ((JLabel) listModel.getElementAt(selectedFeatureIndex)).getText();
+                String featName = listModel.getElementAt(selectedFeatureIndex).getText();
                 String featGeom = featuresGeom.get(featName);
                 
                 if(featGeom.equals("LineString"))
@@ -322,15 +311,21 @@ public class KmlImport extends ConsolePanel {
     private JLabel getFeatureLabel(String fname, String fgeom) {
         JLabel feature = new JLabel(fname);
         String iconUrl = "";
-        
-        if(fgeom.equals("Point"))
-            iconUrl = "images/mark.png";
-        else if(fgeom.equals("LineString"))
-            iconUrl = "pt/lsts/neptus/plugins/map/interactions/draw-line.png";
-        else if(fgeom.equals("Polygon"))
-            iconUrl = "pt/lsts/neptus/plugins/map/interactions/poly.png";
-        else if (fgeom.equals("GroundOverlay"))
-            iconUrl = "images/buttons/new_image.png";
+
+        switch (fgeom) {
+            case "Point":
+                iconUrl = "images/mark.png";
+                break;
+            case "LineString":
+                iconUrl = "pt/lsts/neptus/plugins/map/interactions/draw-line.png";
+                break;
+            case "Polygon":
+                iconUrl = "pt/lsts/neptus/plugins/map/interactions/poly.png";
+                break;
+            case "GroundOverlay":
+                iconUrl = "images/buttons/new_image.png";
+                break;
+        }
         
         feature.setName(fname);
         feature.setIcon(ImageUtils.getScaledIcon(iconUrl, 15, 15));        
@@ -338,36 +333,30 @@ public class KmlImport extends ConsolePanel {
     }
 
     private void addMenuListeners() {
-        kmlFile.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int result = fileChooser.showOpenDialog(getParent());
-                if (result == JFileChooser.APPROVE_OPTION) {
-                    File selectedFile = fileChooser.getSelectedFile();                 
-                    try {
-                        URL fileUrl = selectedFile.toURI().toURL();
-                        kmlFeatUrl = fileUrl.toString();
-                        listKmlFeatures(fileUrl, true);
-                    }
-                    catch(MalformedURLException e1) {
-                        e1.printStackTrace();
-                    }
+        kmlFile.addActionListener(e -> {
+            int result = fileChooser.showOpenDialog(getParent());
+            if (result == JFileChooser.APPROVE_OPTION) {
+                File selectedFile = fileChooser.getSelectedFile();
+                try {
+                    URL fileUrl = selectedFile.toURI().toURL();
+                    kmlFeatUrl = fileUrl.toString();
+                    listKmlFeatures(fileUrl, true);
+                }
+                catch(MalformedURLException e1) {
+                    e1.printStackTrace();
                 }
             }
         });
 
-        kmlUrl.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {               
-                String urlStr = JOptionPane.showInputDialog(I18n.text("Enter a URL"), kmlFeatUrl);
-                if(urlStr != null && !urlStr.equals("")) {
-                    try {
-                        kmlFeatUrl = urlStr;
-                        listKmlFeatures(new URL(urlStr), false);
-                    }
-                    catch(MalformedURLException e1) {
-                        showErrorMessage(I18n.text("URL not valid!"));
-                    }
+        kmlUrl.addActionListener(e -> {
+            String urlStr = JOptionPane.showInputDialog(I18n.text("Enter a URL"), kmlFeatUrl);
+            if(urlStr != null && !urlStr.equals("")) {
+                try {
+                    kmlFeatUrl = urlStr;
+                    listKmlFeatures(new URL(urlStr), false);
+                }
+                catch(MalformedURLException e1) {
+                    showErrorMessage(I18n.text("URL not valid!"));
                 }
             }
         });
@@ -381,21 +370,23 @@ public class KmlImport extends ConsolePanel {
         
         if (f instanceof Placemark) {
             Placemark feature = (Placemark) f;
-            
-            if(featGeom.equals("Point")) {
-                addAsPoint((Point) feature.getGeometry(), idByUser);
-            }
-            else if(featGeom.equals("LineString")) {
-                if(!addAsPlan)
-                    addAsPathElement(feature, idByUser, false);
-                else
-                    errorMsg = addLineStringAsPlan(feature, idByUser);
-            }
-            else if(featGeom.equals("Polygon")) {
-                addAsPathElement(feature, idByUser, true);
-            }
-            else {
-                errorMsg = "No valid geometry found in Placemark!";
+
+            switch (featGeom) {
+                case "Point":
+                    addAsPoint((Point) feature.getGeometry(), idByUser);
+                    break;
+                case "LineString":
+                    if (!addAsPlan)
+                        addAsPathElement(feature, idByUser, false);
+                    else
+                        errorMsg = addLineStringAsPlan(feature, idByUser);
+                    break;
+                case "Polygon":
+                    addAsPathElement(feature, idByUser, true);
+                    break;
+                default:
+                    errorMsg = "No valid geometry found in Placemark!";
+                    break;
             }
         }
         else if (f instanceof GroundOverlay) {
@@ -440,7 +431,7 @@ public class KmlImport extends ConsolePanel {
             Coordinate coord = coords.get(i);
             LocationType elemLoc = new LocationType(coord.getLatitude(), coord.getLongitude());
             
-            double offsets[] = elemLoc.getOffsetFrom(firstLoc);
+            double[] offsets = elemLoc.getOffsetFrom(firstLoc);
             pathElem.addPoint(offsets[1], offsets[0], offsets[2], false);
         }    
         
@@ -494,11 +485,11 @@ public class KmlImport extends ConsolePanel {
         
         /* get coordinates of the LineStrings forming the polygon boundary */
         if(featureIsPolygon) {
-            Polygon polyg = (Polygon)((Placemark) feature).getGeometry();
+            Polygon polyg = (Polygon) feature.getGeometry();
             coords = polyg.getOuterBoundaryIs().getLinearRing().getCoordinates();
         }
         else
-            coords = ((LineString)((Placemark) feature).getGeometry()).getCoordinates();
+            coords = ((LineString) feature.getGeometry()).getCoordinates();
         
         return coords;
     }
@@ -622,10 +613,9 @@ public class KmlImport extends ConsolePanel {
             bottomLeftLoc = new LocationType(minLat, minLon);
             
             img = imageAlt;
-            
-            File newImgFile = new File(ConfigFetch.getNeptusTmpDir(), FileUtil.getFileNameWithoutExtension(imgFile)
+
+            imgFile = new File(ConfigFetch.getNeptusTmpDir(), FileUtil.getFileNameWithoutExtension(imgFile)
                     + "_alt" + ".png");
-            imgFile = newImgFile;
             try {
                 ImageIO.write((RenderedImage) img, "png", imgFile);
             }
@@ -813,7 +803,7 @@ public class KmlImport extends ConsolePanel {
         /* add points to the path */
         for(int i = 1; i < locs.length; i++) {
             LocationType elemLoc = locs[i];
-            double offsets[] = elemLoc.getOffsetFrom(firstLoc);
+            double[] offsets = elemLoc.getOffsetFrom(firstLoc);
             pathElem.addPoint(offsets[1], offsets[0], offsets[2], false);
         }    
         
