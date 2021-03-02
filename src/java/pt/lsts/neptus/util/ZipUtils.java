@@ -95,11 +95,19 @@ public class ZipUtils {
                             + Arrays.toString(entry.getExtraFields()));
                     if (entry.isDirectory()) {
                         File dir = new File(destinationPath, entry.getName());
+                        if (!dir.toPath().normalize().startsWith(destination.toPath())) {
+                            NeptusLog.pub().warn(String.format("Bad zip entry for %s", zipFile));
+                            continue;
+                        }
                         boolean bl = dir.mkdirs();
                         NeptusLog.pub().debug("Created dir (" + bl + "): " + dir.getAbsolutePath());
                     }
                     else {
                         File file = new File(destinationPath, entry.getName());
+                        if (!file.toPath().normalize().startsWith(destination.toPath())) {
+                            NeptusLog.pub().warn(String.format("Bad zip entry for %s", zipFile));
+                            continue;
+                        }
                         file.getParentFile().mkdirs();
                         FileOutputStream fxOutStream = new FileOutputStream(file);
                         boolean bl = StreamUtil.copyStreamToStream(content, fxOutStream);
