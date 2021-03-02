@@ -50,7 +50,7 @@ import ucar.nc2.NetcdfFileWriter;
 /**
  * @author zp
  */
-@SuppressWarnings("deprecation")
+@Deprecated // Rework this
 public class NetcdfTimeSeriesExporter {
 
     protected LsfIndex index;
