@@ -145,18 +145,18 @@ task buildClasspathJar(type: Jar) {
 // Generating start scripts for the development environment
 generateStartScriptsFor(rootProject.name, 'run', 'pt.lsts.neptus.loader.NeptusMain',
     '', 'RunOptions', files('SUBSTITUTE')).doLast {
-        def configurationClasspath = project(':core').sourceSets.main.runtimeClasspath
-        configurationClasspath -= project(':core').configurations.core.allArtifacts.files
-        subprojects.findAll({it.name != 'core'}).each {
-            configurationClasspath -= it.configurations.plugin.allArtifacts.files
-        }
-        def unixCp = configurationClasspath
-            .collect({relativePathIfOnProjectPath(it, '$APP_HOME/')}).join(':')
-        def winCp = configurationClasspath
-            .collect({relativePathIfOnProjectPath(it, '%APP_HOME%\\')}).join(';')
-        unixScript.text = unixScript.text.replace('$APP_HOME/lib/SUBSTITUTE', "${unixCp}")
+        // def configurationClasspath = project(':core').sourceSets.main.runtimeClasspath
+        // configurationClasspath -= project(':core').configurations.core.allArtifacts.files
+        // subprojects.findAll({it.name != 'core'}).each {
+        //    configurationClasspath -= it.configurations.plugin.allArtifacts.files
+        //}
+        //def unixCp = configurationClasspath
+        //    .collect({relativePathIfOnProjectPath(it, '$APP_HOME/')}).join(':')
+        //def winCp = configurationClasspath
+        //    .collect({relativePathIfOnProjectPath(it, '%APP_HOME%\\')}).join(';')
+        // unixScript.text = unixScript.text.replace('$APP_HOME/lib/SUBSTITUTE', "${unixCp}")
         // windowsScript.text = windowsScript.text.replace('%APP_HOME%\\lib\\SUBSTITUTE', "${winCp}")
-        //unixScript.text = unixScript.text.replace('$APP_HOME/lib/SUBSTITUTE', "cp.jar")
+        unixScript.text = unixScript.text.replace('$APP_HOME/lib/SUBSTITUTE', "cp.jar")
         windowsScript.text = windowsScript.text.replace('%APP_HOME%\\lib\\SUBSTITUTE', "%APP_HOME%\\cp.jar")
     }
 
