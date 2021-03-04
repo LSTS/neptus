@@ -120,7 +120,7 @@ public class LsfReport {
             String data = FileUtil.getFileAsString(FileUtil.getResourceAsFile("/images/neptus_logo_ns.svg"));
             try {
                 // logoDoc = f.createSVGDocument(null, new java.io.StringReader((String)data));
-                logoDoc = f.createDocument(null, new StringReader((String) data));
+                logoDoc = f.createDocument(null, new StringReader(data));
                 logoDoc = SvgUtil.cleanInkscapeSVG(logoDoc);
             }
             catch (IOException e) {
@@ -235,7 +235,7 @@ public class LsfReport {
 
     private static void writePageNumber(PdfContentByte cb, int curPage) {
 
-        if (LsfReportProperties.printPageNumbers==false)
+        if (!LsfReportProperties.printPageNumbers)
             return;
 
         Rectangle pageSize = PageSize.A4.rotate();
@@ -411,12 +411,7 @@ public class LsfReport {
             
             r2d.setLevelOfDetail(16); // FIXME
             
-            SwingUtilities.invokeAndWait(new Runnable() {
-                @Override
-                public void run() {
-                    r2d.update(g2);
-                }
-            });
+            SwingUtilities.invokeAndWait(() -> r2d.update(g2));
             g2.dispose();
             cb.addTemplate(tp, 50, 50);
             writePageNumber(cb, page++);
@@ -646,9 +641,8 @@ public class LsfReport {
         table.addCell(I18n.text("Timestamp"));
         table.addCell(I18n.text("Label"));
         table.addCell(I18n.text("Location"));
-        int nSubsys = subSysList.size();
-        for (int i = 0; i < nSubsys; i++)
-            table.addCell(I18n.textf("Image %number", subSysList.get(i)));
+        for (Integer integer : subSysList)
+            table.addCell(I18n.textf("Image %number", integer));
     }
 
     /**
@@ -708,7 +702,7 @@ public class LsfReport {
             i1 = 0;
         }
 
-        if (globalColorMap == false) {
+        if (!globalColorMap) {
             config.colorMap = ColorMapFactory.getColorMapByName(adjustedMark.getColorMap());
         }
 
@@ -755,11 +749,11 @@ public class LsfReport {
         }
         SidescanLine l = list2.get(list2.size() / 2);
         int index = convertMtoIndex(mark.getX() + l.getRange(), l.getRange(), l.getData().length);
-        if (border == true) {
+        if (border) {
             if (index > (i2 - i1)) {
                 index = index - i1;
             }
-            indexX = (int) (((double) ((double) index / (double) (i2 - i1))) * 100);
+            indexX = (int) (((double) index / (double) (i2 - i1)) * 100);
         }
         else {
             indexX = 50;
@@ -864,9 +858,7 @@ public class LsfReport {
             if (Math.abs(t - tFirst) >= Math.abs(t - tLast)) {
                 list.remove(0);
                 yref--;
-                continue;
             }
-
         }
         return list;
 
@@ -960,7 +952,7 @@ public class LsfReport {
         if (LsfReportProperties.sidescanMarksPointsFixedColor == 0) {
             fixedColor = false;
         }
-        if (fixedColor == true) {
+        if (fixedColor) {
             c = getFixedColor(colorMap);
         }
         else {
@@ -971,7 +963,7 @@ public class LsfReport {
         switch (shape) {
             case 0:
                 g2d.drawRect(x, y, w, h);
-                if (fixedColor == false) {
+                if (!fixedColor) {
                     g2d.setColor(color);
                     g2d.drawRect(x - 1, y - 1, w + 2, h + 2);
                     // g2d.drawRect(x + 1, y + 1, w - 2, h - 2);
@@ -979,7 +971,7 @@ public class LsfReport {
                 break;
             case 1:
                 g2d.drawOval(x, y, w, h);
-                if (fixedColor == false) {
+                if (!fixedColor) {
                     g2d.setColor(color);
                     g2d.drawOval(x - 1, y - 1, w + 2, h + 2);
                     // g2d.drawOval(x + 1, y + 1, w - 2, h - 2);
@@ -988,7 +980,7 @@ public class LsfReport {
             default:
                 NeptusLog.pub().info("Sidescan Point Marks Shape Code not found, using 0 square instead");
                 g2d.drawRect(x, y, w, h);
-                if (fixedColor == false) {
+                if (!fixedColor) {
                     g2d.setColor(color);
                     g2d.drawRect(x - 1, y - 1, w + 2, h + 2);
                     // g2d.drawRect(x + 1, y + 1, w - 2, h - 2);
@@ -1138,17 +1130,17 @@ public class LsfReport {
             doc.newPage();
             page++;
 
-            for (int i = 0; i < charts.length; i++) {
+            for (JFreeChart chart : charts) {
                 cb.beginText();
 
-                java.awt.Graphics2D g2 = cb.createGraphicsShapes(pageSize.getWidth(), pageSize.getHeight());
+                Graphics2D g2 = cb.createGraphicsShapes(pageSize.getWidth(), pageSize.getHeight());
                 int width = (int) pageSize.getWidth();
                 int height = (int) pageSize.getHeight();
 
-                Paint oldPaint = charts[i].getBackgroundPaint();
-                charts[i].setBackgroundPaint(Color.white);
-                charts[i].draw(g2, new Rectangle2D.Double(25, 25, width - 50, height - 50));
-                charts[i].setBackgroundPaint(oldPaint);
+                Paint oldPaint = chart.getBackgroundPaint();
+                chart.setBackgroundPaint(Color.white);
+                chart.draw(g2, new Rectangle2D.Double(25, 25, width - 50, height - 50));
+                chart.setBackgroundPaint(oldPaint);
                 g2.dispose();
                 writePageNumber(cb, page++);
                 writeHeader(cb, source);
@@ -1167,6 +1159,9 @@ public class LsfReport {
 
     public static void generateLogs(File f, MRAPanel panel) {
         try {
+            if (f.listFiles() == null) {
+                return;
+            }
             LsfLogSource folder = new LsfLogSource(f, null);
             Vector<File> subFolders = new Vector<File>();
             for (File fl : f.listFiles()) {
