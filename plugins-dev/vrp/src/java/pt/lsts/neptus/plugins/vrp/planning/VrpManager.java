@@ -498,7 +498,7 @@ public class VrpManager {
                 EdgeI edge = (EdgeI) e.nextElement();
                 Customer customer1 = (Customer) edge.getToVertex().getValue();
                 Customer customer2 = (Customer) edge.getFromVertex().getValue();
-                meters += customer1.distanceTo(customer2);
+                meters = Double.valueOf(customer1.distanceTo(customer2) + meters).intValue();
                 e.nextElement(); // Skip Vertex
             }
         }
