@@ -317,8 +317,6 @@ public class ImcId16 extends Number implements Comparable<ImcId16>{
         NeptusLog.pub().info("<###> "+idC1.equals(idC2));
         NeptusLog.pub().info("<###> "+(idC1 == idC2));
         
-        NeptusLog.pub().info("<###> "+(Long.valueOf(8) == Long.valueOf(8)));
-
         ImcId16 id3 = new ImcId16("0xa001");
         NeptusLog.pub().info("<###> "+id3.intValue());
         NeptusLog.pub().info("<###> "+id3.toPrettyString());
