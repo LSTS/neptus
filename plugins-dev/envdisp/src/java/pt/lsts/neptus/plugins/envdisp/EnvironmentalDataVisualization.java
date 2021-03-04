@@ -55,6 +55,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.ClientProtocolException;
@@ -1184,7 +1185,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
         try {
             CloseableHttpResponse iGetResultCode = httpComm.getClient().execute(hget);
             InputStream ris = iGetResultCode.getEntity().getContent();
-            System.out.println(StreamUtil.copyStreamToString(ris));
+            System.out.println(StringEscapeUtils.escapeCsv(StreamUtil.copyStreamToString(ris)));
         }
         catch (ClientProtocolException e1) {
             // TODO Auto-generated catch block
