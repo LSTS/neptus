@@ -878,8 +878,8 @@ public class LsfReport {
         while (list.size() < h && counter<10) {// get enough lines
             counter++;//infinte cicle protection
             deviation += 250;
-            t1 = t - deviation * (h / 2);
-            t2 = t + deviation * (h / 2);
+            t1 = t - deviation * (h / 2L);
+            t2 = t + deviation * (h / 2L);
             if (t1 < firstTimestamp) {
                 t1 = firstTimestamp;
             }
