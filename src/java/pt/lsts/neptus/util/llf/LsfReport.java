@@ -925,19 +925,19 @@ public class LsfReport {
         }
         else if (w < 150 || h < 150) {
             if (w < 150) {
-                w *= 1.2;
+                w = Double.valueOf(1.2 * w).intValue();
                 wMeters *= 1.2;
             }
             if (h < 150)
-                h *= 1.2;
+                h = Double.valueOf(1.2 * h).intValue();;
         }
         else if (w < 200 || h < 200) {
             if (w < 200) {
-                w *= 1.1;
+                w = Double.valueOf(1.1 * w).intValue();;
                 wMeters *= 1.1;
             }
             if (h < 200)
-                h *= 1.1;
+                h = Double.valueOf(1.1 * h).intValue();;
         }
 
         newMark.setH(h);
