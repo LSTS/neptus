@@ -66,9 +66,14 @@ public class VrpManager {
     public static double dist = 0;
 
     public static Vector<Vector<Point2d>> computePathsSingleDepot(Point2d depot, Vector<Point2d> pointList,
-            int n_vehicles) {
+            int nVehicles) {
 
-        Vector<Vector<Point2d>> returnVector = new Vector<Vector<Point2d>>();
+        Vector<Vector<Point2d>> returnVector = new Vector<>();
+
+        if (nVehicles <= 0) { // Protection of divide by zero
+            NeptusLog.pub().debug("number of vehicles cannot be <= 0solution not found");
+            return returnVector;
+        }
 
         int sizeVisitPoints = pointList.size();
         PointGraph pointGraph = new PointGraph();
@@ -137,9 +142,12 @@ public class VrpManager {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+        finally {
+            tours = new Vector[0];
+        }
 
         double meters = 0;
-        if (n_vehicles == tours.length)
+        if (nVehicles == tours.length)
             NeptusLog.pub().info("solved - One path for each vehicle");
 
         for (int i = 0; i < tours.length; i++) {
@@ -173,13 +181,13 @@ public class VrpManager {
         dist = meters;
         // ------------------------------------------------------------------
         double rangeConstraint = meters;
-        double step = rangeConstraint / n_vehicles;
+        double step = rangeConstraint / nVehicles;
 
         rangeConstraint -= step;
 
         int last = -1;
 
-        while (returnVector.size() != n_vehicles) {
+        while (returnVector.size() != nVehicles) {
 
             vrp.setCostConstraint(rangeConstraint/* rangeConstraint*1000 */);
             NeptusLog.pub().debug("range:" + rangeConstraint);
@@ -240,7 +248,7 @@ public class VrpManager {
             }
 
             if (last != 0) {
-                if (returnVector.size() > n_vehicles) {
+                if (returnVector.size() > nVehicles) {
                     if (last < 0) {
                         step /= 2;
                     }
@@ -249,7 +257,7 @@ public class VrpManager {
                     last = 1;
                 }
 
-                if (returnVector.size() < n_vehicles) {
+                if (returnVector.size() < nVehicles) {
 
                     if (last > 0) {
                         step /= 2;
@@ -465,23 +473,24 @@ public class VrpManager {
             e.printStackTrace();
         }
 
-        if (n_vehicles == tours.length)
+        if (tours != null && n_vehicles == tours.length)
             NeptusLog.pub().debug("Solved - One path for each vehicle");
 
-        Vector<Vector<Point2d>> returnVector = new Vector<Vector<Point2d>>();
+        Vector<Vector<Point2d>> returnVector = new Vector<>();
 
-        for (int i = 0; i < tours.length; i++) {
-            Vector<Point2d> path = new Vector<Point2d>();
-            Enumeration<?> e = tours[i].elements();
-            e.nextElement(); // Skip Vertex
-            while (e.hasMoreElements()) {
-                EdgeI edge = (EdgeI) e.nextElement();
-                PointIdoubleI customer1 = (PointIdoubleI) edge.getToVertex().getValue();
-
-                path.add(customer1.getPoint2d());
+        if (tours != null) {
+            for (Vector<?> tour : tours) {
+                Vector<Point2d> path = new Vector<Point2d>();
+                Enumeration<?> e = tour.elements();
                 e.nextElement(); // Skip Vertex
+                while (e.hasMoreElements()) {
+                    EdgeI edge = (EdgeI) e.nextElement();
+                    PointIdoubleI customer1 = (PointIdoubleI) edge.getToVertex().getValue();
+                    path.add(customer1.getPoint2d());
+                    e.nextElement(); // Skip Vertex
+                }
+                returnVector.add(path);
             }
-            returnVector.add(path);
         }
         if (returnVector.size() != n_vehicles)
             return null;
