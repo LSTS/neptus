@@ -395,8 +395,9 @@ project(':core') {
         implementation 'com.jgoodies:jgoodies-looks:2.5.3' //2.7.0
         implementation 'com.jhlabs:filters:2.0.235-1' // don't know the orig version
 
-        //implementation name: 'jinput'
-        implementation 'net.java.jinput:jinput:2.0.9' // was not this and should be before 2.0.4
+        /* Compatible Native Libs https://repo1.maven.org/maven2/net/java/jinput/jinput/2.0.9/jinput-2.0.9-natives-all.jar
+         * Make sure the natives libs in libJNI are from the same version */
+        implementation 'net.java.jinput:jinput:2.0.9'
 
         implementation 'net.sourceforge.jmatio:jmatio:1.0'
         implementation 'javax.media:jmf:2.1.1e'
