@@ -142,7 +142,8 @@ public class VrpManager {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        finally {
+
+        if (tours == null) {
             tours = new Vector[0];
         }
 
