@@ -465,17 +465,14 @@ public class VrpManager {
             NeptusLog.pub().debug("passed");
             tours = vrp.getTours();
         }
-        catch (SolutionNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (VertexNotFoundException e) {
+        catch (SolutionNotFoundException | VertexNotFoundException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
 
-        if (tours != null && n_vehicles == tours.length)
+        if (tours != null && n_vehicles == tours.length) {
             NeptusLog.pub().debug("Solved - One path for each vehicle");
+        }
 
         Vector<Vector<Point2d>> returnVector = new Vector<>();
 
