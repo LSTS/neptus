@@ -572,16 +572,16 @@ project(':core') {
 
     eclipse {
         classpath {
-            defaultOutputDir = file("${rootProject.buildDir.getName()}/eclipse/default")
-            file.whenMerged {
-                def subProjectJarWasIn = []
-                entries.each { entry ->
-                    if (entry.kind == 'src' && entry.hasProperty('output')) {
-                        // Let us replace the output from bin to the proper build folder
-                        entry.output = entry.output.replace('bin/', "${rootProject.buildDir.getName()}/eclipse/")
-                    }
-                }
-            }
+            // defaultOutputDir = file("${rootProject.buildDir.getName()}/eclipse/default")
+            // file.whenMerged {
+            //     def subProjectJarWasIn = []
+            //     entries.each { entry ->
+            //         if (entry.kind == 'src' && entry.hasProperty('output')) {
+            //             // Let us replace the output from bin to the proper build folder
+            //             entry.output = entry.output.replace('bin/', "${rootProject.buildDir.getName()}/eclipse/")
+            //         }
+            //     }
+            // }
         }
         project {
             resourceFilter {
@@ -713,15 +713,15 @@ configure(subprojects.findAll { it.name != 'core' }) {
     apply plugin: 'eclipse'
     eclipse {
         classpath {
-            defaultOutputDir = file("${rootProject.buildDir.getName()}/eclipse/default")
-            file.whenMerged {
-                entries.each { entry ->
-                    // Let us replace the output from bin to the proper build folder
-                    if (entry.kind == 'src' && entry.hasProperty('output')) {
-                        entry.output = entry.output.replace('bin/', "${rootProject.buildDir.getName()}/eclipse/")
-                    }
-                }
-            }
+            // defaultOutputDir = file("${rootProject.buildDir.getName()}/eclipse/default")
+            // file.whenMerged {
+            //     entries.each { entry ->
+            //         // Let us replace the output from bin to the proper build folder
+            //         if (entry.kind == 'src' && entry.hasProperty('output')) {
+            //             entry.output = entry.output.replace('bin/', "${rootProject.buildDir.getName()}/eclipse/")
+            //         }
+            //     }
+            // }
         }
         project {
             resourceFilter {
@@ -1260,7 +1260,9 @@ task cleanEclipseBuild {
         delete file("${project(':core').projectDir}/code")
         subprojects.each { project ->
             file("$project.projectDir").listFiles({
-                    file -> file.isDirectory() && file.name ==~ 'build'
+                    file -> file.isDirectory() && (file.name ==~ 'build'
+                    || file.name ==~ 'bin'
+                    || file.name ==~ 'log')
                 } as FileFilter).each { delete it }
         }
     }

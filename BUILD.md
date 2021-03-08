@@ -38,7 +38,7 @@
 
 To use in Eclipse don't create the project but import the Gradle project into Eclipse.
 
-* `./gradlew eclipse` to create the project (DON'T CALL THIS)
+* `./gradlew eclipse` to create the project (can be used, but configure the debug runs still WIP)
 * `./gradlew cleanEclipseBuild` to delete the project build folders
 * `./gradlew cleanEclipse` to delete the project
 

@@ -132,13 +132,13 @@
 /conf/general-properties.xml
 /conf/mystate.xml
 /*.so
-/log/
+log/
 
 
 /svn.info.txt
 /scm.info.txt
 *.pdf
-/bin
+bin
 /bin-bundles
 /plugins
 /plugins-dev?*
