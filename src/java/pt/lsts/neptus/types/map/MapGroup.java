@@ -237,16 +237,17 @@ public class MapGroup implements MapChangeListener {
 	 * @param map The map to be added to this MapGroup
 	 */
 	public void addMap(MapType map) {
-		
-		if (maps.contains(map.getId())) {
+        if (map == null) {
+            return;
+        }
+
+        if (maps.containsKey(map.getId())) {
 			maps.get(map.getId()).removeChangeListener(this);
 		}
-		
-		maps.put(map.getId(), map);		
+		maps.put(map.getId(), map);
 		map.addChangeListener(this);
-		
-		 
-		 Object[] objNames = map.getObjectIds();
+
+		Object[] objNames = map.getObjectIds();
 		for (int i = 0; i < objNames.length; i++) {
 			AbstractElement mo = map.getObject((String)objNames[i]);
 			mo.setMapGroup(this);
@@ -256,7 +257,6 @@ public class MapGroup implements MapChangeListener {
 			mce.setSourceMap(map);
 			warnListeners(mce);
 		}
-		
 	}
 	
 	
