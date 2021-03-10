@@ -405,6 +405,8 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
                 List<?> maneuvers = doc.selectNodes("/" + rootElemName
                         + "/feasibleManeuvers/maneuver/*/annotation/implementation-class");
 
+                feasibleManeuvers.clear();
+                customManeuverPreviews.clear();
                 for (Object maneuver : maneuvers) {
                     Node tmpMan = (Node) maneuver;
                     String manName = tmpMan.getParent().getParent().getName();
@@ -415,10 +417,14 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
                     if (previewClassNode != null) {
                         Maneuver man = ManeuverFactory.createManeuver(manName, feasibleManeuvers.get(manName));
                         if (man != null && !(man instanceof DefaultManeuver)) {
-                            Class<IManeuverPreview<?>> previewClass = ManPreviewFactory.createPreviewClass(previewClassNode.getText());
+                            customManeuverPreviews.put(manName, previewClassNode.getText());
+                            Class<IManeuverPreview<?>> previewClass = ManPreviewFactory.createPreviewClass(
+                                    customManeuverPreviews.get(manName));
                             if (previewClass != null) {
-                                customManeuverPreviews.put(manName, previewClassNode.getText());
                                 ManPreviewFactory.registerPreview(id, man.getClass(), previewClass);
+                            }
+                            else {
+                                customManeuverPreviews.remove(manName);
                             }
                         }
                     }
