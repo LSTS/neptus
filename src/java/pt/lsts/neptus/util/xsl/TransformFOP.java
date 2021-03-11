@@ -86,7 +86,7 @@ public class TransformFOP
     // throws IOException, FOPException, TransformerException
     {
         // configure fopFactory as desired
-        FopFactory fopFactory = FopFactory.newInstance();
+        FopFactory fopFactory = FopFactory.newInstance(new File(".").toURI());
 
         FOUserAgent foUserAgent = fopFactory.newFOUserAgent();
         // configure foUserAgent as desired

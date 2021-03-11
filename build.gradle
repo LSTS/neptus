@@ -347,9 +347,8 @@ project(':core') {
 
         implementation name: 'ais-contact-manager-1.0'
 
-        //implementation 'org.apache.xmlgraphics:batik-transcoder:1.7' //1.13 was from fop
-        //implementation 'org.apache.xmlgraphics:batik-all:1.9.1' //1.13 was 1.7.1
-        implementation 'org.apache.xmlgraphics:batik-gui-util:1.7' //1.13
+        implementation 'org.apache.xmlgraphics:batik-gui-util:1.14'
+        implementation 'org.apache.xmlgraphics:batik-anim:1.14'
 
         implementation name: 'charsets-zip' // for zip, probably not needed anymore
         implementation 'commons-cli:commons-cli:1.2' //1.4
@@ -369,7 +368,7 @@ project(':core') {
         implementation 'jaxen:jaxen:1.1.1' //1.2.0
 
         implementation 'com.firebase:firebase-client-jvm:2.0.0' //2.5.2
-        implementation 'org.apache.xmlgraphics:fop:0.95'
+        implementation 'org.apache.xmlgraphics:fop:2.6'
         //implementation group: 'foxtrot', name: 'foxtrot', version: '3.0', ext: 'pom'
         implementation name: 'foxtrot' //4.0, used 3.0
 
