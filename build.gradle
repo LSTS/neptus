@@ -860,6 +860,7 @@ task buildWorldmapBundleJar(type: Jar) {
         into 'legal'
     }
     from (project(':core').sourceSets.main.output) {
+        include 'version.txt'
         include 'images/neptus-icon.png'
         include 'images/neptus-icon1.png'
         include 'images/neptus-icon2.png'
@@ -930,6 +931,7 @@ task buildCheckBundleJar(type: Jar) {
         into 'legal'
     }
     from (project(':core').sourceSets.main.output) {
+        include 'version.txt'
         include 'images/neptus-icon.png'
         include 'images/neptus-icon1.png'
         include 'images/neptus-icon2.png'
