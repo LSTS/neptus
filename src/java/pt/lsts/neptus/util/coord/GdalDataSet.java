@@ -34,13 +34,13 @@ package pt.lsts.neptus.util.coord;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
 
 import javax.imageio.ImageIO;
 
-import org.apache.sanselan.ImageReadException;
 import org.apache.sanselan.Sanselan;
 import org.gdal.gdal.Dataset;
 import org.gdal.gdal.gdal;
@@ -144,8 +144,8 @@ public class GdalDataSet {
         try {
             ImageIO.write(getGroundOverlay(), "png", file);
         }
-        catch (ImageReadException e) {
-            throw new Exception("Unable to read source image: "+e.getMessage(), e);
+        catch (IOException e) {
+            throw new Exception("Unable to read source image: " + e.getMessage(), e);
         }
         
         el.setImageFileName(file.getAbsolutePath());
