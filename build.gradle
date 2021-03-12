@@ -472,7 +472,7 @@ project(':core') {
         //implementation 'org.rxtx:rxtxcomm:2.0-7pre1'
         implementation name: 'RXTXcomm'
 
-        implementation 'org.apache.sanselan:sanselan:0.97-incubator'
+        implementation 'org.apache.sanselan:sanselan:0.97-incubator' // Check new commons-imaging (changed name)
         implementation name: 'sqlitejdbc-v056'
         implementation name: 'standby'
         implementation 'org.swinglabs.swingx:swingx-all:1.6.5-1'
