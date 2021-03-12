@@ -475,7 +475,7 @@ project(':core') {
         implementation 'org.apache.sanselan:sanselan:0.97-incubator'
         implementation name: 'sqlitejdbc-v056'
         implementation name: 'standby'
-        implementation 'org.swinglabs.swingx:swingx-all:1.6.4' //1.6.5-1
+        implementation 'org.swinglabs.swingx:swingx-all:1.6.5-1'
 
         implementation name: 'speech/cmudict04'
         implementation name: 'speech/cmu_time_awb'
