@@ -364,7 +364,7 @@ project(':core') {
         implementation 'commons-net:commons-net:3.8.0'
 
         implementation 'dom4j:dom4j:1.6.1'
-        implementation 'jaxen:jaxen:1.1.1' //1.2.0
+        implementation 'jaxen:jaxen:1.2.0'
 
         implementation 'com.firebase:firebase-client-jvm:2.0.0' //2.5.2
         implementation 'org.apache.xmlgraphics:fop:2.6'
