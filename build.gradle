@@ -382,7 +382,7 @@ project(':core') {
 
         implementation 'de.grundid.opendatalab:geojson-jackson:1.14'
 
-        implementation 'org.apache.httpcomponents:httpclient:4.5.1' //4.5.12
+        implementation 'org.apache.httpcomponents:httpclient:4.5.13' //5.0
 
         implementation 'org.imgscalr:imgscalr-lib:4.2'
         implementation 'org.ini4j:ini4j:0.5.2' //0.5.4
