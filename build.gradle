@@ -385,7 +385,6 @@ project(':core') {
         implementation 'org.apache.httpcomponents:httpclient:4.5.13' //5.0
 
         implementation 'org.imgscalr:imgscalr-lib:4.2'
-        implementation 'org.ini4j:ini4j:0.5.2' //0.5.4
         implementation 'com.lowagie:itext:2.1.5'
 
         // Java 3D related //
