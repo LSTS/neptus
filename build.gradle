@@ -396,7 +396,6 @@ project(':core') {
         implementation name: 'vecmath' // to delete
         implementation name: 'wrl/j3d-vrml97' // to delete
 
-        implementation 'gov.nist.math:jama:1.0.2' //1.0.3
         implementation 'de.micromata.jak:JavaAPIforKml:2.2.0' //2.2.1
         implementation 'net.sourceforge.javacsv:javacsv:2.0'
         implementation 'org.javassist:javassist:3.18.0-GA' //3.27.0-GA
