@@ -55,8 +55,6 @@ import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -187,7 +185,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     private PlanType plan = null;
     protected CommManagerStatusChangeListener imcManagerStatus = null;
     private final ImcMsgManager imcMsgManager;
-    private final ConcurrentMap<String, ConsoleSystem> consoleSystems = new ConcurrentHashMap<String, ConsoleSystem>();
+    private final ConcurrentMap<String, ConsoleSystem> consoleSystems = new ConcurrentHashMap<>();
 
     // Controller Manager to be used by every plugin that uses an external controller (Gamepad, etc...)
     private final ControllerManager controllerManager;
@@ -203,7 +201,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     protected Map<Class<? extends ConsoleAction>, ConsoleAction> actions = new HashMap<>();
     protected Map<String, Action> globalKeybindings = new HashMap<>();
     protected KeyEventDispatcher keyDispatcher;
-    private final List<Window> onRunningFrames = new ArrayList<Window>(); // frames to close on exit
+    private final List<Window> onRunningFrames = new ArrayList<>(); // frames to close on exit
 
     // base components
     protected JMenuBar menuBar;
@@ -219,20 +217,20 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     private Rectangle2D minimizedBounds = null;
     private ConsolePanel maximizedPanel = null;
 
-    protected Vector<SubPanelChangeListener> subPanelListeners = new Vector<SubPanelChangeListener>();
-    protected Vector<MissionChangeListener> missionListeners = new Vector<MissionChangeListener>();
-    protected Vector<PlanChangeListener> planListeners = new Vector<PlanChangeListener>();
+    protected Vector<SubPanelChangeListener> subPanelListeners = new Vector<>();
+    protected Vector<MissionChangeListener> missionListeners = new Vector<>();
+    protected Vector<PlanChangeListener> planListeners = new Vector<>();
 
     // Main Vehicle
-    protected Vector<MainVehicleChangeListener> mainVehicleListeners = new Vector<MainVehicleChangeListener>();
-    protected Vector<ConsoleVehicleChangeListener> consoleVehicleChangeListeners = new Vector<ConsoleVehicleChangeListener>();
+    protected Vector<MainVehicleChangeListener> mainVehicleListeners = new Vector<>();
+    protected Vector<ConsoleVehicleChangeListener> consoleVehicleChangeListeners = new Vector<>();
 
     // -------------------------------- XML console
     public File fileName = null;
     public boolean resizableConsole = false;
 
-    private boolean systemComboOnMenu = true;
-    private boolean useMainVehicleComboOnConsoles = true;
+    private boolean systemComboOnMenu;
+    private boolean useMainVehicleComboOnConsoles;
 
     protected PluginManager pluginManager = null;
     protected SettingsWindow settingsWindow = null;
@@ -445,20 +443,17 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     }
 
     private void setupKeyBindings() {
-        KeyEventDispatcher keyDispatcher = new KeyEventDispatcher() {
-            @Override
-            public boolean dispatchKeyEvent(KeyEvent e) {
-                int eventType = e.getID(); // KeyEvent.KEY_PRESSED KeyEvent.KEY_RELEASED KEY_TYPED
+        KeyEventDispatcher keyDispatcher = e -> {
+            int eventType = e.getID(); // KeyEvent.KEY_PRESSED KeyEvent.KEY_RELEASED KEY_TYPED
 
-                Action action = globalKeybindings
-                        .get(KeyStroke.getKeyStroke(e.getKeyCode(), e.getModifiers()).toString());
-                if (action != null && eventType == KeyEvent.KEY_PRESSED) {
-                    action.actionPerformed(null);
-                    return true;
-                }
-
-                return false;
+            Action action = globalKeybindings
+                    .get(KeyStroke.getKeyStroke(e.getKeyCode(), e.getModifiers()).toString());
+            if (action != null && eventType == KeyEvent.KEY_PRESSED) {
+                action.actionPerformed(null);
+                return true;
             }
+
+            return false;
         };
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(keyDispatcher);
     }
@@ -494,7 +489,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         for (String ky : this.globalKeybindings.keySet()) {
             Action ac = this.globalKeybindings.get(ky);
             if (ac == action)
-                return this.globalKeybindings.remove(ky) != null ? true : false;
+                return this.globalKeybindings.remove(ky) != null;
         }
         return false;
     }
@@ -742,7 +737,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         parent.remove(mn);
 
         Component pef = parent.getComponent(0);
-        if (pef != null && pef instanceof JPopupMenu.Separator)
+        if (pef instanceof JPopupMenu.Separator)
             parent.remove(0);
 
         return true;
@@ -1135,7 +1130,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
                         NeptusLog.pub().error("Console Base open file error [" + file.getAbsolutePath() + "]");
                         NeptusLog.pub().error(e, e);
                     }
-                };
+                }
             };
             t.start();
         }
@@ -1144,22 +1139,18 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     // XmlInOut Implementation
     @Override
     public String asXML() {
-        String rootElementName = DEFAULT_ROOT_ELEMENT;
-        return asXML(rootElementName);
+        return asXML(DEFAULT_ROOT_ELEMENT);
     }
 
     @Override
     public String asXML(String rootElementName) {
-        String result = "";
         Document document = asDocument(rootElementName);
-        result = document.asXML();
-        return result;
+        return document.asXML();
     }
 
     @Override
     public Element asElement() {
-        String rootElementName = DEFAULT_ROOT_ELEMENT;
-        return asElement(rootElementName);
+        return asElement(DEFAULT_ROOT_ELEMENT);
     }
 
     @Override
@@ -1169,16 +1160,12 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
 
     @Override
     public Document asDocument() {
-        String rootElementName = DEFAULT_ROOT_ELEMENT;
-        return asDocument(rootElementName);
+        return asDocument(DEFAULT_ROOT_ELEMENT);
     }
 
     @Override
     public Document asDocument(String rootElementName) {
-
-        Document doc = null;
-
-        doc = DocumentHelper.createDocument();
+        Document doc = DocumentHelper.createDocument();
 
         Element root = doc.addElement(rootElementName);
         root.addComment(ConfigFetch.getSaveAsCommentForXML());
@@ -1261,7 +1248,6 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
 
     public void addSubPanel(ConsolePanel panel) {
         getMainPanel().addSubPanel(panel);
-        ;
     }
 
     public void addSubPanel(ConsolePanel panel, int x, int y) {
@@ -1275,8 +1261,8 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     public List<PropertiesProvider> getAllPropertiesProviders() {
         List<PropertiesProvider> ret = new ArrayList<>();
         for (ConsolePanel sp : subPanels) {
-            if (sp instanceof PropertiesProvider)
-                ret.add((PropertiesProvider) sp);
+            if (sp != null)
+                ret.add(sp);
 
             // // Process Containers (one level only)
             // if (sp instanceof ContainerSubPanel) {
@@ -1288,8 +1274,8 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         }
         for (IConsoleLayer ly : layers.keySet()) {
             if (layers.get(ly)) {
-                if (ly instanceof PropertiesProvider)
-                    ret.add((PropertiesProvider) ly);
+                if (ly != null)
+                    ret.add(ly);
             }
         }
         for (IConsoleInteraction in : interactions.keySet()) {
@@ -1308,7 +1294,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
      */
     public <T extends ConsolePanel> Vector<T> getSubPanelsOfClass(Class<T> subPanelType) {
         try {
-            Vector<T> ret = new Vector<T>();
+            Vector<T> ret = new Vector<>();
 
             if (subPanels.isEmpty())
                 return ret;
@@ -1322,19 +1308,19 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         }
         catch (Exception e) {
             e.printStackTrace();
-            return new Vector<T>();
+            return new Vector<>();
         }
     }
 
     /**
      * 
-     * @param subPanelType
+     * @param pluginType
      * @return
      */
     @SuppressWarnings("unchecked")
     public <T> Vector<T> getMapPluginsOfType(Class<T> pluginType) {
         try {
-            Vector<T> ret = new Vector<T>();
+            Vector<T> ret = new Vector<>();
 
             for (IConsoleLayer l : layers.keySet())
                 if (pluginType.isAssignableFrom(l.getClass()))
@@ -1348,13 +1334,13 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         }
         catch (Exception e) {
             e.printStackTrace();
-            return new Vector<T>();
+            return new Vector<>();
         }
     }
 
     @SuppressWarnings("unchecked")
     private <T extends ConsolePanel> Vector<T> getSubPanelType(ConsolePanel sp, Class<T> superClass) {
-        Vector<T> ret = new Vector<T>();
+        Vector<T> ret = new Vector<>();
         if (sp == null)
             return ret;
 
@@ -1387,8 +1373,8 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
      * @return A vector of subpanels that implement the given interface
      */
     public <T> Vector<T> getSubPanelsOfInterface(Class<T> interfaceType) {
-        Vector<T> ret = new Vector<T>();
-        HashSet<T> col = new HashSet<T>();
+        Vector<T> ret = new Vector<>();
+        HashSet<T> col = new HashSet<>();
 
         if (subPanels.isEmpty())
             return ret;
@@ -1402,7 +1388,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
 
     @SuppressWarnings("unchecked")
     private <T> Vector<T> getSubPanelImplementations(ConsolePanel sp, Class<T> interfaceType) {
-        Vector<T> ret = new Vector<T>();
+        Vector<T> ret = new Vector<>();
 
         if (ReflectionUtil.hasInterface(sp.getClass(), interfaceType))
             ret.add((T) sp);
@@ -1535,7 +1521,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
 
         interaction.clean();
 
-        return interactions.remove(interaction) == null ? false : true;
+        return interactions.remove(interaction) != null;
     }
 
     /**
@@ -1595,7 +1581,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         }
 
         try {
-            return layers.remove(layer) == null ? false : true;
+            return layers.remove(layer) != null;
         }
         catch (Exception e) {
             NeptusLog.pub().error("Error removing layer '" + layer.getName() + "' from console layers list!", e);
@@ -1731,18 +1717,21 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
 
         if (subPanels.indexOf(p) == -1) {
             for (ConsolePanel tmp : subPanels) {
-                for (ConsolePanel c : tmp.getChildren())
-                    if (c.equals(p))
+                for (ConsolePanel c : tmp.getChildren()) {
+                    if (c.equals(p)) {
                         p = tmp;
+                        break;
+                    }
+                }
             }
         }
         else {
             p.setBounds(minimizedBounds.getBounds());
             for (ConsolePanel tmp : subPanels) {
-                if (!(tmp instanceof ConsolePanel) || ((ConsolePanel) tmp).getVisibility())
+                if (tmp != null && tmp.getVisibility()) {
                     tmp.setVisible(true);
+                }
             }
-
         }
 
         minimizedBounds = null;
@@ -1759,8 +1748,10 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         if (subPanels.indexOf(p) == -1) {
             for (ConsolePanel tmp : subPanels) {
                 for (ConsolePanel c : tmp.getChildren())
-                    if (c.equals(p))
+                    if (c.equals(p)) {
                         p = tmp;
+                        break;
+                    }
             }
         }
         else {
@@ -1850,8 +1841,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         Context cx = Context.enter();
 
         try {
-            Object result = cx.evaluateString(getScope(), js, "<script>", 1, null);
-            return result;
+            return cx.evaluateString(getScope(), js, "<script>", 1, null);
         }
         catch (Exception e) {
             GuiUtils.errorMessage(getConsole(), e);
@@ -1906,15 +1896,13 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         if (icon != null)
             action.putValue(AbstractAction.SMALL_ICON, ImageUtils.getScaledIcon(icon.getImage(), 16, 16));
 
-        JMenuItem item = menu.add(action);
-        return item;
+        return menu.add(action);
     }
 
     public JMenu removeMenuItem(String... menuPath) {
         // To account for the add option of separating menus by '>'
         if (menuPath.length == 1 && menuPath[0].contains(">")) {
-            String[] tks = menuPath[0].split(">");
-            menuPath = tks;
+            menuPath = menuPath[0].split(">");
         }
 
         JMenu parent = null;
@@ -1932,8 +1920,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
             return null;
 
         int i = 1;
-
-        while (parent != null && i < menuPath.length) {
+        while (i < menuPath.length) {
             boolean found = false;
             for (int j = 0; j < parent.getItemCount(); j++) {
                 JMenuItem child = parent.getItem(j);
@@ -2001,7 +1988,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     }
 
     /**
-     * @param parent
+     * @param topMenu
      */
     private synchronized void insertJMenuIntoTheMenuBarOrdered(JMenu topMenu) {
         int indexEnd = 0;
@@ -2120,7 +2107,8 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     }
 
     public ImcSystemState getImcState(String system) {
-        return ImcMsgManager.getManager().getState(ImcSystemsHolder.getSystemWithName(system).getId());
+        ImcSystem imcSys = ImcSystemsHolder.getSystemWithName(system);
+        return imcSys == null ? null : ImcMsgManager.getManager().getState(imcSys.getId());
     }
 
     /*
@@ -2141,9 +2129,9 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
 
         MissionType mission = this.getMission();
         if (mission != null) {
-            title.append(" | " + I18n.text("Mission") + ": ");
+            title.append(" | ").append(I18n.text("Mission")).append(": ");
             title.append(mission.getName());
-            title.append(" [" + mission.getCompressedFilePath() + "]");
+            title.append(" [").append(mission.getCompressedFilePath()).append("]");
         }
         this.setTitle(title.toString());
     }
@@ -2258,7 +2246,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     }
 
     /**
-     * @param edited the save to set
+     * @param needsToSave the save to set
      */
     public void setConsoleChanged(boolean needsToSave) {
         this.changed = needsToSave;
@@ -2299,17 +2287,15 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         GuiUtils.setLookAndFeel();
         File[] consoles = new File(ConfigFetch.getConsolesFolder()).listFiles();
         Vector<String> options = new Vector<>();
-        for (File f : consoles) {
-            if (FileUtil.getFileExtension(f).equalsIgnoreCase("ncon")) {
-                options.add(FileUtil.getFileNameWithoutExtension(f));
+        if (consoles != null) {
+            for (File f : consoles) {
+                if (FileUtil.getFileExtension(f).equalsIgnoreCase("ncon")) {
+                    options.add(FileUtil.getFileNameWithoutExtension(f));
+                }
             }
         }
         final Collator collator = Collator.getInstance(Locale.US);
-        Collections.sort(options, new Comparator<String>() {
-            public int compare(String o1, String o2) {
-                return collator.compare(o1, o2);
-            };
-        });
+        options.sort(collator::compare);
 
         String op = "" + JOptionPane.showInputDialog(null, I18n.text("Select console to open"),
                 I18n.text("Neptus Console"), JOptionPane.QUESTION_MESSAGE,
