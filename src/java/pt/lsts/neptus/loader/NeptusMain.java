@@ -188,7 +188,7 @@ public class NeptusMain {
         else if (app.equalsIgnoreCase("cl")) {
             ConfigFetch.initialize();
             ConsoleLayout appC = ConsoleLayout.forge();
-            appC.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            // appC.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             appC.setVisible(true);
             wrapMainApplicationWindowWithCloseActionWindowAdapter(appC);
         }
@@ -196,7 +196,7 @@ public class NeptusMain {
         else if (app.equalsIgnoreCase("auv")) {
             ConfigFetch.initialize();
             ConsoleLayout appC = ConsoleLayout.forge("conf/consoles/lauv.ncon", loader);
-            appC.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            // appC.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             appC.setVisible(true);
             wrapMainApplicationWindowWithCloseActionWindowAdapter(appC);
         }
@@ -215,7 +215,7 @@ public class NeptusMain {
         else if (app.equalsIgnoreCase("uav")) {
             ConfigFetch.initialize();
             ConsoleLayout appC = ConsoleLayout.forge("conf/consoles/uav-light.ncon", loader);
-            appC.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            // appC.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             appC.setVisible(true);
             wrapMainApplicationWindowWithCloseActionWindowAdapter(appC);
         }
@@ -327,7 +327,9 @@ public class NeptusMain {
                     FileHandler fh = ((FileHandler) fileHandlers.get(extension).getDeclaredConstructor().newInstance());
                     loader.setText(I18n.textf("Starting %program %arg...", fh.getName(),f.getName()));
                     if (fh instanceof JFrame) {
-                        ((JFrame) fh).setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                        if (!(fh instanceof ConsoleLayout)) {
+                            ((JFrame) fh).setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                        }
                         wrapMainApplicationWindowWithCloseActionWindowAdapter((JFrame) fh);
                     }
                     fh.handleFile(f);
