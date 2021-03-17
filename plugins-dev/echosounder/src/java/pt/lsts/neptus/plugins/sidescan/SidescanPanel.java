@@ -56,8 +56,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -112,13 +114,14 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     private final List<SidescanLine> lines = Collections.synchronizedList(new ArrayList<>());
     private boolean isShowingZoomedImage = false;
     private long lastMouseMoveTS = 0;
-    private final ExecutorService threadExecutor = Executors.newCachedThreadPool();
+    private final ScheduledExecutorService threadExecutor = Executors.newScheduledThreadPool(4);
 
     private final SidescanAnalyzer parent;
     SidescanConfig config = new SidescanConfig();
     private final SidescanToolbar toolbar = new SidescanToolbar(this);
 
     private final SidescanParameters sidescanParams = new SidescanParameters(0, 0); // Initialize it to zero for now
+
     enum InteractionMode {
         NONE,
         INFO,
@@ -303,44 +306,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                     lines.add(line);
                 }
             }
-        }
-    };
-
-    private final Runnable detectMouse = new Runnable() {
-        @Override
-        public void run() {
-            boolean updated = false;
-            while (true) {
-                if (zoom) {
-                    if (parent.getTimeline().isRunning())
-                        updated = false;
-
-                    while (!updated) {
-                        try {
-                            if (isMouseAtRest() && !parent.getTimeline().isRunning()) {
-                                setSSLines(mouseY, null);
-                                threadExecutor.execute(updateLines);
-                                view.repaint();
-                                updated = true;
-                            }
-                            Thread.sleep(500);
-                        }
-                        catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-
-                try {
-                    Thread.sleep(10);
-                }
-                catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-                if (isMouseAtRest(BULLSEYE_HIDE_TIMEOUT_MILLIS / 2))
-                    view.repaint();
-            }
+            view.repaint();
         }
     };
 
@@ -380,7 +346,12 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         add(toolbar, "w 100%, wrap");
         add(view, "w 100%, h 100%");
 
-        threadExecutor.execute(detectMouse);
+        // threadExecutor.execute(detectMouse);
+    }
+
+    public void clean() {
+        record(false);
+        threadExecutor.shutdown();
     }
 
     /**
@@ -952,13 +923,49 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         return bottomTS <= line.getTimestampMillis() && line.getTimestampMillis() <= topTS;
     }
 
+    private void setLastMouseMoveTime() {
+        lastMouseMoveTS = System.nanoTime();
+        mouseMovementDetection();
+    }
+
+    private final Object lockUpdateLinesExecution = new Object();
+    private ScheduledFuture<?> updateLinesExecution;
+    private final Object lockRepaintExecution = new Object();
+    private ScheduledFuture<?> repaintExecution;
+    private void mouseMovementDetection() {
+        synchronized (lockUpdateLinesExecution) {
+            if (updateLinesExecution != null ) {
+                updateLinesExecution.cancel(false);
+            }
+            if (!parent.getTimeline().isRunning() && zoom) {
+                updateLinesExecution = threadExecutor.schedule(() -> {
+                    if (parent.getTimeline().isRunning() || !zoom)
+                        return;
+                    setSSLines(mouseY, null);
+                    threadExecutor.execute(updateLines);
+                    view.repaint();
+                }, 500, TimeUnit.MILLISECONDS);
+            }
+        }
+
+        synchronized (lockRepaintExecution) {
+            if (repaintExecution != null) {
+                repaintExecution.cancel(false);
+            }
+            repaintExecution = threadExecutor.schedule(() -> {
+                //if (isMouseAtRest(BULLSEYE_HIDE_TIMEOUT_MILLIS))
+                    view.repaint();
+            }, BULLSEYE_HIDE_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+        }
+    }
+
     @Override
     public void mouseMoved(MouseEvent e) {
         if (image == null )
             return;
         mouseX = e.getX();
         mouseY = e.getY();
-        lastMouseMoveTS = System.nanoTime();
+        setLastMouseMoveTime();
         setSSLines(mouseY, e);
     }
 
@@ -1001,7 +1008,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
     private boolean isMouseAtRest(long timeoutMillis) {
         long now = System.nanoTime();
-        return now - 1000000000 > lastMouseMoveTS + timeoutMillis * 1000000;
+        return now - 1_000_000_000 > lastMouseMoveTS + timeoutMillis * 1000000;
     }
 
     @Override
@@ -1009,7 +1016,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         mouseX = e.getX();
         mouseY = e.getY();
         int y = e.getY();
-        lastMouseMoveTS = System.nanoTime();
+        setLastMouseMoveTime();
         setSSLines(mouseY, e);
 
         for (SidescanLine line : lineList.toArray(new SidescanLine[0])) {
