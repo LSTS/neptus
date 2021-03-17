@@ -37,8 +37,6 @@ import java.awt.Color;
 import java.awt.Desktop;
 import java.awt.Font;
 import java.awt.Graphics2D;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
@@ -46,7 +44,6 @@ import java.awt.geom.Point2D;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -65,7 +62,6 @@ import com.google.gson.Gson;
 
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
@@ -131,14 +127,14 @@ public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUp
     public boolean useKnots = false;
 
     protected boolean active = false;
-    protected Vector<AisShip> shipsOnMap = new Vector<AisShip>();
+    protected Vector<AisShip> shipsOnMap = new Vector<>();
     protected StateRenderer2D renderer = null;
 
     protected boolean updating = false;
 
     protected Thread lastThread = null;
 
-    private Gson gson = new Gson();
+    private final Gson gson = new Gson();
 
     protected GeneralPath path = new GeneralPath();
     {
@@ -171,7 +167,7 @@ public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUp
     }
 
     /**
-     * @param console
+     * @param console The {@link ConsoleLayout} where this layer will reside.
      */
     public AisOverlay(ConsoleLayout console) {
         super(console);
@@ -254,7 +250,7 @@ public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUp
             get.setHeader("Referer", "http://www.marinetraffic.com/ais/");
 
             try (CloseableHttpResponse response = client.execute(get);
-                 BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));) {
+                 BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()))) {
                 String json = rd.lines().collect(Collectors.joining());
                 String[][] res = gson.fromJson(json, String[][].class);
 
@@ -299,21 +295,9 @@ public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUp
         super.mouseClicked(event, source);
 
         JPopupMenu popup = new JPopupMenu();
-        popup.add(I18n.text("AIS settings")).addActionListener(new ActionListener() {
+        popup.add(I18n.text("AIS settings")).addActionListener(e -> PropertiesEditor.editProperties(AisOverlay.this, getConsole(), true));
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                PropertiesEditor.editProperties(AisOverlay.this, getConsole(), true);
-            }
-        });
-
-        popup.add(I18n.text("Update ships")).addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                update();
-            }
-        });
+        popup.add(I18n.text("Update ships")).addActionListener(e -> update());
 
         popup.add(getShipInfoMenu());
 
@@ -390,26 +374,20 @@ public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUp
     }
     
     protected JMenu getShipInfoMenu() {
-        Vector<AisShip> ships = new Vector<>();
         JMenu menu = new JMenu(I18n.text("Ship Info"));
-        ships.addAll(shipsOnMap);
+        Vector<AisShip> ships = new Vector<>(shipsOnMap);
         Collections.sort(ships);
 
         if (ships.size() > 0 && Desktop.isDesktopSupported()) {
             for (final AisShip s : ships) {
-                menu.add(s.getName()).addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        Desktop desktop = Desktop.getDesktop();
-                        try {
-                            URI uri = new URI(s.getShipInfoURL());
-                            desktop.browse(uri);
-                        }
-                        catch (IOException ex) {
-                            ex.printStackTrace();
-                        }
-                        catch (URISyntaxException ex) {
-                            ex.printStackTrace();
-                        }
+                menu.add(s.getName()).addActionListener(e -> {
+                    Desktop desktop = Desktop.getDesktop();
+                    try {
+                        URI uri = new URI(s.getShipInfoURL());
+                        desktop.browse(uri);
+                    }
+                    catch (IOException | URISyntaxException ex) {
+                        ex.printStackTrace();
                     }
                 });
             }
