@@ -39,6 +39,7 @@ import java.awt.Image;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.Hashtable;
+import java.util.Objects;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
@@ -224,6 +225,11 @@ public class TransponderElement extends AbstractElement implements NameId{
         if (duneId != externalTrans.duneId)
             return false;
         return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getCenterLocation(), id, duneId);
     }
 
     /**
