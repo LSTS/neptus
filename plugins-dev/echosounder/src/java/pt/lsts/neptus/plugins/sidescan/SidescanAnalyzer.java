@@ -217,6 +217,7 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
         if (timeline != null)
             timeline.shutdown();
 
+        sidescanPanels.stream().forEach((p) -> p.clean());
         sidescanPanels.clear();
         removeAll();
         mraPanel = null;
