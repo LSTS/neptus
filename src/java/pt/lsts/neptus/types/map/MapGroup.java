@@ -452,52 +452,6 @@ public class MapGroup implements MapChangeListener {
 		return mo;
 	}
 	
-	static final int LAYER_VIRTUAL = 0, LAYER_REAL = 1, LAYER_BACKGROUND = 2; 
-	
-	@SuppressWarnings("unchecked")
-	public AbstractElement[][] getObjectsByLayers() {
-		
-		AbstractElement[] allObjs = getAllObjects();
-		Vector<AbstractElement>[] vLayer = new Vector[3];
-		
-		for (int i = 0; i < vLayer.length; i++)
-			vLayer[i] = new Vector<>();
-
-
-        for (AbstractElement allObj : allObjs) {
-            if (allObj instanceof ImageElement) {
-                vLayer[LAYER_BACKGROUND].add(allObj);
-                continue;
-            }
-            if (allObj instanceof ImageElement) { // TODO Check this code
-                vLayer[LAYER_VIRTUAL].add(allObj);
-                continue;
-            }
-            vLayer[LAYER_REAL].add(allObj);
-        }
-		
-		AbstractElement[] lBackground = new AbstractElement[vLayer[LAYER_BACKGROUND].size()];
-		for (int i = 0; i < lBackground.length; i++) {
-		    AbstractElement tmp = vLayer[LAYER_BACKGROUND].get(i);
-		    lBackground[i] = tmp;
-		}
-		
-		AbstractElement[] lVirtual = new AbstractElement[vLayer[LAYER_VIRTUAL].size()];
-		for (int i = 0; i < lVirtual.length; i++) {
-		    AbstractElement tmp = vLayer[LAYER_VIRTUAL].get(i);
-		    lVirtual[i] = tmp;
-		}
-		
-		AbstractElement[] lReal = new AbstractElement[vLayer[LAYER_REAL].size()];
-		for (int i = 0; i < lReal.length; i++) {
-		    AbstractElement tmp = vLayer[LAYER_REAL].get(i);
-		    lReal[i] = tmp;
-		}
-	
-		return new AbstractElement[][] {lVirtual, lReal, lBackground};
-	}
-	
-	
 	public int numObjects() {
 	    int sum = 1; //Counting with the home referential object...
 	    for (Enumeration<?> e = maps.elements(); e.hasMoreElements();) {
