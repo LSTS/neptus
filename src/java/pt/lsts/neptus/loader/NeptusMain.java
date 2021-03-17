@@ -39,9 +39,11 @@ import java.awt.Window.Type;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.LinkedHashMap;
+import java.util.Objects;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -75,8 +77,8 @@ import pt.lsts.neptus.util.output.OutputMonitor;
  */
 public class NeptusMain {
 
-    private static LinkedHashMap<String, String> appNames = new LinkedHashMap<String, String>();
-    private static LinkedHashMap<String, Class<?>> fileHandlers = new LinkedHashMap<String, Class<?>>();
+    private static final LinkedHashMap<String, String> appNames = new LinkedHashMap<>();
+    private static final LinkedHashMap<String, Class<?>> fileHandlers = new LinkedHashMap<>();
     private static Loader loader;
 
     private static void init() {
@@ -104,7 +106,7 @@ public class NeptusMain {
     }
 
     /**
-     * @param appargs
+     * @param appargs The commandline arguments for the program
      */
     public static void launch(String[] appargs) {
         ConfigFetch.initialize(); // Don't touch this, leave it as it his
@@ -115,8 +117,8 @@ public class NeptusMain {
     }
 
     /**
-     * @param loader
-     * @param appargs
+     * @param loader A {@link Loader} to use on the opening of the program
+     * @param appargs The commandline arguments for the program
      */
     public static void launch(Loader loader, String[] appargs) {
         ConfigFetch.initialize(); // Don't touch this, leave it as it his
@@ -139,7 +141,7 @@ public class NeptusMain {
         if (!typ.equalsIgnoreCase("")) {
             if (typ.startsWith(" ") || typ.startsWith("" + ((char) KeyEvent.VK_ESCAPE))) {
                 loader.setText(I18n.text("Choose Application..."));
-                LinkedHashMap<String, String> chooseApp = new LinkedHashMap<String, String>();
+                LinkedHashMap<String, String> chooseApp = new LinkedHashMap<>();
                 for (String key : appNames.keySet()) {
                     String name = appNames.get(key);
                     chooseApp.put(name + " (" + key + ")", key);
@@ -161,7 +163,6 @@ public class NeptusMain {
             loader.setText(I18n.text("Opening file..."));
             handleFile(appargs[1]);
             loader.waitMoreAndEnd(1000);
-            loader = null;
             return;
         }
 
@@ -205,7 +206,7 @@ public class NeptusMain {
             try {
                 LAUVConsole.setLoader(loader);
                 final ConsoleLayout cls = LAUVConsole.create(new String[0]);
-                wrapMainApplicationWindowWithCloseActionWindowAdapter(cls);
+                wrapMainApplicationWindowWithCloseActionWindowAdapter(Objects.requireNonNull(cls));
             }
             catch (Exception e) {
                 e.printStackTrace();
@@ -231,15 +232,15 @@ public class NeptusMain {
     }
 
     /**
-     * @param loader
+     * @param loader A {@link Loader} to use on the opening of the program
      */
     public static void loadPreRequirementsDataExceptConfigFetch(Loader loader) {
         loadPreRequirementsDataExceptConfigFetch(loader, true);
     }
 
     /**
-     * @param loader
-     * @param neptusLookAndFeelOrNative
+     * @param loader A {@link Loader} to use on the opening of the program
+     * @param neptusLookAndFeelOrNative To indicate with look and feel to use (true for Neptus, false for Java native)
      */
     public static void loadPreRequirementsDataExceptConfigFetch(Loader loader, boolean neptusLookAndFeelOrNative) {
         loader.setText(I18n.text("Loading Plug-ins..."));
@@ -264,15 +265,14 @@ public class NeptusMain {
             @Override
             public void run() {                
                 ConfigurationManager.getInstance();                
-            };
+            }
         };
         bg.setDaemon(true);
         bg.start();
     }
 
     /**
-     * @param callingWindow
-     * @return
+     * @param callingWindow The {@link Window} to add the {@link Window#addWindowListener(WindowListener)}
      */
     public static void wrapMainApplicationWindowWithCloseActionWindowAdapter(final Window callingWindow) {
         WindowAdapter wa = new WindowAdapter() {
@@ -296,7 +296,7 @@ public class NeptusMain {
                         try { Thread.sleep(10000); } catch (InterruptedException e1) { }
                         System.out.println("Force close !");
                         System.exit(0);
-                    };
+                    }
                 };
                 t.setDaemon(true);
                 t.start();
