@@ -42,7 +42,6 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.Transparency;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
@@ -110,31 +109,37 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     private static final int MAX_RULER_SIZE = 15;
     private long topZoomTimestamp = 0;
     private long bottomZoomTimestamp = 0;
-    private List<SidescanLine> lines = Collections.synchronizedList(new ArrayList<SidescanLine>());
+    private final List<SidescanLine> lines = Collections.synchronizedList(new ArrayList<>());
     private boolean isShowingZoomedImage = false;
     private long lastMouseMoveTS = 0;
-    private ExecutorService threadExecutor = Executors.newCachedThreadPool();
+    private final ExecutorService threadExecutor = Executors.newCachedThreadPool();
 
-    private SidescanAnalyzer parent;
+    private final SidescanAnalyzer parent;
     SidescanConfig config = new SidescanConfig();
-    private SidescanToolbar toolbar = new SidescanToolbar(this);
+    private final SidescanToolbar toolbar = new SidescanToolbar(this);
 
-    private SidescanParameters sidescanParams = new SidescanParameters(0, 0); // Initialize it to zero for now
+    private final SidescanParameters sidescanParams = new SidescanParameters(0, 0); // Initialize it to zero for now
     enum InteractionMode {
         NONE,
         INFO,
         MARK,
         MEASURE,
-        MEASURE_HEIGHT;
+        MEASURE_HEIGHT
     }
 
     private InteractionMode imode = InteractionMode.INFO;
-    private MraVehiclePosHud posHud;
+    private final MraVehiclePosHud posHud;
 
     /** Fix old marks related enum */
-    private enum Operation { EXIT_CHANGE, EXIT_CANCEL, TEST_CHANGE, TEST_ORIG };
+    private enum Operation {
+        EXIT_CHANGE,
+        EXIT_CANCEL,
+        TEST_CHANGE,
+        TEST_ORIG,
+    }
+
     /** Fix old marks related class */
-    private class SSCorrection {
+    private static class SSCorrection {
         public SidescanLogMarker marker;
 
         public double latRadsSlant;
@@ -150,7 +155,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         public double wMetersHorizontal = Double.NaN;
     }
 
-    private JPanel view = new JPanel() {
+    private final JPanel view = new JPanel() {
         private static final long serialVersionUID = 1L;
 
         @Override
@@ -240,7 +245,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
     // Measure
     private boolean measure = false;
-    private ArrayList<SidescanPoint> pointList = new ArrayList<SidescanPoint>();
+    private final ArrayList<SidescanPoint> pointList = new ArrayList<>();
 
     // Measure Height
     private boolean measureHeight = false;
@@ -263,48 +268,45 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     // private SidescanPoint mouseSidescanPoint; // Mouse position geographical location
     private SidescanLine mouseSidescanLine;
 
-    private BufferedImage mouseLocationImage = ImageUtils.createCompatibleImage(120, 98, Transparency.BITMASK);
+    private final BufferedImage mouseLocationImage = ImageUtils.createCompatibleImage(120, 98, Transparency.BITMASK);
 
-    private List<SidescanLine> lineList = Collections.synchronizedList(new ArrayList<SidescanLine>());
+    private final List<SidescanLine> lineList = Collections.synchronizedList(new ArrayList<>());
     //    private ArrayList<SidescanLine> drawList = new ArrayList<SidescanLine>();
     //    private ArrayList<SidescanLine> removeList = new ArrayList<SidescanLine>();
 
-    private NumberFormat altFormat = GuiUtils.getNeptusDecimalFormat(1);
+    private final NumberFormat altFormat = GuiUtils.getNeptusDecimalFormat(1);
 
-    private SidescanParser ssParser;
+    private final SidescanParser ssParser;
 
-    private String altStr = I18n.text("Altitude");
-    private String depthStr = I18n.text("Depth");
-    private String rollStr = I18n.text("Roll");
-    private String yawStr = I18n.text("Yaw");
-    private String sRangeStr = I18n.text("S Range");
-    private String hRangeStr = I18n.text("H Range");
+    private final String altStr = I18n.text("Altitude");
+    private final String depthStr = I18n.text("Depth");
+    private final String rollStr = I18n.text("Roll");
+    private final String yawStr = I18n.text("Yaw");
+    private final String sRangeStr = I18n.text("S Range");
+    private final String hRangeStr = I18n.text("H Range");
 
     private int rangeForRulerStep;
 
     // private SlantRangeImageFilter filter;
 
-    private int subsystem;
+    private final int subsystem;
 
     private VideoCreator creator;
 
     protected boolean record = false;
 
-    private Runnable updateLines = new Runnable() {
-        @Override
-        public void run() {
-            synchronized (lines) {
-                lines.clear();
-                for (SidescanLine line : lineList) {
-                    if (isBetweenTopAndBottom(line,bottomZoomTimestamp, topZoomTimestamp)) {
-                        lines.add(line);
-                    }
+    private final Runnable updateLines = () -> {
+        synchronized (lines) {
+            lines.clear();
+            for (SidescanLine line : lineList) {
+                if (isBetweenTopAndBottom(line,bottomZoomTimestamp, topZoomTimestamp)) {
+                    lines.add(line);
                 }
             }
         }
     };
 
-    private Runnable detectMouse = new Runnable() {
+    private final Runnable detectMouse = new Runnable() {
         @Override
         public void run() {
             boolean updated = false;
@@ -384,7 +386,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     /**
      * To record a *.mp4 video from sidescan panel
      *
-     * @param r
+     * @param r To start or stop recording of the waterfall video
      */
     void record(boolean r) {
         record = r;
@@ -408,8 +410,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         int yref = 0;
         this.currentTime = currentTime;
 
-        ArrayList<SidescanLine> drawList = new ArrayList<SidescanLine>();
-        ArrayList<SidescanLine> removeList = new ArrayList<SidescanLine>();
+        ArrayList<SidescanLine> removeList = new ArrayList<>();
 
         sidescanParams.setNormalization(config.normalization);
         sidescanParams.setTvgGain(config.tvgGain);
@@ -417,7 +418,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         ArrayList<SidescanLine> list = ssParser.getLinesBetween(firstPingTime + lastUpdateTime, firstPingTime
                 + currentTime, subsystem, sidescanParams);
 
-        drawList.addAll(list);
+        ArrayList<SidescanLine> drawList = new ArrayList<>(list);
 
         for (SidescanLine l : drawList) {
             // Update the rangeMax to the ruler
@@ -486,9 +487,9 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         }
         synchronized (lineList) {
             SidescanLine sidescanLine;
-            Iterator<SidescanLine> i = lineList.iterator(); // Must be in synchronized block
-            while (i.hasNext()) {
-                sidescanLine = i.next();
+            // Must be in synchronized block
+            for (SidescanLine line : lineList) {
+                sidescanLine = line;
                 sidescanLine.setYPos(sidescanLine.getYPos() + yref);
                 if (sidescanLine.getYPos() > image.getHeight())
                     removeList.add(sidescanLine);
@@ -742,9 +743,8 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             SidescanLine line;
 
             synchronized (lineList) {
-                Iterator<SidescanLine> i = lineList.iterator();
-                while (i.hasNext()) {
-                    line = i.next();
+                for (SidescanLine sidescanLine : lineList) {
+                    line = sidescanLine;
                     if (old != null) {
                         // In case of being a marker just with time information
                         if (timestamp >= old.getTimestampMillis() && timestamp <= line.getTimestampMillis()) {
@@ -782,7 +782,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                                 g.fillRect(0, line.getYPos() - 1, 10, 2);
                                 g.fillRect(line.getImage().getWidth(null) - 10, line.getYPos() - 1, 10, 2);
                                 g.setColor(colorConstrast);
-                                g.drawString(m.getLabel(), 0 - 1, line.getYPos() - 10 - 1);
+                                g.drawString(m.getLabel(), -1, line.getYPos() - 10 - 1);
                                 g.setColor(color);
                                 g.drawString(m.getLabel(), 0, line.getYPos() - 10);
                             }
@@ -796,9 +796,6 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         g.dispose();
     }
 
-    /**
-     * @param zoomRuler
-     */
     private void drawZoomRuler(Graphics g) {
         if (!isShowingZoomedImage)
             return;
@@ -952,10 +949,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     }
 
     boolean isBetweenTopAndBottom(SidescanLine line, long bottomTS, long topTS) {
-        if (bottomTS <= line.getTimestampMillis() && line.getTimestampMillis() <= topTS )
-            return true;
-
-        return false;
+        return bottomTS <= line.getTimestampMillis() && line.getTimestampMillis() <= topTS;
     }
 
     @Override
@@ -975,13 +969,12 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     private void setSSLines(int y, MouseEvent e) {
         int Y = (int) MathMiscUtils.clamp(mouseY, ZOOM_BOX_SIZE / 2, image.getHeight() - ZOOM_BOX_SIZE / 2);
         synchronized (lineList) {
-            Iterator<SidescanLine> i = lineList.iterator(); // Must be in synchronized block
-            while (i.hasNext()) {
-                SidescanLine line = i.next();
-
+            // Must be in synchronized block
+            for (SidescanLine line : lineList) {
                 if (y >= line.getYPos() && y <= (line.getYPos() + line.getYSize())) {
                     mouseSidescanLine = line;
-                    if (e!=null) ((JPanel) e.getSource()).repaint();
+                    if (e != null)
+                        ((JPanel) e.getSource()).repaint();
                 }
 
                 // save bottom and top timestamps for zoom box according to mouse position
@@ -993,14 +986,14 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                         bottomZoomTimestamp = line.getTimestampMillis();
                 }
                 else {
-                    if ((line.getYPos() + (ZOOM_BOX_SIZE/2 ) <= Y) && Y <= (line.getYPos() + (ZOOM_BOX_SIZE/2 ) + line.getYSize()))
+                    if ((line.getYPos() + (ZOOM_BOX_SIZE / 2) <= Y) && Y <= (line.getYPos() + (ZOOM_BOX_SIZE / 2) + line.getYSize()))
                         topZoomTimestamp = line.getTimestampMillis();
                 }
-                if ((line.getYPos() - (ZOOM_BOX_SIZE/2 ) <= Y) && Y <= (line.getYPos() - (ZOOM_BOX_SIZE/2 ) + line.getYSize()))
+                if ((line.getYPos() - (ZOOM_BOX_SIZE / 2) <= Y) && Y <= (line.getYPos() - (ZOOM_BOX_SIZE / 2) + line.getYSize()))
                     bottomZoomTimestamp = line.getTimestampMillis();
             }
         }
-    };
+    }
 
     private boolean isMouseAtRest() {
         return isMouseAtRest(0);
@@ -1008,10 +1001,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
     private boolean isMouseAtRest(long timeoutMillis) {
         long now = System.nanoTime();
-        if (now - 1000000000 > lastMouseMoveTS + timeoutMillis * 1000000)
-            return true;
-
-        return false;
+        return now - 1000000000 > lastMouseMoveTS + timeoutMillis * 1000000;
     }
 
     @Override
@@ -1046,7 +1036,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             }
 
             if (imode == InteractionMode.MARK && !parent.getTimeline().isRunning()) {
-                if (LsfReportProperties.generatingReport==true){
+                if (LsfReportProperties.generatingReport){
                     GuiUtils.infoMessage(getRootPane(), I18n.text("Can not add Marks"), I18n.text("Can not add Marks - Generating Report."));
                     return;
                 }
@@ -1106,31 +1096,36 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                     }
                 }
 
-                int xSS = SidescanUtil.convertImagePointXToSidescanLinePointX(initialX, lInit, image);
-                int y = initialY;
-                int wImg = Math.abs(mouseX - initialX) * 2;
-                int hImg = Math.abs(mouseY - initialY) * 2;
+                if (lInit != null) {
+                    int xSS = SidescanUtil.convertImagePointXToSidescanLinePointX(initialX, lInit, image);
+                    int y = initialY;
+                    int wImg = Math.abs(mouseX - initialX) * 2;
+                    int hImg = Math.abs(mouseY - initialY) * 2;
 
-                // Force slant correction
-                SidescanPoint point = lInit.calcPointFromIndex(xSS, true);
+                    // Force slant correction
+                    SidescanPoint point = lInit.calcPointFromIndex(xSS, true);
 
-                // Distance to line center point, negative values mean portboard
-                double distanceToNadir = lInit.getDistanceFromIndex(xSS, true);
+                    // Distance to line center point, negative values mean portboard
+                    double distanceToNadir = lInit.getDistanceFromIndex(xSS, true);
 
-                int xPortImg = initialX - wImg / 2;
-                int xStarboardImg = initialX + wImg / 2;
+                    int xPortImg = initialX - wImg / 2;
+                    int xStarboardImg = initialX + wImg / 2;
 
-                int xPort = SidescanUtil.convertImagePointXToSidescanLinePointX(xPortImg, lInit, image);
-                int xStarboard = SidescanUtil.convertImagePointXToSidescanLinePointX(xStarboardImg, lInit, image);
+                    int xPort = SidescanUtil.convertImagePointXToSidescanLinePointX(xPortImg, lInit, image);
+                    int xStarboard = SidescanUtil.convertImagePointXToSidescanLinePointX(xStarboardImg, lInit, image);
 
-                // Force slant correction
-                double dHPort = lInit.getDistanceFromIndex(xPort, true);
-                double dHStarboard = lInit.getDistanceFromIndex(xStarboard, true);
-                double wMeters = dHStarboard - dHPort;
+                    // Force slant correction
+                    double dHPort = lInit.getDistanceFromIndex(xPort, true);
+                    double dHStarboard = lInit.getDistanceFromIndex(xStarboard, true);
+                    double wMeters = dHStarboard - dHPort;
 
-                parent.mraPanel.addMarker(new SidescanLogMarker(res, lInit.getTimestampMillis(), point.location
-                        .getLatitudeRads(), point.location.getLongitudeRads(), distanceToNadir, y, wImg,
-                                hImg, wMeters, subsystem, config.colorMap));
+                    parent.mraPanel.addMarker(new SidescanLogMarker(res, lInit.getTimestampMillis(), point.location
+                            .getLatitudeRads(), point.location.getLongitudeRads(), distanceToNadir, y, wImg,
+                            hImg, wMeters, subsystem, config.colorMap));
+                }
+                else {
+                    NeptusLog.pub().warn("Marking in sidescan where line was not found bellow mouse pointer.");
+                }
             }
             marking = false;
         }
@@ -1161,157 +1156,152 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
     /**
      * Action for the popup to fix old marks.
-     * @param popup
-     * @return
+     * @param popup the {@link JPopupMenu} source for the action.
+     * @return The {@link ActionListener} to fix sidescan mark
      */
     protected ActionListener fixSidescanMarkAction(JPopupMenu popup) {
-        return new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ArrayList<LogMarker> allMarks = parent.getMarkerList();
-                // Let us collect the possible marks (sidescan marks version < 1)
-                ArrayList<SidescanLogMarker> ssMarks = new ArrayList<>();
-                for (LogMarker m : allMarks) {
-                    if (m instanceof SidescanLogMarker) {
-                        if (((SidescanLogMarker) m).getSidescanMarkVersion() < 1)
-                            ssMarks.add((SidescanLogMarker) m);
-                    }
+        return e -> {
+            ArrayList<LogMarker> allMarks = parent.getMarkerList();
+            // Let us collect the possible marks (sidescan marks version < 1)
+            ArrayList<SidescanLogMarker> ssMarks = new ArrayList<>();
+            for (LogMarker m : allMarks) {
+                if (m instanceof SidescanLogMarker) {
+                    if (((SidescanLogMarker) m).getSidescanMarkVersion() < 1)
+                        ssMarks.add((SidescanLogMarker) m);
                 }
+            }
 
-                if (ssMarks.isEmpty()) {
-                    GuiUtils.infoMessage(popup.getComponent(), I18n.text("Select mark"),
-                            I18n.text("No marks to adjust"));
-                    return;
-                }
+            if (ssMarks.isEmpty()) {
+                GuiUtils.infoMessage(popup.getComponent(), I18n.text("Select mark"),
+                        I18n.text("No marks to adjust"));
+                return;
+            }
 
-                Object ret = JOptionPane.showInputDialog(popup.getComponent(), I18n.text("Select mark"),
-                        I18n.text("Select mark"), JOptionPane.QUESTION_MESSAGE, null,
-                        ssMarks.toArray(new SidescanLogMarker[ssMarks.size()]), null);
+            Object ret = JOptionPane.showInputDialog(popup.getComponent(), I18n.text("Select mark"),
+                    I18n.text("Select mark"), JOptionPane.QUESTION_MESSAGE, null,
+                    ssMarks.toArray(new SidescanLogMarker[ssMarks.size()]), null);
 
-                if (ret == null)
-                    return;
+            if (ret == null)
+                return;
 
-                SidescanLogMarker ssMk = (SidescanLogMarker) ret;
+            SidescanLogMarker ssMk = (SidescanLogMarker) ret;
 
-                // Let us fix the marks
-                SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
-                    private ArrayList<SSCorrection> corrections;
-                    private Operation op = Operation.TEST_CHANGE;
+            // Let us fix the marks
+            SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
+                private ArrayList<SSCorrection> corrections;
+                private Operation op = Operation.TEST_CHANGE;
 
-                    @Override
-                    protected Boolean doInBackground() throws Exception {
-                        corrections = fixSidescanMark(ssMk);
-                        op = Operation.TEST_CHANGE;
-                        boolean changed = false;
-                        boolean exit = false;
-                        while (!exit) {
-                            switch (op) {
-                                case EXIT_CANCEL:
-                                    if (changed)
-                                        op = Operation.TEST_ORIG;
-                                    exit = true;
-                                    break;
-                                case EXIT_CHANGE:
-                                    if (!changed)
-                                        op = Operation.TEST_CHANGE;
-                                    exit = true;
-                                default:
-                                    break;
-                            }
-                            switch (op) {
-                                case TEST_CHANGE:
-                                case TEST_ORIG:
-                                    for (SSCorrection c : corrections) {
-                                        SidescanLogMarker m = c.marker;
-                                        if (op == Operation.TEST_ORIG) {
-                                            m.fixLocation(c.latRadsSlant, c.lonRadsSlant);
-                                            m.setX(c.distanceToNadirSlant);
-                                            m.setwMeters(c.wMetersSlant);
-                                            changed = false;
-                                        }
-                                        else if (op == Operation.TEST_CHANGE) {
-                                            m.fixLocation(c.latRadsHorizontal, c.lonRadsHorizontal);
-                                            m.setX(c.distanceToNadirHorizontal);
-                                            m.setwMeters(c.wMetersHorizontal);
-                                            changed = true;
-                                        }
-                                    }
-                                    break;
-                                default:
-                                    break;
-                            }
-                            if (!exit)
-                                process(null);
+                @Override
+                protected Boolean doInBackground() {
+                    corrections = fixSidescanMark(ssMk);
+                    op = Operation.TEST_CHANGE;
+                    boolean changed = false;
+                    boolean exit = false;
+                    while (!exit) {
+                        switch (op) {
+                            case EXIT_CANCEL:
+                                if (changed)
+                                    op = Operation.TEST_ORIG;
+                                exit = true;
+                                break;
+                            case EXIT_CHANGE:
+                                if (!changed)
+                                    op = Operation.TEST_CHANGE;
+                                exit = true;
+                            default:
+                                break;
                         }
-                        if (changed) {
-                            for (SSCorrection c : corrections) {
-                                c.marker.resetSidescanMarkVersion();
-                            }
-                            parent.mraPanel.saveMarkers();
-                        }
-
-                        return changed;
-                    }
-
-                    @Override
-                    protected void process(List<Void> chunks) {
-                        SidescanPanel.this.repaint(0);
-
-                        String testStr = I18n.text("Test");
                         switch (op) {
                             case TEST_CHANGE:
-                                testStr = I18n.text("Revert test");
                             case TEST_ORIG:
-
-                                int retQ = JOptionPane.showOptionDialog(SidescanPanel.this,
-                                        I18n.text("Change the marks?"), I18n.text("Fix old marks"),
-                                        JOptionPane.YES_OPTION,
-                                        JOptionPane.QUESTION_MESSAGE, null,
-                                        new String[] { I18n.text("Change"), I18n.text("Cancel"), testStr }, testStr);
-                                switch (retQ) {
-                                    case 0:
-                                        op = Operation.EXIT_CHANGE;
-                                        break;
-                                    case 2:
-                                        if (I18n.text("Test").equalsIgnoreCase(testStr))
-                                            op = Operation.TEST_CHANGE;
-                                        else if (I18n.text("Revert test").equalsIgnoreCase(testStr))
-                                            op = Operation.TEST_ORIG;
-                                        break;
-                                    case 1:
-                                    default:
-                                        op = Operation.EXIT_CANCEL;
-                                        break;
+                                for (SSCorrection c : corrections) {
+                                    SidescanLogMarker m = c.marker;
+                                    if (op == Operation.TEST_ORIG) {
+                                        m.fixLocation(c.latRadsSlant, c.lonRadsSlant);
+                                        m.setX(c.distanceToNadirSlant);
+                                        m.setwMeters(c.wMetersSlant);
+                                        changed = false;
+                                    }
+                                    else if (op == Operation.TEST_CHANGE) {
+                                        m.fixLocation(c.latRadsHorizontal, c.lonRadsHorizontal);
+                                        m.setX(c.distanceToNadirHorizontal);
+                                        m.setwMeters(c.wMetersHorizontal);
+                                        changed = true;
+                                    }
                                 }
                                 break;
                             default:
                                 break;
                         }
+                        if (!exit)
+                            process(null);
+                    }
+                    if (changed) {
+                        for (SSCorrection c : corrections) {
+                            c.marker.resetSidescanMarkVersion();
+                        }
+                        parent.mraPanel.saveMarkers();
                     }
 
-                    @Override
-                    protected void done() {
-                        try {
-                            boolean res = get();
-                            if (res) {
-                                GuiUtils.infoMessage(SidescanPanel.this, I18n.text("Fix old marks"),
-                                        I18n.text("Marks fixed and saved"));
+                    return changed;
+                }
+
+                @Override
+                protected void process(List<Void> chunks) {
+                    SidescanPanel.this.repaint(0);
+
+                    String testStr = I18n.text("Test");
+                    switch (op) {
+                        case TEST_CHANGE:
+                            testStr = I18n.text("Revert test");
+                        case TEST_ORIG:
+
+                            int retQ = JOptionPane.showOptionDialog(SidescanPanel.this,
+                                    I18n.text("Change the marks?"), I18n.text("Fix old marks"),
+                                    JOptionPane.YES_OPTION,
+                                    JOptionPane.QUESTION_MESSAGE, null,
+                                    new String[] { I18n.text("Change"), I18n.text("Cancel"), testStr }, testStr);
+                            switch (retQ) {
+                                case 0:
+                                    op = Operation.EXIT_CHANGE;
+                                    break;
+                                case 2:
+                                    if (I18n.text("Test").equalsIgnoreCase(testStr))
+                                        op = Operation.TEST_CHANGE;
+                                    else if (I18n.text("Revert test").equalsIgnoreCase(testStr))
+                                        op = Operation.TEST_ORIG;
+                                    break;
+                                case 1:
+                                default:
+                                    op = Operation.EXIT_CANCEL;
+                                    break;
                             }
-                        }
-                        catch (Exception e) {
-                            e.printStackTrace();
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                @Override
+                protected void done() {
+                    try {
+                        boolean res = get();
+                        if (res) {
+                            GuiUtils.infoMessage(SidescanPanel.this, I18n.text("Fix old marks"),
+                                    I18n.text("Marks fixed and saved"));
                         }
                     }
-                };
-                worker.execute();
-            }
+                    catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            };
+            worker.execute();
         };
     }
 
     /**
      * Worker to fix old marks.
-     * @param ssMk
-     * @return
      */
     private ArrayList<SSCorrection> fixSidescanMark(SidescanLogMarker... ssMk) {
         ArrayList<SSCorrection> corrections = new ArrayList<>();
