@@ -844,11 +844,12 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             zoomRangeStep = 2;
 
         double step = ((zoomRangeStep * ZOOM_LAYER_BOX_SIZE) / zoomRange);
+        int stepInt = Double.valueOf(step).intValue();
         double r = zoomRangeStep;
 
-        int c = x + (int) step;
+        int c = x + stepInt;
 
-        for (; c<=xLength; c += step , r += zoomRangeStep) {
+        for (; c<=xLength; c += stepInt , r += zoomRangeStep) {
             g2d.drawLine(c, y, c, y - MAX_RULER_SIZE);
             g2d.drawString("" + (int) r, c - 13, y-3);
         }
@@ -886,12 +887,13 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         g2d.drawString("" + (int) rangeForRuler, layer.getWidth() - 20, fontSize);
 
         double step = (layer.getWidth() / ((rangeForRuler * 2) / rangeForRulerStep));
+        int stepInt = Double.valueOf(step).intValue();
         double r = rangeForRulerStep;
 
         int c1 = (int) (layer.getWidth() / 2 - step);
         int c2 = (int) (layer.getWidth() / 2 + step);
 
-        for (; c1 > 0; c1 -= step, c2 += step, r += rangeForRulerStep) {
+        for (; c1 > 0; c1 -= stepInt, c2 += stepInt, r += rangeForRulerStep) {
             g2d.drawLine(c1, 0, c1, MAX_RULER_SIZE);
             g2d.drawLine(c2, 0, c2, MAX_RULER_SIZE);
             g2d.drawString("" + (int) r, c1 + 5, fontSize);
