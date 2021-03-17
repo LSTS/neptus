@@ -253,8 +253,8 @@ public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUp
             HttpGet get = new HttpGet(url.toURI());
             get.setHeader("Referer", "http://www.marinetraffic.com/ais/");
 
-            try (CloseableHttpResponse response = client.execute(get)) {
-                BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+            try (CloseableHttpResponse response = client.execute(get);
+                 BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));) {
                 String json = rd.lines().collect(Collectors.joining());
                 String[][] res = gson.fromJson(json, String[][].class);
 
