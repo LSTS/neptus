@@ -344,7 +344,7 @@ public class EntitySubPanel extends ConsolePanel {
                 short row;
                 for (int i = 0; i < dataModel.getRowCount(); i++) {
                     row = (short) getValueAt(i, DataIndex.TIME_ELAPSED.getIndex());
-                    row += UPDATE_FREQUENCY / 1000;
+                    row += Integer.valueOf(UPDATE_FREQUENCY / 1000).shortValue();
                     setValueAt(row, i, DataIndex.TIME_ELAPSED.getIndex());
                 }
             }
