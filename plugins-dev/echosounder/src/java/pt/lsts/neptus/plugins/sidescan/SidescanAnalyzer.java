@@ -85,10 +85,6 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
 
         lastUpdateTime = firstPingTime;
 
-        for (Integer subsys : ssParser.getSubsystemList()) {
-            sidescanPanels.add(new SidescanPanel(this, ssParser, subsys));
-        }
-
         timeline = new Timeline(0, (int) (lastPingTime - firstPingTime), 30, 1000, false);
         timeline.getSlider().setValue(0);
         timeline.addTimelineChangeListener(this);
@@ -105,6 +101,10 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
                 }
             }
         });
+
+        for (Integer subsys : ssParser.getSubsystemList()) {
+            sidescanPanels.add(new SidescanPanel(this, ssParser, subsys));
+        }
 
         // Layout building
         setLayout(new MigLayout());
