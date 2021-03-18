@@ -150,7 +150,7 @@ public class FrameDecoderMotionJPEG implements FrameDecoder {
             try {
                 MjpegFile mjpegFile = new MjpegFile(file.getAbsoluteFile());
                 NeptusLog.pub().info(String.format(Locale.US, "added '%s' with %d frames", file.getName(), mjpegFile.getFrameCount()));
-                frameCount += mjpegFile.getFrameCount();
+                frameCount = Long.valueOf(frameCount + mjpegFile.getFrameCount()).intValue();
                 fileList.add(mjpegFile);
                 frameRateAccumulator += mjpegFile.getFrameRate();
             }
