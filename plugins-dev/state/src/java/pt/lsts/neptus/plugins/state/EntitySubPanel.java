@@ -72,7 +72,7 @@ import pt.lsts.neptus.util.ImageUtils;
 public class EntitySubPanel extends ConsolePanel {
 
     /**
-     * @param console
+     * @param console The {parent @link ConsoleLayout}.
      */
     public EntitySubPanel(ConsoleLayout console) {
         super(console);
@@ -96,9 +96,11 @@ public class EntitySubPanel extends ConsolePanel {
         FAULTICON("images/information/faultInfo.png", I18n.text("Fault"));
         private final ImageIcon icon;
 
-        private Icons(String path, String description) {
+        Icons(String path, String description) {
             icon = ImageUtils.createImageIcon(path);
-            icon.setDescription(description);
+            if (icon != null) {
+                icon.setDescription(description);
+            }
         }
 
         public ImageIcon getIcon() {
@@ -119,7 +121,7 @@ public class EntitySubPanel extends ConsolePanel {
         this.setBackground(Color.BLACK);
 
         // Build Status
-        ArrayList<String> columnNames = new ArrayList<String>();
+        ArrayList<String> columnNames = new ArrayList<>();
         columnNames.add(I18n.text("Hide"));
         columnNames.add(I18n.text("Entity"));
         columnNames.add(I18n.text("State"));
@@ -161,7 +163,6 @@ public class EntitySubPanel extends ConsolePanel {
             UpdateWorker worker = new UpdateWorker(stateMsg);
             worker.execute();
         }
-
     }
 
     public class UpdateWorker extends SwingWorker<Void, Void> {
@@ -176,7 +177,7 @@ public class EntitySubPanel extends ConsolePanel {
         public Void doInBackground() {
             int srcEntityId = msg.getSrcEnt();
             String entityName = EntitiesResolver.resolveName(getMainVehicleId(), srcEntityId);
-            Object row[] = new Object[numberOfMsgValuesStored];
+            Object[] row = new Object[numberOfMsgValuesStored];
             // row[1] - 
             STATE state = msg.getState();
             switch (state) {
@@ -248,11 +249,9 @@ public class EntitySubPanel extends ConsolePanel {
 
         @Override
         // Render ImageIcons inside table
-        public Class<? extends Object> getColumnClass(int column) {
+        public Class<?> getColumnClass(int column) {
             Object value = this.getValueAt(0, column);
             return (value == null ? Object.class : value.getClass());
-            // Class<? extends Object> columnClass = getValueAt(0, column).getClass();
-            // return columnClass;
         }
 
         @Override
@@ -312,30 +311,6 @@ public class EntitySubPanel extends ConsolePanel {
                 return model.getColumnName(realIndex);
             }
         }
-
-        //
-        // /**
-        // * This class uses render call to update the delta t (elapsed time) on the table.
-        // *
-        // * @author pdias
-        // */
-        // class ElapsedTimeCellRenderer extends JLabel implements TableCellRenderer {
-        // private static final long serialVersionUID = -619157378506879550L;
-        //
-        // public ElapsedTimeCellRenderer() {
-        // setHorizontalAlignment(JLabel.CENTER);
-        // setOpaque(false); // MUST do this for background to show up.
-        // }
-        //
-        // @Override
-        // public Component getTableCellRendererComponent(JTable table, Object timems, boolean isSelected,
-        // boolean hasFocus, int row, int column) {
-        // Long enu = System.currentTimeMillis() - (Long) timems;
-        //
-        // setText(DateTimeUtil.milliSecondsToFormatedString(enu / 1000 * 1000));
-        // return this;
-        // }
-        // }
 
         class ElapsedTimeTimer implements ActionListener {
             // This happens in the Swing's event dispatch thread so components can be modified freely
