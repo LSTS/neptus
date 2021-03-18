@@ -130,7 +130,7 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
         worldX = pxy[0];
         worldY = pxy[1];
 
-        testForAlfaOnLoaddImage(image);
+        testForAlfaOnLoadImage(image);
         this.image = image;
 
         state = TileState.LOADED;
@@ -430,7 +430,7 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
                 inFile.delete();
                 throw new Exception("Image not complete to load! Was deleted.");
             }
-            testForAlfaOnLoaddImage(img);
+            testForAlfaOnLoadImage(img);
             image = img;
             imageFromLowerLevelOfDetail = null;
             state = TileState.LOADED;
@@ -451,7 +451,7 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
     /**
      * @param img The image to test for transparency.
      */
-    protected void testForAlfaOnLoaddImage(BufferedImage img) {
+    protected void testForAlfaOnLoadImage(BufferedImage img) {
         boolean isBaseOrLayer = isBaseOrLayerMap();
         temporaryTransparencyDetectedOnImageOnDisk = isBaseOrLayer && GuiUtils.hasAlpha(img);
     }

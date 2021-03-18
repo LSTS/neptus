@@ -228,7 +228,7 @@ public class TileMercatorSVG extends Tile {
      * @see pt.lsts.neptus.renderer2d.tiles.Tile#testForAlfaOnLoaddImage(java.awt.image.BufferedImage)
      */
     @Override
-    protected void testForAlfaOnLoaddImage(BufferedImage img) {
+    protected void testForAlfaOnLoadImage(BufferedImage img) {
         temporaryTransparencyDetectedOnImageOnDisk = false; // this has to be overwritten because the SVG has transparent parts
     }
     
