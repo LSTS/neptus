@@ -72,6 +72,7 @@ import org.imgscalr.Scalr;
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.plugins.propertiesproviders.SidescanConfig;
+import pt.lsts.neptus.gui.TimelineChangeListener;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.SidescanLogMarker;
@@ -310,6 +311,10 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         }
     };
 
+    private TimelineChangeListener timelineChangeListener;
+    private final Object lockTimelineChangeListenerExecution = new Object();
+    private ScheduledFuture<?> timelineChangeListenerExecution;
+
     public SidescanPanel(SidescanAnalyzer analyzer, SidescanParser parser, int subsystem) {
         this.parent = analyzer;
         ssParser = parser;
@@ -347,11 +352,26 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         add(view, "w 100%, h 100%");
 
         // threadExecutor.execute(detectMouse);
+
+        timelineChangeListener = (value) -> {
+            synchronized (lockTimelineChangeListenerExecution) {
+                if (timelineChangeListenerExecution != null) {
+                    timelineChangeListenerExecution.cancel(false);
+                }
+                timelineChangeListenerExecution =
+                    threadExecutor.schedule(() -> {
+                        setSSLines(mouseY, null);
+                        view.repaint();
+                    }, 500, TimeUnit.MILLISECONDS);
+            }
+        };
+        parent.getTimeline().addTimelineChangeListener(timelineChangeListener);
     }
 
     public void clean() {
         record(false);
         threadExecutor.shutdown();
+        parent.getTimeline().removeTimelineChangeListener(timelineChangeListener);
     }
 
     /**
