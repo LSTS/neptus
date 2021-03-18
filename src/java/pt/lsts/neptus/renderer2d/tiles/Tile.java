@@ -566,16 +566,16 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
                             py += 0;
                             break;
                         case 1:
-                            px += 256 / Math.pow(2, i) / 2 ;
+                            px = Double.valueOf(px + 256 / Math.pow(2, i) / 2).intValue();
                             py += 0;
                             break;
                         case 2:
                             px += 0;
-                            py += 256 / Math.pow(2, i) / 2 ;
+                            py = Double.valueOf(py + 256 / Math.pow(2, i) / 2).intValue();
                             break;
                         case 3:
-                            px += 256 / Math.pow(2, i) / 2 ;
-                            py += 256 / Math.pow(2, i) / 2 ;
+                            px = Double.valueOf(px + 256 / Math.pow(2, i) / 2).intValue();
+                            py = Double.valueOf(py + 256 / Math.pow(2, i) / 2).intValue();
                             break;
                     }
                 }
