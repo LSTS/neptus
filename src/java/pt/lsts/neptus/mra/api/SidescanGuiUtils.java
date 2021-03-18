@@ -51,8 +51,8 @@ public class SidescanGuiUtils {
     /**
      * Return a step for the ruler for a range in meters.
      *  
-     * @param rangeForRuler
-     * @return
+     * @param rangeForRuler The range used for the ruler.
+     * @return The step for the ruler.
      */
     public static int calcStepForRangeForRuler(int rangeForRuler) {
         int rangeForRulerStep = 1;
@@ -114,12 +114,13 @@ public class SidescanGuiUtils {
 
         // Draw the axes
         g2d.drawLine(0, 0, 0, 15);
-        g2d.drawString("" + (int) rangeForRulerMeters, 2, 11);
+        g2d.drawString("" + rangeForRulerMeters, 2, 11);
 
         g2d.drawLine(widthOfTheRullerInPixels - 1, 0, widthOfTheRullerInPixels - 1, heightOfRullerInPixels);
-        g2d.drawString("" + (int) rangeForRulerMeters, widthOfTheRullerInPixels - 20, fontSize);
+        g2d.drawString("" + rangeForRulerMeters, widthOfTheRullerInPixels - 20, fontSize);
 
-        double step = (widthOfTheRullerInPixels / ((rangeForRulerMeters * 2) / rangeForRulerStepMeters));
+        double step = (widthOfTheRullerInPixels / ((rangeForRulerMeters * 2.0) / rangeForRulerStepMeters));
+        int stepInt = Double.valueOf(step).intValue();
         double r = rangeForRulerStepMeters;
 
         int c1 = (int) (widthOfTheRullerInPixels / 2 - step);
