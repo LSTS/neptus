@@ -88,7 +88,7 @@ public class TrajectoryExporter implements MRAExporter {
         pmonitor.setProgress(25);
         SimulationEngine engine = new SimulationEngine(plan);
         engine.setState(state);
-        float ellapsed_time = 0;
+        double ellapsed_time = 0;
         try {            
             BufferedWriter simWriter = new BufferedWriter(new FileWriter(new File(source.getFile("mra"), "simulated_traj.csv")));
             simWriter.write("Time,X,Y,Z\n");
