@@ -125,7 +125,7 @@ public class SidescanGuiUtils {
         int c1 = (int) (widthOfTheRullerInPixels / 2 - step);
         int c2 = (int) (widthOfTheRullerInPixels / 2 + step);
 
-        for (; c1 > 0; c1 -= step, c2 += step, r += rangeForRulerStepMeters) {
+        for (; c1 > 0; c1 -= stepInt, c2 += stepInt, r += rangeForRulerStepMeters) {
             g2d.drawLine(c1, 0, c1, heightOfRullerInPixels);
             g2d.drawLine(c2, 0, c2, heightOfRullerInPixels);
             g2d.drawString("" + (int) r, c1 + 5, fontSize);
