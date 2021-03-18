@@ -364,18 +364,11 @@ public class GigeManager {
 	
 	public int ipToInt(String addr) {
 		String[] addrArray = addr.split("\\.");
-
 		int num = 0;
-
 		for (int i = 0; i < addrArray.length; i++) {
-
 			int power = 3 - i;
-			//
-			//
-
-			num += ((Integer.parseInt(addrArray[i]) % 256 * Math
-					.pow(256, power)));
-
+			num += Double.valueOf(((Integer.parseInt(addrArray[i]) % 256 * Math
+					.pow(256, power)))).intValue();
 		}
 		return num;
 	}
