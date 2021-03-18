@@ -1215,12 +1215,11 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
             // Let us fix the marks
             SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
-                private ArrayList<SSCorrection> corrections;
                 private Operation op = Operation.TEST_CHANGE;
 
                 @Override
                 protected Boolean doInBackground() {
-                    corrections = fixSidescanMark(ssMk);
+                    ArrayList<SSCorrection> corrections = fixSidescanMark(ssMk);
                     op = Operation.TEST_CHANGE;
                     boolean changed = false;
                     boolean exit = false;
