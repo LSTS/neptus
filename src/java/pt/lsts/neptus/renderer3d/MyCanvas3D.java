@@ -446,17 +446,14 @@ class MyCanvas3D extends Canvas3D {
 			int y4 = (int) (3 * vec2d.y)-15;
 			
 			orig = get3DTo2DPoint(new Point3d(obj2.pos),4);
-			x1 += orig.x; // translate
-			y1 += orig.y;
-			x2 += orig.x;
-			y2 += orig.y;
-			x3 += orig.x; // translate
-			y3 += orig.y;
-			x4 += orig.x;
-			y4 += orig.y;
-			
-			int []px={x1,x3,x2,x4};
-			int []py={y1,y3,y2,y4};
+			x1 = (int) (x1 + orig.x); // translate
+			y1 = (int) (y1 + orig.y);
+			x2 = (int) (x2 + orig.x);
+			y2 = (int) (y2 + orig.y);
+			x3 = (int) (x3 + orig.x); // translate
+			y3 = (int) (y3 + orig.y);
+			x4 = (int) (x4 + orig.x);
+			y4 = (int) (y4 + orig.y);
 			
 			if(orig.y!=0 && orig.x!=0)
 			{
