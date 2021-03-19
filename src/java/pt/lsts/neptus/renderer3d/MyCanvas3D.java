@@ -261,7 +261,7 @@ class MyCanvas3D extends Canvas3D {
         //g2.drawString("O",(int)orig.x,(int)orig.y);
         //camera.associatedrender.objects
         for (Enumeration<AbstractElement> enuma = camera.associatedrender.objects.keys(); enuma.hasMoreElements(); ) {
-            AbstractElement objs = (AbstractElement) enuma.nextElement();
+            AbstractElement objs = enuma.nextElement();
             Obj3D obj2 = camera.associatedrender.objects.get(objs);
 
             if (obj2.drawlabel) {
@@ -282,7 +282,7 @@ class MyCanvas3D extends Canvas3D {
                         Rectangle2D stringBounds = g2.getFontMetrics()
                                 .getStringBounds(objs.getCenterLocation().toString(), g2);
                         Rectangle2D stringBounds2 = g2.getFontMetrics()
-                                .getStringBounds(objs.getType().toString(), g2);
+                                .getStringBounds(objs.getType(), g2);
                         Rectangle2D stringBounds3 = g2.getFontMetrics()
                                 .getStringBounds("Idle Time: " + de.getIdleTimeSecs(), g2);
                         int max = (int) stringBounds.getWidth();
@@ -304,7 +304,7 @@ class MyCanvas3D extends Canvas3D {
                         Rectangle2D stringBounds = g2.getFontMetrics()
                                 .getStringBounds(objs.getCenterLocation().toString(), g2);
                         Rectangle2D stringBounds2 = g2.getFontMetrics()
-                                .getStringBounds(objs.getType().toString(), g2);
+                                .getStringBounds(objs.getType(), g2);
                         int max = (int) stringBounds.getWidth();
                         if (max < stringBounds2.getWidth()) {
                             max = (int) stringBounds2.getWidth();
@@ -333,7 +333,7 @@ class MyCanvas3D extends Canvas3D {
         //g2.drawString("O",(int)orig.x,(int)orig.y);
         //camera.associatedrender.objects
         for (Enumeration<AbstractElement> enuma = camera.associatedrender.objects.keys(); enuma.hasMoreElements(); ) {
-            AbstractElement objs = (AbstractElement) enuma.nextElement();
+            AbstractElement objs = enuma.nextElement();
             Obj3D obj2 = camera.associatedrender.objects.get(objs);
 
             orig = get3DTo2DPoint(new Point3d(obj2.pos));
@@ -366,7 +366,7 @@ class MyCanvas3D extends Canvas3D {
         int scaleint = (int) (scale * 100);
         scale = scaleint;
         scale /= 100;
-        String text = new String(scale + units);
+        String text = scale + units;
         window(w - 70, h - 35, w - 9, h - 10);
 
         g2.drawString(text, w - 60, h - 12);
@@ -382,7 +382,7 @@ class MyCanvas3D extends Canvas3D {
         //camera.associatedrender.objects
         for (Enumeration<VehicleType> enuma = camera.associatedrender.vehicles.keys(); enuma
                 .hasMoreElements(); ) {
-            VehicleType vt = (VehicleType) enuma.nextElement();
+            VehicleType vt = enuma.nextElement();
             Obj3D obj2 = camera.associatedrender.vehicles.get(vt);
 
             orig = get3DTo2DPoint(new Point3d(obj2.pos));
@@ -408,7 +408,7 @@ class MyCanvas3D extends Canvas3D {
         //camera.associatedrender.objects
         for (Enumeration<VehicleType> enuma = camera.associatedrender.vehicles.keys(); enuma
                 .hasMoreElements(); ) {
-            VehicleType vt = (VehicleType) enuma.nextElement();
+            VehicleType vt = enuma.nextElement();
             Obj3D obj2 = camera.associatedrender.vehicles.get(vt);
             Cam c = new Cam();
             if (camera.lockobj == null) {
@@ -547,7 +547,7 @@ class MyCanvas3D extends Canvas3D {
         //g2.drawString("O",(int)orig.x,(int)orig.y);
         //camera.associatedrender.objects
         for (Enumeration<AbstractElement> enuma = camera.associatedrender.objects.keys(); enuma.hasMoreElements(); ) {
-            AbstractElement objs = (AbstractElement) enuma.nextElement();
+            AbstractElement objs = enuma.nextElement();
             Obj3D obj2 = camera.associatedrender.objects.get(objs);
 
             orig = get3DTo2DPoint(new Point3d(obj2.pos), 3);
@@ -663,7 +663,7 @@ class MyCanvas3D extends Canvas3D {
         int scaleint = (int) (scale * 100);
         scale = scaleint;
         scale /= 100;
-        String text = new String(scale + units);
+        String text = scale + units;
 //		Point2d paux=new Point2d(p1.x-p2.x,p1.y-p2.y);
         double angle = AngleUtils.calcAngle(p1.x, p1.y, p2.x, p2.y);
         //double ang=Math.atan(m);
@@ -854,7 +854,7 @@ class MyCanvas3D extends Canvas3D {
         String text = "";
         LocationType curLocation = null;
         if (camera.lockobj == null) {
-            double location[] = {0, 0, 0};
+            double[] location = {0, 0, 0};
             Point3d vec = new Point3d(location[0], location[1], location[2]);
             vec.x += camera.pivot.x;
             vec.y += camera.pivot.y;
@@ -867,7 +867,7 @@ class MyCanvas3D extends Canvas3D {
             curLocation.translatePosition(vec.x, vec.y, vec.z);
         }
         else if (camera.lock != null) {
-            double location[] = {0, 0, 0};
+            double[] location = {0, 0, 0};
             Point3d vec2 = new Point3d(location[0], location[1], location[2]);
 
             Vector3d vec = new Vector3d(camera.lockobj.pos[0],
@@ -885,7 +885,7 @@ class MyCanvas3D extends Canvas3D {
             curLocation.translatePosition(vec.x, vec.y, vec.z);
         }
         else if (camera.lockmapobj != null) {
-            double location[] = {0, 0, 0};
+            double[] location = {0, 0, 0};
             Point3d vec2 = new Point3d(location[0], location[1], location[2]);
 
             Vector3d vec = new Vector3d(camera.lockobj.pos[0],
@@ -908,8 +908,8 @@ class MyCanvas3D extends Canvas3D {
             StringBuilder loc = new StringBuilder();
             loc.append("Target:(");
             loc.append(CoordinateUtil.latitudeAsString(latLonDepth[0], true));
-            loc.append(" / " + CoordinateUtil.longitudeAsString(latLonDepth[1], true));
-            loc.append(" / " + MathMiscUtils.round(latLonDepth[2], 1) + "m)");
+            loc.append(" / ").append(CoordinateUtil.longitudeAsString(latLonDepth[1], true));
+            loc.append(" / ").append(MathMiscUtils.round(latLonDepth[2], 1)).append("m)");
             text = loc.toString();
         }
 
