@@ -27,7 +27,7 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: 
+ * Author:
  * 20??/??/??
  */
 package pt.lsts.neptus.renderer3d;
@@ -70,108 +70,109 @@ import pt.lsts.neptus.util.MathMiscUtils;
 
 /**
  * @author Rui
- * this class is extended to canvas3D of Java3Dm, the difference 
+ * this class is extended to canvas3D of Java3Dm, the difference
  * is the rewrited method PostRenderer.
- * Is used to display 2d graphiscs over the 3D rederer scene.  
+ * Is used to display 2d graphiscs over the 3D rederer scene.
  */
 class MyCanvas3D extends Canvas3D {
-	
-	
-	//private GraphicsContext3D gc;
-	private static final long serialVersionUID = 1L;
-	public J3DGraphics2D g2 = null;
 
-	private Dimension d = new Dimension(0, 0);
 
-	protected Camera3D camera;
+    //private GraphicsContext3D gc;
+    private static final long serialVersionUID = 1L;
+    public J3DGraphics2D g2 = null;
 
-	//private Obj3D obj = null;
+    private Dimension d = new Dimension(0, 0);
 
-	public Point2d p1 = new Point2d();
+    protected Camera3D camera;
 
-	public Point2d p2 = new Point2d();
+    //private Obj3D obj = null;
 
-	public boolean caminfo = false;
+    public Point2d p1 = new Point2d();
 
-	public boolean axisinfo = false;
+    public Point2d p2 = new Point2d();
 
-	public boolean objinfo = false;
+    public boolean caminfo = false;
 
-	public boolean transpinfo = false;
-	
-	public boolean veicleinfo = false;
-	
-	public boolean reguainfo = false;
+    public boolean axisinfo = false;
 
-	public boolean selected = false;
-	
-	public boolean vehicleicons = false;
-	
-	public boolean objsicons = false;
-	
-	public boolean gradback = false;	
-	
-	public Image trans;
-	public Image mark;
-	public Image home;
+    public boolean objinfo = false;
 
-	/**
-	 * 
-	 * @param point3d point in 3D space
-	 * @return the 2d coodinates in canvas form point3d in space
-	 * it as to be an camera3D assiciated to this canvas 
-	 */
-	public Point2d get3DTo2DPoint(Point3d point3d) {
+    public boolean transpinfo = false;
 
-		Transform3D temp = new Transform3D();
-		this.getVworldToImagePlate(temp);
-		temp.transform(point3d);
-		//NeptusLog.pub().info("<###> "+point3d.z);
-		
-		Point2d point2d = new Point2d();
-		if (point3d.z>0.0 )
-				return point2d;
-		this.getPixelLocationFromImagePlate(point3d, point2d);
+    public boolean veicleinfo = false;
 
-		return point2d;
-	}
-	
-	public Point2d get3DTo2DPoint(Point3d point3d,double dist) {
+    public boolean reguainfo = false;
 
-		Transform3D temp = new Transform3D();
-		this.getVworldToImagePlate(temp);
-		temp.transform(point3d);
-		//NeptusLog.pub().info("<###> "+point3d.z);
-		
-		Point2d point2d = new Point2d();
-		if(camera.projection==View.PARALLEL_PROJECTION)
-			dist=0.0;
-		if (point3d.z>-dist)
-				return point2d;
-		this.getPixelLocationFromImagePlate(point3d, point2d);
+    public boolean selected = false;
 
-		return point2d;
-	}
+    public boolean vehicleicons = false;
 
-	/**
-	 * Constructor 
-	 * @param gcfg screen configuration
-	 * @param cam Camera3D to be associated
-	 */
-	public MyCanvas3D(GraphicsConfiguration gcfg, Camera3D cam) 
-	{
-		super(gcfg);
-		camera = cam;
-		loadIcons();
-	}
-	
-		
-	public void loadIcons()
-	{
-		trans=ImageUtils.getImage("images/transponder.png");
-		mark=ImageUtils.getImage("images/mark.png");
-		home=ImageUtils.getImage("images/home.png");
-	}
+    public boolean objsicons = false;
+
+    public boolean gradback = false;
+
+    public Image trans;
+    public Image mark;
+    public Image home;
+
+    /**
+     * @param point3d point in 3D space
+     * @return the 2d coodinates in canvas form point3d in space
+     * it as to be an camera3D assiciated to this canvas
+     */
+    public Point2d get3DTo2DPoint(Point3d point3d) {
+
+        Transform3D temp = new Transform3D();
+        this.getVworldToImagePlate(temp);
+        temp.transform(point3d);
+        //NeptusLog.pub().info("<###> "+point3d.z);
+
+        Point2d point2d = new Point2d();
+        if (point3d.z > 0.0) {
+            return point2d;
+        }
+        this.getPixelLocationFromImagePlate(point3d, point2d);
+
+        return point2d;
+    }
+
+    public Point2d get3DTo2DPoint(Point3d point3d, double dist) {
+
+        Transform3D temp = new Transform3D();
+        this.getVworldToImagePlate(temp);
+        temp.transform(point3d);
+        //NeptusLog.pub().info("<###> "+point3d.z);
+
+        Point2d point2d = new Point2d();
+        if (camera.projection == View.PARALLEL_PROJECTION) {
+            dist = 0.0;
+        }
+        if (point3d.z > -dist) {
+            return point2d;
+        }
+        this.getPixelLocationFromImagePlate(point3d, point2d);
+
+        return point2d;
+    }
+
+    /**
+     * Constructor
+     *
+     * @param gcfg screen configuration
+     * @param cam  Camera3D to be associated
+     */
+    public MyCanvas3D(GraphicsConfiguration gcfg, Camera3D cam) {
+        super(gcfg);
+        camera = cam;
+        loadIcons();
+    }
+
+
+    public void loadIcons() {
+        trans = ImageUtils.getImage("images/transponder.png");
+        mark = ImageUtils.getImage("images/mark.png");
+        home = ImageUtils.getImage("images/home.png");
+    }
 	
 	/*@Override
 	public void preRender() {
@@ -193,386 +194,377 @@ class MyCanvas3D extends Canvas3D {
 		g2.flush(true);
 	}
 	*/
-	
-	/**
-	 *	rewrited method from Canvas3D (of Java3D) 
-	 */
-	public void postRender() {
-	//	super.postRender();
-	
-			g2 = this.getGraphics2D();
+
+    /**
+     * rewrited method from Canvas3D (of Java3D)
+     */
+    public void postRender() {
+        //	super.postRender();
+
+        g2 = this.getGraphics2D();
 			/*g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 			 RenderingHints.VALUE_ANTIALIAS_ON);*/
-			g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
-					RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+                RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 			/*float strokeThickness = 3.0f;
 			 BasicStroke stroke = new BasicStroke(strokeThickness);
 			 g2.setStroke(stroke);*/
 
-		
 
-		this.getSize(d);
+        this.getSize(d);
 
-		//    if(selected) selected(d.width, d.height, g2);  //ver esta parte
-		if (vehicleicons)
-			vehicleIcons(d.width, d.height, g2);
-		if (objsicons)
-			objsIcons(d.width, d.height, g2);
-		if (caminfo)
-			camInfo(d.width, d.height, g2);
-		if (reguainfo)
-			reguaInfo(d.width, d.height, g2);
-		if (axisinfo)
-			axisInfo(d.width, d.height, g2);
-		if (objinfo)
-			objInfo(d.width, d.height, g2);
-		if (veicleinfo)
-			veicleInfo(d.width, d.height, g2);
-		if (camera.associatedrender.gtext)
-			gridInfo(d.width, d.height, g2);
-		
-		//drawDemo(d.width, d.height, g2);
+        //    if(selected) selected(d.width, d.height, g2);  //ver esta parte
+        if (vehicleicons) {
+            vehicleIcons(d.width, d.height, g2);
+        }
+        if (objsicons) {
+            objsIcons(d.width, d.height, g2);
+        }
+        if (caminfo) {
+            camInfo(d.width, d.height, g2);
+        }
+        if (reguainfo) {
+            reguaInfo(d.width, d.height, g2);
+        }
+        if (axisinfo) {
+            axisInfo(d.width, d.height, g2);
+        }
+        if (objinfo) {
+            objInfo(d.width, d.height, g2);
+        }
+        if (veicleinfo) {
+            veicleInfo(d.width, d.height, g2);
+        }
+        if (camera.associatedrender.gtext) {
+            gridInfo(d.width, d.height, g2);
+        }
 
-		defaultDisplay(d.width, d.height, g2);
-		
-		if (isVisible())
-		{
-			try
-			{
-				g2.flush(true);
-			}
-			catch (IllegalStateException e)
-			{
-				//e.printStackTrace();
-				NeptusLog.waste().warn("MyCanvas3D error", e);
-			}
-		}
-	}
-	
-	
-	public void defaultDisplay(int w, int h, J3DGraphics2D g2) {
-		g2.setColor(Color.BLACK);
-		Point2d orig = get3DTo2DPoint(new Point3d(0.0, 0.0, 0.0));
-		//g2.drawString("O",(int)orig.x,(int)orig.y);
-		//camera.associatedrender.objects
-		for (Enumeration<AbstractElement> enuma = camera.associatedrender.objects.keys();enuma.hasMoreElements();) 
-		{
-			AbstractElement objs = (AbstractElement) enuma.nextElement();
-			Obj3D obj2 = camera.associatedrender.objects.get(objs);
-			
-			if(obj2.drawlabel)
-			{
-				orig = get3DTo2DPoint(new Point3d(obj2.pos));
-				if(orig.y!=0 && orig.x!=0)
-				{
-					Rectangle2D stringBounds = g2.getFontMetrics()
-					.getStringBounds(objs.getId(), g2);
-					window((int) orig.x - 2, (int) orig.y - 12, (int) orig.x
-							+ (int) stringBounds.getWidth(), (int) orig.y+2);
-					g2.drawString(objs.getId(), (int) orig.x, (int) orig.y);
-				}
-			}
-			if(obj2.drawinfo)
-			{
-				orig = get3DTo2DPoint(new Point3d(obj2.pos));
-				if(orig.y!=0 && orig.x!=0)
-				{
-					if(objs instanceof DynamicElement) {
-						DynamicElement de = (DynamicElement)objs ;
-						Rectangle2D stringBounds = g2.getFontMetrics()
-						.getStringBounds(objs.getCenterLocation().toString(), g2);
-						Rectangle2D stringBounds2 = g2.getFontMetrics()
-						.getStringBounds(objs.getType().toString(), g2);
-						Rectangle2D stringBounds3 = g2.getFontMetrics()
-						.getStringBounds("Idle Time: "+de.getIdleTimeSecs(), g2);
-						int max =(int)stringBounds.getWidth();
-						if (max<stringBounds2.getWidth())
-							max=(int)stringBounds2.getWidth();
-						if (max<stringBounds3.getWidth())
-							max=(int)stringBounds3.getWidth();
-						window((int) orig.x - 2, (int) orig.y+2, (int) orig.x
-								+ max, (int) orig.y+38);
-						g2.drawString("Idle Time: "+de.getIdleTimeSecs(), (int) orig.x, (int) orig.y+36);
-						g2.drawString(objs.getCenterLocation().toString(), (int) orig.x, (int) orig.y+24);
-						g2.drawString(objs.getType(), (int) orig.x, (int) orig.y+12);
-						
-						
-					}
-					else
-					{
-						Rectangle2D stringBounds = g2.getFontMetrics()
-						.getStringBounds(objs.getCenterLocation().toString(), g2);
-						Rectangle2D stringBounds2 = g2.getFontMetrics()
-						.getStringBounds(objs.getType().toString(), g2);
-						int max =(int)stringBounds.getWidth();
-						if (max<stringBounds2.getWidth())
-							max=(int)stringBounds2.getWidth();
-						window((int) orig.x - 2, (int) orig.y+2, (int) orig.x
-								+ max, (int) orig.y+28);
-						g2.drawString(objs.getCenterLocation().toString(), (int) orig.x, (int) orig.y+24);
-						g2.drawString(objs.getType(), (int) orig.x, (int) orig.y+12);
-					}
-				}
-			}
-		}
+        //drawDemo(d.width, d.height, g2);
 
-	}
-	
-	/**
-	 * draw objects info on their position
-	 * @param w  width of bitmap 
-	 * @param h  heigth of bitmap
-	 * @param g2 draw obj
-	 */
-	public void objInfo(int w, int h, J3DGraphics2D g2) {
-		g2.setColor(Color.BLACK);
-		Point2d orig = get3DTo2DPoint(new Point3d(0.0, 0.0, 0.0));
-		//g2.drawString("O",(int)orig.x,(int)orig.y);
-		//camera.associatedrender.objects
-		for (Enumeration<AbstractElement> enuma = camera.associatedrender.objects.keys();enuma.hasMoreElements();) 
-		{
-			AbstractElement objs = (AbstractElement) enuma.nextElement();
-			Obj3D obj2 = camera.associatedrender.objects.get(objs);
-			
-			orig = get3DTo2DPoint(new Point3d(obj2.pos));
-			if(orig.y!=0 && orig.x!=0)
-			{
-				Rectangle2D stringBounds = g2.getFontMetrics()
-				.getStringBounds(objs.getId(), g2);
-				window((int) orig.x - 2, (int) orig.y - 12, (int) orig.x
-						+ (int) stringBounds.getWidth(), (int) orig.y+2);
-				g2.drawString(objs.getId(), (int) orig.x, (int) orig.y);
-			}
-		}
+        defaultDisplay(d.width, d.height, g2);
 
-	}
+        if (isVisible()) {
+            try {
+                g2.flush(true);
+            }
+            catch (IllegalStateException e) {
+                //e.printStackTrace();
+                NeptusLog.waste().warn("MyCanvas3D error", e);
+            }
+        }
+    }
 
-	public void gridInfo(int w, int h, J3DGraphics2D g2) {
-		double scale = camera.associatedrender.gspacing ;
 
-		String units = " m";
+    public void defaultDisplay(int w, int h, J3DGraphics2D g2) {
+        g2.setColor(Color.BLACK);
+        Point2d orig = get3DTo2DPoint(new Point3d(0.0, 0.0, 0.0));
+        //g2.drawString("O",(int)orig.x,(int)orig.y);
+        //camera.associatedrender.objects
+        for (Enumeration<AbstractElement> enuma = camera.associatedrender.objects.keys(); enuma.hasMoreElements(); ) {
+            AbstractElement objs = (AbstractElement) enuma.nextElement();
+            Obj3D obj2 = camera.associatedrender.objects.get(objs);
 
-		if (scale < 1) {
-			units = "cm";
-			scale *= 100;
-		} else {
-			if (scale > 1000) {
-				units = "Km";
-				scale /= 1000;
-			}
-		}
-		int scaleint = (int) (scale * 100);
-		scale = scaleint;
-		scale /= 100;
-		String text = new String(scale + units);
-		window(w-70, h-35, w-9, h-10);
-		
-		g2.drawString(text, w-60, h - 12);
-		g2.drawString("Grid Unit", w-60, h - 24);
-	}
-	
-	public void veicleInfo(int w, int h, J3DGraphics2D g2) {
-		g2.setStroke(new BasicStroke(1, BasicStroke.CAP_ROUND,
-				BasicStroke.JOIN_ROUND));
-		g2.setColor(Color.BLACK);
-		Point2d orig = get3DTo2DPoint(new Point3d(0.0, 0.0, 0.0));
-		//g2.drawString("O",(int)orig.x,(int)orig.y);
-		//camera.associatedrender.objects
-		for (Enumeration<VehicleType> enuma = camera.associatedrender.vehicles.keys(); enuma
-				.hasMoreElements();) {
-			VehicleType vt = (VehicleType) enuma.nextElement();
-			Obj3D obj2 = camera.associatedrender.vehicles.get(vt);
+            if (obj2.drawlabel) {
+                orig = get3DTo2DPoint(new Point3d(obj2.pos));
+                if (orig.y != 0 && orig.x != 0) {
+                    Rectangle2D stringBounds = g2.getFontMetrics()
+                            .getStringBounds(objs.getId(), g2);
+                    window((int) orig.x - 2, (int) orig.y - 12, (int) orig.x
+                            + (int) stringBounds.getWidth(), (int) orig.y + 2);
+                    g2.drawString(objs.getId(), (int) orig.x, (int) orig.y);
+                }
+            }
+            if (obj2.drawinfo) {
+                orig = get3DTo2DPoint(new Point3d(obj2.pos));
+                if (orig.y != 0 && orig.x != 0) {
+                    if (objs instanceof DynamicElement) {
+                        DynamicElement de = (DynamicElement) objs;
+                        Rectangle2D stringBounds = g2.getFontMetrics()
+                                .getStringBounds(objs.getCenterLocation().toString(), g2);
+                        Rectangle2D stringBounds2 = g2.getFontMetrics()
+                                .getStringBounds(objs.getType().toString(), g2);
+                        Rectangle2D stringBounds3 = g2.getFontMetrics()
+                                .getStringBounds("Idle Time: " + de.getIdleTimeSecs(), g2);
+                        int max = (int) stringBounds.getWidth();
+                        if (max < stringBounds2.getWidth()) {
+                            max = (int) stringBounds2.getWidth();
+                        }
+                        if (max < stringBounds3.getWidth()) {
+                            max = (int) stringBounds3.getWidth();
+                        }
+                        window((int) orig.x - 2, (int) orig.y + 2, (int) orig.x
+                                + max, (int) orig.y + 38);
+                        g2.drawString("Idle Time: " + de.getIdleTimeSecs(), (int) orig.x, (int) orig.y + 36);
+                        g2.drawString(objs.getCenterLocation().toString(), (int) orig.x, (int) orig.y + 24);
+                        g2.drawString(objs.getType(), (int) orig.x, (int) orig.y + 12);
 
-			orig = get3DTo2DPoint(new Point3d(obj2.pos));
-			if(orig.y!=0 && orig.x!=0)
-			{
-				Rectangle2D stringBounds = g2.getFontMetrics()
-				.getStringBounds(vt.getName(), g2);
-				window((int) orig.x - 2, (int) orig.y - 12, (int) orig.x
-						+ (int) stringBounds.getWidth(), (int) orig.y+2);
-				g2.drawString(vt.getName(), (int) orig.x, (int) orig.y);
-			}
-		}
-	}
 
-	
-	public void vehicleIcons(int w, int h, J3DGraphics2D g2) {
-		g2.setColor(Color.BLACK);
-		
-		 
-		//g2.get
-		//RenderedImage 
-		Point2d orig = get3DTo2DPoint(new Point3d(0.0, 0.0, 0.0));
-		//g2.drawString("O",(int)orig.x,(int)orig.y);
-		//camera.associatedrender.objects
-		for (Enumeration<VehicleType> enuma = camera.associatedrender.vehicles.keys(); enuma
-				.hasMoreElements();) {
-			VehicleType vt = (VehicleType) enuma.nextElement();
-			Obj3D obj2 = camera.associatedrender.vehicles.get(vt);
-			Cam c = new Cam();
-			if (camera.lockobj == null)
-				c.camdef(20, (camera.psi -obj2.yaw)+ Math.PI / 2, 
-						(camera.theta+obj2.pitch),
-						-(camera.phi - Math.PI));
-			else
-				c.camdef(		20,
-								((camera.psi + camera.lockobj.yaw)-obj2.yaw) + Math.PI / 2,
-								((camera.theta/*-camera.lockobj.pitch*/)+obj2.pitch),
-								-((camera.phi/*+camera.lockobj.roll*/) - Math.PI));
-			
-			
-			
-			
-			Vector3f vec3a = new Vector3f(8, 0, 0);
-			Vector3f vec3b = new Vector3f(-1, 0, 0);
-			Vector3f vec3c = new Vector3f(-3, 3.5f, 0); // para a cetinha
-			Vector3f vec3d = new Vector3f(-3, -3.5f, 0);
-			
-			Vector2f vec2a = c.to2d(vec3a);
-			Vector2f vec2b = c.to2d(vec3b);
-			Vector2f vec2c = c.to2d(vec3c);
-			Vector2f vec2d = c.to2d(vec3d);
+                    }
+                    else {
+                        Rectangle2D stringBounds = g2.getFontMetrics()
+                                .getStringBounds(objs.getCenterLocation().toString(), g2);
+                        Rectangle2D stringBounds2 = g2.getFontMetrics()
+                                .getStringBounds(objs.getType().toString(), g2);
+                        int max = (int) stringBounds.getWidth();
+                        if (max < stringBounds2.getWidth()) {
+                            max = (int) stringBounds2.getWidth();
+                        }
+                        window((int) orig.x - 2, (int) orig.y + 2, (int) orig.x
+                                + max, (int) orig.y + 28);
+                        g2.drawString(objs.getCenterLocation().toString(), (int) orig.x, (int) orig.y + 24);
+                        g2.drawString(objs.getType(), (int) orig.x, (int) orig.y + 12);
+                    }
+                }
+            }
+        }
 
-			//vec2a.x=(float) ((vec2a.x*Math.cos(camera.phi))-(vec2a.y*Math.sin(camera.phi)));
-			//vec2a.y=(float) ((vec2a.x*Math.sin(camera.phi))-(vec2a.y*Math.cos(camera.phi)));
+    }
 
-			int x1 = (int) (3 * vec2a.x)-15;
-			int y1 = (int) (3 * vec2a.y)-15;
-			int x2 = (int) (3 * vec2b.x)-15;
-			int y2 = (int) (3 * vec2b.y)-15;
-			int x3 = (int) (3 * vec2c.x)-15;
-			int y3 = (int) (3 * vec2c.y)-15;
-			int x4 = (int) (3 * vec2d.x)-15;
-			int y4 = (int) (3 * vec2d.y)-15;
-			
-			orig = get3DTo2DPoint(new Point3d(obj2.pos),4);
-			x1 = (int) (x1 + orig.x); // translate
-			y1 = (int) (y1 + orig.y);
-			x2 = (int) (x2 + orig.x);
-			y2 = (int) (y2 + orig.y);
-			x3 = (int) (x3 + orig.x); // translate
-			y3 = (int) (y3 + orig.y);
-			x4 = (int) (x4 + orig.x);
-			y4 = (int) (y4 + orig.y);
-			
-			if(orig.y!=0 && orig.x!=0)
-			{
-				g2.setColor(vt.getIconColor());
-				g2.fillPolygon(px,py,4);
-				//g2.drawLine(x1, y1, x2, y2); // desenhar
-				g2.setColor(Color.BLACK);
-			}
-		}
-	}
+    /**
+     * draw objects info on their position
+     *
+     * @param w  width of bitmap
+     * @param h  heigth of bitmap
+     * @param g2 draw obj
+     */
+    public void objInfo(int w, int h, J3DGraphics2D g2) {
+        g2.setColor(Color.BLACK);
+        Point2d orig = get3DTo2DPoint(new Point3d(0.0, 0.0, 0.0));
+        //g2.drawString("O",(int)orig.x,(int)orig.y);
+        //camera.associatedrender.objects
+        for (Enumeration<AbstractElement> enuma = camera.associatedrender.objects.keys(); enuma.hasMoreElements(); ) {
+            AbstractElement objs = (AbstractElement) enuma.nextElement();
+            Obj3D obj2 = camera.associatedrender.objects.get(objs);
 
-	public void drawSky(int w, int h, J3DGraphics2D g2)
-	{
-		//g2.scale(4,4);
-		//g2.drawImage(sky,0,-128,null);
-		
-		//g2.scale(0.25,0.25);
-		
-		//(camera.psi + camera.lockobj.yaw) + Math.PI / 2,
-		//(camera.theta/*-camera.lockobj.pitch*/),
-		//-((camera.phi/*+camera.lockobj.roll*/) - Math.PI));
-		
-		//vetor2d camdir=
- 
-		double horang;
-		double vertang;
-		if (camera.lockobj == null)
-		{
-			horang=camera.psi;
-			vertang=camera.theta;
-		}
-		else
-		{
-			horang=camera.psi+camera.lockobj.yaw;
-			vertang=camera.theta;
-		}
+            orig = get3DTo2DPoint(new Point3d(obj2.pos));
+            if (orig.y != 0 && orig.x != 0) {
+                Rectangle2D stringBounds = g2.getFontMetrics()
+                        .getStringBounds(objs.getId(), g2);
+                window((int) orig.x - 2, (int) orig.y - 12, (int) orig.x
+                        + (int) stringBounds.getWidth(), (int) orig.y + 2);
+                g2.drawString(objs.getId(), (int) orig.x, (int) orig.y);
+            }
+        }
 
-		
-		Vector2d camdir=new Vector2d();
-		camdir.y=Math.cos(horang);
-		camdir.x=-Math.sin(horang);
-		
-		if(Math.sin(vertang)<0)
-		{
-			camdir.y=-camdir.y;
-			camdir.x=-camdir.x;
-		}
-		
-		
-		
-		 Rectangle2D e = new Rectangle2D.Float(0, 0, w, h);
-		 
-		
-		 Point2d light=get3DTo2DPoint(new Point3d(camdir.x*100000,camdir.y*100000,0),-20);
-		 Point2d dark=get3DTo2DPoint(new Point3d(camdir.x*100000,camdir.y*100000,10),0);
-		 
-		 Point2d horline=get3DTo2DPoint(new Point3d(camdir.x*100000,camdir.y*100000,0),0);		 
-		 Vector2d v=new Vector2d();
-		 v.x=(light.x-dark.x);
-		 v.y=(light.y-dark.y);
-		 v.normalize();
-		 
-		 
-		 Point2d up=new Point2d();
-		 up.x=v.x*10;
-		 up.y=v.y*10;
-		 
-		 //Color3f bgColor = new Color3f(0.007843137254901961f,
-		//			0.4431372549019608f, 0.6705882352941176f);
-		 GradientPaint gp = new GradientPaint((float)horline.x,(float)horline.y,new Color(0.007843137254901961f,
-					0.4431372549019608f, 0.6705882352941176f), 
-				 (float)(horline.x+up.x*10),(float)(horline.y+up.y*10), new Color(0.0431372549019608f,
-							0.5431372549019608f, 0.8705882352941176f), false);
-		 g2.setPaint(gp);
-		 g2.fill(e);
-		 
-		 //g2.setColor(Color.RED);
-		 
-			//g2.drawLine((int)horline.x,(int)horline.y,(int)(horline.x+up.x*10),(int)(horline.y+up.y*10));
-		
-		 
-		 //g2.setColor(Color.RED);
-		 
-		 
-		
-			//g2.drawString("hor:"+Math.toDegrees(horang)+" vert:"+Math.toDegrees(vertang), 0, 400);
-			//g2.drawString("x:"+camdir.x+" y:"+camdir.y, 0, 420);	
-	}
-	
-	public void objsIcons(int w, int h, J3DGraphics2D g2) {
-		g2.setColor(Color.BLACK);
-		Stroke strokebase = g2.getStroke();
-		Point2d orig = get3DTo2DPoint(new Point3d(0.0, 0.0, 0.0));
-		//g2.drawString("O",(int)orig.x,(int)orig.y);
-		//camera.associatedrender.objects
-		for (Enumeration<AbstractElement> enuma = camera.associatedrender.objects.keys();enuma.hasMoreElements();) 
-		{
-			AbstractElement objs = (AbstractElement) enuma.nextElement();
-			Obj3D obj2 = camera.associatedrender.objects.get(objs);
-			
-			orig = get3DTo2DPoint(new Point3d(obj2.pos),3);
-			if(orig.y!=0 && orig.x!=0)
-			{
-				if(objs instanceof TransponderElement)
-				{
-					g2.drawImage(trans,(int)orig.x-(trans.getWidth(null)/2),(int)orig.y-(trans.getWidth(null)/2),null);
-				}
-				
-				if(objs instanceof MarkElement)
-				{
-					g2.drawImage(mark,(int)orig.x-(mark.getWidth(null)/2),(int)orig.y-(mark.getWidth(null)/2),null);
-				}
-				
-				if(objs instanceof HomeReferenceElement)
-				{
-					g2.drawImage(home,(int)orig.x-(home.getWidth(null)/2),(int)orig.y-(home.getWidth(null)/2),null);
-				}
-				
-			}
+    }
+
+    public void gridInfo(int w, int h, J3DGraphics2D g2) {
+        double scale = camera.associatedrender.gspacing;
+
+        String units = " m";
+
+        if (scale < 1) {
+            units = "cm";
+            scale *= 100;
+        }
+        else {
+            if (scale > 1000) {
+                units = "Km";
+                scale /= 1000;
+            }
+        }
+        int scaleint = (int) (scale * 100);
+        scale = scaleint;
+        scale /= 100;
+        String text = new String(scale + units);
+        window(w - 70, h - 35, w - 9, h - 10);
+
+        g2.drawString(text, w - 60, h - 12);
+        g2.drawString("Grid Unit", w - 60, h - 24);
+    }
+
+    public void veicleInfo(int w, int h, J3DGraphics2D g2) {
+        g2.setStroke(new BasicStroke(1, BasicStroke.CAP_ROUND,
+                BasicStroke.JOIN_ROUND));
+        g2.setColor(Color.BLACK);
+        Point2d orig = get3DTo2DPoint(new Point3d(0.0, 0.0, 0.0));
+        //g2.drawString("O",(int)orig.x,(int)orig.y);
+        //camera.associatedrender.objects
+        for (Enumeration<VehicleType> enuma = camera.associatedrender.vehicles.keys(); enuma
+                .hasMoreElements(); ) {
+            VehicleType vt = (VehicleType) enuma.nextElement();
+            Obj3D obj2 = camera.associatedrender.vehicles.get(vt);
+
+            orig = get3DTo2DPoint(new Point3d(obj2.pos));
+            if (orig.y != 0 && orig.x != 0) {
+                Rectangle2D stringBounds = g2.getFontMetrics()
+                        .getStringBounds(vt.getName(), g2);
+                window((int) orig.x - 2, (int) orig.y - 12, (int) orig.x
+                        + (int) stringBounds.getWidth(), (int) orig.y + 2);
+                g2.drawString(vt.getName(), (int) orig.x, (int) orig.y);
+            }
+        }
+    }
+
+
+    public void vehicleIcons(int w, int h, J3DGraphics2D g2) {
+        g2.setColor(Color.BLACK);
+
+
+        //g2.get
+        //RenderedImage
+        Point2d orig = get3DTo2DPoint(new Point3d(0.0, 0.0, 0.0));
+        //g2.drawString("O",(int)orig.x,(int)orig.y);
+        //camera.associatedrender.objects
+        for (Enumeration<VehicleType> enuma = camera.associatedrender.vehicles.keys(); enuma
+                .hasMoreElements(); ) {
+            VehicleType vt = (VehicleType) enuma.nextElement();
+            Obj3D obj2 = camera.associatedrender.vehicles.get(vt);
+            Cam c = new Cam();
+            if (camera.lockobj == null) {
+                c.camdef(20, (camera.psi - obj2.yaw) + Math.PI / 2,
+                        (camera.theta + obj2.pitch),
+                        -(camera.phi - Math.PI));
+            }
+            else {
+                c.camdef(20,
+                        ((camera.psi + camera.lockobj.yaw) - obj2.yaw) + Math.PI / 2,
+                        ((camera.theta/*-camera.lockobj.pitch*/) + obj2.pitch),
+                        -((camera.phi/*+camera.lockobj.roll*/) - Math.PI));
+            }
+
+
+            Vector3f vec3a = new Vector3f(8, 0, 0);
+            Vector3f vec3b = new Vector3f(-1, 0, 0);
+            Vector3f vec3c = new Vector3f(-3, 3.5f, 0); // para a cetinha
+            Vector3f vec3d = new Vector3f(-3, -3.5f, 0);
+
+            Vector2f vec2a = c.to2d(vec3a);
+            Vector2f vec2b = c.to2d(vec3b);
+            Vector2f vec2c = c.to2d(vec3c);
+            Vector2f vec2d = c.to2d(vec3d);
+
+            //vec2a.x=(float) ((vec2a.x*Math.cos(camera.phi))-(vec2a.y*Math.sin(camera.phi)));
+            //vec2a.y=(float) ((vec2a.x*Math.sin(camera.phi))-(vec2a.y*Math.cos(camera.phi)));
+
+            int x1 = (int) (3 * vec2a.x) - 15;
+            int y1 = (int) (3 * vec2a.y) - 15;
+            int x2 = (int) (3 * vec2b.x) - 15;
+            int y2 = (int) (3 * vec2b.y) - 15;
+            int x3 = (int) (3 * vec2c.x) - 15;
+            int y3 = (int) (3 * vec2c.y) - 15;
+            int x4 = (int) (3 * vec2d.x) - 15;
+            int y4 = (int) (3 * vec2d.y) - 15;
+
+            orig = get3DTo2DPoint(new Point3d(obj2.pos), 4);
+            x1 = (int) (x1 + orig.x); // translate
+            y1 = (int) (y1 + orig.y);
+            x2 = (int) (x2 + orig.x);
+            y2 = (int) (y2 + orig.y);
+            x3 = (int) (x3 + orig.x); // translate
+            y3 = (int) (y3 + orig.y);
+            x4 = (int) (x4 + orig.x);
+            y4 = (int) (y4 + orig.y);
+
+            int[] px = {x1, x3, x2, x4};
+            int[] py = {y1, y3, y2, y4};
+
+            if (orig.y != 0 && orig.x != 0) {
+                g2.setColor(vt.getIconColor());
+                g2.fillPolygon(px, py, 4);
+                //g2.drawLine(x1, y1, x2, y2); // desenhar
+                g2.setColor(Color.BLACK);
+            }
+        }
+    }
+
+    public void drawSky(int w, int h, J3DGraphics2D g2) {
+        //g2.scale(4,4);
+        //g2.drawImage(sky,0,-128,null);
+
+        //g2.scale(0.25,0.25);
+
+        //(camera.psi + camera.lockobj.yaw) + Math.PI / 2,
+        //(camera.theta/*-camera.lockobj.pitch*/),
+        //-((camera.phi/*+camera.lockobj.roll*/) - Math.PI));
+
+        //vetor2d camdir=
+
+        double horang;
+        double vertang;
+        if (camera.lockobj == null) {
+            horang = camera.psi;
+            vertang = camera.theta;
+        }
+        else {
+            horang = camera.psi + camera.lockobj.yaw;
+            vertang = camera.theta;
+        }
+
+
+        Vector2d camdir = new Vector2d();
+        camdir.y = Math.cos(horang);
+        camdir.x = -Math.sin(horang);
+
+        if (Math.sin(vertang) < 0) {
+            camdir.y = -camdir.y;
+            camdir.x = -camdir.x;
+        }
+
+
+        Rectangle2D e = new Rectangle2D.Float(0, 0, w, h);
+
+
+        Point2d light = get3DTo2DPoint(new Point3d(camdir.x * 100000, camdir.y * 100000, 0), -20);
+        Point2d dark = get3DTo2DPoint(new Point3d(camdir.x * 100000, camdir.y * 100000, 10), 0);
+
+        Point2d horline = get3DTo2DPoint(new Point3d(camdir.x * 100000, camdir.y * 100000, 0), 0);
+        Vector2d v = new Vector2d();
+        v.x = (light.x - dark.x);
+        v.y = (light.y - dark.y);
+        v.normalize();
+
+
+        Point2d up = new Point2d();
+        up.x = v.x * 10;
+        up.y = v.y * 10;
+
+        //Color3f bgColor = new Color3f(0.007843137254901961f,
+        //			0.4431372549019608f, 0.6705882352941176f);
+        GradientPaint gp = new GradientPaint((float) horline.x, (float) horline.y, new Color(0.007843137254901961f,
+                0.4431372549019608f, 0.6705882352941176f),
+                (float) (horline.x + up.x * 10), (float) (horline.y + up.y * 10), new Color(0.0431372549019608f,
+                0.5431372549019608f, 0.8705882352941176f), false);
+        g2.setPaint(gp);
+        g2.fill(e);
+
+        //g2.setColor(Color.RED);
+
+        //g2.drawLine((int)horline.x,(int)horline.y,(int)(horline.x+up.x*10),(int)(horline.y+up.y*10));
+
+
+        //g2.setColor(Color.RED);
+
+
+        //g2.drawString("hor:"+Math.toDegrees(horang)+" vert:"+Math.toDegrees(vertang), 0, 400);
+        //g2.drawString("x:"+camdir.x+" y:"+camdir.y, 0, 420);
+    }
+
+    public void objsIcons(int w, int h, J3DGraphics2D g2) {
+        g2.setColor(Color.BLACK);
+        Stroke strokebase = g2.getStroke();
+        Point2d orig = get3DTo2DPoint(new Point3d(0.0, 0.0, 0.0));
+        //g2.drawString("O",(int)orig.x,(int)orig.y);
+        //camera.associatedrender.objects
+        for (Enumeration<AbstractElement> enuma = camera.associatedrender.objects.keys(); enuma.hasMoreElements(); ) {
+            AbstractElement objs = (AbstractElement) enuma.nextElement();
+            Obj3D obj2 = camera.associatedrender.objects.get(objs);
+
+            orig = get3DTo2DPoint(new Point3d(obj2.pos), 3);
+            if (orig.y != 0 && orig.x != 0) {
+                if (objs instanceof TransponderElement) {
+                    g2.drawImage(trans, (int) orig.x - (trans.getWidth(null) / 2), (int) orig.y - (trans.getWidth(null) / 2), null);
+                }
+
+                if (objs instanceof MarkElement) {
+                    g2.drawImage(mark, (int) orig.x - (mark.getWidth(null) / 2), (int) orig.y - (mark.getWidth(null) / 2), null);
+                }
+
+                if (objs instanceof HomeReferenceElement) {
+                    g2.drawImage(home, (int) orig.x - (home.getWidth(null) / 2), (int) orig.y - (home.getWidth(null) / 2), null);
+                }
+
+            }
 			/*if(objs instanceof ScatterPointsElement)
 			{
 				ScatterPointsElement obj = (ScatterPointsElement) objs;
@@ -631,469 +623,477 @@ class MyCanvas3D extends Canvas3D {
 				}
 			}*/
 
-		}
-		g2.setStroke(strokebase);
+        }
+        g2.setStroke(strokebase);
 
-	}
+    }
 
-	
-	/***
-	 * 
-	 * draw information about the distance between p1 and p2 
-	 */
-	public void reguaInfo(int w, int h, J3DGraphics2D g2) {
-		g2.setColor(Color.BLACK);
 
-		g2.drawLine((int) p1.x, (int) p1.y, (int) p2.x, (int) p2.y);
+    /***
+     *
+     * draw information about the distance between p1 and p2
+     */
+    public void reguaInfo(int w, int h, J3DGraphics2D g2) {
+        g2.setColor(Color.BLACK);
 
-		Point3d point3d1 = new Point3d();
-		Point3d point3d2 = new Point3d();
-		camera.canvas.getPixelLocationInImagePlate(p1, point3d1);
-		Transform3D temp = new Transform3D();
-		camera.canvas.getImagePlateToVworld(temp);
-		temp.transform(point3d1);
-		camera.canvas.getPixelLocationInImagePlate(p2, point3d2);
-		temp.transform(point3d2);
-		double scale = point3d2.distance(point3d1);
+        g2.drawLine((int) p1.x, (int) p1.y, (int) p2.x, (int) p2.y);
 
-		String units = " m";
+        Point3d point3d1 = new Point3d();
+        Point3d point3d2 = new Point3d();
+        camera.canvas.getPixelLocationInImagePlate(p1, point3d1);
+        Transform3D temp = new Transform3D();
+        camera.canvas.getImagePlateToVworld(temp);
+        temp.transform(point3d1);
+        camera.canvas.getPixelLocationInImagePlate(p2, point3d2);
+        temp.transform(point3d2);
+        double scale = point3d2.distance(point3d1);
 
-		if (scale < 1) {
-			units = "cm";
-			scale *= 100;
-		} else {
-			if (scale > 1000) {
-				units = "Km";
-				scale /= 1000;
-			}
-		}
-		int scaleint = (int) (scale * 100);
-		scale = scaleint;
-		scale /= 100;
-		String text = new String(scale + units);
+        String units = " m";
+
+        if (scale < 1) {
+            units = "cm";
+            scale *= 100;
+        }
+        else {
+            if (scale > 1000) {
+                units = "Km";
+                scale /= 1000;
+            }
+        }
+        int scaleint = (int) (scale * 100);
+        scale = scaleint;
+        scale /= 100;
+        String text = new String(scale + units);
 //		Point2d paux=new Point2d(p1.x-p2.x,p1.y-p2.y);
-		double angle=AngleUtils.calcAngle(p1.x,p1.y,p2.x,p2.y);
-		//double ang=Math.atan(m);
-		angle = Math.toDegrees(-angle + Math.PI);
-		
-		while (angle < 0)
-			angle += 360;
-        
-        while (angle > 360)
+        double angle = AngleUtils.calcAngle(p1.x, p1.y, p2.x, p2.y);
+        //double ang=Math.atan(m);
+        angle = Math.toDegrees(-angle + Math.PI);
+
+        while (angle < 0) {
+            angle += 360;
+        }
+
+        while (angle > 360) {
             angle -= 360;
-        int angleint=(int)(angle*100);
-        angle=angleint;
-        angle/=100;
-	    text =text+" "+angle+"\u00B0"; //º	
-		
-		if (camera.projection == View.PERSPECTIVE_PROJECTION) {
-			text = "(Prespective view)";
-		}
-		
-		Rectangle2D stringBounds = g2.getFontMetrics()
-				.getStringBounds(text, g2);
+        }
+        int angleint = (int) (angle * 100);
+        angle = angleint;
+        angle /= 100;
+        text = text + " " + angle + "\u00B0"; //º
 
-		window((int) p2.x - 2 + 2, (int) p2.y - 14, (int) p2.x
-				+ (int) stringBounds.getWidth(), (int) p2.y);
-		g2.drawString(text, (int) p2.x + 2, (int) p2.y - 2);
+        if (camera.projection == View.PERSPECTIVE_PROJECTION) {
+            text = "(Prespective view)";
+        }
 
-	}
+        Rectangle2D stringBounds = g2.getFontMetrics()
+                .getStringBounds(text, g2);
 
-	/**
-	 * 
-	 * draw axis information
-	 */
-	public void axisInfo(int w, int h, J3DGraphics2D g2) {
-		g2.setColor(Color.BLACK);
-		Cam c = new Cam();
-		if (camera.lockobj == null)
-			c.camdef(20, camera.psi + Math.PI / 2, camera.theta,
-					-(camera.phi - Math.PI));
-		else
-			c.camdef(		20,
-							(camera.psi + camera.lockobj.yaw) + Math.PI / 2,
-							(camera.theta/*-camera.lockobj.pitch*/),
-							-((camera.phi/*+camera.lockobj.roll*/) - Math.PI));
-		//NeptusLog.pub().info("<###>psi="+camera.psi+" theta="+camera.theta+" phi="+camera.phi);//ok...
-		int xr1 = w - 78, yr1 = 8, xr2 = w - 8, yr2 = 89;
-		window(xr1, yr1, xr2, yr2);
-		int xc = w - 58, yc = 51;
-		g2.drawLine(xr1 + 10, yr1 + 10, xr2 - 10, yr1 + 10); // desenhar
-		g2.drawLine(xr1 + 10, yr1 + 5, xr1 + 10, yr1 + 15); // desenhar
-		g2.drawLine(xr2 - 10, yr1 + 5, xr2 - 10, yr1 + 15); // desenhar
-		if (camera.projection == View.PERSPECTIVE_PROJECTION) {
-			g2.drawLine(xr1 + 22, yr1 + 7, xr1 + 22, yr1 + 13); // desenhar
-			g2.drawLine(xr2 - 22, yr1 + 7, xr2 - 22, yr1 + 13); // desenhar
-			g2.drawLine(xr1 + 31, yr1 + 9, xr1 + 31, yr1 + 11); // desenhar
-			g2.drawLine(xr2 - 31, yr1 + 9, xr2 - 31, yr1 + 11); // desenhar
-			//g2.drawString("Presp",xr1+15,yr1+25);
-		} else {
-			int x1 = xr1 + 10, y1 = yr1 + 10;
-			int x2 = xr2 - 10, y2 = yr1 + 10;
-			Point3d point3d1 = new Point3d();
-			camera.canvas.getPixelLocationInImagePlate(x1, y1, point3d1);
-			Transform3D temp = new Transform3D();
-			camera.canvas.getImagePlateToVworld(temp);
-			temp.transform(point3d1);
-			//NeptusLog.pub().info("<###>x1:"+point3d1.x+"y1:"+point3d1.y+"z1:"+point3d1.z);
+        window((int) p2.x - 2 + 2, (int) p2.y - 14, (int) p2.x
+                + (int) stringBounds.getWidth(), (int) p2.y);
+        g2.drawString(text, (int) p2.x + 2, (int) p2.y - 2);
 
-			Point3d point3d2 = new Point3d();
-			camera.canvas.getPixelLocationInImagePlate(x2, y2, point3d2);
+    }
 
-			temp.transform(point3d2);
-			// NeptusLog.pub().info("<###>x2:"+point3d2.x+"y2:"+point3d2.y+"z2:"+point3d2.z);
+    /**
+     * draw axis information
+     */
+    public void axisInfo(int w, int h, J3DGraphics2D g2) {
+        g2.setColor(Color.BLACK);
+        Cam c = new Cam();
+        if (camera.lockobj == null) {
+            c.camdef(20, camera.psi + Math.PI / 2, camera.theta,
+                    -(camera.phi - Math.PI));
+        }
+        else {
+            c.camdef(20,
+                    (camera.psi + camera.lockobj.yaw) + Math.PI / 2,
+                    (camera.theta/*-camera.lockobj.pitch*/),
+                    -((camera.phi/*+camera.lockobj.roll*/) - Math.PI));
+        }
+        //NeptusLog.pub().info("<###>psi="+camera.psi+" theta="+camera.theta+" phi="+camera.phi);//ok...
+        int xr1 = w - 78, yr1 = 8, xr2 = w - 8, yr2 = 89;
+        window(xr1, yr1, xr2, yr2);
+        int xc = w - 58, yc = 51;
+        g2.drawLine(xr1 + 10, yr1 + 10, xr2 - 10, yr1 + 10); // desenhar
+        g2.drawLine(xr1 + 10, yr1 + 5, xr1 + 10, yr1 + 15); // desenhar
+        g2.drawLine(xr2 - 10, yr1 + 5, xr2 - 10, yr1 + 15); // desenhar
+        if (camera.projection == View.PERSPECTIVE_PROJECTION) {
+            g2.drawLine(xr1 + 22, yr1 + 7, xr1 + 22, yr1 + 13); // desenhar
+            g2.drawLine(xr2 - 22, yr1 + 7, xr2 - 22, yr1 + 13); // desenhar
+            g2.drawLine(xr1 + 31, yr1 + 9, xr1 + 31, yr1 + 11); // desenhar
+            g2.drawLine(xr2 - 31, yr1 + 9, xr2 - 31, yr1 + 11); // desenhar
+            //g2.drawString("Presp",xr1+15,yr1+25);
+        }
+        else {
+            int x1 = xr1 + 10, y1 = yr1 + 10;
+            int x2 = xr2 - 10, y2 = yr1 + 10;
+            Point3d point3d1 = new Point3d();
+            camera.canvas.getPixelLocationInImagePlate(x1, y1, point3d1);
+            Transform3D temp = new Transform3D();
+            camera.canvas.getImagePlateToVworld(temp);
+            temp.transform(point3d1);
+            //NeptusLog.pub().info("<###>x1:"+point3d1.x+"y1:"+point3d1.y+"z1:"+point3d1.z);
 
-			double scale = point3d2.distance(point3d1);
-			// NeptusLog.pub().info("<###>dist:"+scale);
+            Point3d point3d2 = new Point3d();
+            camera.canvas.getPixelLocationInImagePlate(x2, y2, point3d2);
 
-			String units = " m";
+            temp.transform(point3d2);
+            // NeptusLog.pub().info("<###>x2:"+point3d2.x+"y2:"+point3d2.y+"z2:"+point3d2.z);
 
-			if (scale < 1) {
-				units = "cm";
-				scale *= 100;
-			} else {
-				if (scale > 1000) {
-					units = "Km";
-					scale /= 1000;
-				}
-			}
-			int scaleint = (int) (scale * 100);
-			scale = scaleint;
-			scale /= 100;
+            double scale = point3d2.distance(point3d1);
+            // NeptusLog.pub().info("<###>dist:"+scale);
 
-			g2.drawString(scale + "", xr1 + 15, yr1 + 25);
-			g2.drawString(units, xr1 + 45, yr1 + 25);
-		}
+            String units = " m";
 
-		Vector2f vec2a = null;
-		Vector2f vec2b = null;
-		//-----------------zz
-		Vector3f vec3a = new Vector3f(0, 0, -8);
-		Vector3f vec3b = new Vector3f(0, 0, 0);
-		vec2a = c.to2d(vec3a);
-		vec2b = c.to2d(vec3b);
+            if (scale < 1) {
+                units = "cm";
+                scale *= 100;
+            }
+            else {
+                if (scale > 1000) {
+                    units = "Km";
+                    scale /= 1000;
+                }
+            }
+            int scaleint = (int) (scale * 100);
+            scale = scaleint;
+            scale /= 100;
 
-		//vec2a.x=(float) ((vec2a.x*Math.cos(camera.phi))-(vec2a.y*Math.sin(camera.phi)));
-		//vec2a.y=(float) ((vec2a.x*Math.sin(camera.phi))-(vec2a.y*Math.cos(camera.phi)));
+            g2.drawString(scale + "", xr1 + 15, yr1 + 25);
+            g2.drawString(units, xr1 + 45, yr1 + 25);
+        }
 
-		int x1 = (int) (3 * vec2a.x);
-		int y1 = (int) (3 * vec2a.y);
-		int x2 = (int) (3 * vec2b.x);
-		int y2 = (int) (3 * vec2b.y);
+        Vector2f vec2a = null;
+        Vector2f vec2b = null;
+        //-----------------zz
+        Vector3f vec3a = new Vector3f(0, 0, -8);
+        Vector3f vec3b = new Vector3f(0, 0, 0);
+        vec2a = c.to2d(vec3a);
+        vec2b = c.to2d(vec3b);
 
-		x1 += xc; // translate
-		y1 += yc;
-		x2 += xc;
-		y2 += yc;
+        //vec2a.x=(float) ((vec2a.x*Math.cos(camera.phi))-(vec2a.y*Math.sin(camera.phi)));
+        //vec2a.y=(float) ((vec2a.x*Math.sin(camera.phi))-(vec2a.y*Math.cos(camera.phi)));
 
-		g2.drawLine(x1, y1, x2, y2); // desenhar
-		g2.drawString("D", x1 - 5, y1);
+        int x1 = (int) (3 * vec2a.x);
+        int y1 = (int) (3 * vec2a.y);
+        int x2 = (int) (3 * vec2b.x);
+        int y2 = (int) (3 * vec2b.y);
 
-		//---------------------------------yy
-		vec3a = new Vector3f(0, 8, 0);
-		vec3b = new Vector3f(0, 0, 0);
-		vec2a = c.to2d(vec3a);
-		vec2b = c.to2d(vec3b);
-		x1 = (int) (3 * vec2a.x);
-		y1 = (int) (3 * vec2a.y);
-		x2 = (int) (3 * vec2b.x);
-		y2 = (int) (3 * vec2b.y);
+        x1 += xc; // translate
+        y1 += yc;
+        x2 += xc;
+        y2 += yc;
 
-		x1 += xc; // translate
-		y1 += yc;
-		x2 += xc;
-		y2 += yc;
+        g2.drawLine(x1, y1, x2, y2); // desenhar
+        g2.drawString("D", x1 - 5, y1);
 
-		g2.drawLine(x1, y1, x2, y2); //cima
-		g2.drawString("E", x1 - 5, y1);
-		//------------------------xx
-		vec3a = new Vector3f(8, 0, 0);
-		vec3b = new Vector3f(-1, 0, 0);
-		Vector3f vec3c = new Vector3f(-3, 3.5f, 0); // para a cetinha
-		Vector3f vec3d = new Vector3f(-3, -3.5f, 0);
-		
-		vec2a = c.to2d(vec3a);
-		vec2b = c.to2d(vec3b);
-		Vector2f vec2c = c.to2d(vec3c);
-		Vector2f vec2d = c.to2d(vec3d);
-		
-		x1 = (int) (3 * vec2a.x);
-		y1 = (int) (3 * vec2a.y);
-		x2 = (int) (3 * vec2b.x);
-		y2 = (int) (3 * vec2b.y);
-		
-		int x3 = (int) (3 * vec2c.x);
-		int y3 = (int) (3 * vec2c.y);
-		int x4 = (int) (3 * vec2d.x);
-		int y4 = (int) (3 * vec2d.y);
-		
+        //---------------------------------yy
+        vec3a = new Vector3f(0, 8, 0);
+        vec3b = new Vector3f(0, 0, 0);
+        vec2a = c.to2d(vec3a);
+        vec2b = c.to2d(vec3b);
+        x1 = (int) (3 * vec2a.x);
+        y1 = (int) (3 * vec2a.y);
+        x2 = (int) (3 * vec2b.x);
+        y2 = (int) (3 * vec2b.y);
 
-		x1 += xc; // translate
-		y1 += yc;
-		x2 += xc;
-		y2 += yc;
-		
-		x3 += xc; // translate
-		y3 += yc;
-		x4 += xc;
-		y4 += yc;
+        x1 += xc; // translate
+        y1 += yc;
+        x2 += xc;
+        y2 += yc;
 
-		int []px={x1,x3,x2,x4};
-		int []py={y1,y3,y2,y4};
-		
-		g2.fillPolygon(px,py,4);
-		g2.drawLine(x1, y1, x2, y2); //cima
-		g2.drawString("N", x1 - 5, y1);
-		//g2.drawLine(0,40,40,40);  //cima
+        g2.drawLine(x1, y1, x2, y2); //cima
+        g2.drawString("E", x1 - 5, y1);
+        //------------------------xx
+        vec3a = new Vector3f(8, 0, 0);
+        vec3b = new Vector3f(-1, 0, 0);
+        Vector3f vec3c = new Vector3f(-3, 3.5f, 0); // para a cetinha
+        Vector3f vec3d = new Vector3f(-3, -3.5f, 0);
 
-	}
+        vec2a = c.to2d(vec3a);
+        vec2b = c.to2d(vec3b);
+        Vector2f vec2c = c.to2d(vec3c);
+        Vector2f vec2d = c.to2d(vec3d);
 
-	/**
-	 *
-	 * draw associated camera information  
-	 */
-	public void camInfo(int w, int h, J3DGraphics2D g2) {
+        x1 = (int) (3 * vec2a.x);
+        y1 = (int) (3 * vec2a.y);
+        x2 = (int) (3 * vec2b.x);
+        y2 = (int) (3 * vec2b.y);
 
-		String text="";
-		LocationType curLocation = null;
-		if (camera.lockobj == null) {
-			double location[] = {0, 0, 0};
-			Point3d vec = new Point3d(location[0], location[1], location[2]);
-			vec.x += camera.pivot.x;
-			vec.y += camera.pivot.y;
-			vec.z += camera.pivot.z;
-			text = "Target:(" + (double) ((int) (vec.x * 100)) / 100 + ","
-					+ (double) ((int) (vec.y * 100)) / 100 + ","
-					+ (double) ((int) (vec.z * 100)) / 100 + ")";
-			//text="Target:("+(double)((int)(camera.pivot.x*100))/100+","+(double)((int)(camera.pivot.y*100))/100+","+(double)((int)(camera.pivot.z*100))/100+")";
-			curLocation = new LocationType(camera.associatedrender.location);
-			curLocation.translatePosition(vec.x, vec.y, vec.z);			
-		} 
-		else if(camera.lock != null )
-		{
-			double location[] = {0, 0, 0};
-			Point3d vec2 = new Point3d(location[0], location[1], location[2]);
+        int x3 = (int) (3 * vec2c.x);
+        int y3 = (int) (3 * vec2c.y);
+        int x4 = (int) (3 * vec2d.x);
+        int y4 = (int) (3 * vec2d.y);
 
-			Vector3d vec = new Vector3d(camera.lockobj.pos[0],
-					camera.lockobj.pos[1], camera.lockobj.pos[2]);
-			vec.x += camera.pivot.x;
-			vec.y += camera.pivot.y;
-			vec.z += camera.pivot.z;
-			vec.x += vec2.x;
-			vec.y += vec2.y;
-			vec.z += vec2.z;
-			text = "Target:(" + (double) ((int) (vec.x * 100)) / 100 + ","
-					+ (double) ((int) (vec.y * 100)) / 100 + ","
-					+ (double) ((int) (vec.z * 100)) / 100 + ")";
-			curLocation = new LocationType(camera.associatedrender.location);
-			curLocation.translatePosition(vec.x, vec.y, vec.z);			
-		}
-		else if (camera.lockmapobj != null)
-		{
-			double location[] = {0, 0, 0};
-			Point3d vec2 = new Point3d(location[0], location[1], location[2]);
 
-			Vector3d vec = new Vector3d(camera.lockobj.pos[0],
-					camera.lockobj.pos[1], camera.lockobj.pos[2]);
-			vec.x += camera.pivot.x;
-			vec.y += camera.pivot.y;
-			vec.z += camera.pivot.z;
-			vec.x += vec2.x;
-			vec.y += vec2.y;
-			vec.z += vec2.z;
-			text = "Target:(" + (double) ((int) (vec.x * 100)) / 100 + ","
-					+ (double) ((int) (vec.y * 100)) / 100 + ","
-					+ (double) ((int) (vec.z * 100)) / 100 + ")";
-			curLocation = new LocationType(camera.associatedrender.location);
-			curLocation.translatePosition(vec.x, vec.y, vec.z);			
-		}
-		
-		if(curLocation != null && !(curLocation.getLatitudeDegs()==0 && curLocation.getLongitudeDegs()==0 )) {
-			double[] latLonDepth = curLocation.getAbsoluteLatLonDepth();
-			StringBuilder loc = new StringBuilder();
-			loc.append("Target:(");
-			loc.append(CoordinateUtil.latitudeAsString(latLonDepth[0], true));
-			loc.append(" / " + CoordinateUtil.longitudeAsString(latLonDepth[1], true));
-			loc.append(" / "+MathMiscUtils.round(latLonDepth[2], 1) + "m)");
-			text = loc.toString();
-		}
-		
-		//FontRenderContext frc = g2.getFontRenderContext();
-		// Font font = new Font("Lucida Sans", 120,  Font.BOLD | Font.ITALIC); 
-		//g2.getFont();
-		//TextLayout tl = new TextLayout(text, font, frc);
-		//tl.draw(g2, 5, 10);
-		//g2.setFont( new Font("areal", 130,  Font.BOLD));
-		Rectangle2D stringBounds = g2.getFontMetrics().getStringBounds(text, g2);	
-		if(stringBounds.getWidth()>210)
-			window(8, 8, (int)stringBounds.getWidth()+15, 37);
-		else
-			window(8, 8, 225, 37);
+        x1 += xc; // translate
+        y1 += yc;
+        x2 += xc;
+        y2 += yc;
 
-		g2.drawString(text, 15, 20);
-		if (camera.lockobj == null)
-			text = "Locked: off";
-		else if (camera.lock!=null)
-			text = "Locked: " + camera.lock.getName();
-		else if (camera.lockmapobj!=null)
-			text = "Locked: " + camera.lockmapobj.getId();
-		
-		g2.drawString(text, 15, 33);
-		text = "View type: " + camera.getStrType();
-		g2.drawString(text, 118, 33);
-		//alpha = 0.0f;
-		//g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
-		//g2.drawRoundRect(1,1,130,50,5,5);
-		//Shape asda=new Shape();
+        x3 += xc; // translate
+        y3 += yc;
+        x4 += xc;
+        y4 += yc;
 
-		//g2.setColor(Color.MAGENTA);
+        int[] px = {x1, x3, x2, x4};
+        int[] py = {y1, y3, y2, y4};
 
-		//g2.drawLine(130,1,130,40);
-	}
-	
-	
-	public void selected(int w, int h, J3DGraphics2D g2) {
-		//String text;
-		g2.setColor(Color.LIGHT_GRAY);
-		g2.drawLine(2, 2, w - 3, 2); //cima
-		g2.drawLine(2, h - 3, w - 3, h - 3); //dir
-		g2.drawLine(2, 2, 2, h - 3); //esq
-		g2.drawLine(w - 3, 2, w - 3, h - 3); // baixo
-		//this.doLayout();
+        g2.fillPolygon(px, py, 4);
+        g2.drawLine(x1, y1, x2, y2); //cima
+        g2.drawString("N", x1 - 5, y1);
+        //g2.drawLine(0,40,40,40);  //cima
 
-	}
+    }
 
-	/**
-	 * call the original postRender of Canvas3D
-	 *
-	 */
-	public void truePostRender() {
-		super.postRender();
-	}
+    /**
+     * draw associated camera information
+     */
+    public void camInfo(int w, int h, J3DGraphics2D g2) {
 
-	/**
-	 * draw a transparent rectangle over 3d scene 
-	 * @param xr1 x1 corner coordinate   
-	 * @param yr1 x1 corner coordinate
-	 * @param xr2 x2 corner coordinate
-	 * @param yr2 y2 corner coordinate
-	 */
-	private void window(int xr1, int yr1, int xr2, int yr2) {
-		//---------------------------------caixa
-		float alpha = 0.5f;
-		g2.setStroke(new BasicStroke(1, BasicStroke.CAP_ROUND,
-				BasicStroke.JOIN_ROUND));
-		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
-				alpha));
-		g2.setPaint(new Color(225, 225, 220));
-		g2.fillRect(xr1, yr1, xr2 - xr1, yr2 - yr1);
-		alpha = 1.0f;
-		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
-				alpha));
-		g2.setColor(Color.BLACK);
-		g2.drawLine(xr1, yr1, xr2, yr1);
-		g2.drawLine(xr1, yr1, xr1, yr2);
-		g2.drawLine(xr1, yr2, xr2, yr2);
-		g2.drawLine(xr2, yr1, xr2, yr2);
-		//----------------------------------fim caixa
-	}
-	
-	public Camera3D getCamera() {
-		return camera;
-	}
+        String text = "";
+        LocationType curLocation = null;
+        if (camera.lockobj == null) {
+            double location[] = {0, 0, 0};
+            Point3d vec = new Point3d(location[0], location[1], location[2]);
+            vec.x += camera.pivot.x;
+            vec.y += camera.pivot.y;
+            vec.z += camera.pivot.z;
+            text = "Target:(" + (double) ((int) (vec.x * 100)) / 100 + ","
+                    + (double) ((int) (vec.y * 100)) / 100 + ","
+                    + (double) ((int) (vec.z * 100)) / 100 + ")";
+            //text="Target:("+(double)((int)(camera.pivot.x*100))/100+","+(double)((int)(camera.pivot.y*100))/100+","+(double)((int)(camera.pivot.z*100))/100+")";
+            curLocation = new LocationType(camera.associatedrender.location);
+            curLocation.translatePosition(vec.x, vec.y, vec.z);
+        }
+        else if (camera.lock != null) {
+            double location[] = {0, 0, 0};
+            Point3d vec2 = new Point3d(location[0], location[1], location[2]);
 
-	public void setCamera(Camera3D camera) {
-		this.camera = camera;
-	}
-	
-	/**
-	 * @author RJPG
-	 *
-	 * this class simulate a camera looking to (0,0,0) 
-	 * and its use to convert Vector3d -> Vector2d 
-	 * based on spherical cooredinates and roll of viewpoint.
-	 * (this class doesnt use Java3D or any other 3D engine)   
-	 */
-	private class Cam {
-		private double v11, v12, v13, v21, v22, v23, v32, v33, v43;
+            Vector3d vec = new Vector3d(camera.lockobj.pos[0],
+                    camera.lockobj.pos[1], camera.lockobj.pos[2]);
+            vec.x += camera.pivot.x;
+            vec.y += camera.pivot.y;
+            vec.z += camera.pivot.z;
+            vec.x += vec2.x;
+            vec.y += vec2.y;
+            vec.z += vec2.z;
+            text = "Target:(" + (double) ((int) (vec.x * 100)) / 100 + ","
+                    + (double) ((int) (vec.y * 100)) / 100 + ","
+                    + (double) ((int) (vec.z * 100)) / 100 + ")";
+            curLocation = new LocationType(camera.associatedrender.location);
+            curLocation.translatePosition(vec.x, vec.y, vec.z);
+        }
+        else if (camera.lockmapobj != null) {
+            double location[] = {0, 0, 0};
+            Point3d vec2 = new Point3d(location[0], location[1], location[2]);
 
-		protected double rho, theta, phi, psi;
-		public float dist;
+            Vector3d vec = new Vector3d(camera.lockobj.pos[0],
+                    camera.lockobj.pos[1], camera.lockobj.pos[2]);
+            vec.x += camera.pivot.x;
+            vec.y += camera.pivot.y;
+            vec.z += camera.pivot.z;
+            vec.x += vec2.x;
+            vec.y += vec2.y;
+            vec.z += vec2.z;
+            text = "Target:(" + (double) ((int) (vec.x * 100)) / 100 + ","
+                    + (double) ((int) (vec.y * 100)) / 100 + ","
+                    + (double) ((int) (vec.z * 100)) / 100 + ")";
+            curLocation = new LocationType(camera.associatedrender.location);
+            curLocation.translatePosition(vec.x, vec.y, vec.z);
+        }
 
-		public Cam() {
-			rho = 40;
-			theta = Math.PI / 4;
-			phi = Math.PI / 4;
+        if (curLocation != null && !(curLocation.getLatitudeDegs() == 0 && curLocation.getLongitudeDegs() == 0)) {
+            double[] latLonDepth = curLocation.getAbsoluteLatLonDepth();
+            StringBuilder loc = new StringBuilder();
+            loc.append("Target:(");
+            loc.append(CoordinateUtil.latitudeAsString(latLonDepth[0], true));
+            loc.append(" / " + CoordinateUtil.longitudeAsString(latLonDepth[1], true));
+            loc.append(" / " + MathMiscUtils.round(latLonDepth[2], 1) + "m)");
+            text = loc.toString();
+        }
 
-			//theta*=pidiv180;
-			//phi*=pidiv180;
+        //FontRenderContext frc = g2.getFontRenderContext();
+        // Font font = new Font("Lucida Sans", 120,  Font.BOLD | Font.ITALIC);
+        //g2.getFont();
+        //TextLayout tl = new TextLayout(text, font, frc);
+        //tl.draw(g2, 5, 10);
+        //g2.setFont( new Font("areal", 130,  Font.BOLD));
+        Rectangle2D stringBounds = g2.getFontMetrics().getStringBounds(text, g2);
+        if (stringBounds.getWidth() > 210) {
+            window(8, 8, (int) stringBounds.getWidth() + 15, 37);
+        }
+        else {
+            window(8, 8, 225, 37);
+        }
 
-			coeff();
-			dist = 1;
-		//	target = new Vector3f(0, 0, 0);
-		}
+        g2.drawString(text, 15, 20);
+        if (camera.lockobj == null) {
+            text = "Locked: off";
+        }
+        else if (camera.lock != null) {
+            text = "Locked: " + camera.lock.getName();
+        }
+        else if (camera.lockmapobj != null) {
+            text = "Locked: " + camera.lockmapobj.getId();
+        }
 
-		public void camdef(double rhod, double thetad, double phid, double psid) {
-			rho = rhod;
-			theta = thetad;
-			phi = phid;
-			psi = psid;
-			//theta*=pidiv180;
-			//phi*=pidiv180;
-			coeff();
-		}
+        g2.drawString(text, 15, 33);
+        text = "View type: " + camera.getStrType();
+        g2.drawString(text, 118, 33);
+        //alpha = 0.0f;
+        //g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
+        //g2.drawRoundRect(1,1,130,50,5,5);
+        //Shape asda=new Shape();
 
-		private void coeff() {
-			double costh, sinth, cosph, sinph;
-			costh = Math.cos(theta);
-			sinth = Math.sin(theta);
-			cosph = Math.cos(phi);
-			sinph = Math.sin(phi);
+        //g2.setColor(Color.MAGENTA);
 
-			v11 = -sinth;
-			v12 = -cosph * costh;
-			v13 = -sinph * costh;
-			v21 = costh;
-			v22 = -cosph * sinth;
-			v23 = -sinph * sinth;
-			v32 = sinph;
-			v33 = -cosph;
-			v43 = rho;
-		}
+        //g2.drawLine(130,1,130,40);
+    }
 
-		private Vector3f eyecoord(Vector3f pw) {
-			Vector3f pe = new Vector3f();
-			pe.x = (float) (v11 * pw.x + v21 * pw.y);
-			pe.y = (float) (v12 * pw.x + v22 * pw.y + v32 * pw.z);
-			pe.z = (float) (v13 * pw.x + v23 * pw.y + v33 * pw.z + v43);
 
-			return pe;
-		}
+    public void selected(int w, int h, J3DGraphics2D g2) {
+        //String text;
+        g2.setColor(Color.LIGHT_GRAY);
+        g2.drawLine(2, 2, w - 3, 2); //cima
+        g2.drawLine(2, h - 3, w - 3, h - 3); //dir
+        g2.drawLine(2, 2, 2, h - 3); //esq
+        g2.drawLine(w - 3, 2, w - 3, h - 3); // baixo
+        //this.doLayout();
 
-		private Vector2f perspective(Vector3f p) {
-			Vector3f pe = null;
-			pe = eyecoord(p);
-			Vector2f pxy = new Vector2f();
-			Vector3f prot = new Vector3f();
-			prot.x = (float) ((pe.x * Math.cos(psi)) - (pe.y * Math.sin(psi)));
-			prot.y = (float) ((pe.x * Math.sin(psi)) + (pe.y * Math.cos(psi)));
-			prot.z = pe.z;
-			//prot.x=pe.x;
-			//prot.y=pe.y;
-			pxy.x = prot.x;///prot.z;
-			pxy.y = prot.y;///prot.z;
-			return pxy;
-		}
+    }
 
-		public Vector2f to2d(Vector3f p) {
-			Vector2f aux = null;
-			aux = perspective(p);
-			Vector2f rt = new Vector2f();
-			rt.x = (float) (dist * aux.x + 5.);
-			rt.y = (float) (-dist * aux.y + 5.);
-			return rt;
-		}
-	}
+    /**
+     * call the original postRender of Canvas3D
+     */
+    public void truePostRender() {
+        super.postRender();
+    }
 
-	
+    /**
+     * draw a transparent rectangle over 3d scene
+     *
+     * @param xr1 x1 corner coordinate
+     * @param yr1 x1 corner coordinate
+     * @param xr2 x2 corner coordinate
+     * @param yr2 y2 corner coordinate
+     */
+    private void window(int xr1, int yr1, int xr2, int yr2) {
+        //---------------------------------caixa
+        float alpha = 0.5f;
+        g2.setStroke(new BasicStroke(1, BasicStroke.CAP_ROUND,
+                BasicStroke.JOIN_ROUND));
+        g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
+                alpha));
+        g2.setPaint(new Color(225, 225, 220));
+        g2.fillRect(xr1, yr1, xr2 - xr1, yr2 - yr1);
+        alpha = 1.0f;
+        g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
+                alpha));
+        g2.setColor(Color.BLACK);
+        g2.drawLine(xr1, yr1, xr2, yr1);
+        g2.drawLine(xr1, yr1, xr1, yr2);
+        g2.drawLine(xr1, yr2, xr2, yr2);
+        g2.drawLine(xr2, yr1, xr2, yr2);
+        //----------------------------------fim caixa
+    }
+
+    public Camera3D getCamera() {
+        return camera;
+    }
+
+    public void setCamera(Camera3D camera) {
+        this.camera = camera;
+    }
+
+    /**
+     * @author RJPG
+     * <p>
+     * this class simulate a camera looking to (0,0,0)
+     * and its use to convert Vector3d -> Vector2d
+     * based on spherical cooredinates and roll of viewpoint.
+     * (this class doesnt use Java3D or any other 3D engine)
+     */
+    private class Cam {
+        private double v11, v12, v13, v21, v22, v23, v32, v33, v43;
+
+        protected double rho, theta, phi, psi;
+        public float dist;
+
+        public Cam() {
+            rho = 40;
+            theta = Math.PI / 4;
+            phi = Math.PI / 4;
+
+            //theta*=pidiv180;
+            //phi*=pidiv180;
+
+            coeff();
+            dist = 1;
+            //	target = new Vector3f(0, 0, 0);
+        }
+
+        public void camdef(double rhod, double thetad, double phid, double psid) {
+            rho = rhod;
+            theta = thetad;
+            phi = phid;
+            psi = psid;
+            //theta*=pidiv180;
+            //phi*=pidiv180;
+            coeff();
+        }
+
+        private void coeff() {
+            double costh, sinth, cosph, sinph;
+            costh = Math.cos(theta);
+            sinth = Math.sin(theta);
+            cosph = Math.cos(phi);
+            sinph = Math.sin(phi);
+
+            v11 = -sinth;
+            v12 = -cosph * costh;
+            v13 = -sinph * costh;
+            v21 = costh;
+            v22 = -cosph * sinth;
+            v23 = -sinph * sinth;
+            v32 = sinph;
+            v33 = -cosph;
+            v43 = rho;
+        }
+
+        private Vector3f eyecoord(Vector3f pw) {
+            Vector3f pe = new Vector3f();
+            pe.x = (float) (v11 * pw.x + v21 * pw.y);
+            pe.y = (float) (v12 * pw.x + v22 * pw.y + v32 * pw.z);
+            pe.z = (float) (v13 * pw.x + v23 * pw.y + v33 * pw.z + v43);
+
+            return pe;
+        }
+
+        private Vector2f perspective(Vector3f p) {
+            Vector3f pe = null;
+            pe = eyecoord(p);
+            Vector2f pxy = new Vector2f();
+            Vector3f prot = new Vector3f();
+            prot.x = (float) ((pe.x * Math.cos(psi)) - (pe.y * Math.sin(psi)));
+            prot.y = (float) ((pe.x * Math.sin(psi)) + (pe.y * Math.cos(psi)));
+            prot.z = pe.z;
+            //prot.x=pe.x;
+            //prot.y=pe.y;
+            pxy.x = prot.x;///prot.z;
+            pxy.y = prot.y;///prot.z;
+            return pxy;
+        }
+
+        public Vector2f to2d(Vector3f p) {
+            Vector2f aux = null;
+            aux = perspective(p);
+            Vector2f rt = new Vector2f();
+            rt.x = (float) (dist * aux.x + 5.);
+            rt.y = (float) (-dist * aux.y + 5.);
+            return rt;
+        }
+    }
+
+
 }
