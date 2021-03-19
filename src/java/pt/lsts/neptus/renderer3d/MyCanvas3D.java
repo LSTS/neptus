@@ -908,8 +908,7 @@ class MyCanvas3D extends Canvas3D {
 			curLocation.translatePosition(vec.x, vec.y, vec.z);			
 		}
 		
-		if(!(curLocation.getLatitudeDegs()==0 && curLocation.getLongitudeDegs()==0 ))
-		{
+		if(curLocation != null && !(curLocation.getLatitudeDegs()==0 && curLocation.getLongitudeDegs()==0 )) {
 			double[] latLonDepth = curLocation.getAbsoluteLatLonDepth();
 			StringBuilder loc = new StringBuilder();
 			loc.append("Target:(");
