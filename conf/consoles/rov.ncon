@@ -27,13 +27,41 @@
         &lt;container layoutparam="ins 0" param="w 100%, h 55px!, wrap"&gt;
           &lt;child name="Plan Control" param="w 50%, h 100%"/&gt;
           &lt;child name="Abort Button" param="w 20%, h 50px!, wrap"/&gt;
-          &lt;child name="Autopilot Mode Indicator" param="w 50%, h 100%, wrap"/&gt;
         &lt;/container&gt;
         &lt;child name="Plan Control State" param="w 100%, h 85px!, wrap"/&gt;
         &lt;child name="Mission Tree" param="w 100%, h 100%, wrap"/&gt;
-        &lt;child name="Payload Manage Panel" param="w 100%, h 40px!, wrap"/&gt;
+        &lt;child name="Autopilot Mode Indicator" param="w 100%, h 50px!, wrap"/&gt;
+        &lt;child name="Pre-flight Actions" param="w 100%, h 50px!"/&gt;
       &lt;/container&gt;
     &lt;/container&gt;
+  &lt;/profile&gt;
+    &lt;profile name="Pilot - ROV 2"&gt;
+    &lt;container param="w 100%, h 100%" layoutparam="ins 0"&gt;
+      &lt;child name="Map Panel" param="w 100%, h 100%"/&gt;
+    &lt;/container&gt;
+    &lt;container param="w 100px!, h 100%" layoutparam="ins 0"&gt;
+      &lt;child name="Uav Altitude Panel" param="w 100%, h 100%"/&gt;
+    &lt;/container&gt;
+    &lt;container layoutparam="ins 3" param="w 250px!, h 100%"&gt;
+      &lt;container layoutparam="ins 0, filly" param="w 100%, h 100%"&gt;
+        &lt;child name="Uav HUD Panel" param="w 100%, h 200px!, wrap"/&gt;
+        &lt;child name="Speed Indicator Panel" param="w 100%, h 100px!, wrap"/&gt;
+        &lt;container layoutparam="ins 0" param="w 100%, h 55px!, wrap"&gt;
+          &lt;child name="Plan Control" param="w 50%, h 100%"/&gt;
+          &lt;child name="Abort Button" param="w 20%, h 50px!, wrap"/&gt;
+        &lt;/container&gt;
+        &lt;child name="Plan Control State" param="w 100%, h 85px!, wrap"/&gt;
+        &lt;child name="Mission Tree" param="w 100%, h 100%, wrap"/&gt;
+        &lt;child name="Autopilot Mode Indicator" param="w 100%, h 50px!, wrap"/&gt;
+        &lt;child name="Pre-flight Actions" param="w 100%, h 50px!"/&gt;
+      &lt;/container&gt;
+    &lt;/container&gt;
+    &lt;window name="ROV Stream"&gt;
+      &lt;container layoutparam="ins 0" param="w 100%, h 100%"&gt;
+        &lt;child name="Controllers Panel" param="w 30%, h 100%"/&gt;
+        &lt;child name="Video Stream" param="w 70%, h 100%"/&gt;
+      &lt;/container&gt;
+    &lt;/window&gt;
   &lt;/profile&gt;
 &lt;profile name="Video Stream"&gt;
     &lt;container param="w 100%, h 100%" layoutparam="ins 0"&gt;
@@ -49,16 +77,16 @@
         &lt;container layoutparam="ins 0" param="w 100%, h 55px!, wrap"&gt;
           &lt;child name="Plan Control" param="w 50%, h 100%"/&gt;
           &lt;child name="Abort Button" param="w 20%, h 50px!, wrap"/&gt;
-          &lt;child name="Autopilot Mode Indicator" param="w 50%, h 100%, wrap"/&gt;
         &lt;/container&gt;
         &lt;child name="Plan Control State" param="w 100%, h 85px!, wrap"/&gt;
         &lt;child name="Mission Tree" param="w 100%, h 100%, wrap"/&gt;
-        &lt;child name="Payload Manage Panel" param="w 100%, h 40px!, wrap"/&gt;
+        &lt;child name="Autopilot Mode Indicator" param="w 100%, h 50px!, wrap"/&gt;
+        &lt;child name="Pre-flight Actions" param="w 100%, h 50px!"/&gt;
       &lt;/container&gt;
     &lt;/container&gt;
   &lt;/profile&gt;
 &lt;/profiles&gt;
-</entry>        <entry key="Current Profile">Pilot - Copter</entry>
+</entry>        <entry key="Current Profile">Pilot - ROV</entry>
       </properties>
       <child class="pt.lsts.neptus.plugins.ipcam.AirCamDisplay" x="0" y="0" width="10" height="400">
         <properties/>
@@ -120,7 +148,7 @@
       <child class="pt.lsts.neptus.console.plugins.planning.PlanControlPanel" x="0" y="0" width="122" height="52">
         <properties>
           <entry key="Use Calibration on Start Plan">false</entry>
-          <entry key="Enable teleoperation button">false</entry>
+          <entry key="Enable teleoperation button">true</entry>
           <entry key="Enable beacons button">false</entry>
         </properties>
       </child>
@@ -153,7 +181,9 @@
         </properties>
       </child>
       <child class="pt.lsts.neptus.plugins.uavs.panels.UavAltitudePanel" x="0" y="0" width="100" height="667">
-        <properties/>
+        <properties>
+          <entry key="Vehicles detected">UUV,UAV</entry>
+        </properties>
       </child>
       <child class="pt.lsts.neptus.plugins.uavs.panels.UavHUDPanel" x="0" y="0" width="244" height="200">
         <properties/>

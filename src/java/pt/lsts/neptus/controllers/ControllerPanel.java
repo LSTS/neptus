@@ -284,7 +284,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                 txt.setEditable(false);
                 content.add(txt, BorderLayout.CENTER);
                 dg.setContentPane(content);
-                dg.setSize(500, 400);
+                dg.setSize(500, 500);
                 dg.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
                 dg.getRootPane().registerKeyboardAction(ev -> {
                     dg.dispose();
@@ -311,7 +311,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
     public void buildDialog() {
         removeAll();
         buildInstructions();
-        setSize(300, 200);
+
         axisModel = new TableModel(mappedAxis, ActionType.Axis);
         axisTable.setModel(axisModel);
 
@@ -345,6 +345,8 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         footer.add(footerRight);
 
         add(footer, "dock south");
+        setSize(300, 200);
+
 
         dialog.pack();
         this.repaint();
