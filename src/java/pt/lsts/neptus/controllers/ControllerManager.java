@@ -34,8 +34,17 @@
 package pt.lsts.neptus.controllers;
 
 import java.util.LinkedHashMap;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import net.java.games.input.*;
+import org.apache.log4j.Appender;
+import org.apache.log4j.AppenderSkeleton;
+import org.apache.log4j.Layout;
+import org.apache.log4j.spi.ErrorHandler;
+import org.apache.log4j.spi.Filter;
+import org.apache.log4j.spi.LoggingEvent;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
 
@@ -54,10 +63,19 @@ public class ControllerManager {
 	
 	public ControllerManager() {
 
-        initControllerEnvironment();
-	    fetchControllers();
+       
         pollError = false;
         reseted   = false;
+
+        //Config JInput class logger //TODO
+        String loggerName = ControllerEnvironment.class.getPackage().getName();
+        Logger.getLogger(loggerName).setLevel(Level.WARNING);
+        Logger.getLogger(loggerName).setParent(Logger.getLogger(NeptusLog.pubRoot().getName()));
+        Logger.getLogger(loggerName).setUseParentHandlers(true);
+
+        initControllerEnvironment();
+        fetchControllers();
+
 	}
 
 	private void initControllerEnvironment() {

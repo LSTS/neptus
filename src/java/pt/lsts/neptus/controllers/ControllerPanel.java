@@ -459,7 +459,6 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
     }
 
     private boolean connected() {
-
         return !console.getSystem(console.getMainSystem()).getVehicleState().equals(STATE.DISCONNECTED);
     }
 
@@ -660,6 +659,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
             XMLWriter writer = new XMLWriter(fos, format);
             writer.write(doc);
             writer.flush();
+            writer.close();
         }
         catch (Exception e) {
             NeptusLog.pub().error(I18n.text("Error Saving Controllers Actions in: " + ACTION_FILE_XML), e);
