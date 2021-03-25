@@ -113,6 +113,9 @@ public class AutopilotModePanel extends ConsolePanel implements MainVehicleChang
             case AUTO:
                 modePanel.setBackground(Color.green.darker());
                 break;
+            default:
+                modePanel.setBackground(Color.gray.brighter());
+                break;
         };
 
         modePanel.add(modeLabel, "w 100%, h 100%");

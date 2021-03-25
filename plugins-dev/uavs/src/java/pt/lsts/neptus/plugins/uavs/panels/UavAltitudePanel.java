@@ -37,8 +37,10 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
@@ -62,6 +64,7 @@ import pt.lsts.neptus.plugins.uavs.painters.foreground.UavRulerPainter;
  * detected by the console, and filtered by the selected type. Current use is limited to UAVs
  * 
  * @author canastaman
+ * @author keila (changes in March 2021)
  * @version 3.0
  * @category UavPanel  
  * 
@@ -74,18 +77,26 @@ public class UavAltitudePanel extends ConsolePanel implements ComponentListener 
     //values are determined empirically to allow operator readability
     private final static int SIDE_PANEL_WIDTH = 25;
     private final static int BOTTOM_LABEL_HEIGHT = 25;
+
+    public enum UNITS_SYSTEM {
+        SI,
+        IMPERIAL;
+    }
+
+    //predetermined value to be added to the maximum altitude calculated for drawing purposes
+    public int altBuff = 100;
         
     @NeptusProperty(name = "Vehicles detected", category = "UAV", userLevel = LEVEL.REGULAR)
-    public String vehicleType = "UAV";
+    public String vehicleTypes = "UAV";
         
     @NeptusProperty(name = "Minimum security vertical distance between UAVs", category = "UAV", userLevel = LEVEL.REGULAR)
-    public Integer secAlt = 50;
+    public int secAlt = 50;
     
     @NeptusProperty(name = "Panel measuring units", category = "UAV", userLevel = LEVEL.REGULAR)
-    public String measure = "SI";
+    public UNITS_SYSTEM measure = UNITS_SYSTEM.SI;
     
     @NeptusProperty(name = "Individual ruler mark width in pixels", category = "UAV", userLevel = LEVEL.REGULAR)
-    public Integer markWidth = 5;
+    public int markWidth = 5;
     
     //layers to be painted as background for panel's draw area
     private LinkedHashMap<String, IUavPainter> layers;
@@ -133,12 +144,22 @@ public class UavAltitudePanel extends ConsolePanel implements ComponentListener 
 
             @Override
             public void messageArrived(ImcId16 id, IMCMessage msg) {
+                List<String> vehicleTypeBag = Arrays.asList( vehicleTypes.split(","));
 
                 //Check if the message is coming from a UAV. Only if it is, do something
-                if (ImcSystemsHolder.lookupSystem(id).getTypeVehicle().name().equalsIgnoreCase(vehicleType)){
-                    
+                if (vehicleTypeBag.contains(ImcSystemsHolder.lookupSystem(id).getTypeVehicle().name())){
+                    int height = msg.getInteger("height") < 0 ? -1*msg.getInteger("depth") : msg.getInteger("height")+(-msg.getInteger("z"));
                     //updates the vehicle's registered altitude
-                    vehicleAltitudes.put(ImcSystemsHolder.lookupSystem(id).getName(), msg.getInteger("height") + (-msg.getInteger("z")));
+                    vehicleAltitudes.put(ImcSystemsHolder.lookupSystem(id).getName(), height);
+                    // updates maximum altitude value - adapted for ROVs/ArduSub
+                    synchronized (args) {
+                        altBuff = height;
+                        if(UavAltitudePanel.this.getMainVehicleId().equals(ImcSystemsHolder.lookupSystem(id).getName())) {
+                            args.put("Ruler.AltBuff", altBuff);
+                            args.put("Uavs.AltBuff", altBuff);
+                        }
+                    }
+                    updateLabelText();
                     repaint();
                 }            
             }
@@ -169,7 +190,7 @@ public class UavAltitudePanel extends ConsolePanel implements ComponentListener 
         args.put("Skybox.Color", new Color[] {Color.blue,Color.gray.brighter()});
         args.put("SidePanel.Color",  new Color[] {Color.gray,Color.gray});
         args.put("AltitudeLabel.Color",  new Color[] {Color.gray.brighter(),Color.gray.brighter()});
-       
+
         this.addComponentListener(this);
         
         updateLabelText();
@@ -219,6 +240,11 @@ public class UavAltitudePanel extends ConsolePanel implements ComponentListener 
 
             // vehicles to draw
             args.put("Uavs.VehicleList", vehicleAltitudes);
+            //preparation for UavRulerPainter (Ruler)
+            if(!vehicleAltitudes.isEmpty()) {
+                args.put("Ruler.MaxAlt", Collections.max(vehicleAltitudes.values()));
+                args.put("Uavs.MaxAlt", Collections.max(vehicleAltitudes.values()));
+            }
         }
         else {
 
@@ -228,13 +254,14 @@ public class UavAltitudePanel extends ConsolePanel implements ComponentListener 
                 singleUav.put(this.getMainVehicleId(), vehicleAltitudes.get(this.getMainVehicleId()));
             }
             args.put("Uavs.VehicleList", singleUav);
+            //preparation for UavRulerPainter (Ruler)
+            if(!vehicleAltitudes.isEmpty()) {
+                args.put("Ruler.MaxAlt", Collections.max(singleUav.values()));
+                args.put("Uavs.MaxAlt", Collections.max(singleUav.values()));
+            }
+
         }
 
-        //preparation for UavRulerPainter (Ruler)
-        if(!vehicleAltitudes.isEmpty()){
-            args.put("Ruler.MaxAlt", Collections.max(vehicleAltitudes.values()));
-            args.put("Uavs.MaxAlt", Collections.max(vehicleAltitudes.values()));
-        }
     }
 
     /**
@@ -246,14 +273,14 @@ public class UavAltitudePanel extends ConsolePanel implements ComponentListener 
         
         //updates each of the panels draw points
         args.put("Skybox.DrawPoint", new int[] {0, 0});
-        args.put("SidePanel.DrawPoint", new int[] {this.getWidth() - SIDE_PANEL_WIDTH, 0});  
-        args.put("AltitudeLabel.DrawPoint", new int[] {0, this.getHeight() - BOTTOM_LABEL_HEIGHT});  
+        args.put("SidePanel.DrawPoint", new int[] {this.getWidth() - SIDE_PANEL_WIDTH, 0});
+        args.put("AltitudeLabel.DrawPoint", new int[] {0, this.getHeight() - BOTTOM_LABEL_HEIGHT});
         
         //updates each of the panels sizes
         args.put("Skybox.Size", new int[] {this.getWidth() - SIDE_PANEL_WIDTH, this.getHeight() - BOTTOM_LABEL_HEIGHT});
         args.put("SidePanel.Size", new int[] {SIDE_PANEL_WIDTH, this.getHeight()});
-        args.put("AltitudeLabel.Size", new int[] {this.getWidth() - SIDE_PANEL_WIDTH, BOTTOM_LABEL_HEIGHT});  
-        
+        args.put("AltitudeLabel.Size", new int[] {this.getWidth() - SIDE_PANEL_WIDTH, BOTTOM_LABEL_HEIGHT});
+
         repaint();
     }
     
@@ -264,11 +291,17 @@ public class UavAltitudePanel extends ConsolePanel implements ComponentListener 
      */
     private void updateLabelText() {
 
+        String label = "Alt. ";
+        if(this.getMainVehicleId()!= null && ImcSystemsHolder.getSystemWithName(this.getMainVehicleId()) != null) {
+            if(ImcSystemsHolder.getSystemWithName(this.getMainVehicleId()).getTypeVehicle().name().equals("UUV"))
+                label = "Depth. ";
+        }
+
         //updates label's text
-        if(measure.equals("SI"))
-            args.put("AltitudeLabel.Text", "Alt. "+"[m]");
-        else if(measure.equals("Imperial"))
-            args.put("AltitudeLabel.Text", "Alt. "+"[f]"); 
+        if(measure.equals(UNITS_SYSTEM.SI))
+            args.put("AltitudeLabel.Text", label+"[m]");
+        else if(measure.equals(UNITS_SYSTEM.IMPERIAL))
+            args.put("AltitudeLabel.Text", label+"[f]");
     }
     
     // ------Listeners------//
