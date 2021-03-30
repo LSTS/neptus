@@ -325,7 +325,7 @@ public class MissionTreePanel extends ConsolePanel
         getConsole().post(Notification.success(I18n.text("Plan Dissemination"),
                 I18n.textf("Received plan '%plan' from %ccu.", plan.getId(), msg.getSourceName())));
         
-        if (alreadyLocal && getConsole().getPlan().getId() != null) {
+        if (alreadyLocal && getConsole().getPlan() != null) {
             if(getConsole().getPlan().getId().equals(plan.getId()))
                 getConsole().setPlan(plan);
         }
