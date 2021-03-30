@@ -255,7 +255,7 @@ public class UavAltitudePanel extends ConsolePanel implements ComponentListener 
             }
             args.put("Uavs.VehicleList", singleUav);
             //preparation for UavRulerPainter (Ruler)
-            if(!vehicleAltitudes.isEmpty()) {
+            if(!vehicleAltitudes.isEmpty() && !singleUav.isEmpty()) {
                 args.put("Ruler.MaxAlt", Collections.max(singleUav.values()));
                 args.put("Uavs.MaxAlt", Collections.max(singleUav.values()));
             }
