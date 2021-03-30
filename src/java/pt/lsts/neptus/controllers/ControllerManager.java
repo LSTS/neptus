@@ -34,17 +34,10 @@
 package pt.lsts.neptus.controllers;
 
 import java.util.LinkedHashMap;
-import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.java.games.input.*;
-import org.apache.log4j.Appender;
-import org.apache.log4j.AppenderSkeleton;
-import org.apache.log4j.Layout;
-import org.apache.log4j.spi.ErrorHandler;
-import org.apache.log4j.spi.Filter;
-import org.apache.log4j.spi.LoggingEvent;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
 

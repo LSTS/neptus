@@ -141,7 +141,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
     @SuppressWarnings("serial")
     private JTable axisTable = new JTable() {
         public javax.swing.table.TableCellRenderer getCellRenderer(int row, int column) {
-            if (column != 3 || column != 6)
+            if(column != 3)
                 return axisRenderer;
             else
                 return super.getCellRenderer(row, column);
@@ -151,17 +151,14 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
     @SuppressWarnings("serial")
     private JTable buttonsTable = new JTable() {
         public javax.swing.table.TableCellRenderer getCellRenderer(int row, int column) {
-            if (column != 3 || column != 6)
-                return btnRenderer;
-            else
-                return super.getCellRenderer(row, column);
+            return btnRenderer;
         };
     };
 
     private AbstractTableModel axisModel;
     private AbstractTableModel buttonsModel;
-    private TableRenderer axisRenderer = new TableRenderer(ActionType.Axis);
-    private TableRenderer btnRenderer = new TableRenderer(ActionType.Button);
+    private AxisTableRenderer axisRenderer = new AxisTableRenderer(ActionType.Axis);
+    private ButtonTableRenderer btnRenderer = new ButtonTableRenderer(ActionType.Button);
 
     private ControllerManager manager;
 
@@ -312,7 +309,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         removeAll();
         buildInstructions();
 
-        axisModel = new TableModel(mappedAxis, ActionType.Axis);
+        axisModel = new AxisTableModel(mappedAxis);
         axisTable.setModel(axisModel);
 
         axisTable.addMouseListener(new JTableButtonMouseListener(axisTable));
@@ -322,7 +319,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         String args = "height ::" + (20 + (axisTable.getRowHeight() * (axisModel.getRowCount() + 1))) + ",wrap";
         add(axisContainer, args);
 
-        buttonsModel = new TableModel(mappedButtons, ActionType.Button);
+        buttonsModel = new ButtonTableModel(mappedButtons);
         buttonsTable.setModel(buttonsModel);
         buttonsTable.addMouseListener(new JTableButtonMouseListener(buttonsTable));
 
@@ -783,21 +780,16 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
     }
 
     @SuppressWarnings("serial")
-    public class TableRenderer extends DefaultTableCellRenderer {
-        private ActionType actionType;
+    public class ButtonTableRenderer extends DefaultTableCellRenderer {
 
-        public TableRenderer(ActionType type) {
+        public ButtonTableRenderer(ActionType type) {
             super();
-            actionType = type;
         }
 
         public java.awt.Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
                 boolean hasFocus, final int row, int column) {
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-            MapperComponent comp = this.actionType.equals(ActionType.Axis)
-                    ? (MapperComponent) ((TableModel) axisModel).getList().get(row)
-                    : (MapperComponent) ((TableModel) buttonsModel).getList().get(row);
-                    
+            MapperComponent comp = (MapperComponent) ((ButtonTableModel) buttonsModel).getList().get(row);
 
             if (comp.editFlag) {
                 setBackground(Color.green);
@@ -805,52 +797,85 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
             else {
                 setBackground(Color.white);
             }
-            
+
             if(column == 2) {
                 if(!sending())
                     return this;
                 String action = comp.action;
-                
+
                 float updated_value = comp.value;
                 try {
-                    updated_value = msgActions.containsKey(action) ? new Float(msgActions.get(action)) : comp.value;
+                    updated_value = msgActions.containsKey(action) ? Float.parseFloat(msgActions.get(action)) : comp.value;
                 }
-                catch (NumberFormatException nfe) {
-                    
+                catch (NumberFormatException ignored) {
+
                 };
                 if(updated_value != comp.value && (Float.compare(Math.abs(updated_value), comp.deadZone) != 0) && btnInHold.isSelected()) {
                     comp.value = updated_value;
-                    if (this.actionType.equals(ActionType.Axis)) {
-                        ((TableModel) axisModel).setValueAt(updated_value, row, 2);
-                        ((AbstractTableModel) axisTable.getModel()).fireTableDataChanged();
-                    }
-                    else if (this.actionType.equals(ActionType.Button)) {
-                        ((TableModel) buttonsModel).setValueAt(updated_value, row, 2);
-                        ((AbstractTableModel) buttonsTable.getModel()).fireTableDataChanged();
-                    }
+                    ((ButtonTableModel) buttonsModel).setValueAt(updated_value, row, 2);
+                    ((AbstractTableModel) buttonsTable.getModel()).fireTableDataChanged();
                 }
             }
-            
+
+            if (column == 3) {
+                JButton b; // JToggleButton
+                b = (JButton) buttonsModel.getValueAt(row, column); // Toggle
+                b.setEnabled(!editing); // Disable if we are editing
+                return b;
+            }
+            if (column == 4) {
+                return (JButton) buttonsModel.getValueAt(row, column);
+            }
+            return this;
+        }
+    }
+    @SuppressWarnings("serial")
+    public class AxisTableRenderer extends DefaultTableCellRenderer {
+
+        public AxisTableRenderer(ActionType type) {
+            super();
+        }
+
+        public java.awt.Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+                                                                boolean hasFocus, final int row, int column) {
+            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            MapperComponent comp =  (MapperComponent) ((AxisTableModel) axisModel).getList().get(row);
+
+
+            if (comp.editFlag) {
+                setBackground(Color.green);
+            }
+            else {
+                setBackground(Color.white);
+            }
+
+            if(column == 2) {
+                if(!sending())
+                    return this;
+                String action = comp.action;
+
+                float updated_value = comp.value;
+                try {
+                    updated_value = msgActions.containsKey(action) ? Float.parseFloat(msgActions.get(action)) : comp.value;
+                }
+                catch (NumberFormatException ignored) {
+
+                };
+                if(updated_value != comp.value && (Float.compare(Math.abs(updated_value), comp.deadZone) != 0) && btnInHold.isSelected()) {
+                    comp.value = updated_value;
+                    ((AxisTableModel) axisModel).setValueAt(updated_value, row, 2);
+                    ((AbstractTableModel) axisTable.getModel()).fireTableDataChanged();
+                }
+            }
+
             if (column == 4) {
                 JButton b; // JToggleButton
-                if (this.actionType.equals(ActionType.Axis)) {
-                    b = (JButton) axisModel.getValueAt(row, column);
-                    b.setEnabled(!editing); // Disable if we are editing //TODO
-                    return b;
-                }
-                else if (this.actionType.equals(ActionType.Button)) {
-                    b = (JButton) buttonsModel.getValueAt(row, column); // Toggle
-                    b.setEnabled(!editing); // Disable if we are editing //TODO
-                    return b;
-                }
+                b = (JButton) axisModel.getValueAt(row, column);
+                b.setEnabled(!editing); // Disable if we are editing //TODO
+                return b;
             }
             if (column == 5) {
-                if (this.actionType.equals(ActionType.Axis)) {
-                    return (JButton) axisModel.getValueAt(row, column);
-                }
-                else if (this.actionType.equals(ActionType.Button)) {
-                    return (JButton) buttonsModel.getValueAt(row, column);
-                }
+                return (JButton) axisModel.getValueAt(row, column);
             }
             return this;
         }

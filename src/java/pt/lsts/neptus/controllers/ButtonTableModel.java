@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2020 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2021 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -44,31 +44,29 @@ import pt.lsts.neptus.controllers.ControllerPanel.MapperComponent;
 import pt.lsts.neptus.i18n.I18n;
 
 @SuppressWarnings("serial")
-class TableModel extends AbstractTableModel {
+class ButtonTableModel extends AbstractTableModel {
     public ArrayList<MapperComponent> list;
-    private ActionType actionType;
 
     @Override
     public String getColumnName(int column) {
         switch (column) {
             case 0:
-                return this.actionType.equals(ActionType.Axis) ? I18n.text("Axis") : I18n.text("Button");
+                return I18n.text("Button");
             case 1:
                 return I18n.text("Component");
             case 2:
                 return I18n.text("Value");
             case 3:
-                return I18n.text("Inverted");
-            case 6:
-                return I18n.text("Range");
+                return I18n.text("Assign");
+            case 4:
+                return I18n.text("Unassign");
             default:
                 return "";
         }
     }
 
-    public TableModel(ArrayList<MapperComponent> list, ActionType type) {
+    public ButtonTableModel(ArrayList<MapperComponent> list) {
         this.list = list;
-        this.actionType = type;
     }
 
     public ArrayList<MapperComponent> getList() {
@@ -82,10 +80,7 @@ class TableModel extends AbstractTableModel {
 
     @Override
     public int getColumnCount() {
-        if (actionType.equals(ActionType.Axis))
-            return 7; // extra Range column
-
-        return 6;
+        return 5;
     }
 
     @Override
@@ -99,35 +94,19 @@ class TableModel extends AbstractTableModel {
             case 2:
                 return comp.value;
             case 3:
-                return comp.inverted;
-            case 4:
                 return comp.edit;
-            case 5:
+            case 4:
                 return comp.clear;
-            case 6:
-                return comp.range;
+            default:
+                return null;
         }
-        return null;
     }
 
     public boolean isCellEditable(int row, int col) {
-        return col == 3 || col == 1 || col == 4 || col == 5; // Hard-coded for now
+        return  col == 1 || col == 2 || col == 3 || col == 4;
     }
 
     public void setValueAt(Object value, int row, int col) {
-        if (col == 3) {
-            list.get(row).inverted = (Boolean)value;
-            fireTableCellUpdated(row, col);
-        }
-        else if (col == 6) {
-            try {
-                float v = (float) value;
-                this.list.get(row).setRange(v);
-            }
-            catch (NumberFormatException e) {
-                NeptusLog.pub().error(I18n.text("Invalid Number Format for Range."), e);
-            }
-        }
         fireTableCellUpdated(row, col);
     }
 
