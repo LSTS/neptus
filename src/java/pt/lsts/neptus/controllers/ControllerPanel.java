@@ -236,6 +236,11 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
 
         // Start the interface
         refreshInterface();
+        if (console.getMainSystem() != null)
+            add(new JLabel(I18n.text("Waiting for vehicle action list")));
+        else
+            add(new JLabel(I18n.text("No main vehicle selected in the console")));
+
         if (actions != null) {
             buildDialog();
         }
@@ -275,6 +280,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                         + "<li>Select the intended button on the Joystick.</li>\n"
                         + "<li>After the editing mode is disable, <br />&nbsp;verify if the axis is in the correct direction,<br />&nbsp;otherwise you can invert it on the in the respective column.</li>\n"
                         + "</ol>\n"
+                        + "<h2>Open the Controllers Panel Plugin to configure the panel before open in the Pilot - ROV 2 profile.</h2>"
                         + "<h2>After configuring all the RemoteActions of the Main System, you can enable Teleoperation mode and start controlling with the Joystick.</h2>"
                         + "<h2>Once in Input Hold Mode, the list of Remote Actions will only increment according to the new buttons selected.</h2>"
                         + "</html>"));
@@ -442,19 +448,13 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         removeAll();
         buildInstructions();
 
-        if (console.getMainSystem() != null)
-            add(new JLabel(I18n.text("Waiting for vehicle action list")));
-        else
-            add(new JLabel(I18n.text("No main vehicle selected in the console")));
-
         if (connected())
             requestRemoteActions();
         this.repaint();
     }
 
     private boolean sending() {
-        return dialog.isVisible() //TODO find solution with window/dialog closed
-                && console.getSystem(console.getMainSystem()).getVehicleState().equals(STATE.TELEOPERATION);
+        return console.getSystem(console.getMainSystem()).getVehicleState().equals(STATE.TELEOPERATION);
     }
 
     private boolean connected() {
@@ -478,9 +478,9 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
             manager.pollError(currentController);
             return true;
         }
-        
-        if(!isVisible() || !isShowing() || !isEnabled())
-            return true;
+
+        /*if(!isVisible() || !isShowing() || !isEnabled())
+            return true;*/
 
         if (dialog == null)
             return true;
