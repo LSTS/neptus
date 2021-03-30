@@ -5,15 +5,7 @@
     <subpanel class="pt.lsts.neptus.console.plugins.containers.MigLayoutContainer" x="0" y="0" width="1380" height="667">
       <properties>
         <entry key="XML Definitions">&lt;profiles&gt;
-  &lt;profile name="TACO"&gt;
-    &lt;container param="w 100%, h 100%" layoutparam="ins 0, fillx, filly"&gt;
-      &lt;child name="Map Panel" param="w 100%, h 100%, growy"/&gt;
-    &lt;/container&gt;
-    &lt;container param="w 150px!, h 100%" layoutparam="ins 0"&gt;
-      &lt;child name="Uav Altitude Panel" param="w 100%, h 100%, growy"/&gt;
-    &lt;/container&gt;
-  &lt;/profile&gt;
-  &lt;profile name="Pilot - ROV"&gt;
+  &lt;profile name="Pilot - MAP"&gt;
     &lt;container param="w 100%, h 100%" layoutparam="ins 0"&gt;
       &lt;child name="Map Panel" param="w 100%, h 100%"/&gt;
     &lt;/container&gt;
@@ -35,6 +27,28 @@
       &lt;/container&gt;
     &lt;/container&gt;
   &lt;/profile&gt;
+    &lt;profile name="Pilot - ROV"&gt;
+    &lt;container param="w 100%, h 100%" layoutparam="ins 0"&gt;
+      &lt;child name="Map Panel" param="w 100%, h 100%"/&gt;
+    &lt;/container&gt;
+    &lt;container param="w 80px!, h 100%" layoutparam="ins 0"&gt;
+      &lt;child name="Uav Altitude Panel" param="w 100%, h 100%"/&gt;
+    &lt;/container&gt;
+    &lt;container layoutparam="ins 3" param="w 400px!, h 100%"&gt;
+      &lt;container layoutparam="ins 0, filly" param="w 100%, h 100%"&gt;
+        &lt;child name="Uav HUD Panel" param="w 100%, h 200px!, wrap"/&gt;
+        &lt;child name="Speed Indicator Panel" param="w 100%, h 100px!, wrap"/&gt;
+        &lt;container layoutparam="ins 0" param="w 100%, h 55px!, wrap"&gt;
+          &lt;child name="Plan Control" param="w 35%, h 100%"/&gt;
+          &lt;child name="Abort Button" param="w 15%, h 50px!, wrap"/&gt;
+        &lt;/container&gt;
+         &lt;container param="w 100%, h 100%" layoutparam="ins 0"&gt;
+        &lt;child name="Mission Tree" param="w 100%, h 40%, wrap"/&gt;
+        &lt;child name="Video Stream" param="w 100%, h 100%, wrap"/&gt;
+         &lt;/container&gt;
+      &lt;/container&gt;
+    &lt;/container&gt;
+  &lt;/profile&gt;
     &lt;profile name="Pilot - ROV 2"&gt;
     &lt;container param="w 100%, h 100%" layoutparam="ins 0"&gt;
       &lt;child name="Map Panel" param="w 100%, h 100%"/&gt;
@@ -44,7 +58,6 @@
     &lt;/container&gt;
     &lt;container layoutparam="ins 3" param="w 250px!, h 100%"&gt;
       &lt;container layoutparam="ins 0, filly" param="w 100%, h 100%"&gt;
-        &lt;child name="Uav HUD Panel" param="w 100%, h 200px!, wrap"/&gt;
         &lt;child name="Speed Indicator Panel" param="w 100%, h 100px!, wrap"/&gt;
         &lt;container layoutparam="ins 0" param="w 100%, h 55px!, wrap"&gt;
           &lt;child name="Plan Control" param="w 50%, h 100%"/&gt;
@@ -58,8 +71,11 @@
     &lt;/container&gt;
     &lt;window name="ROV Stream"&gt;
       &lt;container layoutparam="ins 0" param="w 100%, h 100%"&gt;
-        &lt;child name="Controllers Panel" param="w 30%, h 100%"/&gt;
-        &lt;child name="Video Stream" param="w 70%, h 100%"/&gt;
+      &lt;child name="Video Stream" param="w 70%, h 100%"/&gt;
+        &lt;container layoutparam="ins 0" param="w 30%, h 100%"&gt;
+        &lt;child name="Controllers Panel" param="w 100%, h 70%,wrap"/&gt;
+        &lt;child name="Uav HUD Panel" param="w 100%, h 200px!, wrap"/&gt;
+      &lt;/container&gt;
       &lt;/container&gt;
     &lt;/window&gt;
   &lt;/profile&gt;
