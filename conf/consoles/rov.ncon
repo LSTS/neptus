@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<console name="ROV Operation Console" width="1382" height="744" resizable="true" mission-file="../../missions/APDL/missao-apdl.nmisz" main-vehicle="squirtle">
+  <!-- Data saved on 2020-12-15T23:01:44.0Z with Neptus version 2020.10.1-SNAPSHOT (compiled on 2020-12-15, gneptus-2020.01.1-407-gdda91ae-dirty). -->
+  <mainpanel name="console main panel">
+    <subpanel class="pt.lsts.neptus.console.plugins.containers.MigLayoutContainer" x="0" y="0" width="1380" height="667">
+      <properties>
+        <entry key="XML Definitions">&lt;profiles&gt;
+   &lt;profile name="Pilot - MAP"&gt;
+    &lt;container param="w 100%, h 100%" layoutparam="ins 0"&gt;
+      &lt;child name="Map Panel" param="w 100%, h 100%"/&gt;
+    &lt;/container&gt;
+    &lt;container param="w 100px!, h 100%" layoutparam="ins 0"&gt;
+      &lt;child name="Uav Altitude Panel" param="w 100%, h 100%"/&gt;
+    &lt;/container&gt;
+    &lt;container layoutparam="ins 3" param="w 250px!, h 100%"&gt;
+      &lt;container layoutparam="ins 0, filly" param="w 100%, h 100%"&gt;
+        &lt;child name="Uav HUD Panel" param="w 100%, h 200px!, wrap"/&gt;
+        &lt;child name="Speed Indicator Panel" param="w 100%, h 100px!, wrap"/&gt;
+        &lt;container layoutparam="ins 0" param="w 100%, h 55px!, wrap"&gt;
+          &lt;child name="Plan Control" param="w 50%, h 100%"/&gt;
+          &lt;child name="Abort Button" param="w 20%, h 50px!, wrap"/&gt;
+        &lt;/container&gt;
+        &lt;child name="Plan Control State" param="w 100%, h 85px!, wrap"/&gt;
+        &lt;child name="Mission Tree" param="w 100%, h 100%, wrap"/&gt;
+      &lt;/container&gt;
+    &lt;/container&gt;
+  &lt;/profile&gt;
+    &lt;profile name="Pilot - ROV"&gt;
+    &lt;container param="w 100%, h 100%" layoutparam="ins 0"&gt;
+      &lt;child name="Map Panel" param="w 100%, h 100%"/&gt;
+    &lt;/container&gt;
+    &lt;container param="w 80px!, h 100%" layoutparam="ins 0"&gt;
+      &lt;child name="Uav Altitude Panel" param="w 100%, h 100%"/&gt;
+    &lt;/container&gt;
+    &lt;container layoutparam="ins 3" param="w 400px!, h 100%"&gt;
+      &lt;container layoutparam="ins 0, filly" param="w 100%, h 100%"&gt;
+        &lt;child name="Uav HUD Panel" param="w 100%, h 200px!, wrap"/&gt;
+        &lt;child name="Speed Indicator Panel" param="w 100%, h 100px!, wrap"/&gt;
+        &lt;container layoutparam="ins 0" param="w 100%, h 55px!, wrap"&gt;
+          &lt;child name="Plan Control" param="w 35%, h 100%"/&gt;
+          &lt;child name="Abort Button" param="w 15%, h 50px!, wrap"/&gt;
+        &lt;/container&gt;
+         &lt;container param="w 100%, h 100%" layoutparam="ins 0"&gt;
+        &lt;child name="Mission Tree" param="w 100%, h 40%, wrap"/&gt;
+        &lt;child name="Video Stream" param="w 100%, h 60%, wrap"/&gt;
+         &lt;/container&gt;
+      &lt;/container&gt;
+    &lt;/container&gt;
+  &lt;/profile&gt;
+&lt;profile name="Pilot - ROV 2"&gt;
+    &lt;container param="w 100%, h 100%" layoutparam="ins 0"&gt;
+      &lt;child name="Map Panel" param="w 100%, h 100%"/&gt;
+    &lt;/container&gt;
+    &lt;container param="w 100px!, h 100%" layoutparam="ins 0"&gt;
+      &lt;child name="Uav Altitude Panel" param="w 100%, h 100%"/&gt;
+    &lt;/container&gt;
+    &lt;container layoutparam="ins 3" param="w 250px!, h 100%"&gt;
+      &lt;container layoutparam="ins 0, filly" param="w 100%, h 100%"&gt;
+        &lt;child name="Speed Indicator Panel" param="w 100%, h 100px!, wrap"/&gt;
+        &lt;container layoutparam="ins 0" param="w 100%, h 55px!, wrap"&gt;
+          &lt;child name="Plan Control" param="w 50%, h 100%"/&gt;
+          &lt;child name="Abort Button" param="w 20%, h 50px!, wrap"/&gt;
+        &lt;/container&gt;
+        &lt;child name="Plan Control State" param="w 100%, h 85px!, wrap"/&gt;
+        &lt;child name="Mission Tree" param="w 100%, h 100%, wrap"/&gt;
+      &lt;/container&gt;
+    &lt;/container&gt;
+    &lt;window name="ROV Stream"&gt;
+      &lt;container layoutparam="ins 0" param="w 100%, h 100%"&gt;
+      &lt;child name="Video Stream" param="w 70%, h 100%"/&gt;
+        &lt;container layoutparam="ins 0" param="w 30%, h 100%"&gt;
+        &lt;child name="Controllers Panel" param="w 100%, h 70%,wrap"/&gt;
+        &lt;child name="Uav HUD Panel" param="w 100%, h 200px!, wrap"/&gt;
+      &lt;/container&gt;
+      &lt;/container&gt;
+    &lt;/window&gt;
+  &lt;/profile&gt;
+&lt;profile name="Video Stream"&gt;
+    &lt;container param="w 100%, h 100%" layoutparam="ins 0"&gt;
+       &lt;child name="Video Stream" param="w 100%, h 100%"/&gt;
+    &lt;/container&gt;
+    &lt;container param="w 100px!, h 100%" layoutparam="ins 0"&gt;
+      &lt;child name="Uav Altitude Panel" param="w 100%, h 100%"/&gt;
+    &lt;/container&gt;
+    &lt;container layoutparam="ins 3" param="w 250px!, h 100%"&gt;
+      &lt;container layoutparam="ins 0, filly" param="w 100%, h 100%"&gt;
+        &lt;child name="Uav HUD Panel" param="w 100%, h 200px!, wrap"/&gt;
+        &lt;child name="Speed Indicator Panel" param="w 100%, h 100px!, wrap"/&gt;
+        &lt;container layoutparam="ins 0" param="w 100%, h 55px!, wrap"&gt;
+          &lt;child name="Plan Control" param="w 50%, h 100%"/&gt;
+          &lt;child name="Abort Button" param="w 20%, h 50px!, wrap"/&gt;
+        &lt;/container&gt;
+        &lt;child name="Plan Control State" param="w 100%, h 85px!, wrap"/&gt;
+        &lt;child name="Mission Tree" param="w 100%, h 100%, wrap"/&gt;
+      &lt;/container&gt;
+    &lt;/container&gt;
+  &lt;/profile&gt;
+&lt;/profiles&gt;
+</entry>        <entry key="Current Profile">Pilot - ROV</entry>
+      </properties>
+      <child class="pt.lsts.neptus.plugins.ipcam.AirCamDisplay" x="0" y="0" width="10" height="400">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.plugins.uavs.panels.AutopilotModePanel" x="0" y="58" width="122" height="0">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.console.plugins.ChronometerPlugin" x="32" y="180" width="90" height="40">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.console.plugins.planning.CommandPlanner" x="128" y="195" width="10" height="10">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.plugins.position.ContactMarker" x="144" y="195" width="10" height="10">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.console.plugins.EntityStatePanel" x="160" y="138" width="51" height="125">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.plugins.followref.FollowReferenceInteraction" x="217" y="195" width="10" height="10">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.plugins.uavs.panels.GimbalPanel" x="233" y="195" width="10" height="10">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.console.plugins.base.IncomingDataPanel" x="249" y="195" width="10" height="10">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.plugins.sunfish.IridiumComms" x="265" y="195" width="10" height="10">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.console.plugins.kml.KmlImport" x="281" y="176" width="53" height="48">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.plugins.logs.LogBookSubPanel" x="340" y="198" width="5" height="5">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.plugins.logs.LoggingDownloader" x="351" y="175" width="156" height="50">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.plugins.map.MapEditor" x="513" y="195" width="10" height="10">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.console.plugins.planning.MapPanel" x="0" y="0" width="1018" height="667">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.console.plugins.planning.MissionTreePanel" x="0" y="358" width="244" height="251">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.console.plugins.MyLocationDisplay" x="579" y="195" width="10" height="10">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.console.plugins.planning.PathControlLayer" x="595" y="195" width="10" height="10">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.plugins.uavs.panels.PayloadManagePanel" x="0" y="615" width="244" height="40">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.console.plugins.planning.PlanControlPanel" x="0" y="0" width="122" height="52">
+        <properties>
+          <entry key="Use Calibration on Start Plan">false</entry>
+          <entry key="Enable teleoperation button">true</entry>
+          <entry key="Enable beacons button">false</entry>
+        </properties>
+      </child>
+      <child class="pt.lsts.neptus.console.plugins.planning.PlanControlStatePanel" x="0" y="267" width="244" height="85">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.console.plugins.planning.PlanEditor" x="852" y="195" width="10" height="10">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.console.plugins.planning.PlanStatistics" x="868" y="195" width="10" height="10">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.plugins.uavs.panels.PreflightPanel" x="884" y="195" width="10" height="10">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.plugins.sim.SimulationActionsPlugin" x="900" y="195" width="10" height="10">
+        <properties>
+          <entry key="simulatedHeight">900.0</entry>
+        </properties>
+      </child>
+      <child class="pt.lsts.neptus.plugins.position.StreamSpeedOverlay" x="916" y="195" width="10" height="10">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.params.SystemConfiguration" x="932" y="195" width="10" height="10">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.console.plugins.SystemsList" x="948" y="173" width="234" height="55">
+        <properties>
+          <entry key="System Class Filter">ALL</entry>
+        </properties>
+      </child>
+      <child class="pt.lsts.neptus.plugins.uavs.panels.UavAltitudePanel" x="0" y="0" width="100" height="667">
+        <properties>
+          <entry key="Vehicles detected">UUV,UAV</entry>
+        </properties>
+      </child>
+      <child class="pt.lsts.neptus.plugins.uavs.panels.UavHUDPanel" x="0" y="0" width="244" height="200">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.console.plugins.planning.UavPiccoloControl" x="1220" y="104" width="270" height="192">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.console.plugins.VehicleStateMonitor" x="1496" y="195" width="10" height="10">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.plugins.videostream.VideoStream" x="0" y="0" width="1018" height="667">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.console.plugins.GroundHeightSetting" x="1528" y="195" width="10" height="10">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.console.plugins.PlanExporter" x="1544" y="195" width="10" height="10">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.plugins.uavs.panels.UavStatusOverlay" x="1560" y="195" width="10" height="10">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.controllers.ControllerPanel" x="1576" y="195" width="10" height="10">
+        <properties>
+          <entry key="Axis Range">1000.0</entry>
+        </properties>
+      </child>
+      <child class="pt.lsts.neptus.plugins.acoustic.SimpleAbortModemRequest" x="1592" y="195" width="10" height="10">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.console.plugins.AbortPanel" x="128" y="1" width="49" height="50">
+        <properties>
+          <entry key="Button Shape">RECTANGULAR</entry>
+        </properties>
+      </child>
+      <child class="pt.lsts.neptus.plugins.dev.ImcCommsMonitorPanel" x="0" y="0" width="0" height="0">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.plugins.dev.ImcMessageUdpSenderPanel" x="0" y="0" width="600" height="500">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.plugins.acoustic.AcousticOperations" x="0" y="0" width="0" height="0">
+        <properties>
+          <entry key="Systems listing">squirtle</entry>
+        </properties>
+      </child>
+      <child class="pt.lsts.neptus.plugins.rtplot.RealTimePlotGroovy" x="0" y="0" width="0" height="0">
+        <properties/>
+      </child>
+    </subpanel>
+  </mainpanel>
+  <mainpanel name="console alarm panel"/>
+  <layers>
+    <layer class="pt.lsts.neptus.plugins.videostream.CamFootprintLayer" opacity="1.0">
+      <properties/>
+    </layer>
+    <layer class="pt.lsts.neptus.console.plugins.planning.DesiredPathLayer" opacity="1.0">
+      <properties/>
+    </layer>
+    <layer class="pt.lsts.neptus.plugins.position.FindMainSystemLayer" opacity="1.0">
+      <properties/>
+    </layer>
+    <layer class="pt.lsts.neptus.console.plugins.planning.PlanSimulationLayer" opacity="1.0">
+      <properties/>
+    </layer>
+    <layer class="pt.lsts.neptus.plugins.position.painter.SystemInfoPainter" opacity="1.0">
+      <properties>
+        <entry key="Display Confidence Level">false</entry>
+        <entry key="Display GPS">true</entry>
+        <entry key="Entity Name">Autopilot</entry>
+        <entry key="Display Current">true</entry>
+      </properties>
+    </layer>
+    <layer class="pt.lsts.neptus.plugins.acoustic.UsblLayer" opacity="1.0">
+      <properties/>
+    </layer>
+  </layers>
+  <interactions>
+    <interaction class="pt.lsts.neptus.plugins.videostream.SnapshotsInteraction">
+      <properties/>
+    </interaction>
+  </interactions>
+</console>
