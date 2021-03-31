@@ -131,7 +131,13 @@ task buildClasspathJar(type: Jar) {
         }
 
         manifest {
-            attributes("Class-Path": configurationClasspath.collect({relativePath(it)}).join(' '))
+            attributes("Class-Path": configurationClasspath.collect({
+                try {
+                    relativePath(it)
+                } catch (e) {
+                    it
+                }
+            }).join(' '))
         }
     }
 }
@@ -139,18 +145,18 @@ task buildClasspathJar(type: Jar) {
 // Generating start scripts for the development environment
 generateStartScriptsFor(rootProject.name, 'run', 'pt.lsts.neptus.loader.NeptusMain',
     '', 'RunOptions', files('SUBSTITUTE')).doLast {
-        def configurationClasspath = project(':core').sourceSets.main.runtimeClasspath
-        configurationClasspath -= project(':core').configurations.core.allArtifacts.files
-        subprojects.findAll({it.name != 'core'}).each {
-            configurationClasspath -= it.configurations.plugin.allArtifacts.files
-        }
-        def unixCp = configurationClasspath
-            .collect({relativePathIfOnProjectPath(it, '$APP_HOME/')}).join(':')
-        def winCp = configurationClasspath
-            .collect({relativePathIfOnProjectPath(it, '%APP_HOME%\\')}).join(';')
-        unixScript.text = unixScript.text.replace('$APP_HOME/lib/SUBSTITUTE', "${unixCp}")
+        // def configurationClasspath = project(':core').sourceSets.main.runtimeClasspath
+        // configurationClasspath -= project(':core').configurations.core.allArtifacts.files
+        // subprojects.findAll({it.name != 'core'}).each {
+        //    configurationClasspath -= it.configurations.plugin.allArtifacts.files
+        //}
+        //def unixCp = configurationClasspath
+        //    .collect({relativePathIfOnProjectPath(it, '$APP_HOME/')}).join(':')
+        //def winCp = configurationClasspath
+        //    .collect({relativePathIfOnProjectPath(it, '%APP_HOME%\\')}).join(';')
+        // unixScript.text = unixScript.text.replace('$APP_HOME/lib/SUBSTITUTE', "${unixCp}")
         // windowsScript.text = windowsScript.text.replace('%APP_HOME%\\lib\\SUBSTITUTE', "${winCp}")
-        //unixScript.text = unixScript.text.replace('$APP_HOME/lib/SUBSTITUTE', "cp.jar")
+        unixScript.text = unixScript.text.replace('$APP_HOME/lib/SUBSTITUTE', "cp.jar")
         windowsScript.text = windowsScript.text.replace('%APP_HOME%\\lib\\SUBSTITUTE', "%APP_HOME%\\cp.jar")
     }
 
@@ -239,10 +245,13 @@ allprojects {
 
     apply plugin: 'java'
     compileJava.options.encoding = 'UTF-8'
+    // compileJava.options.compilerArgs << '-Xlint:unchecked'
+    // compileJava.options.deprecation = true
     java.sourceCompatibility = JavaVersion.VERSION_1_8
     java.targetCompatibility = JavaVersion.VERSION_1_8
 
     processResources {
+        duplicatesStrategy DuplicatesStrategy.EXCLUDE
         from (rootProject.projectDir) {
             include 'LICENSE.md'
         }
@@ -332,29 +341,28 @@ project(':core') {
 
         implementation name: 'ais-contact-manager-1.0'
 
-        //implementation 'org.apache.xmlgraphics:batik-transcoder:1.7' //1.13 was from fop
-        //implementation 'org.apache.xmlgraphics:batik-all:1.9.1' //1.13 was 1.7.1
-        implementation 'org.apache.xmlgraphics:batik-gui-util:1.7' //1.13
+        implementation 'org.apache.xmlgraphics:batik-gui-util:1.14'
+        implementation 'org.apache.xmlgraphics:batik-anim:1.14'
 
         implementation name: 'charsets-zip' // for zip, probably not needed anymore
-        implementation 'commons-cli:commons-cli:1.2' //1.4
-        implementation 'commons-codec:commons-codec:1.9' //1.14
-        implementation 'commons-collections:commons-collections:3.2.1' //3.2.2
-        implementation 'org.apache.commons:commons-compress:1.10' //1.20
+        implementation 'commons-cli:commons-cli:1.4'
+        implementation 'commons-codec:commons-codec:1.15'
+        implementation 'commons-collections:commons-collections:3.2.2'
+        implementation 'org.apache.commons:commons-compress:1.20'
         implementation 'commons-configuration:commons-configuration:1.10'
-        implementation 'org.apache.commons:commons-email:1.3.2' //1.5
-        implementation 'commons-httpclient:commons-httpclient:3.1'
-        implementation 'commons-io:commons-io:2.4' //2.6
-        implementation 'org.apache.commons:commons-lang3:3.2.1' //3.10
+        implementation 'org.apache.commons:commons-email:1.5'
+        implementation 'commons-io:commons-io:2.8.0'
+        implementation 'org.apache.commons:commons-lang3:3.12.0'
         implementation 'commons-lang:commons-lang:2.6'
         implementation 'commons-logging:commons-logging:1.2'
-        implementation 'commons-net:commons-net:3.3' //3.6
+        implementation 'commons-net:commons-net:3.8.0'
+        implementation 'org.apache.commons:commons-text:1.9'
 
         implementation 'dom4j:dom4j:1.6.1'
-        implementation 'jaxen:jaxen:1.1.1' //1.2.0
+        implementation 'jaxen:jaxen:1.2.0'
 
         implementation 'com.firebase:firebase-client-jvm:2.0.0' //2.5.2
-        implementation 'org.apache.xmlgraphics:fop:0.95'
+        implementation 'org.apache.xmlgraphics:fop:2.6'
         //implementation group: 'foxtrot', name: 'foxtrot', version: '3.0', ext: 'pom'
         implementation name: 'foxtrot' //4.0, used 3.0
 
@@ -363,17 +371,16 @@ project(':core') {
         implementation name: 'gdal'
         implementation name: 'gpsinput-0.5.3'
         implementation name: 'gpxparser'
-        implementation 'org.codehaus.groovy:groovy:2.5.4' //3.0.3
-        implementation 'com.google.code.gson:gson:2.2.2' //2.8.6
-        implementation 'com.google.guava:guava:17.0' //28.2-jre
+        implementation 'org.codehaus.groovy:groovy:3.0.3' //2.5.4
+        implementation 'com.google.code.gson:gson:2.8.6'
+        implementation 'com.google.guava:guava:30.1-jre'
 
         implementation 'de.grundid.opendatalab:geojson-jackson:1.14'
 
-        implementation 'org.apache.httpcomponents:httpclient:4.5.1' //4.5.12
+        implementation 'org.apache.httpcomponents:httpclient:4.5.13' //5.0
 
         implementation 'org.imgscalr:imgscalr-lib:4.2'
-        implementation 'org.ini4j:ini4j:0.5.2' //0.5.4
-        implementation 'com.lowagie:itext:2.1.5'
+        implementation 'com.lowagie:itext:2.1.5' // old, think of replacing
 
         // Java 3D related //
         //implementation 'java3d:j3d-core:1.3.1' // to delete
@@ -384,7 +391,6 @@ project(':core') {
         implementation name: 'vecmath' // to delete
         implementation name: 'wrl/j3d-vrml97' // to delete
 
-        implementation 'gov.nist.math:jama:1.0.2' //1.0.3
         implementation 'de.micromata.jak:JavaAPIforKml:2.2.0' //2.2.1
         implementation 'net.sourceforge.javacsv:javacsv:2.0'
         implementation 'org.javassist:javassist:3.18.0-GA' //3.27.0-GA
@@ -460,10 +466,10 @@ project(':core') {
         //implementation 'org.rxtx:rxtxcomm:2.0-7pre1'
         implementation name: 'RXTXcomm'
 
-        implementation 'org.apache.sanselan:sanselan:0.97-incubator'
+        implementation 'org.apache.sanselan:sanselan:0.97-incubator' // Check new commons-imaging (changed name)
         implementation name: 'sqlitejdbc-v056'
         implementation name: 'standby'
-        implementation 'org.swinglabs.swingx:swingx-all:1.6.4' //1.6.5-1
+        implementation 'org.swinglabs.swingx:swingx-all:1.6.5-1'
 
         implementation name: 'speech/cmudict04'
         implementation name: 'speech/cmu_time_awb'
@@ -540,6 +546,7 @@ project(':core') {
     }
 
     processResources {
+        duplicatesStrategy DuplicatesStrategy.INCLUDE
         from (project.sourceSets.main.resources.srcDirs) {
             include 'version.txt'
             filter{ it.replaceAll("@VERSION@", rootProject.version) }
@@ -557,16 +564,16 @@ project(':core') {
 
     eclipse {
         classpath {
-            defaultOutputDir = file("${rootProject.buildDir.getName()}/eclipse/default")
-            file.whenMerged {
-                def subProjectJarWasIn = []
-                entries.each { entry ->
-                    if (entry.kind == 'src' && entry.hasProperty('output')) {
-                        // Let us replace the output from bin to the proper build folder
-                        entry.output = entry.output.replace('bin/', "${rootProject.buildDir.getName()}/eclipse/")
-                    }
-                }
-            }
+            // defaultOutputDir = file("${rootProject.buildDir.getName()}/eclipse/default")
+            // file.whenMerged {
+            //     def subProjectJarWasIn = []
+            //     entries.each { entry ->
+            //         if (entry.kind == 'src' && entry.hasProperty('output')) {
+            //             // Let us replace the output from bin to the proper build folder
+            //             entry.output = entry.output.replace('bin/', "${rootProject.buildDir.getName()}/eclipse/")
+            //         }
+            //     }
+            // }
         }
         project {
             resourceFilter {
@@ -677,6 +684,7 @@ configure(subprojects.findAll { it.name != 'core' }) {
     }
 
     processResources {
+        duplicatesStrategy DuplicatesStrategy.EXCLUDE
         outputs.upToDateWhen { false }
         from('.'){
             include 'plugins.lst'
@@ -697,15 +705,15 @@ configure(subprojects.findAll { it.name != 'core' }) {
     apply plugin: 'eclipse'
     eclipse {
         classpath {
-            defaultOutputDir = file("${rootProject.buildDir.getName()}/eclipse/default")
-            file.whenMerged {
-                entries.each { entry ->
-                    // Let us replace the output from bin to the proper build folder
-                    if (entry.kind == 'src' && entry.hasProperty('output')) {
-                        entry.output = entry.output.replace('bin/', "${rootProject.buildDir.getName()}/eclipse/")
-                    }
-                }
-            }
+            // defaultOutputDir = file("${rootProject.buildDir.getName()}/eclipse/default")
+            // file.whenMerged {
+            //     entries.each { entry ->
+            //         // Let us replace the output from bin to the proper build folder
+            //         if (entry.kind == 'src' && entry.hasProperty('output')) {
+            //             entry.output = entry.output.replace('bin/', "${rootProject.buildDir.getName()}/eclipse/")
+            //         }
+            //     }
+            // }
         }
         project {
             resourceFilter {
@@ -736,10 +744,11 @@ configure(subprojects.findAll { it.name != 'core' }) {
     jar {
         archiveVersion = ''
         destinationDirectory = file("$rootDir/plugins")
-
+        duplicatesStrategy DuplicatesStrategy.EXCLUDE
         from sourceSets.main.output
 
         dependsOn configurations.runtimeClasspath
+        duplicatesStrategy DuplicatesStrategy.INCLUDE
         from {
             (project.configurations.runtimeClasspath - project(':core').sourceSets.main.runtimeClasspath)
                     .findAll { it.name.endsWith('jar') }.collect { zipTree(it) }
@@ -844,6 +853,7 @@ task buildWorldmapBundleJar(type: Jar) {
         into 'legal'
     }
     from (project(':core').sourceSets.main.output) {
+        include 'version.txt'
         include 'images/neptus-icon.png'
         include 'images/neptus-icon1.png'
         include 'images/neptus-icon2.png'
@@ -914,6 +924,7 @@ task buildCheckBundleJar(type: Jar) {
         into 'legal'
     }
     from (project(':core').sourceSets.main.output) {
+        include 'version.txt'
         include 'images/neptus-icon.png'
         include 'images/neptus-icon1.png'
         include 'images/neptus-icon2.png'
@@ -1205,7 +1216,7 @@ task processI18N(type: Exec) {
 processI18N.mustRunAfter agregateI18N
 
 task generateI18N {
-    description = "Generate the I18N POT files"
+    description = "Generate the I18N POT files (needs gettext installed)"
     group = 'Distribution'
     dependsOn agregateI18N, processI18N
 }
@@ -1243,7 +1254,9 @@ task cleanEclipseBuild {
         delete file("${project(':core').projectDir}/code")
         subprojects.each { project ->
             file("$project.projectDir").listFiles({
-                    file -> file.isDirectory() && file.name ==~ 'build'
+                    file -> file.isDirectory() && (file.name ==~ 'build'
+                    || file.name ==~ 'bin'
+                    || file.name ==~ 'log')
                 } as FileFilter).each { delete it }
         }
     }

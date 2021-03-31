@@ -53,18 +53,17 @@ import pt.lsts.neptus.plugins.alliance.NmeaPlotter.MTShip;
  */
 public class RipplesAisParser {
 
-    private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ");
-    
+    private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ");
+    private static final SimpleDateFormat sdfIso = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
+
     public static ArrayList<MTShip> getShips() throws Exception {
         URL url = new URL("https://ripples.lsts.pt/ais");
         HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();    
         JsonArray val = Json.parse(new InputStreamReader(httpConnection.getInputStream())).asArray();
        
-        ArrayList<MTShip> ships = new ArrayList<NmeaPlotter.MTShip>();
+        ArrayList<MTShip> ships = new ArrayList<>();
         
-        val.forEach(s -> {
-            ships.add(parse(s.asObject()));
-        });
+        val.forEach(s -> ships.add(parse(s.asObject())));
         
         return ships;
     }
@@ -98,8 +97,15 @@ public class RipplesAisParser {
             ship.ELAPSED = (System.currentTimeMillis() - timestamp.getTime());
         }
         catch (ParseException e) {
-            NeptusLog.pub().error("Error parsing date: "+object.getString("timestamp", "N/A"));
-        } 
+            try { //2021-03-15T18:58:05.000+00:00
+                Date timestamp = sdfIso.parse(object.getString("timestamp", sdf.format(new Date())));
+                ship.TIME = timestamp.getTime()/1000.0;
+                ship.ELAPSED = (System.currentTimeMillis() - timestamp.getTime());
+            }
+            catch (ParseException e1) {
+                NeptusLog.pub().error("Error parsing date: "+object.getString("timestamp", "N/A"));
+            }
+        }
         
         return ship;
     }

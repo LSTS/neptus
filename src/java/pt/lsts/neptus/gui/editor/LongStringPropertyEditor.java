@@ -109,8 +109,8 @@ public class LongStringPropertyEditor extends AbstractPropertyEditor {
 	    jScrollPane.setVisible(true);
 	 
 	    if(previousValue==null) 
-	    	previousValue = "";
-	    	msgTextArea.setText(previousValue);    		
+	        previousValue = "";
+	    msgTextArea.setText(previousValue);    		
 			
 		final JDialog dialog;
 		if (component instanceof JFrame)

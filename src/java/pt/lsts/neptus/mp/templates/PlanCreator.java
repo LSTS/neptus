@@ -259,7 +259,7 @@ public class PlanCreator {
 
     public String addManeuver(Class<?> manClass, LinkedHashMap<String, Object> properties) {
         try {
-            Maneuver man = (Maneuver) manClass.newInstance();
+            Maneuver man = (Maneuver) manClass.getDeclaredConstructor().newInstance();
             return addManeuver(man, properties);
         }
         catch (Exception e) {

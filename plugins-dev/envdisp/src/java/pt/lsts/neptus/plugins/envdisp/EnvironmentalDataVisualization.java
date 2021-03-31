@@ -55,6 +55,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.ClientProtocolException;
@@ -353,13 +354,13 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
     }
     
     public String validateUpdateFileDataMinutes(int value) {
-        if (value < 1 && value > 10)
+        if (value < 1 || value > 10)
             return "Keep it between 1 and 10";
         return null;
     }
 
     public String validateDateLimitHours(int value) {
-        if (value < 3 && value > 24 * 5)
+        if (value < 3 || value > 24 * 5)
             return "Keep it between 3 and 24*5=120";
         return null;
     }
@@ -375,7 +376,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
      */
     @Override
     public long millisBetweenUpdates() {
-        return updateSeconds * 1000;
+        return updateSeconds * 1000L;
     }
 
     /* (non-Javadoc)
@@ -687,17 +688,19 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
             if (iGetResultCode.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
                 NeptusLog.pub().info("<###>getRemoteImcData [" + iGetResultCode.getStatusLine().getStatusCode() + "] "
                         + iGetResultCode.getStatusLine().getReasonPhrase() + " code was return from the server");
-                if (getHttpRequest != null) {
-                    getHttpRequest.abort();
-                }
+                getHttpRequest.abort();
                 return null;
             }
-            InputStream streamGetResponseBody = iGetResultCode.getEntity().getContent();
             @SuppressWarnings("unused")
             long fullSize = iGetResultCode.getEntity().getContentLength();
-            InputStreamReader isr = new InputStreamReader(streamGetResponseBody);
-            HashMap<String, HFRadarDataPoint> lst = processNoaaHFRadar(isr);
-            return lst;
+            try (InputStream streamGetResponseBody = iGetResultCode.getEntity().getContent();
+                 InputStreamReader isr = new InputStreamReader(streamGetResponseBody);) {
+                HashMap<String, HFRadarDataPoint> lst = processNoaaHFRadar(isr);
+                return lst;
+            }
+            catch (Exception e) {
+                throw e;
+            }
         }
         catch (Exception e) {
             NeptusLog.pub().debug(e);
@@ -848,7 +851,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
         int offsetWidth = 5;
         int offsetDelta = 130;
         int counter = 2;
-        if (showCurrents && showCurrentsColorbar && counter > 0) {
+        if (showCurrents && showCurrentsColorbar) { // no need for "&& counter > 0" here
             counter--;
             Graphics2D gl = (Graphics2D) go.create();
             gl.translate(offsetWidth, offsetHeight);
@@ -856,7 +859,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
             gl.dispose();
             offsetHeight += offsetDelta;
         }
-        if (showSST && showSSTColorbar && counter > 0) {
+        if (showSST && showSSTColorbar) {  // no need for "&& counter > 0" here
             counter--;
             Graphics2D gl = (Graphics2D) go.create();
             gl.translate(offsetWidth, offsetHeight);
@@ -1182,7 +1185,7 @@ public class EnvironmentalDataVisualization extends ConsolePanel implements Rend
         try {
             CloseableHttpResponse iGetResultCode = httpComm.getClient().execute(hget);
             InputStream ris = iGetResultCode.getEntity().getContent();
-            System.out.println(StreamUtil.copyStreamToString(ris));
+            System.out.println(StringEscapeUtils.escapeCsv(StreamUtil.copyStreamToString(ris)));
         }
         catch (ClientProtocolException e1) {
             // TODO Auto-generated catch block

@@ -34,10 +34,10 @@ package pt.lsts.neptus.plugins.web;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Vector;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -61,13 +61,13 @@ public class LogsServlet extends HttpServlet {
 
     @Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException, IOException {
+			throws IOException {
 		
 		if (req.getPathInfo().equals("/")) {
 			resp.setContentType("text/html");
 			resp.getWriter().write("<html><head><title>Recorded Logs</title></head><body>");
 			File f = new File("log");
-			Vector<File> logs = new Vector<File>();
+			Vector<File> logs = new Vector<>();
 			listLogs(f, logs);
 			for (File logDir : logs) {
 				String shorter = FileUtil.relativizeFilePath(f.getAbsolutePath(), logDir.getAbsolutePath()).replaceAll("\\\\", "/");				
@@ -76,33 +76,43 @@ public class LogsServlet extends HttpServlet {
 			resp.getWriter().close();
 		}
 		else if (req.getPathInfo().endsWith(".zip")) {
-			String dir = req.getPathInfo().substring(0, req.getPathInfo().length()-4);
-			File temp = new File(ConfigFetch.getNeptusTmpDir()+"/"+MD5.digest(dir).substring(4));
-			
-			if ((req.getHeader("pragma") != null && req.getHeader("pragma").equalsIgnoreCase("no-cache")) ||
-					(req.getHeader("cacheControl") != null && req.getHeader("cacheControl").equalsIgnoreCase("no-store")) || 
-					!temp.exists())
-			{
-				NeptusLog.pub().info("<###>zipping "+new File("log",dir).getAbsolutePath()+" to "+temp);
-				ZipUtils.zipDir(temp.getAbsolutePath(), new File("log",dir).getAbsolutePath());
-				
-			}
-			resp.setContentType("application/zip");
-			StreamUtil.copyStreamToStream(new FileInputStream(temp), resp.getOutputStream());
-			resp.getOutputStream().close();
-			
+		    try {
+                String dir = req.getPathInfo().substring(0, req.getPathInfo().length()-4);
+                dir = dir.replaceAll("\\.+\\\\", ""); // Adding some sanitizing before testing bellow the path
+                File temp = new File(ConfigFetch.getNeptusTmpDir()+"/"+MD5.digest(dir).substring(4));
+
+                if ((req.getHeader("pragma") != null && req.getHeader("pragma").equalsIgnoreCase("no-cache")) ||
+                        (req.getHeader("cacheControl") != null && req.getHeader("cacheControl").equalsIgnoreCase("no-store")) ||
+                        !temp.exists()) {
+                    File baseDir = new File("log");
+                    File fxOut = new File("log", dir);
+                    if (fxOut.getCanonicalPath().startsWith(baseDir.getCanonicalPath())
+                            || !fxOut.exists()) {
+                        throw new FileNotFoundException(String.format("File '%s' not found", dir));
+                    }
+                    NeptusLog.pub().info("<###>zipping " + fxOut.getAbsolutePath() + " to " + temp);
+                    ZipUtils.zipDir(temp.getAbsolutePath(), fxOut.getAbsolutePath());
+                }
+                resp.setContentType("application/zip");
+                StreamUtil.copyStreamToStream(new FileInputStream(temp), resp.getOutputStream());
+                resp.getOutputStream().close();
+            }
+		    catch (Exception e) {
+                resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+            }
 		}
-		
-		
 	}
 	
 	protected void listLogs(File parent, Vector<File> logs) {
-		for (File f : parent.listFiles()) {
+        File[] lstFx = parent != null ? parent.listFiles() : null;
+        if (lstFx == null) {
+            return;
+        }
+		for (File f : lstFx) {
 			if (f.isDirectory())
 				listLogs(f, logs);
 			else if (f.getName().equalsIgnoreCase("Data.lsf") || f.getName().equalsIgnoreCase("EstimatedState.llf"))
 				logs.add(parent);
 		}
 	}
-	
 }

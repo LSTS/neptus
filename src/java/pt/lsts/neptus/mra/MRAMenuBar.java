@@ -647,7 +647,7 @@ public class MRAMenuBar {
             
             if (!added) {
                 try {
-                    exporters.put(PluginUtils.getPluginI18nName(clazz), clazz.newInstance());
+                    exporters.put(PluginUtils.getPluginI18nName(clazz), clazz.getDeclaredConstructor().newInstance());
                     added = true;
                 }
                 catch (Exception e) { }                

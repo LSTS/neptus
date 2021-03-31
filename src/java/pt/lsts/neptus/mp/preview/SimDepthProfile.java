@@ -65,7 +65,7 @@ public class SimDepthProfile {
             SimulationState deepest = simStates.parallelStream().max(new Comparator<SimulationState>() {
                 @Override
                 public int compare(SimulationState o1, SimulationState o2) {
-                    return new Double(o1.getSysState().getDepth()).compareTo(o2.getSysState().getDepth());
+                    return Double.valueOf(o1.getSysState().getDepth()).compareTo(o2.getSysState().getDepth());
                 }
             }).get();
             

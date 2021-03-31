@@ -733,7 +733,7 @@ public class DeltaTParser implements BathymetryParser {
                 // // float f[] = new float[2];
                 // //
                 // // f[0] = (float) (r[0] * 1000000f);
-                // // f[1] = new Double(r[1]).floatValue();
+                // // f[1] = Double.valueOf(r[1]).floatValue();
                 // //
                 // // NeptusLog.pub().info("<###> "+r[0]);
                 // // NeptusLog.pub().info("<###> " + f[0]);

@@ -33,6 +33,7 @@
 package pt.lsts.neptus.console.actions;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
 import java.io.File;
 
 import javax.swing.ImageIcon;
@@ -60,8 +61,9 @@ public class CreateMissionConsoleAction extends ConsoleAction{
     protected ConsoleLayout console;
     
     public CreateMissionConsoleAction(ConsoleLayout console){
-        super(I18n.text("Create Mission"), new ImageIcon(ImageUtils.getImage("images/menus/new.png")), KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_N, java.awt.Event.CTRL_MASK
-                + java.awt.Event.ALT_MASK, true));
+        super(I18n.text("Create Mission"), new ImageIcon(ImageUtils.getImage("images/menus/new.png")),
+                KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_N, InputEvent.CTRL_DOWN_MASK
+                        | InputEvent.ALT_DOWN_MASK, true));
         this.console = console;
     }
 

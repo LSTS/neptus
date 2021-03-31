@@ -101,7 +101,7 @@ public class FollowTrajectoryPreview implements IManeuverPreview<FollowTrajector
     
     @Override
     public Object getState() {
-        return new Integer(locIndex);
+        return Integer.valueOf(locIndex);
     } 
     
 }

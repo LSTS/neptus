@@ -1,0 +1,23 @@
+title "Control vs Desired"
+
+heading = "EstimatedState.psi" 
+plot "Heading": heading
+
+desired_h = "DesiredHeading.value" 
+plot "DesiredHeading": desired_h
+
+depth = "EstimatedState.depth" 
+plot "Depth": depth
+
+altitude = "EstimatedState.alt" 
+plot "Altitude": altitude
+
+desired_z = "DesiredZ.value" 
+plot "DesiredZ":  desired_z
+
+roll = "EstimatedState.phi" 
+plot "Roll":  roll
+
+desired_roll = "DesiredRoll.value" 
+plot "DesiredRoll": desired_roll
+

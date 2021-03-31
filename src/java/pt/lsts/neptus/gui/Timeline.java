@@ -156,6 +156,7 @@ public class Timeline extends JPanel implements ChangeListener {
 
     public void shutdown() {
         running = false;
+        listeners.clear();
         updaterHandle.cancel(false);
         service.shutdown();
     }
@@ -236,6 +237,10 @@ public class Timeline extends JPanel implements ChangeListener {
 
     public void addTimelineChangeListener(TimelineChangeListener changeListener) {
         listeners.add(changeListener);
+    }
+
+    public void removeTimelineChangeListener(TimelineChangeListener changeListener) {
+        listeners.remove(changeListener);
     }
 
     @Override

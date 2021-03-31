@@ -214,7 +214,7 @@ StateRendererInteraction, IMCSerialization, PathProvider {
     public Object clone() {
         FollowTrajectory clone;
         try {
-            clone = this.getClass().newInstance();
+            clone = this.getClass().getDeclaredConstructor().newInstance();
         }
         catch (Exception e) {
             e.printStackTrace();

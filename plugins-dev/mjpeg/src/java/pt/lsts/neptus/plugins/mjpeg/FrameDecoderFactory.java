@@ -29,6 +29,7 @@
 package pt.lsts.neptus.plugins.mjpeg;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * Frame decoder factory.
@@ -76,13 +77,12 @@ public class FrameDecoderFactory {
     private static FrameDecoder getFirstDecoder(File folder) {
         for (Class<?> decoderClass : decoderClasses) {
             try {
-                FrameDecoder decoder = (FrameDecoder) decoderClass.newInstance();
+                FrameDecoder decoder = (FrameDecoder) decoderClass.getDeclaredConstructor().newInstance();
                 if (decoder.folderContainsFrames(folder)) {
                     return decoder;
                 }
-            } catch (InstantiationException e) {
-                e.printStackTrace();
-            } catch (IllegalAccessException e) {
+            } catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+                    | InvocationTargetException | NoSuchMethodException | SecurityException e) {
                 e.printStackTrace();
             }
         }

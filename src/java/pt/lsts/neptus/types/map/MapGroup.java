@@ -55,9 +55,9 @@ import pt.lsts.neptus.types.mission.MissionType;
  */
 public class MapGroup implements MapChangeListener {
 
-	public Hashtable<String, MapType> maps = new Hashtable<String, MapType>();
-	private static Hashtable<String, MapGroup> instances = new Hashtable<String, MapGroup>();
-	public Vector<MapChangeListener> listeners = new Vector<MapChangeListener>();
+	public Hashtable<String, MapType> maps = new Hashtable<>();
+	private static final Hashtable<String, MapGroup> instances = new Hashtable<>();
+	public Vector<MapChangeListener> listeners = new Vector<>();
 	private CoordinateSystem cs = new CoordinateSystem();
 	private HomeReferenceElement HomeRef = new HomeReferenceElement(this, null);
 	//static ReentrantLock lock = new ReentrantLock();
@@ -74,7 +74,7 @@ public class MapGroup implements MapChangeListener {
 	@SuppressWarnings("unchecked")
     public <T> Vector<T> getAllObjectsOfType(Class<T> type) {
 		
-		Vector<T> ret = new Vector<T>();
+		Vector<T> ret = new Vector<>();
 		
 		for (AbstractElement elem : getAllObjects()) {
 			if (elem.getClass().equals(type)) {
@@ -87,7 +87,7 @@ public class MapGroup implements MapChangeListener {
 	
 	public static MapGroup getNewInstance(CoordinateSystem cs) {
 		
-		NeptusLog.pub().debug("[MapGroup] getNewInstance() called. Not stored in the hashtable");
+		NeptusLog.pub().debug("[MapGroup] getgetDeclaredConstructor().newInstance() called. Not stored in the hashtable");
 		if (cs == null) {
 			cs = new CoordinateSystem();
 		}
@@ -153,7 +153,6 @@ public class MapGroup implements MapChangeListener {
 	    
 		//nothing to do...
 		if (mg == null) {
-		    mg = newMission.generateMapGroup();
 		    return;
 		}
 		
@@ -163,16 +162,16 @@ public class MapGroup implements MapChangeListener {
 		Object [] maps =  newMission.getMapsList().values().toArray();
         
 		Hashtable<String, MapType> oldMaps = mg.maps;
-		mg.maps = new Hashtable<String, MapType>();
-		
-        for (int i = 0; i < maps.length; i++) {
-            MapMission mm = (MapMission) maps[i];
+		mg.maps = new Hashtable<>();
+
+        for (Object map : maps) {
+            MapMission mm = (MapMission) map;
             MapType mt = mm.getMap();
             mt.setHref(mm.getHref());
             mt.setChanged(false);
             mt.setMission(newMission);
             mt.setMapGroup(mg);
-            
+
             if (oldMaps.containsKey(mt.getId())) {
                 for (MapChangeListener mcl : oldMaps.get(mt.getId()).changeListeners)
                     mt.addChangeListener(mcl);
@@ -203,15 +202,15 @@ public class MapGroup implements MapChangeListener {
 			
 			Object[] oldMaps = existingMapGroup.maps.values().toArray();
 			//System.err.println("# of maps to remove: "+oldMaps.length);
-			for (int i = 0; i < oldMaps.length; i++) {
-				existingMapGroup.removeMap(((MapType)oldMaps[i]).getId());
-			}
+            for (Object oldMap : oldMaps) {
+                existingMapGroup.removeMap(((MapType) oldMap).getId());
+            }
 			
 			Object[] newMaps = mg.maps.values().toArray();
 			//System.err.println("# of maps to add: "+newMaps.length);
-			for (int i = 0; i < newMaps.length; i++) {
-				existingMapGroup.addMap(((MapType)newMaps[i]));
-			}
+            for (Object newMap : newMaps) {
+                existingMapGroup.addMap(((MapType) newMap));
+            }
 			
 			existingMapGroup.setCoordinateSystem(mg.getCoordinateSystem());
 			existingMapGroup.setHomeRef(mg.getHomeRef());
@@ -231,33 +230,34 @@ public class MapGroup implements MapChangeListener {
 
 	private MapGroup() {}
 
-	
-	/**
-	 * Adds a Map to this group
-	 * @param map The map to be added to this MapGroup
-	 */
-	public void addMap(MapType map) {
-		
-		if (maps.contains(map.getId())) {
-			maps.get(map.getId()).removeChangeListener(this);
-		}
-		
-		maps.put(map.getId(), map);		
-		map.addChangeListener(this);
-		
-		 
-		 Object[] objNames = map.getObjectIds();
-		for (int i = 0; i < objNames.length; i++) {
-			AbstractElement mo = map.getObject((String)objNames[i]);
-			mo.setMapGroup(this);
-			mo.setParentMap(map);
-			MapChangeEvent mce = new MapChangeEvent(MapChangeEvent.OBJECT_ADDED);
-			mce.setChangedObject(mo);
-			mce.setSourceMap(map);
-			warnListeners(mce);
-		}
-		
-	}
+
+    /**
+     * Adds a Map to this group
+     *
+     * @param map The map to be added to this MapGroup
+     */
+    public void addMap(MapType map) {
+        if (map == null) {
+            return;
+        }
+
+        if (maps.containsKey(map.getId())) {
+            maps.get(map.getId()).removeChangeListener(this);
+        }
+        maps.put(map.getId(), map);
+        map.addChangeListener(this);
+
+        Object[] objNames = map.getObjectIds();
+        for (Object objName : objNames) {
+            AbstractElement mo = map.getObject((String) objName);
+            mo.setMapGroup(this);
+            mo.setParentMap(map);
+            MapChangeEvent mce = new MapChangeEvent(MapChangeEvent.OBJECT_ADDED);
+            mce.setChangedObject(mo);
+            mce.setSourceMap(map);
+            warnListeners(mce);
+        }
+    }
 	
 	
 	/**
@@ -273,12 +273,12 @@ public class MapGroup implements MapChangeListener {
 		}
 		maps.remove(mapID);
 		Object[] objNames =tmp.getObjectIds();
-		for (int i = 0; i < objNames.length; i++) {
-			MapChangeEvent mce = new MapChangeEvent(MapChangeEvent.OBJECT_REMOVED);
-			mce.setMapGroup(this);
-			mce.setChangedObject(tmp.getObject((String)objNames[i]));
-			warnListeners(mce);
-		}
+        for (Object objName : objNames) {
+            MapChangeEvent mce = new MapChangeEvent(MapChangeEvent.OBJECT_REMOVED);
+            mce.setMapGroup(this);
+            mce.setChangedObject(tmp.getObject((String) objName));
+            warnListeners(mce);
+        }
 		tmp.removeChangeListener(this);
 	}
 	
@@ -349,7 +349,7 @@ public class MapGroup implements MapChangeListener {
 	}
 	
 	public AbstractElement[] getMapObjectsByID(String objID) {
-		Vector<AbstractElement> vec = new Vector<AbstractElement>();
+		Vector<AbstractElement> vec = new Vector<>();
 		
 		for (MapType map : getMaps()) {
 			AbstractElement mo = map.getObject(objID);
@@ -387,18 +387,14 @@ public class MapGroup implements MapChangeListener {
 	 *
 	 */
 	public void warnListeners(MapChangeEvent changeEvent) {
-	//	NeptusLog.pub().info("<###> "+ReflectionUtil.getCallerStamp());
-		//NeptusLog.pub().info("<###>Warning "+listeners.size()+" listeners");
-		for (int i = 0; i < listeners.size(); i++) {
-			
-			MapChangeListener tmp = listeners.get(i);
-			//vNeptusLog.pub().info("<###> "+tmp.getClass());
-			tmp.mapChanged(changeEvent);
-		}
+        for (MapChangeListener tmp : listeners) {
+            //vNeptusLog.pub().info("<###> "+tmp.getClass());
+            tmp.mapChanged(changeEvent);
+        }
 	}
 	
 	public AbstractElement[] getObjectsFromOtherMaps(String mapID) {
-		Vector<AbstractElement> objs = new Vector<AbstractElement>();
+		Vector<AbstractElement> objs = new Vector<>();
 		for (Enumeration<?> e = maps.elements(); e.hasMoreElements();) {
 			
 			MapType curMap = (MapType) e.nextElement();
@@ -417,7 +413,7 @@ public class MapGroup implements MapChangeListener {
 	}
 
 	public AbstractElement[] getObjectsFromMap(String mapID) {
-		Vector<AbstractElement> objs = new Vector<AbstractElement>();
+		Vector<AbstractElement> objs = new Vector<>();
 		for (Enumeration<?> e = maps.elements(); e.hasMoreElements();) {			
 			MapType curMap = (MapType) e.nextElement();
 			if (!curMap.getId().equals(mapID))
@@ -442,7 +438,7 @@ public class MapGroup implements MapChangeListener {
 	 * @return An array of MapObjects with all the objects contained in all maps
 	 */
 	public AbstractElement[] getAllObjects() {
-		Vector<AbstractElement> objs = new Vector<AbstractElement>();
+		Vector<AbstractElement> objs = new Vector<>();
 		for (Enumeration<?> e = maps.elements(); e.hasMoreElements();) {
 			MapType curMap = (MapType) e.nextElement();
 			objs.addAll(curMap.getObjects());
@@ -455,52 +451,6 @@ public class MapGroup implements MapChangeListener {
 		
 		return mo;
 	}
-	
-	static final int LAYER_VIRTUAL = 0, LAYER_REAL = 1, LAYER_BACKGROUND = 2; 
-	
-	@SuppressWarnings("unchecked")
-	public AbstractElement[][] getObjectsByLayers() {
-		
-		AbstractElement[] allObjs = getAllObjects();
-		Vector<AbstractElement> vLayer[] = new Vector[3];
-		
-		for (int i = 0; i < vLayer.length; i++)
-			vLayer[i] = new Vector<AbstractElement>();
-		
-		
-		for (int i = 0; i < allObjs.length; i++) {
-			if (allObjs[i] instanceof ImageElement) {
-				vLayer[LAYER_BACKGROUND].add(allObjs[i]);
-				continue;
-			}
-			if (allObjs[i] instanceof ImageElement) {
-				vLayer[LAYER_VIRTUAL].add(allObjs[i]);
-				continue;
-			}
-			vLayer[LAYER_REAL].add(allObjs[i]);
-		}
-		
-		AbstractElement[] lBackground = new AbstractElement[vLayer[LAYER_BACKGROUND].size()];
-		for (int i = 0; i < lBackground.length; i++) {
-		    AbstractElement tmp = vLayer[LAYER_BACKGROUND].get(i);
-		    lBackground[i] = tmp;
-		}
-		
-		AbstractElement[] lVirtual = new AbstractElement[vLayer[LAYER_VIRTUAL].size()];
-		for (int i = 0; i < lVirtual.length; i++) {
-		    AbstractElement tmp = vLayer[LAYER_VIRTUAL].get(i);
-		    lVirtual[i] = tmp;
-		}
-		
-		AbstractElement[] lReal = new AbstractElement[vLayer[LAYER_REAL].size()];
-		for (int i = 0; i < lReal.length; i++) {
-		    AbstractElement tmp = vLayer[LAYER_REAL].get(i);
-		    lReal[i] = tmp;
-		}
-	
-		return new AbstractElement[][] {lVirtual, lReal, lBackground};
-	}
-	
 	
 	public int numObjects() {
 	    int sum = 1; //Counting with the home referential object...
@@ -566,11 +516,8 @@ public class MapGroup implements MapChangeListener {
 			ptMsg.setValue("lat", Math.toRadians(lld[0]));
 			ptMsg.setValue("lon", Math.toRadians(lld[1]));
 			ptMsg.setValue("alt", -1 * lld[2]);
-			
-			if (nextPoint == null)				
-				ptMsg.setValue("nextpt", null);
-			else
-				ptMsg.setValue("nextpt", nextPoint);
+
+            ptMsg.setValue("nextpt", nextPoint); // Can be null
 			nextPoint = ptMsg;
 		}
 		return IMCDefinition.getInstance().create("MapShape", "shapetype", 0, "points", nextPoint);
@@ -587,19 +534,13 @@ public class MapGroup implements MapChangeListener {
 			IMCMessage shpMsg = createShape(elems[i]);
 			if (shpMsg != null) {
 				//NeptusLog.pub().info("<###>Shape for element "+elems[i].getType()+"-"+elems[i].getId()+" is not null");
-				if (nextShape != null)
-					shpMsg.setValue("nextshape", nextShape);
-				else
-					shpMsg.setValue("nextshape", null);
+                shpMsg.setValue("nextshape", nextShape); // Can be null
 				
 				nextShape = shpMsg;
 			}
 			//NeptusLog.pub().info("<###>Shape for element "+elems[i].getType()+"-"+elems[i].getId()+" is null");
 		}
-		if (nextShape != null)
-			msg.setValue("features", nextShape);
-		else
-			msg.setValue("features", null);
+        msg.setValue("features", nextShape); // Can be null
 		
 		try {
 //			NeptusMessageLogger.getLogger().logMessage("neptus", "pda", msg);

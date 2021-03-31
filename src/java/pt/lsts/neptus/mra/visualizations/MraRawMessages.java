@@ -151,7 +151,7 @@ public class MraRawMessages extends SimpleMRAVisualization {
     @Override
     public void onShow() {
         mraPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
-        .put(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.CTRL_MASK), "finder");
+        .put(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.CTRL_DOWN_MASK), "finder");
         mraPanel.getActionMap().put("finder", finderAction);
         if (findOpenState && find != null) {
             find.setVisible(true);
@@ -203,7 +203,7 @@ public class MraRawMessages extends SimpleMRAVisualization {
         };
 
         mraPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
-        .put(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.CTRL_MASK), "finder");
+        .put(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.CTRL_DOWN_MASK), "finder");
         mraPanel.getActionMap().put("finder", finderAction);
 
         highlightBtn = new JToggleButton(I18n.text("Highlight"));

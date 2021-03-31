@@ -33,8 +33,8 @@
 package pt.lsts.neptus.fileeditor;
 
 import java.awt.Color;
-import java.awt.Event;
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -144,17 +144,17 @@ public class SyntaxDocument extends DefaultStyledDocument
 		editor.setContentType(XMLEditorKit.XML_MIME_TYPE);
 
 		editor.getInputMap().put(
-				KeyStroke.getKeyStroke(KeyEvent.VK_INSERT, Event.CTRL_MASK),
+				KeyStroke.getKeyStroke(KeyEvent.VK_INSERT, InputEvent.CTRL_DOWN_MASK),
 				DefaultEditorKit.copyAction
 		);
 		
 		editor.getInputMap().put(
-				KeyStroke.getKeyStroke(KeyEvent.VK_INSERT, Event.SHIFT_MASK),
+				KeyStroke.getKeyStroke(KeyEvent.VK_INSERT, InputEvent.SHIFT_DOWN_MASK),
 				DefaultEditorKit.pasteAction
 		);
 		
 		editor.getInputMap().put(
-				KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, Event.SHIFT_MASK),
+				KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, InputEvent.SHIFT_DOWN_MASK),
 				DefaultEditorKit.cutAction
 		);
 		InsertContentAction ica = new DefaultEditorKit.InsertContentAction() {
@@ -200,17 +200,17 @@ public class SyntaxDocument extends DefaultStyledDocument
 		editor.setEditorKit(customEditor);
 		
 		editor.getInputMap().put(
-				KeyStroke.getKeyStroke(KeyEvent.VK_INSERT, Event.CTRL_MASK),
+				KeyStroke.getKeyStroke(KeyEvent.VK_INSERT, InputEvent.CTRL_DOWN_MASK),
 				DefaultEditorKit.copyAction
 		);
 		
 		editor.getInputMap().put(
-				KeyStroke.getKeyStroke(KeyEvent.VK_INSERT, Event.SHIFT_MASK),
+				KeyStroke.getKeyStroke(KeyEvent.VK_INSERT, InputEvent.SHIFT_DOWN_MASK),
 				DefaultEditorKit.pasteAction
 		);
 		
 		editor.getInputMap().put(
-				KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, Event.SHIFT_MASK),
+				KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, InputEvent.SHIFT_DOWN_MASK),
 				DefaultEditorKit.cutAction
 		);
 		InsertContentAction ica = new DefaultEditorKit.InsertContentAction() {

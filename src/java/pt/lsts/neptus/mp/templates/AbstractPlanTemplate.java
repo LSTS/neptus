@@ -112,7 +112,7 @@ public abstract class AbstractPlanTemplate implements PropertiesProvider {
 	public static PlanType addTemplateToMission(Window parentComp, MissionType mt, Class<?> templateClass) {
 		try {
 			
-			AbstractPlanTemplate planTemplate = (AbstractPlanTemplate) templateClass.newInstance();
+			AbstractPlanTemplate planTemplate = (AbstractPlanTemplate) templateClass.getDeclaredConstructor().newInstance();
 			planTemplate.mission = mt;
 			boolean canceled = planTemplate.editProperties(parentComp, mt);
 			

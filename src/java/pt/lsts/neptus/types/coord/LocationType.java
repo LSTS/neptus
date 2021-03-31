@@ -950,7 +950,7 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
         double latlondepth[] = getAbsoluteLatLonDepth();
         L loc;
         try {
-            loc = (L) this.getClass().newInstance();
+            loc = (L) this.getClass().getDeclaredConstructor().newInstance();
         }
         catch (Exception e) {
             loc = (L) new LocationType();
@@ -1255,7 +1255,7 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
         StringBuilder res = new StringBuilder(tokens[0]);
         res.append(".");
         res.append(tokens[1].substring(0, (tokens[1].length() > digit) ? digit : tokens[1].length()));
-        return new Double(res.toString());
+        return Double.valueOf(res.toString());
     }
 
     /* (non-Javadoc)
@@ -1271,6 +1271,19 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
         LocationType otherLoc = (LocationType) obj;
 
         return isLocationEqual(otherLoc);
+    }
+
+    @Override
+    public int hashCode() {
+        LocationType loc1 = this.getNewAbsoluteLatLonDepth();
+        double loc1LatDouble = cropDecimalDigits(10, loc1.getLatitudeDegs());
+        double loc1LonDouble = cropDecimalDigits(10, loc1.getLongitudeDegs());
+
+        int hash = 7;
+        hash = 31 * hash + Double.hashCode(loc1LatDouble);
+        hash = 31 * hash + Double.hashCode(loc1LonDouble);
+        hash = 31 * hash + Double.hashCode(depth);
+        return hash;
     }
 
     /* (non-Javadoc)
@@ -1341,5 +1354,22 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
             System.out.println(loc.fromClipboardText(loc.getClipboardText()));
             System.out.println(loc.getClipboardText());
         }
+
+        LocationType loc1 = new LocationType();
+        loc1.setLatitudeDegs(41.2323232323);
+        loc1.setLongitudeDegs(-8.4343434343);
+        LocationType loc2 = new LocationType(loc1);
+        LocationType loc3 = new LocationType(loc1);
+        loc3.setDepth(1);
+
+        System.out.println("Equals => true :=: " + loc1.equals(loc1));
+        System.out.println("Equals => true :=: " + loc1.equals(loc2));
+        System.out.println("Equals => true :=: " + loc2.equals(loc1));
+        System.out.println("Equals => false :=: " + loc1.equals(loc3));
+        System.out.println("Equals => false :=: " + loc3.equals(loc1));
+
+        System.out.println("HashCode => loc1 :=: " + loc1.hashCode());
+        System.out.println("HashCode => loc2 :=: " + loc2.hashCode());
+        System.out.println("HashCode => loc3 :=: " + loc3.hashCode());
     }
 }

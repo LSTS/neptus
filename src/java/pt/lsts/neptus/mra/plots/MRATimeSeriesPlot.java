@@ -88,7 +88,8 @@ public abstract class MRATimeSeriesPlot implements LLFChart, LogMarkerListener {
 
     public MRATimeSeriesPlot(MRAPanel panel) {
         this.mraPanel = panel;
-        this.localTimeOffset = LogLocalTimeOffset.getLocalTimeOffset((long) 
+        if(panel != null)
+            this.localTimeOffset = LogLocalTimeOffset.getLocalTimeOffset((long)
                 mraPanel.getSource().getLsfIndex().getStartTime()*1000);
     }
 

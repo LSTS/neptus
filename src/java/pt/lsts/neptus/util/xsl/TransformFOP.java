@@ -86,7 +86,7 @@ public class TransformFOP
     // throws IOException, FOPException, TransformerException
     {
         // configure fopFactory as desired
-        FopFactory fopFactory = FopFactory.newInstance();
+        FopFactory fopFactory = FopFactory.newInstance(new File(".").toURI());
 
         FOUserAgent foUserAgent = fopFactory.newFOUserAgent();
         // configure foUserAgent as desired
@@ -202,7 +202,7 @@ public class TransformFOP
 //            driver.setOutputStream(out);
 //
 //            // Setup XSLT
-//            TransformerFactory factory = TransformerFactory.newInstance();
+//            TransformerFactory factory = TransformerFactory.getDeclaredConstructor().newInstance();
 //            Transformer transformer = factory.newTransformer(new StreamSource(
 //                    xslt));
 //

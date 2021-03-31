@@ -33,7 +33,6 @@
 package pt.lsts.neptus.plugins.odss;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Date;
@@ -133,8 +132,8 @@ public class OdssStatePublisher extends ConsolePanel implements IPeriodicUpdates
     @NeptusProperty(name = "Use TLS", category = "Server Settings", userLevel = LEVEL.REGULAR)
     public boolean smtpServerTLS = true;
 
-    private Timer timer = null;
-    private TimerTask ttask = null;
+    private Timer timer;
+    private TimerTask ttask;
 
     private JCheckBoxMenuItem publishCheckItem = null;
 
@@ -144,7 +143,7 @@ public class OdssStatePublisher extends ConsolePanel implements IPeriodicUpdates
 
         timer = new Timer(OdssStoqsTrackFetcher.class.getSimpleName() + " [" + OdssStatePublisher.this.hashCode() + "]");
         ttask = getTimerTask();
-        timer.scheduleAtFixedRate(ttask, 500, secondsBetweenUpdates * 1000);
+        timer.scheduleAtFixedRate(ttask, 500, secondsBetweenUpdates * 1000L);
     }
 
     private TimerTask getTimerTask() {
@@ -165,7 +164,7 @@ public class OdssStatePublisher extends ConsolePanel implements IPeriodicUpdates
                         for (ImcSystem sys : systems) {
                             if (ignoreSimulatedSystems && sys.isSimulated())
                                 continue;
-                            if (System.currentTimeMillis() - sys.getLocationTimeMillis() < secondsBetweenUpdates * 1000)
+                            if (System.currentTimeMillis() - sys.getLocationTimeMillis() < secondsBetweenUpdates * 1000L)
                                publishState(sys.getName());
                         }
                     }
@@ -185,7 +184,7 @@ public class OdssStatePublisher extends ConsolePanel implements IPeriodicUpdates
             ttask = null;
         }
         ttask = getTimerTask();
-        timer.scheduleAtFixedRate(ttask, 500, secondsBetweenUpdates * 1000);
+        timer.scheduleAtFixedRate(ttask, 500, secondsBetweenUpdates * 1000L);
         
         if (reenterPassword) {
             password = "";
@@ -214,13 +213,8 @@ public class OdssStatePublisher extends ConsolePanel implements IPeriodicUpdates
         addMenuItem(
                 I18n.text("Settings") + ">" + PluginUtils.getPluginName(this.getClass()) + ">" + I18n.text("Settings"),
                 null,
-                new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        PropertiesEditor.editProperties(OdssStatePublisher.this,
-                                getConsole(), true);
-                    }
-                });
+                e -> PropertiesEditor.editProperties(OdssStatePublisher.this,
+                        getConsole(), true));
         
         publishCheckItem.setState(publishOn);
     }
@@ -261,8 +255,6 @@ public class OdssStatePublisher extends ConsolePanel implements IPeriodicUpdates
      * Replaces all macros in the String
      * @param original The original String
      * @param vehicleId Vehicle's id
-     * @param loc The location of the vehicle
-     * @param timestamp The timestamp of last update
      * @return The original string with all applied replacements
      */
     protected String applyMacros(String original, String vehicleId) {
@@ -294,8 +286,6 @@ public class OdssStatePublisher extends ConsolePanel implements IPeriodicUpdates
     /**
      * Publish the given state using email and according to the defined message format
      * @param vehicleId Vehicle's id
-     * @param loc The location of the vehicle
-     * @param timestamp The timestamp of last update
      * @throws EmailException If an error occurs while sending the email
      */
     public void publishState(String vehicleId) throws EmailException {

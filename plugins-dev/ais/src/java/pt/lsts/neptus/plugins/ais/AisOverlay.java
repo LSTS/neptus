@@ -37,29 +37,40 @@ import java.awt.Color;
 import java.awt.Desktop;
 import java.awt.Font;
 import java.awt.Graphics2D;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Vector;
+import java.util.stream.Collectors;
 
+import javax.net.ssl.SSLContext;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.GetMethod;
-
 import com.google.gson.Gson;
 
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.config.Registry;
+import org.apache.http.config.RegistryBuilder;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
+import org.apache.http.conn.socket.PlainConnectionSocketFactory;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.gui.PropertiesEditor;
@@ -116,13 +127,47 @@ public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUp
     public boolean useKnots = false;
 
     protected boolean active = false;
-    protected Vector<AisShip> shipsOnMap = new Vector<AisShip>();
+    protected Vector<AisShip> shipsOnMap = new Vector<>();
     protected StateRenderer2D renderer = null;
 
     protected boolean updating = false;
 
+    protected Thread lastThread = null;
+
+    private final Gson gson = new Gson();
+
+    protected GeneralPath path = new GeneralPath();
+    {
+        path.moveTo(0, 5);
+        path.lineTo(-5, 3.5);
+        path.lineTo(-5, -5);
+        path.lineTo(5, -5);
+        path.lineTo(5, 3.5);
+        path.lineTo(0, 5);
+        path.closePath();
+    }
+
+    static final SSLConnectionSocketFactory sslsf;
+    static final Registry<ConnectionSocketFactory> registry;
+    static final PoolingHttpClientConnectionManager cm;
+    static {
+        try {
+            sslsf = new SSLConnectionSocketFactory(SSLContext.getDefault(),
+                    NoopHostnameVerifier.INSTANCE);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+
+        registry = RegistryBuilder.<ConnectionSocketFactory>create()
+                .register("http", new PlainConnectionSocketFactory())
+                .register("https", sslsf)
+                .build();
+        cm = new PoolingHttpClientConnectionManager(registry);
+        cm.setMaxTotal(100);
+    }
+
     /**
-     * @param console
+     * @param console The {@link ConsoleLayout} where this layer will reside.
      */
     public AisOverlay(ConsoleLayout console) {
         super(console);
@@ -146,19 +191,6 @@ public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUp
         return updateMillis;
     }
 
-    protected Thread lastThread = null;
-
-    protected GeneralPath path = new GeneralPath();
-    {
-        path.moveTo(0, 5);
-        path.lineTo(-5, 3.5);
-        path.lineTo(-5, -5);
-        path.lineTo(5, -5);
-        path.lineTo(5, 3.5);
-        path.lineTo(0, 5);
-        path.closePath();
-    }
-
     @Override
     public boolean update() {
 
@@ -168,41 +200,36 @@ public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUp
         if (lastThread != null)
             return true;
 
-        lastThread = new Thread() {
-            public void run() {
-                updating = true;
-                try {
-                    
-                    if (renderer == null) {
-                        lastThread = null;
-                        return;
-                    }
-    
-                    LocationType topLeft = renderer.getTopLeftLocationType();
-                    LocationType bottomRight = renderer.getBottomRightLocationType();
-    
-                    shipsOnMap = getShips(bottomRight.getLatitudeDegs(), topLeft.getLongitudeDegs(),
-                            topLeft.getLatitudeDegs(), bottomRight.getLongitudeDegs(), showStoppedShips);
-    
+        lastThread = new Thread(() -> {
+            updating = true;
+            try {
+
+                if (renderer == null) {
                     lastThread = null;
-    
-                    
-                    renderer.repaint();
+                    return;
                 }
-                finally {
-                    updating = false;
-                }
-            };
-        };
+
+                LocationType topLeft = renderer.getTopLeftLocationType();
+                LocationType bottomRight = renderer.getBottomRightLocationType();
+
+                shipsOnMap = getShips(bottomRight.getLatitudeDegs(), topLeft.getLongitudeDegs(),
+                        topLeft.getLatitudeDegs(), bottomRight.getLongitudeDegs(), showStoppedShips);
+
+                lastThread = null;
+
+
+                renderer.repaint();
+            }
+            finally {
+                updating = false;
+            }
+        });
         lastThread.setName("AIS Fetcher thread");
         lastThread.setDaemon(true);
         lastThread.start();
 
         return true;
     }
-
-    private HttpClient client = new HttpClient();
-    private Gson gson = new Gson();
 
     protected Vector<AisShip> getShips(double minLat, double minLon, double maxLat, double maxLon,
             boolean includeStationary) {
@@ -212,35 +239,43 @@ public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUp
         if (maxLat - minLat > 2)
             return ships;
 
-        try {
+        try (CloseableHttpClient client = HttpClients.custom()
+                .setSSLSocketFactory(sslsf)
+                .setConnectionManager(cm)
+                .build()) {
             URL url = new URL("http://www.marinetraffic.com/ais/getjson.aspx?sw_x=" + minLon + "&sw_y=" + minLat
                     + "&ne_x=" + maxLon + "&ne_y=" + maxLat + "&zoom=12" + "&fleet=&station=0&id=null");
 
-            GetMethod get = new GetMethod(url.toString());
-            get.setRequestHeader("Referer", "http://www.marinetraffic.com/ais/");
+            HttpGet get = new HttpGet(url.toURI());
+            get.setHeader("Referer", "http://www.marinetraffic.com/ais/");
 
-            client.executeMethod(get);
-            String json = get.getResponseBodyAsString();
-            String[][] res = gson.fromJson(json, String[][].class);
+            try (CloseableHttpResponse response = client.execute(get);
+                 BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()))) {
+                String json = rd.lines().collect(Collectors.joining());
+                String[][] res = gson.fromJson(json, String[][].class);
 
-            for (int i = 0; i < res.length; i++) {
-                double knots = Double.parseDouble(res[i][5]) / 10;
-                if (!includeStationary && knots <= 0.2)
-                    continue;
+                for (String[] re : res) {
+                    double knots = Double.parseDouble(re[5]) / 10;
+                    if (!includeStationary && knots <= 0.2)
+                        continue;
 
-                AisShip ship = new AisShip();
-                ship.setLatitude(Double.parseDouble(res[i][0]));
-                ship.setLongitude(Double.parseDouble(res[i][1]));
-                ship.setName(res[i][2]);
-                ship.setMMSI(Integer.parseInt(res[i][7]));
-                ship.setSpeed(knots);
-                if (res[i][4] != null)
-                    ship.setCourse(Double.parseDouble(res[i][4]));
-                if (res[i][6] != null)
-                    ship.setCountry(res[i][6]);
-                if (res[i][8] != null)
-                    ship.setLength(Double.parseDouble(res[i][8]));
-                ships.add(ship);
+                    AisShip ship = new AisShip();
+                    ship.setLatitude(Double.parseDouble(re[0]));
+                    ship.setLongitude(Double.parseDouble(re[1]));
+                    ship.setName(re[2]);
+                    ship.setMMSI(Integer.parseInt(re[7]));
+                    ship.setSpeed(knots);
+                    if (re[4] != null)
+                        ship.setCourse(Double.parseDouble(re[4]));
+                    if (re[6] != null)
+                        ship.setCountry(re[6]);
+                    if (re[8] != null)
+                        ship.setLength(Double.parseDouble(re[8]));
+                    ships.add(ship);
+                }
+            }
+            catch (Exception e) {
+                NeptusLog.pub().warn(e);
             }
         }
         catch (Exception e) {
@@ -260,21 +295,9 @@ public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUp
         super.mouseClicked(event, source);
 
         JPopupMenu popup = new JPopupMenu();
-        popup.add(I18n.text("AIS settings")).addActionListener(new ActionListener() {
+        popup.add(I18n.text("AIS settings")).addActionListener(e -> PropertiesEditor.editProperties(AisOverlay.this, getConsole(), true));
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                PropertiesEditor.editProperties(AisOverlay.this, getConsole(), true);
-            }
-        });
-
-        popup.add(I18n.text("Update ships")).addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                update();
-            }
-        });
+        popup.add(I18n.text("Update ships")).addActionListener(e -> update());
 
         popup.add(getShipInfoMenu());
 
@@ -351,26 +374,20 @@ public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUp
     }
     
     protected JMenu getShipInfoMenu() {
-        Vector<AisShip> ships = new Vector<>();
         JMenu menu = new JMenu(I18n.text("Ship Info"));
-        ships.addAll(shipsOnMap);
+        Vector<AisShip> ships = new Vector<>(shipsOnMap);
         Collections.sort(ships);
 
         if (ships.size() > 0 && Desktop.isDesktopSupported()) {
             for (final AisShip s : ships) {
-                menu.add(s.getName()).addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        Desktop desktop = Desktop.getDesktop();
-                        try {
-                            URI uri = new URI(s.getShipInfoURL());
-                            desktop.browse(uri);
-                        }
-                        catch (IOException ex) {
-                            ex.printStackTrace();
-                        }
-                        catch (URISyntaxException ex) {
-                            ex.printStackTrace();
-                        }
+                menu.add(s.getName()).addActionListener(e -> {
+                    Desktop desktop = Desktop.getDesktop();
+                    try {
+                        URI uri = new URI(s.getShipInfoURL());
+                        desktop.browse(uri);
+                    }
+                    catch (IOException | URISyntaxException ex) {
+                        ex.printStackTrace();
                     }
                 });
             }

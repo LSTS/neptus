@@ -65,7 +65,7 @@ public abstract class AbstractImcManeuver<T extends IMCMessage> extends DefaultM
     @SuppressWarnings("unchecked")
     public AbstractImcManeuver() {
         try {
-            this.message = (T)(message.getClass().newInstance());
+            this.message = (T)(message.getClass().getDeclaredConstructor().newInstance());
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -77,7 +77,7 @@ public abstract class AbstractImcManeuver<T extends IMCMessage> extends DefaultM
     @SuppressWarnings("unchecked")
     public AbstractImcManeuver(T message) {
         try {
-            this.message = (T)(message.getClass().newInstance());
+            this.message = (T)(message.getClass().getDeclaredConstructor().newInstance());
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -117,7 +117,7 @@ public abstract class AbstractImcManeuver<T extends IMCMessage> extends DefaultM
     public Object clone() {
         try {
             @SuppressWarnings("unchecked")
-            AbstractImcManeuver<T> other = (AbstractImcManeuver<T>)getClass().newInstance();
+            AbstractImcManeuver<T> other = (AbstractImcManeuver<T>)getClass().getDeclaredConstructor().newInstance();
             clone(other);
             other.setMessage(message.cloneMessage());
             other.setManeuverLocation(getManeuverLocation());

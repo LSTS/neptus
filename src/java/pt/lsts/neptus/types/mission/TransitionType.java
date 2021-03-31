@@ -235,4 +235,15 @@ public class TransitionType implements XmlOutputMethods {
 
         return true;
     }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 31 * hash + getId().hashCode();
+        hash = 31 * hash + getSourceManeuver().hashCode();
+        hash = 31 * hash + getTargetManeuver().hashCode();
+        hash = 31 * hash + getCondition().toString().hashCode();
+        hash = 31 * hash + getAction().toString().hashCode();
+        return hash;
+    }
 }

@@ -65,11 +65,11 @@ import javax.net.ssl.SSLContext;
 import javax.xml.bind.DatatypeConverter;
 
 import org.apache.commons.codec.binary.StringUtils;
-import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
@@ -220,9 +220,7 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
     static final SSLConnectionSocketFactory sslsf;
     static final Registry<ConnectionSocketFactory> registry;
     static final PoolingHttpClientConnectionManager cm;
-    
     static {
-        
         try {
             sslsf = new SSLConnectionSocketFactory(SSLContext.getDefault(),
                     NoopHostnameVerifier.INSTANCE);
@@ -239,43 +237,39 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
     }
     
     public static String sendToRockBlockHttp(String destImei, String username, String password, byte[] data)
-            throws HttpException, IOException {
+            throws IOException {
 
-        CloseableHttpClient client = HttpClients.custom()
+        try (CloseableHttpClient client = HttpClients.custom()
                 .setSSLSocketFactory(sslsf)
                 .setConnectionManager(cm)
-                .build();
-                
+                .build()) {
 
-        HttpPost post = new HttpPost("https://secure.rock7mobile.com/rockblock/MT");
-        List<NameValuePair> urlParameters = new ArrayList<NameValuePair>();
-        urlParameters.add(new BasicNameValuePair("imei", destImei));
-        urlParameters.add(new BasicNameValuePair("username", username));
-        urlParameters.add(new BasicNameValuePair("password", password));
-        urlParameters.add(new BasicNameValuePair("data", ByteUtil.encodeToHex(data)));
-        
-        
+            HttpPost post = new HttpPost("https://secure.rock7mobile.com/rockblock/MT");
+            List<NameValuePair> urlParameters = new ArrayList<NameValuePair>();
+            urlParameters.add(new BasicNameValuePair("imei", destImei));
+            urlParameters.add(new BasicNameValuePair("username", username));
+            urlParameters.add(new BasicNameValuePair("password", password));
+            urlParameters.add(new BasicNameValuePair("data", ByteUtil.encodeToHex(data)));
 
-        post.setEntity(new UrlEncodedFormEntity(urlParameters));
-        post.setHeader("Content-Type", "application/x-www-form-urlencoded");
-        HttpResponse response = client.execute(post);
+            post.setEntity(new UrlEncodedFormEntity(urlParameters));
+            post.setHeader("Content-Type", "application/x-www-form-urlencoded");
+            try (CloseableHttpResponse response = client.execute(post);) {
+                BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
 
-        BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
-
-        StringBuffer result = new StringBuffer();
-        String line = "";
-        while ((line = rd.readLine()) != null) {
-            result.append(line);
-        }
-        
-        try {
-            client.close();
+                StringBuffer result = new StringBuffer();
+                String line = "";
+                while ((line = rd.readLine()) != null) {
+                    result.append(line);
+                }
+                return result.toString();
+            }
+            catch (Exception e) {
+                throw e;
+            }
         }
         catch (Exception e) {
-            e.printStackTrace();
+            throw e;
         }
-        
-        return result.toString();
     }
 
     private Pattern pattern = Pattern.compile("APPLICATION/OCTET-STREAM; name=(\\d+)-(\\d+)\\.bin");

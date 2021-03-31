@@ -34,13 +34,13 @@ package pt.lsts.neptus.util.coord;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
 
 import javax.imageio.ImageIO;
 
-import org.apache.sanselan.ImageReadException;
 import org.apache.sanselan.Sanselan;
 import org.gdal.gdal.Dataset;
 import org.gdal.gdal.gdal;
@@ -59,8 +59,8 @@ import pt.lsts.neptus.util.MathMiscUtils;
  */
 public class GdalDataSet {
 
-    private Dataset hDataset = null;
-    private File imageFile = null;
+    private final Dataset hDataset;
+    private final File imageFile;
     
     public GdalDataSet(File f) {
         GdalUtilities.loadNativeLibraries();
@@ -77,7 +77,7 @@ public class GdalDataSet {
     }
 
     public LocationType getCenterCoordinates() {
-        double center[] = getCenter();
+        double[] center = getCenter();
         return new LocationType(center[0], center[1]);
         
     }
@@ -94,7 +94,9 @@ public class GdalDataSet {
         
         for (double[] coord : coordinates) {
             double[] point = toLatLong(hDataset, coord[0], coord[1]);
-            locations.add(new LocationType(point[0], point[1]));            
+            if (point != null) {
+                locations.add(new LocationType(point[0], point[1]));
+            }
         }
         
         return locations.toArray(new LocationType[0]);     
@@ -129,7 +131,7 @@ public class GdalDataSet {
         if (getSpatialReference().IsGeographic() == 0 && adfGeoTransform[2] == 0.0 && adfGeoTransform[4] == 0.0)
             return new double[] {adfGeoTransform[1], -adfGeoTransform[5]};
             
-        LocationType corners[] = getCornerCoordinates();
+        LocationType[] corners = getCornerCoordinates();
         double distY = corners[0].getHorizontalDistanceInMeters(corners[1]);
         double distX = corners[0].getHorizontalDistanceInMeters(corners[3]);
         
@@ -144,8 +146,8 @@ public class GdalDataSet {
         try {
             ImageIO.write(getGroundOverlay(), "png", file);
         }
-        catch (ImageReadException e) {
-            throw new Exception("Unable to read source image: "+e.getMessage(), e);
+        catch (IOException e) {
+            throw new Exception("Unable to read source image: " + e.getMessage(), e);
         }
         
         el.setImageFileName(file.getAbsolutePath());
@@ -188,21 +190,15 @@ public class GdalDataSet {
         /* Setup transformation to lat/long. */
         /* -------------------------------------------------------------------- */
         if (pszProjection != null && pszProjection.length() > 0) {
-            SpatialReference hProj, hLatLong = null;
-
-            hProj = new SpatialReference(pszProjection);
-            
-            
-            if (hProj != null)
-                hLatLong = hProj.CloneGeogCS();
+            SpatialReference hProj = new SpatialReference(pszProjection);
+            SpatialReference hLatLong = hProj.CloneGeogCS();
 
             if (hLatLong != null) {
                 /* New in GDAL 1.10. Before was "new CoordinateTransformation(srs,dst)". */
                 hTransform = new CoordinateTransformation(hProj, hLatLong);
             }
 
-            if (hProj != null)
-                hProj.delete();
+            hProj.delete();
         }
 
         /* -------------------------------------------------------------------- */
@@ -211,8 +207,7 @@ public class GdalDataSet {
         if (hTransform != null) {
             double[] transPoint = new double[3];
             hTransform.TransformPoint(transPoint, dfGeoX, dfGeoY, 0);
-            if (hTransform != null)
-                hTransform.delete();
+            hTransform.delete();
             return new double[] { transPoint[1], transPoint[0] };
         }
 
@@ -222,28 +217,28 @@ public class GdalDataSet {
     public static void main(String[] args) throws Exception {
         
         File f = new File("/home/zp/Downloads");
-        
-        for (File file : f.listFiles()) {
-            if (file.getName().endsWith(".tif")) {
-                System.out.println(file.getName() + ":");
-                GdalDataSet dataSet = new GdalDataSet(file);
-                LocationType loc = new LocationType(dataSet.getCenterCoordinates());
-                loc.convertToAbsoluteLatLonDepth();
-                System.out.println("\tCenter: " + loc.getLatitudeAsPrettyString() + ", " + loc.getLongitudeAsPrettyString());
-                System.out.println("\tRotation: " + Math.toDegrees(dataSet.getRotationRads()));
-                System.out.println("\tScale: " + Arrays.toString(dataSet.getMetersPerPixel()));
 
-                @SuppressWarnings("resource")
-                Scanner s = new Scanner(
-                        Runtime.getRuntime().exec("gdalinfo " + file.getAbsolutePath()).getInputStream())
-                                .useDelimiter("\\A");
-                System.out.println("GDALINFO:");
-                System.out.println(s.next());
-                s.close();
+        File[] files = f.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (file.getName().endsWith(".tif")) {
+                    System.out.println(file.getName() + ":");
+                    GdalDataSet dataSet = new GdalDataSet(file);
+                    LocationType loc = new LocationType(dataSet.getCenterCoordinates());
+                    loc.convertToAbsoluteLatLonDepth();
+                    System.out.println("\tCenter: " + loc.getLatitudeAsPrettyString() + ", " + loc.getLongitudeAsPrettyString());
+                    System.out.println("\tRotation: " + Math.toDegrees(dataSet.getRotationRads()));
+                    System.out.println("\tScale: " + Arrays.toString(dataSet.getMetersPerPixel()));
+
+                    @SuppressWarnings("resource")
+                    Scanner s = new Scanner(
+                            Runtime.getRuntime().exec(new String[]{"gdalinfo", file.getAbsolutePath()}).getInputStream())
+                            .useDelimiter("\\A");
+                    System.out.println("GDALINFO:");
+                    System.out.println(s.next());
+                    s.close();
+                }
             }
         }
-        
-       
     }
-
 }

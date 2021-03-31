@@ -56,7 +56,9 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
@@ -201,6 +203,12 @@ public class RemotePositionPublisherUpdater extends ConsolePanel implements IPer
         docBuilderFactory.setIgnoringComments(true);
         docBuilderFactory.setIgnoringElementContentWhitespace(true);
         docBuilderFactory.setNamespaceAware(false);
+        try {
+            docBuilderFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+        }
+        catch (ParserConfigurationException e) {
+            NeptusLog.pub().error(e.getMessage());
+        }
     }
 
     private final LinkedHashMap<String, IMCMessage> estimatedStates = new LinkedHashMap<String, IMCMessage>();
@@ -904,7 +912,7 @@ public class RemotePositionPublisherUpdater extends ConsolePanel implements IPer
                 InputStream streamGetResponseBody = iGetResultCode.getEntity().getContent();
                 @SuppressWarnings("unused")
                 long fullSize = iGetResultCode.getEntity().getContentLength();
-                String timeStr = StreamUtil.copyStreamToString(streamGetResponseBody).trim();
+                String timeStr = StringEscapeUtils.escapeCsv(StreamUtil.copyStreamToString(streamGetResponseBody).trim());
                 @SuppressWarnings("unused")
                 long serverTime = Long.parseLong(timeStr);
                 // NeptusLog.pub().info("<###>server time delta: " +

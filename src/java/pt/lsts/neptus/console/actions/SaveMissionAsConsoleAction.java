@@ -33,6 +33,7 @@
 package pt.lsts.neptus.console.actions;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
 import java.io.File;
 
 import javax.swing.Action;
@@ -59,8 +60,8 @@ public class SaveMissionAsConsoleAction extends ConsoleAction{
 
     public SaveMissionAsConsoleAction(ConsoleLayout console) {
         super(I18n.text("Save Mission As..."), new ImageIcon(ImageUtils.getImage("images/menus/saveas.png")));
-        putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.Event.CTRL_MASK
-                + java.awt.Event.ALT_MASK, true));
+        putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S,
+                InputEvent.CTRL_DOWN_MASK | InputEvent.ALT_DOWN_MASK, true));
         this.console = console;
         this.setEnabled(true);
     }

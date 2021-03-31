@@ -130,6 +130,6 @@ public class LoiterPreview implements IManeuverPreview<Loiter> {
     
     @Override
     public Object getState() {
-        return new Double(loiterTime);
+        return Double.valueOf(loiterTime);
     }
 }

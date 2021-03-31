@@ -33,6 +33,7 @@
 package pt.lsts.neptus.console.actions;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
@@ -56,7 +57,7 @@ public class TakeSnapshotConsoleAction extends ConsoleAction {
     public TakeSnapshotConsoleAction(ConsoleLayout console) {
         super(I18n.text("Take Snapshot"), new ImageIcon(ImageUtils.getImage("images/menus/snapshot.png")));
         putValue(AbstractAction.ACCELERATOR_KEY, javax.swing.KeyStroke.getKeyStroke(
-                java.awt.event.KeyEvent.VK_PRINTSCREEN, java.awt.Event.CTRL_MASK, true));
+                java.awt.event.KeyEvent.VK_PRINTSCREEN, InputEvent.CTRL_DOWN_MASK, true));
         this.console = console;
     }
 

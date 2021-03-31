@@ -39,6 +39,7 @@ import java.io.FileWriter;
 import javax.swing.ProgressMonitor;
 
 import pt.lsts.imc.EstimatedState;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
@@ -68,60 +69,89 @@ public class TrajectoryExporter implements MRAExporter {
 
     @Override
     public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
-        pmonitor.setNote(I18n.text("Parsing Mission"));
-        pmonitor.setProgress(5);
+        if (pmonitor != null) {
+            pmonitor.setNote(I18n.text("Parsing Mission"));
+            pmonitor.setProgress(5);
+        }
         MissionType mt = LogUtils.generateMission(source);
-        pmonitor.setNote(I18n.text("Parsing Plan"));
-        pmonitor.setProgress(10);
+        if (pmonitor != null) {
+            pmonitor.setNote(I18n.text("Parsing Plan"));
+            pmonitor.setProgress(10);
+        }
         PlanType plan = LogUtils.generatePlan(mt, source);
-        pmonitor.setNote(I18n.text("Parsing Initial State"));
-        pmonitor.setProgress(20);
+        if (plan == null) {
+            String error = I18n.text("Parsing return null plan");
+            if (pmonitor != null) {
+                pmonitor.setNote(error);
+                pmonitor.setProgress(100);
+            }
+            return error;
+        }
+
+        if (pmonitor != null) {
+            pmonitor.setNote(I18n.text("Parsing Initial State"));
+            pmonitor.setProgress(20);
+        }
         EstimatedState estate = source.getLsfIndex().getFirst(EstimatedState.class);
         double startTime = estate.getTimestamp();
         SystemPositionAndAttitude state = IMCUtils.parseState(estate);
         state.getPosition().setOffsetDown(0);
         LocationType zero = new LocationType(state.getPosition());
-        System.out.println(zero.getAllZ());
-        System.out.println(zero.getDepth());
         zero.convertToAbsoluteLatLonDepth();
-        pmonitor.setNote(I18n.text("Simulating execution"));
-        pmonitor.setProgress(25);
+        NeptusLog.pub().debug(String.format("First position allZ=%f  depth=%s", zero.getAllZ(), zero.getDepth()));
+        if (pmonitor != null) {
+            pmonitor.setNote(I18n.text("Simulating execution"));
+            pmonitor.setProgress(25);
+        }
         SimulationEngine engine = new SimulationEngine(plan);
         engine.setState(state);
-        float ellapsed_time = 0;
-        try {            
-            BufferedWriter simWriter = new BufferedWriter(new FileWriter(new File(source.getFile("mra"), "simulated_traj.csv")));
-            simWriter.write("Time,X,Y,Z\n");
-            while (!engine.isFinished()) {
-                SystemPositionAndAttitude pos = engine.getState();
-                double[] offsets = pos.getPosition().getOffsetFrom(zero);
-                String line = ellapsed_time+","+offsets[0]+","+offsets[1]+","+pos.getDepth();
-                simWriter.write(line+"\n");                
-                engine.simulationStep();
-                ellapsed_time += engine.getTimestep();                
+        double ellapsedTime = 0;
+        try {
+            try (BufferedWriter simWriter = new BufferedWriter(new FileWriter(new File(source.getFile("mra"), "simulated_traj.csv")))) {
+                simWriter.write("Time,X,Y,Z\n");
+                while (!engine.isFinished()) {
+                    SystemPositionAndAttitude pos = engine.getState();
+                    double[] offsets = pos.getPosition().getOffsetFrom(zero);
+                    String line = ellapsedTime + "," + offsets[0] + "," + offsets[1] + "," + pos.getDepth();
+                    simWriter.write(line + "\n");
+                    engine.simulationStep();
+                    ellapsedTime += engine.getTimestep();
+                }
             }
-            simWriter.close();            
+            catch (Exception e) {
+                throw e;
+            }
 
-            pmonitor.setNote(I18n.text("Exporting real execution"));
-            pmonitor.setProgress(50);
-            BufferedWriter execWriter = new BufferedWriter(new FileWriter(new File(source.getFile("mra"), "executed_traj.csv")));
-            execWriter.write("Time,X,Y,Z\n");
-                        
-            for (EstimatedState es : source.getLsfIndex().getIterator(EstimatedState.class)) {
-                LocationType loc = IMCUtils.getLocation(es);
-                double[] offsets = loc.getOffsetFrom(zero);
-                String line = (es.getTimestamp()-startTime)+","+offsets[0]+","+offsets[1]+","+loc.getDepth();
-                execWriter.write(line+"\n");                
+            if (pmonitor != null) {
+                pmonitor.setNote(I18n.text("Exporting real execution"));
+                pmonitor.setProgress(50);
             }
-            pmonitor.setNote(I18n.text("Done"));
-            pmonitor.setProgress(100);
-            execWriter.close();
+            try (BufferedWriter execWriter = new BufferedWriter(new FileWriter(new File(source.getFile("mra"), "executed_traj.csv")))) {
+                execWriter.write("Time,X,Y,Z\n");
+
+                for (EstimatedState es : source.getLsfIndex().getIterator(EstimatedState.class)) {
+                    LocationType loc = IMCUtils.getLocation(es);
+                    double[] offsets = loc.getOffsetFrom(zero);
+                    String line = (es.getTimestamp() - startTime) + "," + offsets[0] + "," + offsets[1] + "," + loc.getDepth();
+                    execWriter.write(line + "\n");
+                }
+
+                if (pmonitor != null) {
+                    pmonitor.setNote(I18n.text("Done"));
+                    pmonitor.setProgress(100);
+                }
+            }
+            catch (Exception e) {
+                throw e;
+            }
         }
         catch (Exception e) {
             e.printStackTrace();
             return I18n.textf("Error: %s", ""+e.getMessage());
         }
-        pmonitor.close();
+        if (pmonitor != null) {
+            pmonitor.close();
+        }
         return I18n.text("Export process complete.");
     }
 }

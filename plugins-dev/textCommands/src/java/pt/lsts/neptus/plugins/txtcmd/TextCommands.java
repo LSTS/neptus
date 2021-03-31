@@ -107,7 +107,7 @@ public class TextCommands extends ConsolePanel {
             for (Class<?> c : reflections.getSubTypesOf(ITextCommand.class)) {
                 if (!Modifier.isAbstract(c.getModifiers())) {
                     try {
-                        ITextCommand cmd = (ITextCommand)c.newInstance();
+                        ITextCommand cmd = (ITextCommand)c.getDeclaredConstructor().newInstance();
                         StateRenderer2D r2d = new StateRenderer2D(MapGroup.getMapGroupInstance(getConsole().getMission()));
                         cmd.setCenter(r2d.getCenter());
                         commands.put(cmd.getCommand(), cmd);

@@ -139,8 +139,8 @@ public class Spot {
                         + tmpMsg.latitude + ", " + tmpMsg.longitude + " at " + tmpMsg.timestamp);
                 sumSpeed += speedMeterSecond;
                 movementVectorArray = prevLocation.getOffsetFrom(tmpLocation);
-                movementVector = new Vector3f(new Float(movementVectorArray[0]), new Float(
-                        movementVectorArray[1]),
+                movementVector = new Vector3f(Float.valueOf(Double.valueOf(movementVectorArray[0]).floatValue()), Float.valueOf(
+                        Double.valueOf(movementVectorArray[1]).floatValue()),
                         0f);
                 movementVector = movementVector.divide(movementVector.length());
                 // Spot.log.debug("Direction: (" + movementVectorArray[0] + ", " + movementVectorArray[1] + ")  --> ("
@@ -159,11 +159,11 @@ public class Spot {
             prevMsg = tmpMsg;
             prevLocation = tmpLocation;
         }
-        Float factorial = new Float(gamma(numMeasurements - 1));
+        Float factorial = Float.valueOf(Double.valueOf(gamma(numMeasurements - 1)).floatValue());
         // weighted mean
         sumDirVector.x = sumDirVector.x / factorial;
         sumDirVector.y = sumDirVector.y / factorial;
-        Float finalSpeed = new Float(sumSpeed / (numMeasurements - 1));
+        Float finalSpeed = Float.valueOf(Double.valueOf(sumSpeed / (numMeasurements - 1)).floatValue());
         double finalDirection = Math.atan(sumDirVector.y / sumDirVector.x);
         log.debug("finalSpeed " + finalSpeed + ", direction: (" + sumDirVector.x + ", " + sumDirVector.y + ")"
                 + finalDirection);

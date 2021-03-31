@@ -140,7 +140,7 @@ public class ExtensionsBag {
                 return (T) cons.newInstance(initParams);
             }
             else {
-                return (T)extensions.get(type).get(name).newInstance();
+                return (T)extensions.get(type).get(name).getDeclaredConstructor().newInstance();
             }            
         }
         catch (Exception e) {

@@ -173,13 +173,13 @@ public class CoordinateUtil {
             if (m.group(1).equals("N") || m.group(1).equals("E"))
                 return Double.valueOf(m.group(2));
             else
-                return -Double.valueOf(m.group(2));
+                return -Double.parseDouble(m.group(2));
         }
 
         m = COORD_DM.matcher(coord.trim());
         if (m.matches()) {
-            double degs = Double.valueOf(m.group(1));
-            double mins = Double.valueOf(m.group(3));
+            double degs = Double.parseDouble(m.group(1));
+            double mins = Double.parseDouble(m.group(3));
             double value = degs + (mins / 60.0);
             if (m.group(2).equals("N") || m.group(2).equals("E"))
                 return value;
@@ -189,9 +189,9 @@ public class CoordinateUtil {
 
         m = COORD_DMS.matcher(coord.trim());
         if (m.matches()) {
-            double degs = Double.valueOf(m.group(1));
-            double mins = Double.valueOf(m.group(3));
-            double secs = Double.valueOf(m.group(4));
+            double degs = Double.parseDouble(m.group(1));
+            double mins = Double.parseDouble(m.group(3));
+            double secs = Double.parseDouble(m.group(4));
             double value = degs + (mins / 60.0) + (secs / 3600.0);
 
             if (m.group(2).equals("N") || m.group(2).equals("E"))
@@ -235,7 +235,7 @@ public class CoordinateUtil {
         while (degrees < -90)
             degrees += 180.0;
 
-        double res[] = new double[2];
+        double[] res = new double[2];
         res[0] = degrees;
         res[1] = minutes + seconds * MINUTE_D;
         return res;
@@ -254,11 +254,11 @@ public class CoordinateUtil {
             decimalDegress = -decimalDegress;
         }
 
-        double remainder = decimalDegress - ((int) decimalDegress);
+        double remainder = decimalDegress - Double.valueOf(decimalDegress).intValue();
 
-        dms[0] = (double) Math.floor((double) decimalDegress);
+        dms[0] = Math.floor(decimalDegress);
 
-        dms[1] = (double) Math.floor((double) (remainder * 60.0d));
+        dms[1] = Math.floor(remainder * 60.0d);
 
         remainder = remainder - (dms[1] / 60d);
 
@@ -274,10 +274,9 @@ public class CoordinateUtil {
      * @return
      */
     public static double[] decimalDegreesToDM(double decimalDegress) {
-        double[] dms = new double[3];
         double[] dm = new double[2];
 
-        dms = decimalDegreesToDMS(decimalDegress);
+        double[] dms = decimalDegreesToDMS(decimalDegress);
         dm[0] = dms[0];
         dm[1] = dms[1] + dms[2] / 60d;
         return dm;
@@ -338,7 +337,7 @@ public class CoordinateUtil {
         }
 
         if (dmonly) {
-            return new String((int) d + l + nformat.format(m));
+            return String.format("%d%s%s", (int) d, l, nformat.format(m));
         }
 
         if (hasFracPart(m)) {
@@ -348,7 +347,7 @@ public class CoordinateUtil {
 
         nformat.setMaximumFractionDigits(maxDecimalHouses); // 8
 
-        return new String((int) Math.floor(d) + l + (int) Math.floor(m) + "'" + nformat.format(s) + "''");
+        return String.format("%d%s%d'%s''", (int) Math.floor(d), l, (int) Math.floor(m), nformat.format(s));
     }
 
     private static boolean hasFracPart(double num) {
@@ -862,8 +861,6 @@ public class CoordinateUtil {
      * @return r, theta (rads), h
      */
     public static double[] addSphericalToCartesianOffsetsAndGetAsCylindrical(double r, double theta, double phi, double x, double y, double z) {
-        // double[] sph = new double[] {r, theta, phi};
-        // double[] rec = new double[] {x, y, z};
         double[] sphRec = sphericalToCartesianCoordinates(r, theta, phi);
         double[] recSum = new double[] { x + sphRec[0], y + sphRec[1], z + sphRec[2] };
         double[] result = cartesianToCylindricalCoordinates(recSum[0], recSum[1], recSum[2]);
@@ -871,7 +868,6 @@ public class CoordinateUtil {
     }
 
     private static double[] latLonDepthToGeocentricXYZ(double latitude, double longitude, double depth) {
-
         final double a = 6378137.0; // (metros do semi-eixo maior )
         final double b = 6356752.3142; // (metros do semi-eixo menor)
 
@@ -884,7 +880,7 @@ public class CoordinateUtil {
 
         double N = a * a / Math.sqrt(a * a * CFi * CFi + b * b * SFi * SFi);
 
-        double xyz[] = new double[3];
+        double[] xyz = new double[3];
 
         xyz[0] = (N + Hi) * CFi * Math.cos(Lon);
         xyz[1] = (N + Hi) * CFi * Math.sin(Lon);
@@ -915,7 +911,7 @@ public class CoordinateUtil {
         double N = (a * a) / Math.sqrt(a * a * CLat * CLat + b * b * SLat * SLat);
         double Hi = XY / CLat - N;
 
-        double ret[] = new double[3];
+        double[] ret = new double[3];
         ret[0] = Math.toDegrees(Lat);
         ret[1] = Math.toDegrees(Lon);
         ret[2] = -Hi;
@@ -944,8 +940,7 @@ public class CoordinateUtil {
         return m3d;
     }
 
-    protected static double[] normalizeOffsetToLocation(double nedOffset[], double LatLonDepth[]) {
-
+    protected static double[] normalizeOffsetToLocation(double[] nedOffset, double[] LatLonDepth) {
         Matrix3d conversionMatrix = makeNedToEarthConversionMatrix(LatLonDepth);
 
         double v3dx = nedOffset[0];
@@ -1142,10 +1137,7 @@ public class CoordinateUtil {
         lt2.setLatitudeDegs(absCoords[0]);
         lt2.setLongitudeDegs(absCoords[1]);
         lt2.setDepth(absCoords[2]);
-        ClipboardOwner owner = new ClipboardOwner() {
-            public void lostOwnership(java.awt.datatransfer.Clipboard clipboard, java.awt.datatransfer.Transferable contents) {
-            }
-        };
+        ClipboardOwner owner = (clipboard, contents) -> {};
         Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(lt2.getClipboardText()), owner);
     }
 
@@ -1158,7 +1150,7 @@ public class CoordinateUtil {
      */
     private static double[] toECEF(double latDegrees, double lonDegrees, double depth) {
 
-        double lld[] = {latDegrees, lonDegrees, depth};
+        double[] lld = {latDegrees, lonDegrees, depth};
 
         lld[0] = Math.toRadians(lld[0]);
         lld[1] = Math.toRadians(lld[1]);
@@ -1237,8 +1229,8 @@ public class CoordinateUtil {
     public static double[] WGS84displacement(double latDegrees1, double lonDegrees1, double depth1,
             double latDegrees2, double lonDegrees2, double depth2) {
 
-        double cs1[];
-        double cs2[];
+        double[] cs1;
+        double[] cs2;
 
         cs1 = toECEF(latDegrees1, lonDegrees1, depth1);
         cs2 = toECEF(latDegrees2, lonDegrees2, depth2);
@@ -1272,8 +1264,8 @@ public class CoordinateUtil {
      */
     public static double[] WGS84displace(double latDegrees, double lonDegrees, double depth, double n, double e, double d) {
         // Convert reference to ECEF coordinates
-        double xyz[] = toECEF(latDegrees, lonDegrees, depth);
-        double lld[] = {latDegrees, lonDegrees, depth };
+        double[] xyz = toECEF(latDegrees, lonDegrees, depth);
+        double[] lld = {latDegrees, lonDegrees, depth };
         // Compute Geocentric latitude
         double phi = Math.atan2(xyz[2], Math.sqrt(xyz[0] * xyz[0] + xyz[1] * xyz[1]));
 
@@ -1305,13 +1297,11 @@ public class CoordinateUtil {
      * Get North-East bearing and range between two latitude/longitude coordinates.
      */
     public static double[] getNEBearingDegreesAndRange(LocationType loc1, LocationType loc2) {
-        double bearing = 0, range = 0;
-        double n, e;
         double[] ne = WGS84displacement(loc1, loc2);
-        n = ne[0];
-        e = ne[1];
-        bearing = Math.atan2(e, n);
-        range = Math.sqrt(n * n + e * e);
+        double n = ne[0];
+        double e = ne[1];
+        double bearing = Math.atan2(e, n);
+        double range = Math.sqrt(n * n + e * e);
         return new double[] { Math.toDegrees(bearing), range };
     }
 
@@ -1477,9 +1467,9 @@ public class CoordinateUtil {
         NeptusLog.pub().info(teste[0] + " " + teste[1] + " " + teste[2]);
 
         NeptusLog.pub().info(">>> Test latLonDepthToGeocentricXYZ and geocentricXYZToLatLonDepth:");
-        double latLonDep[] = new double[] { 41.3433, -8.2334, 100 };
-        double rev[] = latLonDepthToGeocentricXYZ(latLonDep[0], latLonDep[1], latLonDep[2]);
-        double latLonDep2[] = geocentricXYZToLatLonDepth(rev);
+        double[] latLonDep = new double[] { 41.3433, -8.2334, 100 };
+        double[] rev = latLonDepthToGeocentricXYZ(latLonDep[0], latLonDep[1], latLonDep[2]);
+        double[] latLonDep2 = geocentricXYZToLatLonDepth(rev);
         NeptusLog.pub().info("Lat: " + latLonDep[0] + ", Lon: " + latLonDep[1] + ", Dep: " + latLonDep[2]);
         NeptusLog.pub().info("X: " + rev[0] + ", Y: " + rev[1] + ", Z: " + rev[2]);
         NeptusLog.pub().info("Lat: " + latLonDep2[0] + ", Lon: " + latLonDep2[1] + ", Dep: " + latLonDep2[2]);
@@ -1500,7 +1490,7 @@ public class CoordinateUtil {
         lt2.setAzimuth(34);
         lt2.setOffsetDistance(456);
 
-        double offs[] = lt2.getOffsetFrom(lt1);
+        double[] offs = lt2.getOffsetFrom(lt1);
         LocationType lt3 = new LocationType(lt1);
         lt3.translatePosition(offs[0], offs[1], offs[2]);
 

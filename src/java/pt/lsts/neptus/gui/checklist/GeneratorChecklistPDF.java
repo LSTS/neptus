@@ -41,7 +41,7 @@ import java.io.StringReader;
 import java.util.Date;
 import java.util.LinkedList;
 
-import org.apache.batik.dom.svg.SAXSVGDocumentFactory;
+import org.apache.batik.anim.dom.SAXSVGDocumentFactory;
 import org.apache.batik.util.XMLResourceDescriptor;
 
 import com.lowagie.text.Chunk;

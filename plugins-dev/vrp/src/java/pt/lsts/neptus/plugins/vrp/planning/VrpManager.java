@@ -33,8 +33,6 @@
 package pt.lsts.neptus.plugins.vrp.planning;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.Vector;
 
@@ -61,14 +59,17 @@ import pt.lsts.neptus.NeptusLog;
  */
 public class VrpManager {
 
-    Customer[] customers = null;
-
     public static double dist = 0;
 
     public static Vector<Vector<Point2d>> computePathsSingleDepot(Point2d depot, Vector<Point2d> pointList,
-            int n_vehicles) {
+            int nVehicles) {
 
-        Vector<Vector<Point2d>> returnVector = new Vector<Vector<Point2d>>();
+        Vector<Vector<Point2d>> returnVector = new Vector<>();
+
+        if (nVehicles <= 0) { // Protection of divide by zero
+            NeptusLog.pub().debug("number of vehicles cannot be <= 0solution not found");
+            return returnVector;
+        }
 
         int sizeVisitPoints = pointList.size();
         PointGraph pointGraph = new PointGraph();
@@ -87,7 +88,7 @@ public class VrpManager {
         try {
             for (int i = 1; i < sizeVisitPoints + 1; i++) {
 
-                pointGraph.addVertex(new Integer(i), new PointIdoubleI(1, pointList.get(i - 1)));
+                pointGraph.addVertex(i, new PointIdoubleI(1, pointList.get(i - 1)));
             }
         }
         catch (DuplicateVertexException e) {
@@ -138,13 +139,17 @@ public class VrpManager {
             e.printStackTrace();
         }
 
+        if (tours == null) {
+            tours = new Vector[0];
+        }
+
         double meters = 0;
-        if (n_vehicles == tours.length)
+        if (nVehicles == tours.length)
             NeptusLog.pub().info("solved - One path for each vehicle");
 
-        for (int i = 0; i < tours.length; i++) {
-            Vector<Point2d> path = new Vector<Point2d>();
-            Enumeration<?> e = tours[i].elements();
+        for (Vector<?> tour : tours) {
+            Vector<Point2d> path = new Vector<>();
+            Enumeration<?> e = tour.elements();
             e.nextElement(); // Skip Vertex
             // PointIdoubleI customer_aux=
             // (PointIdoubleI)edge_aux.getToVertex().getValue();
@@ -173,13 +178,13 @@ public class VrpManager {
         dist = meters;
         // ------------------------------------------------------------------
         double rangeConstraint = meters;
-        double step = rangeConstraint / n_vehicles;
+        double step = rangeConstraint / nVehicles;
 
         rangeConstraint -= step;
 
         int last = -1;
 
-        while (returnVector.size() != n_vehicles) {
+        while (returnVector.size() != nVehicles) {
 
             vrp.setCostConstraint(rangeConstraint/* rangeConstraint*1000 */);
             NeptusLog.pub().debug("range:" + rangeConstraint);
@@ -214,9 +219,9 @@ public class VrpManager {
 
             returnVector.clear();
 
-            for (int i = 0; i < tours.length; i++) {
-                Vector<Point2d> path = new Vector<Point2d>();
-                Enumeration<?> e = tours[i].elements();
+            for (Vector<?> tour : tours) {
+                Vector<Point2d> path = new Vector<>();
+                Enumeration<?> e = tour.elements();
                 e.nextElement(); // Skip Vertex
                 // PointIdoubleI customer_aux=
                 // (PointIdoubleI)edge_aux.getToVertex().getValue();
@@ -240,7 +245,7 @@ public class VrpManager {
             }
 
             if (last != 0) {
-                if (returnVector.size() > n_vehicles) {
+                if (returnVector.size() > nVehicles) {
                     if (last < 0) {
                         step /= 2;
                     }
@@ -249,7 +254,7 @@ public class VrpManager {
                     last = 1;
                 }
 
-                if (returnVector.size() < n_vehicles) {
+                if (returnVector.size() < nVehicles) {
 
                     if (last > 0) {
                         step /= 2;
@@ -319,28 +324,26 @@ public class VrpManager {
         PointGraph pointGraph = new PointGraph();
         PointIdoubleI[] arrayVRP = new PointIdoubleI[sizeVisitPoints + 1];
 
-        ArrayList<Point2d> arrayCHull = new ArrayList<Point2d>(sizeVisitPoints + 1);
+        ArrayList<Point2d> arrayCHull = new ArrayList<>(sizeVisitPoints + 1);
         arrayCHull.add(0, depot);
 
         for (int i = 1; i <= sizeVisitPoints; i++) {
             arrayCHull.add(i, pointList.get(i - 1));
 
         }
-        Collections.sort(arrayCHull, new Comparator<Point2d>() {
-            public int compare(Point2d pt1, Point2d pt2) {
-                double r = pt1.x - pt2.x;
-                if (r != 0) {
-                    if (r < 0)
-                        return -1;
-                    else
-                        return 1;
-                }
-                else {
-                    if ((pt1.y - pt2.y) < 0)
-                        return -1;
-                    else
-                        return 1;
-                }
+        arrayCHull.sort((pt1, pt2) -> {
+            double r = pt1.x - pt2.x;
+            if (r != 0) {
+                if (r < 0)
+                    return -1;
+                else
+                    return 1;
+            }
+            else {
+                if ((pt1.y - pt2.y) < 0)
+                    return -1;
+                else
+                    return 1;
             }
         });
         for (int i = 0; i <= sizeVisitPoints; i++) {
@@ -351,9 +354,16 @@ public class VrpManager {
         ArrayList<Point2d> hull = CHull.cHull(arrayCHull);
 
         boolean depot_out_hull = false;
-        for (int i = 0; i < hull.size(); i++) {
-            if (hull.get(i) == depot)
-                depot_out_hull = true;
+        if (hull != null) {
+            for (Point2d point2d : hull) {
+                if (point2d == depot) {
+                    depot_out_hull = true;
+                    break;
+                }
+            }
+        }
+        else {
+            hull = new ArrayList<>();
         }
 
         Object key = "Depot";
@@ -381,10 +391,10 @@ public class VrpManager {
             try {
                 for (int i = 1; i < sizeVisitPoints + 1; i++) {
                     arrayVRP = new PointIdoubleI[sizeVisitPoints + 1];
-                    key = new Integer(i);
+                    key = i;
                     arrayVRP[i] = new PointIdoubleI(0, pointList.get(i - 1));
-                    for (int x = 0; x < hull.size(); x++) {
-                        if (hull.get(x) == arrayVRP[i].getPoint2d()) {
+                    for (Point2d point2d : hull) {
+                        if (point2d == arrayVRP[i].getPoint2d()) {
                             NeptusLog.pub().debug("found listpoint in hull");
                             arrayVRP[i].setLoad(1);
                         }
@@ -407,10 +417,10 @@ public class VrpManager {
             try {
                 for (int i = 1; i < sizeVisitPoints + 1; i++) {
 
-                    key = new Integer(i);
+                    key = i;
                     arrayVRP[i] = new PointIdoubleI(0, pointList.get(i - 1));
-                    for (int x = 0; x < hull.size(); x++) {
-                        if (hull.get(x) == arrayVRP[i].getPoint2d()) {
+                    for (Point2d point2d : hull) {
+                        if (point2d == arrayVRP[i].getPoint2d()) {
                             NeptusLog.pub().debug("found listpoint in hull");
                             arrayVRP[i].setLoad(1);
                         }
@@ -456,32 +466,30 @@ public class VrpManager {
             NeptusLog.pub().debug("passed");
             tours = vrp.getTours();
         }
-        catch (SolutionNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (VertexNotFoundException e) {
+        catch (SolutionNotFoundException | VertexNotFoundException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
 
-        if (n_vehicles == tours.length)
+        if (tours != null && n_vehicles == tours.length) {
             NeptusLog.pub().debug("Solved - One path for each vehicle");
+        }
 
-        Vector<Vector<Point2d>> returnVector = new Vector<Vector<Point2d>>();
+        Vector<Vector<Point2d>> returnVector = new Vector<>();
 
-        for (int i = 0; i < tours.length; i++) {
-            Vector<Point2d> path = new Vector<Point2d>();
-            Enumeration<?> e = tours[i].elements();
-            e.nextElement(); // Skip Vertex
-            while (e.hasMoreElements()) {
-                EdgeI edge = (EdgeI) e.nextElement();
-                PointIdoubleI customer1 = (PointIdoubleI) edge.getToVertex().getValue();
-
-                path.add(customer1.getPoint2d());
+        if (tours != null) {
+            for (Vector<?> tour : tours) {
+                Vector<Point2d> path = new Vector<>();
+                Enumeration<?> e = tour.elements();
                 e.nextElement(); // Skip Vertex
+                while (e.hasMoreElements()) {
+                    EdgeI edge = (EdgeI) e.nextElement();
+                    PointIdoubleI customer1 = (PointIdoubleI) edge.getToVertex().getValue();
+                    path.add(customer1.getPoint2d());
+                    e.nextElement(); // Skip Vertex
+                }
+                returnVector.add(path);
             }
-            returnVector.add(path);
         }
         if (returnVector.size() != n_vehicles)
             return null;
@@ -489,16 +497,16 @@ public class VrpManager {
             return returnVector;
     }
 
-    public static int totalDist(Vector<?>[] tours) throws SolutionNotFoundException {
+    public static int totalDist(Vector<?>[] tours) {
         int meters = 0;
-        for (int i = 0; i < tours.length; i++) {
-            Enumeration<?> e = tours[i].elements();
+        for (Vector<?> tour : tours) {
+            Enumeration<?> e = tour.elements();
             e.nextElement(); // Skip Vertex
             while (e.hasMoreElements()) {
                 EdgeI edge = (EdgeI) e.nextElement();
                 Customer customer1 = (Customer) edge.getToVertex().getValue();
                 Customer customer2 = (Customer) edge.getFromVertex().getValue();
-                meters += customer1.distanceTo(customer2);
+                meters = Double.valueOf(customer1.distanceTo(customer2) + meters).intValue();
                 e.nextElement(); // Skip Vertex
             }
         }

@@ -40,7 +40,6 @@ import java.awt.Image;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileFilter;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Timer;
@@ -69,7 +68,6 @@ import pt.lsts.neptus.util.coord.MapTileUtil;
 public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
     // http://www.viawindowslive.com/Articles/VirtualEarth/CreatingaVEpluginforNASAsWorldWind.aspx
 
-
     private static final long serialVersionUID = 564094012577853170L;
     
     private static boolean useImageFromLowerLevelOfDetailWhileLoading = true;
@@ -93,7 +91,8 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
     private static final Color COLOR_WHITE_TRANS_100 = ColorUtils.setTransparencyToColor(Color.WHITE, 100);
     private static final Color COLOR_GREEN = Color.GREEN;
     
-    public enum TileState { LOADING, RETRYING, LOADED, ERROR, FATAL_ERROR, DISPOSING };
+    public enum TileState { LOADING, RETRYING, LOADED, ERROR, FATAL_ERROR, DISPOSING }
+
     private TileState state = TileState.LOADING;
     protected String lasErrorMessage = "";
     
@@ -116,10 +115,10 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
     private TimerTask timerTask = null;
     
     /**
-     * @param levelOfDetail
-     * @param tileX
-     * @param tileY
-     * @param image
+     * @param levelOfDetail This is the level of detail (LOD) of the tile.
+     * @param tileX This is the x tile of the LOD.
+     * @param tileY This is the y tile of the LOD.
+     * @param image The {@link BufferedImage of this tile}.
      * @throws Exception
      */
     public Tile(Integer levelOfDetail, Integer tileX, Integer tileY, BufferedImage image) throws Exception {
@@ -131,7 +130,7 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
         worldX = pxy[0];
         worldY = pxy[1];
 
-        testForAlfaOnLoaddImage(image);
+        testForAlfaOnLoadImage(image);
         this.image = image;
 
         state = TileState.LOADED;
@@ -323,7 +322,7 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
 //            g2.drawLine(0, 0, 255, 255);
 //            g2.drawLine(255, 0, 0, 255);
             if (state == TileState.LOADING || state == TileState.RETRYING) {
-                g2.setFont(new Font("Arial", 0, 10));
+                g2.setFont(new Font("Arial", Font.PLAIN, 10));
                 g2.drawString(I18n.text(state.toString()), 128, 128);
             }
             g2.dispose();
@@ -339,7 +338,7 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
 
             if (showTileId) {
                 g2.setColor(COLOR_GREEN);
-                g2.setFont(new Font("Arial", 0, 10));
+                g2.setFont(new Font("Arial", Font.PLAIN, 10));
                 g2.drawString(getId(), 128, 128);
             }
         }
@@ -431,7 +430,7 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
                 inFile.delete();
                 throw new Exception("Image not complete to load! Was deleted.");
             }
-            testForAlfaOnLoaddImage(img);
+            testForAlfaOnLoadImage(img);
             image = img;
             imageFromLowerLevelOfDetail = null;
             state = TileState.LOADED;
@@ -450,20 +449,20 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
     }
 
     /**
-     * @param img
+     * @param img The image to test for transparency.
      */
-    protected void testForAlfaOnLoaddImage(BufferedImage img) {
+    protected void testForAlfaOnLoadImage(BufferedImage img) {
         boolean isBaseOrLayer = isBaseOrLayerMap();
-        temporaryTransparencyDetectedOnImageOnDisk = isBaseOrLayer ? GuiUtils.hasAlpha(img) : false;
+        temporaryTransparencyDetectedOnImageOnDisk = isBaseOrLayer && GuiUtils.hasAlpha(img);
     }
 
     /**
-     * @return
+     * @return If is a base map tile or a layer.
      */
     protected boolean isBaseOrLayerMap() {
         try {
             MapTileProvider anotat = this.getClass().getAnnotation(MapTileProvider.class);
-            return anotat == null ? true : anotat.isBaseMapOrLayer();
+            return anotat == null || anotat.isBaseMapOrLayer();
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -471,9 +470,6 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
         }
     }
     
-    /**
-     * 
-     */
     private void scheduleLoadImageFromLowerLevelOfDetail() {
         if (state == TileState.DISPOSING || !useImageFromLowerLevelOfDetailWhileLoading)
             return;
@@ -566,16 +562,16 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
                             py += 0;
                             break;
                         case 1:
-                            px += 256 / Math.pow(2, i) / 2 ;
+                            px = Double.valueOf(px + 256 / Math.pow(2, i) / 2).intValue();
                             py += 0;
                             break;
                         case 2:
                             px += 0;
-                            py += 256 / Math.pow(2, i) / 2 ;
+                            py = Double.valueOf(py + 256 / Math.pow(2, i) / 2).intValue();
                             break;
                         case 3:
-                            px += 256 / Math.pow(2, i) / 2 ;
-                            py += 256 / Math.pow(2, i) / 2 ;
+                            px = Double.valueOf(px + 256 / Math.pow(2, i) / 2).intValue();
+                            py = Double.valueOf(py + 256 / Math.pow(2, i) / 2).intValue();
                             break;
                     }
                 }
@@ -610,78 +606,63 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
      */
     protected static void clearDiskCache(String tileClassId) {
         final String path = TILE_BASE_CACHE_DIR + "/" + tileClassId;
-        Thread t = new Thread() {
-            public void run() {
-                tileCacheDiskClearOrTileSaveLock.writeLock().lock();
-                try {
-                    File base = new File(path);
-                    File[] zList = base.listFiles(new FileFilter() {
-                        @Override
-                        public boolean accept(File pathname) {
-                            return pathname.isDirectory() && (pathname.getName().length() > 0 && pathname.getName().charAt(0) == 'z');
-                        }
-                    });
-                    if (zList == null)
-                        return;
-                    for (File fileZ : zList) {
-                        String zStr = fileZ.getName().replace("z", "");
-                        try {
-                            Integer.parseInt(zStr);
-                            File[] xList = fileZ.listFiles(new FileFilter() {
-                                @Override
-                                public boolean accept(File pathname) {
-                                    return pathname.isDirectory() && (pathname.getName().length() > 0 && pathname.getName().charAt(0) == 'x');
-                                }
-                            });
-                            if (xList == null)
-                                continue;
-                            for (File fileX : xList) {
-                                String xStr = fileX.getName().replace("x", "");
-                                try {
-                                    Integer.parseInt(xStr);
-                                    File[] yList = fileX.listFiles(new FileFilter() {
-                                        @Override
-                                        public boolean accept(File pathname) {
-                                            return pathname.isFile()
-                                                    && TILE_FX_EXTENSION.equalsIgnoreCase(FileUtil
-                                                            .getFileExtension(pathname))
-                                                             && (pathname.getName().length() > 0 && pathname.getName().charAt(0) == 'y');
-                                        }
-                                    });
-                                    if (yList == null)
-                                        continue;
-                                    for (File fileY : yList) {
-                                        String yStr = fileY.getName().replace("y", "").replace("." + TILE_FX_EXTENSION, "");
-                                        try {
-                                            Integer.parseInt(yStr);
-                                            fileY.delete();
-                                        }
-                                        catch (Exception e) {
-                                            e.printStackTrace();
-                                        }
+        Thread t = new Thread(() -> {
+            tileCacheDiskClearOrTileSaveLock.writeLock().lock();
+            try {
+                File base = new File(path);
+                File[] zList = base.listFiles(pathname -> pathname.isDirectory() && (pathname.getName().length() > 0
+                        && pathname.getName().charAt(0) == 'z'));
+                if (zList == null)
+                    return;
+                for (File fileZ : zList) {
+                    String zStr = fileZ.getName().replace("z", "");
+                    try {
+                        Integer.parseInt(zStr);
+                        File[] xList = fileZ.listFiles(pathname -> pathname.isDirectory() && (pathname.getName().length() > 0
+                                && pathname.getName().charAt(0) == 'x'));
+                        if (xList == null)
+                            continue;
+                        for (File fileX : xList) {
+                            String xStr = fileX.getName().replace("x", "");
+                            try {
+                                Integer.parseInt(xStr);
+                                File[] yList = fileX.listFiles(pathname -> pathname.isFile()
+                                        && TILE_FX_EXTENSION.equalsIgnoreCase(FileUtil
+                                                .getFileExtension(pathname))
+                                                 && (pathname.getName().length() > 0 && pathname.getName().charAt(0) == 'y'));
+                                if (yList == null)
+                                    continue;
+                                for (File fileY : yList) {
+                                    String yStr = fileY.getName().replace("y", "").replace("." + TILE_FX_EXTENSION, "");
+                                    try {
+                                        Integer.parseInt(yStr);
+                                        fileY.delete();
                                     }
-                                    fileX.delete();
+                                    catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
                                 }
-                                catch (Exception e) {
-                                    e.printStackTrace();
-                                }
+                                fileX.delete();
                             }
-                            fileZ.delete();
+                            catch (Exception e) {
+                                e.printStackTrace();
+                            }
                         }
-                        catch (Exception e) {
-                            e.printStackTrace();
-                        }
+                        fileZ.delete();
                     }
-                    base.delete();
+                    catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
-                catch (Exception e) {
-                    e.printStackTrace();
-                }
-                finally {
-                    tileCacheDiskClearOrTileSaveLock.writeLock().unlock();
-                }
-            };
-        };
+                base.delete();
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+            finally {
+                tileCacheDiskClearOrTileSaveLock.writeLock().unlock();
+            }
+        });
         t.setDaemon(true);
         t.start();
     }
@@ -694,41 +675,28 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
      */
     protected static <T extends Tile> Vector<T> loadCache(String tileClassId) {
         String path = TILE_BASE_CACHE_DIR + "/" + tileClassId;
-        Vector<T> ret = new Vector<T>();
+        Vector<T> ret = new Vector<>();
         File base = new File(path);
-        File[] zList = base.listFiles(new FileFilter() {
-            @Override
-            public boolean accept(File pathname) {
-                return pathname.isDirectory() && (pathname.getName().length() > 0 && pathname.getName().charAt(0) == 'z');
-            }
-        });
+        File[] zList = base.listFiles(pathname -> pathname.isDirectory() && (pathname.getName().length() > 0
+                && pathname.getName().charAt(0) == 'z'));
         if (zList == null)
             return ret;
         for (File fileZ : zList) {
             String zStr = fileZ.getName().replace("z", "");
             try {
                 int lod = Integer.parseInt(zStr);
-                File[] xList = fileZ.listFiles(new FileFilter() {
-                    @Override
-                    public boolean accept(File pathname) {
-                        return pathname.isDirectory() && (pathname.getName().length() > 0 && pathname.getName().charAt(0) == 'x');
-                    }
-                });
+                File[] xList = fileZ.listFiles(pathname -> pathname.isDirectory() && (pathname.getName().length() > 0
+                        && pathname.getName().charAt(0) == 'x'));
                 if (xList == null)
                     continue;
                 for (File fileX : xList) {
                     String xStr = fileX.getName().replace("x", "");
                     try {
                         int xTile = Integer.parseInt(xStr);
-                        File[] yList = fileX.listFiles(new FileFilter() {
-                            @Override
-                            public boolean accept(File pathname) {
-                                return pathname.isFile()
-                                        && TILE_FX_EXTENSION.equalsIgnoreCase(FileUtil
-                                                .getFileExtension(pathname))
-                                                 && (pathname.getName().length() > 0 && pathname.getName().charAt(0) == 'y');
-                            }
-                        });
+                        File[] yList = fileX.listFiles(pathname -> pathname.isFile()
+                                && TILE_FX_EXTENSION.equalsIgnoreCase(FileUtil
+                                        .getFileExtension(pathname))
+                                         && (pathname.getName().length() > 0 && pathname.getName().charAt(0) == 'y'));
                         if (yList == null)
                             continue;
                         for (File fileY : yList) {

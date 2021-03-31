@@ -105,7 +105,7 @@ public class RealTimePlotGroovy extends ConsolePanel implements ConfigurationLis
     private final ChartPanel chart;
     private List<String> systems = Collections.synchronizedList(new ArrayList<String>());
     private ScheduledThreadPoolExecutor timedExec;
-    private ScheduledFuture scheduleUpdate;
+    private ScheduledFuture<?> scheduleUpdate;
     private final Runnable updateTask;
     private final RealTimePlotScript editSettings;
     public final long PERIODICMIN = 100;

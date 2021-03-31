@@ -290,7 +290,7 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
         btnFilter.setIcon(ImageUtils.createScaleImageIcon(SHOW_ICON, 13, 13));
 
         table.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
-        .put(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.CTRL_MASK), "finder");
+        .put(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.CTRL_DOWN_MASK), "finder");
         table.getActionMap().put("finder", finder);
 
         return panel;
@@ -345,7 +345,7 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
 
     @Override
     public void addLogMarker(LogMarker marker) {
-        Long timestamp = new Double(marker.getTimestamp()).longValue();
+        Long timestamp = Double.valueOf(marker.getTimestamp()).longValue();
         
         long smallestTimestampDiff = Long.MAX_VALUE;
         int iTSMarker = -1;
@@ -465,7 +465,7 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
             };
 
             m_list.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
-            .put(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.CTRL_MASK), "finderDialog");
+            .put(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.CTRL_DOWN_MASK), "finderDialog");
             m_list.getActionMap().put("finderDialog", dlgFinderAction);
 
             getContentPane().add(p, "cell 0 1,alignx left,aligny top");

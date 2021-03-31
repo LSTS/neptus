@@ -72,7 +72,7 @@ public class VehicleSelectionEditor extends AbstractPropertyEditor {
 					//oldVal = (String) combobox.getSelectedItem();
 				}
 				catch (Exception e) {
-					//oldVal = new Double(0);
+					//oldVal = Double.valueOf(0);
 					//textField.setText("0");
 				}
 			}

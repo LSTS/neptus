@@ -60,7 +60,6 @@ import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.api.CorrectedPosition;
-import pt.lsts.neptus.mra.api.SidescanHistogramNormalizer;
 import pt.lsts.neptus.mra.api.SidescanLine;
 import pt.lsts.neptus.mra.api.SidescanParameters;
 import pt.lsts.neptus.mra.api.SidescanParser;

@@ -41,8 +41,6 @@ import java.util.Vector;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.MapTileProvider;
 import pt.lsts.neptus.plugins.NeptusProperty;
-import pt.lsts.neptus.renderer2d.tiles.Tile;
-import pt.lsts.neptus.renderer2d.tiles.TileHttpFetcher;
 
 /**
  * @author pdias

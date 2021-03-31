@@ -36,9 +36,11 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.TimeZone;
 import java.util.Vector;
@@ -69,8 +71,9 @@ public class MVProblemSpecification {
     int secondsAwayFromDepot = 1000;
     private String solutionStr = "";
 
-    private String command_speed = "lpg -o DOMAIN -f INITIAL_STATE -out OUTFILE -speed";
-    private String command_secs = "lpg -o DOMAIN -f INITIAL_STATE -out OUTFILE -n 10 -cputime ";
+    private List<String> commandBase = Arrays.asList("lpg -o DOMAIN -f INITIAL_STATE -out OUTFILE".split(" "));
+    private List<String> commandSpeed = Arrays.asList("-speed");
+    private List<String> commandSecs = Arrays.asList("-n 10 -cputime".split(" "));
 
     private MVDomainModel domainModel = MVDomainModel.V1;
 
@@ -108,15 +111,28 @@ public class MVProblemSpecification {
 
         FileUtil.saveToFile(input_file, asPDDL());
         System.out.println(asPDDL());
-        String cmd = command_secs + secs;
-        if (secs == 0)
-            cmd = command_speed;
+        if (secs == 0) {
+            commandBase.addAll(commandSpeed);
+        }
+        else {
+            commandBase.addAll(commandSecs);
+            commandBase.add(String.format("%d", secs));
+        }
 
-        cmd = cmd.replaceAll("DOMAIN", domainModel.file().getAbsolutePath());
-        cmd = cmd.replaceAll("INITIAL_STATE", "problem_" + timestamp + ".pddl");
-        cmd = cmd.replaceAll("OUTFILE", "solution_" + timestamp + ".SOL");
+        int idx = commandBase.indexOf("DOMAIN");
+        commandBase.remove(idx);
+        commandBase.add(idx, domainModel.file().getAbsolutePath()
+                .replaceAll("/", System.getProperty("file.separator")));
+        idx = commandBase.indexOf("INITIAL_STATE");
+        commandBase.remove(idx);
+        commandBase.add(idx, String.format("problem_%s.pddl", timestamp)
+                .replaceAll("/", System.getProperty("file.separator")));
+        idx = commandBase.indexOf("OUTFILE");
+        commandBase.remove(idx);
+        commandBase.add(idx, (String.format("solution_%s.SOL", timestamp))
+                .replaceAll("/", System.getProperty("file.separator")));
 
-        cmd = cmd.replaceAll("/", System.getProperty("file.separator"));
+        String[] cmd = commandBase.toArray(new String[commandBase.size()]);
         Process p = Runtime.getRuntime().exec(cmd, null, new File("log/pddl"));
         
         Thread monitor = new Thread() {

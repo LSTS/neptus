@@ -106,7 +106,7 @@ public class RowsManeuverPreview implements IManeuverPreview<RowsManeuver> {
     
     @Override
     public Object getState() {
-        return new Integer(locIndex);
+        return Integer.valueOf(locIndex);
     }
     
 }
