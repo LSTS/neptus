@@ -103,7 +103,7 @@ class ButtonTableModel extends AbstractTableModel {
     }
 
     public boolean isCellEditable(int row, int col) {
-        return  col == 1 || col == 2 || col == 3 || col == 4;
+        return  false;
     }
 
     public void setValueAt(Object value, int row, int col) {

@@ -112,7 +112,7 @@ class AxisTableModel extends AbstractTableModel {
     }
 
     public boolean isCellEditable(int row, int col) {
-        return col == 3 || col == 1 || col == 4 || col == 5; // Hard-coded for now
+        return col == 3; // Hard-coded for now
     }
 
     public void setValueAt(Object value, int row, int col) {
