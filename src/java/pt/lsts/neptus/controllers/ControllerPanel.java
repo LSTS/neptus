@@ -171,7 +171,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         }
     });
 
-    //private JToggleButton btnInHold = new JToggleButton("Input Hold");
+    private JToggleButton btnInHold = new JToggleButton("Input Hold");
 
     private int periodicDelay = 100;
 
@@ -221,7 +221,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         currentController = (String) controllerSelectors.get(0).getSelectedItem();
 
         setLayout(new MigLayout("", "[center]", ""));
-        /*btnInHold.addItemListener(new ItemListener() {
+        btnInHold.addItemListener(new ItemListener() {
 
             @Override
             public void itemStateChanged(ItemEvent e) {
@@ -232,7 +232,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                     msgActions.clear(); // clean on hold remote actions
                 }
             }
-        });*/
+        });
 
         // Start the interface
         refreshInterface();
@@ -341,7 +341,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
             footerLeft.add(selector, "w 200::, wrap");
         }
 
-        //footerRight.add(btnInHold, "w 150::, wrap");
+        footerRight.add(btnInHold, "w 150::, wrap");
         footerRight.add(btnReset, "w 150::, wrap");
 
         footer.add(footerLeft);
@@ -458,7 +458,9 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
     }
 
     private boolean connected() {
-        return !console.getSystem(console.getMainSystem()).getVehicleState().equals(STATE.DISCONNECTED);
+        if(console.getMainSystem() != null)
+            return !console.getSystem(console.getMainSystem()).getVehicleState().equals(STATE.DISCONNECTED);
+        return false;
     }
 
     @Subscribe
@@ -481,6 +483,10 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
 
         /*if(!isVisible() || !isShowing() || !isEnabled())
             return true;*/
+        // Use the periodic update to keep asking for RemoteActions list
+        if (connected() && actions == null) {
+            requestRemoteActions();
+        }
 
         if (dialog == null)
             return true;
@@ -539,17 +545,13 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
 
         }
         else {
-            // Use the periodic update to keep asking for RemoteActions list
-            if (connected() && actions == null) {
-                requestRemoteActions();
-            }
 
             if (currentController == null || actions == null || console.getMainSystem() == null) {
                 return true;
             }
             
-            //if(!btnInHold.isSelected())
-            msgActions.clear();
+            if(!btnInHold.isSelected())
+                msgActions.clear();
 
             for (String k : poll.keySet()) {
                 // Find the suitable MapperComponent to get data from
@@ -567,11 +569,18 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
 
                 if (comp != null && poll.get(k) != null) {
                     // update Model list
-                    comp.value = poll.get(k).getPollData()
+                    float updated_value = poll.get(k).getPollData()
                             * (actions.get(comp.action).equals("Axis") ? comp.getRange() * ((comp.inverted ? -1 : 1))
                                     : 1);
-                    if(Math.abs(comp.value) == 0)
-                        comp.value = 0f; //Avoid -0.0 when axis is inverted
+                    if(Math.abs(updated_value) == 0)
+                        updated_value = 0f; //Avoid -0.0 when axis is inverted
+
+                    if(Float.compare(Math.abs(updated_value), Math.abs(comp.value)) >= 0  && btnInHold.isSelected()) { //incremental input hold for both directions
+                        comp.value = updated_value;
+                    }
+                    else if(!btnInHold.isSelected()) {
+                        comp.value = updated_value;
+                    }
 
                     if (actions.get(comp.action).equals("Axis")) {
                         int index = mappedAxis.indexOf(comp);
@@ -589,9 +598,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                         }
                         ((AbstractTableModel) buttonsTable.getModel()).fireTableDataChanged();
                     }
-
-
-                    if (sending() && (Float.compare(Math.abs(comp.value), poll.get(k).getDeadZone()) != 0)) {     
+                    if (sending() && (Float.compare(Math.abs(comp.value), poll.get(k).getDeadZone()) != 0)) {
                         msgActions.put(comp.action, comp.value + "");
                     }
                 }
@@ -800,27 +807,6 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
                 setBackground(Color.white);
             }
 
-            if(column == 2) {
-                if(!sending())
-                    return this;
-                String action = comp.action;
-
-                float updated_value = comp.value;
-                try {
-                    updated_value = msgActions.containsKey(action) ? Float.parseFloat(msgActions.get(action)) : comp.value;
-                }
-                catch (NumberFormatException ignored) {
-
-                };
-                /*if(updated_value != comp.value && (Float.compare(Math.abs(updated_value), comp.deadZone) != 0) && btnInHold.isSelected()) {
-                    if(Math.abs(updated_value) > Math.abs(comp.value)) {
-                        comp.value = updated_value;
-                        ((ButtonTableModel) buttonsModel).setValueAt(updated_value, row, 2);
-                        ((AbstractTableModel) buttonsTable.getModel()).fireTableDataChanged();
-                    }
-                }*/
-            }
-
             if (column == 3) {
                 JButton b; // JToggleButton
                 b = (JButton) buttonsModel.getValueAt(row, column); // Toggle
@@ -851,25 +837,6 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
             }
             else {
                 setBackground(Color.white);
-            }
-
-            if(column == 2) {
-                if(!sending())
-                    return this;
-                String action = comp.action;
-
-                float updated_value = comp.value;
-                try {
-                    updated_value = msgActions.containsKey(action) ? Float.parseFloat(msgActions.get(action)) : comp.value;
-                }
-                catch (NumberFormatException ignored) {
-
-                };
-                /*if(updated_value != comp.value && (Float.compare(Math.abs(updated_value), comp.deadZone) != 0) && btnInHold.isSelected()) {
-                    comp.value = updated_value;
-                    ((AxisTableModel) axisModel).setValueAt(updated_value, row, 2);
-                    ((AbstractTableModel) axisTable.getModel()).fireTableDataChanged();
-                }*/
             }
 
             if (column == 4) {
