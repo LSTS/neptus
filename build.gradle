@@ -414,7 +414,7 @@ project(':core') {
         implementation 'javax.media:jmf:2.1.1e'
         implementation 'org.jogamp.jogl:jogl-all-main:2.0.2'
         implementation 'com.jcraft:jsch:0.1.53' //0.1.55
-        implementation name: 'jtransform_thin' // from NOOA
+        implementation name: 'jtransform_thin' // from NOAA https://www.ngs.noaa.gov/NCAT/
         implementation 'net.sf.jung:jung2:2.0.1'
         implementation 'net.sf.jung:jung-api:2.0.1'
         implementation 'net.sf.jung:jung-algorithms:2.0.1'
