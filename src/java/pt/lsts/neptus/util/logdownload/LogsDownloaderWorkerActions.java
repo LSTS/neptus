@@ -485,12 +485,14 @@ class LogsDownloaderWorkerActions {
                     continue;
                 
                 FtpDownloader ftpServer = null;
+                String hostName = worker.getHostFor(serverKey);
+                int port = worker.getPortFor(serverKey);
                 try {
                     ftpServer = LogsDownloaderWorkerUtil.getOrRenewFtpDownloader(serverKey,
-                            worker.getFtpDownloaders(), worker.getHostFor(serverKey), worker.getPortFor(serverKey));
+                            worker.getFtpDownloaders(), hostName, port);
                 }
                 catch (Exception e) {
-                    e.printStackTrace();
+                    NeptusLog.pub().warn(String.format("Problems connecting to '%s:%d': %s", hostName, port, e.getMessage()));
                 }
                 if (ftpServer == null)
                     continue;
