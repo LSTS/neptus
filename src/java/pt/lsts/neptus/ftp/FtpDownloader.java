@@ -135,16 +135,18 @@ public class FtpDownloader {
      * @param host the host to set
      */
     public void setHostAndPort(String host, int port) {
-        if (!this.host.equals(host) || this.port != port) {
+        boolean renew = !this.host.equals(host) || this.port != port;
+        this.host = host;
+        this.port = port;
+        if (renew) {
             try {
                 renewClient();
             }
             catch (Exception e) {
-                e.printStackTrace();
+                NeptusLog.pub().warn(String.format("Error trying renewing FTP connection to %s:%d with error %s",
+                        host, port, e.getMessage()));
             }
         }
-        this.host = host;
-        this.port = port;
     }
     
 //    public void downloadDirectory(String path, String destPath) throws Exception {
@@ -223,7 +225,7 @@ public class FtpDownloader {
                 renewClient();
             }
             catch (Exception e) {
-                e.printStackTrace();
+                NeptusLog.pub().warn(e);
             }
         }
 
