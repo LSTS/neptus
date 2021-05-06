@@ -144,6 +144,10 @@ public class GeneralPreferences implements PropertiesProvider {
             description = "")
     public static boolean logsDownloaderWaitForAllToStop = true;
 
+    @NeptusProperty(name = "Logs Downloader - Ignore active log", category = "IMC Logs Downloader", userLevel = LEVEL.ADVANCED,
+            description = "Use it carefully knowing that it may corrupt the last log because are files being written.")
+    public static boolean logsDownloaderIgnoreActiveLog = true;
+
     // -------------------------------------------------------------------------
 
     @NeptusProperty(name = "Heartbeat Time Period (ms)", category = "IMC Communications", userLevel = LEVEL.ADVANCED)

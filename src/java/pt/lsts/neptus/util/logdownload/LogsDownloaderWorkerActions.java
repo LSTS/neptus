@@ -65,6 +65,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.ftp.FtpDownloader;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**
  * @author pdias
@@ -90,7 +91,6 @@ class LogsDownloaderWorkerActions {
 
     boolean stopLogListProcessing = false;
     boolean resetting = false;
-    boolean showActiveLog = false;
 
     /**
      * This will initialize the actions and set them up on the GUI
@@ -204,7 +204,7 @@ class LogsDownloaderWorkerActions {
                         long timeS1 = System.currentTimeMillis();
                         
                         // Added in order not to show the active log (the last one)
-                        orderAndFilterOutTheActiveLog(retList, !showActiveLog);
+                        orderAndFilterOutTheActiveLog(retList, GeneralPreferences.logsDownloaderIgnoreActiveLog);
                         showInGuiNumberOfLogsFromServers(retList);
                         if (retList.size() == 0) // Abort the rest of processing
                             return null;
@@ -409,10 +409,12 @@ class LogsDownloaderWorkerActions {
             String[] ordList = retList.values().toArray(new String[retList.size()]);
             Arrays.sort(ordList);
             String activeLogName = ordList[ordList.length - 1];
-            for (FTPFile fFile : retList.keySet().toArray(new FTPFile[retList.size()])) {
-                if (filterOutActiveLog && retList.get(fFile).equals(activeLogName)) {
-                    retList.remove(fFile);
-                    break;
+            if (filterOutActiveLog) {
+                for (FTPFile fFile : retList.keySet().toArray(new FTPFile[retList.size()])) {
+                    if (filterOutActiveLog && retList.get(fFile).equals(activeLogName)) {
+                        retList.remove(fFile);
+                        break;
+                    }
                 }
             }
         }
