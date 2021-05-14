@@ -127,6 +127,21 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
     @NeptusProperty(name = "ASV loiter radius", category = "ASV", userLevel = LEVEL.REGULAR)
     public double asvLoiterRadius = 30;
 
+    @NeptusProperty(name = "ROV travelling depth", category = "ROV", description = "Use 0 for going at surface", userLevel = LEVEL.REGULAR)
+    public double rovDepth = 0;
+
+    @NeptusProperty(name = "ROV travelling speed", category = "ROV", userLevel = LEVEL.REGULAR)
+    public SpeedType rovSpeed = new SpeedType(1000, Units.RPM);
+
+    @NeptusProperty(name = "ROV loiter depth", category = "ROV", userLevel = LEVEL.REGULAR)
+    public double rovLtDepth = 3;
+
+    @NeptusProperty(name = "ROV loiter duration in seconds", category = "ROV", userLevel = LEVEL.REGULAR)
+    public int rovLtDuration = 300;
+
+    @NeptusProperty(name = "ROV Station Keeping radius", category = "ROV", userLevel = LEVEL.REGULAR)
+    public double rovSkRadius = 2;
+
     private final HashMap<String, ImageIcon> vehIconPool = new HashMap<String, ImageIcon>();
 
     private final LinkedHashMap<Integer, Long> registerRequestIdsTime = new LinkedHashMap<Integer, Long>();
@@ -238,6 +253,12 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
                     settings += uavZUnits.name().substring(0, 1)+"="+nf.format(uavZ) ;
                     settings += " S="+uavSpeed.toStringAsDefaultUnits()+")";     
                     break;
+                case "rov":
+                    loiterSettings += "D="+nf.format(rovLtDepth);
+                    loiterSettings += " / S="+rovSpeed.toStringAsDefaultUnits()+")";
+                    settings += "D="+nf.format(rovDepth);
+                    settings += " / S="+rovSpeed.toStringAsDefaultUnits()+")";
+                    break;
                 default:
                     break;
             }
@@ -271,6 +292,12 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
                                     zunits = ManeuverLocation.Z_UNITS.DEPTH;
                                     creator.setSpeed(asvSpeed);
                                     creator.setZ(z, zunits);
+                                }
+                                else if ("rov".equalsIgnoreCase(v.getType())) {
+                                    z = rovDepth;
+                                    zunits = ManeuverLocation.Z_UNITS.DEPTH;
+                                    creator.setZ(z, zunits);
+                                    creator.setSpeed(rovSpeed);
                                 }
                                 else {
                                     NeptusLog.pub().error("error sending goto ");
@@ -308,6 +335,10 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
                                 else if ("asv".equalsIgnoreCase(v.getType()) || "usv".equalsIgnoreCase(v.getType())) {
                                     radius = asvSkRadius;
                                     creator.setSpeed(asvSpeed);
+                                }
+                                else if ("rov".equalsIgnoreCase(v.getType())) {
+                                    radius = rovSkRadius;
+                                    creator.setSpeed(rovSpeed);
                                 }
                                 else {
                                     return;
@@ -360,6 +391,13 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
                                     radius = uavLoiterRadius;
                                     z = uavZ;
                                     zunits = uavZUnits;
+                                }
+                                else if ("rov".equalsIgnoreCase(v.getType())) {
+                                    creator.setSpeed(rovSpeed);
+                                    radius = rovSkRadius;
+                                    z = rovLtDepth;
+                                    duration = rovLtDuration;
+                                    zunits = Z_UNITS.DEPTH;
                                 }
                                 else {
                                     return;
