@@ -158,7 +158,6 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
         for (IMapPopup str2d : r) {
             str2d.addMenuExtension(this);
         }
-
     }
 
     @Override
@@ -280,7 +279,8 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
                                     z = auvDepth;
                                     zunits = ManeuverLocation.Z_UNITS.DEPTH;
                                     creator.setZ(z, zunits);
-                                    creator.setSpeed(auvSpeed);                                }
+                                    creator.setSpeed(auvSpeed);
+                                }
                                 else if ("uav".equalsIgnoreCase(v.getType())) {
                                     z = uavZ;
                                     zunits = uavZUnits;
@@ -324,7 +324,6 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
                         new Thread() {
                             @Override
                             public void run() {
-
                                 PlanCreator creator = new PlanCreator(getConsole().getMission());
                                 double radius = 10;
                                 int duration = 0;
@@ -403,14 +402,14 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
                                     return;
                                 }
 
-                                    creator.setLocation(target);
-                                    creator.setZ(z, zunits);
-                                    creator.addManeuver("Loiter", "loiterDuration", duration, "radius", radius);
-                                    PlanType plan = creator.getPlan();
-                                    plan.setVehicle(v);
-                                    plan.setId("cmd-"+v);
-                                    plan = addPlanToMission(plan);
-                                    startPlan(plan, false, (arg0.getModifiers() & ActionEvent.CTRL_MASK) != 0);
+                                creator.setLocation(target);
+                                creator.setZ(z, zunits);
+                                creator.addManeuver("Loiter", "loiterDuration", duration, "radius", radius);
+                                PlanType plan = creator.getPlan();
+                                plan.setVehicle(v);
+                                plan.setId("cmd-"+v);
+                                plan = addPlanToMission(plan);
+                                startPlan(plan, false, (arg0.getModifiers() & ActionEvent.CTRL_MASK) != 0);
                                 }
                             }.start();
                         }
@@ -418,17 +417,16 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
                     ok = true;
                 }
 
-	        if (ok) {
-	            menu.addSeparator();
-	            menu.add(new AbstractAction(I18n.text("Change settings")) {
-	                
-  	                @Override
-	                public void actionPerformed(ActionEvent e) {
-	                    PluginUtils.editPluginProperties(CommandPlanner.this, getConsole(), true);
-	                }
-	            });
-	            items.add(menu);
-	        }
+                if (ok) {
+                    menu.addSeparator();
+                    menu.add(new AbstractAction(I18n.text("Change settings")) {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            PluginUtils.editPluginProperties(CommandPlanner.this, getConsole(), true);
+                        }
+                    });
+                    items.add(menu);
+                }
             }
             catch (Exception e) {
                 e.printStackTrace();
@@ -450,7 +448,6 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
     }
 
     protected void startPlan(PlanType plan, boolean calibrate, boolean ignoreErrors) {
-
         PlanControl startPlan = new PlanControl();
         startPlan.setType(TYPE.REQUEST);
         startPlan.setOp(OP.START);
