@@ -292,10 +292,14 @@ class ScriptedPlotGroovy  {
         TimeSeries ts = scriptedPlot.getTimeSeriesFor(id).getSeries()[0];
         def newName = ts.getKey().toString()+".cropped"
         Millisecond start = new Millisecond(new Date(from), TimeZone.getTimeZone("UTC"), Locale.getDefault())
-        Millisecond end   = new Millisecond(new Date( to==0? ts.getNextTimePeriod().getLastMillisecond(): to ), TimeZone.getTimeZone("UTC"), Locale.getDefault())
+        def endt = to==0? ts.getTimePeriods().last(): to
+        println "Timeseries upper limit: "+endt+" "+ts.getTimePeriods().last()
+        println "Timeseries limits: "+ts.getTimePeriods().first()+" "+ts.getTimePeriods().last()
+        Millisecond end   = new Millisecond(new Date(endt), TimeZone.getTimeZone("UTC"), Locale.getDefault())
         TimeSeriesCollection result = new TimeSeriesCollection()
         TimeSeries newTs = new TimeSeries(newName)
         newTs.addAndOrUpdate(ts.createCopy(start,end))
+        println "Created Timeseries with "+newTs.getItemCount()+" items"
         result.addSeries(newTs)
         result
 
