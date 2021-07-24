@@ -41,6 +41,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLConnection;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -75,6 +76,7 @@ public class HubIridiumMessenger implements IridiumMessenger {
 
     protected boolean available = true;
     protected String serverUrl = GeneralPreferences.ripplesUrl + "/api/v1/";
+    private final String authKey = GeneralPreferences.ripplesApiKey;
     // protected String serverUrl = "http://lsts-hub/api/v1/";
     protected String systemsUrl = serverUrl+"systems";
     protected String activeSystemsUrl = systemsUrl+"/active";
@@ -94,8 +96,13 @@ public class HubIridiumMessenger implements IridiumMessenger {
     
     public DeviceUpdate pollActiveDevices() throws Exception {
         Gson gson = new Gson();
-        URL url = new URL(activeSystemsUrl);        
-        HubSystemMsg[] sys = gson.fromJson(new InputStreamReader(url.openStream()), HubSystemMsg[].class);
+        URL url = new URL(activeSystemsUrl);
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        if (authKey != null && !authKey.isEmpty()) {
+            con.setRequestProperty ("Authorization", authKey);
+        }
+
+        HubSystemMsg[] sys = gson.fromJson(new InputStreamReader(con.getInputStream()), HubSystemMsg[].class);
         
         DeviceUpdate up = new DeviceUpdate();
         for (HubSystemMsg s : sys) {
@@ -173,6 +180,9 @@ public class HubIridiumMessenger implements IridiumMessenger {
         conn.setRequestProperty( "Content-Type", "application/hub" );
         conn.setRequestProperty( "Content-Length", String.valueOf(data.length * 2) );
         conn.setConnectTimeout(timeoutMillis);
+        if (authKey != null && !authKey.isEmpty()) {
+            conn.setRequestProperty ("Authorization", authKey);
+        }
         
         OutputStream os = conn.getOutputStream();
         os.write(data);
@@ -234,6 +244,9 @@ public class HubIridiumMessenger implements IridiumMessenger {
         conn.setDoOutput(true);
         conn.setRequestMethod( "GET" );
         conn.setConnectTimeout(timeoutMillis);
+        if (authKey != null && !authKey.isEmpty()) {
+            conn.setRequestProperty ("Authorization", authKey);
+        }
         Gson gson = new Gson();  
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         IOUtils.copy(conn.getInputStream(), baos);
@@ -311,8 +324,12 @@ public class HubIridiumMessenger implements IridiumMessenger {
     
     public HubSystemMsg[] retrieveSystems() throws Exception {
         Gson gson = new Gson();
-        URL url = new URL(systemsUrl);        
-        return gson.fromJson(new InputStreamReader(url.openStream()), HubSystemMsg[].class);        
+        URL url = new URL(systemsUrl);
+        URLConnection con = url.openConnection();
+        if (authKey != null && !authKey.isEmpty()) {
+            con.setRequestProperty ("Authorization", authKey);
+        }
+        return gson.fromJson(new InputStreamReader(con.getInputStream()), HubSystemMsg[].class);
     }
       
     
