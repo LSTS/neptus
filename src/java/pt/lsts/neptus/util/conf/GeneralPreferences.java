@@ -287,10 +287,12 @@ public class GeneralPreferences implements PropertiesProvider {
 
     // -------------------------------------------------------------------------
     
-    @NeptusProperty(name = "Ripples URL", category="Iridium Communications", userLevel = LEVEL.REGULAR,
+    @NeptusProperty(name = "Ripples URL", category="Ripples", userLevel = LEVEL.REGULAR,
         description = "URL of the ripples web server")
     public static String ripplesUrl = "https://ripples.lsts.pt";
-    
+    @NeptusProperty(name = "Ripples API Access Token", category="Ripples", userLevel = LEVEL.REGULAR,
+            description = "The API access token to talked with Ripples")
+    public static String ripplesApiKey = "";
 
     // -------------------------------------------------------------------------
     // Constructor and initialize
