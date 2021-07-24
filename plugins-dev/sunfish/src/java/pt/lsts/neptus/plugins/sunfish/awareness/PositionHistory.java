@@ -35,6 +35,7 @@ package pt.lsts.neptus.plugins.sunfish.awareness;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -54,6 +55,8 @@ import pt.lsts.neptus.util.conf.GeneralPreferences;
 public class PositionHistory {
 
     private static final String positions_url = GeneralPreferences.ripplesUrl + "/api/v1/csvTag/";
+    private static final String authKey = GeneralPreferences.ripplesApiKey;
+
     private static DateFormat fmt2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     
     public static void downloadCsv(String day, boolean force) throws Exception {
@@ -63,7 +66,12 @@ public class PositionHistory {
             return;
         }
         NeptusLog.pub().info("Downloading positions for day "+day+"...");
-        URL urlData = new URL(positions_url+day);        
+        URL urlData = new URL(positions_url+day);
+        HttpURLConnection conn = (HttpURLConnection) urlData.openConnection();
+        if (authKey != null && !authKey.isEmpty()) {
+            conn.setRequestProperty ("Authorization", authKey);
+        }
+        // Test if ok
         FileUtils.copyURLToFile(urlData, tmp);  
     }
     
@@ -131,5 +139,4 @@ public class PositionHistory {
     public static void main(String args[]) throws Exception {
         System.out.println(PositionHistory.getHistory().size());
     }
-    
 }
