@@ -127,8 +127,10 @@ public class GeneralPreferences implements PropertiesProvider {
     public static boolean imcUnicastAnnounceEnable = true;
 
     @NeptusProperty(name = "Reachability Test Timeout", units = "ms", category = "IMC Communications", userLevel = LEVEL.ADVANCED, 
-            description = "Timeout to test reachability of IPs (in ms)")
-    public static int imcReachabilityTestTimeout = 3000;
+            description = "Timeout to test reachability of IPs (in ms). " +
+                    "IMPORTANT: Try keeping in the order of tens or 1 or 2 hundreds of ms." +
+                    " A value too high will create inbound messages delay.")
+    public static int imcReachabilityTestTimeout = 50;
 
     // -------------------------------------------------------------------------
 
