@@ -32,10 +32,21 @@
  */
 package pt.lsts.neptus.endurance;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.GradientPaint;
+import java.awt.Graphics2D;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
 import java.util.Date;
 
 import pt.lsts.imc.Maneuver;
 import pt.lsts.neptus.types.coord.LocationType;
+
+import pt.lsts.neptus.renderer2d.Renderer2DPainter;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.util.DateTimeUtil;
 
 public class Waypoint implements Comparable<Waypoint> {
 
@@ -120,6 +131,35 @@ public class Waypoint implements Comparable<Waypoint> {
     private Date nextSchedule() {
         return arrivalTime;
     }
+
+    public void paint(Graphics2D g, Waypoint wpt, Point2D pt2d, Color color, int radius, boolean smallLabel) {
+        if (wpt.getArrivalTime() != null && wpt.getArrivalTime().before(new Date())) {
+            paintCircle(pt2d, color, 8, g);
+            g.setColor(Color.black);
+            String minsToEta = smallLabel ? DateTimeUtil.timeFormatterNoSegs.format(wpt.getArrivalTime()) : "ETA: -" + DateTimeUtil
+                    .milliSecondsToFormatedString(-wpt.getArrivalTime().getTime() + System.currentTimeMillis());
+            g.drawString(minsToEta, (int) pt2d.getX() + 6, (int) pt2d.getY() - 3);
+        }
+        else {
+            String minsToEta = "ETA: ?";
+            if (wpt.getArrivalTime() != null)
+                minsToEta =  smallLabel ? DateTimeUtil.timeFormatterNoSegs.format(wpt.getArrivalTime()) : "ETA: " + DateTimeUtil
+                        .milliSecondsToFormatedString(wpt.getArrivalTime().getTime() - System.currentTimeMillis());
+            paintCircle(pt2d, Color.green.darker(), radius, g);
+            g.setColor(Color.black);
+            g.drawString(minsToEta, (int) pt2d.getX() + 6, (int) pt2d.getY() - 3);
+        }
+    }
+
+    private void paintCircle(Point2D pt2d, Color color, int radius, Graphics2D g) {
+        g.setPaint(new GradientPaint((float) pt2d.getX() - radius, (float) pt2d.getY(), color,
+                (float) pt2d.getX() + radius, (float) pt2d.getY()+radius, color.darker().darker().darker()));
+        g.fill(new Ellipse2D.Double(pt2d.getX() - radius, pt2d.getY() - radius, radius*2, radius*2));
+        g.setStroke(new BasicStroke(0.5f));
+        g.setColor(Color.black);
+        g.draw(new Ellipse2D.Double(pt2d.getX() - radius, pt2d.getY() - radius, radius*2, radius*2));
+    }
+    
 
     @SuppressWarnings("deprecation")
     public static void main(String[] args) {
