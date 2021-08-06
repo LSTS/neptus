@@ -37,15 +37,12 @@ import java.awt.Color;
 import java.awt.GradientPaint;
 import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
-import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.Date;
 
 import pt.lsts.imc.Maneuver;
 import pt.lsts.neptus.types.coord.LocationType;
 
-import pt.lsts.neptus.renderer2d.Renderer2DPainter;
-import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.util.DateTimeUtil;
 
 public class Waypoint implements Comparable<Waypoint> {
