@@ -49,8 +49,13 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
 
-
+import pt.lsts.imc.Goto;
+import pt.lsts.imc.PlanManeuver;
+import pt.lsts.imc.PlanSpecification;
+import pt.lsts.imc.PlanTransition;
+import pt.lsts.imc.def.SpeedUnits;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.NeptusMenuItem;
@@ -58,8 +63,8 @@ import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
-
 import  pt.lsts.neptus.endurance.Waypoint;
 
 @PluginDescription(description = "Adds trajectories and their calculated duration from JSON to the map console",name = "Optimized Trajectories")
@@ -67,32 +72,49 @@ public class TrajectoryLayer extends ConsoleLayer {
 
     @NeptusProperty(description = "Path to JSON file with optimized trajectories info", name = "JSON Source")
     public String source  = "conf/trajectories/trajectory_raveiro.json"; //TODO receive from Ripples
+    // JSON example in https://drive.google.com/file/d/1ZhYdk7CuoHPo83OfZyk8fFF3oPCTM48t/view?usp=sharing
 
-    @NeptusProperty(description = "Color Map Max Limit", name = "max limit", units = "m/s")
-    public float max = 1.5f;
-
-    @NeptusProperty(description = "Color Map Min Limit", name = "min limit", units = "m/s")
-    public float min = 0.1f;
-
-    @NeptusProperty(description = "Generate timed plan from trajectory", name = "timed plan")
-    public boolean timed = false;
-
-    
+    @NeptusProperty(description = "Generated plan speed", name = "Speed", units = "m/s")
+    public float speed = 1.0f;
 
     protected double totalTime = 0.0;
 
     protected List<Trajectory> trajectories = Collections.synchronizedList(new ArrayList<Trajectory>());
 
 
-    @NeptusMenuItem("Tools>RaMP>Generate Plans")
+    @NeptusMenuItem("Tools>Trajectories>Generate Plans")
     public void generatePlan() {
-        //TODO
-        if(timed){ //Timed GO-TO's
-
-        }
-        else{ //Regular Go-To's
-
-        }
+        int index = 0;
+        for(Trajectory traj: trajectories){
+            PlanSpecification ps = new PlanSpecification();
+            List<PlanManeuver> data = new ArrayList<PlanManeuver>();
+            List<PlanTransition> transitions = new ArrayList<PlanTransition>();
+            ps.setPlanId("trajectory_" + index);
+            for(Waypoint wp: traj.waypoints){
+                Goto go = new Goto();
+                go.setLat(Math.toRadians(wp.getLatitude()));
+                go.setLon(Math.toRadians(wp.getLongitude()));
+                go.setSpeedUnits(SpeedUnits.METERS_PS);
+                go.setSpeed(speed);
+                PlanManeuver pm = new PlanManeuver();
+                PlanTransition pt = new PlanTransition();
+                pm.setData(go);
+                pm.setManeuverId("wp_"+ data.size());
+                if(!data.isEmpty()){
+                    pt.setSourceMan(data.get(data.size()-1).getManeuverId());
+                    pt.setDestMan(pm.getManeuverId());
+                }
+                data.add(pm);
+                transitions.add(pt);
+                
+            }
+            ps.setManeuvers(data);
+            ps.setTransitions(transitions);
+            PlanType plan = IMCUtils.parsePlanSpecification(this.getConsole().getMission(),ps);
+            this.getConsole().getMission().addPlan(plan); 
+            this.getConsole().getMission().save(true);
+            index++;
+        }       
     }
 
     @Override
