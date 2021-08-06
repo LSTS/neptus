@@ -50,6 +50,7 @@ import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
 
 import pt.lsts.imc.Goto;
+import pt.lsts.imc.def.ZUnits;
 import pt.lsts.imc.PlanManeuver;
 import pt.lsts.imc.PlanSpecification;
 import pt.lsts.imc.PlanTransition;
@@ -77,6 +78,9 @@ public class TrajectoryLayer extends ConsoleLayer {
     @NeptusProperty(description = "Generated plan speed", name = "Speed", units = "m/s")
     public float speed = 1.0f;
 
+    @NeptusProperty(description = "Generated plan depth or altitude if signal is inverted", name = "Depth", units = "m")
+    public float depth = 0.0f;
+
     protected double totalTime = 0.0;
 
     protected List<Trajectory> trajectories = Collections.synchronizedList(new ArrayList<Trajectory>());
@@ -96,23 +100,35 @@ public class TrajectoryLayer extends ConsoleLayer {
                 go.setLon(Math.toRadians(wp.getLongitude()));
                 go.setSpeedUnits(SpeedUnits.METERS_PS);
                 go.setSpeed(speed);
+                if(depth >= 0.0)
+                    go.setZUnits(ZUnits.DEPTH);
+                else
+                    go.setZUnits(ZUnits.ALTITUDE);
+                go.setZ(Math.abs(depth));
                 PlanManeuver pm = new PlanManeuver();
-                PlanTransition pt = new PlanTransition();
-                pm.setData(go);
                 pm.setManeuverId("wp_"+ data.size());
+                pm.setData(go);
                 if(!data.isEmpty()){
+                    PlanTransition pt = new PlanTransition();
+                    pt.setConditions("ManeuverIsDone"); 
                     pt.setSourceMan(data.get(data.size()-1).getManeuverId());
                     pt.setDestMan(pm.getManeuverId());
+                    transitions.add(pt);
+                }
+                else{
+                    ps.setStartManId(pm.getManeuverId());
                 }
                 data.add(pm);
-                transitions.add(pt);
+                
                 
             }
             ps.setManeuvers(data);
             ps.setTransitions(transitions);
             PlanType plan = IMCUtils.parsePlanSpecification(this.getConsole().getMission(),ps);
-            this.getConsole().getMission().addPlan(plan); 
-            this.getConsole().getMission().save(true);
+            plan.setVehicle(getConsole().getMainSystem());
+            this.getConsole().getMission().addPlan(plan);
+            this.getConsole().warnMissionListeners(); 
+            this.getConsole().getMission().save(false);
             index++;
         }       
     }
@@ -194,8 +210,17 @@ public class TrajectoryLayer extends ConsoleLayer {
             lon = data.get(2).asFloat();
             Waypoint wp = new Waypoint(waypoints.size(), lat,lon);
             wp.setArrivalTime(new Date(1000 * arrival));
-            //wp.setDuration();
-            waypoints.add(wp);
+            // verify is the same coordinate that previous WP - avoid duplicated
+            if(!waypoints.isEmpty()){
+                Waypoint waypoint = waypoints.get(waypoints.size()-1);
+                if(waypoint.compareTo(wp) == 0 && waypoint.getLatitude() == lat && waypoint.getLongitude() == lon)
+                    return;
+                else
+                    waypoints.add(wp); 
+
+            }
+            else
+                waypoints.add(wp); 
         }
 
     }
