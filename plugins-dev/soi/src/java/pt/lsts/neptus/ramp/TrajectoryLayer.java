@@ -35,6 +35,7 @@ package pt.lsts.neptus.ramp;
 
 import java.io.File;
 import java.io.FileReader;
+import java.nio.file.FileSystems;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -72,7 +73,7 @@ import  pt.lsts.neptus.endurance.Waypoint;
 public class TrajectoryLayer extends ConsoleLayer {
 
     @NeptusProperty(description = "Path to JSON file with optimized trajectories info", name = "JSON Source")
-    public String source  = "conf/trajectories/trajectory_raveiro.json"; //TODO receive from Ripples
+    public String source  = "conf/trajectories/trajectory_raveiro1.json"; //TODO receive from Ripples
     // JSON example in https://drive.google.com/file/d/1ZhYdk7CuoHPo83OfZyk8fFF3oPCTM48t/view?usp=sharing
 
     @NeptusProperty(description = "Generated plan speed", name = "Speed", units = "m/s")
@@ -81,9 +82,21 @@ public class TrajectoryLayer extends ConsoleLayer {
     @NeptusProperty(description = "Generated plan depth or altitude if signal is inverted", name = "Depth", units = "m")
     public float depth = 0.0f;
 
-    protected double totalTime = 0.0;
+    private double totalTime;
 
-    protected List<Trajectory> trajectories = Collections.synchronizedList(new ArrayList<Trajectory>());
+    protected List<Trajectory> trajectories;
+
+    private File input;
+
+    public TrajectoryLayer(){
+        init();
+    }
+
+    public void init(){
+        input  = new File (source);
+        trajectories = Collections.synchronizedList(new ArrayList<Trajectory>());
+        totalTime = 0.0;
+    }
 
 
     @NeptusMenuItem("Tools>Trajectories>Generate Plans")
@@ -141,7 +154,6 @@ public class TrajectoryLayer extends ConsoleLayer {
 
     @Override
     public  void initLayer(){
-        File input = new File(source);
         if(input.exists() && input.isFile()){
             try{
                 JsonObject json = Json.parse(new FileReader(input)).asObject();
@@ -167,6 +179,13 @@ public class TrajectoryLayer extends ConsoleLayer {
 
     @Override
     public void paint(Graphics2D g0, StateRenderer2D renderer){
+        String[] path = source.split(FileSystems.getDefault().getSeparator());
+        if(input != null)
+            if(!path[path.length-1].equals(input.getName())){
+                trajectories.clear();
+                init();
+                initLayer();
+            }
         Color c = VehiclesHolder.getVehicleById(super.getConsole().getMainSystem()).getIconColor();
         if(!trajectories.isEmpty()){
             synchronized(trajectories){
