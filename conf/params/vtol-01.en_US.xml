@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2019.02.1 (master,65b8ee0a9)" system="vtol-01" i18n="en_US">
+<config format="1" version="2020.01.0 (master,f4a0a4714)" system="vtol-01" i18n="en_US">
   <section name="Autopilot" name-i18n="Autopilot">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -172,7 +172,7 @@
       <type>boolean</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>false</default>
+      <default>true</default>
       <units/>
       <desc>Produce GCS heartbeat (for debugging purposes).</desc>
     </param>
@@ -202,6 +202,15 @@
       <default>60</default>
       <units/>
       <desc>Period of home position update (if moving home enabled), in seconds</desc>
+    </param>
+    <param name="Send Full Plan to Autopilot">
+      <name-i18n>Send Full Plan to Autopilot</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>If true the full plan will be sent to the autopilot, instead of only the next waypoint.</desc>
     </param>
   </section>
   <section name="Communications Relay Maneuver" name-i18n="Communications Relay Maneuver">
@@ -2494,7 +2503,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Abort, Acceleration, AcousticLink, AcousticOperation, AngularVelocity, Announce, ApmStatus, ArmingState, AutopilotMode, ControlLoops, CommSystemsQuery, CpuUsage, Current, Depth, DesiredHeading, DesiredPath, DesiredRoll, DesiredSpeed, DesiredVerticalRate, DesiredZ, DevCalibrationControl, DevDataText, DmsDetection, EulerAngles, EntityList, EntityState, EstimatedState, EstimatedStreamVelocity, FollowReference, FollowRefState, FuelLevel, GpsFix, IndicatedSpeed, LeaderState, LinkLevel, LogBookEntry, MagneticField, ManeuverControlState, PathControlState, PlanControl, PlanSpecification, PlanControlState, PlanDB, PowerChannelControl, Pressure, Reference, ReportControl, Rpm, RSSI, ServoPosition, SetControlSurfaceDeflection, SetServoPosition, SetThrusterActuation, SimulatedState, SoundSpeed, StopManeuver, StorageUsage, TelemetryMsg, Temperature, TextMessage, Throttle, TrueSpeed, TrexObservation, TrexPlan, TrexToken, TrueSpeed, UamRxFrame, UamTxFrame, UamTxStatus, UamRxRange, UsblAnglesExtended, UsblPositionExtended, UsblFixExtended, UsblModem, UsblConfig, VehicleCommand, VehicleMedium, VehicleState, Voltage, VtolState</default>
+      <default>Abort, Acceleration, AcousticLink, AcousticOperation, AngularVelocity, Announce, ApmStatus, ArmingState, AutopilotMode, ControlLoops, CommSystemsQuery, CpuUsage, Current, Depth, DesiredHeading, DesiredPath, DesiredRoll, DesiredSpeed, DesiredVerticalRate, DesiredZ, DevCalibrationControl, DevDataText, DmsDetection, EulerAngles, EntityList, EntityState, EstimatedState, EstimatedStreamVelocity, FollowReference, FollowRefState, FuelLevel, GpsFix, IndicatedSpeed, LeaderState, LinkLevel, LogBookEntry, MagneticField, ManeuverControlState, PathControlState, PlanControl, PlanSpecification, PlanControlState, PlanDB, PowerChannelControl, Pressure, Reference, ReportControl, Rpm, RSSI, ServoPosition, SetControlSurfaceDeflection, SetServoPosition, SetThrusterActuation, SimulatedState, SoundSpeed, StopManeuver, StorageUsage, TelemetryMsg, Temperature, TextMessage, Throttle, TransmissionRequest, TransmissionStatus, TransportBindings, TrueSpeed, TrexObservation, TrexPlan, TrexToken, TrueSpeed, UamRxFrame, UamTxFrame, UamTxStatus, UamRxRange, UsblAnglesExtended, UsblPositionExtended, UsblFixExtended, UsblModem, UsblConfig, VehicleCommand, VehicleMedium, VehicleState, Voltage, VtolState</default>
       <units/>
       <desc/>
     </param>

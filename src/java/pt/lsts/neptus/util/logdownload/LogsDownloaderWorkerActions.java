@@ -35,6 +35,8 @@ package pt.lsts.neptus.util.logdownload;
 import java.awt.Dialog.ModalityType;
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,6 +44,8 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import javax.swing.AbstractAction;
 import javax.swing.JDialog;
@@ -61,6 +65,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.ftp.FtpDownloader;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**
  * @author pdias
@@ -86,7 +91,6 @@ class LogsDownloaderWorkerActions {
 
     boolean stopLogListProcessing = false;
     boolean resetting = false;
-    boolean showActiveLog = false;
 
     /**
      * This will initialize the actions and set them up on the GUI
@@ -200,7 +204,7 @@ class LogsDownloaderWorkerActions {
                         long timeS1 = System.currentTimeMillis();
                         
                         // Added in order not to show the active log (the last one)
-                        orderAndFilterOutTheActiveLog(retList, !showActiveLog);
+                        orderAndFilterOutTheActiveLog(retList, GeneralPreferences.logsDownloaderIgnoreActiveLog);
                         showInGuiNumberOfLogsFromServers(retList);
                         if (retList.size() == 0) // Abort the rest of processing
                             return null;
@@ -310,13 +314,25 @@ class LogsDownloaderWorkerActions {
     private void getFromServersBaseLogList(LinkedHashMap<FTPFile, String> baselogFolderList,
             LinkedHashMap<String, String> serversLogPresenceList) {
         long timeD1 = System.currentTimeMillis();
-        for (String serverKey : worker.getServersList()) {
-            long timeD2 = System.currentTimeMillis();
-            LinkedHashMap<FTPFile, String> ret = getBaseLogListFrom(serverKey);
-            fillServerPresenceList(serverKey, ret, baselogFolderList, serversLogPresenceList);
-            NeptusLog.pub().debug(".......get list from '" + serverKey + "' server "
-                    + (System.currentTimeMillis() - timeD2) + "ms");
-        }
+        ArrayList<String> servers = worker.getServersList();
+        Map<String, LinkedHashMap<FTPFile, String>> retLst = new LinkedHashMap<>();
+        servers.parallelStream().forEach(serverKey -> {
+            try {
+                long timeD2 = System.currentTimeMillis();
+                LinkedHashMap<FTPFile, String> ret = getBaseLogListFrom(serverKey);
+                retLst.put(serverKey, ret);
+                NeptusLog.pub().debug(".......get list from '" + serverKey + "' server "
+                        + (System.currentTimeMillis() - timeD2) + "ms");
+            } catch (Exception e) {
+                NeptusLog.pub().warn(e);
+            }
+        });
+        servers.forEach(serverKey -> {
+            LinkedHashMap<FTPFile, String> ret = retLst.get(serverKey);
+            if (ret != null)
+                fillServerPresenceList(serverKey, ret, baselogFolderList, serversLogPresenceList);
+        });
+
         NeptusLog.pub().debug(".......get list from all servers " + (System.currentTimeMillis() - timeD1) + "ms");                        
     }
 
@@ -393,10 +409,12 @@ class LogsDownloaderWorkerActions {
             String[] ordList = retList.values().toArray(new String[retList.size()]);
             Arrays.sort(ordList);
             String activeLogName = ordList[ordList.length - 1];
-            for (FTPFile fFile : retList.keySet().toArray(new FTPFile[retList.size()])) {
-                if (filterOutActiveLog && retList.get(fFile).equals(activeLogName)) {
-                    retList.remove(fFile);
-                    break;
+            if (filterOutActiveLog) {
+                for (FTPFile fFile : retList.keySet().toArray(new FTPFile[retList.size()])) {
+                    if (filterOutActiveLog && retList.get(fFile).equals(activeLogName)) {
+                        retList.remove(fFile);
+                        break;
+                    }
                 }
             }
         }
@@ -469,45 +487,52 @@ class LogsDownloaderWorkerActions {
     private LinkedList<LogFolderInfo> getFromServersCompleteLogList(
             LinkedHashMap<String, String> serversLogPresenceList) {
         if (serversLogPresenceList.size() == 0)
-            return new LinkedList<LogFolderInfo>();
+            return new LinkedList<>();
 
         long timeF0 = System.currentTimeMillis();
 
-        LinkedList<LogFolderInfo> tmpLogFolders = new LinkedList<LogFolderInfo>();
+        LinkedList<LogFolderInfo> tmpLogFolders = new LinkedList<>();
         
-        try {
-            ArrayList<String> servers = worker.getServersList();
-            for (String serverKey : servers) { // Let's iterate by servers first
-                if (stopLogListProcessing)
-                    break;
-                
-                if (!worker.isServerAvailable(serverKey))
-                    continue;
-                
+        ArrayList<String> servers = worker.getServersList();
+        Map<String, List<LogFolderInfo>> serversLogFolders = new LinkedHashMap<>();
+        servers.forEach(s -> serversLogFolders.put(s, new LinkedList<>()));
+        servers.parallelStream().forEach(serverKey -> {
+            try {
+                if (stopLogListProcessing || !worker.isServerAvailable(serverKey))
+                    return;
+
                 FtpDownloader ftpServer = null;
+                String hostName = worker.getHostFor(serverKey);
+                int port = worker.getPortFor(serverKey);
                 try {
                     ftpServer = LogsDownloaderWorkerUtil.getOrRenewFtpDownloader(serverKey,
-                            worker.getFtpDownloaders(), worker.getHostFor(serverKey), worker.getPortFor(serverKey));
+                            worker.getFtpDownloaders(), hostName, port);
                 }
                 catch (Exception e) {
-                    e.printStackTrace();
+                    NeptusLog.pub().warn(String.format("Problems connecting to '%s:%d': %s", hostName, port, e.getMessage()));
                 }
                 if (ftpServer == null)
-                    continue;
-                
+                    return;
+
                 // String host = worker.getHostFor(serverKey); // To fill the log files host info
                 String host = serverKey; // Using a key instead of host directly
-                
+
                 for (String logDir : serversLogPresenceList.keySet()) { // For the server go through the folders
                     if (stopLogListProcessing)
                         break;
 
                     if (!serversLogPresenceList.get(logDir).contains(serverKey))
                         continue;
-                    
+
                     // This is needed to avoid problems with non English languages
-                    String isoStr = new String(logDir.getBytes(), "ISO-8859-1");
-                    
+                    String isoStr = logDir;
+                    try {
+                        isoStr = new String(logDir.getBytes(), "ISO-8859-1");
+                    }
+                    catch (UnsupportedEncodingException e) {
+                        NeptusLog.pub().warn(e);
+                    }
+
                     LogFolderInfo lFolder = null;
                     for (LogFolderInfo lfi : tmpLogFolders) {
                         if (lfi.getName().equals(logDir)) {
@@ -517,10 +542,17 @@ class LogsDownloaderWorkerActions {
                     }
                     if (lFolder == null)
                         lFolder = new LogFolderInfo(logDir);
-                    
-                    if (!ftpServer.isConnected())
-                        ftpServer.renewClient();
-                    
+
+                    if (!ftpServer.isConnected()) {
+                        try {
+                            ftpServer.renewClient();
+                        }
+                        catch (IOException e) {
+                            e.printStackTrace();
+                            return;
+                        }
+                    }
+
                     try {
                         FTPFile[] files = ftpServer.getClient().listFiles("/" + isoStr + "/");
                         for (FTPFile file : files) {
@@ -534,7 +566,7 @@ class LogsDownloaderWorkerActions {
                             logFileTmp.setSize(file.getSize());
                             logFileTmp.setFile(file);
                             logFileTmp.setHost(host);
-                            
+
                             // Let us see if its a directory
                             if (file.isDirectory()) {
                                 logFileTmp.setSize(-1); // Set size to -1 if directory
@@ -562,8 +594,8 @@ class LogsDownloaderWorkerActions {
                                 logFileTmp.setSize(allSize);
                             }
                             lFolder.addFile(logFileTmp);
-                            if (!tmpLogFolders.contains(lFolder))
-                                tmpLogFolders.add(lFolder);
+                            if (!serversLogFolders.get(serverKey).contains(lFolder))
+                                serversLogFolders.get(serverKey).add(lFolder);
                         }
                     }
                     catch (Exception e) {
@@ -572,10 +604,17 @@ class LogsDownloaderWorkerActions {
                     }
                 }
             }
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
+            catch (Exception e) {
+                    e.printStackTrace();
+            }
+        });
+
+        serversLogFolders.forEach((s, logFolderInfos) -> {
+            logFolderInfos.forEach(lFolder -> {
+                if (!tmpLogFolders.contains(lFolder))
+                    tmpLogFolders.add(lFolder);
+            });
+        });
 
         NeptusLog.pub().debug(".......Contacting remote systems for complete log file list " +
                 (System.currentTimeMillis() - timeF0) + "ms");

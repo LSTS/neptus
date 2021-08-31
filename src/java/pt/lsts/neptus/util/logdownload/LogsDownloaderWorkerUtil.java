@@ -82,10 +82,18 @@ class LogsDownloaderWorkerUtil {
      * @return The CAM CPU IP or empty on error.
      */
     static String getCameraHost(String mainHost) {
+        return getCameraHostWorker(mainHost, 3);
+    }
+
+    static String getCameraHost2(String mainHost) {
+        return getCameraHostWorker(mainHost, 2);
+    }
+
+    private static String getCameraHostWorker(String mainHost, int offset) {
         String cameraHost = null;
         try {
             String[] parts = mainHost.split("\\.");
-            parts[3] = "" + (Integer.parseInt(parts[3]) + 3);
+            parts[3] = "" + (Integer.parseInt(parts[3]) + offset);
             cameraHost = StringUtils.join(parts, ".");
         }
         catch (Exception oops) {

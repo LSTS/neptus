@@ -127,8 +127,10 @@ public class GeneralPreferences implements PropertiesProvider {
     public static boolean imcUnicastAnnounceEnable = true;
 
     @NeptusProperty(name = "Reachability Test Timeout", units = "ms", category = "IMC Communications", userLevel = LEVEL.ADVANCED, 
-            description = "Timeout to test reachability of IPs (in ms)")
-    public static int imcReachabilityTestTimeout = 3000;
+            description = "Timeout to test reachability of IPs (in ms). " +
+                    "IMPORTANT: Try keeping in the order of tens or 1 or 2 hundreds of ms." +
+                    " A value too high will create inbound messages delay.")
+    public static int imcReachabilityTestTimeout = 50;
 
     // -------------------------------------------------------------------------
 
@@ -143,6 +145,10 @@ public class GeneralPreferences implements PropertiesProvider {
     @NeptusProperty(name = "Logs Downloader - Wait for all To Stop", category = "IMC Logs Downloader", userLevel = LEVEL.ADVANCED, 
             description = "")
     public static boolean logsDownloaderWaitForAllToStop = true;
+
+    @NeptusProperty(name = "Logs Downloader - Ignore active log", category = "IMC Logs Downloader", userLevel = LEVEL.ADVANCED,
+            description = "Use it carefully knowing that it may corrupt the last log because are files being written.")
+    public static boolean logsDownloaderIgnoreActiveLog = true;
 
     // -------------------------------------------------------------------------
 
@@ -283,10 +289,12 @@ public class GeneralPreferences implements PropertiesProvider {
 
     // -------------------------------------------------------------------------
     
-    @NeptusProperty(name = "Ripples URL", category="Iridium Communications", userLevel = LEVEL.REGULAR,
+    @NeptusProperty(name = "Ripples URL", category="Ripples", userLevel = LEVEL.REGULAR,
         description = "URL of the ripples web server")
     public static String ripplesUrl = "https://ripples.lsts.pt";
-    
+    @NeptusProperty(name = "Ripples API Access Token", category="Ripples", userLevel = LEVEL.REGULAR,
+            description = "The API access token to talked with Ripples")
+    public static String ripplesApiKey = "";
 
     // -------------------------------------------------------------------------
     // Constructor and initialize

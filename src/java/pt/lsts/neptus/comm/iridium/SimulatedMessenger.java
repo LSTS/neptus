@@ -66,6 +66,7 @@ public class SimulatedMessenger implements IridiumMessenger {
     protected HashSet<IridiumMessageListener> listeners = new HashSet<>();
 
     protected String serverUrl = GeneralPreferences.ripplesUrl + "/api/v1/";
+    private final String authKey = GeneralPreferences.ripplesApiKey;
     protected String messagesUrl = serverUrl+"irsim";
     protected int timeoutMillis = 10000;
 
@@ -101,6 +102,9 @@ public class SimulatedMessenger implements IridiumMessenger {
         conn.setRequestProperty("Content-Type", "application/hub");
         conn.setRequestProperty("Content-Length", String.valueOf(data.length * 2));
         conn.setConnectTimeout(timeoutMillis);
+        if (authKey != null && !authKey.isEmpty()) {
+            conn.setRequestProperty ("Authorization", authKey);
+        }
 
         OutputStream os = conn.getOutputStream();
         os.write(data);

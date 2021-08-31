@@ -95,7 +95,8 @@ import pt.lsts.neptus.util.conf.GeneralPreferences;
  * @author zp
  *
  */
-@PluginDescription(name = "Ripples Uploader", icon = "pt/lsts/ripples/ripples_on.png")
+@PluginDescription(name = "Ripples Uploader", icon = "pt/lsts/ripples/ripples_on.png", active = false)
+@Deprecated
 public class RipplesUpload extends ConsolePanel implements ConfigurationListener {
 
     private static final long serialVersionUID = -8036937519999303108L;

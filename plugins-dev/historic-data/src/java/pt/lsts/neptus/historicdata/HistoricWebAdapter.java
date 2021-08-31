@@ -90,6 +90,7 @@ public class HistoricWebAdapter {
     private ExecutorService executor = Executors.newSingleThreadExecutor();
     private String getURL = GeneralPreferences.ripplesUrl + "/datastore/lsf";
     private String postURL = GeneralPreferences.ripplesUrl + "/datastore";
+    private final String authKey = GeneralPreferences.ripplesApiKey;
     private long lastPoll = System.currentTimeMillis() - 1200 * 1000;
     private HistoricDataInteraction interaction;
     private DataStore localStore, uploaded;
@@ -139,6 +140,10 @@ public class HistoricWebAdapter {
                         .setConnectionManager(cm)
                         .build()) {
                     HttpPost post = new HttpPost(postURL);
+                    if (authKey != null && !authKey.isEmpty()) {
+                        post.addHeader("Authorization", authKey);
+                    }
+
 
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     IMCOutputStream out = new IMCOutputStream(baos);
@@ -192,6 +197,9 @@ public class HistoricWebAdapter {
                         .build()) {
 
                     HttpPost post = new HttpPost(postURL);
+                    if (authKey != null && !authKey.isEmpty()) {
+                        post.addHeader("Authorization", authKey);
+                    }
 
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     IMCOutputStream out = new IMCOutputStream(baos);
@@ -248,6 +256,9 @@ public class HistoricWebAdapter {
                         .build()) {
                     String query = "?since="+lastPoll;
                     HttpGet get = new HttpGet(getURL + query);
+                    if (authKey != null && !authKey.isEmpty()) {
+                        get.addHeader("Authorization", authKey);
+                    }
 
                     NeptusLog.pub().info("Polling web server for data since " + new Date(lastPoll));
 
@@ -294,5 +305,4 @@ public class HistoricWebAdapter {
             }                        
         });
     }
-
 }

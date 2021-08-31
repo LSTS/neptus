@@ -52,10 +52,10 @@ import com.eclipsesource.json.JsonObject;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 public class EnduranceWebApi {
-
 	private static final String SOI_URL_DEFAULT = GeneralPreferences.ripplesUrl + "/soi";
-	
-	private static String soiUrl = SOI_URL_DEFAULT;
+    private static final String authKey = GeneralPreferences.ripplesApiKey;
+
+    private static String soiUrl = SOI_URL_DEFAULT;
 	
 	/**
      * @return the soiUrlDefault
@@ -84,6 +84,9 @@ public class EnduranceWebApi {
 			public List<Asset> call() throws Exception {
 				URL url = new URL(soiUrl);
 				HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                if (authKey != null && !authKey.isEmpty()) {
+                    conn.setRequestProperty ("Authorization", authKey);
+                }
 				BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 				String inputLine;
 				StringBuffer content = new StringBuffer();
@@ -128,12 +131,15 @@ public class EnduranceWebApi {
 				HttpURLConnection conn = (HttpURLConnection) url_.openConnection();
 				byte[] data = json.getBytes(StandardCharsets.UTF_8);
 
-				conn.setRequestMethod("POST");
-				conn.setDoOutput(true);
-				conn.setFixedLengthStreamingMode(data.length);
-				conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+                conn.setRequestMethod("POST");
+                conn.setDoOutput(true);
+                conn.setFixedLengthStreamingMode(data.length);
+                conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+                if (authKey != null && !authKey.isEmpty()) {
+                    conn.setRequestProperty ("Authorization", authKey);
+                }
 
-				OutputStream os = conn.getOutputStream();
+                OutputStream os = conn.getOutputStream();
 				os.write(data);
 				os.close();
 

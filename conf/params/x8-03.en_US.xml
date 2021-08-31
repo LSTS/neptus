@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2019.02.1 (master,65b8ee0a9)" system="x8-03" i18n="en_US">
+<config format="1" version="2020.01.0 (master,f4a0a4714)" system="x8-03" i18n="en_US">
   <section name="Height Control" name-i18n="Height Control">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -736,6 +736,15 @@
       <default>3.0</default>
       <units>m</units>
       <desc>Admissible altitude when doing depth control</desc>
+    </param>
+    <param name="Bottom Track -- Minimum Depth">
+      <name-i18n>Bottom Track -- Minimum Depth</name-i18n>
+      <type>real</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>0.0</default>
+      <units>m</units>
+      <desc>Minimum depth to maintain during bottom tracking</desc>
     </param>
     <param name="Maximum Track Length">
       <name-i18n>Maximum Track Length</name-i18n>
@@ -3492,7 +3501,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Abort, Acceleration, AcousticLink, AcousticOperation, AngularVelocity, Announce, ApmStatus, ArmingState, AutopilotMode, ControlLoops, CommSystemsQuery, CpuUsage, Current, Depth, DesiredHeading, DesiredPath, DesiredRoll, DesiredSpeed, DesiredVerticalRate, DesiredZ, DevCalibrationControl, DevDataText, DmsDetection, EulerAngles, EntityList, EntityState, EstimatedState, EstimatedStreamVelocity, FollowReference, FollowRefState, FuelLevel, GpsFix, IndicatedSpeed, LeaderState, LinkLevel, LogBookEntry, MagneticField, ManeuverControlState, PathControlState, PlanControl, PlanSpecification, PlanControlState, PlanDB, PowerChannelControl, Pressure, Reference, ReportControl, Rpm, RSSI, ServoPosition, SetControlSurfaceDeflection, SetServoPosition, SetThrusterActuation, SimulatedState, SoundSpeed, StopManeuver, StorageUsage, TelemetryMsg, Temperature, TextMessage, Throttle, TrueSpeed, TrexObservation, TrexPlan, TrexToken, TrueSpeed, UamRxFrame, UamTxFrame, UamTxStatus, UamRxRange, UsblAnglesExtended, UsblPositionExtended, UsblFixExtended, UsblModem, UsblConfig, VehicleCommand, VehicleMedium, VehicleState, Voltage, VtolState</default>
+      <default>Abort, Acceleration, AcousticLink, AcousticOperation, AngularVelocity, Announce, ApmStatus, ArmingState, AutopilotMode, ControlLoops, CommSystemsQuery, CpuUsage, Current, Depth, DesiredHeading, DesiredPath, DesiredRoll, DesiredSpeed, DesiredVerticalRate, DesiredZ, DevCalibrationControl, DevDataText, DmsDetection, EulerAngles, EntityList, EntityState, EstimatedState, EstimatedStreamVelocity, FollowReference, FollowRefState, FuelLevel, GpsFix, IndicatedSpeed, LeaderState, LinkLevel, LogBookEntry, MagneticField, ManeuverControlState, PathControlState, PlanControl, PlanSpecification, PlanControlState, PlanDB, PowerChannelControl, Pressure, Reference, ReportControl, Rpm, RSSI, ServoPosition, SetControlSurfaceDeflection, SetServoPosition, SetThrusterActuation, SimulatedState, SoundSpeed, StopManeuver, StorageUsage, TelemetryMsg, Temperature, TextMessage, Throttle, TransmissionRequest, TransmissionStatus, TransportBindings, TrueSpeed, TrexObservation, TrexPlan, TrexToken, TrueSpeed, UamRxFrame, UamTxFrame, UamTxStatus, UamRxRange, UsblAnglesExtended, UsblPositionExtended, UsblFixExtended, UsblModem, UsblConfig, VehicleCommand, VehicleMedium, VehicleState, Voltage, VtolState</default>
       <units/>
       <desc/>
     </param>
