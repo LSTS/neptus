@@ -56,7 +56,7 @@
         <comm-mean>
             <name>ethernet</name>
             <type>ethernet</type>
-            <host-address>192.168.2.1</host-address>
+            <host-address>10.0.10.250</host-address>
             <protocols>imc</protocols>
             <latency value="100M" unit="bps"/>
             <protocols-args>
@@ -73,8 +73,8 @@
     <configuration-files>
 	</configuration-files>
     <consoles>
-        <console name="Adamastor Console">
-            <xml-file>../conf/consoles/adamastor-light.ncon</xml-file>
+        <console name="ROV Operation Console">
+            <xml-file>../conf/consoles/bluerov.ncon</xml-file>
         </console>
     </consoles>
 </system>
