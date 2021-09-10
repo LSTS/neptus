@@ -85,7 +85,7 @@ public class RipplesPositions extends ConsoleLayer {
 
     LinkedHashMap<String, PositionUpdate> lastPositions = new LinkedHashMap<>();
     LinkedHashMap<String, ArrayList<PositionUpdate> > positions = new LinkedHashMap<>();
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ"); 
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
     {
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
@@ -109,7 +109,6 @@ public class RipplesPositions extends ConsoleLayer {
     @Override
     public void cleanLayer() {
         // TODO Auto-generated method stub
-
     }
 
     @Override
@@ -238,12 +237,15 @@ public class RipplesPositions extends ConsoleLayer {
     
     public static void main(String[] args) throws ParseException {
         String date = "2019-05-30T10:26:12.000+0000";
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ"); 
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
         sdf.parse(date);
-        
+
+        sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
+        String date1 = "2021-09-07T10:36:01.000+00:00";
+        sdf.parse(date1);
+
         RipplesPositions positions = new RipplesPositions();
         positions.pollActiveSystems();
     }
-
 }
