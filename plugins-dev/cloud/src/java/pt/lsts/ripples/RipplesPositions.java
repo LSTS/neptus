@@ -38,6 +38,7 @@ import java.awt.Image;
 import java.awt.geom.Point2D;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.net.URLConnection;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -78,11 +79,13 @@ public class RipplesPositions extends ConsoleLayer {
     @NeptusProperty
     String positionsApiUrl = GeneralPreferences.ripplesUrl + "/positions";
 
+    private final String authKey = GeneralPreferences.ripplesApiKey;
+
     ColorMap cmap = ColorMapFactory.createRedYellowGreenColorMap();
 
     LinkedHashMap<String, PositionUpdate> lastPositions = new LinkedHashMap<>();
     LinkedHashMap<String, ArrayList<PositionUpdate> > positions = new LinkedHashMap<>();
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ"); 
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
     {
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
@@ -106,7 +109,6 @@ public class RipplesPositions extends ConsoleLayer {
     @Override
     public void cleanLayer() {
         // TODO Auto-generated method stub
-
     }
 
     @Override
@@ -161,8 +163,13 @@ public class RipplesPositions extends ConsoleLayer {
             JsonParser parser = new JsonParser();
             URL url = new URL(positionsApiUrl);
 
+            URLConnection con = url.openConnection();
+            if (authKey != null && !authKey.isEmpty()) {
+                con.setRequestProperty ("Authorization", authKey);
+            }
+
             JsonElement root = parser
-                    .parse(new JsonReader(new InputStreamReader(url.openConnection().getInputStream())));
+                    .parse(new JsonReader(new InputStreamReader(con.getInputStream())));
             JsonArray posArray = root.getAsJsonArray();
             
             
@@ -230,12 +237,15 @@ public class RipplesPositions extends ConsoleLayer {
     
     public static void main(String[] args) throws ParseException {
         String date = "2019-05-30T10:26:12.000+0000";
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ"); 
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
         sdf.parse(date);
-        
+
+        sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
+        String date1 = "2021-09-07T10:36:01.000+00:00";
+        sdf.parse(date1);
+
         RipplesPositions positions = new RipplesPositions();
         positions.pollActiveSystems();
     }
-
 }

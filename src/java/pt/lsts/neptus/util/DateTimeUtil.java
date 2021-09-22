@@ -152,9 +152,9 @@ public class DateTimeUtil {
 		String tt = "";
 		if (time < 60) {
 		    if (!alwaysRoundSeconds)
-		        tt = new Double(time).doubleValue() + "s";
+		        tt = Double.valueOf(time).doubleValue() + "s";
 		    else
-		        tt = Math.round(new Double(time)) + "s";
+		        tt = Math.round(Double.valueOf(time)) + "s";
 		}
 		else if ((time/60.0) < 60) {
 			long mi  = (long) (time/60.0);

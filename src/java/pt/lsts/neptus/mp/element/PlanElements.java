@@ -115,7 +115,7 @@ public class PlanElements {
             if (nm.endsWith(searchString) || nm.endsWith(searchString2)) {
                 Class<? extends IPlanElement> clazz = pElementsPlugins.get(nm);
                 try {
-                    IPlanElement<?> pe = clazz.newInstance();
+                    IPlanElement<?> pe = clazz.getDeclaredConstructor().newInstance();
                     return pe;
                 }
                 catch (Exception e) {

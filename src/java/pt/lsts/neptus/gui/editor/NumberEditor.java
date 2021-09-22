@@ -104,49 +104,49 @@ public class NumberEditor<T extends Number> extends NumberPropertyEditor impleme
         
         if (type == Double.class) {
             if (minValue == null)
-                minValue = (T) new Double(Double.MIN_VALUE);
+                minValue = (T) Double.valueOf(Double.MIN_VALUE);
             if (maxValue == null)
-                maxValue = (T) new Double(Double.MAX_VALUE);
+                maxValue = (T) Double.valueOf(Double.MAX_VALUE);
             if (minValue.doubleValue() > maxValue.doubleValue())
                 minValue = maxValue;
         }
         else if (type == Float.class) {
             if (minValue == null)
-                minValue = (T) new Float(Float.MIN_VALUE);
+                minValue = (T) Float.valueOf(Float.MIN_VALUE);
             if (maxValue == null)
-                maxValue = (T) new Float(Float.MAX_VALUE);
+                maxValue = (T) Float.valueOf(Float.MAX_VALUE);
             if (minValue.floatValue() > maxValue.floatValue())
                 minValue = maxValue;
         }
         else if (type == Long.class) {
             if (minValue == null)
-                minValue = (T) new Long(Long.MIN_VALUE);
+                minValue = (T) Long.valueOf(Long.MIN_VALUE);
             if (maxValue == null)
-                maxValue = (T) new Long(Long.MAX_VALUE);
+                maxValue = (T) Long.valueOf(Long.MAX_VALUE);
             if (minValue.longValue() > maxValue.longValue())
                 minValue = maxValue;
         }
         else if (type == Integer.class) {
             if (minValue == null)
-                minValue = (T) new Integer(Integer.MIN_VALUE);
+                minValue = (T) Integer.valueOf(Integer.MIN_VALUE);
             if (maxValue == null)
-                maxValue = (T) new Integer(Integer.MAX_VALUE);
+                maxValue = (T) Integer.valueOf(Integer.MAX_VALUE);
             if (minValue.intValue() > maxValue.intValue())
                 minValue = maxValue;
         }
         else if (type == Short.class) {
             if (minValue == null)
-                minValue = (T) new Short(Short.MIN_VALUE);
+                minValue = (T) Short.valueOf(Short.MIN_VALUE);
             if (maxValue == null)
-                maxValue = (T) new Short(Short.MAX_VALUE);
+                maxValue = (T) Short.valueOf(Short.MAX_VALUE);
             if (minValue.shortValue() > maxValue.shortValue())
                 minValue = maxValue;
         }
         else if (type == Byte.class) {
             if (minValue == null)
-                minValue = (T) new Byte(Byte.MIN_VALUE);
+                minValue = (T) Byte.valueOf(Byte.MIN_VALUE);
             if (maxValue == null)
-                maxValue = (T) new Byte(Byte.MAX_VALUE);
+                maxValue = (T) Byte.valueOf(Byte.MAX_VALUE);
             if (minValue.byteValue() > maxValue.byteValue())
                 minValue = maxValue;
         }

@@ -43,6 +43,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Hashtable;
 
 import pt.lsts.neptus.plugins.uavs.UavLib;
@@ -389,7 +390,7 @@ public class UavHUDInfoPainter implements IUavPainter{
      */
     private Shape createVisualReadOut(Graphics2D g, double readOut, String fontName, int fontType, int size) {
                 
-        text = new TextLayout((BigDecimal.valueOf(readOut).setScale(1,BigDecimal.ROUND_UP)).toPlainString(), 
+        text = new TextLayout((BigDecimal.valueOf(readOut).setScale(1, RoundingMode.UP)).toPlainString(), 
                                 new Font(fontName,fontType,size), 
                                 g.getFontRenderContext());
         

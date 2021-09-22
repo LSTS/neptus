@@ -75,7 +75,6 @@ import pt.lsts.imc.PlanControl;
 import pt.lsts.imc.RemoteCommand;
 import pt.lsts.imc.PlanControl.OP;
 import pt.lsts.imc.historic.DataSample;
-import pt.lsts.imc.sender.MessageEditor;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;

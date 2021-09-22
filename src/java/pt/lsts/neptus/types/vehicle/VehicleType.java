@@ -41,6 +41,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Objects;
 import java.util.StringTokenizer;
 import java.util.Vector;
 import java.util.stream.Collectors;
@@ -101,23 +102,23 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
      * <enum id="8" name="Wireless Sensor Network" abbrev="WSN"/>
      */
 
-    public static enum SystemTypeEnum {
+    public enum SystemTypeEnum {
         UNKNOWN,
         VEHICLE,
         CCU,
         STATICSENSOR,
         MOBILESENSOR,
         ALL
-    };
+    }
 
-    public static enum VehicleTypeEnum {
+    public enum VehicleTypeEnum {
         UNKNOWN,
         UUV,
         USV,
         UGV,
         UAV,
         ALL
-    };
+    }
 
     protected static final String DEFAULT_ROOT_ELEMENT_DEPREC = "vehicle";
     protected static final String DEFAULT_ROOT_ELEMENT = "system";
@@ -140,9 +141,9 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
     private String model3dHref = "";
     private Color iconColor = DEFAULT_ICON_COLOR;
 
-    private LinkedHashMap<String, TemplateFileVehicle> transformationXSLTTemplates = new LinkedHashMap<String, TemplateFileVehicle>();
+    private final LinkedHashMap<String, TemplateFileVehicle> transformationXSLTTemplates = new LinkedHashMap<>();
     private FileType maneuverAdditionalFile = null;
-    private LinkedHashMap<String, FileType> miscConfigurationFiles = new LinkedHashMap<String, FileType>();
+    private LinkedHashMap<String, FileType> miscConfigurationFiles = new LinkedHashMap<>();
     private String coordinateSystemLabel = null;
     private CoordinateSystem coordinateSystem = null;
 
@@ -156,20 +157,20 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
 
     private String originalFilePath = "";
 
-    private LinkedHashMap<String, String> feasibleManeuvers = new LinkedHashMap<String, String>();
-    private LinkedHashMap<String, String> customManeuverPreviews = new LinkedHashMap<String, String>();
+    private final LinkedHashMap<String, String> feasibleManeuvers = new LinkedHashMap<>();
+    private final LinkedHashMap<String, String> customManeuverPreviews = new LinkedHashMap<>();
     private Element xmlFeasibleManeuvers = null;
 
     /**
      * <code>communicationMeans &lt;String type, CommMean V&gt;</code>
      */
-    private LinkedHashMap<String, CommMean> communicationMeans = new LinkedHashMap<String, CommMean>();
+    private final LinkedHashMap<String, CommMean> communicationMeans = new LinkedHashMap<>();
 
-    protected LinkedList<String> protocols = new LinkedList<String>();
-    protected LinkedHashMap<String, ProtocolArgs> protocolsArgs = new LinkedHashMap<String, ProtocolArgs>();
+    protected LinkedList<String> protocols = new LinkedList<>();
+    protected LinkedHashMap<String, ProtocolArgs> protocolsArgs = new LinkedHashMap<>();
 
-    private LinkedHashMap<String, String> consoles = new LinkedHashMap<String, String>();
-    private LinkedHashMap<String, String> consolesType = new LinkedHashMap<String, String>();
+    private final LinkedHashMap<String, String> consoles = new LinkedHashMap<>();
+    private final LinkedHashMap<String, String> consolesType = new LinkedHashMap<>();
 
     private ManeuverFactory manFactory = null;
     
@@ -279,12 +280,12 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
                 operationalActive = true;
             }
 
-            this.setXSize(new Float(doc.selectSingleNode("/" + rootElemName + "/properties/appearance/x-size")
-                    .getText()).floatValue());
-            this.setYSize(new Float(doc.selectSingleNode("/" + rootElemName + "/properties/appearance/y-size")
-                    .getText()).floatValue());
-            this.setZSize(new Float(doc.selectSingleNode("/" + rootElemName + "/properties/appearance/z-size")
-                    .getText()).floatValue());
+            this.setXSize(Float.parseFloat(doc.selectSingleNode("/" + rootElemName + "/properties/appearance/x-size")
+                    .getText()));
+            this.setYSize(Float.parseFloat(doc.selectSingleNode("/" + rootElemName + "/properties/appearance/y-size")
+                    .getText()));
+            this.setZSize(Float.parseFloat(doc.selectSingleNode("/" + rootElemName + "/properties/appearance/z-size")
+                    .getText()));
 
             this.setTopImageHref(doc.selectSingleNode("/" + rootElemName + "/properties/appearance/top-image-2D")
                     .getText());
@@ -344,9 +345,9 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
             if (nd != null) {
                 String valueListStr = nd.getText();
                 if (valueListStr != null) {
-                    Z_UNITS[] res = Arrays.asList(valueListStr.split("\\s*[,;:]\\s*")).stream()
+                    Z_UNITS[] res = Arrays.stream(valueListStr.split("\\s*[,;:]\\s*"))
                             .map((s) -> ManeuverLocation.Z_UNITS.from(s.trim()))
-                            .filter((e) -> e != null).toArray(Z_UNITS[]::new);
+                            .filter(Objects::nonNull).toArray(Z_UNITS[]::new);
                     if (res.length > 0)
                         validZUnits = res;
                 }
@@ -404,20 +405,26 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
                 List<?> maneuvers = doc.selectNodes("/" + rootElemName
                         + "/feasibleManeuvers/maneuver/*/annotation/implementation-class");
 
-                for (int i = 0; i < maneuvers.size(); i++) {
-                    Node tmpMan = (Node) maneuvers.get(i);
+                feasibleManeuvers.clear();
+                customManeuverPreviews.clear();
+                for (Object maneuver : maneuvers) {
+                    Node tmpMan = (Node) maneuver;
                     String manName = tmpMan.getParent().getParent().getName();
                     feasibleManeuvers.put(manName, tmpMan.getText());
-                    
+
                     // Let us register custom previews
                     Node previewClassNode = tmpMan.selectSingleNode("../preview-class");
                     if (previewClassNode != null) {
                         Maneuver man = ManeuverFactory.createManeuver(manName, feasibleManeuvers.get(manName));
                         if (man != null && !(man instanceof DefaultManeuver)) {
-                            Class<IManeuverPreview<?>> previewClass = ManPreviewFactory.createPreviewClass(previewClassNode.getText());
+                            customManeuverPreviews.put(manName, previewClassNode.getText());
+                            Class<IManeuverPreview<?>> previewClass = ManPreviewFactory.createPreviewClass(
+                                    customManeuverPreviews.get(manName));
                             if (previewClass != null) {
-                                customManeuverPreviews.put(manName, previewClassNode.getText());
                                 ManPreviewFactory.registerPreview(id, man.getClass(), previewClass);
+                            }
+                            else {
+                                customManeuverPreviews.remove(manName);
                             }
                         }
                     }
@@ -432,8 +439,7 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
                 Node planElementsNds = doc.selectSingleNode("/" + rootElemName + "/planElements");
                 if (planElementsNds != null) {
                     String xmlStr = planElementsNds.detach().asXML();
-                    PlanElementsFactory pef = new PlanElementsFactory(this.getId(), xmlStr);
-                    planElementsFactory = pef;
+                    planElementsFactory = new PlanElementsFactory(this.getId(), xmlStr);
                 }
             }
             catch (Exception e) {
@@ -559,8 +565,7 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
         try {
             String sLoc = new File(ConfigFetch.getVehicleSchemaLocation()).getAbsoluteFile().toURI().toASCIIString();
             XMLValidator xmlVal = new XMLValidator(doc, sLoc);
-            boolean ret = xmlVal.validate();
-            return ret;
+            return xmlVal.validate();
         }
         catch (Exception e1) {
             NeptusLog.pub().error("Vehicle:validate", e1);
@@ -577,8 +582,7 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
         try {
             String sLoc = new File(ConfigFetch.getVehicleSchemaLocation()).getAbsoluteFile().toURI().toASCIIString();
             XMLValidator xmlVal = new XMLValidator(xml, sLoc);
-            boolean ret = xmlVal.validate();
-            return ret;
+            return xmlVal.validate();
         }
         catch (Exception e1) {
             NeptusLog.pub().error("Vehicle:validate", e1);
@@ -965,8 +969,7 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
      * @see pt.lsts.neptus.types.XmlOutputMethods#asXML()
      */
     public String asXML() {
-        String rootElementName = DEFAULT_ROOT_ELEMENT;
-        return asXML(rootElementName);
+        return asXML(DEFAULT_ROOT_ELEMENT);
     }
 
     /*
@@ -975,10 +978,8 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
      * @see pt.lsts.neptus.types.XmlOutputMethods#asXML(java.lang.String)
      */
     public String asXML(String rootElementName) {
-        String result = "";
         Document document = asDocument(rootElementName);
-        result = document.asXML();
-        return result;
+        return document.asXML();
     }
 
     /*
@@ -987,8 +988,7 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
      * @see pt.lsts.neptus.types.XmlOutputMethods#asElement()
      */
     public Element asElement() {
-        String rootElementName = DEFAULT_ROOT_ELEMENT;
-        return asElement(rootElementName);
+        return asElement(DEFAULT_ROOT_ELEMENT);
     }
 
     /*
@@ -1006,8 +1006,7 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
      * @see pt.lsts.neptus.types.XmlOutputMethods#asDocument()
      */
     public Document asDocument() {
-        String rootElementName = DEFAULT_ROOT_ELEMENT;
-        return asDocument(rootElementName);
+        return asDocument(DEFAULT_ROOT_ELEMENT);
     }
 
     /*
@@ -1074,7 +1073,7 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
         Element limitsElm = properties.addElement("limits");
         if (validZUnits != null && validZUnits.length > 0) {
             limitsElm.addElement("valid-zunits")
-                    .addText(Arrays.asList(validZUnits).stream().map((e) -> e.text()).collect(Collectors.joining(",")));
+                    .addText(Arrays.stream(validZUnits).map(Z_UNITS::text).collect(Collectors.joining(",")));
         }
         if (getMinSpeedMS() != MIN_SPEED_MS)
             limitsElm.addElement("min-speed").addText(Double.toString(getMinSpeedMS()));
@@ -1116,19 +1115,17 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
         
         // Element sensors = root.addElement( "sensors" );
 
-        String protocolsStr = "";
-        Iterator<?> it = protocols.iterator();
-        while (it.hasNext()) {
-            String pt = (String) it.next();
-            protocolsStr += " " + pt;
+        StringBuilder protocolsStr = new StringBuilder();
+        for (String pt : protocols) {
+            protocolsStr.append(" ").append(pt);
         }
-        if (!"".equalsIgnoreCase(protocolsStr)) {
+        if (!"".equalsIgnoreCase(protocolsStr.toString())) {
             Element protoSupport = root.addElement("protocols-supported");
-            protoSupport.addElement("protocols").setText(protocolsStr);
+            protoSupport.addElement("protocols").setText(protocolsStr.toString());
 
             if (protocolsArgs.size() > 0) {
                 Element protoArgs = protoSupport.addElement("protocols-args");
-                it = protocolsArgs.values().iterator();
+                Iterator<?> it = protocolsArgs.values().iterator();
                 if (protocolsArgs.size() > 0)
 
                     while (it.hasNext()) {
@@ -1141,9 +1138,7 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
         // Element communicationMeans = root.addElement( "communication-means" );
         if (communicationMeans.size() > 0) {
             Element configurationFiles = root.addElement("communication-means");
-            it = communicationMeans.values().iterator();
-            while (it.hasNext()) {
-                CommMean cm = (CommMean) it.next();
+            for (CommMean cm : communicationMeans.values()) {
                 Element cmean = cm.asElement();
                 configurationFiles.add(cmean);
             }
@@ -1151,8 +1146,7 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
 
         if (transformationXSLTTemplates.size() != 0) {
             Element transformationXsltTemplates = root.addElement("transformation-xslt-templates");
-            for (Iterator<?> iter = transformationXSLTTemplates.values().iterator(); iter.hasNext();) {
-                TemplateFileVehicle tmplt = (TemplateFileVehicle) iter.next();
+            for (TemplateFileVehicle tmplt : transformationXSLTTemplates.values()) {
                 transformationXsltTemplates.add(tmplt.asElement());
             }
         }
@@ -1163,8 +1157,7 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
                 configurationFiles.add(maneuverAdditionalFile.asElement());
             if (miscConfigurationFiles.size() != 0) {
                 Element miscConf = configurationFiles.addElement("misc");
-                for (Iterator<?> iter = miscConfigurationFiles.values().iterator(); iter.hasNext();) {
-                    FileType ft = (FileType) iter.next();
+                for (FileType ft : miscConfigurationFiles.values()) {
                     miscConf.add(ft.asElement());
                 }
             }
@@ -1245,16 +1238,15 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
      * @return all plans in the current mission that belong to the active vehicle's ID
      */
     public PlanType[] getFeasiblePlans(MissionType mission) {
-        Vector<PlanType> plans = new Vector<PlanType>();
-
-        if (mission == null || mission == null)
+        if (mission == null || mission.getIndividualPlansList().isEmpty()) {
             return new PlanType[] {};
+        }
 
+        Vector<PlanType> plans = new Vector<>();
         for (PlanType p : mission.getIndividualPlansList().values()) {
             if (p.isSupportedBy(this))
                 plans.add(p);
         }
-
         return plans.toArray(new PlanType[] {});
     }
 

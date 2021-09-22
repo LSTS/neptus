@@ -67,7 +67,7 @@ public class SpotMsgFetcher {
         long currentTime = System.currentTimeMillis() / 1000;
         long timeWindow = hours * 60 * 60;
         long startOfTimeWindowSecs = currentTime - timeWindow;
-        String url = "https://api.findmespot.com/spot-main-web/consumer/rest-api/2.0/public/feed/" + stream
+        String url = "https://api.findmespot.com/spot-main-web/consumer/rest-api/2.0/public/feed/" + stream.trim()
                 + "/message.xml";
 
         HashMap<String, TreeSet<SpotMessage>> msgBySpot = new HashMap<String, TreeSet<SpotMessage>>();

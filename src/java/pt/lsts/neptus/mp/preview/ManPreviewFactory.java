@@ -100,7 +100,7 @@ public class ManPreviewFactory {
                 }
                 
                 try {
-                    IManeuverPreview<Maneuver> prevG = ((IManeuverPreview<Maneuver>) prevClass.newInstance());
+                    IManeuverPreview<Maneuver> prevG = ((IManeuverPreview<Maneuver>) prevClass.getDeclaredConstructor().newInstance());
                     prevG.init(vehicleId, maneuver, state, manState);
                     return prevG;
                 }
@@ -153,7 +153,7 @@ public class ManPreviewFactory {
             
             if (prevClass != null) {
                 try {
-                    IManeuverPreview<Maneuver> prevG = (IManeuverPreview<Maneuver>) prevClass.newInstance();
+                    IManeuverPreview<Maneuver> prevG = (IManeuverPreview<Maneuver>) prevClass.getDeclaredConstructor().newInstance();
                     prevG.init(vehicleId, maneuver, state, manState);
                     previewImpl.put(Pair.of(vehicleId, maneuver.getClass()), prevG.getClass());
                     return prevG;

@@ -59,7 +59,7 @@ public class PluginsTest extends TestCase {
             Object o = null;
             try {
                 NeptusLog.pub().info("<###>instantiating "+p);
-                o = sp.get(p).newInstance();
+                o = sp.get(p).getDeclaredConstructor().newInstance();
             }
             catch (Error e) {
                 e.printStackTrace();
@@ -81,7 +81,7 @@ public class PluginsTest extends TestCase {
             Object o = null;
             try {
                 NeptusLog.pub().info("<###>instantiating "+p);
-                o = sp.get(p).newInstance();
+                o = sp.get(p).getDeclaredConstructor().newInstance();
             }
             catch (Error e) {
                 e.printStackTrace();

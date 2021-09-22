@@ -79,7 +79,7 @@ public class PlanExporter extends ConsolePanel {
     public void initSubPanel() {
         for (Class<? extends IPlanFileExporter> exporter : PluginsRepository.listExtensions(IPlanFileExporter.class).values()) {
             try {
-                final IPlanFileExporter exp = exporter.newInstance();
+                final IPlanFileExporter exp = exporter.getDeclaredConstructor().newInstance();
                 addMenuItem(I18n.text("Tools") + ">" + I18n.text("Export Plan") + ">" + exp.getExporterName(), null,
                         new ActionListener() {
                     

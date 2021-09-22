@@ -267,7 +267,7 @@ public class PluginProperty extends DefaultProperty {
             try {
                 Map<String, String> curMap = (Map<String, String>) getValue();
                 String[] tk = value.trim().replaceFirst("^\\{", "").replaceFirst("\\}$", "").split(" *, *");
-                Map<String, String> newMap = curMap != null ? curMap.getClass().newInstance() : (Map<String, String>) getType().newInstance();
+                Map<String, String> newMap = curMap != null ? curMap.getClass().getDeclaredConstructor().newInstance() : (Map<String, String>) getType().getDeclaredConstructor().newInstance();
                 for (int i = 0; i < tk.length; i++) {
                     String[] tk1 = tk[i].trim().split("=");
                     if (tk1.length != 2)

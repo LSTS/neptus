@@ -54,6 +54,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -552,14 +553,15 @@ public class UIManagerDefaults implements ActionListener, ItemListener {
             JComponent standInComponent;
 
             try {
-                standInComponent = (JComponent) clazz.newInstance();
+                standInComponent = (JComponent) clazz.getDeclaredConstructor().newInstance();
             }
-            catch (InstantiationException e) {
+            catch (InstantiationException | IllegalArgumentException | InvocationTargetException
+                   | NoSuchMethodException | SecurityException e) {
                 standInComponent = new AbstractButton() {
                     private static final long serialVersionUID = 1L;
                 };
                 ((AbstractButton) standInComponent).setModel(new DefaultButtonModel());
-            }
+            } 
             return standInComponent;
         }
 
@@ -685,7 +687,7 @@ public class UIManagerDefaults implements ActionListener, ItemListener {
         public ExitAction() {
             putValue(Action.NAME, "Exit");
             putValue(Action.SHORT_DESCRIPTION, getValue(Action.NAME));
-            putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_X));
+            putValue(Action.MNEMONIC_KEY, Integer.valueOf(KeyEvent.VK_X));
         }
 
         public void actionPerformed(ActionEvent e) {

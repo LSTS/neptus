@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<config format="1" version="2020.01.0 (master,2697919ed)" system="lauv-noptilus-1" i18n="en_US">
+<config format="1" version="2020.01.0 (master,6419144f0)" system="lauv-noptilus-1" i18n="en_US">
 <section name="Motor Controller" name-i18n="Motor Controller">
 <param name="Entity Label">
 <name-i18n>Entity Label</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>Motor Controller</default><units></units><desc>Main entity label</desc></param>
@@ -179,9 +179,9 @@
 <param name="Depth Integral Limit">
 <name-i18n>Depth Integral Limit</name-i18n><type>real</type><visibility>developer</visibility><scope>global</scope><default>10.0</default><units>°</units><desc>Integral limit for Depth controller</desc></param>
 <param name="Altitude PID Gains">
-<name-i18n>Altitude PID Gains</name-i18n><type>list:real</type><visibility>developer</visibility><scope>global</scope><default>0.8, 0.0, 0.7</default><units></units><desc>PID gains for Altitude controller</desc><size>3</size></param>
+<name-i18n>Altitude PID Gains</name-i18n><type>list:real</type><visibility>developer</visibility><scope>global</scope><default>2.0, 0.01, 4.0</default><units></units><desc>PID gains for Altitude controller</desc><size>3</size></param>
 <param name="Altitude Integral Limit">
-<name-i18n>Altitude Integral Limit</name-i18n><type>real</type><visibility>developer</visibility><scope>global</scope><default>-1.0</default><units>°</units><desc>Integral limit for Altitude controller</desc></param>
+<name-i18n>Altitude Integral Limit</name-i18n><type>real</type><visibility>developer</visibility><scope>global</scope><default>6.0</default><units>°</units><desc>Integral limit for Altitude controller</desc></param>
 <param name="Heading PID Gains">
 <name-i18n>Heading PID Gains</name-i18n><type>list:real</type><visibility>developer</visibility><scope>global</scope><default>1.5, 0.0, 0.15</default><units></units><desc>PID gains for Heading controller</desc><size>3</size></param>
 <param name="Heading Integral Limit">
@@ -249,7 +249,7 @@
 <param name="Altitude Control -- Filter Weights">
 <name-i18n>Altitude Control -- Filter Weights</name-i18n><type>list:real</type><visibility>developer</visibility><scope>global</scope><default>-1.27482175e-06,-3.65738774e-06, -1.17070428e-05,-3.11243736e-05, -7.00674137e-05,-1.39508991e-04, -2.52830535e-04,-4.24392614e-04, -6.66914986e-04,-9.87650957e-04, -1.38354874e-03,-1.83583825e-03, -2.30473202e-03,-2.72513810e-03, -3.00439909e-03,-3.02304749e-03, -2.63937080e-03,-1.69820293e-03, -4.38264254e-05,2.46375916e-03, 5.93058693e-03,1.04104220e-02, 1.58886929e-02,2.22710063e-02, 2.93783362e-02,3.69503802e-02, 4.46577048e-02,5.21222453e-02, 5.89446365e-02,6.47358766e-02, 6.91501237e-02,7.19151017e-02, 7.28567216e-02,7.19151017e-02, 6.91501237e-02,6.47358766e-02, 5.89446365e-02,5.21222453e-02, 4.46577048e-02,3.69503802e-02, 2.93783362e-02,2.22710063e-02, 1.58886929e-02,1.04104220e-02, 5.93058693e-03,2.46375916e-03, -4.38264254e-05,-1.69820293e-03, -2.63937080e-03,-3.02304749e-03, -3.00439909e-03,-2.72513810e-03, -2.30473202e-03,-1.83583825e-03, -1.38354874e-03,-9.87650957e-04, -6.66914986e-04,-4.24392614e-04, -2.52830535e-04,-1.39508991e-04, -7.00674137e-05,-3.11243736e-05, -1.17070428e-05,-3.65738774e-06, -1.27482175e-06</default><units></units><desc>Impulse response of the FIR filter used to smooth the depth reference during altitude control.</desc></param>
 <param name="Altitude Control -- Enabled">
-<name-i18n>Altitude Control -- Enabled</name-i18n><type>boolean</type><visibility>developer</visibility><scope>global</scope><default>false</default><units></units><desc>Enable dedicated altitude controller.</desc></param>
+<name-i18n>Altitude Control -- Enabled</name-i18n><type>boolean</type><visibility>developer</visibility><scope>global</scope><default>true</default><units></units><desc>Enable dedicated altitude controller.</desc></param>
 </section>
 <section name="Diving" name-i18n="Diving">
 <param name="Entity Label">
@@ -1315,22 +1315,6 @@
 <param name="Leak 1 - Medium Sensor">
 <name-i18n>Leak 1 - Medium Sensor</name-i18n><type>boolean</type><visibility>developer</visibility><scope>global</scope><default>false</default><units></units><desc></desc></param>
 </section>
-<section name="IMU Power Supply" name-i18n="IMU Power Supply">
-<param name="Entity Label">
-<name-i18n>Entity Label</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>IMU Power Supply</default><units></units><desc>Main entity label</desc></param>
-<param name="Execution Priority">
-<name-i18n>Execution Priority</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>10</default><units></units><desc>Execution priority</desc></param>
-<param name="Activation Time">
-<name-i18n>Activation Time</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>0</default><units></units><desc></desc></param>
-<param name="Deactivation Time">
-<name-i18n>Deactivation Time</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>0</default><units></units><desc></desc></param>
-<param name="Debug Level">
-<name-i18n>Debug Level</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>None</default><units></units><desc></desc><values>None, Debug, Trace, Spew</values><values-i18n>None, Debug, Trace, Spew</values-i18n></param>
-<param name="Power Channel">
-<name-i18n>Power Channel</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>Private (IMU)</default><units></units><desc>Device name to be activated</desc></param>
-<param name="ESCC - PSU Device">
-<name-i18n>ESCC - PSU Device</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>/dev/escc1</default><units></units><desc>ESCC device where PSU is connected</desc></param>
-</section>
 <section name="GPS" name-i18n="GPS">
 <param name="Entity Label">
 <name-i18n>Entity Label</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>GPS</default><units></units><desc>Main entity label</desc></param>
@@ -1848,6 +1832,8 @@
 <name-i18n>Sound Speed - Default Value</name-i18n><type>real</type><visibility>developer</visibility><scope>global</scope><default>1500</default><units>m/s</units><desc></desc></param>
 <param name="Sound Speed - Entity Label">
 <name-i18n>Sound Speed - Entity Label</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default></default><units></units><desc>Entity label of sound speed provider</desc></param>
+<param name="Simulator - Entity Label">
+<name-i18n>Simulator - Entity Label</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>Evologics Interface</default><units></units><desc>Entity label of Evologics simulator</desc></param>
 <param name="Keep Alive - Timeout">
 <name-i18n>Keep Alive - Timeout</name-i18n><type>real</type><visibility>developer</visibility><scope>global</scope><default>5.0</default><units>s</units><desc>Keep-alive timeout</desc></param>
 <param name="Source Level - Control">
@@ -2043,7 +2029,7 @@
 <param name="Debug Level">
 <name-i18n>Debug Level</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>None</default><units></units><desc></desc><values>None, Debug, Trace, Spew</values><values-i18n>None, Debug, Trace, Spew</values-i18n></param>
 <param name="Transports">
-<name-i18n>Transports</name-i18n><type>list:string</type><visibility>developer</visibility><scope>global</scope><default>Announce, Abort, AcousticLink, AlignmentState, EntityParameters, EstimatedState, FollowRefState, FuelLevel, FollowRefState, GpsFix, IridiumTxStatus, PathControlState, PlanControl, PlanControlState, PlanDB, ReportControl, Salinity, SoiCommand, SoiPlan, Temperature, TransmissionStatus, UamRxFrame, UamTxStatus, VehicleMedium, VehicleState</default><units></units><desc>Messages to transport</desc></param>
+<name-i18n>Transports</name-i18n><type>list:string</type><visibility>developer</visibility><scope>global</scope><default>Announce, Abort, AcousticLink, AlignmentState, EntityParameters, EstimatedState, FollowRefState, FuelLevel, FollowRefState, GpsFix, IridiumTxStatus, PathControlState, PlanControl, PlanControlState, PlanDB, ReportControl, Salinity, SoiCommand, SoiPlan, Temperature, TextMessage, TransmissionStatus, UamRxFrame, UamTxStatus, VehicleMedium, VehicleState</default><units></units><desc>Messages to transport</desc></param>
 <param name="Rate Limiters">
 <name-i18n>Rate Limiters</name-i18n><type>list:string</type><visibility>developer</visibility><scope>global</scope><default></default><units></units><desc>List of &lt;Message&gt;:&lt;Frequency&gt;</desc></param>
 <param name="Filtered Entities">

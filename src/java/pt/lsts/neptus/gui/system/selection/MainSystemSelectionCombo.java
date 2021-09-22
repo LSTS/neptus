@@ -83,8 +83,8 @@ public class MainSystemSelectionCombo extends JComboBox<String> implements ItemL
     private static final Color MANEUVER_COLOR = new Color(0xD2DA4A);
     private static final Color MANEUVER_SEL_COLOR = new Color(0xE7EE6D);
     // BOOT in blue.
-    private static final Color BOOT_COLOR = new Color(0x132AD2);
-    private static final Color BOOT_SEL_COLOR = new Color(0x0000FF);
+    private static final Color BOOT_COLOR = new Color(0x797EB5);
+    private static final Color BOOT_SEL_COLOR = new Color(0x8686A5);
     // DISCONNECTED in grey.
     private static final Color DISCONNECTED_COLOR = new Color(0x757575);
     private static final Color DISCONNECTED_SEL_COLOR = new Color(0x94959C);

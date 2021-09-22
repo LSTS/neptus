@@ -61,7 +61,7 @@ public class WebServer {
 
     public static Servlet addServlet(String path, Class<?> servletClass) {
         try {
-            Servlet s = (Servlet) servletClass.newInstance();
+            Servlet s = (Servlet) servletClass.getDeclaredConstructor().newInstance();
             installedServlets.put(path, s);
             return s;
         }

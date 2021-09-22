@@ -134,7 +134,7 @@ public class MissionOverviewPanel extends JPanel {
         });
 
         //Add key binding
-        table.getInputMap(JPanel.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_MASK),"copy");
+        table.getInputMap(JPanel.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK),"copy");
         Action copy = new AbstractAction() {
             private static final long serialVersionUID = 1L;
 

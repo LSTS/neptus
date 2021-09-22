@@ -58,6 +58,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
@@ -911,7 +912,7 @@ public class RemotePositionPublisherUpdater extends ConsolePanel implements IPer
                 InputStream streamGetResponseBody = iGetResultCode.getEntity().getContent();
                 @SuppressWarnings("unused")
                 long fullSize = iGetResultCode.getEntity().getContentLength();
-                String timeStr = StreamUtil.copyStreamToString(streamGetResponseBody).trim();
+                String timeStr = StringEscapeUtils.escapeCsv(StreamUtil.copyStreamToString(streamGetResponseBody).trim());
                 @SuppressWarnings("unused")
                 long serverTime = Long.parseLong(timeStr);
                 // NeptusLog.pub().info("<###>server time delta: " +

@@ -126,7 +126,7 @@ public class ManeuverFactory {
             Class<?> clazz = loader.loadClass(classFileName);
             Object tmp = null;
 
-            tmp = clazz.newInstance();
+            tmp = clazz.getDeclaredConstructor().newInstance();
 
             if (tmp == null)
                 tmp = new DefaultManeuver();

@@ -413,7 +413,7 @@ public class CoverArea extends Maneuver implements LocatedManeuver, ManeuverWith
     public Object clone() {
         CoverArea clone = new CoverArea();
         try {
-            clone = this.getClass().newInstance();
+            clone = this.getClass().getDeclaredConstructor().newInstance();
         }
         catch (Exception e) {
             e.printStackTrace();

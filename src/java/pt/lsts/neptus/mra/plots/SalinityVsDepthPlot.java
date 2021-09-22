@@ -94,8 +94,8 @@ public class SalinityVsDepthPlot extends XYPlot {
     public void addLogMarker(LogMarker marker) {
         try {
             XYSeries markerSeries = getMarkerSeries();
-            IMCMessage es = mraPanel.getSource().getLog("EstimatedState").getEntryAtOrAfter(new Double(marker.getTimestamp()).longValue());
-            IMCMessage sal = mraPanel.getSource().getLog("Salinity").getEntryAtOrAfter(new Double(marker.getTimestamp()).longValue());
+            IMCMessage es = mraPanel.getSource().getLog("EstimatedState").getEntryAtOrAfter(Double.valueOf(marker.getTimestamp()).longValue());
+            IMCMessage sal = mraPanel.getSource().getLog("Salinity").getEntryAtOrAfter(Double.valueOf(marker.getTimestamp()).longValue());
             if(markerSeries != null)
                 markerSeries.add(new TimedXYDataItem(-es.getDouble("depth"), ((Salinity) sal).getValue(), sal.getTimestampMillis(), marker.getLabel()));
         }

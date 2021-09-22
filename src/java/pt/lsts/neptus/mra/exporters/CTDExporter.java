@@ -43,7 +43,6 @@ import javax.swing.JOptionPane;
 import javax.swing.ProgressMonitor;
 
 import pt.lsts.imc.Conductivity;
-import pt.lsts.imc.EntityList;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.Salinity;
 import pt.lsts.imc.Temperature;
@@ -52,7 +51,6 @@ import pt.lsts.imc.lsf.IndexScanner;
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
-import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mra.MRAProperties;

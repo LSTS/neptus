@@ -27,44 +27,20 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: zp
- * 05/05/2016
+ * Author: pdias
+ * 1 Ago, 2021
  */
-package pt.lsts.neptus.historicdata;
+package pt.lsts.neptus.plugins.txtcmd;
 
-import pt.lsts.neptus.types.coord.LocationType;
 
 /**
- * @author zp
+ * @author pdias
  *
  */
-public class RemotePosition implements Comparable<RemotePosition> {
+public class CommandDislodge extends AbstractTextCommand {
 
-    private long timestamp;
-    private LocationType location = null;
-    
-    public RemotePosition(long timestamp, LocationType location) {
-        this.location = new LocationType(location);
-        this.timestamp = timestamp;
-    }
-    
     @Override
-    public int compareTo(RemotePosition o) {
-        return Long.valueOf(timestamp).compareTo(o.timestamp);
+    public String getCommand() {
+        return "dislodge";
     }
-
-    /**
-     * @return the timestamp
-     */
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    /**
-     * @return the location
-     */
-    public LocationType getLocation() {
-        return location;
-    }
-    
 }

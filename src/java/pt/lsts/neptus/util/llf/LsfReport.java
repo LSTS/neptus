@@ -53,7 +53,7 @@ import javax.imageio.ImageIO;
 import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultMutableTreeNode;
 
-import org.apache.batik.dom.svg.SAXSVGDocumentFactory;
+import org.apache.batik.anim.dom.SAXSVGDocumentFactory;
 import org.apache.batik.transcoder.SVGAbstractTranscoder;
 import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.print.PrintTranscoder;
@@ -120,7 +120,7 @@ public class LsfReport {
             String data = FileUtil.getFileAsString(FileUtil.getResourceAsFile("/images/neptus_logo_ns.svg"));
             try {
                 // logoDoc = f.createSVGDocument(null, new java.io.StringReader((String)data));
-                logoDoc = f.createDocument(null, new StringReader((String) data));
+                logoDoc = f.createDocument(null, new StringReader(data));
                 logoDoc = SvgUtil.cleanInkscapeSVG(logoDoc);
             }
             catch (IOException e) {
@@ -191,8 +191,8 @@ public class LsfReport {
             BaseFont bf = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
             if (getLogoDoc() != null) {
                 PrintTranscoder prm = new PrintTranscoder();
-                prm.addTranscodingHint(SVGAbstractTranscoder.KEY_WIDTH, new Float(500));
-                prm.addTranscodingHint(SVGAbstractTranscoder.KEY_HEIGHT, new Float(193));
+                prm.addTranscodingHint(SVGAbstractTranscoder.KEY_WIDTH, 500F);
+                prm.addTranscodingHint(SVGAbstractTranscoder.KEY_HEIGHT, 193F);
                 TranscoderInput ti = new TranscoderInput(getLogoDoc());
                 prm.transcode(ti, null);
                 PdfTemplate tp = cb.createTemplate(500, 200);
@@ -235,7 +235,7 @@ public class LsfReport {
 
     private static void writePageNumber(PdfContentByte cb, int curPage) {
 
-        if (LsfReportProperties.printPageNumbers==false)
+        if (!LsfReportProperties.printPageNumbers)
             return;
 
         Rectangle pageSize = PageSize.A4.rotate();
@@ -411,12 +411,7 @@ public class LsfReport {
             
             r2d.setLevelOfDetail(16); // FIXME
             
-            SwingUtilities.invokeAndWait(new Runnable() {
-                @Override
-                public void run() {
-                    r2d.update(g2);
-                }
-            });
+            SwingUtilities.invokeAndWait(() -> r2d.update(g2));
             g2.dispose();
             cb.addTemplate(tp, 50, 50);
             writePageNumber(cb, page++);
@@ -591,7 +586,7 @@ public class LsfReport {
                     ImageIO.write(image, "png", new File("tmp.png"));
                     iTextImage = com.lowagie.text.Image.getInstance("tmp.png");
                     File file = new File("tmp.png");
-                    Boolean deleted = file.delete();
+                    boolean deleted = file.delete();
                     if (!deleted)
                         throw new DocumentException("file.delete() failed");
                 }catch(Exception e){
@@ -646,9 +641,8 @@ public class LsfReport {
         table.addCell(I18n.text("Timestamp"));
         table.addCell(I18n.text("Label"));
         table.addCell(I18n.text("Location"));
-        int nSubsys = subSysList.size();
-        for (int i = 0; i < nSubsys; i++)
-            table.addCell(I18n.textf("Image %number", subSysList.get(i)));
+        for (Integer integer : subSysList)
+            table.addCell(I18n.textf("Image %number", integer));
     }
 
     /**
@@ -658,7 +652,7 @@ public class LsfReport {
     public static BufferedImage getSidescanMarkImage(IMraLogGroup source, SidescanParser ssParser,
             SidescanParameters sidescanParams, SidescanConfig config, boolean globalColorMap, SidescanLogMarker mark,
             int subSysN) throws DocumentException {
-        BufferedImage result = null;
+        BufferedImage result;
 
         SidescanLogMarker adjustedMark = adjustMark(mark);
         int subSys = ssParser.getSubsystemList().get(subSysN);
@@ -666,7 +660,7 @@ public class LsfReport {
         boolean point = adjustedMark.isPoint();
 
         // get the lines
-        ArrayList<SidescanLine> list = null;
+        ArrayList<SidescanLine> list;
         list = getLines(ssParser, subSys, sidescanParams, adjustedMark);
 
         if (list.isEmpty())
@@ -708,7 +702,7 @@ public class LsfReport {
             i1 = 0;
         }
 
-        if (globalColorMap == false) {
+        if (!globalColorMap) {
             config.colorMap = ColorMapFactory.getColorMapByName(adjustedMark.getColorMap());
         }
 
@@ -727,7 +721,7 @@ public class LsfReport {
     public static Color getColor(SidescanLogMarker mark, SidescanParser ssParser, SidescanParameters sidescanParams,
             SidescanConfig config){
 
-        Color color = null;
+        Color color;
         int d = 1;
         long t = (long) mark.getTimestamp();
 
@@ -745,7 +739,7 @@ public class LsfReport {
 
     public static int getIndexX(SidescanLogMarker mark, SidescanParser ssParser, SidescanParameters sidescanParams,
             boolean border, int i1, int i2){
-        int indexX=-1;
+        int indexX;
         int d = 1;
         long t = (long) mark.getTimestamp();
         ArrayList<SidescanLine> list2 = ssParser.getLinesBetween(t - d, t + d, mark.getSubSys(), sidescanParams);
@@ -755,11 +749,11 @@ public class LsfReport {
         }
         SidescanLine l = list2.get(list2.size() / 2);
         int index = convertMtoIndex(mark.getX() + l.getRange(), l.getRange(), l.getData().length);
-        if (border == true) {
+        if (border) {
             if (index > (i2 - i1)) {
                 index = index - i1;
             }
-            indexX = (int) (((double) ((double) index / (double) (i2 - i1))) * 100);
+            indexX = (int) (((double) index / (double) (i2 - i1)) * 100);
         }
         else {
             indexX = 50;
@@ -864,9 +858,7 @@ public class LsfReport {
             if (Math.abs(t - tFirst) >= Math.abs(t - tLast)) {
                 list.remove(0);
                 yref--;
-                continue;
             }
-
         }
         return list;
 
@@ -876,7 +868,7 @@ public class LsfReport {
 
         long t = (long) mark.getTimestamp();
         int h = mark.getH();
-        ArrayList<SidescanLine> list = new ArrayList<SidescanLine>();
+        ArrayList<SidescanLine> list = new ArrayList<>();
         long firstTimestamp = ssParser.firstPingTimestamp();
         long lastTimestamp = ssParser.lastPingTimestamp();
         long t1, t2;
@@ -886,8 +878,8 @@ public class LsfReport {
         while (list.size() < h && counter<10) {// get enough lines
             counter++;//infinte cicle protection
             deviation += 250;
-            t1 = t - deviation * (h / 2);
-            t2 = t + deviation * (h / 2);
+            t1 = t - deviation * (h / 2L);
+            t2 = t + deviation * (h / 2L);
             if (t1 < firstTimestamp) {
                 t1 = firstTimestamp;
             }
@@ -925,19 +917,19 @@ public class LsfReport {
         }
         else if (w < 150 || h < 150) {
             if (w < 150) {
-                w *= 1.2;
+                w = Double.valueOf(1.2 * w).intValue();
                 wMeters *= 1.2;
             }
             if (h < 150)
-                h *= 1.2;
+                h = Double.valueOf(1.2 * h).intValue();
         }
         else if (w < 200 || h < 200) {
             if (w < 200) {
-                w *= 1.1;
+                w = Double.valueOf(1.1 * w).intValue();
                 wMeters *= 1.1;
             }
             if (h < 200)
-                h *= 1.1;
+                h = Double.valueOf(1.1 * h).intValue();
         }
 
         newMark.setH(h);
@@ -948,19 +940,18 @@ public class LsfReport {
     }
 
     public static BufferedImage paintPointHighlight(BufferedImage original, int x, int y, Color color, ColorMap colorMap) {
-        BufferedImage result = original;
-        Graphics2D g2d = result.createGraphics();
+        Graphics2D g2d = original.createGraphics();
 
         int w = 10;
         int h = 10;
         x -= w / 2;
         y -= h / 2;
-        Color c = null;
+        Color c;
         boolean fixedColor = true;
         if (LsfReportProperties.sidescanMarksPointsFixedColor == 0) {
             fixedColor = false;
         }
-        if (fixedColor == true) {
+        if (fixedColor) {
             c = getFixedColor(colorMap);
         }
         else {
@@ -971,7 +962,7 @@ public class LsfReport {
         switch (shape) {
             case 0:
                 g2d.drawRect(x, y, w, h);
-                if (fixedColor == false) {
+                if (!fixedColor) {
                     g2d.setColor(color);
                     g2d.drawRect(x - 1, y - 1, w + 2, h + 2);
                     // g2d.drawRect(x + 1, y + 1, w - 2, h - 2);
@@ -979,7 +970,7 @@ public class LsfReport {
                 break;
             case 1:
                 g2d.drawOval(x, y, w, h);
-                if (fixedColor == false) {
+                if (!fixedColor) {
                     g2d.setColor(color);
                     g2d.drawOval(x - 1, y - 1, w + 2, h + 2);
                     // g2d.drawOval(x + 1, y + 1, w - 2, h - 2);
@@ -988,7 +979,7 @@ public class LsfReport {
             default:
                 NeptusLog.pub().info("Sidescan Point Marks Shape Code not found, using 0 square instead");
                 g2d.drawRect(x, y, w, h);
-                if (fixedColor == false) {
+                if (!fixedColor) {
                     g2d.setColor(color);
                     g2d.drawRect(x - 1, y - 1, w + 2, h + 2);
                     // g2d.drawRect(x + 1, y + 1, w - 2, h - 2);
@@ -996,12 +987,12 @@ public class LsfReport {
                 break;
         }
 
-        return result;
+        return original;
     }
 
     public static Color getFixedColor(ColorMap colorMap) {
         String colorMapString = colorMap.toString().toLowerCase();
-        Color c = null;
+        Color c;
         switch (colorMapString) {
             case "redyellowgreen":
             case "autumn":
@@ -1045,7 +1036,7 @@ public class LsfReport {
     }
 
     public static Color getContrastColor(Color color) {
-        Color result = null;
+        Color result;
 
         int r = color.getRed();
         int g = color.getGreen();
@@ -1138,17 +1129,17 @@ public class LsfReport {
             doc.newPage();
             page++;
 
-            for (int i = 0; i < charts.length; i++) {
+            for (JFreeChart chart : charts) {
                 cb.beginText();
 
-                java.awt.Graphics2D g2 = cb.createGraphicsShapes(pageSize.getWidth(), pageSize.getHeight());
+                Graphics2D g2 = cb.createGraphicsShapes(pageSize.getWidth(), pageSize.getHeight());
                 int width = (int) pageSize.getWidth();
                 int height = (int) pageSize.getHeight();
 
-                Paint oldPaint = charts[i].getBackgroundPaint();
-                charts[i].setBackgroundPaint(Color.white);
-                charts[i].draw(g2, new Rectangle2D.Double(25, 25, width - 50, height - 50));
-                charts[i].setBackgroundPaint(oldPaint);
+                Paint oldPaint = chart.getBackgroundPaint();
+                chart.setBackgroundPaint(Color.white);
+                chart.draw(g2, new Rectangle2D.Double(25, 25, width - 50, height - 50));
+                chart.setBackgroundPaint(oldPaint);
                 g2.dispose();
                 writePageNumber(cb, page++);
                 writeHeader(cb, source);
@@ -1167,8 +1158,11 @@ public class LsfReport {
 
     public static void generateLogs(File f, MRAPanel panel) {
         try {
+            if (f.listFiles() == null) {
+                return;
+            }
             LsfLogSource folder = new LsfLogSource(f, null);
-            Vector<File> subFolders = new Vector<File>();
+            Vector<File> subFolders = new Vector<>();
             for (File fl : f.listFiles()) {
                 if (fl.isDirectory()) {
                     subFolders.add(fl);

@@ -199,7 +199,7 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, NameId {
     public boolean load(String xml) {
         // Clear data
         vehicles.clear();
-        graph = null;
+        graph = new GraphType(); // Was null but should not be, cause problems ahead!
         startActions.clearMessages();
         endActions.clearMessages();
         planElements.getPlanElements().clear();
@@ -225,12 +225,19 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, NameId {
                 }
                 if (getVehicle() == null) {
                     setVehicle(defaultVehicle);
-                    NeptusLog.pub().error("plan with id "+getId()+" has no associated vehicle, using "+getVehicle(), e);
+                    NeptusLog.pub().error("plan with id "+getId()+" has no associated vehicle, using "+getVehicle());
                 }                
             }
 
             Node nd = doc.selectSingleNode("/node()/graph");
-            graph = new GraphType(nd.asXML());
+            try {
+                graph = new GraphType(nd.asXML());
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error("plan with id " + getId() +
+                        " had a problem loading plan graph, using a empty one!!"+getVehicle(), e);
+                graph = new GraphType();
+            }
 
             nd = doc.selectSingleNode("/node()/actions/start-actions");
             if (nd != null) {
@@ -428,8 +435,10 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, NameId {
         for (VehicleType v : vehicles)
             if (!this.vehicles.contains(v))
                 this.vehicles.add(v);      
-        for (Maneuver m : getGraph().getAllManeuvers())
-            m.setVehicles(this.vehicles);
+        if (getGraph() != null) { // To protect on the loading phase
+            for (Maneuver m : getGraph().getAllManeuvers())
+                m.setVehicles(this.vehicles);
+        }
     }
 
     /**
@@ -450,8 +459,10 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, NameId {
         vehicles.clear();
         if (vehicleType != null)
             vehicles.add(vehicleType);
-        for (Maneuver m : getGraph().getAllManeuvers())
-            m.setVehicles(this.vehicles);
+        if (getGraph() != null) { // To protect on the loading phase
+            for (Maneuver m : getGraph().getAllManeuvers())
+                m.setVehicles(this.vehicles);
+        }
     }
 
     /**

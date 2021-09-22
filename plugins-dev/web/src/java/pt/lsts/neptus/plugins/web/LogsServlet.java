@@ -36,11 +36,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Vector;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -64,13 +61,13 @@ public class LogsServlet extends HttpServlet {
 
     @Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException, IOException {
+			throws IOException {
 		
 		if (req.getPathInfo().equals("/")) {
 			resp.setContentType("text/html");
 			resp.getWriter().write("<html><head><title>Recorded Logs</title></head><body>");
 			File f = new File("log");
-			Vector<File> logs = new Vector<File>();
+			Vector<File> logs = new Vector<>();
 			listLogs(f, logs);
 			for (File logDir : logs) {
 				String shorter = FileUtil.relativizeFilePath(f.getAbsolutePath(), logDir.getAbsolutePath()).replaceAll("\\\\", "/");				
@@ -81,6 +78,7 @@ public class LogsServlet extends HttpServlet {
 		else if (req.getPathInfo().endsWith(".zip")) {
 		    try {
                 String dir = req.getPathInfo().substring(0, req.getPathInfo().length()-4);
+                dir = dir.replaceAll("\\.+\\\\", ""); // Adding some sanitizing before testing bellow the path
                 File temp = new File(ConfigFetch.getNeptusTmpDir()+"/"+MD5.digest(dir).substring(4));
 
                 if ((req.getHeader("pragma") != null && req.getHeader("pragma").equalsIgnoreCase("no-cache")) ||
@@ -106,7 +104,11 @@ public class LogsServlet extends HttpServlet {
 	}
 	
 	protected void listLogs(File parent, Vector<File> logs) {
-		for (File f : parent.listFiles()) {
+        File[] lstFx = parent != null ? parent.listFiles() : null;
+        if (lstFx == null) {
+            return;
+        }
+		for (File f : lstFx) {
 			if (f.isDirectory())
 				listLogs(f, logs);
 			else if (f.getName().equalsIgnoreCase("Data.lsf") || f.getName().equalsIgnoreCase("EstimatedState.llf"))

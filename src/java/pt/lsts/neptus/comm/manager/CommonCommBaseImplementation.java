@@ -610,7 +610,7 @@ abstract class CommonCommBaseImplementation<M extends IMessage, Mi extends Messa
     // -- -- Open Channel -- --//
 
     /**
-     * This is from {@link #openNode}.
+     * This is from openNode.
      * <p style="color='PINK'">
      * This method is to be called upon message arrival.
      * </p>
@@ -800,20 +800,25 @@ abstract class CommonCommBaseImplementation<M extends IMessage, Mi extends Messa
         @Override
         public void run() {
             while (running) {
-                // NeptusLog.pub().info("<###>::::::::::");
-                synchronized (msgQueue) {
-                    msgNew = msgQueue.size() > 0 ? msgQueue.remove() : null; // msgQueue.peek() sometimes dispite the
-                                                                             // msgQueue was full the peek return
-                                                                             // null!!?!!
-                    // NeptusLog.pub().info("<###>msgQueue " + CommonCommBaseImplementation.this.hashCode() + ":  size: " +
-                    // msgQueue.size() + "  " + msgNew);
-                    if (msgNew != null) {
-                        // msgNew = msgQueue.remove();
-                        infoNew = infoQueue.remove();
+                try {
+                    msgNew = null;
+                    infoNew = null;
+
+                    // NeptusLog.pub().info("<###>::::::::::");
+                    synchronized (msgQueue) {
+                        // msgQueue.peek() sometimes despite the msgQueue was full the peek return null!!?!!, using remove
+                        msgNew = msgQueue.size() > 0 ? msgQueue.remove() : null;
+                        // NeptusLog.pub().info("<###>msgQueue " + CommonCommBaseImplementation.this.hashCode() + ":  size: " +
+                        // msgQueue.size() + "  " + msgNew);
+                        if (msgNew != null) {
+                            infoNew = infoQueue.remove();
+                        }
+                        else {
+                            infoNew = null;
+                        }
                     }
-                    else {
-                        infoNew = null;
-                    }
+                } catch (Exception e) {
+                    NeptusLog.pub().warn(this, e);
                 }
                 if (msgNew == null) {
                     synchronized (this) {
@@ -830,6 +835,12 @@ abstract class CommonCommBaseImplementation<M extends IMessage, Mi extends Messa
                     }
                     continue;
                 }
+
+                if (infoNew == null || msgNew == null) {
+                    NeptusLog.pub().warn("======== Null msg info pushed to process!!!");
+                    continue;
+                }
+
                 // NeptusLog.pub().info("<###>1wwwwwwwwww" + this.hashCode());
                 try {
                     setActive(true, infoNew, msgNew);

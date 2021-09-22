@@ -43,7 +43,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
-import org.apache.batik.dom.svg.SAXSVGDocumentFactory;
+import org.apache.batik.anim.dom.SAXSVGDocumentFactory;
 import org.apache.batik.transcoder.SVGAbstractTranscoder;
 import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.print.PrintTranscoder;
@@ -128,8 +128,8 @@ public class TileMercatorSVG extends Tile {
             Document wDoc = f.createDocument(null, new StringReader((String) data));
             wDoc = SvgUtil.cleanInkscapeSVG(wDoc);
             PrintTranscoder prm = new PrintTranscoder();
-            prm.addTranscodingHint(SVGAbstractTranscoder.KEY_WIDTH, new Float(w));
-            prm.addTranscodingHint(SVGAbstractTranscoder.KEY_HEIGHT, new Float(h));
+            prm.addTranscodingHint(SVGAbstractTranscoder.KEY_WIDTH, Float.valueOf(Double.valueOf(w).floatValue()));
+            prm.addTranscodingHint(SVGAbstractTranscoder.KEY_HEIGHT, Float.valueOf(Double.valueOf(h).floatValue()));
             TranscoderInput ti = new TranscoderInput(wDoc);
             prm.transcode(ti, null);
             return prm;
@@ -228,7 +228,7 @@ public class TileMercatorSVG extends Tile {
      * @see pt.lsts.neptus.renderer2d.tiles.Tile#testForAlfaOnLoaddImage(java.awt.image.BufferedImage)
      */
     @Override
-    protected void testForAlfaOnLoaddImage(BufferedImage img) {
+    protected void testForAlfaOnLoadImage(BufferedImage img) {
         temporaryTransparencyDetectedOnImageOnDisk = false; // this has to be overwritten because the SVG has transparent parts
     }
     

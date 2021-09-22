@@ -75,7 +75,7 @@ public class VehicleIpPortEditor implements PropertiesProvider {
                 if (pArgs instanceof IMCArgs) {
                     IMCArgs nArgs = (IMCArgs) pArgs;
                     comP = PropertiesEditor.getPropertyInstance("imc.port", category, Integer.class,
-                            new Integer(nArgs.getPort()), true);
+                            Integer.valueOf(nArgs.getPort()), true);
                     comP.setShortDescription("Set the Vehicle's port.");
                     propertiesList.add(comP);
                 }

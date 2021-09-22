@@ -430,7 +430,7 @@ public class JsfSonarData {
         numberOfSamples = buf.getShort(114) & 0xFFFF;
         numberOfSamples = msbNumberOfSamples + numberOfSamples;
         
-        range = ((buf.getInt(116) / new Float(Math.pow(10, 9))) * numberOfSamples * 1500) / 2.0f;
+        range = ((buf.getInt(116) / Float.valueOf(Double.valueOf(Math.pow(10, 9)).floatValue())) * numberOfSamples * 1500) / 2.0f;
         range = Math.round(range);
 
         int msbStartFreq = (msb & 0x000F) << 16; // First 4 bits of msb shifted so only adding is needed to start Frequency

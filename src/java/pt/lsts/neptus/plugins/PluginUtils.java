@@ -738,7 +738,7 @@ public class PluginUtils {
 
         Object defaults = null;
         try {
-            defaults = (obj instanceof Class<?> ? (Class<?>) obj : obj.getClass()).newInstance();
+            defaults = (obj instanceof Class<?> ? (Class<?>) obj : obj.getClass()).getDeclaredConstructor().newInstance();
         }
         catch (Exception e) {
             // e.printStackTrace();

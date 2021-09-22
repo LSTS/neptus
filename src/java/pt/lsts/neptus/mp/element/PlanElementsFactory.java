@@ -175,7 +175,7 @@ public class PlanElementsFactory {
         }
         try {
             if (newInstance == null)
-                newInstance = iPEClazz.newInstance();
+                newInstance = iPEClazz.getDeclaredConstructor().newInstance();
         }
         catch (Exception e) {
             NeptusLog.pub().warn(e);

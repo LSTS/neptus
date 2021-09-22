@@ -144,7 +144,7 @@ public class NeptusSolver {
         Collections.sort(plan, new Comparator<PSToken>() {
             @Override
             public int compare(PSToken o1, PSToken o2) {
-                return new Double(o1.getStart().getLowerBound()).compareTo(o2.getStart().getLowerBound());
+                return Double.valueOf(o1.getStart().getLowerBound()).compareTo(o2.getStart().getLowerBound());
             }
         });
 

@@ -119,7 +119,7 @@ public class IMCUtils {
         for (Class<Maneuver> m : mans) {
             Maneuver manInstance = null;
             try {
-                manInstance = m.newInstance();
+                manInstance = m.getDeclaredConstructor().newInstance();
             }
             catch (InstantiationException e) {
                 // Abstract so no to be used
@@ -602,7 +602,7 @@ public class IMCUtils {
             }
             else {
                 try {
-                    m = mClass.newInstance();
+                    m = mClass.getDeclaredConstructor().newInstance();
                 }
                 catch (Exception e) {
                     e.printStackTrace();
@@ -1193,7 +1193,7 @@ public class IMCUtils {
             }
             else {
                 try {
-                    ap = new PluginProperty(field, fieldClass, fieldClass.newInstance());
+                    ap = new PluginProperty(field, fieldClass, fieldClass.getDeclaredConstructor().newInstance());
                     ap.setDisplayName(msgType.getFullFieldName(field));
                 }
                 catch (Exception e) {

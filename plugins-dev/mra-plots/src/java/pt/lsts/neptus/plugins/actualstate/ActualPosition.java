@@ -72,7 +72,7 @@ public class ActualPosition extends MRA2DPlot {
     @Override
     public void addLogMarker(LogMarker marker) {
         XYSeries markerSeries = getMarkerSeries();
-        IMCMessage state = mraPanel.getSource().getLog("EstimatedState").getEntryAtOrAfter(new Double(marker.getTimestamp()).longValue());
+        IMCMessage state = mraPanel.getSource().getLog("EstimatedState").getEntryAtOrAfter(Double.valueOf(marker.getTimestamp()).longValue());
         LocationType loc = new LocationType();
         loc.setLatitudeRads(state.getDouble("lat"));
         loc.setLongitudeRads(state.getDouble("lon"));
@@ -80,7 +80,7 @@ public class ActualPosition extends MRA2DPlot {
         loc.convertToAbsoluteLatLonDepth();
 
         if(markerSeries != null)
-            markerSeries.add(new TimedXYDataItem(loc.getLatitudeDegs(), loc.getLongitudeDegs(), new Double(marker.getTimestamp()).longValue(), marker.getLabel()));
+            markerSeries.add(new TimedXYDataItem(loc.getLatitudeDegs(), loc.getLongitudeDegs(), Double.valueOf(marker.getTimestamp()).longValue(), marker.getLabel()));
 
     }
 

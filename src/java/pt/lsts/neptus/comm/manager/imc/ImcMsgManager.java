@@ -37,6 +37,8 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URL;
+import java.time.Duration;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -977,6 +979,8 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
 
     @Override
     protected boolean processMsgLocally(MessageInfo info, IMCMessage msg) {
+        LocalTime timeStart = LocalTime.now();
+
         // msg.dump(System.out);
         SystemImcMsgCommInfo vci = null;
         imcState.setMessage(msg);
@@ -1064,7 +1068,13 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                     for (IMCMessage imcMsg : messagesCreatedToFoward) {
                         vci.onMessage(info, imcMsg);
                     }
-                    
+
+                    Duration deltaT = Duration.between(timeStart, LocalTime.now());
+                    if (deltaT.getSeconds() > 1) {
+                        NeptusLog.pub().warn("=====!!===== Too long processing F " + deltaT + " :: " + msg.getAbbrev() +
+                                " @ " + new ImcId16(msg.getSrc()).toPrettyString());
+                    }
+
                     vci.onMessage(info, msg);
                     
                     return true;
@@ -1160,7 +1170,9 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
      */
     private SystemImcMsgCommInfo processAnnounceMessage(MessageInfo info, Announce ann, SystemImcMsgCommInfo vci,
             ImcId16 id) throws IOException {
-        
+
+        LocalTime timeStart = LocalTime.now();
+
         String sia = info.getPublisherInetAddress();
         NeptusLog.pub().debug("processAnnounceMessage for " + ann.getSysName() + "@" + id + " :: publisher host address " + sia);
         
@@ -1186,6 +1198,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                 }
             }
         }
+
         // Let us try know any one in the announce IPs
         if (portUdp > 0 && !udpIpPortFound) {
             InetSocketAddress reachableAddr = ReachableCache.firstReachable(GeneralPreferences.imcReachabilityTestTimeout, retId);
@@ -1197,6 +1210,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                 NeptusLog.pub().debug("processAnnounceMessage for " + ann.getSysName() + "@" + id + " :: " + "UDP reachable @ " + hostUdp + ":" + portUdp);
             }
         }
+
         if (portUdp > 0 && !udpIpPortFound) {
             // Lets try to see if we received a message from any of the IPs
             String ipReceived = hostUdp.isEmpty() ? info.getPublisherInetAddress() : hostUdp;
@@ -1234,7 +1248,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                 break;
             }
         }
-        
+
         // Let us try know any one in the announce IPs
         if (portTcp > 0 && !tcpIpPortFound) {
             InetSocketAddress reachableAddr = ReachableCache.firstReachable(GeneralPreferences.imcReachabilityTestTimeout, retId);
@@ -1426,6 +1440,15 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                 announceWorker.sendEntityListRequestMsg(resSys);
             
             ImcSystemsHolder.registerSystem(resSys);
+        }
+
+        Duration deltaT = Duration.between(timeStart, LocalTime.now());
+        if (deltaT.getSeconds() > 1) {
+            NeptusLog.pub().warn("=====!!===== Too long processing announce DF " + deltaT + " :: " + ann.getAbbrev() +
+                    " @ " + new ImcId16(ann.getSrc()).toPrettyString() + "\n=====!!===== Try reducing " +
+                    "'General Preference->[IMC Communications]-> Reachability Test Timeout' from " +
+                    GeneralPreferences.imcReachabilityTestTimeout +
+                    " to in the order of tens or 1 or 2 hundreds of ms.");
         }
 
         imcDefinition.getResolver().addEntry(ann.getSrc(), ann.getSysName());

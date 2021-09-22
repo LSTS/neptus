@@ -189,12 +189,12 @@ public TableLayoutConstraints (String constraints)
 
         // Get the first column (assume component is in only one column)
         String tokenA = st.nextToken();
-        col1 = new Integer(tokenA).intValue();
+        col1 = Integer.valueOf(tokenA).intValue();
         col2 = col1;
 
         // Get the first row (assume component is in only one row)
         String tokenB = st.nextToken();
-        row1 = new Integer(tokenB).intValue();
+        row1 = Integer.valueOf(tokenB).intValue();
         row2 = row1;
 
         // Get next two tokens
@@ -204,8 +204,8 @@ public TableLayoutConstraints (String constraints)
         try
         {
             // Attempt to use tokens A and B as col2 and row2
-            col2 = new Integer(tokenA).intValue();
-            row2 = new Integer(tokenB).intValue();
+            col2 = Integer.valueOf(tokenA).intValue();
+            row2 = Integer.valueOf(tokenB).intValue();
 
             // Get next two tokens
             tokenA = st.nextToken();

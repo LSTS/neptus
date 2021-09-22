@@ -27,44 +27,37 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: zp
- * 05/05/2016
+ * Author: pdias
+ * 1 Ago, 2021
  */
-package pt.lsts.neptus.historicdata;
+package pt.lsts.neptus.plugins.txtcmd;
 
-import pt.lsts.neptus.types.coord.LocationType;
+
+import pt.lsts.neptus.plugins.NeptusProperty;
 
 /**
- * @author zp
+ * @author pdias
  *
  */
-public class RemotePosition implements Comparable<RemotePosition> {
+public class CommandText extends AbstractTextCommand {
 
-    private long timestamp;
-    private LocationType location = null;
-    
-    public RemotePosition(long timestamp, LocationType location) {
-        this.location = new LocationType(location);
-        this.timestamp = timestamp;
-    }
-    
+    @NeptusProperty(description = "Use 'TXT' or none or any other prefix to match the protocol")
+    String prefix = "TXT";
+
+    @NeptusProperty
+    String command = "";
+
     @Override
-    public int compareTo(RemotePosition o) {
-        return Long.valueOf(timestamp).compareTo(o.timestamp);
+    public String getCommand() {
+        return "generic text";
     }
 
-    /**
-     * @return the timestamp
-     */
-    public long getTimestamp() {
-        return timestamp;
+    @Override
+    public String buildCommand() {
+        String cmd = super.buildCommand();
+        cmd = cmd.replaceFirst("^" + getCommand(), "").trim();
+        cmd = cmd.replaceFirst("^prefix=(.*)?;", "$1").trim();
+        cmd = cmd.replaceFirst("command=(.*)?", " $1").trim();
+        return cmd;
     }
-
-    /**
-     * @return the location
-     */
-    public LocationType getLocation() {
-        return location;
-    }
-    
 }

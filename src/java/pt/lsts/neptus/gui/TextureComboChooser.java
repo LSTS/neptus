@@ -175,7 +175,7 @@ extends JComboBox<Object>
             
         for (i = 0; i < texNames.length; i++) 
         {
-            intArray[i] = new Integer(i);
+            intArray[i] = Integer.valueOf(i);
             TextureType texType = TexturesHolder.getTextureByName(texNames[i]);
             if (texType != null)
                 images[i] = new ImageIcon(ImageUtils.getScaledImage(texType.getTextureImage(),50, 30, false));

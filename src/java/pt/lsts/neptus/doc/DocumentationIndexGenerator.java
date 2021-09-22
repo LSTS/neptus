@@ -73,7 +73,7 @@ public class DocumentationIndexGenerator {
                     for (Class<?> i : c.getInterfaces()) {
                         if (i == DocumentationProvider.class) {
                             try {
-                                result.add((DocumentationWrapper)c.newInstance());
+                                result.add((DocumentationWrapper)c.getDeclaredConstructor().newInstance());
                                 break;
                             }
                             catch (Exception e) {

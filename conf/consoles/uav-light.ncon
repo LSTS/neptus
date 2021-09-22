@@ -163,7 +163,7 @@
       <child class="pt.lsts.neptus.plugins.uavs.panels.PreflightPanel" x="0" y="593" width="244" height="50">
         <properties/>
       </child>
-      <child class="pt.lsts.neptus.plugins.rtplot.RealTimePlot" x="0" y="0" width="0" height="0">
+      <child class="pt.lsts.neptus.plugins.rtplot.RealTimePlotGroovy" x="0" y="0" width="0" height="0">
         <properties>
           <entry key="Traces Script">roll: ${EstimatedState.phi} * 180 / Math.PI;
 desired_roll: ${DesiredRoll.value} * 180 / Math.PI</entry>

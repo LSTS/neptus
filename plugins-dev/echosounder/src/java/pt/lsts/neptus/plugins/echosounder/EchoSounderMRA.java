@@ -155,7 +155,7 @@ public class EchoSounderMRA extends JPanel implements MRAVisualization {
                 int y = 0;
                 for (byte b : msg.getRawData("data")) {
                     image.setRGB(x, y,
-                            colormap.getColor(new Byte(b).doubleValue() * 2 / 255).getRGB());
+                            colormap.getColor(Byte.valueOf(b).doubleValue() * 2 / 255).getRGB());
                     y++;
                 }
                 x++;

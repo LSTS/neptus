@@ -112,49 +112,49 @@ public class ArrayListEditor<E extends ArrayList<T>, T extends Object> extends S
         
         if (classType == Double.class) {
             if (minValue == null)
-                minValue = (T) new Double(Double.MIN_VALUE);
+                minValue = (T) Double.valueOf(Double.MIN_VALUE);
             if (maxValue == null)
-                maxValue = (T) new Double(Double.MAX_VALUE);
+                maxValue = (T) Double.valueOf(Double.MAX_VALUE);
             if (((Double) minValue).doubleValue() > ((Double) maxValue).doubleValue())
                 minValue = maxValue;
         }
         else if (classType == Float.class) {
             if (minValue == null)
-                minValue = (T) new Float(Float.MIN_VALUE);
+                minValue = (T) Float.valueOf(Float.MIN_VALUE);
             if (maxValue == null)
-                maxValue = (T) new Float(Float.MAX_VALUE);
+                maxValue = (T) Float.valueOf(Float.MAX_VALUE);
             if (((Float) minValue).floatValue() > ((Float) maxValue).floatValue())
                 minValue = maxValue;
         }
         else if (classType == Long.class) {
             if (minValue == null)
-                minValue = (T) new Long(Long.MIN_VALUE);
+                minValue = (T) Long.valueOf(Long.MIN_VALUE);
             if (maxValue == null)
-                maxValue = (T) new Long(Long.MAX_VALUE);
+                maxValue = (T) Long.valueOf(Long.MAX_VALUE);
             if (((Long) minValue).longValue() > ((Long) maxValue).longValue())
                 minValue = maxValue;
         }
         else if (classType == Integer.class) {
             if (minValue == null)
-                minValue = (T) new Integer(Integer.MIN_VALUE);
+                minValue = (T) Integer.valueOf(Integer.MIN_VALUE);
             if (maxValue == null)
-                maxValue = (T) new Integer(Integer.MAX_VALUE);
+                maxValue = (T) Integer.valueOf(Integer.MAX_VALUE);
             if (((Integer) minValue).intValue() > ((Integer) maxValue).intValue())
                 minValue = maxValue;
         }
         else if (classType == Short.class) {
             if (minValue == null)
-                minValue = (T) new Short(Short.MIN_VALUE);
+                minValue = (T) Short.valueOf(Short.MIN_VALUE);
             if (maxValue == null)
-                maxValue = (T) new Short(Short.MAX_VALUE);
+                maxValue = (T) Short.valueOf(Short.MAX_VALUE);
             if (((Short) minValue).shortValue() > ((Short) maxValue).shortValue())
                 minValue = maxValue;
         }
         else if (classType == Byte.class) {
             if (minValue == null)
-                minValue = (T) new Byte(Byte.MIN_VALUE);
+                minValue = (T) Byte.valueOf(Byte.MIN_VALUE);
             if (maxValue == null)
-                maxValue = (T) new Byte(Byte.MAX_VALUE);
+                maxValue = (T) Byte.valueOf(Byte.MAX_VALUE);
             if (((Byte) minValue).byteValue() > ((Byte) maxValue).byteValue())
                 minValue = maxValue;
         }

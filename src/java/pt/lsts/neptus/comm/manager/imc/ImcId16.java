@@ -89,10 +89,7 @@ public class ImcId16 extends Number implements Comparable<ImcId16>{
      * @return
      */
     public static boolean isValidIdForSource(ImcId16 id) {
-        if (ImcId16.NULL_ID.equals(id) || ImcId16.BROADCAST_ID.equals(id) || ImcId16.ANNOUNCE.equals(id))
-            return false;
-        else
-            return true;
+        return !ImcId16.NULL_ID.equals(id) && !ImcId16.BROADCAST_ID.equals(id) && !ImcId16.ANNOUNCE.equals(id);
     }
 
     /**
@@ -102,17 +99,14 @@ public class ImcId16 extends Number implements Comparable<ImcId16>{
      * @return
      */
     public static boolean isValidIdForSource(long id) {
-        if (ImcId16.NULL_ID.longValue() == id || ImcId16.BROADCAST_ID.longValue() == id
-                || ImcId16.ANNOUNCE.longValue() == id)
-            return false;
-        else
-            return true;
+        return ImcId16.NULL_ID.longValue() != id && ImcId16.BROADCAST_ID.longValue() != id
+                && ImcId16.ANNOUNCE.longValue() != id;
     }
 
     @Override
     public int compareTo(ImcId16 o) {
 		//return (int) (longValue() - o.longValue());
-		return (longValue()<o.longValue() ? -1 : (longValue()==o.longValue() ? 0 : 1));
+        return (longValue() < o.longValue() ? -1 : (longValue() == o.longValue() ? 0 : 1));
 	}
 
     @Override
@@ -216,11 +210,10 @@ public class ImcId16 extends Number implements Comparable<ImcId16>{
                     //System.err.println("Unable to parse ImcId16: '"+s+"' (value "+val+" is invalid)");
                     throw new NumberFormatException("Unable to parse ImcId16: '"+s+"' (value "+val+" is invalid)");
                 }
-                id = id | (val<<((1-i)*8));
+                id = id | ((long) val <<((1-i)*8));
             }
             catch (Exception e) {
                 //System.err.println("Unable to parse ImcId16: '"+s+"' ("+e.getMessage()+")");
-                id = 0;
                 throw new NumberFormatException("Unable to parse ImcId16: '"+s+"' ("+e.getMessage()+")");
             }
         }
@@ -266,14 +259,14 @@ public class ImcId16 extends Number implements Comparable<ImcId16>{
         if(slzType.equals("uint8_t")
                 || slzType.equals("int8_t")
                 || slzType.equals("int16_t")) {
-            slzNumber = new Short((short)id);
+            slzNumber = (short) id;
         }
         else if(slzType.equals("int32_t")
              || slzType.equals("uint16_t")) {
-          slzNumber = new Integer((int)id);
+          slzNumber = (int) id;
         }
         else {
-           slzNumber = new Long((long)id);
+           slzNumber = id;
         }
         return slzNumber;
     }
@@ -317,8 +310,6 @@ public class ImcId16 extends Number implements Comparable<ImcId16>{
         NeptusLog.pub().info("<###> "+idC1.equals(idC2));
         NeptusLog.pub().info("<###> "+(idC1 == idC2));
         
-        NeptusLog.pub().info("<###> "+(new Long(8) == new Long(8)));
-
         ImcId16 id3 = new ImcId16("0xa001");
         NeptusLog.pub().info("<###> "+id3.intValue());
         NeptusLog.pub().info("<###> "+id3.toPrettyString());

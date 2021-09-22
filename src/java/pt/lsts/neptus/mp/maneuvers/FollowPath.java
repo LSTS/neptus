@@ -121,7 +121,7 @@ public class FollowPath extends FollowTrajectory {
                 if (patternName.equalsIgnoreCase(pattern)) {
                     NeptusLog.pub().warn(String.format("Found follow path pattern '%s'", patternName));
                     try {
-                        return fpp.newInstance();
+                        return fpp.getDeclaredConstructor().newInstance();
                     }
                     catch (Exception e) {
                         NeptusLog.pub().warn(String.format("Not possible to instanciate found follow path pattern '%s'! (%s)", 

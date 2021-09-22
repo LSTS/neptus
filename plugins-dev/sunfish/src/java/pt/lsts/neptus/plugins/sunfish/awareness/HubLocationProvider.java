@@ -33,6 +33,7 @@
 package pt.lsts.neptus.plugins.sunfish.awareness;
 
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -58,6 +59,8 @@ public class HubLocationProvider implements ILocationProvider {
 
     SituationAwareness parent;
     private String systemsUrl = GeneralPreferences.ripplesUrl + "/api/v1/systems/active";
+    private String authKey = GeneralPreferences.ripplesApiKey;
+
     @Override
     public void onInit(SituationAwareness instance) {
         this.parent = instance;
@@ -132,8 +135,12 @@ public class HubLocationProvider implements ILocationProvider {
         try {
             Gson gson = new Gson();
             URL url = new URL(systemsUrl);
-    
-            HubSystemMsg[] msgs = gson.fromJson(new InputStreamReader(url.openStream()), HubSystemMsg[].class);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            if (authKey != null && !authKey.isEmpty()) {
+                conn.setRequestProperty ("Authorization", authKey);
+            }
+
+            HubSystemMsg[] msgs = gson.fromJson(new InputStreamReader(conn.getInputStream()), HubSystemMsg[].class);
             NeptusLog.pub().info(" through HTTP: " + systemsUrl);
     
             for (HubSystemMsg m : msgs) {

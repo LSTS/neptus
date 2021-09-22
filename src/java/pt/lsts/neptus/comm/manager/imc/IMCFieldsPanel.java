@@ -389,7 +389,7 @@ public class IMCFieldsPanel {
                                 // Object val = IMCUtil.parseString(msg.getIMCMessageType().getFieldType(field),
                                 // default_value);
                                 // double deg = Math.toDegrees((double) val);
-                                double deg = Math.toDegrees(new Double(default_value).doubleValue());
+                                double deg = Math.toDegrees(Double.valueOf(default_value).doubleValue());
                                 default_value = String.valueOf(deg);
                             }
                     }

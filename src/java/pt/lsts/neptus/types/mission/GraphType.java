@@ -562,7 +562,7 @@ public class GraphType implements XmlOutputMethods {
 //        try
 //        {
 //            int nnodes = num.intValue();
-//            NeptusLog.pub().debug(new Integer(nnodes));
+//            NeptusLog.pub().debug(Integer.valueOf(nnodes));
 //            
 //            for (int i = 1; i < nnodes; i++)
 //            {

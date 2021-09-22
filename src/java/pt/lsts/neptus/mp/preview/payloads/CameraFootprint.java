@@ -124,7 +124,7 @@ public class CameraFootprint extends PayloadFingerprint {
         if (uavCamProperties.get(vehicle).containsKey(paramName))
             return Math.toRadians(Double.parseDouble(uavCamProperties.get(vehicle).get(paramName)));
 
-        return new Double(0);
+        return Double.valueOf(0);
     }
 
     private static Double getVerticalAOV(String vehicle, String Model) {
@@ -134,7 +134,7 @@ public class CameraFootprint extends PayloadFingerprint {
         if (uavCamProperties.get(vehicle).containsKey(paramName))
             return Math.toRadians(Double.parseDouble(uavCamProperties.get(vehicle).get(paramName)));
 
-        return new Double(0);
+        return Double.valueOf(0);
     }
 
     private static Double getTiltAngle(String vehicle, String Model) {
@@ -144,7 +144,7 @@ public class CameraFootprint extends PayloadFingerprint {
         if (uavCamProperties.get(vehicle).containsKey(paramName))
             return Math.toRadians(Double.parseDouble(uavCamProperties.get(vehicle).get(paramName)));
 
-        return new Double(0);
+        return Double.valueOf(0);
     }
 
     private static void loadProperties(String vehicle) {

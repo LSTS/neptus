@@ -96,7 +96,7 @@ public class AisManager extends ConsolePanel {
                 String aisLabel = ais.getLabel();
                 Long aisTimestamp = ais.getTimestampMs();
 
-                if (!knownSnapshots.containsKey(aisLabel) || knownSnapshots.get(aisLabel) != aisTimestamp) {
+                if (!knownSnapshots.containsKey(aisLabel) || !knownSnapshots.get(aisLabel).equals(aisTimestamp)) {
                     knownSnapshots.put(aisLabel, aisTimestamp);
 
                     double[] navInfo = {ais.getSog(), ais.getCog(), ais.getHeading(), ais.getLatRads(), ais.getLonRads()};

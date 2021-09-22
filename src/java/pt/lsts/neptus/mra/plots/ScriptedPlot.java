@@ -205,7 +205,6 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
      */
     public void addTimeSeries(TimeSeries ts) {
         String trace = ts.getKey().toString();
-        String id    = getSeriesId(ts);
         if (!forbiddenSeries.contains(trace)) {
             if (!series.containsKey(trace)) {
                 addTrace(trace);
@@ -249,7 +248,9 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
                 }
             }
             //look into custom series
-            for(TimeSeries s: (List<TimeSeries>) customTsc.getSeries()) {
+            @SuppressWarnings("unchecked")
+            List<TimeSeries> series = (List<TimeSeries>) customTsc.getSeries();
+            for(TimeSeries s: series) {
                 variable = getSeriesId(s);
                 if(variable.equals(id)) {
                     tsc.addSeries(s);
@@ -262,7 +263,7 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
 
     public void hideTimeSeries(String id,TimeSeries ts){
         if(series.containsKey(id)){
-            Object removed = series.remove(id);
+            series.remove(id);
             hiddenFiles.add(id);
             hiddenSeries.put(id,ts);
             return;
@@ -273,7 +274,8 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
         else if (customTsc != null){
             if(customTsc.getSeries().isEmpty())
                 return;
-            for (Iterator<TimeSeries> itr = customTsc.getSeries().iterator(); itr.hasNext();) {
+            for (@SuppressWarnings("unchecked")
+                    Iterator<TimeSeries> itr = customTsc.getSeries().iterator(); itr.hasNext();) {
                 TimeSeries s = itr.next();
                 String fields[] = s.getKey().toString().split("\\.");
                 String variable = s.getKey().toString().substring(fields[0].length() + 1);
@@ -315,7 +317,8 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
             }
         }
         else if(customTsc != null){ //look into custom series
-            for (Iterator<TimeSeries> itr = customTsc.getSeries().iterator(); itr.hasNext();) {
+            for (@SuppressWarnings("unchecked")
+                    Iterator<TimeSeries> itr = customTsc.getSeries().iterator(); itr.hasNext();) {
                 TimeSeries s = itr.next();
                 String fields[] = s.getKey().toString().split("\\.");
                 String variable = s.getKey().toString().substring(fields[0].length() + 1);
@@ -381,7 +384,9 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
         processed = true;
         runScript(scriptPath);
         // No need to iterate over timestep because previous data is already in the scale
-        for (TimeSeries t : (List<TimeSeries>) customTsc.getSeries()) {
+        @SuppressWarnings("unchecked")
+        List<TimeSeries> series = (List<TimeSeries>) customTsc.getSeries();
+        for (TimeSeries t : series) {
             for (int i = 0; i < t.getItemCount(); i++) {
                 TimeSeriesDataItem item = t.getDataItem(i);
                 if (!Double.isNaN(item.getValue().doubleValue())) {

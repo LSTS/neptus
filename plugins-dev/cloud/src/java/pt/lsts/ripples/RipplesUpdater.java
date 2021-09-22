@@ -80,7 +80,9 @@ public class RipplesUpdater extends ConsolePanel implements ConfigurationListene
 
     private static final long serialVersionUID = 8901788326550597186L;
 
-    private final String ripplesPostUrl = GeneralPreferences.ripplesUrl + "/soi/assets";
+    private final String ripplesPostUrl = GeneralPreferences.ripplesUrl + "/assets";
+    private final String authKey = GeneralPreferences.ripplesApiKey;
+
     private JCheckBoxMenuItem menuItem;
 
     private ImageIcon onIcon, offIcon;
@@ -256,6 +258,10 @@ public class RipplesUpdater extends ConsolePanel implements ConfigurationListene
             con.setRequestMethod("POST");
             con.setDoOutput(true);
             con.setRequestProperty("Content-Type", "application/json");
+
+            if (authKey != null && !authKey.isEmpty()) {
+                con.setRequestProperty ("Authorization", authKey);
+            }
 
             this.sendData(con, data);
 

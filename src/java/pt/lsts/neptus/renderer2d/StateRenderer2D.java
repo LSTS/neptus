@@ -1652,9 +1652,9 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
      */
     @Override
     public DefaultProperty[] getProperties() {
-        DefaultProperty p1 = PropertiesEditor.getPropertyInstance("World Bondaries Shown", Boolean.class, new Boolean(
+        DefaultProperty p1 = PropertiesEditor.getPropertyInstance("World Bondaries Shown", Boolean.class, Boolean.valueOf(
                 isWorldBondariesShown()), true);
-        DefaultProperty p2 = PropertiesEditor.getPropertyInstance("WorldMap Shown", Boolean.class, new Boolean(
+        DefaultProperty p2 = PropertiesEditor.getPropertyInstance("WorldMap Shown", Boolean.class, Boolean.valueOf(
                 isWorldMapShown()), true);
         return new DefaultProperty[] {  p1, p2 };
     }

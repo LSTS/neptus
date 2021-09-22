@@ -67,7 +67,6 @@ import pt.lsts.neptus.mp.maneuvers.StatisticsProvider;
 import pt.lsts.neptus.mp.preview.PlanSimulator;
 import pt.lsts.neptus.plugins.PluginProperty;
 import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.mp.preview.SpeedConversion;
 import pt.lsts.neptus.params.PlanPayloadConfig;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanType;

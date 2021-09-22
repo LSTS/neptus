@@ -50,11 +50,11 @@ import ucar.nc2.NetcdfFileWriter;
 /**
  * @author zp
  */
-@SuppressWarnings("deprecation")
+@Deprecated // Rework this
 public class NetcdfTimeSeriesExporter {
 
     protected LsfIndex index;
-    protected Vector<ImcField> scalarsToExport = new Vector<>();
+    protected Vector<ImcField> scalarsToExport;
     protected double startTime, endTime;
     
     public NetcdfTimeSeriesExporter(LsfIndex index, final Vector<ImcField> ImcFieldsToExport) {
@@ -64,41 +64,37 @@ public class NetcdfTimeSeriesExporter {
         endTime = Math.floor(index.getEndTime());
     }
 
-    public void export(File outputFile) throws Exception {
+    public void export(File outputFile) {
         try(NetcdfFileWriter file = NetcdfFileWriter.createNew(outputFile.getAbsolutePath(), true)) {
             Dimension timeDim = file.addDimension("time", (int) (endTime-startTime));
-            Vector<LocationType> locations = new Vector<>();
             LinkedHashMap<String, Vector<Double>> scalars = new LinkedHashMap<>();
             LinkedHashMap<String, Integer> lsfIndexes = new LinkedHashMap<>();
             
-            List<Dimension> tmpDims = new ArrayList<Dimension>();
+            List<Dimension> tmpDims = new ArrayList<>();
             tmpDims.add(timeDim);
             file.addVariable("latitude", DataType.DOUBLE, tmpDims);
             file.addVariable("longitude", DataType.DOUBLE, tmpDims);
             file.addVariable("depth", DataType.DOUBLE, tmpDims);
             
-            scalars.put("latitude", new Vector<Double>());
-            scalars.put("longitude", new Vector<Double>());
-            scalars.put("depth", new Vector<Double>());
+            scalars.put("latitude", new Vector<>());
+            scalars.put("longitude", new Vector<>());
+            scalars.put("depth", new Vector<>());
             file.addVariableAttribute("latitude", "units", "degrees_north");
             file.addVariableAttribute("longitude", "units", "degrees_east");
             file.addVariableAttribute("depth", "units", "meters");
             
             for (ImcField f : scalarsToExport) {
                 file.addVariable(f.getVarName(), DataType.DOUBLE, tmpDims);
-                scalars.put(f.getVarName(), new Vector<Double>());
+                scalars.put(f.getVarName(), new Vector<>());
                 lsfIndexes.put(f.getVarName(), 0);
             }
-            
-            
             
             for (ImcField f : scalarsToExport) {
                 if (index.getDefinitions().getType(f.getMessage()).getFieldUnits(f.getField()) != null)
                     file.addVariableAttribute(f.getVarName(), "units",
                             index.getDefinitions().getType(f.getMessage()).getFieldUnits(f.getField()));
             }
-            
-            
+
             int stateId = index.getDefinitions().getMessageId("EstimatedState");
             int curIndex = 0;
             for (double time = startTime; time < endTime; time++) {
@@ -112,7 +108,6 @@ public class NetcdfTimeSeriesExporter {
                 
                 LocationType loc = new LocationType(lat, lon);
                 loc.translatePosition(m.getDouble("x"), m.getDouble("y"), 0);            
-                locations.add(loc);
                 loc.convertToAbsoluteLatLonDepth();
                 scalars.get("latitude").add(loc.getLatitudeDegs());
                 scalars.get("longitude").add(loc.getLongitudeDegs());

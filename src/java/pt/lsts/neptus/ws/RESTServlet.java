@@ -40,8 +40,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.text.StringEscapeUtils;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.messages.listener.MessageInfo;
@@ -59,18 +61,17 @@ public class RESTServlet extends HttpServlet {
 
 	//FIXME ZP
 	protected void messagesReceived(IMCMessage[] messages) {
-		for (int i = 0; i < messages.length; i++) {
-			try {
-				MessageInfo info = new MessageInfoImpl();
-				info.setTimeReceivedNanos(System.currentTimeMillis()*(long)1E6);
-				info.setTimeSentNanos((long)messages[i].getHeader().getTimestamp()*(long)1E9);
-				ImcMsgManager.getManager().onMessage(info, messages[i]);
-			}
-			catch (Exception e) {
-				e.printStackTrace();
-				continue;
-			}
-		}
+        for (IMCMessage message : messages) {
+            try {
+                MessageInfo info = new MessageInfoImpl();
+                info.setTimeReceivedNanos(System.currentTimeMillis() * (long) 1E6);
+                info.setTimeSentNanos((long) message.getHeader().getTimestamp() * (long) 1E9);
+                ImcMsgManager.getManager().onMessage(info, message);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
 	}
 	
 	@Override
@@ -82,9 +83,7 @@ public class RESTServlet extends HttpServlet {
 	
 	
 	@Override
-	protected void doPut(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException, IOException {
-		
+	protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		String[] parts = req.getRequestURI().split("/");
 		Vector<String> errors = new Vector<String>();
 			
@@ -111,12 +110,13 @@ public class RESTServlet extends HttpServlet {
 					}
 					else {
 						resp.setStatus(500);
-						errors.add("Currently only IMC-XML and LSF are suppported");
+						errors.add("Currently only IMC-XML and LSF are supported");
 					}
 				}
 				catch (Exception e) {
 					resp.setStatus(500);
-					errors.add(e.getMessage());
+                    NeptusLog.pub().error(e.getMessage());
+                    errors.add("Internal error!");
 				}
 			}
 			else {
@@ -127,15 +127,12 @@ public class RESTServlet extends HttpServlet {
 		
 		resp.setContentType("text/plain");		
 		for (String e : errors)
-			resp.getWriter().println(e);
+			resp.getWriter().println(StringEscapeUtils.escapeCsv(e));
 		resp.getWriter().close();
 	}
 	
 	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException, IOException {
-		//super.doGet(req, resp);
-		
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		String[] parts = req.getRequestURI().split("/");
 		Vector<String> errors = new Vector<String>();
 		
@@ -150,40 +147,45 @@ public class RESTServlet extends HttpServlet {
 			resp.setContentType("application/"+format);
 			
 			if (IMCDefinition.getInstance().getMessageId(msgName) != -1) {
-				
-				if (format.equals("xml")) {
-					try {
-						resp.setContentType("text/xml");
-						resp.getWriter().println(IMCUtils.getAsImcXml(new IMCMessage[] {SQLiteSerialization.getDb().getLastMessageOfType(msgName)}).asXML());
-						resp.getWriter().close();
-						return;
-					}
-					catch (Exception e) {
-						resp.setStatus(500);
-						errors.add(e.getMessage());
-					}
-				}
-				else if (format.equals("lsf")) {
-					resp.setContentType("application/lsf");
-					try {
-						IMCUtils.writeAsLsf(SQLiteSerialization.getDb().getLastMessageOfType(msgName), resp.getOutputStream());
-					}
-					catch (Exception e) {
-						resp.setStatus(500);
-						errors.add(e.getMessage());
-					}
-				}
-				else if (format.equals("txt")) {
-					resp.setContentType("text/plain");
-					
-					try {
-						IMCUtils.writeAsTxt(SQLiteSerialization.getDb().getLastMessageOfType(msgName), resp.getOutputStream());						
-					}
-					catch (Exception e) {
-						resp.setStatus(500);
-						errors.add(e.getMessage());
-					}
-				}
+
+                switch (format) {
+                    case "xml":
+                        try {
+                            resp.setContentType("text/xml");
+                            resp.getWriter().println(IMCUtils.getAsImcXml(new IMCMessage[]{SQLiteSerialization.getDb().getLastMessageOfType(msgName)}).asXML());
+                            resp.getWriter().close();
+                            return;
+                        }
+                        catch (Exception e) {
+                            resp.setStatus(500);
+                            NeptusLog.pub().error(e.getMessage());
+                            errors.add("Internal error!");
+                        }
+                        break;
+                    case "lsf":
+                        resp.setContentType("application/lsf");
+                        try {
+                            IMCUtils.writeAsLsf(SQLiteSerialization.getDb().getLastMessageOfType(msgName), resp.getOutputStream());
+                        }
+                        catch (Exception e) {
+                            resp.setStatus(500);
+                            NeptusLog.pub().error(e.getMessage());
+                            errors.add("Internal error!");
+                        }
+                        break;
+                    case "txt":
+                        resp.setContentType("text/plain");
+
+                        try {
+                            IMCUtils.writeAsTxt(SQLiteSerialization.getDb().getLastMessageOfType(msgName), resp.getOutputStream());
+                        }
+                        catch (Exception e) {
+                            resp.setStatus(500);
+                            NeptusLog.pub().error(e.getMessage());
+                            errors.add("Internal error!");
+                        }
+                        break;
+                }
 			}
 			else {
 				resp.setStatus(404);
@@ -197,7 +199,7 @@ public class RESTServlet extends HttpServlet {
 		
 		resp.setContentType("text/plain");				
 		for (String e : errors)
-			resp.getWriter().println(e);
+			resp.getWriter().println(StringEscapeUtils.escapeCsv(e));
 		//resp.getWriter().close();
 	}
 	

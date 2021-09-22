@@ -54,7 +54,6 @@ public class ScriptLog {
         else {
             File logFx = new File(args[0]);
             File scriptFile = new File(args[1]);
-            String script=null;
 
             try {
                 ScriptedPlot processor;

@@ -61,7 +61,7 @@ public class NeptusNumericTypeEditor extends AbstractPropertyEditor {
 //					oldVal = Double.parseDouble(textField.getText());
 //				}
 //				catch (Exception e) {
-//					oldVal = new Double(0);
+//					oldVal = Double.valueOf(0);
 //					textField.setText("0");
 //				}
 //			}

@@ -122,9 +122,9 @@ public class GimbalPanel extends ConsolePanel implements MainVehicleChangeListen
         });
 
         Hashtable<Integer, JLabel> rollLblTable = new Hashtable<>();
-        rollLblTable.put( new Integer(100),  new JLabel("L"));
-        rollLblTable.put( new Integer(75), new JLabel("-") );
-        rollLblTable.put( new Integer(53), new JLabel("R") );
+        rollLblTable.put( Integer.valueOf(100),  new JLabel("L"));
+        rollLblTable.put( Integer.valueOf(75), new JLabel("-") );
+        rollLblTable.put( Integer.valueOf(53), new JLabel("R") );
         rollSlider.setLabelTable(rollLblTable);
         rollSlider.setInverted(true);
         buttonPanel.add(rollSlider, "w 50%, h 100%");
@@ -133,10 +133,10 @@ public class GimbalPanel extends ConsolePanel implements MainVehicleChangeListen
         pitchSlider.setPaintTicks(true);
 
         Hashtable<Integer, JLabel> pitchLblTable = new Hashtable<>();
-        pitchLblTable.put( new Integer(75), new JLabel("FWD") );
-        pitchLblTable.put( new Integer(80), new JLabel("-15") );
-        pitchLblTable.put( new Integer(90), new JLabel("-45") );
-        pitchLblTable.put( new Integer(100),  new JLabel("DWN"));
+        pitchLblTable.put( Integer.valueOf(75), new JLabel("FWD") );
+        pitchLblTable.put( Integer.valueOf(80), new JLabel("-15") );
+        pitchLblTable.put( Integer.valueOf(90), new JLabel("-45") );
+        pitchLblTable.put( Integer.valueOf(100),  new JLabel("DWN"));
         pitchSlider.setLabelTable( pitchLblTable );
         pitchSlider.setPaintLabels(true);
         pitchSlider.setInverted(true);

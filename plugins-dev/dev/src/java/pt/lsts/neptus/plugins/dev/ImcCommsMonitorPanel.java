@@ -34,8 +34,6 @@ package pt.lsts.neptus.plugins.dev;
 
 import java.awt.BorderLayout;
 
-import pt.lsts.neptus.comm.manager.imc.ImcMessageSenderPanel;
-import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.MonitorIMCComms;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;

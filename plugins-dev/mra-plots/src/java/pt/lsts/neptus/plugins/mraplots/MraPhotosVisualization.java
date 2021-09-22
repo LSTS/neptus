@@ -217,7 +217,7 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
             public void paintTicks(Graphics g) {
                 super.paintTicks(g);
                 for (LogMarker m : markers) {
-                    long mtime = new Double(m.getTimestamp()).longValue();
+                    long mtime = Double.valueOf(m.getTimestamp()).longValue();
                     g.drawLine(xPositionForValue((int) (mtime - startTime)), 0,
                             xPositionForValue((int) (mtime - startTime)), timeline.getSlider().getHeight() / 2);
                 }

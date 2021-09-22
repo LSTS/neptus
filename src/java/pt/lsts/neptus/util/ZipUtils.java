@@ -34,7 +34,6 @@ package pt.lsts.neptus.util;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -95,11 +94,19 @@ public class ZipUtils {
                             + Arrays.toString(entry.getExtraFields()));
                     if (entry.isDirectory()) {
                         File dir = new File(destinationPath, entry.getName());
+                        if (!dir.toPath().normalize().startsWith(destination.toPath())) {
+                            NeptusLog.pub().warn(String.format("Bad zip entry for %s", zipFile));
+                            continue;
+                        }
                         boolean bl = dir.mkdirs();
                         NeptusLog.pub().debug("Created dir (" + bl + "): " + dir.getAbsolutePath());
                     }
                     else {
                         File file = new File(destinationPath, entry.getName());
+                        if (!file.toPath().normalize().startsWith(destination.toPath())) {
+                            NeptusLog.pub().warn(String.format("Bad zip entry for %s", zipFile));
+                            continue;
+                        }
                         file.getParentFile().mkdirs();
                         FileOutputStream fxOutStream = new FileOutputStream(file);
                         boolean bl = StreamUtil.copyStreamToStream(content, fxOutStream);
@@ -126,10 +133,6 @@ public class ZipUtils {
             fxZipFile.close();
             
             return true;
-        }
-        catch (FileNotFoundException e) {
-            NeptusLog.pub().error("unZip", e);
-            return false;
         }
         catch (Exception e) {
             NeptusLog.pub().error("unZip", e);
@@ -170,10 +173,6 @@ public class ZipUtils {
             zOutStream.close();
 
             return true;
-        }
-        catch (FileNotFoundException e) {
-            NeptusLog.pub().error("zipDir", e);
-            return false;
         }
         catch (Exception e) {
             NeptusLog.pub().error("zipDir", e);
@@ -220,18 +219,20 @@ public class ZipUtils {
             zipDir = zipDir.getParentFile();
         }
         // loop through dirList, and zip the files
-        for (int i = 0; i < dirList.length; i++) {
-            File f = new File(zipDir, dirList[i]);
-            if (f.isDirectory()) {
-                // if the File object is a directory, call this
-                // function again to add its content recursively
-                String filePath = f.getPath();
-                zipDirWorker(filePath, baseDir, zOutStream);
-                // loop again
-                continue;
+        if (dirList != null) {
+            for (String s : dirList) {
+                File f = new File(zipDir, s);
+                if (f.isDirectory()) {
+                    // if the File object is a directory, call this
+                    // function again to add its content recursively
+                    String filePath = f.getPath();
+                    zipDirWorker(filePath, baseDir, zOutStream);
+                    // loop again
+                    continue;
+                }
+                // if we reached here, the File object was not a directory
+                addZipEntry(FileUtil.relativizeFilePath(baseDir, f.getPath()), f.getPath(), zOutStream);
             }
-            // if we reached here, the File object was not a directory
-            addZipEntry(FileUtil.relativizeFilePath(baseDir, f.getPath()), f.getPath(), zOutStream);
         }
     }
 
@@ -282,10 +283,6 @@ public class ZipUtils {
             
             return bl;
         }
-        catch (FileNotFoundException e) {
-            NeptusLog.pub().error("addZipEntry", e);
-            return false;
-        }
         catch (IOException e) {
             NeptusLog.pub().error("addZipEntry", e);
             return false;
@@ -313,10 +310,7 @@ public class ZipUtils {
 
                 if (zipEntry == null)
                     break;
-                if (zipEntry.isDirectory()) {
-                    continue;
-                }
-                else {
+                if (!zipEntry.isDirectory()) {
                     String fileZname = zipEntry.getName();
                     if (fileZname.equalsIgnoreCase("mission.nmis")) {
                         missionFileFound = true;
@@ -330,10 +324,6 @@ public class ZipUtils {
             else
                 return null;
             // zInStream.close();
-        }
-        catch (FileNotFoundException e) {
-            NeptusLog.pub().error("unZip", e);
-            return null;
         }
         catch (Exception e) {
             NeptusLog.pub().error("unZip", e);
