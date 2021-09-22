@@ -1,0 +1,8 @@
+-	The formation controller could take an ArrayList of vehicles and calculate betas depending on
+	the list size().
+	Does the indexes for Nei() need to come in a special order?
+- 	Popup window to display all connected vehicles and let one decide which to use for the controller.
+-	Use local NED coordinate system centered in fish.
+-	If the controller is running and an additional vehicle gets connectes, check the vehicle
+	state and if it's not in FollowReference mode but in Service mode, then start it.
+-	Substract PI from Beta to let vehicles reduce speed to keep distances.
