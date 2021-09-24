@@ -19,14 +19,45 @@
       <entry component="" action="Thrust" inverted="false"/> 
     </controller> 
   </system>  
-  <system name="lauv-noptilus-1">
-    <controller name="Logitech Logitech Dual Action">
-      <entry component="Top" action="Exit" inverted="false"/>
-      <entry component="" action="Accelerate" inverted="false"/>
-      <entry component="" action="Decelerate" inverted="false"/>
-      <entry component="" action="Stop" inverted="false"/>
-      <entry component="z" action="Heading" inverted="false"/>
-      <entry component="" action="Thrust" inverted="false"/>
+  <system name="lauv-noptilus-1"> 
+    <controller name="Logitech Logitech Dual Action"> 
+      <entry component="Top" action="Exit" inverted="false"/>  
+      <entry component="" action="Accelerate" inverted="false"/>  
+      <entry component="" action="Decelerate" inverted="false"/>  
+      <entry component="" action="Stop" inverted="false"/>  
+      <entry component="z" action="Heading" inverted="false"/>  
+      <entry component="" action="Thrust" inverted="false"/> 
+    </controller> 
+  </system>  
+  <system name="ntnu-otter-01"> 
+    <controller name="Wireless Controller"> 
+      <entry component="" action="Exit" inverted="false"/>  
+      <entry component="Left Thumb" action="Port Motor" inverted="false"/>  
+      <entry component="Right Thumb" action="Starboard Motor" inverted="false"/>  
+      <entry component="Right Thumb 2" action="Accelerate" inverted="false"/>  
+      <entry component="Left Thumb 2" action="Decelerate" inverted="false"/>  
+      <entry component="x" action="Heading" inverted="false"/>  
+      <entry component="A" action="Stop" inverted="false"/> 
+    </controller>  
+    <controller name="Sony Interactive Entertainment Wireless Controller"> 
+      <entry component="" action="Exit" inverted="false"/>  
+      <entry component="Left Thumb" action="Port Motor" inverted="false"/>  
+      <entry component="Right Thumb" action="Starboard Motor" inverted="false"/>  
+      <entry component="Right Thumb 2" action="Accelerate" inverted="false"/>  
+      <entry component="Left Thumb 2" action="Decelerate" inverted="false"/>  
+      <entry component="x" action="Heading" inverted="false"/>  
+      <entry component="A" action="Stop" inverted="false"/> 
+    </controller> 
+  </system>  
+  <system name="ntnu-otter-02">
+    <controller name="Wireless Controller">
+      <entry component="X" action="Exit" inverted="false"/>
+      <entry component="Left Thumb" action="Port Motor" inverted="false"/>
+      <entry component="Right Thumb" action="Starboard Motor" inverted="false"/>
+      <entry component="Left Thumb 2" action="Accelerate" inverted="false"/>
+      <entry component="Right Thumb 2" action="Decelerate" inverted="false"/>
+      <entry component="x" action="Heading" inverted="true"/>
+      <entry component="A" action="Stop" inverted="false"/>
     </controller>
   </system>
 </systems>

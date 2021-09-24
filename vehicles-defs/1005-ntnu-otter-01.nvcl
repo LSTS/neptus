@@ -223,12 +223,12 @@
     <comm-mean>
       <name>ethernet</name>
       <type>ethernet</type>
-      <host-address>10.0.10.110</host-address>
+      <host-address>127.0.0.1</host-address>
       <protocols> imc</protocols>
       <latency value="100M" unit="bps"/>
       <protocols-args>
         <imc>
-          <port>6002</port>
+          <port>7000</port>
           <port-tcp>6002</port-tcp>
           <udp-on>true</udp-on>
           <tcp-on>false</tcp-on>
