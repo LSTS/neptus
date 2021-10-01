@@ -65,7 +65,7 @@ import pt.lsts.neptus.types.map.PlanElement;
 public class StationKeeping extends Maneuver implements LocatedManeuver, ManeuverWithSpeed, IMCSerialization, StatisticsProvider {
 
     public static final int INFINITY_DURATION = 0;
-    public static final double MINIMUM_SK_RADIUS = 10;
+    public static final double MINIMUM_SK_RADIUS = 1;
 
     private int duration = 60;
     private double radius = 10;
