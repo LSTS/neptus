@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<console name="Neptus Console" width="1920" height="1040" resizable="true" mission-file="../../missions/Otter/doris.nmisz" main-vehicle="otter">
+  <!-- Data saved on 2021-10-01T18:09:09.0Z with Neptus version 2020.10.1-SNAPSHOT (compiled on 2021-10-01, gneptus-2020.01.1-729-g2facb97). -->
+  <mainpanel name="console main panel">
+    <subpanel class="pt.lsts.neptus.console.plugins.containers.MigLayoutContainer" x="0" y="0" width="1920" height="958">
+      <properties>
+        <entry key="XML Definitions">&lt;profiles&gt;
+  &lt;profile name="Normal"&gt;
+    &lt;container layoutparam="ins 0" param="w 100%, h 100%"&gt;
+      &lt;child name="Map Panel" param="w 100%, h 100%"/&gt;
+    &lt;/container&gt;
+    &lt;container layoutparam="ins 3" param="w 300px!, h 100%"&gt;
+      &lt;container layoutparam="ins 0, filly" param="w 100%, h 100%"&gt;
+        &lt;child name="Plan Control" param="w 80%, h 50px!"/&gt;
+        &lt;child name="Abort Button" param="w 20%, h 50px!, wrap"/&gt;
+        &lt;child name="Plan Control State" param="w 100%!, h 100px!, span, wrap"/&gt;
+        &lt;child name="Mission Tree" param="w 100%, h 100%, span"/&gt;
+      &lt;/container&gt;
+    &lt;/container&gt;
+  &lt;/profile&gt;
+  &lt;profile name="Map"&gt;
+    &lt;container layoutparam="ins 0" param="w 100%, h 100%"&gt;
+      &lt;child name="Map Panel" param="w 100%, h 100%"/&gt;
+    &lt;/container&gt;
+  &lt;/profile&gt;
+&lt;/profiles&gt;</entry>
+      </properties>
+      <child class="pt.lsts.neptus.console.plugins.AbortPanel" x="238" y="0" width="56" height="50">
+        <properties>
+          <entry key="Button Shape">RECTANGULAR</entry>
+        </properties>
+      </child>
+      <child class="pt.lsts.neptus.plugins.acoustic.SimpleAbortModemRequest" x="65" y="195" width="10" height="10">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.plugins.acoustic.MantaOperations" x="81" y="195" width="10" height="10">
+        <properties>
+          <entry key="Systems listing">benthos2,benthos3,benthos4,benthos5,lauv-noptilus-1,lauv-noptilus-2,lauv-noptilus-3,lauv-xplore-1,lauv-xplore-2,lauv-xtreme-2,manta-1,manta-2,manta-11,manta-12,manta-21,manta-rugged</entry>
+        </properties>
+      </child>
+      <child class="pt.lsts.neptus.plugins.state.AudibleVehicleState" x="97" y="195" width="10" height="10">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.console.plugins.ChronometerPlugin" x="113" y="180" width="90" height="40">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.console.plugins.planning.CommandPlanner" x="209" y="195" width="10" height="10">
+        <properties>
+          <entry key="AUV Station Keeping radius">2.5</entry>
+          <entry key="AUV loiter depth">0.0</entry>
+          <entry key="AUV loiter radius">5.0</entry>
+        </properties>
+      </child>
+      <child class="pt.lsts.neptus.plugins.position.ContactMarker" x="225" y="195" width="10" height="10">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.controllers.ControllerPanel" x="241" y="195" width="10" height="10">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.console.plugins.EntityStatePanel" x="257" y="138" width="461" height="125">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.plugins.followref.FollowReferenceInteraction" x="724" y="195" width="10" height="10">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.plugins.alignment.ImuAlignmentPanel" x="740" y="159" width="335" height="82">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.console.plugins.base.IncomingDataPanel" x="0" y="0" width="1148" height="739">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.plugins.logs.LogBookSubPanel" x="1097" y="198" width="5" height="5">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.plugins.logs.LoggingDownloader" x="1108" y="175" width="156" height="50">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.plugins.mraplots.RevisionOverlays" x="1270" y="195" width="10" height="10">
+        <properties>
+          <entry key="defaultDirectory">/home</entry>
+        </properties>
+      </child>
+      <child class="pt.lsts.neptus.plugins.map.MapEditor" x="1286" y="195" width="10" height="10">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.console.plugins.planning.MapPanel" x="0" y="0" width="1614" height="958">
+        <properties>
+          <entry key="World Map Transparency">false</entry>
+        </properties>
+      </child>
+      <child class="pt.lsts.neptus.console.plugins.planning.MissionTreePanel" x="0" y="162" width="294" height="790">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.console.plugins.planning.MultiVehiclePlanOverlay" x="1610" y="195" width="10" height="10">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.console.plugins.MyLocationDisplay" x="1626" y="195" width="10" height="10">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.plugins.oplimits.OperationLimitsSubPanel" x="1642" y="184" width="88" height="32">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.console.plugins.planning.PlanControlPanel" x="0" y="0" width="232" height="50">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.console.plugins.planning.PlanControlStatePanel" x="0" y="56" width="294" height="100">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.console.plugins.planning.PlanEditor" x="0" y="0" width="0" height="0">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.console.plugins.PlanExporter" x="0" y="0" width="0" height="0">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.console.plugins.planning.PlanExecutionPreview" x="0" y="0" width="0" height="0">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.console.plugins.planning.PlanStatistics" x="0" y="0" width="0" height="0">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.plugins.sim.SimulationActionsPlugin" x="0" y="0" width="0" height="0">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.params.SystemConfiguration" x="0" y="0" width="0" height="0">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.console.plugins.SystemsList" x="0" y="0" width="275" height="344">
+        <properties>
+          <entry key="Enable Selection">false</entry>
+        </properties>
+      </child>
+      <child class="pt.lsts.neptus.plugins.txtcmd.TextCommands" x="0" y="0" width="0" height="0">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.console.bathymLayer.TidePanel" x="0" y="0" width="0" height="0">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.console.plugins.VehicleStateMonitor" x="0" y="0" width="0" height="0">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.plugins.position.StreamSpeedOverlay" x="0" y="0" width="0" height="0">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.plugins.sidescan.console.SidescanRealTimeWaterfall" x="0" y="0" width="0" height="0">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.plugins.rtplot.RealTimePlotGroovy" x="0" y="0" width="0" height="0">
+        <properties/>
+      </child>
+      <child class="pt.lsts.neptus.plugins.videostream.VideoStream" x="0" y="0" width="0" height="0">
+        <properties/>
+      </child>
+    </subpanel>
+  </mainpanel>
+  <mainpanel name="console alarm panel"/>
+  <layers>
+    <layer class="pt.lsts.neptus.console.plugins.planning.DesiredPathLayer" opacity="1.0">
+      <properties/>
+    </layer>
+    <layer class="pt.lsts.neptus.plugins.position.FindMainSystemLayer" opacity="1.0">
+      <properties/>
+    </layer>
+    <layer class="pt.lsts.neptus.console.plugins.planning.MapShortcutsLayer" opacity="1.0">
+      <properties/>
+    </layer>
+    <layer class="pt.lsts.neptus.console.plugins.planning.PlanSimulationLayer" opacity="1.0">
+      <properties/>
+    </layer>
+    <layer class="pt.lsts.neptus.plugins.position.painter.SystemInfoPainter" opacity="1.0">
+      <properties/>
+    </layer>
+  </layers>
+  <interactions>
+    <interaction class="pt.lsts.neptus.console.plugins.SystemsInteraction">
+      <properties/>
+    </interaction>
+  </interactions>
+</console>
