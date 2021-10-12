@@ -35,6 +35,10 @@ package pt.lsts.neptus.endurance;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Vector;
@@ -110,8 +114,23 @@ public class Plan {
                     Waypoint waypoint = new Waypoint(i, lat, lon);
                     waypoint.setDuration(wpt.getInt("duration", 0));
                     double time = wpt.getDouble("eta", 0);
-                    if (time != 0)
+                    String arrivalDateStr = wpt.getString("arrivalDate", null);
+                    if (time != 0) {
                         waypoint.setArrivalTime(new Date((long) (time * 1000)));
+                    } else if (arrivalDateStr != null) {
+                        try {
+                            ZonedDateTime zDateTime = ZonedDateTime.parse(arrivalDateStr);
+                            ZoneId szoff = ZoneOffset.systemDefault();
+                            zDateTime = zDateTime.withZoneSameInstant(szoff);
+                            Instant instant = zDateTime.toInstant();
+                            if (instant.getEpochSecond() > 0) {
+                                Date dt = new Date().from(instant);
+                                waypoint.setArrivalTime(dt);
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
                     p.addWaypoint(waypoint);
                 }
                 return p;
