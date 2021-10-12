@@ -200,7 +200,7 @@ public class VehiclesHolder {
             VehiclesHolder.addVehicle(v);
             ImcId16 imcIDV = v.getImcId();
             if (ImcId16.isValidIdForSource(imcIDV)) {
-                IMCDefinition.getInstance().getResolver().addEntry(imcIDV.intValue(), v.getName());
+                IMCDefinition.getInstance().getResolver().addEntry(imcIDV.intValue(), v.getId());
             }
         }
         vehiclesLoaded = true;
