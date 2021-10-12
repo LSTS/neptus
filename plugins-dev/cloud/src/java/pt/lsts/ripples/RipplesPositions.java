@@ -136,7 +136,7 @@ public class RipplesPositions extends ConsoleLayer {
                 g.setColor(cmap.getColor(age).darker().darker());
                 
                 g.drawString(update.id, (int) pt.getX() + pinWidth + 2, (int) pt.getY() + pinHeight / 2);
-                g.setColor(Color.black);
+                //g.setColor(Color.black);
                 g.drawString(date, (int) pt.getX() + pinWidth + 2,
                         (int) pt.getY() + pinHeight / 2 + g.getFontMetrics().getHeight());
 
@@ -178,10 +178,17 @@ public class RipplesPositions extends ConsoleLayer {
                 double latDegs = obj.get("lat").getAsDouble();
                 double lonDegs = obj.get("lon").getAsDouble();
                 Date time = sdf.parse(obj.get("timestamp").getAsString());
+                String name = obj.get("name").getAsString();
                 int id = obj.get("imcId").getAsInt();
                 
                 PositionUpdate update = new PositionUpdate();
-                update.id = IMCDefinition.getInstance().getResolver().resolve(id);
+                update.id = id == -1 ? name : IMCDefinition.getInstance().getResolver().resolve(id);
+                if (update.id.startsWith("unknown")) {
+                    update.id = name;
+                    if (id != -1) {
+                        IMCDefinition.getInstance().getResolver().addEntry(id, name);
+                    }
+                }
                 update.timestamp = time;
                 update.location = new LocationType(latDegs, lonDegs);
                 synchronized (lastPositions) {
