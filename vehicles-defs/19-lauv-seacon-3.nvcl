@@ -206,6 +206,29 @@
             </CrossHatchPattern>
         </maneuver>
         <maneuver>
+            <ExpandingSquarePattern kind="automatic">
+                <basePoint type="pointType">
+                    <point>
+                        <id/>
+                        <coordinate>
+                            <latitude>0N</latitude>
+                            <longitude>0E</longitude>
+                            <depth>0.0</depth>
+                        </coordinate>
+                    </point>
+                    <radiusTolerance>0.0</radiusTolerance>
+                </basePoint>
+                <width>100.0</width>
+                <hstep>20.0</hstep>
+                <bearing>0.0</bearing>
+                <speed unit="m/s">1.0</speed>
+                <annotation>
+                    <documentation>No documentation available</documentation>
+                    <implementation-class>pt.lsts.neptus.mp.maneuvers.ExpandingSquarePattern</implementation-class>
+                </annotation>
+            </ExpandingSquarePattern>
+        </maneuver>
+        <maneuver>
             <Elevator>
                 <finalPoint type="pointType">
                     <point>
