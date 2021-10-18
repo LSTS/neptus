@@ -47,6 +47,7 @@ import com.l2fprod.common.propertysheet.Property;
 
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.SpeedType;
@@ -320,7 +321,13 @@ public class ExpandingSquarePattern extends FollowPath {
 
     @Override
     protected Vector<DefaultProperty> additionalProperties() {
-        return ManeuversUtil.getPropertiesFromManeuver(this);
+        Vector<DefaultProperty> props = ManeuversUtil.getPropertiesFromManeuver(this);
+
+        DefaultProperty speed = PropertiesEditor.getPropertyInstance("Speed", SpeedType.class, this.speed, true);
+        speed.setShortDescription(I18n.text("The vehicle's desired speed"));
+        props.add(speed);
+
+        return props;
     }
 
     @Override
