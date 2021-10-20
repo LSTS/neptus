@@ -126,7 +126,7 @@ public class VerticalProfileViewer implements Renderer2DPainter {
             sb.append("]\n");
 
             try {
-                Files.write(sb.toString(), store, Charset.defaultCharset());
+                Files.asCharSink(store, Charset.defaultCharset()).write(sb.toString());
                 NeptusLog.pub().info("Wrote " + profiles.size() + " profiles to " + store.getAbsolutePath());
             }
             catch (IOException e) {
