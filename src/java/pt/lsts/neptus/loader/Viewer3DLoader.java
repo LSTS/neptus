@@ -77,7 +77,6 @@ public class Viewer3DLoader {
             }
         });
         app.setVisible(true);
-        app.show();
         loader.waitMoreAndEnd(1000);
     }
     

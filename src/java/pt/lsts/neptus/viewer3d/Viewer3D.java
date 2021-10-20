@@ -109,7 +109,7 @@ public class Viewer3D extends JPanel implements ActionListener {
 	public Viewer3D() {
 		init();
 		loadRecentlyOpenedFiles();
-		show();
+        setVisible(true);
 		// SceneGraphFileWriter
 		// menu.setVisible(true);
 		// this.repaint();
@@ -170,10 +170,10 @@ public class Viewer3D extends JPanel implements ActionListener {
 		return true;
 	}
 
-	public void show() {
+	public void setVisible(boolean visible) {
 		prepareFrame();
 		frame.getContentPane().add(this);
-		frame.setVisible(true);
+		frame.setVisible(visible);
 	}
 
 	protected void prepareFrame() {
