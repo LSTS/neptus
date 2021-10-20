@@ -447,7 +447,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
             int eventType = e.getID(); // KeyEvent.KEY_PRESSED KeyEvent.KEY_RELEASED KEY_TYPED
 
             Action action = globalKeybindings
-                    .get(KeyStroke.getKeyStroke(e.getKeyCode(), e.getModifiers()).toString());
+                    .get(KeyStroke.getKeyStroke(e.getKeyCode(), e.getModifiersEx()).toString());
             if (action != null && eventType == KeyEvent.KEY_PRESSED) {
                 action.actionPerformed(null);
                 return true;
