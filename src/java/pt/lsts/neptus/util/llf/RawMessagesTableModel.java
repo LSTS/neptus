@@ -38,7 +38,7 @@ import java.util.TimeZone;
 
 import javax.swing.table.AbstractTableModel;
 
-import org.apache.commons.collections.map.LRUMap;
+import org.apache.commons.collections4.map.LRUMap;
 
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.lsf.LsfIndex;

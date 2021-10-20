@@ -356,7 +356,7 @@ project(':core') {
         implementation name: 'charsets-zip' // for zip, probably not needed anymore
         implementation 'commons-cli:commons-cli:1.4'
         implementation 'commons-codec:commons-codec:1.15'
-        implementation 'commons-collections:commons-collections:3.2.2'
+        implementation 'org.apache.commons:commons-collections4:4.4'
         implementation 'org.apache.commons:commons-compress:1.20'
         implementation 'commons-configuration:commons-configuration:1.10'
         implementation 'org.apache.commons:commons-email:1.5'
