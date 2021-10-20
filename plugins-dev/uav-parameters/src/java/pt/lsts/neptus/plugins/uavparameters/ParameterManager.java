@@ -66,7 +66,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableRowSorter;
 
-import org.apache.commons.lang3.text.WordUtils;
+import org.apache.commons.text.WordUtils;
 import org.jdesktop.swingx.JXStatusBar;
 
 import com.MAVLink.Messages.MAVLinkMessage;
