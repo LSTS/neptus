@@ -92,11 +92,11 @@ import javax.swing.event.PopupMenuListener;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.PosixParser;
 import org.apache.log4j.Level;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
@@ -2521,7 +2521,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
         GeneralPreferences.initialize();
         try {
             // create the command line parser
-            CommandLineParser parser = new PosixParser();
+            CommandLineParser parser = new DefaultParser();
             Options options = getCommandLineOptions();
             // parse the command line arguments
             CommandLine line = null;
