@@ -70,9 +70,9 @@ public class AboutPanel extends JDialog {
     private static final String COPY_YEARS = "2004-2021";
 
     private String mainDevelopers = "Paulo Dias, José Pinto";
-    private String contributorsDevelopers = "Ricardo Martins, Manuel Ribeiro, "
-            + "José Braga, Tiago Marques, Pedro Gonçalves, Keila Lima";
-    private String pastDevelopers = "Sérgio Ferreira, Francisco Richardson, "
+    private String contributorsDevelopers = "Manuel Ribeiro, "
+            + "Tiago Marques, Pedro Gonçalves, Keila Lima";
+    private String pastDevelopers = "José Braga, Ricardo Martins, Francisco Richardson, "
             + "João Fortuna, José Loureiro, Hugo Queirós, Margarida Faria, "
             + "José Correia, Hugo Dias, Rui Gonçalves, Eduardo Marques";
 
