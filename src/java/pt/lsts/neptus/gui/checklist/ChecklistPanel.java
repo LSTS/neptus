@@ -93,7 +93,7 @@ import javax.swing.event.PopupMenuListener;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
@@ -2489,17 +2489,17 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
         // .withDescription("Verbosity level [off,fatal,warn,\"info\",debug]").withValueSeparator('=')
         // .hasOptionalArg().create("v"));
 
-        options.addOption(OptionBuilder.withLongOpt("checklist").withDescription(I18n.text("checklist file")).withArgName("file")
-                .withValueSeparator('=').hasArg().create("f"));
+        options.addOption(Option.builder("f").longOpt("checklist").desc(I18n.text("checklist file")).argName("file")
+                .valueSeparator('=').hasArg().build());
 
         options.addOption("g", "generate-pdf", false, I18n.text("generate pdf and don't open the interface"));
 
-        options.addOption(OptionBuilder.withLongOpt("output-pdf").withDescription(I18n.text("output pdf file"))
-                .withArgName("file").withValueSeparator('=').hasArg().create("o"));
+        options.addOption(Option.builder("o").longOpt("output-pdf").desc(I18n.text("output pdf file"))
+                .argName("file").valueSeparator('=').hasArg().build());
 
-        options.addOption(OptionBuilder.withLongOpt("pdf-columns")
-                .withDescription(I18n.text("generate pdf with n column (1, 2, or 3) defaults to 1")).withArgName("n")
-                .withValueSeparator('=').hasArg().create("c"));
+        options.addOption(Option.builder("c").longOpt("pdf-columns")
+                .desc(I18n.text("generate pdf with n column (1, 2, or 3) defaults to 1")).argName("n")
+                .valueSeparator('=').hasArg().build());
 
         return options;
     }
