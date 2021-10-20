@@ -33,6 +33,7 @@
 package pt.lsts.neptus.plugins.urready4os;
 
 import java.io.File;
+import java.nio.charset.Charset;
 import java.util.Locale;
 
 import javax.swing.ProgressMonitor;
@@ -221,7 +222,7 @@ public class IverPlanExporter implements IPlanFileExporter {
         template = template.replaceAll("\\$\\{centerLat\\}", String.format(Locale.US, "%.6f", (minLat + maxLat) / 2));
         template = template.replaceAll("\\$\\{centerLon\\}", String.format(Locale.US, "%.6f", (minLon + maxLon) / 2));
 
-        FileUtils.write(out, template);
+        FileUtils.write(out, template, (Charset) null);
     }
 
     @Override
