@@ -1175,9 +1175,10 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\\n"
 
 """
-}
+    }
+
     dependsOn buildJars
-    main 'pt.lsts.neptus.i18n.PluginsPotGenerator'
+    mainClass = 'pt.lsts.neptus.i18n.PluginsPotGenerator'
     args "${emptyTemplateFile.getPath()}"
     classpath configurations.runtimeClasspath
     jvmArgs = [
