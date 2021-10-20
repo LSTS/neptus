@@ -43,6 +43,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -376,7 +377,7 @@ public class LayersListPanel extends JPanel implements PropertiesProvider, Confi
                     fx = new File(fx.getAbsolutePath() + ext);
 
                     try {
-                        FileUtils.write(fx, FileUtil.getAsPrettyPrintFormatedXMLString(doc.asXML()), false);
+                        FileUtils.write(fx, FileUtil.getAsPrettyPrintFormatedXMLString(doc.asXML()), (Charset) null,false);
                         recentFolder = fx;
                     }
                     catch (IOException e1) {
@@ -408,7 +409,7 @@ public class LayersListPanel extends JPanel implements PropertiesProvider, Confi
                 try {
                     LinkedHashMap<Future<GenericNetCDFDataPainter>, Element> workers = new LinkedHashMap<>();
                     
-                    String xml = FileUtils.readFileToString(fx);
+                    String xml = FileUtils.readFileToString(fx, (Charset) null);
                     Document doc = DocumentHelper.parseText(xml);
                     @SuppressWarnings("unchecked")
                     List<Node> entries = doc.getRootElement().selectNodes("viz");
