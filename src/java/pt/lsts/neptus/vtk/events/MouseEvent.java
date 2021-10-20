@@ -126,8 +126,8 @@ public class MouseEvent implements MouseWheelListener, MouseListener, MouseMotio
         if (canvas.GetRenderer().VisibleActorCount() == 0)
             return;
 
-        canvas.setCtrlPressed((e.getModifiers() & InputEvent.CTRL_MASK) == InputEvent.CTRL_MASK ? 1 : 0);
-        canvas.setShiftPressed((e.getModifiers() & InputEvent.SHIFT_MASK) == InputEvent.SHIFT_MASK ? 1 : 0);
+        canvas.setCtrlPressed((e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) == InputEvent.CTRL_DOWN_MASK ? 1 : 0);
+        canvas.setShiftPressed((e.getModifiersEx() & InputEvent.SHIFT_DOWN_MASK) == InputEvent.SHIFT_DOWN_MASK ? 1 : 0);
 
         canvas.getRenderWindowInteractor().SetEventInformationFlipY(e.getX(), e.getY(), canvas.getCtrlPressed(),
                 canvas.getShiftPressed(), '0', 0, "0");
@@ -145,12 +145,12 @@ public class MouseEvent implements MouseWheelListener, MouseListener, MouseMotio
      * @see java.awt.event.MouseMotionListener#mouseMoved(java.awt.event.MouseEvent)
      */
     @Override
-    public void mouseMoved(java.awt.event.MouseEvent e) { // syncronized?!?!
+    public void mouseMoved(java.awt.event.MouseEvent e) { // synchronized?!?!
         canvas.setLastX(e.getX());
         canvas.setLastY(e.getY());
 
-        canvas.setCtrlPressed((e.getModifiers() & InputEvent.CTRL_MASK) == InputEvent.CTRL_MASK ? 1 : 0);
-        canvas.setShiftPressed((e.getModifiers() & InputEvent.SHIFT_MASK) == InputEvent.SHIFT_MASK ? 1 : 0);
+        canvas.setCtrlPressed((e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) == InputEvent.CTRL_DOWN_MASK ? 1 : 0);
+        canvas.setShiftPressed((e.getModifiersEx() & InputEvent.SHIFT_DOWN_MASK) == InputEvent.SHIFT_DOWN_MASK ? 1 : 0);
 
         canvas.getRenderWindowInteractor().SetEventInformationFlipY(e.getX(), e.getY(), canvas.getCtrlPressed(),
                 canvas.getShiftPressed(), '0', 0, "0");
@@ -186,22 +186,22 @@ public class MouseEvent implements MouseWheelListener, MouseListener, MouseMotio
         canvas.setLastX(e.getX());
         canvas.setLastY(e.getY());
 
-        canvas.setCtrlPressed((e.getModifiers() & InputEvent.CTRL_MASK) == InputEvent.CTRL_MASK ? 1 : 0);
+        canvas.setCtrlPressed((e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) == InputEvent.CTRL_DOWN_MASK ? 1 : 0);
 
-        canvas.setShiftPressed((e.getModifiers() & InputEvent.SHIFT_MASK) == InputEvent.SHIFT_MASK ? 1 : 0);
+        canvas.setShiftPressed((e.getModifiersEx() & InputEvent.SHIFT_DOWN_MASK) == InputEvent.SHIFT_DOWN_MASK ? 1 : 0);
 
         canvas.getRenderWindowInteractor().SetEventInformationFlipY(e.getX(), e.getY(), canvas.getCtrlPressed(),
                 canvas.getShiftPressed(), '0', 0, "0");
 
-        if ((e.getModifiers() & InputEvent.BUTTON1_MASK) == InputEvent.BUTTON1_MASK)
+        if ((e.getModifiersEx() & InputEvent.BUTTON1_DOWN_MASK) == InputEvent.BUTTON1_DOWN_MASK)
             if (canvas.getCtrlPressed() == 0)
                 canvas.getRenderWindowInteractor().LeftButtonPressEvent();
             else {
                 pointPickingEvent.execute(e, e.getID());
             }
-        else if ((e.getModifiers() & InputEvent.BUTTON2_MASK) == InputEvent.BUTTON2_MASK)
+        else if ((e.getModifiersEx() & InputEvent.BUTTON2_DOWN_MASK) == InputEvent.BUTTON2_DOWN_MASK)
             canvas.getRenderWindowInteractor().RightButtonPressEvent();
-        else if ((e.getModifiers() & InputEvent.BUTTON3_MASK) == InputEvent.BUTTON3_MASK)
+        else if ((e.getModifiersEx() & InputEvent.BUTTON3_DOWN_MASK) == InputEvent.BUTTON3_DOWN_MASK)
             canvas.getRenderWindowInteractor().MiddleButtonPressEvent();
 
         canvas.unlock();
@@ -217,25 +217,25 @@ public class MouseEvent implements MouseWheelListener, MouseListener, MouseMotio
     public void mouseReleased(java.awt.event.MouseEvent e) {
         canvas.GetRenderWindow().SetDesiredUpdateRate(0.01);
 
-        canvas.setCtrlPressed((e.getModifiers() & InputEvent.CTRL_MASK) == InputEvent.CTRL_MASK ? 1 : 0);
-        canvas.setShiftPressed((e.getModifiers() & InputEvent.SHIFT_MASK) == InputEvent.SHIFT_MASK ? 1 : 0);
+        canvas.setCtrlPressed((e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) == InputEvent.CTRL_DOWN_MASK ? 1 : 0);
+        canvas.setShiftPressed((e.getModifiersEx() & InputEvent.SHIFT_DOWN_MASK) == InputEvent.SHIFT_DOWN_MASK ? 1 : 0);
 
         canvas.getRenderWindowInteractor().SetEventInformationFlipY(e.getX(), e.getY(), canvas.getCtrlPressed(),
                 canvas.getShiftPressed(), '0', 0, "0");
 
-        if ((e.getModifiers() & InputEvent.BUTTON1_MASK) == InputEvent.BUTTON1_MASK) {
+        if ((e.getModifiersEx() & InputEvent.BUTTON1_DOWN_MASK) == InputEvent.BUTTON1_DOWN_MASK) {
             canvas.lock();
             canvas.getRenderWindowInteractor().LeftButtonReleaseEvent();
             canvas.unlock();
         }
 
-        if ((e.getModifiers() & InputEvent.BUTTON2_MASK) == InputEvent.BUTTON2_MASK) {
+        if ((e.getModifiersEx() & InputEvent.BUTTON2_DOWN_MASK) == InputEvent.BUTTON2_DOWN_MASK) {
             canvas.lock();
             canvas.getRenderWindowInteractor().RightButtonReleaseEvent();
             canvas.unlock();
         }
 
-        if ((e.getModifiers() & InputEvent.BUTTON3_MASK) == InputEvent.BUTTON3_MASK) {
+        if ((e.getModifiersEx() & InputEvent.BUTTON3_DOWN_MASK) == InputEvent.BUTTON3_DOWN_MASK) {
             canvas.lock();
             canvas.getRenderWindowInteractor().MiddleButtonReleaseEvent();
             canvas.unlock();
