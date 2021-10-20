@@ -33,6 +33,7 @@
 package pt.lsts.neptus.plugins.mavs;
 
 import java.io.File;
+import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
@@ -150,7 +151,7 @@ public class QGroundControlPlanExporter implements IPlanFileExporter {
         
         processManeuvers(plan, sb);
         
-        FileUtils.write(out, sb.toString());
+        FileUtils.write(out, sb.toString(), (Charset) null);
     }
     
     @SuppressWarnings("unused")
