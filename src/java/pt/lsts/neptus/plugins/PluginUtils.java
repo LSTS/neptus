@@ -45,6 +45,7 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -1045,7 +1046,7 @@ public class PluginUtils {
     }
     
     public static String getResourceAsString(String filename) throws IOException{
-        return IOUtils.toString(getResourceAsStream(filename));
+        return IOUtils.toString(getResourceAsStream(filename), (Charset) null);
     }
     
     private static String[] computeParamNameAlternatives(String name) {
