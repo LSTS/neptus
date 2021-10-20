@@ -386,26 +386,26 @@ public class VideoStream extends ConsolePanel implements ItemListener {
 
                 @Override
                 public void keyPressed(KeyEvent e) {
-                    if ((e.getKeyCode() == KeyEvent.VK_Z) && ((e.getModifiers() & KeyEvent.ALT_MASK) != 0)
+                    if ((e.getKeyCode() == KeyEvent.VK_Z) && ((e.getModifiersEx() & KeyEvent.ALT_DOWN_MASK) != 0)
                             && !zoomMask) {
                         if (raspiCam || ipCam) {
                             zoomMask = true;
                             popupzoom.add(zoomImg);
                         }
                     }
-                    else if ((e.getKeyCode() == KeyEvent.VK_I) && ((e.getModifiers() & KeyEvent.ALT_MASK) != 0)) {
+                    else if ((e.getKeyCode() == KeyEvent.VK_I) && ((e.getModifiersEx() & KeyEvent.ALT_DOWN_MASK) != 0)) {
                         checkIPCam();
                     }
-                    else if ((e.getKeyCode() == KeyEvent.VK_R) && ((e.getModifiers() & KeyEvent.ALT_MASK) != 0)) {
+                    else if ((e.getKeyCode() == KeyEvent.VK_R) && ((e.getModifiersEx() & KeyEvent.ALT_DOWN_MASK) != 0)) {
                         checkHostIp();
                     }
-                    else if ((e.getKeyCode() == KeyEvent.VK_X) && ((e.getModifiers() & KeyEvent.ALT_MASK) != 0)) {
+                    else if ((e.getKeyCode() == KeyEvent.VK_X) && ((e.getModifiersEx() & KeyEvent.ALT_DOWN_MASK) != 0)) {
                         NeptusLog.pub().info("Clossing all Video Stream...");
                         raspiCam = false;
                         state = false;
                         ipCam = false;
                     }
-                    else if ((e.getKeyCode() == KeyEvent.VK_C) && ((e.getModifiers() & KeyEvent.ALT_MASK) != 0)) {
+                    else if ((e.getKeyCode() == KeyEvent.VK_C) && ((e.getModifiersEx() & KeyEvent.ALT_DOWN_MASK) != 0)) {
                         menu.setVisible(true);
                     }
                     else if (e.getKeyChar() == 'z' && zoomMask) {
@@ -428,10 +428,10 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                             zoomMask = false;
                         }
                     }
-                    else if ((e.getKeyCode() == KeyEvent.VK_H) && ((e.getModifiers() & KeyEvent.ALT_MASK) != 0)) {
+                    else if ((e.getKeyCode() == KeyEvent.VK_H) && ((e.getModifiersEx() & KeyEvent.ALT_DOWN_MASK) != 0)) {
                         histogramflag = !histogramflag;
                     }
-                    else if ((e.getKeyCode() == KeyEvent.VK_S) && ((e.getModifiers() & KeyEvent.ALT_MASK) != 0)) {
+                    else if ((e.getKeyCode() == KeyEvent.VK_S) && ((e.getModifiersEx() & KeyEvent.ALT_DOWN_MASK) != 0)) {
                         saveSnapshot = true;
                     }
                     else if ((e.getKeyCode() == KeyEvent.VK_CONTROL)) {
