@@ -357,7 +357,7 @@ project(':core') {
         implementation 'commons-cli:commons-cli:1.4'
         implementation 'commons-codec:commons-codec:1.15'
         implementation 'org.apache.commons:commons-collections4:4.4'
-        implementation 'org.apache.commons:commons-compress:1.20'
+        implementation 'org.apache.commons:commons-compress:1.21'
         implementation 'commons-configuration:commons-configuration:1.10'
         implementation 'org.apache.commons:commons-email:1.5'
         implementation 'commons-io:commons-io:2.8.0'
