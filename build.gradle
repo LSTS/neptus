@@ -257,6 +257,7 @@ allprojects {
     java.targetCompatibility = JavaVersion.VERSION_1_8
 
     processResources {
+        mustRunAfter(generateRunScripts)
         duplicatesStrategy DuplicatesStrategy.EXCLUDE
         from (rootProject.projectDir) {
             include 'LICENSE.md'
@@ -264,6 +265,7 @@ allprojects {
     }
 
     jar {
+        mustRunAfter(generateRunScripts)
         manifest {
             attributes(
                 'Specification-Title': rootProject.name.capitalize(),
@@ -324,6 +326,7 @@ allprojects {
     else
         tasks.generateGitProperties.enabled = false
     generateGitProperties.dependsOn copyGitPropertiesFromRoot
+    generateGitProperties.mustRunAfter(generateRunScripts)
     classes.dependsOn copyGitPropertiesFromRoot
 }
 
@@ -625,6 +628,8 @@ project(':core') {
         archiveVersion = ''
         destinationDirectory = file("$rootDir/bin")
     }
+
+    compileJava.mustRunAfter(generateRunScripts)
 
     artifacts {
         core jar
