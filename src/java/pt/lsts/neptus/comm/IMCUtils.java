@@ -43,6 +43,7 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -1429,7 +1430,7 @@ public class IMCUtils {
         String address_url = "file:///home/zp/Desktop/IMC_Addresses.xml";
 
         URLConnection conn = new URL(address_url).openConnection();
-        Document doc = DocumentHelper.parseText(IOUtils.toString(conn.getInputStream()));
+        Document doc = DocumentHelper.parseText(IOUtils.toString(conn.getInputStream(), (Charset) null));
         List<?> nodes = doc.getRootElement().selectNodes("address/@id");
         for (int i = 0; i < nodes.size(); i++) {
             DefaultAttribute addrElem = (DefaultAttribute) nodes.get(i);
