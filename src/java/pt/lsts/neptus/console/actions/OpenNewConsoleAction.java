@@ -61,7 +61,7 @@ public class OpenNewConsoleAction extends ConsoleAction {
         this.setEnabled(false);
         console.getContentPane().setVisible(false);
         console.reset();
-        console.resetTidyUp();
+        console.resetTidyUp(true);
         console.getContentPane().setVisible(true);
         console.setConsoleChanged(false);
         console.fileName = null;

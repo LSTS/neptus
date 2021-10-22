@@ -276,11 +276,15 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         ConsoleLayout instance = new ConsoleLayout();
         instance.imcOn();
 
+        addBaseLayoutOnEmptyConsole(instance);
+
+        return forgeWorkerTidyUp(instance, true, true, loader);
+    }
+
+    private static void addBaseLayoutOnEmptyConsole(ConsoleLayout instance) {
         MigLayoutContainer migCont = new MigLayoutContainer(instance);
         instance.getMainPanel().addSubPanel(migCont, 0, 0);
         migCont.init();
-
-        return forgeWorkerTidyUp(instance, true, true, loader);
     }
 
     /**
@@ -1589,9 +1593,18 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         }
     }
 
-    public void resetTidyUp() {
-        if (pluginManager != null)
+    /**
+     * To setup a new console. Call it with true if the console will be an empty one.
+     * @param withEmptyConsole
+     */
+    public void resetTidyUp(boolean withEmptyConsole) {
+        if (withEmptyConsole) {
+            addBaseLayoutOnEmptyConsole(this);
+        }
+
+        if (pluginManager != null) {
             pluginManager.reset();
+        }
 
         if (settingsWindow != null) {
             settingsWindow.setIgnoreSubPanelChangedEvents(false);
@@ -1602,7 +1615,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     }
 
     /**
-     * Reset the console for a new one use when a new console is open Call also {@link #resetTidyUp()} after this if you
+     * Reset the console for a new one use when a new console is open Call also {@link #resetTidyUp(boolean)} after this if you
      * load a new console (or empty one).
      */
     public void reset() {
