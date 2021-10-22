@@ -55,7 +55,8 @@
 /conf/bathymetry.obj
 /conf/AirOS.conf
 /conf/wifimac.obj
-conf/profiles.json
+/conf/profiles.json
+/conf/consoles
 
 # /conf/i18n/
 /conf/i18n/en
@@ -128,6 +129,7 @@ conf/profiles.json
 # /vehicles-files/cularis/
 
 /missions
+
 
 /.gitignore*
 /#.gitignore*
