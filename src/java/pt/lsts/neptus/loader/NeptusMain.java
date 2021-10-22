@@ -84,9 +84,9 @@ public class NeptusMain {
     private static void init() {
         GeneralPreferences.initialize();
 
-        appNames.put("ws", I18n.text("Workspace"));
-        appNames.put("mra", I18n.text("Mission Review & Analysis"));
+        // appNames.put("ws", I18n.text("Workspace"));
         appNames.put("auv", I18n.text("LAUV Console"));
+        appNames.put("mra", I18n.text("Mission Review & Analysis"));
         appNames.put("la", I18n.text("LAUV SE Console"));
         appNames.put("uav", I18n.text("UAV Console"));
         appNames.put("cl", I18n.text("Empty Console"));
@@ -157,7 +157,7 @@ public class NeptusMain {
             if (appT != null)
                 app = typ;
             else
-                app = "ws";
+                app = "auv";
         }
         else if (app.equalsIgnoreCase("-f") && appargs.length >= 2) {
             loader.setText(I18n.text("Opening file..."));
