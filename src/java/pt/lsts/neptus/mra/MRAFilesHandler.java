@@ -32,6 +32,7 @@
  */
 package pt.lsts.neptus.mra;
 
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -591,8 +592,9 @@ public class MRAFilesHandler implements FileHandler {
      * @see pt.lsts.neptus.loader.FileHandler#handleFile(java.io.File)
      */
     @Override
-    public void handleFile(File f) {
+    public Window handleFile(File f) {
         openLog(f);
+        return mra;
     }
 
     /* (non-Javadoc)

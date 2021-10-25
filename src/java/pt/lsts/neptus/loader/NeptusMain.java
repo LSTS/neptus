@@ -91,18 +91,19 @@ public class NeptusMain {
         appNames.put("uav", I18n.text("UAV Console"));
         appNames.put("cl", I18n.text("Empty Console"));
 
-        fileHandlers.put(FileUtil.FILE_TYPE_MISSION, Workspace.class);
-        fileHandlers.put(FileUtil.FILE_TYPE_MISSION_COMPRESSED, Workspace.class);
+        // fileHandlers.put(FileUtil.FILE_TYPE_MISSION, Workspace.class);
+        // fileHandlers.put(FileUtil.FILE_TYPE_MISSION_COMPRESSED, Workspace.class);
         fileHandlers.put(FileUtil.FILE_TYPE_CONFIG, EditorLauncher.class);
         fileHandlers.put(FileUtil.FILE_TYPE_CONSOLE, ConsoleParse.class);
-        fileHandlers.put(FileUtil.FILE_TYPE_VEHICLE, Workspace.class);
+        // fileHandlers.put(FileUtil.FILE_TYPE_VEHICLE, Workspace.class);
         fileHandlers.put(FileUtil.FILE_TYPE_CHECKLIST, Workspace.class);
         fileHandlers.put(FileUtil.FILE_TYPE_INI, EditorLauncher.class);
         fileHandlers.put(FileUtil.FILE_TYPE_RMF, RMFEditor.class);
         fileHandlers.put(FileUtil.FILE_TYPE_XML, EditorLauncher.class);
 
         fileHandlers.put(FileUtil.FILE_TYPE_LSF, NeptusMRA.class);
-        fileHandlers.put(FileUtil.FILE_TYPE_LSF_COMPRESSED, NeptusMRA.class);        
+        fileHandlers.put(FileUtil.FILE_TYPE_LSF_COMPRESSED, NeptusMRA.class);
+        fileHandlers.put(FileUtil.FILE_TYPE_LSF_COMPRESSED_BZIP2, NeptusMRA.class);
     }
 
     /**
@@ -222,6 +223,7 @@ public class NeptusMain {
         }
         // File loading
         else {
+            ConfigFetch.initialize();
             loader.setText(I18n.text("Opening file..."));
             handleFile(appargs[0]);
             loader.end();
@@ -321,7 +323,14 @@ public class NeptusMain {
             catch (IOException e1) {
                 NeptusLog.pub().debug(e1);
             }
+
             String extension = FileUtil.getFileExtension(f).toLowerCase();
+            // Lets us try to see compound extensions like 'lsf.gz'
+            String preExtension = FileUtil.getFileExtension(FileUtil.getFileNameWithoutExtension(f).toLowerCase());
+            if (!preExtension.isEmpty()) {
+                extension = preExtension + "." + extension;
+            }
+
             if (fileHandlers.containsKey(extension)) {
                 try {
                     FileHandler fh = ((FileHandler) fileHandlers.get(extension).getDeclaredConstructor().newInstance());
@@ -332,7 +341,10 @@ public class NeptusMain {
                         }
                         wrapMainApplicationWindowWithCloseActionWindowAdapter((JFrame) fh);
                     }
-                    fh.handleFile(f);
+                    Window window = fh.handleFile(f);
+                    if (window != null) {
+                        wrapMainApplicationWindowWithCloseActionWindowAdapter(window);
+                    }
                 }
                 catch (Exception e) {
                     GuiUtils.errorMessage(loader, e);

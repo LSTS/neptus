@@ -42,6 +42,7 @@ import java.awt.Graphics;
 import java.awt.HeadlessException;
 import java.awt.Image;
 import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
@@ -1740,7 +1741,7 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
      * @see pt.lsts.neptus.loader.FileHandler#handleFile(java.io.File)
      */
     @Override
-    public void handleFile(File f) {
+    public Window handleFile(File f) {
         File fx = new File(ConfigFetch.resolvePath(f.getAbsolutePath()));
         String extension = FileUtil.getFileExtension(fx);
         //        if (extension.equalsIgnoreCase(FileUtil.FILE_TYPE_MISSION)
@@ -1748,30 +1749,37 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
         //            openMissionTypeFile(fx);
         //        }
         //        else 
-        if (extension.equalsIgnoreCase(FileUtil.FILE_TYPE_MAP)) {
-            openMapTypeFile(fx);
-        }
-        else if (extension.equalsIgnoreCase(FileUtil.FILE_TYPE_CHECKLIST)) {
+        //if (extension.equalsIgnoreCase(FileUtil.FILE_TYPE_MAP)) {
+        //    openMapTypeFile(fx);
+        //}
+        if (extension.equalsIgnoreCase(FileUtil.FILE_TYPE_CHECKLIST)) {
             openChecklistTypeFile(fx);
+            return this;
         }
         else if (extension.equalsIgnoreCase(FileUtil.FILE_TYPE_VEHICLE)) {
             openVehicleTypeFile(fx);
+            return this;
         }
         else if (extension.equalsIgnoreCase(FileUtil.FILE_TYPE_CONSOLE)) {
             @SuppressWarnings("unused")
             ConsoleLayout console = ConsoleLayout.forge(ConfigFetch.resolvePath(fx.getAbsolutePath()));
+            return console;
         }
         else if (extension.equalsIgnoreCase(FileUtil.FILE_TYPE_WSN)) {
             openMiscTypeFile(fx);
+            return this;
         }
         else if (extension.equalsIgnoreCase(FileUtil.FILE_TYPE_CONFIG)) {
             openMiscTypeFile(fx);
+            return this;
         }
         else if (extension.equalsIgnoreCase(FileUtil.FILE_TYPE_INI)) {
             openMiscTypeFile(fx);
+            return this;
         }
         else {
             openMiscTypeFile(fx);
+            return this;
         }
     }
 

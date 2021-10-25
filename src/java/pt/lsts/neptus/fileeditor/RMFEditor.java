@@ -34,6 +34,7 @@ package pt.lsts.neptus.fileeditor;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -171,7 +172,8 @@ public class RMFEditor extends JPanel implements FileHandler {
      * 
      * @see pt.lsts.neptus.loader.FileHandler#handleFile(java.io.File)
      */
-    public void handleFile(File f) {
+    @Override
+    public Window handleFile(File f) {
         final JFrame frame = new JFrame("RMF Editor - " + f.getName());
         final String filename = f.getAbsolutePath();
         statusLabel.setText(filename);
@@ -199,6 +201,8 @@ public class RMFEditor extends JPanel implements FileHandler {
         GuiUtils.centerOnScreen(frame);
         frame.setVisible(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        return frame;
     }
 
     /**

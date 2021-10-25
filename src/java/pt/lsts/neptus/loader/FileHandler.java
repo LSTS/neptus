@@ -32,9 +32,10 @@
  */
 package pt.lsts.neptus.loader;
 
+import java.awt.Window;
 import java.io.File;
 
 public interface FileHandler {
     public String getName();
-	public void handleFile(File f);
+	public Window handleFile(File f);
 }
