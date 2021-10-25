@@ -42,7 +42,9 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Objects;
 
 import javax.swing.ImageIcon;
@@ -79,6 +81,7 @@ public class NeptusMain {
 
     private static final LinkedHashMap<String, String> appNames = new LinkedHashMap<>();
     private static final LinkedHashMap<String, Class<?>> fileHandlers = new LinkedHashMap<>();
+    private static final List<Window> openAppWindows = new ArrayList<>();
     private static Loader loader;
 
     private static void init() {
@@ -277,9 +280,20 @@ public class NeptusMain {
      * @param callingWindow The {@link Window} to add the {@link Window#addWindowListener(WindowListener)}
      */
     public static void wrapMainApplicationWindowWithCloseActionWindowAdapter(final Window callingWindow) {
+        if (openAppWindows.contains(callingWindow)) {
+            return;
+        }
+
+        openAppWindows.add(callingWindow);
+
         WindowAdapter wa = new WindowAdapter() {
             @Override
             public void windowClosed(WindowEvent e) {
+                openAppWindows.remove(callingWindow);
+                if (!openAppWindows.isEmpty()) {
+                    return;
+                }
+
                 Window[] openedWindows = Frame.getWindows();
                 for (Window wdow : openedWindows) {
                     if (callingWindow == wdow)

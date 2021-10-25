@@ -59,6 +59,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.ftp.FtpDownloader;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.loader.NeptusMain;
 import pt.lsts.neptus.messages.listener.MessageInfo;
 import pt.lsts.neptus.messages.listener.MessageListener;
 import pt.lsts.neptus.mra.NeptusMRA;
@@ -203,7 +204,7 @@ class LogsDownloaderWorkerUtil {
                                     public void run() {
                                         JFrame mra = new NeptusMRA();
                                         mra.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                                        
+                                        NeptusMain.wrapMainApplicationWindowWithCloseActionWindowAdapter(mra);
                                         ((NeptusMRA) mra).getMraFilesHandler().openLog(log);
                                     };
                                 };
