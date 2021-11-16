@@ -558,7 +558,7 @@ public class LoggingDownloader extends ConsolePanel implements MainVehicleChange
                     tabbledPane.setTitleAt(idx, dw.getLogLabel());
 
                 //Vector<URI> sUri = sys3.getServiceProvided("http", "dune");
-                Vector<URI> sUri = sys3.getServiceProvided("ftp", "");
+                Vector<URI> sUri = sys3.getServiceProvided("ftp", "*");
                 if (sUri.size() > 0) {
                     dw.setHost(sUri.get(0).getHost());
                     dw.setPort((sUri.get(0).getPort() <= 0) ? 21 : sUri.get(0).getPort());

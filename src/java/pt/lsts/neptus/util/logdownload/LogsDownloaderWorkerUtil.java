@@ -236,7 +236,7 @@ class LogsDownloaderWorkerUtil {
     private static FtpDownloader getOrRenewFtpDownloader(FtpDownloader clientFtp, String host, int port)
             throws Exception {
         if (clientFtp == null)
-            clientFtp = new FtpDownloader(host, port);
+            clientFtp = new FtpDownloader(host, port, false);
         else
             clientFtp.setHostAndPort(host, port);
 

@@ -527,7 +527,7 @@ public class LogsDownloaderWorker {
             String serverKey = lfx.getHost();
             String host = getHostFor(serverKey); // lfx.getHost();
             int port = getPortFor(serverKey); // this.port;
-            FtpDownloader ftpDownloader = new FtpDownloader(host, port);
+            FtpDownloader ftpDownloader = new FtpDownloader(host, port, false);
 
             if (lfx.isDirectory()) {
                 HashMap<String, FTPFile> directoryContentsList = new LinkedHashMap<>();
