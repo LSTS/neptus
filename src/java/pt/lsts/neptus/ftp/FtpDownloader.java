@@ -50,6 +50,7 @@ import pt.lsts.neptus.NeptusLog;
  */
 public class FtpDownloader {
     private static final int DATA_TIMEOUT_MILLIS = 15000;
+    private static final boolean REMOTE_VERIFICATION_ENABLED_DEFAULT = true;
 
     private FTPClient client;
 
@@ -60,11 +61,18 @@ public class FtpDownloader {
 
     private String username = null;
     private String password = null;
+
+    private boolean remoteVerificationEnabled = REMOTE_VERIFICATION_ENABLED_DEFAULT;
     
-    public FtpDownloader(String host, int port) throws Exception {
+    public FtpDownloader(String host, int port, boolean remoteVerificationEnabled) throws Exception {
         this.host = host;
         this.port = port;
+        this.remoteVerificationEnabled = remoteVerificationEnabled;
 //        renewClient();
+    }
+
+    public FtpDownloader(String host, int port) throws Exception {
+        this(host, port, REMOTE_VERIFICATION_ENABLED_DEFAULT);
     }
 
     public void renewClient() throws SocketException, IOException {
@@ -96,6 +104,7 @@ public class FtpDownloader {
           client.setDataTimeout(DATA_TIMEOUT_MILLIS);
 //          client.setSoTimeout(300000); // N funciona, não liga
 
+            client.setRemoteVerificationEnabled(remoteVerificationEnabled);
         }
         
         NeptusLog.pub().warn(FtpDownloader.class.getSimpleName() + " :: " + "connecting to " + host + ":" + port);
