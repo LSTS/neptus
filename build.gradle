@@ -1219,8 +1219,8 @@ task processI18N(type: Exec) {
     ignoreExitValue true
 
     doLast {
-        if (execResult.getExitValue() > 0) {
-            println "ERROR: Generation of I18N exit with error ${execResult.getExitValue()}"
+        if (executionResult.getExitValue() > 0) {
+            println "ERROR: Generation of I18N exit with error ${executionResult.getExitValue()}"
         }
     }
 }
