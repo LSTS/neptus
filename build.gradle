@@ -10,6 +10,7 @@ plugins {
     id 'distribution'
     id "com.gorylenko.gradle-git-properties" version "2.3.1"
     id "com.github.langmo.gradlensis" version "0.1.0"
+    id "de.undercouch.download" version "4.1.2"
 
     id "eclipse"
 }
@@ -23,6 +24,8 @@ version = '2020.10.1-SNAPSHOT'
 ext {
     copyYears = "2004-${new Date().format('yyyy')}"
     libJNIPaths = ['.']
+
+    jreDownloadVersion = "jdk-11.0.13+8"
 }
 
 defaultTasks 'buildJars', 'buildBundleJars'
@@ -1053,6 +1056,53 @@ subprojects.findAll().each { sp ->
             it.dependsOn sp.jar, buildJars, buildBundleJars
     }
 }
+
+/////////////////////////////////////
+// Distribution JRE Section        //
+/////////////////////////////////////
+
+def createDownloadJre(String os, String arch) {
+    return rootProject.tasks.create("downloadJre${os.capitalize()}${arch.capitalize()}") {
+        def jreVersionNum = "${rootProject.ext.jreDownloadVersion.replaceAll('[A-Za-z]', '').replaceAll('-', '').replaceAll('\\+', '_')}"
+        def jreVersionNumUrl = "${rootProject.ext.jreDownloadVersion.replaceAll('[A-Za-z]', '').replaceAll('-', '').replaceAll('\\+', '%2B')}"
+        def outFolder = "${rootProject.buildDir}/tmp/jredownload"
+        def outJreFileName = "OpenJDK-jre_${arch.toLowerCase()}_${os.toLowerCase()}_hotspot_${jreVersionNum}.tar.gz"
+        def jreFile = "${outFolder}/${outJreFileName}"
+        def jreFileTmp = "${outFolder}/${outJreFileName}.part"
+        def metaInfoFile = "${jreFile}.json"
+        def sha256InfoFile = "${jreFile}.sha256.txt"
+
+        outputs.files("${jreFile}")
+
+        doLast {
+            if (!file("${jreFile}").exists()) {
+                download {
+                    src "https://api.adoptium.net/v3/assets/release_name/eclipse/jdk-${jreVersionNumUrl}?architecture=${arch.toLowerCase()}&heap_size=normal&image_type=jre&os=${os.toLowerCase()}&project=jdk"
+                    dest metaInfoFile
+                    overwrite true
+                }
+                def json = new groovy.json.JsonSlurper().parseText(new File("${metaInfoFile}").text)
+                def downloadJreUrlSha256 = json.binaries.package.checksum[0]
+                def downloadJreUrl = json.binaries.package.link[0]
+                file("${sha256InfoFile}").text = "${downloadJreUrlSha256}  ${outJreFileName}"
+                download {
+                    src "${downloadJreUrl}"
+                    dest jreFileTmp
+                    overwrite true
+                }
+                verifyChecksum {
+                    src new File("${jreFileTmp}")
+                    algorithm 'SHA-256'
+                    checksum "${downloadJreUrlSha256}"
+                }
+                file("${jreFileTmp}").renameTo("${jreFile}")
+            }
+        }
+    }
+}
+
+createDownloadJre('linux', 'x64')
+createDownloadJre('windows', 'x64')
 
 /////////////////////////////////////
 // Distribution Installers Section //
