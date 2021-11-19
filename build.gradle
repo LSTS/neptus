@@ -1052,7 +1052,7 @@ subprojects.findAll().each { sp ->
             it.dependsOn sp.jar, buildJars, buildBundleJars
     }
     tasks.withType(Tar).each {
-        if (it.name.toLowerCase().endsWith('distTar') || it.name.toLowerCase().endsWith('DistTar'))
+        if (it.name.toLowerCase().endsWith('distTar'.toLowerCase()) || it.name.toLowerCase().endsWith('DistTar'.toLowerCase()))
             it.dependsOn sp.jar, buildJars, buildBundleJars
     }
 }
