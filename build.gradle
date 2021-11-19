@@ -1131,7 +1131,7 @@ createDownloadJre('windows', 'x64')
 def createInstallerLinuxDistFor(String distName, Tar distTarTask) {
     return rootProject.tasks.create("installer${distName.capitalize()}LinuxDist") {
         def workTmpDirectory = "${rootProject.buildDir}/tmp/sfx/${distName}/"
-        description = "Generate $name Linux installer"
+        description = "Generate $distName Linux installer"
         group = 'Distribution'
 
         dependsOn distTarTask
@@ -1182,7 +1182,7 @@ nsis {
 
 def createInstallerWindowsDistFor(String distName, Sync installDistTask, Zip distZipTask) {
     return rootProject.tasks.create("installer${distName.capitalize()}WindowsDist", com.github.langmo.gradlensis.GradleNsisTask) {
-        description = "Generate $name Windows installer"
+        description = "Generate $distName Windows installer"
         group = 'Distribution'
         doFirst {
             copy {
