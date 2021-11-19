@@ -1121,6 +1121,81 @@ def createDownloadJre(String os, String arch) {
 createDownloadJre('linux', 'x64')
 createDownloadJre('windows', 'x64')
 
+///////////////////////////////////////////
+// Distribution Tar/Zip with JRE Section //
+///////////////////////////////////////////
+
+def createDistTarWithJre(Tar distTarTask, Task jreLinuxTarTask) {
+    return rootProject.tasks.create("${distTarTask.name}WithJre", Tar) {
+        description = "Takes the '${distTarTask.name}' output and adds a JRE from '${jreLinuxTarTask.name}'"
+        group = 'Distribution'
+
+        def tarNeptusFileName = "${distTarTask.archiveFileName.get()}"
+        def tarNeptusFilePath = "${distTarTask.destinationDirectory.getAsFile().get()}/${distTarTask.archiveFileName.get()}"
+        def tarNeptusWithJreFileName = "${distTarTask.archiveFileName.get().replaceAll('\\.tar\\.gz', '-withjre.tar.gz')}"
+        def jreFileName = "${jreLinuxTarTask.outputs.files.singleFile}"
+        def tarBasePath = tarNeptusFileName.replaceAll('\\.tar\\.gz', '')
+
+        dependsOn distTarTask, jreLinuxTarTask
+
+        archiveFileName = tarNeptusWithJreFileName
+        destinationDirectory = file("${distTarTask.destinationDirectory.getAsFile().get()}")
+        from tarTree(file("${tarNeptusFilePath}"))
+        from(tarTree(file("${jreFileName}"))) {
+            includeEmptyDirs false
+            into "${tarBasePath}/jre"
+            eachFile {FileCopyDetails details ->
+                details.path = details.path.replaceAll('(.*/jre/).*jre/', '$1')
+            }
+        }
+    }
+}
+
+def createDistZipWithJre(Zip distZipTask, Task jreWindowsZipTask) {
+    return rootProject.tasks.create("${distZipTask.name}WithJre", Zip) {
+        description = "Takes the '${distZipTask.name}' output and adds a JRE from '${jreWindowsZipTask.name}'"
+        group = 'Distribution'
+
+        def zipNeptusFileName = "${distZipTask.archiveFileName.get()}"
+        def zipNeptusFilePath = "${distZipTask.destinationDirectory.getAsFile().get()}/${distZipTask.archiveFileName.get()}"
+        def zipNeptusWithJreFileName = "${distZipTask.archiveFileName.get().replaceAll('\\.zip', '-withjre.zip')}"
+        def jreFileName = "${jreWindowsZipTask.outputs.files.singleFile}"
+        def zipBasePath = zipNeptusFileName.replaceAll('\\.zip', '')
+
+        dependsOn distZipTask, jreWindowsZipTask
+
+        archiveFileName = zipNeptusWithJreFileName
+        destinationDirectory = file("${distZipTask.destinationDirectory.getAsFile().get()}")
+        from zipTree(file("${zipNeptusFilePath}"))
+        from(zipTree(file("${jreFileName}"))) {
+            includeEmptyDirs false
+            into "${zipBasePath}/jre"
+            eachFile {FileCopyDetails details ->
+                details.path = details.path.replaceAll('(.*/jre/).*jre/', '$1')
+            }
+        }
+    }
+}
+
+// Let us inject *DistZipWithJre an *DistTarWithJre tasks for each distribution declared
+rootProject.findAll().each { sp ->
+    def zipTasks = tasks.withType(Zip).toArray(new Task[0])
+    for (i in 0..<zipTasks.length) {
+        def it = zipTasks[i]
+        if (it.name.toLowerCase().endsWith('distZip'.toLowerCase()) || it.name.toLowerCase().endsWith('DistZip'.toLowerCase())) {
+            createDistZipWithJre(it, downloadJreWindowsX64)
+        }
+    }
+
+    def tarTasks = tasks.withType(Tar).toArray(new Task[0])
+    for (i in 0..<tarTasks.length) {
+        def it = tarTasks[i]
+        if (it.name.toLowerCase().endsWith('distTar'.toLowerCase()) || it.name.toLowerCase().endsWith('DistTar'.toLowerCase())) {
+            createDistTarWithJre(it, downloadJreLinuxX64)
+        }
+    }
+}
+
 /////////////////////////////////////
 // Distribution Installers Section //
 /////////////////////////////////////
