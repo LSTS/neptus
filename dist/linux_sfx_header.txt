@@ -58,7 +58,7 @@ echo ""
 
 MACHINE_TYPE=`uname -m`
 if [ ${MACHINE_TYPE} = 'x86_64' ]; then
-    rm -Rf "@INSTALL_DIR@/jre" && mv "@INSTALL_DIR@/jre64" "@INSTALL_DIR@/jre" &> /dev/null
+    [[ -d "@INSTALL_DIR@/jre64" ]] && rm -Rf "@INSTALL_DIR@/jre" && mv "@INSTALL_DIR@/jre64" "@INSTALL_DIR@/jre" &> /dev/null
 else
     rm -Rf "@INSTALL_DIR@/jre64" &> /dev/null
 fi
