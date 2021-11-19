@@ -1212,6 +1212,12 @@ def createInstallerLinuxDistFor(String distName, Tar distTarTask) {
         dependsOn distTarTask
 
         doFirst {
+            def tarBaseFolder = null
+            tarTree("${distTarTask.destinationDirectory.getAsFile().get()}/${distTarTask.archiveFileName.get()}").visit({
+                tarBaseFolder = it.getRelativePath()getSegments()[0]
+                it.stopVisiting()
+            })
+
             copy {
                 from("${rootProject.projectDir}/dist")
                 include 'linux_sfx_header.txt'
@@ -1223,7 +1229,8 @@ def createInstallerLinuxDistFor(String distName, Tar distTarTask) {
                 
                 filter{ it.replaceAll("@EXTRA_DIST_NAME@", "${distName.capitalize()}") }
                 //filter{ it.replaceAll("@INSTALL_DIR@", "${rootProject.name.capitalize()}${distName != 'full' ? distName.capitalize() : ''}") }
-                filter{ it.replaceAll("@INSTALL_DIR@", "${distTarTask.destinationDirectory.getAsFile().get()}/${distTarTask.archiveFileName.get().replaceAll("\\.${distTarTask.archiveExtension.get()}", "")}}") }
+                //filter{ it.replaceAll("@INSTALL_DIR@", "${distTarTask.archiveFileName.get().replaceAll("\\.${distTarTask.archiveExtension.get()}", "")}") }
+                filter{ it.replaceAll("@INSTALL_DIR@", "${tarBaseFolder}") }
                 filter{ it.replaceAll("@LICENSE@", file("${rootProject.rootDir}/LICENSE.md").getText('UTF-8')) }
             }
         }
