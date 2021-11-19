@@ -1243,9 +1243,9 @@ def createInstallerLinuxDistFor(String distName, Tar distTarTask) {
     }
 }
 
-createInstallerLinuxDistFor('full', fullDistTar)
-createInstallerLinuxDistFor('le', leDistTar)
-createInstallerLinuxDistFor('seacon', seaconDistTar)
+createInstallerLinuxDistFor('full', fullDistTarWithJre)
+createInstallerLinuxDistFor('le', leDistTarWithJre)
+createInstallerLinuxDistFor('seacon', seaconDistTarWithJre)
 
 ///////////////////////////////////////////////
 // Distribution Installers Section - Windows //
@@ -1285,9 +1285,9 @@ def createInstallerWindowsDistFor(String distName, Sync installDistTask, Zip dis
     }
 }
 
-createInstallerWindowsDistFor('full', installFullDist, fullDistZip)
-createInstallerWindowsDistFor('le', installLeDist, leDistZip)
-createInstallerWindowsDistFor('seacon', installSeaconDist, seaconDistZip)
+createInstallerWindowsDistFor('full', installFullDist, fullDistZipWithJre)
+createInstallerWindowsDistFor('le', installLeDist, leDistZipWithJre)
+createInstallerWindowsDistFor('seacon', installSeaconDist, seaconDistZipWithJre)
 
 ///////////////////
 // Tools Section //
