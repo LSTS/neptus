@@ -1068,11 +1068,19 @@ subprojects.findAll().each { sp ->
 
 def createDownloadJre(String os, String arch) {
     return rootProject.tasks.create("downloadJre${os.capitalize()}${arch.capitalize()}") {
+        def extension = 'tar.gz'
+        switch (os.toLowerCase()) {
+            case 'windows':
+                extension = 'zip'
+                break
+            default:
+                break
+        }
         def jreMajorVersionNum = "${rootProject.ext.jreDownloadVersion.replaceAll('[A-Za-z]', '').replaceAll('-', '').split('\\.')[0]}"
         def jreVersionNum = "${rootProject.ext.jreDownloadVersion.replaceAll('[A-Za-z]', '').replaceAll('-', '').replaceAll('\\+', '_')}"
         def jreVersionNumUrl = "${rootProject.ext.jreDownloadVersion.replaceAll('[A-Za-z]', '').replaceAll('-', '').replaceAll('\\+', '%2B')}"
         def outFolder = "${rootProject.buildDir}/tmp/jredownload"
-        def outJreFileName = "OpenJDK${jreMajorVersionNum}U-jre_${arch.toLowerCase()}_${os.toLowerCase()}_hotspot_${jreVersionNum}.tar.gz"
+        def outJreFileName = "OpenJDK${jreMajorVersionNum}U-jre_${arch.toLowerCase()}_${os.toLowerCase()}_hotspot_${jreVersionNum}.${extension}"
         def jreFile = "${outFolder}/${outJreFileName}"
         def jreFileTmp = "${outFolder}/${outJreFileName}.part"
         def metaInfoFile = "${jreFile}.json"
