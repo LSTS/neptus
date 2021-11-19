@@ -970,6 +970,11 @@ generateStartScriptsFor(rootProject.name, 'le', 'pt.lsts.neptus.mc.lauvconsole.L
 generateStartScriptsFor(rootProject.name, 'seacon', 'pt.lsts.neptus.mc.lauvconsole.LAUVConsole',
     '', 'SmallOptions', rootProject.files(rootProject.file('lib/*')))
 
+tasks.withType(CreateStartScripts).each {
+    if (it.name.endsWith('StartScripts') && !it.name.startsWith('runStartScripts'))
+        it.dependsOn generateRunScripts
+}
+
 def distCommonSpec = project.copySpec {
     def configurationClasspath = configurations.runtimeClasspath
     configurationClasspath -= project(':core').configurations.core.allArtifacts.files
