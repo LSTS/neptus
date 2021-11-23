@@ -1266,7 +1266,17 @@ def createInstallerWindowsDistFor(String distName, Sync installDistTask, Zip dis
     return rootProject.tasks.create("installer${distName.capitalize()}WindowsDist", com.github.langmo.gradlensis.GradleNsisTask) {
         description = "Generate $distName Windows installer"
         group = 'Distribution'
+
+        def baseDir = "${file("${installDistTask.destinationDir.absolutePath.replaceAll("${rootProject.projectDir.absolutePath}", '')}")}"
+        baseDir = "../..${baseDir}".replaceAll('/', '\\\\')
+
+        def runInFolder = file("${rootProject.projectDir}/NSIS_release/install_scripts")
+
         doFirst {
+            println """!!INFO!! If error on Linux run >> cd \"${runInFolder}\" &&
+                   | ${extractTo.get().getAsFile().absolutePath}/makensis.exe
+                   | /NOCD /DBASEDIR=\"${baseDir}\" neptus.nsi""".stripMargin().replaceAll('\\n', '')
+
             copy {
                 from("${rootProject.projectDir}/NSIS_release/static_files")
                 include 'neptus_include.nsi'
@@ -1278,16 +1288,22 @@ def createInstallerWindowsDistFor(String distName, Sync installDistTask, Zip dis
                 filter{ it.replaceAll('@TIME@', "${new Date().format('HH:mm Z')}") }
                 filter{ it.replaceAll('@COMPILED BY@', "${System.properties['user.name']}") }
                 filter{ it.replaceAll("@NAMED_RELEASE@", rootProject.version) }
-                filter{ it.replaceAll('@LEGAL_COPY@', "$rootProject.ext.copyYears FEUP USTL/LSTS (http://www.fe.up.pt/lsts)") }
-                filter{ it.replaceAll("@DIST_EXE@", "${distZipTask.archiveFileName.get().replaceAll("\\.${distZipTask.archiveExtension.get()}", "")}") }
+                filter{ it.replaceAll('@LEGAL_COPY@', "$rootProject.ext.copyYears FEUP USTL/LSTS (https://www.fe.up.pt/lsts)") }
+                filter{ it.replaceAll("@DIST_EXE@", "${distZipTask.archiveFileName.get().replaceAll("\\.${distZipTask.archiveExtension.get()}", '')}") }
+                filter{ it.replaceAll("@OUT_FOLDER@", "../..${distZipTask.destinationDirectory.getAsFile().get().absolutePath.replaceAll("${rootProject.projectDir.absolutePath}", '')}"
+                        .replaceAll('/', '\\\\\\\\')) }
             }
         }
 
         dependsOn distZipTask, installDistTask
-        runIn =  file("${installDistTask.destinationDir}")
+
+        runIn = runInFolder
+        variables = ['BASEDIR':"\"${baseDir}\""]
+        //destinationName = "${distZipTask.archiveFileName.get().replaceAll("\\.${distZipTask.archiveExtension.get()}", "")}"
 
         doLast {
-            delete runIn
+            //delete runIn
+            delete file("${installDistTask.destinationDir}")
         }
     }
 }

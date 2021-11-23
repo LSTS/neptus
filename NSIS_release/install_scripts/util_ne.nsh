@@ -32,6 +32,10 @@
 # This script is the NSIS Utils for Neptus installer                        #
 #############################################################################
 
+!verbose push 3
+!ifndef ___UTIL_NE__NSH___
+!define ___UTIL_NE__NSH___
+
 Function WriteToFile
   Exch $0 ;file to write to
   Exch
@@ -68,3 +72,6 @@ FunctionEnd
   ${WriteLineToFile} "$INSTDIR\conf\general-properties.xml" '</properties>'
 !macroend
 !define WriteLangPref '!insertmacro WriteLangPref'
+
+!endif # !___UTIL_NE__NSH___
+!verbose pop
