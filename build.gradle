@@ -1293,6 +1293,17 @@ def createInstallerWindowsDistFor(String distName, Sync installDistTask, Zip dis
                 filter{ it.replaceAll("@OUT_FOLDER@", "../..${distZipTask.destinationDirectory.getAsFile().get().absolutePath.replaceAll("${rootProject.projectDir.absolutePath}", '')}"
                         .replaceAll('/', '\\\\\\\\')) }
             }
+
+            // If exists let us take the jre from the distZipTask
+            copy {
+                from zipTree(file("${distZipTask.destinationDirectory.getAsFile().get()}/${distZipTask.archiveFileName.get()}"))
+                        .matching {include "*/jre*/**"}
+                into file("${installDistTask.destinationDir}")
+                eachFile { fx ->
+                    fx.path = fx.path.replaceFirst("^.*/(jre.*/)", '$1')
+                }
+                includeEmptyDirs false
+            }
         }
 
         dependsOn distZipTask, installDistTask
