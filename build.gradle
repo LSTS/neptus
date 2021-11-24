@@ -1049,7 +1049,7 @@ distributions {
     }
 }
 
-// Let us inject for all distZip and distTar tasks for
+// Let us inject for all distZip and distTar, and install*Dist tasks for
 // all distribution the task dependencies
 subprojects.findAll().each { sp ->
     tasks.withType(Zip).each {
@@ -1060,6 +1060,10 @@ subprojects.findAll().each { sp ->
         if (it.name.toLowerCase().endsWith('distTar'.toLowerCase()) || it.name.toLowerCase().endsWith('DistTar'.toLowerCase()))
             it.dependsOn sp.jar, buildJars, buildBundleJars
     }
+}
+tasks.withType(Sync).each {
+    if (it.name.startsWith('install') && it.name.endsWith('Dist'))
+        it.dependsOn buildBundleJars
 }
 
 /////////////////////////////////////
