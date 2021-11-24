@@ -754,6 +754,10 @@ configure(subprojects.findAll { it.name != 'core' }) {
     }
     tasks.eclipse.dependsOn cleanEclipse
 
+    compileJava {
+        dependsOn ':core:jar'
+    }
+
     jar {
         archiveVersion = ''
         destinationDirectory = file("$rootDir/plugins")
