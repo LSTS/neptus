@@ -32,6 +32,8 @@
 # This script is the NSIS script for Neptus installer for Windows           #
 #############################################################################
 
+Unicode True
+
 !include neptus_include.nsi
 
 ; RequestExecutionLevel user
@@ -46,7 +48,7 @@ SetCompressorDictSize 32
 !define REGKEY "SOFTWARE\$(^Name)"
 ;!define VERSION "NEPTUS ${MyTIMESTAMP}"
 !define COMPANY "LSTS - FEUP"
-!define URL http://whale.fe.up.pt/neptus
+!define URL https://lsts.fe.up.pt/toolchain/neptus
 
 # MUI defines
 !define MUI_ICON "..\static_files\icons\neptus.ico"
@@ -69,7 +71,7 @@ LicenseData "${BASEDIR}\LICENSE.md"
 !include Sections.nsh
 !include fileassoc.nsh
 !include MUI.nsh
-!include util.nsh
+!include util_ne.nsh
 !include "x64.nsh"
 
 
@@ -112,8 +114,7 @@ Var StartMenuGroup
 # Installer attributes
 Name "${NEPTUS_NAME}"
 
-;OutFile "..\..\$(^Name)-${TEXTVERSION}-x86-32bit-${MyTIMESTAMP}.exe"
-OutFile "..\..\${DIST_EXE}.exe"
+OutFile "${OUT_FOLDER}\${DIST_EXE}.exe"
 
 ; See onInit and un.onInit for when activate 64bit install on programfiles
 ;InstallDir $PROGRAMFILES\$(^Name)
@@ -148,8 +149,9 @@ Section "-$(^Name) base" sec1
     ${If} ${RunningX64}
        ; MessageBox MB_OK "running on x64"
        ; If x64 then remove jre 32 bits and rename the 64 bits one to jre
-       RMDir /r $INSTDIR\jre
-       Rename $INSTDIR\jre64 $INSTDIR\jre
+       IfFileExists $INSTDIR\jre64\*.* 0 +3
+          RMDir /r $INSTDIR\jre
+          Rename $INSTDIR\jre64 $INSTDIR\jre
     ${Else}
        ; MessageBox MB_OK "running on x86"
        ; If x32 then remove jre 64 bits
@@ -179,7 +181,7 @@ Section "-$(^Name) base" sec1
 SectionEnd
 
 Section /o "Desktop Shortcut" desktop
-    SectionSetText desktop "Create a Neptus launcher at your desktop"
+    SectionSetText ${desktop} "Create a Neptus launcher at your desktop"
     SetOutPath $Desktop
     SetOutPath $INSTDIR
     

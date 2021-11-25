@@ -10,6 +10,7 @@ plugins {
     id 'distribution'
     id "com.gorylenko.gradle-git-properties" version "2.3.1"
     id "com.github.langmo.gradlensis" version "0.1.0"
+    id "de.undercouch.download" version "4.1.2"
 
     id "eclipse"
 }
@@ -23,6 +24,8 @@ version = '2020.10.1-SNAPSHOT'
 ext {
     copyYears = "2004-${new Date().format('yyyy')}"
     libJNIPaths = ['.']
+
+    jreDownloadVersion = "jdk-11.0.13+8"
 }
 
 defaultTasks 'buildJars', 'buildBundleJars'
@@ -751,6 +754,10 @@ configure(subprojects.findAll { it.name != 'core' }) {
     }
     tasks.eclipse.dependsOn cleanEclipse
 
+    compileJava {
+        dependsOn ':core:jar'
+    }
+
     jar {
         archiveVersion = ''
         destinationDirectory = file("$rootDir/plugins")
@@ -967,6 +974,11 @@ generateStartScriptsFor(rootProject.name, 'le', 'pt.lsts.neptus.mc.lauvconsole.L
 generateStartScriptsFor(rootProject.name, 'seacon', 'pt.lsts.neptus.mc.lauvconsole.LAUVConsole',
     '', 'SmallOptions', rootProject.files(rootProject.file('lib/*')))
 
+tasks.withType(CreateStartScripts).each {
+    if (it.name.endsWith('StartScripts') && !it.name.startsWith('runStartScripts'))
+        it.dependsOn generateRunScripts
+}
+
 def distCommonSpec = project.copySpec {
     def configurationClasspath = configurations.runtimeClasspath
     configurationClasspath -= project(':core').configurations.core.allArtifacts.files
@@ -1041,7 +1053,7 @@ distributions {
     }
 }
 
-// Let us inject for all distZip and distTar tasks for
+// Let us inject for all distZip and distTar, and install*Dist tasks for
 // all distribution the task dependencies
 subprojects.findAll().each { sp ->
     tasks.withType(Zip).each {
@@ -1049,8 +1061,146 @@ subprojects.findAll().each { sp ->
             it.dependsOn sp.jar, buildJars, buildBundleJars
     }
     tasks.withType(Tar).each {
-        if (it.name.toLowerCase().endsWith('distTar') || it.name.toLowerCase().endsWith('DistTar'))
+        if (it.name.toLowerCase().endsWith('distTar'.toLowerCase()) || it.name.toLowerCase().endsWith('DistTar'.toLowerCase()))
             it.dependsOn sp.jar, buildJars, buildBundleJars
+    }
+}
+tasks.withType(Sync).each {
+    if (it.name.startsWith('install') && it.name.endsWith('Dist'))
+        it.dependsOn buildBundleJars
+}
+
+/////////////////////////////////////
+// Distribution JRE Section        //
+/////////////////////////////////////
+
+def createDownloadJre(String os, String arch) {
+    return rootProject.tasks.create("downloadJre${os.capitalize()}${arch.capitalize()}") {
+        description = "Downloads JRE from Adoptium.net for ${os.capitalize()}/$arch"
+        group = 'Distribution'
+
+        def extension = 'tar.gz'
+        switch (os.toLowerCase()) {
+            case 'windows':
+                extension = 'zip'
+                break
+            default:
+                break
+        }
+        def jreMajorVersionNum = "${rootProject.ext.jreDownloadVersion.replaceAll('[A-Za-z]', '').replaceAll('-', '').split('\\.')[0]}"
+        def jreVersionNum = "${rootProject.ext.jreDownloadVersion.replaceAll('[A-Za-z]', '').replaceAll('-', '').replaceAll('\\+', '_')}"
+        def jreVersionNumUrl = "${rootProject.ext.jreDownloadVersion.replaceAll('[A-Za-z]', '').replaceAll('-', '').replaceAll('\\+', '%2B')}"
+        def outFolder = "${rootProject.buildDir}/tmp/jredownload"
+        def outJreFileName = "OpenJDK${jreMajorVersionNum}U-jre_${arch.toLowerCase()}_${os.toLowerCase()}_hotspot_${jreVersionNum}.${extension}"
+        def jreFile = "${outFolder}/${outJreFileName}"
+        def jreFileTmp = "${outFolder}/${outJreFileName}.part"
+        def metaInfoFile = "${jreFile}.json"
+        def sha256InfoFile = "${jreFile}.sha256.txt"
+
+        outputs.files("${jreFile}")
+
+        doLast {
+            if (!file("${jreFile}").exists()) {
+                download {
+                    src "https://api.adoptium.net/v3/assets/release_name/eclipse/jdk-${jreVersionNumUrl}?architecture=${arch.toLowerCase()}&heap_size=normal&image_type=jre&os=${os.toLowerCase()}&project=jdk"
+                    dest metaInfoFile
+                    overwrite true
+                }
+                def json = new groovy.json.JsonSlurper().parseText(new File("${metaInfoFile}").text)
+                def downloadJreUrlSha256 = json.binaries.package.checksum[0]
+                def downloadJreUrl = json.binaries.package.link[0]
+                file("${sha256InfoFile}").text = "${downloadJreUrlSha256}  ${outJreFileName}"
+                download {
+                    src "${downloadJreUrl}"
+                    dest jreFileTmp
+                    overwrite true
+                }
+                verifyChecksum {
+                    src new File("${jreFileTmp}")
+                    algorithm 'SHA-256'
+                    checksum "${downloadJreUrlSha256}"
+                }
+                file("${jreFileTmp}").renameTo("${jreFile}")
+            }
+        }
+    }
+}
+
+createDownloadJre('linux', 'x64')
+createDownloadJre('windows', 'x64')
+
+///////////////////////////////////////////
+// Distribution Tar/Zip with JRE Section //
+///////////////////////////////////////////
+
+def createDistTarWithJre(Tar distTarTask, Task jreLinuxTarTask) {
+    return rootProject.tasks.create("${distTarTask.name}WithJre", Tar) {
+        description = "Takes the '${distTarTask.name}' output and adds a JRE from '${jreLinuxTarTask.name}'"
+        group = 'Distribution'
+
+        def tarNeptusFileName = "${distTarTask.archiveFileName.get()}"
+        def tarNeptusFilePath = "${distTarTask.destinationDirectory.getAsFile().get()}/${distTarTask.archiveFileName.get()}"
+        def tarNeptusWithJreFileName = "${distTarTask.archiveFileName.get().replaceAll('\\.tar\\.gz', '-withjre.tar.gz')}"
+        def jreFileName = "${jreLinuxTarTask.outputs.files.singleFile}"
+        def tarBasePath = tarNeptusFileName.replaceAll('\\.tar\\.gz', '')
+
+        dependsOn distTarTask, jreLinuxTarTask
+
+        archiveFileName = tarNeptusWithJreFileName
+        destinationDirectory = file("${distTarTask.destinationDirectory.getAsFile().get()}")
+        from tarTree(file("${tarNeptusFilePath}"))
+        from(tarTree(file("${jreFileName}"))) {
+            includeEmptyDirs false
+            into "${tarBasePath}/jre"
+            eachFile {FileCopyDetails details ->
+                details.path = details.path.replaceAll('(.*/jre/).*jre/', '$1')
+            }
+        }
+    }
+}
+
+def createDistZipWithJre(Zip distZipTask, Task jreWindowsZipTask) {
+    return rootProject.tasks.create("${distZipTask.name}WithJre", Zip) {
+        description = "Takes the '${distZipTask.name}' output and adds a JRE from '${jreWindowsZipTask.name}'"
+        group = 'Distribution'
+
+        def zipNeptusFileName = "${distZipTask.archiveFileName.get()}"
+        def zipNeptusFilePath = "${distZipTask.destinationDirectory.getAsFile().get()}/${distZipTask.archiveFileName.get()}"
+        def zipNeptusWithJreFileName = "${distZipTask.archiveFileName.get().replaceAll('\\.zip', '-withjre.zip')}"
+        def jreFileName = "${jreWindowsZipTask.outputs.files.singleFile}"
+        def zipBasePath = zipNeptusFileName.replaceAll('\\.zip', '')
+
+        dependsOn distZipTask, jreWindowsZipTask
+
+        archiveFileName = zipNeptusWithJreFileName
+        destinationDirectory = file("${distZipTask.destinationDirectory.getAsFile().get()}")
+        from zipTree(file("${zipNeptusFilePath}"))
+        from(zipTree(file("${jreFileName}"))) {
+            includeEmptyDirs false
+            into "${zipBasePath}/jre"
+            eachFile {FileCopyDetails details ->
+                details.path = details.path.replaceAll('(.*/jre/).*jre/', '$1')
+            }
+        }
+    }
+}
+
+// Let us inject *DistZipWithJre an *DistTarWithJre tasks for each distribution declared
+rootProject.findAll().each { sp ->
+    def zipTasks = tasks.withType(Zip).toArray(new Task[0])
+    for (i in 0..<zipTasks.length) {
+        def it = zipTasks[i]
+        if (it.name.toLowerCase().endsWith('distZip'.toLowerCase()) || it.name.toLowerCase().endsWith('DistZip'.toLowerCase())) {
+            createDistZipWithJre(it, downloadJreWindowsX64)
+        }
+    }
+
+    def tarTasks = tasks.withType(Tar).toArray(new Task[0])
+    for (i in 0..<tarTasks.length) {
+        def it = tarTasks[i]
+        if (it.name.toLowerCase().endsWith('distTar'.toLowerCase()) || it.name.toLowerCase().endsWith('DistTar'.toLowerCase())) {
+            createDistTarWithJre(it, downloadJreLinuxX64)
+        }
     }
 }
 
@@ -1064,12 +1214,18 @@ subprojects.findAll().each { sp ->
 def createInstallerLinuxDistFor(String distName, Tar distTarTask) {
     return rootProject.tasks.create("installer${distName.capitalize()}LinuxDist") {
         def workTmpDirectory = "${rootProject.buildDir}/tmp/sfx/${distName}/"
-        description = "Generate $name Linux installer"
+        description = "Generate $distName Linux installer"
         group = 'Distribution'
 
         dependsOn distTarTask
 
         doFirst {
+            def tarBaseFolder = null
+            tarTree("${distTarTask.destinationDirectory.getAsFile().get()}/${distTarTask.archiveFileName.get()}").visit({
+                tarBaseFolder = it.getRelativePath()getSegments()[0]
+                it.stopVisiting()
+            })
+
             copy {
                 from("${rootProject.projectDir}/dist")
                 include 'linux_sfx_header.txt'
@@ -1081,7 +1237,8 @@ def createInstallerLinuxDistFor(String distName, Tar distTarTask) {
                 
                 filter{ it.replaceAll("@EXTRA_DIST_NAME@", "${distName.capitalize()}") }
                 //filter{ it.replaceAll("@INSTALL_DIR@", "${rootProject.name.capitalize()}${distName != 'full' ? distName.capitalize() : ''}") }
-                filter{ it.replaceAll("@INSTALL_DIR@", "${distTarTask.destinationDirectory.getAsFile().get()}/${distTarTask.archiveFileName.get().replaceAll("\\.${distTarTask.archiveExtension.get()}", "")}}") }
+                //filter{ it.replaceAll("@INSTALL_DIR@", "${distTarTask.archiveFileName.get().replaceAll("\\.${distTarTask.archiveExtension.get()}", "")}") }
+                filter{ it.replaceAll("@INSTALL_DIR@", "${tarBaseFolder}") }
                 filter{ it.replaceAll("@LICENSE@", file("${rootProject.rootDir}/LICENSE.md").getText('UTF-8')) }
             }
         }
@@ -1101,9 +1258,9 @@ def createInstallerLinuxDistFor(String distName, Tar distTarTask) {
     }
 }
 
-createInstallerLinuxDistFor('full', fullDistTar)
-createInstallerLinuxDistFor('le', leDistTar)
-createInstallerLinuxDistFor('seacon', seaconDistTar)
+createInstallerLinuxDistFor('full', fullDistTarWithJre)
+createInstallerLinuxDistFor('le', leDistTarWithJre)
+createInstallerLinuxDistFor('seacon', seaconDistTarWithJre)
 
 ///////////////////////////////////////////////
 // Distribution Installers Section - Windows //
@@ -1115,9 +1272,19 @@ nsis {
 
 def createInstallerWindowsDistFor(String distName, Sync installDistTask, Zip distZipTask) {
     return rootProject.tasks.create("installer${distName.capitalize()}WindowsDist", com.github.langmo.gradlensis.GradleNsisTask) {
-        description = "Generate $name Windows installer"
+        description = "Generate $distName Windows installer"
         group = 'Distribution'
+
+        def baseDir = "${file("${installDistTask.destinationDir.absolutePath.replaceAll("${rootProject.projectDir.absolutePath}", '')}")}"
+        baseDir = "../..${baseDir}".replaceAll('/', '\\\\')
+
+        def runInFolder = file("${rootProject.projectDir}/NSIS_release/install_scripts")
+
         doFirst {
+            println """!!INFO!! If error on Linux run >> cd \"${runInFolder}\" &&
+                   | ${extractTo.get().getAsFile().absolutePath}/makensis.exe
+                   | /NOCD /DBASEDIR=\"${baseDir}\" neptus.nsi""".stripMargin().replaceAll('\\n', '')
+
             copy {
                 from("${rootProject.projectDir}/NSIS_release/static_files")
                 include 'neptus_include.nsi'
@@ -1129,23 +1296,40 @@ def createInstallerWindowsDistFor(String distName, Sync installDistTask, Zip dis
                 filter{ it.replaceAll('@TIME@', "${new Date().format('HH:mm Z')}") }
                 filter{ it.replaceAll('@COMPILED BY@', "${System.properties['user.name']}") }
                 filter{ it.replaceAll("@NAMED_RELEASE@", rootProject.version) }
-                filter{ it.replaceAll('@LEGAL_COPY@', "$rootProject.ext.copyYears FEUP USTL/LSTS (http://www.fe.up.pt/lsts)") }
-                filter{ it.replaceAll("@DIST_EXE@", "${distZipTask.archiveFileName.get().replaceAll("\\.${distZipTask.archiveExtension.get()}", "")}") }
+                filter{ it.replaceAll('@LEGAL_COPY@', "$rootProject.ext.copyYears FEUP USTL/LSTS (https://www.fe.up.pt/lsts)") }
+                filter{ it.replaceAll("@DIST_EXE@", "${distZipTask.archiveFileName.get().replaceAll("\\.${distZipTask.archiveExtension.get()}", '')}") }
+                filter{ it.replaceAll("@OUT_FOLDER@", "../..${distZipTask.destinationDirectory.getAsFile().get().absolutePath.replaceAll("${rootProject.projectDir.absolutePath}", '')}"
+                        .replaceAll('/', '\\\\\\\\')) }
+            }
+
+            // If exists let us take the jre from the distZipTask
+            copy {
+                from zipTree(file("${distZipTask.destinationDirectory.getAsFile().get()}/${distZipTask.archiveFileName.get()}"))
+                        .matching {include "*/jre*/**"}
+                into file("${installDistTask.destinationDir}")
+                eachFile { fx ->
+                    fx.path = fx.path.replaceFirst("^.*/(jre.*/)", '$1')
+                }
+                includeEmptyDirs false
             }
         }
 
         dependsOn distZipTask, installDistTask
-        runIn =  file("${installDistTask.destinationDir}")
+
+        runIn = runInFolder
+        variables = ['BASEDIR':"\"${baseDir}\""]
+        //destinationName = "${distZipTask.archiveFileName.get().replaceAll("\\.${distZipTask.archiveExtension.get()}", "")}"
 
         doLast {
-            delete runIn
+            //delete runIn
+            delete file("${installDistTask.destinationDir}")
         }
     }
 }
 
-createInstallerWindowsDistFor('full', installFullDist, fullDistZip)
-createInstallerWindowsDistFor('le', installLeDist, leDistZip)
-createInstallerWindowsDistFor('seacon', installSeaconDist, seaconDistZip)
+createInstallerWindowsDistFor('full', installFullDist, fullDistZipWithJre)
+createInstallerWindowsDistFor('le', installLeDist, leDistZipWithJre)
+createInstallerWindowsDistFor('seacon', installSeaconDist, seaconDistZipWithJre)
 
 ///////////////////
 // Tools Section //
