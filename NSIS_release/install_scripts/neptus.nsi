@@ -32,6 +32,8 @@
 # This script is the NSIS script for Neptus installer for Windows           #
 #############################################################################
 
+Unicode True
+
 !include neptus_include.nsi
 
 ; RequestExecutionLevel user
