@@ -4,6 +4,15 @@
 
 * Run `./gradlew clean && ./gradlew && ./gradlew run`
 
+## Index
+  * [Build Instructions](#build-instructions)
+  * [Distribution](#distribution)
+      + [Other related tasks:](#other-related-tasks)
+  * [IDE](#ide)
+      + [IntelliJ](#intellij)
+      + [Eclipse](#eclipse)
+  * [Plugins](#plugins)
+
 ## Build Instructions
 
 * `./gradlew` Will run with default tasks `buildJars` and `buildBundleJars`
@@ -25,16 +34,33 @@
 * `./gradlew installer<Dist-name>LinuxDist` with `<Dist-name>` the same as above but
   capitalized, creates a sh installer for Linux.
 * `./gradlew installer<Dist-name>WindowsDist` with `<Dist-name>` the same as above but
-  capitalized, creates an exe installer for Windows (NOT WORKING YET)
+  capitalized, creates an exe installer for Windows.
+  * NOTE: In Linux will fail but after running the Gradle task search on the output
+    for a note to run manually (but always run the Gradle task first because it will
+    prepare the folders for NSIS to run into). The note reads `!!INFO!! If error on
+    Linux run >> `. (This needs `wine` and `wine-binfmt` installed.)
 
-### Other related tasks:
+### Other related tasks
 
 * `./gradlew buildBundleJars` task to generate the bundle Jars
 * `./gradlew generateI18N` task to generate I18N files (needs gettext installed)
 
 ## IDE
 
+### IntelliJ
+
+Just import the Gradle project to Idea. To run or debug be sure to use the classpath from
+`neptus.main`. At the moment you need to not delegate the Gradle tasks run to Gradle but
+to IntelliJ.
+
+* `./gradlew cleanIdeaBuild` to delete the project and build folders
+
+To debug run the Gradle task `run` in debug mode.
+
 ### Eclipse
+
+| :warning: WARNING: It is a bit tricky with Eclipse to compile and debug. Recommend the IntelliJ IDE. |
+| --- |
 
 To use in Eclipse don't create the project but import the Gradle project into Eclipse.
 
@@ -46,14 +72,6 @@ This is sometimes not stable. If problems with building do:
 
 * If problem with duplicated resource on neptus project do:
     ** `./gradlew cleanEclipseBuild createEclipseBuild`
-
-### IntelliJ
-
-Just import the Gradle project to Idea. To run or debug be sure to use the classpath from
-`neptus.main`. At the moment you need to not delegate the Gradle tasks run to Gradle but
-to IntelliJ.
-
-* `./gradlew cleanIdeaBuild` to delete the project and build folders
 
 ## Plugins
 
