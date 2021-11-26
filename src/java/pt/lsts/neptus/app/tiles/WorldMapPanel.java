@@ -92,8 +92,12 @@ import javax.swing.event.InternalFrameEvent;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.jdesktop.swingx.JXBusyLabel;
 import org.jdesktop.swingx.JXStatusBar;
 import org.w3c.dom.Document;
@@ -1034,8 +1038,11 @@ public class WorldMapPanel extends JPanel {
     }
 
     /**
-     * @param dName
+     *
+     * @param value
      * @return
+     * @throws ArrayIndexOutOfBoundsException
+     * @throws NumberFormatException
      */
     private double[] extractPointCoordinates(String value) throws ArrayIndexOutOfBoundsException, NumberFormatException {
         // coordinates lon,lat[,alt]
@@ -1123,16 +1130,25 @@ public class WorldMapPanel extends JPanel {
     public static void main(String[] args) {
         try {
             OutputMonitor.setDisable(true);
-            // BasicConfigurator.resetConfiguration();
-            Logger.getRootLogger().setLevel(Level.FATAL);
-            NeptusLog.pubRoot().setLevel(Level.FATAL);
-            
+
+            LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+            Configuration config = ctx.getConfiguration();
+            LoggerConfig loggerConfig = config.getLoggerConfig(LogManager.ROOT_LOGGER_NAME);
+            loggerConfig.setLevel(Level.FATAL);
+            loggerConfig = config.getLoggerConfig(NeptusLog.pubRoot().getName());
+            loggerConfig.setLevel(Level.FATAL);
+            ctx.updateLoggers();
+
             ConfigFetch.initialize();
-            
-            Logger.getRootLogger().setLevel(Level.FATAL);
-            NeptusLog.wasteRoot().setLevel(Level.OFF);
-            NeptusLog.pubRoot().setLevel(Level.FATAL);
-            
+
+            loggerConfig = config.getLoggerConfig(LogManager.ROOT_LOGGER_NAME);
+            loggerConfig.setLevel(Level.FATAL);
+            loggerConfig = config.getLoggerConfig(NeptusLog.wasteRoot().getName());
+            loggerConfig.setLevel(Level.OFF);
+            loggerConfig = config.getLoggerConfig(NeptusLog.pubRoot().getName());
+            loggerConfig.setLevel(Level.FATAL);
+            ctx.updateLoggers();
+
             if (OsInfo.getName() == OsInfo.Name.LINUX)
                 GuiUtils.setLookAndFeel();
             else

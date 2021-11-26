@@ -97,7 +97,11 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.log4j.Level;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
 
@@ -2538,19 +2542,19 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
             }
             
             OutputMonitor.setDisable(true);
-            NeptusLog.wasteRoot().setLevel(Level.OFF);
-            NeptusLog.pubRoot().setLevel(Level.FATAL);
+            LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+            Configuration config = ctx.getConfiguration();
+            LoggerConfig loggerConfig = config.getLoggerConfig(NeptusLog.wasteRoot().getName());
+            loggerConfig.setLevel(Level.OFF);
+            loggerConfig = config.getLoggerConfig(NeptusLog.pubRoot().getName());
+            loggerConfig.setLevel(Level.FATAL);
+            ctx.updateLoggers();
             ConfigFetch.initialize();
-            // OutputMonitor.end();
-            // BasicConfigurator.resetConfiguration();
-            // NeptusLog.INSTANCE.logWaste.setLevel(Level.OFF);
-            // NeptusLog.setLevel(Level.FATAL);
             if (OsInfo.getName() == OsInfo.Name.LINUX)
                 GuiUtils.setLookAndFeel();
             else
                 GuiUtils.setSystemLookAndFeel();
-            // GuiUtils.setLookAndFeelNimbus();
-            
+
             // ChecklistPanel clp = showChecklistPanel("checklists/check3.nchk");
             
             ChecklistPanel clp = null;

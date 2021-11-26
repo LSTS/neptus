@@ -38,8 +38,8 @@ import java.util.TreeSet;
 
 import javax.swing.SwingUtilities;
 
-import org.apache.log4j.Logger;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pt.lsts.neptus.types.coord.LocationType;
 
 
@@ -50,7 +50,7 @@ import pt.lsts.neptus.types.coord.LocationType;
  * 
  */
 public class Spot {
-    public static Logger log = Logger.getLogger("SPOT");
+    public static Logger log = LogManager.getLogger("SPOT");
 
     // protected final SpotPageKeys pageInfo;
     private final String id;

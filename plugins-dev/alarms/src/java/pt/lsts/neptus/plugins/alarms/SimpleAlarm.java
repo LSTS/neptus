@@ -99,7 +99,8 @@ public abstract class SimpleAlarm extends ConsolePanel implements AlarmProviderO
         message = getAlarmMessage();
 
         if (state != prevState || !message.equals(prevMessage)) {
-            getMainpanel().getAlarmlistener().updateAlarmsListeners(this);
+            if (getMainpanel().getAlarmlistener() != null)
+                getMainpanel().getAlarmlistener().updateAlarmsListeners(this);
 
             display.setState(state);
             display.setToolTipText(message);

@@ -7,8 +7,7 @@ CHANGES.md
 libJNI/
 schemas/
 conf/messages/IMC.xml
-conf/log4j.xml
-conf/log4j.dtd
+conf/log4j2.xml
 conf/planscripts/*.js
 conf/mraplots/*.plot
 conf/waypoints/

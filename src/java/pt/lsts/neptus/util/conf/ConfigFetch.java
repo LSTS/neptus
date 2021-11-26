@@ -678,7 +678,7 @@ public class ConfigFetch {
             return loc;
         }
         else
-            loc = "conf/log4j.xml";
+            loc = "conf/log4j2.xml";
         return loc;
     }
 

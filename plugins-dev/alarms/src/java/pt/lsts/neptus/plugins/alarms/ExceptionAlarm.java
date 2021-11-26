@@ -35,42 +35,51 @@ package pt.lsts.neptus.plugins.alarms;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.Serializable;
 
 import javax.swing.AbstractAction;
 import javax.swing.JPopupMenu;
 
-import org.apache.log4j.AppenderSkeleton;
-import org.apache.log4j.Level;
-import org.apache.log4j.spi.LoggingEvent;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.Appender;
+import org.apache.logging.log4j.core.Core;
+import org.apache.logging.log4j.core.LogEvent;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.appender.AbstractAppender;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.apache.logging.log4j.core.config.Property;
+import org.apache.logging.log4j.core.config.plugins.Plugin;
+import org.apache.logging.log4j.core.config.plugins.PluginAttribute;
+import org.apache.logging.log4j.core.config.plugins.PluginFactory;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.PluginUtils;
 
 /**
  * @author ZP
- * 
+ *
  */
 @PluginDescription(icon="pt/lsts/neptus/plugins/alarms/icon.png", name="Error monitor", description="This panel shows software exceptions that may occur")
 public class ExceptionAlarm extends SimpleAlarm {
 
-	/**
-     * 
-     */
     private static final long serialVersionUID = 1L;
     private boolean added = false;
 	private static final String ok_message = "No errors found";
 	private String messageToShow = ok_message;
 	private int currentLevel = 0;
-	
+
 	@Override
 	protected String getTextToDisplay() {
 		return "SW Errors";
 	}
-	
+
 	public ExceptionAlarm(ConsoleLayout console) {
 	    super(console);
-		
+
 		display.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -79,7 +88,7 @@ public class ExceptionAlarm extends SimpleAlarm {
 					JPopupMenu popup = new JPopupMenu();
 					popup.add(new AbstractAction("Clear errors") {
 						/**
-                         * 
+                         *
                          */
                         private static final long serialVersionUID = 1L;
 
@@ -94,55 +103,79 @@ public class ExceptionAlarm extends SimpleAlarm {
 			}
 		});
 	}
-	
+
 	@Override
-	public void initSubPanel() {	
-		if (!added)
-			NeptusLog.pubRoot().addAppender(appender);
+	public void initSubPanel() {
+        appender.exceptionAlarm = this;
+		if (!added) {
+            final LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+            final Configuration config = ctx.getConfiguration();
+            LoggerConfig loggerConfig = config.getLoggerConfig(NeptusLog.pubRoot().getName());
+            appender.start();
+            loggerConfig.addAppender(appender, null, null);
+            ctx.updateLoggers();
+        }
 		added = true;
 	}
-	
+
 	@Override
 	public void cleanSubPanel() {
-		if (added)
-		    NeptusLog.pubRoot().removeAppender(appender);
+		if (added) {
+            final LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+            final Configuration config = ctx.getConfiguration();
+            LoggerConfig loggerConfig = config.getLoggerConfig(NeptusLog.pubRoot().getName());
+            appender.stop();
+            loggerConfig.removeAppender(PluginUtils.getPluginName(this.getClass()));
+            ctx.updateLoggers();
+        }
 		added = false;
 	}
-	
+
 	@Override
 	public String getAlarmMessage() {
 		return messageToShow;
 	}
-	
+
 	@Override
 	public int getAlarmState() {
 		return currentLevel;
 	}
-	
-	private AppenderSkeleton appender = new AppenderSkeleton() {
 
-		@Override
-		public boolean requiresLayout() {
-			return false;
-		}
+    private ExceptionAlarmLogAppender appender = ExceptionAlarmLogAppender.
+            createAppender(PluginUtils.getPluginName(this.getClass()));
 
-		@Override
-		protected void append(LoggingEvent arg0) {
-			if (arg0.getLevel().isGreaterOrEqual(Level.ERROR)) {				
-				if (arg0.getMessage() instanceof Exception) {
-					Exception e = (Exception)  arg0.getMessage();
-					messageToShow = e.getClass().getSimpleName()+": "+e.getMessage();
-				}
-				else
-					messageToShow = arg0.getRenderedMessage();
-				
-				currentLevel = LEVEL_4;
-			}
-		}
+    @Plugin(
+            name = "ExceptionAlarmAppender",
+            category = Core.CATEGORY_NAME,
+            elementType = Appender.ELEMENT_TYPE)
+    static class ExceptionAlarmLogAppender extends AbstractAppender {
+        ExceptionAlarm exceptionAlarm;
 
-		@Override
-		public void close() {
+        protected ExceptionAlarmLogAppender(String name) {
+            super(name, null, null, true, new Property[0]);
+        }
 
-		}
-	};
+        @PluginFactory
+        public static ExceptionAlarmLogAppender createAppender(
+                @PluginAttribute("name") String name) {
+            return new ExceptionAlarmLogAppender(name);
+        }
+
+        @Override
+        public void append(LogEvent event) {
+            if (event.getLevel().isLessSpecificThan(Level.ERROR)) {
+                if (event.getMessage() instanceof Exception) {
+                    Exception e = (Exception) event.getMessage();
+                    exceptionAlarm.messageToShow = e.getClass().getSimpleName()+": "+e.getMessage();
+                }
+                else {
+                    exceptionAlarm.messageToShow = event.getMessage().getFormattedMessage();
+                }
+
+                exceptionAlarm.currentLevel = LEVEL_4;
+                error("Unable to log less than WARN level.");
+                return;
+            }
+        }
+    }
 }
