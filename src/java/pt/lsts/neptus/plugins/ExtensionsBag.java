@@ -82,8 +82,11 @@ public class ExtensionsBag {
             }
             
             if (!added) {
-                System.err.println(c.getCanonicalName() + " not recognized");
+                NeptusLog.pub().error(c.getCanonicalName() + " not recognized");
             }
+        }
+        catch (ClassNotFoundException e) {
+            NeptusLog.pub().warn("!! WARNING !!: Plugin " + className + " not able to be found! Will not be able to be used.");
         }
         catch (Exception e) {
             e.printStackTrace();
