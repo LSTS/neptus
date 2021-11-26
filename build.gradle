@@ -924,6 +924,7 @@ task buildCheckBundleJar(type: Jar) {
             ret |= it.name.contains('log4j')
             ret |= it.name.contains('itext')
             ret |= it.name.contains('commons-cli')
+            ret |= it.name.contains('commons-lang3')
             ret |= it.name.contains('libimc')
             ret |= it.getPath().contains('zxing')
 
