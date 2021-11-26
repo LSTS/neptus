@@ -80,6 +80,9 @@ public class PluginsRepository {
                 }
             }
         }
+        catch (ClassNotFoundException e) {
+            NeptusLog.pub().warn("!! WARNING !!: Plugin " + className + " not able to be found! Will not be able to be used.");
+        }
         catch (Exception e) {
             e.printStackTrace();
         }
