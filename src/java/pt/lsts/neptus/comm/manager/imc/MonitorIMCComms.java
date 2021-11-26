@@ -830,7 +830,6 @@ public class MonitorIMCComms extends
 
     /**
      * @param args
-     * @throws MiddlewareException
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
