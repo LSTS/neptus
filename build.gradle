@@ -560,6 +560,7 @@ project(':core') {
 
     processResources {
         duplicatesStrategy DuplicatesStrategy.INCLUDE
+        outputs.upToDateWhen{ false }
         from (project.sourceSets.main.resources.srcDirs) {
             include 'version.txt'
             filter{ it.replaceAll("@VERSION@", rootProject.version) }
