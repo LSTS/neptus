@@ -1089,7 +1089,8 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         if (new File(fileName.getAbsolutePath()).exists())
             FileUtil.backupFile(fileName.getAbsolutePath());
 
-        FileUtil.saveToFile(fileName.getAbsolutePath(), FileUtil.getAsPrettyPrintFormatedXMLString(asDocument()));
+        FileUtil.saveToFile(fileName.getAbsolutePath(),
+                FileUtil.getAsPrettyPrintFormatedXMLString(FileUtil.getAsCompactFormatedXMLString(asDocument())));
         changed = false;
         return true;
     }
@@ -1110,7 +1111,8 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         file = new File(file.getAbsolutePath() + ext);
         fileName = file;
 
-        FileUtil.saveToFile(fileName.getAbsolutePath(), FileUtil.getAsPrettyPrintFormatedXMLString(asDocument()));
+        FileUtil.saveToFile(fileName.getAbsolutePath(),
+                FileUtil.getAsPrettyPrintFormatedXMLString(FileUtil.getAsCompactFormatedXMLString(asDocument())));
         changed = false;
         return true;
     }
