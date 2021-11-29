@@ -975,6 +975,20 @@ public class MissionType implements XmlOutputMethods, XmlInputMethods, XmlInputM
             return sr;
         }
 
+        for (MapMission map : mapsList.values()) {
+            String maphref = map.getMap().getHref();
+            if (maphref == null) {
+                String misFx = new File(getOriginalFilePath()).getParentFile().getPath();
+                maphref = misFx + "/" + map.getMap().getName();
+            }
+            map.getMap().saveFile(maphref);
+        }
+        for (ChecklistMission clist : checklistsList.values()) {
+            String href = clist.getHref();
+            FileUtil.saveToFile(href,
+                    FileUtil.getAsPrettyPrintFormatedXMLString(clist.getChecklist().asDocument()));
+        }
+
         boolean sr = FileUtil.saveToFile(getOriginalFilePath(),
                 FileUtil.getAsPrettyPrintFormatedXMLString(asDocument()));
         NeptusLog.pub().info("The mission '" + getId() + "' was" + (sr ? "" : " NOT") + " saved to '" + getOriginalFilePath() + "'"
