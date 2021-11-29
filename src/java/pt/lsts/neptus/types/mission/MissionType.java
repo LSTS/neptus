@@ -347,6 +347,7 @@ public class MissionType implements XmlOutputMethods, XmlInputMethods, XmlInputM
         NeptusLog.pub().debug(this + ": Total mission load time: " + totalTime + " ms.");
 
         isLoadOk = true;
+        MapGroup.resetMissionInstance(this);
         return true;
     }
 
