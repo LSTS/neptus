@@ -761,7 +761,7 @@ public class MapType implements XmlOutputMethods, XmlInputMethods, XmlInputMetho
 
     public boolean saveFile(String filename) {
         setHref(filename);
-        boolean ret = FileUtil.saveToFile(filename, FileUtil.getAsPrettyPrintFormatedXMLString(asDocument()));
+        boolean ret = FileUtil.saveToFile(getHref(), FileUtil.getAsPrettyPrintFormatedXMLString(asDocument()));
 
         if (!ret) {
             setHref(null);
