@@ -156,7 +156,6 @@
       </child>
       <child class="pt.lsts.neptus.soi.SoiInteraction" x="0" y="0" width="0" height="0">
         <properties>
-          <entry key="Hide layer if inactive">false</entry>
           <entry key="Communication Mean">Iridium</entry>
         </properties>
       </child>
