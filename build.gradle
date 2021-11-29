@@ -273,10 +273,10 @@ allprojects {
             attributes(
                 'Specification-Title': rootProject.name.capitalize(),
                 'Specification-Version': "$project.version, ${-> project.ext.gitProps['git.commit.time']}",
-                'Specification-Vendor': 'FEUP   USTL/LSTS (http://www.fe.up.pt/lsts)  Neptus (http://whale.fe.up.pt/neptus)',
+                'Specification-Vendor': 'FEUP   USTL/LSTS (https://www.fe.up.pt/lsts)  Neptus (https://lsts.fe.up.pt/toolchain/neptus)',
                 'Implementation-Title': project.name,
                 'Implementation-Version': project.version,
-                'Implementation-Vendor': 'FEUP  USTL/LSTS (http://www.fe.up.pt/lsts)',
+                'Implementation-Vendor': 'FEUP  USTL/LSTS (https://www.fe.up.pt/lsts)',
                 'Build-Revision': "${rootProject.name}-${project.version}-git#${-> project.ext.gitProps['git.commit.id.describe']}",
                 'Built-By': "${System.properties['user.name']}",
                 'Built-On': "${new Date()}",
@@ -568,7 +568,7 @@ project(':core') {
             filter{ it.replaceAll('@DATE@', "${new Date().format('yyyy-MM-dd')}") }
             filter{ it.replaceAll('@TIME@', "${new Date().format('HH:mm Z')}") }
             filter{ it.replaceAll('@COMPILED BY@', "${System.properties['user.name']}") }
-            filter{ it.replaceAll('@LEGAL_COPY@', "$rootProject.ext.copyYears FEUP USTL/LSTS (http://www.fe.up.pt/lsts)") }
+            filter{ it.replaceAll('@LEGAL_COPY@', "$rootProject.ext.copyYears FEUP USTL/LSTS (https://www.fe.up.pt/lsts)") }
             filter{ it.replaceAll("@SCM_REV@", "${-> project.ext.gitProps['git.commit.id.describe']}") }
             filter{ it.replaceAll("@SCM_PATH@", "${-> project.ext.gitProps['git.remote.origin.url']}") }
         }
@@ -813,10 +813,10 @@ task buildWorldmapBundleJar(type: Jar) {
         attributes(
             'Specification-Title': rootProject.name.capitalize(),
             'Specification-Version': "$project.version, ${-> project.ext.gitProps['git.commit.time']}",
-            'Specification-Vendor': 'FEUP   USTL/LSTS (http://www.fe.up.pt/lsts)  Neptus (http://whale.fe.up.pt/neptus)',
+            'Specification-Vendor': 'FEUP   USTL/LSTS (https://www.fe.up.pt/lsts)  Neptus (https://lsts.fe.up.pt/toolchain/neptus)',
             'Implementation-Title': "${project.name}-worldmap",
             'Implementation-Version': project.version,
-            'Implementation-Vendor': 'FEUP  USTL/LSTS (http://www.fe.up.pt/lsts)',
+            'Implementation-Vendor': 'FEUP  USTL/LSTS (https://www.fe.up.pt/lsts)',
             'Build-Revision': "${rootProject.name}-${project.version}-git#${-> project.ext.gitProps['git.commit.id.describe']}",
             'Built-By': "${System.properties['user.name']}",
             'Built-On': "${new Date()}",
@@ -900,10 +900,10 @@ task buildCheckBundleJar(type: Jar) {
         attributes(
             'Specification-Title': rootProject.name.capitalize(),
             'Specification-Version': "$project.version, ${-> project.ext.gitProps['git.commit.time']}",
-            'Specification-Vendor': 'FEUP   USTL/LSTS (http://www.fe.up.pt/lsts)  Neptus (http://whale.fe.up.pt/neptus)',
+            'Specification-Vendor': 'FEUP   USTL/LSTS (https://www.fe.up.pt/lsts)  Neptus (https://lsts.fe.up.pt/toolchain/neptus)',
             'Implementation-Title': "${project.name}-check",
             'Implementation-Version': project.version,
-            'Implementation-Vendor': 'FEUP  USTL/LSTS (http://www.fe.up.pt/lsts)',
+            'Implementation-Vendor': 'FEUP  USTL/LSTS (https://www.fe.up.pt/lsts)',
             'Build-Revision': "${rootProject.name}-${project.version}-git#${-> project.ext.gitProps['git.commit.id.describe']}",
             'Built-By': "${System.properties['user.name']}",
             'Built-On': "${new Date()}",
