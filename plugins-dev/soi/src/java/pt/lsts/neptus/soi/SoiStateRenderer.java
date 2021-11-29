@@ -72,7 +72,8 @@ public class SoiStateRenderer implements Renderer2DPainter {
                 Color c = VehiclesHolder.getVehicleById(vehicle).getIconColor();
                 SystemPositionAndAttitude estimatedState = SoiUtils
                         .estimatedState(ImcSystemsHolder.getSystemWithName(vehicle), p.getValue());
-                
+
+                prenderer.setVehicle(vehicle != null ? vehicle : "");
                 prenderer.setColor(c);
                 prenderer.setPlan(p.getValue());
                 prenderer.paint(g, renderer);
