@@ -432,7 +432,9 @@ public class MRALogReplay extends SimpleMRAVisualization implements LogMarkerLis
     
     @Override
     public void missionUpdated(MissionType mission) {
-        r2d.setMapGroup(MapGroup.getMapGroupInstance(mission));
+        if (r2d != null) {
+            r2d.setMapGroup(MapGroup.getMapGroupInstance(mission));
+        }
     }
 
     /**
