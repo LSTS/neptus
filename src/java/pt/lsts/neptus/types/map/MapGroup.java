@@ -387,7 +387,7 @@ public class MapGroup implements MapChangeListener {
 	 *
 	 */
 	public void warnListeners(MapChangeEvent changeEvent) {
-        for (MapChangeListener tmp : listeners) {
+        for (MapChangeListener tmp : listeners.toArray(new MapChangeListener[0])) {
             //vNeptusLog.pub().info("<###> "+tmp.getClass());
             tmp.mapChanged(changeEvent);
         }
