@@ -66,7 +66,7 @@ public class SaveAsConsoleAction extends ConsoleAction {
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
             @Override
             protected Void doInBackground() throws Exception {
-                console.saveasFile();
+                console.saveAsFile();
                 return null;
             }
 

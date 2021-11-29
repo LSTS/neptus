@@ -1084,7 +1084,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
 
     public boolean saveFile() {
         if (fileName == null)
-            return saveasFile();
+            return saveAsFile();
 
         if (new File(fileName.getAbsolutePath()).exists())
             FileUtil.backupFile(fileName.getAbsolutePath());
@@ -1095,7 +1095,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         return true;
     }
 
-    public boolean saveasFile() {
+    public boolean saveAsFile() {
 
         File file = ConsoleFileChooser.showSaveConsoleDialog(this);
         if (file == null) {
