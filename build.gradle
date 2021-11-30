@@ -492,6 +492,8 @@ project(':core') {
         implementation name: 'RXTXcomm'
 
         implementation 'org.apache.sanselan:sanselan:0.97-incubator' // Check new commons-imaging (changed name)
+        implementation 'org.apache.commons:commons-imaging:1.0-alpha2'
+
         implementation name: 'sqlitejdbc-v056'
         implementation name: 'standby'
         implementation 'org.swinglabs.swingx:swingx-all:1.6.5-1'
