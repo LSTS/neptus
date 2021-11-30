@@ -87,10 +87,12 @@ def generateStartScriptsFor(String applicationNameOpt, String taskPrefixName,
         FileCollection classpathCollection) {
     return tasks.create("${taskPrefixName}StartScripts", CreateStartScripts) {
         applicationName = "$applicationNameOpt"
+        outputs.upToDateWhen { false }
         mainClass = "$mainclass"
         classpath =  classpathCollection
         outputDir = file("$buildDir/scripts/$taskPrefixName")
         executableDir = "$appHomeRelativePathOpt"
+
         defaultJvmOpts = [
             '-Xms10m',
             '-Xmx2g',
