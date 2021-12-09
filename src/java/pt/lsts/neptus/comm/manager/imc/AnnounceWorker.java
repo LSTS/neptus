@@ -473,6 +473,10 @@ public class AnnounceWorker {
 	    return getImcIpsPortsFromMessage(msg, "imc+tcp");
 	}
 
+    public InetSocketAddress[] getImcIpsPortsFromMessageImcDtls(IMCMessage msg) {
+        return getImcIpsPortsFromMessage(msg, "dtls");
+    }
+
 	public InetSocketAddress[] getImcIpsPortsFromMessage(IMCMessage msg, String scheme) {
 		String services = msg.getString("services");
 		return getImcIpsPortsFromMessage(services, scheme);

@@ -154,7 +154,9 @@ public class ImcUdpTransport {
 			    IMCMessage msg;
 			    
 			    try {
-			        msg = imcDefinition.parseMessage(req.getBuffer());			        
+			        msg = imcDefinition.parseMessage(req.getBuffer());
+                    //unpacking message from LAUV
+                    NeptusLog.pub().info("UNPACKING MESSAGE SENT FROM " + req.getAddress().getHostString());
 			    } 
                 catch (IOException e) {
                     NeptusLog.pub().warn(e.getMessage()+" while unpacking message sent from " + req.getAddress().getHostString());
@@ -235,6 +237,7 @@ public class ImcUdpTransport {
         return sendMessage(destination, port, message, null);
     }
 
+    // this is like the consume(IMC message ) in DUNE??
 	public boolean sendMessage(String destination, int port, final IMCMessage message,
 	        final MessageDeliveryListener deliveryListener) {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
