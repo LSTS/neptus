@@ -151,8 +151,8 @@ public class PlanCreator {
         String before = "" + (count - 1);
         String id = "" + count;
         try {
-            Object speedPropValue = properties.get("speed");
-            Object speedUnitsPropValue = properties.get("speedUnits");
+            Object speedPropValue = properties != null ? properties.get("speed") : null;
+            Object speedUnitsPropValue = properties != null ? properties.get("speedUnits") : null;
             Double newSpeed = null;
             Units newUnits = null;
             try {
