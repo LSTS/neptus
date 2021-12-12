@@ -32,6 +32,7 @@
  */
 package pt.lsts.neptus.comm.iridium;
 
+import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -39,6 +40,8 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Vector;
 
+import pt.lsts.imc.IMCDefinition;
+import pt.lsts.imc.IMCInputStream;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IridiumMsgRx;
 import pt.lsts.imc.IridiumMsgTx;
@@ -92,6 +95,20 @@ public class DuneIridiumMessenger implements IridiumMessenger, MessageListener<M
                 NeptusLog.pub().info("Received a " + m.getClass().getSimpleName() + " from " + msg.getSourceName());
                 for (IridiumMessageListener listener : listeners)
                     listener.messageReceived(m);
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(e);
+            }
+
+            IMCInputStream iis = new IMCInputStream(new ByteArrayInputStream(msg.getRawData("data")), IMCDefinition.getInstance());
+            iis.setBigEndian(false);
+            TextIridiumMessage txtIridium = new TextIridiumMessage();
+            try {
+                txtIridium.deserializeFields(iis);
+                NeptusLog.pub().info("Received a plain text from " + msg.getSourceName());
+                for (IMCMessage m : txtIridium.asImc()) {
+                    ImcMsgManager.getManager().postInternalMessage("iridium txt", m);
+                }
             }
             catch (Exception e) {
                 NeptusLog.pub().error(e);
