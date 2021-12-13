@@ -3,18 +3,18 @@
     <!-- trace, debug, info, warn, error and fatal -->
     <Appenders>
         <Console name="stdout" target="SYSTEM_OUT">
-            <PatternLayout pattern="%highlight{[%d{YYYY-MM-dd HH:mm:ss.sssZ}] - %-5p - }%m %highlight{(%F:%L) {%t} {%c}%n}"/>
+            <PatternLayout pattern="%highlight{[%d{YYYY-MM-dd HH:mm:ss.sssZ}] - %-5p - }%m{nolookups} %highlight{(%F:%L) {%t} {%c}%n}"/>
         </Console>
         <Console name="stdout.debug" target="SYSTEM_OUT">
-            <PatternLayout pattern="%highlight{[%d{YYYY-MM-dd HH:mm:ss.sssZ}] - %-5p - }%m %highlight{(%F:%L) {%t} {%c}%n}"/>
+            <PatternLayout pattern="%highlight{[%d{YYYY-MM-dd HH:mm:ss.sssZ}] - %-5p - }%m{nolookups} %highlight{(%F:%L) {%t} {%c}%n}"/>
         </Console>
         <RollingFile name="debugLog" fileName="log/debug.log" append="true" filePattern="log/debug.log.%i.gz" createOnDemand="true">
-            <PatternLayout pattern="[%d{YYYY-MM-dd HH:mm:ss.sssZ}] - %-5p - %m (%F:%L) {%t} {%c}%n"/>
+            <PatternLayout pattern="[%d{YYYY-MM-dd HH:mm:ss.sssZ}] - %-5p - %m{nolookups} (%F:%L) {%t} {%c}%n"/>
             <SizeBasedTriggeringPolicy size="5MB" />
             <DefaultRolloverStrategy fileIndex="min" min="1" max="20" />
         </RollingFile>
         <RollingFile name="spotLog" fileName="log/spot.log" append="true" filePattern="log/spot.log.%i.gz" createOnDemand="true">
-            <PatternLayout pattern="[%d{YYYY-MM-dd HH:mm:ss.sssZ}] - %-5p - %m (%F:%L) {%t} {%c}%n"/>
+            <PatternLayout pattern="[%d{YYYY-MM-dd HH:mm:ss.sssZ}] - %-5p - %m{nolookups} (%F:%L) {%t} {%c}%n"/>
             <SizeBasedTriggeringPolicy size="5MB" />
             <DefaultRolloverStrategy fileIndex="min" min="1" max="20" />
         </RollingFile>
