@@ -84,7 +84,6 @@ public abstract class IridiumMessage implements Comparable<IridiumMessage> {
     }
     
     public static IridiumMessage deserialize(byte[] data) throws Exception {
-
         IMCInputStream iis = new IMCInputStream(new ByteArrayInputStream(data), IMCDefinition.getInstance());
         iis.setBigEndian(false);
         int source = iis.readUnsignedShort();
@@ -93,17 +92,17 @@ public abstract class IridiumMessage implements Comparable<IridiumMessage> {
         IridiumMessage m = null;
         if (iridiumTypes.containsKey(mgid)) {
             m = iridiumTypes.get(mgid).getDeclaredConstructor().newInstance();
-        }
-        else {
-            iis.close();
-            throw new Exception("Unrecognized message type: "+mgid);
+        } else {
+            mgid = -1;
+            m = PlainTextMessage.createTextMessageFrom(iis);
         }
         
         if (m != null) {
             m.setSource(source);
             m.setDestination(dest);
             m.setMessageType(mgid);
-            m.deserializeFields(iis);
+            if (mgid > -1)
+                m.deserializeFields(iis);
         }
         iis.close();
         
