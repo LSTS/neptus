@@ -36,7 +36,7 @@ import pt.lsts.imc.IMCInputStream;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCOutputStream;
 import pt.lsts.imc.TextMessage;
-import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.NeptusLog;
 
 import java.util.Collection;
 import java.util.Vector;
@@ -45,14 +45,14 @@ import java.util.Vector;
  * @author pdias
  *
  */
-public class TextIridiumMessage extends IridiumMessage {
+public class PlainTextMessage extends IridiumMessage {
 
     String text;
 
-    public TextIridiumMessage() {
-        super(2005);
+    public PlainTextMessage() {
+        super(-1);
     }
-    
+
     @Override
     public int serializeFields(IMCOutputStream out) throws Exception {
         out.write(text.getBytes("UTF-8"));
@@ -62,13 +62,15 @@ public class TextIridiumMessage extends IridiumMessage {
 
     @Override
     public int deserializeFields(IMCInputStream in) throws Exception {
-        byte[] data = new byte[0xFFFF];
+        int bav = in.available();
+        bav = bav < 0 ? 0 : bav;
+        byte[] data = new byte[bav];
         in.readFully(data);
         text = new String(data, "UTF-8");
         text = text.trim();
         return text.getBytes("UTF-8").length;
     }
-    
+
     public final String getText() {
         return text;
     }
@@ -83,10 +85,24 @@ public class TextIridiumMessage extends IridiumMessage {
         msgs.add(new TextMessage("iridium", text));
         return msgs;
     }
-    
+
     @Override
     public String toString() {
         String s = super.toString();
         return s + "\tText: " + getText() + "\n";
+    }
+
+    static IridiumMessage createTextMessageFrom(IMCInputStream in) throws Exception {
+        try {
+            PlainTextReportMessage plainTextReport = new PlainTextReportMessage();
+            plainTextReport.deserializeFields(in);
+            return plainTextReport;
+        } catch (Exception e) {
+            NeptusLog.pub().warn("Not able to parse iridium msg as PlainTextReportMessage, trying another or simple text");
+        }
+
+        PlainTextMessage plainTextMessage = new PlainTextMessage();
+        plainTextMessage.deserializeFields(in);
+        return plainTextMessage;
     }
 }

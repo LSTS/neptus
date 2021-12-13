@@ -102,7 +102,7 @@ public class DuneIridiumMessenger implements IridiumMessenger, MessageListener<M
 
             IMCInputStream iis = new IMCInputStream(new ByteArrayInputStream(msg.getRawData("data")), IMCDefinition.getInstance());
             iis.setBigEndian(false);
-            TextIridiumMessage txtIridium = new TextIridiumMessage();
+            PlainTextMessage txtIridium = new PlainTextMessage();
             try {
                 txtIridium.deserializeFields(iis);
                 NeptusLog.pub().info("Received a plain text from " + msg.getSourceName());
