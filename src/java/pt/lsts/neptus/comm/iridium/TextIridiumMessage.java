@@ -65,7 +65,7 @@ public class TextIridiumMessage extends IridiumMessage {
         byte[] data = new byte[0xFFFF];
         in.readFully(data);
         text = new String(data, "UTF-8");
-        text = text.trim()
+        text = text.trim();
         return text.getBytes("UTF-8").length;
     }
     
