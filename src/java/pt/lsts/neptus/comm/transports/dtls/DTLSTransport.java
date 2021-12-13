@@ -10,13 +10,13 @@ import javax.net.ssl.*;
 import java.util.concurrent.*;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
-import javax.xml.bind.DatatypeConverter;
 
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.transports.DeliveryListener;
+import pt.lsts.neptus.comm.transports.udp.UDPMessageListener;
 import pt.lsts.neptus.comm.transports.udp.UDPNotification;
-import pt.lsts.neptus.comm.transports.udp.UDPTransport;
-
+import pt.lsts.neptus.util.ByteUtil;
 
 
 public class DTLSTransport {
@@ -58,6 +58,7 @@ public class DTLSTransport {
     private String serverAddress = null;
     private boolean isOnBindError = false;
     private Thread sockedListenerThread = null;
+    private Thread dispacherThread = null;
     private int maxBufferSize = 65507;
     private DatagramSocket sock;
     private static int timeoutMillis = 10 * 1000; // in millis
@@ -66,6 +67,8 @@ public class DTLSTransport {
     private static int maximumPacketSize = 4096;
     //IMC list of received DTLS messages?? i think
     private LinkedBlockingQueue<UDPNotification> receptionMessageList = new LinkedBlockingQueue<UDPNotification>();
+    private LinkedBlockingQueue<UDPNotification> sendmessageList = new LinkedBlockingQueue<UDPNotification>();
+    protected LinkedHashSet<UDPMessageListener> listeners = new LinkedHashSet<UDPMessageListener>();
     private boolean purging = false;
     /**
      * This will bind to port 6001.
@@ -139,7 +142,14 @@ public class DTLSTransport {
     private void createReceivers() {
         setOnBindError(false);
         getSockedListenerThread();
-//        getDispacherThread();
+        getDispacherThread();
+    }
+
+    /**
+     *
+     */
+    private void createSenders() {
+        getSenderThread();
     }
 
     // get DTSL context
@@ -291,6 +301,42 @@ public class DTLSTransport {
         }
 
         return false;
+    }
+
+    // produce application packets
+    DatagramPacket produceApplicationPackets(
+            SSLEngine engine, ByteBuffer source,
+            InetSocketAddress socketAddr) throws Exception {
+
+        DatagramPacket packet = null;
+        ByteBuffer appNet = ByteBuffer.allocate(32768);
+        SSLEngineResult r = engine.wrap(source, appNet);
+        appNet.flip();
+
+        SSLEngineResult.Status rs = r.getStatus();
+        if (rs == SSLEngineResult.Status.BUFFER_OVERFLOW) {
+            // the client maximum fragment size config does not work?
+            throw new Exception("Buffer overflow: " +
+                    "incorrect server maximum fragment size");
+        } else if (rs == SSLEngineResult.Status.BUFFER_UNDERFLOW) {
+            // unlikely
+            throw new Exception("Buffer underflow during wraping");
+        } else if (rs == SSLEngineResult.Status.CLOSED) {
+            throw new Exception("SSLEngine has closed");
+        } else if (rs == SSLEngineResult.Status.OK) {
+            // OK
+        } else {
+            throw new Exception("Can't reach here, result is " + rs);
+        }
+
+        // SSLEngineResult.Status.OK:
+        if (appNet.hasRemaining()) {
+            byte[] ba = new byte[appNet.remaining()];
+            appNet.get(ba);
+            packet = new DatagramPacket(ba, ba.length, socketAddr);
+        }
+
+        return packet;
     }
 
     // retransmission if timeout
@@ -508,27 +554,20 @@ public class DTLSTransport {
                     try {
                         // purging not changing yet
                         while (!purging) {
-                            DatagramPacket packet = new DatagramPacket(sBuffer, sBuffer.length);
+                            byte[] buf = new byte[maxBufferSize];
+                            DatagramPacket packet = new DatagramPacket(buf, buf.length);
                             try {
                                 sock.receive(packet);
                                 int lengthReceived = packet.getLength();
-                                ByteBuffer netBuffer = ByteBuffer.wrap(sBuffer, 0, lengthReceived);
-                                ByteBuffer recBuffer = ByteBuffer.allocate(BUFFER_SIZE);
-
-                                NeptusLog.pub().info("before unwrapping : " + Arrays.toString(netBuffer.array()));
-                                SSLEngineResult rs = engine.unwrap(netBuffer, recBuffer);
-                                recBuffer.flip();
-                                NeptusLog.pub().info("after unwrapping : " + Arrays.toString(recBuffer.array()));
-                                if (recBuffer.remaining() != 0) {
-                                    System.out.println("Original ByteBuffer: "
-                                            + Arrays.toString(netBuffer.array()));
-                                    NeptusLog.pub().info("remaining buffer : " + Arrays.toString(recBuffer.array()));
-                                    break;
-                                }
-
-
                                 try {
-                                    byte[] recBytes = Arrays.copyOf(sBuffer, lengthReceived);
+                                    ByteBuffer netBuffer = ByteBuffer.wrap(buf, 0, lengthReceived);
+                                    ByteBuffer recBuffer = ByteBuffer.allocate(maxBufferSize);
+                                    SSLEngineResult rs = engine.unwrap(netBuffer, recBuffer);
+                                    NeptusLog.pub().info("engine state is : " + rs);
+                                    recBuffer.flip();
+                                    byte[] recBytes = Arrays.copyOf(recBuffer.array(), recBuffer.limit());
+                                    NeptusLog.pub().info("Original ByteBuffer for DTLS with limit(): "
+                                            + Arrays.toString(recBytes));
                                     UDPNotification info = new UDPNotification(UDPNotification.RECEPTION,
                                             (InetSocketAddress) packet.getSocketAddress(), recBytes,
                                             System.currentTimeMillis());
@@ -579,4 +618,222 @@ public class DTLSTransport {
         }
         return sockedListenerThread;
     }
+
+    /**
+     * @return
+     */
+    private Thread getDispacherThread() {
+        if (dispacherThread == null) {
+            Thread listenerThread = new Thread(DTLSTransport.class.getSimpleName() + ": Dispacher Thread "
+                    + this.hashCode()) {
+                public synchronized void start() {
+                    NeptusLog.pub().debug("Dispacher Thread Started");
+                    super.start();
+                }
+
+                public void run() {
+                    try {
+                        while (!(purging && receptionMessageList.isEmpty())) {
+                            UDPNotification req;
+                            req = receptionMessageList.poll(1, TimeUnit.SECONDS);
+                            if (req == null)
+                                continue;
+
+                            for (UDPMessageListener lst : listeners) {
+                                try {
+                                    lst.onUDPMessageNotification(req);
+                                }
+                                catch (ArrayIndexOutOfBoundsException e) {
+                                    NeptusLog.pub().debug(
+                                            "Dispacher Thread: ArrayIndexOutOfBoundsException: "
+                                                    + "onUDPMessageNotification " + e.getMessage());
+                                }
+                                catch (Exception e) {
+                                    String addStr = "";
+                                    if (req != null) {
+                                        if (req.getBuffer() != null) {
+                                            addStr = ByteUtil.dumpAsHexToString(req.getAddress().toString(), req.getBuffer());
+                                            if (addStr != null && !"".equalsIgnoreCase(addStr))
+                                                addStr = "Buffer:\n" + addStr;
+                                        }
+                                    }
+                                    NeptusLog.pub().error(
+                                            "Dispacher Thread: Exception: " + "onUDPMessageNotification "
+                                                    + e.getMessage() + addStr, e);
+                                }
+                                catch (Error e) {
+                                    NeptusLog.pub().fatal(
+                                            "Dispacher Thread: Error: " + "onUDPMessageNotification " + e.getMessage(),
+                                            e);
+                                }
+                            }
+                        }
+                    }
+                    catch (InterruptedException e) {
+                        NeptusLog.pub().debug(this + " Thread interrupted");
+                    }
+
+                    NeptusLog.pub().info(this + " Thread Stopped");
+                    dispacherThread = null;
+                }
+            };
+            listenerThread.setPriority(Thread.MIN_PRIORITY + 1);
+            listenerThread.setDaemon(true);
+            listenerThread.start();
+            dispacherThread = listenerThread;
+        }
+        return dispacherThread;
+    }
+
+
+    /**
+     * @return
+     */
+    private Thread getSenderThread() {
+        Thread senderThread = new Thread(DTLSTransport.class.getSimpleName() + ": Sender Thread " + this.hashCode()) {
+
+            DatagramPacket dgram;
+            UDPNotification req;
+
+            public synchronized void start() {
+                NeptusLog.pub().debug("Sender Thread Started");
+                //
+//                try {
+//                    if (sockToUseAlreadyOpen != null)
+//                        sock = sockToUseAlreadyOpen;
+//                    else
+//                        sock = new DatagramSocket();
+                    super.start();
+//                }
+//                catch (SocketException e) {
+//                    e.printStackTrace();
+//                }
+            }
+
+            public void run() {
+                try {
+                    while (!(purging && sendmessageList.isEmpty())) {
+                        // req = sendmessageList.take();
+                        req = sendmessageList.poll(1, TimeUnit.SECONDS);
+                        if (req == null)
+                            continue;
+                        try {
+                            //convert req.getBuffer (=byte[]) to byteBuffer
+                            ByteBuffer sendBuffer = null;
+                            sendBuffer.clear();
+                            sendBuffer.put(req.getBuffer());
+                            sendBuffer.flip();
+
+                            NeptusLog.pub().info("sending DTLS package");
+                            dgram = produceApplicationPackets(engine, sendBuffer, req.getAddress());
+
+//                            dgram = new DatagramPacket(req.getBuffer(), req.getBuffer().length, req.getAddress());
+                            if (req.getAddress().getPort() != 0) {
+                                sock.send(dgram);
+                                informDeliveryListener(req, DeliveryListener.ResultEnum.Success, null);
+                            }
+                            else
+                                throw new Exception(req.getAddress() + " port is not valid");
+                        }
+                        catch (IOException e) {
+                            NeptusLog.pub().debug(e + " :: " + req.getAddress());
+                            // e.printStackTrace();
+                            informDeliveryListener(req, DeliveryListener.ResultEnum.Error, e);
+                        }
+                        catch (Exception e) {
+                            NeptusLog.pub().error(e + " :: " + req.getAddress());
+                            // e.printStackTrace();
+                            informDeliveryListener(req, DeliveryListener.ResultEnum.Error, e);
+                        }
+                    }
+                }
+                catch (InterruptedException e) {
+                    NeptusLog.pub().debug(this + " Thread interrupted");
+                    informDeliveryListener(req, DeliveryListener.ResultEnum.Error, e);
+                }
+
+                NeptusLog.pub().info(this + " Sender Thread Stopped");
+//                senderThreads.remove(this);
+            }
+        };
+        senderThread.setPriority(Thread.MIN_PRIORITY);
+        senderThread.setDaemon(true);
+        senderThread.start();
+        return senderThread;
+    }
+
+    /**
+     * @param listener
+     * @return
+     */
+    public boolean addListener(UDPMessageListener listener) {
+        synchronized (listeners) {
+            boolean ret = listeners.add(listener);
+            return ret;
+        }
+    }
+
+    /**
+     * @param listener
+     * @return
+     */
+    public boolean removeListener(UDPMessageListener listener) {
+        synchronized (listeners) {
+            boolean ret = listeners.remove(listener);
+            return ret;
+        }
+    }
+
+    /**
+     * Sends a message to the network
+     *
+     * @param buffer
+     * @return true meaning that the message was put on the send queue, and false if it was not put on the send queue.
+     */
+    public boolean sendMessage(byte[] buffer) {
+        return sendMessage(buffer, null);
+    }
+
+
+    /**
+     * Sends a message to the network
+     *
+     * @param buffer
+     * @param deliveryListener
+     * @return true meaning that the message was put on the send queue, and false if it was not put on the send queue.
+     */
+    public boolean sendMessage(byte[] buffer, DeliveryListener deliveryListener) {
+        if (purging) {
+            String txt = "Not accepting any more messages. IMCMessenger is terminating";
+            NeptusLog.pub().error(txt);
+            if (deliveryListener != null)
+                deliveryListener.deliveryResult(DeliveryListener.ResultEnum.UnFinished, new IOException(txt));
+            return false;
+        }
+        try {
+            UDPNotification req = new UDPNotification(UDPNotification.SEND,
+                    new InetSocketAddress(serverAddress, serverPort), buffer);
+            req.setDeliveryListener(deliveryListener);
+            sendmessageList.add(req);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            if (deliveryListener != null)
+                deliveryListener.deliveryResult(DeliveryListener.ResultEnum.Unreacheable, e);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * @param req
+     * @param e
+     */
+    private void informDeliveryListener(UDPNotification req, DeliveryListener.ResultEnum result, Exception e) {
+        if (req != null && req.getDeliveryListener() != null) {
+            req.getDeliveryListener().deliveryResult(result, e);
+        }
+    }
+
+
 }

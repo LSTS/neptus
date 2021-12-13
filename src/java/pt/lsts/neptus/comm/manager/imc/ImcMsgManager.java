@@ -90,6 +90,7 @@ import pt.lsts.neptus.comm.manager.MessageFrequencyCalculator;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem.IMCAuthorityState;
 import pt.lsts.neptus.comm.transports.ImcTcpTransport;
 import pt.lsts.neptus.comm.transports.ImcUdpTransport;
+import pt.lsts.neptus.comm.transports.dtls.DTLSTransport;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.messages.MessageFilter;
@@ -1282,6 +1283,10 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
             vci = initSystemCommInfo(id, info.getPublisherInetAddress() + ":"
                     + retId[0].getPort(), imcDefinition, true);
             updateUdpOnIpMapper(vci);
+            DTLSTransport dtlsTransport = vci.dtlsTransport.getDtlsTransport();
+            if ( dtlsTransport != null){
+                vci.dtlsTransport.addListener(this);
+            }
         }
 
         int portUdp = 0;
@@ -1820,8 +1825,49 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
 
         //        bus.post(message);
 
-        // Check if is requested to send by Multicast and/or Broadcast, if yes don't send by any other way
-        if (sendProperties != null
+        // TODO: verify the same way as for multi/broadcast
+        SystemImcMsgCommInfo destSysCommInfo = getCommInfoById(systemCommId);
+        if (destSysCommInfo != null && destSysCommInfo.dtlsTransport.getDtlsTransport() != null){
+            NeptusLog.pub().info("sending via DTLS");
+            boolean sentDtlsResult = true;
+
+            try {
+                markMessageToSent(systemCommId);
+                boolean ret = destSysCommInfo.dtlsTransport.sendMessage(message.cloneMessage(), listener);
+                sentDtlsResult = sentDtlsResult && ret;
+
+            }
+            catch (Exception e) {
+                sentDtlsResult = false;
+
+                boolean isNoTransportAvailable = false;
+                if (e instanceof NoTransportAvailableException)
+                    isNoTransportAvailable = true;
+
+                StringBuilder sb = new StringBuilder();
+                sb.append("[");
+                if (!isNoTransportAvailable && message != null)
+                    sb.append("msg: ").append(message.getAbbrev());
+                if (!isNoTransportAvailable && systemCommId != null)
+                    sb.append(sb.length() > 1 ? ", " : "").append("to: ").append("::").append(systemCommId);
+                if (sendProperties != null && !sendProperties.isEmpty())
+                    sb.append(sb.length() > 1 ? ", " : "").append("prop: ").append(sendProperties);
+                sb.append("]");
+                String what = sb.toString();
+
+                if (isNoTransportAvailable)
+                    NeptusLog.pub().error(this.getClass().getSimpleName() + ": Error sending message! " + what + " " + e.getMessage());
+                else
+                    NeptusLog.pub().error(this.getClass().getSimpleName() + ": Error sending message! " + what, e);
+
+                if (listener != null)
+                    listener.deliveryError(message, e);
+            }
+
+            return sentDtlsResult;
+
+
+        }else if (sendProperties != null
                 && (StringUtils.isTokenInList(sendProperties, "Multicast") || StringUtils.isTokenInList(sendProperties,
                         "Broadcast"))) {
             boolean sentResult = true;

@@ -34,8 +34,53 @@ public class ImcDtlsTransport {
        this.imcDefinition = imcDefinition;
        this.inetAddress = inetAddress;
        getDtlsTransport();
-//       setUDPListener();
+       setUDPListener();
    }
+
+    /**
+     *
+     */
+    private void setUDPListener() {
+        getDtlsTransport().addListener(new UDPMessageListener() {
+            @Override
+            public void onUDPMessageNotification(UDPNotification req) {
+                //ByteUtil.dumpAsHex(req.getBuffer(),System.out);
+//					long start = System.nanoTime();
+                IMCMessage msg;
+
+                try {
+                    msg = imcDefinition.parseMessage(req.getBuffer());
+                    //unpacking message from LAUV
+                    NeptusLog.pub().info("UNPACKING MESSAGE SENT FROM " + req.getAddress().getHostString());
+                }
+                catch (IOException e) {
+                    NeptusLog.pub().warn(e.getMessage()+" while unpacking message sent from " + req.getAddress().getHostString());
+                    return;
+                }
+
+                MessageInfo info = new MessageInfoImpl();
+                info.setPublisher(req.getAddress().getAddress().getHostAddress());
+                info.setPublisherInetAddress(req.getAddress().getAddress().getHostAddress());
+                info.setPublisherPort(req.getAddress().getPort());
+                info.setTimeReceivedNanos(req.getTimeMillis() * (long)1E6);
+                info.setTimeSentNanos((long)msg.getTimestamp() * (long)1E9);
+                info.setProperty(MessageInfo.TRANSPORT_MSG_KEY, "UDP");
+                for (MessageListener<MessageInfo, IMCMessage> lst : listeners) {
+                    try {
+                        //req.getMessage().dump(System.err);
+                        lst.onMessage(info , msg);
+                    }
+                    catch (Exception e) {
+                        NeptusLog.pub().error(e);
+                    }
+                    catch (Error e) {
+                        NeptusLog.pub().error(e);
+                    }
+                }
+            }
+        });
+    }
+
 
     /**
      * @return the dtlsTransport
@@ -45,6 +90,96 @@ public class ImcDtlsTransport {
             dtlsTransport = new DTLSTransport(1, inetAddress);
         }
         return dtlsTransport;
+    }
+
+    /**
+     * @param listener
+     * @return
+     */
+    public boolean addListener(MessageListener<MessageInfo, IMCMessage> listener) {
+        boolean ret = false;
+        synchronized (listeners) {
+            ret = listeners.add(listener);
+        }
+        return ret;
+    }
+
+    /**
+     * @param listener
+     * @return
+     */
+    public boolean removeListener(
+            MessageListener<MessageInfo, IMCMessage> listener) {
+        boolean ret = false;
+        synchronized (listeners) {
+            ret = listeners.remove(listener);
+        }
+        return ret;
+    }
+
+    /**
+     * @param destination
+     * @param port
+     * @param message
+     */
+    public boolean sendMessage(IMCMessage message) {
+        return sendMessage(message, null);
+    }
+
+    public boolean sendMessage(final IMCMessage message,
+                               final MessageDeliveryListener deliveryListener) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        IMCOutputStream imcOs = new IMCOutputStream(baos);
+
+        try {
+            message.serialize(imcOs);
+            DeliveryListener listener = null;
+            if (deliveryListener != null) {
+                listener = new DeliveryListener() {
+                    @Override
+                    public void deliveryResult(ResultEnum result, Exception error) {
+                        switch (result) {
+                            case Success:
+                                deliveryListener.deliveryUncertain(message, new Exception("Message delivered via UDP"));
+                                break;
+                            case Error:
+                                deliveryListener.deliveryError(message, error);
+                                break;
+                            case TimeOut:
+                                deliveryListener.deliveryTimeOut(message);
+                                break;
+                            case Unreacheable:
+                                deliveryListener.deliveryUnreacheable(message);
+                                break;
+                            default:
+                                deliveryListener.deliveryError(message, new Exception("Delivery "
+                                        + ResultEnum.UnFinished));
+                                break;
+                        }
+                    }
+                };
+            }
+            boolean ret = getDtlsTransport().sendMessage(baos.toByteArray(), listener);
+//            message.dump(System.err);
+//            if (message.getAbbrev().equalsIgnoreCase("LblConfig")) {
+//                NeptusLog.pub().info("<###> sissssssssssss" + baos.toByteArray().length);
+//                ByteUtil.dumpAsHex(message.getAbbrev(), baos.toByteArray(), System.out);
+//            }
+            if (!ret) {
+                if (deliveryListener != null) {
+                    deliveryListener.deliveryError(message, new Exception("Delivery "
+                            + ResultEnum.UnFinished + " due to closing transport!"));
+                }
+            }
+            return ret;
+        } catch (Exception e) {
+            e.printStackTrace();
+            NeptusLog.pub().error(e);
+            if (deliveryListener != null) {
+                deliveryListener.deliveryError(message, e);
+            }
+            return false;
+        }
     }
 
 }
