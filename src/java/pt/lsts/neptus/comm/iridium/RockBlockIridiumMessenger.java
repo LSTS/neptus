@@ -105,7 +105,7 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
 public class RockBlockIridiumMessenger implements IridiumMessenger {
 
     protected boolean available = true;
-    protected String serverUrl = "https://secure.rock7mobile.com/rockblock/MT";
+    protected static String serverUrl = "https://core.rock7.com/rockblock/MT";
     protected HashSet<IridiumMessageListener> listeners = new HashSet<>();
     private static long lastSuccess = -1;
 
@@ -244,7 +244,7 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
                 .setConnectionManager(cm)
                 .build()) {
 
-            HttpPost post = new HttpPost("https://secure.rock7mobile.com/rockblock/MT");
+            HttpPost post = new HttpPost(serverUrl);
             List<NameValuePair> urlParameters = new ArrayList<NameValuePair>();
             urlParameters.add(new BasicNameValuePair("imei", destImei));
             urlParameters.add(new BasicNameValuePair("username", username));
