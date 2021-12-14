@@ -68,18 +68,20 @@ public class PlainTextReportMessage extends IridiumMessage {
 
     @Override
     public int serializeFields(IMCOutputStream out) throws Exception {
-        out.writePlaintext(report);
+        out.write(report.getBytes("ISO-8859-1"));
         out.close();
-        return report.getBytes("ISO-8859-1").length + 2;
+        return report.getBytes("ISO-8859-1").length;
     }
 
     @Override
     public int deserializeFields(IMCInputStream in) throws Exception {
-        byte[] data = new byte[200];
+        int bav = in.available();
+        bav = bav < 0 ? 0 : bav;
+        byte[] data = new byte[bav];
         int len = in.read(data);
         report = new String(data, "ISO-8859-1");
         parse();
-        return len + 2;
+        return len;
     }
 
     @Override
@@ -128,10 +130,10 @@ public class PlainTextReportMessage extends IridiumMessage {
 
         IMCInputStream iis = new IMCInputStream(new ByteArrayInputStream(bytesMsh), IMCDefinition.getInstance());
         iis.setBigEndian(false);
-        PlainTextMessage txtIridium = new PlainTextMessage();
+        PlainTextReportMessage txtIridium = new PlainTextReportMessage();
         try {
             txtIridium.deserializeFields(iis);
-            NeptusLog.pub().info("Received a plain text from " + txtIridium.text);
+            NeptusLog.pub().info("Received a plain text from " + txtIridium.report);
         }
         catch (Exception e) {
             NeptusLog.pub().error(e);
