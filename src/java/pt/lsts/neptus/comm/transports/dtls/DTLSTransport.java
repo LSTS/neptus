@@ -119,7 +119,7 @@ public class DTLSTransport {
      */
     private void initialize() {
         createReceivers();
-//        createSenders();
+        createSenders();
     }
 
     /**
@@ -563,10 +563,10 @@ public class DTLSTransport {
                                     ByteBuffer netBuffer = ByteBuffer.wrap(buf, 0, lengthReceived);
                                     ByteBuffer recBuffer = ByteBuffer.allocate(maxBufferSize);
                                     SSLEngineResult rs = engine.unwrap(netBuffer, recBuffer);
-                                    NeptusLog.pub().info("engine state is : " + rs);
+                                    NeptusLog.pub().debug("engine state is : " + rs);
                                     recBuffer.flip();
                                     byte[] recBytes = Arrays.copyOf(recBuffer.array(), recBuffer.limit());
-                                    NeptusLog.pub().info("Original ByteBuffer for DTLS with limit(): "
+                                    NeptusLog.pub().debug("Original ByteBuffer for DTLS with limit(): "
                                             + Arrays.toString(recBytes));
                                     UDPNotification info = new UDPNotification(UDPNotification.RECEPTION,
                                             (InetSocketAddress) packet.getSocketAddress(), recBytes,
@@ -697,17 +697,8 @@ public class DTLSTransport {
 
             public synchronized void start() {
                 NeptusLog.pub().debug("Sender Thread Started");
-                //
-//                try {
-//                    if (sockToUseAlreadyOpen != null)
-//                        sock = sockToUseAlreadyOpen;
-//                    else
-//                        sock = new DatagramSocket();
+                //TODO: catch if socket == null
                     super.start();
-//                }
-//                catch (SocketException e) {
-//                    e.printStackTrace();
-//                }
             }
 
             public void run() {
@@ -718,13 +709,12 @@ public class DTLSTransport {
                         if (req == null)
                             continue;
                         try {
-                            //convert req.getBuffer (=byte[]) to byteBuffer
-                            ByteBuffer sendBuffer = null;
-                            sendBuffer.clear();
-                            sendBuffer.put(req.getBuffer());
-                            sendBuffer.flip();
 
-                            NeptusLog.pub().info("sending DTLS package");
+                            //convert req.getBuffer (=byte[]) to byteBuffer
+                            ByteBuffer sendBuffer = ByteBuffer.wrap(req.getBuffer());
+                            byte[] recBytes = Arrays.copyOf(sendBuffer.array(), sendBuffer.limit());
+//                            NeptusLog.pub().debug("Original ByteBuffer : " + Arrays.toString(recBytes));
+
                             dgram = produceApplicationPackets(engine, sendBuffer, req.getAddress());
 
 //                            dgram = new DatagramPacket(req.getBuffer(), req.getBuffer().length, req.getAddress());

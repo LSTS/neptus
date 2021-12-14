@@ -155,8 +155,6 @@ public class ImcUdpTransport {
 			    
 			    try {
 			        msg = imcDefinition.parseMessage(req.getBuffer());
-                    //unpacking message from LAUV
-                    NeptusLog.pub().info("UNPACKING MESSAGE SENT FROM " + req.getAddress().getHostString());
 			    } 
                 catch (IOException e) {
                     NeptusLog.pub().warn(e.getMessage()+" while unpacking message sent from " + req.getAddress().getHostString());

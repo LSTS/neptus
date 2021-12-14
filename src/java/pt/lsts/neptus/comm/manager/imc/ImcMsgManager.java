@@ -1294,9 +1294,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         boolean udpIpPortFound = false;
         if (retId.length > 0) {
             portUdp = retId[0].getPort();
-            NeptusLog.pub().info("port is:" + portUdp);
             hostUdp = retId[0].getAddress().getHostAddress();
-            NeptusLog.pub().info("hostaddr is" + hostUdp);
         }
         for (InetSocketAddress add : retId) {
             //if publisherInetAddr of info == hostaddr of Announce message
@@ -1828,7 +1826,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         // TODO: verify the same way as for multi/broadcast
         SystemImcMsgCommInfo destSysCommInfo = getCommInfoById(systemCommId);
         if (destSysCommInfo != null && destSysCommInfo.dtlsTransport.getDtlsTransport() != null){
-            NeptusLog.pub().info("sending via DTLS");
+            NeptusLog.pub().debug("sending via DTLS");
             boolean sentDtlsResult = true;
 
             try {
