@@ -124,8 +124,7 @@ public class PlanCreator {
         LinkedHashMap<String, Object> properties = new LinkedHashMap<String, Object>();
 
         for (int i = 0; i < values.length; i += 2) {
-
-            if (values[i] instanceof String && values[i + 1] != null)
+            if (i + 1 < values.length && values[i] instanceof String && values[i + 1] != null)
                 properties.put(values[i].toString(), values[i + 1]);
         }
 
