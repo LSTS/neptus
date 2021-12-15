@@ -48,6 +48,10 @@ public class ImcDtlsTransport {
 //					long start = System.nanoTime();
                 IMCMessage msg;
 
+//                if(req.getBuffer().length == 0){
+//                    return;
+//                }
+
                 try {
                     msg = imcDefinition.parseMessage(req.getBuffer());
                 }

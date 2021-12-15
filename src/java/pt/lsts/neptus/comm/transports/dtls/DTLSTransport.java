@@ -22,13 +22,7 @@ import pt.lsts.neptus.util.ByteUtil;
 public class DTLSTransport {
 
     private static int MAX_HANDSHAKE_LOOPS = 200;
-    private static int MAX_APP_READ_LOOPS = 60;
-//    private static int SOCKET_TIMEOUT = 10 * 1000; // in millis
-    private static int BUFFER_SIZE = 4096;
-//    private static int MAXIMUM_PACKET_SIZE = 4096;
-    private static String SERVER_ADDRESS = "10.0.10.60";
-    private static int SERVER_PORT = 6003;
-    private static int CLIENT_PORT = 6004;
+    private static int BUFFER_SIZE = 16384;
 
     /*
      * The following is to set up the keystores.
@@ -48,12 +42,6 @@ public class DTLSTransport {
     private static Exception clientException = null;
     private static Exception serverException = null;
 
-    private static ByteBuffer serverApp =
-            ByteBuffer.wrap("Hi Client, I'm Server".getBytes());
-    private static ByteBuffer clientApp =
-            ByteBuffer.wrap("Hi Server, I'm Client".getBytes());
-
-    private int bindPort;
     private int serverPort;
     private String serverAddress = null;
     private boolean isOnBindError = false;
@@ -61,10 +49,9 @@ public class DTLSTransport {
     private Thread dispacherThread = null;
     private int maxBufferSize = 65507;
     private DatagramSocket sock;
-    private static int timeoutMillis = 10 * 1000; // in millis
     private InetSocketAddress serverSocketAddr = null;
     private SSLEngine engine = null;
-    private static int maximumPacketSize = 4096;
+    private static int maximumPacketSize = 16384;
     //IMC list of received DTLS messages?? i think
     private LinkedBlockingQueue<UDPNotification> receptionMessageList = new LinkedBlockingQueue<UDPNotification>();
     private LinkedBlockingQueue<UDPNotification> sendmessageList = new LinkedBlockingQueue<UDPNotification>();
