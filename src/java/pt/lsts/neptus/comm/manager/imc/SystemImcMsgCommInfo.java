@@ -36,6 +36,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
+
 import com.google.common.eventbus.AsyncEventBus;
 
 import pt.lsts.imc.AcousticSystems;
@@ -62,6 +63,7 @@ import pt.lsts.neptus.comm.SystemUtils;
 import pt.lsts.neptus.comm.manager.MessageFrequencyCalculator;
 import pt.lsts.neptus.comm.manager.SystemCommBaseInfo;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem.IMCAuthorityState;
+import pt.lsts.neptus.comm.transports.ImcDtlsTransport;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.messages.listener.MessageInfo;
 import pt.lsts.neptus.types.comm.CommMean;
@@ -104,6 +106,9 @@ public class SystemImcMsgCommInfo extends SystemCommBaseInfo<IMCMessage, Message
     // protected MiddlewareNode privateNode = null;
     // protected ImcUdpTransport udpTransport = null;
 
+    //DTLS Transport
+    protected ImcDtlsTransport dtlsTransport = null;
+
     // Frequency Calculators
     private MessageFrequencyCalculator toSendMessagesFreqCalc = new MessageFrequencyCalculator();
     private MessageFrequencyCalculator sentMessagesFreqCalc = new MessageFrequencyCalculator();
@@ -114,6 +119,16 @@ public class SystemImcMsgCommInfo extends SystemCommBaseInfo<IMCMessage, Message
         super();
         GeneralPreferences.addPreferencesListener(gplistener);
         gplistener.preferencesUpdated();
+    }
+
+    public SystemImcMsgCommInfo(String inetAddress, IMCDefinition imcDefinition) {
+        super();
+        GeneralPreferences.addPreferencesListener(gplistener);
+        gplistener.preferencesUpdated();
+
+        NeptusLog.pub().debug(inetAddress);
+
+        dtlsTransport = new ImcDtlsTransport(imcDefinition, inetAddress);
     }
 
     /**

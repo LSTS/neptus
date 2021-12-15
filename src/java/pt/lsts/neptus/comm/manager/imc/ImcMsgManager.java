@@ -90,6 +90,7 @@ import pt.lsts.neptus.comm.manager.MessageFrequencyCalculator;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem.IMCAuthorityState;
 import pt.lsts.neptus.comm.transports.ImcTcpTransport;
 import pt.lsts.neptus.comm.transports.ImcUdpTransport;
+import pt.lsts.neptus.comm.transports.dtls.DTLSTransport;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.messages.MessageFilter;
@@ -429,6 +430,95 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
             }
         }
         
+        if (vsci.initSystemComms()) {
+            if (!vsci.startSystemComms()) {
+                NeptusLog.pub().error("Error starting " + vsci.getSystemIdName());
+            }
+        }
+        else {
+            NeptusLog.pub().error("Error initializing " + vsci.getSystemIdName());
+        }
+
+        updateUdpOnIpMapper(vsci);
+
+        commInfo.put(vIdS, vsci);
+
+        if (vehTmp != null) {
+            sendManagerVehicleAdded(vehTmp);
+            sendManagerVehicleStatusChanged(vehTmp, SYS_COMM_ON);
+        }
+        else {
+            sendManagerSystemAdded(vIdS);
+            sendManagerSystemStatusChanged(vIdS, SYS_COMM_ON);
+        }
+        return vsci;
+    }
+
+    //init syscomminfo with dtls
+    /*
+     * @inetAddress = IP:port
+     */
+    public synchronized SystemImcMsgCommInfo initSystemCommInfo(ImcId16 vIdS, String inetAddress, IMCDefinition imcDefinition, boolean dtls) {
+
+        SystemImcMsgCommInfo vci = commInfo.get(vIdS);
+        if (vci.dtlsTransport != null) {
+            NeptusLog.pub().debug("System already known to manager: " + vIdS);
+            return vci;
+        }
+
+        NeptusLog.pub().debug("System not yet known to manager: " + vIdS);
+
+        SystemImcMsgCommInfo vsci = new SystemImcMsgCommInfo(inetAddress, imcDefinition);
+        vsci.setMessageBus(bus);
+        vsci.setSystemCommId(vIdS);
+
+        boolean sysNameSet = false;
+
+        VehicleType vehTmp = VehiclesHolder.getVehicleWithImc(vIdS);
+        if (vehTmp == null) {
+            NeptusLog.pub().warn("No vehicle with IMC ID " + vIdS + "!");
+        }
+        else {
+            // VehicleType vehicle = vehTmp;
+            NeptusLog.pub().debug("Found the Vehicle: " + vehTmp.getId());
+            vsci.setSystemIdName(vehTmp.getId());
+            sysNameSet = true;
+        }
+
+        ImcSystem resSys = ImcSystemsHolder.lookupSystem(vIdS);
+        if (resSys == null) {
+            if (vehTmp != null) {
+                resSys = new ImcSystem(vehTmp);
+                resSys.setType(ImcSystem.translateSystemTypeFromMessage(vehTmp.getType().toUpperCase()));
+                resSys.setTypeVehicle(ImcSystem.translateVehicleTypeFromMessage(vehTmp.getType().toUpperCase()));
+                if (resSys.getType() != SystemTypeEnum.CCU)
+                    resSys.setAuthorityState(IMCAuthorityState.SYSTEM_FULL);
+                ImcSystemsHolder.registerSystem(resSys);
+            }
+            else {
+                InetSocketAddress isa = ImcSystem.parseInetSocketAddress(inetAddress);
+                if (isa != null) {
+                    resSys = new ImcSystem(vIdS, ImcSystem.createCommMean(isa.getAddress().getHostAddress(),
+                            isa.getPort(), isa.getPort(), vIdS, true, false));
+                    ImcSystemsHolder.registerSystem(resSys);
+                }
+                else {
+                    resSys = new ImcSystem(vIdS);
+                    ImcSystemsHolder.registerSystem(resSys);
+                }
+            }
+        }
+
+        if (!sysNameSet) {
+            if (resSys.getName().equalsIgnoreCase(resSys.getId().toHexString())) {
+                String name = imcDefinition.getResolver().resolve(resSys.getId().intValue());
+                if (!name.contains("unknown")) {
+                    vsci.setSystemIdName(name);
+                    resSys.setName(name);
+                }
+            }
+        }
+
         if (vsci.initSystemComms()) {
             if (!vsci.startSystemComms()) {
                 NeptusLog.pub().error("Error starting " + vsci.getSystemIdName());
@@ -1177,8 +1267,23 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         NeptusLog.pub().debug("processAnnounceMessage for " + ann.getSysName() + "@" + id + " :: publisher host address " + sia);
         
         boolean hostWasGuessed = true;
-        
-        InetSocketAddress[] retId = announceWorker.getImcIpsPortsFromMessageImcUdp(ann);
+
+        InetSocketAddress[] retId= null;
+
+        /* See if DTLS connection is available, if not, resume to regular UDP connection */
+        retId = announceWorker.getImcIpsPortsFromMessageImcDtls(ann);
+        if (retId.length == 0){
+            retId = announceWorker.getImcIpsPortsFromMessageImcUdp(ann);
+        }else{
+            vci = initSystemCommInfo(id, info.getPublisherInetAddress() + ":"
+                    + retId[0].getPort(), imcDefinition, true);
+            updateUdpOnIpMapper(vci);
+            DTLSTransport dtlsTransport = vci.dtlsTransport.getDtlsTransport();
+            if ( dtlsTransport != null){
+                vci.dtlsTransport.addListener(this);
+            }
+        }
+
         int portUdp = 0;
         String hostUdp = "";
         boolean udpIpPortFound = false;
@@ -1710,8 +1815,48 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
 
         //        bus.post(message);
 
+        SystemImcMsgCommInfo destSysCommInfo = getCommInfoById(systemCommId);
+        if (destSysCommInfo != null && destSysCommInfo.dtlsTransport != null){
+            NeptusLog.pub().debug("sending via DTLS");
+            boolean sentDtlsResult = true;
+
+            try {
+                markMessageToSent(systemCommId);
+                boolean ret = destSysCommInfo.dtlsTransport.sendMessage(message.cloneMessage(), listener);
+                sentDtlsResult = sentDtlsResult && ret;
+
+            }
+            catch (Exception e) {
+                sentDtlsResult = false;
+
+                boolean isNoTransportAvailable = false;
+                if (e instanceof NoTransportAvailableException)
+                    isNoTransportAvailable = true;
+
+                StringBuilder sb = new StringBuilder();
+                sb.append("[");
+                if (!isNoTransportAvailable && message != null)
+                    sb.append("msg: ").append(message.getAbbrev());
+                if (!isNoTransportAvailable && systemCommId != null)
+                    sb.append(sb.length() > 1 ? ", " : "").append("to: ").append("::").append(systemCommId);
+                if (sendProperties != null && !sendProperties.isEmpty())
+                    sb.append(sb.length() > 1 ? ", " : "").append("prop: ").append(sendProperties);
+                sb.append("]");
+                String what = sb.toString();
+
+                if (isNoTransportAvailable)
+                    NeptusLog.pub().error(this.getClass().getSimpleName() + ": Error sending message! " + what + " " + e.getMessage());
+                else
+                    NeptusLog.pub().error(this.getClass().getSimpleName() + ": Error sending message! " + what, e);
+
+                if (listener != null)
+                    listener.deliveryError(message, e);
+            }
+
+            return sentDtlsResult;
+
         // Check if is requested to send by Multicast and/or Broadcast, if yes don't send by any other way
-        if (sendProperties != null
+        }else if (sendProperties != null
                 && (StringUtils.isTokenInList(sendProperties, "Multicast") || StringUtils.isTokenInList(sendProperties,
                         "Broadcast"))) {
             boolean sentResult = true;
@@ -1761,7 +1906,6 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
 
         // Indicates the transport to use, next we will adjust this value with respect with the available transports, both local and remote
         ArrayList<TransportPreference> transportChoiceToSend = new ArrayList<>(transportPreferenceToUse);
-
         // Let us see if it was indicated to send the message through a specific transport
         TransportPreference transportPreferenceRequested = TransportPreference.ANY;
         if (sendProperties != null && StringUtils.isTokenInList(sendProperties, "UDP"))
@@ -1792,7 +1936,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
 
         boolean sentResult = true;
 
-        // Let us send the message by the preferred transport or the default one on the system by the order UDP, TCP
+        // Let us send the message by the preferred transport or the default one on the system by the order DTLS, UDP, TCP
         // this depends on the transports available locally and on the system
         try {
             if (transportChoiceToSend.isEmpty()) {
