@@ -676,6 +676,17 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
             addText("["+msg.getReqId()+"] "+msg.getStatusStr()+" "+msg.getInfo());
             
             switch (msg.getStatus()) {
+                case RANGE_RECEIVED:
+                    LocationType loc = new LocationType(MyState.getLocation());
+                    if (ImcSystemsHolder.getSystemWithName(msg.getSourceName()) != null)
+                        loc = ImcSystemsHolder.getSystemWithName(msg.getSourceName()).getLocation();
+
+                    rangeDistances.add(msg.getRange());
+                    rangeSources.add(loc);
+
+                    addText(I18n.textf("Distance to %systemName is %distance", "unknown",
+                            GuiUtils.getNeptusDecimalFormat(1).format(msg.getRange())));
+                    break;
                 case DELIVERED:
                 case MAYBE_DELIVERED:
                 case SENT:
