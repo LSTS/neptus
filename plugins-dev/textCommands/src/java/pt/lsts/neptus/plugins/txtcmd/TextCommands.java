@@ -128,7 +128,7 @@ public class TextCommands extends ConsolePanel {
     public TextCommands(ConsoleLayout console) {
         super(console);
         setLayout(new TableLayout(new double[] {100, TableLayout.FILL},
-                new double[] {24,24,60,TableLayout.FILL,60,32,60,32}));
+                new double[] {24,24,60,TableLayout.FILL,60,32,90,32}));
 
         for (String pkg : new String[] {getClass().getPackage().getName()}) {
             Reflections reflections = new Reflections(pkg);
