@@ -74,12 +74,13 @@ public class IridiumSender implements ITextMsgSender {
        
         return new Future<String>() {
             
-            String result = "In progress";
+            String result = "Sending to Iridium";
             boolean complete = false;
             
             {
                 try {
                     IridiumManager.getManager().send(cmd);
+                    result = "Send to Iridium ok";
                 }
                 catch (Exception e) {
                     e.printStackTrace();
