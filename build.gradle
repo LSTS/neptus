@@ -1293,8 +1293,8 @@ def createInstallerWindowsDistFor(String distName, Sync installDistTask, Zip dis
         description = "Generate $distName Windows installer"
         group = 'Distribution'
 
-        def baseDir = "${file("${installDistTask.destinationDir.absolutePath.replaceAll("${rootProject.projectDir.absolutePath}", '')}")}"
-        baseDir = "../..${baseDir}".replaceAll('/', '\\\\')
+        def baseDir = "${relativePathIfOnProjectPath(installDistTask.destinationDir.absolutePath, '')}"
+        baseDir = "../../${baseDir}".replaceAll('/', '\\\\')
 
         def runInFolder = file("${rootProject.projectDir}/NSIS_release/install_scripts")
 
@@ -1316,7 +1316,7 @@ def createInstallerWindowsDistFor(String distName, Sync installDistTask, Zip dis
                 filter{ it.replaceAll("@NAMED_RELEASE@", rootProject.version) }
                 filter{ it.replaceAll('@LEGAL_COPY@', "$rootProject.ext.copyYears FEUP USTL/LSTS (https://www.fe.up.pt/lsts)") }
                 filter{ it.replaceAll("@DIST_EXE@", "${distZipTask.archiveFileName.get().replaceAll("\\.${distZipTask.archiveExtension.get()}", '')}") }
-                filter{ it.replaceAll("@OUT_FOLDER@", "../..${distZipTask.destinationDirectory.getAsFile().get().absolutePath.replaceAll("${rootProject.projectDir.absolutePath}", '')}"
+                filter{ it.replaceAll("@OUT_FOLDER@", "../../${relativePathIfOnProjectPath(distZipTask.destinationDirectory.getAsFile().get().absolutePath, '').replaceAll('\\\\', '\\\\\\\\')}"
                         .replaceAll('/', '\\\\\\\\')) }
             }
 
