@@ -142,6 +142,10 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
     @Override
     public void timelineChanged(int value) {
         try {
+            if (!timeline.isRunning()) {
+                return;
+            }
+
             // This distinguishes between a drag and normal execution
             // If this is true but currentTime and lastTime as the same value
             if (Math.abs(value - currentTime) > 1000 / 15 * timeline.getSpeed()) {
