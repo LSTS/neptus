@@ -1041,7 +1041,7 @@ public class SdfHeader {
         setCableOut(buffer.getFloat(216));
         //220 fseconds above next to TPU
 
-        //setAltimeter(buffer.getFloat(214));
+        //setAltimeter(buffer.getFloat(224));
         setSampleFreq(buffer.getInt(228));
         //...
         setGPSheight(buffer.getFloat(252));
@@ -1055,8 +1055,8 @@ public class SdfHeader {
         setPostProcessVersion(buffer.getInt(340));
         setMotionSensorType(buffer.getShort(344));
         //..
-        setPingInterval(buffer.getFloat(362));
-        setSDFExtensionSize(buffer.getInt(366));
+        setPingInterval(buffer.getFloat(360));
+        setSDFExtensionSize(buffer.getInt(364));
         //..
         setSpeedSoundSource(buffer.getInt(376));
         setPressureSensorMax(buffer.getFloat(380));
