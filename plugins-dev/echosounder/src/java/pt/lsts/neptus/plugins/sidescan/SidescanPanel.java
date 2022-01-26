@@ -457,6 +457,9 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         for (SidescanLine sidescanLine : drawList) {
             sidescanLine.setYPos(yref - d);
             d += sidescanLine.getYSize();
+            if (sidescanLine.getData().length <= 0) {
+                continue;
+            }
             sidescanLine.setImage(new BufferedImage(sidescanLine.getData().length, 1, BufferedImage.TYPE_INT_RGB),
                     false);
 
