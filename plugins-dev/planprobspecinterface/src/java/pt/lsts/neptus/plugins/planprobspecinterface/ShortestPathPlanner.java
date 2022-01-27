@@ -60,7 +60,7 @@ public class ShortestPathPlanner extends SimpleRendererInteraction implements Re
     public int vehicle = 0x2810;
 
     @NeptusProperty(name = "Custom Parameters")
-    public String parameters = "";
+    public String customparameters = "t=60.0;p=1;a=1;";
     /**
      * @param console
      */
@@ -133,47 +133,8 @@ public class ShortestPathPlanner extends SimpleRendererInteraction implements Re
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     generatePlan();
-                    //PropertiesEditor.editProperties(ShortestPathPlanner.this, true);
-
                 }
             });
-            /*
-            final JMenuItem item = menu.add("Generate plan");
-            if (initial != null && destination != null && bottomLeft != null && topRight != null) {
-                item.setEnabled(true);
-
-                item.addActionListener(new ActionListener() {
-
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        try {
-                            item.setEnabled(false);
-                            SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-                                protected Void doInBackground() throws Exception {
-                                    generatePlan();
-                                    return null;
-                                }
-
-                                @Override
-                                protected void done() {
-                                    try {
-                                        get();
-                                    }
-                                    catch (Exception e) {
-                                        NeptusLog.pub().error(e);
-                                    }
-                                    item.setEnabled(true);
-                                    
-                                }
-                            };
-                            worker.execute();
-                        }
-                        catch (Exception ex) {
-                            GuiUtils.errorMessage(getConsole(), ex);
-                        }
-                    }
-                });
-            }*/
 
             menu.show(source, (int) mousePosition.getX(), (int) mousePosition.getY());
         }
@@ -187,14 +148,17 @@ public class ShortestPathPlanner extends SimpleRendererInteraction implements Re
         spec.setSpeed(defaultSpeed);
 
         
-        spec.setStartLat(initial.getLatitudeDegs());
-        spec.setStartLon(initial.getLongitudeDegs());
-        spec.setEndLat(destination.getLatitudeDegs());
-        spec.setEndLon(destination.getLongitudeDegs());
+        spec.setStartLat(initial.getLatitudeRads());
+        spec.setStartLon(initial.getLongitudeRads());
+        spec.setEndLat(destination.getLatitudeRads());
+        spec.setEndLon(destination.getLongitudeRads());
         Vector<PolygonVertex> area = new Vector<>();
-        area.add(new PolygonVertex(bottomLeft.getLatitudeDegs(), bottomLeft.getLongitudeDegs()));
-        area.add(new PolygonVertex(topRight.getLatitudeDegs(), topRight.getLongitudeDegs()));
+        area.add(new PolygonVertex(bottomLeft.getLatitudeRads(), bottomLeft.getLongitudeRads()));
+        area.add(new PolygonVertex(topRight.getLatitudeRads(), topRight.getLongitudeRads()));
         spec.setArea(area);
+        spec.setCustom(customparameters);
+        
+
         send(spec);
         NeptusLog.pub().info("Sent feasible path request to vehicle");
     }
