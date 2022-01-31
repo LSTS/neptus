@@ -182,16 +182,13 @@ public class SdfParser {
         long pos = 0;
         curPosition = 0;
         try {
-
             while (true) {
-
                 // Read the header
                 ByteBuffer buf = channel.map(MapMode.READ_ONLY, curPosition, 512); //header size 512bytes
                 buf.order(ByteOrder.LITTLE_ENDIAN);
                 header.parse(buf);
                 curPosition += header.getHeaderSize();
                 //System.out.println("curPos " + curPosition);
-
 
                 if (header.getPageVersion() == SUBSYS_HIGH || header.getPageVersion() == SUBSYS_LOW) {
                     //set header of this ping
@@ -220,10 +217,10 @@ public class SdfParser {
                 if (!index2.frequenciesList.contains(f)) {
                     index2.frequenciesList.add(f);
                 }
-
                 if (!index2.subSystemsList.contains(subsystem)) {
                     index2.subSystemsList.add(subsystem);
                 }
+
                 if(subsystem == SUBSYS_LOW) {
                     if(!index2.hasLow) index2.hasLow = true;
 
@@ -458,7 +455,7 @@ public class SdfParser {
             header.parse(buf);
             pos += header.getHeaderSize();
 
-            if(header.getPageVersion() != subsystem) 
+            if(header.getPageVersion() != subsystem)
                 return null;
 
             //define header
