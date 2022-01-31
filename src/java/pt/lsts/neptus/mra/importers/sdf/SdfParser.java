@@ -285,6 +285,14 @@ public class SdfParser {
             Arrays.sort(tslisthigh);
             Arrays.sort(tslistlow);
 
+            if (tslisthigh.length >= 2968) {
+                NeptusLog.pub().debug(">??>>>> >= 2968 >> HLength:" + tslisthigh.length + "|LLength:" + tslistlow.length +
+                        ">" + tslisthigh[2967] + ", " + "----" + " | " +
+                        (tslistlow.length >= 2968 ? tslistlow[2967] : "----") + ", " +
+                        (tslistlow.length >= 2969 ? tslistlow[2968] : "----") +
+                        " >> " + indexPath);
+            }
+
             tslist.put(SUBSYS_LOW, tslistlow);
             tslist.put(SUBSYS_HIGH, tslisthigh);
 
@@ -390,6 +398,17 @@ public class SdfParser {
             tsSHigh.add(tslisthigh);
             tsSLow.add(tslistlow);
 
+            if (tslisthigh.length >= 2968) {
+                NeptusLog.pub().debug(">?!>>>> >= 2968 >> " + file.getName() +
+                        ">HLength:" + tslisthigh.length + "|LLength:" + tslistlow.length +
+                        "> " + tslisthigh[2967] + ", " + "---" + " | " +
+                        (tslistlow.length >= 2968 ? tslistlow[2967] : "----") + ", " +
+                        (tslistlow.length >= 2969 ? tslistlow[2968] : "----"));
+            }
+            else {
+                NeptusLog.pub().debug(">?!>>>>" + file.getName() + ">" + tslisthigh.length + "|" + tslistlow.length + ">");
+            }
+
             fileIndex.put(file, indexN);
 
             in.close();
@@ -463,6 +482,17 @@ public class SdfParser {
             ping.calculateTimeStamp();
             ping.calculateFixTimeStamp();
 
+            if (ping.getTimestamp() < 1000 || (tslist.get(subsystem).length > 2969 &&
+                    (tslist.get(subsystem)[2968] < 1000 || tslist.get(subsystem)[2969] < 1000))) {
+                if (tslist.get(subsystem).length > 2969) {
+                    NeptusLog.pub().debug(">!!>>>> ts 2968 vs 2969 >>" + tslist.get(subsystem)[2968] +
+                            ", " + tslist.get(subsystem)[2969]);
+                } else {
+                    NeptusLog.pub().debug(">!!>>>> ts ping ts vs fixts>>" + ping.getTimestamp() +
+                            " " + ping.getFixTimestamp());
+                }
+            }
+
             //handle data 
             buf = channel.map(MapMode.READ_ONLY, pos, (header.getNumberBytes() - header.getHeaderSize() - header.getSDFExtensionSize()+4));
             buf.order(ByteOrder.LITTLE_ENDIAN);
@@ -527,9 +557,16 @@ public class SdfParser {
             c++;
         }
 
+        NeptusLog.pub().debug(">>> " + subsystem + " >>>>> Fetch ping " + (c+1) + " of " +
+                tslist.get(subsystem).length + " < " + tslist.get(subsystem).length
+                + " @" + timestamp + " for ping @" + tslist.get(subsystem)[c+1]
+                + " " + (tslist.get(subsystem)[c+1] >= timestamp ? 'T' : 'F')
+                + "   >>> " + file.getName());
         nextTimestamp.put(subsystem, tslist.get(subsystem)[c+1]);
         for(Long pos : positionMap.get(ts)) {
             ping = getPingAtPosition(pos, subsystem);
+            NeptusLog.pub().debug(">>> " + subsystem + " >>>>> For long " + pos +
+                    " @ ts:" + ping.getTimestamp() + " | fixts:" + ping.getFixTimestamp());
         }
 
         return ping;
