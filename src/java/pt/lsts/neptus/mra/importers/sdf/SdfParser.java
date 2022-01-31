@@ -197,8 +197,8 @@ public class SdfParser {
                     //set header of this ping
                     ping.setHeader(header);
                     ping.calculateTimeStamp();
+                    ping.calculateFixTimeStamp();
                     pos = curPosition-header.getHeaderSize();
-
                 } else { //ignore other pageVersions
                     NeptusLog.pub().info("SDF Data file contains unimplemented pageVersion # "+header.getPageVersion());
                     curPosition += (header.getNumberBytes()+4) - header.getHeaderSize();
@@ -212,6 +212,7 @@ public class SdfParser {
 
                 //get timestamp, freq and subsystem used
                 long t = ping.getTimestamp(); // Timestamp
+                long tfix = ping.getFixTimestamp(); // FixTimestamp
                 int f = ping.getHeader().getSonarFreq(); // Frequency
                 int subsystem = ping.getHeader().getPageVersion();
                 //  System.out.println(pos+": ["+header.getPingNumber()+"] timestamp "+ t + " freq "+f + " subsys "+subsystem);
@@ -460,7 +461,8 @@ public class SdfParser {
 
             //define header
             ping.setHeader(header);
-            ping.calculateTimeStamp(); 
+            ping.calculateTimeStamp();
+            ping.calculateFixTimeStamp();
 
             //handle data 
             buf = channel.map(MapMode.READ_ONLY, pos, (header.getNumberBytes() - header.getHeaderSize() - header.getSDFExtensionSize()+4));

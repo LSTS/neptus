@@ -37,12 +37,15 @@ import java.util.Calendar;
 import java.util.TimeZone;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.data.Pair;
+import pt.lsts.neptus.util.MathMiscUtils;
 
 public class SdfData {
     private SdfHeader header;
     private long[] portData;
     private long[] stbdData;
     private long timestamp;
+    private long fixTimestamp;
     private int numSamples;
 
     void parseData(ByteBuffer buf) {
@@ -105,9 +108,6 @@ public class SdfData {
     }
 
 
-    /**
-     * 
-     */
     public void calculateTimeStamp() {
         int year = header.getYear();
         int month = header.getMonth();
@@ -116,15 +116,32 @@ public class SdfData {
         int minute = header.getMinute();
         int seconds = header.getSecond();
         double fSeconds = header.getfSecond();
-        int milis = (int) (fSeconds*1000) ;
+        int milis = (int) (fSeconds * 1000) ;
         
         Calendar cal =  Calendar.getInstance();
         cal.setTimeZone(TimeZone.getTimeZone("UTC"));
-        cal.set(year, month-1, day, hour, minute, seconds);
+        cal.set(year, month - 1, day, hour, minute, seconds);
         cal.set(Calendar.MILLISECOND, milis);
         setTimestamp(cal.getTimeInMillis());
     }
 
+    public void calculateFixTimeStamp() {
+        int year = header.getFixTimeYear();
+        int month = header.getFixTimeMonth();
+        int day = header.getFixTimeDay();
+        int hour = header.getFixTimeHour();
+        int minute = header.getFixTimeMinute();
+        float secondsWithMillis = header.getFixTimeSecond();
+        Pair<Long, Float> splitVal = MathMiscUtils.splitDecimalPart(secondsWithMillis);
+        int seconds = Math.toIntExact(splitVal.first());
+        int milis = (int) (splitVal.first() * 1000) ;
+
+        Calendar cal =  Calendar.getInstance();
+        cal.setTimeZone(TimeZone.getTimeZone("UTC"));
+        cal.set(year, month - 1, day, hour, minute, seconds);
+        cal.set(Calendar.MILLISECOND, milis);
+        setFixTimestamp(cal.getTimeInMillis());
+    }
 
     /**
      * @return the timestamp
@@ -132,7 +149,6 @@ public class SdfData {
     public long getTimestamp() {
         return timestamp;
     }
-
 
     /**
      * @param timestamp the timestamp to set
@@ -142,12 +158,25 @@ public class SdfData {
     }
 
     /**
+     * @return the fixTimestamp
+     */
+    public long getFixTimestamp() {
+        return fixTimestamp;
+    }
+
+    /**
+     * @param fixTimestamp the fixTimestamp to set
+     */
+    public void setFixTimestamp(long fixTimestamp) {
+        this.fixTimestamp = fixTimestamp;
+    }
+
+    /**
      * @return the portData
      */
     public long[] getPortData() {
         return portData;
     }
-
 
     /**
      * @param portData the portData to set
