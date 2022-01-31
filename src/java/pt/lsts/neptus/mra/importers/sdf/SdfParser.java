@@ -301,7 +301,9 @@ public class SdfParser {
                 fileIndex.put(file, index2);
         }
         catch (IOException e) {
-            e.printStackTrace();
+            NeptusLog.pub().error("Found corrupted SDF file '" + file.getName() + "' while indexing. Error: " +
+                    e.getMessage());
+            // e.printStackTrace();
         }
     }
 
