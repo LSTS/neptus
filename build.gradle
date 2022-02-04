@@ -25,7 +25,7 @@ ext {
     copyYears = "2004-${new Date().format('yyyy')}"
     libJNIPaths = ['.']
 
-    jreDownloadVersion = "jdk-11.0.13+8"
+    jreDownloadVersion = "jdk-11.0.14+9"
 }
 
 defaultTasks 'buildJars', 'buildBundleJars'
