@@ -46,6 +46,7 @@ import pt.lsts.neptus.gui.TimelineChangeListener;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.MRAPanel;
+import pt.lsts.neptus.mra.api.SidescanHistogramNormalizer;
 import pt.lsts.neptus.mra.api.SidescanParser;
 import pt.lsts.neptus.mra.api.SidescanParserFactory;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
@@ -72,6 +73,7 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
     private ArrayList<SidescanPanel> sidescanPanels = new ArrayList<SidescanPanel>();
     private ArrayList<LogMarker> markerList = new ArrayList<LogMarker>();
     private SidescanParser ssParser;
+    private SidescanHistogramNormalizer histogram;
 
     public SidescanAnalyzer(MRAPanel panel) {
         this.mraPanel = panel;
@@ -79,6 +81,7 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
 
     public void initialize(IMraLogGroup source) {
         ssParser = SidescanParserFactory.build(source);
+        histogram = SidescanHistogramNormalizer.create(source);
 
         firstPingTime = ssParser.firstPingTimestamp();
         lastPingTime = ssParser.lastPingTimestamp();
@@ -123,6 +126,10 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
         repaint();
 
         return this;
+    }
+
+    public SidescanHistogramNormalizer getHistogram() {
+        return histogram;
     }
 
     /**

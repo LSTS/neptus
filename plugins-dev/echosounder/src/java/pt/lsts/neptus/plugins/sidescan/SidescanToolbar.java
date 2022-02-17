@@ -79,6 +79,8 @@ public class SidescanToolbar extends JToolBar {
     private final SpinnerNumberModel modelTVG = new SpinnerNumberModel(0.0, -1000.0, 1000.0, 1.0);
     private final JSpinner spinTVG = new JSpinner();
 
+    JToggleButton btnAutoTvg = new JToggleButton(I18n.text("Auto TVG"));
+
     JButton btnConfig = new JButton(new AbstractAction(I18n.textc("Config", "Configuration")) {
         private static final long serialVersionUID = -878895322319699542L;
 
@@ -149,6 +151,7 @@ public class SidescanToolbar extends JToolBar {
 
         add(lblTVG);
         add(spinTVG);
+        add(btnAutoTvg);
 
         addSeparator();
         add(btnConfig);

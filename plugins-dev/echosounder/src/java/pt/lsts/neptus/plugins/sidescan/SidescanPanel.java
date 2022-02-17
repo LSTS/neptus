@@ -50,6 +50,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.awt.image.Raster;
 import java.io.File;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -77,6 +78,7 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.SidescanLogMarker;
 import pt.lsts.neptus.mra.api.SidescanGuiUtils;
+import pt.lsts.neptus.mra.api.SidescanHistogramNormalizer;
 import pt.lsts.neptus.mra.api.SidescanLine;
 import pt.lsts.neptus.mra.api.SidescanParameters;
 import pt.lsts.neptus.mra.api.SidescanParser;
@@ -406,8 +408,10 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         sidescanParams.setNormalization(config.normalization);
         sidescanParams.setTvgGain(config.tvgGain);
 
+        boolean autoTVG = toolbar.btnAutoTvg.isSelected();
+
         ArrayList<SidescanLine> list = ssParser.getLinesBetween(firstPingTime + lastUpdateTime, firstPingTime
-                + currentTime, subsystem, sidescanParams);
+                + currentTime, subsystem, autoTVG ? SidescanHistogramNormalizer.HISTOGRAM_DEFAULT_PARAMATERS : sidescanParams);
 
         ArrayList<SidescanLine> drawList = new ArrayList<>(list);
 
@@ -460,12 +464,17 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             if (sidescanLine.getData().length <= 0) {
                 continue;
             }
-            sidescanLine.setImage(new BufferedImage(sidescanLine.getData().length, 1, BufferedImage.TYPE_INT_RGB),
+
+            double[] data = sidescanLine.getData();
+            if (autoTVG) {
+                data = parent.getHistogram().normalize(data, subsystem);
+            }
+            sidescanLine.setImage(new BufferedImage(data.length, 1, BufferedImage.TYPE_INT_RGB),
                     false);
 
             // Apply colormap to data
-            for (int c = 0; c < sidescanLine.getData().length; c++) {
-                sidescanLine.getImage().setRGB(c, 0, config.colorMap.getColor(sidescanLine.getData()[c]).getRGB());
+            for (int c = 0; c < data.length; c++) {
+                sidescanLine.getImage().setRGB(c, 0, config.colorMap.getColor(data[c]).getRGB());
             }
 
             if (config.slantRangeCorrection) {
