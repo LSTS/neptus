@@ -228,6 +228,9 @@ public class JsfParser {
 
             index.numberOfPackets = count;
 
+            index.frequenciesList.sort(null);
+            index.subSystemsList.sort(null);
+
             ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(indexPath));
             out.writeObject(index);
             out.close();
