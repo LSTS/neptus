@@ -67,7 +67,6 @@ public class SdfParser {
     private LinkedHashMap<Integer, Long> nextTimestamp = new LinkedHashMap<Integer, Long>();
     private LinkedHashMap<File, SdfIndex> fileIndex = new LinkedHashMap<>();
 
-
     private ArrayList<Long[]> tsSHigh = new ArrayList<>();
     private ArrayList<Long[]> tsSLow = new ArrayList<>();
 
@@ -93,7 +92,6 @@ public class SdfParser {
                     generateIndex();
                 }
             }
-
         }
         catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -208,7 +206,6 @@ public class SdfParser {
                         continue;
                 }
 
-
                 //get timestamp, freq and subsystem used
                 long t = ping.getTimestamp(); // Timestamp
                 long tfix = ping.getFixTimestamp(); // FixTimestamp
@@ -242,7 +239,7 @@ public class SdfParser {
                     else {
                         l.add(pos);
                     }
-                    
+
                     if (t > minimumValidTimestamp) {
                         minTimestampLow = Math.min(minTimestampLow, t);
                         maxTimestampLow = Math.max(maxTimestampLow, t);
@@ -259,7 +256,6 @@ public class SdfParser {
                         index2.positionMapHigh.put(t, l);
                     }
                     else {
-
                         l.add(pos);
                     }
                     
