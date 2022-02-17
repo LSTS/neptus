@@ -134,12 +134,12 @@ public class SdfData {
         float secondsWithMillis = header.getFixTimeSecond();
         Pair<Long, Float> splitVal = MathMiscUtils.splitDecimalPart(secondsWithMillis);
         int seconds = Math.toIntExact(splitVal.first());
-        int milis = (int) (splitVal.first() * 1000) ;
+        int millis = (int) (splitVal.second() * 1000) ;
 
         Calendar cal =  Calendar.getInstance();
         cal.setTimeZone(TimeZone.getTimeZone("UTC"));
         cal.set(year, month - 1, day, hour, minute, seconds);
-        cal.set(Calendar.MILLISECOND, milis);
+        cal.set(Calendar.MILLISECOND, millis);
         setFixTimestamp(cal.getTimeInMillis());
     }
 
