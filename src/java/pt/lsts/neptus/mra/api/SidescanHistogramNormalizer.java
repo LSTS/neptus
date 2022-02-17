@@ -191,14 +191,18 @@ public class SidescanHistogramNormalizer implements Serializable {
                         long randomPosition = ssParser.firstPingTimestamp() + random.nextInt(logSeconds) * 1000;
                         ArrayList<SidescanLine> lines = ssParser.getLinesBetween(randomPosition, randomPosition + 1000, subId, HISTOGRAM_DEFAULT_PARAMATERS);
                         for (int l = 0; l < lines.size(); l++) {
-                            double data[] = lines.get(l).getData();
-                            for (int i = 0; i < data.length; i++)
-                                avg[i] = (float) ((avg[i] * count) + data[i]) / (count+1);
+                            double[] data = lines.get(l).getData();
+                            for (int i = 0; i < data.length; i++) {
+                                try {
+                                    avg[i] = (float) ((avg[i] * count) + data[i]) / (count + 1);
+                                } catch (Exception e) {
+                                    NeptusLog.pub().error("Something wrong: " + e.getMessage());
+                                }
+                            }
                             count++;
-                        };                    
+                        }
                     }
-                    
-                    
+
                     double sum = 0;
                     for (int i = 0; i < avg.length; i++) {
                         if (!Float.isFinite(avg[i]))
