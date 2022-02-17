@@ -462,7 +462,8 @@ public class SdfParser {
     public SdfIndex getIndex() {
         if (multipleFiles) {
             for (Entry<File, SdfIndex> entry : fileIndex.entrySet()) {
-                return entry.getValue();
+                if (entry.getKey() == file)
+                    return entry.getValue();
             }
         }
         return index;
