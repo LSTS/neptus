@@ -45,10 +45,12 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.i18n.I18n;
 
 public class SdfParser {
     // Minimum valid timestamp (2000-01-01 00:00:00).
@@ -219,6 +221,13 @@ public class SdfParser {
                 }
                 if (!index2.subSystemsList.contains(subsystem)) {
                     index2.subSystemsList.add(subsystem);
+                }
+
+                if (t < 5000000) { // Fixing timestamp from 1970
+                    NeptusLog.pub().warn(I18n.textf("Something is wrong with the timestamp (%d). " +
+                                    "Trying to calculate using GPS data for ping %d for subsystem %d. New timestamp is %d.",
+                            new Date(t), ping.getHeader().getPingNumber(), subsystem, new Date(tfix)));
+                    t = tfix;
                 }
 
                 if(subsystem == SUBSYS_LOW) {
@@ -460,6 +469,7 @@ public class SdfParser {
     }
 
     public SdfData getPingAtPosition(long pos, int subsystem) {
+        long posHeader = pos;
         SdfHeader header = new SdfHeader();
         SdfData ping = new SdfData();
         try {
@@ -481,6 +491,27 @@ public class SdfParser {
             ping.setHeader(header);
             ping.calculateTimeStamp();
             ping.calculateFixTimeStamp();
+
+            // Let us try to see if we corrected the timestamp
+            //index = getIndex(); // making sure we have the right index
+            LinkedHashMap<Long, ArrayList<Long>> posMapTsToPosList = null;
+            if (subsystem == SUBSYS_LOW)
+                posMapTsToPosList = index.positionMapLow;
+            else if (subsystem == SUBSYS_HIGH)
+                posMapTsToPosList = index.positionMapHigh;
+            if (posMapTsToPosList != null && !posMapTsToPosList.isEmpty()) {
+                for (long tsK : posMapTsToPosList.keySet()) {
+                    boolean found = false;
+                    for (long posK : posMapTsToPosList.get(tsK)) {
+                        if (posK == posHeader) {
+                            ping.setTimestamp(tsK);
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (found) break;
+                }
+            }
 
             if (ping.getTimestamp() < 1000 || (tslist.get(subsystem).length > 2969 &&
                     (tslist.get(subsystem)[2968] < 1000 || tslist.get(subsystem)[2969] < 1000))) {
