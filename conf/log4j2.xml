@@ -32,6 +32,9 @@
         <!--Logger name="Neptus.Pub.pt.lsts.neptus.util.conf.ConfigFetch.resolvePath" level="error" additivity="true">
             <AppenderRef ref="stdout" level="debug" />
         </Logger-->
+        <!--Logger name="Neptus.Pub.pt.lsts.neptus.mra.importers.sdf" level="debug" additivity="true">
+            <AppenderRef ref="stdout" level="debug" />
+        </Logger-->
         <!--Logger name="SPOT" level="debug" additivity="false">
             <AppenderRef ref="spotLog" level="debug" />
             <AppenderRef ref="debugLog"  level="debug" />
