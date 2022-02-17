@@ -303,6 +303,9 @@ public class SdfParser {
 
             index2.numberOfPackets = count;
 
+            index2.frequenciesList.sort(null);
+            index2.subSystemsList.sort(null);
+
             ObjectOutputStream out = new ObjectOutputStream(new  FileOutputStream(indexPath));
             out.writeObject(index2);
             out.close();
