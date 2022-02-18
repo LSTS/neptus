@@ -125,6 +125,14 @@ public class SidescanToolbar extends JToolBar {
         }
     };
 
+    private final ChangeListener autoTvgChangeListener = new ChangeListener() {
+        @Override
+        public void stateChanged(ChangeEvent e) {
+            spinNormalization.setEnabled(!btnAutoTvg.isSelected());
+            spinTVG.setEnabled(!btnAutoTvg.isSelected());
+        }
+    };
+
     public SidescanToolbar(SidescanPanel panel) {
         super();
         this.panel = panel;
@@ -168,5 +176,7 @@ public class SidescanToolbar extends JToolBar {
 
         spinTVG.setValue(panel.config.tvgGain);
         spinTVG.addChangeListener(alGains);
+
+        btnAutoTvg.addChangeListener(autoTvgChangeListener);
     }
 }
