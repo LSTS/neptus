@@ -204,7 +204,7 @@ class LogsDownloaderWorkerActions {
                         long timeS1 = System.currentTimeMillis();
                         
                         // Added in order not to show the active log (the last one)
-                        orderAndFilterOutTheActiveLog(retList, GeneralPreferences.logsDownloaderIgnoreActiveLog);
+                         orderAndFilterOutTheActiveLog(retList, GeneralPreferences.logsDownloaderIgnoreActiveLog);
                         showInGuiNumberOfLogsFromServers(retList);
                         if (retList.size() == 0) // Abort the rest of processing
                             return null;
@@ -611,8 +611,15 @@ class LogsDownloaderWorkerActions {
 
         serversLogFolders.forEach((s, logFolderInfos) -> {
             logFolderInfos.forEach(lFolder -> {
-                if (!tmpLogFolders.contains(lFolder))
+                if (!tmpLogFolders.contains(lFolder)) {
                     tmpLogFolders.add(lFolder);
+                } else {
+                    int alreadyInLFolderIdx = tmpLogFolders.indexOf(lFolder);
+                    LogFolderInfo alreadyInLFolder = tmpLogFolders.get(alreadyInLFolderIdx);
+                    for (LogFileInfo lfx : lFolder.getLogFiles()) {
+                        alreadyInLFolder.addFile(lfx);
+                    }
+                }
             });
         });
 
