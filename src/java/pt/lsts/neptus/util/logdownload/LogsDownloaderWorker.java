@@ -663,11 +663,19 @@ public class LogsDownloaderWorker {
     // FIXME Visibility
     boolean deleteLogFolderFromServer(LogFolderInfo logFd) {
         String path = logFd.getName();
-        boolean ret = false;
-        for (String serverKey : serversList) {
-            ret |= deleteLogFolderFromServerWorker(serverKey, path);
+        boolean ret = true;
+        for (LogFileInfo fx : logFd.getLogFiles()) {
+            if (fx.getState() != LogFolderInfo.State.LOCAL) {
+                ret &= deleteLogFileFromServer(fx);
+            }
         }
-        return ret;
+        boolean ret2 = false;
+        for (String serverKey : serversList) {
+            if (logFd.getState() != LogFolderInfo.State.LOCAL) {
+                ret2 |= deleteLogFolderFromServerWorker(serverKey, path, true);
+            }
+        }
+        return ret && ret2;
     }
 
     /**
@@ -682,30 +690,59 @@ public class LogsDownloaderWorker {
         for (String serverKey : serversList) {
             host = serverKey; // getHostFor(serverKey);
             // Not the best way but for now lets try like this
-            if (hostFx.equals(host))
-                return deleteLogFolderFromServerWorker(serverKey, path);
+            if (hostFx.equals(host)) {
+                boolean emptyFolder = true;
+                if (logFx.isDirectory() && !logFx.getDirectoryContents().isEmpty()) {
+                    for (LogFileInfo fx : logFx.getDirectoryContents()) {
+                        emptyFolder &= deleteLogFileFromServer(fx); // recursion
+                    }
+                }
+
+                if (!emptyFolder) {
+                    return false;
+                } else if (logFx.getState() == LogFolderInfo.State.LOCAL) {
+                    return true;
+                } else {
+                    // TODO do a better deletion of folder (presence test on servers)
+                    if (logFx.isDirectory()) {
+                        boolean ret2 = false;
+                        for (String sk : serversList) {
+                            if (logFx.getState() != LogFolderInfo.State.LOCAL) {
+                                ret2 |= deleteLogFolderFromServerWorker(sk, path, true);
+                            }
+                        }
+                    } else {
+                        return deleteLogFolderFromServerWorker(serverKey, path, logFx.isDirectory());
+                    }
+                }
+            }
         }
         return false;
     }
 
-    private boolean deleteLogFolderFromServerWorker(String serverKey, String path) {
+    private boolean deleteLogFolderFromServerWorker(String serverKey, String path, boolean isDirectory) {
         String host = getHostFor(serverKey);
         int port = getPortFor(serverKey);
+        NeptusLog.pub().info("FTP deleting from '" + host + "@" + port + "'" +
+                (isDirectory ? " folder " : " file ") + "'" + path + "'");
+        boolean ret = false;
         try {
-            System.out.println("Deleting folder");
             FtpDownloader ftp = null;
             try {
                 ftp = LogsDownloaderWorkerUtil.getOrRenewFtpDownloader(serverKey, ftpDownloaders, host, port);
             }
             catch (Exception e) {
-                e.printStackTrace();
+                NeptusLog.pub().warn("Error connecting to FTP deleting" + (isDirectory ? " folder " : " file ") +
+                        "'" + path + "' : " + e.getMessage());
             }
-            return ftp == null ? false : ftp.getClient().deleteFile("/" + path);
+            ret = ftp != null && (isDirectory ? ftp.getClient().removeDirectory("/" + path) :
+                    ftp.getClient().deleteFile("/" + path));
         }
-        catch (IOException e) {
-            e.printStackTrace();
-            return false;
+        catch (Exception e) {
+            NeptusLog.pub().warn("Error FTP deleting" + (isDirectory ? " folder " : " file ") +
+                    "'" + path + "' : " + e.getMessage());
         }
+        return ret;
     }
 
     /**
