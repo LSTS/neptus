@@ -61,6 +61,7 @@ import javax.swing.SwingWorker;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXPanel;
@@ -712,7 +713,6 @@ public class LogsDownloaderWorker {
                         Path pt = foldPath.resolve(p);
                         emptyFolder &= deleteLogFolderFromServerWorker(serverKey, pt.toString(), true);
                     }
-                    System.out.println("");
                 }
 
                 if (!emptyFolder) {
@@ -723,10 +723,27 @@ public class LogsDownloaderWorker {
                     // TODO do a better deletion of folder (presence test on servers)
                     if (logFx.isDirectory()) {
                         boolean ret2 = false;
-                        for (String sk : serversList) {
-                            if (logFx.getState() != LogFolderInfo.State.LOCAL) {
-                                ret2 |= deleteLogFolderFromServerWorker(sk, path, true);
+                        if (logFx.getState() != LogFolderInfo.State.LOCAL) {
+                            boolean ret3 = deleteLogFolderFromServerWorker(serverKey, path, true);
+                            if (!ret3) {
+                                // lets use brute force
+                                try {
+                                    FtpDownloader ftp = null;
+                                    try {
+                                        ftp = LogsDownloaderWorkerUtil.getOrRenewFtpDownloader(serverKey, ftpDownloaders, getHostFor(host), getPortFor(host));
+                                    }
+                                    catch (Exception e) {
+                                        NeptusLog.pub().error("Error connecting to FTP deleting from '" + host + "@" + port +
+                                                "' folder  '" + path + "' : " + e.getMessage());
+                                    }
+                                    ret3 |= ftp != null && removeDirectoryByPath(ftp.getClient(), path);
+                                }
+                                catch (Exception e) {
+                                    NeptusLog.pub().error("Error FTP deleting from '" + host + "@" + port +
+                                            "' folder '" + path + "' : " + e.getMessage());
+                                }
                             }
+                            ret2 |= ret3;
                         }
                         return ret2;
                     } else {
@@ -761,6 +778,60 @@ public class LogsDownloaderWorker {
                     (isDirectory ? " folder " : " file ") + "'" + path + "' : " + e.getMessage());
         }
         return ret;
+    }
+
+    private static boolean removeDirectoryByPath(FTPClient client, String path) throws IOException {
+        String dirToRemove = path.substring(path.lastIndexOf('/')+1);
+        String parentDir = path.substring(0, path.lastIndexOf('/'));
+        return removeDirectoryByPath(client, parentDir, dirToRemove);
+    }
+
+    private static boolean removeDirectoryByPath(FTPClient ftpClient, String parentDir,
+            String currentDir) throws IOException {
+        String dirToList = parentDir;
+        if (!currentDir.equals("")) {
+            dirToList += "/" + currentDir;
+        }
+
+        FTPFile[] subFiles = ftpClient.listFiles(dirToList);
+
+        if (subFiles != null && subFiles.length > 0) {
+            for (FTPFile aFile : subFiles) {
+                String currentFileName = aFile.getName();
+                if (currentFileName.equals(".") || currentFileName.equals("..")) {
+                    // skip parent directory and the directory itself
+                    continue;
+                }
+                String filePath = parentDir + "/" + currentDir + "/"
+                        + currentFileName;
+                if (currentDir.equals("")) {
+                    filePath = parentDir + "/" + currentFileName;
+                }
+
+                if (aFile.isDirectory()) {
+                    // remove the sub directory
+                    removeDirectoryByPath(ftpClient, dirToList, currentFileName);
+                } else {
+                    // delete the file
+                    boolean deleted = ftpClient.deleteFile(filePath);
+                    if (deleted) {
+                        NeptusLog.pub().info("DELETED the file: " + filePath);
+                    } else {
+                        NeptusLog.pub().error("CANNOT delete the file: " + filePath);
+                    }
+                }
+            }
+
+        }
+        // finally, remove the directory itself
+        boolean removed = ftpClient.removeDirectory(dirToList);
+        if (removed) {
+            NeptusLog.pub().info("REMOVED the directory: " + dirToList);
+            return true;
+        } else {
+            NeptusLog.pub().error("CANNOT remove the directory: " + dirToList);
+            return false;
+        }
     }
 
     /**
