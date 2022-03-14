@@ -38,15 +38,20 @@ import java.awt.Frame;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import javax.swing.Icon;
 import javax.swing.JFrame;
@@ -693,9 +698,21 @@ public class LogsDownloaderWorker {
             if (hostFx.equals(host)) {
                 boolean emptyFolder = true;
                 if (logFx.isDirectory() && !logFx.getDirectoryContents().isEmpty()) {
+                    List<Path> leftoverFolders = new ArrayList<>();
+                    Path foldPath = Paths.get(path);
                     for (LogFileInfo fx : logFx.getDirectoryContents()) {
+                        Path fxPath = Paths.get(fx.getName()).getParent();
+                        Path fxPath1 = foldPath.relativize(fxPath);
+                        leftoverFolders.add(fxPath1);
                         emptyFolder &= deleteLogFileFromServer(fx); // recursion
                     }
+
+                    leftoverFolders = leftoverFolders.stream().distinct().sorted(Comparator.reverseOrder()).collect(Collectors.toList());
+                    for (Path p : leftoverFolders) {
+                        Path pt = foldPath.resolve(p);
+                        emptyFolder &= deleteLogFolderFromServerWorker(serverKey, pt.toString(), true);
+                    }
+                    System.out.println("");
                 }
 
                 if (!emptyFolder) {
@@ -711,6 +728,7 @@ public class LogsDownloaderWorker {
                                 ret2 |= deleteLogFolderFromServerWorker(sk, path, true);
                             }
                         }
+                        return ret2;
                     } else {
                         return deleteLogFolderFromServerWorker(serverKey, path, logFx.isDirectory());
                     }
@@ -732,15 +750,15 @@ public class LogsDownloaderWorker {
                 ftp = LogsDownloaderWorkerUtil.getOrRenewFtpDownloader(serverKey, ftpDownloaders, host, port);
             }
             catch (Exception e) {
-                NeptusLog.pub().warn("Error connecting to FTP deleting" + (isDirectory ? " folder " : " file ") +
-                        "'" + path + "' : " + e.getMessage());
+                NeptusLog.pub().error("Error connecting to FTP deleting from '" + host + "@" + port + "'" +
+                        (isDirectory ? " folder " : " file ") + "'" + path + "' : " + e.getMessage());
             }
             ret = ftp != null && (isDirectory ? ftp.getClient().removeDirectory("/" + path) :
                     ftp.getClient().deleteFile("/" + path));
         }
         catch (Exception e) {
-            NeptusLog.pub().warn("Error FTP deleting" + (isDirectory ? " folder " : " file ") +
-                    "'" + path + "' : " + e.getMessage());
+            NeptusLog.pub().error("Error FTP deleting from '" + host + "@" + port + "'" +
+                    (isDirectory ? " folder " : " file ") + "'" + path + "' : " + e.getMessage());
         }
         return ret;
     }
