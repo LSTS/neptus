@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<config format="1" version="2020.01.0 (master,5ca143de4,dirty)" system="ntnu-otter-01" i18n="en_US">
+<config format="1" version="2020.01.0 (master,5ca143de4,dirty)" system="ntnu-otter-02" i18n="en_US">
 <section name="Text Message Parser" name-i18n="Text Message Parser">
 <param name="Entity Label">
 <name-i18n>Entity Label</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>Text Message Parser</default><units></units><desc>Main entity label</desc></param>
@@ -739,9 +739,9 @@
 <param name="Debug Level">
 <name-i18n>Debug Level</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>None</default><units></units><desc></desc><values>None, Debug, Trace, Spew</values><values-i18n>None, Debug, Trace, Spew</values-i18n></param>
 <param name="Data Port">
-<name-i18n>Data Port</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>30020</default><units></units><desc>Data Port</desc></param>
+<name-i18n>Data Port</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>30025</default><units></units><desc>Data Port</desc></param>
 <param name="Control Port">
-<name-i18n>Control Port</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>30021</default><units></units><desc>Control Port</desc></param>
+<name-i18n>Control Port</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>30024</default><units></units><desc>Control Port</desc></param>
 <param name="Session Timeout">
 <name-i18n>Session Timeout</name-i18n><type>real</type><visibility>developer</visibility><scope>global</scope><default>120</default><units>s</units><desc>Timeout period of a session</desc></param>
 </section>
@@ -771,7 +771,7 @@
 <param name="Debug Level">
 <name-i18n>Debug Level</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>None</default><units></units><desc></desc><values>None, Debug, Trace, Spew</values><values-i18n>None, Debug, Trace, Spew</values-i18n></param>
 <param name="Port">
-<name-i18n>Port</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>8080</default><units></units><desc>TCP port to listen on</desc></param>
+<name-i18n>Port</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>8082</default><units></units><desc>TCP port to listen on</desc></param>
 <param name="Threads">
 <name-i18n>Threads</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>5</default><units></units><desc>Number of worker threads</desc></param>
 <param name="Transports">
@@ -823,7 +823,7 @@
 <param name="Debug Level">
 <name-i18n>Debug Level</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>None</default><units></units><desc></desc><values>None, Debug, Trace, Spew</values><values-i18n>None, Debug, Trace, Spew</values-i18n></param>
 <param name="Local Port">
-<name-i18n>Local Port</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>6002</default><units></units><desc>Local UDP port to listen on</desc></param>
+<name-i18n>Local Port</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>6004</default><units></units><desc>Local UDP port to listen on</desc></param>
 <param name="Contact Timeout">
 <name-i18n>Contact Timeout</name-i18n><type>real</type><visibility>developer</visibility><scope>global</scope><default>30</default><units>s</units><desc></desc></param>
 <param name="Contact Refresh Periodicity">

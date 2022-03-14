@@ -47,17 +47,56 @@
       <entry component="Left Thumb 2" action="Decelerate" inverted="false"/>  
       <entry component="x" action="Heading" inverted="false"/>  
       <entry component="A" action="Stop" inverted="false"/> 
+    </controller>  
+    <controller name="Flysky Flysky FS-i6XCN"> 
+      <entry component="Trigger" action="Exit" inverted="false"/>  
+      <entry component="Base 2" action="Port Motor" inverted="false"/>  
+      <entry component="Trigger" action="Starboard Motor" inverted="false"/>  
+      <entry component="" action="Accelerate" inverted="false"/>  
+      <entry component="" action="Decelerate" inverted="false"/>  
+      <entry component="Top 2" action="Heading" inverted="false"/>  
+      <entry component="Base" action="Stop" inverted="false"/> 
+    </controller>  
+    <controller name="SparkFun SparkFun Pro Micro"> 
+      <entry component="rx" action="Exit" inverted="true"/>
+      <entry component="" action="Port Motor" inverted="false"/>
+      <entry component="y" action="Starboard Motor" inverted="true"/>
+      <entry component="Thumb" action="Accelerate" inverted="false"/>
+      <entry component="" action="Decelerate" inverted="false"/>
+      <entry component="x" action="Heading" inverted="true"/>
+      <entry component="ry" action="Throttle" inverted="false"/>
+      <entry component="rz" action="Stop" inverted="true"/>
     </controller> 
   </system>  
-  <system name="ntnu-otter-02">
-    <controller name="Wireless Controller">
-      <entry component="X" action="Exit" inverted="false"/>
-      <entry component="Left Thumb" action="Port Motor" inverted="false"/>
-      <entry component="Right Thumb" action="Starboard Motor" inverted="false"/>
-      <entry component="Left Thumb 2" action="Accelerate" inverted="false"/>
-      <entry component="Right Thumb 2" action="Decelerate" inverted="false"/>
-      <entry component="x" action="Heading" inverted="true"/>
-      <entry component="A" action="Stop" inverted="false"/>
-    </controller>
-  </system>
+  <system name="ntnu-otter-02"> 
+    <controller name="Wireless Controller"> 
+      <entry component="X" action="Exit" inverted="false"/>  
+      <entry component="Left Thumb" action="Port Motor" inverted="false"/>  
+      <entry component="Right Thumb" action="Starboard Motor" inverted="false"/>  
+      <entry component="Left Thumb 2" action="Accelerate" inverted="false"/>  
+      <entry component="Right Thumb 2" action="Decelerate" inverted="false"/>  
+      <entry component="x" action="Heading" inverted="true"/>  
+      <entry component="A" action="Stop" inverted="false"/> 
+    </controller>  
+    <controller name="SparkFun SparkFun Pro Micro"> 
+      <entry component="Trigger" action="Exit" inverted="false"/>  
+      <entry component="pov" action="Port Motor" inverted="false"/>  
+      <entry component="Thumb 2" action="Starboard Motor" inverted="false"/>  
+      <entry component="Thumb" action="Accelerate" inverted="false"/>  
+      <entry component="Trigger" action="Decelerate" inverted="false"/>  
+      <entry component="slider" action="Heading" inverted="false"/>  
+      <entry component="" action="Stop" inverted="false"/> 
+    </controller> 
+  </system>  
+  <system name="ntnu-otter-03"> 
+    <controller name="Wireless Controller"> 
+      <entry component="" action="Exit" inverted="false"/>  
+      <entry component="Left Thumb" action="Port Motor" inverted="false"/>  
+      <entry component="Right Thumb" action="Starboard Motor" inverted="false"/>  
+      <entry component="Right Thumb 2" action="Accelerate" inverted="false"/>  
+      <entry component="Left Thumb 2" action="Decelerate" inverted="false"/>  
+      <entry component="x" action="Heading" inverted="true"/>  
+      <entry component="A" action="Stop" inverted="false"/> 
+    </controller> 
+  </system> 
 </systems>
