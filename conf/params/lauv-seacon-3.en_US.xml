@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2020.01.0 (feature/core-unify,5739a1b3e)" system="lauv-seacon-3" i18n="en_US">
+<config format="1" version="2020.01.0 (master,e3fa0edec)" system="lauv-seacon-3" i18n="en_US">
   <section name="Motor Controller" name-i18n="Motor Controller">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -4516,7 +4516,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Private (Camera)</default>
+      <default>Private (Camera CPU)</default>
       <units/>
       <desc/>
     </param>
@@ -4678,7 +4678,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Private (Ethernet Switch)</default>
+      <default>N/C (+12V_2)</default>
       <units/>
       <desc/>
     </param>
@@ -4687,7 +4687,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1</default>
+      <default>0</default>
       <units/>
       <desc/>
     </param>
@@ -6247,7 +6247,7 @@
       <type>boolean</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>true</default>
+      <default>false</default>
       <units/>
       <desc>Send PAUV over TCP to support older firmware / klein versions which do not support NMEA over UDP</desc>
     </param>
@@ -6256,7 +6256,7 @@
       <type>boolean</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>true</default>
+      <default>false</default>
       <units/>
       <desc>Limit legacy PAUV data rate to half.</desc>
     </param>
@@ -6339,7 +6339,7 @@
       <type>boolean</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>false</default>
+      <default>true</default>
       <units/>
       <desc>Log PAUV and GPZDA NMEA sentences as DevDataText IMC messages.</desc>
     </param>
@@ -6368,7 +6368,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0</default>
+      <default>60</default>
       <units/>
       <desc/>
     </param>
@@ -6377,7 +6377,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0</default>
+      <default>5</default>
       <units/>
       <desc/>
     </param>
@@ -6445,6 +6445,8 @@
       <default>Strobe</default>
       <units/>
       <desc>Led type mode.</desc>
+      <values>Strobe, On, Off</values>
+      <values-i18n>Strobe, On, Off</values-i18n>
     </param>
     <param name="Copyright">
       <name-i18n>Copyright</name-i18n>
@@ -6806,7 +6808,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Private (Camera - CPU)</default>
+      <default>Private (Camera CPU)</default>
       <units/>
       <desc>Power channel</desc>
     </param>
@@ -6815,7 +6817,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>lauv-seacon-3-aux, lauv-seacon-3-cpu-cam</default>
+      <default>lauv-seacon-3-cpu-cam</default>
       <units/>
       <desc>Name of the slave system</desc>
     </param>
@@ -6824,7 +6826,7 @@
       <type>boolean</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>false</default>
+      <default>true</default>
       <units/>
       <desc>Instruct slave CPU to power down</desc>
     </param>
@@ -7468,6 +7470,15 @@
       <default/>
       <units/>
       <desc>Entity label of sound speed provider</desc>
+    </param>
+    <param name="Simulator - Entity Label">
+      <name-i18n>Simulator - Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Evologics Interface</default>
+      <units/>
+      <desc>Entity label of Evologics simulator</desc>
     </param>
     <param name="Keep Alive - Timeout">
       <name-i18n>Keep Alive - Timeout</name-i18n>
@@ -8311,7 +8322,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Announce, Abort, AcousticLink, AlignmentState, EntityParameters, EstimatedState, FollowRefState, FuelLevel, FollowRefState, GpsFix, IridiumTxStatus, PathControlState, PlanControl, PlanControlState, PlanDB, ReportControl, Salinity, SoiCommand, SoiPlan, Temperature, TransmissionStatus, UamRxFrame, UamTxStatus, VehicleMedium, VehicleState</default>
+      <default>Announce, Abort, AcousticLink, AlignmentState, EntityParameters, EstimatedState, FollowRefState, FuelLevel, FollowRefState, GpsFix, IridiumTxStatus, PathControlState, PlanControl, PlanControlState, PlanDB, ReportControl, Salinity, SoiCommand, SoiPlan, Temperature, TextMessage, TransmissionStatus, UamRxFrame, UamTxStatus, VehicleMedium, VehicleState</default>
       <units/>
       <desc>Messages to transport</desc>
     </param>
@@ -8423,7 +8434,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>EntityParameters, EstimatedState, GpsFix, Heartbeat, LoggingControl, PopEntityParameters, PowerOperation, PowerChannelState, Pulse, PushEntityParameters, QueryEntityInfo, QueryEntityParameters, SetEntityParameters, SoundSpeed, VehicleMedium</default>
+      <default>EntityParameters, EstimatedState, GpsFix, Heartbeat, LoggingControl, PopEntityParameters, PowerOperation, PowerChannelState, Pulse, PushEntityParameters, QueryEntityInfo, QueryEntityParameters, SaveEntityParameters, SetEntityParameters, SoundSpeed, VehicleMedium</default>
       <units/>
       <desc>Messages to transport</desc>
     </param>
