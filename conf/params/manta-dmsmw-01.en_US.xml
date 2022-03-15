@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2020.01.0 (master,6419144f0)" system="manta-dmsmw-01" i18n="en_US">
+<config format="1" version="2020.01.0 (master,e3fa0edec)" system="manta-dmsmw-01" i18n="en_US">
   <section name="Text Message Parser" name-i18n="Text Message Parser">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -1243,6 +1243,118 @@
       <desc>Name of the configuration section with modem addresses</desc>
     </param>
   </section>
+  <section name="Clock" name-i18n="Clock">
+    <param name="Entity Label">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Clock</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Activation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Serial Port - Device">
+      <name-i18n>Serial Port - Device</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>Serial port device with PPS on CDC pin</desc>
+    </param>
+    <param name="PPS - Device">
+      <name-i18n>PPS - Device</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>/dev/pps0</default>
+      <units/>
+      <desc>Platform specific PPS device</desc>
+    </param>
+    <param name="PPS - Propagation Delay">
+      <name-i18n>PPS - Propagation Delay</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>675</default>
+      <units>ns</units>
+      <desc>Propagation delay of the PPS</desc>
+    </param>
+    <param name="PPS - Maximum Offset">
+      <name-i18n>PPS - Maximum Offset</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>50</default>
+      <units>us</units>
+      <desc>Maximum PPS offset in order to consider the local clock disciplined</desc>
+    </param>
+    <param name="GPS Offset Count">
+      <name-i18n>GPS Offset Count</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Number of GPS samples to compute time offser</desc>
+    </param>
+    <param name="Entity Label - GPS">
+      <name-i18n>Entity Label - GPS</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>GPS</default>
+      <units/>
+      <desc>The entity label of the GPS</desc>
+    </param>
+    <param name="Execute On Synchronization">
+      <name-i18n>Execute On Synchronization</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>hwclock -w</default>
+      <units/>
+      <desc>System command to execute everytime the clock is synchronized</desc>
+    </param>
+  </section>
   <section name="Service Announcer" name-i18n="Service Announcer">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -1520,7 +1632,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Seatrac Addresses</default>
+      <default>Micromodem Addresses</default>
       <units/>
       <desc>Name of the configuration section with acoustic modem addresses</desc>
     </param>
@@ -2644,7 +2756,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Micromodem Addresses, Narrow Band Transponders</default>
+      <default>Micromodem Addresses - DMSMW</default>
       <units/>
       <desc>List of table names</desc>
     </param>
@@ -2653,7 +2765,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>lauv-seacon-1, lauv-seacon-2, lauv-seacon-3, benthos1, benthos2, benthos3, benthos4, benthos5, benthos6</default>
+      <default/>
       <units/>
       <desc>Array of supported system names</desc>
     </param>
