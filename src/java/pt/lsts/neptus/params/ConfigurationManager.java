@@ -63,6 +63,7 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.params.SystemProperty.Scope;
 import pt.lsts.neptus.params.SystemProperty.ValueTypeEnum;
 import pt.lsts.neptus.params.SystemProperty.Visibility;
+import pt.lsts.neptus.params.editor.BooleanAsCheckBoxPropertyEditorWithDependency;
 import pt.lsts.neptus.params.editor.ComboEditorWithDependency;
 import pt.lsts.neptus.params.editor.NumberEditorWithDependencies;
 import pt.lsts.neptus.params.editor.PropertyEditorChangeValuesIfDependencyAdapter;
@@ -234,7 +235,8 @@ public class ConfigurationManager {
                     }
                 }
                 catch (ClassNotFoundException e) {
-                    NeptusLog.pub().warn(String.format("Custom editor \"%s\" not found: %s", editorStr, e));
+                    NeptusLog.pub().warn(String.format("Custom editor \"%s\" not found: %s (config: %s)", editorStr, e,
+                            file.getName()));
                 }
             }
             
@@ -267,7 +269,7 @@ public class ConfigurationManager {
                 // Optional (may not exist)
                 // If exists is shown as a combobox (may have values-i18n sibling for string type).
                 Element pValues = (Element) param.selectSingleNode("values");
-                // If exists is shown as a combobox but depends on some other parameter,
+                // If exists is shown as a combobox (or checkbos for boolean) but depends on some other parameter,
                 //  there are more than one, inside param equals|less|greater and values (may have values-i18n sibling for string type).
                 @SuppressWarnings("rawtypes")
                 List pValuesIfList = param.selectNodes("values-if");
@@ -320,7 +322,8 @@ public class ConfigurationManager {
                 }
 
                 // Lets get the default value
-                Object value = !isList ? getValueTypedFromString(defaultValue, valueType) : getListValueTypedFromString(defaultValue, valueType);
+                Object value = !isList ? getValueTypedFromString(defaultValue, valueType) :
+                        getListValueTypedFromString(defaultValue, valueType);
 
                 AbstractPropertyEditor propEditor = null;
                 DefaultCellRenderer propRenderer = null;
@@ -454,6 +457,7 @@ public class ConfigurationManager {
                 else if (pValuesIfList != null && !pValuesIfList.isEmpty()) {
                     property = new SystemProperty();
                     ComboEditor<?> comboEditor = null;
+                    BooleanAsCheckBoxPropertyEditor boolEditor = null;
                     PropertyEditorChangeValuesIfDependencyAdapter<?, ?> pt = null;
 
                     StringBuilder valuesIfDescStrBuilder = new StringBuilder();
@@ -498,8 +502,55 @@ public class ConfigurationManager {
 
                                 if (pt == null)
                                     pt = createPropertyWithDependencies(SystemProperty.ValueTypeEnum.fromString(type));
-                                
-                                if (type.equals(SystemProperty.ValueTypeEnum.INTEGER.getText())) {
+
+                                if (type.equals(SystemProperty.ValueTypeEnum.BOOLEAN.getText())) {
+                                    switch (testValueType) {
+                                        case REAL:
+                                        case INTEGER:
+                                            if (isPair) {
+                                                ((PropertyEditorChangeValuesIfDependencyAdapter<Object, Pair<Boolean, Boolean>>) pt).addValuesIf(
+                                                        paramComp.getText(), tv,
+                                                        PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
+                                                        (ArrayList<Pair<Boolean, Boolean>>) values);
+                                            }
+                                            else {
+                                                ((PropertyEditorChangeValuesIfDependencyAdapter<Object, Boolean>) pt).addValuesIf(
+                                                        paramComp.getText(), tv,
+                                                        PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
+                                                        (ArrayList<Boolean>) values);
+                                            }
+                                            break;
+                                        case BOOLEAN:
+                                            if (isPair) {
+                                                ((PropertyEditorChangeValuesIfDependencyAdapter<Object, Pair<Boolean, Boolean>>) pt).addValuesIf(
+                                                        paramComp.getText(), bv,
+                                                        PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
+                                                        (ArrayList<Pair<Boolean, Boolean>>) values);
+                                            }
+                                            else {
+                                                ((PropertyEditorChangeValuesIfDependencyAdapter<Object, Boolean>) pt).addValuesIf(
+                                                        paramComp.getText(), bv,
+                                                        PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
+                                                        (ArrayList<Boolean>) values);
+                                            }
+                                            break;
+                                        case STRING:
+                                            if (isPair) {
+                                                ((PropertyEditorChangeValuesIfDependencyAdapter<Object, Pair<Boolean, Boolean>>) pt).addValuesIf(
+                                                        paramComp.getText(), sv,
+                                                        PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
+                                                        (ArrayList<Pair<Boolean, Boolean>>) values);
+                                            }
+                                            else {
+                                                ((PropertyEditorChangeValuesIfDependencyAdapter<Object, Boolean>) pt).addValuesIf(
+                                                        paramComp.getText(), sv,
+                                                        PropertyEditorChangeValuesIfDependencyAdapter.TestOperation.EQUALS,
+                                                        (ArrayList<Boolean>) values);
+                                            }
+                                            break;
+                                    }
+                                }
+                                else if (type.equals(SystemProperty.ValueTypeEnum.INTEGER.getText())) {
                                     switch (testValueType) {
                                         case REAL:
                                         case INTEGER:
@@ -669,7 +720,11 @@ public class ConfigurationManager {
                             }
                         }
                         else {
-                            if (type.equals(SystemProperty.ValueTypeEnum.INTEGER.getText())) {
+                            if (type.equals(SystemProperty.ValueTypeEnum.BOOLEAN.getText())) {
+                                Boolean startValue = ((ArrayList<Boolean>) values).stream().findFirst().orElseGet(() -> false);
+                                boolEditor = new BooleanAsCheckBoxPropertyEditorWithDependency<Boolean>(startValue, pt);
+                            }
+                            else if (type.equals(SystemProperty.ValueTypeEnum.INTEGER.getText())) {
                                 comboEditor = new ComboEditorWithDependency<>(((ArrayList<Long>) values).toArray(new Long[0]), pt);
                             }
                             else if (type.equals(SystemProperty.ValueTypeEnum.REAL.getText())) {
@@ -679,7 +734,7 @@ public class ConfigurationManager {
                                 comboEditor = new ComboEditorWithDependency<>(((ArrayList<String>) values).toArray(new String[0]),
                                         valuesI18n == null ? null : ((ArrayList<String>) valuesI18n).toArray(new String[0]), pt);
                             }
-                            propEditor = comboEditor;
+                            propEditor = comboEditor == null ? boolEditor : comboEditor;
                         }
                     }
                 }
@@ -846,7 +901,7 @@ public class ConfigurationManager {
      * Builds the values-if description. Returns the valuesIfDescStrBuilder filled.
      * 
      * @param valuesIfDescStrBuilder
-     * @param paramComp
+     * @param paramName
      * @param eqParam
      * @param values
      * @return valuesIfDescStrBuilder
@@ -920,11 +975,13 @@ public class ConfigurationManager {
     }
 
     /**
-     * @param valueOf
+     * @param type
      * @return
      */
     private PropertyEditorChangeValuesIfDependencyAdapter<?, ?> createPropertyWithDependencies(ValueTypeEnum type) {
-        if (type.equals(SystemProperty.ValueTypeEnum.INTEGER))
+        if (type.equals(SystemProperty.ValueTypeEnum.BOOLEAN))
+            return new PropertyEditorChangeValuesIfDependencyAdapter<Object, Boolean>();
+        else if (type.equals(SystemProperty.ValueTypeEnum.INTEGER))
             return new PropertyEditorChangeValuesIfDependencyAdapter<Object, Long>();
         else if (type.equals(SystemProperty.ValueTypeEnum.REAL))
             return new PropertyEditorChangeValuesIfDependencyAdapter<Object, Double>();
@@ -967,7 +1024,13 @@ public class ConfigurationManager {
         
         for (String st : vlStr.split("( *, *)+")) {
             st = st.trim();
-            if (type.equals(SystemProperty.ValueTypeEnum.INTEGER.getText())) {
+            if (type.equals(SystemProperty.ValueTypeEnum.BOOLEAN.getText())) {
+                if (values == null) {
+                    values = new ArrayList<Boolean>();
+                }
+                ((ArrayList<Boolean>) values).add(Boolean.valueOf(st));
+            }
+            else if (type.equals(SystemProperty.ValueTypeEnum.INTEGER.getText())) {
                 if (values == null) {
                     if (!isRanges)
                         values = new ArrayList<Long>();
