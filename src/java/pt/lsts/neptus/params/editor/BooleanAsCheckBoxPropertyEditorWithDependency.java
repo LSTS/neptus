@@ -34,7 +34,6 @@ package pt.lsts.neptus.params.editor;
 
 import com.l2fprod.common.beans.editor.BooleanAsCheckBoxPropertyEditor;
 import javax.swing.JCheckBox;
-import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -50,9 +49,6 @@ public class BooleanAsCheckBoxPropertyEditorWithDependency<T extends Boolean> ex
     private LinkedHashMap<String, Object> dependencyVariables = new LinkedHashMap<>();
     private PropertyEditorChangeValuesIfDependencyAdapter<?, T> pec = null;
 
-    private ActionListener[] actionListenersList;
-    private ActionListener actionListener;
-
     public BooleanAsCheckBoxPropertyEditorWithDependency() {
         this(null, null);
     }
@@ -60,24 +56,10 @@ public class BooleanAsCheckBoxPropertyEditorWithDependency<T extends Boolean> ex
     public BooleanAsCheckBoxPropertyEditorWithDependency(T startValue,
             PropertyEditorChangeValuesIfDependencyAdapter<?, ?> pec) {
         super();
-//        actionListenersList = ((JCheckBox) this.editor).getActionListeners();
-//        for (ActionListener al : actionListenersList) {
-//            ((JCheckBox) this.editor).removeActionListener(al);
-//        }
 
         if (startValue != null) {
             ((JCheckBox) this.editor).setSelected(startValue.booleanValue());
         }
-
-//        actionListener = new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                for (ActionListener al : actionListenersList) {
-//                    al.actionPerformed(e);
-//                }
-//            }
-//        };
-//        ((JCheckBox) this.editor).addActionListener(actionListener);
 
         ((JCheckBox) this.editor).addChangeListener((changeEvent) -> {
             JCheckBox src = (JCheckBox) changeEvent.getSource();
@@ -137,76 +119,7 @@ public class BooleanAsCheckBoxPropertyEditorWithDependency<T extends Boolean> ex
             } else {
                 return;
             }
-
-//            for (String testVarKey : dependencyVariables.keySet()) {
-//                Object testVarValue = dependencyVariables.get(testVarKey);
-//                if (testVarValue == null)
-//                    continue;
-//
-//
-//                for (int i = 0; i < pec.getValuesIfTests().size(); i++) {
-//                    ValuesIf<?, T> vl = (ValuesIf<?, T>) pec.getValuesIfTests().get(i);
-//
-//                    if (!vl.dependantParamId.equals(testVarKey))
-//                        continue;
-//
-//                    testVariablePresent = true;
-//                    boolean isPassedTest = false;
-//
-//                    try {
-//                        switch (vl.op) {
-//                            case EQUALS:
-//                                if (vl.testValue instanceof Number)
-//                                    isPassedTest = ((Number) vl.testValue).doubleValue() == ((Number) testVarValue).doubleValue();
-//                                else if (vl.testValue instanceof Boolean)
-//                                    isPassedTest = (Boolean) vl.testValue == (Boolean) testVarValue;
-//                                else if (vl.testValue instanceof String)
-//                                    isPassedTest = ((String) vl.testValue).equals((String) testVarValue);
-//                                else
-//                                    isPassedTest = vl.testValue.equals(testVarValue);
-//                                break;
-//                        }
-//                    }
-//                    catch (Exception e) {
-//                        NeptusLog.pub()
-//                                .warn("Problem while evaluating test variable " + testVarKey + ": " + e.getMessage());
-//                    }
-//
-//                    if (isPassedTest) {
-//                        if (vl.values.isEmpty())
-//                            continue;
-//
-//                        passedAtLeastOneTest = true;
-//                        toChangeTest = vl;
-//
-//                        break;
-//                    }
-//                }
-//
-//                if(passedAtLeastOneTest)
-//                    break;
-//            }
         }
-
-//        if (testVariablePresent && passedAtLeastOneTest) {
-//            ArrayList<T> valuesAdmissible = toChangeTest.values;
-//            JCheckBox editorCheckBox = ((JCheckBox) this.editor);
-//            boolean needsChange = true;
-//            for (T v : valuesAdmissible) {
-//                if (editorCheckBox.isSelected() == v.booleanValue()) {
-//                    needsChange = false;
-//                }
-//            }
-//            if (needsChange) {
-//                //editorCheckBox.setSelected(toChangeTest.values.get(0).booleanValue());
-//                //firePropertyChange(!editorCheckBox.isSelected(), editorCheckBox.isSelected());
-//                //editorCheckBox.doClick(50);
-//                //editorCheckBox.revalidate();
-//                //editorCheckBox.repaint();
-//                setValue(toChangeTest.values.get(0).booleanValue());
-//            }
-//        }
-//        // if (testVariablePresent && !passedAtLeastOneTest) {}
 
         validate();
     }
@@ -278,11 +191,6 @@ public class BooleanAsCheckBoxPropertyEditorWithDependency<T extends Boolean> ex
                 }
             }
             if (needsChange) {
-                //editorCheckBox.setSelected(toChangeTest.values.get(0).booleanValue());
-                //firePropertyChange(!editorCheckBox.isSelected(), editorCheckBox.isSelected());
-                //editorCheckBox.doClick(50);
-                //editorCheckBox.revalidate();
-                //editorCheckBox.repaint();
                 setValue(toChangeTest.values.get(0).booleanValue());
             }
         }
