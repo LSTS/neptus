@@ -330,6 +330,35 @@
                 </annotation>
             </Launch>
         </maneuver>
+         <maneuver>
+  			<AreaSurvey kind="automatic">
+                <basePoint type="pointType">
+                    <point>
+                        <id>id_otoq5e</id>
+                        <name>id_otoq5e</name>
+                        <coordinate>
+                            <latitude>0N0'0.00''</latitude>
+                            <longitude>0E0'0.00''</longitude>
+                            <height>0.0</height>
+                        </coordinate>
+                        <z>0.0</z>
+                        <zunits>DEPTH</zunits>
+                    </point>
+                    <radiusTolerance>0.0</radiusTolerance>
+                </basePoint>
+                <path/>
+                <speed unit="m/s">1.0</speed>
+                <polygon/>
+                <horizontalStep>30.0</horizontalStep>
+                <bearing>0.0</bearing>
+                <autoBearing>true</autoBearing>
+                <corner>A</corner>
+                <annotation>
+                    <documentation>No documentation available</documentation>
+                    <implementation-class>pt.lsts.neptus.mp.maneuvers.AreaSurvey</implementation-class>
+                </annotation>
+            </AreaSurvey>
+		</maneuver>
     </feasibleManeuvers>
     <communication-means>
         <comm-mean>
