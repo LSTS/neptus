@@ -62,6 +62,8 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleInteraction;
 import pt.lsts.neptus.gui.LocationPanel;
 import pt.lsts.neptus.gui.editor.AngleEditorRads;
+import pt.lsts.neptus.gui.editor.AngleEditorRadsShowDegrees;
+import pt.lsts.neptus.gui.editor.renderer.AngleRadsRenderer;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.plugins.NeptusProperty;
@@ -94,7 +96,8 @@ public class AreaSurvey extends FollowPath {
     @NeptusProperty(name = "Horizontal Step", description="Distance, in meters between transects", units = "m")
     protected double horizontalStep = 30;
 
-    @NeptusProperty(name = "Survey Bearing", description="Angle to use for the survey transects", editorClass = AngleEditorRads.class)
+    @NeptusProperty(name = "Survey Bearing", description="Angle to use for the survey transects",
+            editorClass = AngleEditorRadsShowDegrees.class, rendererClass = AngleRadsRenderer.class)
     protected double angle = 0;
 
     @NeptusProperty(name = "Automatic Bearing", description="Calculate the survey bearing angle automatically (minimizing number of turns)")
