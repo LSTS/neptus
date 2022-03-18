@@ -37,6 +37,7 @@ import org.jfree.data.time.TimeSeries
 import org.jfree.data.time.TimeSeriesDataItem
 import org.jfree.data.time.TimeSeriesCollection
 import org.jfree.data.time.RegularTimePeriod
+import pt.lsts.imc.lsf.LsfIndex
 import pt.lsts.neptus.mra.plots.ScriptedPlot
 
 import java.text.SimpleDateFormat
@@ -48,7 +49,11 @@ import java.text.SimpleDateFormat
 class ScriptedPlotGroovy  {
     
     static ScriptedPlot scriptedPlot = null
-    
+
+    static LsfIndex lsfIndex() {
+        return scriptedPlot.getIndex();
+    }
+
     static void configPlot(ScriptedPlot p) {
         scriptedPlot = p
     }

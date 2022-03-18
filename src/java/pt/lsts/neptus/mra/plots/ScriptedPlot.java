@@ -129,6 +129,10 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
         init(idx);
     }
 
+    public LsfIndex getIndex() {
+        return index;
+    }
+
     private void init(LsfIndex idx) {
         this.index = idx;
 
@@ -141,6 +145,8 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
         shell = new GroovyShell(this.getClass().getClassLoader(), cnfg);
         runScript(scriptPath);
     }
+
+
 
     public String getLogName(){
         return this.index.getLsfFile().getParentFile().getName();
