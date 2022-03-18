@@ -350,17 +350,20 @@ class LogsDownloaderWorkerActions {
         String host = worker.getHostFor(serverKey);
         int port = worker.getPortFor(serverKey);
         
-        if (host.length() == 0 || !worker.isServerAvailable(serverKey))
+        if (host.length() == 0) // || !worker.isServerAvailable(serverKey))
             return retList;
         
         try {
             FtpDownloader clientFtp = LogsDownloaderWorkerUtil.getOrRenewFtpDownloader(serverKey,
                     worker.getFtpDownloaders(), host, port);
+            if (!worker.serverAvailabilityForListing.contains(serverKey))
+                worker.serverAvailabilityForListing.add(serverKey);
             retList = clientFtp.listLogs();
         }
         catch (Exception e) {
             NeptusLog.pub().error("Connecting " + serverKey + " with " 
                     + host + ":" + port + " with error: " + e.getMessage());
+            worker.serverAvailabilityForListing.remove(serverKey);
         }
         return retList;
     }

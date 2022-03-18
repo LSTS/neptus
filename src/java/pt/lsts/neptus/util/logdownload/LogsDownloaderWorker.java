@@ -93,7 +93,7 @@ public class LogsDownloaderWorker {
     private static final int ACTIVE_DOWNLOADS_QUEUE_SIZE = 1;
     static final String SERVER_MAIN = "main";
     static final String SERVER_CAM = "cam";
-    static final String SERVER_CAM2 = "cam2";
+    // static final String SERVER_CAM2 = "cam2";
 
     static final int DEFAULT_PORT = 30021;
 
@@ -113,6 +113,7 @@ public class LogsDownloaderWorker {
 
     private String logLabel = I18n.text("unknown"); // This should be a word with no spaces
 
+    public final List<String> serverAvailabilityForListing = new ArrayList<>();
 
     private LogsDownloaderWorkerGUI gui = null;
     private LogsDownloaderWorkerActions actions = null;
@@ -150,7 +151,7 @@ public class LogsDownloaderWorker {
         // Filling servers list
         serversList.add(SERVER_MAIN);
         serversList.add(SERVER_CAM);
-        serversList.add(SERVER_CAM2);
+        // serversList.add(SERVER_CAM2);
 
         // Init timer
         threadScheduledPool = LogsDownloaderWorkerUtil.createThreadPool(LogsDownloaderWorker.this);
@@ -301,8 +302,8 @@ public class LogsDownloaderWorker {
                 return getHost();
             case SERVER_CAM:
                 return LogsDownloaderWorkerUtil.getCameraHost(getHost());
-            case SERVER_CAM2:
-                return LogsDownloaderWorkerUtil.getCameraHost2(getHost());
+//            case SERVER_CAM2:
+//                return LogsDownloaderWorkerUtil.getCameraHost2(getHost());
             default:
                 break;
         }
@@ -327,15 +328,17 @@ public class LogsDownloaderWorker {
      * @return
      */
     boolean isServerAvailable(String serverKey) {
-        switch (serverKey) {
-            case SERVER_MAIN:
-                return true;
-            case SERVER_CAM:
-            case SERVER_CAM2:
-                return gui.cameraButton.getBackground() == LogsDownloaderWorker.CAM_CPU_ON_COLOR;
-            default:
-                return false;
-        }
+//        switch (serverKey) {
+//            case SERVER_MAIN:
+//            case SERVER_CAM:
+//                return true;
+//            case SERVER_CAM2:
+//                return gui.cameraButton.getBackground() == LogsDownloaderWorker.CAM_CPU_ON_COLOR;
+//            default:
+//                return false;
+//        }
+
+        return serverAvailabilityForListing.contains(serverKey);
     }
     
     public String getHost() {
