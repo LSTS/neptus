@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2020.01.0 (master,e3fa0edec)" system="lauv-seacon-3" i18n="en_US">
+<config format="1" version="2020.01.0 (master,02be28ec3)" system="lauv-seacon-3" i18n="en_US">
   <section name="Motor Controller" name-i18n="Motor Controller">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -5733,6 +5733,15 @@
       <desc>Lever arm between center of gravity and depth</desc>
       <size>3</size>
     </param>
+    <param name="Uncertainty Threshold">
+      <name-i18n>Uncertainty Threshold</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.3</default>
+      <units/>
+      <desc>Uncertainty threshold to abort. To disable option to abort by uncertainty threshold, use -1.</desc>
+    </param>
   </section>
   <section name="Mainboard" name-i18n="Mainboard">
     <param name="Entity Label">
@@ -6212,6 +6221,11 @@
       <default>false</default>
       <units/>
       <desc>Enable low-frequency bathymetry channel</desc>
+      <values-if>
+        <param>Bathymetry Channel Available</param>
+        <equals>false</equals>
+        <values>false</values>
+      </values-if>
     </param>
     <param name="Range">
       <name-i18n>Range</name-i18n>
@@ -6271,11 +6285,11 @@
       <min>100</min>
       <max>50000</max>
     </param>
-    <param name="Bathymetry Channel Available">
+    <param name="Bathymetry Channel Available" editable="false">
       <name-i18n>Bathymetry Channel Available</name-i18n>
       <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
       <default>false</default>
       <units/>
       <desc>This device has an additional bathymetry channel</desc>
@@ -8040,6 +8054,24 @@
       <units/>
       <desc/>
     </param>
+    <param name="Use 9523N Module">
+      <name-i18n>Use 9523N Module</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Serial Port 9523 - Baud Rate">
+      <name-i18n>Serial Port 9523 - Baud Rate</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>115200</default>
+      <units/>
+      <desc>Serial port baud rate for 9523N Module</desc>
+    </param>
   </section>
   <section name="Log Book" name-i18n="Log Book">
     <param name="Entity Label">
@@ -8644,6 +8676,15 @@
       <default>false</default>
       <units/>
       <desc>If this argument is enabled, USBL sends an absolute fix using WGS-84 lat/lon coordinates. If disabled, then the positioning is relative to the origin of a system where the center of the reference frame is the USBL modem</desc>
+    </param>
+    <param name="USBL Node -- Inverted">
+      <name-i18n>USBL Node -- Inverted</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>If this argument is enabled, USBL node anounces itself for inverted positioning by USBL modems.</desc>
     </param>
     <param name="USBL Node -- Quick, No Range">
       <name-i18n>USBL Node -- Quick, No Range</name-i18n>
