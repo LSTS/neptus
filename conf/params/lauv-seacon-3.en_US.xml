@@ -6552,7 +6552,7 @@
       <type>integer</type>
       <visibility>user</visibility>
       <scope>maneuver</scope>
-      <default>10000</default>
+      <default>100000</default>
       <units/>
       <desc>Strobe Delay in us.</desc>
     </param>
