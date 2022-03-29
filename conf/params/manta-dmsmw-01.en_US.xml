@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2020.01.0 (master,e3fa0edec)" system="manta-dmsmw-01" i18n="en_US">
+<config format="1" version="2020.01.0 (master,f3a7ad081)" system="manta-dmsmw-01" i18n="en_US">
   <section name="Text Message Parser" name-i18n="Text Message Parser">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -545,7 +545,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Acoustic Modem</default>
+      <default>Micromodem</default>
       <units/>
       <desc/>
     </param>
@@ -1130,7 +1130,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>tcp://10.0.50.101:5000</default>
+      <default>/dev/uart/1</default>
       <units/>
       <desc>Serial port device used to communicate with the sensor</desc>
     </param>
@@ -1632,7 +1632,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Micromodem Addresses</default>
+      <default>Evologics Addresses</default>
       <units/>
       <desc>Name of the configuration section with acoustic modem addresses</desc>
     </param>
