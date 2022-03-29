@@ -196,7 +196,9 @@
       <properties>
         <entry key="TCP Port">30051</entry>
         <entry key="TCP Host">ais.lsts.pt</entry>
+        <entry key="Serial Port Device">/dev/ttyACM0</entry>
         <entry key="Connect via TCP">true</entry>
+        <entry key="Serial Port Baud Rate">9600</entry>
       </properties>
     </layer>
     <layer class="pt.lsts.neptus.console.plugins.planning.PlanSimulationLayer" opacity="1.0">
