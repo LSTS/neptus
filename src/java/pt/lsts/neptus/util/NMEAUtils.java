@@ -195,6 +195,9 @@ public class NMEAUtils {
             ZonedDateTime now = ZonedDateTime.now(ZoneId.of("UTC")).truncatedTo(ChronoUnit.DAYS);
             
             String timeUTC = (String) data_fields.get(0); // hhmmss.ss UTC
+            if (timeUTC == null || timeUTC.length() == 0) {
+                return null;
+            }
 
             LocalTime ltNow = LocalTime.now(ZoneId.of("UTC"));
             LocalTime tTime = LocalTime.MIDNIGHT.plusHours(Long.parseLong(timeUTC.substring(0, 2)))
