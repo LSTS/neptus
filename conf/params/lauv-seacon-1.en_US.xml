@@ -1831,15 +1831,6 @@
       <units>m</units>
       <desc>Admissible altitude when doing depth control</desc>
     </param>
-    <param name="Bottom Track -- Minimum Depth">
-      <name-i18n>Bottom Track -- Minimum Depth</name-i18n>
-      <type>real</type>
-      <visibility>user</visibility>
-      <scope>maneuver</scope>
-      <default>0.0</default>
-      <units>m</units>
-      <desc>Minimum depth to maintain during bottom tracking</desc>
-    </param>
     <param name="Maximum Track Length">
       <name-i18n>Maximum Track Length</name-i18n>
       <type>real</type>
@@ -8285,15 +8276,6 @@
       <default>123</default>
       <units/>
       <desc>USSD code</desc>
-    </param>
-    <param name="Request Balance">
-      <name-i18n>Request Balance</name-i18n>
-      <type>boolean</type>
-      <visibility>user</visibility>
-      <scope>global</scope>
-      <default>true</default>
-      <units/>
-      <desc>Enable Balance Request</desc>
     </param>
     <param name="Balance Periodicity">
       <name-i18n>Balance Periodicity</name-i18n>
