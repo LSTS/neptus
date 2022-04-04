@@ -821,7 +821,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
             irMsgs = IridiumManager.iridiumEncode(message);
         }
         catch (Exception e) {
-            GuiUtils.errorMessage(getConsole(), e);
+            GuiUtils.errorMessage(getConsole(), "Send by Iridium", e.getMessage());
             return;
         }
         int src = getConsole().getImcMsgManager().getLocalId().intValue();
@@ -843,7 +843,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
                     + IridiumManager.getManager().getCurrentMessenger().getName()));
         }
         catch (Exception e) {
-            GuiUtils.errorMessage(getConsole(), e);
+            GuiUtils.errorMessage(getConsole(), "Send by Iridium", e.getMessage());
             return;
         }
     }
