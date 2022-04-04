@@ -69,7 +69,9 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.util.GuiUtils;
 
-@PluginDescription(name = "Iridium Communications Status",description="Iridium Communications Feedback Panel")
+@PluginDescription(name = "Iridium Communications Status",
+        icon = "images/iridium/iridium-logo.png",
+        description="Iridium Communications Feedback Panel")
 @Popup(pos = Popup.POSITION.BOTTOM_RIGHT, width=355, height=215)
 public class IridiumStatus extends ConsolePanel {
 
