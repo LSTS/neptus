@@ -338,7 +338,7 @@ public class IridiumComms extends SimpleRendererInteraction {
                     + IridiumManager.getManager().getCurrentMessenger().getName()));
         }
         catch (Exception e) {
-            GuiUtils.errorMessage(getConsole(), e);
+            GuiUtils.errorMessage(getConsole(), "Send Iridium Text", e.getMessage());
         }
     }
 
@@ -367,7 +367,7 @@ public class IridiumComms extends SimpleRendererInteraction {
                     + IridiumManager.getManager().getCurrentMessenger().getName()));
         }
         catch (Exception e) {
-            GuiUtils.errorMessage(getConsole(), e);
+            GuiUtils.errorMessage(getConsole(), "Send Iridium Command", e.getMessage());
         }
 
     }
@@ -382,7 +382,7 @@ public class IridiumComms extends SimpleRendererInteraction {
             IridiumManager.getManager().send(pos);
         }
         catch (Exception e) {
-            GuiUtils.errorMessage(getConsole(), e);
+            GuiUtils.errorMessage(getConsole(), "Send Iridium Wave Glider Target Position", e.getMessage());
         }
     }
 
@@ -396,7 +396,7 @@ public class IridiumComms extends SimpleRendererInteraction {
             IridiumManager.getManager().send(pos);
         }
         catch (Exception e) {
-            GuiUtils.errorMessage(getConsole(), e);
+            GuiUtils.errorMessage(getConsole(), "Send Iridium Wave Glider Desired Position", e.getMessage());
         }
     }
 
@@ -464,7 +464,7 @@ public class IridiumComms extends SimpleRendererInteraction {
                     selectedSysName + "(" + sysId + ") " +
                     "Type: " + restartType));
         } catch (Exception e) {
-            GuiUtils.errorMessage(getConsole(), e);
+            GuiUtils.errorMessage(getConsole(), "Send Iridium CPU Restart", e.getMessage());
             NeptusLog.pub().warn("Failed to send system restart");
         }
     }
@@ -537,7 +537,7 @@ public class IridiumComms extends SimpleRendererInteraction {
                                             + IridiumManager.getManager().getCurrentMessenger().getName()));
                         }
                         catch (Exception ex) {
-                            GuiUtils.errorMessage(getConsole(), ex);
+                            GuiUtils.errorMessage(getConsole(), "Subscribe to iridium device updates", ex.getMessage());
                         }
                     }
                 });
@@ -553,7 +553,7 @@ public class IridiumComms extends SimpleRendererInteraction {
                             IridiumManager.getManager().send(deactivate);
                         }
                         catch (Exception ex) {
-                            GuiUtils.errorMessage(getConsole(), ex);
+                            GuiUtils.errorMessage(getConsole(), "Unsubscribe to iridium device updates", ex.getMessage());
                         }
                     }
                 });
@@ -578,7 +578,7 @@ public class IridiumComms extends SimpleRendererInteraction {
                             + IridiumManager.getManager().getCurrentMessenger().getName()));
                 }
                 catch (Exception ex) {
-                    GuiUtils.errorMessage(getConsole(), ex);
+                    GuiUtils.errorMessage(getConsole(), "Iridium message sent", ex.getMessage());
                 }
 
             }
