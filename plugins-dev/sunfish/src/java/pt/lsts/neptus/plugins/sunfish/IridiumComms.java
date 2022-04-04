@@ -87,7 +87,7 @@ import pt.lsts.neptus.util.GuiUtils;
  * @author zp
  * 
  */
-@PluginDescription(name = "Iridium Communications Plug-in", icon = "pt/lsts/neptus/plugins/sunfish/iridium.png")
+@PluginDescription(name = "Iridium Communications Plug-in", icon = "images/iridium/iridium-logo.png")
 @SuppressWarnings("unused")
 public class IridiumComms extends SimpleRendererInteraction {
 
