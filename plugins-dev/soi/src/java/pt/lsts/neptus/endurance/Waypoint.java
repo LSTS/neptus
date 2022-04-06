@@ -156,6 +156,15 @@ public class Waypoint implements Comparable<Waypoint> {
         g.setColor(Color.black);
         g.draw(new Ellipse2D.Double(pt2d.getX() - radius, pt2d.getY() - radius, radius*2, radius*2));
     }
+
+    public void paintCircleWithLabel(Graphics2D g, Waypoint wpt, Point2D pt2d, Color color, int radius, boolean displayLabel) {
+        paintCircle(pt2d, color, radius, g);
+        g.setColor(Color.black);
+        if(displayLabel) {
+            String label = DateTimeUtil.timeFormatterNoSegs.format(wpt.getArrivalTime());
+            g.drawString(label, (int) pt2d.getX() + 6, (int) pt2d.getY() - 3);
+        }
+    }
     
 
     @SuppressWarnings("deprecation")

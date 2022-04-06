@@ -27,18 +27,19 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: Sheila
+ * Author: RicardoSantos
  * Aug 4,2021
  */
-
 package pt.lsts.neptus.ramp;
 
-import java.io.File;
-import java.io.FileReader;
-import java.nio.file.FileSystems;
+import java.awt.*;
+import java.awt.geom.Ellipse2D;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Vector;
 
@@ -46,130 +47,88 @@ import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
 
-import pt.lsts.imc.Goto;
-import pt.lsts.imc.def.ZUnits;
-import pt.lsts.imc.PlanManeuver;
-import pt.lsts.imc.PlanSpecification;
-import pt.lsts.imc.PlanTransition;
-import pt.lsts.imc.def.SpeedUnits;
+import com.eclipsesource.json.JsonValue;
+import com.google.gson.Gson;
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.console.ConsoleLayer;
-import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.plugins.NeptusMenuItem;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
-import pt.lsts.neptus.types.mission.plan.PlanType;
-import pt.lsts.neptus.types.vehicle.VehiclesHolder;
-import  pt.lsts.neptus.endurance.Waypoint;
+import pt.lsts.neptus.util.ColorUtils;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 
-@PluginDescription(description = "Adds trajectories and their calculated duration from JSON to the map console",name = "Optimized Trajectories")
+/**
+ * @author RicardoSantos
+ */
+@PluginDescription(name = "Optimized Trajectories", description = "Adds trajectories and their calculated duration from JSON to the map console", icon="images/rampLogo.png")
 public class TrajectoryLayer extends ConsoleLayer {
 
-    @NeptusProperty(description = "Path to JSON file with optimized trajectories info", name = "JSON Source")
-    public String source  = "conf/trajectories/trajectory_raveiro1.json"; //TODO receive from Ripples
-    // JSON example in https://drive.google.com/file/d/1ZhYdk7CuoHPo83OfZyk8fFF3oPCTM48t/view?usp=sharing
+    @NeptusProperty(name = "Pollution markers endpoint", description = "Endpoint to GET pollution markers from Ripples")
+    public String apiPollutionMarkers = "/pollution";
 
-    @NeptusProperty(description = "Generated plan speed", name = "Speed", units = "m/s")
-    public float speed = 1.0f;
+    @NeptusProperty(name = "Pollution obstacles endpoint", description = "Endpoint to GET obstacles from Ripples")
+    public String apiPollutionObstacles = "/pollution/obstacles";
 
-    @NeptusProperty(description = "Generated plan depth or altitude if signal is inverted", name = "Depth", units = "m")
-    public float depth = 0.0f;
+    protected List<PollutionMarker> pollutionMarkers;
 
-    private double totalTime;
-
-    protected List<Trajectory> trajectories;
-
-    private File input;
+    protected List<Obstacle> pollutionObstacles;
 
     public TrajectoryLayer(){
         init();
     }
 
     public void init(){
-        input  = new File (source);
-        trajectories = Collections.synchronizedList(new ArrayList<Trajectory>());
-        totalTime = 0.0;
-    }
-
-
-    @NeptusMenuItem("Tools>Trajectories>Generate Plans")
-    public void generatePlan() {
-        int index = 0;
-        for(Trajectory traj: trajectories){
-            PlanSpecification ps = new PlanSpecification();
-            List<PlanManeuver> data = new ArrayList<PlanManeuver>();
-            List<PlanTransition> transitions = new ArrayList<PlanTransition>();
-            ps.setPlanId("trajectory_" + index);
-            for(Waypoint wp: traj.waypoints){
-                Goto go = new Goto();
-                go.setLat(Math.toRadians(wp.getLatitude()));
-                go.setLon(Math.toRadians(wp.getLongitude()));
-                go.setSpeedUnits(SpeedUnits.METERS_PS);
-                go.setSpeed(speed);
-                if(depth >= 0.0)
-                    go.setZUnits(ZUnits.DEPTH);
-                else
-                    go.setZUnits(ZUnits.ALTITUDE);
-                go.setZ(Math.abs(depth));
-                PlanManeuver pm = new PlanManeuver();
-                pm.setManeuverId("wp_"+ data.size());
-                pm.setData(go);
-                if(!data.isEmpty()){
-                    PlanTransition pt = new PlanTransition();
-                    pt.setConditions("ManeuverIsDone"); 
-                    pt.setSourceMan(data.get(data.size()-1).getManeuverId());
-                    pt.setDestMan(pm.getManeuverId());
-                    transitions.add(pt);
-                }
-                else{
-                    ps.setStartManId(pm.getManeuverId());
-                }
-                data.add(pm);
-                
-                
-            }
-            ps.setManeuvers(data);
-            ps.setTransitions(transitions);
-            PlanType plan = IMCUtils.parsePlanSpecification(this.getConsole().getMission(),ps);
-            plan.setVehicle(getConsole().getMainSystem());
-            this.getConsole().getMission().addPlan(plan);
-            this.getConsole().warnMissionListeners(); 
-            this.getConsole().getMission().save(false);
-            index++;
-        }       
+        pollutionMarkers = Collections.synchronizedList(new ArrayList<PollutionMarker>());
+        pollutionObstacles = Collections.synchronizedList(new ArrayList<Obstacle>());
     }
 
     @Override
     public  boolean userControlsOpacity(){
         return false;
-
     }
 
     @Override
     public  void initLayer(){
-        if(input.exists() && input.isFile()){
-            try{
-                JsonObject json = Json.parse(new FileReader(input)).asObject();
-                JsonArray trajs = json.get("trajectories").asArray();
-                totalTime = json.get("total_duration").asDouble();
-                trajs.values().forEach(entry -> addTrajectory(entry.asObject()));
-            }
-            catch(Exception e){
-                NeptusLog.pub().error(I18n.text("Error parsing trajectories file:  "+input.getAbsolutePath()),e);
-            }
 
-        }
-        else{
-            NeptusLog.pub().error(I18n.text("Error opening trajectories file:  "+input.getAbsolutePath()));
+        // Get Pollution markers
+        try {
+            String serverRampApiUrl = GeneralPreferences.ripplesUrl + apiPollutionMarkers;
+            Gson gson = new Gson();
+            URL url = new URL(serverRampApiUrl);
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            PollutionMarker[] markers = gson.fromJson(new InputStreamReader(con.getInputStream()), PollutionMarker[].class);
+
+            pollutionMarkers = Arrays.asList(markers);
+
+        } catch (Exception e) {
+            NeptusLog.pub().error(e);
         }
 
+        // Get Pollution obstacles
+        try {
+            String serverRampApiUrl = GeneralPreferences.ripplesUrl + apiPollutionObstacles;
+            URL url = new URL(serverRampApiUrl);
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+
+            JsonArray obstacles = Json.parse(new InputStreamReader(con.getInputStream())).asArray();
+            for(int i = 0 ; i < obstacles.size() ; i++) {
+                JsonObject wpt = obstacles.get(i).asObject();
+
+                long id = wpt.getLong("id",0);
+                String description = wpt.getString("description", "");
+                String timestamp = wpt.getString("timestamp", "");
+                String user = wpt.getString("user", "");
+                JsonArray points = wpt.get("positions").asArray();
+
+                Obstacle obst = new Obstacle(id,description,timestamp,user,points);
+                pollutionObstacles.add(obst);
+            }
+        } catch (Exception e) {
+            NeptusLog.pub().error(e);
+        }
     }
 
     @Override
@@ -178,70 +137,145 @@ public class TrajectoryLayer extends ConsoleLayer {
     }
 
     @Override
-    public void paint(Graphics2D g0, StateRenderer2D renderer){
-        String[] path = source.split(FileSystems.getDefault().getSeparator());
-        if(input != null)
-            if(!path[path.length-1].equals(input.getName())){
-                trajectories.clear();
-                init();
-                initLayer();
-            }
-        Color c = VehiclesHolder.getVehicleById(super.getConsole().getMainSystem()).getIconColor();
-        if(!trajectories.isEmpty()){
-            synchronized(trajectories){
-            Graphics2D g = (Graphics2D) g0.create();
-                for(Trajectory traj: trajectories) {
-                    for (Waypoint wpt: traj.waypoints) {
-                        LocationType loc = new LocationType(wpt.getLatitude(), wpt.getLongitude());
-                        Point2D pt2d = renderer.getScreenPosition(loc);
-                        wpt.paint(g, wpt, pt2d, c, 4, true);
+    public void paint(Graphics2D g0, StateRenderer2D renderer) {
+
+        boolean displayLabel = renderer.getZoom() > 0.2;
+
+        if(!pollutionMarkers.isEmpty()) {
+            synchronized(pollutionMarkers){
+                Graphics2D g = (Graphics2D) g0.create();
+                for(PollutionMarker pollution : pollutionMarkers) {
+                    LocationType loc = new LocationType(pollution.latitude, pollution.longitude);
+                    Point2D pt2d = renderer.getScreenPosition(loc);
+                    Color color;
+                    switch (pollution.status) {
+                        case "Synched":
+                            color = new Color(1f,1f,0f,.5f );
+                            break;
+                        case "Exec":
+                            color = new Color(1f,1f,1f,.5f );
+                            break;
+                        case "Done":
+                            color = new Color(0f,1f,0f,.5f );
+                            break;
+                        default:
+                            color = new Color(1f, 0f, 0f, .5f);
                     }
+                    String msg = pollution.description + " ("+ pollution.id+")";
+                    pollution.paintCircle(pt2d, color, renderer.getZoom() * pollution.radius, msg, displayLabel, g);
                 }
                 g.dispose();
             }
         }
-    }
 
-    protected void addTrajectory(JsonObject element){
-        String id = element.get("id").asString();
-        long duration = Float.valueOf(element.get("duration").asFloat()).longValue();
-        Trajectory traj = new Trajectory(id, duration, element.get("waypoints").asArray());
-        trajectories.add(traj);
-    }
+        if(!pollutionObstacles.isEmpty()) {
+            synchronized(pollutionObstacles){
+                Graphics2D g = (Graphics2D) g0.create();
+                for(Obstacle o : pollutionObstacles) {
+                    Vector<Point2D> locations = new Vector<>();
+                    for(int i=0; i<o.obstaclePoints.size() ; i++) {
+                        LocationType loc = new LocationType(o.obstaclePoints.get(i)[0], o.obstaclePoints.get(i)[1]);
+                        Point2D pt2d = renderer.getScreenPosition(loc);
+                        locations.add(pt2d);
 
-    public class Trajectory {
-        public final String id;
-        public final long duration;
-        public Vector<Waypoint> waypoints;
-
-        public Trajectory(String name, long t, JsonArray wpts){
-            id = name;
-            duration = t;
-            waypoints = new Vector<Waypoint>();
-            wpts.values().forEach(wp -> addWaypoint(wp.asArray()) );
-        }
-
-        protected void addWaypoint(JsonArray data){
-            float lat,lon,t;
-            t   = data.get(0).asFloat();
-            long arrival = Float.valueOf(t).longValue(); //UNIX Timestamp in seconds
-            lat = data.get(1).asFloat();
-            lon = data.get(2).asFloat();
-            Waypoint wp = new Waypoint(waypoints.size(), lat,lon);
-            wp.setArrivalTime(new Date(1000 * arrival));
-            // verify is the same coordinate that previous WP - avoid duplicated
-            if(!waypoints.isEmpty()){
-                Waypoint waypoint = waypoints.get(waypoints.size()-1);
-                if(waypoint.compareTo(wp) == 0 && waypoint.getLatitude() == lat && waypoint.getLongitude() == lon)
-                    return;
-                else
-                    waypoints.add(wp); 
-
+                        // Close polygon
+                        if(i == o.obstaclePoints.size()-1) {
+                            LocationType first_loc = new LocationType(o.obstaclePoints.get(0)[0], o.obstaclePoints.get(0)[1]);
+                            Point2D first_pt2d = renderer.getScreenPosition(first_loc);
+                            locations.add(first_pt2d);
+                        }
+                    }
+                    o.paintPolygon(locations, o.description, displayLabel, g);
+                }
+                g.dispose();
             }
-            else
-                waypoints.add(wp); 
         }
 
+    }
+
+
+    public static class PollutionMarker {
+        public long id;
+        public String description;
+        public String status;
+        public String user;
+        public int radius;
+        public float latitude;
+        public float longitude;
+        public String timestamp;
+
+        public PollutionMarker(long pollutionId, String desc, float lat, float lng, int r, String st, String u, String time) {
+            id = pollutionId;
+            description = desc;
+            latitude = lat;
+            longitude = lng;
+            radius = r;
+            status = st;
+            user = u;
+            timestamp = time;
+        }
+
+        private void paintCircle(Point2D pt2d, Color color, float radius, String msg, Boolean display, Graphics2D g) {
+            g.setPaint(new GradientPaint((float) pt2d.getX() - radius, (float) pt2d.getY(), color,
+                    (float) pt2d.getX() + radius, (float) pt2d.getY()+radius, color.darker().darker().darker()));
+            g.fill(new Ellipse2D.Double(pt2d.getX() - radius, pt2d.getY() - radius, radius*2, radius*2));
+            g.setStroke(new BasicStroke(0.5f));
+            g.setColor(color);
+            if(display) {
+                g.drawString(msg, (int) pt2d.getX() + 6, (int) pt2d.getY() - 3);
+            }
+            g.draw(new Ellipse2D.Double(pt2d.getX() - radius, pt2d.getY() - radius, radius*2, radius*2));
+        }
+    }
+
+    public static class Obstacle {
+        public long id;
+        public String description, timestamp, user;
+        public Vector<double[]> obstaclePoints;
+
+        public Obstacle(long obstacleId, String desc, String time, String u, JsonArray wpts) {
+            id = obstacleId;
+            description = desc;
+            timestamp = time;
+            user = u;
+            obstaclePoints = new Vector<double[]>();
+            for (JsonValue p : wpts) {
+                JsonArray point = p.asArray();
+                float lat, lon;
+                lat = point.get(0).asFloat();
+                lon = point.get(1).asFloat();
+                double[] position = {lat, lon};
+                obstaclePoints.add(position);
+            }
+        }
+
+        private void paintPolygon(Vector<Point2D> pts2d, String msg, Boolean display, Graphics2D g) {
+            // Marker to display message
+            double maxValue = 0;
+            int maxIndex = 0;
+            for (int n = 0; n < pts2d.size() - 1; n++) {
+                if (pts2d.get(n).getX() > maxValue) {
+                    maxValue = pts2d.get(n).getX();
+                    maxIndex = n;
+                }
+            }
+
+            List<Integer> list_x = new ArrayList<>();
+            List<Integer> list_y = new ArrayList<>();
+            for (Point2D p : pts2d) {
+                list_x.add((int) p.getX());
+                list_y.add((int) p.getY());
+            }
+            int[] xCoord = list_x.stream().mapToInt(i -> i).toArray();
+            int[] yCoord = list_y.stream().mapToInt(i -> i).toArray();
+
+            g.setColor(ColorUtils.setTransparencyToColor(Color.black, 140));
+            Polygon polygon = new Polygon(xCoord, yCoord, pts2d.size());
+            g.fillPolygon(polygon);
+            if (display) {
+                g.drawString(msg, (int) pts2d.get(maxIndex).getX() + 6, (int) pts2d.get(maxIndex).getY() - 3);
+            }
+        }
     }
     
 }
