@@ -32,7 +32,11 @@
  */
 package pt.lsts.neptus.ramp;
 
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.GradientPaint;
+import java.awt.Graphics2D;
+import java.awt.Polygon;
 import java.awt.geom.Ellipse2D;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -192,7 +196,6 @@ public class TrajectoryLayer extends ConsoleLayer {
         }
 
     }
-
 
     public static class PollutionMarker {
         public long id;
