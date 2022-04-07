@@ -43,6 +43,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
@@ -135,6 +136,7 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
     protected MraVehiclePosHud hud;
     protected Point2D zoomPoint = null;
     protected boolean fullRes = false;
+    protected boolean rotateToPaintImage = false;
     protected Vector<LogMarker> markers = new Vector<>();
     
     private File[] allFiles;
@@ -439,8 +441,14 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
                     Graphics2D g = (Graphics2D) tmp.getGraphics();
                     Image watermark = ImageUtils.getImage("pt/lsts/neptus/plugins/mraplots/lsts-watermark.png");
 
-                    g.drawImage(m, 0, 0, tmp.getWidth(), tmp.getHeight(), 0, 0, m.getWidth(null), m.getHeight(null),
-                            null);
+                    Graphics2D g1 = (Graphics2D) g.create();
+                    if (rotateToPaintImage) {
+                        g1 = rotateGraphics(g1, tmp.getWidth(), tmp.getHeight());
+                    }
+                    g1.drawImage(m, 0, 0, tmp.getWidth(), tmp.getHeight(), 0, 0,
+                            m.getWidth(null), m.getHeight(null), null);
+                    g1.dispose();
+
                     if (showLegend) {
                         drawLegend(g, f);
                         g.drawImage(hud.getImage(timestampOf(f)), 10, tmp.getHeight() - 160, null);
@@ -492,8 +500,15 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
                                     break;
                                 try {
                                     Image m = loadImage(f, false);
-                                    g.drawImage(m, 0, 0, tmp.getWidth(), tmp.getHeight(), 0, 0, m.getWidth(null),
+
+                                    Graphics2D g1 = (Graphics2D) g.create();
+                                    if (rotateToPaintImage) {
+                                        g1 = rotateGraphics(g1, tmp.getWidth(), tmp.getHeight());
+                                    }
+                                    g1.drawImage(m, 0, 0, tmp.getWidth(), tmp.getHeight(), 0, 0, m.getWidth(null),
                                             m.getHeight(null), null);
+                                    g1.dispose();
+
                                     if (showLegend) {
                                         drawLegend(g, f);
                                         g.drawImage(hud.getImage(timestampOf(f)), 10, tmp.getHeight() - 160, null);
@@ -532,8 +547,15 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
     protected void paintComponent(Graphics g) {
         Image copy = imageToDisplay;
 
-        if (copy != null)
-            g.drawImage(copy, 0, 0, getWidth(), getHeight(), 0, 0, copy.getWidth(this), copy.getHeight(this), this);
+        if (copy != null) {
+            Graphics2D g1 = (Graphics2D) g.create();
+            if (rotateToPaintImage) {
+                g1 = rotateGraphics(g1, getWidth(), getHeight());
+            }
+            g1.drawImage(copy, 0, 0, getWidth(), getHeight(), 0, 0,
+                    copy.getWidth(this), copy.getHeight(this), this);
+            g1.dispose();
+        }
 
         int countMarkers = 0;
         for (int i = 0; i < markers.size(); i++) {
@@ -561,9 +583,25 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
                     RenderingHints.VALUE_INTERPOLATION_BILINEAR);
             int imgX = (int) ((zoomPoint.getX() / getWidth()) * imageToDisplay.getWidth(null));
             int imgY = (int) ((zoomPoint.getY() / getHeight()) * imageToDisplay.getHeight(null));
-            ((Graphics2D) g).drawImage(imageToDisplay, getWidth() - 210, getHeight() - 210, getWidth() - 10,
-                    getHeight() - 10, imgX - 25, imgY - 25, imgX + 25, imgY + 25, null);
+            Graphics2D g1 = (Graphics2D) g.create();
+            if (rotateToPaintImage) {
+                g1 = rotateGraphics(g1, getWidth(), getHeight());
+                g1.drawImage(imageToDisplay, 210, 210, 10, 10,
+                        getWidth() - (imgX - 25), getHeight() - (imgY - 25),
+                        getWidth() - (imgX + 25), getHeight() - (imgY + 25), null);
+            } else {
+                g1.drawImage(imageToDisplay, getWidth() - 210, getHeight() - 210, getWidth() - 10,
+                        getHeight() - 10, imgX - 25, imgY - 25, imgX + 25, imgY + 25, null);
+            }
+            g1.dispose();
         }
+    }
+
+    private Graphics2D rotateGraphics(Graphics2D g, int width, int height) {
+        g.translate(width / 2.0, height / 2.0);
+        g.rotate(Math.toRadians(180));
+        g.translate(-width / 2.0, -height / 2.0);
+        return g;
     }
 
     public double timestampOf(File f) {

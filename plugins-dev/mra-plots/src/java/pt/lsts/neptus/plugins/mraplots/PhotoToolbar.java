@@ -60,6 +60,8 @@ public class PhotoToolbar extends JPanel {
     protected JToggleButton grayToggle, sharpenToggle, wbalanceToggle,
     contrastToggle, brightToggle, legendToggle, histGrayFilter, histColorFilter;
 
+    protected JToggleButton rotateImageToggle;
+
     protected JButton nextButton, prevButton;
     protected File[] allFiles;
     protected double startTime, endTime;
@@ -195,10 +197,22 @@ public class PhotoToolbar extends JPanel {
                 display.setCurFile(display.getCurFile());
             }
         });
-        legendToggle.setSelected(true);
+        legendToggle.setSelected(display.rotateToPaintImage);
         legendToggle.setToolTipText(I18n.text("Show legend"));
         add(legendToggle);
-        
+
+        rotateImageToggle = new JToggleButton("R");
+        rotateImageToggle.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                display.rotateToPaintImage = rotateImageToggle.isSelected();
+                display.repaint();
+            }
+        });
+        rotateImageToggle.setSelected(false);
+        rotateImageToggle.setToolTipText(I18n.text("Rotate image"));
+        add(rotateImageToggle);
+
         //!Find OPENCV JNI
         hasOcv = SearchOpenCv.searchJni();
         
