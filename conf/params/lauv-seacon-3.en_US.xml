@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2020.01.0 (master,02be28ec3)" system="lauv-seacon-3" i18n="en_US">
+<config format="1" version="2020.01.0 (master,e9ad0a13b)" system="lauv-seacon-3" i18n="en_US">
   <section name="Motor Controller" name-i18n="Motor Controller">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -6566,6 +6566,15 @@
       <desc>Shutter Value time in ms.</desc>
       <min>1</min>
       <max>300</max>
+    </param>
+    <param name="No Disk Statistics">
+      <name-i18n>No Disk Statistics</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Set dispatch of Disk Statistics use.</desc>
     </param>
   </section>
   <section name="Power Supervisor" name-i18n="Power Supervisor">
