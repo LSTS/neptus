@@ -587,8 +587,8 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
             if (rotateToPaintImage) {
                 g1 = rotateGraphics(g1, getWidth(), getHeight());
                 g1.drawImage(imageToDisplay, 210, 210, 10, 10,
-                        getWidth() - (imgX - 25), getHeight() - (imgY - 25),
-                        getWidth() - (imgX + 25), getHeight() - (imgY + 25), null);
+                        getWidth() - (imgX - 25), getHeight() - (imgY - 25 + 25),
+                        getWidth() - (imgX + 25), getHeight() - (imgY + 25 + 25), null);
             } else {
                 g1.drawImage(imageToDisplay, getWidth() - 210, getHeight() - 210, getWidth() - 10,
                         getHeight() - 10, imgX - 25, imgY - 25, imgX + 25, imgY + 25, null);
