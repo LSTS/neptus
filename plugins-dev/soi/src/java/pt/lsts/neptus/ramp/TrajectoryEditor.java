@@ -39,10 +39,13 @@ import com.eclipsesource.json.JsonValue;
 import com.google.gson.Gson;
 import com.l2fprod.common.propertysheet.PropertySheetPanel;
 import net.miginfocom.swing.MigLayout;
+import pt.lsts.imc.EntityParameter;
 import pt.lsts.imc.Goto;
 import pt.lsts.imc.PlanManeuver;
 import pt.lsts.imc.PlanSpecification;
 import pt.lsts.imc.PlanTransition;
+import pt.lsts.imc.SetEntityParameters;
+import pt.lsts.imc.StationKeeping;
 import pt.lsts.imc.def.SpeedUnits;
 import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.NeptusLog;
@@ -325,31 +328,62 @@ public class TrajectoryEditor extends InteractionAdapter implements Renderer2DPa
 
             int wp_index = 0;
             for(Waypoint wp : traj.waypoints) {
-                Goto go = new Goto();
-                go.setLat(Math.toRadians(wp.getLatitude()));
-                go.setLon(Math.toRadians(wp.getLongitude()));
-                go.setSpeedUnits(SpeedUnits.METERS_PS);
-                go.setSpeed(speed);
-                if(depth >= 0.0)
-                    go.setZUnits(ZUnits.DEPTH);
-                else
-                    go.setZUnits(ZUnits.ALTITUDE);
-                go.setZ(Math.abs(depth));
                 PlanManeuver pm = new PlanManeuver();
+
+                // Sample parameters
+                SetEntityParameters setParams = new SetEntityParameters();
+                setParams.setName("Sampler");
+                EntityParameter p1 = new EntityParameter();
+                p1.setName("Type of Sample");
 
                 // Dirty sample
                 if(!traj.id.equals("0") && wp_index == traj.waypoints.size() -1 ) {
-                    pm.setManeuverId("wp_dirtySample_" + data.size());
+                    StationKeeping sk = new StationKeeping();
+                    sk.setLat(Math.toRadians(wp.getLatitude()));
+                    sk.setLon(Math.toRadians(wp.getLongitude()));
+                    sk.setZ(depth);
+                    sk.setZUnits(ZUnits.DEPTH);
+                    sk.setDuration(600);
+                    sk.setSpeed(speed);
+
+                    pm.setManeuverId("sk_dirtySample_" + data.size());
+                    p1.setValue("Dirty");
+                    pm.setData(sk);
                 }
                 // Clean sample
                 else if(cleanSampleIndex != 0 && wp_index == cleanSampleIndex) {
-                    pm.setManeuverId("wp_cleanSample_" + data.size());
+                    StationKeeping sk = new StationKeeping();
+                    sk.setLat(Math.toRadians(wp.getLatitude()));
+                    sk.setLon(Math.toRadians(wp.getLongitude()));
+                    sk.setZ(depth);
+                    sk.setZUnits(ZUnits.DEPTH);
+                    sk.setDuration(600);
+                    sk.setSpeed(speed);
+
+                    pm.setManeuverId("sk_cleanSample_" + data.size());
+                    p1.setValue("Clean");
+                    pm.setData(sk);
                 }
                 else {
+                    Goto go = new Goto();
+                    go.setLat(Math.toRadians(wp.getLatitude()));
+                    go.setLon(Math.toRadians(wp.getLongitude()));
+                    go.setSpeedUnits(SpeedUnits.METERS_PS);
+                    go.setSpeed(speed);
+                    if(depth >= 0.0)
+                        go.setZUnits(ZUnits.DEPTH);
+                    else
+                        go.setZUnits(ZUnits.ALTITUDE);
+                    go.setZ(Math.abs(depth));
+
                     pm.setManeuverId("wp_" + data.size());
+                    p1.setValue("None");
+                    pm.setData(go);
                 }
 
-                pm.setData(go);
+                setParams.setParams(Arrays.asList(p1));
+                pm.setStartActions(Arrays.asList(setParams));
+
                 if(!data.isEmpty()) {
                     PlanTransition pt = new PlanTransition();
                     pt.setConditions("ManeuverIsDone");
@@ -386,31 +420,62 @@ public class TrajectoryEditor extends InteractionAdapter implements Renderer2DPa
 
             int wp_index = 0;
             for(Waypoint wp : traj.waypoints) {
-                Goto go = new Goto();
-                go.setLat(Math.toRadians(wp.getLatitude()));
-                go.setLon(Math.toRadians(wp.getLongitude()));
-                go.setSpeedUnits(SpeedUnits.METERS_PS);
-                go.setSpeed(speed);
-                if(depth >= 0.0)
-                    go.setZUnits(ZUnits.DEPTH);
-                else
-                    go.setZUnits(ZUnits.ALTITUDE);
-                go.setZ(Math.abs(depth));
                 PlanManeuver pm = new PlanManeuver();
+
+                // Sample parameters
+                SetEntityParameters setParams = new SetEntityParameters();
+                setParams.setName("Sampler");
+                EntityParameter p1 = new EntityParameter();
+                p1.setName("Type of Sample");
 
                 // Dirty sample
                 if(!traj.id.equals("0") && wp_index == traj.waypoints.size() -1 ) {
-                    pm.setManeuverId("wp_dirtySample_" + data.size());
+                    StationKeeping sk = new StationKeeping();
+                    sk.setLat(Math.toRadians(wp.getLatitude()));
+                    sk.setLon(Math.toRadians(wp.getLongitude()));
+                    sk.setZ(depth);
+                    sk.setZUnits(ZUnits.DEPTH);
+                    sk.setDuration(600);
+                    sk.setSpeed(speed);
+
+                    pm.setManeuverId("sk_dirtySample_" + data.size());
+                    p1.setValue("Dirty");
+                    pm.setData(sk);
                 }
                 // Clean sample
                 else if(cleanSampleIndex != 0 && wp_index == cleanSampleIndex) {
-                    pm.setManeuverId("wp_cleanSample_" + data.size());
+                    StationKeeping sk = new StationKeeping();
+                    sk.setLat(Math.toRadians(wp.getLatitude()));
+                    sk.setLon(Math.toRadians(wp.getLongitude()));
+                    sk.setZ(depth);
+                    sk.setZUnits(ZUnits.DEPTH);
+                    sk.setDuration(600);
+                    sk.setSpeed(speed);
+
+                    pm.setManeuverId("sk_cleanSample_" + data.size());
+                    p1.setValue("Clean");
+                    pm.setData(sk);
                 }
                 else {
+                    Goto go = new Goto();
+                    go.setLat(Math.toRadians(wp.getLatitude()));
+                    go.setLon(Math.toRadians(wp.getLongitude()));
+                    go.setSpeedUnits(SpeedUnits.METERS_PS);
+                    go.setSpeed(speed);
+                    if(depth >= 0.0)
+                        go.setZUnits(ZUnits.DEPTH);
+                    else
+                        go.setZUnits(ZUnits.ALTITUDE);
+                    go.setZ(Math.abs(depth));
+
                     pm.setManeuverId("wp_" + data.size());
+                    p1.setValue("None");
+                    pm.setData(go);
                 }
 
-                pm.setData(go);
+                setParams.setParams(Arrays.asList(p1));
+                pm.setStartActions(Arrays.asList(setParams));
+
                 if(!data.isEmpty()) {
                     PlanTransition pt = new PlanTransition();
                     pt.setConditions("ManeuverIsDone");
@@ -499,11 +564,6 @@ public class TrajectoryEditor extends InteractionAdapter implements Renderer2DPa
         for(TrajectoryInfo t : trajectoriesInfo) {
             myList.add(String.valueOf(t.id));
         }
-        //myList.add("");
-        //myList.add("a");
-        //myList.add("b");
-        //myList.add("c");
-        //myList.add("d");
         String[] stringArray = myList.toArray(new String[0]);
 
         JComboBox<String> trajectoryList = new JComboBox<>(stringArray);
@@ -658,6 +718,5 @@ public class TrajectoryEditor extends InteractionAdapter implements Renderer2DPa
         }
 
     }
-
 
 }
