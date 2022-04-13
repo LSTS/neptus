@@ -36,6 +36,7 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.GradientPaint;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Polygon;
 import java.awt.geom.Ellipse2D;
 import java.io.InputStreamReader;
@@ -62,6 +63,7 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.ColorUtils;
+import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**
@@ -76,9 +78,14 @@ public class TrajectoryLayer extends ConsoleLayer {
     @NeptusProperty(name = "Pollution obstacles endpoint", description = "Endpoint to GET obstacles from Ripples")
     public String apiPollutionObstacles = "/pollution/obstacles";
 
+    @NeptusProperty(name="Pollution samples endpoint", description = "Endpoint to GET samples from Ripples")
+    public String apiPollutionSamples = "/pollution/sample";
+
     protected List<PollutionMarker> pollutionMarkers;
 
     protected List<Obstacle> pollutionObstacles;
+
+    protected List<Sample> pollutionSamples;
 
     public TrajectoryLayer(){
         init();
@@ -87,6 +94,7 @@ public class TrajectoryLayer extends ConsoleLayer {
     public void init(){
         pollutionMarkers = Collections.synchronizedList(new ArrayList<PollutionMarker>());
         pollutionObstacles = Collections.synchronizedList(new ArrayList<Obstacle>());
+        pollutionSamples = Collections.synchronizedList(new ArrayList<Sample>());
     }
 
     @Override
@@ -133,6 +141,20 @@ public class TrajectoryLayer extends ConsoleLayer {
         } catch (Exception e) {
             NeptusLog.pub().error(e);
         }
+
+        // Get Sample markers
+        try {
+            String serverRampApiUrl = GeneralPreferences.ripplesUrl + apiPollutionSamples;
+            Gson gson = new Gson();
+            URL url = new URL(serverRampApiUrl);
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            Sample[] sampleMarkers = gson.fromJson(new InputStreamReader(con.getInputStream()), Sample[].class);
+
+            pollutionSamples = Arrays.asList(sampleMarkers);
+        } catch (Exception e) {
+            NeptusLog.pub().error(e);
+        }
+
     }
 
     @Override
@@ -190,6 +212,18 @@ public class TrajectoryLayer extends ConsoleLayer {
                         }
                     }
                     o.paintPolygon(locations, o.description, displayLabel, g);
+                }
+                g.dispose();
+            }
+        }
+
+        if(!pollutionSamples.isEmpty() && displayLabel) {
+            synchronized(pollutionSamples) {
+                Graphics2D g = (Graphics2D) g0.create();
+                for (Sample s : pollutionSamples) {
+                    LocationType loc = new LocationType(s.latitude, s.longitude);
+                    Point2D pt2d = renderer.getScreenPosition(loc);
+                    s.paintIcon(pt2d, s.status, renderer.getZoom(), g);
                 }
                 g.dispose();
             }
@@ -280,5 +314,35 @@ public class TrajectoryLayer extends ConsoleLayer {
             }
         }
     }
-    
+
+    public static class Sample {
+        public long id;
+        public String status, timestamp;
+        public double latitude, longitude;
+
+        public Sample(long sampleId, String sta, String time, double lat, double lon) {
+            id = sampleId;
+            status = sta;
+            timestamp = time;
+            latitude = lat;
+            longitude = lon;
+        }
+
+        private void paintIcon(Point2D pt2d, String sampleType, float zoom, Graphics2D g) {
+            Image img = null;
+            String msg = "";
+            int size = (int) (zoom * 30);
+            if(sampleType.equals("CLEAN")) {
+                img = ImageUtils.getImage("images/droplet_clean.png");
+                msg = "Clean sample";
+            }
+            else {
+                img = ImageUtils.getImage("images/droplet_dirty.png");
+                msg = "Dirty sample";
+            }
+            g.drawImage(img, (int) (pt2d.getX() - (size/2)), (int) (pt2d.getY() - (size/2)), size, size,null);
+            g.setColor(Color.black);
+            g.drawString(msg, (int) pt2d.getX() + (size/4), (int) pt2d.getY() - (size/4));
+        }
+    }
 }
