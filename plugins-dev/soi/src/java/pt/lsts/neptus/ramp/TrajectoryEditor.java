@@ -569,7 +569,7 @@ public class TrajectoryEditor extends InteractionAdapter implements Renderer2DPa
         JComboBox<String> trajectoryList = new JComboBox<>(stringArray);
 
         // Add listener for main console trajectory change
-        getConsole().addMainVehicleListener(id -> trajectoryList.getModel().setSelectedItem(id));
+        getConsole().addPollutionTrajectoryListener(id -> trajectoryList.getModel().setSelectedItem(id));
         trajectoryList.addItemListener(e -> {
             if (e.getStateChange() != ItemEvent.SELECTED) {
                 return;

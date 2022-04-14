@@ -123,6 +123,7 @@ import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.console.plugins.MissionChangeListener;
 import pt.lsts.neptus.console.plugins.PlanChangeListener;
 import pt.lsts.neptus.console.plugins.PluginManager;
+import pt.lsts.neptus.console.plugins.PollutionTrajectoryListenner;
 import pt.lsts.neptus.console.plugins.SettingsWindow;
 import pt.lsts.neptus.console.plugins.SubPanelChangeEvent;
 import pt.lsts.neptus.console.plugins.SubPanelChangeEvent.SubPanelChangeAction;
@@ -224,6 +225,9 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     // Main Vehicle
     protected Vector<MainVehicleChangeListener> mainVehicleListeners = new Vector<>();
     protected Vector<ConsoleVehicleChangeListener> consoleVehicleChangeListeners = new Vector<>();
+
+    // Pollution Trajectory
+    protected Vector<PollutionTrajectoryListenner> pollutionTrajectoryListenners = new Vector<>();
 
     // -------------------------------- XML console
     public File fileName = null;
@@ -1415,6 +1419,11 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     public void addMainVehicleListener(MainVehicleChangeListener vcl) {
         if (!mainVehicleListeners.contains(vcl))
             mainVehicleListeners.add(vcl);
+    }
+
+    public void addPollutionTrajectoryListener(PollutionTrajectoryListenner traj) {
+        pollutionTrajectoryListenners.clear();
+        pollutionTrajectoryListenners.add(traj);
     }
 
     public void removeMainVehicleListener(MainVehicleChangeListener vcl) {
