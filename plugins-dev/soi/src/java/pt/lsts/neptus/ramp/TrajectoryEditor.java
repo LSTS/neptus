@@ -322,7 +322,9 @@ public class TrajectoryEditor extends InteractionAdapter implements Renderer2DPa
             PlanSpecification ps = new PlanSpecification();
             List<PlanManeuver> data = new ArrayList<PlanManeuver>();
             List<PlanTransition> transitions = new ArrayList<PlanTransition>();
-            ps.setPlanId("trajectory_" + index);
+
+            // Add marker visited to plan name
+            ps.setPlanId("trajectory_" + index + "-" + traj.id);
 
             int cleanSampleIndex = getCleanSampleIndex(traj);
 
@@ -413,9 +415,14 @@ public class TrajectoryEditor extends InteractionAdapter implements Renderer2DPa
         PlanSpecification ps = new PlanSpecification();
         List<PlanManeuver> data = new ArrayList<PlanManeuver>();
         List<PlanTransition> transitions = new ArrayList<PlanTransition>();
-        ps.setPlanId("trajectory_global");
+        String pollutionMarkerVisited = "";
 
         for(Trajectory traj : pollutionTrajectories) {
+
+            // Add marker visited to plan name
+            if(!traj.id.equals("0"))
+                pollutionMarkerVisited = traj.id;
+
             int cleanSampleIndex = getCleanSampleIndex(traj);
 
             int wp_index = 0;
@@ -490,6 +497,7 @@ public class TrajectoryEditor extends InteractionAdapter implements Renderer2DPa
             }
         }
 
+        ps.setPlanId("trajectory_global-" + pollutionMarkerVisited);
         ps.setManeuvers(data);
         ps.setTransitions(transitions);
 
