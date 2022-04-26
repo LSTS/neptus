@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2019.02.1 (master,65b8ee0a9)" system="manta-dmsmw-03" i18n="pt_PT">
+<config format="1" version="2020.01.0 (master,f1eb5c8a9)" system="manta-dmsmw-03" i18n="pt_PT">
   <section name="Text Message Parser" name-i18n="Processador de Mensagens de Texto">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -599,7 +599,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>N/C (HUB_3)</default>
+      <default>Iridium</default>
       <units/>
       <desc/>
     </param>
@@ -608,7 +608,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0</default>
+      <default>1</default>
       <units/>
       <desc/>
     </param>
@@ -1130,7 +1130,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>tcp://10.0.50.101:5000</default>
+      <default/>
       <units/>
       <desc>Serial port device used to communicate with the sensor</desc>
     </param>
@@ -1335,6 +1335,15 @@
       <default>10</default>
       <units/>
       <desc>Number of GPS samples to compute time offser</desc>
+    </param>
+    <param name="Entity Label - GPS">
+      <name-i18n>Entity Label - GPS</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>GPS</default>
+      <units/>
+      <desc>The entity label of the GPS</desc>
     </param>
     <param name="Execute On Synchronization">
       <name-i18n>Execute On Synchronization</name-i18n>
@@ -1543,7 +1552,7 @@
       <desc>List of messages ordered by loading order</desc>
     </param>
   </section>
-  <section name="Communications Manager" name-i18n="Communications Manager">
+  <section name="Communications Manager" name-i18n="Gestor de Comunicações">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
       <type>string</type>
@@ -1623,7 +1632,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Seatrac Addresses</default>
+      <default>Evologics Addresses</default>
       <units/>
       <desc>Name of the configuration section with acoustic modem addresses</desc>
     </param>
@@ -1941,6 +1950,257 @@
       <desc>List of messages to transport</desc>
     </param>
   </section>
+  <section name="Iridium Transport" name-i18n="Transporte Iridium">
+    <param name="Entity Label">
+      <name-i18n>Nome da Entidade</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Iridium Transport</default>
+      <units/>
+      <desc>Nome principal da entidade</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Prioridade de Execução</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Prioridade de execução</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Tempo de Ativação</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Tempo de Desativação</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Nível de Depuração</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Active - Scope">
+      <name-i18n>Ativa - Escopo</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>global</default>
+      <units/>
+      <desc>Escopo do parâmetro 'Ativa'</desc>
+    </param>
+    <param name="Active - Visibility">
+      <name-i18n>Ativa - Visibilidade</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>user</default>
+      <units/>
+      <desc>Visibilidade do parâmetro 'Ativa'</desc>
+    </param>
+    <param name="Active">
+      <name-i18n>Ativa</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc>Verdadeiro para ativar tarefa, falso caso contrário</desc>
+    </param>
+    <param name="Device updates - Periodicity">
+      <name-i18n>Device updates - Periodicity</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1200</default>
+      <units>s</units>
+      <desc>Delay between announce update messages. 0 for no updates being sent.</desc>
+    </param>
+    <param name="Announce Periodicity">
+      <name-i18n>Announce Periodicity</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units>s</units>
+      <desc>Delay between announce messages being sent. 0 for no updates being sent.</desc>
+    </param>
+    <param name="Maximum age">
+      <name-i18n>Maximum age</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1200</default>
+      <units>s</units>
+      <desc>Age, in seconds, after which received IMC messages are discarded.</desc>
+    </param>
+    <param name="Iridium Text Origin">
+      <name-i18n>Iridium Text Origin</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>iridium</default>
+      <units/>
+      <desc>Text messages received via Iridium will be tagged with this origin</desc>
+    </param>
+  </section>
+  <section name="Iridium Modem" name-i18n="Modem Iridium">
+    <param name="Entity Label">
+      <name-i18n>Nome da Entidade</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Iridium Modem</default>
+      <units/>
+      <desc>Nome principal da entidade</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Prioridade de Execução</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Prioridade de execução</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Tempo de Ativação</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Tempo de Desativação</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Nível de Depuração</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Active - Scope">
+      <name-i18n>Ativa - Escopo</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>global</default>
+      <units/>
+      <desc>Escopo do parâmetro 'Ativa'</desc>
+    </param>
+    <param name="Active - Visibility">
+      <name-i18n>Ativa - Visibilidade</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>user</default>
+      <units/>
+      <desc>Visibilidade do parâmetro 'Ativa'</desc>
+    </param>
+    <param name="Active">
+      <name-i18n>Ativa</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc>Verdadeiro para ativar tarefa, falso caso contrário</desc>
+    </param>
+    <param name="Serial Port - Device">
+      <name-i18n>Serial Port - Device</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>/dev/ttyUSB0</default>
+      <units/>
+      <desc>Serial port device used to communicate with the modem</desc>
+    </param>
+    <param name="Serial Port - Baud Rate">
+      <name-i18n>Serial Port - Baud Rate</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>19200</default>
+      <units/>
+      <desc>Serial port baud rate</desc>
+    </param>
+    <param name="Mailbox Check - Periodicity">
+      <name-i18n>Mailbox Check - Periodicity</name-i18n>
+      <type>real</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>1800</default>
+      <units>s</units>
+      <desc>Amount of time without alert rings or MT SBDs before doing a mailbox check</desc>
+    </param>
+    <param name="Maximum Transmission Rate">
+      <name-i18n>Maximum Transmission Rate</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units>s</units>
+      <desc/>
+    </param>
+    <param name="Flush Iridium Queue">
+      <name-i18n>Flush Iridium Queue</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Use 9523N Module">
+      <name-i18n>Use 9523N Module</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Serial Port 9523 - Baud Rate">
+      <name-i18n>Serial Port 9523 - Baud Rate</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>115200</default>
+      <units/>
+      <desc>Serial port baud rate for 9523N Module</desc>
+    </param>
+  </section>
   <section name="Log Book" name-i18n="Diário de Bordo">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -2070,7 +2330,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>/dev/ttyUSB0</default>
+      <default>/dev/ttyUSB1</default>
       <units/>
       <desc>Serial port device</desc>
     </param>
@@ -2183,7 +2443,7 @@
       <desc>URL used to update dynamic DNS</desc>
     </param>
   </section>
-  <section name="Back Seat TCP Server" name-i18n="Back Seat TCP Server">
+  <section name="Back Seat TCP Server" name-i18n="Servidor TCP de Back Seat">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
       <type>string</type>
@@ -2295,7 +2555,7 @@
       <desc>Set to true to announce the service</desc>
     </param>
   </section>
-  <section name="TCP On Demand" name-i18n="TCP On Demand">
+  <section name="TCP On Demand" name-i18n="TCP por Demanda">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
       <type>string</type>
@@ -2747,7 +3007,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Micromodem Addresses, Narrow Band Transponders</default>
+      <default>Micromodem Addresses - DMSMW</default>
       <units/>
       <desc>List of table names</desc>
     </param>
@@ -2756,7 +3016,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>lauv-seacon-1, lauv-seacon-2, lauv-seacon-3, benthos1, benthos2, benthos3, benthos4, benthos5, benthos6</default>
+      <default/>
       <units/>
       <desc>Array of supported system names</desc>
     </param>
@@ -2768,6 +3028,15 @@
       <default>broadcast</default>
       <units/>
       <desc>List of excluded systems</desc>
+    </param>
+    <param name="Reply to System Queries">
+      <name-i18n>Reply to System Queries</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc/>
     </param>
   </section>
 </config>

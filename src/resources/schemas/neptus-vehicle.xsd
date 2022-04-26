@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright (c) 2004-2022 Universidade do Porto - Faculdade de Engenharia
+Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
+All rights reserved.
+Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
+
+This file is part of Neptus, Command and Control Framework.
+
+Commercial Licence Usage
+Licencees holding valid commercial Neptus licences may use this file
+in accordance with the commercial licence agreement provided with the
+Software or, alternatively, in accordance with the terms contained in a
+written agreement between you and Universidade do Porto. For licensing 
+terms, conditions, and further information contact lsts@fe.up.pt.
+
+European Union Public Licence - EUPL v.1.1 Usage
+Alternatively, this file may be used under the terms of the EUPL,
+Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
+included in the packaging of this file. You may not use this  work
+except in compliance with the Licence. Unless required by  applicable
+law or agreed to in writing, software distributed under the Licence  is
+distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
+ANY KIND, either express or implied. See the Licence for the specific
+language governing permissions and limitations at
+https://www.lsts.pt/neptus/licence.
+
+For more information please see <http://lsts.fe.up.pt/neptus>.
+
+Author: Paulo Dias, José Pinto
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:annotation>
+		<xs:documentation>v1.1</xs:documentation>
+	</xs:annotation>
+	<xs:include schemaLocation="neptus-maneuvers.xsd"/>
+	<xs:include schemaLocation="neptus-types.xsd"/>
+	<xs:element name="system">
+		<xs:annotation>
+			<xs:documentation>Root element representing a vehicle</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:group ref="systemDefsGroup"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="vehicle">
+		<xs:annotation>
+			<xs:documentation>Root element representing a vehicle (being substituted by system)</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:group ref="systemDefsGroup"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="ProtocolsArgsType">
+		<xs:sequence>
+			<xs:element name="ftp" minOccurs="0">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="transfer">
+							<xs:complexType>
+								<xs:attribute name="mode"
+									use="required">
+									<xs:simpleType>
+										<xs:restriction
+											base="xs:string">
+											<xs:enumeration
+												value="binary" />
+											<xs:enumeration
+												value="ascii" />
+										</xs:restriction>
+									</xs:simpleType>
+								</xs:attribute>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="connection">
+							<xs:complexType>
+								<xs:attribute name="username"
+									use="prohibited">
+									<xs:simpleType>
+										<xs:restriction
+											base="xs:string" />
+									</xs:simpleType>
+								</xs:attribute>
+								<xs:attribute name="password"
+									use="prohibited">
+									<xs:simpleType>
+										<xs:restriction
+											base="xs:string" />
+									</xs:simpleType>
+								</xs:attribute>
+								<xs:attribute name="mode"
+									use="required">
+									<xs:simpleType>
+										<xs:restriction
+											base="xs:string">
+											<xs:enumeration
+												value="pasv" />
+											<xs:enumeration
+												value="active" />
+										</xs:restriction>
+									</xs:simpleType>
+								</xs:attribute>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="imc" minOccurs="0">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="port" type="xs:int"
+							default="6002" />
+						<xs:element name="port-tcp" type="xs:int"
+							default="6002" minOccurs="0" />
+						<xs:element name="udp-on" type="xs:boolean"
+							default="true" minOccurs="0" />
+						<xs:element name="tcp-on" type="xs:boolean"
+							default="false" minOccurs="0" />
+						<xs:element name="imc-id" type="imc-id-type"
+							minOccurs="0" />
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="stanag4586" minOccurs="0">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="udp-on" type="xs:boolean"
+							default="true" minOccurs="0" />
+						<xs:element name="vehicle-id">
+							<xs:simpleType>
+								<xs:restriction base="xs:string">
+									<xs:minLength value="7" />
+									<xs:maxLength value="27" />
+									<xs:whiteSpace value="collapse" />
+									<xs:pattern
+										value="(\d){1,3}.(\d){1,3}.(\d){1,3}.(\d){1,3}" />
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="gsm" type="gsmType" maxOccurs="1"
+				minOccurs="0">
+			</xs:element>
+			<xs:element name="iridium" type="iridiumType" maxOccurs="1" minOccurs="0"></xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:simpleType name="imc-id-type">
+		<xs:restriction base="xs:string">
+			<xs:whiteSpace value="collapse"/>
+			<xs:length value="5"/>
+			<xs:pattern value="([0-9]|[A-F]|[a-f]){2}:([0-9]|[A-F]|[a-f]){2}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:group name="systemDefsGroup">
+		<xs:sequence>
+			<xs:element name="properties">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="id" type="xs:ID"/>
+						<xs:element name="name" type="xs:string"/>
+						<xs:element name="type">
+							<xs:simpleType>
+								<xs:restriction base="xs:string">
+									<xs:enumeration value="ROV"/>
+									<xs:enumeration value="AUV"/>
+									<xs:enumeration value="UAV"/>
+									<xs:enumeration value="AGV"/>
+									<xs:enumeration value="ASV"/>
+									<xs:enumeration value="UUV"/>
+									<xs:enumeration value="USV"/>
+									<xs:enumeration value="UAV"/>
+									<xs:enumeration value="UGV"/>
+									<xs:enumeration value="CCU"/>
+									<xs:enumeration value="HUMANSENSOR"/>
+									<xs:enumeration value="STATICSENSOR"/>
+									<xs:enumeration value="MOBILESENSOR"/>
+									<xs:enumeration value="WSN"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+						<xs:element name="model" minOccurs="0">
+							<xs:simpleType>
+								<xs:restriction base="xs:string"/>
+							</xs:simpleType>
+						</xs:element>
+						<xs:element name="appearance">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="x-size" type="xs:float"/>
+									<xs:element name="y-size" type="xs:float"/>
+									<xs:element name="z-size" type="xs:float"/>
+									<xs:element name="top-image-2D" type="xs:anyURI"/>
+									<xs:element name="side-image-2D" type="xs:anyURI"/>
+									<xs:element name="back-image-2D" type="xs:anyURI" minOccurs="0"/>
+									<xs:element name="presentation-image-2D" type="xs:anyURI" minOccurs="0"/>
+									<xs:element name="model-3D"/>
+									<xs:element name="icon-color" type="colorRGB" minOccurs="0"/>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+						<xs:choice>
+							<xs:element name="coordinate-system-label" type="xs:string"/>
+							<xs:element name="coordinate-system-def" type="coordinateSystem"/>
+						</xs:choice>
+						<xs:element name="operational-active" type="xs:boolean" default="true" minOccurs="0"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="feasibleManeuvers" minOccurs="0">
+				<xs:complexType>
+					<xs:sequence maxOccurs="unbounded">
+						<xs:element name="maneuver" type="ManeuverType"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="sensors" minOccurs="0">
+				<xs:complexType>
+					<xs:sequence maxOccurs="unbounded">
+						<xs:element name="sensor">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="name" type="xs:string"/>
+									<xs:element name="type" type="xs:token"/>
+									<xs:element name="latancy">
+										<xs:complexType>
+											<xs:simpleContent>
+												<xs:extension base="xs:float">
+													<xs:attribute name="unit" type="xs:token" use="optional"/>
+												</xs:extension>
+											</xs:simpleContent>
+										</xs:complexType>
+									</xs:element>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="protocols-supported" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>New WIP</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="protocols" type="xs:NMTOKENS"/>
+						<xs:element name="protocols-args" type="ProtocolsArgsType" minOccurs="0"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="communication-means" minOccurs="0">
+				<xs:complexType>
+					<xs:sequence maxOccurs="unbounded">
+						<xs:element name="comm-mean">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="name" type="xs:string"/>
+									<xs:element name="type">
+										<xs:simpleType>
+											<xs:restriction base="xs:token">
+												<xs:enumeration value="ethernet"/>
+												<xs:enumeration value="wireless"/>
+												<xs:enumeration value="radio"/>
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="host-address" type="xs:string"/>
+									<xs:element name="protocols" type="xs:NMTOKENS"/>
+									<xs:element name="latency">
+										<xs:complexType>
+											<xs:simpleContent>
+												<xs:extension base="xs:string">
+													<xs:attribute name="value" use="required">
+														<xs:simpleType>
+															<xs:restriction base="xs:string">
+																<xs:pattern value="\d*\d([.]\d*)?[PGMkmunpf]?"/>
+															</xs:restriction>
+														</xs:simpleType>
+													</xs:attribute>
+													<xs:attribute name="unit" type="xs:string" use="optional" default="bps"/>
+												</xs:extension>
+											</xs:simpleContent>
+										</xs:complexType>
+									</xs:element>
+									<xs:element name="protocols-args" type="ProtocolsArgsType" minOccurs="0"/>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="transformation-xslt-templates" minOccurs="0">
+				<xs:complexType>
+					<xs:sequence maxOccurs="unbounded">
+						<xs:element name="file">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="id" type="xs:ID"/>
+									<xs:element name="name" type="xs:string"/>
+									<xs:element name="type" minOccurs="0"/>
+									<xs:element name="href" type="xs:anyURI"/>
+									<xs:element name="description" minOccurs="0"/>
+									<xs:element name="parameters-to-pass" minOccurs="0">
+										<xs:complexType>
+											<xs:sequence>
+												<xs:element name="param" minOccurs="0" maxOccurs="unbounded">
+													<xs:complexType>
+														<xs:sequence>
+															<xs:element name="name" type="xs:string"/>
+															<xs:element name="value" type="xs:string"/>
+														</xs:sequence>
+													</xs:complexType>
+												</xs:element>
+											</xs:sequence>
+										</xs:complexType>
+									</xs:element>
+									<xs:element name="output-file-name" type="xs:string"/>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="configuration-files" minOccurs="0">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="maneuver-additional" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation>This file is an XML file with the maneuvers on the feasibleManeuvers with the additional parametres fot the maneuvers.</xs:documentation>
+							</xs:annotation>
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="file">
+										<xs:complexType>
+											<xs:sequence>
+												<xs:element name="id" type="xs:ID"/>
+												<xs:element name="name" type="xs:string"/>
+												<xs:element name="type" fixed="xml">
+													<xs:simpleType>
+														<xs:restriction base="xs:token">
+															<xs:enumeration value="xml"/>
+														</xs:restriction>
+													</xs:simpleType>
+												</xs:element>
+												<xs:element name="href" type="xs:anyURI"/>
+												<xs:element name="description" minOccurs="0"/>
+											</xs:sequence>
+										</xs:complexType>
+									</xs:element>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="misc" minOccurs="0">
+							<xs:complexType>
+								<xs:sequence maxOccurs="unbounded">
+									<xs:element name="file" type="fileType"/>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="consoles" minOccurs="0">
+				<xs:complexType>
+					<xs:sequence maxOccurs="unbounded">
+						<xs:element name="console">
+							<xs:complexType>
+								<xs:choice>
+									<xs:element name="classname" type="xs:anyURI"/>
+									<xs:element name="xml-file" type="xs:anyURI"/>
+								</xs:choice>
+								<xs:attribute name="name" type="xs:string" use="required"/>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:group>
+
+	<xs:complexType name="gsmType">
+		<xs:sequence>
+			<xs:element name="number" type="xs:string"></xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="iridiumType">
+		<xs:sequence>
+			<xs:element name="imei" type="xs:string"></xs:element>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

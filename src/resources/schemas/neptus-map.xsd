@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright (c) 2004-2022 Universidade do Porto - Faculdade de Engenharia
+Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
+All rights reserved.
+Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
+
+This file is part of Neptus, Command and Control Framework.
+
+Commercial Licence Usage
+Licencees holding valid commercial Neptus licences may use this file
+in accordance with the commercial licence agreement provided with the
+Software or, alternatively, in accordance with the terms contained in a
+written agreement between you and Universidade do Porto. For licensing 
+terms, conditions, and further information contact lsts@fe.up.pt.
+
+European Union Public Licence - EUPL v.1.1 Usage
+Alternatively, this file may be used under the terms of the EUPL,
+Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
+included in the packaging of this file. You may not use this  work
+except in compliance with the Licence. Unless required by  applicable
+law or agreed to in writing, software distributed under the Licence  is
+distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
+ANY KIND, either express or implied. See the Licence for the specific
+language governing permissions and limitations at
+https://www.lsts.pt/neptus/licence.
+
+For more information please see <http://lsts.fe.up.pt/neptus>.
+
+Author: Paulo Dias, José Pinto
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:annotation>
+		<xs:documentation>v0.5</xs:documentation>
+	</xs:annotation>
+	<xs:include schemaLocation="neptus-types.xsd"/>
+	<xs:element name="map">
+		<xs:annotation>
+			<xs:documentation>The Root element map will represent the geographical map of one region.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="header" type="headerType"/>
+				<xs:element name="boundaries" minOccurs="0">
+					<xs:complexType>
+						<xs:sequence/>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="features">
+					<xs:complexType>
+						<xs:choice maxOccurs="unbounded">
+							<xs:element name="mark">
+								<xs:complexType>
+									<xs:complexContent>
+										<xs:extension base="markCoordinateType">
+											<xs:sequence>
+												<xs:element name="transparency" type="xs:double" minOccurs="0"/>
+											</xs:sequence>
+										</xs:extension>
+									</xs:complexContent>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="transponder">
+								<xs:complexType>
+									<xs:complexContent>
+										<xs:extension base="abstractElement">
+											<xs:sequence>
+												<xs:element name="file" type="fileType" minOccurs="0"/>
+												<xs:element name="buoy-attached" type="xs:boolean" default="true" minOccurs="0"/>
+											</xs:sequence>
+										</xs:extension>
+									</xs:complexContent>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="geometry">
+								<xs:complexType>
+									<xs:complexContent>
+										<xs:extension base="abstractElement">
+											<xs:sequence>
+												<xs:element name="type">
+													<xs:simpleType>
+														<xs:restriction base="xs:string">
+															<xs:enumeration value="Parallel Piped"/>
+															<xs:enumeration value="Ellipsoid"/>
+															<xs:enumeration value="Cylinder"/>
+															<xs:enumeration value="Parallelepiped"/>
+														</xs:restriction>
+													</xs:simpleType>
+												</xs:element>
+												<xs:element name="dimensions">
+													<xs:complexType>
+														<xs:sequence>
+															<xs:element name="x-dim" type="xs:float"/>
+															<xs:element name="y-dim" type="xs:float"/>
+															<xs:element name="z-dim" type="xs:float"/>
+														</xs:sequence>
+													</xs:complexType>
+												</xs:element>
+												<xs:element name="color" type="colorRGB" minOccurs="0"/>
+												<xs:element name="texture" type="xs:string" minOccurs="0"/>
+											</xs:sequence>
+										</xs:extension>
+									</xs:complexContent>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="path">
+								<xs:complexType>
+									<xs:complexContent>
+										<xs:extension base="abstractElement">
+											<xs:sequence>
+												<xs:element name="filled" type="xs:boolean" default="false" minOccurs="0"/>
+												<xs:element name="color" type="colorRGB" minOccurs="0">
+													<xs:annotation>
+														<xs:documentation>Ver melhor como a color esta colocada no schema.</xs:documentation>
+													</xs:annotation>
+												</xs:element>
+												<xs:sequence maxOccurs="unbounded">
+													<xs:element name="translation">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="n" type="xs:double"/>
+																<xs:element name="e" type="xs:double"/>
+																<xs:element name="d" type="xs:double"/>
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:sequence>
+										</xs:extension>
+									</xs:complexContent>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="image">
+								<xs:complexType>
+									<xs:complexContent>
+										<xs:extension base="abstractElement">
+											<xs:sequence>
+												<xs:element name="href" type="xs:anyURI"/>
+												<xs:element name="scale" type="xs:double" default="1" minOccurs="0">
+													<xs:annotation>
+														<xs:documentation>meters per pixel</xs:documentation>
+													</xs:annotation>
+												</xs:element>
+												<xs:sequence minOccurs="0">
+													<xs:annotation>
+														<xs:documentation>If these parameters exist, then is is a batimetric image.</xs:documentation>
+													</xs:annotation>
+													<xs:element name="max-height" type="xs:float"/>
+													<xs:element name="max-depth" type="xs:float"/>
+													<xs:element name="resolution" type="xs:int" default="100" minOccurs="0"/>
+													<xs:element name="href-altitude" minOccurs="0"/>
+												</xs:sequence>
+											</xs:sequence>
+										</xs:extension>
+									</xs:complexContent>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="sensor">
+								<xs:complexType>
+									<xs:complexContent>
+										<xs:extension base="abstractElement">
+											<xs:sequence>
+												<xs:element name="color" type="colorRGB" minOccurs="0"/>
+											</xs:sequence>
+										</xs:extension>
+									</xs:complexContent>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="model3d">
+								<xs:complexType>
+									<xs:complexContent>
+										<xs:extension base="abstractElement">
+											<xs:sequence>
+												<xs:element name="href" type="xs:anyURI"/>
+												<xs:element name="scale" type="xs:double" default="1" minOccurs="0">
+													<xs:annotation>
+														<xs:documentation>meters per pixel</xs:documentation>
+													</xs:annotation>
+												</xs:element>
+												<xs:sequence minOccurs="0">
+													<xs:annotation>
+														<xs:documentation>If these parameters exist, then there is a 2d image representation.</xs:documentation>
+													</xs:annotation>
+													<xs:element name="href-2d" minOccurs="0"/>
+													<xs:element name="scale-2d" type="xs:double" default="1" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>meters per pixel</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="fixed-size" type="xs:boolean" default="false" minOccurs="0"/>
+												</xs:sequence>
+											</xs:sequence>
+										</xs:extension>
+									</xs:complexContent>
+								</xs:complexType>
+							</xs:element>
+						</xs:choice>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="markCoordinateType">
+		<xs:sequence>
+			<xs:element name="id">
+				<xs:simpleType>
+					<xs:restriction base="xs:ID">
+						<xs:pattern value="\i\c*"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="name" type="xs:string"/>
+			<xs:element name="coordinate" type="generalPointType"/>
+			<xs:element name="attitude" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Euler angles</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="phi" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation>in degrees (º)</xs:documentation>
+							</xs:annotation>
+							<xs:complexType>
+								<xs:simpleContent>
+									<xs:extension base="xs:float"/>
+								</xs:simpleContent>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="theta" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation>in degrees (º)</xs:documentation>
+							</xs:annotation>
+							<xs:complexType>
+								<xs:simpleContent>
+									<xs:extension base="xs:float"/>
+								</xs:simpleContent>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="psi" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation>in degrees (º)</xs:documentation>
+							</xs:annotation>
+							<xs:complexType>
+								<xs:simpleContent>
+									<xs:extension base="xs:float"/>
+								</xs:simpleContent>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="headerType">
+		<xs:sequence>
+			<xs:element name="id" type="xs:ID"/>
+			<xs:element name="name" type="xs:string"/>
+			<xs:element name="type" type="xs:string" minOccurs="0"/>
+			<xs:element name="description" minOccurs="0"/>
+			<xs:element name="notes" minOccurs="0">
+				<xs:complexType>
+					<xs:sequence maxOccurs="unbounded">
+						<xs:element name="note" type="xs:string"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="abstractElement">
+		<xs:complexContent>
+			<xs:extension base="markCoordinateType">
+				<xs:sequence>
+					<xs:element name="transparency" type="xs:double" minOccurs="0"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+</xs:schema>

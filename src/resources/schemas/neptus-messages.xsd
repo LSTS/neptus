@@ -1,0 +1,485 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+Copyright (c) 2004-2022 Universidade do Porto - Faculdade de Engenharia
+Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
+All rights reserved.
+Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
+
+This file is part of Neptus, Command and Control Framework.
+
+Commercial Licence Usage
+Licencees holding valid commercial Neptus licences may use this file
+in accordance with the commercial licence agreement provided with the
+Software or, alternatively, in accordance with the terms contained in a
+written agreement between you and Universidade do Porto. For licensing 
+terms, conditions, and further information contact lsts@fe.up.pt.
+
+European Union Public Licence - EUPL v.1.1 Usage
+Alternatively, this file may be used under the terms of the EUPL,
+Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
+included in the packaging of this file. You may not use this  work
+except in compliance with the Licence. Unless required by  applicable
+law or agreed to in writing, software distributed under the Licence  is
+distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
+ANY KIND, either express or implied. See the Licence for the specific
+language governing permissions and limitations at
+https://www.lsts.pt/neptus/licence.
+
+For more information please see <http://lsts.fe.up.pt/neptus>.
+
+Author: Paulo Dias, José Pinto
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+	<xs:annotation>
+    <xs:documentation>This is the schema to validate v3 of the embeded message protocol</xs:documentation>
+	</xs:annotation>
+	<xs:element name="messages">
+		<xs:annotation>
+      <xs:documentation>Root element for the definition of new embeded message protocol</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="description" type="documentationType" minOccurs="0"/>
+        <xs:element name="types" type="typesType">
+					<xs:annotation>
+            <xs:documentation>Just an indicative list of the types to be used. It's usefull for documentation purposes.</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+        <xs:element name="serialization" type="serializationType" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>Is only for documenting how to serialize the types above.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="units" type="unitsType" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>Documentation of the units to be used in 'unit' attribute of a message.</xs:documentation>
+          </xs:annotation>
+          <xs:unique name="uniqueUnitAbbrev">
+            <xs:selector xpath="unit"/>
+            <xs:field xpath="@abbrev"/>
+          </xs:unique>
+        </xs:element>
+        <xs:element name="enumerations" minOccurs="0">
+					<xs:complexType>
+						<xs:sequence>
+              <xs:element name="def" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:sequence>
+							<xs:element name="description" type="documentationType" minOccurs="0"/>
+                    <xs:element name="enum" type="enumBitmaskType" maxOccurs="unbounded"/>
+                  </xs:sequence>
+                  <xs:attribute name="name" type="xs:string" use="required"/>
+                  <xs:attribute name="abbrev" type="xs:string" use="required"/>
+                  <xs:attribute name="prefix" type="xs:ID" use="required"/>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+          <xs:unique name="uniqueDefEnumAbbrev">
+            <xs:selector xpath="def"/>
+            <xs:field xpath="@prefix"/>
+          </xs:unique>
+        </xs:element>
+        <xs:element name="bitmasks" minOccurs="0">
+								<xs:complexType>
+									<xs:sequence>
+              <xs:element name="def" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:sequence>
+										<xs:element name="description" type="documentationType" minOccurs="0"/>
+                    <xs:element name="bitmask" type="enumBitmaskType" maxOccurs="unbounded"/>
+									</xs:sequence>
+									<xs:attribute name="name" type="xs:string" use="required"/>
+                  <xs:attribute name="abbrev" type="xs:string" use="required"/>
+                  <xs:attribute name="prefix" type="xs:ID" use="required"/>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+          <xs:unique name="uniqueDefBitMaskAbbrev">
+            <xs:selector xpath="def"/>
+            <xs:field xpath="@prefix"/>
+          </xs:unique>
+				</xs:element>
+        <xs:element name="formats" type="formatsType" minOccurs="0" maxOccurs="0">
+          <xs:annotation>
+            <xs:documentation>??</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="flags" type="flagsType" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>Indications of the possible flags to be used in 'flag' attribute on a message. This might be useful to classify a particular message. The meaning and it's implementation is out of this scope.</xs:documentation>
+          </xs:annotation>
+          <xs:unique name="keyFlagAbbrev">
+            <xs:selector xpath="flag"/>
+            <xs:field xpath="@abbrev"/>
+          </xs:unique>
+        </xs:element>
+        <xs:element name="header" type="headerType">
+          <xs:annotation>
+            <xs:documentation>The packet header contains handling information in the form of supplemental fields, it is always placed at the beginning of a packet.</xs:documentation>
+          </xs:annotation>
+          <xs:unique name="uniqueHeaderFieldAbbrev">
+            <xs:selector xpath="field"/>
+            <xs:field xpath="@abbrev"/>
+          </xs:unique>
+        </xs:element>
+        <xs:element name="footer" type="headerType" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>The packet footer contains validation information in the form of supplemental fields, it is always placed at the end of a packet.</xs:documentation>
+          </xs:annotation>
+          <xs:unique name="uniqueFooterFieldAbbrev">
+            <xs:selector xpath="field"/>
+            <xs:field xpath="@abbrev"/>
+          </xs:unique>
+        </xs:element>
+        <xs:element name="payload-header" type="headerType" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>This is a placehold for helping to define fields that apear allways in the begining of the message payload.</xs:documentation>
+          </xs:annotation>
+          <xs:unique name="uniquePayloadHeaderFieldAbbrev">
+            <xs:selector xpath="field"/>
+            <xs:field xpath="@abbrev"/>
+          </xs:unique>
+        </xs:element>
+				<xs:element name="groups" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>It's a facility to group messages. The grouping is made using windows of 'id' values.</xs:documentation>
+          </xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+              <xs:element name="description" type="documentationType" minOccurs="0"/>
+							<xs:element name="group" maxOccurs="unbounded">
+								<xs:complexType>
+                  <xs:sequence minOccurs="0">
+                    <xs:element name="description" type="documentationType" minOccurs="0"/>
+                  </xs:sequence>
+									<xs:attribute name="name" type="xs:string" use="required"/>
+									<xs:attribute name="abbrev" type="xs:string" use="required"/>
+									<xs:attribute name="min" type="xs:long" use="required"/>
+									<xs:attribute name="max" type="xs:long" use="required"/>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+          <xs:unique name="keyGroupAbbrev">
+            <xs:selector xpath="group"/>
+            <xs:field xpath="@abbrev"/>
+          </xs:unique>
+				</xs:element>
+        <xs:element name="message" type="messageType" maxOccurs="unbounded">
+          <xs:unique name="uniqueMessageFieldAbbrev">
+            <xs:selector xpath="field"/>
+            <xs:field xpath="@abbrev"/>
+          </xs:unique>
+        </xs:element>
+			</xs:sequence>
+      <xs:attribute name="name" use="required">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:minLength value="2"/>
+            <xs:maxLength value="20"/>
+            <xs:whiteSpace value="collapse"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+      <xs:attribute name="long-name" use="required">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:minLength value="2"/>
+            <xs:whiteSpace value="collapse"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+			<xs:attribute name="creation" use="required">
+				<xs:simpleType>
+					<xs:restriction base="xs:string"/>
+				</xs:simpleType>
+			</xs:attribute>
+			<xs:attribute name="author" use="required">
+				<xs:simpleType>
+					<xs:restriction base="xs:string"/>
+				</xs:simpleType>
+			</xs:attribute>
+			<xs:attribute name="version" use="required">
+				<xs:simpleType>
+					<xs:restriction base="xs:string"/>
+				</xs:simpleType>
+			</xs:attribute>
+			<xs:attributeGroup ref="byteOrderAttribute"/>
+		</xs:complexType>
+    <xs:key name="keyType">
+      <xs:selector xpath="types/type"/>
+      <xs:field xpath="@name"/>
+    </xs:key>
+    <xs:keyref name="keyrefSerType" refer="keyType">
+      <xs:selector xpath="serialization/type"/>
+      <xs:field xpath="@name"/>
+    </xs:keyref>
+    <xs:keyref name="keyrefPayloadHeaderType" refer="keyType">
+      <xs:selector xpath="*/field"/>
+      <xs:field xpath="@type"/>
+    </xs:keyref>
+    <xs:unique name="uniqueMessageId">
+      <xs:selector xpath="message"/>
+      <xs:field xpath="@id"/>
+    </xs:unique>
+    <xs:unique name="uniqueMessageAbbrev">
+      <xs:selector xpath="message"/>
+      <xs:field xpath="@abbrev"/>
+    </xs:unique>
+    <xs:key name="unitType">
+      <xs:selector xpath="units/unit"/>
+      <xs:field xpath="@abbrev"/>
+    </xs:key>
+    <xs:keyref name="unitrefPayloadHeaderType" refer="unitType">
+      <xs:selector xpath="*/field"/>
+      <xs:field xpath="@unit"/>
+    </xs:keyref>
+	</xs:element>
+  <xs:element name="field" type="fieldType">
+    <xs:annotation>
+      <xs:documentation>Don't use this as a root element</xs:documentation>
+    </xs:annotation>
+    <xs:unique name="uniqueEnum">
+      <xs:selector xpath="enum"/>
+      <xs:field xpath="@id"/>
+    </xs:unique>
+    <xs:unique name="uniqueBitmask">
+      <xs:selector xpath="bitmask"/>
+      <xs:field xpath="@id"/>
+    </xs:unique>
+  </xs:element>
+	<xs:complexType name="fieldType">
+		<xs:sequence>
+			<xs:element name="description" type="documentationType" minOccurs="0"/>
+      <xs:choice>
+			<xs:choice minOccurs="0">
+				<xs:annotation>
+            <xs:documentation>By using this the attribute 'prefix' should exist also. This will get deprecated</xs:documentation>
+				</xs:annotation>
+          <xs:element name="enum" type="enumBitmaskType" maxOccurs="unbounded"/>
+          <xs:element name="bitmask" type="enumBitmaskType" maxOccurs="unbounded"/>
+			</xs:choice>
+        <xs:choice minOccurs="0">
+          <xs:element name="dynamic-enum" type="xs:string"/>
+        </xs:choice>
+      </xs:choice>
+		</xs:sequence>
+		<xs:attribute name="name" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:string"/>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="abbrev" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:string"/>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attributeGroup ref="typeAttributes"/>
+		<xs:attribute name="unit">
+			<xs:simpleType>
+				<xs:restriction base="xs:string"/>
+			</xs:simpleType>
+		</xs:attribute>
+    <xs:attribute name="units" use="prohibited">
+			<xs:annotation>
+				<xs:documentation>This element is being deprecated.</xs:documentation>
+			</xs:annotation>
+			<xs:simpleType>
+				<xs:restriction base="xs:string"/>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attributeGroup ref="valueAttributes"/>
+		<xs:attributeGroup ref="minMaxAttributes"/>
+		<xs:attribute name="note" type="xs:string" use="optional"/>
+		<xs:attribute name="prefix" type="xs:string" use="optional">
+			<xs:annotation>
+				<xs:documentation>To be used with 'enum' or 'bitmask' elements.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+    <xs:attributeGroup ref="enumBitmaskRefAttributes"/>
+	</xs:complexType>
+	<xs:complexType name="headerType">
+		<xs:sequence>
+			<xs:element name="description" type="documentationType" minOccurs="0"/>
+      <xs:element ref="field" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="messageType">
+		<xs:sequence>
+			<xs:element name="description" type="documentationType" minOccurs="0"/>
+      <xs:element ref="field" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="id" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:integer">
+					<xs:minInclusive value="0"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="name" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:string"/>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="abbrev" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:string"/>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="flags" type="xs:token">
+			<xs:annotation>
+				<xs:documentation>This flags should be indicated in the 'flags' child element of 'messages'.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attributeGroup ref="controlAttibutes"/>
+	</xs:complexType>
+	<xs:complexType name="typeType">
+		<xs:sequence>
+			<xs:element name="description" type="documentationType" minOccurs="0"/>
+		</xs:sequence>
+		<xs:attribute name="name" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:whiteSpace value="replace"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="size">
+      <xs:annotation>
+        <xs:documentation>Should indicate the number of bits if known.</xs:documentation>
+      </xs:annotation>
+			<xs:simpleType>
+				<xs:restriction base="xs:integer">
+					<xs:minInclusive value="1"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="description" type="xs:string"/>
+		<xs:attribute name="note" type="xs:string"/>
+	</xs:complexType>
+	<xs:complexType name="typesType">
+		<xs:sequence>
+			<xs:element name="description" type="documentationType" minOccurs="0"/>
+			<xs:element name="type" type="typeType" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+  <xs:complexType name="serializationType">
+    <xs:sequence>
+      <xs:element name="description" type="documentationType" minOccurs="0"/>
+      <xs:element name="type" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="description" type="documentationType" minOccurs="0"/>
+          </xs:sequence>
+          <xs:attribute name="name" type="xs:string" use="required"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+	<xs:complexType name="formatsType">
+		<xs:sequence>
+			<xs:element name="format" type="formatType" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="formatType">
+		<xs:attribute name="name" type="xs:string" use="required"/>
+	</xs:complexType>
+	<xs:complexType name="flagType">
+		<xs:attribute name="name" use="required"/>
+		<xs:attribute name="abbrev" use="required"/>
+		<xs:attribute name="note"/>
+	</xs:complexType>
+	<xs:complexType name="flagsType">
+		<xs:sequence>
+			<xs:element name="flag" type="flagType" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="documentationType">
+		<xs:simpleContent>
+			<xs:extension base="xs:string"/>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="unitsType">
+		<xs:sequence>
+			<xs:element name="description" type="documentationType" minOccurs="0"/>
+			<xs:element name="unit" maxOccurs="unbounded">
+				<xs:complexType>
+          <xs:sequence>
+            <xs:element name="description" type="documentationType" minOccurs="0"/>
+          </xs:sequence>
+					<xs:attribute name="name" type="xs:string" use="required"/>
+          <xs:attribute name="abbrev" type="xs:string" use="required"/>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+  <xs:complexType name="enumBitmaskType">
+    <xs:sequence>
+      <xs:element name="description" type="documentationType" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:string" use="required"/>
+    <xs:attribute name="name" type="xs:string" use="required"/>
+    <xs:attribute name="abbrev" type="xs:string" use="required"/>
+    <xs:attribute name="note" type="xs:string"/>
+  </xs:complexType>
+	<xs:attributeGroup name="byteOrderAttribute">
+		<xs:attribute name="byte-order" use="optional" default="LITTLE_ENDIAN">
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="LITTLE_ENDIAN"/>
+					<xs:enumeration value="BIG_ENDIAN"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:attributeGroup>
+	<xs:attributeGroup name="valueAttributes">
+		<xs:attribute name="value" use="optional">
+			<xs:simpleType>
+				<xs:restriction base="xs:string"/>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="fixed" type="xs:boolean" use="optional" default="false">
+			<xs:annotation>
+				<xs:documentation>This is used to indicate that the value is fixed and should not be changed.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:attributeGroup>
+	<xs:attributeGroup name="typeAttributes">
+		<xs:attribute name="type" use="required">
+			<xs:simpleType>
+        <xs:restriction base="xs:string"/>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="width" type="xs:int" use="optional"/>
+	</xs:attributeGroup>
+	<xs:attributeGroup name="minMaxAttributes">
+		<xs:attribute name="min" type="xs:string" use="optional"/>
+		<xs:attribute name="max" type="xs:string" use="optional"/>
+	</xs:attributeGroup>
+	<xs:attributeGroup name="controlAttibutes">
+		<xs:attribute name="source" use="optional">
+			<xs:annotation>
+				<xs:documentation>Use coma separeted values: ccu, vehicle, simulated.</xs:documentation>
+			</xs:annotation>
+			<xs:simpleType>
+				<xs:restriction base="xs:string"/>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="used-by" type="xs:string" use="optional"/>
+		<xs:attribute name="stable" type="xs:boolean" use="optional" default="true"/>
+		<xs:attribute name="deprecated" type="xs:boolean" use="optional" default="false"/>
+	</xs:attributeGroup>
+  <xs:attributeGroup name="enumBitmaskAttibutes">
+    <xs:attribute name="prefix" type="xs:ID" use="optional">
+      <xs:annotation>
+        <xs:documentation>Use coma separeted values: ccu, vehicle, simulated.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:attributeGroup name="enumBitmaskRefAttributes">
+    <xs:attribute name="enum-def" type="xs:string" use="optional" default=""/>
+    <xs:attribute name="bitmask-def" type="xs:string" use="optional" default=""/>
+  </xs:attributeGroup>
+</xs:schema>

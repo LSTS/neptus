@@ -1,24 +1,21 @@
+﻿
+# The Dual-License for Neptus
 
-                    The Dual-License for Neptus
-              =======================================
+Neptus © 2004-2022 Universidade do Porto - Faculdade de Engenharia.
 
-Neptus © Universidade do Porto - Faculdade de Engenharia 2004-2020.
-
-Commercial Licence Usage
----------------------------------------
+## Commercial Licence Usage
 
 Licencees holding valid commercial Neptus licences may use this program
 in accordance with the commercial licence agreement provided with the
 Software or, alternatively, in accordance with the terms contained in a
 written agreement between you and Faculdade de Engenharia da 
 Universidade do Porto. For licensing terms, conditions, and further 
-information contact lsts@fe.up.pt.
+information contact lsts@fe.up.pt (cc to licensing@lsts.pt).
 
 For non-commercial purposes the bellow modified version of the 
 EUPL v1.1 is to be used.
 
-*Modified* European Union Public Licence V. 1.1
---------------------------------------------------------------------
+## *Modified* European Union Public Licence V. 1.1
 
 EUPL © the European Community 2007
 
@@ -82,14 +79,14 @@ any other natural or legal person.
 
 The Licensor hereby grants You a world-wide, royalty-free,
 non-exclusive, sub-licensable licence to do the following, for the
-duration of copyright vested in the Original Work, **this only **
+duration of copyright vested in the Original Work, **this only**
 **applies for non-commercial purposes (which needs an**
 **additional license agreement in the written form**
 **celebrated between you and Faculdade de Engenharia**
 **da Universidade do Porto, as stated above)**:
 
-* use the Work in any circumstance and for all usage **(with **
-**the exception for commercial purposes)**,
+* use the Work in any circumstance and for all usage **(with**
+**the exception for commercial purposes)**
 
 * reproduce the Work,
 
@@ -322,7 +319,6 @@ or registered office inside a European Union country.
 
 "Compatible Licences" according to article 5 EUPL are:
 
-- **Any agreed in the written agreement celebrated**
+* **Any agreed in the written agreement celebrated**
 **between you and Faculdade de Engenharia**
-**da Universidade do Porto **
-
+**da Universidade do Porto**

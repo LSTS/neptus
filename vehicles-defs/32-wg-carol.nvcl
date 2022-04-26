@@ -1,41 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <system xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="..\schemas\neptus-vehicle.xsd">
-    <properties>
-        <id>waveglider-carol</id>
-        <name>LRI Waveglider Carol</name>
-        <type>USV</type>
-        <model>LRI Wave Glider</model>
-        <appearance>
-            <x-size>2.083</x-size>
-            <y-size>0.597</y-size>
-            <z-size>10.00</z-size>
-            <top-image-2D>../vehicles-files/waveglider/waveglider-side.png</top-image-2D>
-            <side-image-2D>../vehicles-files/waveglider/waveglider-side.png</side-image-2D>
-            <back-image-2D>../vehicles-files/waveglider/waveglider-side.png</back-image-2D>
-            <presentation-image-2D>../vehicles-files/waveglider/waveglider-presentation.png</presentation-image-2D>
-            <model-3D></model-3D>
-            <icon-color>
-                <r>255</r>
-                <g>255</g>
-                <b>255</b>
-            </icon-color>
-        </appearance>
-        <coordinate-system-label>SNAME</coordinate-system-label>
-        <operational-active>false</operational-active>
-    </properties>
-    <feasibleManeuvers>
-        <!--
+  <properties>
+    <id>waveglider-carol</id>
+    <name>LRI Waveglider Carol</name>
+    <type>USV</type>
+    <model>LRI Wave Glider</model>
+    <appearance>
+      <x-size>2.083</x-size>
+      <y-size>0.597</y-size>
+      <z-size>10.00</z-size>
+      <top-image-2D>../vehicles-files/waveglider/waveglider-side.png</top-image-2D>
+      <side-image-2D>../vehicles-files/waveglider/waveglider-side.png</side-image-2D>
+      <back-image-2D>../vehicles-files/waveglider/waveglider-side.png</back-image-2D>
+      <presentation-image-2D>../vehicles-files/waveglider/waveglider-presentation.png</presentation-image-2D>
+      <model-3D/>
+      <icon-color>
+        <r>255</r>
+        <g>255</g>
+        <b>255</b>
+      </icon-color>
+    </appearance>
+    <coordinate-system-label>SNAME</coordinate-system-label>
+    <operational-active>false</operational-active>
+  </properties>
+  <feasibleManeuvers>
+    <!--
         WG_NAV_IDLE_UNKNOW: undefined.
         -->
-
-        <!--
+    <!--
         Testing navigation: @todo add a test for those conditions
         WG_NAV_TEST_RUDDER_CENTER
         WG_NAV_TEST_RUDDER_RIGHT
         WG_NAV_TEST_RUDDER_LEFT
         -->
-
-        <!-- Follow a system of points
+    <!-- Follow a system of points
         <maneuver>
             <FollowPath kind="automatic">
                 <basePoint type="pointType">
@@ -58,87 +56,82 @@
             </FollowPath>
         </maneuver>
         -->
-
-        <!-- Loiter at a specific point: hold station at WP (WG_NAV_STOP) -->
-        <maneuver>
-            <Loiter kind="automatic">
-                <basePoint type="pointType">
-                    <point>
-                        <id>LoiterLoc</id>
-                        <name>LoiterLoc</name>
-                        <coordinate>
-                            <latitude>0N</latitude>
-                            <longitude>0E</longitude>
-                            <depth>0</depth>
-                        </coordinate>
-                    </point>
-                    <radiusTolerance>5</radiusTolerance>
-                </basePoint>
-                <velocity type="float" unit="m/s" tolerance="5">20</velocity>
-                <annotation>
-                    <documentation>Loiter over a point</documentation>
-                    <implementation-class>pt.lsts.neptus.mp.maneuvers.Loiter</implementation-class>
-                </annotation>
-            </Loiter>
-        </maneuver>
-
-        <!-- Go to a specific point: hold station at WP (WG_NAV_WAYPOINT) -->
-        <maneuver>
-            <Goto kind="automatic">
-                <finalPoint type="pointType">
-                    <point>
-                        <id>GotoDestination</id>
-                        <name>GotoDestination</name>
-                        <coordinate>
-                            <latitude>0N</latitude>
-                            <longitude>0E</longitude>
-                            <depth>-100</depth>
-                        </coordinate>
-                    </point>
-                    <radiusTolerance>5</radiusTolerance>
-                </finalPoint>
-                <velocity tolerance="10" type="float" unit="m/s">20</velocity>
-                <annotation>
-                    <documentation>Move to a given point</documentation>
-                    <implementation-class>pt.lsts.neptus.mp.maneuvers.Goto</implementation-class>
-                </annotation>
-            </Goto>
-        </maneuver>
-
-        <!-- Go to a specific heading: follow fixed heading (WG_NAV_HEADING) -->
-        <maneuver>
-            <HeadingSpeedDepth kind="automatic">
-                <useHeading>true</useHeading>
-                <duration>-1</duration>
-                <annotation>
-                    <documentation>Move to a given point</documentation>
-                    <implementation-class>pt.lsts.neptus.mp.maneuvers.HeadingSpeedDepth</implementation-class>
-                </annotation>
-            </HeadingSpeedDepth>
-        </maneuver>
-
-    </feasibleManeuvers>
-
-    <communication-means>
-        <comm-mean>
-            <name>ethernet</name>
-            <type>ethernet</type>
-            <host-address>192.168.0.55</host-address>
-            <protocols>cmre-udp</protocols>
-            <latency value="10M" unit="bps"/>
-            <protocols-args>
-                <cmre-udp>
-                	<host>192.168.0.55</host>
-                    <telemetry>5984</telemetry>
-                    <command>5983</command>
-                    <reply>5001</reply>
-                </cmre-udp>
-            </protocols-args>
-        </comm-mean>
-    </communication-means>
-    <consoles>
-        <console name="USV Console">
-            <xml-file>../conf/consoles/usv-console.ncon</xml-file>
-        </console>
-    </consoles>
+    <!-- Loiter at a specific point: hold station at WP (WG_NAV_STOP) -->
+    <maneuver>
+      <Loiter kind="automatic">
+        <basePoint type="pointType">
+          <point>
+            <id>LoiterLoc</id>
+            <name>LoiterLoc</name>
+            <coordinate>
+              <latitude>0N</latitude>
+              <longitude>0E</longitude>
+              <depth>0</depth>
+            </coordinate>
+          </point>
+          <radiusTolerance>5</radiusTolerance>
+        </basePoint>
+        <velocity type="float" unit="m/s" tolerance="5">20</velocity>
+        <annotation>
+          <documentation>Loiter over a point</documentation>
+          <implementation-class>pt.lsts.neptus.mp.maneuvers.Loiter</implementation-class>
+        </annotation>
+      </Loiter>
+    </maneuver>
+    <!-- Go to a specific point: hold station at WP (WG_NAV_WAYPOINT) -->
+    <maneuver>
+      <Goto kind="automatic">
+        <finalPoint type="pointType">
+          <point>
+            <id>GotoDestination</id>
+            <name>GotoDestination</name>
+            <coordinate>
+              <latitude>0N</latitude>
+              <longitude>0E</longitude>
+              <depth>-100</depth>
+            </coordinate>
+          </point>
+          <radiusTolerance>5</radiusTolerance>
+        </finalPoint>
+        <velocity tolerance="10" type="float" unit="m/s">20</velocity>
+        <annotation>
+          <documentation>Move to a given point</documentation>
+          <implementation-class>pt.lsts.neptus.mp.maneuvers.Goto</implementation-class>
+        </annotation>
+      </Goto>
+    </maneuver>
+    <!-- Go to a specific heading: follow fixed heading (WG_NAV_HEADING) -->
+    <maneuver>
+      <HeadingSpeedDepth kind="automatic">
+        <useHeading>true</useHeading>
+        <duration>-1</duration>
+        <annotation>
+          <documentation>Move to a given point</documentation>
+          <implementation-class>pt.lsts.neptus.mp.maneuvers.HeadingSpeedDepth</implementation-class>
+        </annotation>
+      </HeadingSpeedDepth>
+    </maneuver>
+  </feasibleManeuvers>
+  <communication-means>
+    <comm-mean>
+      <name>ethernet</name>
+      <type>ethernet</type>
+      <host-address>192.168.0.55</host-address>
+      <protocols>cmre-udp</protocols>
+      <latency value="10M" unit="bps"/>
+      <protocols-args>
+        <cmre-udp>
+          <host>192.168.0.55</host>
+          <telemetry>5984</telemetry>
+          <command>5983</command>
+          <reply>5001</reply>
+        </cmre-udp>
+      </protocols-args>
+    </comm-mean>
+  </communication-means>
+  <consoles>
+    <console name="USV Console">
+      <xml-file>../conf/consoles/usv-console.ncon</xml-file>
+    </console>
+  </consoles>
 </system>

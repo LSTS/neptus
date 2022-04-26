@@ -1,9 +1,7 @@
 Neptus, Command and Control Framework
 =====================================
 
-[![Join the chat at https://gitter.im/LSTS/neptus](https://badges.gitter.im/LSTS/neptus.svg)](https://gitter.im/LSTS/neptus?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
-Copyright © 2004-2020 Universidade do Porto - Faculdade de Engenharia
+Copyright © 2004-2022 Universidade do Porto - Faculdade de Engenharia
 Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
 All rights reserved.
 Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -16,3 +14,4 @@ For developers: please read [javadoc/overview-and-developers-guide.html](javadoc
 For more information check Neptus web site (http://www.lsts.pt/toolchain/neptus/).
 
 [![Build Status](https://travis-ci.org/LSTS/neptus.svg?branch=develop)](https://travis-ci.org/LSTS/neptus)
+[![Java CI with Gradle](https://github.com/LSTS/neptus/workflows/Java%20CI%20with%20Gradle/badge.svg)](https://github.com/LSTS/neptus/actions?query=workflow%3A%22Java+CI+with+Gradle%22)

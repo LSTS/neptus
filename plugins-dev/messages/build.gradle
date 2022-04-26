@@ -1,0 +1,4 @@
+dependencies {
+    implementation 'net.sf.jchart2d:jchart2d:3.3.2'
+}
+

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2019.02.1 (master,65b8ee0a9)" system="nest-1" i18n="pt_PT">
+<config format="1" version="2020.01.0 (master,6419144f0)" system="nest-1" i18n="pt_PT">
   <section name="Navigation" name-i18n="Navegação">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -140,7 +140,7 @@
       <scope>global</scope>
       <default>23</default>
       <units/>
-      <desc>Output pin - power status of raspberry</desc>
+      <desc>Pin de output - estado de energia da raspberry</desc>
     </param>
     <param name="Pin Powerdown  ">
       <name-i18n>Pin Powerdown  </name-i18n>
@@ -149,7 +149,7 @@
       <scope>global</scope>
       <default>24</default>
       <units/>
-      <desc>Input signal pin to order powerdown of raspberry</desc>
+      <desc>Sinal de pin de input para desligar raspberry</desc>
     </param>
     <param name="Pin led 3G">
       <name-i18n>Pin led 3G</name-i18n>
@@ -158,7 +158,7 @@
       <scope>global</scope>
       <default>5</default>
       <units/>
-      <desc>Power 3g output status pin</desc>
+      <desc>Pin de output do estado da energia do 3g</desc>
     </param>
     <param name="Pin gsm_3g_on_off_pin">
       <name-i18n>Pin gsm_3g_on_off_pin</name-i18n>
@@ -167,7 +167,7 @@
       <scope>global</scope>
       <default>25</default>
       <units/>
-      <desc>Output pin signal: to enable or disble 3g</desc>
+      <desc>Sinal pin de output: ligar ou desligar 3g</desc>
     </param>
     <param name="Pin gsm_3g_switch_pin">
       <name-i18n>Pin gsm_3g_switch_pin</name-i18n>
@@ -176,7 +176,7 @@
       <scope>global</scope>
       <default>11</default>
       <units/>
-      <desc>Imput pin signal: to enable or disble 3g</desc>
+      <desc>Sinal pin de input: ligar ou desligar 3g</desc>
     </param>
     <param name="Pin wifi_led_pins">
       <name-i18n>Pin wifi_led_pins</name-i18n>
@@ -185,7 +185,7 @@
       <scope>global</scope>
       <default>6 , 13 , 19 , 26</default>
       <units/>
-      <desc>Wifi level output status pins</desc>
+      <desc>Estado dos pinos de output do nível do Wifi</desc>
     </param>
     <param name="Entity Label - Mobile Internet">
       <name-i18n>Entity Label - Mobile Internet</name-i18n>
@@ -194,7 +194,7 @@
       <scope>global</scope>
       <default>Mobile Internet</default>
       <units/>
-      <desc>Entity label of 'EntityState' Mobile Internet</desc>
+      <desc>Etiqueta da entidade de 'EntityState' Mobile Internet</desc>
     </param>
     <param name="Update Period">
       <name-i18n>Update Period</name-i18n>
@@ -203,17 +203,17 @@
       <scope>global</scope>
       <default>1</default>
       <units>s</units>
-      <desc>Time, in seconds, between RSSI polling.</desc>
+      <desc>Tempo, em segundos, entre RSSI polling.</desc>
       <min>0.1</min>
     </param>
     <param name="LED wifi rssi threshold">
-      <name-i18n>LED wifi rssi threshold</name-i18n>
+      <name-i18n>Limite rssi do LED wifi</name-i18n>
       <type>list:integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>10 , 25 , 49 , 74</default>
       <units/>
-      <desc>LED wifi rssi threshold</desc>
+      <desc>Limite rssi do LED wifi</desc>
     </param>
   </section>
   <section name="GPS" name-i18n="GPS">

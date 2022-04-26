@@ -4,12 +4,10 @@ LICENSE.*
 LICENCE.*
 README.*
 CHANGES.md
-lib/
 libJNI/
 schemas/
 conf/messages/IMC.xml
-conf/log4j.xml
-conf/log4j.dtd
+conf/log4j2.xml
 conf/planscripts/*.js
 conf/mraplots/*.plot
 conf/waypoints/
@@ -24,6 +22,4 @@ conf/params/lauv-simulator*.xml
 maps/*.conf
 helper-scripts/
 neptus.exe
-neptus.bat
-neptus.sh
 neptus-config.xml

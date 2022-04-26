@@ -1,0 +1,1488 @@
+/////////////////////////////////////////////////////////////////////
+// Gradle Build File for Neptus                                    //
+//                                                                 //
+// @author: Paulo Dias                                             //
+/////////////////////////////////////////////////////////////////////
+
+plugins {
+    id 'java' //apply false
+    id 'application'
+    id 'distribution'
+    id "com.gorylenko.gradle-git-properties" version "2.3.2"
+    id "com.github.langmo.gradlensis" version "0.1.0"
+    id "de.undercouch.download" version "4.1.2"
+
+    id "eclipse"
+}
+
+description = """
+This is the Neptus C2 Framework for controlling autonomous vehicles.
+https://www.lsts.pt/toolchain/neptus/
+"""
+version = '2022.04.0'
+
+ext {
+    copyYears = "2004-${new Date().format('yyyy')}"
+    libJNIPaths = ['.']
+
+    jreDownloadVersion = "jdk-11.0.14.1+1"
+}
+
+defaultTasks 'buildJars', 'buildBundleJars'
+
+///////////////////////
+// Utilities Section //
+///////////////////////
+
+// Get the libJNI file collection for the familyLst and archLst
+def getLibJNIFor(familyLst, archLst) {
+    def libJNIPaths = [file('.')];
+    familyLst.each({ family ->
+        archLst.each({ arch ->
+            fileTree(dir: 'libJNI', includes: ["*/$family/$arch/*"]).each({ libJNIPaths += it.getParentFile() })
+            fileTree(dir: 'libJNI', includes: ["$family/*", "*/$family/*"]).each({ libJNIPaths += it.getParentFile() })
+            fileTree(dir: 'libJNI', includes: ["$arch/*", "*/$arch/*"]).each({ libJNIPaths += it.getParentFile() })
+        })
+    })
+    libJNIPaths += file('libJNI')
+    if (isFamily(FAMILY_UNIX))
+        libJNIPaths += file('/usr/lib/jni')
+
+    libJNIPaths.unique()
+    return libJNIPaths;
+}
+
+def String relativePathIfOnProjectPath(fx, String prefixForRelative){
+    def fx1 = file(fx)
+    def rpFx = file(rootProject.rootDir)
+    if (fx1.getPath().startsWith(rpFx.getPath()))
+        return prefixForRelative + relativePath(fx1)
+    return fx1.getPath()
+}
+
+// Creates tasks named ${taskPrefixName}StartScripts extending the CreateStartScripts task.
+// This will generate Linux and Windows scripts to run the application.
+//
+// applicationNameOpt: Its the CreateStartScripts applicationName param
+// taskPrefixName: Its the created task name prefix (${taskPrefixName}StartScripts)
+// mainClass : Its the CreateStartScripts mainClass param
+// appHomeRelativePathOpt: It's the CreateStartScripts executableDir param
+// addedSectionSnippetName: This is the sufix name for the options (such as adding arg processing.
+//                          This is expected to be "dist/scripts/unixSnippet${addedSectionSnippetName}.txt"
+//                          for linux and "dist/scripts/windowsSnippet${addedSectionSnippetName}.txt"
+//                          for windows.
+// classpathCollection: Its the CreateStartScripts classpath param
+def generateStartScriptsFor(String applicationNameOpt, String taskPrefixName,
+        String mainclass, String appHomeRelativePathOpt, String addedSectionSnippetName,
+        FileCollection classpathCollection) {
+    return tasks.create("${taskPrefixName}StartScripts", CreateStartScripts) {
+        applicationName = "$applicationNameOpt"
+        outputs.upToDateWhen { false }
+        mainClass = "$mainclass"
+        classpath =  classpathCollection
+        outputDir = file("$buildDir/scripts/$taskPrefixName")
+        executableDir = "$appHomeRelativePathOpt"
+
+        defaultJvmOpts = [
+            '-Xms10m',
+            '-Xmx2g',
+            '-XX:MaxMetaspaceSize=512m',
+            '-XX:+UseG1GC', //for Java 8+
+            //'-XX:+UseZGC', //for Java 11+
+            //'-XX:+PrintGCDetails', '-XX:+PrintGCDateStamps', '-Xloggc:$APP_HOME/log', //for Java 8-
+            //'-Xlog:gc*:file=$APP_HOME/log', //for Java 9+
+            '-XX:+HeapDumpOnOutOfMemoryError', '-XX:HeapDumpPath=$APP_HOME/log/heap-dump.hprof',
+            '-Xss256k',
+            ]
+
+        doLast {
+            unixScript.text = unixScript.text.replace('@lib_jni_linux_x64@',
+                getLibJNIFor(['linux'], ['x64', 'x86']).collect { "${relativePathIfOnProjectPath(it, '\$APP_HOME/',)}" }.join(':'))
+            unixScript.text = unixScript.text.replace('@lib_jni_linux_x86@',
+                getLibJNIFor(['linux'], ['x86']).collect { "${relativePathIfOnProjectPath(it, '\$APP_HOME/')}" }.join(':'))
+            unixScript.text = unixScript.text.replace('@lib_jni_osx_x64@',
+                getLibJNIFor(['osx'], ['x64']).collect { "${relativePathIfOnProjectPath(it, '\$APP_HOME/')}" }.join(':'))
+            unixScript.text = unixScript.text.replace('@added_section@', addedSectionSnippetName.isEmpty() ? ''
+                : rootProject.file("dist/scripts/unixSnippet${addedSectionSnippetName}.txt").getText('UTF-8'))
+
+            windowsScript.text = windowsScript.text.replace('@lib_jni_windows_x64@',
+                getLibJNIFor(['win'], ['x64', 'x86']).collect { "${relativePathIfOnProjectPath(it, '%APP_HOME%\\',)}" }.join(';'))
+            windowsScript.text = windowsScript.text.replace('@lib_jni_windows_x86@',
+                getLibJNIFor(['win'], ['x86']).collect { "${relativePathIfOnProjectPath(it, '%APP_HOME%\\',)}" }.join(';'))
+            windowsScript.text = windowsScript.text.replace('@added_section@', addedSectionSnippetName.isEmpty() ? ''
+                : rootProject.file("dist/scripts/windowsSnippet${addedSectionSnippetName}.txt").getText('UTF-8'))
+        }
+    }
+}
+
+//////////////////////////
+// Root-Project Section //
+//////////////////////////
+
+apply plugin: 'application'
+apply plugin: 'distribution'
+apply plugin: "com.gorylenko.gradle-git-properties"
+apply plugin: 'eclipse'
+
+task buildClasspathJar(type: Jar) {
+    archiveBaseName = "cp"
+    archiveVersion = ''
+    destinationDirectory = file("$rootDir")
+    doFirst {
+        def configurationClasspath = configurations.runtimeClasspath
+        configurationClasspath -= project(':core').configurations.core.allArtifacts.files
+        subprojects.findAll({it.name != 'core'}).each {
+            configurationClasspath -= it.configurations.plugin.allArtifacts.files
+        }
+
+        manifest {
+            attributes("Class-Path": configurationClasspath.collect({
+                try {
+                    relativePath(it)
+                } catch (e) {
+                    it
+                }
+            }).join(' '))
+        }
+    }
+}
+
+// Generating start scripts for the development environment
+generateStartScriptsFor(rootProject.name, 'run', 'pt.lsts.neptus.loader.NeptusMain',
+    '', 'RunOptions', files('SUBSTITUTE')).doLast {
+        // def configurationClasspath = project(':core').sourceSets.main.runtimeClasspath
+        // configurationClasspath -= project(':core').configurations.core.allArtifacts.files
+        // subprojects.findAll({it.name != 'core'}).each {
+        //    configurationClasspath -= it.configurations.plugin.allArtifacts.files
+        //}
+        //def unixCp = configurationClasspath
+        //    .collect({relativePathIfOnProjectPath(it, '$APP_HOME/')}).join(':')
+        //def winCp = configurationClasspath
+        //    .collect({relativePathIfOnProjectPath(it, '%APP_HOME%\\')}).join(';')
+        // unixScript.text = unixScript.text.replace('$APP_HOME/lib/SUBSTITUTE', "${unixCp}")
+        // windowsScript.text = windowsScript.text.replace('%APP_HOME%\\lib\\SUBSTITUTE', "${winCp}")
+        unixScript.text = unixScript.text.replace('$APP_HOME/lib/SUBSTITUTE', "cp.jar")
+        windowsScript.text = windowsScript.text.replace('%APP_HOME%\\lib\\SUBSTITUTE', "%APP_HOME%\\cp.jar")
+    }
+
+task generateRunScripts(type: Copy) {
+    dependsOn buildClasspathJar
+    from runStartScripts
+    into file("$rootDir")
+}
+
+jar.dependsOn generateRunScripts
+jar.enabled = false
+
+import static org.apache.tools.ant.taskdefs.condition.Os.*
+task updateLibJNIPaths {
+    def familyLst = []
+    if (isFamily(FAMILY_WINDOWS))
+        familyLst += 'win'
+    if (isFamily(FAMILY_MAC))
+        familyLst += 'osx'
+    if (isFamily(FAMILY_UNIX))
+        familyLst += 'linux'
+    def archLst = []
+    if (isArch('x86'))
+        archLst += 'x86'
+    else
+        archLst += ['x64', 'x86']
+
+    libJNIPaths = getLibJNIFor(familyLst, archLst);
+
+    doLast {
+        println "Family:       ${OS_NAME}"
+        println "Version:      ${OS_VERSION}"
+        println "Architecture: ${OS_ARCH}"
+        println "libJNIPaths:  ${libJNIPaths.collect { "${relativePath(it)}" }.join(isFamily(FAMILY_WINDOWS) ? ';' : ':') }"
+    }
+}
+
+run.dependsOn updateLibJNIPaths
+run {
+    if (isFamily(FAMILY_WINDOWS))
+        environment 'PATH', "${libJNIPaths.collect { "${relativePath(it)}" }.join(';')};%PATH%"
+    else
+        environment 'LD_LIBRARY_PATH', "${libJNIPaths.collect { "${relativePath(it)}" }.join(':')}:\$LD_LIBRARY_PATH"
+
+    args 'auv'
+
+    classpath configurations.runtimeClasspath
+}
+
+application {
+    mainClass = 'pt.lsts.neptus.loader.NeptusMain'
+    // https://dzone.com/articles/7-jvm-arguments-of-highly-effective-applications-1?edition=590292&utm_source=Weekly%20Digest&utm_medium=email&utm_campaign=Weekly%20Digest%202020-04-01
+    applicationDefaultJvmArgs = [
+        '-Xms10m',
+        '-Xmx2g',
+        '-XX:MaxMetaspaceSize=512m',
+        '-XX:+UseG1GC', //for Java 8+
+        //'-XX:+UseZGC', //for Java 11+
+        //'-XX:+PrintGCDetails', '-XX:+PrintGCDateStamps', "-Xloggc:${relativePath('./log')}", //for Java 8-
+        //"-Xlog:gc*:file=${relativePath('./log')}", //for Java 9+
+        '-XX:+HeapDumpOnOutOfMemoryError', "-XX:HeapDumpPath=${relativePath('./log/heap-dump.hprof')}",
+        '-Xss256k',
+        "-Djava.library.path=\"${libJNIPaths.collect { "${relativePath(it)}" }.join(isFamily(FAMILY_WINDOWS) ? ';' : ':') }\"",
+        ]
+}
+
+//////////////////////////
+// All-Projects Section //
+//////////////////////////
+
+allprojects {
+    version = "$rootProject.version"
+
+    repositories {
+        mavenCentral()
+        flatDir {
+            dirs 'lib', "${rootProject.projectDir}/lib"
+        }
+        maven {
+            url 'https://artifacts.unidata.ucar.edu/repository/unidata-all/'
+            content {
+                includeGroup "edu.ucar"
+            }
+        }
+        // maven {
+        //     url 'https://maven.jzy3d.org/releases/'
+        //     content {
+        //         includeGroup "org.jzy3d"
+        //     }
+        // }
+    }
+
+    apply plugin: 'java'
+    compileJava.options.encoding = 'UTF-8'
+    // compileJava.options.compilerArgs << '-Xlint:unchecked'
+    // compileJava.options.deprecation = true
+    java.sourceCompatibility = JavaVersion.VERSION_1_8
+    java.targetCompatibility = JavaVersion.VERSION_1_8
+
+    processResources {
+        mustRunAfter(generateRunScripts)
+        duplicatesStrategy DuplicatesStrategy.EXCLUDE
+        from (rootProject.projectDir) {
+            include 'LICENSE.md'
+        }
+    }
+
+    jar {
+        mustRunAfter(generateRunScripts)
+        manifest {
+            attributes(
+                'Specification-Title': rootProject.name.capitalize(),
+                'Specification-Version': "$project.version, ${-> project.ext.gitProps['git.commit.time']}",
+                'Specification-Vendor': 'FEUP   USTL/LSTS (https://www.fe.up.pt/lsts)  Neptus (https://lsts.fe.up.pt/toolchain/neptus)',
+                'Implementation-Title': project.name,
+                'Implementation-Version': project.version,
+                'Implementation-Vendor': 'FEUP  USTL/LSTS (https://www.fe.up.pt/lsts)',
+                'Build-Revision': "${rootProject.name}-${project.version}-git#${-> project.ext.gitProps['git.commit.id.describe']}",
+                'Built-By': "${System.properties['user.name']}",
+                'Built-On': "${new Date()}",
+                )
+        }
+        archiveVersion = ''
+    }
+
+    apply plugin: "com.gorylenko.gradle-git-properties"
+    gitProperties {
+        extProperty = 'gitProps'
+        failOnNoGitDirectory = false
+
+        dateFormat = "yyyy-MM-dd'T'HH:mmZ"
+        dateFormatTimeZone = "UTC"
+
+        gitPropertiesName = "git.info"
+        keys = ['git.branch',
+                'git.build.version',
+                'git.closest.tag.commit.count',
+                'git.closest.tag.name',
+                'git.commit.id',
+                'git.commit.id.abbrev',
+                'git.commit.id.describe',
+                'git.commit.time',
+                'git.dirty',
+                'git.remote.origin.url',
+                'git.tags',
+                ]
+    }
+    generateGitProperties.outputs.upToDateWhen { false }
+    // If the subproject is on the same Git as the root,
+    // just copy from it and don't run generateGitProperties
+    task copyGitPropertiesFromRoot {
+        if (project != rootProject)
+            dependsOn rootProject.tasks.generateGitProperties
+        doLast {
+            project.ext['gitProps'] = rootProject.ext.gitProps
+            copy {
+                from (rootProject.sourceSets.main.output.resourcesDir)
+                include 'git.info'
+                into project.sourceSets.main.output.resourcesDir
+            }
+        }
+    }
+    if (file("${project.projectDir}/.git").exists()
+            || file("${project.projectDir}/../.git").exists()
+            && file("${project.projectDir}/../") != file("${rootProject.projectDir}"))
+        tasks.copyGitPropertiesFromRoot.enabled = false
+    else
+        tasks.generateGitProperties.enabled = false
+    generateGitProperties.dependsOn copyGitPropertiesFromRoot
+    generateGitProperties.mustRunAfter(generateRunScripts)
+    classes.dependsOn copyGitPropertiesFromRoot
+}
+
+// Configuration of the core project
+project(':core') {
+    apply plugin: 'java'
+    apply plugin: "com.gorylenko.gradle-git-properties"
+    apply plugin: 'eclipse'
+
+    configurations {
+        core
+    }
+
+    dependencies {
+        implementation name: 'libimc-5.90.2'
+        implementation name: 'libimcsender-5.90.2'
+
+        implementation name: 'aisparser-2.0.0'
+        implementation name: 'jssc' //dependency of aisparser, and serial port reader
+        //implementation 'org.scream3r:jssc:2.8.0'
+
+        implementation name: 'ais-contact-manager-1.0'
+
+        implementation 'org.apache.xmlgraphics:batik-gui-util:1.14'
+        implementation 'org.apache.xmlgraphics:batik-anim:1.14'
+
+        implementation name: 'charsets-zip' // for zip, probably not needed anymore
+        implementation 'commons-cli:commons-cli:1.4'
+        implementation 'commons-codec:commons-codec:1.15'
+        implementation 'org.apache.commons:commons-collections4:4.4'
+        implementation 'org.apache.commons:commons-compress:1.21'
+        implementation 'commons-configuration:commons-configuration:1.10'
+        implementation 'org.apache.commons:commons-email:1.5'
+        implementation 'commons-io:commons-io:2.8.0'
+        implementation 'org.apache.commons:commons-lang3:3.12.0'
+        implementation 'commons-lang:commons-lang:2.6'
+        implementation 'commons-logging:commons-logging:1.2'
+        implementation 'commons-net:commons-net:3.8.0'
+        implementation 'org.apache.commons:commons-text:1.9'
+
+        implementation 'dom4j:dom4j:1.6.1'
+        implementation 'jaxen:jaxen:1.2.0'
+
+        implementation 'com.firebase:firebase-client-jvm:2.0.0' //2.5.2
+        implementation 'org.apache.xmlgraphics:fop:2.6'
+        //implementation group: 'foxtrot', name: 'foxtrot', version: '3.0', ext: 'pom'
+        implementation name: 'foxtrot' //4.0, used 3.0
+
+        implementation 'org.graphstream:gs-ui:1.3'
+        // gdal 1.8.2
+        implementation name: 'gdal'
+        implementation name: 'gpsinput-0.5.3' // needs log4j v1.x
+        implementation name: 'gpxparser'
+        implementation 'org.codehaus.groovy:groovy:3.0.3' //2.5.4
+        implementation 'com.google.code.gson:gson:2.8.6'
+        implementation 'com.google.guava:guava:30.1-jre'
+
+        implementation 'de.grundid.opendatalab:geojson-jackson:1.14'
+
+        implementation 'org.apache.httpcomponents:httpclient:4.5.13' //5.0
+
+        implementation 'org.imgscalr:imgscalr-lib:4.2'
+        implementation 'com.lowagie:itext:2.1.5' // old, think of replacing
+
+        // Java 3D related //
+        //implementation 'java3d:j3d-core:1.3.1' // to delete
+        implementation name: 'j3dcore'
+        //implementation 'java3d:j3d-core-utils:1.3.1' // to delete
+        implementation name: 'j3dutils'
+        implementation name: 'StarfireExt' // to delete
+        implementation name: 'vecmath' // to delete
+        implementation name: 'wrl/j3d-vrml97' // to delete
+
+        implementation 'de.micromata.jak:JavaAPIforKml:2.2.0' //2.2.1
+        implementation 'net.sourceforge.javacsv:javacsv:2.0'
+        implementation 'org.javassist:javassist:3.18.0-GA' //3.27.0-GA
+        // implementation 'net.sf.jchart2d:jchart2d:3.3.2' // should be 1.03
+        implementation 'org.jfree:jcommon:1.0.24'
+        implementation 'org.mortbay.jetty:jetty:6.0.2'
+        implementation 'org.jfree:jfreechart:1.5.0'
+        implementation 'com.jgoodies:jgoodies-looks:2.5.3' //2.7.0
+        implementation 'com.jhlabs:filters:2.0.235-1' // don't know the orig version
+
+        //implementation 'net.java.jinput:jinput:2.0.9' // was not this and should be before 2.0.4
+        implementation name: 'jinput'
+
+        implementation 'net.sourceforge.jmatio:jmatio:1.0'
+        implementation 'javax.media:jmf:2.1.1e'
+        implementation 'org.jogamp.jogl:jogl-all-main:2.0.2'
+        implementation 'com.jcraft:jsch:0.1.53' //0.1.55
+        implementation name: 'jtransform_thin' // from NOAA https://www.ngs.noaa.gov/NCAT/
+        implementation 'net.sf.jung:jung2:2.0.1'
+        implementation 'net.sf.jung:jung-api:2.0.1'
+        implementation 'net.sf.jung:jung-algorithms:2.0.1'
+        implementation 'net.sf.jung:jung-graph-impl:2.0.1'
+        implementation 'net.sf.jung:jung-visualization:2.0.1'
+        implementation 'org.swinglabs:jxlayer:3.0.2'
+
+        //implementation 'org.jzy3d:jzy3d-api:0.9.1' //incompatible with used 0.9.0!, 1.0.2
+        implementation name: 'jogl2/gluegen'
+        implementation name: 'jogl2/jogl-all'
+        implementation name: 'jogl2/gluegen-rt'
+        implementation name: 'jogl2/jogl-all-natives-linux-amd64'
+        implementation name: 'jogl2/gluegen-rt-natives-linux-amd64'
+        implementation name: 'jogl2/jogl-all-natives-linux-i586'
+        implementation name: 'jogl2/gluegen-rt-natives-linux-i586'
+        implementation name: 'jogl2/jogl-all-natives-macosx-universal'
+        implementation name: 'jogl2/gluegen-rt-natives-macosx-universal'
+        implementation name: 'jogl2/jogl-all-natives-windows-amd64'
+        implementation name: 'jogl2/gluegen-rt-natives-windows-amd64'
+        implementation name: 'jogl2/jogl-all-natives-windows-i586'
+        implementation name: 'jogl2/gluegen-rt-natives-windows-i586'
+        implementation name: 'jogl2/org.jzy3d-0.9'
+
+        //implementation 'com.l2fprod.common:l2fprod-common-all:7.3.0'
+        implementation name: 'l2fprod-common-all'
+
+        runtimeOnly 'log4j:log4j:1.2.17' // Needed for gpsinput
+        implementation 'org.apache.logging.log4j:log4j-api:2.17.1'
+        implementation 'org.apache.logging.log4j:log4j-core:2.17.1'
+
+        implementation 'net.sf.marineapi:marineapi:0.11.0'
+        implementation 'com.drewnoakes:metadata-extractor:2.11.0' //2.13.0
+        implementation 'com.miglayout:miglayout-swing:4.2' //5.2
+        implementation 'com.eclipsesource.minimal-json:minimal-json:0.9.4' //0.9.5
+
+        //implementation 'edu.ucar:cdm-core:5.2.0'
+        //runtimeOnly 'org.slf4j:slf4j-jdk14:${slf4jVersion}''
+        //implementation  'edu.ucar:netcdfAll:5.3.2' //5.3.2, used 5.2 on the current develop, here was 4.6.10
+        implementation "edu.ucar:cdm-core:5.2.0"
+        //implementation name: 'netcdfAll-5.2'
+        implementation 'org.jsoup:jsoup:1.13.1'
+
+        implementation name: 'opencv_440'
+        implementation 'oro:oro:2.0.8' // should be 0 2.1-dev
+
+        implementation name: 'percentlayout'
+        implementation name: 'PSEngine' // Europa planner
+        implementation name: 'PSEngine-javadoc'
+
+        implementation 'org.reflections:reflections:0.9.9' //was 0.9.9-RC1, 0.9.12
+        implementation 'org.mozilla:rhino:1.7R4' //1.7.12
+
+        implementation 'com.fifesoft:rsyntaxtextarea:2.5.8' //3.1.0
+        implementation 'com.fifesoft:autocomplete:2.5.8' //3.1.0
+        implementation 'com.fifesoft:languagesupport:2.5.8' //3.1.0
+
+        //implementation 'org.rxtx:rxtxcomm:2.0-7pre1'
+        implementation name: 'RXTXcomm'
+
+        implementation 'org.apache.sanselan:sanselan:0.97-incubator' // Check new commons-imaging (changed name)
+        implementation 'org.apache.commons:commons-imaging:1.0-alpha2'
+
+        implementation name: 'sqlitejdbc-v056'
+        implementation name: 'standby'
+        implementation 'org.swinglabs.swingx:swingx-all:1.6.5-1'
+
+        implementation name: 'speech/cmudict04'
+        implementation name: 'speech/cmu_time_awb'
+        implementation name: 'speech/cmu_us_kal'
+        implementation name: 'speech/freetts'
+        implementation name: 'speech/cmulex'
+        implementation name: 'speech/cmutimelex'
+        implementation name: 'speech/en_us'
+        implementation name: 'speech/jsapi'
+
+        implementation name: 'vtk'
+
+        implementation name: 'wms'
+
+        implementation 'xerces:xercesImpl:2.7.1' //2.12.0
+        //implementation 'org.knowm.xchart:xchart-parent:3.5.1'
+        implementation name: 'xchart-3.5.1'
+
+        implementation name: 'xj3d/xj3d-all' // 3D related, possibly to remove
+        implementation name: 'xj3d/FastInfoset'
+        implementation name: 'xj3d/aviatrix3d-all'
+        implementation name: 'xj3d/dis'
+        implementation name: 'xj3d/disxml'
+        implementation name: 'xj3d/geoapi'
+        implementation name: 'xj3d/j3d-org'
+        implementation name: 'xj3d/jutils'
+        implementation name: 'xj3d/uri'
+        implementation name: 'xj3d/vlc_uri'
+        implementation name: 'xj3d/xj3d-cefx3d'
+        implementation name: 'xj3d/xj3d-common'
+        implementation name: 'xj3d/xj3d-config'
+        implementation name: 'xj3d/xj3d-core'
+        implementation name: 'xj3d/xj3d-eai'
+        implementation name: 'xj3d/xj3d-ecmascript'
+        implementation name: 'xj3d/xj3d-external-sai'
+        implementation name: 'xj3d/xj3d-images'
+        implementation name: 'xj3d/xj3d-j3d'
+        implementation name: 'xj3d/xj3d-java-sai'
+        implementation name: 'xj3d/xj3d-jaxp'
+        implementation name: 'xj3d/xj3d-jsai'
+        implementation name: 'xj3d/xj3d-net'
+        implementation name: 'xj3d/xj3d-norender'
+        implementation name: 'xj3d/xj3d-ogl'
+        implementation name: 'xj3d/xj3d-parser'
+        implementation name: 'xj3d/xj3d-render'
+        implementation name: 'xj3d/xj3d-runtime'
+        implementation name: 'xj3d/xj3d-sai'
+        implementation name: 'xj3d/xj3d-sav'
+        implementation name: 'xj3d/xj3d-script-base'
+        implementation name: 'xj3d/xj3d-xml-util'
+        implementation name: 'xj3d/xj3d-xml'
+
+        implementation 'com.adobe.xmp:xmpcore:5.1.2' //6.1.10
+        implementation name: 'xuggle-xuggler-5.4'
+
+        implementation 'com.google.zxing:javase:3.2.1' //3.4.0
+
+        // Java 11 related
+        implementation 'javax.annotation:javax.annotation-api:1.3.2'
+
+        // Use JUnit test framework
+        testImplementation 'junit:junit:4.12'
+    }
+
+    sourceSets {
+        main {
+            java {
+                srcDirs = ['java']
+            }
+            resources {
+                srcDirs = ['resources']
+            }
+        }
+    }
+
+    processResources {
+        duplicatesStrategy DuplicatesStrategy.INCLUDE
+        outputs.upToDateWhen{ false }
+        from (project.sourceSets.main.resources.srcDirs) {
+            include 'version.txt'
+            filter{ it.replaceAll("@VERSION@", rootProject.version) }
+            filter{ it.replaceAll("@NAMED_RELEASE@", rootProject.version) }
+            filter{ it.replaceAll('@DATE@', "${new Date().format('yyyy-MM-dd')}") }
+            filter{ it.replaceAll('@TIME@', "${new Date().format('HH:mm Z')}") }
+            filter{ it.replaceAll('@COMPILED BY@', "${System.properties['user.name']}") }
+            filter{ it.replaceAll('@LEGAL_COPY@', "$rootProject.ext.copyYears FEUP USTL/LSTS (https://www.fe.up.pt/lsts)") }
+            filter{ it.replaceAll("@SCM_REV@", "${-> project.ext.gitProps['git.commit.id.describe']}") }
+            filter{ it.replaceAll("@SCM_PATH@", "${-> project.ext.gitProps['git.remote.origin.url']}") }
+        }
+    }
+
+    buildDir = file("$rootProject.rootDir/build/$project.name")
+
+    eclipse {
+        classpath {
+            // defaultOutputDir = file("${rootProject.buildDir.getName()}/eclipse/default")
+            // file.whenMerged {
+            //     def subProjectJarWasIn = []
+            //     entries.each { entry ->
+            //         if (entry.kind == 'src' && entry.hasProperty('output')) {
+            //             // Let us replace the output from bin to the proper build folder
+            //             entry.output = entry.output.replace('bin/', "${rootProject.buildDir.getName()}/eclipse/")
+            //         }
+            //     }
+            // }
+        }
+        project {
+            resourceFilter {
+                appliesTo = 'FOLDERS'
+                type = 'EXCLUDE_ALL'
+                matcher {
+                    id = 'org.eclipse.ui.ide.multiFilter'
+                    arguments = '1.0-name-matches-false-false-build'
+                }
+            }
+        }
+        jdt {
+            file {
+                withProperties { properties ->
+                    def formaterFx = rootProject.file('dev-utils/eclipse-java-formater.props')
+                    assert rootProject.file(formaterFx).exists();
+                    formaterFx.eachLine { String line ->
+                    def tks = line.split('=')
+                        // set properties for the file org.eclipse.jdt.core.prefs
+                        properties[tks[0]] = tks[1]
+                    }
+                }
+            }
+        }
+    }
+    task createEclipseBuild {
+        doLast {
+            file("${rootProject.buildDir.getName()}/eclipse/main")
+            subprojects.each { project ->
+                file("${project.projectDir}/${rootProject.buildDir.getName()}/eclipse/main").mkdirs()
+            }
+        }
+    }
+    tasks.eclipse.dependsOn cleanEclipse, createEclipseBuild
+
+    // jar.dependsOn generateRunScripts
+    jar {
+        archiveBaseName = rootProject.name
+        manifest {
+            attributes += [
+                'Main-Class': 'pt.lsts.neptus.loader.NeptusMain',
+                ]
+        }
+        archiveVersion = ''
+        destinationDirectory = file("$rootDir/bin")
+    }
+
+    compileJava.mustRunAfter(generateRunScripts)
+
+    artifacts {
+        core jar
+    }
+}
+
+////////////////////////////
+// Configurations Section //
+////////////////////////////
+
+// Configure all tasks of type CreateStartScripts to use custom templates
+tasks.withType(CreateStartScripts) {
+    def unixTemplateName = rootProject.file('dist/scripts/unixStartScript.txt')
+    assert project.file(unixTemplateName).exists();
+    def winTemplateName = rootProject.file('dist/scripts/windowsStartScript.txt')
+    assert project.file(winTemplateName).exists();
+    unixStartScriptGenerator.template = rootProject.resources.text.fromFile(unixTemplateName)
+    windowsStartScriptGenerator.template = rootProject.resources.text.fromFile(winTemplateName)
+}
+
+// Configure all tasks of type Tar to also GZIP it
+tasks.withType(Tar){
+    compression = Compression.GZIP
+    archiveExtension = 'tar.gz'
+}
+
+// Adding also flat dir lib from plugins for running from Gradle
+// Also set on allProjects section
+repositories {
+    flatDir {
+        dirs subprojects.findAll( { it.name != 'core' } ).collect {file("${it.projectDir}/lib")}
+    }
+}
+
+// This is used to run Neptus, so depends on core project and all plugin projects
+dependencies {
+    runtimeOnly project(':core')
+    subprojects.findAll( { it.name != 'core' } ).each {
+        runtimeOnly it
+    }
+}
+
+//////////////////////////
+// Sub-Projects Section //
+//////////////////////////
+
+// Let us configure all subprojects with the exception of the core
+configure(subprojects.findAll { it.name != 'core' }) {
+    configurations {
+        plugin
+    }
+
+    sourceSets {
+        main {
+            java {
+                srcDirs += ['src/java']
+            }
+            resources {
+                srcDirs += ['src/resources']
+            }
+        }
+    }
+
+    processResources {
+        duplicatesStrategy DuplicatesStrategy.EXCLUDE
+        outputs.upToDateWhen { false }
+        from('.'){
+            include 'plugins.lst'
+            filter{ it.replaceAll('@DATE@', "${new Date().format('yyyy-MM-dd')}") }
+            filter{ it.replaceAll('@TIME@', "${new Date().format('HH:mm Z')}") }
+            filter{ it.replaceAll('@COMPILED BY@', "${System.properties['user.name']}") }
+            filter{ it.replaceAll('@LEGAL_COPY@', "$rootProject.ext.copyYears FEUP LSTS/USTL") }
+        }
+    }
+
+    dependencies {
+        compileOnly project(':core')
+        compileOnly project(':core').sourceSets.main.runtimeClasspath
+    }
+
+    buildDir = file("$rootProject.buildDir/plugins/$project.name")
+
+    apply plugin: 'eclipse'
+    eclipse {
+        classpath {
+            // defaultOutputDir = file("${rootProject.buildDir.getName()}/eclipse/default")
+            // file.whenMerged {
+            //     entries.each { entry ->
+            //         // Let us replace the output from bin to the proper build folder
+            //         if (entry.kind == 'src' && entry.hasProperty('output')) {
+            //             entry.output = entry.output.replace('bin/', "${rootProject.buildDir.getName()}/eclipse/")
+            //         }
+            //     }
+            // }
+        }
+        project {
+            resourceFilter {
+                appliesTo = 'FOLDERS'
+                type = 'EXCLUDE_ALL'
+                matcher {
+                    id = 'org.eclipse.ui.ide.multiFilter'
+                    arguments = '1.0-name-matches-false-false-build'
+                }
+            }
+        }
+        jdt {
+            file {
+                withProperties { properties ->
+                    def formaterFx = rootProject.file('dev-utils/eclipse-java-formater.props')
+                    assert rootProject.file(formaterFx).exists();
+                    formaterFx.eachLine { String line ->
+                    def tks = line.split('=')
+                        // set properties for the file org.eclipse.jdt.core.prefs
+                        properties[tks[0]] = tks[1]
+                    }
+                }
+            }
+        }
+    }
+    tasks.eclipse.dependsOn cleanEclipse
+
+    compileJava {
+        dependsOn ':core:jar'
+    }
+
+    jar {
+        archiveVersion = ''
+        destinationDirectory = file("$rootDir/plugins")
+        duplicatesStrategy DuplicatesStrategy.EXCLUDE
+        from sourceSets.main.output
+
+        dependsOn configurations.runtimeClasspath
+        duplicatesStrategy DuplicatesStrategy.INCLUDE
+        from {
+            (project.configurations.runtimeClasspath - project(':core').sourceSets.main.runtimeClasspath)
+                    .findAll { it.name.endsWith('jar') }.collect { zipTree(it) }
+        }
+
+//        doLast {
+//		(project.configurations.runtimeClasspath - project(':core').sourceSets.main.runtimeClasspath)
+//                    .findAll { it.name.endsWith('jar') }.each {print "$project >>>> "; println it}
+//        }
+    }
+
+    artifacts {
+        plugin jar
+    }
+}
+
+///////////////////
+// Build Section //
+///////////////////
+
+task buildJars {
+    description = "Generate $rootProject.name and plugins"
+    group = 'Build'
+    dependsOn jar, subprojects.findAll().collect {it.tasks.withType(Jar).collect{it}}
+}
+run.dependsOn buildJars
+
+/////////////////////
+// Bundles Section //
+/////////////////////
+
+// Creates the bin/bundles neptus-worldmap.jar
+task buildWorldmapBundleJar(type: Jar) {
+    dependsOn buildJars
+    archiveBaseName = "${rootProject.name}"
+    archiveClassifier = 'worldmap'
+    archiveVersion = ''
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    destinationDirectory = file("$rootDir/bin-bundles")
+    includeEmptyDirs = false
+    manifest {
+        attributes(
+            'Specification-Title': rootProject.name.capitalize(),
+            'Specification-Version': "$project.version, ${-> project.ext.gitProps['git.commit.time']}",
+            'Specification-Vendor': 'FEUP   USTL/LSTS (https://www.fe.up.pt/lsts)  Neptus (https://lsts.fe.up.pt/toolchain/neptus)',
+            'Implementation-Title': "${project.name}-worldmap",
+            'Implementation-Version': project.version,
+            'Implementation-Vendor': 'FEUP  USTL/LSTS (https://www.fe.up.pt/lsts)',
+            'Build-Revision': "${rootProject.name}-${project.version}-git#${-> project.ext.gitProps['git.commit.id.describe']}",
+            'Built-By': "${System.properties['user.name']}",
+            'Built-On': "${new Date()}",
+            'Main-Class': 'pt.lsts.neptus.app.tiles.WorldMapPanel',
+            )
+    }
+    dependsOn configurations.runtimeClasspath
+    from {
+        configurations.runtimeClasspath.findAll {
+            if (!it.name.endsWith('jar'))
+                return false
+
+            def ret = false
+            ret |= it.name.contains('dom4j')
+            ret |= it.name.contains('jaxen')
+            ret |= it.name.contains('l2fprod-common-all')
+            ret |= it.name.contains('swingx')
+            ret |= it.name.contains('jgoodies-looks')
+            ret |= it.name.contains('jgoodies-common')
+            ret |= it.name.contains('standby')
+            ret |= it.name.contains('log4j')
+            // ret |= it.name.contains('itext"/')
+            ret |= it.name.contains('commons-cli')
+            ret |= it.name.contains('commons-io')
+            ret |= it.name.contains('foxtrot')
+            ret |= it.name.contains('httpclient')
+            ret |= it.name.contains('httpcore')
+            ret |= it.name.contains('commons-codec')
+            ret |= it.name.contains('batik')
+            ret |= it.name.contains('xml-apis-ext')
+            ret |= it.name.contains('xmlgraphics-commons')
+            ret |= it.name.contains('commons-logging')
+            ret |= it.name.contains('commons-lang3')
+            ret |= it.name.contains('libimc')
+            ret |= it.name.contains('miglayout-core')
+            ret |= it.name.contains('miglayout-swing')
+            ret |= it.name.contains('reflections')
+            ret |= it.name.contains('guava')
+            ret |= it.name.contains('javassist')
+
+            ret |= it.getPath().contains('plugins/tiles-extra.jar')
+
+            return ret
+        }.collect { zipTree(it) }
+    }
+
+    from (sourceSets.main.output) {
+        include 'LICEN*'
+        include 'git.*'
+        include 'version.*'
+        include 'info*'
+    }
+    from ("${rootProject.rootDir}/legal") {
+        into 'legal'
+    }
+    from (project(':core').sourceSets.main.output) {
+        include 'version.txt'
+        include 'images/neptus-icon.png'
+        include 'images/neptus-icon1.png'
+        include 'images/neptus-icon2.png'
+        include 'images/World_Blank_Map_Mercator_projection.svg'
+        include 'images/ssh-connect.png'
+        include 'images/cursors/*.png'
+        include 'images/files-icons/*.png'
+        include 'images/menus/*.png'
+        include 'images/world/*.png'
+        include '**/*.class'
+    }
+}
+
+// Creates the bin/bundles neptus-check.jar
+task buildCheckBundleJar(type: Jar) {
+    dependsOn buildJars
+    archiveBaseName = "${rootProject.name}"
+    archiveClassifier = 'check'
+    archiveVersion = ''
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    destinationDirectory = file("$rootDir/bin-bundles")
+    includeEmptyDirs = false
+    manifest {
+        attributes(
+            'Specification-Title': rootProject.name.capitalize(),
+            'Specification-Version': "$project.version, ${-> project.ext.gitProps['git.commit.time']}",
+            'Specification-Vendor': 'FEUP   USTL/LSTS (https://www.fe.up.pt/lsts)  Neptus (https://lsts.fe.up.pt/toolchain/neptus)',
+            'Implementation-Title': "${project.name}-check",
+            'Implementation-Version': project.version,
+            'Implementation-Vendor': 'FEUP  USTL/LSTS (https://www.fe.up.pt/lsts)',
+            'Build-Revision': "${rootProject.name}-${project.version}-git#${-> project.ext.gitProps['git.commit.id.describe']}",
+            'Built-By': "${System.properties['user.name']}",
+            'Built-On': "${new Date()}",
+            'Main-Class': 'pt.lsts.neptus.gui.checklist.ChecklistPanel',
+            )
+    }
+    dependsOn configurations.runtimeClasspath
+    from {
+        configurations.runtimeClasspath.findAll {
+            if (!it.name.endsWith('jar'))
+                return false
+
+            def ret = false
+            ret |= it.name.contains('dom4j')
+            ret |= it.name.contains('jaxen')
+            ret |= it.name.contains('l2fprod-common-all')
+            ret |= it.name.contains('swingx')
+            ret |= it.name.contains('jgoodies-looks')
+            ret |= it.name.contains('jgoodies-common')
+            ret |= it.name.contains('standby')
+            ret |= it.name.contains('log4j')
+            ret |= it.name.contains('itext')
+            ret |= it.name.contains('commons-cli')
+            ret |= it.name.contains('commons-lang3')
+            ret |= it.name.contains('libimc')
+            ret |= it.getPath().contains('zxing')
+
+            return ret
+        }.collect { zipTree(it) }
+    }
+
+    from (sourceSets.main.output) {
+        include 'LICEN*'
+        include 'git.*'
+        include 'version.*'
+        include 'info*'
+    }
+    from ("${rootProject.rootDir}/legal") {
+        into 'legal'
+    }
+    from (project(':core').sourceSets.main.output) {
+        include 'version.txt'
+        include 'images/neptus-icon.png'
+        include 'images/neptus-icon1.png'
+        include 'images/neptus-icon2.png'
+        include 'images/checklists/*.png'
+        include 'images/files-icons/*.png'
+        include 'schemas/neptus-checklist.xsd'
+        include '**/*.class'
+    }
+}
+
+task buildBundleJars {
+    description = "Generate the bundle Jars"
+    group = 'Distribution'
+
+    dependsOn buildWorldmapBundleJar, buildCheckBundleJar
+}
+
+//////////////////////////
+// Distribution Section //
+//////////////////////////
+
+tasks.distZip.enabled = false
+tasks.distTar.enabled = false
+tasks.startScripts.enabled = false
+
+generateStartScriptsFor(rootProject.name, 'full', 'pt.lsts.neptus.loader.NeptusMain',
+    '', 'RunOptions', rootProject.files(rootProject.file('lib/*')))
+generateStartScriptsFor(rootProject.name, 'le', 'pt.lsts.neptus.mc.lauvconsole.LAUVConsole',
+    '', 'SmallOptions', rootProject.files(rootProject.file('lib/*')))
+generateStartScriptsFor(rootProject.name, 'seacon', 'pt.lsts.neptus.mc.lauvconsole.LAUVConsole',
+    '', 'SmallOptions', rootProject.files(rootProject.file('lib/*')))
+
+tasks.withType(CreateStartScripts).each {
+    if (it.name.endsWith('StartScripts') && !it.name.startsWith('runStartScripts'))
+        it.dependsOn generateRunScripts
+}
+
+def distCommonSpec = project.copySpec {
+    def configurationClasspath = configurations.runtimeClasspath
+    configurationClasspath -= project(':core').configurations.core.allArtifacts.files
+    subprojects.findAll({it.name != 'core'}).each {
+        configurationClasspath -= it.configurations.plugin.allArtifacts.files
+    }
+    into('lib') {
+        from (configurationClasspath)
+    }
+    from("$rootDir/src/resources/images") {
+        include 'neptus-icon2.png'
+        rename '(neptus)-.*(\\.png)', '$1$2'
+    }
+}
+
+distributions {
+    full {
+        contents {
+            with distCommonSpec
+            with project.copySpec { // without this the into will shadow the other content
+                into('') {
+                    from '.'
+                    (file('dist/includes_NeptusCommon.txt') as String[]).each({include it})
+                    (file('dist/includes_NeptusFull.txt') as String[]).each({include it})
+                    (file('dist/excludes_NeptusFull.txt') as String[]).each({exclude it})
+                }
+            }
+            with project.copySpec { // without this the into will shadow the other content
+                into('') {
+                    from fullStartScripts
+                }
+            }
+        }
+    }
+
+    le {
+        contents {
+            with distCommonSpec
+            with project.copySpec { // without this the into will shadow the other content
+                into('') {
+                    from '.'
+                    (file('dist/includes_NeptusCommon.txt') as String[]).each({include it})
+                    (file('dist/includes_NeptusLE.txt') as String[]).each({include it})
+                    (file('dist/excludes_NeptusLE.txt') as String[]).each({exclude it})
+                }
+            }
+            with project.copySpec { // without this the into will shadow the other content
+                into('') {
+                    from leStartScripts
+                }
+            }
+        }
+    }
+
+    seacon {
+        contents {
+            with distCommonSpec
+            with project.copySpec { // without this the into will shadow the other content
+                into('') {
+                    from '.'
+                    (file('dist/includes_NeptusCommon.txt') as String[]).each({include it})
+                    (file('dist/includes_NeptusSeacon.txt') as String[]).each({include it})
+                    (file('dist/excludes_NeptusSeacon.txt') as String[]).each({exclude it})
+                }
+            }
+            with project.copySpec { // without this the into will shadow the other content
+                into('') {
+                    from seaconStartScripts
+                }
+            }
+        }
+    }
+}
+
+// Let us inject for all distZip and distTar, and install*Dist tasks for
+// all distribution the task dependencies
+subprojects.findAll().each { sp ->
+    tasks.withType(Zip).each {
+        if (it.name.endsWith('distZip') || it.name.endsWith('DistZip'))
+            it.dependsOn sp.jar, buildJars, buildBundleJars
+    }
+    tasks.withType(Tar).each {
+        if (it.name.toLowerCase().endsWith('distTar'.toLowerCase()) || it.name.toLowerCase().endsWith('DistTar'.toLowerCase()))
+            it.dependsOn sp.jar, buildJars, buildBundleJars
+    }
+}
+tasks.withType(Sync).each {
+    if (it.name.startsWith('install') && it.name.endsWith('Dist'))
+        it.dependsOn buildBundleJars
+}
+
+/////////////////////////////////////
+// Distribution JRE Section        //
+/////////////////////////////////////
+
+def createDownloadJre(String os, String arch) {
+    return rootProject.tasks.create("downloadJre${os.capitalize()}${arch.capitalize()}") {
+        description = "Downloads JRE from Adoptium.net for ${os.capitalize()}/$arch"
+        group = 'Distribution'
+
+        def extension = 'tar.gz'
+        switch (os.toLowerCase()) {
+            case 'windows':
+                extension = 'zip'
+                break
+            default:
+                break
+        }
+        def jreMajorVersionNum = "${rootProject.ext.jreDownloadVersion.replaceAll('[A-Za-z]', '').replaceAll('-', '').split('\\.')[0]}"
+        def jreVersionNum = "${rootProject.ext.jreDownloadVersion.replaceAll('[A-Za-z]', '').replaceAll('-', '').replaceAll('\\+', '_')}"
+        def jreVersionNumUrl = "${rootProject.ext.jreDownloadVersion.replaceAll('[A-Za-z]', '').replaceAll('-', '').replaceAll('\\+', '%2B')}"
+        def outFolder = "${rootProject.buildDir}/tmp/jredownload"
+        def outJreFileName = "OpenJDK${jreMajorVersionNum}U-jre_${arch.toLowerCase()}_${os.toLowerCase()}_hotspot_${jreVersionNum}.${extension}"
+        def jreFile = "${outFolder}/${outJreFileName}"
+        def jreFileTmp = "${outFolder}/${outJreFileName}.part"
+        def metaInfoFile = "${jreFile}.json"
+        def sha256InfoFile = "${jreFile}.sha256.txt"
+
+        outputs.files("${jreFile}")
+
+        doLast {
+            if (!file("${jreFile}").exists()) {
+                download {
+                    src "https://api.adoptium.net/v3/assets/release_name/eclipse/jdk-${jreVersionNumUrl}?architecture=${arch.toLowerCase()}&heap_size=normal&image_type=jre&os=${os.toLowerCase()}&project=jdk"
+                    dest metaInfoFile
+                    overwrite true
+                }
+                def json = new groovy.json.JsonSlurper().parseText(new File("${metaInfoFile}").text)
+                def downloadJreUrlSha256 = json.binaries.package.checksum[0]
+                def downloadJreUrl = json.binaries.package.link[0]
+                file("${sha256InfoFile}").text = "${downloadJreUrlSha256}  ${outJreFileName}"
+                download {
+                    src "${downloadJreUrl}"
+                    dest jreFileTmp
+                    overwrite true
+                }
+                verifyChecksum {
+                    src new File("${jreFileTmp}")
+                    algorithm 'SHA-256'
+                    checksum "${downloadJreUrlSha256}"
+                }
+                file("${jreFileTmp}").renameTo("${jreFile}")
+            }
+        }
+    }
+}
+
+createDownloadJre('linux', 'x64')
+createDownloadJre('windows', 'x64')
+
+///////////////////////////////////////////
+// Distribution Tar/Zip with JRE Section //
+///////////////////////////////////////////
+
+def createDistTarWithJre(Tar distTarTask, Task jreLinuxTarTask) {
+    return rootProject.tasks.create("${distTarTask.name}WithJre", Tar) {
+        description = "Takes the '${distTarTask.name}' output and adds a JRE from '${jreLinuxTarTask.name}'"
+        group = 'Distribution'
+
+        def tarNeptusFileName = "${distTarTask.archiveFileName.get()}"
+        def tarNeptusFilePath = "${distTarTask.destinationDirectory.getAsFile().get()}/${distTarTask.archiveFileName.get()}"
+        def tarNeptusWithJreFileName = "${distTarTask.archiveFileName.get().replaceAll('\\.tar\\.gz', '-withjre.tar.gz')}"
+        def jreFileName = "${jreLinuxTarTask.outputs.files.singleFile}"
+        def tarBasePath = tarNeptusFileName.replaceAll('\\.tar\\.gz', '')
+
+        dependsOn distTarTask, jreLinuxTarTask
+
+        archiveFileName = tarNeptusWithJreFileName
+        destinationDirectory = file("${distTarTask.destinationDirectory.getAsFile().get()}")
+        from tarTree(file("${tarNeptusFilePath}"))
+        from(tarTree(file("${jreFileName}"))) {
+            includeEmptyDirs false
+            into "${tarBasePath}/jre"
+            eachFile {FileCopyDetails details ->
+                details.path = details.path.replaceAll('(.*/jre/).*jre/', '$1')
+            }
+        }
+    }
+}
+
+def createDistZipWithJre(Zip distZipTask, Task jreWindowsZipTask) {
+    return rootProject.tasks.create("${distZipTask.name}WithJre", Zip) {
+        description = "Takes the '${distZipTask.name}' output and adds a JRE from '${jreWindowsZipTask.name}'"
+        group = 'Distribution'
+
+        def zipNeptusFileName = "${distZipTask.archiveFileName.get()}"
+        def zipNeptusFilePath = "${distZipTask.destinationDirectory.getAsFile().get()}/${distZipTask.archiveFileName.get()}"
+        def zipNeptusWithJreFileName = "${distZipTask.archiveFileName.get().replaceAll('\\.zip', '-withjre.zip')}"
+        def jreFileName = "${jreWindowsZipTask.outputs.files.singleFile}"
+        def zipBasePath = zipNeptusFileName.replaceAll('\\.zip', '')
+
+        dependsOn distZipTask, jreWindowsZipTask
+
+        archiveFileName = zipNeptusWithJreFileName
+        destinationDirectory = file("${distZipTask.destinationDirectory.getAsFile().get()}")
+        from zipTree(file("${zipNeptusFilePath}"))
+        from(zipTree(file("${jreFileName}"))) {
+            includeEmptyDirs false
+            into "${zipBasePath}/jre"
+            eachFile {FileCopyDetails details ->
+                details.path = details.path.replaceAll('(.*/jre/).*jre/', '$1')
+            }
+        }
+    }
+}
+
+// Let us inject *DistZipWithJre an *DistTarWithJre tasks for each distribution declared
+rootProject.findAll().each { sp ->
+    def zipTasks = tasks.withType(Zip).toArray(new Task[0])
+    for (i in 0..<zipTasks.length) {
+        def it = zipTasks[i]
+        if (it.name.toLowerCase().endsWith('distZip'.toLowerCase()) || it.name.toLowerCase().endsWith('DistZip'.toLowerCase())) {
+            createDistZipWithJre(it, downloadJreWindowsX64)
+        }
+    }
+
+    def tarTasks = tasks.withType(Tar).toArray(new Task[0])
+    for (i in 0..<tarTasks.length) {
+        def it = tarTasks[i]
+        if (it.name.toLowerCase().endsWith('distTar'.toLowerCase()) || it.name.toLowerCase().endsWith('DistTar'.toLowerCase())) {
+            createDistTarWithJre(it, downloadJreLinuxX64)
+        }
+    }
+}
+
+/////////////////////////////////////
+// Distribution Installers Section //
+/////////////////////////////////////
+
+/////////////////////////////////////////////
+// Distribution Installers Section - Linux //
+
+def createInstallerLinuxDistFor(String distName, Tar distTarTask) {
+    return rootProject.tasks.create("installer${distName.capitalize()}LinuxDist") {
+        def workTmpDirectory = "${rootProject.buildDir}/tmp/sfx/${distName}/"
+        description = "Generate $distName Linux installer"
+        group = 'Distribution'
+
+        dependsOn distTarTask
+
+        doFirst {
+            def tarBaseFolder = null
+            tarTree("${distTarTask.destinationDirectory.getAsFile().get()}/${distTarTask.archiveFileName.get()}").visit({
+                tarBaseFolder = it.getRelativePath()getSegments()[0]
+                it.stopVisiting()
+            })
+
+            copy {
+                from("${rootProject.projectDir}/dist")
+                include 'linux_sfx_header.txt'
+                into workTmpDirectory
+                filter{ it.replaceAll("@NUMERIC_VERSION@", "${rootProject.version.split('[-+]')[0]}") }
+                filter{ it.replaceAll("@VERSION@", rootProject.version) }
+                filter{ it.replaceAll('@DATE@', "${new Date().format('yyyy-MM-dd')}") }
+                filter{ it.replaceAll('@YEAR@', "$rootProject.ext.copyYears") }
+                
+                filter{ it.replaceAll("@EXTRA_DIST_NAME@", "${distName.capitalize()}") }
+                //filter{ it.replaceAll("@INSTALL_DIR@", "${rootProject.name.capitalize()}${distName != 'full' ? distName.capitalize() : ''}") }
+                //filter{ it.replaceAll("@INSTALL_DIR@", "${distTarTask.archiveFileName.get().replaceAll("\\.${distTarTask.archiveExtension.get()}", "")}") }
+                filter{ it.replaceAll("@INSTALL_DIR@", "${tarBaseFolder}") }
+                filter{ it.replaceAll("@LICENSE@", file("${rootProject.rootDir}/LICENSE.md").getText('UTF-8')) }
+            }
+        }
+
+        doLast {
+            file("${distTarTask.destinationDirectory.getAsFile().get()}/${distTarTask.archiveFileName.get().replaceAll("\\.${distTarTask.archiveExtension.get()}", "")}.sh")
+                    .withOutputStream { writer ->
+                file("${workTmpDirectory}/linux_sfx_header.txt").withInputStream { reader ->
+                    writer << reader
+                }
+                file("${distTarTask.destinationDirectory.getAsFile().get()}/${distTarTask.archiveFileName.get()}")
+                        .withInputStream { reader ->
+                    writer << reader
+                }
+            }
+        }
+    }
+}
+
+createInstallerLinuxDistFor('full', fullDistTarWithJre)
+createInstallerLinuxDistFor('le', leDistTarWithJre)
+createInstallerLinuxDistFor('seacon', seaconDistTarWithJre)
+
+///////////////////////////////////////////////
+// Distribution Installers Section - Windows //
+
+// Common configuration for nsis
+nsis {
+    configuration = file("${rootProject.projectDir}/NSIS_release/install_scripts/neptus.nsi")
+}
+
+def createInstallerWindowsDistFor(String distName, Sync installDistTask, Zip distZipTask) {
+    return rootProject.tasks.create("installer${distName.capitalize()}WindowsDist", com.github.langmo.gradlensis.GradleNsisTask) {
+        description = "Generate $distName Windows installer"
+        group = 'Distribution'
+
+        def baseDir = "${relativePathIfOnProjectPath(installDistTask.destinationDir.absolutePath, '')}"
+        baseDir = "../../${baseDir}".replaceAll('/', '\\\\')
+
+        def runInFolder = file("${rootProject.projectDir}/NSIS_release/install_scripts")
+
+        doFirst {
+            println """!!INFO!! If error on Linux run >> cd \"${runInFolder}\" &&
+                   | ${extractTo.get().getAsFile().absolutePath}/makensis.exe
+                   | /NOCD /DBASEDIR=\"${baseDir}\" neptus.nsi""".stripMargin().replaceAll('\\n', '')
+
+            copy {
+                from("${rootProject.projectDir}/NSIS_release/static_files")
+                include 'neptus_include.nsi'
+                into("${rootProject.projectDir}/NSIS_release/install_scripts")
+                filter{ it.replaceAll("@NEPTUS_NAME@", "${rootProject.name.capitalize()}-${distName.capitalize()}") }
+                filter{ it.replaceAll("@NUMERIC_VERSION@", "${rootProject.version.split('[-+]')[0]}") }
+                filter{ it.replaceAll("@VERSION@", rootProject.version) }
+                filter{ it.replaceAll('@DATE@', "${new Date().format('yyyy-MM-dd')}") }
+                filter{ it.replaceAll('@TIME@', "${new Date().format('HH:mm Z')}") }
+                filter{ it.replaceAll('@COMPILED BY@', "${System.properties['user.name']}") }
+                filter{ it.replaceAll("@NAMED_RELEASE@", rootProject.version) }
+                filter{ it.replaceAll('@LEGAL_COPY@', "$rootProject.ext.copyYears FEUP USTL/LSTS (https://www.fe.up.pt/lsts)") }
+                filter{ it.replaceAll("@DIST_EXE@", "${distZipTask.archiveFileName.get().replaceAll("\\.${distZipTask.archiveExtension.get()}", '')}") }
+                filter{ it.replaceAll("@OUT_FOLDER@", "../../${relativePathIfOnProjectPath(distZipTask.destinationDirectory.getAsFile().get().absolutePath, '').replaceAll('\\\\', '\\\\\\\\')}"
+                        .replaceAll('/', '\\\\\\\\')) }
+            }
+
+            // If exists let us take the jre from the distZipTask
+            copy {
+                from zipTree(file("${distZipTask.destinationDirectory.getAsFile().get()}/${distZipTask.archiveFileName.get()}"))
+                        .matching {include "*/jre*/**"}
+                into file("${installDistTask.destinationDir}")
+                eachFile { fx ->
+                    fx.path = fx.path.replaceFirst("^.*/(jre.*/)", '$1')
+                }
+                includeEmptyDirs false
+            }
+        }
+
+        dependsOn distZipTask, installDistTask
+
+        runIn = runInFolder
+        variables = ['BASEDIR':"\"${baseDir}\""]
+        //destinationName = "${distZipTask.archiveFileName.get().replaceAll("\\.${distZipTask.archiveExtension.get()}", "")}"
+
+        doLast {
+            //delete runIn
+            delete file("${installDistTask.destinationDir}")
+        }
+    }
+}
+
+createInstallerWindowsDistFor('full', installFullDist, fullDistZipWithJre)
+createInstallerWindowsDistFor('le', installLeDist, leDistZipWithJre)
+createInstallerWindowsDistFor('seacon', installSeaconDist, seaconDistZipWithJre)
+
+///////////////////
+// Tools Section //
+///////////////////
+
+task agregateI18N(type: JavaExec) {
+    def emptyTemplateFile = file("${rootProject.buildDir}/tmp/pot/empty.pot")
+    doFirst {
+        emptyTemplateFile.getParentFile().mkdirs()
+        emptyTemplateFile.text = """# Neptus POT file.
+# Copyright (C) ${project.ext.copyYears} FEUP-LSTS
+# This file is distributed under the same license as the Neptus package.
+# LSTS <lsts@fe.up.pt>, 2012.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Neptus\\n"
+"Report-Msgid-Bugs-To: neptus.i18n@lsts.pt\\n"
+"POT-Creation-Date: 2012-09-11 16:05+0100\\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\\n"
+"Language-Team: LANGUAGE <LL@li.org>\\n"
+"Language: \\n"
+"MIME-Version: 1.0\\n"
+"Content-Type: text/plain; charset=UTF-8\\n"
+"Content-Transfer-Encoding: 8bit\\n"
+
+"""
+    }
+
+    dependsOn buildJars
+    mainClass = 'pt.lsts.neptus.i18n.PluginsPotGenerator'
+    args "${emptyTemplateFile.getPath()}"
+    classpath configurations.runtimeClasspath
+    jvmArgs = [
+        '-Xms10m',
+        '-Xmx1g',
+    ]
+}
+
+task processI18N(type: Exec) {
+    workingDir file(rootProject.rootDir)
+    executable 'xgettext'
+    args = [
+        '--language=java',
+        '--keyword',
+        '--keyword=I18n.text',
+        '--keyword=I18n.textc:1,2c',
+        '--keyword=I18n.textf',
+        '--keyword=I18n.textfc:1,2c',
+        '--keyword=I18n.textmark',
+        '--keyword=I18n.textmarkc:1,2c',
+        '--keyword=PropertiesEditor.getPropertyInstance',
+        '--add-location',
+        '--from-code=UTF-8',
+        '--add-comments=/',
+        '--sort-output',
+        '--package-name=Neptus',
+        '--msgid-bugs-address=neptus.i18n@lsts-feup.org',
+        "--copyright-holder=${rootProject.ext.copyYears} Universidade do Porto - Faculdade de Engenharia, LSTS",
+        '-j',
+        '-o', "$rootDir/conf/i18n/neptus.pot",
+    ]
+    fileTree(dir: "$rootDir/src", include: '**/*.java').each {
+        args "${relativePath(it)}"
+    }
+    fileTree(dir: "$rootDir/plugins-dev", include: '**/*.java').each {
+        args "${relativePath(it)}"
+    }
+    ignoreExitValue true
+
+    doLast {
+        if (executionResult.get().getExitValue() > 0) {
+            println "ERROR: Generation of I18N exit with error ${executionResult.getExitValue()}"
+        }
+    }
+}
+processI18N.mustRunAfter agregateI18N
+
+task generateI18N {
+    description = "Generate the I18N POT files (needs gettext installed)"
+    group = 'Distribution'
+    dependsOn agregateI18N, processI18N
+}
+
+///////////////////
+// Clean Section //
+///////////////////
+
+clean {
+    delete fileTree(dir: "$rootDir/bin" , include: '**/*.jar')
+    delete fileTree(dir: "$rootDir/plugins" , include: '**/*.jar')
+    delete fileTree(dir: "$rootDir/bin-bundles" , include: '**/*.jar')
+    delete file("$rootDir/neptus")
+    delete file("$rootDir/neptus.sh") // To account for the changing from Ant
+    delete file("$rootDir/neptus.bat")
+    delete file("$rootDir/cp.jar")
+}
+
+cleanEclipse {
+    doLast {
+        delete file("$rootDir/.settings")
+        subprojects.each { project ->
+            file("$project.projectDir").listFiles({
+                    file -> file.isDirectory() && file.name ==~ '.settings'
+                } as FileFilter).each { delete it }
+        }
+    }
+}
+
+task cleanEclipseBuild {
+    description = "Cleanup build folders"
+    group = 'IDE'
+    doLast {
+        delete file("${rootProject.buildDir}/eclipse")
+        delete file("${project(':core').projectDir}/code")
+        subprojects.each { project ->
+            file("$project.projectDir").listFiles({
+                    file -> file.isDirectory() && (file.name ==~ 'build'
+                    || file.name ==~ 'bin'
+                    || file.name ==~ 'log')
+                } as FileFilter).each { delete it }
+        }
+    }
+}
+
+task cleanIdeaBuild {
+    description = "Cleanup build and project folders"
+    group = 'IDE'
+    doLast {
+        delete file("$rootDir/.idea")
+
+        delete file("src/out")
+        subprojects.each { project ->
+            file("$project.projectDir").listFiles({
+                    file -> file.isDirectory() && file.name ==~ 'out'
+                } as FileFilter).each { delete it }
+        }
+    }
+}
+
+task cleanVSCodeBuild {
+    doLast {
+        delete file("$rootDir/.vscode")
+    }
+}

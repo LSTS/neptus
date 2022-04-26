@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2019.02.1 (master,65b8ee0a9)" system="adamastor" i18n="pt_PT">
+<config format="1" version="2020.01.0 (master,6419144f0)" system="adamastor" i18n="pt_PT">
   <section name="LED Driver" name-i18n="Controlador de LEDs">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -4950,109 +4950,6 @@
       <desc>Amount of time, after meeting conditions, before triggering dislodging behavior</desc>
     </param>
   </section>
-  <section name="Clock" name-i18n="Relógio">
-    <param name="Entity Label">
-      <name-i18n>Nome da Entidade</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Clock</default>
-      <units/>
-      <desc>Nome principal da entidade</desc>
-    </param>
-    <param name="Execution Priority">
-      <name-i18n>Prioridade de Execução</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units/>
-      <desc>Prioridade de execução</desc>
-    </param>
-    <param name="Activation Time">
-      <name-i18n>Tempo de Ativação</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Deactivation Time">
-      <name-i18n>Tempo de Desativação</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Debug Level">
-      <name-i18n>Nível de Depuração</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>None</default>
-      <units/>
-      <desc/>
-      <values>None, Debug, Trace, Spew</values>
-      <values-i18n>None, Debug, Trace, Spew</values-i18n>
-    </param>
-    <param name="Serial Port - Device">
-      <name-i18n>Serial Port - Device</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>/dev/ttyS0</default>
-      <units/>
-      <desc>Serial port device with PPS on CDC pin</desc>
-    </param>
-    <param name="PPS - Device">
-      <name-i18n>PPS - Device</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>/dev/pps0</default>
-      <units/>
-      <desc>Platform specific PPS device</desc>
-    </param>
-    <param name="PPS - Propagation Delay">
-      <name-i18n>PPS - Propagation Delay</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>675</default>
-      <units>ns</units>
-      <desc>Propagation delay of the PPS</desc>
-    </param>
-    <param name="PPS - Maximum Offset">
-      <name-i18n>PPS - Maximum Offset</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>50</default>
-      <units>us</units>
-      <desc>Maximum PPS offset in order to consider the local clock disciplined</desc>
-    </param>
-    <param name="GPS Offset Count">
-      <name-i18n>GPS Offset Count</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units/>
-      <desc>Number of GPS samples to compute time offser</desc>
-    </param>
-    <param name="Execute On Synchronization">
-      <name-i18n>Execute On Synchronization</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>hwclock -w</default>
-      <units/>
-      <desc>System command to execute everytime the clock is synchronized</desc>
-    </param>
-  </section>
   <section name="Power Supervisor" name-i18n="Supervisor de Energia">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -5207,7 +5104,7 @@
       <max>600</max>
     </param>
     <param name="Radio Reports">
-      <name-i18n>Radio Reports</name-i18n>
+      <name-i18n>Relatórios de Rádio</name-i18n>
       <type>boolean</type>
       <visibility>user</visibility>
       <scope>global</scope>
@@ -5216,7 +5113,7 @@
       <desc>Enable Radio system state reporting</desc>
     </param>
     <param name="Radio Reports Periodicity">
-      <name-i18n>Radio Reports Periodicity</name-i18n>
+      <name-i18n>Periodicidade de relatórios de rádio</name-i18n>
       <type>real</type>
       <visibility>user</visibility>
       <scope>global</scope>

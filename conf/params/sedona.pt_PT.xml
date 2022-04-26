@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2019.02.1 (master,65b8ee0a9)" system="sedona" i18n="pt_PT">
+<config format="1" version="2020.01.0 (master,6419144f0)" system="sedona" i18n="pt_PT">
   <section name="Autopilot" name-i18n="Piloto Automático">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -2102,7 +2102,7 @@
       <desc>List of messages ordered by loading order</desc>
     </param>
   </section>
-  <section name="Communications Manager" name-i18n="Communications Manager">
+  <section name="Communications Manager" name-i18n="Gestor de Comunicações">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
       <type>string</type>
@@ -2638,7 +2638,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Abort, Acceleration, AcousticLink, AcousticOperation, AngularVelocity, Announce, ApmStatus, ArmingState, AutopilotMode, ControlLoops, CommSystemsQuery, CpuUsage, Current, Depth, DesiredHeading, DesiredPath, DesiredRoll, DesiredSpeed, DesiredVerticalRate, DesiredZ, DevCalibrationControl, DevDataText, DmsDetection, EulerAngles, EntityList, EntityState, EstimatedState, EstimatedStreamVelocity, FollowReference, FollowRefState, FuelLevel, GpsFix, IndicatedSpeed, LeaderState, LinkLevel, LogBookEntry, MagneticField, ManeuverControlState, PathControlState, PlanControl, PlanSpecification, PlanControlState, PlanDB, PowerChannelControl, Pressure, Reference, ReportControl, Rpm, RSSI, ServoPosition, SetControlSurfaceDeflection, SetServoPosition, SetThrusterActuation, SimulatedState, SoundSpeed, StopManeuver, StorageUsage, TelemetryMsg, Temperature, TextMessage, Throttle, TrueSpeed, TrexObservation, TrexPlan, TrexToken, TrueSpeed, UamRxFrame, UamTxFrame, UamTxStatus, UamRxRange, UsblAnglesExtended, UsblPositionExtended, UsblFixExtended, UsblModem, UsblConfig, VehicleCommand, VehicleMedium, VehicleState, Voltage, VtolState</default>
+      <default>Abort, Acceleration, AcousticLink, AcousticOperation, AngularVelocity, Announce, ApmStatus, ArmingState, AutopilotMode, ControlLoops, CommSystemsQuery, CpuUsage, Current, Depth, DesiredHeading, DesiredPath, DesiredRoll, DesiredSpeed, DesiredVerticalRate, DesiredZ, DevCalibrationControl, DevDataText, DmsDetection, EulerAngles, EntityList, EntityState, EstimatedState, EstimatedStreamVelocity, FollowReference, FollowRefState, FuelLevel, GpsFix, IndicatedSpeed, LeaderState, LinkLevel, LogBookEntry, MagneticField, ManeuverControlState, PathControlState, PlanControl, PlanSpecification, PlanControlState, PlanDB, PowerChannelControl, Pressure, Reference, ReportControl, Rpm, RSSI, ServoPosition, SetControlSurfaceDeflection, SetServoPosition, SetThrusterActuation, SimulatedState, SoundSpeed, StopManeuver, StorageUsage, TelemetryMsg, Temperature, TextMessage, Throttle, TransmissionRequest, TransmissionStatus, TransportBindings, TrueSpeed, TrexObservation, TrexPlan, TrexToken, TrueSpeed, UamRxFrame, UamTxFrame, UamTxStatus, UamRxRange, UsblAnglesExtended, UsblPositionExtended, UsblFixExtended, UsblModem, UsblConfig, VehicleCommand, VehicleMedium, VehicleState, Voltage, VtolState</default>
       <units/>
       <desc/>
     </param>
@@ -2719,7 +2719,7 @@
       <desc>TCP port to listen on</desc>
     </param>
   </section>
-  <section name="TCP On Demand" name-i18n="TCP On Demand">
+  <section name="TCP On Demand" name-i18n="TCP por Demanda">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
       <type>string</type>

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2020 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2022 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -59,7 +59,7 @@ public class PluginsTest extends TestCase {
             Object o = null;
             try {
                 NeptusLog.pub().info("<###>instantiating "+p);
-                o = sp.get(p).newInstance();
+                o = sp.get(p).getDeclaredConstructor().newInstance();
             }
             catch (Error e) {
                 e.printStackTrace();
@@ -81,7 +81,7 @@ public class PluginsTest extends TestCase {
             Object o = null;
             try {
                 NeptusLog.pub().info("<###>instantiating "+p);
-                o = sp.get(p).newInstance();
+                o = sp.get(p).getDeclaredConstructor().newInstance();
             }
             catch (Error e) {
                 e.printStackTrace();

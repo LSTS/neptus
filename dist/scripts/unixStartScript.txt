@@ -1,0 +1,161 @@
+#!/usr/bin/env bash
+#############################################################################
+# Copyright (c) 2004-2022 Universidade do Porto - Faculdade de Engenharia   #
+# Laboratório de Sistemas e Tecnologia Subaquática (LSTS)                   #
+# All rights reserved.                                                      #
+# Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal            #
+#                                                                           #
+# This file is part of Neptus, Command and Control Framework.               #
+#                                                                           #
+# Commercial Licence Usage                                                  #
+# Licencees holding valid commercial Neptus licences may use this file      #
+# in accordance with the commercial licence agreement provided with the     #
+# Software or, alternatively, in accordance with the terms contained in a   #
+# written agreement between you and Universidade do Porto. For licensing    #
+# terms, conditions, and further information contact lsts@fe.up.pt.         #
+#                                                                           #
+# Modified European Union Public Licence - EUPL v.1.1 Usage                 #
+# Alternatively, this file may be used under the terms of the Modified EUPL,#
+# Version 1.1 only (the "Licence"), appearing in the file LICENCE.md        #
+# included in the packaging of this file. You may not use this  work        #
+# except in compliance with the Licence. Unless required by  applicable     #
+# law or agreed to in writing, software distributed under the Licence  is   #
+# distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF      #
+# ANY KIND, either express or implied. See the Licence for the specific     #
+# language governing permissions and limitations at                         #
+# https://github.com/LSTS/neptus/blob/develop/LICENSE.md                    #
+# and http://ec.europa.eu/idabc/eupl.html.                                  #
+#                                                                           #
+# For more information please see <http://lsts.fe.up.pt/neptus>.            #
+#############################################################################
+# Author: Paulo Dias, José Pinto                                            #
+#############################################################################
+
+##  ${applicationName} start up script for UN*X
+
+if [ -z "\$BASH" ]
+then
+  bash \$0 \$@
+fi
+
+PROGNAME=\$0
+
+function command_exists {
+  type "\$1" &> /dev/null
+}
+
+unameOut="\$(uname -s)"
+case "\${unameOut}" in
+    Darwin*)    SHELL_DIR=`dirname \$PROGNAME`;
+                echo "MacOS found!";;
+    *)          if command_exists readlink; then
+                  SHELL_DIR=`dirname \$(readlink -f \$PROGNAME)`
+                  echo "Readlink found!"
+                else
+                  SHELL_DIR=`dirname \$PROGNAME`
+                  echo "No readlink found!"
+                fi
+esac
+
+cd "\$SHELL_DIR/${appHomeRelativePath}" > /dev/null
+APP_HOME="\$(pwd -P)"
+#cd "\$SHELL_DIR" >/dev/null
+
+APP_NAME="${applicationName}"
+APP_BASE_NAME=\$(basename "\$0")
+
+# Add default JVM options here. You can also use JAVA_OPTS and ${optsEnvironmentVar} to pass JVM options to this script.
+DEFAULT_JVM_OPTS=${defaultJvmOpts}
+
+DEFAULT=${mainClassName}
+
+CLASSPATH="\$APP_HOME:\$APP_HOME/bin/neptus.jar:\$APP_HOME/conf:${classpath}:\$APP_HOME/plugins/*:\$CLASSPATH"
+
+@added_section@
+
+LIB_JNI=".:libJNI"
+
+if test -d "\$APP_HOME/jre/bin"; then
+  JAVA_BIN_FOLDER="\$APP_HOME/jre/bin/";
+else
+  if [ -n "\$JAVA_HOME" ] ; then
+    JAVA_BIN_FOLDER="\$JAVA_HOME/bin/";
+  else
+    JAVA_BIN_FOLDER="";
+  fi
+fi
+
+JAVACMD=\${JAVA_BIN_FOLDER}java
+"\$JAVACMD" -version 1>/dev/null 2>&1
+if [ \$? -ne 0 ] ; then
+  echo "Java executable was not found for '\$JAVACMD'"
+  exit 1
+fi
+
+JAVA_MACHINE_TYPE=\$("\$JAVACMD" -classpath "\$APP_HOME/bin/neptus.jar" pt.lsts.neptus.loader.helper.CheckJavaOSArch)
+echo "Found machine type: \$JAVA_MACHINE_TYPE"
+if [[ \${JAVA_MACHINE_TYPE} == 'linux-x64' ]]; then
+ LIB_JNI="@lib_jni_linux_x64@"
+elif [[ \${JAVA_MACHINE_TYPE} == 'linux-x86' ]]; then
+  LIB_JNI="@lib_jni_linux_x86@"
+elif [[ \${JAVA_MACHINE_TYPE} == 'osx-x64' ]]; then
+  LIB_JNI="@lib_jni_osx_x64@"
+fi
+
+if test -f /usr/lib/jni/libvtkCommonJava.so; then
+  VTKPROP="-Dvtk.lib.dir=/usr/lib/jni"
+elif test -f /usr/lib/vtk-5.10/libvtkCommonJava.so; then
+  VTKPROP="-Dvtk.lib.dir=/usr/lib/vtk-5.10"
+elif test -f /usr/lib/vtk-5.8/libvtkCommonJava.so; then
+  VTKPROP="-Dvtk.lib.dir=/usr/lib/vtk-5.8"
+else
+  VTKPROP=
+  echo "No VTK Java wrappers found"
+fi
+
+[[ -e "\$APP_HOME/log/" ]] || mkdir "\$APP_HOME/log"
+
+export LD_LIBRARY_PATH=\$LIB_JNI:\$LD_LIBRARY_PATH
+
+# Collect all arguments for the java command;
+#   * \$DEFAULT_JVM_OPTS, \$JAVA_OPTS, and \$${optsEnvironmentVar} can contain fragments of
+#     shell script including quotes and variable substitutions, so put them in
+#     double quotes to make sure that they get re-expanded; and
+#   * put everything else in single quotes, so that it's not re-expanded.
+
+set -- \\
+        "-Djava.library.path=\$LIB_JNI" \\
+        \$VTKPROP \\
+        -classpath "\$CLASSPATH" \\
+<% if ( mainClassName.startsWith('--module ') ) {
+     %>        --module-path "\$MODULE_PATH" \\
+<% } %>        \$DEFAULT \\
+        "\$@"
+
+# Use "xargs" to parse quoted args.
+#
+# With -n1 it outputs one arg per line, with the quotes removed.
+#
+# In Bash we could simply go:
+#
+#   readarray ARGS < <( xargs -n1 <<<"\$var" ) &&
+#   set -- "\${ARGS[@]}" "\$@"
+#
+# but POSIX shell has neither arrays nor command substitution, so instead we
+# post-process each arg (as a line of input to sed) to backslash-escape any
+# character that might be a shell metacharacter, then use eval to reverse
+# that process (while maintaining the separation between arguments), and wrap
+# the whole thing up as a single "set" statement.
+#
+# This will of course break if any of these variables contains a newline or
+# an unmatched quote.
+#
+
+eval "set -- \$(
+        printf '%s\\n' "\$DEFAULT_JVM_OPTS \$JAVA_OPTS \$${optsEnvironmentVar}" |
+        xargs -n1 |
+        sed ' s~[^-[:alnum:]+,./:=@_]~\\\\&~g; ' |
+        tr '\\n' ' '
+    )" '"\$@"'
+
+exec "\$JAVACMD" "\$@"

@@ -1,0 +1,962 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright (c) 2004-2022 Universidade do Porto - Faculdade de Engenharia
+Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
+All rights reserved.
+Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
+
+This file is part of Neptus, Command and Control Framework.
+
+Commercial Licence Usage
+Licencees holding valid commercial Neptus licences may use this file
+in accordance with the commercial licence agreement provided with the
+Software or, alternatively, in accordance with the terms contained in a
+written agreement between you and Universidade do Porto. For licensing 
+terms, conditions, and further information contact lsts@fe.up.pt.
+
+European Union Public Licence - EUPL v.1.1 Usage
+Alternatively, this file may be used under the terms of the EUPL,
+Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
+included in the packaging of this file. You may not use this  work
+except in compliance with the Licence. Unless required by  applicable
+law or agreed to in writing, software distributed under the Licence  is
+distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
+ANY KIND, either express or implied. See the Licence for the specific
+language governing permissions and limitations at
+https://www.lsts.pt/neptus/licence.
+
+For more information please see <http://lsts.fe.up.pt/neptus>.
+
+Author: Paulo Dias, José Pinto
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:annotation>
+		<xs:documentation>v0.9</xs:documentation>
+	</xs:annotation>
+	<xs:include schemaLocation="neptus-types.xsd"/>
+	<xs:complexType name="pointType">
+		<xs:annotation>
+			<xs:documentation>3D point</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="point" type="locationType"/>
+			<xs:element name="radiusTolerance">
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:float"/>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="attitude" minOccurs="0">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="roll">
+							<xs:annotation>
+								<xs:documentation>in degrees (º)</xs:documentation>
+							</xs:annotation>
+							<xs:complexType>
+								<xs:simpleContent>
+									<xs:extension base="xs:float">
+										<xs:attribute name="rollTolerance" type="xs:float" use="required"/>
+									</xs:extension>
+								</xs:simpleContent>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="pitch">
+							<xs:annotation>
+								<xs:documentation>in degrees (º)</xs:documentation>
+							</xs:annotation>
+							<xs:complexType>
+								<xs:simpleContent>
+									<xs:extension base="xs:float">
+										<xs:attribute name="pitchTolerance" type="xs:float" use="required"/>
+									</xs:extension>
+								</xs:simpleContent>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="yaw">
+							<xs:annotation>
+								<xs:documentation>in degrees (º)</xs:documentation>
+							</xs:annotation>
+							<xs:complexType>
+								<xs:simpleContent>
+									<xs:extension base="xs:float">
+										<xs:attribute name="yawTolerance" type="xs:float" use="required"/>
+									</xs:extension>
+								</xs:simpleContent>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="coordinate-system" minOccurs="0">
+							<xs:simpleType>
+								<xs:restriction base="xs:token"/>
+							</xs:simpleType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ManeuverType">
+		<xs:sequence>
+			<xs:sequence>
+				<xs:element name="minTime" type="xs:float" default="0" minOccurs="0"/>
+				<xs:element name="maxTime" type="xs:float" minOccurs="0"/>
+			</xs:sequence>
+			<xs:choice>
+				<xs:element ref="Goto"/>
+				<xs:element ref="Loiter"/>
+				<xs:element ref="StationKeeping"/>
+				<xs:element ref="Unconstrained"/>
+				<xs:element ref="Dive"/>
+				<xs:element ref="PopUp"/>
+				<xs:element ref="Elevator"/>
+				<xs:element ref="YoYo"/>
+				<xs:element ref="FollowSystem"/>
+				<xs:element ref="FollowPath"/>
+				<xs:element ref="FollowTrajectory"/>
+				<xs:element ref="VehicleFormation"/>
+				<xs:element ref="Rows"/>
+				<xs:element ref="RowsManeuver"/>
+				<xs:element ref="RowsPattern"/>
+				<xs:element ref="RIPattern"/>
+				<xs:element ref="CrossHatchPattern"/>
+				<xs:element ref="HeadingSpeedDepth"/>
+				<xs:element ref="SubPlan"/>
+				<xs:element name="IMCManeuver">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:sequence>
+								<xs:any namespace="##any"/>
+							</xs:sequence>
+							<xs:element name="annotation" type="annotationType" minOccurs="0"/>
+						</xs:sequence>
+						<xs:attribute name="name" use="required"/>
+					</xs:complexType>
+				</xs:element>
+			</xs:choice>
+			<xs:sequence minOccurs="0">
+				<xs:element name="custom-settings" minOccurs="0">
+					<xs:complexType>
+						<xs:sequence maxOccurs="unbounded">
+							<xs:element name="setting">
+								<xs:complexType>
+									<xs:simpleContent>
+										<xs:extension base="xs:string">
+											<xs:attribute name="name" type="xs:string" use="required"/>
+											<xs:attribute name="type-hint" default="String">
+												<xs:simpleType>
+													<xs:restriction base="xs:string">
+														<xs:enumeration value="String"/>
+														<xs:enumeration value="Number"/>
+														<xs:enumeration value="Boolean"/>
+													</xs:restriction>
+												</xs:simpleType>
+											</xs:attribute>
+										</xs:extension>
+									</xs:simpleContent>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="FollowPath">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="basePoint">
+					<xs:complexType>
+						<xs:complexContent>
+							<xs:extension base="pointType">
+								<xs:attribute name="type" type="xs:string" use="required" fixed="pointType"/>
+							</xs:extension>
+						</xs:complexContent>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="path">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="nedOffsets" minOccurs="0" maxOccurs="unbounded">
+								<xs:complexType>
+									<xs:simpleContent>
+										<xs:extension base="xs:string">
+											<xs:attribute name="northOffset" type="xs:double" use="required"/>
+											<xs:attribute name="eastOffset" type="xs:double" use="required"/>
+											<xs:attribute name="depthOffset" type="xs:double" use="required"/>
+										</xs:extension>
+									</xs:simpleContent>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="speed" type="speedType" minOccurs="0"/>
+				<xs:element name="annotation" type="annotationType" minOccurs="0"/>
+			</xs:sequence>
+			<xs:attribute name="kind" type="xs:string" use="required" fixed="automatic"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="Goto">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="initialPoint" minOccurs="0">
+					<xs:complexType>
+						<xs:complexContent>
+							<xs:extension base="pointType">
+								<xs:attribute name="type" type="xs:string" use="required" fixed="pointType"/>
+							</xs:extension>
+						</xs:complexContent>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="finalPoint">
+					<xs:complexType>
+						<xs:complexContent>
+							<xs:extension base="pointType">
+								<xs:attribute name="type" type="xs:string" use="required" fixed="pointType"/>
+							</xs:extension>
+						</xs:complexContent>
+					</xs:complexType>
+				</xs:element>
+				<xs:choice>
+					<xs:element name="speed" type="speedType"/>
+					<xs:element name="velocity" type="speedType">
+						<xs:annotation>
+							<xs:documentation>@Deprecated - use speed instead</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:choice>
+				<xs:element name="trajectoryTolerance">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="radiusTolerance">
+								<xs:complexType>
+									<xs:simpleContent>
+										<xs:extension base="xs:float">
+											<xs:attribute name="type" type="xs:string" fixed="float"/>
+										</xs:extension>
+									</xs:simpleContent>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="annotation" type="annotationType" minOccurs="0"/>
+			</xs:sequence>
+			<xs:attribute name="kind" type="xs:string" use="required" fixed="automatic"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="Loiter">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="basePoint" minOccurs="0">
+					<xs:complexType>
+						<xs:complexContent>
+							<xs:extension base="pointType">
+								<xs:attribute name="type" type="xs:string" use="required" fixed="pointType"/>
+							</xs:extension>
+						</xs:complexContent>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="duration" type="xs:int">
+					<xs:annotation>
+						<xs:documentation>The duration of the Loiter maneuver, in seconds.
+-1 = Infinity
+ 0 = No Loiter</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="trajectory" minOccurs="0">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="radius">
+								<xs:complexType>
+									<xs:simpleContent>
+										<xs:extension base="xs:float">
+											<xs:attribute name="type" type="xs:string" use="required" fixed="float"/>
+										</xs:extension>
+									</xs:simpleContent>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="radiusTolerance">
+								<xs:complexType>
+									<xs:simpleContent>
+										<xs:extension base="xs:float">
+											<xs:attribute name="type" type="xs:string" use="required" fixed="float"/>
+										</xs:extension>
+									</xs:simpleContent>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="type" default="Hover" minOccurs="0">
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:enumeration value="Circular"/>
+										<xs:enumeration value="Racetrack"/>
+										<xs:enumeration value="Figure 8"/>
+										<xs:enumeration value="Hover"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+							<xs:element name="length" minOccurs="0">
+								<xs:annotation>
+									<xs:documentation>Basicaly for racetrack, and figure8.</xs:documentation>
+								</xs:annotation>
+								<xs:complexType>
+									<xs:simpleContent>
+										<xs:extension base="xs:float">
+											<xs:attribute name="type" type="xs:string" use="required" fixed="float"/>
+										</xs:extension>
+									</xs:simpleContent>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="bearing" minOccurs="0">
+								<xs:annotation>
+									<xs:documentation>in degrees</xs:documentation>
+								</xs:annotation>
+								<xs:complexType>
+									<xs:simpleContent>
+										<xs:extension base="xs:float">
+											<xs:attribute name="type" type="xs:string" use="required" fixed="float"/>
+										</xs:extension>
+									</xs:simpleContent>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="direction" minOccurs="0">
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:enumeration value="Vehicle Dependent"/>
+										<xs:enumeration value="Clockwise"/>
+										<xs:enumeration value="Counter-Clockwise"/>
+										<xs:enumeration value="Into the wind"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:choice minOccurs="0">
+					<xs:element name="speed" type="speedType" minOccurs="0"/>
+					<xs:element name="velocity" type="speedType" minOccurs="0">
+						<xs:annotation>
+							<xs:documentation>@Deprecated - use speed instead</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:choice>
+				<xs:element name="annotation" type="annotationType" minOccurs="0"/>
+			</xs:sequence>
+			<xs:attribute name="kind" type="xs:string" use="required" fixed="automatic"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="StationKeeping">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="basePoint" minOccurs="0">
+					<xs:complexType>
+						<xs:complexContent>
+							<xs:extension base="pointType">
+								<xs:attribute name="type" type="xs:string" use="required" fixed="pointType"/>
+							</xs:extension>
+						</xs:complexContent>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="duration" type="xs:int">
+					<xs:annotation>
+						<xs:documentation>The duration of the Loiter maneuver, in seconds.
+-1 = Infinity
+ 0 = No Loiter</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="trajectory" minOccurs="0">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="radius">
+								<xs:complexType>
+									<xs:simpleContent>
+										<xs:extension base="xs:float">
+											<xs:attribute name="type" type="xs:string" use="required" fixed="float"/>
+										</xs:extension>
+									</xs:simpleContent>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="speed" type="speedType" minOccurs="0"/>
+				<xs:element name="annotation" type="annotationType" minOccurs="0"/>
+			</xs:sequence>
+			<xs:attribute name="kind" type="xs:string" use="required" fixed="automatic"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="Unconstrained">
+		<xs:complexType>
+			<xs:sequence minOccurs="0">
+				<xs:element name="annotation" type="annotationType" minOccurs="0"/>
+			</xs:sequence>
+			<xs:attribute name="kind" type="xs:string" use="required" fixed="manual"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="Dive">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="depth" type="xs:float">
+					<xs:annotation>
+						<xs:documentation>in metres</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:choice>
+					<xs:element name="speed" type="speedType"/>
+					<xs:element name="velocity" type="speedType">
+						<xs:annotation>
+							<xs:documentation>@Deprecated - use speed instead</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:choice>
+				<xs:element name="heading">
+					<xs:annotation>
+						<xs:documentation>In degrees. The heading to be used on the dive. Use '-1' for this field to be disconsidered. Otherwise the value spans from 0 to 2Pi.</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:double">
+							<xs:minInclusive value="-1"/>
+							<xs:maxInclusive value="360"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="annotation" type="annotationType" minOccurs="0"/>
+			</xs:sequence>
+			<xs:attribute name="kind" type="xs:string" use="required" fixed="automatic"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="PopUp">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="finalPoint">
+					<xs:complexType>
+						<xs:complexContent>
+							<xs:extension base="pointType">
+								<xs:attribute name="type" type="xs:string" use="required" fixed="pointType"/>
+							</xs:extension>
+						</xs:complexContent>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="duration">
+					<xs:annotation>
+						<xs:documentation>in seconds</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:simpleContent>
+							<xs:extension base="xs:int"/>
+						</xs:simpleContent>
+					</xs:complexType>
+				</xs:element>
+				<xs:choice>
+					<xs:element name="speed" type="speedType"/>
+					<xs:element name="velocity" type="speedType">
+						<xs:annotation>
+							<xs:documentation>@Deprecated - use speed instead</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:choice>
+				<xs:element name="annotation" type="annotationType" minOccurs="0"/>
+			</xs:sequence>
+			<xs:attribute name="kind" type="xs:string" use="required" fixed="automatic"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="HeadingSpeedDepth">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="duration">
+					<xs:annotation>
+						<xs:documentation>in seconds</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:simpleContent>
+							<xs:extension base="xs:int"/>
+						</xs:simpleContent>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="depth" type="xs:float">
+					<xs:annotation>
+						<xs:documentation>in metres</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:choice>
+					<xs:element name="speed" type="speedType"/>
+					<xs:element name="velocity" type="speedType">
+						<xs:annotation>
+							<xs:documentation>@Deprecated - use speed instead</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:choice>
+				<xs:element name="heading">
+					<xs:annotation>
+						<xs:documentation>In degrees. The heading to be used on the dive. Use '-1' for this field to be disconsidered. Otherwise the value spans from 0 to 2Pi.</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:double">
+							<xs:minInclusive value="-1"/>
+							<xs:maxInclusive value="360"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="annotation" type="annotationType" minOccurs="0"/>
+			</xs:sequence>
+			<xs:attribute name="kind" type="xs:string" use="required" fixed="automatic"/>
+			<xs:attribute name="useHeading" type="xs:boolean" default="true"/>
+			<xs:attribute name="useSpeed" type="xs:boolean" default="true"/>
+			<xs:attribute name="useDepth" type="xs:boolean" default="true"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="HeadingVelocityDepth">
+		<xs:annotation>
+			<xs:documentation>@Deprecated</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="duration">
+					<xs:annotation>
+						<xs:documentation>in seconds</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:simpleContent>
+							<xs:extension base="xs:int"/>
+						</xs:simpleContent>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="depth" type="xs:float">
+					<xs:annotation>
+						<xs:documentation>in metres</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:choice>
+					<xs:element name="speed" type="speedType"/>
+					<xs:element name="velocity" type="speedType">
+						<xs:annotation>
+							<xs:documentation>@Deprecated - use speed instead</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:choice>
+				<xs:element name="heading">
+					<xs:annotation>
+						<xs:documentation>In degrees. The heading to be used on the dive. Use '-1' for this field to be disconsidered. Otherwise the value spans from 0 to 2Pi.</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:double">
+							<xs:minInclusive value="-1"/>
+							<xs:maxInclusive value="360"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="annotation" type="annotationType" minOccurs="0"/>
+			</xs:sequence>
+			<xs:attribute name="kind" type="xs:string" use="required" fixed="automatic"/>
+			<xs:attribute name="useHeading" type="xs:boolean" default="true"/>
+			<xs:attribute name="useVelocity" type="xs:boolean" default="true"/>
+			<xs:attribute name="useDepth" type="xs:boolean" default="true"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="YoYo">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="initialPoint" minOccurs="0">
+					<xs:complexType>
+						<xs:complexContent>
+							<xs:extension base="pointType">
+								<xs:attribute name="type" type="xs:string" use="required" fixed="pointType"/>
+							</xs:extension>
+						</xs:complexContent>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="finalPoint">
+					<xs:complexType>
+						<xs:complexContent>
+							<xs:extension base="pointType">
+								<xs:attribute name="type" type="xs:string" use="required" fixed="pointType"/>
+							</xs:extension>
+						</xs:complexContent>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="amplitude" type="xs:float"/>
+				<xs:element name="pitch">
+					<xs:simpleType>
+						<xs:restriction base="xs:float">
+							<xs:minInclusive value="0"/>
+							<xs:maxInclusive value="0.7853982"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="speed" type="speedType"/>
+				<xs:element name="annotation" type="annotationType" minOccurs="0"/>
+			</xs:sequence>
+			<xs:attribute name="kind" type="xs:string" use="required" fixed="automatic"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="FollowTrajectory">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="basePoint">
+					<xs:complexType>
+						<xs:complexContent>
+							<xs:extension base="pointType">
+								<xs:attribute name="type" type="xs:string" use="required" fixed="pointType"/>
+							</xs:extension>
+						</xs:complexContent>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="trajectory">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="nedOffsets" minOccurs="0" maxOccurs="unbounded">
+								<xs:complexType>
+									<xs:simpleContent>
+										<xs:extension base="xs:string">
+											<xs:attribute name="northOffset" type="xs:double" use="required"/>
+											<xs:attribute name="eastOffset" type="xs:double" use="required"/>
+											<xs:attribute name="depthOffset" type="xs:double" use="required"/>
+											<xs:attribute name="timeOffset" type="xs:double" use="required"/>
+										</xs:extension>
+									</xs:simpleContent>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="speed" type="speedType" minOccurs="0"/>
+				<xs:element name="annotation" type="annotationType" minOccurs="0"/>
+			</xs:sequence>
+			<xs:attribute name="kind" type="xs:string" use="required" fixed="automatic"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="VehicleFormation">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="basePoint">
+					<xs:complexType>
+						<xs:complexContent>
+							<xs:extension base="pointType">
+								<xs:attribute name="type" type="xs:string" use="required" fixed="pointType"/>
+							</xs:extension>
+						</xs:complexContent>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="trajectory">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="nedOffsets" minOccurs="0" maxOccurs="unbounded">
+								<xs:complexType>
+									<xs:simpleContent>
+										<xs:extension base="xs:string">
+											<xs:attribute name="northOffset" type="xs:double" use="required"/>
+											<xs:attribute name="eastOffset" type="xs:double" use="required"/>
+											<xs:attribute name="depthOffset" type="xs:double" use="required"/>
+											<xs:attribute name="timeOffset" type="xs:double" use="required"/>
+										</xs:extension>
+									</xs:simpleContent>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="speed" type="speedType" minOccurs="0"/>
+				<xs:element name="startTime" type="xs:long"/>
+				<xs:element name="participants">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="participant" minOccurs="0" maxOccurs="unbounded">
+								<xs:complexType>
+									<xs:simpleContent>
+										<xs:extension base="xs:string">
+											<xs:attribute name="xOffset" type="xs:double" use="required"/>
+											<xs:attribute name="yOffset" type="xs:double" use="required"/>
+											<xs:attribute name="zOffset" type="xs:double" use="required"/>
+										</xs:extension>
+									</xs:simpleContent>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="annotation" type="annotationType" minOccurs="0"/>
+			</xs:sequence>
+			<xs:attribute name="kind" type="xs:string" use="required" fixed="automatic"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="FollowSystem">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="system" type="xs:string">
+					<xs:annotation>
+						<xs:documentation>The name of the system to follow.</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="duration" type="xs:int">
+					<xs:annotation>
+						<xs:documentation>The duration of the Loiter maneuver, in seconds.
+-1 = Infinity
+ 0 = No Loiter</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="offsets">
+					<xs:complexType>
+						<xs:simpleContent>
+							<xs:extension base="xs:string">
+								<xs:attribute name="xOffset" type="xs:double" use="required"/>
+								<xs:attribute name="yOffset" type="xs:double" use="required"/>
+								<xs:attribute name="zOffset" type="xs:double" use="required"/>
+							</xs:extension>
+						</xs:simpleContent>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="speed" type="speedType" minOccurs="0"/>
+				<xs:element name="annotation" type="annotationType" minOccurs="0"/>
+			</xs:sequence>
+			<xs:attribute name="kind" type="xs:string" use="required" fixed="automatic"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="Rows">
+		<xs:annotation>
+			<xs:documentation>@Deprecated</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="basePoint">
+					<xs:complexType>
+						<xs:complexContent>
+							<xs:extension base="pointType">
+								<xs:attribute name="type" type="xs:string" use="required" fixed="pointType"/>
+							</xs:extension>
+						</xs:complexContent>
+					</xs:complexType>
+				</xs:element>
+				<xs:sequence>
+					<xs:element name="width" type="xs:double"/>
+					<xs:element name="length" type="xs:double" minOccurs="0"/>
+					<xs:element name="height" type="xs:double" minOccurs="0"/>
+					<xs:element name="hstep" type="xs:double"/>
+					<xs:element name="vstep" type="xs:double" minOccurs="0"/>
+					<xs:element name="bearing" type="xs:double"/>
+					<xs:element name="crossAngle" type="xs:double" default="0" minOccurs="0"/>
+					<xs:element name="alternationPercentage" type="xs:short" default="100" minOccurs="0"/>
+					<xs:element name="curveOffset" type="xs:double" default="15" minOccurs="0"/>
+					<xs:element name="squareCurve" type="xs:boolean" default="true" minOccurs="0"/>
+					<xs:element name="firstCurveRight" type="xs:boolean" default="true" minOccurs="0"/>
+				</xs:sequence>
+				<xs:element name="speed" type="speedType" minOccurs="0"/>
+				<xs:element name="annotation" type="annotationType" minOccurs="0"/>
+			</xs:sequence>
+			<xs:attribute name="kind" type="xs:string" use="required" fixed="automatic"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="RowsManeuver">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="basePoint">
+					<xs:complexType>
+						<xs:complexContent>
+							<xs:extension base="pointType">
+								<xs:attribute name="type" type="xs:string" use="required" fixed="pointType"/>
+							</xs:extension>
+						</xs:complexContent>
+					</xs:complexType>
+				</xs:element>
+				<xs:sequence>
+					<xs:element name="width" type="xs:double"/>
+					<xs:element name="length" type="xs:double" minOccurs="0"/>
+					<xs:element name="height" type="xs:double" minOccurs="0">
+						<xs:annotation>
+							<xs:documentation>deprecated</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="hstep" type="xs:double"/>
+					<xs:element name="vstep" type="xs:double" minOccurs="0">
+						<xs:annotation>
+							<xs:documentation>deprecated</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="bearing" type="xs:double"/>
+					<xs:element name="crossAngle" type="xs:double" default="0" minOccurs="0"/>
+					<xs:element name="alternationPercentage" type="xs:short" default="100" minOccurs="0"/>
+					<xs:element name="curveOffset" type="xs:double" default="15" minOccurs="0"/>
+					<xs:element name="squareCurve" type="xs:boolean" default="true" minOccurs="0"/>
+					<xs:element name="firstCurveRight" type="xs:boolean" default="true" minOccurs="0"/>
+				</xs:sequence>
+				<xs:element name="speed" type="speedType" minOccurs="0"/>
+				<xs:element name="annotation" type="annotationType" minOccurs="0"/>
+			</xs:sequence>
+			<xs:attribute name="kind" type="xs:string" use="required" fixed="automatic"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="RowsPattern">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="basePoint">
+					<xs:complexType>
+						<xs:complexContent>
+							<xs:extension base="pointType">
+								<xs:attribute name="type" type="xs:string" use="required" fixed="pointType"/>
+							</xs:extension>
+						</xs:complexContent>
+					</xs:complexType>
+				</xs:element>
+				<xs:sequence>
+					<xs:element name="width" type="xs:double"/>
+					<xs:element name="length" type="xs:double" minOccurs="0"/>
+					<xs:element name="hstep" type="xs:double"/>
+					<xs:element name="bearing" type="xs:double"/>
+					<xs:element name="crossAngle" type="xs:double" default="0" minOccurs="0"/>
+					<xs:element name="alternationPercentage" type="xs:short" default="100" minOccurs="0"/>
+					<xs:element name="curveOffset" type="xs:double" default="15" minOccurs="0"/>
+					<xs:element name="squareCurve" type="xs:boolean" default="true" minOccurs="0"/>
+					<xs:element name="firstCurveRight" type="xs:boolean" default="true" minOccurs="0"/>
+				</xs:sequence>
+				<xs:element name="speed" type="speedType" minOccurs="0"/>
+				<xs:element name="annotation" type="annotationType" minOccurs="0"/>
+			</xs:sequence>
+			<xs:attribute name="kind" type="xs:string" use="required" fixed="automatic"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="RIPattern">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="basePoint">
+					<xs:complexType>
+						<xs:complexContent>
+							<xs:extension base="pointType">
+								<xs:attribute name="type" type="xs:string" use="required" fixed="pointType"/>
+							</xs:extension>
+						</xs:complexContent>
+					</xs:complexType>
+				</xs:element>
+				<xs:sequence>
+					<xs:element name="width" type="xs:double"/>
+					<xs:element name="hstep" type="xs:double"/>
+					<xs:element name="bearing" type="xs:double"/>
+					<xs:element name="alternationPercentage" type="xs:short" default="100" minOccurs="0"/>
+					<xs:element name="curveOffset" type="xs:double" default="15" minOccurs="0"/>
+					<xs:element name="squareCurve" type="xs:boolean" default="true" minOccurs="0"/>
+					<xs:element name="firstCurveRight" type="xs:boolean" default="true" minOccurs="0"/>
+				</xs:sequence>
+				<xs:element name="speed" type="speedType" minOccurs="0"/>
+				<xs:element name="annotation" type="annotationType" minOccurs="0"/>
+			</xs:sequence>
+			<xs:attribute name="kind" type="xs:string" use="required" fixed="automatic"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="CrossHatchPattern">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="basePoint">
+					<xs:complexType>
+						<xs:complexContent>
+							<xs:extension base="pointType">
+								<xs:attribute name="type" type="xs:string" use="required" fixed="pointType"/>
+							</xs:extension>
+						</xs:complexContent>
+					</xs:complexType>
+				</xs:element>
+				<xs:sequence>
+					<xs:element name="width" type="xs:double"/>
+					<xs:element name="hstep" type="xs:double"/>
+					<xs:element name="bearing" type="xs:double"/>
+					<xs:element name="curveOffset" type="xs:double" default="15" minOccurs="0"/>
+					<xs:element name="squareCurve" type="xs:boolean" default="true" minOccurs="0"/>
+					<xs:element name="firstCurveRight" type="xs:boolean" default="true" minOccurs="0"/>
+				</xs:sequence>
+				<xs:element name="speed" type="speedType" minOccurs="0"/>
+				<xs:element name="annotation" type="annotationType" minOccurs="0"/>
+			</xs:sequence>
+			<xs:attribute name="kind" type="xs:string" use="required" fixed="automatic"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="SubPlan">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="annotation" type="annotationType" minOccurs="0"/>
+			</xs:sequence>
+			<xs:attribute name="kind" type="xs:string" use="required" fixed="automatic"/>
+			<xs:attribute name="planId" type="xs:string" use="required"/>
+			<xs:attribute name="startNodeId" type="xs:string" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="annotationType">
+		<xs:sequence>
+			<xs:element name="documentation" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>documentation for help purposes of the maneuver</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="implementation-class" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>indicate the implementation class of this maneuver</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:attributeGroup name="kindTypeAttributeGroup">
+		<xs:attribute name="kind" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:pattern value="automatic"/>
+					<xs:pattern value="semi-automatic"/>
+					<xs:pattern value="manual"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:attributeGroup>
+	<xs:complexType name="speedType">
+		<xs:simpleContent>
+			<xs:extension base="xs:float">
+				<xs:attribute name="tolerance" type="xs:float"/>
+				<xs:attribute name="type" type="xs:string" fixed="float"/>
+				<xs:attribute name="unit">
+					<xs:annotation>
+						<xs:documentation>Default is m/s.</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:token">
+							<xs:enumeration value="m/s"/>
+							<xs:enumeration value="RPM"/>
+							<xs:enumeration value="%"/>
+							<xs:enumeration value="Km/h"/>
+							<xs:enumeration value="km/h"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:attribute>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:element name="Elevator">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="initialPoint">
+					<xs:complexType>
+						<xs:complexContent>
+							<xs:extension base="pointType">
+								<xs:attribute name="type" type="xs:string" use="required" fixed="pointType"/>
+							</xs:extension>
+						</xs:complexContent>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="endZ" type="xs:float"/>
+				<xs:element name="pitch" type="xs:float"/>
+				<xs:element name="radius" type="xs:float"/>
+				<xs:element name="duration">
+					<xs:annotation>
+						<xs:documentation>in seconds</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:simpleContent>
+							<xs:extension base="xs:int"/>
+						</xs:simpleContent>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="speed" type="speedType"/>
+				<xs:element name="flags" minOccurs="0">
+					<xs:complexType>
+						<xs:attribute name="useCurrentLocation" type="xs:boolean" default="false"/>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="annotation" type="annotationType" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<system xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="..\src\schemas\neptus-vehicle.xsd">
+  <properties>
+    <id>pioneer</id>
+    <name>Pioneer</name>
+    <type>ROV</type>
+    <appearance>
+      <x-size>0.7</x-size>
+      <y-size>0.5</y-size>
+      <z-size>0.3</z-size>
+      <top-image-2D>../vehicles-files/adamastor/adamastor_top.png</top-image-2D>
+      <side-image-2D>../vehicles-files/adamastor/adamastor_side.png</side-image-2D>
+      <presentation-image-2D>../vehicles-files/adamastor/adamastor_presentation.png</presentation-image-2D>
+      <model-3D>../vehicles-files/adamastor/adamastor.j3d</model-3D>
+    </appearance>
+    <limits>
+      <valid-zunits>depth</valid-zunits>
+    </limits>
+    <coordinate-system-label>SNAME</coordinate-system-label>
+  </properties>
+  <feasibleManeuvers>
+    <maneuver>
+      <Unconstrained kind="manual">
+        <annotation>
+          <documentation>No documentation available</documentation>
+          <implementation-class>pt.lsts.neptus.mp.maneuvers.Unconstrained</implementation-class>
+        </annotation>
+      </Unconstrained>
+    </maneuver>
+    <maneuver>
+      <Goto kind="automatic">
+        <finalPoint type="pointType">
+          <point>
+            <id>GotoDestination</id>
+            <name>GotoDestination</name>
+            <coordinate>
+              <latitude>0N</latitude>
+              <longitude>0E</longitude>
+              <height>5</height>
+            </coordinate>
+          </point>
+          <radiusTolerance>5</radiusTolerance>
+        </finalPoint>
+        <velocity tolerance="10" type="float" unit="m/s">5</velocity>
+        <trajectoryTolerance>
+          <radiusTolerance type="float">5</radiusTolerance>
+        </trajectoryTolerance>
+        <annotation>
+          <documentation>Move to a given point</documentation>
+          <implementation-class>pt.lsts.neptus.mp.maneuvers.Goto</implementation-class>
+        </annotation>
+      </Goto>
+    </maneuver>
+  </feasibleManeuvers>
+  <communication-means>
+    <comm-mean>
+      <name>ethernet</name>
+      <type>ethernet</type>
+      <host-address>192.168.1.101</host-address>
+      <protocols>imc</protocols>
+      <latency value="100M" unit="bps"/>
+      <protocols-args>
+        <imc>
+          <port>6002</port>
+          <port-tcp>6002</port-tcp>
+          <udp-on>true</udp-on>
+          <tcp-on>false</tcp-on>
+          <imc-id>00:34</imc-id>
+        </imc>
+      </protocols-args>
+    </comm-mean>
+  </communication-means>
+  <configuration-files>
+	</configuration-files>
+  <consoles>
+    <console name="LAUV">
+      <xml-file>../conf/consoles/lauv.ncon</xml-file>
+    </console>
+    <console name="Adamastor Console">
+      <xml-file>../conf/consoles/adamastor-light.ncon</xml-file>
+    </console>
+  </consoles>
+</system>
