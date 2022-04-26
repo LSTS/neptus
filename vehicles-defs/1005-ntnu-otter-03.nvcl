@@ -402,11 +402,11 @@
       <latency value="100M" unit="bps"/>
       <protocols-args>
         <imc>
-          <port>7000</port>
+          <port>6002</port>
           <port-tcp>6002</port-tcp>
           <udp-on>true</udp-on>
           <tcp-on>false</tcp-on>
-          <imc-id>28:10</imc-id>
+          <imc-id>28:12</imc-id>
         </imc>
       </protocols-args>
     </comm-mean>
