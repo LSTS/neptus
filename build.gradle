@@ -1399,7 +1399,7 @@ task processI18N(type: Exec) {
         '--sort-output',
         '--package-name=Neptus',
         '--msgid-bugs-address=neptus.i18n@lsts-feup.org',
-        "--copyright-holder=${rootProject.ext.copyYears} FEUP-LSTS",
+        "--copyright-holder=${rootProject.ext.copyYears} Universidade do Porto - Faculdade de Engenharia, LSTS",
         '-j',
         '-o', "$rootDir/conf/i18n/neptus.pot",
     ]
@@ -1412,7 +1412,7 @@ task processI18N(type: Exec) {
     ignoreExitValue true
 
     doLast {
-        if (executionResult.getExitValue() > 0) {
+        if (executionResult.get().getExitValue() > 0) {
             println "ERROR: Generation of I18N exit with error ${executionResult.getExitValue()}"
         }
     }
