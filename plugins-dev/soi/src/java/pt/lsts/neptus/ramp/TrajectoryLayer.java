@@ -56,12 +56,28 @@ import java.awt.geom.Point2D;
 
 import com.eclipsesource.json.JsonValue;
 import com.google.gson.Gson;
+import pt.lsts.imc.EntityParameter;
+import pt.lsts.imc.Goto;
+import pt.lsts.imc.PlanControl;
+import pt.lsts.imc.PlanManeuver;
+import pt.lsts.imc.PlanSpecification;
+import pt.lsts.imc.PlanTransition;
+import pt.lsts.imc.SetEntityParameters;
+import pt.lsts.imc.def.SpeedUnits;
+import pt.lsts.imc.def.ZUnits;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.IMCSendMessageUtils;
+import pt.lsts.neptus.comm.IMCUtils;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.ColorUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
@@ -81,6 +97,9 @@ public class TrajectoryLayer extends ConsoleLayer {
     @NeptusProperty(name="Pollution samples endpoint", description = "Endpoint to GET samples from Ripples")
     public String apiPollutionSamples = "/pollution/sample";
 
+    @NeptusProperty(name="Vehicle for sampling", description = "Vehicle that will do the pollution sample")
+    public String vehicleForPollutionSample = "otter";
+
     protected List<PollutionMarker> pollutionMarkers;
 
     protected List<Obstacle> pollutionObstacles;
@@ -89,6 +108,7 @@ public class TrajectoryLayer extends ConsoleLayer {
 
     public TrajectoryLayer(){
         init();
+        fetchPollutionSamples();
     }
 
     public void init(){
@@ -226,6 +246,117 @@ public class TrajectoryLayer extends ConsoleLayer {
                     s.paintIcon(pt2d, s.status, renderer.getZoom(), g);
                 }
                 g.dispose();
+            }
+        }
+
+    }
+
+    private boolean triggerSample (Sample s) {
+        for (Sample pollutionSample : pollutionSamples) {
+            if(pollutionSample.id == s.id) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Periodic(millisBetweenUpdates = 10000)
+    public void fetchPollutionSamples() {
+        if(getConsole() != null) {
+
+            // Get Sample markers
+            try {
+                String serverRampApiUrl = GeneralPreferences.ripplesUrl + apiPollutionSamples;
+                Gson gson = new Gson();
+                URL url = new URL(serverRampApiUrl);
+                HttpURLConnection con = (HttpURLConnection) url.openConnection();
+                Sample[] sampleMarkers = gson.fromJson(new InputStreamReader(con.getInputStream()), Sample[].class);
+
+                for(Sample s : sampleMarkers) {
+                    // Trigger sample
+                    if(triggerSample(s)) {
+                        //System.out.println("trigger -> " + s.id);
+                        ImcSystem sys = ImcSystemsHolder.lookupSystemByName(vehicleForPollutionSample);
+                        if(sys != null) {
+
+                            // Sample parameters
+                            SetEntityParameters setParams = new SetEntityParameters();
+                            setParams.setName("Sampler");
+                            EntityParameter p1 = new EntityParameter();
+                            p1.setName("Type of Sample");
+                            if(s.status.equals("DIRTY"))
+                                p1.setValue("Dirty");
+                            else
+                                p1.setValue("Clean");
+
+                            Goto go = new Goto();
+                            go.setLat(Math.toRadians(sys.getLocation().getLatitudeDegs()));
+                            go.setLon(Math.toRadians(sys.getLocation().getLongitudeDegs()));
+                            //go.setLat(Math.toRadians(40.642160));
+                            //go.setLon(Math.toRadians(-8.749256));
+                            go.setSpeedUnits(SpeedUnits.METERS_PS);
+                            go.setSpeed(1.0);
+                            go.setZUnits(ZUnits.DEPTH);
+                            go.setZ(0);
+
+                            // Create Plan
+                            PlanSpecification ps = new PlanSpecification();
+                            List<PlanManeuver> data = new ArrayList<PlanManeuver>();
+                            List<PlanTransition> transitions = new ArrayList<PlanTransition>();
+                            ps.setPlanId(p1.getValue() + "Sample_" + s.id);
+
+                            PlanManeuver pm = new PlanManeuver();
+                            pm.setManeuverId(p1.getValue() + "Sample_" + data.size());
+                            pm.setData(go);
+
+                            setParams.setParams(Arrays.asList(p1));
+                            pm.setStartActions(Arrays.asList(setParams));
+
+                            if(!data.isEmpty()) {
+                                PlanTransition pt = new PlanTransition();
+                                pt.setConditions("ManeuverIsDone");
+                                pt.setSourceMan(data.get(data.size()-1).getManeuverId());
+                                pt.setDestMan(pm.getManeuverId());
+                                transitions.add(pt);
+                            } else {
+                                ps.setStartManId(pm.getManeuverId());
+                            }
+                            data.add(pm);
+
+                            ps.setManeuvers(data);
+                            ps.setTransitions(transitions);
+
+                            PlanType plan = IMCUtils.parsePlanSpecification(getConsole().getMission(),ps);
+                            plan.setVehicle(sys.getVehicle());
+                            //plan.setVehicle("otter");
+                            getConsole().getMission().addPlan(plan);
+                            getConsole().warnMissionListeners();
+                            getConsole().getMission().save(false);
+
+                            // Send to vehicle
+                            int reqId = IMCSendMessageUtils.getNextRequestId();
+                            PlanControl pc = new PlanControl();
+                            pc.setType(PlanControl.TYPE.REQUEST);
+                            pc.setOp(PlanControl.OP.START);
+                            pc.setRequestId(reqId);
+                            pc.setPlanId(plan.getId());
+                            pc.setInfo("Sample");
+                            pc.setArg(go);
+
+                            ImcMsgManager.getManager().sendMessage(pc, sys.getId(), null);
+
+                        } else {
+                            NeptusLog.pub().error("Vehicle '" + vehicleForPollutionSample + "' not available: ");
+                        }
+
+                    } else {
+                        //System.out.println("avoid trigger -> " + s.id);
+                    }
+                }
+                pollutionSamples = Arrays.asList(sampleMarkers);
+
+            } catch (Exception e) {
+                NeptusLog.pub().error(e);
             }
         }
 
