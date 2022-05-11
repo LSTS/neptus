@@ -57,6 +57,10 @@ public class Settingswindow extends JFrame {
 
         JPanel container = null;
 
+        JPanel fishtag_container = null;
+        JTextArea fishtag_text = null;
+        JTextField fishtag_editableText = null;
+
         JPanel R_container = null;
         JTextArea R_text = null;
         JTextField R_editableText = null;
@@ -81,6 +85,16 @@ public class Settingswindow extends JFrame {
             name.setText("Parameters");
             name.setEditable(false);
             add(name, BorderLayout.NORTH);
+
+            //settings for R
+            fishtag_container = new JPanel(new BorderLayout());
+            fishtag_text = new JTextArea("fishtag       ");
+            fishtag_text.setEditable(false);
+            fishtag_editableText = new JTextField(String.format("%s", myPlugin.fishtag));
+            fishtag_editableText.addActionListener(this);
+            fishtag_container.add(fishtag_text, BorderLayout.WEST);
+            fishtag_container.add(fishtag_editableText, BorderLayout.CENTER);
+
 
             //settings for R
             R_container = new JPanel(new BorderLayout());
@@ -121,6 +135,7 @@ public class Settingswindow extends JFrame {
             //contains all the other JPanels
             container = new JPanel();
             container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
+            container.add(fishtag_container);
             container.add(R_container);
             container.add(gammaT_container);
             container.add(gammaij_container);
@@ -133,6 +148,12 @@ public class Settingswindow extends JFrame {
         public void actionPerformed(ActionEvent e) {
             System.out.println("Enter pressed!");
             //.replaceAll("\\D++", "") tar bort allt förutom nummer (även .)
+            if (e.getSource() == fishtag_editableText) {
+                System.out.println("Det var: fishtag");
+                String newfishtag = fishtag_editableText.getText();//String.parseString(fishtag_editableText.getText());
+                System.out.println("vehicle params fishtag set to: " + newfishtag);
+                myPlugin.fishtag = newfishtag;
+            }
             if (e.getSource() == R_editableText) {
                 System.out.println("Det var: R");
                 double newR = Double.parseDouble(R_editableText.getText());

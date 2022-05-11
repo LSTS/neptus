@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<console name="Neptus Console" width="1436" height="1023" resizable="true" mission-file="../../missions/NTNU/borsa.nmisz" main-vehicle="ntnu-otter-01">
-  <!-- Data saved on 2022-03-10T15:49:08.0Z with Neptus version 2020.10.1-SNAPSHOT (compiled on 2021-09-22, gneptus-2020.01.1-740-g448f2ac-dirty). -->
+<console name="Neptus Console" width="1680" height="1050" resizable="true" mission-file="../../missions/NTNU/borsa.nmisz" main-vehicle="ntnu-otter-03">
+  <!-- Data saved on 2022-05-11T15:13:33.0Z with Neptus version 2020.10.1-SNAPSHOT (compiled on 2021-09-22, gneptus-2020.01.1-740-g448f2ac-dirty). -->
   <mainpanel name="console main panel">
-    <subpanel class="pt.lsts.neptus.console.plugins.containers.MigLayoutContainer" x="0" y="0" width="1436" height="932">
+    <subpanel class="pt.lsts.neptus.console.plugins.containers.MigLayoutContainer" x="0" y="0" width="1680" height="959">
       <properties>
         <entry key="XML Definitions">&lt;profiles&gt;
   &lt;profile name="Normal"&gt;
@@ -35,8 +35,8 @@
       </child>
       <child class="pt.lsts.neptus.console.plugins.planning.CommandPlanner" x="0" y="0" width="0" height="0">
         <properties>
-          <entry key="ASV loiter radius">150.0</entry>
-          <entry key="ASV speed">0.25 m/s</entry>
+          <entry key="ASV loiter radius">60.0</entry>
+          <entry key="ASV speed">1.00 m/s</entry>
         </properties>
       </child>
       <child class="pt.lsts.neptus.plugins.position.ContactMarker" x="0" y="0" width="0" height="0">
@@ -65,18 +65,18 @@
       </child>
       <child class="pt.lsts.neptus.plugins.mraplots.RevisionOverlays" x="0" y="0" width="0" height="0">
         <properties>
-          <entry key="defaultDirectory">/home</entry>
+          <entry key="defaultDirectory">/home/nikolai/lststools/userbld/log/ntnu-otter-01/20220503/065310_1flw2</entry>
         </properties>
       </child>
       <child class="pt.lsts.neptus.plugins.map.MapEditor" x="0" y="0" width="0" height="0">
         <properties/>
       </child>
-      <child class="pt.lsts.neptus.console.plugins.planning.MapPanel" x="0" y="0" width="1130" height="932">
+      <child class="pt.lsts.neptus.console.plugins.planning.MapPanel" x="0" y="0" width="1374" height="959">
         <properties>
           <entry key="World Map Transparency">false</entry>
         </properties>
       </child>
-      <child class="pt.lsts.neptus.console.plugins.planning.MissionTreePanel" x="0" y="162" width="294" height="764">
+      <child class="pt.lsts.neptus.console.plugins.planning.MissionTreePanel" x="0" y="162" width="294" height="791">
         <properties/>
       </child>
       <child class="pt.lsts.neptus.console.plugins.planning.MultiVehiclePlanOverlay" x="0" y="0" width="0" height="0">
@@ -173,7 +173,7 @@ estimatedstate = value("EstimatedState.psi")
 addTimeSeries estimatedstate
 
 
-desiredheading = value("DesiredHeading.&lt;field&gt;")
+desiredheading = value("DesiredHeading.value")
 addTimeSeries desiredheading</entry>
         </properties>
       </child>
@@ -185,40 +185,8 @@ addTimeSeries desiredheading</entry>
           <entry key="Custom Parameters">t=5.0;p=kbit;a=1;</entry>
         </properties>
       </child>
-      <child class="pt.lsts.neptus.plugins.videostream.VideoStream" x="0" y="0" width="0" height="0">
+      <child class="pt.lsts.neptus.plugins.mraplots.RevisionOverlays" x="0" y="0" width="0" height="0">
         <properties/>
-      </child>
-      <child class="pt.lsts.neptus.console.plugins.JVideoPanelConsole" x="0" y="0" width="320" height="240">
-        <properties/>
-      </child>
-      <child class="pt.lsts.neptus.soi.risk.SoiRiskAnalysis" x="0" y="0" width="0" height="0">
-        <properties>
-          <entry key="Minimum distance allowed between AUVs and Ships (meters)">100</entry>
-          <entry key="Font Size">18</entry>
-        </properties>
-      </child>
-      <child class="pt.lsts.neptus.soi.SoiPlanning" x="0" y="0" width="500" height="500">
-        <properties>
-          <entry key="Ignored Renderers"/>
-          <entry key="Syncronize All Maps Movements">true</entry>
-        </properties>
-      </child>
-      <child class="pt.lsts.neptus.soi.SoiInteraction" x="0" y="0" width="0" height="0">
-        <properties>
-          <entry key="Show profile values">true</entry>
-          <entry key="Time (seconds) till first waypoint">0.0</entry>
-          <entry key="Schedule plan waypoints">false</entry>
-          <entry key="Hide layer if inactive">true</entry>
-          <entry key="Communication Mean">WiFi</entry>
-          <entry key="Use salinity colormap for profiles">false</entry>
-          <entry key="Maximum profile age (hours)">24</entry>
-          <entry key="Audio Notifications">true</entry>
-        </properties>
-      </child>
-      <child class="pt.lsts.neptus.soi.SoiAwarenessPanel" x="0" y="0" width="500" height="500">
-        <properties>
-          <entry key="Syncronize All Maps Movements">true</entry>
-        </properties>
       </child>
     </subpanel>
   </mainpanel>
@@ -231,9 +199,4 @@ addTimeSeries desiredheading</entry>
       <properties/>
     </layer>
   </layers>
-  <interactions>
-    <interaction class="pt.lsts.neptus.endurance.SoiAwareness">
-      <properties/>
-    </interaction>
-  </interactions>
 </console>

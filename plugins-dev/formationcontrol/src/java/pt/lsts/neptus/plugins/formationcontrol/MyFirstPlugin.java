@@ -24,12 +24,12 @@ import java.util.ArrayList;
 /**
  * Created by elias on 8/8/16. Tjena
  */
-@PluginDescription(author="Elias", category= PluginDescription.CATEGORY.UNSORTED, name="Fish Tracking Formation Control")
+@PluginDescription(author="Elias(Usability changes made by Nikolai Lauvås)", category= PluginDescription.CATEGORY.UNSORTED, name="Fish Tracking Formation Control")
 public class MyFirstPlugin extends SimpleRendererInteraction {
     public MyFirstPlugin(ConsoleLayout console) {
         super(console);
     }
-
+    String fishtag = "Fish_position_est_1";
     double R_triple = 0.000005;
     public double[][] y_agents = new double[4][2];
 
@@ -88,7 +88,7 @@ public class MyFirstPlugin extends SimpleRendererInteraction {
     public void consume(RemoteSensorInfo msg) {
         fishLocationTime = System.currentTimeMillis();
 
-        if (!msg.getId().equals("Fish_position_est_1"))
+        if (!msg.getId().equals(fishtag))
             return;
 
         if (!hasFishLocation)
@@ -372,7 +372,7 @@ public class MyFirstPlugin extends SimpleRendererInteraction {
         }
 
         if (!hasFishLocation) {
-            post(Notification.error("Formation Controller", "Don't have fish location, ignoring start request!"));
+            post(Notification.error("Formation Controller", "Don't have fish location for '" + fishtag + "'', ignoring start request!"));
             return;
         }
 
@@ -429,7 +429,7 @@ public class MyFirstPlugin extends SimpleRendererInteraction {
 
             popup.addSeparator();
 
-            popup.add("elias.kth.MyFirstPlugin.Vehicle Settings!").addActionListener(new ActionListener() {
+            popup.add("Formation Control Settings").addActionListener(new ActionListener() {
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
