@@ -229,7 +229,7 @@ public class TrajectoryLayer extends ConsoleLayer {
                             color = new Color(1f,1f,0f,.5f );
                             break;
                         case "Exec":
-                            color = new Color(1f,1f,1f,.5f );
+                            color = new Color(1f,.6f,0f,.5f );
                             break;
                         case "Done":
                             color = new Color(0f,1f,0f,.5f );
