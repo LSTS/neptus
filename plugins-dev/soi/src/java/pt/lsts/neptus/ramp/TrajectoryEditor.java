@@ -247,6 +247,7 @@ public class TrajectoryEditor extends InteractionAdapter implements Renderer2DPa
                     pollutionTrajectories.clear();
                     try {
                         String serverRampApiUrl = GeneralPreferences.ripplesUrl + apiPollutionTrajectories;
+                        // String serverRampApiUrl = "http://localhost:9090" + apiPollutionTrajectories;
                         URL url = new URL(serverRampApiUrl);
                         HttpURLConnection con = (HttpURLConnection) url.openConnection();
 
@@ -301,6 +302,7 @@ public class TrajectoryEditor extends InteractionAdapter implements Renderer2DPa
             // Get pollution markers
             try {
                 String serverRampApiUrl = GeneralPreferences.ripplesUrl + apiPollutionMarkers;
+                // String serverRampApiUrl = "http://localhost:9090" + apiPollutionMarkers;
                 Gson gson = new Gson();
                 URL url = new URL(serverRampApiUrl);
                 HttpURLConnection con = (HttpURLConnection) url.openConnection();
@@ -334,7 +336,7 @@ public class TrajectoryEditor extends InteractionAdapter implements Renderer2DPa
 
                 // Sample parameters
                 SetEntityParameters setParams = new SetEntityParameters();
-                setParams.setName("Sampler");
+                setParams.setName("Ramp Sampler");
                 EntityParameter p1 = new EntityParameter();
                 p1.setName("Type of Sample");
 
@@ -431,7 +433,7 @@ public class TrajectoryEditor extends InteractionAdapter implements Renderer2DPa
 
                 // Sample parameters
                 SetEntityParameters setParams = new SetEntityParameters();
-                setParams.setName("Sampler");
+                setParams.setName("Ramp Sampler");
                 EntityParameter p1 = new EntityParameter();
                 p1.setName("Type of Sample");
 
@@ -540,6 +542,7 @@ public class TrajectoryEditor extends InteractionAdapter implements Renderer2DPa
         //-- Get trajectory info
         try {
             String serverRampApiUrl = GeneralPreferences.ripplesUrl + "/pollution/trajectory/info";
+            // String serverRampApiUrl = "http://localhost:9090" + "/pollution/trajectory/info";
             URL url = new URL(serverRampApiUrl);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
 
