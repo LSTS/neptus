@@ -308,8 +308,8 @@ public class TrajectoryLayer extends ConsoleLayer {
                 double lon = getCoords(lonParts);
 
                 String pollutionStatusApiUrl = GeneralPreferences.ripplesUrl + aptToPostPollutionSample;
+                //String pollutionStatusApiUrl = "http://localhost:9090" + aptToPostPollutionSample;
                 HttpPost post = new HttpPost(pollutionStatusApiUrl);
-                //HttpPost post = new HttpPost("http://localhost:9090" + aptToPostPollutionSample );
 
                 Map obj = new HashMap<>();
                 obj.put("latitude", lat);
@@ -339,8 +339,8 @@ public class TrajectoryLayer extends ConsoleLayer {
                 NeptusLog.pub().info("Changed pollution status: " + matcher.group(3) + " (" + matcher.group(4) + ")");
 
                 String pollutionStatusApiUrl = GeneralPreferences.ripplesUrl + apiPollutionMarkersStatus + "/" + matcher.group(3) + "/" + matcher.group(4);
+                // String pollutionStatusApiUrl = "http://localhost:9090" + apiPollutionMarkersStatus + "/" + matcher.group(3) + "/" + matcher.group(4);
                 HttpPost post = new HttpPost(pollutionStatusApiUrl);
-                //HttpPost post = new HttpPost("http://localhost:9090" + apiPollutionMarkersStatus + "/" + matcher.group(3) + "/" + matcher.group(4));
 
                 try (CloseableHttpResponse response = (CloseableHttpResponse) httpclient.execute(post);) {
                     BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
@@ -405,8 +405,10 @@ public class TrajectoryLayer extends ConsoleLayer {
                                 p1.setValue("Clean");
 
                             Goto go = new Goto();
-                            go.setLat(Math.toRadians(sys.getLocation().getLatitudeDegs()));
-                            go.setLon(Math.toRadians(sys.getLocation().getLongitudeDegs()));
+                            double lat = Math.toRadians(sys.getLocation().getLatitudeDegs());
+                            double lon = Math.toRadians(sys.getLocation().getLongitudeDegs());
+                            go.setLat(lat);
+                            go.setLon(lon);
                             //go.setLat(Math.toRadians(40.642160));
                             //go.setLon(Math.toRadians(-8.749256));
                             go.setSpeedUnits(SpeedUnits.METERS_PS);
@@ -456,7 +458,7 @@ public class TrajectoryLayer extends ConsoleLayer {
                             pc.setRequestId(reqId);
                             pc.setPlanId(plan.getId());
                             pc.setInfo("Sample");
-                            pc.setArg(go);
+                            pc.setArg(ps);
 
                             ImcMsgManager.getManager().sendMessage(pc, sys.getId(), null);
 
