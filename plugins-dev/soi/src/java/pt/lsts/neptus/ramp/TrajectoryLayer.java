@@ -283,78 +283,83 @@ public class TrajectoryLayer extends ConsoleLayer {
 
     @Subscribe
     public void on(DevDataText msg) throws IOException {
+        //System.out.println("DevDataText");
         if( wifiEnable && msg.getSourceName().equals(vehicleToVisitPollution) ) {
 
             HttpClient httpclient = HttpClients.createDefault();
+            try {
+                Pattern p = Pattern.compile("\\((.*)\\) (.*) / (.*) / (.*)");
+                Matcher matcher = p.matcher(msg.getValue());
+                matcher.matches();
 
-            Pattern p = Pattern.compile("\\((.*)\\) (.*) / (.*) / (.*)");
-            Matcher matcher = p.matcher(msg.getValue());
-            matcher.matches();
+                Date timestamp = new Date(Double.valueOf(matcher.group(2)).longValue()*1000);
 
-            Date timestamp = new Date(Double.valueOf(matcher.group(2)).longValue()*1000);
+                if(matcher.group(1).equals("sample")) {
+                    NeptusLog.pub().info("Sended pollution sample (" + matcher.group(4).toUpperCase() + ")");
 
-            if(matcher.group(1).equals("sample")) {
-                NeptusLog.pub().info("Sended pollution sample (" + matcher.group(4).toUpperCase() + ")");
+                    // Parse coordinates
+                    Pattern p_sample = Pattern.compile("(.*), (.*)");
+                    Matcher matcher_sample = p_sample.matcher(matcher.group(3));
+                    matcher_sample.matches();
+                    String latMins = matcher_sample.group(1);
+                    String lonMins = matcher_sample.group(2);
+                    String latParts[] = latMins.split(" ");
+                    String lonParts[] = lonMins.split(" ");
+                    double lat = getCoords(latParts);
+                    double lon = getCoords(lonParts);
 
-                // Parse coordinates
-                Pattern p_sample = Pattern.compile("(.*), (.*)");
-                Matcher matcher_sample = p_sample.matcher(matcher.group(3));
-                matcher_sample.matches();
-                String latMins = matcher_sample.group(1);
-                String lonMins = matcher_sample.group(2);
-                String latParts[] = latMins.split(" ");
-                String lonParts[] = lonMins.split(" ");
-                double lat = getCoords(latParts);
-                double lon = getCoords(lonParts);
+                    String pollutionStatusApiUrl = GeneralPreferences.ripplesUrl + aptToPostPollutionSample;
+                    // String pollutionStatusApiUrl = "http://localhost:9090" + aptToPostPollutionSample;
+                    HttpPost post = new HttpPost(pollutionStatusApiUrl);
 
-                String pollutionStatusApiUrl = GeneralPreferences.ripplesUrl + aptToPostPollutionSample;
-                //String pollutionStatusApiUrl = "http://localhost:9090" + aptToPostPollutionSample;
-                HttpPost post = new HttpPost(pollutionStatusApiUrl);
+                    Map obj = new HashMap<>();
+                    obj.put("latitude", lat);
+                    obj.put("longitude", lon);
+                    obj.put("status", matcher.group(4).toUpperCase());
+                    obj.put("timestamp", timestamp.getTime());
 
-                Map obj = new HashMap<>();
-                obj.put("latitude", lat);
-                obj.put("longitude", lon);
-                obj.put("status", matcher.group(4).toUpperCase());
-                obj.put("timestamp", timestamp.getTime());
+                    String json = JSONValue.toJSONString(obj);
+                    StringEntity postingString = new StringEntity(json);
+                    post.setHeader("Content-type", "application/json");
+                    post.setEntity(postingString);
 
-                String json = JSONValue.toJSONString(obj);
-                StringEntity postingString = new StringEntity(json);
-                post.setHeader("Content-type", "application/json");
-                post.setEntity(postingString);
-
-                try (CloseableHttpResponse response = (CloseableHttpResponse) httpclient.execute(post);) {
-                    BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
-                    StringBuffer result = new StringBuffer();
-                    String line = "";
-                    while ((line = rd.readLine()) != null) {
-                        result.append(line);
+                    try (CloseableHttpResponse response = (CloseableHttpResponse) httpclient.execute(post);) {
+                        BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+                        StringBuffer result = new StringBuffer();
+                        String line = "";
+                        while ((line = rd.readLine()) != null) {
+                            result.append(line);
+                        }
+                        //System.out.println(result);
                     }
-                    //System.out.println(result);
-                }
-                catch (Exception e) {
-                    throw e;
-                }
-
-            } else {
-                NeptusLog.pub().info("Changed pollution status: " + matcher.group(3) + " (" + matcher.group(4) + ")");
-
-                String pollutionStatusApiUrl = GeneralPreferences.ripplesUrl + apiPollutionMarkersStatus + "/" + matcher.group(3) + "/" + matcher.group(4);
-                // String pollutionStatusApiUrl = "http://localhost:9090" + apiPollutionMarkersStatus + "/" + matcher.group(3) + "/" + matcher.group(4);
-                HttpPost post = new HttpPost(pollutionStatusApiUrl);
-
-                try (CloseableHttpResponse response = (CloseableHttpResponse) httpclient.execute(post);) {
-                    BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
-                    StringBuffer result = new StringBuffer();
-                    String line = "";
-                    while ((line = rd.readLine()) != null) {
-                        result.append(line);
+                    catch (Exception e) {
+                        throw e;
                     }
-                    //System.out.println(result);
-                    initLayer();
+
+                } else {
+                    NeptusLog.pub().info("Changed pollution status: " + matcher.group(3) + " (" + matcher.group(4) + ")");
+
+                    String pollutionStatusApiUrl = GeneralPreferences.ripplesUrl + apiPollutionMarkersStatus + "/" + matcher.group(3) + "/" + matcher.group(4);
+                    // String pollutionStatusApiUrl = "http://localhost:9090" + apiPollutionMarkersStatus + "/" + matcher.group(3) + "/" + matcher.group(4);
+                    HttpPost post = new HttpPost(pollutionStatusApiUrl);
+
+                    try (CloseableHttpResponse response = (CloseableHttpResponse) httpclient.execute(post);) {
+                        BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+                        StringBuffer result = new StringBuffer();
+                        String line = "";
+                        while ((line = rd.readLine()) != null) {
+                            result.append(line);
+                        }
+                        //System.out.println(result);
+                        initLayer();
+                    }
+                    catch (Exception e) {
+                        //throw e;
+                    }
                 }
-                catch (Exception e) {
-                    throw e;
-                }
+            }
+            catch (Exception e) {
+                //NeptusLog.pub().error(e);
             }
         }
     }
