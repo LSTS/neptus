@@ -504,8 +504,6 @@ public class TrajectoryLayer extends ConsoleLayer {
     @Periodic(millisBetweenUpdates = 30000)
     public void updatePollutionInfo() {
         if (getConsole() != null) {
-            System.out.println("Update Pollution Info...");
-
             // Get Pollution markers
             try {
                 String serverRampApiUrl = GeneralPreferences.ripplesUrl + apiPollutionMarkers;
