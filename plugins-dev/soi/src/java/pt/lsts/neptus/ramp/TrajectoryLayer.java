@@ -136,6 +136,7 @@ public class TrajectoryLayer extends ConsoleLayer {
     public TrajectoryLayer(){
         init();
         fetchPollutionSamples();
+        updatePollutionInfo();
     }
 
     public void init(){
@@ -500,6 +501,31 @@ public class TrajectoryLayer extends ConsoleLayer {
 
     }
 
+    @Periodic(millisBetweenUpdates = 30000)
+    public void updatePollutionInfo() {
+        if (getConsole() != null) {
+            System.out.println("Update Pollution Info...");
+
+            // Get Pollution markers
+            try {
+                String serverRampApiUrl = GeneralPreferences.ripplesUrl + apiPollutionMarkers;
+                // String serverRampApiUrl = "http://localhost:9090" + apiPollutionMarkers;
+                Gson gson = new Gson();
+                URL url = new URL(serverRampApiUrl);
+                HttpURLConnection con = (HttpURLConnection) url.openConnection();
+                PollutionMarker[] markers = gson.fromJson(new InputStreamReader(con.getInputStream()), PollutionMarker[].class);
+
+                pollutionMarkers = Arrays.asList(markers);
+
+                NeptusLog.pub().info("Fetched " + pollutionMarkers.size() + " pollution markers.");
+
+            } catch (Exception e) {
+                NeptusLog.pub().error(e);
+            }
+
+        }
+    }
+
     public static class PollutionMarker {
         public long id;
         public String description;
@@ -600,7 +626,7 @@ public class TrajectoryLayer extends ConsoleLayer {
         private void paintIcon(Point2D pt2d, String sampleType, float zoom, Graphics2D g) {
             Image img = null;
             String msg = "";
-            int size = (int) (zoom * 30);
+            int size = (int) (zoom * 15);
             if(sampleType.equals("CLEAN")) {
                 img = ImageUtils.getImage("images/droplet_clean.png");
                 msg = "Clean sample";
