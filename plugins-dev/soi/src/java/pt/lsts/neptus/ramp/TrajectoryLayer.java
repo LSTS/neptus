@@ -122,7 +122,7 @@ public class TrajectoryLayer extends ConsoleLayer {
     public String vehicleForPollutionSample = "otter";
 
     @NeptusProperty(name="Vehicle to visit pollution area", description = "Vehicle that will visit pollution sample")
-    public String vehicleToVisitPollution = "lauv-xplore-4";
+    public String vehicleToVisitPollution = "lauv-xplore-1";
 
     @NeptusProperty(name="Enable wifi", description = "Test wifi communications")
     protected boolean wifiEnable = false;
@@ -162,6 +162,7 @@ public class TrajectoryLayer extends ConsoleLayer {
             PollutionMarker[] markers = gson.fromJson(new InputStreamReader(con.getInputStream()), PollutionMarker[].class);
 
             pollutionMarkers = Arrays.asList(markers);
+            NeptusLog.pub().info("Fetched " + pollutionMarkers.size() + " pollution markers.");
 
         } catch (Exception e) {
             NeptusLog.pub().error(e);
@@ -186,6 +187,7 @@ public class TrajectoryLayer extends ConsoleLayer {
 
                 Obstacle obst = new Obstacle(id,description,timestamp,user,points);
                 pollutionObstacles.add(obst);
+                NeptusLog.pub().info("Fetched " + pollutionObstacles.size() + " pollution obstacles.");
             }
         } catch (Exception e) {
             NeptusLog.pub().error(e);
@@ -201,6 +203,7 @@ public class TrajectoryLayer extends ConsoleLayer {
             Sample[] sampleMarkers = gson.fromJson(new InputStreamReader(con.getInputStream()), Sample[].class);
 
             pollutionSamples = Arrays.asList(sampleMarkers);
+            NeptusLog.pub().info("Fetched " + pollutionSamples.size() + " pollution samples.");
         } catch (Exception e) {
             NeptusLog.pub().error(e);
         }
@@ -292,7 +295,10 @@ public class TrajectoryLayer extends ConsoleLayer {
                 Matcher matcher = p.matcher(msg.getValue());
                 matcher.matches();
 
-                Date timestamp = new Date(Double.valueOf(matcher.group(2)).longValue()*1000);
+                // Date timestamp = new Date(Double.valueOf(matcher.group(2)).longValue()*1000);
+                // Parse timestamp
+                double time = Double.parseDouble(matcher.group(2));
+                Date timestamp = new Date(Double.valueOf(String.format("%.0f", time)).longValue() * 1000);
 
                 if(matcher.group(1).equals("sample")) {
                     NeptusLog.pub().info("Sended pollution sample (" + matcher.group(4).toUpperCase() + ")");
@@ -307,6 +313,12 @@ public class TrajectoryLayer extends ConsoleLayer {
                     String lonParts[] = lonMins.split(" ");
                     double lat = getCoords(latParts);
                     double lon = getCoords(lonParts);
+
+                    System.out.println("*** Parsing pollution sample ***");
+                    System.out.println("Timestamp: " + timestamp);
+                    System.out.println("Lat: " + lat);
+                    System.out.println("Lon: " + lon);
+                    System.out.println("status: " + matcher.group(4).toUpperCase());
 
                     String pollutionStatusApiUrl = GeneralPreferences.ripplesUrl + aptToPostPollutionSample;
                     // String pollutionStatusApiUrl = "http://localhost:9090" + aptToPostPollutionSample;
@@ -338,6 +350,10 @@ public class TrajectoryLayer extends ConsoleLayer {
 
                 } else {
                     NeptusLog.pub().info("Changed pollution status: " + matcher.group(3) + " (" + matcher.group(4) + ")");
+
+                    System.out.println("*** Parsing pollution status ***");
+                    System.out.println(matcher.group(3));
+                    System.out.println(matcher.group(4));
 
                     String pollutionStatusApiUrl = GeneralPreferences.ripplesUrl + apiPollutionMarkersStatus + "/" + matcher.group(3) + "/" + matcher.group(4);
                     // String pollutionStatusApiUrl = "http://localhost:9090" + apiPollutionMarkersStatus + "/" + matcher.group(3) + "/" + matcher.group(4);
