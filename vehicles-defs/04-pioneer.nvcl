@@ -36,12 +36,12 @@
             <coordinate>
               <latitude>0N</latitude>
               <longitude>0E</longitude>
-              <height>5</height>
+              <depth>0</depth>
             </coordinate>
           </point>
           <radiusTolerance>5</radiusTolerance>
         </finalPoint>
-        <velocity tolerance="10" type="float" unit="m/s">5</velocity>
+        <velocity tolerance="10" type="float" unit="m/s">1</velocity>
         <trajectoryTolerance>
           <radiusTolerance type="float">5</radiusTolerance>
         </trajectoryTolerance>
