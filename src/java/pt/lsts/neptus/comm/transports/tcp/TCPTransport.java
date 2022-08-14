@@ -256,8 +256,10 @@ public class TCPTransport {
         synchronized (clients) {
             for (SocketChannel channelTmp : clients) {
                 try {
-//                    NeptusLog.pub().info("<###> "+resolveAddress(host) +"  " +port + "   " +channelTmp.socket().getInetAddress() + " " + channelTmp.socket().getPort());
-                    if (resolveAddress(host).toString().equalsIgnoreCase(channelTmp.socket().getInetAddress().toString())
+                    NeptusLog.pub().info("<###> "+resolveAddress(host) +"  " +port + "   " +channelTmp.socket().getInetAddress() + " " + channelTmp.socket().getPort());
+                    if ((resolveAddress(host).toString().equalsIgnoreCase(channelTmp.socket().getInetAddress().toString()) ||
+                            resolveAddress(host).toString().replaceFirst("^[a-zA-Z0-9._-]*(/)", "$1").
+                                    equalsIgnoreCase(channelTmp.socket().getInetAddress().toString()))
                             && port == channelTmp.socket().getPort()) {
                         channel = channelTmp;
                         break;
