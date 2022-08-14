@@ -661,7 +661,8 @@ public class TCPTransport {
                                             if (sendAck) {
 //                                                NeptusLog.pub().info("<###>WRITE  ...........................................");
                                                 SocketChannel channel = (SocketChannel) key.channel();
-                                                ByteBuffer bf = ByteBuffer.wrap(new byte[] { (byte) 0xFFFF });
+                                                //ByteBuffer bf = ByteBuffer.wrap(new byte[] { (byte) 0xFFFF });
+                                                ByteBuffer bf = ByteBuffer.wrap(new byte[0]);
 //                                                NeptusLog.pub().info("<###>WRITE  " + channel.write(bf));
                                                 channel.write(bf);
                                                 key.attach(System.currentTimeMillis());
