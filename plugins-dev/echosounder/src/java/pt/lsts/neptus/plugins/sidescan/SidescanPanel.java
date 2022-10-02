@@ -408,10 +408,10 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         sidescanParams.setNormalization(config.normalization);
         sidescanParams.setTvgGain(config.tvgGain);
 
-        boolean autoTVG = toolbar.btnAutoTvg.isSelected();
+        boolean autoEGN = toolbar.btnAutoEgn.isSelected();
 
         ArrayList<SidescanLine> list = ssParser.getLinesBetween(firstPingTime + lastUpdateTime, firstPingTime
-                + currentTime, subsystem, autoTVG ? SidescanHistogramNormalizer.HISTOGRAM_DEFAULT_PARAMATERS : sidescanParams);
+                + currentTime, subsystem, autoEGN ? SidescanHistogramNormalizer.HISTOGRAM_DEFAULT_PARAMATERS : sidescanParams);
 
         ArrayList<SidescanLine> drawList = new ArrayList<>(list);
 
@@ -466,7 +466,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             }
 
             double[] data = sidescanLine.getData();
-            if (autoTVG) {
+            if (autoEGN) {
                 data = parent.getHistogram().normalize(data, subsystem);
             }
             sidescanLine.setImage(new BufferedImage(data.length, 1, BufferedImage.TYPE_INT_RGB),

@@ -79,7 +79,7 @@ public class SidescanToolbar extends JToolBar {
     private final SpinnerNumberModel modelTVG = new SpinnerNumberModel(0.0, -1000.0, 1000.0, 1.0);
     private final JSpinner spinTVG = new JSpinner();
 
-    JToggleButton btnAutoTvg = new JToggleButton(I18n.text("Auto TVG"));
+    JToggleButton btnAutoEgn = new JToggleButton(I18n.text("EGN"));
 
     JButton btnConfig = new JButton(new AbstractAction(I18n.textc("Config", "Configuration")) {
         private static final long serialVersionUID = -878895322319699542L;
@@ -125,11 +125,11 @@ public class SidescanToolbar extends JToolBar {
         }
     };
 
-    private final ChangeListener autoTvgChangeListener = new ChangeListener() {
+    private final ChangeListener autoEgnChangeListener = new ChangeListener() {
         @Override
         public void stateChanged(ChangeEvent e) {
-            spinNormalization.setEnabled(!btnAutoTvg.isSelected());
-            spinTVG.setEnabled(!btnAutoTvg.isSelected());
+            spinNormalization.setEnabled(!btnAutoEgn.isSelected());
+            spinTVG.setEnabled(!btnAutoEgn.isSelected());
         }
     };
 
@@ -159,7 +159,8 @@ public class SidescanToolbar extends JToolBar {
 
         add(lblTVG);
         add(spinTVG);
-        add(btnAutoTvg);
+        btnAutoEgn.setToolTipText("Empirical Gain Normalization");
+        add(btnAutoEgn);
 
         addSeparator();
         add(btnConfig);
@@ -177,6 +178,6 @@ public class SidescanToolbar extends JToolBar {
         spinTVG.setValue(panel.config.tvgGain);
         spinTVG.addChangeListener(alGains);
 
-        btnAutoTvg.addChangeListener(autoTvgChangeListener);
+        btnAutoEgn.addChangeListener(autoEgnChangeListener);
     }
 }
