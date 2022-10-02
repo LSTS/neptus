@@ -33,6 +33,7 @@
 package pt.lsts.neptus.mra.api;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.IMCMessage;
@@ -160,9 +161,20 @@ public class ImcSidescanParser implements SidescanParser {
             if (subsystem == pingFreq) {
                 SystemPositionAndAttitude pose = new SystemPositionAndAttitude((EstimatedState) state);
                 SidescanLine line = SidescanUtil.getSidescanLine(ping, pose, params);
+
+//                double count = Arrays.stream(line.getData()).mapToInt(value -> Double.isFinite(value) ? 1 : 0).sum();
+//                double mean = Arrays.stream(line.getData()).filter(v -> Double.isFinite(v)).sum() / count;
+//                double variance = Arrays.stream(line.getData()).filter(v -> Double.isFinite(v)).map(v -> Math.pow(v - mean, 2)).sum() / count;
+//                double min = Arrays.stream(line.getData()).min().orElse(0);
+//                double max = Arrays.stream(line.getData()).reduce(0, (l, r) -> {
+//                    if (Double.isInfinite(l)) return r;
+//                    return Math.max(l, r);
+//                });
+//                System.out.println(String.format(">>>>> Line min: %s   max: %s   mean: %s   variance: %s    count: %s", min, max, mean, variance, count));
                 list.add(line);
             }
-            
+
+
             ping = getNextMessage(pingParser);
             if (ping != null)
                 state = stateParser.getEntryAtOrAfter(ping.getTimestampMillis());
