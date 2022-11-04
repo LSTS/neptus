@@ -1,0 +1,10 @@
+title "Control Sway"
+
+es_sway = "EstimatedState.v" 
+plot "EstimatedState.u": es_sway
+
+desired_sway = "DesiredVelocity.Path Control.v" 
+plot "DesiredVelocity.Path Control.v": desired_sway
+
+desired_ctrl = "DesiredControl.Horizontal Plane Control.y" 
+plot "DesiredControl.Horizontal Plane Control.y": desired_ctrl

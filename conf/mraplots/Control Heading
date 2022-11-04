@@ -1,0 +1,15 @@
+title "Control Heading"
+
+toDegrees = {rad -> Math.toDegrees(rad)}
+
+addQuery "DesiredHeading.Path Control.value"
+addQuery "EstimatedState.psi"
+
+es_psi = apply("EstimatedState.psi","EstimatedState.psi", toDegrees)
+plot es_psi
+
+desired_heading = apply("DesiredHeading.Path Control.value","DesiredHeading.Path Control.value", toDegrees) 
+plot desired_heading
+
+desired_ctrl = "DesiredControl.Horizontal Plane Control.n" 
+plot "DesiredControl.Horizontal Plane Control.n": desired_ctrl

@@ -1,0 +1,10 @@
+title "Control Surge"
+
+es_surge = "EstimatedState.u" 
+plot "EstimatedState.u": es_surge
+
+desired_surge = "DesiredVelocity.Path Control.u" 
+plot "DesiredVelocity.Path Control.u": desired_surge
+
+desired_ctrl = "DesiredControl.Horizontal Plane Control.x" 
+plot "DesiredControl.Horizontal Plane Control.x": desired_ctrl
