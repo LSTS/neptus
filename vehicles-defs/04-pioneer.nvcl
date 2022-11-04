@@ -8,9 +8,9 @@
       <x-size>0.7</x-size>
       <y-size>0.5</y-size>
       <z-size>0.3</z-size>
-      <top-image-2D>../vehicles-files/adamastor/adamastor_top.png</top-image-2D>
-      <side-image-2D>../vehicles-files/adamastor/adamastor_side.png</side-image-2D>
-      <presentation-image-2D>../vehicles-files/adamastor/adamastor_presentation.png</presentation-image-2D>
+      <top-image-2D>../vehicles-files/pioneerx3/pioneerx3-top.png</top-image-2D>
+      <side-image-2D>../vehicles-files/pioneerx3/pioneerx3-side.png</side-image-2D>
+      <presentation-image-2D>../vehicles-files/pioneerx3/pioneerx3-presentation.png</presentation-image-2D>
       <model-3D>../vehicles-files/adamastor/adamastor.j3d</model-3D>
     </appearance>
     <limits>
