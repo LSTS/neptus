@@ -34,10 +34,17 @@ package pt.lsts.neptus.mra.api;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.mra.importers.i872.Imagenex872SidescanParserChecker;
 import pt.lsts.neptus.mra.importers.i872.Imagenex872SidescanParser;
+import pt.lsts.neptus.mra.importers.jsf.JsfSidescanParserChecker;
 import pt.lsts.neptus.mra.importers.jsf.JsfSidescanParser;
+import pt.lsts.neptus.mra.importers.sdf.SdfSidescanParserChecker;
 import pt.lsts.neptus.mra.importers.sdf.SdfSidescanParser;
 import pt.lsts.neptus.util.llf.LogUtils;
 
@@ -47,6 +54,13 @@ import pt.lsts.neptus.util.llf.LogUtils;
  */
 public class SidescanParserFactory {
 
+    private static List<Class<SidescanParserChecker>> sidescanParserCheckerList = new ArrayList<>();
+    static {
+        registerChecker(Imagenex872SidescanParserChecker.class);
+        registerChecker(JsfSidescanParserChecker.class);
+        registerChecker(SdfSidescanParserChecker.class);
+    }
+
     private static final String JSF_FILE = "Data.jsf";
     private static final String I872_FILE = "Data.872";
 
@@ -55,6 +69,18 @@ public class SidescanParserFactory {
     static File dir;
     static File file;
     static IMraLogGroup source;
+
+    /**
+     * This method allows to register additional {@link SidescanParserChecker} to be used.
+     *
+     * @param checker
+     */
+    @SuppressWarnings("unchecked")
+    public synchronized static <C extends SidescanParserChecker> void registerChecker(Class<C> checker) {
+        if (!sidescanParserCheckerList.contains(checker)) {
+            sidescanParserCheckerList.add((Class<SidescanParserChecker>) checker);
+        }
+    }
 
     public static SidescanParser build(IMraLogGroup log) {
         file = null;
@@ -75,23 +101,15 @@ public class SidescanParserFactory {
     }
 
     public static boolean existsSidescanParser(IMraLogGroup log) {
-        for (String file : validSidescanFiles) {
-            if (log.getFile(file) != null) {
-                return true;
+        return sidescanParserCheckerList.stream().anyMatch(ssc -> {
+            try {
+                return ssc.getConstructor().newInstance().isCompatibleParser(log);
             }
-        }
-
-        if (countSDFFiles(log) > 0) {
-            return true;
-        }
-
-        return false;
-    }
-
-    private static int countSDFFiles(IMraLogGroup log) {
-        FilenameFilter sdfFilter = SDFFilter();
-        File[] files = log.getDir().listFiles(sdfFilter);
-        return files.length;
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+            return false;
+        });
     }
 
     private static SidescanParser getParser() {
@@ -99,27 +117,28 @@ public class SidescanParserFactory {
             return null; //FIXME for now only directories are supported 
         }
         else if(dir != null) {
+            List<SidescanParserChecker> compatibleParserCheckersList = sidescanParserCheckerList.stream().map(ssc -> {
+                try {
+                    return ssc.getConstructor().newInstance();
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }).filter(ssc -> {
+                if (ssc == null) {
+                    return false;
+                }
 
-            file = new File(dir.getAbsolutePath()+"/"+JSF_FILE);
-            if(file.exists()) {
-                return new JsfSidescanParser(file);
-            }
-            file = new File(dir.getAbsolutePath()+"/"+I872_FILE);
-            if(file.exists()) {
-                return new Imagenex872SidescanParser(file);
-            }
-            FilenameFilter sdfFilter = SDFFilter();
-            File[] files = source.getDir().listFiles(sdfFilter);
-            if (files.length == 1)
-                return new SdfSidescanParser(files[0]);
-            else if (files.length > 1)
-                return new SdfSidescanParser(files);
+                return ssc.isCompatibleParser(source);
+            }).collect(Collectors.toList());
             
-
-            // Next cases should be file = new File(...) and check for existence
-            // TODO
-
-            // Defaults to using IMC (in case of sidescan data existence)
+            // FIXME using the first one
+            if (!compatibleParserCheckersList.isEmpty()) {
+                return compatibleParserCheckersList.get(0).getParser(source);
+            }
+            
+            // Fallback. Defaults to using IMC (in case of sidescan data existence)
             if(source != null) {
                 if(LogUtils.hasIMCSidescan(source))
                     return new ImcSidescanParser(source);
@@ -129,14 +148,5 @@ public class SidescanParserFactory {
             }
         }
         return null;
-    }
-    
-    private static FilenameFilter SDFFilter() {
-        FilenameFilter sdfFilter = new FilenameFilter() {
-            public boolean accept(File dir, String name) {
-                return name.toLowerCase().endsWith(".sdf"); // Possibly test if it starts with "Data"
-            }
-        };
-        return sdfFilter;
     }
 }
