@@ -33,19 +33,14 @@
 package pt.lsts.neptus.mra.api;
 
 import java.io.File;
-import java.io.FilenameFilter;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.importers.i872.Imagenex872SidescanParserChecker;
-import pt.lsts.neptus.mra.importers.i872.Imagenex872SidescanParser;
 import pt.lsts.neptus.mra.importers.jsf.JsfSidescanParserChecker;
-import pt.lsts.neptus.mra.importers.jsf.JsfSidescanParser;
 import pt.lsts.neptus.mra.importers.sdf.SdfSidescanParserChecker;
-import pt.lsts.neptus.mra.importers.sdf.SdfSidescanParser;
 import pt.lsts.neptus.util.llf.LogUtils;
 
 /**
