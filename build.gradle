@@ -410,8 +410,8 @@ project(':core') {
         implementation 'org.javassist:javassist:3.18.0-GA' //3.27.0-GA
         // implementation 'net.sf.jchart2d:jchart2d:3.3.2' // should be 1.03
         implementation 'org.jfree:jcommon:1.0.24'
+        implementation 'org.jfree:jfreechart:1.5.3'
         implementation 'org.mortbay.jetty:jetty:6.0.2'
-        implementation 'org.jfree:jfreechart:1.5.0'
         implementation 'com.jgoodies:jgoodies-looks:2.5.3' //2.7.0
         implementation 'com.jhlabs:filters:2.0.235-1' // don't know the orig version
 
