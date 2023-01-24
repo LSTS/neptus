@@ -135,7 +135,7 @@ public class LsfTreeMouseAdapter extends MouseAdapter {
             });
 
             if(count > 1) {
-                popup.add(I18n.text("Multi plot data")).addActionListener(new ActionListener() {
+                popup.add(I18n.text("Compare plot data")).addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(java.awt.event.ActionEvent e) {
                         panel.loadVisualization(new GenericMultiAxisPlot(fieldsToPlot.toArray(new String[0]), panel), true);
@@ -168,7 +168,7 @@ public class LsfTreeMouseAdapter extends MouseAdapter {
             });
 
             if(count > 1) {
-                popup.add(I18n.text("Multi plot data on new window")).addActionListener(new ActionListener() {
+                popup.add(I18n.text("Compare plot data on new window")).addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(java.awt.event.ActionEvent e) {
 

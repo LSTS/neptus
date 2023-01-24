@@ -54,7 +54,7 @@ import java.util.Map;
 public class GenericMultiAxisPlot extends GenericPlot {
 
     public GenericMultiAxisPlot(String[] fieldsToPlot, MRAPanel panel) {
-        super(fieldsToPlot, panel , "Multi Messages");
+        super(fieldsToPlot, panel , "Compare Plot");
     }
 
     // public ImageIcon getIcon() {
