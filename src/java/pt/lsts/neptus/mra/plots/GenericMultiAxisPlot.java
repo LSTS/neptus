@@ -42,10 +42,13 @@ import pt.lsts.neptus.mra.MRAPanel;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author pdias
@@ -119,6 +122,12 @@ public class GenericMultiAxisPlot extends GenericPlot {
                 }
                 chart.getXYPlot().getRangeAxis().setLabel(firstGrp);
 
+                createAxisNames(groupingCollections, labelsCollections);
+                for (int i = 0; i < chart.getXYPlot().getRangeAxisCount(); i++) {
+                    String curLbl = chart.getXYPlot().getRangeAxis(i).getLabel();
+                    chart.getXYPlot().getRangeAxis(i).setLabel(labelsCollections.get(curLbl));
+                }
+
                 // Fix series color
                 int col = 0;
                 idx = 0;
@@ -144,6 +153,30 @@ public class GenericMultiAxisPlot extends GenericPlot {
         }
 
         return chart;
+    }
+
+    private void createAxisNames(Map<String, List<String>> groupingCollections, Map<String, String> labelsCollections) {
+        String[] grpsArr = groupingCollections.keySet().toArray(new String[0]);
+        for (int n = 0; n < grpsArr.length; n++) {
+            String grp = grpsArr[n];
+            String[] elm = grp.split("\\.");
+            boolean foundMatch = false;
+            for (int i = 0; i < elm.length; i++) {
+                String n1 = Arrays.stream(Arrays.copyOf(elm, i + 1)).collect(Collectors.joining("."));
+                List<String> ggg = groupingCollections.keySet().stream().skip(n + 1).collect(Collectors.toList());
+                foundMatch |= groupingCollections.keySet().stream().skip(n + 1).anyMatch((e) -> e.startsWith(n1));
+                foundMatch |= labelsCollections.values().stream().anyMatch((e) -> e.startsWith(n1));
+                if (foundMatch) {
+                    continue;
+                } else {
+                    labelsCollections.put(grp, n1);
+                    break;
+                }
+            }
+            if (foundMatch) {
+                labelsCollections.put(grp, grp);
+            }
+        }
     }
 
     private String getSourceDataName(String serName) {
