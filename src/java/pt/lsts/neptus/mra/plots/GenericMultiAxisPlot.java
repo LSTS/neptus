@@ -111,6 +111,8 @@ public class GenericMultiAxisPlot extends GenericPlot {
                     }
                     final NumberAxis axis2 = new NumberAxis(grpName);
                     axis2.setAutoRangeIncludesZero(false);
+                    axis2.setLowerMargin(0.02);  // reduce the default margins
+                    axis2.setUpperMargin(0.02);
                     chart.getXYPlot().setRangeAxis(++idx, axis2);
                     chart.getXYPlot().setDataset(idx, ntsc);
                     chart.getXYPlot().mapDatasetToRangeAxis(idx, 1);
