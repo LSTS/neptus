@@ -48,6 +48,7 @@ import pt.lsts.neptus.mra.MRAChartPanel;
 import pt.lsts.neptus.mra.MRAPanel;
 import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.mra.plots.GenericMultiAxisPlot;
 import pt.lsts.neptus.mra.plots.GenericPlot;
 import pt.lsts.neptus.mra.plots.ReplayPlot;
 import pt.lsts.neptus.mra.visualizations.ColorMapVisualization;
@@ -133,6 +134,15 @@ public class LsfTreeMouseAdapter extends MouseAdapter {
                 }
             });
 
+            if(count > 1) {
+                popup.add(I18n.text("Multi plot data")).addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(java.awt.event.ActionEvent e) {
+                        panel.loadVisualization(new GenericMultiAxisPlot(fieldsToPlot.toArray(new String[0]), panel), true);
+                    }
+                });
+            }
+
             popup.add(I18n.text("Timeline Plot")).addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -156,6 +166,26 @@ public class LsfTreeMouseAdapter extends MouseAdapter {
                     fcp.regeneratePanel();
                 }
             });
+
+            if(count > 1) {
+                popup.add(I18n.text("Multi plot data on new window")).addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(java.awt.event.ActionEvent e) {
+
+                        LLFChart chart = new GenericMultiAxisPlot(fieldsToPlot.toArray(new String[0]), panel);
+                        MRAChartPanel fcp = new MRAChartPanel(chart, source, panel);
+                        JDialog dialog = new JDialog(ConfigFetch.getSuperParentAsFrame());
+                        dialog.setTitle("[MRA] " + chart.getName());
+                        dialog.setIconImage(ImageUtils.getScaledImage("images/menus/graph.png", 16, 16));
+                        dialog.add(fcp);
+                        dialog.setSize(640, 480);
+                        dialog.setResizable(true);
+                        dialog.setVisible(true);
+                        fcp.regeneratePanel();
+                    }
+                });
+            }
+
             if(count == 1) {
                 popup.add(I18n.text("Plot ColorMap")).addActionListener(new ActionListener() {
                     @Override

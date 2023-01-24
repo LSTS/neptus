@@ -50,13 +50,20 @@ public class GenericPlot extends MRATimeSeriesPlot {
 
     protected String[] fieldsToPlot = null;
     protected final String name;
+    protected final String postfixTile;
 
-    public GenericPlot(String[] fieldsToPlot, MRAPanel panel) {
+    protected GenericPlot(String[] fieldsToPlot, MRAPanel panel, String postfixTile) {
         super(panel);
+        this.postfixTile = postfixTile;
         StringBuilder sb = new StringBuilder(Arrays.toString(fieldsToPlot));
-        sb.append(" Messages");
+        sb.append(" " + this.postfixTile);
         this.name = sb.toString();
         this.fieldsToPlot = fieldsToPlot;
+
+    }
+
+    public GenericPlot(String[] fieldsToPlot, MRAPanel panel) {
+        this(fieldsToPlot, panel, "Messages");
     }
 
     @Override
