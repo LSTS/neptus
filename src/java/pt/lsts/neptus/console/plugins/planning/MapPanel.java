@@ -533,6 +533,7 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
     @Override
     public void removeInteraction(StateRendererInteraction interaction) {
         renderer.removeInteraction(interaction);
+        interactionModes.remove(interaction.getName());
         ToolbarSwitch sw = interactionButtons.get(interaction.getName());
         if (sw != null) {
             bottom.remove(sw);
