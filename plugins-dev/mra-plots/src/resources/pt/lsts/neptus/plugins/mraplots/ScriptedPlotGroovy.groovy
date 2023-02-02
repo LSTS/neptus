@@ -96,15 +96,15 @@ class ScriptedPlotGroovy  {
     static public TimeSeriesCollection apply(String queryID, Object function) {
         TimeSeriesCollection tsc = scriptedPlot.getTimeSeriesFor(queryID)
         TimeSeriesCollection result = new TimeSeriesCollection()
-                tsc.getSeries().each { TimeSeries ts ->
-                    String name = ts.getKey().toString()
-                    TimeSeries s = new TimeSeries(name)
-                    for(TimeSeriesDataItem item: s.getItems()) {
-                        def value = function.call(item.getValue())
-                        s.addOrUpdate(item.getPeriod(),value)
-                    }
-                    result.addSeries(s)
-                }
+        tsc.getSeries().each { TimeSeries ts ->
+            String name = ts.getKey().toString()
+            TimeSeries s = new TimeSeries(name)
+            for (TimeSeriesDataItem item : ts.getItems()) {
+                def value = function.call(item.getValue())
+                s.addOrUpdate(item.getPeriod(), value)
+            }
+            result.addSeries(s)
+        }
         result
     }
     
