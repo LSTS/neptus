@@ -39,6 +39,7 @@ import org.jfree.data.time.TimeSeriesCollection
 import org.jfree.data.time.RegularTimePeriod
 import pt.lsts.imc.lsf.LsfIndex
 import pt.lsts.neptus.mra.plots.ScriptedPlot
+import pt.lsts.neptus.util.AngleUtils
 
 import java.text.SimpleDateFormat
 
@@ -281,7 +282,15 @@ class ScriptedPlotGroovy  {
         else
             Double.NaN             
             }
-  
+
+    static public normalizeAngleRads2Pi = {double double1 -> AngleUtils.nomalizeAngleRads2Pi(double1)}
+
+    static public normalizeAngleRadsPi = {double double1 -> AngleUtils.nomalizeAngleRadsPi(double1)}
+
+    static public normalizeAngleDegrees360 = {double double1 -> AngleUtils.nomalizeAngleDegrees360(double1)}
+
+    static public normalizeAngleDegrees180 = {double double1 -> AngleUtils.nomalizeAngleDegrees180(double1)}
+
     static public void plotDomainMarker(String label,long time) {
         if(scriptedPlot != null || time != Double.NaN)
             scriptedPlot.mark(time,label)
