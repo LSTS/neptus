@@ -1,0 +1,15 @@
+title "Control Heading Rate"
+
+toDegrees = {rad -> Math.toDegrees(rad)}
+
+addQuery "DesiredHeadingRate.Horizontal Plane Control.value"
+addQuery "EstimatedState.r"
+
+es_psi = apply("EstimatedState.r","EstimatedState.r", toDegrees)
+plot es_psi
+
+desired_heading = apply("DesiredHeadingRate.Horizontal Plane Control.value","DesiredHeadingRate.Horizontal Plane Control.value", toDegrees) 
+plot desired_heading
+
+desired_ctrl = "DesiredControl.Horizontal Plane Control.n" 
+plot "DesiredControl.Horizontal Plane Control.n": desired_ctrl
