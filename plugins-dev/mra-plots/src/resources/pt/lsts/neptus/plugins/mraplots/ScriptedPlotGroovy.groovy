@@ -63,24 +63,50 @@ class ScriptedPlotGroovy  {
         scriptedPlot.isProcessed()
     }
 
+    static void axis(String name) {
+        scriptedPlot.axisName(0, name);
+    }
+
+    static void axis(int idx, String name) {
+        scriptedPlot.axisName(idx, name);
+    }
+
 	static void plot(LinkedHashMap<String,String> queries) {
         queries.each {
             scriptedPlot.addTimeSeries(it.key, it.value)
         }
 	}
-    
+
+    static void plot(int index, LinkedHashMap<String, String> queries) {
+        queries.each {
+            scriptedPlot.addTimeSeries(index, it.key, it.value)
+        }
+    }
+
     static void plot(String... queries) {
        queries.each { 
            scriptedPlot.addTimeSeries(it, it)
        }
     }
-       
+
+    static void plot(int index, String... queries) {
+        queries.each {
+            scriptedPlot.addTimeSeries(index, it, it)
+        }
+    }
+
     static void plot(TimeSeriesCollection tsc) {
         tsc.getSeries().each { TimeSeries ts ->
             scriptedPlot.addTimeSeries(ts)
         }
     }
- 
+
+    static void plot(int index, TimeSeriesCollection tsc) {
+        tsc.getSeries().each { TimeSeries ts ->
+            scriptedPlot.addTimeSeries(index, ts)
+        }
+    }
+
     static void addQuery(String... query) {
         query.each {
             scriptedPlot.addQuery(it,it)
@@ -92,18 +118,17 @@ class ScriptedPlotGroovy  {
             scriptedPlot.addQuery(it.key,it.value)
         }
     }
-    
-    static public TimeSeriesCollection apply(String queryID, Object function) {
+    static public TimeSeriesCollection apply(String queryID, Closure<Number> function) {
         TimeSeriesCollection tsc = scriptedPlot.getTimeSeriesFor(queryID)
         return applyWorker(tsc, function)
     }
 
-    static public TimeSeriesCollection apply(TimeSeriesCollection timeSeries, Object function) {
+    static public TimeSeriesCollection apply(TimeSeriesCollection timeSeries, Closure<Number> function) {
         TimeSeriesCollection tsc = timeSeries
         return applyWorker(tsc, function)
     }
 
-    private static TimeSeriesCollection applyWorker(TimeSeriesCollection tsc, function) {
+    private static TimeSeriesCollection applyWorker(TimeSeriesCollection tsc, Closure<Number> function) {
         TimeSeriesCollection result = new TimeSeriesCollection()
         tsc.getSeries().each { TimeSeries ts ->
             String name = ts.getKey().toString()
