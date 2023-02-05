@@ -187,7 +187,7 @@ class ScriptedPlotGroovy  {
         applyWorker(id, tsc1, tsc2, function)
     }
 
-    private static void applyWorker(String id, TimeSeriesCollection tsc1, TimeSeriesCollection tsc2,
+    private static TimeSeriesCollection applyWorker(String id, TimeSeriesCollection tsc1, TimeSeriesCollection tsc2,
                                     Closure<Number> function) {
         TimeSeriesCollection result = new TimeSeriesCollection()
         int min_tsc = Math.min(tsc1.getSeriesCount(), tsc2.getSeriesCount())
