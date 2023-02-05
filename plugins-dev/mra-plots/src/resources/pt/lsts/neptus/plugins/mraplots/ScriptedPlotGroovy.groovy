@@ -118,9 +118,23 @@ class ScriptedPlotGroovy  {
             scriptedPlot.addQuery(it.key,it.value)
         }
     }
+
+    static public TimeSeriesCollection apply(String queryID, Closure<Number>... function) {
+        TimeSeriesCollection tsc = scriptedPlot.getTimeSeriesFor(queryID)
+        apply(tsc, function)
+    }
+
     static public TimeSeriesCollection apply(String queryID, Closure<Number> function) {
         TimeSeriesCollection tsc = scriptedPlot.getTimeSeriesFor(queryID)
         return applyWorker(tsc, function)
+    }
+
+    static public TimeSeriesCollection apply(TimeSeriesCollection timeSeries, Closure<Number>... function) {
+        TimeSeriesCollection result = timeSeries
+        for (Object fun : function) {
+            result = applyWorker(result, fun)
+        }
+        result
     }
 
     static public TimeSeriesCollection apply(TimeSeriesCollection timeSeries, Closure<Number> function) {
@@ -142,12 +156,31 @@ class ScriptedPlotGroovy  {
         result
     }
 
+    static public TimeSeriesCollection apply(String name, String queryID, Closure<Number>... function) {
+        TimeSeriesCollection tsc = scriptedPlot.getTimeSeriesFor(queryID)
+        apply(name, tsc, function)
+    }
+
     static public TimeSeriesCollection apply(String name, String queryID, Closure<Number> function) {
         TimeSeriesCollection result = new TimeSeriesCollection()
         if(!scriptedPlot.isProcessed())
             return result
         TimeSeriesCollection tsc = scriptedPlot.getTimeSeriesFor(queryID)
         applyWorker(name, tsc, function)
+    }
+
+    static public TimeSeriesCollection apply(String name, TimeSeriesCollection timeSeries, Closure<Number>... function) {
+        boolean first = true
+        TimeSeriesCollection result = timeSeries
+        if (function.size() == 0) {
+            result = applyWorker(name, result, {double val -> val})
+        } else {
+            for (Object fun : function) {
+                result = first ? applyWorker(name, result, fun) : applyWorker(result, fun)
+                first = false
+            }
+        }
+        result
     }
 
     static public TimeSeriesCollection apply(String name, TimeSeriesCollection timeSeries, Closure<Number> function) {
