@@ -81,7 +81,7 @@ import pt.lsts.neptus.util.GuiUtils;
  * @author keila
  * 
  */
-public class ScriptedPlot extends MRATimeSeriesPlot  implements IMultiAxisPlots {
+public class ScriptedPlot extends MRATimeSeriesPlot {
 
     protected Map<String, String> traces = new LinkedHashMap<>();
     protected TimeSeriesCollection customTsc = new TimeSeriesCollection();
