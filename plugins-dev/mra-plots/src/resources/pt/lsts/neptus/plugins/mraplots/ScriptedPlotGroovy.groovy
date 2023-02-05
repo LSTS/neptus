@@ -341,6 +341,10 @@ class ScriptedPlotGroovy  {
             Double.NaN             
             }
 
+    static public toDegrees = {double rad -> Math.toDegrees(rad)}
+
+    static public toRadians = {double deg -> Math.toRadians(deg)}
+
     static public normalizeAngleRads2Pi = {double double1 -> AngleUtils.nomalizeAngleRads2Pi(double1)}
 
     static public normalizeAngleRadsPi = {double double1 -> AngleUtils.nomalizeAngleRadsPi(double1)}
