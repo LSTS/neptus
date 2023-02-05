@@ -82,9 +82,9 @@ public abstract class MRATimeSeriesPlot implements LLFChart, LogMarkerListener {
     protected MRAPanel mraPanel;
 
     protected static Color[] seriesColors = new Color[] { Color.red.darker(), Color.blue.darker(),
-            Color.green.darker(), Color.orange, Color.cyan.darker(), Color.gray.darker(), Color.magenta.darker(),
+            Color.green.darker(), Color.orange.darker(), Color.cyan.darker(), Color.magenta.darker(),
             Color.blue.brighter().brighter(), Color.red.brighter().brighter(), Color.green.brighter().brighter(),
-            Color.black, Color.pink, Color.yellow.darker(), Color.cyan, Color.magenta };
+            Color.pink, Color.yellow.darker(), Color.cyan, Color.magenta, Color.gray.darker(), Color.black };
 
     public MRATimeSeriesPlot(MRAPanel panel) {
         this.mraPanel = panel;
