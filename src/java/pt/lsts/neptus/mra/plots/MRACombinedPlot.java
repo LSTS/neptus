@@ -39,6 +39,8 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.plot.CombinedDomainXYPlot;
 import org.jfree.chart.plot.ValueMarker;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.data.time.TimeSeriesCollection;
 
 import pt.lsts.neptus.i18n.I18n;
@@ -74,11 +76,21 @@ public abstract class MRACombinedPlot extends MRATimeSeriesPlot {
             timeSeriesCollections.get(plot).addSeries(series.get(seriesName));
         }
 
+        int i = 0;
         for (String plotName : timeSeriesCollections.keySet()) {
+            TimeSeriesCollection tsc = timeSeriesCollections.get(plotName);
             charts.put(plotName, ChartFactory.createTimeSeriesChart(plotName, I18n.text("Time Of Day"), plotName,
-                    timeSeriesCollections.get(plotName), true, true, false));
-            
-            combinedPlot.add(charts.get(plotName).getXYPlot());
+                    tsc, true, true, false));
+
+            // Fix colors of traces
+            XYPlot plot = charts.get(plotName).getXYPlot();
+            XYItemRenderer r = plot.getRenderer();
+            if (r != null) {
+                for (int j = 0; j < tsc.getSeriesCount(); j++) {
+                    r.setSeriesPaint(j, seriesColors[i++ % seriesColors.length]);
+                }
+            }
+            combinedPlot.add(plot);
         }
 
         // Do this here to make sure we have a built chart.. //FIXME FIXME FIXME

@@ -1,5 +1,7 @@
 title "Bathymetry"
 
+axis "meters"
+
 plot "Altitude": "EstimatedState.alt", "Depth":"EstimatedState.depth"
 
 bathy = apply ("Bathymetry", "Depth", "Altitude",sum)
