@@ -37,6 +37,7 @@ import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.MRAPanel;
 import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.util.AngleUtils;
 
 /**
  * @author zp
@@ -64,21 +65,21 @@ public class EulerAnglesPlot extends MRACombinedPlot {
         if (source.getDefinitions().getVersion().compareTo("5.0.0") >= 0) {
             for (IMCMessage msg : source.getIterator("EstimatedState", 0, (long) (timestep * 1000))) {
                 addValue(msg.getTimestampMillis(), I18n.text("Phi (deg).") + msg.getSourceName(),
-                        Math.toDegrees(msg.getDouble("phi")));
+                        AngleUtils.nomalizeAngleDegrees180(Math.toDegrees(msg.getDouble("phi"))));
                 addValue(msg.getTimestampMillis(), I18n.text("Theta (deg).") + msg.getSourceName(),
-                        Math.toDegrees(msg.getDouble("theta")));
+                        AngleUtils.nomalizeAngleDegrees180(Math.toDegrees(msg.getDouble("theta"))));
                 addValue(msg.getTimestampMillis(), I18n.text("Psi (deg).") + msg.getSourceName(),
-                        Math.toDegrees(msg.getDouble("psi")));
+                        AngleUtils.nomalizeAngleDegrees180(Math.toDegrees(msg.getDouble("psi"))));
             }
         }
         else {
             for (IMCMessage msg : source.getIterator("EulerAngles", 0, (long) (timestep * 1000))) {
                 addValue(msg.getTimestampMillis(), I18n.text("Phi (deg).") + msg.getSourceName(),
-                        Math.toDegrees(msg.getDouble("roll")));
+                        AngleUtils.nomalizeAngleDegrees180(Math.toDegrees(msg.getDouble("roll"))));
                 addValue(msg.getTimestampMillis(), I18n.text("Theta (deg).") + msg.getSourceName(),
-                        Math.toDegrees(msg.getDouble("pitch")));
+                        AngleUtils.nomalizeAngleDegrees180(Math.toDegrees(msg.getDouble("pitch"))));
                 addValue(msg.getTimestampMillis(), I18n.text("Psi (deg).") + msg.getSourceName(),
-                        Math.toDegrees(msg.getDouble("yaw")));
+                        AngleUtils.nomalizeAngleDegrees180(Math.toDegrees(msg.getDouble("yaw"))));
             }
         }
     }

@@ -32,6 +32,8 @@
  */
 package pt.lsts.neptus.plugins.rtplot
 
+import pt.lsts.neptus.util.AngleUtils
+
 import java.awt.BorderLayout
 import java.awt.geom.Point2D
 import java.util.Map;
@@ -79,6 +81,18 @@ class PlotScript {
         else
             Double.NaN
     }
+
+    static public toDegrees = {double rad -> Math.toDegrees(rad)}
+
+    static public toRadians = {double deg -> Math.toRadians(deg)}
+
+    static public normalizeAngleRads2Pi = {double double1 -> AngleUtils.nomalizeAngleRads2Pi(double1)}
+
+    static public normalizeAngleRadsPi = {double double1 -> AngleUtils.nomalizeAngleRadsPi(double1)}
+
+    static public normalizeAngleDegrees360 = {double double1 -> AngleUtils.nomalizeAngleDegrees360(double1)}
+
+    static public normalizeAngleDegrees180 = {double double1 -> AngleUtils.nomalizeAngleDegrees180(double1)}
 
     static String newName(String dottedName, String serieName) {
         dottedName.split(/(\.)/)[0] + "." +serieName
