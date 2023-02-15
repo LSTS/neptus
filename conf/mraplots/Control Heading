@@ -1,15 +1,16 @@
 title "Control Heading"
 
-toDegrees = {rad -> Math.toDegrees(rad)}
+axis "Heading, Desired (°)"
+axis 1, "Control Output"
+
+
+addQuery "EstimatedState.psi"
+heading = apply("Heading", "EstimatedState.psi", toDegrees, normalizeAngleDegrees180)
+plot heading
 
 addQuery "DesiredHeading.Path Control.value"
-addQuery "EstimatedState.psi"
-
-es_psi = apply("EstimatedState.psi","EstimatedState.psi", toDegrees)
-plot es_psi
-
-desired_heading = apply("DesiredHeading.Path Control.value","DesiredHeading.Path Control.value", toDegrees) 
-plot desired_heading
+desired_h = apply("DesiredHeading", "DesiredHeading.Path Control.value", toDegrees)
+plot desired_h
 
 desired_ctrl = "DesiredControl.Horizontal Plane Control.n" 
-plot "DesiredControl.Horizontal Plane Control.n": desired_ctrl
+plot 1, ["DesiredControl.n": desired_ctrl]

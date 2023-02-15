@@ -1,10 +1,13 @@
 title "Control Surge"
 
-es_surge = "EstimatedState.u" 
-plot "EstimatedState.u": es_surge
+axis "Velocity x, Desired (m/s)"
+axis 1, "Control Output"
 
-desired_surge = "DesiredVelocity.Path Control.u" 
-plot "DesiredVelocity.Path Control.u": desired_surge
+vel_x = "EstimatedState.u" 
+plot "EstimatedState.u": vel_x
+
+desired_x = "DesiredVelocity.Path Control.u" 
+plot "DesiredVelocity.Path Control.u": desired_x
 
 desired_ctrl = "DesiredControl.Horizontal Plane Control.x" 
-plot "DesiredControl.Horizontal Plane Control.x": desired_ctrl
+plot 1, ["DesiredControl.x": desired_ctrl]

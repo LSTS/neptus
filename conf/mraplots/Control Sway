@@ -1,10 +1,13 @@
 title "Control Sway"
 
-es_sway = "EstimatedState.v" 
-plot "EstimatedState.u": es_sway
+axis "Velocity y, Desired (m/s)"
+axis 1, "Control Output"
 
-desired_sway = "DesiredVelocity.Path Control.v" 
-plot "DesiredVelocity.Path Control.v": desired_sway
+vel_y = "EstimatedState.v"
+plot "EstimatedState.v": vel_y
+
+desired_y = "DesiredVelocity.Path Control.v" 
+plot "DesiredVelocity.Path Control.v": desired_y
 
 desired_ctrl = "DesiredControl.Horizontal Plane Control.y" 
-plot "DesiredControl.Horizontal Plane Control.y": desired_ctrl
+plot 1, ["DesiredControl.y": desired_ctrl]

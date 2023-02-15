@@ -1,15 +1,16 @@
 title "Control Heading Rate"
 
-toDegrees = {rad -> Math.toDegrees(rad)}
+axis "Heading Rate, Desired (°/s)"
+axis 1, "Control Output"
+
+
+addQuery "EstimatedState.r"
+heading_rate = apply("HeadingRate", "EstimatedState.r", toDegrees, normalizeAngleDegrees180)
+plot heading_rate
 
 addQuery "DesiredHeadingRate.Horizontal Plane Control.value"
-addQuery "EstimatedState.r"
-
-es_psi = apply("EstimatedState.r","EstimatedState.r", toDegrees)
-plot es_psi
-
-desired_heading = apply("DesiredHeadingRate.Horizontal Plane Control.value","DesiredHeadingRate.Horizontal Plane Control.value", toDegrees) 
-plot desired_heading
+desired_hr = apply("DesiredHeadingRate", "DesiredHeadingRate.Horizontal Plane Control.value", toDegrees)
+plot desired_hr
 
 desired_ctrl = "DesiredControl.Horizontal Plane Control.n" 
-plot "DesiredControl.Horizontal Plane Control.n": desired_ctrl
+plot 1, ["DesiredControl.n": desired_ctrl]
