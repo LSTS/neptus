@@ -359,7 +359,7 @@
     <comm-mean>
       <name>ethernet</name>
       <type>ethernet</type>
-      <host-address>10.0.10.40</host-address>
+      <host-address>10.0.10.180</host-address>
       <protocols>imc</protocols>
       <latency value="100M" unit="bps"/>
       <protocols-args>
