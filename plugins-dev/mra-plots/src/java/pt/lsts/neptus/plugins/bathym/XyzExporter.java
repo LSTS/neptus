@@ -248,7 +248,10 @@ public class XyzExporter implements MRAExporter {
         
         if (msg == null)
             return -1;
-        
+
+        if (msg.getClass() != PlanControlState.class) {
+            return -1; //Temp fix for buggy return
+        }
         return ((PlanControlState)msg).getManType();
     }
     
