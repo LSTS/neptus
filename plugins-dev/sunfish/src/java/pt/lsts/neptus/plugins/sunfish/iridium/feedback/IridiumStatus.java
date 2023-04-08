@@ -160,8 +160,8 @@ public class IridiumStatus extends ConsolePanel {
                                 synchronized (IridiumStatus.this) {
                                     int index = table.getModel().getRowCount()-1;
                                     try {
-                                        if(index < table.getRowCount() && index > 0) {
-                                            int row   = table.convertRowIndexToView(index);
+                                        if(index < table.getRowCount() - 1 && index > 0) {
+                                            int row = table.convertRowIndexToView(index);
                                             Rectangle rect = table.getCellRect(row, 0, false);
                                             if(rect != null)
                                                 table.scrollRectToVisible(rect);                                        
