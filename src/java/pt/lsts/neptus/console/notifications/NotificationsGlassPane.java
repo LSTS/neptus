@@ -65,7 +65,6 @@ import pt.lsts.neptus.util.ImageUtils;
  * 
  */
 public class NotificationsGlassPane extends JPanel {
-
     private static final long serialVersionUID = -1397790967075620867L;
     private static final int MARGIN_BOTTOM = 5;
     private static final int MARGIN_RIGHT = 2;
@@ -112,7 +111,6 @@ public class NotificationsGlassPane extends JPanel {
 
     public void add(final Notification noty) {
         while (list.size() > NotificationsCollection.MAX_SIZE) {
-            //this.clear();
             list.remove(0);
             this.remove(0);
         }
@@ -248,7 +246,6 @@ public class NotificationsGlassPane extends JPanel {
             public void componentResized(ComponentEvent e) {
                  refresh();
             }
-
         });
     }
 }
