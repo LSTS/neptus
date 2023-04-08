@@ -60,8 +60,8 @@ public class NotificationsCollection {
 
     private synchronized void add(Notification noty) {
         // auto clean
-        if (list.size() > MAX_SIZE) {
-           list.clear();
+        while (list.size() > MAX_SIZE) {
+           list.remove(0);
         }
         list.add(noty);
         console.post(new ConsoleEventNewNotification(noty));
