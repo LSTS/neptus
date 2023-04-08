@@ -70,6 +70,8 @@ public class NotificationsGlassPane extends JPanel {
     private static final int MARGIN_BOTTOM = 5;
     private static final int MARGIN_RIGHT = 2;
     private static final int BOTTOM_GAP = 25;
+    private static final int VISIBLE_GLASS_NOTIFICATIONS = 3;
+
     private final JFrame frame;
     private List<Notification> list = new ArrayList<>();
     private int currentHeight = BOTTOM_GAP;
@@ -86,11 +88,18 @@ public class NotificationsGlassPane extends JPanel {
     public void refresh() {
         currentHeight = BOTTOM_GAP;
         List<Component> comps = Arrays.asList(this.getComponents());
+        int maxIdx = comps.size() - 1;
+        int cnt = -1;
         for (Component component : comps) {
-            component.setLocation(this.getWidth() - (component.getWidth() + MARGIN_RIGHT), ((this.getHeight()
-                    - (component.getHeight() + MARGIN_BOTTOM) - currentHeight)));
-            currentHeight += component.getHeight() + MARGIN_BOTTOM;
-
+            ++cnt;
+            if (cnt > maxIdx - VISIBLE_GLASS_NOTIFICATIONS) {
+                component.setVisible(true);
+                component.setLocation(this.getWidth() - (component.getWidth() + MARGIN_RIGHT), ((this.getHeight()
+                        - (component.getHeight() + MARGIN_BOTTOM) - currentHeight)));
+                currentHeight += component.getHeight() + MARGIN_BOTTOM;
+            } else {
+                component.setVisible(false);
+            }
         }
     }
 
@@ -113,6 +122,7 @@ public class NotificationsGlassPane extends JPanel {
         this.setVisible(true);
         list.add(noty);
         this.add(build(noty, false));
+        this.refresh();
         this.repaint();
     }
 
