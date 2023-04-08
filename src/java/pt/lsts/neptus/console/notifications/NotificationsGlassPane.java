@@ -102,8 +102,10 @@ public class NotificationsGlassPane extends JPanel {
     }
 
     public void add(final Notification noty) {
-        if (list.size() > NotificationsCollection.MAX_SIZE) {
-            this.clear();
+        while (list.size() > NotificationsCollection.MAX_SIZE) {
+            //this.clear();
+            list.remove(0);
+            this.remove(0);
         }
         if (noty.getType() == NotificationType.INFO)
             return;
