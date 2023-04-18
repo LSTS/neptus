@@ -105,6 +105,6 @@ public class LineSegmentElement extends SimpleMapElement {
         Vector<LocationType> ret = new Vector<>();
         ret.add(loc1);
         ret.add(loc2);
-        return super.getShapePoints();
+        return ret;
     }
 }
