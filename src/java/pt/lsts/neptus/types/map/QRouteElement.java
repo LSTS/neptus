@@ -167,4 +167,20 @@ public class QRouteElement extends SimpleMapElement implements ConfigurationList
             pt.setLocation(l.getLatitudeDegs(), l.getLongitudeDegs());
         }
     }
+
+    @Override
+    public Vector<LocationType> getShapePoints() {
+        Vector<LocationType> ret = new Vector<LocationType>();
+
+        LocationType lt = new LocationType(getCenterLocation());
+
+        ret.add(lt); // center is first point
+
+        for (Point2D pt : otherPoints) {
+            LocationType l = new LocationType(pt.getX(), pt.getY());
+            ret.add(l);
+        }
+
+        return ret;
+    }
 }
