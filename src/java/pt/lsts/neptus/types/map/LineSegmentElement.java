@@ -38,9 +38,11 @@ import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.util.Vector;
 
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.coord.LocationType;
 
 /**
@@ -92,5 +94,17 @@ public class LineSegmentElement extends SimpleMapElement {
     public boolean containsPoint(LocationType point, StateRenderer2D renderer) {
         return renderer.getZoom() * point.getDistanceInMeters(getCenterLocation()) <= 5;
     }
-    
+
+    @Override
+    public Vector<LocationType> getShapePoints() {
+        LocationType loc1 = getCenterLocation().getNewAbsoluteLatLonDepth();
+        LocationType loc2 = new LocationType(loc1);
+        double[] offsets = CoordinateUtil.sphericalToCartesianCoordinates(length, getYaw(), 0);
+        loc2.translatePosition(offsets[0], offsets[1], 0);
+        loc2.convertToAbsoluteLatLonDepth();
+        Vector<LocationType> ret = new Vector<>();
+        ret.add(loc1);
+        ret.add(loc2);
+        return ret;
+    }
 }

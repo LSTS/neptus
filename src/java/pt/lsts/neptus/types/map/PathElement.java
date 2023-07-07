@@ -502,14 +502,11 @@ public class PathElement extends AbstractElement {
 
     @Override
     public Vector<LocationType> getShapePoints() {
-        if (!isShape)
-            return super.getShapePoints();
-
         Vector<LocationType> ret = new Vector<LocationType>();
 
         LocationType lt = new LocationType(getCenterLocation());
 
-        ret.add(lt); // center is first point
+        //ret.add(lt); // center is first point
         Vector<Point3d> myPts = getPoints();
 
         for (Point3d pt : myPts) {
