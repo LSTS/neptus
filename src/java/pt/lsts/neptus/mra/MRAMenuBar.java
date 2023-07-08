@@ -636,6 +636,8 @@ public class MRAMenuBar {
             for (Constructor<?> c : constructors) {
                 if (c.getParameterTypes().length == 1 && c.getParameterTypes()[0].equals(IMraLogGroup.class)) {
                     try {
+                        mra.getBgp().setText(I18n.text("Loading exporter") + " " + clazz.getSimpleName());
+                        NeptusLog.pub().warn("Loading exporter " + clazz.getName());
                         exporters.put(PluginUtils.getPluginI18nName(clazz), clazz.getConstructor(IMraLogGroup.class).newInstance(new Object[] { source }));
                     }
                     catch (Exception e) {                        
@@ -647,6 +649,8 @@ public class MRAMenuBar {
             
             if (!added) {
                 try {
+                    mra.getBgp().setText(I18n.text("Loading exporter") + " " + clazz.getSimpleName());
+                    NeptusLog.pub().warn("Loading exporter " + clazz.getName());
                     exporters.put(PluginUtils.getPluginI18nName(clazz), clazz.getDeclaredConstructor().newInstance());
                     added = true;
                 }
@@ -657,6 +661,9 @@ public class MRAMenuBar {
                 NeptusLog.pub().error("Error Exporter of type "+clazz.getName()+": No valid constructor.");
             }
         }
+
+        mra.getBgp().setText(I18n.text("Preparing exporter menu"));
+        NeptusLog.pub().warn("Preparing exporter menu");
 
         // Check for existence of Exporters menu and remove on existence (in case of opening a new log)
         if(getExportersMenu() != null)
@@ -675,6 +682,7 @@ public class MRAMenuBar {
         for (String name : names) {
             final MRAExporter exp = exporters.get(name);
             try {
+                mra.getBgp().setText(I18n.text("Testing exporter") + " " + name);
                 if (exp.canBeApplied(source)) {
                     JMenuItem item = new JMenuItem(new AbstractAction(name) {
                         @Override

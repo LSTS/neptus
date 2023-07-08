@@ -223,6 +223,8 @@ public class MRAPanel extends JPanel {
                 if (!mra.getMraProperties().isVisualizationActive(vis))
                     continue;
 
+                mra.getBgp().setText(I18n.text("Testing") + " " + visName);
+
                 Constructor<?>[] constructors = vis.getDeclaredConstructors();
                 boolean instantiated = false;
                 MRAVisualization visualization = null;
@@ -261,8 +263,11 @@ public class MRAPanel extends JPanel {
                         I18n.text("MRA Visualization not loading properly") + ": " + visName + "  [" + e2.getMessage()
                         + "]");
             }
+
+            mra.getBgp().setText(I18n.text("Done testing") + " " + visName);
         }
 
+        mra.getBgp().setText(I18n.text("Preparing scripted plots"));
         visualizations.addAll(MRAChartFactory.getScriptedPlots(this));
 
         Collections.sort(visualizations, (o1, o2) -> o1.getName().compareTo(o2.getName()));
@@ -270,6 +275,7 @@ public class MRAPanel extends JPanel {
         // Load PluginVisualizations
         for (MRAVisualization viz : visualizations) {
             try {
+                mra.getBgp().setText(I18n.text("Loading up " + viz.getName()));
                 loadVisualization(viz, false);
             }
             catch (Exception e1) {
