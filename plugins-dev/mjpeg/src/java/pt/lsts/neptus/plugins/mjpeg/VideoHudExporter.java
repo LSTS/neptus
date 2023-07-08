@@ -106,7 +106,7 @@ public class VideoHudExporter implements MRAExporter {
     public VideoHudExporter(IMraLogGroup source) {
         this.positions = new CorrectedPosition(source);
         this.frameDecoder = new FrameDecoderMotionJPEG();    
-        hud = new MraVehiclePosHud(source, 180, 180);
+        //hud = new MraVehiclePosHud(source, 180, 180);
     }
     
     @Override
@@ -167,7 +167,11 @@ public class VideoHudExporter implements MRAExporter {
 
     @Override
     public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
-        
+
+        if (hud == null) {
+            hud = new MraVehiclePosHud(source, 180, 180);
+        }
+
         if (!MRAProperties.batchMode && !GraphicsEnvironment.isHeadless())
             PluginUtils.editPluginProperties(this, true);
         
