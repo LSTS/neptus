@@ -72,7 +72,6 @@ public class VideoToPhotosFilter implements MRAExporter{
 
 
     public VideoToPhotosFilter(IMraLogGroup source) {
-        this.positions = new CorrectedPosition(source);
         this.frameDecoder = new FrameDecoderMotionJPEG();
     }
 
@@ -81,7 +80,9 @@ public class VideoToPhotosFilter implements MRAExporter{
         return frameDecoder.folderContainsFrames(source.getDir());
     }
     @Override
-    public String process(IMraLogGroup source, ProgressMonitor pmonitor) {      
+    public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
+        this.positions = new CorrectedPosition(source);
+
         boolean cancel = PluginUtils.editPluginProperties(this, true);
         if (cancel) {
             return I18n.text("Cancelled by user");
