@@ -41,6 +41,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.TimeZone;
 import java.util.Vector;
 
@@ -95,11 +96,14 @@ public class VideoLegendExporter implements MRAExporter {
         BufferedImage tmp = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = tmp.createGraphics();
         int count = 0;
-        long startTime = corPos.getPositions().iterator().next().getTime();
-        int size = corPos.getPositions().size();
+        long startTime = corPos.getStartTime();
+        int size = (int) corPos.getSize();
         pmonitor.setMaximum(size);
-        
-        for (SystemPositionAndAttitude pos : corPos.getPositions()) {
+
+
+        Iterator<SystemPositionAndAttitude> iter = corPos.iterator();
+        while (iter.hasNext()) {
+            SystemPositionAndAttitude pos = iter.next();
             pmonitor.setNote(I18n.text("Generating frame "+(count+1)+" of "+size));
             if (pmonitor.isCanceled())
                 break;

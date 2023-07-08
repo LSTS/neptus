@@ -59,6 +59,7 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.plugins.MissionChangeListener;
 import pt.lsts.neptus.gui.InfiniteProgressPanel;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mra.api.CorrectedPosition;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.plots.LogMarkerListener;
 import pt.lsts.neptus.mra.visualizations.MRAVisualization;
@@ -122,6 +123,9 @@ public class MRAPanel extends JPanel {
 
         // ------- Setup interface --------
         setLayout(new BorderLayout(3, 3));
+
+        mra.getBgp().setText(I18n.text("Loading corrected positions"));
+        CorrectedPosition cPos = new CorrectedPosition(source, m -> mra.getBgp().setText(m));
 
         mra.getBgp().setText(I18n.text("Starting up left panel"));
         setUpLeftPanel();

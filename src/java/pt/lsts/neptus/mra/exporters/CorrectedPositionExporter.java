@@ -35,6 +35,7 @@ package pt.lsts.neptus.mra.exporters;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.util.Iterator;
 
 import javax.swing.ProgressMonitor;
 
@@ -67,7 +68,9 @@ public class CorrectedPositionExporter implements MRAExporter {
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(out))) {
             writer.write("timestamp (s), latitude (deg), longitude (deg), depth (m), altitude (m), roll (deg), pitch (deg), yaw (deg), speed (m/s)\n");
-            for (SystemPositionAndAttitude pos : positions.getPositions()) {
+            Iterator<SystemPositionAndAttitude> iter = positions.iterator();
+            while (iter.hasNext()) {
+                SystemPositionAndAttitude pos = iter.next();
                 try {
                     writer.write(pos.getTime() / 1000.0 + ", " + pos.getPosition().getLatitudeDegs() + ", "
                             + pos.getPosition().getLongitudeDegs() + ", " + pos.getDepth() + ", " + pos.getAltitude()

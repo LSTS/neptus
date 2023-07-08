@@ -33,6 +33,8 @@
 package pt.lsts.neptus.mra.api;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
@@ -43,7 +45,7 @@ import pt.lsts.neptus.types.coord.LocationType;
  * 
  * This works by feeding {@link EstimatedState}s to {@link #update(EstimatedState)} method.
  * 
- * Once finished, just call {@link #getPositions()}, a finish up will me call to final creation of positions list. Once
+ * Once finished, just call {@link #getRemainingPositions()}}, a finish up will me call to final creation of positions list. Once
  * this is called this will be locked for further updates. To unlock call {@link #reset()} and you can restart the
  * process.
  * 
@@ -52,7 +54,7 @@ import pt.lsts.neptus.types.coord.LocationType;
  */
 public class CorrectedPositionBuilder {
 
-    private ArrayList<SystemPositionAndAttitude> positions = new ArrayList<>();
+    //private ArrayList<SystemPositionAndAttitude> positions = new ArrayList<>();
 
     private ArrayList<EstimatedState> nonAdjusted = new ArrayList<>();
     private ArrayList<LocationType> nonAdjustedLocs = new ArrayList<>();
@@ -65,11 +67,15 @@ public class CorrectedPositionBuilder {
     public CorrectedPositionBuilder() {
     }
 
+    public boolean isFinished() {
+        return finished;
+    }
+
     /**
      * This will reset the instance and {@link #update(EstimatedState)} can be called.
      */
     public void reset() {
-        positions.clear();
+        //positions.clear();
         resetVariables();
         finished = false;
     }
@@ -88,9 +94,11 @@ public class CorrectedPositionBuilder {
      * @param es
      * @return
      */
-    public boolean update(EstimatedState es) {
+    public List<SystemPositionAndAttitude> update(EstimatedState es) {
         if (finished)
-            return false;
+            return Collections.emptyList();
+
+        List<SystemPositionAndAttitude> ret = new ArrayList<>();
 
         LocationType thisLoc = new LocationType();
         thisLoc.setLatitudeRads(es.getLat());
@@ -134,7 +142,7 @@ public class CorrectedPositionBuilder {
                         p.setPosition(loc);
                         p.setAltitude(adj.getAlt());
                         p.setTime((long) (adj.getTimestamp() * 1000));
-                        positions.add(p);
+                        ret.add(p);
                     }
                     nonAdjusted.clear();
                     nonAdjustedLocs.clear();
@@ -148,15 +156,17 @@ public class CorrectedPositionBuilder {
             p.setPosition(thisLoc);
             p.setAltitude(es.getAlt());
             p.setTime((long) (es.getTimestamp() * 1000));
-            positions.add(p);
+            ret.add(p);
         }
         lastLoc = thisLoc;
         lastTime = es.getTimestamp();
 
-        return true;
+        return ret;
     }
 
-    private void finishUp() {
+    private List<SystemPositionAndAttitude> finishUp() {
+        List<SystemPositionAndAttitude> ret = new ArrayList<>();
+
         for (int i = 0; i < nonAdjusted.size(); i++) {
             EstimatedState adj = nonAdjusted.get(i);
             LocationType loc = nonAdjustedLocs.get(i);
@@ -166,11 +176,12 @@ public class CorrectedPositionBuilder {
             p.setPosition(loc);
             p.setAltitude(adj.getAlt());
             p.setTime((long) (adj.getTimestamp() * 1000));
-            positions.add(p);
+            ret.add(p);
         }
 
         finished = true;
         resetVariables();
+        return ret;
     }
 
     /**
@@ -178,10 +189,10 @@ public class CorrectedPositionBuilder {
      * 
      * @return the positions
      */
-    public ArrayList<SystemPositionAndAttitude> getPositions() {
+    public List<SystemPositionAndAttitude> getRemainingPositions() {
         if (!finished)
-            finishUp();
+            return finishUp();
 
-        return positions;
+        return Collections.emptyList();
     }
 }

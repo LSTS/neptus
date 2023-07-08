@@ -34,7 +34,9 @@ package pt.lsts.neptus.plugins.actualstate;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
@@ -49,6 +51,7 @@ import pt.lsts.imc.lsf.LsfIterator;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.MRAPanel;
+import pt.lsts.neptus.mra.api.CorrectedPosition;
 import pt.lsts.neptus.mra.api.CorrectedPositionBuilder;
 import pt.lsts.neptus.mra.plots.MRA2DPlot;
 import pt.lsts.neptus.mra.plots.TimedXYDataItem;
@@ -105,27 +108,27 @@ public class ActualPosition extends MRA2DPlot {
     public void process(LsfIndex source) {
         LsfIterator<EstimatedState> it = source.getIterator(EstimatedState.class);
         long stepTime = (long) (timestep * 1000);
-        
+
          Vector<Announce> uuvSys = source.getSystemsOfType(SystemType.UUV);
          Collection<Integer> systemsLst = new ArrayList<>();
          uuvSys.forEach(an -> systemsLst.add(an.getSrc()));
-         
+
          Map<Integer, CorrectedPositionBuilder> cpBuilders = new LinkedHashMap<>(systemsLst.size());
          systemsLst.forEach(src -> cpBuilders.put(src, new CorrectedPositionBuilder()));
-         
+
          Map<Integer, Long> timesLst = new LinkedHashMap<>(systemsLst.size());
-         
+
          for (EstimatedState es = it.next(); es != null; es = it.next()) {
              long prevTime = -1;
              if (timesLst.containsKey(es.getSrc()))
                  prevTime = timesLst.get(es.getSrc());
-             
+
              long diffT = es.getTimestampMillis() - prevTime;
              if (diffT < stepTime)
                  continue;
 
              timesLst.put(es.getSrc(), es.getTimestampMillis());
-             
+
              LocationType thisLoc = new LocationType();
              thisLoc.setLatitudeRads(es.getLat());
              thisLoc.setLongitudeRads(es.getLon());
@@ -137,17 +140,23 @@ public class ActualPosition extends MRA2DPlot {
              thisLoc.convertToAbsoluteLatLonDepth();
              addValue(es.getTimestampMillis(), thisLoc.getLatitudeDegs(), thisLoc.getLongitudeDegs(),
                      es.getSourceName(), "Estimated Position");
-             
+
              CorrectedPositionBuilder builder = cpBuilders.get(es.getSrc());
              if (builder == null)
                  continue;
-             
-             builder.update(es);
+
+             List<SystemPositionAndAttitude> posLst = builder.update(es);
+             for (SystemPositionAndAttitude sysPosAtt : posLst) {
+                 String sysName = source.getSystemName(es.getSrc());
+                 LocationType pos = sysPosAtt.getPosition();
+                 addValue(sysPosAtt.getTime(), pos.getLatitudeDegs(), pos.getLongitudeDegs(),
+                         sysName, "Actual Position");
+             }
          }
-         
+
          for (int src : cpBuilders.keySet()) {
              CorrectedPositionBuilder builder = cpBuilders.get(src);
-             ArrayList<SystemPositionAndAttitude> posLst = builder.getPositions();
+             List<SystemPositionAndAttitude> posLst = builder.getRemainingPositions();
              for (SystemPositionAndAttitude sysPosAtt : posLst) {
                 String sysName = source.getSystemName(src);
                 LocationType pos = sysPosAtt.getPosition();

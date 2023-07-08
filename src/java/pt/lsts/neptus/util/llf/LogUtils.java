@@ -43,6 +43,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Vector;
@@ -145,8 +146,10 @@ public class LogUtils {
         CorrectedPosition corPosition = new CorrectedPosition(source);
         
         LocationType lastLoc = null;
-        
-        for (SystemPositionAndAttitude loc : corPosition.getPositions()) {
+
+        Iterator<SystemPositionAndAttitude> iter = corPosition.iterator();
+        while (iter.hasNext()) {
+            SystemPositionAndAttitude loc = iter.next();
             if (lastLoc != null)
                 distance += loc.getPosition().getDistanceInMeters(lastLoc);
             lastLoc = loc.getPosition();
