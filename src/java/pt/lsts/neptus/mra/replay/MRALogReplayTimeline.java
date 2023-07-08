@@ -38,6 +38,7 @@ import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -71,6 +72,8 @@ public class MRALogReplayTimeline extends JPanel implements ChangeListener {
     private EventBus bus;
     private double timeMultiplier = 1;
     private Thread replayThread = null;
+    // To avoid calling interrupt on the thread, this makes the lsf file channel to close
+    private AtomicBoolean stopRequest = new AtomicBoolean(false);
     private boolean changing = false;
     private ImageIcon playIcon = ImageUtils.getIcon("pt/lsts/neptus/mra/replay/control-play.png");
     private JLabel time = new JLabel();
@@ -95,8 +98,10 @@ public class MRALogReplayTimeline extends JPanel implements ChangeListener {
     }
     
     public void cleanup() {
-        if (replayThread != null)
-            replayThread.interrupt();
+        if (replayThread != null) {
+            // replayThread.interrupt();
+            stopRequest.set(true);
+        }
     }
     
     private JSlider getTimeline(MRALogReplay replay) {
@@ -124,16 +129,20 @@ public class MRALogReplayTimeline extends JPanel implements ChangeListener {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     if (play.isSelected()) {
-                        if (replayThread != null)
-                            replayThread.interrupt();
+                        if (replayThread != null) {
+                            // replayThread.interrupt();
+                            stopRequest.set(true);
+                        }
                         replayThread = createReplayThread();
                         replayThread.setDaemon(true);
                         replayThread.start();
                         play.setToolTipText(I18n.text("Pause replay"));
                     }
                     else {
-                        if (replayThread != null)
-                            replayThread.interrupt();
+                        if (replayThread != null) {
+                            // replayThread.interrupt();
+                            stopRequest.set(true);
+                        }
                         play.setToolTipText(I18n.text("Resume replay"));
                     }
                 }
@@ -192,8 +201,10 @@ public class MRALogReplayTimeline extends JPanel implements ChangeListener {
             timestamp = timeline.getMaximum();
 
         timeline.setValue((int) timestamp);
-        if (replayThread != null)
-            replayThread.interrupt();
+        if (replayThread != null) {
+            // replayThread.interrupt();
+            stopRequest.set(true);
+        }
 
         replayThread = createReplayThread();
         replayThread.start();
@@ -207,8 +218,10 @@ public class MRALogReplayTimeline extends JPanel implements ChangeListener {
         else if (changing) {
             changing = false;
             if (play.isSelected()) {
-                if (replayThread != null)
-                    replayThread.interrupt();
+                if (replayThread != null) {
+                    // replayThread.interrupt();
+                    stopRequest.set(true);
+                }
                 replayThread = createReplayThread();
                 replayThread.setDaemon(true);
                 replayThread.start();
@@ -220,7 +233,8 @@ public class MRALogReplayTimeline extends JPanel implements ChangeListener {
     private Thread createReplayThread() {
         return new Thread("MRA Log Replay") {
             public void run() {
-
+                MRALogReplayTimeline.this.stopRequest = new AtomicBoolean(false);
+                AtomicBoolean stopRequest = MRALogReplayTimeline.this.stopRequest;
                 long lastMissionTime = timeline.getValue() * 1000l;
                 long lastSystemTime = System.currentTimeMillis();
                 int i = index.advanceToTime(0, lastMissionTime / 1000.0);
@@ -238,7 +252,8 @@ public class MRALogReplayTimeline extends JPanel implements ChangeListener {
 
                         int oldI = i;
                         
-                        while (!isInterrupted() && i < index.getNumberOfMessages() && (index.timeOf(i)*1000 < newMissionTime || k > 4)) {
+                        while (!isInterrupted() && !stopRequest.get() && i < index.getNumberOfMessages()
+                                && (index.timeOf(i)*1000 < newMissionTime || k > 4)) {
                             IMCMessage m = index.getMessage(i);
                             bus.post(m);
                             i++;
