@@ -58,13 +58,17 @@ public class SeaStatePlot extends MRATimeSeriesPlot {
 
     @Override
     public boolean canBeApplied(LsfIndex index) {
-        LsfIterator<GpsFix> it = index.getIterator(GpsFix.class, 5000);
+        // LsfIterator<GpsFix> it = index.getIterator(GpsFix.class, 5000);
+        LsfIterator<GpsFix> it = index.getIterator(GpsFix.class, 300_000L);
         if (it == null)
             return false;
         else {
+            int counter = 0;
             for (GpsFix fix : it) {
                 if (fix.getSatellites() > 0)
                     return true;
+                if (counter++ > 3000)
+                    return false;
             }
         }
         return false;
