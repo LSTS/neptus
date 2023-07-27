@@ -257,7 +257,7 @@ public class ImcUdpTransport {
                             case TimeOut:
                                 deliveryListener.deliveryTimeOut(message);
                                 break;
-                            case Unreacheable:
+                            case Unreachable:
                                 deliveryListener.deliveryUnreacheable(message);
                                 break;
                             default:
@@ -268,7 +268,19 @@ public class ImcUdpTransport {
                     }
                 };                
             }
-            boolean ret = getUdpTransport().sendMessage(destination, port, baos.toByteArray(), listener);
+            DeliveryResult retResult = getUdpTransport().sendMessage(IdPair.from(destination, port), baos.toByteArray()).get();
+            listener.deliveryResult(retResult.result, retResult.exception);
+            boolean ret = false;
+            switch (retResult.result) {
+                case Success:
+                    ret = true;
+                    break;
+                case UnFinished:
+                case TimeOut:
+                case Unreachable:
+                case Error:
+                    break;
+            }
 //            message.dump(System.err);
 //            if (message.getAbbrev().equalsIgnoreCase("LblConfig")) {
 //                NeptusLog.pub().info("<###> sissssssssssss" + baos.toByteArray().length);
@@ -314,7 +326,7 @@ public class ImcUdpTransport {
 	
 	/**
 	 * @param args
-	 * @throws MiddlewareException 
+	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
 		ConfigFetch.initialize();

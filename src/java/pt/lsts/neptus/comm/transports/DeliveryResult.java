@@ -32,12 +32,24 @@
  */
 package pt.lsts.neptus.comm.transports;
 
-/**
- * @author pdias
- *
- */
-public interface DeliveryListener {
-    public enum ResultEnum {UnFinished, Success, TimeOut, Unreachable, Error}
+public class DeliveryResult {
+    public final DeliveryListener.ResultEnum result;
+    public final Exception exception;
 
-    public void deliveryResult(ResultEnum result, Exception error);
+    private DeliveryResult(DeliveryListener.ResultEnum result, Exception error) {
+        this.result = result;
+        this.exception = error;
+    }
+
+    private DeliveryResult(DeliveryListener.ResultEnum result) {
+        this(result, null);
+    }
+
+    public static DeliveryResult from(DeliveryListener.ResultEnum result) {
+        return new DeliveryResult(result);
+    }
+
+    public static DeliveryResult from(DeliveryListener.ResultEnum result, Exception error) {
+        return new DeliveryResult(result, error);
+    }
 }

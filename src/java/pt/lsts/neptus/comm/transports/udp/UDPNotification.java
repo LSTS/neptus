@@ -40,7 +40,7 @@ import pt.lsts.neptus.comm.transports.Notification;
  * @author pdias
  *
  */
-public class UDPNotification extends Notification{
+public class UDPNotification extends Notification {
 
 	/**
 	 * @param isReception
@@ -50,13 +50,12 @@ public class UDPNotification extends Notification{
 	public UDPNotification(boolean isReception, InetSocketAddress address, byte[] buffer) {
 		super(isReception, address, buffer);
 	}
-	
 
 	/**
-	 * @param reception
-	 * @param socketAddress
-	 * @param recBytes
-	 * @param currentTimeMillis
+	 * @param isReception
+	 * @param address
+	 * @param buffer
+	 * @param timeMillis
 	 */
 	public UDPNotification(boolean isReception, InetSocketAddress address,
 			byte[] buffer, long timeMillis) {

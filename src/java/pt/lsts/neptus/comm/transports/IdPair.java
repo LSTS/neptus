@@ -28,16 +28,70 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: Paulo Dias
- * 10/02/2011
+ * 14/02/2011
  */
 package pt.lsts.neptus.comm.transports;
 
-/**
- * @author pdias
- *
- */
-public interface DeliveryListener {
-    public enum ResultEnum {UnFinished, Success, TimeOut, Unreachable, Error}
+import java.net.InetSocketAddress;
+import java.util.Objects;
 
-    public void deliveryResult(ResultEnum result, Exception error);
+public class IdPair {
+    private String host = "";
+    private int port = 0;
+
+    private IdPair(String host, int port) {
+        this.host = host == null ? "" : host.replaceFirst("^/", "");
+        this.port = port;
+    }
+
+    public static IdPair empty() {
+        return new IdPair(null, 0);
+    }
+
+    public static IdPair from(String host, int port) {
+        return new IdPair(host, port);
+    }
+
+    public static IdPair from(InetSocketAddress address) {
+        String[] addrStr = address.toString().split(":");
+        try {
+            return new IdPair(addrStr.length > 0 ? addrStr[0] : "",
+                    addrStr.length > 1 ? Integer.parseInt(addrStr[1]) : 0);
+        }
+        catch (NumberFormatException e) {
+            return new IdPair(addrStr.length > 0 ? addrStr[0] : "", 0);
+        }
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public String getId() {
+        return toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        IdPair idPair = (IdPair) o;
+        return port == idPair.port && Objects.equals(host, idPair.host);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(host, port);
+    }
+
+    @Override
+    public String toString() {
+        return host + ':' + port;
+    }
 }

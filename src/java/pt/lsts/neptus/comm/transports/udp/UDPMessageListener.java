@@ -37,10 +37,8 @@ package pt.lsts.neptus.comm.transports.udp;
  *
  */
 public interface UDPMessageListener {
-
 	/**
 	 * @param req
 	 */
 	public void onUDPMessageNotification(UDPNotification req);
-	
 }
