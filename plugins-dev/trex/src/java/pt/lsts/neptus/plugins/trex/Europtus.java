@@ -603,7 +603,7 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
 
     @Override
     public void deliveryUnreacheable(IMCMessage message) {
-        deliveryResult(ResultEnum.Unreacheable, new Exception("Destination is unreacheable"));
+        deliveryResult(ResultEnum.Unreachable, new Exception("Destination is unreacheable"));
     }
 
     @Override

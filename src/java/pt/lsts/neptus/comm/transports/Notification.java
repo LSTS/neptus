@@ -33,6 +33,7 @@
 package pt.lsts.neptus.comm.transports;
 
 import java.net.InetSocketAddress;
+import java.util.concurrent.CompletableFuture;
 
 import pt.lsts.neptus.comm.transports.DeliveryListener.ResultEnum;
 
@@ -54,9 +55,9 @@ public class Notification {
 	private long timeMillis = -1;
 	
 	// DeliveryListener vars
-	private ResultEnum operationResult = ResultEnum.UnFinished; 
+	private ResultEnum operationResult = ResultEnum.UnFinished;
 	private Exception errorObject = null;
-	private DeliveryListener deliveryListener = null;
+	private CompletableFuture<DeliveryResult> deliveryListener = null;
 	
 	/**
 	 * @param isReception
@@ -70,10 +71,10 @@ public class Notification {
     }
 
     /**
-     * @param reception
-     * @param socketAddress
-     * @param recBytes
-     * @param currentTimeMillis
+     * @param isReception
+     * @param address
+     * @param buffer
+     * @param timeMillis
      */
     public Notification(boolean isReception, InetSocketAddress address, byte[] buffer, long timeMillis) {
         this.address = address;
@@ -82,29 +83,6 @@ public class Notification {
         setReception(isReception);
     }
 
-//	public Notification(boolean isReception, InetSocketAddress address,
-//			boolean eos, long timeMillis) {
-//		this.address = address;
-//		this.eosReceived = eos;
-//		this.buffer = new byte[0];
-//		this.timeMillis = timeMillis;
-//		setReception(isReception);
-//	}
-
-//	/**
-//	 * @return the eosReceived
-//	 */
-//	public boolean isEosReceived() {
-//		return eosReceived;
-//	}
-//	
-//	/**
-//	 * @param eosReceived the eosReceived to set
-//	 */
-//	public void setEosReceived(boolean eosReceived) {
-//		this.eosReceived = eosReceived;
-//	}
-	
 	/**
 	 * @return the buffer
 	 */
@@ -141,7 +119,7 @@ public class Notification {
 	}
 
 	/**
-	 * @param reception the reception to set
+	 * @param value the reception to set
 	 */
 	public void setReception(boolean value) {
 		isReception = value;
@@ -201,14 +179,14 @@ public class Notification {
     /**
      * @return the deliveryListener
      */
-    public DeliveryListener getDeliveryListener() {
+    public CompletableFuture<DeliveryResult> getDeliveryListener() {
         return deliveryListener;
     }
     
     /**
      * @param deliveryListener the deliveryListener to set
      */
-    public void setDeliveryListener(DeliveryListener deliveryListener) {
+    public void setDeliveryListener(CompletableFuture<DeliveryResult> deliveryListener) {
         this.deliveryListener = deliveryListener;
     }
 }

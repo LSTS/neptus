@@ -54,10 +54,10 @@ public class TCPNotification extends Notification {
 	}
 	
 	/**
-	 * @param reception
-	 * @param socketAddress
-	 * @param recBytes
-	 * @param currentTimeMillis
+	 * @param isReception
+	 * @param address
+	 * @param buffer
+	 * @param timeMillis
 	 */
 	public TCPNotification(boolean isReception, InetSocketAddress address,
 			byte[] buffer, long timeMillis) {
