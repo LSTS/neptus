@@ -955,22 +955,41 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
             if (Double.isFinite(depth)) {
                 loc.setDepth(depth);
             }
-            imcSys.setLocation(loc, dataTimeMillis);
+            if (imcSys != null) {
+                imcSys.setLocation(loc, dataTimeMillis);
+            } else {
+                extSys.setLocation(loc, dataTimeMillis);
+            }
         }
         double headingRads = Double.NaN;
         if (Double.isFinite(cogRads) && Double.isFinite(speedMS) && Math.abs(speedMS) > 0.2) {
             headingRads = AngleUtils.nomalizeAngleRads2Pi(cogRads * (speedMS < 0 ? -1 : 1));
-            imcSys.setAttitudeDegrees(headingRads, dataTimeMillis);
-            imcSys.storeData(
-                    SystemUtils.HEADING_DEGS_KEY,
-                    (int) AngleUtils.nomalizeAngleDegrees360(MathMiscUtils.round(headingRads, 0)),
-                    dataTimeMillis, true);
+            if (imcSys != null) {
+                imcSys.setAttitudeDegrees(headingRads, dataTimeMillis);
+                imcSys.storeData(
+                        SystemUtils.HEADING_DEGS_KEY,
+                        (int) AngleUtils.nomalizeAngleDegrees360(MathMiscUtils.round(Math.toDegrees(headingRads), 0)),
+                        dataTimeMillis, true);
+            } else {
+                extSys.setAttitudeDegrees(headingRads, dataTimeMillis);
+                extSys.storeData(
+                        SystemUtils.HEADING_DEGS_KEY,
+                        (int) AngleUtils.nomalizeAngleDegrees360(MathMiscUtils.round(Math.toDegrees(headingRads), 0)),
+                        dataTimeMillis, true);
+            }
         }
 
-        imcSys.storeData(SystemUtils.GROUND_SPEED_KEY, speedMS, dataTimeMillis, true);
-        imcSys.storeData(SystemUtils.COURSE_DEGS_KEY,
-                (int) AngleUtils.nomalizeAngleDegrees360(MathMiscUtils.round(Math.toDegrees(cogRads), 0)),
-                dataTimeMillis, true);
+        if (imcSys != null) {
+            imcSys.storeData(SystemUtils.GROUND_SPEED_KEY, speedMS, dataTimeMillis, true);
+            imcSys.storeData(SystemUtils.COURSE_DEGS_KEY,
+                    (int) AngleUtils.nomalizeAngleDegrees360(MathMiscUtils.round(Math.toDegrees(cogRads), 0)),
+                    dataTimeMillis, true);
+        } else {
+            extSys.storeData(SystemUtils.GROUND_SPEED_KEY, speedMS, dataTimeMillis, true);
+            extSys.storeData(SystemUtils.COURSE_DEGS_KEY,
+                    (int) AngleUtils.nomalizeAngleDegrees360(MathMiscUtils.round(Math.toDegrees(cogRads), 0)),
+                    dataTimeMillis, true);
+        }
     }
 
     private void processRemoteSensorInfo(MessageInfo info, RemoteSensorInfo msg) {
