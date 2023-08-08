@@ -196,6 +196,8 @@ task updateLibJNIPaths {
         println "Version:      ${OS_VERSION}"
         println "Architecture: ${OS_ARCH}"
         println "libJNIPaths:  ${libJNIPaths.collect { "${relativePath(it)}" }.join(isFamily(FAMILY_WINDOWS) ? ';' : ':') }"
+
+        // println ">>>>>>>> " + configurations.runtimeClasspath.asPath
     }
 }
 
