@@ -1708,6 +1708,15 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         return ccus.length > 0;
     }
 
+    public boolean broadcastToVehicles(IMCMessage message) {
+        ImcSystem[] vehs = ImcSystemsHolder.lookupSystemVehicles();
+
+        for (ImcSystem veh : vehs)
+            sendMessage(message.cloneMessage(), veh.getId(), null);
+
+        return vehs.length > 0;
+    }
+
     /**
      * @param message
      * @return
