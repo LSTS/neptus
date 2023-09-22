@@ -1703,7 +1703,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         ImcSystem[] ccus = ImcSystemsHolder.lookupSystemCCUs();
 
         for (ImcSystem ccu : ccus)
-            sendMessage(message, ccu.getId(), null);
+            sendMessage(message.cloneMessage(), ccu.getId(), null);
 
         return ccus.length > 0;
     }
