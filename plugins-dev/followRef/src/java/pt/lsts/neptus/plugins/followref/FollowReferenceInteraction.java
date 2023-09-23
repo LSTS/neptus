@@ -319,7 +319,7 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
                 if (ref != null && lastFrefState != null) {
                     Color c = Color.red;
                     if (lastFrefState != null) {
-                        if (ref.getLat() == lastFrefState.getReference().getLat()
+                        if (lastFrefState.getReference() != null && ref.getLat() == lastFrefState.getReference().getLat()
                                 && ref.getLon() == lastFrefState.getReference().getLon())
                             c = Color.green;
                     }
