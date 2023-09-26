@@ -834,10 +834,13 @@ public class VideoStream extends ConsolePanel implements ItemListener {
             }
         });
 
+        JButton removeIpCam = new JButton(I18n.text("Remove IPCam"));
+
         ipCamCheck.add(fieldName, "w 410!, wrap");
         ipCamCheck.add(fieldIP, "w 410!, wrap");
         ipCamCheck.add(fieldUrl, "w 410!, wrap");
-        ipCamCheck.add(addNewIPCam, "w 120!, center");
+        ipCamCheck.add(addNewIPCam, "w 120!, center, wrap");
+        ipCamCheck.add(removeIpCam, "w 120!, center");
 
         ipCamPing.add(ipCamCheck);
         ipCamPing.pack();
