@@ -57,6 +57,7 @@
 /conf/wifimac.obj
 /conf/profiles.json
 /conf/consoles
+/conf/ipUrl.ini
 
 # /conf/i18n/
 /conf/i18n/en
