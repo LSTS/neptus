@@ -144,7 +144,7 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
 @SuppressWarnings("serial")
 @Popup(pos = POSITION.RIGHT, width = 640, height = 480, accelerator = 'R')
 @LayerPriority(priority = 0)
-@PluginDescription(name = "Video Stream", version = "1.4", author = "Pedro Gonçalves", description = "Plugin for View video Stream TCP-Ip/IPCam", icon = "pt/lsts/neptus/plugins/IPCam/camera.png")
+@PluginDescription(name = "Video Stream", version = "1.4", author = "Pedro Gonçalves", description = "Plugin for View video Stream TCP-Ip/IPCam", icon = "pt/lsts/neptus/plugins/videostream/icon.png")
 public class VideoStream extends ConsolePanel implements ItemListener {
 
     private static final String BASE_FOLDER_FOR_IMAGES = ConfigFetch.getLogsFolder() + "/images";
