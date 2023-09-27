@@ -184,8 +184,6 @@ public class VideoStream extends ConsolePanel implements ItemListener {
     // Buffer image for showImage
     private BufferedImage offlineImage;
     private BufferedImage onScreenImage;
-    // Flag - start acquired image
-    private boolean raspiCam = false;
     // Flag - Lost connection to the vehicle
     private boolean state = false;
     // Flag - Show/hide Menu JFrame
@@ -342,7 +340,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                     // "+evt.toString());
                     updateSizeVariables(c);
                     matResize = new Mat((int) size.height, (int) size.width, CvType.CV_8UC3);
-                    if (!raspiCam && !ipCam) {
+                    if (!ipCam) {
                         initImage();
                     }
                 }
@@ -368,7 +366,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                 public void keyPressed(KeyEvent e) {
                     if ((e.getKeyCode() == KeyEvent.VK_Z) && ((e.getModifiersEx() & KeyEvent.ALT_DOWN_MASK) != 0)
                             && !zoomMask) {
-                        if (raspiCam || ipCam) {
+                        if (ipCam) {
                             zoomMask = true;
                             popupzoom.add(zoomImg);
                         }
@@ -384,7 +382,6 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                     else if ((e.getKeyCode() == KeyEvent.VK_X)
                             && ((e.getModifiersEx() & KeyEvent.ALT_DOWN_MASK) != 0)) {
                         NeptusLog.pub().info("Clossing all Video Stream...");
-                        raspiCam = false;
                         state = false;
                         ipCam = false;
                     }
@@ -522,7 +519,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                                     NeptusLog.pub().info("Clossing all Video Stream...");
                                     noVideoLogoState = false;
                                     isCleanTurnOffCam = true;
-                                    if (raspiCam && tcpOK) {
+                                    if (tcpOK) {
                                         try {
                                             clientSocket.close();
                                         }
@@ -530,7 +527,6 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                                             e1.printStackTrace();
                                         }
                                     }
-                                    raspiCam = false;
                                     state = false;
                                     ipCam = false;
                                 }
@@ -659,14 +655,12 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                 if (pingHostOk) {
                     ipHostPing.setVisible(false);
                     if (!ipCam) {
-                        raspiCam = true;
                         ipCam = false;
                         closeComState = false;
                     }
                     else {
                         NeptusLog.pub().info("Clossing IPCam Stream...");
                         closeComState = false;
-                        raspiCam = true;
                         state = false;
                         ipCam = false;
                     }
@@ -775,18 +769,8 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                 if (statePingOk) {
                     NeptusLog.pub().info("IPCam Select: " + dataUrlIni[rowSelect][0]);
                     ipCamPing.setVisible(false);
-                    if (!raspiCam) {
-                        ipCam = true;
-                        raspiCam = false;
-                        state = false;
-                    }
-                    else {
-                        NeptusLog.pub().info("Clossing RasPiCam Stream...");
-                        ipCam = true;
-                        raspiCam = false;
-                        state = false;
-                        closeComState = true;
-                    }
+                    ipCam = true;
+                    state = false;
                 }
             }
         });
@@ -1040,10 +1024,10 @@ public class VideoStream extends ConsolePanel implements ItemListener {
         // checkbox listener
         Object source = e.getItemSelectable();
         if (source == saveToDiskCheckBox) {
-            if ((raspiCam == true || ipCam == true) && saveToDiskCheckBox.isSelected() == true) {
+            if ( ipCam && saveToDiskCheckBox.isSelected() ) {
                 flagBuffImg = true;
             }
-            if ((raspiCam == false && ipCam == false) || saveToDiskCheckBox.isSelected() == false) {
+            if (!ipCam || !saveToDiskCheckBox.isSelected() ) {
                 flagBuffImg = false;
             }
         }
@@ -1056,12 +1040,6 @@ public class VideoStream extends ConsolePanel implements ItemListener {
      */
     @Override
     public void cleanSubPanel() {
-        if (raspiCam) {
-            NeptusLog.pub().info("Closing TCP connection to RaspiCam ");
-            if (raspiCam && tcpOK) {
-                closeTcpCom();
-            }
-        }
         closingPanel = true;
     }
 
@@ -1144,33 +1122,10 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                 setupWatchDog(4000);
                 while (true) {
                     if (closingPanel) {
-                        raspiCam = false;
                         state = false;
                         ipCam = false;
                     }
-                    else if (raspiCam && !ipCam) {
-                        if (state == false) {
-                            // connection
-                            if (tcpConnection()) {
-                                // receive info of image size
-                                initSizeImage();
-                                state = true;
-                            }
-                        }
-                        else {
-                            // receive data image
-                            if (!closeComState) {
-                                receivedDataImage();
-                            }
-                            else {
-                                closeTcpCom();
-                            }
-                            if (!raspiCam && !state) {
-                                closeTcpCom();
-                            }
-                        }
-                    }
-                    else if (!raspiCam && ipCam) {
+                    else if (ipCam) {
                         if (state == false) {
                             // Create Buffer (type MAT) for Image receive
                             mat = new Mat(heightImgRec, widthImgRec, CvType.CV_8UC3);
@@ -1188,7 +1143,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                             }
                         }
                         // IPCam Capture
-                        else if (!raspiCam && ipCam && state) {
+                        else if (ipCam && state) {
                             long startTime = System.currentTimeMillis();
                             isAliveIPCam = false;
                             resetWatchDog(4000);
@@ -1200,7 +1155,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                                 resetWatchDog(4000);
                             }
 
-                            if (!raspiCam && !ipCam) {
+                            if (!ipCam) {
                                 continue;
                             }
 
@@ -1317,41 +1272,6 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                         captureSave.open(camRtpsUrl, Videoio.CAP_ANY);
                         if (captureSave.isOpened()) {
                             stateSetUrl = true;
-                        }
-                    }
-                    if (raspiCam) {
-                        stateSetUrl = false;
-                        if (flagBuffImg == true) {
-                            long startTime = System.currentTimeMillis();
-                            String imageJpeg = null;
-                            try {
-                                if (histogramflag) {
-                                    imageJpeg = String.format("%s/imageSave/%d_H.jpeg", logDir, cnt);
-                                    outputfile = checkExistenceOfFolderForFile(new File(imageJpeg));
-                                    ImageIO.write(UtilCv.histogramCv(offlineImage), "jpeg", outputfile);
-                                }
-                                else {
-                                    imageJpeg = String.format("%s/imageSave/%d.jpeg", logDir, cnt);
-                                    outputfile = checkExistenceOfFolderForFile(new File(imageJpeg));
-                                    ImageIO.write(offlineImage, "jpeg", outputfile);
-                                }
-                            }
-                            catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                            cnt++;
-                            long stopTime = System.currentTimeMillis();
-                            while ((stopTime - startTime) < (1000 / FPS)) {
-                                stopTime = System.currentTimeMillis();
-                            }
-                        }
-                        else {
-                            try {
-                                TimeUnit.MILLISECONDS.sleep(100);
-                            }
-                            catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
                         }
                     }
                     if (ipCam && stateSetUrl) {
@@ -1506,7 +1426,6 @@ public class VideoStream extends ConsolePanel implements ItemListener {
         if (line == null) {
             GuiUtils.errorMessage(VideoStream.this, I18n.text("Connection error"),
                     I18n.text("Lost connection with vehicle"), ModalityType.DOCUMENT_MODAL);
-            raspiCam = false;
             state = false;
             // closeTcpCom();
             try {
@@ -1655,56 +1574,6 @@ public class VideoStream extends ConsolePanel implements ItemListener {
         }
     }
 
-    // Create Socket service
-    private boolean tcpConnection() {
-        // Socket Config
-        NeptusLog.pub().info("Waiting for connection from RasPiCam...");
-        try {
-            clientSocket = new Socket(ipHost, portNumber);
-            if (clientSocket.isConnected())
-                ;
-            tcpOK = true;
-        }
-        catch (IOException e) {
-            // NeptusLog.pub().error("Accept failed...");
-            try {
-                TimeUnit.MILLISECONDS.sleep(1000);
-            }
-            catch (InterruptedException e1) {
-                e1.printStackTrace();
-            }
-            tcpOK = false;
-        }
-        if (tcpOK) {
-            NeptusLog.pub().info("Connection successful from Server: " + clientSocket.getInetAddress() + ":"
-                    + clientSocket.getLocalPort());
-            NeptusLog.pub().info("Receiving data image from RasPiCam...");
-
-            // Send data for sync
-            try {
-                out = new PrintWriter(clientSocket.getOutputStream(), true);
-            }
-            catch (IOException e1) {
-                e1.printStackTrace();
-            }
-
-            // Buffer for data image
-            try {
-                is = clientSocket.getInputStream();
-            }
-            catch (IOException e1) {
-                e1.printStackTrace();
-            }
-            // Buffer for info of data image
-            in = new BufferedReader(new InputStreamReader(is));
-
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
-
     // Zoom in
     private void getCutImage(BufferedImage imageToCut, int w, int h) {
         if (w - 50 <= 0) {
@@ -1772,7 +1641,6 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                     NeptusLog.pub().error("TIME OUT IPCAM");
                     NeptusLog.pub().info("Clossing all Video Stream...");
                     noVideoLogoState = false;
-                    raspiCam = false;
                     state = false;
                     ipCam = false;
                     initImage();
