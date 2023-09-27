@@ -828,29 +828,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                 // Execute when button is pressed
                 writeToFile(String.format("\n%s (%s)#%s#%s", fieldName.getText(), fieldIP.getText(), fieldIP.getText(),
                         fieldUrl.getText()));
-                AsyncTask task = new AsyncTask() {
-                    @Override
-                    public Object run() throws Exception {
-                        dataUrlIni = readIPUrl();
-                        return null;
-                    }
-
-                    @Override
-                    public void finish() {
-                        int sizeDataUrl = dataUrlIni.length;
-                        String nameIPCam[] = new String[sizeDataUrl];
-                        for (int i = 0; i < sizeDataUrl; i++) {
-                            nameIPCam[i] = dataUrlIni[i][0];
-                        }
-
-                        ipCamList.removeAllItems();
-                        for (int i = 0; i < nameIPCam.length; i++) {
-                            String sample = nameIPCam[i];
-                            ipCamList.addItem(sample);
-                        }
-                    }
-                };
-                AsyncWorker.getWorkerThread().postTask(task);
+                reloadIPCamList();
             }
         });
 
@@ -898,32 +876,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                 }
 
                 tempFile.renameTo(confIni);
-
-                // Refactor
-                AsyncTask task = new AsyncTask() {
-                    @Override
-                    public Object run() throws Exception {
-                        dataUrlIni = readIPUrl();
-                        return null;
-                    }
-
-                    @Override
-                    public void finish() {
-                        int sizeDataUrl = dataUrlIni.length;
-                        String nameIPCam[] = new String[sizeDataUrl];
-                        for (int i = 0; i < sizeDataUrl; i++) {
-                            nameIPCam[i] = dataUrlIni[i][0];
-                        }
-
-                        ipCamList.removeAllItems();
-                        for (int i = 0; i < nameIPCam.length; i++) {
-                            String sample = nameIPCam[i];
-                            ipCamList.addItem(sample);
-                        }
-                    }
-                };
-                AsyncWorker.getWorkerThread().postTask(task);
-
+                reloadIPCamList();
             }
 
         });
@@ -959,6 +912,33 @@ public class VideoStream extends ConsolePanel implements ItemListener {
             FileUtil.copyFileToDir(iniRsrcPath, ConfigFetch.getConfFolder());
         }
         FileUtil.saveToFile(confIni.getAbsolutePath(), textString, "UTF-8", true);
+    }
+
+    // Reloads the list of IP cams
+    private void reloadIPCamList() {
+        AsyncTask task = new AsyncTask() {
+            @Override
+            public Object run() throws Exception {
+                dataUrlIni = readIPUrl();
+                return null;
+            }
+
+            @Override
+            public void finish() {
+                int sizeDataUrl = dataUrlIni.length;
+                String nameIPCam[] = new String[sizeDataUrl];
+                for (int i = 0; i < sizeDataUrl; i++) {
+                    nameIPCam[i] = dataUrlIni[i][0];
+                }
+
+                ipCamList.removeAllItems();
+                for (int i = 0; i < nameIPCam.length; i++) {
+                    String sample = nameIPCam[i];
+                    ipCamList.addItem(sample);
+                }
+            }
+        };
+        AsyncWorker.getWorkerThread().postTask(task);
     }
 
     // Ping CamIp
