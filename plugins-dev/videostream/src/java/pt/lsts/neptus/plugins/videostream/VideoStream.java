@@ -132,12 +132,6 @@ public class VideoStream extends ConsolePanel implements ItemListener {
     @NeptusProperty(name = "Axis Camera RTPS URL", editable = false)
     private String camRtpsUrl = "rtsp://10.0.20.207:554/live/ch01_0";
 
-    @NeptusProperty(name = "HOST IP for TCP-RasPiCam", editable = false)
-    private String ipHost = "10.0.20.130";
-
-    @NeptusProperty(name = "Port Number for TCP-RasPiCam", editable = false)
-    private int portNumber = 2424;
-
     @NeptusProperty(name = "Cam Tilt Deg Value", editable = true)
     private double camTiltDeg = 45.0f;// this value may be in configuration
 
@@ -375,10 +369,6 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                             && ((e.getModifiersEx() & KeyEvent.ALT_DOWN_MASK) != 0)) {
                         checkIPCam();
                     }
-                    else if ((e.getKeyCode() == KeyEvent.VK_R)
-                            && ((e.getModifiersEx() & KeyEvent.ALT_DOWN_MASK) != 0)) {
-                        checkHostIp();
-                    }
                     else if ((e.getKeyCode() == KeyEvent.VK_X)
                             && ((e.getModifiersEx() & KeyEvent.ALT_DOWN_MASK) != 0)) {
                         NeptusLog.pub().info("Clossing all Video Stream...");
@@ -580,96 +570,6 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                 }
             }
         });
-    }
-
-    // Check ip given by user
-    private void checkHostIp() {
-        ipHostPing = new JDialog(SwingUtilities.getWindowAncestor(VideoStream.this),
-                I18n.text("Host IP") + " - RasPiCam");
-        ipHostPing.setModalityType(ModalityType.DOCUMENT_MODAL);
-        ipHostPing.setSize(340, 80);
-        ipHostPing.setLocationRelativeTo(VideoStream.this);
-        ImageIcon imgIPCam = ImageUtils.createImageIcon(String.format("images/menus/raspicam.png"));
-        ipHostPing.setIconImage(imgIPCam.getImage());
-        ipHostPing.setResizable(false);
-        ipHostPing.setBackground(Color.GRAY);
-        ipHostCheck = new JPanel(new MigLayout());
-        JLabel infoHost = new JLabel(I18n.text("Host Ip: "));
-        ipHostCheck.add(infoHost, "cell 0 4 3 1");
-        hostIP = new JFormattedTextField();
-        hostIP.setValue(new String());
-        hostIP.setColumns(8);
-        hostIP.setValue(ipHost);
-        hostIP.addPropertyChangeListener("value", new PropertyChangeListener() {
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                ipHost = new String((String) evt.getNewValue());
-            }
-        });
-        ipHostCheck.add(hostIP);
-        colorStateIPCam = new JPanel();
-        onOffIndicator = new JLabel(I18n.text("OFF"));
-        onOffIndicator.setFont(new Font("Verdana", 1, 14));
-        colorStateIPCam.setBackground(Color.RED);
-        colorStateIPCam.add(onOffIndicator);
-        ipHostCheck.add(colorStateIPCam, "h 30!, w 30!");
-        selectIPCam = new JButton(I18n.text("Check"));
-        selectIPCam.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                statePing = false;
-                colorStateIPCam.setBackground(Color.LIGHT_GRAY);
-                onOffIndicator.setText("---");
-                AsyncTask task = new AsyncTask() {
-                    @Override
-                    public Object run() throws Exception {
-                        statePing = pingIPCam(ipHost);
-                        return null;
-                    }
-
-                    @Override
-                    public void finish() {
-                        if (statePing) {
-                            colorStateIPCam.setBackground(Color.GREEN);
-                            onOffIndicator.setText("ON");
-                            pingHostOk = true;
-                            selectIPCam.setEnabled(true);
-                        }
-                        else {
-                            colorStateIPCam.setBackground(Color.RED);
-                            onOffIndicator.setText("OFF");
-                            pingHostOk = false;
-                            selectIPCam.setEnabled(false);
-                        }
-                        selectIPCam.validate();
-                        selectIPCam.repaint();
-                    }
-                };
-                AsyncWorker.getWorkerThread().postTask(task);
-            }
-        });
-        ipHostCheck.add(selectIPCam, "h 30!");
-        selectIPCam = new JButton(I18n.text("OK"));
-        selectIPCam.setEnabled(false);
-        selectIPCam.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                if (pingHostOk) {
-                    ipHostPing.setVisible(false);
-                    if (!ipCam) {
-                        ipCam = false;
-                        closeComState = false;
-                    }
-                    else {
-                        NeptusLog.pub().info("Clossing IPCam Stream...");
-                        closeComState = false;
-                        state = false;
-                        ipCam = false;
-                    }
-                }
-            }
-        });
-        ipHostCheck.add(selectIPCam, "h 30!");
-        ipHostPing.add(ipHostCheck);
-        ipHostPing.setVisible(true);
     }
 
     // Read ipUrl.ini to find IPCam ON
@@ -993,13 +893,6 @@ public class VideoStream extends ConsolePanel implements ItemListener {
         info = String.format("Img info");
         txtText.setText(info);
         config.add(txtText, "cell 0 4 3 1, wrap");
-
-        // JLabel info Data GPS received TCP
-        txtDataTcp = new JLabel();
-        txtDataTcp.setToolTipText(I18n.text("Info of GPS Received over TCP (Raspi)"));
-        info = String.format("GPS TCP");
-        txtDataTcp.setText(info);
-        config.add(txtDataTcp, "cell 0 5 3 1, wrap");
 
         // JLabel info
         txtData = new JLabel();
