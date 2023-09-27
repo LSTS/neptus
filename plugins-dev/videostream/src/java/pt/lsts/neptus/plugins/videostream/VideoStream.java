@@ -838,7 +838,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
             @Override
             public void actionPerformed(ActionEvent event) {
 
-                // Execture when button is pressed
+                // Execute when button is pressed
                 File confIni = new File(ConfigFetch.getConfFolder() + "/" + BASE_FOLDER_FOR_URLINI);
                 File tempFile = new File("/tmp/urlIp.ini-temp");
 
