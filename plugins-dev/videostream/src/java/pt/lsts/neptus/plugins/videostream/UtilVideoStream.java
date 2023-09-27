@@ -36,15 +36,18 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 import org.opencv.core.Size;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /** 
  * @author pedrog
@@ -90,6 +93,41 @@ public class UtilVideoStream {
             e.printStackTrace();
         }
         return dataIpCam.toArray(new String[dataIpCam.size()][0]);
+    }
+
+    public static void removeLineFromFile(int lineToRemove, String fileName) {
+        File confIni = new File(fileName);
+        File tempFile = new File("/tmp/urlIp.ini-temp");
+
+        String currentLine;
+
+        // Can't remove the Select Device line
+        if (lineToRemove == 0) {
+            return;
+        }
+
+        // The file doesn't include the Select Device line so we need to
+        // decrease the line number to match the lines in the file
+        lineToRemove--;
+
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(confIni));
+            BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
+            int lineNumber = 0;
+            while((currentLine = reader.readLine()) != null) {
+                if (lineToRemove != lineNumber) {
+                    writer.write(currentLine.trim() + System.getProperty("line.separator"));
+                }
+                lineNumber++;
+            }
+            writer.close();
+            reader.close();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        tempFile.renameTo(confIni);
     }
     
     public static boolean pingIp(String host) {

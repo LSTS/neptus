@@ -826,7 +826,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
         addNewIPCam.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 // Execute when button is pressed
-                writeToFile(String.format("\n%s (%s)#%s#%s", fieldName.getText(), fieldIP.getText(), fieldIP.getText(),
+                writeToFile(String.format("%s (%s)#%s#%s\n", fieldName.getText(), fieldIP.getText(), fieldIP.getText(),
                         fieldUrl.getText()));
                 reloadIPCamList();
             }
@@ -838,44 +838,11 @@ public class VideoStream extends ConsolePanel implements ItemListener {
             @Override
             public void actionPerformed(ActionEvent event) {
 
-                // Execute when button is pressed
-                File confIni = new File(ConfigFetch.getConfFolder() + "/" + BASE_FOLDER_FOR_URLINI);
-                File tempFile = new File("/tmp/urlIp.ini-temp");
-
                 int lineToRemove = ipCamList.getSelectedIndex();
-                String currentLine;
+                String ipUrlFilename = ConfigFetch.getConfFolder() + "/" + BASE_FOLDER_FOR_URLINI;
 
-                // Can't remove the Select Device line
-                if (lineToRemove == 0) {
-                    return;
-                }
-
-                // The file doesn't include the Select Device line so we need to 
-                // decrease the line number to match the lines in the file
-                lineToRemove--;
-
-                try {
-                    BufferedReader reader = new BufferedReader(new FileReader(confIni));
-                    BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
-                    for (int lineNumber = 0; lineNumber < ipCamList.getItemCount() - 1; lineNumber++) {
-                        // sanity check
-                        if ((currentLine = reader.readLine()) == null) {
-                            break;
-                        }
-
-                        if (lineNumber == lineToRemove) {
-                            continue;
-                        }
-                        writer.write(currentLine + System.getProperty("line.separator"));
-                    }
-                    writer.close();
-                    reader.close();
-                }
-                catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                tempFile.renameTo(confIni);
+                // Execute when button is pressed
+                UtilVideoStream.removeLineFromFile(lineToRemove, ipUrlFilename);
                 reloadIPCamList();
             }
 
