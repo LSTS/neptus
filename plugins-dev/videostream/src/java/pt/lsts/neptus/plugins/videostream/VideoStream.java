@@ -538,15 +538,6 @@ public class VideoStream extends ConsolePanel implements ItemListener {
 
                 if (e.getButton() == MouseEvent.BUTTON3) {
                     popup = new JPopupMenu();
-                    JMenuItem item1;
-                    popup.add(item1 = new JMenuItem(I18n.text("Start") + " RasPiCam",
-                                    ImageUtils.createImageIcon(String.format("images/menus/raspicam.png"))))
-                            .addActionListener(new ActionListener() {
-                                public void actionPerformed(ActionEvent e) {
-                                    checkHostIp();
-                                }
-                            });
-                    item1.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.ALT_MASK));
                     JMenuItem item2;
                     popup.add(item2 = new JMenuItem(I18n.text("Close all connections"),
                                     ImageUtils.createImageIcon(String.format("images/menus/exit.png"))))
