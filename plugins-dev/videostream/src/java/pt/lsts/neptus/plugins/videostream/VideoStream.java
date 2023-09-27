@@ -538,8 +538,9 @@ public class VideoStream extends ConsolePanel implements ItemListener {
 
                 if (e.getButton() == MouseEvent.BUTTON3) {
                     popup = new JPopupMenu();
-                    JMenuItem item2;
-                    popup.add(item2 = new JMenuItem(I18n.text("Close all connections"),
+                    JMenuItem item;
+
+                    popup.add(item = new JMenuItem(I18n.text("Close all connections"),
                                     ImageUtils.createImageIcon(String.format("images/menus/exit.png"))))
                             .addActionListener(new ActionListener() {
                                 public void actionPerformed(ActionEvent e) {
@@ -559,19 +560,20 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                                     ipCam = false;
                                 }
                             });
-                    item2.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, ActionEvent.ALT_MASK));
-                    JMenuItem item3;
-                    popup.add(item3 = new JMenuItem(I18n.text("Start IPCam"),
+                    item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, ActionEvent.ALT_MASK));
+
+                    popup.add(item = new JMenuItem(I18n.text("Start IPCam"),
                                     ImageUtils.createImageIcon("images/menus/camera.png")))
                             .addActionListener(new ActionListener() {
                                 public void actionPerformed(ActionEvent e) {
                                     checkIPCam();
                                 }
                             });
+                    item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, ActionEvent.ALT_MASK));
+
                     popup.addSeparator();
-                    item3.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, ActionEvent.ALT_MASK));
-                    JMenuItem item4;
-                    popup.add(item4 = new JMenuItem(I18n.text("Config"),
+
+                    popup.add(item = new JMenuItem(I18n.text("Config"),
                                     ImageUtils.createImageIcon(String.format("images/menus/configure.png"))))
                             .addActionListener(new ActionListener() {
                                 @Override
@@ -579,26 +581,28 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                                     menu.setVisible(true);
                                 }
                             });
-                    item4.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, ActionEvent.ALT_MASK));
-                    JMenuItem item5;
-                    popup.add(item5 = new JMenuItem(I18n.text("Histogram filter on/off"),
+                    item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, ActionEvent.ALT_MASK));
+
+                    popup.add(item = new JMenuItem(I18n.text("Histogram filter on/off"),
                                     ImageUtils.createImageIcon("images/menus/histogram.png")))
                             .addActionListener(new ActionListener() {
                                 public void actionPerformed(ActionEvent e) {
                                     histogramflag = !histogramflag;
                                 }
                             });
-                    item5.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, ActionEvent.ALT_MASK));
-                    JMenuItem item6;
-                    popup.add(item6 = new JMenuItem(I18n.text("Snapshot"),
+                    item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, ActionEvent.ALT_MASK));
+
+                    popup.add(item = new JMenuItem(I18n.text("Snapshot"),
                                     ImageUtils.createImageIcon("images/menus/snapshot.png")))
                             .addActionListener(new ActionListener() {
                                 public void actionPerformed(ActionEvent e) {
                                     saveSnapshot = true;
                                 }
                             });
-                    item6.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.ALT_MASK));
+                    item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.ALT_MASK));
+
                     popup.addSeparator();
+
                     JLabel infoZoom = new JLabel(I18n.text("For zoom use Alt-Z"));
                     popup.add(infoZoom, JMenuItem.CENTER_ALIGNMENT);
                     popup.show((Component) e.getSource(), e.getX(), e.getY());
