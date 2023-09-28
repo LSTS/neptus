@@ -365,7 +365,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                     }
                     else if ((e.getKeyCode() == KeyEvent.VK_X)
                             && ((e.getModifiersEx() & KeyEvent.ALT_DOWN_MASK) != 0)) {
-                        NeptusLog.pub().info("Clossing all Video Stream...");
+                        NeptusLog.pub().info("Closing all Video Streams...");
                         state = false;
                         ipCam = false;
                     }
