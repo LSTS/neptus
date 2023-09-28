@@ -118,6 +118,7 @@ import java.util.zip.Inflater;
  * Neptus Plugin for Video Stream and tag frame/object
  *
  * @author pedrog
+ * @author Pedro Costa
  * @category Vision
  */
 @SuppressWarnings("serial")

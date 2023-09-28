@@ -51,6 +51,7 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /** 
  * @author pedrog
+ * @author Pedro Costa
  * @version 1.0
  * @category OpenCV-Vision
  *
