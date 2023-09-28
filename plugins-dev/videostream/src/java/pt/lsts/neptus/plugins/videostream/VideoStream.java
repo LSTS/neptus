@@ -154,7 +154,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
     // Height size of image
     private int heightImgRec;
     // Width size of Console
-    private int widhtConsole = 640;
+    private int widthConsole = 640;
     // Height size of Console
     private int heightConsole = 480;
     // Black Image
@@ -442,11 +442,11 @@ public class VideoStream extends ConsolePanel implements ItemListener {
     }
 
     private void updateSizeVariables(Component comp) {
-        widhtConsole = comp.getSize().width;
+        widthConsole = comp.getSize().width;
         heightConsole = comp.getSize().height;
-        xScale = (float) widhtConsole / widthImgRec;
+        xScale = (float) widthConsole / widthImgRec;
         yScale = (float) heightConsole / heightImgRec;
-        size = new Size(widhtConsole, heightConsole);
+        size = new Size(widthConsole, heightConsole);
     }
 
     // Mouse click Listener
@@ -874,7 +874,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
     // Config Layout
     private void configLayout() {
         // Create Buffer (type MAT) for Image resize
-        matResize = new Mat(heightConsole, widhtConsole, CvType.CV_8UC3);
+        matResize = new Mat(heightConsole, widthConsole, CvType.CV_8UC3);
 
         // Config JFrame zoom img
         zoomImg.setSize(300, 300);
@@ -1006,7 +1006,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
         catch (IOException e) {
             e.printStackTrace();
         }
-        xScale = (float) widhtConsole / widthImgRec;
+        xScale = (float) widthConsole / widthImgRec;
         yScale = (float) heightConsole / heightImgRec;
         // Create Buffer (type MAT) for Image receive
         mat = new Mat(heightImgRec, widthImgRec, CvType.CV_8UC3);
@@ -1071,7 +1071,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                                 continue;
                             }
 
-                            xScale = (float) widhtConsole / mat.cols();
+                            xScale = (float) widthConsole / mat.cols();
                             yScale = (float) heightConsole / mat.rows();
                             Imgproc.resize(mat, matResize, size);
                             // Convert Mat to BufferedImage
@@ -1436,7 +1436,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                 }
             }
 
-            xScale = (float) widhtConsole / widthImgRec;
+            xScale = (float) widthConsole / widthImgRec;
             yScale = (float) heightConsole / heightImgRec;
             long stopTime = System.currentTimeMillis();
             while ((stopTime - startTime) < (1000 / FPS)) {
