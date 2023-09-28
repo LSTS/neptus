@@ -410,7 +410,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                         paused = true;
                     }
                     else if ((e.getKeyCode() == KeyEvent.VK_F)
-                            && e.getModifiersEx() == KeyEvent.ALT_DOWN_MASK ) {
+                            && e.getModifiersEx() == KeyEvent.ALT_DOWN_MASK) {
                         maximizeVideoStreamPanel();
                     }
                 }
@@ -569,7 +569,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                                     maximizeVideoStreamPanel();
                                 }
                             });
-                    item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, ActionEvent.ALT_MASK ));
+                    item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, ActionEvent.ALT_MASK));
 
                     popup.addSeparator();
 
@@ -942,10 +942,10 @@ public class VideoStream extends ConsolePanel implements ItemListener {
         // checkbox listener
         Object source = e.getItemSelectable();
         if (source == saveToDiskCheckBox) {
-            if ( ipCam && saveToDiskCheckBox.isSelected() ) {
+            if (ipCam && saveToDiskCheckBox.isSelected()) {
                 flagBuffImg = true;
             }
-            if (!ipCam || !saveToDiskCheckBox.isSelected() ) {
+            if (!ipCam || !saveToDiskCheckBox.isSelected()) {
                 flagBuffImg = false;
             }
         }
