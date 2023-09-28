@@ -328,8 +328,6 @@ public class VideoStream extends ConsolePanel implements ItemListener {
             this.addComponentListener(new ComponentAdapter() {
                 public void componentResized(ComponentEvent evt) {
                     Component c = evt.getComponent();
-                    // System.out.println("Valor: "+widhtConsole+" : "+heightConsole+" INFO:
-                    // "+evt.toString());
                     updateSizeVariables(c);
                     matResize = new Mat((int) size.height, (int) size.width, CvType.CV_8UC3);
                     if (!ipCam) {
