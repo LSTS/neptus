@@ -438,7 +438,6 @@ public class VideoStream extends ConsolePanel implements ItemListener {
             warningText.setFont(new Font("Courier New", Font.ITALIC, 18));
             this.add(warningText);
         }
-        return;
     }
 
     private void updateSizeVariables(Component comp) {
