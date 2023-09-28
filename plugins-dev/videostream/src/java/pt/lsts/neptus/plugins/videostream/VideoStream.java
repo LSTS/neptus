@@ -632,15 +632,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                     onOffIndicator.setText("---");
                     statePingOk = false;
 
-                    fieldName.setText(I18n.text(dataUrlIni[selectedItemIndex][0]));
-                    fieldName.validate();
-                    fieldName.repaint();
-                    fieldIP.setText(I18n.text(dataUrlIni[selectedItemIndex][1]));
-                    fieldIP.validate();
-                    fieldIP.repaint();
-                    fieldUrl.setText(I18n.text(dataUrlIni[selectedItemIndex][2]));
-                    fieldUrl.validate();
-                    fieldUrl.repaint();
+                    repaintParametersTextFields(dataUrlIni[selectedItemIndex][0], dataUrlIni[selectedItemIndex][1], dataUrlIni[selectedItemIndex][2]);
 
                     AsyncTask task = new AsyncTask() {
                         @Override
@@ -739,16 +731,20 @@ public class VideoStream extends ConsolePanel implements ItemListener {
         ipCamPing.setVisible(true);
     }
 
-    private void repaintParametersTextFields() {
-        fieldName.setText(I18n.text("NAME"));
+    private void repaintParametersTextFields(String name, String ip, String url) {
+        fieldName.setText(I18n.text(name));
         fieldName.validate();
         fieldName.repaint();
-        fieldIP.setText(I18n.text("IP"));
+        fieldIP.setText(I18n.text(ip));
         fieldIP.validate();
         fieldIP.repaint();
-        fieldUrl.setText(I18n.text("URL"));
+        fieldUrl.setText(I18n.text(url));
         fieldUrl.validate();
         fieldUrl.repaint();
+    }
+
+    private void repaintParametersTextFields() {
+        repaintParametersTextFields("NAME", "IP", "URL");
     }
 
     // Write to file
