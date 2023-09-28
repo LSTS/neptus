@@ -244,7 +244,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
     // JButton to confirm IPCam
     private JButton selectIPCam;
     // JComboBox for list of IPCam in ipUrl.ini
-    private JComboBox<String> ipCamList;
+    private JComboBox<Camera> ipCamList;
     // row select from string matrix of IPCam List
     private int selectedItemIndex;
     // JLabel for text IPCam Ping
@@ -695,8 +695,8 @@ public class VideoStream extends ConsolePanel implements ItemListener {
         addNewIPCam.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 // Execute when button is pressed
-                writeToFile(String.format("%s (%s)#%s#%s\n", fieldName.getText(), fieldIP.getText(), fieldIP.getText(),
-                        fieldUrl.getText()));
+                writeToFile(String.format("%s#%s#%s\n", fieldName.getText().trim(), fieldIP.getText().trim(),
+                        fieldUrl.getText().trim()));
                 reloadIPCamList();
             }
         });
@@ -766,8 +766,8 @@ public class VideoStream extends ConsolePanel implements ItemListener {
             @Override
             public void finish() {
                 ipCamList.removeAllItems();
-                for (Camera camera: cameraList) {
-                    ipCamList.addItem(camera.getName());
+                for (Camera camera : cameraList) {
+                    ipCamList.addItem(camera);
                 }
             }
         };

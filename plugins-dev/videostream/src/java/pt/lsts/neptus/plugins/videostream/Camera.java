@@ -31,6 +31,7 @@ public class Camera {
     }
 
     public String toString() {
-        return name;
+        if (ip == null) return name;
+        return name + " (" + ip + ")";
     }
 }
