@@ -544,7 +544,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                             });
                     item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, ActionEvent.ALT_MASK));
 
-                    popup.add(item = new JMenuItem(I18n.text("Histogram filter on/off"),
+                    popup.add(item = new JMenuItem(I18n.text("Toggle Histogram filter"),
                                     ImageUtils.createImageIcon("images/menus/histogram.png")))
                             .addActionListener(new ActionListener() {
                                 public void actionPerformed(ActionEvent e) {
