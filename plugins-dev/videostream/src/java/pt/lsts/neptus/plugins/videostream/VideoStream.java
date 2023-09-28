@@ -238,8 +238,6 @@ public class VideoStream extends ConsolePanel implements ItemListener {
     private JPanel colorStateIPCam;
     // JDialog for IPCam Select
     private JDialog ipCamPing;
-    // JPanel for IPCam Select (MigLayout)
-    private JPanel ipCamCheck = new JPanel(new MigLayout());
     // JButton to confirm IPCam
     private JButton selectIPCam;
     // JComboBox for list of IPCam in ipUrl.ini
@@ -583,6 +581,9 @@ public class VideoStream extends ConsolePanel implements ItemListener {
     // Read ipUrl.ini to find IPCam ON
     @SuppressWarnings({"unchecked", "rawtypes"})
     private void checkIPCam() {
+        // JPanel for IPCam Select (MigLayout)
+        JPanel ipCamManagementPanel = new JPanel(new MigLayout());
+
         repaintParametersTextFields();
         dataUrlIni = readIPUrl();
         int sizeDataUrl = dataUrlIni.length;
@@ -596,7 +597,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
         ipCamPing.setModalityType(ModalityType.DOCUMENT_MODAL);
         ipCamPing.setSize(440, 200);
         ipCamPing.setLocationRelativeTo(VideoStream.this);
-        ipCamCheck = new JPanel(new MigLayout());
+
         ImageIcon imgIPCam = ImageUtils.createImageIcon("images/menus/camera.png");
         ipCamPing.setIconImage(imgIPCam.getImage());
         ipCamPing.setResizable(false);
@@ -661,14 +662,14 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                 }
             }
         });
-        ipCamCheck.add(ipCamList, "split 3, width 50:250:250, center");
+        ipCamManagementPanel.add(ipCamList, "split 3, width 50:250:250, center");
 
         colorStateIPCam = new JPanel();
         onOffIndicator = new JLabel(I18n.text("OFF"));
         onOffIndicator.setFont(new Font("Verdana", 1, 14));
         colorStateIPCam.setBackground(Color.RED);
         colorStateIPCam.add(onOffIndicator);
-        ipCamCheck.add(colorStateIPCam, "h 30!, w 30!");
+        ipCamManagementPanel.add(colorStateIPCam, "h 30!, w 30!");
 
         selectIPCam = new JButton(I18n.text("Select IPCam"), imgIPCam);
         selectIPCam.setEnabled(false);
@@ -682,7 +683,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                 }
             }
         });
-        ipCamCheck.add(selectIPCam, "h 30!, wrap");
+        ipCamManagementPanel.add(selectIPCam, "h 30!, wrap");
 
         JButton addNewIPCam = new JButton(I18n.text("Add New IPCam"));
         addNewIPCam.addActionListener(new ActionListener() {
@@ -710,13 +711,13 @@ public class VideoStream extends ConsolePanel implements ItemListener {
 
         });
 
-        ipCamCheck.add(fieldName, "w 410!, wrap");
-        ipCamCheck.add(fieldIP, "w 410!, wrap");
-        ipCamCheck.add(fieldUrl, "w 410!, wrap");
-        ipCamCheck.add(addNewIPCam, "w 120!, center, wrap");
-        ipCamCheck.add(removeIpCam, "w 120!, center");
+        ipCamManagementPanel.add(fieldName, "w 410!, wrap");
+        ipCamManagementPanel.add(fieldIP, "w 410!, wrap");
+        ipCamManagementPanel.add(fieldUrl, "w 410!, wrap");
+        ipCamManagementPanel.add(addNewIPCam, "w 120!, center, wrap");
+        ipCamManagementPanel.add(removeIpCam, "w 120!, center");
 
-        ipCamPing.add(ipCamCheck);
+        ipCamPing.add(ipCamManagementPanel);
         ipCamPing.pack();
         ipCamPing.setVisible(true);
     }
