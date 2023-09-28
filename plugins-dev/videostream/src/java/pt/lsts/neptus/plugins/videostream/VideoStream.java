@@ -246,7 +246,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
     // JComboBox for list of IPCam in ipUrl.ini
     private JComboBox<String> ipCamList;
     // row select from string matrix of IPCam List
-    private int rowSelect;
+    private int selectedItemIndex;
     // JLabel for text IPCam Ping
     private JLabel onOffIndicator;
     // JTextField for IPCam name
@@ -625,26 +625,27 @@ public class VideoStream extends ConsolePanel implements ItemListener {
             public void actionPerformed(ActionEvent e) {
                 ipCamList.setEnabled(false);
                 selectIPCam.setEnabled(false);
-                JComboBox cb = (JComboBox) e.getSource();
-                rowSelect = cb.getSelectedIndex();
+                selectedItemIndex = ipCamList.getSelectedIndex();
                 statePing = false;
-                if (rowSelect > 0) {
+                if (selectedItemIndex > 0) {
                     colorStateIPCam.setBackground(Color.LIGHT_GRAY);
                     onOffIndicator.setText("---");
                     statePingOk = false;
-                    fieldName.setText(I18n.text(dataUrlIni[rowSelect][0]));
+
+                    fieldName.setText(I18n.text(dataUrlIni[selectedItemIndex][0]));
                     fieldName.validate();
                     fieldName.repaint();
-                    fieldIP.setText(I18n.text(dataUrlIni[rowSelect][1]));
+                    fieldIP.setText(I18n.text(dataUrlIni[selectedItemIndex][1]));
                     fieldIP.validate();
                     fieldIP.repaint();
-                    fieldUrl.setText(I18n.text(dataUrlIni[rowSelect][2]));
+                    fieldUrl.setText(I18n.text(dataUrlIni[selectedItemIndex][2]));
                     fieldUrl.validate();
                     fieldUrl.repaint();
+
                     AsyncTask task = new AsyncTask() {
                         @Override
                         public Object run() throws Exception {
-                            statePing = pingIPCam(dataUrlIni[rowSelect][1]);
+                            statePing = pingIPCam(dataUrlIni[selectedItemIndex][1]);
                             return null;
                         }
 
@@ -652,7 +653,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                         public void finish() {
                             if (statePing) {
                                 selectIPCam.setEnabled(true);
-                                camRtpsUrl = dataUrlIni[rowSelect][2];
+                                camRtpsUrl = dataUrlIni[selectedItemIndex][2];
                                 colorStateIPCam.setBackground(Color.GREEN);
                                 onOffIndicator.setText("ON");
                                 ipCamList.setEnabled(true);
@@ -692,7 +693,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
         selectIPCam.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 if (statePingOk) {
-                    NeptusLog.pub().info("IPCam Select: " + dataUrlIni[rowSelect][0]);
+                    NeptusLog.pub().info("IPCam Select: " + dataUrlIni[selectedItemIndex][0]);
                     ipCamPing.setVisible(false);
                     ipCam = true;
                     state = false;
