@@ -119,7 +119,7 @@ import java.util.zip.Inflater;
  * @category Vision
  */
 @SuppressWarnings("serial")
-@Popup(pos = POSITION.RIGHT, width = 640, height = 480, accelerator = 'R')
+@Popup(pos = POSITION.CENTER, width = 640, height = 480, accelerator = 'R')
 @LayerPriority(priority = 0)
 @PluginDescription(name = "Video Stream", version = "1.4", author = "Pedro Gonçalves", description = "Plugin for View video Stream TCP-Ip/IPCam", icon = "images/menus/ipcam.png")
 public class VideoStream extends ConsolePanel implements ItemListener {
