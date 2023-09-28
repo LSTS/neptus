@@ -126,6 +126,9 @@ public class VideoStream extends ConsolePanel implements ItemListener {
 
     private static final String BASE_FOLDER_FOR_IMAGES = ConfigFetch.getLogsFolder() + "/images";
     private static final String BASE_FOLDER_FOR_URLINI = "ipUrl.ini";
+    // Default width and heihgt of Console
+    private static final int DEFAULT_WIDTH_CONSOLE = 640;
+    private static final int DEFAULT_HEIGHT_CONSOLE = 480;
 
     @NeptusProperty(name = "Axis Camera RTPS URL", editable = false)
     private String camRtpsUrl = "rtsp://10.0.20.207:554/live/ch01_0";
@@ -154,9 +157,9 @@ public class VideoStream extends ConsolePanel implements ItemListener {
     // Height size of image
     private int heightImgRec;
     // Width size of Console
-    private int widthConsole = 640;
+    private int widthConsole = DEFAULT_WIDTH_CONSOLE;
     // Height size of Console
-    private int heightConsole = 480;
+    private int heightConsole = DEFAULT_HEIGHT_CONSOLE;
     // Black Image
     private Scalar black = new Scalar(0);
     // flag for state of neptus logo
@@ -406,6 +409,10 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                     else if ((e.getKeyCode() == KeyEvent.VK_CONTROL)) {
                         paused = true;
                     }
+                    else if ((e.getKeyCode() == KeyEvent.VK_F)
+                            && e.getModifiersEx() == KeyEvent.ALT_DOWN_MASK ) {
+                        maximizeVideoStreamPanel();
+                    }
                 }
 
                 @Override
@@ -559,14 +566,10 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                                     ImageUtils.createImageIcon("images/menus/maximize.png")))
                             .addActionListener(new ActionListener() {
                                 public void actionPerformed(ActionEvent e) {
-                                    JDialog dialog = (JDialog) SwingUtilities.getWindowAncestor(VideoStream.this);
-                                    dialog.setSize(Toolkit.getDefaultToolkit().getScreenSize().getSize());
-                                    // We call the resize with its own size to call componentResized
-                                    // method of the componentAdapter set in the constructor
-                                    VideoStream.this.resize(VideoStream.this.getSize());
+                                    maximizeVideoStreamPanel();
                                 }
                             });
-                    item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, ActionEvent.ALT_MASK | ActionEvent.CTRL_MASK));
+                    item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, ActionEvent.ALT_MASK ));
 
                     popup.addSeparator();
 
@@ -576,6 +579,19 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                 }
             }
         });
+    }
+
+    private void maximizeVideoStreamPanel() {
+        JDialog dialog = (JDialog) SwingUtilities.getWindowAncestor(VideoStream.this);
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize().getSize();
+        if (dialog.getSize().equals(screenSize)) {
+            // Already maximized
+            screenSize = new Dimension(DEFAULT_WIDTH_CONSOLE, DEFAULT_HEIGHT_CONSOLE);
+        }
+        dialog.setSize(screenSize);
+        // We call the resize with its own size to call componentResized
+        // method of the componentAdapter set in the constructor
+        VideoStream.this.resize(VideoStream.this.getSize());
     }
 
     // Read ipUrl.ini to find IPCam ON
