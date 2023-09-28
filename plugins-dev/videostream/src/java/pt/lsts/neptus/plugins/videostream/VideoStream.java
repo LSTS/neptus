@@ -563,6 +563,9 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                                 public void actionPerformed(ActionEvent e) {
                                     JDialog dialog = (JDialog) SwingUtilities.getWindowAncestor(VideoStream.this);
                                     dialog.setSize(Toolkit.getDefaultToolkit().getScreenSize().getSize());
+                                    // We call the resize with its own size to call componentResized
+                                    // method of the componentAdapter set in the constructor
+                                    VideoStream.this.resize(VideoStream.this.getSize());
                                 }
                             });
                     item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, ActionEvent.ALT_MASK | ActionEvent.CTRL_MASK));
