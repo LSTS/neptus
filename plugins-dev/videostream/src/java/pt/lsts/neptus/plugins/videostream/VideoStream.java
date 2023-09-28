@@ -558,6 +558,16 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                             });
                     item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.ALT_MASK));
 
+                    popup.add(item = new JMenuItem(I18n.text("Maximize Window"),
+                                    ImageUtils.createImageIcon("images/menus/maximize.png")))
+                            .addActionListener(new ActionListener() {
+                                public void actionPerformed(ActionEvent e) {
+                                    JDialog dialog = (JDialog) SwingUtilities.getWindowAncestor(VideoStream.this);
+                                    dialog.setSize(Toolkit.getDefaultToolkit().getScreenSize().getSize());
+                                }
+                            });
+                    item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, ActionEvent.ALT_MASK | ActionEvent.CTRL_MASK));
+
                     popup.addSeparator();
 
                     JLabel infoZoom = new JLabel(I18n.text("For zoom use Alt-Z"));
