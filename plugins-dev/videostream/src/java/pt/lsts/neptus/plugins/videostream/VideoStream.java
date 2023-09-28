@@ -364,7 +364,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                     }
                     else if ((e.getKeyCode() == KeyEvent.VK_I)
                             && ((e.getModifiersEx() & KeyEvent.ALT_DOWN_MASK) != 0)) {
-                        checkIPCam();
+                        openIPCamManagementPanel();
                     }
                     else if ((e.getKeyCode() == KeyEvent.VK_X)
                             && ((e.getModifiersEx() & KeyEvent.ALT_DOWN_MASK) != 0)) {
@@ -527,7 +527,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                                     ImageUtils.createImageIcon("images/menus/camera.png")))
                             .addActionListener(new ActionListener() {
                                 public void actionPerformed(ActionEvent e) {
-                                    checkIPCam();
+                                    openIPCamManagementPanel();
                                 }
                             });
                     item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, ActionEvent.ALT_MASK));
@@ -596,7 +596,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
 
     // Read ipUrl.ini to find IPCam ON
     @SuppressWarnings({"unchecked", "rawtypes"})
-    private void checkIPCam() {
+    private void openIPCamManagementPanel() {
         // JPanel for IPCam Select (MigLayout)
         JPanel ipCamManagementPanel = new JPanel(new MigLayout());
 
