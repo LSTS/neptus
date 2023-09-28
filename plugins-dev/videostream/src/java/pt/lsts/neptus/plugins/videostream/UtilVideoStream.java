@@ -61,25 +61,25 @@ public class UtilVideoStream {
     private UtilVideoStream() {
     }
     
-    public static String[][] readIpUrl(File nameFile) {
+    public static ArrayList<Camera> readIpUrl(File nameFile) {
+        ArrayList<Camera> cameraList = new ArrayList<>();
         BufferedReader br = null;
-        String lineFile;
-        String[] splits;
-        String[] emptyData = {"Select Device", "", ""};
-        ArrayList<String[]> dataIpCam = new ArrayList<>();
+        String line;
         try {
             br = new BufferedReader(new FileReader(nameFile));
         }
         catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        dataIpCam.add(emptyData);
+        cameraList.add(new Camera());
+
+        String[] splits;
         try {
-            while ((lineFile = br.readLine()) != null) {
-                if(!lineFile.isEmpty()) {
-                    splits = lineFile.split("#");                  
+            while ((line = br.readLine()) != null) {
+                if(!line.isEmpty()) {
+                    splits = line.split("#");
                     if(splits.length == 3)
-                        dataIpCam.add(splits);
+                        cameraList.add(new Camera(splits[0], splits[1], splits[2]));
                 }
             }
         }
@@ -93,7 +93,7 @@ public class UtilVideoStream {
         catch (IOException e) {
             e.printStackTrace();
         }
-        return dataIpCam.toArray(new String[dataIpCam.size()][0]);
+        return cameraList;
     }
 
     public static void removeLineFromFile(int lineToRemove, String fileName) {

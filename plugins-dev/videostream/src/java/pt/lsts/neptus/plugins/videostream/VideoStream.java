@@ -188,7 +188,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
     // Close comTCP state
     private boolean closeComState = false;
     // Url of IPCam
-    private String[][] dataUrlIni;
+    private ArrayList<Camera> cameraList;
     private boolean closingPanel = false;
     private boolean refreshTemp;
 
@@ -601,12 +601,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
         JPanel ipCamManagementPanel = new JPanel(new MigLayout());
 
         repaintParametersTextFields();
-        dataUrlIni = readIPUrl();
-        int sizeDataUrl = dataUrlIni.length;
-        String nameIPCam[] = new String[sizeDataUrl];
-        for (int i = 0; i < sizeDataUrl; i++) {
-            nameIPCam[i] = dataUrlIni[i][0];
-        }
+        cameraList = readIPUrl();
 
         ipCamPing = new JDialog(SwingUtilities.getWindowAncestor(VideoStream.this), I18n.text("Select IPCam"));
         ipCamPing.setResizable(true);
@@ -618,7 +613,8 @@ public class VideoStream extends ConsolePanel implements ItemListener {
         ipCamPing.setIconImage(imgIPCam.getImage());
         ipCamPing.setResizable(false);
         ipCamPing.setBackground(Color.GRAY);
-        ipCamList = new JComboBox(nameIPCam);
+
+        ipCamList = new JComboBox(cameraList.toArray());
         ipCamList.setSelectedIndex(0);
         ipCamList.addActionListener(new ActionListener() {
             @Override
@@ -628,16 +624,17 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                 selectedItemIndex = ipCamList.getSelectedIndex();
                 statePing = false;
                 if (selectedItemIndex > 0) {
+                    Camera selectedCamera = cameraList.get(selectedItemIndex);
                     colorStateIPCam.setBackground(Color.LIGHT_GRAY);
                     onOffIndicator.setText("---");
                     statePingOk = false;
 
-                    repaintParametersTextFields(dataUrlIni[selectedItemIndex][0], dataUrlIni[selectedItemIndex][1], dataUrlIni[selectedItemIndex][2]);
+                    repaintParametersTextFields(selectedCamera.getName(), selectedCamera.getIp(), selectedCamera.getUrl());
 
                     AsyncTask task = new AsyncTask() {
                         @Override
                         public Object run() throws Exception {
-                            statePing = pingIPCam(dataUrlIni[selectedItemIndex][1]);
+                            statePing = pingIPCam(selectedCamera.getIp());
                             return null;
                         }
 
@@ -645,7 +642,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                         public void finish() {
                             if (statePing) {
                                 selectIPCam.setEnabled(true);
-                                camRtpsUrl = dataUrlIni[selectedItemIndex][2];
+                                camRtpsUrl = selectedCamera.getUrl();
                                 colorStateIPCam.setBackground(Color.GREEN);
                                 onOffIndicator.setText("ON");
                                 ipCamList.setEnabled(true);
@@ -685,7 +682,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
         selectIPCam.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 if (statePingOk) {
-                    NeptusLog.pub().info("IPCam Select: " + dataUrlIni[selectedItemIndex][0]);
+                    NeptusLog.pub().info("IPCam Select: " + cameraList.get(0));
                     ipCamPing.setVisible(false);
                     ipCam = true;
                     state = false;
@@ -762,22 +759,15 @@ public class VideoStream extends ConsolePanel implements ItemListener {
         AsyncTask task = new AsyncTask() {
             @Override
             public Object run() throws Exception {
-                dataUrlIni = readIPUrl();
+                cameraList = readIPUrl();
                 return null;
             }
 
             @Override
             public void finish() {
-                int sizeDataUrl = dataUrlIni.length;
-                String nameIPCam[] = new String[sizeDataUrl];
-                for (int i = 0; i < sizeDataUrl; i++) {
-                    nameIPCam[i] = dataUrlIni[i][0];
-                }
-
                 ipCamList.removeAllItems();
-                for (int i = 0; i < nameIPCam.length; i++) {
-                    String sample = nameIPCam[i];
-                    ipCamList.addItem(sample);
+                for (Camera camera: cameraList) {
+                    ipCamList.addItem(camera.getName());
                 }
             }
         };
@@ -791,7 +781,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
     }
 
     // Read file
-    private String[][] readIPUrl() {
+    private ArrayList<Camera> readIPUrl() {
         String iniRsrcPath = FileUtil.getResourceAsFileKeepName(BASE_FOLDER_FOR_URLINI);
         File confIni = new File(ConfigFetch.getConfFolder() + "/" + BASE_FOLDER_FOR_URLINI);
         if (!confIni.exists()) {
