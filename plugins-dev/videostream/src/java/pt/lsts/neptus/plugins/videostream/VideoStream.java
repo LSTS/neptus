@@ -235,8 +235,6 @@ public class VideoStream extends ConsolePanel implements ItemListener {
     // counter for frame tag ID
     private short frameTagID = 1;
 
-    // Flag for IPCam Ip Check
-    private boolean pingState = false;
     // JPanel for color state of ping to host IPCam
     private JPanel colorStateIPCam;
     // JDialog for IPCam Select
@@ -620,7 +618,6 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                 ipCamList.setEnabled(false);
                 selectIPCam.setEnabled(false);
                 selectedItemIndex = ipCamList.getSelectedIndex();
-                pingState = false;
                 if (selectedItemIndex > 0) {
                     Camera selectedCamera = cameraList.get(selectedItemIndex);
                     colorStateIPCam.setBackground(Color.LIGHT_GRAY);
@@ -629,15 +626,17 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                     repaintParametersTextFields(selectedCamera.getName(), selectedCamera.getIp(), selectedCamera.getUrl());
 
                     AsyncTask task = new AsyncTask() {
+                        boolean reachable;
+
                         @Override
                         public Object run() throws Exception {
-                            setPingState(selectedCamera.getIp());
+                            reachable = hostIsReachable(selectedCamera.getIp());
                             return null;
                         }
 
                         @Override
                         public void finish() {
-                            if (pingState) {
+                            if (reachable) {
                                 selectIPCam.setEnabled(true);
                                 camRtpsUrl = selectedCamera.getUrl();
                                 colorStateIPCam.setBackground(Color.GREEN);
@@ -677,12 +676,10 @@ public class VideoStream extends ConsolePanel implements ItemListener {
         selectIPCam.setEnabled(false);
         selectIPCam.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                if (pingState) {
-                    NeptusLog.pub().info("IPCam Select: " + cameraList.get(0));
-                    ipCamPing.setVisible(false);
-                    ipCam = true;
-                    state = false;
-                }
+                NeptusLog.pub().info("IPCam Select: " + cameraList.get(selectedItemIndex));
+                ipCamPing.setVisible(false);
+                ipCam = true;
+                state = false;
             }
         });
         ipCamManagementPanel.add(selectIPCam, "h 30!, wrap");
@@ -771,8 +768,8 @@ public class VideoStream extends ConsolePanel implements ItemListener {
     }
 
     // Ping CamIp
-    private void setPingState(String host) {
-        pingState = UtilVideoStream.pingIp(host);
+    private boolean hostIsReachable(String host) {
+        return UtilVideoStream.pingIp(host);
     }
 
     // Read file
