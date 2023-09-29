@@ -1273,8 +1273,6 @@ public class VideoStream extends ConsolePanel implements ItemListener {
     // IMC handle
     @Subscribe
     public void consume(EstimatedState msg) {
-        // System.out.println("Source Name "+msg.getSourceName()+"ID
-        // "+getMainVehicleId());
         if (msg.getSourceName().equals(getMainVehicleId()) && findOpenCV()) {
             if (camFov != null) {
                 if (!paused) {
