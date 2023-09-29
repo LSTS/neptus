@@ -758,9 +758,15 @@ public class VideoStream extends ConsolePanel implements ItemListener {
 
             @Override
             public void finish() {
+                int itemCount = ipCamList.getItemCount();
                 ipCamList.removeAllItems();
                 for (Camera camera : cameraList) {
                     ipCamList.addItem(camera);
+                }
+
+                // If an item was added select that item
+                if(itemCount < ipCamList.getItemCount()) {
+                    ipCamList.setSelectedIndex(ipCamList.getItemCount() - 1);
                 }
             }
         };
