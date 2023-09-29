@@ -32,8 +32,9 @@
 
 package pt.lsts.neptus.plugins.videostream;
 
-import java.awt.Graphics2D;
-import java.awt.Image;
+import org.opencv.core.Size;
+
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -44,23 +45,22 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
-import org.opencv.core.Size;
-import pt.lsts.neptus.util.conf.ConfigFetch;
-
-/** 
+/**
  * @author pedrog
  * @author Pedro Costa
  * @version 1.0
  * @category OpenCV-Vision
- *
  */
 public class UtilVideoStream {
-    
+
     private UtilVideoStream() {
     }
-    
+
     public static ArrayList<Camera> readIpUrl(File nameFile) {
         ArrayList<Camera> cameraList = new ArrayList<>();
         BufferedReader br = null;
@@ -76,17 +76,18 @@ public class UtilVideoStream {
         String[] splits;
         try {
             while ((line = br.readLine()) != null) {
-                if(!line.isEmpty()) {
+                if (!line.isEmpty()) {
                     splits = line.split("#");
-                    if(splits.length == 3)
+                    if (splits.length == 3) {
                         cameraList.add(new Camera(splits[0], splits[1], splits[2]));
+                    }
                 }
             }
         }
         catch (IOException e) {
             e.printStackTrace();
         }
-        
+
         try {
             br.close();
         }
@@ -115,7 +116,7 @@ public class UtilVideoStream {
             BufferedReader reader = new BufferedReader(new FileReader(confIni));
             BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
             int lineNumber = 0;
-            while((currentLine = reader.readLine()) != null) {
+            while ((currentLine = reader.readLine()) != null) {
                 if (lineToRemove != lineNumber) {
                     writer.write(currentLine.trim() + System.getProperty("line.separator"));
                 }
@@ -130,59 +131,48 @@ public class UtilVideoStream {
 
         tempFile.renameTo(confIni);
     }
-    
-    public static boolean pingIp(String host) {
-        boolean ping = false;
-        boolean ping2 = false;
+
+    /*
+     * Checks if a given host is reachable using ping
+     * @param host
+     *      The ip to check
+     * @return boolean: true if host is reachable
+     */
+    public static boolean hostIsReachable(String host) {
+        InetAddress address;
         try {
-            String[] cmd;
-            if (System.getProperty("os.name").startsWith("Windows")) {
-                // For Windows
-                cmd = new String[]{
-                        "ping",
-                        "-n",
-                        "1",
-                        host};
-            }
-            else {
-                // For Linux and OSX
-                cmd = new String[]{
-                        "ping",
-                        "-c",
-                        "1",
-                        host};
-            }
-            Process myProcess = Runtime.getRuntime().exec(cmd);
-            try {
-                myProcess.waitFor();
-            }
-            catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            
-            InetAddress hostip = InetAddress.getByName(host);
-            ping2 = hostip.isReachable(1000);
-            
-            if (myProcess.exitValue() == 0 && ping2)
-                ping = true;
-            else
-                ping = false;
+            address = InetAddress.getByName(host);
         }
         catch (UnknownHostException e) {
-            e.printStackTrace();
+            return false;
         }
-        catch (IOException e) {
-            e.printStackTrace();
-        } // Ping doesnt work
-        
-        return ping;
+
+        // Host must be reachable 3 times to count as reachable
+        int tries = 3;
+        boolean isReachable;
+        while(tries-- > 0) {
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("mm:ss:SSSS");
+            LocalDateTime now = LocalDateTime.now();
+            try {
+                isReachable = address.isReachable(1000);
+                if(!isReachable)
+                    return false;
+                // Avoid spamming
+                TimeUnit.MILLISECONDS.sleep(100);
+            }
+            catch (Exception e) {
+                return false;
+            }
+        }
+
+        return true;
     }
-    
+
     public static BufferedImage resizeBufferedImage(BufferedImage img, Size size) {
-        if(size != null && size.width != 0 && size.height != 0){
-            BufferedImage dimg = new BufferedImage((int)size.width, (int)size.height, img.getType());
+        if (size != null && size.width != 0 && size.height != 0) {
+            BufferedImage dimg = new BufferedImage((int) size.width, (int) size.height, img.getType());
             Graphics2D g2d = dimg.createGraphics();
-            g2d.drawImage(img.getScaledInstance((int)size.width, (int)size.height, Image.SCALE_SMOOTH), 0, 0, null);
+            g2d.drawImage(img.getScaledInstance((int) size.width, (int) size.height, Image.SCALE_SMOOTH), 0, 0, null);
             g2d.dispose();
             return dimg;
         }

@@ -630,7 +630,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
 
                         @Override
                         public Object run() throws Exception {
-                            reachable = hostIsReachable(selectedCamera.getIp());
+                            reachable = UtilVideoStream.hostIsReachable(selectedCamera.getIp());
                             return null;
                         }
 
@@ -765,11 +765,6 @@ public class VideoStream extends ConsolePanel implements ItemListener {
             }
         };
         AsyncWorker.getWorkerThread().postTask(task);
-    }
-
-    // Ping CamIp
-    private boolean hostIsReachable(String host) {
-        return UtilVideoStream.pingIp(host);
     }
 
     // Read file
