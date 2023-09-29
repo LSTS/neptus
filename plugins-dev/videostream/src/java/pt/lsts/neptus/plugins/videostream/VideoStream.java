@@ -255,8 +255,6 @@ public class VideoStream extends ConsolePanel implements ItemListener {
     private JTextField fieldIP = new JTextField(I18n.text("IP"));
     // JTextField for IPCam url
     private JTextField fieldUrl = new JTextField(I18n.text("URL"));
-    // state of ping to host
-    private boolean statePing;
     // JPanel for zoom point
     private JPanel zoomImg = new JPanel();
     // Buffer image for zoom Img Cut
@@ -622,25 +620,24 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                 ipCamList.setEnabled(false);
                 selectIPCam.setEnabled(false);
                 selectedItemIndex = ipCamList.getSelectedIndex();
-                statePing = false;
+                statePingOk = false;
                 if (selectedItemIndex > 0) {
                     Camera selectedCamera = cameraList.get(selectedItemIndex);
                     colorStateIPCam.setBackground(Color.LIGHT_GRAY);
                     onOffIndicator.setText("---");
-                    statePingOk = false;
 
                     repaintParametersTextFields(selectedCamera.getName(), selectedCamera.getIp(), selectedCamera.getUrl());
 
                     AsyncTask task = new AsyncTask() {
                         @Override
                         public Object run() throws Exception {
-                            statePing = pingIPCam(selectedCamera.getIp());
+                            pingIPCam(selectedCamera.getIp());
                             return null;
                         }
 
                         @Override
                         public void finish() {
-                            if (statePing) {
+                            if (statePingOk) {
                                 selectIPCam.setEnabled(true);
                                 camRtpsUrl = selectedCamera.getUrl();
                                 colorStateIPCam.setBackground(Color.GREEN);
@@ -660,7 +657,6 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                     AsyncWorker.getWorkerThread().postTask(task);
                 }
                 else {
-                    statePingOk = false;
                     colorStateIPCam.setBackground(Color.RED);
                     onOffIndicator.setText("OFF");
                     ipCamList.setEnabled(true);
