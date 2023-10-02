@@ -130,6 +130,9 @@ public class VideoStream extends ConsolePanel implements ItemListener {
     private static final int DEFAULT_WIDTH_CONSOLE = 640;
     private static final int DEFAULT_HEIGHT_CONSOLE = 480;
 
+    // Timeout for watchDogThread in milliseconds
+    private static final int WATCH_DOG_TIMEOUT = 4000;
+
     @NeptusProperty(name = "Axis Camera RTPS URL", editable = false)
     private String camRtpsUrl = "rtsp://10.0.20.207:554/live/ch01_0";
 
@@ -502,7 +505,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                                     ImageUtils.createImageIcon(String.format("images/menus/exit.png"))))
                             .addActionListener(new ActionListener() {
                                 public void actionPerformed(ActionEvent e) {
-                                    NeptusLog.pub().info("Clossing all Video Stream...");
+                                    NeptusLog.pub().info("Closing all Video Streams");
                                     noVideoLogoState = false;
                                     isCleanTurnOffCam = true;
                                     if (tcpOK) {
@@ -765,7 +768,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                 }
 
                 // If an item was added select that item
-                if(itemCount < ipCamList.getItemCount()) {
+                if (itemCount < ipCamList.getItemCount()) {
                     ipCamList.setSelectedIndex(ipCamList.getItemCount() - 1);
                 }
             }
@@ -1017,7 +1020,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
             @Override
             public void run() {
                 initImage();
-                setupWatchDog(4000);
+                setupWatchDog();
                 while (true) {
                     if (closingPanel) {
                         state = false;
@@ -1508,11 +1511,38 @@ public class VideoStream extends ConsolePanel implements ItemListener {
         }
     }
 
-    private void setupWatchDog(double timeout) {
+    private void setupWatchDog() {
         watchDog = new Thread(new Runnable() {
             @Override
             public void run() {
-                methodWatchDog(timeout);
+                endTimeMillis = System.currentTimeMillis() + WATCH_DOG_TIMEOUT;
+                virtualEndThread = false;
+                while (true) {
+                    if (System.currentTimeMillis() > endTimeMillis && !virtualEndThread) {
+                        if (!isCleanTurnOffCam) {
+                            NeptusLog.pub().error("TIME OUT IPCAM");
+                            NeptusLog.pub().info("Clossing all Video Stream...");
+                            noVideoLogoState = false;
+                            state = false;
+                            ipCam = false;
+                            initImage();
+                        }
+                        virtualEndThread = true;
+                    }
+                    else if (virtualEndThread) {
+                        try {
+                            Thread.sleep(1000);
+                        }
+                        catch (InterruptedException e) {
+                        }
+                    }
+
+                    try {
+                        Thread.sleep(100);
+                    }
+                    catch (InterruptedException e) {
+                    }
+                }
             }
         });
     }
@@ -1526,36 +1556,5 @@ public class VideoStream extends ConsolePanel implements ItemListener {
     private void resetWatchDog(double timeout) {
         endTimeMillis = (long) (System.currentTimeMillis() + timeout);
         virtualEndThread = false;
-    }
-
-    private void methodWatchDog(double miliseconds) {
-        endTimeMillis = (long) (System.currentTimeMillis() + miliseconds);
-        virtualEndThread = false;
-        while (true) {
-            if (System.currentTimeMillis() > endTimeMillis && !virtualEndThread) {
-                if (!isCleanTurnOffCam) {
-                    NeptusLog.pub().error("TIME OUT IPCAM");
-                    NeptusLog.pub().info("Clossing all Video Stream...");
-                    noVideoLogoState = false;
-                    state = false;
-                    ipCam = false;
-                    initImage();
-                }
-                virtualEndThread = true;
-            }
-            else if (virtualEndThread) {
-                try {
-                    Thread.sleep(1000);
-                }
-                catch (InterruptedException e) {
-                }
-            }
-
-            try {
-                Thread.sleep(100);
-            }
-            catch (InterruptedException e) {
-            }
-        }
     }
 }
