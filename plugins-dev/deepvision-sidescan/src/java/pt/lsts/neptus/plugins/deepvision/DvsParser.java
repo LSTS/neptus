@@ -32,7 +32,16 @@
  */
 package pt.lsts.neptus.plugins.deepvision;
 
+import pt.lsts.neptus.NeptusLog;
+import scala.sys.process.ProcessBuilderImpl;
+
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 
 /**
@@ -42,7 +51,68 @@ public class DvsParser {
     File file;
     public DvsParser(File file) {
         this.file = file;
+        FileInputStream fileInputStream;
+
+        try {
+            fileInputStream = new FileInputStream(file);
+        }
+        catch (FileNotFoundException e) {
+            NeptusLog.pub().error("File " + file.getAbsolutePath() + " not found while creating the DvsParser object" );
+            e.printStackTrace();
+            return;
+        }
+
+        FileChannel fileChannel = fileInputStream.getChannel();
+        ByteBuffer buffer = null;
+        try {
+            buffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, 0, 512);
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        buffer.order(ByteOrder.LITTLE_ENDIAN);
+        // Header
+        int VERSION = buffer.getInt() & 0xFFFFFFFF;
+        float sampleRes = buffer.getFloat();
+        float lineRate = buffer.getFloat();
+        int nSamples = buffer.getInt();
+        boolean left = buffer.get() > 0;
+        boolean right = buffer.get() > 0;
+
+        // Ping Pos
+        double lat = buffer.getDouble();
+        double lon = buffer.getDouble();
+        float speed = buffer.getFloat();
+        float heading = buffer.getFloat();
+
+        System.out.println("VERSION: " + VERSION);
+        System.out.println("sampleRes: " + sampleRes);
+        System.out.println("lineRate: " + lineRate);
+        System.out.println("nSamples: " + nSamples);
+        System.out.println("left: " + left);
+        System.out.println("right: " + right);
+
+        // V1_Position
+        System.out.println("lat: " + lat);
+        System.out.println("lon: " + lon);
+        System.out.println("speed: " + speed);
+        System.out.println("heading: " + heading);
+
+        if(left) {
+            for(int i = 0; i < nSamples; i++) {
+                System.out.println("V[" + i + "] = " + (buffer.get() & 0xFF));
+            }
+        }
+
+        if(right) {
+            for(int i = 0; i < nSamples; i++) {
+                System.out.println("V[" + i + "] = " + (buffer.get() & 0xFF));
+            }
+        }
+
+
     }
+
 
     public long getLastPingTimestamp() {
         return 1000L;
