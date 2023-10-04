@@ -80,9 +80,6 @@ public class DvsSidescanParserChecker implements SidescanParserChecker<DvsSidesc
     }
 
     private static FilenameFilter DVSFilter() {
-        FilenameFilter dvsFilter = (dir, name) -> {
-            return name.toLowerCase().endsWith(".dvs"); // Possibly test if it starts with "Data"
-        };
-        return dvsFilter;
+        return (dir, name) -> name.toLowerCase().endsWith(".dvs");
     }
 }
