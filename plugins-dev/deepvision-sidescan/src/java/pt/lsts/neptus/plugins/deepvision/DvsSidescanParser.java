@@ -53,17 +53,17 @@ public class DvsSidescanParser implements SidescanParser {
     
     @Override
     public long firstPingTimestamp() {
-        return 1L;
+        return parser.getFirstPingTimestamp();
     }
 
     @Override
     public long lastPingTimestamp() {
-        return 1L;
+        return parser.getLastPingTimestamp();
     }
     
     @Override
     public ArrayList<Integer> getSubsystemList() {
-        return new ArrayList<>();
+        return parser.getSubsystemList();
     }
 
     @Override
@@ -73,5 +73,7 @@ public class DvsSidescanParser implements SidescanParser {
 
     @Override
     public void cleanup() {
+        parser.cleanup();
+        parser = null;
     }
 }

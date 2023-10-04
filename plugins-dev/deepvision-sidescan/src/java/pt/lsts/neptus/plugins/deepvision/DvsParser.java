@@ -33,6 +33,7 @@
 package pt.lsts.neptus.plugins.deepvision;
 
 import java.io.File;
+import java.util.ArrayList;
 
 /**
  * @author: Pedro Costa
@@ -41,5 +42,20 @@ public class DvsParser {
     File file;
     public DvsParser(File file) {
         this.file = file;
+    }
+
+    public long getLastPingTimestamp() {
+        return 1000L;
+    }
+
+    public long getFirstPingTimestamp() {
+        return 0L;
+    }
+
+    public ArrayList<Integer> getSubsystemList() {
+        return new ArrayList<>();
+    }
+
+    public void cleanup() {
     }
 }
