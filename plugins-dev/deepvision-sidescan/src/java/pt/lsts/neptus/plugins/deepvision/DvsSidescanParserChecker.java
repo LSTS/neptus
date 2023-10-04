@@ -59,8 +59,8 @@ public class DvsSidescanParserChecker implements SidescanParserChecker<DvsSidesc
 
     @Override
     public List<File> listDataFiles(IMraLogGroup log) {
-        FilenameFilter sdfFilter = DVSFilter();
-        File[] files = log.getDir().listFiles(sdfFilter);
+        FilenameFilter dvsFilter = DVSFilter();
+        File[] files = log.getDir().listFiles(dvsFilter);
         return Arrays.asList(files);
     }
 
