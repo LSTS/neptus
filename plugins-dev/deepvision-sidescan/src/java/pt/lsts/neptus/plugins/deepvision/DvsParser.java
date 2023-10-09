@@ -66,13 +66,12 @@ public class DvsParser {
 
     // Called by constructor
     private void readInData() {
-        // HEADER SIZE
-        int bufferSize = 18;
         int bufferPosition = 0;
+
         try (FileInputStream fileInputStream = new FileInputStream(file)) {
             ByteBuffer buffer;
             FileChannel fileChannel = fileInputStream.getChannel();
-            buffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, 0, 512);
+            buffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, bufferPosition, dvsHeader.HEADER_SIZE);
             buffer.order(ByteOrder.LITTLE_ENDIAN);
 
             // Header
@@ -93,10 +92,10 @@ public class DvsParser {
             dvsHeader.setLeftChannelActive(left);
             dvsHeader.setRightChannelActive(right);
 
-            bufferPosition += bufferSize;
+            bufferPosition += dvsHeader.HEADER_SIZE;
 
             // Pos + Return
-            bufferSize = ((left ? 1 : 0) + (right ? 1 : 0)) * nSamples + 24 ;
+            int bufferSize = dvsHeader.getNumberOfActiveChannels() * dvsHeader.getnSamples() + 24 ;
             buffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, bufferPosition, bufferSize);
 
             // Ping Pos
