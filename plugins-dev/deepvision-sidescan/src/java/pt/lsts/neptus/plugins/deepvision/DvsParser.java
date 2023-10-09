@@ -83,6 +83,16 @@ public class DvsParser {
             boolean left = buffer.get() > 0;
             boolean right = buffer.get() > 0;
 
+            if(!dvsHeader.versionMatches(VERSION)) {
+                NeptusLog.pub().error("Dvs file is not version 1. Abort.");
+                return;
+            }
+            dvsHeader.setSampleResolution(sampleRes);
+            dvsHeader.setLineRate(lineRate);
+            dvsHeader.setnSamples(nSamples);
+            dvsHeader.setLeftChannelActive(left);
+            dvsHeader.setRightChannelActive(right);
+
             bufferPosition += bufferSize;
 
             // Pos + Return
