@@ -66,65 +66,67 @@ public class DvsParser {
 
     // Called by constructor
     private void readInData() {
-        FileInputStream fileInputStream;
+        // HEADER SIZE
+        int bufferSize = 18;
+        int bufferPosition = 0;
+        try (FileInputStream fileInputStream = new FileInputStream(file)) {
+            ByteBuffer buffer;
+            FileChannel fileChannel = fileInputStream.getChannel();
+            buffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, 0, 512);
+            buffer.order(ByteOrder.LITTLE_ENDIAN);
 
-        // Setup buffer
-        try {
-            fileInputStream = new FileInputStream(file);
+            // Header
+            int VERSION = buffer.getInt() & 0xFFFFFFFF;
+            float sampleRes = buffer.getFloat();
+            float lineRate = buffer.getFloat();
+            int nSamples = buffer.getInt();
+            boolean left = buffer.get() > 0;
+            boolean right = buffer.get() > 0;
+
+            bufferPosition += bufferSize;
+
+            // Pos + Return
+            bufferSize = ((left ? 1 : 0) + (right ? 1 : 0)) * nSamples + 24 ;
+            buffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, bufferPosition, bufferSize);
+
+            // Ping Pos
+            double lat = buffer.getDouble();
+            double lon = buffer.getDouble();
+            float speed = buffer.getFloat();
+            float heading = buffer.getFloat();
+
+            System.out.println("VERSION: " + VERSION);
+            System.out.println("sampleRes: " + sampleRes);
+            System.out.println("lineRate: " + lineRate);
+            System.out.println("nSamples: " + nSamples);
+            System.out.println("left: " + left);
+            System.out.println("right: " + right);
+
+            // V1_Position
+            System.out.println("lat: " + lat);
+            System.out.println("lon: " + lon);
+            System.out.println("speed: " + speed);
+            System.out.println("heading: " + heading);
+
+            if (left) {
+                for (int i = 0; i < nSamples; i++) {
+                    System.out.println("V[" + i + "] = " + (buffer.get() & 0xFF));
+                }
+            }
+
+            if (right) {
+                for (int i = 0; i < nSamples; i++) {
+                    System.out.println("V[" + i + "] = " + (buffer.get() & 0xFF));
+                }
+            }
         }
         catch (FileNotFoundException e) {
-            NeptusLog.pub().error("File " + file.getAbsolutePath() + " not found while creating the DvsParser object");
+            NeptusLog.pub().error("File " + file.getAbsolutePath() + " not found while creating the DvsParser object.");
             e.printStackTrace();
-            return;
-        }
-
-        FileChannel fileChannel = fileInputStream.getChannel();
-        ByteBuffer buffer = null;
-        try {
-            buffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, 0, 512);
         }
         catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        buffer.order(ByteOrder.LITTLE_ENDIAN);
-
-        // Header
-        int VERSION = buffer.getInt() & 0xFFFFFFFF;
-        float sampleRes = buffer.getFloat();
-        float lineRate = buffer.getFloat();
-        int nSamples = buffer.getInt();
-        boolean left = buffer.get() > 0;
-        boolean right = buffer.get() > 0;
-
-        // Ping Pos
-        double lat = buffer.getDouble();
-        double lon = buffer.getDouble();
-        float speed = buffer.getFloat();
-        float heading = buffer.getFloat();
-
-        System.out.println("VERSION: " + VERSION);
-        System.out.println("sampleRes: " + sampleRes);
-        System.out.println("lineRate: " + lineRate);
-        System.out.println("nSamples: " + nSamples);
-        System.out.println("left: " + left);
-        System.out.println("right: " + right);
-
-        // V1_Position
-        System.out.println("lat: " + lat);
-        System.out.println("lon: " + lon);
-        System.out.println("speed: " + speed);
-        System.out.println("heading: " + heading);
-
-        if (left) {
-            for (int i = 0; i < nSamples; i++) {
-                System.out.println("V[" + i + "] = " + (buffer.get() & 0xFF));
-            }
-        }
-
-        if (right) {
-            for (int i = 0; i < nSamples; i++) {
-                System.out.println("V[" + i + "] = " + (buffer.get() & 0xFF));
-            }
+            NeptusLog.pub().error("While trying to read " + file.getAbsolutePath() + " an IOException occurred");
+            e.printStackTrace();
         }
     }
 
