@@ -52,8 +52,11 @@ public class DvsHeader {
         this.rightChannelActive = rightChannelActive;
     }
 
-
     public boolean versionMatches(int version) {
         return VERSION == version;
+    }
+
+    public int getNumberOfActiveChannels() {
+        return (leftChannelActive ? 1 : 0) + (rightChannelActive ? 1 : 0);
     }
 }
