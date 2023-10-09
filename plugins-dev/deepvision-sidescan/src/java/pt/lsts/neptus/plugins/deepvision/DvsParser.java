@@ -49,15 +49,31 @@ import java.util.ArrayList;
  */
 public class DvsParser {
     File file;
+    DvsHeader dvsHeader;
+    // List of the Ping Pos data
+    ArrayList<DvsPos> posDataList;
+    // List of the Ping Return data
+    ArrayList<DvsReturn> returnDataList;
+
     public DvsParser(File file) {
         this.file = file;
+        dvsHeader = new DvsHeader();
+        posDataList = new ArrayList<>();
+        returnDataList = new ArrayList<>();
+
+        readInData();
+    }
+
+    // Called by constructor
+    private void readInData() {
         FileInputStream fileInputStream;
 
+        // Setup buffer
         try {
             fileInputStream = new FileInputStream(file);
         }
         catch (FileNotFoundException e) {
-            NeptusLog.pub().error("File " + file.getAbsolutePath() + " not found while creating the DvsParser object" );
+            NeptusLog.pub().error("File " + file.getAbsolutePath() + " not found while creating the DvsParser object");
             e.printStackTrace();
             return;
         }
@@ -71,6 +87,7 @@ public class DvsParser {
             throw new RuntimeException(e);
         }
         buffer.order(ByteOrder.LITTLE_ENDIAN);
+
         // Header
         int VERSION = buffer.getInt() & 0xFFFFFFFF;
         float sampleRes = buffer.getFloat();
@@ -98,19 +115,17 @@ public class DvsParser {
         System.out.println("speed: " + speed);
         System.out.println("heading: " + heading);
 
-        if(left) {
-            for(int i = 0; i < nSamples; i++) {
+        if (left) {
+            for (int i = 0; i < nSamples; i++) {
                 System.out.println("V[" + i + "] = " + (buffer.get() & 0xFF));
             }
         }
 
-        if(right) {
-            for(int i = 0; i < nSamples; i++) {
+        if (right) {
+            for (int i = 0; i < nSamples; i++) {
                 System.out.println("V[" + i + "] = " + (buffer.get() & 0xFF));
             }
         }
-
-
     }
 
 
