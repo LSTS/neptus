@@ -66,12 +66,12 @@ public class DvsParser {
 
     // Called by constructor
     private void readInData() {
-        int bufferPosition = 0;
+        int filePosition = 0;
 
         try (FileInputStream fileInputStream = new FileInputStream(file)) {
             ByteBuffer buffer;
             FileChannel fileChannel = fileInputStream.getChannel();
-            buffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, bufferPosition, dvsHeader.HEADER_SIZE);
+            buffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, filePosition, dvsHeader.HEADER_SIZE);
             buffer.order(ByteOrder.LITTLE_ENDIAN);
 
             // Header
@@ -92,42 +92,46 @@ public class DvsParser {
             dvsHeader.setLeftChannelActive(left);
             dvsHeader.setRightChannelActive(right);
 
-            bufferPosition += dvsHeader.HEADER_SIZE;
+            filePosition += dvsHeader.HEADER_SIZE;
 
             // Pos + Return
-            int bufferSize = dvsHeader.getNumberOfActiveChannels() * dvsHeader.getnSamples() + 24 ;
-            buffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, bufferPosition, bufferSize);
+            int bufferSize = dvsHeader.getNumberOfActiveChannels() * dvsHeader.getnSamples() + DvsPos.SIZE ;
+            while(filePosition <  file.length() - 2) {
+                buffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, filePosition, bufferSize);
 
-            // Ping Pos
-            double lat = buffer.getDouble();
-            double lon = buffer.getDouble();
-            float speed = buffer.getFloat();
-            float heading = buffer.getFloat();
+                // Ping Pos
+                double lat = buffer.getDouble();
+                double lon = buffer.getDouble();
+                float speed = buffer.getFloat();
+                float heading = buffer.getFloat();
 
-            System.out.println("VERSION: " + VERSION);
-            System.out.println("sampleRes: " + sampleRes);
-            System.out.println("lineRate: " + lineRate);
-            System.out.println("nSamples: " + nSamples);
-            System.out.println("left: " + left);
-            System.out.println("right: " + right);
+                DvsPos dvsPos = new DvsPos();
+                dvsPos.setLatitude(lat);
+                dvsPos.setLongitude(lon);
+                dvsPos.setSpeed(speed);
+                dvsPos.setHeading(heading);
 
-            // V1_Position
-            System.out.println("lat: " + lat);
-            System.out.println("lon: " + lon);
-            System.out.println("speed: " + speed);
-            System.out.println("heading: " + heading);
 
-            if (left) {
-                for (int i = 0; i < nSamples; i++) {
-                    System.out.println("V[" + i + "] = " + (buffer.get() & 0xFF));
+                DvsReturn returnLeft;
+                DvsReturn returnRight;
+                byte[] dst;
+                if (dvsHeader.isLeftChannelActive()) {
+                    dst = new byte[dvsHeader.getnSamples()];
+                    buffer.get(dst);
+                    returnLeft = new DvsReturn(dst);
                 }
-            }
 
-            if (right) {
-                for (int i = 0; i < nSamples; i++) {
-                    System.out.println("V[" + i + "] = " + (buffer.get() & 0xFF));
+
+                if (dvsHeader.isRightChannelActive()) {
+                    dst = new byte[dvsHeader.getnSamples()];
+                    buffer.get(dst);
+                    returnRight = new DvsReturn(dst);
                 }
+
+                filePosition += bufferSize;
+                System.out.println("DEBUG: bufferPosition: " + filePosition);
             }
+            System.out.println("DEBUG: File loaded");
         }
         catch (FileNotFoundException e) {
             NeptusLog.pub().error("File " + file.getAbsolutePath() + " not found while creating the DvsParser object.");

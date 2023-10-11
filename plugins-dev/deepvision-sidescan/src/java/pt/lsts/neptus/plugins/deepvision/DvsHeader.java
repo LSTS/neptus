@@ -1,13 +1,14 @@
 package pt.lsts.neptus.plugins.deepvision;
 
 public class DvsHeader {
-    public final int HEADER_SIZE = 18; // Bytes
-    public final int VERSION = 1;     // VERSION
-    private float sampleResolution;    // sampleRes [m]
-    private float lineRate;     // lineRate [ ping/s ]
-    private int nSamples;       // nSamples: Number of samples per side
-    private boolean leftChannelActive;       // left: true if left/port side active
-    private boolean rightChannelActive;      // right: true if right/starboard side active
+    public final int HEADER_SIZE = 18;      // Bytes
+    public final int VERSION = 1;           // VERSION
+
+    private float sampleResolution;         // sampleRes [m]
+    private float lineRate;                 // lineRate [ ping/s ]
+    private int nSamples;                   // nSamples: Number of samples per side
+    private boolean leftChannelActive;      // left: true if left/port side active
+    private boolean rightChannelActive;     // right: true if right/starboard side active
 
     public DvsHeader() {
     }
