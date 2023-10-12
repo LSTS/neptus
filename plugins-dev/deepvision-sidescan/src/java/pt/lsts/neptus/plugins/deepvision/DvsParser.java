@@ -82,7 +82,7 @@ public class DvsParser {
             boolean left = buffer.get() > 0;
             boolean right = buffer.get() > 0;
 
-            if(!dvsHeader.versionMatches(VERSION)) {
+            if (!dvsHeader.versionMatches(VERSION)) {
                 NeptusLog.pub().error("Dvs file is not version 1. Abort.");
                 return;
             }
@@ -95,8 +95,8 @@ public class DvsParser {
             filePosition += dvsHeader.HEADER_SIZE;
 
             // Pos + Return
-            int bufferSize = dvsHeader.getNumberOfActiveChannels() * dvsHeader.getnSamples() + DvsPos.SIZE ;
-            while(filePosition <  file.length()) {
+            int bufferSize = dvsHeader.getNumberOfActiveChannels() * dvsHeader.getnSamples() + DvsPos.SIZE;
+            while (filePosition < file.length()) {
                 buffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, filePosition, bufferSize);
                 buffer.order(ByteOrder.LITTLE_ENDIAN);
 
@@ -113,7 +113,6 @@ public class DvsParser {
                     buffer.get(dst);
                     returnDataList.add(new DvsReturn(dst));
                 }
-
 
                 if (dvsHeader.isRightChannelActive()) {
                     dst = new byte[dvsHeader.getnSamples()];
