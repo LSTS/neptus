@@ -96,21 +96,16 @@ public class DvsParser {
 
             // Pos + Return
             int bufferSize = dvsHeader.getNumberOfActiveChannels() * dvsHeader.getnSamples() + DvsPos.SIZE ;
-            while(filePosition <  file.length() - 2) {
+            while(filePosition <  file.length()) {
                 buffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, filePosition, bufferSize);
+                buffer.order(ByteOrder.LITTLE_ENDIAN);
 
                 // Ping Pos
-                double lat = buffer.getDouble();
-                double lon = buffer.getDouble();
-                float speed = buffer.getFloat();
-                float heading = buffer.getFloat();
-
                 DvsPos dvsPos = new DvsPos();
-                dvsPos.setLatitude(lat);
-                dvsPos.setLongitude(lon);
-                dvsPos.setSpeed(speed);
-                dvsPos.setHeading(heading);
-
+                dvsPos.setLatitude(buffer.getDouble());
+                dvsPos.setLongitude(buffer.getDouble());
+                dvsPos.setSpeed(buffer.getFloat());
+                dvsPos.setHeading(buffer.getFloat());
 
                 DvsReturn returnLeft;
                 DvsReturn returnRight;
@@ -129,7 +124,6 @@ public class DvsParser {
                 }
 
                 filePosition += bufferSize;
-                System.out.println("DEBUG: bufferPosition: " + filePosition);
             }
             System.out.println("DEBUG: File loaded");
         }
