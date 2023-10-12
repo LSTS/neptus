@@ -75,7 +75,7 @@ public class DvsParser {
             buffer.order(ByteOrder.LITTLE_ENDIAN);
 
             // Header
-            int VERSION = buffer.getInt() & 0xFFFFFFFF;
+            int VERSION = buffer.getInt() & 0xFFFFFFFF; // Turn int to unsigned int value
             float sampleRes = buffer.getFloat();
             float lineRate = buffer.getFloat();
             int nSamples = buffer.getInt();
@@ -107,25 +107,22 @@ public class DvsParser {
                 dvsPos.setSpeed(buffer.getFloat());
                 dvsPos.setHeading(buffer.getFloat());
 
-                DvsReturn returnLeft;
-                DvsReturn returnRight;
                 byte[] dst;
                 if (dvsHeader.isLeftChannelActive()) {
                     dst = new byte[dvsHeader.getnSamples()];
                     buffer.get(dst);
-                    returnLeft = new DvsReturn(dst);
+                    returnDataList.add(new DvsReturn(dst));
                 }
 
 
                 if (dvsHeader.isRightChannelActive()) {
                     dst = new byte[dvsHeader.getnSamples()];
                     buffer.get(dst);
-                    returnRight = new DvsReturn(dst);
+                    returnDataList.add(new DvsReturn(dst));
                 }
 
                 filePosition += bufferSize;
             }
-            System.out.println("DEBUG: File loaded");
         }
         catch (FileNotFoundException e) {
             NeptusLog.pub().error("File " + file.getAbsolutePath() + " not found while creating the DvsParser object.");
