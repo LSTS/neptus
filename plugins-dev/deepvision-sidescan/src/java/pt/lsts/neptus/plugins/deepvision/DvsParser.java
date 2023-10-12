@@ -106,6 +106,7 @@ public class DvsParser {
                 dvsPos.setLongitude(buffer.getDouble());
                 dvsPos.setSpeed(buffer.getFloat());
                 dvsPos.setHeading(buffer.getFloat());
+                posDataList.add(dvsPos);
 
                 byte[] dst;
                 if (dvsHeader.isLeftChannelActive()) {
@@ -131,11 +132,12 @@ public class DvsParser {
             NeptusLog.pub().error("While trying to read " + file.getAbsolutePath() + " an IOException occurred");
             e.printStackTrace();
         }
+
     }
 
 
     public long getLastPingTimestamp() {
-        return 1000L;
+        return (long)((posDataList.size() / dvsHeader.getLineRate()) * 1000);
     }
 
     public long getFirstPingTimestamp() {
