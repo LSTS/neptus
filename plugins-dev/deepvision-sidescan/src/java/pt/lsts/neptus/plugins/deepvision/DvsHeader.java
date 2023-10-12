@@ -1,7 +1,23 @@
 package pt.lsts.neptus.plugins.deepvision;
 
 public class DvsHeader {
-    public final int HEADER_SIZE = 18;      // Bytes
+    /* HEADER STRUCTURE
+    Version, UINT32, Must be 0x00000001
+    File Header, V1_FileHeader
+
+    Where V1_FileHeader is
+
+    struct V1_FileHeader {
+        float sampleRes;
+        float lineRate;
+        int nSamples;
+        bool left;
+        bool right;
+    };
+
+    Plus 2 padding bytes to align at the word boundary
+    */
+    public final int HEADER_SIZE = 20;      // Bytes
     public final int VERSION = 1;           // VERSION
 
     private float sampleResolution;         // sampleRes [m]
