@@ -42,7 +42,11 @@ public class DvsHeader {
     }
 
     public void setLineRate(float lineRate) {
-        this.lineRate = lineRate;
+        if(lineRate > 0) {
+            this.lineRate = lineRate;
+        } else {
+            this.lineRate = (float)(16.717382321);
+        }
     }
 
     public int getnSamples() {
