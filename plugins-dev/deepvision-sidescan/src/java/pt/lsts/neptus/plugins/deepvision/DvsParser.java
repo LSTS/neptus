@@ -33,6 +33,10 @@
 package pt.lsts.neptus.plugins.deepvision;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.mra.api.SidescanLine;
+import pt.lsts.neptus.mra.api.SidescanParameters;
+import pt.lsts.neptus.types.coord.LocationType;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -146,6 +150,30 @@ public class DvsParser {
 
     public ArrayList<Integer> getSubsystemList() {
         return new ArrayList<>();
+    }
+
+    public ArrayList<SidescanLine> getLinesBetween(long timestamp1, long timestamp2, int subsystem, SidescanParameters params) {
+        ArrayList<SidescanLine> lines = new ArrayList<>();
+        int index1 = findTimestampIndex(timestamp1);
+        int index2 = findTimestampIndex(timestamp2);
+        ArrayList<DvsReturn> dvsReturnList = subsystems.getSubsystem(subsystem);
+
+        for (int i = index1; i < index2; i++) {
+            DvsPos dvsPos = posDataList.get(i);
+            DvsReturn dvsReturn = dvsReturnList.get(i);
+
+            long timestamp = dvsPos.getTimestamp();
+            float range = dvsHeader.getSampleResolution();
+            SystemPositionAndAttitude state = new SystemPositionAndAttitude();
+            state.setPosition(new LocationType(dvsPos.getLatitudeDegrees(), dvsPos.getLongitudeDegrees()));
+            float frequency = dvsHeader.getLineRate();
+            double[] data = dvsReturn.getDataAsDouble();
+
+            SidescanLine line = new SidescanLine(timestamp, range, state, frequency, data);
+            lines.add(line);
+        }
+
+        return lines;
     }
 
     public void cleanup() {
