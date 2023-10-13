@@ -56,14 +56,15 @@ public class DvsParser {
     DvsHeader dvsHeader;
     // List of the Ping Pos data
     ArrayList<DvsPos> posDataList;
-    SubsystemHolder subsystems;
+    // List of the Ping Return data
+    ArrayList<DvsReturn> returnDataList;
 
 
     public DvsParser(File file) {
         this.file = file;
         dvsHeader = new DvsHeader();
         posDataList = new ArrayList<>();
-        subsystems = new SubsystemHolder();
+        returnDataList = new ArrayList<>();
 
         readInData();
     }
@@ -113,18 +114,22 @@ public class DvsParser {
                 dvsPos.setTimestamp((long)(posDataList.size() / (dvsHeader.getLineRate() / 1000)));
                 posDataList.add(dvsPos);
 
-                byte[] dst;
-                if (dvsHeader.isLeftChannelActive()) {
-                    dst = new byte[dvsHeader.getnSamples()];
-                    buffer.get(dst);
-                    subsystems.left.add(new DvsReturn(dst));
-                }
+                byte[] dst = new byte[dvsHeader.getnSamples() * dvsHeader.getNumberOfActiveChannels()];
+                buffer.get(dst);
 
-                if (dvsHeader.isRightChannelActive()) {
-                    dst = new byte[dvsHeader.getnSamples()];
-                    buffer.get(dst);
-                    subsystems.right.add(new DvsReturn(dst));
+                // Left channel needs to be reverse
+                if(dvsHeader.isLeftChannelActive()) {
+                    int length = dvsHeader.getnSamples();
+                    byte temp;
+
+                    for (int i = 0; i < length/2; i++)
+                    {
+                        temp = dst[i];
+                        dst[i] = dst[length - 1 - i];
+                        dst[length - 1 - i] = temp;
+                    }
                 }
+                returnDataList.add(new DvsReturn(dst));
 
                 filePosition += bufferSize;
             }
@@ -150,18 +155,19 @@ public class DvsParser {
     }
 
     public ArrayList<Integer> getSubsystemList() {
-        return subsystems.getSubsystemList();
+        ArrayList<Integer> list = new ArrayList<>();
+        list.add(0);
+        return list;
     }
 
     public ArrayList<SidescanLine> getLinesBetween(long timestamp1, long timestamp2, int subsystem, SidescanParameters params) {
         ArrayList<SidescanLine> lines = new ArrayList<>();
         int index1 = findTimestampIndex(timestamp1);
         int index2 = findTimestampIndex(timestamp2);
-        ArrayList<DvsReturn> dvsReturnList = subsystems.getSubsystem(subsystem);
 
         for (int i = index1; i < index2; i++) {
             DvsPos dvsPos = posDataList.get(i);
-            DvsReturn dvsReturn = dvsReturnList.get(i);
+            DvsReturn dvsReturn = returnDataList.get(i);
 
             long timestamp = dvsPos.getTimestamp();
             float range = dvsHeader.getSampleResolution();
@@ -206,27 +212,7 @@ public class DvsParser {
 
         return left; // Return closest index
     }
+
 }
 
-class SubsystemHolder {
-    ArrayList<DvsReturn> left;
-    ArrayList<DvsReturn> right;
 
-    SubsystemHolder() {
-        left = new ArrayList<>();
-        right = new ArrayList<>();
-    }
-
-    public ArrayList<DvsReturn> getSubsystem(int subsystem) {
-        switch(subsystem) {
-            case 0: return left;
-            case 1: return right;
-        }
-        return null;
-    }
-
-    public ArrayList<Integer> getSubsystemList() {
-        Integer systems[] = {0,1};
-        return new ArrayList<>(Arrays.asList(systems));
-    }
-}
