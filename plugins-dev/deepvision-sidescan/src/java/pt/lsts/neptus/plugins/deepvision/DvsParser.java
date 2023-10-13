@@ -46,6 +46,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * @author: Pedro Costa
@@ -149,7 +150,7 @@ public class DvsParser {
     }
 
     public ArrayList<Integer> getSubsystemList() {
-        return new ArrayList<>();
+        return subsystems.getSubsystemList();
     }
 
     public ArrayList<SidescanLine> getLinesBetween(long timestamp1, long timestamp2, int subsystem, SidescanParameters params) {
@@ -222,5 +223,10 @@ class SubsystemHolder {
             case 1: return right;
         }
         return null;
+    }
+
+    public ArrayList<Integer> getSubsystemList() {
+        Integer systems[] = {0,1};
+        return new ArrayList<>(Arrays.asList(systems));
     }
 }
