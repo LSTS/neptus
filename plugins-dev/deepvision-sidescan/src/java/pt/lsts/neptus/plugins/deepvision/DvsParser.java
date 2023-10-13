@@ -32,9 +32,7 @@
  */
 package pt.lsts.neptus.plugins.deepvision;
 
-import jdk.internal.loader.AbstractClassLoaderValue;
 import pt.lsts.neptus.NeptusLog;
-import scala.sys.process.ProcessBuilderImpl;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -188,5 +186,13 @@ class SubsystemHolder {
     SubsystemHolder() {
         left = new ArrayList<>();
         right = new ArrayList<>();
+    }
+
+    public ArrayList<DvsReturn> getSubsystem(int subsystem) {
+        switch(subsystem) {
+            case 0: return left;
+            case 1: return right;
+        }
+        return null;
     }
 }
