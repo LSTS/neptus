@@ -151,4 +151,31 @@ public class DvsParser {
 
     public void cleanup() {
     }
+
+    private int findTimestampIndex(long timestamp) {
+        // Binary search the timestamps
+        int left = 0;
+        int right = posDataList.size() - 1;
+
+        if(timestamp < posDataList.get(0).getTimestamp() || timestamp > posDataList.get(right).getTimestamp()) {
+            return -1;
+        }
+
+        while (left < right) {
+            int middle = left + (right - left) / 2;
+            long middleTimestamp = posDataList.get(middle).getTimestamp();
+
+            if (middleTimestamp == timestamp) {
+                return middle;
+            }
+
+            if (timestamp > middleTimestamp) {
+                left = middle + 1;
+            } else {
+                right = middle - 1;
+            }
+        }
+
+        return left; // Return closest index
+    }
 }
