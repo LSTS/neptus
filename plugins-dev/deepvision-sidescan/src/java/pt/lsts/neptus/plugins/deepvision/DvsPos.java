@@ -50,4 +50,12 @@ public class DvsPos {
         this.timestamp = timestamp;
     }
 
+    public double getLatitudeDegrees() {
+        return Math.toDegrees(latitude);
+    }
+
+    public double getLongitudeDegrees() {
+        return Math.toDegrees(longitude);
+    }
+
 }
