@@ -32,6 +32,7 @@
  */
 package pt.lsts.neptus.plugins.deepvision;
 
+import jdk.internal.loader.AbstractClassLoaderValue;
 import pt.lsts.neptus.NeptusLog;
 import scala.sys.process.ProcessBuilderImpl;
 
@@ -52,14 +53,14 @@ public class DvsParser {
     DvsHeader dvsHeader;
     // List of the Ping Pos data
     ArrayList<DvsPos> posDataList;
-    // List of the Ping Return data
-    ArrayList<DvsReturn> returnDataList;
+    SubsystemHolder subsystems;
+
 
     public DvsParser(File file) {
         this.file = file;
         dvsHeader = new DvsHeader();
         posDataList = new ArrayList<>();
-        returnDataList = new ArrayList<>();
+        subsystems = new SubsystemHolder();
 
         readInData();
     }
@@ -113,13 +114,13 @@ public class DvsParser {
                 if (dvsHeader.isLeftChannelActive()) {
                     dst = new byte[dvsHeader.getnSamples()];
                     buffer.get(dst);
-                    returnDataList.add(new DvsReturn(dst));
+                    subsystems.left.add(new DvsReturn(dst));
                 }
 
                 if (dvsHeader.isRightChannelActive()) {
                     dst = new byte[dvsHeader.getnSamples()];
                     buffer.get(dst);
-                    returnDataList.add(new DvsReturn(dst));
+                    subsystems.right.add(new DvsReturn(dst));
                 }
 
                 filePosition += bufferSize;
@@ -177,5 +178,15 @@ public class DvsParser {
         }
 
         return left; // Return closest index
+    }
+}
+
+class SubsystemHolder {
+    ArrayList<DvsReturn> left;
+    ArrayList<DvsReturn> right;
+
+    SubsystemHolder() {
+        left = new ArrayList<>();
+        right = new ArrayList<>();
     }
 }
