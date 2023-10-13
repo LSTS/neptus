@@ -11,6 +11,13 @@ public class DvsReturn {
         return data;
     }
 
+    public double[] getDataAsDouble() {
+        double[] doubleData = new double[data.length];
+        for(int i = 0; i < doubleData.length; i++)
+            doubleData[i] = data[i];
+        return doubleData;
+    }
+
     public int getLength() {
         return data.length;
     }
