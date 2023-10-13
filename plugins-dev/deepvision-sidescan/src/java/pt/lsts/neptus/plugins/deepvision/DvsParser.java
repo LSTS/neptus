@@ -106,6 +106,7 @@ public class DvsParser {
                 dvsPos.setLongitude(buffer.getDouble());
                 dvsPos.setSpeed(buffer.getFloat());
                 dvsPos.setHeading(buffer.getFloat());
+                dvsPos.setTimestamp((long)(posDataList.size() / (dvsHeader.getLineRate() / 1000)));
                 posDataList.add(dvsPos);
 
                 byte[] dst;
@@ -137,7 +138,7 @@ public class DvsParser {
 
 
     public long getLastPingTimestamp() {
-        return (long)((posDataList.size() / dvsHeader.getLineRate()) * 1000);
+        return posDataList.get(posDataList.size() - 1).getTimestamp();
     }
 
     public long getFirstPingTimestamp() {

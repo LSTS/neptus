@@ -8,6 +8,8 @@ public class DvsPos {
     private float speed;        // [m/s]
     private float heading;      // [rad]
 
+    private long timestamp;     // milliseconds
+
     public double getLatitude() {
         return latitude;
     }
@@ -39,4 +41,13 @@ public class DvsPos {
     public void setHeading(float heading) {
         this.heading = heading;
     }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
+    }
+
 }
