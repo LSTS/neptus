@@ -125,7 +125,6 @@ import java.util.zip.Inflater;
         description = "Plugin to view IP Camera streams", icon = "images/menus/camera.png",
         category = PluginDescription.CATEGORY.INTERFACE)
 public class VideoStream extends ConsolePanel { // implements ItemListener {
-
     private static final String BASE_FOLDER_FOR_IMAGES = ConfigFetch.getLogsFolder() + "/images";
     private static final String BASE_FOLDER_FOR_URLINI = "ipUrl.ini";
     // Default width and heihgt of Console
@@ -1077,12 +1076,12 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
 
                                 if (saveSnapshot) {
                                     UtilCv.saveSnapshot(UtilCv.addText(UtilCv.histogramCv(offlineImage),
-                                                    I18n.text("Histogram - On"), Color.GREEN, offlineImage.getWidth() - 5, 20),
+                                                    I18n.text("Histogram - On"), Color.WHITE, offlineImage.getWidth() - 5, 20),
                                             String.format(logDir + "/snapshotImage"));
                                     saveSnapshot = false;
                                 }
                                 showImage(UtilCv.addText(UtilCv.histogramCv(offlineImage), I18n.text("Histogram - On"),
-                                        Color.GREEN, offlineImage.getWidth() - 5, 20));
+                                        Color.WHITE, offlineImage.getWidth() - 5, 20));
                             }
                             else {
                                 if (zoomMask) {
@@ -1094,14 +1093,11 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
                                 }
 
                                 if (saveSnapshot) {
-                                    UtilCv.saveSnapshot(
-                                            UtilCv.addText(offlineImage, I18n.text("Histogram - Off"), Color.RED,
-                                                    offlineImage.getWidth() - 5, 20),
+                                    UtilCv.saveSnapshot(offlineImage,
                                             String.format(logDir + "/snapshotImage"));
                                     saveSnapshot = false;
                                 }
-                                showImage(UtilCv.addText(offlineImage, I18n.text("Histogram - Off"), Color.RED,
-                                        offlineImage.getWidth() - 5, 20));
+                                showImage(offlineImage);
                             }
 
                             // // save image tag to disk
@@ -1384,39 +1380,35 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
             if (histogramflag) {
                 if (saveSnapshot) {
                     UtilCv.saveSnapshot(UtilCv.addText(UtilCv.histogramCv(offlineImage), I18n.text("Histogram - On"),
-                            Color.GREEN, offlineImage.getWidth() - 5, 20), String.format(logDir + "/snapshotImage"));
+                            Color.WHITE, offlineImage.getWidth() - 5, 20), String.format(logDir + "/snapshotImage"));
                     saveSnapshot = false;
                 }
-                showImage(UtilCv.addText(UtilCv.histogramCv(offlineImage), I18n.text("Histogram - On"), Color.GREEN,
+                showImage(UtilCv.addText(UtilCv.histogramCv(offlineImage), I18n.text("Histogram - On"), Color.WHITE,
                         offlineImage.getWidth() - 5, 20));
             }
             else {
                 if (saveSnapshot) {
-                    UtilCv.saveSnapshot(UtilCv.addText(offlineImage, I18n.text("Histogram - Off"), Color.RED,
-                            offlineImage.getWidth() - 5, 20), String.format(logDir + "/snapshotImage"));
+                    UtilCv.saveSnapshot(offlineImage, String.format(logDir + "/snapshotImage"));
                     saveSnapshot = false;
                 }
-                showImage(UtilCv.addText(offlineImage, I18n.text("Histogram - Off"), Color.RED,
-                        offlineImage.getWidth() - 5, 20));
+                showImage(offlineImage);
             }
 
             if (histogramflag) {
                 showImage(UtilCv.addText(UtilCv.histogramCv(UtilCv.matToBufferedImage(matResize)),
-                        I18n.text("Histogram - On"), Color.GREEN, matResize.cols() - 5, 20));
+                        I18n.text("Histogram - On"), Color.WHITE, matResize.cols() - 5, 20));
                 if (saveSnapshot) {
                     UtilCv.saveSnapshot(
                             UtilCv.addText(UtilCv.histogramCv(UtilCv.matToBufferedImage(matResize)),
-                                    I18n.text("Histogram - On"), Color.GREEN, matResize.cols() - 5, 20),
+                                    I18n.text("Histogram - On"), Color.WHITE, matResize.cols() - 5, 20),
                             String.format(logDir + "/snapshotImage"));
                     saveSnapshot = false;
                 }
             }
             else {
-                showImage(UtilCv.addText(UtilCv.matToBufferedImage(matResize), I18n.text("Histogram - Off"), Color.RED,
-                        matResize.cols() - 5, 20));
+                showImage(UtilCv.matToBufferedImage(matResize));
                 if (saveSnapshot) {
-                    UtilCv.saveSnapshot(UtilCv.addText(UtilCv.matToBufferedImage(matResize),
-                                    I18n.text("Histogram - On"), Color.RED, matResize.cols() - 5, 20),
+                    UtilCv.saveSnapshot(UtilCv.matToBufferedImage(matResize),
                             String.format(logDir + "/snapshotImage"));
                     saveSnapshot = false;
                 }
