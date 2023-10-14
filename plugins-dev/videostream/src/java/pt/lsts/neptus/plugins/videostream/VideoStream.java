@@ -531,15 +531,16 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
 
                     popup.addSeparator();
 
-                    popup.add(item = new JMenuItem(I18n.text("Config"),
-                                    ImageUtils.createImageIcon(String.format("images/menus/configure.png"))))
-                            .addActionListener(new ActionListener() {
-                                @Override
-                                public void actionPerformed(ActionEvent e) {
-                                    menu.setVisible(true);
-                                }
-                            });
-                    item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.ALT_MASK));
+                    // FIXME Config for now is hidden
+//                    popup.add(item = new JMenuItem(I18n.text("Config"),
+//                                    ImageUtils.createImageIcon(String.format("images/menus/configure.png"))))
+//                            .addActionListener(new ActionListener() {
+//                                @Override
+//                                public void actionPerformed(ActionEvent e) {
+//                                    menu.setVisible(true);
+//                                }
+//                            });
+//                    item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.ALT_MASK));
 
                     popup.add(item = new JMenuItem(I18n.text("Toggle Histogram filter"),
                                     ImageUtils.createImageIcon("images/menus/histogram.png")))
