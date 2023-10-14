@@ -121,7 +121,8 @@ import java.util.zip.Inflater;
 @SuppressWarnings("serial")
 @Popup(pos = POSITION.CENTER, width = 640, height = 480, accelerator = 'R')
 @LayerPriority(priority = 0)
-@PluginDescription(name = "Video Stream", version = "1.4", author = "Pedro Gonçalves", description = "Plugin to view IP Camera streams", icon = "images/menus/camera.png")
+@PluginDescription(name = "Video Stream", version = "1.4", author = "Pedro Gonçalves",
+        description = "Plugin to view IP Camera streams", icon = "images/menus/camera.png")
 public class VideoStream extends ConsolePanel implements ItemListener {
 
     private static final String BASE_FOLDER_FOR_IMAGES = ConfigFetch.getLogsFolder() + "/images";
@@ -133,7 +134,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
     // Timeout for watchDogThread in milliseconds
     private static final int WATCH_DOG_TIMEOUT = 4000;
 
-    @NeptusProperty(name = "Axis Camera RTPS URL", editable = false)
+    @NeptusProperty(name = "Axis Camera RTSP URL", editable = false)
     private String camRtpsUrl = "rtsp://10.0.20.207:554/live/ch01_0";
 
     @NeptusProperty(name = "Cam Tilt Deg Value", editable = true)
@@ -321,7 +322,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
         updateSizeVariables(this);
 
         if (findOpenCV()) {
-            NeptusLog.pub().info(I18n.text("OpenCv-4.4.0 found."));
+            NeptusLog.pub().info(I18n.text("OpenCv-4.x.x found."));
             // clears all the unused initializations of the standard ConsolePanel
             removeAll();
             // Resize Console
@@ -573,6 +574,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                     popup.addSeparator();
 
                     JLabel infoZoom = new JLabel(I18n.text("For zoom use Alt-Z"));
+                    infoZoom.setEnabled(false);
                     popup.add(infoZoom, JMenuItem.CENTER_ALIGNMENT);
                     popup.show((Component) e.getSource(), e.getX(), e.getY());
                 }
@@ -889,7 +891,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
         config = new JPanel(new MigLayout());
 
         // JCheckBox save to HD
-        saveToDiskCheckBox = new JCheckBox(I18n.text("Save Image to Disk"));
+        saveToDiskCheckBox = new JCheckBox(I18n.text("Save as image to disk"));
         saveToDiskCheckBox.setMnemonic(KeyEvent.VK_C);
         saveToDiskCheckBox.setSelected(false);
         saveToDiskCheckBox.addItemListener(this);
@@ -909,10 +911,10 @@ public class VideoStream extends ConsolePanel implements ItemListener {
         txtData.setText(info);
         config.add(txtData, "cell 0 6 3 1, wrap");
 
-        menu = new JDialog(SwingUtilities.getWindowAncestor(VideoStream.this), I18n.text("Menu Config"));
+        menu = new JDialog(getConsole(), I18n.text("Menu Config"));
         menu.setResizable(false);
         menu.setModalityType(ModalityType.DOCUMENT_MODAL);
-        menu.setSize(450, 350);
+        menu.setSize(450, 200);
         menu.setLocationRelativeTo(VideoStream.this);
         menu.setVisible(show_menu);
         ImageIcon imgMenu = ImageUtils.createImageIcon(String.format("images/menus/configure.png"));
@@ -1034,13 +1036,13 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                             capture.open(camRtpsUrl);
                             if (capture.isOpened()) {
                                 state = true;
-                                NeptusLog.pub().info("Video Strem from IPCam is captured");
+                                NeptusLog.pub().info("Video Stream from IPCam is captured");
                                 startWatchDog();
                                 isCleanTurnOffCam = false;
                             }
                             else {
                                 ipCam = false;
-                                NeptusLog.pub().info("Video Strem from IPCam is not captured");
+                                NeptusLog.pub().info("Video Stream from IPCam is not captured");
                             }
                         }
                         // IPCam Capture
