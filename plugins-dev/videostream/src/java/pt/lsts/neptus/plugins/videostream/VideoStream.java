@@ -87,8 +87,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.InputEvent;
 import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
@@ -107,6 +107,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
@@ -116,9 +117,7 @@ import java.util.zip.Inflater;
  *
  * @author pedrog
  * @author Pedro Costa
- * @category Vision
  */
-@SuppressWarnings("serial")
 @Popup(pos = POSITION.CENTER, width = 640, height = 480, accelerator = 'R')
 @LayerPriority(priority = 0)
 @PluginDescription(name = "Video Stream", version = "1.4.1", author = "Pedro Gonçalves",
@@ -507,7 +506,7 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
                                     openIPCamManagementPanel();
                                 }
                             });
-                    item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, ActionEvent.ALT_MASK));
+                    item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, InputEvent.ALT_MASK));
 
                     popup.add(item = new JMenuItem(I18n.text("Close connections"),
                                     ImageUtils.createImageIcon(String.format("images/menus/exit.png"))))
@@ -528,7 +527,7 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
                                     ipCam = false;
                                 }
                             });
-                    item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, ActionEvent.ALT_MASK));
+                    item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, InputEvent.ALT_MASK));
 
                     popup.addSeparator();
 
@@ -540,7 +539,7 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
                                     menu.setVisible(true);
                                 }
                             });
-                    item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, ActionEvent.ALT_MASK));
+                    item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.ALT_MASK));
 
                     popup.add(item = new JMenuItem(I18n.text("Toggle Histogram filter"),
                                     ImageUtils.createImageIcon("images/menus/histogram.png")))
@@ -549,13 +548,11 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
                                     histogramflag = !histogramflag;
                                 }
                             });
-                    item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, ActionEvent.ALT_MASK));
+                    item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, InputEvent.ALT_MASK));
 
                     JCheckBoxMenuItem itemChecked;
                     popup.add(itemChecked = new JCheckBoxMenuItem("Save stream as images to disk", flagBuffImg));
-                    itemChecked.addItemListener(e1 -> {
-                        flagBuffImg = e1.getStateChange() == ItemEvent.SELECTED;
-                    });
+                    itemChecked.addItemListener(e1 -> flagBuffImg = e1.getStateChange() == ItemEvent.SELECTED);
 
                     popup.add(item = new JMenuItem(I18n.text("Take snapshot"),
                                     ImageUtils.createImageIcon("images/menus/snapshot.png")))
@@ -564,7 +561,7 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
                                     saveSnapshot = true;
                                 }
                             });
-                    item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.ALT_MASK));
+                    item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.ALT_MASK));
 
                     popup.add(item = new JMenuItem(I18n.text("Maximize window"),
                                     ImageUtils.createImageIcon("images/menus/maximize.png")))
@@ -573,7 +570,7 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
                                     maximizeVideoStreamPanel();
                                 }
                             });
-                    item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, ActionEvent.ALT_MASK));
+                    item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.ALT_MASK));
 
                     popup.addSeparator();
 
@@ -676,7 +673,7 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
 
         colorStateIPCam = new JPanel();
         onOffIndicator = new JLabel(I18n.text("OFF"));
-        onOffIndicator.setFont(new Font("Verdana", 1, 14));
+        onOffIndicator.setFont(new Font("Verdana", Font.BOLD, 14));
         colorStateIPCam.setBackground(Color.RED);
         colorStateIPCam.add(onOffIndicator);
         ipCamManagementPanel.add(colorStateIPCam, "h 30!, w 30!");
@@ -897,14 +894,14 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
         // JLabel info Data received
         txtText = new JLabel();
         txtText.setToolTipText(I18n.text("Info of Frame Received"));
-        info = String.format("Img info");
+        info = "Img info";
         txtText.setText(info);
         config.add(txtText, "cell 0 4 3 1, wrap");
 
         // JLabel info
         txtData = new JLabel();
         txtData.setToolTipText(I18n.text("Info of GPS Received over IMC"));
-        info = String.format("GPS IMC");
+        info = "GPS IMC";
         txtData.setText(info);
         config.add(txtData, "cell 0 6 3 1, wrap");
 
@@ -914,7 +911,7 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
         menu.setSize(450, 200);
         menu.setLocationRelativeTo(VideoStream.this);
         menu.setVisible(show_menu);
-        ImageIcon imgMenu = ImageUtils.createImageIcon(String.format("images/menus/configure.png"));
+        ImageIcon imgMenu = ImageUtils.createImageIcon("images/menus/configure.png");
         menu.setIconImage(imgMenu.getImage());
         menu.add(config);
     }
@@ -1526,7 +1523,7 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
     }
 
     private void startWatchDog() {
-        if (watchDog.getState().toString() != "TIMED_WAITING") {
+        if (!Objects.equals(watchDog.getState().toString(), "TIMED_WAITING")) {
             watchDog.start();
         }
     }
