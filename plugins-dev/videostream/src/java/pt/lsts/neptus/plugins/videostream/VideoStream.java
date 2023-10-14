@@ -1096,18 +1096,6 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
                                 }
                                 showImage(offlineImage);
                             }
-
-                            // // save image tag to disk
-                            // if (snap != null) {
-                            // try {
-                            // snap.capture = offlineImage;
-                            // snap.store();
-                            // snap = null;
-                            // }
-                            // catch (IOException e) {
-                            // e.printStackTrace();
-                            // }
-                            // }
                         }
                     }
                     else {
