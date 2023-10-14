@@ -121,8 +121,9 @@ import java.util.zip.Inflater;
 @SuppressWarnings("serial")
 @Popup(pos = POSITION.CENTER, width = 640, height = 480, accelerator = 'R')
 @LayerPriority(priority = 0)
-@PluginDescription(name = "Video Stream", version = "1.4", author = "Pedro Gonçalves",
-        description = "Plugin to view IP Camera streams", icon = "images/menus/camera.png")
+@PluginDescription(name = "Video Stream", version = "1.4.1", author = "Pedro Gonçalves",
+        description = "Plugin to view IP Camera streams", icon = "images/menus/camera.png",
+        category = PluginDescription.CATEGORY.INTERFACE)
 public class VideoStream extends ConsolePanel { // implements ItemListener {
 
     private static final String BASE_FOLDER_FOR_IMAGES = ConfigFetch.getLogsFolder() + "/images";
