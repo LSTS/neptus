@@ -123,7 +123,7 @@ import java.util.zip.Inflater;
 @LayerPriority(priority = 0)
 @PluginDescription(name = "Video Stream", version = "1.4", author = "Pedro Gonçalves",
         description = "Plugin to view IP Camera streams", icon = "images/menus/camera.png")
-public class VideoStream extends ConsolePanel implements ItemListener {
+public class VideoStream extends ConsolePanel { // implements ItemListener {
 
     private static final String BASE_FOLDER_FOR_IMAGES = ConfigFetch.getLogsFolder() + "/images";
     private static final String BASE_FOLDER_FOR_URLINI = "ipUrl.ini";
@@ -208,8 +208,6 @@ public class VideoStream extends ConsolePanel implements ItemListener {
     private JLabel txtDataTcp;
     // JFrame for menu options
     private JDialog menu;
-    // CheckBox to save image to HD
-    private JCheckBox saveToDiskCheckBox;
     // JPopup Menu
     private JPopupMenu popup;
 
@@ -553,6 +551,12 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                             });
                     item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, ActionEvent.ALT_MASK));
 
+                    JCheckBoxMenuItem itemChecked;
+                    popup.add(itemChecked = new JCheckBoxMenuItem("Save stream as images to disk", flagBuffImg));
+                    itemChecked.addItemListener(e1 -> {
+                        flagBuffImg = e1.getStateChange() == ItemEvent.SELECTED;
+                    });
+
                     popup.add(item = new JMenuItem(I18n.text("Take snapshot"),
                                     ImageUtils.createImageIcon("images/menus/snapshot.png")))
                             .addActionListener(new ActionListener() {
@@ -890,13 +894,6 @@ public class VideoStream extends ConsolePanel implements ItemListener {
         // JPanel for info and config values
         config = new JPanel(new MigLayout());
 
-        // JCheckBox save to HD
-        saveToDiskCheckBox = new JCheckBox(I18n.text("Save as image to disk"));
-        saveToDiskCheckBox.setMnemonic(KeyEvent.VK_C);
-        saveToDiskCheckBox.setSelected(false);
-        saveToDiskCheckBox.addItemListener(this);
-        config.add(saveToDiskCheckBox, "width 160:180:200, h 40!, wrap");
-
         // JLabel info Data received
         txtText = new JLabel();
         txtText.setToolTipText(I18n.text("Info of Frame Received"));
@@ -920,20 +917,6 @@ public class VideoStream extends ConsolePanel implements ItemListener {
         ImageIcon imgMenu = ImageUtils.createImageIcon(String.format("images/menus/configure.png"));
         menu.setIconImage(imgMenu.getImage());
         menu.add(config);
-    }
-
-    @Override
-    public void itemStateChanged(ItemEvent e) {
-        // checkbox listener
-        Object source = e.getItemSelectable();
-        if (source == saveToDiskCheckBox) {
-            if (ipCam && saveToDiskCheckBox.isSelected()) {
-                flagBuffImg = true;
-            }
-            if (!ipCam || !saveToDiskCheckBox.isSelected()) {
-                flagBuffImg = false;
-            }
-        }
     }
 
     /*
