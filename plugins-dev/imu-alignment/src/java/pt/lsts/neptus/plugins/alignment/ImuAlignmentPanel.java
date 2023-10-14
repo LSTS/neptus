@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2021 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -55,15 +55,18 @@ import pt.lsts.imc.EntityState;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.QueryEntityActivationState;
 import pt.lsts.imc.SetEntityParameters;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.SpeedType;
 import pt.lsts.neptus.mp.SpeedType.Units;
+import pt.lsts.neptus.mp.maneuvers.ManeuversUtil;
 import pt.lsts.neptus.mp.templates.PlanCreator;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
@@ -71,6 +74,7 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.PlanUtil;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
@@ -93,9 +97,6 @@ public class ImuAlignmentPanel extends ConsolePanel implements IPeriodicUpdates 
     @NeptusProperty(name="IMU Entity Label", userLevel=LEVEL.ADVANCED)
     public String imuEntity = "IMU";
 
-    @NeptusProperty(name="Navigation Entity Label", userLevel=LEVEL.ADVANCED)
-    public String navEntity = "Navigation";
-
     @NeptusProperty(name="Square Side Length", userLevel=LEVEL.REGULAR)
     public double squareSideLength = 80;
 
@@ -109,6 +110,7 @@ public class ImuAlignmentPanel extends ConsolePanel implements IPeriodicUpdates 
     public boolean useAudioAlerts = true;
     
     private boolean aligned = false;
+    private boolean hasImu = true;
     
     protected ImageIcon greenLed = ImageUtils.getIcon("pt/lsts/neptus/plugins/alignment/led_green.png");
     protected ImageIcon redLed = ImageUtils.getIcon("pt/lsts/neptus/plugins/alignment/led_red.png");
@@ -153,9 +155,12 @@ public class ImuAlignmentPanel extends ConsolePanel implements IPeriodicUpdates 
     public boolean update() {
         int imuId = EntitiesResolver.resolveId(getMainVehicleId(), imuEntity);
         if (imuId != -1) {
+            hasImu = true;
             QueryEntityActivationState qeas = new QueryEntityActivationState();
             qeas.setDstEnt(imuId);
             send(qeas);
+        } else {
+            hasImu = false;
         }
        
         status.setText(updateState());
@@ -208,27 +213,44 @@ public class ImuAlignmentPanel extends ConsolePanel implements IPeriodicUpdates 
             return "<html><h1>"+I18n.text("Waiting for alignment state")+"</h1></html>";
         switch(alignState.getState()) {
             case ALIGNED:
+            case SYSTEM_READY:
                 // enableImu.setIcon(greenLed);
                 enableImu.setToolTipText(I18n.text("Navigation aligned. Vehicle can be used in dead reckoning mode."));
-                enableImu.setEnabled(true);
+                if (hasImu == true)
+                    enableImu.setEnabled(true);
                 return "<html><h1><font color='green'>"+I18n.text("Navigation aligned")+"</font></h1>"
-                +"<p>"+I18n.text("Vehicle can now be used to execute dead reckoning missions.")+"</p>"
-                +"</html>";
+                    +"<p>"+I18n.text("Vehicle can now be used to execute dead reckoning missions.")+"</p>"
+                    +"</html>";
             case NOT_ALIGNED:
                 // enableImu.setIcon(redLed);
-                enableImu.setEnabled(true);
+                if (hasImu == true)
+                    enableImu.setEnabled(true);
                 enableImu.setToolTipText(I18n.text("Navigation not aligned"));
                 return "<html><h1><font color='red'>"+I18n.text("Navigation not aligned")+"</font></h1>"
-                +"<p>"+I18n.text("To execute dead reckoning missions, align Navigation.")+"</p>"
-                +"</html>";
+                    +"<p>"+I18n.text("To execute dead reckoning missions, align Navigation.")+"</p>"
+                    +"</html>";
+            case COARSE_ALIGNMENT:
+                if (hasImu == true)
+                    enableImu.setEnabled(true);
+                enableImu.setToolTipText(I18n.text("Navigation coarse alignment"));
+                return "<html><h1><font color='red'>"+I18n.text("Navigation coarse alignment")+"</font></h1>"
+                        +"<p>"+I18n.text("Coarse aligned, proceed to the next step for finer alignment.")+"</p>"
+                        +"</html>";
+            case FINE_ALIGNMENT:
+                if (hasImu == true)
+                    enableImu.setEnabled(true);
+                enableImu.setToolTipText(I18n.text("Navigation fine alignment"));
+                return "<html><h1><font color='orange'>"+I18n.text("Navigation fine alignment")+"</font></h1>"
+                        +"<p>"+I18n.text("Fine aligned, put the vehicle running the alignment plan.")+"</p>"
+                        +"</html>";
             default:
                 // enableImu.setIcon(grayLed);
                 enableImu.setEnabled(false);
                 enableImu.setToolTipText(I18n.textf("Dead reckoning not supported on %vehicle", alignState.getSourceName()));
                 enableImu.setSelected(false);
                 return "<html><h1><font color='red'>"+I18n.text("IMU not available")+"</font></h1>"
-                +"<p>"+I18n.text("This vehicle does not support dead reckoning.")+"</p>"
-                +"</html>";
+                    +"<p>"+I18n.text("This vehicle does not support dead reckoning.")+"</p>"
+                    +"</html>";
         }
     }
 
@@ -256,15 +278,25 @@ public class ImuAlignmentPanel extends ConsolePanel implements IPeriodicUpdates 
             pc.setSpeed(alignSpeed);
             pc.setZ(0, ManeuverLocation.Z_UNITS.DEPTH);
 
-            pc.addGoto(null);
-            pc.move(squareSideLength, 0);
-            pc.addGoto(null);
-            pc.move(0, -squareSideLength);
-            pc.addGoto(null);
-            pc.move(-squareSideLength, 0);
-            pc.addGoto(null);
-            pc.move(0, squareSideLength);
-            pc.addGoto(null);
+            if (hasImu) {
+                pc.addGoto(null);
+                pc.move(squareSideLength, 0);
+                pc.addGoto(null);
+                pc.move(0, -squareSideLength);
+                pc.addGoto(null);
+                pc.move(-squareSideLength, 0);
+                pc.addGoto(null);
+                pc.move(0, squareSideLength);
+                pc.addGoto(null);
+            } else {
+                Vector<double[]> points = ManeuversUtil.calcRowsPoints(squareSideLength, squareSideLength,
+                        20, 1.0, 0, true, 0.0, 0, true);
+                for (double[] pt : points) {
+                    pc.move(pt[0], pt[1]);
+                    pc.addGoto(null);
+                    pc.move(-pt[0], -pt[1]);
+                }
+            }
             
             PlanType pt = pc.getPlan();
             pt.setId("alignment_template");

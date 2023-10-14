@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2021 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -54,12 +54,14 @@ import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-
 import com.google.common.eventbus.Subscribe;
 
 import net.miginfocom.swing.MigLayout;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.config.LoggerConfig;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.IMCOutputStream;
 import pt.lsts.imc.SonarData;
@@ -389,8 +391,12 @@ public class MultibeamRealTimeWaterfall extends ConsolePanel implements Configur
         boolean printDebug = false;
         boolean exitOnFirst = true;
 
-        Logger.getRootLogger().setLevel(Level.INFO);
-        
+        LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+        Configuration config = ctx.getConfiguration();
+        LoggerConfig loggerConfig = config.getLoggerConfig(LogManager.ROOT_LOGGER_NAME);
+        loggerConfig.setLevel(Level.INFO);
+        ctx.updateLoggers();
+
         try {
             LsfLogSource source = new LsfLogSource(dataFile, null);
             DeltaTParser mbParser = new DeltaTParser(source);

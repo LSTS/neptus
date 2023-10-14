@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2021 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -164,9 +164,12 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
         Renderer2DPainter, SystemPainterProvider, IEditorMenuExtension, ConfigurationListener, SubPanelChangeListener,
         ISystemsSelection {
 
-    private static boolean printPaintDebug = false;
-
     private final int ICON_SIZE = 20;
+    public static final int LOD_MIN_TO_SHOW_LABEL = 11;
+    public static final int LOD_MIN_TO_SHOW_SPEED_VECTOR = 9;
+    public static final int LOD_MIN_OFFSET_FOR_EXTERNAL = 4;
+
+    private static boolean printPaintDebug = false;
     private final Icon ICON_EDIT = ImageUtils.getScaledIcon("images/buttons/edit2.png", ICON_SIZE, ICON_SIZE);
     private final Icon ICON_CLEAR = ImageUtils.getScaledIcon("images/systems/selection-clear.png", ICON_SIZE,
             ICON_SIZE);
@@ -245,6 +248,10 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
     @NeptusProperty(name = "Renderer Icons Size", description = "Configures the system symbols size for the renderer", 
             category = "Layout", userLevel = LEVEL.REGULAR)
     public int rendererIconsSize = 25;
+
+    @NeptusProperty(name = "Adapt Icons Size with Zoom", description = "Configures the system symbols size reducing with zoom for declustering",
+            category = "Layout", userLevel = LEVEL.REGULAR)
+    public boolean adaptIconsSizeWithZoom = true;
 
     @NeptusProperty(name = "Show Systems Icons That Are Filtered Out", description = "If true, if this component will show systems icons on renderer that were filtered out. Option to show system icons has to be enabled", 
             category = "Systems in Renderer", userLevel = LEVEL.REGULAR)
@@ -1880,7 +1887,8 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
 
     private void drawImcSystem(StateRenderer2D renderer, Graphics2D g, ImcSystem sys, Color color, boolean drawLabel) {
         Graphics2D g2 = (Graphics2D) g.create();
-        double iconWidth = rendererIconsSize; // 20
+        int lod = renderer.getLevelOfDetail();
+        double iconWidth = calculateSystemIconSize(rendererIconsSize, renderer.getLevelOfDetail()); // 20
 
         boolean isLocationKnownUpToDate = SystemPainterHelper.isLocationKnown(sys);
 
@@ -1907,18 +1915,45 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
         }
 
         // To paint the system name on the render
-        if (drawLabel /* !viewInfoOSDSwitch.isSelected() && !viewExtendedOSDSwitch.isSelected() */&& drawSystemLabel)
+        if (lod >= LOD_MIN_TO_SHOW_LABEL && drawLabel && drawSystemLabel) {
+            /* !viewInfoOSDSwitch.isSelected() && !viewExtendedOSDSwitch.isSelected() */
             SystemPainterHelper.drawSystemNameLabel(g2, sys.getName(), color, iconWidth, isLocationKnownUpToDate);
+        }
         
-        if (drawSystemLocAge)
+        if (lod >= LOD_MIN_TO_SHOW_LABEL && drawSystemLocAge) {
             SystemPainterHelper.drawSystemLocationAge(g2, sys.getLocationTimeMillis(), color, iconWidth, isLocationKnownUpToDate);
+        }
 
         // To draw the course/speed vector
-        SystemPainterHelper.drawCourseSpeedVectorForSystem(renderer, g2, sys, iconWidth, isLocationKnownUpToDate,
-                minimumSpeedToBeStopped);
+        if (lod >= LOD_MIN_TO_SHOW_SPEED_VECTOR) {
+            SystemPainterHelper.drawCourseSpeedVectorForSystem(renderer, g2, sys, iconWidth, isLocationKnownUpToDate,
+                    minimumSpeedToBeStopped);
+        }
 
         g2.dispose();
     }
+
+    private double calculateSystemIconSize(int rendererIconsSize, int levelOfDetail) {
+        if (!adaptIconsSizeWithZoom) {
+            return rendererIconsSize;
+        }
+
+        if (levelOfDetail <= 9) {
+            return rendererIconsSize * 0.1;
+        }
+        if (levelOfDetail <= 11) {
+            return rendererIconsSize * 0.2;
+        }
+        if (levelOfDetail <= 13) {
+            return rendererIconsSize * 0.4;
+        }
+        if (levelOfDetail <= 15) {
+            return rendererIconsSize * 0.6;
+        }
+        return rendererIconsSize;
+    }
+
+
 
     /**
      * @param sys
@@ -2008,7 +2043,8 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
 
     private void drawExternalSystem(StateRenderer2D renderer, Graphics2D g, ExternalSystem sys, Color color) {
         Graphics2D g2 = (Graphics2D) g.create();
-        double iconWidth = rendererIconsSize; // 20
+        int lod = renderer.getLevelOfDetail();
+        double iconWidth = calculateSystemIconSize(rendererIconsSize, renderer.getLevelOfDetail()); // 20
 
         boolean isLocationKnownUpToDate = SystemPainterHelper.isLocationKnown(sys.getLocation(),
                 sys.getLocationTimeMillis());
@@ -2073,16 +2109,18 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
         // }
 
         // To paint the system name on the render
-        if (/* !viewInfoOSDSwitch.isSelected() && !viewExtendedOSDSwitch.isSelected() && */drawSystemLabel)
+        if (lod >= (LOD_MIN_TO_SHOW_LABEL + LOD_MIN_OFFSET_FOR_EXTERNAL) && drawSystemLabel) {
+            /* !viewInfoOSDSwitch.isSelected() && !viewExtendedOSDSwitch.isSelected() && */
             SystemPainterHelper.drawSystemNameLabel(g2, sys.getName(), color, iconWidth, isLocationKnownUpToDate);
+        }
         
-        if (drawSystemLocAge)
+        if (lod >= (LOD_MIN_TO_SHOW_LABEL + LOD_MIN_OFFSET_FOR_EXTERNAL) && drawSystemLocAge) {
             SystemPainterHelper.drawSystemLocationAge(g2, sys.getLocationTimeMillis(), color, iconWidth, isLocationKnownUpToDate);
-
+        }
 
         // To draw the course/speed vector
         Object obj = sys.retrieveData(SystemUtils.COURSE_DEGS_KEY);
-        if (obj != null) {
+        if (lod >= (LOD_MIN_TO_SHOW_SPEED_VECTOR + LOD_MIN_OFFSET_FOR_EXTERNAL) && obj != null) {
             double courseDegrees = ((Number) obj).doubleValue();
             obj = sys.retrieveData(SystemUtils.GROUND_SPEED_KEY);
             if (obj != null) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2021 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -35,6 +35,9 @@ package pt.lsts.neptus.plugins.position.painter;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
@@ -43,6 +46,7 @@ import com.google.common.eventbus.Subscribe;
 
 import pt.lsts.imc.CpuUsage;
 import pt.lsts.imc.Current;
+import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.FuelLevel;
 import pt.lsts.imc.GpsFix;
 import pt.lsts.imc.Heartbeat;
@@ -72,7 +76,7 @@ import pt.lsts.neptus.util.MathMiscUtils;
 @LayerPriority(priority = 70)
 public class SystemInfoPainter extends ConsoleLayer {
 
-    private static final String GPS_DIFF = I18n.textc("DIFF", "Differencial GPS. Use a single small word");
+    private static final String GPS_DIFF = I18n.textc("DIFF", "Differential GPS. Use a single small word");
     private static final String GPS_3D = I18n.textc("3D", "Use a single small word");
     private static final String GPS_2D = I18n.textc("2D", "Use a single small word");
     private static final String GPS_NO_FIX = I18n.textc("NoFix", "Use a single small word");
@@ -96,6 +100,10 @@ public class SystemInfoPainter extends ConsoleLayer {
 
     @NeptusProperty(name = "Display Current", description = "Display drawn Current on panel")
     public boolean showCurrent = false;
+    @NeptusProperty(name = "Display Depth", description = "Display depth on panel")
+    public boolean showDepth = true;
+    @NeptusProperty(name = "Display Altitude", description = "Display altitude on panel")
+    public boolean showAltitude = true;
 
     @NeptusProperty(name = "Display GPS", description = "Display GPS fix status on panel")
     public boolean showGPS = false;
@@ -117,6 +125,8 @@ public class SystemInfoPainter extends ConsoleLayer {
 
     private int hbCount = 0;
     private int lastHbCount = 0;
+    private double depth = -1;
+    private double altitude = -1;
 
     @Override
     public void initLayer() {
@@ -169,7 +179,19 @@ public class SystemInfoPainter extends ConsoleLayer {
                 lastHbCount = 5;
             String txt = "<html>";
             txt += "<b>" + strCpu + ":</b> <font color=" + getColor(cpuUsage, true, commsDead) + ">" + cpuUsage
-                    + "%</font><br/>";
+                    + "%</font>";
+            if (showDepth || showAltitude) {
+                List<String> daStrs = new ArrayList<>();
+                if (showDepth) {
+                    daStrs.add("<b>D:</b> " + (depth >= 0 ? (int) (depth * 10) / 10.0 : "&nbsp;-&nbsp;"));
+                }
+                if (showAltitude) {
+                    daStrs.add("<b>A:</b> " + (altitude >= 0 ? (int) (altitude * 10) / 10.0 : "&nbsp;-&nbsp;"));
+                }
+                txt += (daStrs.isEmpty() ? "" : "&nbsp;&nbsp;&nbsp;&nbsp;")
+                        + daStrs.stream().collect(Collectors.joining("&nbsp;&nbsp;"));
+            }
+            txt += "<br/>";
             txt += "<b>" + strFuel + ":</b> <font color=" + getColor(fuelLevel, false, commsDead) + ">"
                     + (int) Math.round(fuelLevel) + "%</font> <font color=#cccccc>(" + (int) (batteryVoltage * 10) / 10f + "V";
             if (showCurrent)
@@ -308,6 +330,15 @@ public class SystemInfoPainter extends ConsoleLayer {
     }
 
     @Subscribe
+    public void consume(EstimatedState msg) {
+        if (!msg.getSourceName().equals(mainSysName))
+            return;
+
+        depth = msg.getDepth();
+        altitude = msg.getAlt();
+    }
+
+    @Subscribe
     public void consume(ConsoleEventMainSystemChange ev) {
         // Resolve Batteries entity ID to check battery values
         batteryVoltage = 0.0;
@@ -320,6 +351,8 @@ public class SystemInfoPainter extends ConsoleLayer {
         fixQuality = 0;
         fixHdop = 0.0;
         mainSysName = ev.getCurrent();
+        depth = -1;
+        altitude = -1;
 
         ImcSystemState state = getState();
         if (state != null) {
@@ -337,6 +370,11 @@ public class SystemInfoPainter extends ConsoleLayer {
             }
             catch (Exception e) {
                 batteryVoltage = 0.0;
+            }
+            if (state.last(EstimatedState.class) != null) {
+                EstimatedState es = state.last(EstimatedState.class);
+                depth = es.getDepth();
+                altitude = es.getAlt();
             }
         }
     }

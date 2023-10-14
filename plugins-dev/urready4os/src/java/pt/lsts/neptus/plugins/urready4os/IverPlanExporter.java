@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2021 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -33,6 +33,7 @@
 package pt.lsts.neptus.plugins.urready4os;
 
 import java.io.File;
+import java.nio.charset.Charset;
 import java.util.Locale;
 
 import javax.swing.ProgressMonitor;
@@ -221,7 +222,7 @@ public class IverPlanExporter implements IPlanFileExporter {
         template = template.replaceAll("\\$\\{centerLat\\}", String.format(Locale.US, "%.6f", (minLat + maxLat) / 2));
         template = template.replaceAll("\\$\\{centerLon\\}", String.format(Locale.US, "%.6f", (minLon + maxLon) / 2));
 
-        FileUtils.write(out, template);
+        FileUtils.write(out, template, (Charset) null);
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2021 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -78,7 +78,9 @@ public class SoiPlanRenderer implements Renderer2DPainter {
     public void paint(Graphics2D g0, StateRenderer2D renderer) {
         if (plan != null && !plan.waypoints().isEmpty()) {
             LocationType lastLoc = null;
-            if (getVehicle() != null && !plan.waypoints().isEmpty() && plan.waypoint(0).getArrivalTime().after(new Date())) {
+            if (getVehicle() != null && !plan.waypoints().isEmpty() &&
+                    plan.waypoint(0).getArrivalTime() != null &&
+                    plan.waypoint(0).getArrivalTime().after(new Date())) {
                 lastLoc = ImcSystemsHolder.getSystemWithName(getVehicle()).getLocation();
             }
             Graphics2D g = (Graphics2D) g0.create();
@@ -89,18 +91,32 @@ public class SoiPlanRenderer implements Renderer2DPainter {
                 if (lastLoc != null) {
                     Point2D lastPT = renderer.getScreenPosition(lastLoc);
                     g.setColor(color.darker());
-                    g.setStroke(new BasicStroke(2.5f));
+                    g.setStroke(new BasicStroke(1.5f));
                     g.draw(new Line2D.Double(lastPT.getX(), lastPT.getY(), pt2d.getX(), pt2d.getY()));
                 }
                 lastLoc = loc;
             }
-            
+
+            boolean isFirstWP = true;
+            {
+                Waypoint wpt = plan.waypoints().get(plan.waypoints().size() - 1);
+                LocationType loc = new LocationType(wpt.getLatitude(), wpt.getLongitude());
+                Point2D pt2d = renderer.getScreenPosition(loc);
+                paintCircle(pt2d, new Color(0, 0, 0, 0), 8, g);
+            }
             for (Waypoint wpt : plan.waypoints()) {
                 LocationType loc = new LocationType(wpt.getLatitude(), wpt.getLongitude());
                 Point2D pt2d = renderer.getScreenPosition(loc);
-                
+
+                if (isFirstWP) {
+                    isFirstWP = false;
+                    String txt = (getVehicle() != null ? getVehicle().toLowerCase() : "") + "@" + plan.getPlanId();
+                    g.setColor(Color.black);
+                    g.drawString(txt, (int) pt2d.getX() + 6, (int) pt2d.getY() - 3 - 16);
+                }
+
                 if (wpt.getArrivalTime() != null && wpt.getArrivalTime().before(new Date())) {
-                    paintCircle(pt2d, color, 8, g);
+                    paintCircle(pt2d, color, 4, g);
                     g.setColor(Color.black);
                     String minsToEta = "ETA: -" + DateTimeUtil
                             .milliSecondsToFormatedString(-wpt.getArrivalTime().getTime() + System.currentTimeMillis());
@@ -112,10 +128,11 @@ public class SoiPlanRenderer implements Renderer2DPainter {
                         minsToEta = "ETA: " + DateTimeUtil
                                 .milliSecondsToFormatedString(wpt.getArrivalTime().getTime() - System.currentTimeMillis());
 
-                    paintCircle(pt2d, Color.green.darker(), 8, g);
+                    paintCircle(pt2d, Color.green.darker(), 4, g);
                     g.setColor(Color.black);
                     g.drawString(minsToEta, (int) pt2d.getX() + 6, (int) pt2d.getY() - 3);
                 }
+
             }
             g.dispose();
         }

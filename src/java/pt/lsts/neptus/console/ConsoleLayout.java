@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2021 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -276,11 +276,15 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         ConsoleLayout instance = new ConsoleLayout();
         instance.imcOn();
 
+        addBaseLayoutOnEmptyConsole(instance);
+
+        return forgeWorkerTidyUp(instance, true, true, loader);
+    }
+
+    private static void addBaseLayoutOnEmptyConsole(ConsoleLayout instance) {
         MigLayoutContainer migCont = new MigLayoutContainer(instance);
         instance.getMainPanel().addSubPanel(migCont, 0, 0);
         migCont.init();
-
-        return forgeWorkerTidyUp(instance, true, true, loader);
     }
 
     /**
@@ -447,7 +451,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
             int eventType = e.getID(); // KeyEvent.KEY_PRESSED KeyEvent.KEY_RELEASED KEY_TYPED
 
             Action action = globalKeybindings
-                    .get(KeyStroke.getKeyStroke(e.getKeyCode(), e.getModifiers()).toString());
+                    .get(KeyStroke.getKeyStroke(e.getKeyCode(), e.getModifiersEx()).toString());
             if (action != null && eventType == KeyEvent.KEY_PRESSED) {
                 action.actionPerformed(null);
                 return true;
@@ -1080,17 +1084,18 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
 
     public boolean saveFile() {
         if (fileName == null)
-            return saveasFile();
+            return saveAsFile();
 
         if (new File(fileName.getAbsolutePath()).exists())
             FileUtil.backupFile(fileName.getAbsolutePath());
 
-        FileUtil.saveToFile(fileName.getAbsolutePath(), FileUtil.getAsPrettyPrintFormatedXMLString(asDocument()));
+        FileUtil.saveToFile(fileName.getAbsolutePath(),
+                FileUtil.getAsPrettyPrintFormatedXMLString(FileUtil.getAsCompactFormatedXMLString(asDocument())));
         changed = false;
         return true;
     }
 
-    public boolean saveasFile() {
+    public boolean saveAsFile() {
 
         File file = ConsoleFileChooser.showSaveConsoleDialog(this);
         if (file == null) {
@@ -1106,7 +1111,8 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         file = new File(file.getAbsolutePath() + ext);
         fileName = file;
 
-        FileUtil.saveToFile(fileName.getAbsolutePath(), FileUtil.getAsPrettyPrintFormatedXMLString(asDocument()));
+        FileUtil.saveToFile(fileName.getAbsolutePath(),
+                FileUtil.getAsPrettyPrintFormatedXMLString(FileUtil.getAsCompactFormatedXMLString(asDocument())));
         changed = false;
         return true;
     }
@@ -1589,9 +1595,18 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         }
     }
 
-    public void resetTidyUp() {
-        if (pluginManager != null)
+    /**
+     * To setup a new console. Call it with true if the console will be an empty one.
+     * @param withEmptyConsole
+     */
+    public void resetTidyUp(boolean withEmptyConsole) {
+        if (withEmptyConsole) {
+            addBaseLayoutOnEmptyConsole(this);
+        }
+
+        if (pluginManager != null) {
             pluginManager.reset();
+        }
 
         if (settingsWindow != null) {
             settingsWindow.setIgnoreSubPanelChangedEvents(false);
@@ -1602,7 +1617,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     }
 
     /**
-     * Reset the console for a new one use when a new console is open Call also {@link #resetTidyUp()} after this if you
+     * Reset the console for a new one use when a new console is open Call also {@link #resetTidyUp(boolean)} after this if you
      * load a new console (or empty one).
      */
     public void reset() {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2021 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -191,14 +191,18 @@ public class SidescanHistogramNormalizer implements Serializable {
                         long randomPosition = ssParser.firstPingTimestamp() + random.nextInt(logSeconds) * 1000;
                         ArrayList<SidescanLine> lines = ssParser.getLinesBetween(randomPosition, randomPosition + 1000, subId, HISTOGRAM_DEFAULT_PARAMATERS);
                         for (int l = 0; l < lines.size(); l++) {
-                            double data[] = lines.get(l).getData();
-                            for (int i = 0; i < data.length; i++)
-                                avg[i] = (float) ((avg[i] * count) + data[i]) / (count+1);
+                            double[] data = lines.get(l).getData();
+                            for (int i = 0; i < data.length; i++) {
+                                try {
+                                    avg[i] = (float) ((avg[i] * count) + data[i]) / (count + 1);
+                                } catch (Exception e) {
+                                    NeptusLog.pub().error("Something wrong: " + e.getMessage());
+                                }
+                            }
                             count++;
-                        };                    
+                        }
                     }
-                    
-                    
+
                     double sum = 0;
                     for (int i = 0; i < avg.length; i++) {
                         if (!Float.isFinite(avg[i]))

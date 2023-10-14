@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2021 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -32,9 +32,12 @@
  */
 package pt.lsts.neptus.util;
 
+import pt.lsts.neptus.data.Pair;
+
 import java.awt.Point;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -748,6 +751,21 @@ public class MathMiscUtils {
 	}
 	/*-------------------------------------------------------------*/
 
+    public static Pair<Long, Double> splitDecimalPart(double val) {
+        BigDecimal bigDecimal = new BigDecimal(String.valueOf(val));
+        long intValue = bigDecimal.longValue();
+        double dPart = bigDecimal.subtract(new BigDecimal(intValue)).doubleValue();
+        return new Pair<>(intValue, dPart);
+    }
+
+    public static Pair<Long, Float> splitDecimalPart(float val) {
+        BigDecimal bigDecimal = new BigDecimal(String.valueOf(val));
+        long intValue = bigDecimal.longValue();
+        float dPart = bigDecimal.subtract(new BigDecimal(intValue)).floatValue();
+        return new Pair<>(intValue, dPart);
+    }
+
+    /*-------------------------------------------------------------*/
 	public static void main(String[] args) {
 		System.out.println(parseEngineeringModeToDouble("10M"));
 		System.out.println(parseToEngineeringNotation(0.000003, 2));

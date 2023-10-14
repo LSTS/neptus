@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2021 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -89,7 +89,8 @@ public class SoiInteraction extends SimpleRendererInteraction {
 
     private static final long serialVersionUID = 477322168507708457L;
 
-    @NeptusProperty(name = "Communication Mean", description = "Communication mean to use to send commands", userLevel = LEVEL.REGULAR)
+    @NeptusProperty(name = "Communication Mean", userLevel = LEVEL.REGULAR,
+            description = "Communication mean to use to send commands")
     public CommMean commMean = CommMean.WiFi;
 
     @NeptusProperty(name = "Schedule plan waypoints", description = "Schedule plan before transmission")
@@ -98,19 +99,20 @@ public class SoiInteraction extends SimpleRendererInteraction {
     @NeptusProperty(name = "Time (seconds) till first waypoint", description = "Time, in seconds, for the first waypoint ETA")
     public double timeToFirstWaypoint;
 
-    @NeptusProperty(name = "Hide layer if inactive")
+    @NeptusProperty(name = "Hide layer if inactive", userLevel = LEVEL.REGULAR)
     public boolean hideIfInactive = true;
 
-    @NeptusProperty(name = "Audio Notifications")
+    @NeptusProperty(name = "Audio Notifications", userLevel = LEVEL.REGULAR)
     public boolean audioNotifications = true;
     
-    @NeptusProperty(name = "Maximum profile age (hours)", description = "Profiles older than this age will be hidden")
+    @NeptusProperty(name = "Maximum profile age (hours)", userLevel = LEVEL.REGULAR,
+            description = "Profiles older than this age will be hidden")
     public int oldestProfiles = 24;
         
-    @NeptusProperty(name = "Use salinity colormap for profiles")
+    @NeptusProperty(name = "Use salinity colormap for profiles", userLevel = LEVEL.REGULAR)
     public boolean colorizeSalinity = false;
     
-    @NeptusProperty(name = "Show profile values")
+    @NeptusProperty(name = "Show profile values", userLevel = LEVEL.REGULAR)
     public boolean profileValues = true;
     
     

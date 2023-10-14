@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2021 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -33,6 +33,7 @@
 package pt.lsts.neptus.plugins.mavs;
 
 import java.io.File;
+import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
@@ -150,7 +151,7 @@ public class QGroundControlPlanExporter implements IPlanFileExporter {
         
         processManeuvers(plan, sb);
         
-        FileUtils.write(out, sb.toString());
+        FileUtils.write(out, sb.toString(), (Charset) null);
     }
     
     @SuppressWarnings("unused")

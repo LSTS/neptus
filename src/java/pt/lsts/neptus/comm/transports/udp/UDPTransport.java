@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2021 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -41,16 +41,22 @@ import java.net.MulticastSocket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.Vector;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.comm.transports.DeliveryListener;
 import pt.lsts.neptus.comm.transports.DeliveryListener.ResultEnum;
+import pt.lsts.neptus.comm.transports.DeliveryResult;
+import pt.lsts.neptus.comm.transports.IdPair;
 import pt.lsts.neptus.util.ByteUtil;
 
 /**
@@ -58,19 +64,19 @@ import pt.lsts.neptus.util.ByteUtil;
  * 
  */
 public class UDPTransport {
-    protected LinkedHashSet<UDPMessageListener> listeners = new LinkedHashSet<UDPMessageListener>();
+    protected Set<UDPMessageListener> listeners = new LinkedHashSet<>();
 
-    private LinkedBlockingQueue<UDPNotification> receptionMessageList = new LinkedBlockingQueue<UDPNotification>();
-    private LinkedBlockingQueue<UDPNotification> sendmessageList = new LinkedBlockingQueue<UDPNotification>();
+    private final BlockingQueue<UDPNotification> receptionMessageList = new LinkedBlockingQueue<>();
+    private final BlockingQueue<UDPNotification> sendMessageList = new LinkedBlockingQueue<>();
 
     private Thread sockedListenerThread = null;
-    private Thread dispacherThread = null;
-    private Vector<Thread> senderThreads = new Vector<Thread>();
+    private Thread dispatcherThread = null;
+    private final List<Thread> senderThreads = new ArrayList<>();
     private int numberOfSenderThreads = 1;
 
     private DatagramSocket sock;
 
-    private LinkedHashMap<String, InetAddress> solvedAddresses = new LinkedHashMap<String, InetAddress>();
+    private final Map<String, InetAddress> solvedAddresses = new LinkedHashMap<>();
 
     private int bindPort = 6001;
 
@@ -166,18 +172,6 @@ public class UDPTransport {
     private void setOnBindError(boolean isOnBindError) {
         this.isOnBindError = isOnBindError;
     }
-
-    // /**
-    // * For now tests is the receiver thread is alive and
-    // * this transport is {@link #isRunnning()}.
-    // * Can serve for binding error.
-    // * @return
-    // */
-    // public boolean isReceiverConnected() {
-    // if (dispacherThread == null)
-    // return false;
-    // return isRunnning() && dispacherThread.isAlive();
-    // }
 
     /**
      * @return
@@ -344,9 +338,9 @@ public class UDPTransport {
             synchronized (receptionMessageList) {
                 receptionMessageList.clear();
             }
-            if (dispacherThread != null) {
-                dispacherThread.interrupt();
-                dispacherThread = null;
+            if (dispatcherThread != null) {
+                dispatcherThread.interrupt();
+                dispatcherThread = null;
             }
 
             int size = senderThreads.size();
@@ -360,8 +354,8 @@ public class UDPTransport {
                 }
             }
 
-            Vector<UDPNotification> toClearSen = new Vector<UDPNotification>();
-            sendmessageList.drainTo(toClearSen);
+            List<UDPNotification> toClearSen = new ArrayList<>();
+            sendMessageList.drainTo(toClearSen);
             for (UDPNotification req : toClearSen) {
                 informDeliveryListener(req, ResultEnum.Error, new Exception("Server shutdown!!"));
             }
@@ -374,7 +368,7 @@ public class UDPTransport {
      */
     public void purge() {
         purging = true;
-        while (!receptionMessageList.isEmpty() || !sendmessageList.isEmpty()) {
+        while (!receptionMessageList.isEmpty() || !sendMessageList.isEmpty()) {
             try {
                 Thread.sleep(1000);
             }
@@ -392,7 +386,7 @@ public class UDPTransport {
         if (senderThreads.size() > 0)
             return true;
 
-        if (sockedListenerThread == null && dispacherThread == null)
+        if (sockedListenerThread == null && dispatcherThread == null)
             return false;
         return true;
     }
@@ -407,7 +401,7 @@ public class UDPTransport {
             return false;
         if (sockedListenerThread == null)
             return false;
-        if (dispacherThread == null)
+        if (dispatcherThread == null)
             return false;
 
         return true;
@@ -441,7 +435,7 @@ public class UDPTransport {
     private void createReceivers() {
         setOnBindError(false);
         getSockedListenerThread();
-        getDispacherThread();
+        getDispatcherThread();
     }
 
     /**
@@ -478,7 +472,7 @@ public class UDPTransport {
                             setMulticastActive(useMulticast);
                         }
                         catch (Exception e) {
-                            NeptusLog.pub().error("Multicast socket join :: " + e.getMessage());
+                            NeptusLog.pub().warn("Multicast socket join :: " + e.getMessage());
                             setMulticastActive(false);
                         }
 
@@ -489,13 +483,13 @@ public class UDPTransport {
                                 setBroadcastActive(true);
                             }
                             catch (Exception e) {
-                                NeptusLog.pub().error(e.getMessage());
+                                NeptusLog.pub().warn(e.getMessage());
                                 setBroadcastActive(false);
                             }
                         }
                     }
                     catch (Exception e) {
-                        NeptusLog.pub().error(e);
+                        NeptusLog.pub().warn(e);
                         setOnBindError(true);
                         return;
                     }
@@ -506,7 +500,7 @@ public class UDPTransport {
                                 sock.close();
                             }
                             catch (Exception e) {
-                                NeptusLog.pub().error(e.getStackTrace());
+                                NeptusLog.pub().warn(e.getStackTrace());
                             }
                         }
                     }
@@ -538,12 +532,12 @@ public class UDPTransport {
                                 continue;
                             }
                             catch (Exception e) {
-                                NeptusLog.pub().error(e);
+                                NeptusLog.pub().warn(e.getMessage());
                                 e.printStackTrace();
                                 // continue;
                             }
                             catch (Error e) {
-                                NeptusLog.pub().error(e);
+                                NeptusLog.pub().warn(e.getMessage());
                                 e.printStackTrace();
                                 // continue;
                             }
@@ -552,11 +546,11 @@ public class UDPTransport {
                         }
                     }
                     catch (Exception e) {
-                        NeptusLog.pub().error(e);
+                        NeptusLog.pub().warn(e.getMessage());
                         // NeptusLog.pub().warn(this+" Thread interrupted");
                     }
 
-                    NeptusLog.pub().warn(this + " Thread Stopped");
+                    NeptusLog.pub().info(this + " Thread Stopped");
 
                     if (isMulticastActive()) {
                         try {
@@ -585,8 +579,8 @@ public class UDPTransport {
     /**
      * @return
      */
-    private Thread getDispacherThread() {
-        if (dispacherThread == null) {
+    private Thread getDispatcherThread() {
+        if (dispatcherThread == null) {
             Thread listenerThread = new Thread(UDPTransport.class.getSimpleName() + ": Dispacher Thread "
                     + this.hashCode()) {
                 public synchronized void start() {
@@ -620,7 +614,7 @@ public class UDPTransport {
                                                 addStr = "Buffer:\n" + addStr;
                                         }
                                     }
-                                    NeptusLog.pub().error(
+                                    NeptusLog.pub().warn(
                                             "Dispacher Thread: Exception: " + "onUDPMessageNotification "
                                                     + e.getMessage() + addStr, e);
                                 }
@@ -637,15 +631,15 @@ public class UDPTransport {
                     }
 
                     NeptusLog.pub().info(this + " Thread Stopped");
-                    dispacherThread = null;
+                    dispatcherThread = null;
                 }
             };
             listenerThread.setPriority(Thread.MIN_PRIORITY + 1);
             listenerThread.setDaemon(true);
             listenerThread.start();
-            dispacherThread = listenerThread;
+            dispatcherThread = listenerThread;
         }
-        return dispacherThread;
+        return dispatcherThread;
     }
 
     /**
@@ -674,9 +668,9 @@ public class UDPTransport {
 
             public void run() {
                 try {
-                    while (!(purging && sendmessageList.isEmpty())) {
+                    while (!(purging && sendMessageList.isEmpty())) {
                         // req = sendmessageList.take();
-                        req = sendmessageList.poll(1, TimeUnit.SECONDS);
+                        req = sendMessageList.poll(1, TimeUnit.SECONDS);
                         if (req == null)
                             continue;
                         try {
@@ -694,7 +688,7 @@ public class UDPTransport {
                             informDeliveryListener(req, ResultEnum.Error, e);
                         }
                         catch (Exception e) {
-                            NeptusLog.pub().error(e + " :: " + req.getAddress());
+                            NeptusLog.pub().warn(e + " :: " + req.getAddress());
                             // e.printStackTrace();
                             informDeliveryListener(req, ResultEnum.Error, e);
                         }
@@ -741,12 +735,11 @@ public class UDPTransport {
      * Sends a message to the network
      * 
      * @param destination A valid hostname like "whale.fe.up.pt" or "127.0.0.1"
-     * @param port The destination's port
      * @param buffer
      * @return true meaning that the message was put on the send queue, and false if it was not put on the send queue.
      */
-    public boolean sendMessage(String destination, int port, byte[] buffer) {
-        return sendMessage(destination, port, buffer, null);
+    public CompletableFuture<DeliveryResult> sendMessage(IdPair destination, byte[] buffer) {
+        return sendMessage(destination.getHost(), destination.getPort(), buffer);
     }
 
     /**
@@ -755,30 +748,28 @@ public class UDPTransport {
      * @param destination A valid hostname like "whale.fe.up.pt" or "127.0.0.1"
      * @param port The destination's port
      * @param buffer
-     * @param deliveryListener
      * @return true meaning that the message was put on the send queue, and false if it was not put on the send queue.
      */
-    public boolean sendMessage(String destination, int port, byte[] buffer, DeliveryListener deliveryListener) {
+    public CompletableFuture<DeliveryResult> sendMessage(String destination, int port, byte[] buffer) {
         if (purging) {
             String txt = "Not accepting any more messages. IMCMessenger is terminating";
-            NeptusLog.pub().error(txt);
-            if (deliveryListener != null)
-                deliveryListener.deliveryResult(ResultEnum.UnFinished, new IOException(txt));
-            return false;
+            NeptusLog.pub().warn(txt);
+            return CompletableFuture.completedFuture(DeliveryResult.from(
+                    ResultEnum.UnFinished, new IOException(txt)));
         }
+        CompletableFuture<DeliveryResult> deliveryListener = new CompletableFuture<>();
         try {
             UDPNotification req = new UDPNotification(UDPNotification.SEND, new InetSocketAddress(
                     resolveAddress(destination), port), buffer);
             req.setDeliveryListener(deliveryListener);
-            sendmessageList.add(req);
+            sendMessageList.add(req);
         }
         catch (UnknownHostException e) {
             e.printStackTrace();
             if (deliveryListener != null)
-                deliveryListener.deliveryResult(ResultEnum.Unreacheable, e);
-            return false;
+                deliveryListener.complete(DeliveryResult.from(ResultEnum.Unreachable, e));
         }
-        return true;
+        return deliveryListener;
     }
 
     /**
@@ -787,7 +778,7 @@ public class UDPTransport {
      */
     private void informDeliveryListener(UDPNotification req, ResultEnum result, Exception e) {
         if (req != null && req.getDeliveryListener() != null) {
-            req.getDeliveryListener().deliveryResult(result, e);
+            req.getDeliveryListener().complete(DeliveryResult.from(result, e));
         }
     }
 

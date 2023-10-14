@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2020.01.0 (master,f4a0a4714)" system="lauv-xplore-1" i18n="pt_PT">
+<config format="1" version="2020.01.0 (master,6419144f0)" system="lauv-xplore-1" i18n="pt_PT">
   <section name="Motor Controller" name-i18n="Controlador de Motor">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>

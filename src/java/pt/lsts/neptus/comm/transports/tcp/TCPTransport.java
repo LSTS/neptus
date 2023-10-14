@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2021 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -40,18 +40,24 @@ import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.NoRouteToHostException;
+import java.net.SocketAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.Vector;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -59,8 +65,9 @@ import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCOutputStream;
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.comm.transports.DeliveryListener;
 import pt.lsts.neptus.comm.transports.DeliveryListener.ResultEnum;
+import pt.lsts.neptus.comm.transports.DeliveryResult;
+import pt.lsts.neptus.comm.transports.IdPair;
 import pt.lsts.neptus.util.ByteUtil;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 
@@ -70,26 +77,26 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
  */
 public class TCPTransport {
 
-	protected LinkedHashSet<TCPMessageListener> listeners = new LinkedHashSet<TCPMessageListener>();
+	protected Set<TCPMessageListener> listeners = new LinkedHashSet<>();
 	
-	private LinkedBlockingQueue<TCPNotification> receptionMessageList = new LinkedBlockingQueue<TCPNotification>();
-	private LinkedBlockingQueue<TCPNotification> sendmessageList = new LinkedBlockingQueue<TCPNotification>();
+	private BlockingQueue<TCPNotification> receptionMessageList = new LinkedBlockingQueue<>();
+	private BlockingQueue<TCPNotification> sendMessageList = new LinkedBlockingQueue<>();
 	
 	private Thread sockedListenerThread = null;
-	private Thread dispacherThread = null;
+	private Thread dispatcherThread = null;
 	private Thread senderThread = null;
 	
 	
-	private LinkedHashMap<String, InetAddress> solvedAddresses = new LinkedHashMap<String, InetAddress>();
+	private Map<String, InetAddress> solvedAddresses = new LinkedHashMap<>();
 
 	private int bindPort = 7011;
 
+    private boolean keepAlive = true;
     private int timeoutMillis = 5000;
 	private int timeoutSelectorsMillis = 100;
 	private int maxBufferSize = 65506;
 
 	private boolean purging = false;
-
 	
 	/**
 	 * Server channel for "select" operation.
@@ -104,7 +111,7 @@ public class TCPTransport {
 	/**
 	 * List of client SocketChannel handles.
 	 */
-	private final Vector<SocketChannel> clients = new Vector<SocketChannel>();
+	private final List<SocketChannel> clients = new ArrayList<>();
 
 	private boolean isOnBindError = false;
 
@@ -120,7 +127,12 @@ public class TCPTransport {
 		initialize();
 	}
 
-	
+	public TCPTransport(int bindPort, boolean keepAlive) {
+		setKeepAlive(keepAlive);
+		setBindPort(bindPort);
+		initialize();
+	}
+
 	/**
 	 * 
 	 */
@@ -130,18 +142,23 @@ public class TCPTransport {
 		createReceivers();
 		createSenders();
 	}
-	
-	/**
-     * 
-     */
-    private void createSenders() {
+
+	public boolean isKeepAlive() {
+		return keepAlive;
+	}
+
+	public void setKeepAlive(boolean keepAlive) {
+		this.keepAlive = keepAlive;
+	}
+
+	private void createSenders() {
         getSenderThread();
     }
 
     private void createReceivers() {
 //		setOnBindError(false);
 		getSockedListenerThread();
-		getDispacherThread();
+		getDispatcherThread();
 	}
 
 
@@ -182,9 +199,9 @@ public class TCPTransport {
 			synchronized (receptionMessageList) {
 				receptionMessageList.clear();
 			}
-			if (dispacherThread != null) {
-				dispacherThread.interrupt();
-				dispacherThread = null;
+			if (dispatcherThread != null) {
+				dispatcherThread.interrupt();
+				dispatcherThread = null;
 			}
             if (senderThread != null) {
                 senderThread.interrupt();
@@ -197,8 +214,8 @@ public class TCPTransport {
 //				senderThreads.remove(0); //shifts the right elements to the left 
 //			}
             
-            Vector<TCPNotification> toClearSen = new Vector<TCPNotification>();
-            sendmessageList.drainTo(toClearSen);
+            List<TCPNotification> toClearSen = new ArrayList<>();
+            sendMessageList.drainTo(toClearSen);
             for (TCPNotification req : toClearSen) {
                 informDeliveryListener(req, ResultEnum.Error, new Exception("Server shutdown!!"));
             }
@@ -211,7 +228,7 @@ public class TCPTransport {
      */
     public void purge() {
         purging = true;
-        while (!receptionMessageList.isEmpty() || !sendmessageList.isEmpty()) {
+        while (!receptionMessageList.isEmpty() || !sendMessageList.isEmpty()) {
             try {
                 Thread.sleep(1000);
             } catch (Exception e) {
@@ -256,8 +273,10 @@ public class TCPTransport {
         synchronized (clients) {
             for (SocketChannel channelTmp : clients) {
                 try {
-//                    NeptusLog.pub().info("<###> "+resolveAddress(host) +"  " +port + "   " +channelTmp.socket().getInetAddress() + " " + channelTmp.socket().getPort());
-                    if (resolveAddress(host).toString().equalsIgnoreCase(channelTmp.socket().getInetAddress().toString())
+                    //NeptusLog.pub().info("<###> "+resolveAddress(host) + " | " + resolveAddress(host).toString().replaceFirst("^[a-zA-Z0-9._-]*(/)", "$1") + "  " +port + "   " +channelTmp.socket().getInetAddress() + " " + channelTmp.socket().getPort());
+                    if ((resolveAddress(host).toString().equalsIgnoreCase(channelTmp.socket().getInetAddress().toString()) ||
+                            resolveAddress(host).toString().replaceFirst("^[a-zA-Z0-9._-]*(/)", "$1").
+                                    equalsIgnoreCase(channelTmp.socket().getInetAddress().toString()))
                             && port == channelTmp.socket().getPort()) {
                         channel = channelTmp;
                         break;
@@ -376,7 +395,7 @@ public class TCPTransport {
 	/**
 	 * Disconnect and close the TCP server socket.
 	 * 
-	 * @throws ConnectionException
+	 * @throws Exception
 	 *             if a network error occurs
 	 */
 	protected void disconnect() {
@@ -441,7 +460,7 @@ public class TCPTransport {
 	 */
 	private boolean isConnected() {
 		if (serverCh == null && sockedListenerThread == null
-				&& dispacherThread == null)
+				&& dispatcherThread == null)
 			return false;
 		return true;
 	}
@@ -460,7 +479,7 @@ public class TCPTransport {
         if (isOnBindError())
             return false;
         if (serverCh == null || sockedListenerThread == null
-                || dispacherThread == null)
+                || dispatcherThread == null)
             return false;
 
         return true;
@@ -656,11 +675,10 @@ public class TCPTransport {
                                                     e.printStackTrace();
                                                 }
                                             }
-                                            if (sendAck) {
-//                                                NeptusLog.pub().info("<###>WRITE  ...........................................");
+                                            if (sendAck && isKeepAlive()) {
                                                 SocketChannel channel = (SocketChannel) key.channel();
-                                                ByteBuffer bf = ByteBuffer.wrap(new byte[] { (byte) 0xFFFF });
-//                                                NeptusLog.pub().info("<###>WRITE  " + channel.write(bf));
+                                                //ByteBuffer bf = ByteBuffer.wrap(new byte[] { (byte) 0xFFFF });
+                                                ByteBuffer bf = ByteBuffer.wrap(new byte[0]);
                                                 channel.write(bf);
                                                 key.attach(System.currentTimeMillis());
                                             }
@@ -699,8 +717,8 @@ public class TCPTransport {
 	}
 
 	
-	private Thread getDispacherThread() {
-		if (dispacherThread == null) {
+	private Thread getDispatcherThread() {
+		if (dispatcherThread == null) {
 			Thread listenerThread = new Thread(TCPTransport.class.getSimpleName() + ": Dispacher Thread " + this.hashCode()) {			
 				public synchronized void start() {
 					NeptusLog.pub().debug("Dispacher Thread Started");
@@ -714,15 +732,17 @@ public class TCPTransport {
 							TCPNotification req = receptionMessageList.poll(1, TimeUnit.SECONDS);
                             if (req == null)
                                 continue;
-							for (TCPMessageListener lst : listeners) {
-								try {
+							synchronized (listeners) {
+								for (TCPMessageListener lst : listeners) {
+									try {
 //								    ByteUtil.dumpAsHex("" + req.getAddress(), req.getBuffer(), System.out);
-									lst.onTCPMessageNotification(req);
-								} catch (Exception e) {
-									e.printStackTrace();
-								}
-								catch (Error e) {
-									e.printStackTrace();
+										lst.onTCPMessageNotification(req);
+									} catch (Exception e) {
+										e.printStackTrace();
+									}
+									catch (Error e) {
+										e.printStackTrace();
+									}
 								}
 							}
 						}
@@ -737,9 +757,9 @@ public class TCPTransport {
 			listenerThread.setPriority(Thread.MIN_PRIORITY+1);
 			listenerThread.setDaemon(true);
 			listenerThread.start();
-			dispacherThread = listenerThread;
+			dispatcherThread = listenerThread;
 		}
-		return dispacherThread;
+		return dispatcherThread;
 	}
 
 	private Thread getSenderThread() {
@@ -755,9 +775,9 @@ public class TCPTransport {
 
 	            public void run() {
 	                try {
-	                    while (!(purging && sendmessageList.isEmpty())) {
+	                    while (!(purging && sendMessageList.isEmpty())) {
 //	                        req = sendmessageList.take();
-                            req = sendmessageList.poll(1, TimeUnit.SECONDS);
+                            req = sendMessageList.poll(1, TimeUnit.SECONDS);
                             if (req == null)
                                 continue;
 	                        SocketChannel channel = null;
@@ -782,7 +802,7 @@ public class TCPTransport {
                                             channel.close();
                                         }
                                         catch (IOException e1) {
-                                            e1.printStackTrace();
+                                            NeptusLog.pub().warn(e1.getMessage());
                                         }
                                         clients.remove(channel);
                                     }
@@ -826,48 +846,63 @@ public class TCPTransport {
 	
    /**
      * Sends a message to the network
-     * @param destination A valid hostname like "whale.fe.up.pt" or "127.0.0.1"
-     * @param port The destination's port
      * @param buffer
      * @return true meaning that the message was put on the send queue, and 
      *          false if it was not put on the send queue.
      */
-    public boolean sendMessage(String destination, int port, byte[] buffer) {
-        return sendMessage(destination, port, buffer, null);
-    }
+	public CompletableFuture<Void> sendMessage(byte[] buffer) {
+		List<CompletableFuture<DeliveryResult>> listFutures = new ArrayList<>();
+		clients.stream().forEach(sc -> {
+			if (!sc.isOpen())
+				return;
+			try {
+				SocketAddress rAddr = sc.getRemoteAddress();
+				if (rAddr instanceof InetSocketAddress) {
+					CompletableFuture<DeliveryResult> cf = sendMessage(IdPair.from((InetSocketAddress) rAddr), buffer);
+					listFutures.add(cf);
+				}
+			}
+			catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		});
+		return CompletableFuture.allOf(listFutures.toArray(new CompletableFuture[0]));
+	}
 
-   /**
-     * Sends a message to the network
-     * @param destination A valid hostname like "whale.fe.up.pt" or "127.0.0.1"
-     * @param port The destination's port
-     * @param buffer
-     * @param deliveryListener
-     * @return true meaning that the message was put on the send queue, and 
-     *          false if it was not put on the send queue.
-     */
-    public boolean sendMessage(String destination, int port, byte[] buffer, 
-            DeliveryListener deliveryListener) {
+	public CompletableFuture<DeliveryResult> sendMessage(IdPair destination, byte[] buffer) {
+		return sendMessage(destination.getHost(), destination.getPort(), buffer);
+	}
+
+	/**
+	  * Sends a message to the network
+	  * @param destination A valid hostname like "dummy.com" or "127.0.0.1"
+	  * @param port The destination's port
+	  * @param buffer
+	  * @return true meaning that the message was put on the send queue, and
+	  *          false if it was not put on the send queue.
+	  */
+    public CompletableFuture<DeliveryResult> sendMessage(String destination, int port, byte[] buffer) {
         if (purging) {
             String txt = "Not accepting any more messages. IMCMessenger is terminating";
-            NeptusLog.pub().error(txt);
-            if (deliveryListener != null)
-                deliveryListener.deliveryResult(ResultEnum.UnFinished, new IOException(txt));
-            return false;
+            NeptusLog.pub().warn(txt);
+            return CompletableFuture.completedFuture(DeliveryResult.from(
+					ResultEnum.UnFinished, new IOException(txt)));
         }
+        CompletableFuture<DeliveryResult> deliveryListener = new CompletableFuture<>();
         try {
             TCPNotification req = new TCPNotification(TCPNotification.SEND,
                     new InetSocketAddress(resolveAddress(destination), port),
                     buffer);
             req.setDeliveryListener(deliveryListener);
-            sendmessageList.add(req);
+            sendMessageList.add(req);
         } 
         catch (UnknownHostException e) {
-            e.printStackTrace();
+            NeptusLog.pub().warn(e.getMessage());
             if (deliveryListener != null)
-                deliveryListener.deliveryResult(ResultEnum.Unreacheable, e);
-            return false;
+                deliveryListener.complete(DeliveryResult.from(ResultEnum.Unreachable, e));
         }
-        return true;
+
+        return deliveryListener;
     }
 
     /**
@@ -876,7 +911,7 @@ public class TCPTransport {
      */
     private void informDeliveryListener(TCPNotification req, ResultEnum result, Exception e) {
         if (req != null && req.getDeliveryListener() != null) {
-            req.getDeliveryListener().deliveryResult(result, e);
+            req.getDeliveryListener().complete(DeliveryResult.from(result, e));
         }
     }
 

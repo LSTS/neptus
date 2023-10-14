@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2021 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -35,6 +35,7 @@ package pt.lsts.neptus.mra.importers.sdf;
 import java.io.File;
 import java.util.ArrayList;
 
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mra.api.SidescanLine;
 import pt.lsts.neptus.mra.api.SidescanParameters;
@@ -73,6 +74,9 @@ public class SdfSidescanParser implements SidescanParser {
     @Override
     public ArrayList<SidescanLine> getLinesBetween(long timestamp1, long timestamp2, int subsystem,
             SidescanParameters config) {
+
+        NeptusLog.pub().debug(">>>>>>>>>>>>>> getLinesBetween timestamp1=" + timestamp1 +
+                ",  timestamp2=" + timestamp2 + ",  subsystem=" + subsystem);
 
         ArrayList<SidescanLine> list = new ArrayList<SidescanLine>();
         SdfData ping;

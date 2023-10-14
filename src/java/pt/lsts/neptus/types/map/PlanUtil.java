@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2021 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -380,28 +380,54 @@ public class PlanUtil {
     
     public static double getMaxPlannedDepth(Vector<LocatedManeuver> mans) {
         double depth = 0;
-        
-        if (!mans.isEmpty())
-            depth = mans.get(0).getManeuverLocation().getAllZ();
-        
+
+        if (!mans.isEmpty()) {
+            for (ManeuverLocation m : mans.get(0).getWaypoints()) {
+                double d = m.getAllZ();
+                if (m.getZUnits() ==  Z_UNITS.DEPTH)
+                    d += m.getZ();
+                if (d > depth)
+                    depth = d;
+            }
+        }
+
         for (int i = 1; i < mans.size(); i++) {
-            double d = mans.get(i).getManeuverLocation().getAllZ();
-            if (d > depth)
-                depth = d;
+            for (ManeuverLocation m : mans.get(i).getWaypoints()) {
+                double d = m.getAllZ();
+                if (m.getZUnits() ==  Z_UNITS.DEPTH)
+                    d += m.getZ();
+                if (d > depth)
+                    depth = d;
+            }
         }
         return depth;
     }
 
     public static double getMinPlannedDepth(Vector<LocatedManeuver> mans) {
-        double depth = 0;
-        
-        if (!mans.isEmpty())
-            depth = mans.get(0).getManeuverLocation().getAllZ();
-        
+        double depth = -1;
+
+        if (!mans.isEmpty()) {
+            for (ManeuverLocation m : mans.get(0).getWaypoints()) {
+                double d = m.getAllZ();
+                if (m.getZUnits() ==  Z_UNITS.DEPTH)
+                    d += m.getZ();
+                if (depth < 0)
+                    depth = d;
+                else if (d < depth)
+                    depth = d;
+            }
+        }
+
         for (int i = 1; i < mans.size(); i++) {
-            double d = mans.get(i).getManeuverLocation().getAllZ();
-            if (d < depth)
-                depth = d;
+            for (ManeuverLocation m : mans.get(i).getWaypoints()) {
+                double d = m.getAllZ();
+                if (m.getZUnits() ==  Z_UNITS.DEPTH)
+                    d += m.getZ();
+                if (depth < 0)
+                    depth = d;
+                else if (d < depth)
+                    depth = d;
+            }
         }
         return depth;
     }
@@ -452,13 +478,13 @@ public class PlanUtil {
                 //+ PlanUtil.estimatedTime(mans, speedRpmRatioSpeed, speedRpmRatioRpms) + ""
                 + estDelay + ""
                 + (simpleTextOrHTML ? "\n" : "</li>");
-        ret += (simpleTextOrHTML ? "" : "<li><b>") + I18n.text("Max. Depth") + ":"
-                + (simpleTextOrHTML ? " " : "</b> ")
-                + format.format(PlanUtil.getMaxPlannedDepth(mans)) + "m"
-                + (simpleTextOrHTML ? "\n" : "</li>");
         ret += (simpleTextOrHTML ? "" : "<li><b>") + I18n.text("Min. Depth") + ":"
                 + (simpleTextOrHTML ? " " : "</b> ")
                 + format.format(PlanUtil.getMinPlannedDepth(mans)) + "m"
+                + (simpleTextOrHTML ? "\n" : "</li>");
+        ret += (simpleTextOrHTML ? "" : "<li><b>") + I18n.text("Max. Depth") + ":"
+                + (simpleTextOrHTML ? " " : "</b> ")
+                + format.format(PlanUtil.getMaxPlannedDepth(mans)) + "m"
                 + (simpleTextOrHTML ? "\n" : "</li>");
         ret += (simpleTextOrHTML ? "" : "<li><b>") + I18n.text("# Maneuvers") + ":"
                 + (simpleTextOrHTML ? " " : "</b> ")

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2021 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -105,7 +105,7 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
 public class RockBlockIridiumMessenger implements IridiumMessenger {
 
     protected boolean available = true;
-    protected String serverUrl = "https://secure.rock7mobile.com/rockblock/MT";
+    protected static String serverUrl = "https://core.rock7.com/rockblock/MT";
     protected HashSet<IridiumMessageListener> listeners = new HashSet<>();
     private static long lastSuccess = -1;
 
@@ -244,7 +244,7 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
                 .setConnectionManager(cm)
                 .build()) {
 
-            HttpPost post = new HttpPost("https://secure.rock7mobile.com/rockblock/MT");
+            HttpPost post = new HttpPost(serverUrl);
             List<NameValuePair> urlParameters = new ArrayList<NameValuePair>();
             urlParameters.add(new BasicNameValuePair("imei", destImei));
             urlParameters.add(new BasicNameValuePair("username", username));

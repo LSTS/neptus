@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2021 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -69,7 +69,9 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.util.GuiUtils;
 
-@PluginDescription(name = "Iridium Communications Status",description="Iridium Communications Feedback Panel")
+@PluginDescription(name = "Iridium Communications Status",
+        icon = "images/iridium/iridium-logo.png",
+        description="Iridium Communications Feedback Panel")
 @Popup(pos = Popup.POSITION.BOTTOM_RIGHT, width=355, height=215)
 public class IridiumStatus extends ConsolePanel {
 
@@ -158,8 +160,8 @@ public class IridiumStatus extends ConsolePanel {
                                 synchronized (IridiumStatus.this) {
                                     int index = table.getModel().getRowCount()-1;
                                     try {
-                                        if(index < table.getRowCount() && index > 0) {
-                                            int row   = table.convertRowIndexToView(index);
+                                        if(index < table.getRowCount() - 1 && index > 0) {
+                                            int row = table.convertRowIndexToView(index);
                                             Rectangle rect = table.getCellRect(row, 0, false);
                                             if(rect != null)
                                                 table.scrollRectToVisible(rect);                                        

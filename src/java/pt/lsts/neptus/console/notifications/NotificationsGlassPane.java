@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2021 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -65,11 +65,12 @@ import pt.lsts.neptus.util.ImageUtils;
  * 
  */
 public class NotificationsGlassPane extends JPanel {
-
     private static final long serialVersionUID = -1397790967075620867L;
     private static final int MARGIN_BOTTOM = 5;
     private static final int MARGIN_RIGHT = 2;
     private static final int BOTTOM_GAP = 25;
+    private static final int VISIBLE_GLASS_NOTIFICATIONS = 3;
+
     private final JFrame frame;
     private List<Notification> list = new ArrayList<>();
     private int currentHeight = BOTTOM_GAP;
@@ -86,11 +87,18 @@ public class NotificationsGlassPane extends JPanel {
     public void refresh() {
         currentHeight = BOTTOM_GAP;
         List<Component> comps = Arrays.asList(this.getComponents());
+        int maxIdx = comps.size() - 1;
+        int cnt = -1;
         for (Component component : comps) {
-            component.setLocation(this.getWidth() - (component.getWidth() + MARGIN_RIGHT), ((this.getHeight()
-                    - (component.getHeight() + MARGIN_BOTTOM) - currentHeight)));
-            currentHeight += component.getHeight() + MARGIN_BOTTOM;
-
+            ++cnt;
+            if (cnt > maxIdx - VISIBLE_GLASS_NOTIFICATIONS) {
+                component.setVisible(true);
+                component.setLocation(this.getWidth() - (component.getWidth() + MARGIN_RIGHT), ((this.getHeight()
+                        - (component.getHeight() + MARGIN_BOTTOM) - currentHeight)));
+                currentHeight += component.getHeight() + MARGIN_BOTTOM;
+            } else {
+                component.setVisible(false);
+            }
         }
     }
 
@@ -102,8 +110,9 @@ public class NotificationsGlassPane extends JPanel {
     }
 
     public void add(final Notification noty) {
-        if (list.size() > NotificationsCollection.MAX_SIZE) {
-            this.clear();
+        while (list.size() > NotificationsCollection.MAX_SIZE) {
+            list.remove(0);
+            this.remove(0);
         }
         if (noty.getType() == NotificationType.INFO)
             return;
@@ -111,6 +120,7 @@ public class NotificationsGlassPane extends JPanel {
         this.setVisible(true);
         list.add(noty);
         this.add(build(noty, false));
+        this.refresh();
         this.repaint();
     }
 
@@ -236,7 +246,6 @@ public class NotificationsGlassPane extends JPanel {
             public void componentResized(ComponentEvent e) {
                  refresh();
             }
-
         });
     }
 }

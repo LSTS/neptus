@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2021 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -124,8 +124,7 @@ public class PlanCreator {
         LinkedHashMap<String, Object> properties = new LinkedHashMap<String, Object>();
 
         for (int i = 0; i < values.length; i += 2) {
-
-            if (values[i] instanceof String && values[i + 1] != null)
+            if (i + 1 < values.length && values[i] instanceof String && values[i + 1] != null)
                 properties.put(values[i].toString(), values[i + 1]);
         }
 
@@ -151,8 +150,8 @@ public class PlanCreator {
         String before = "" + (count - 1);
         String id = "" + count;
         try {
-            Object speedPropValue = properties.get("speed");
-            Object speedUnitsPropValue = properties.get("speedUnits");
+            Object speedPropValue = properties != null ? properties.get("speed") : null;
+            Object speedUnitsPropValue = properties != null ? properties.get("speedUnits") : null;
             Double newSpeed = null;
             Units newUnits = null;
             try {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2021 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -85,7 +85,7 @@ public class RipplesPositions extends ConsoleLayer {
 
     LinkedHashMap<String, PositionUpdate> lastPositions = new LinkedHashMap<>();
     LinkedHashMap<String, ArrayList<PositionUpdate> > positions = new LinkedHashMap<>();
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ"); 
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
     {
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
@@ -109,7 +109,6 @@ public class RipplesPositions extends ConsoleLayer {
     @Override
     public void cleanLayer() {
         // TODO Auto-generated method stub
-
     }
 
     @Override
@@ -137,7 +136,7 @@ public class RipplesPositions extends ConsoleLayer {
                 g.setColor(cmap.getColor(age).darker().darker());
                 
                 g.drawString(update.id, (int) pt.getX() + pinWidth + 2, (int) pt.getY() + pinHeight / 2);
-                g.setColor(Color.black);
+                //g.setColor(Color.black);
                 g.drawString(date, (int) pt.getX() + pinWidth + 2,
                         (int) pt.getY() + pinHeight / 2 + g.getFontMetrics().getHeight());
 
@@ -179,10 +178,17 @@ public class RipplesPositions extends ConsoleLayer {
                 double latDegs = obj.get("lat").getAsDouble();
                 double lonDegs = obj.get("lon").getAsDouble();
                 Date time = sdf.parse(obj.get("timestamp").getAsString());
+                String name = obj.get("name").getAsString();
                 int id = obj.get("imcId").getAsInt();
                 
                 PositionUpdate update = new PositionUpdate();
-                update.id = IMCDefinition.getInstance().getResolver().resolve(id);
+                update.id = id == -1 ? name : IMCDefinition.getInstance().getResolver().resolve(id);
+                if (update.id.startsWith("unknown")) {
+                    update.id = name;
+                    if (id != -1) {
+                        IMCDefinition.getInstance().getResolver().addEntry(id, name);
+                    }
+                }
                 update.timestamp = time;
                 update.location = new LocationType(latDegs, lonDegs);
                 synchronized (lastPositions) {
@@ -238,12 +244,15 @@ public class RipplesPositions extends ConsoleLayer {
     
     public static void main(String[] args) throws ParseException {
         String date = "2019-05-30T10:26:12.000+0000";
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ"); 
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
         sdf.parse(date);
-        
+
+        sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
+        String date1 = "2021-09-07T10:36:01.000+00:00";
+        sdf.parse(date1);
+
         RipplesPositions positions = new RipplesPositions();
         positions.pollActiveSystems();
     }
-
 }

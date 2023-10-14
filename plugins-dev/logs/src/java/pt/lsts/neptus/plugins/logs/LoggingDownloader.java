@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2021 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -558,7 +558,7 @@ public class LoggingDownloader extends ConsolePanel implements MainVehicleChange
                     tabbledPane.setTitleAt(idx, dw.getLogLabel());
 
                 //Vector<URI> sUri = sys3.getServiceProvided("http", "dune");
-                Vector<URI> sUri = sys3.getServiceProvided("ftp", "");
+                Vector<URI> sUri = sys3.getServiceProvided("ftp", "*");
                 if (sUri.size() > 0) {
                     dw.setHost(sUri.get(0).getHost());
                     dw.setPort((sUri.get(0).getPort() <= 0) ? 21 : sUri.get(0).getPort());

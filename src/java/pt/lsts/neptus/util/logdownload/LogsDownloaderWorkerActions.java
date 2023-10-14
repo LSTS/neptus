@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2021 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -350,17 +350,20 @@ class LogsDownloaderWorkerActions {
         String host = worker.getHostFor(serverKey);
         int port = worker.getPortFor(serverKey);
         
-        if (host.length() == 0 || !worker.isServerAvailable(serverKey))
+        if (host.length() == 0) // || !worker.isServerAvailable(serverKey))
             return retList;
         
         try {
             FtpDownloader clientFtp = LogsDownloaderWorkerUtil.getOrRenewFtpDownloader(serverKey,
                     worker.getFtpDownloaders(), host, port);
+            if (!worker.serverAvailabilityForListing.contains(serverKey))
+                worker.serverAvailabilityForListing.add(serverKey);
             retList = clientFtp.listLogs();
         }
         catch (Exception e) {
             NeptusLog.pub().error("Connecting " + serverKey + " with " 
                     + host + ":" + port + " with error: " + e.getMessage());
+            worker.serverAvailabilityForListing.remove(serverKey);
         }
         return retList;
     }
@@ -408,7 +411,14 @@ class LogsDownloaderWorkerActions {
         if (retList.size() > 0) {
             String[] ordList = retList.values().toArray(new String[retList.size()]);
             Arrays.sort(ordList);
-            String activeLogName = ordList[ordList.length - 1];
+            // String activeLogName = ordList[ordList.length - 1];
+            String activeLogName = null;
+            for (int i = ordList.length - 1; i >= 0; i--) {
+                if (ordList[i].matches("\\d{1,4}.*")) {
+                    activeLogName = ordList[i];
+                    break;
+                }
+            }
             if (filterOutActiveLog) {
                 for (FTPFile fFile : retList.keySet().toArray(new FTPFile[retList.size()])) {
                     if (filterOutActiveLog && retList.get(fFile).equals(activeLogName)) {
@@ -611,8 +621,15 @@ class LogsDownloaderWorkerActions {
 
         serversLogFolders.forEach((s, logFolderInfos) -> {
             logFolderInfos.forEach(lFolder -> {
-                if (!tmpLogFolders.contains(lFolder))
+                if (!tmpLogFolders.contains(lFolder)) {
                     tmpLogFolders.add(lFolder);
+                } else {
+                    int alreadyInLFolderIdx = tmpLogFolders.indexOf(lFolder);
+                    LogFolderInfo alreadyInLFolder = tmpLogFolders.get(alreadyInLFolderIdx);
+                    for (LogFileInfo lfx : lFolder.getLogFiles()) {
+                        alreadyInLFolder.addFile(lfx);
+                    }
+                }
             });
         });
 

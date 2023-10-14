@@ -1,116 +1,116 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <system>
-    <!-- Data saved on 2012-06-19T16:33:14.0Z with Neptus version @VERSION@ (compiled on @DATE@, r@SVN_REV@). -->
-    <properties>
-        <id>pilatus-05</id>
-        <name>Pilatus 05</name>
-        <type>UAV</type>
-        <model>Pilatus</model>
-        <appearance>
-            <x-size>1.96</x-size>
-            <y-size>2.64</y-size>
-            <z-size>0.81</z-size>
-            <top-image-2D>../vehicles-files/pilatus/pilatus-amarelo-t.png</top-image-2D>
-            <side-image-2D>../vehicles-files/pilatus/pilatus-amarelo-s.png</side-image-2D>
-            <back-image-2D>../vehicles-files/pilatus/pilatus-amarelo-b.png</back-image-2D>
-            <presentation-image-2D>../vehicles-files/pilatus/pilatus-amarelo-p.png</presentation-image-2D>
-            <model-3D>../vehicles-files/pilatus/pilatus-amarelo.x3d</model-3D>
-            <icon-color>
-                <r>255</r>
-                <g>255</g>
-                <b>0</b>
-            </icon-color>
-        </appearance>
-        <limits>
-            <valid-zunits>altitude, height</valid-zunits>
-        </limits>
-        <coordinate-system-label>SNAME</coordinate-system-label>
-    </properties>
-    <feasibleManeuvers>
-        <maneuver>
-            <Unconstrained kind="manual">
-                <annotation>
-                    <documentation>Tele-Operation</documentation>
-                    <implementation-class>pt.lsts.neptus.mp.maneuvers.Unconstrained</implementation-class>
-                </annotation>
-            </Unconstrained>
-        </maneuver>
-        <maneuver>
-            <Loiter kind="automatic">
-                <basePoint type="pointType">
-                    <point>
-                        <id>LoiterLoc</id>
-                        <name>LoiterLoc</name>
-                        <coordinate>
-                            <latitude>0N</latitude>
-                            <longitude>0E</longitude>
-                            <depth>-100</depth>
-                        </coordinate>
-                    </point>
-                    <radiusTolerance>5</radiusTolerance>
-                </basePoint>
-                <duration>30</duration>
-                <trajectory>
-                    <radius type="float">100</radius>
-                    <radiusTolerance type="float">5</radiusTolerance>
-                    <type>Circular</type>
-                    <length type="float">1</length>
-                    <bearing type="float">0</bearing>
-                    <direction>Clockwise</direction>
-                </trajectory>
-                <velocity type="float" unit="m/s" tolerance="5">20</velocity>
-                <annotation>
-                    <documentation>Loiter over a point</documentation>
-                    <implementation-class>pt.lsts.neptus.mp.maneuvers.Loiter</implementation-class>
-                </annotation>
-            </Loiter>
-        </maneuver>
-        <maneuver>
-            <Goto kind="automatic">
-                <finalPoint type="pointType">
-                    <point>
-                        <id>GotoDestination</id>
-                        <name>GotoDestination</name>
-                        <coordinate>
-                            <latitude>0N</latitude>
-                            <longitude>0E</longitude>
-                            <depth>-100</depth>
-                        </coordinate>
-                    </point>
-                    <radiusTolerance>5</radiusTolerance>
-                </finalPoint>
-                <velocity tolerance="10" type="float" unit="m/s">20</velocity>
-                <trajectoryTolerance>
-                    <radiusTolerance type="float">5</radiusTolerance>
-                </trajectoryTolerance>
-                <annotation>
-                    <documentation>Move to a given point</documentation>
-                    <implementation-class>pt.lsts.neptus.mp.maneuvers.Goto</implementation-class>
-                </annotation>
-            </Goto>
-        </maneuver>
-    </feasibleManeuvers>
-    <communication-means>
-        <comm-mean>
-            <name>ethernet</name>
-            <type>ethernet</type>
-            <host-address>192.168.106.81</host-address>
-            <protocols>imc</protocols>
-            <latency value="10M" unit="bps"/>
-            <protocols-args>
-                <imc>
-                    <port>6002</port>
-                    <port-tcp>6002</port-tcp>
-                    <udp-on>true</udp-on>
-                    <tcp-on>false</tcp-on>
-                    <imc-id>0c:75</imc-id>
-                </imc>
-            </protocols-args>
-        </comm-mean>
-    </communication-means>
-    <consoles>
-        <console name="UAV Console">
-            <xml-file>../conf/consoles/uav-light.ncon</xml-file>
-        </console>
-    </consoles>
+  <!-- Data saved on 2012-06-19T16:33:14.0Z with Neptus version @VERSION@ (compiled on @DATE@, r@SVN_REV@). -->
+  <properties>
+    <id>pilatus-05</id>
+    <name>Pilatus 05</name>
+    <type>UAV</type>
+    <model>Pilatus</model>
+    <appearance>
+      <x-size>1.96</x-size>
+      <y-size>2.64</y-size>
+      <z-size>0.81</z-size>
+      <top-image-2D>../vehicles-files/pilatus/pilatus-amarelo-t.png</top-image-2D>
+      <side-image-2D>../vehicles-files/pilatus/pilatus-amarelo-s.png</side-image-2D>
+      <back-image-2D>../vehicles-files/pilatus/pilatus-amarelo-b.png</back-image-2D>
+      <presentation-image-2D>../vehicles-files/pilatus/pilatus-amarelo-p.png</presentation-image-2D>
+      <model-3D>../vehicles-files/pilatus/pilatus-amarelo.x3d</model-3D>
+      <icon-color>
+        <r>255</r>
+        <g>255</g>
+        <b>0</b>
+      </icon-color>
+    </appearance>
+    <limits>
+      <valid-zunits>altitude, height</valid-zunits>
+    </limits>
+    <coordinate-system-label>SNAME</coordinate-system-label>
+  </properties>
+  <feasibleManeuvers>
+    <maneuver>
+      <Unconstrained kind="manual">
+        <annotation>
+          <documentation>Tele-Operation</documentation>
+          <implementation-class>pt.lsts.neptus.mp.maneuvers.Unconstrained</implementation-class>
+        </annotation>
+      </Unconstrained>
+    </maneuver>
+    <maneuver>
+      <Loiter kind="automatic">
+        <basePoint type="pointType">
+          <point>
+            <id>LoiterLoc</id>
+            <name>LoiterLoc</name>
+            <coordinate>
+              <latitude>0N</latitude>
+              <longitude>0E</longitude>
+              <depth>-100</depth>
+            </coordinate>
+          </point>
+          <radiusTolerance>5</radiusTolerance>
+        </basePoint>
+        <duration>30</duration>
+        <trajectory>
+          <radius type="float">100</radius>
+          <radiusTolerance type="float">5</radiusTolerance>
+          <type>Circular</type>
+          <length type="float">1</length>
+          <bearing type="float">0</bearing>
+          <direction>Clockwise</direction>
+        </trajectory>
+        <velocity type="float" unit="m/s" tolerance="5">20</velocity>
+        <annotation>
+          <documentation>Loiter over a point</documentation>
+          <implementation-class>pt.lsts.neptus.mp.maneuvers.Loiter</implementation-class>
+        </annotation>
+      </Loiter>
+    </maneuver>
+    <maneuver>
+      <Goto kind="automatic">
+        <finalPoint type="pointType">
+          <point>
+            <id>GotoDestination</id>
+            <name>GotoDestination</name>
+            <coordinate>
+              <latitude>0N</latitude>
+              <longitude>0E</longitude>
+              <depth>-100</depth>
+            </coordinate>
+          </point>
+          <radiusTolerance>5</radiusTolerance>
+        </finalPoint>
+        <velocity tolerance="10" type="float" unit="m/s">20</velocity>
+        <trajectoryTolerance>
+          <radiusTolerance type="float">5</radiusTolerance>
+        </trajectoryTolerance>
+        <annotation>
+          <documentation>Move to a given point</documentation>
+          <implementation-class>pt.lsts.neptus.mp.maneuvers.Goto</implementation-class>
+        </annotation>
+      </Goto>
+    </maneuver>
+  </feasibleManeuvers>
+  <communication-means>
+    <comm-mean>
+      <name>ethernet</name>
+      <type>ethernet</type>
+      <host-address>192.168.106.81</host-address>
+      <protocols>imc</protocols>
+      <latency value="10M" unit="bps"/>
+      <protocols-args>
+        <imc>
+          <port>6002</port>
+          <port-tcp>6002</port-tcp>
+          <udp-on>true</udp-on>
+          <tcp-on>false</tcp-on>
+          <imc-id>0c:75</imc-id>
+        </imc>
+      </protocols-args>
+    </comm-mean>
+  </communication-means>
+  <consoles>
+    <console name="UAV Console">
+      <xml-file>../conf/consoles/uav-light.ncon</xml-file>
+    </console>
+  </consoles>
 </system>

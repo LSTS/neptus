@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2021 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -48,6 +48,7 @@ import javax.swing.JOptionPane;
 
 import foxtrot.AsyncTask;
 import foxtrot.AsyncWorker;
+import pt.lsts.imc.IMCDefinition;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -197,6 +198,10 @@ public class VehiclesHolder {
                     v.setCoordinateSystem(cs);
             }
             VehiclesHolder.addVehicle(v);
+            ImcId16 imcIDV = v.getImcId();
+            if (ImcId16.isValidIdForSource(imcIDV)) {
+                IMCDefinition.getInstance().getResolver().addEntry(imcIDV.intValue(), v.getId());
+            }
         }
         vehiclesLoaded = true;
         NeptusLog.pub().debug("Vehicles #: " + VehiclesHolder.size());

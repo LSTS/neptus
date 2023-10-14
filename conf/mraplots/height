@@ -2,6 +2,7 @@ title "WGS84 Height"
 
 addQuery "height":"EstimatedState.height", "z":"EstimatedState.z" //add timeSeries data but does not show them on the chart
 
-height = apply ("Height", "height", "z",diff)
+height = apply ("Height", "height", "z", diff)
 
+axis "meters"
 plot height

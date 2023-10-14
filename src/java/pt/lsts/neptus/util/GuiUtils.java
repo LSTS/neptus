@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2021 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -1308,7 +1308,15 @@ public class GuiUtils {
      * @param g
      */
     public static void drawText(String text, int offsetX, int offsetY, Color textColor, Color shadowColor,
-            Graphics2D g) {
+            Graphics2D g2) {
+        Graphics2D g = (Graphics2D) g2.create();
+        g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+                RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        g.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS,
+                RenderingHints.VALUE_FRACTIONALMETRICS_ON);
+        g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+                RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
+
         int x = offsetX, y = offsetY;
         g.setColor(shadowColor);
         g.drawString(text, x + 1, y + 1);
@@ -1318,6 +1326,8 @@ public class GuiUtils {
 
         g.setColor(textColor);
         g.drawString(text, x, y);
+
+        g.dispose();
     }
     
     /**

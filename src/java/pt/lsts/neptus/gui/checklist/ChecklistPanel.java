@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2021 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -92,12 +92,16 @@ import javax.swing.event.PopupMenuListener;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.PosixParser;
-import org.apache.log4j.Level;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
 
@@ -2489,17 +2493,17 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
         // .withDescription("Verbosity level [off,fatal,warn,\"info\",debug]").withValueSeparator('=')
         // .hasOptionalArg().create("v"));
 
-        options.addOption(OptionBuilder.withLongOpt("checklist").withDescription(I18n.text("checklist file")).withArgName("file")
-                .withValueSeparator('=').hasArg().create("f"));
+        options.addOption(Option.builder("f").longOpt("checklist").desc(I18n.text("checklist file")).argName("file")
+                .valueSeparator('=').hasArg().build());
 
         options.addOption("g", "generate-pdf", false, I18n.text("generate pdf and don't open the interface"));
 
-        options.addOption(OptionBuilder.withLongOpt("output-pdf").withDescription(I18n.text("output pdf file"))
-                .withArgName("file").withValueSeparator('=').hasArg().create("o"));
+        options.addOption(Option.builder("o").longOpt("output-pdf").desc(I18n.text("output pdf file"))
+                .argName("file").valueSeparator('=').hasArg().build());
 
-        options.addOption(OptionBuilder.withLongOpt("pdf-columns")
-                .withDescription(I18n.text("generate pdf with n column (1, 2, or 3) defaults to 1")).withArgName("n")
-                .withValueSeparator('=').hasArg().create("c"));
+        options.addOption(Option.builder("c").longOpt("pdf-columns")
+                .desc(I18n.text("generate pdf with n column (1, 2, or 3) defaults to 1")).argName("n")
+                .valueSeparator('=').hasArg().build());
 
         return options;
     }
@@ -2512,7 +2516,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
         HelpFormatter formatter = new HelpFormatter();
         // formatter.printHelp(NeptusLeaves.class.getCanonicalName(), options);
         formatter.printHelp("java -jar neptus-check.jar", "Neptus Checklist v" + ConfigFetch.getVersionSimpleString()
-                + "\nCopyright (c) 2004-2021 Universidade do Porto - LSTS. All rights reserved.\n\n"
+                + "\nCopyright (c) 2004-2023 Universidade do Porto - LSTS. All rights reserved.\n\n"
                 + I18n.text("Options:") + "\n",
                 options, I18n.textf("Report bugs to %email", "Paulo Dias <pdias@fe.up.pt>"), true);
     }
@@ -2521,7 +2525,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
         GeneralPreferences.initialize();
         try {
             // create the command line parser
-            CommandLineParser parser = new PosixParser();
+            CommandLineParser parser = new DefaultParser();
             Options options = getCommandLineOptions();
             // parse the command line arguments
             CommandLine line = null;
@@ -2538,19 +2542,19 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
             }
             
             OutputMonitor.setDisable(true);
-            NeptusLog.wasteRoot().setLevel(Level.OFF);
-            NeptusLog.pubRoot().setLevel(Level.FATAL);
+            LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+            Configuration config = ctx.getConfiguration();
+            LoggerConfig loggerConfig = config.getLoggerConfig(NeptusLog.wasteRoot().getName());
+            loggerConfig.setLevel(Level.OFF);
+            loggerConfig = config.getLoggerConfig(NeptusLog.pubRoot().getName());
+            loggerConfig.setLevel(Level.FATAL);
+            ctx.updateLoggers();
             ConfigFetch.initialize();
-            // OutputMonitor.end();
-            // BasicConfigurator.resetConfiguration();
-            // NeptusLog.INSTANCE.logWaste.setLevel(Level.OFF);
-            // NeptusLog.setLevel(Level.FATAL);
             if (OsInfo.getName() == OsInfo.Name.LINUX)
                 GuiUtils.setLookAndFeel();
             else
                 GuiUtils.setSystemLookAndFeel();
-            // GuiUtils.setLookAndFeelNimbus();
-            
+
             // ChecklistPanel clp = showChecklistPanel("checklists/check3.nchk");
             
             ChecklistPanel clp = null;

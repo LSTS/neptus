@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2021 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -49,6 +49,7 @@ import javax.swing.SwingWorker;
 
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.loader.NeptusMain;
 import pt.lsts.neptus.mra.NeptusMRA;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.plots.Plot3D;
@@ -109,6 +110,7 @@ public class RevisionOverlays extends SimpleRendererInteraction {
                         public void run() {
                             JFrame mra = new NeptusMRA();
                             mra.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                            NeptusMain.wrapMainApplicationWindowWithCloseActionWindowAdapter(mra);
                             ((NeptusMRA) mra).getMraFilesHandler().openLog(sidePanel.getLogFile());
                         }
                     }).run();

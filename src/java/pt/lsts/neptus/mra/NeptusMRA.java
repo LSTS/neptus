@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2021 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -34,6 +34,7 @@ package pt.lsts.neptus.mra;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.Window;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -48,6 +49,7 @@ import javax.swing.ToolTipManager;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.BlockingGlassPane;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.loader.FileHandler;
 import pt.lsts.neptus.loader.NeptusMain;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.util.GuiUtils;
@@ -64,7 +66,7 @@ import pt.lsts.neptus.util.llf.LsfReportProperties;
  * @author hfq
  */
 @SuppressWarnings("serial")
-public class NeptusMRA extends JFrame {
+public class NeptusMRA extends JFrame implements FileHandler {
     private static final String MRA_TITLE = I18n.text("Neptus Mission Review And Analysis");
 
     private MRAProperties mraProperties = new MRAProperties();
@@ -228,6 +230,11 @@ public class NeptusMRA extends JFrame {
      */
     public void setMraFilesHandler(MRAFilesHandler mraFilesHandler) {
         this.mraFilesHandler = mraFilesHandler;
+    }
+
+    @Override
+    public Window handleFile(File f) {
+        return getMraFilesHandler().handleFile(f);
     }
 
     /**

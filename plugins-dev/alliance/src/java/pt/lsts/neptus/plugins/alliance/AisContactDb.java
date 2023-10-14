@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2021 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -175,7 +175,7 @@ public class AisContactDb implements AISObserver {
         }
         LocationType oldLoc = extSys.getLocation();
         extSys.setLocation(myLoc, dateTime == null ? System.currentTimeMillis() : dateTime.getTime());
-        if (oldLoc.compareTo(myLoc) != 0) {
+        if (myLoc != null && oldLoc.compareTo(myLoc) != 0) {
             NeptusLog.pub().debug((String.format(">>>>>>>>> Ship >>>>>>> %s  :: %s :: %s :: %s", sentence, 
                     CoordinateUtil.latitudeAsPrettyString(myLoc.getLatitudeDegs()), CoordinateUtil.longitudeAsPrettyString(myLoc.getLongitudeDegs()),
                     DateTimeUtil.dateTimeFormatterISO8601.format(new Date(extSys.getLocationTimeMillis())))));
@@ -192,7 +192,7 @@ public class AisContactDb implements AISObserver {
         }
         LocationType oldLoc = extSys.getLocation();
         extSys.setLocation(myLoc, dateTime == null ? System.currentTimeMillis() : dateTime.getTime());
-        if (oldLoc.compareTo(myLoc) != 0) {
+        if (myLoc != null && oldLoc != null && oldLoc.compareTo(myLoc) != 0) {
             NeptusLog.pub().debug((String.format(">>>>>>>>> Ship GLL >>>>>>> %s  :: %s :: %s :: %s", sentence, 
                     CoordinateUtil.latitudeAsPrettyString(myLoc.getLatitudeDegs()), CoordinateUtil.longitudeAsPrettyString(myLoc.getLongitudeDegs()),
                     DateTimeUtil.dateTimeFormatterISO8601.format(new Date(extSys.getLocationTimeMillis())))));

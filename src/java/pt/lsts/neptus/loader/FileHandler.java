@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2021 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -32,9 +32,10 @@
  */
 package pt.lsts.neptus.loader;
 
+import java.awt.Window;
 import java.io.File;
 
 public interface FileHandler {
     public String getName();
-	public void handleFile(File f);
+	public Window handleFile(File f);
 }

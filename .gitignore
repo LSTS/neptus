@@ -55,6 +55,9 @@
 /conf/bathymetry.obj
 /conf/AirOS.conf
 /conf/wifimac.obj
+/conf/profiles.json
+/conf/consoles
+/conf/ipUrl.ini
 
 # /conf/i18n/
 /conf/i18n/en
@@ -125,6 +128,9 @@
 /vehicles-files/adamastor/conf/images/Thumbs.db
 
 # /vehicles-files/cularis/
+
+/missions
+
 
 /.gitignore*
 /#.gitignore*

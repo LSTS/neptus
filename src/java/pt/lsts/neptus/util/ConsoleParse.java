@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2021 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -35,6 +35,7 @@ package pt.lsts.neptus.util;
 import java.awt.Component;
 import java.awt.MouseInfo;
 import java.awt.Rectangle;
+import java.awt.Window;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
@@ -386,10 +387,11 @@ public class ConsoleParse implements FileHandler {
      * @see pt.lsts.neptus.loader.FileHandler#handleFile(java.io.File)
      */
     @Override
-    public void handleFile(File f) {
-        ConsoleLayout.forge(f.getAbsolutePath());
+    public Window handleFile(File f) {
+        ConsoleLayout console = ConsoleLayout.forge(f.getAbsolutePath());
         //ConsoleLayout c = consoleLayoutLoader(f.getAbsolutePath());
         //c.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        return console;
     }
 
     public static ConsoleLayout testSubPanel(Class<?> subPanelClass) {

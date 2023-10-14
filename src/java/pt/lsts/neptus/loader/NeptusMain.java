@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2021 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -42,7 +42,9 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Objects;
 
 import javax.swing.ImageIcon;
@@ -79,30 +81,32 @@ public class NeptusMain {
 
     private static final LinkedHashMap<String, String> appNames = new LinkedHashMap<>();
     private static final LinkedHashMap<String, Class<?>> fileHandlers = new LinkedHashMap<>();
+    private static final List<Window> openAppWindows = new ArrayList<>();
     private static Loader loader;
 
     private static void init() {
         GeneralPreferences.initialize();
 
-        appNames.put("ws", I18n.text("Workspace"));
-        appNames.put("mra", I18n.text("Mission Review & Analysis"));
+        // appNames.put("ws", I18n.text("Workspace"));
         appNames.put("auv", I18n.text("LAUV Console"));
+        appNames.put("mra", I18n.text("Mission Review & Analysis"));
         appNames.put("la", I18n.text("LAUV SE Console"));
         appNames.put("uav", I18n.text("UAV Console"));
         appNames.put("cl", I18n.text("Empty Console"));
 
-        fileHandlers.put(FileUtil.FILE_TYPE_MISSION, Workspace.class);
-        fileHandlers.put(FileUtil.FILE_TYPE_MISSION_COMPRESSED, Workspace.class);
+        // fileHandlers.put(FileUtil.FILE_TYPE_MISSION, Workspace.class);
+        // fileHandlers.put(FileUtil.FILE_TYPE_MISSION_COMPRESSED, Workspace.class);
         fileHandlers.put(FileUtil.FILE_TYPE_CONFIG, EditorLauncher.class);
         fileHandlers.put(FileUtil.FILE_TYPE_CONSOLE, ConsoleParse.class);
-        fileHandlers.put(FileUtil.FILE_TYPE_VEHICLE, Workspace.class);
+        // fileHandlers.put(FileUtil.FILE_TYPE_VEHICLE, Workspace.class);
         fileHandlers.put(FileUtil.FILE_TYPE_CHECKLIST, Workspace.class);
         fileHandlers.put(FileUtil.FILE_TYPE_INI, EditorLauncher.class);
         fileHandlers.put(FileUtil.FILE_TYPE_RMF, RMFEditor.class);
         fileHandlers.put(FileUtil.FILE_TYPE_XML, EditorLauncher.class);
 
         fileHandlers.put(FileUtil.FILE_TYPE_LSF, NeptusMRA.class);
-        fileHandlers.put(FileUtil.FILE_TYPE_LSF_COMPRESSED, NeptusMRA.class);        
+        fileHandlers.put(FileUtil.FILE_TYPE_LSF_COMPRESSED, NeptusMRA.class);
+        fileHandlers.put(FileUtil.FILE_TYPE_LSF_COMPRESSED_BZIP2, NeptusMRA.class);
     }
 
     /**
@@ -157,7 +161,7 @@ public class NeptusMain {
             if (appT != null)
                 app = typ;
             else
-                app = "ws";
+                app = "auv";
         }
         else if (app.equalsIgnoreCase("-f") && appargs.length >= 2) {
             loader.setText(I18n.text("Opening file..."));
@@ -222,6 +226,7 @@ public class NeptusMain {
         }
         // File loading
         else {
+            ConfigFetch.initialize();
             loader.setText(I18n.text("Opening file..."));
             handleFile(appargs[0]);
             loader.end();
@@ -275,9 +280,20 @@ public class NeptusMain {
      * @param callingWindow The {@link Window} to add the {@link Window#addWindowListener(WindowListener)}
      */
     public static void wrapMainApplicationWindowWithCloseActionWindowAdapter(final Window callingWindow) {
+        if (openAppWindows.contains(callingWindow)) {
+            return;
+        }
+
+        openAppWindows.add(callingWindow);
+
         WindowAdapter wa = new WindowAdapter() {
             @Override
             public void windowClosed(WindowEvent e) {
+                openAppWindows.remove(callingWindow);
+                if (!openAppWindows.isEmpty()) {
+                    return;
+                }
+
                 Window[] openedWindows = Frame.getWindows();
                 for (Window wdow : openedWindows) {
                     if (callingWindow == wdow)
@@ -321,7 +337,14 @@ public class NeptusMain {
             catch (IOException e1) {
                 NeptusLog.pub().debug(e1);
             }
+
             String extension = FileUtil.getFileExtension(f).toLowerCase();
+            // Lets us try to see compound extensions like 'lsf.gz'
+            String preExtension = FileUtil.getFileExtension(FileUtil.getFileNameWithoutExtension(f).toLowerCase());
+            if (!preExtension.isEmpty()) {
+                extension = preExtension + "." + extension;
+            }
+
             if (fileHandlers.containsKey(extension)) {
                 try {
                     FileHandler fh = ((FileHandler) fileHandlers.get(extension).getDeclaredConstructor().newInstance());
@@ -332,7 +355,10 @@ public class NeptusMain {
                         }
                         wrapMainApplicationWindowWithCloseActionWindowAdapter((JFrame) fh);
                     }
-                    fh.handleFile(f);
+                    Window window = fh.handleFile(f);
+                    if (window != null) {
+                        wrapMainApplicationWindowWithCloseActionWindowAdapter(window);
+                    }
                 }
                 catch (Exception e) {
                     GuiUtils.errorMessage(loader, e);

@@ -2,8 +2,7 @@
 <!--This file contains configuration info for Neptus-->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="neptus-config.xsd">
 	<!--The type should be "xml" or "properties".-->
-	<!-- log-conf-file type="properties">conf/log.properties_OFF</log-conf-file -->
-	<log-conf-file type="xml">conf/log4j.xml</log-conf-file>
+	<log-conf-file type="xml">conf/log4j2.xml</log-conf-file>
 	<coordinate-systems-conf-file>conf/neptus-coordinateSystems.xml</coordinate-systems-conf-file>
 	<!--Where each vehicle files will be stored.-->
 	<vehicles-base-path>vehicles-defs</vehicles-base-path>

@@ -7,6 +7,8 @@ project(':core').projectDir = file('src')
 file("$rootDir").listFiles({file ->
         file.isDirectory() && file.name ==~ 'plugins-dev.*'} as FileFilter).each {
     it.eachDir { dir ->
+        if (dir.name.startsWith(".")) return
+
         include dir.name
         project(":${dir.name}").projectDir = dir
     }

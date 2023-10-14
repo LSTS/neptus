@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2021 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -347,6 +347,7 @@ public class MissionType implements XmlOutputMethods, XmlInputMethods, XmlInputM
         NeptusLog.pub().debug(this + ": Total mission load time: " + totalTime + " ms.");
 
         isLoadOk = true;
+        MapGroup.resetMissionInstance(this);
         return true;
     }
 
@@ -973,6 +974,20 @@ public class MissionType implements XmlOutputMethods, XmlInputMethods, XmlInputM
             NeptusLog.pub().info("The mission was" + (sr ? "" : " NOT") + " saved to " + compressedFilePath
                     + " in " + getFormatedDuration(startTimeMillis) + " from " + caller);            
             return sr;
+        }
+
+        for (MapMission map : mapsList.values()) {
+            String maphref = map.getMap().getHref();
+            if (maphref == null) {
+                String misFx = new File(getOriginalFilePath()).getParentFile().getPath();
+                maphref = misFx + "/" + map.getMap().getName();
+            }
+            map.getMap().saveFile(maphref);
+        }
+        for (ChecklistMission clist : checklistsList.values()) {
+            String href = clist.getHref();
+            FileUtil.saveToFile(href,
+                    FileUtil.getAsPrettyPrintFormatedXMLString(clist.getChecklist().asDocument()));
         }
 
         boolean sr = FileUtil.saveToFile(getOriginalFilePath(),

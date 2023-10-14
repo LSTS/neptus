@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2021 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -279,6 +279,9 @@ public class ContainerSubPanel extends ConsolePanel implements LockableSubPanel 
                     catch (Exception e) {
                         NeptusLog.pub().error("creating subpanel new instance " + clazz.getName(), e);
                     }
+                }
+                catch (ClassNotFoundException e) {
+                    NeptusLog.pub().error("==>> Plugin not found <<== Error parsing " + attribute.getValue() + " :: " + e.getMessage());
                 }
                 catch (Exception e) {
                     NeptusLog.pub().error("Error parsing " + attribute.getValue(), e);

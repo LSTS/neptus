@@ -7,7 +7,6 @@ plugins/filter-viewer.jar
 plugins/necsave.jar
 plugins/s57-client.jar
 plugins/soi.jar
-plugins/sunfish.jar
 plugins/trex*.jar
 plugins/urready4os.jar
 plugins/waveglider.jar

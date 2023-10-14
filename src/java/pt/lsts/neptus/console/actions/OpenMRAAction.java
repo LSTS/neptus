@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2021 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -37,6 +37,7 @@ import java.awt.event.ActionEvent;
 import javax.swing.JFrame;
 
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.loader.NeptusMain;
 import pt.lsts.neptus.mra.NeptusMRA;
 import pt.lsts.neptus.util.ImageUtils;
 
@@ -57,6 +58,8 @@ public class OpenMRAAction extends ConsoleAction {
      */
     @Override
     public void actionPerformed(ActionEvent e) {
-        NeptusMRA.showApplication().setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        NeptusMRA app = NeptusMRA.showApplication();
+        app.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        NeptusMain.wrapMainApplicationWindowWithCloseActionWindowAdapter(app);
     }
 }

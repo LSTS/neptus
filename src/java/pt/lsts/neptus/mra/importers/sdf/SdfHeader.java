@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2021 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -89,6 +89,7 @@ public class SdfHeader {
     private float pitch; // pitch from compass (deg.)
     private float roll; // roll from compass (deg.)
     private float depth; // from towfish (Volts)
+    private float altitude; // from towfish (meters)
 
     private float temperature; // from towfish (Degrees C)
     private float speed; // from serial NMEA, updated on GPS update, m/s
@@ -444,6 +445,20 @@ public class SdfHeader {
      */
     public void setDepth(float depth) {
         this.depth = depth;
+    }
+
+    /**
+     * @return the altitude
+     */
+    public float getAltitude() {
+        return altitude;
+    }
+
+    /**
+     * @param altitude the altitude to set
+     */
+    public void setAltitude(float altitude) {
+        this.altitude = altitude;
     }
 
     /**
@@ -832,6 +847,13 @@ public class SdfHeader {
     }
 
     /**
+     * @param motionSensorType
+     */
+    public void setMotionSensorType(short motionSensorType) {
+        this.motionSensorType = motionSensorType;
+    }
+
+    /**
      * @return the pingInterval
      */
     public float getPingInterval() {
@@ -963,8 +985,19 @@ public class SdfHeader {
         setConfiguration(buffer.getInt(12));
         setPingNumber(buffer.getInt(16));
         setNumSamples(buffer.getInt(20));
+        //24 U32 beamsToDisplay not available on 3500
+        setErrorFlags(buffer.getInt(28));
         setRange(buffer.getInt(32));
         setSpeedFish(buffer.getInt(36));
+
+        setSpeedSound(buffer.getInt(40));
+        //44 U32 resMode not available on 3500
+        setTxWaveform(buffer.getInt(48));
+        //setRespDiv 52 missing in our parser
+        //setRespFreq 56 missing in our parser
+        //setManualSpeedSwitch 60 missing in our parser
+        //setDespeckleSwitch 64 not available on 3500
+        //setSpeedFilterSwitch 68 not available on 3500
 
         // TPU Time of ping
         setYear(buffer.getInt(72));
@@ -974,23 +1007,67 @@ public class SdfHeader {
         setMinute(buffer.getInt(88));
         setSecond(buffer.getInt(92));
         sethSecond(buffer.getInt(96));
-        setfSecond(buffer.getFloat(220));
+        setFixTimeHour(buffer.getInt(100));
+        setFixTimeMinute(buffer.getInt(104));
+        setFixTimeSecond(buffer.getFloat(108));
+        setfSecond(buffer.getFloat(220)); // out of order
 
+        setFishHeading(buffer.getFloat(112));
         setPitch(buffer.getFloat(116));
         setRoll(buffer.getFloat(120));
         setDepth(buffer.getFloat(124));
+        setAltitude(buffer.getFloat(128));
         setTemperature(buffer.getFloat(132));
+        setSpeed(buffer.getFloat(136));
         setShipHeading(buffer.getFloat(140));
+        //setMagneticVariation(buffer.getFloat(144));
         setShipLat(buffer.getDouble(148));
         setShipLon(buffer.getDouble(156));
+        setFishLat(buffer.getDouble(164));
+        setFishLon(buffer.getDouble(172));
+
+        // version 3 header
+        setTvgPage(buffer.getInt(180));
         setHeaderSize(buffer.getInt(184));
+        setFixTimeYear(buffer.getInt(188));
+        setFixTimeMonth(buffer.getInt(192));
+        setFixTimeDay(buffer.getInt(196));
+
         setAuxPitch(buffer.getFloat(200));
         setAuxRoll(buffer.getFloat(204));
         setAuxDepth(buffer.getFloat(208));
         setAuxAlt(buffer.getFloat(212));
-        setSampleFreq(buffer.getInt(228));
-        setSonarFreq(buffer.getInt(408));
 
+        setCableOut(buffer.getFloat(216));
+        //220 fseconds above next to TPU
+
+        //setAltimeter(buffer.getFloat(224));
+        setSampleFreq(buffer.getInt(228));
+        //...
+        setGPSheight(buffer.getFloat(252));
+        setRawDataConfig(buffer.getInt(256));
+        setHeader3ExtensionSize(buffer.getInt(260));
+        //...
+        setTPUSwVersion(buffer.getInt(324));
+        setCapabilityMask(buffer.getInt(328));
+        //..
+        setNumSamplesExtra(buffer.getInt(336));
+        setPostProcessVersion(buffer.getInt(340));
+        setMotionSensorType(buffer.getShort(344));
+        //..
+        setPingInterval(buffer.getFloat(360));
+        setSDFExtensionSize(buffer.getInt(364));
+        //..
+        setSpeedSoundSource(buffer.getInt(376));
+        setPressureSensorMax(buffer.getFloat(380));
+        setPressureSensorVoltMin(buffer.getFloat(384));
+        setPressureSensorVoltMax(buffer.getFloat(388));
+        //set U32 processedPingNumber 392 increments by 1 for each processed ping
+        // set U32 processedPingNumber 396 The along track spacing of the processed ping (meters)
+        setTemperatureAmbient(buffer.getFloat(400));
+        setSaturationDetectThreshold(buffer.getInt(404)); //S32
+        setSonarFreq(buffer.getInt(408));
+        //...
     }
 
     @Override
@@ -1019,6 +1096,7 @@ public class SdfHeader {
         + "\npitch " + getPitch()
         + "\nroll " + getRoll()
         + "\ndepth " + getDepth()
+        + "\naltitude " + getAltitude()
         + "\ntemperature " + getTemperature()
         + "\nspeed " + getSpeed()
         + "\nshipHeading " + getShipHeading()

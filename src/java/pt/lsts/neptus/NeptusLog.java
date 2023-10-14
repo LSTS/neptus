@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2021 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -33,12 +33,15 @@
 package pt.lsts.neptus;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
-import org.apache.log4j.xml.DOMConfigurator;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.config.ConfigurationSource;
+import org.apache.logging.log4j.core.config.Configurator;
 
+import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**
@@ -52,24 +55,33 @@ public class NeptusLog {
     private static final String NEPTUS_ACTION = "Neptus.Action";
     private static final String NEPTUS_WASTE = "Neptus.Waste";
 
-    private static Logger pub = Logger.getLogger(NEPTUS_PUB);
-    private static Logger action = Logger.getLogger(NEPTUS_ACTION);
-    private static Logger waste = Logger.getLogger(NEPTUS_WASTE);
+    private static Logger pub = LogManager.getLogger(NEPTUS_PUB);
+    private static Logger action = LogManager.getLogger(NEPTUS_ACTION);
+    private static Logger waste = LogManager.getLogger(NEPTUS_WASTE);
 
    
-    public static void init(){
+    public static void init() {
+        String log4j2FileName = "conf/log4j2.xml";
         try {
-            if (new File("conf/log4j.xml").exists()) {
-                DOMConfigurator.configure("conf/log4j.xml");
-                pub.debug("Log4J configured with conf/log4j.xml!");
-            }
-            else {
-                PropertyConfigurator.configure("conf/log4j.properties");
-                pub.debug("Log4J configured with conf/log4j.properties!");
-            }
+            log4j2FileName = ConfigFetch.getLoggingPropertiesLocation();
+        }
+        catch (Exception e) {
+            System.err.println("Could not load log4j2 configuration file, fallback to default.");
         }
         catch (Error e) {
-            BasicConfigurator.configure();
+            System.err.println("Could not load log4j2 configuration file, fallback to default.");
+        }
+
+        try (InputStream inputStream = new FileInputStream(new File(log4j2FileName))) {
+            ConfigurationSource source = new ConfigurationSource(inputStream);
+            Configurator.initialize(null, source);
+            pub.debug("Log4J configured with conf/log4j2.xml!");
+        }
+        catch (Exception e) {
+            pub.warn("Could not configure Log4J with a default config, will try to load from configuration file!!");
+        }
+        catch (Error e) {
+            //BasicConfigurator.configure();
             pub.warn("Could not configure Log4J with a default config, will try to load from configuration file!!");
         }
     }
@@ -88,7 +100,7 @@ public class NeptusLog {
         if (caller.length() == 0)
             return fallbackLogger;
         else
-            return Logger.getLogger(prefix + "." + caller);
+            return LogManager.getLogger(prefix + "." + caller);
     }
 
     public static Logger pub() {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2021 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -67,12 +67,12 @@ public class AboutPanel extends JDialog {
     private static String aboutImageFilePath = "images/nep-about.jpg";
     private static String additionalHTML = "";
 
-    private static final String COPY_YEARS = "2004-2021";
+    private static final String COPY_YEARS = "2004-2023";
 
     private String mainDevelopers = "Paulo Dias, José Pinto";
-    private String contributorsDevelopers = "Ricardo Martins, Manuel Ribeiro, "
-            + "José Braga, Tiago Marques, Pedro Gonçalves, Keila Lima";
-    private String pastDevelopers = "Sérgio Ferreira, Francisco Richardson, "
+    private String contributorsDevelopers = "Manuel Ribeiro, "
+            + "Tiago Marques, Pedro Gonçalves, Keila Lima";
+    private String pastDevelopers = "José Braga, Ricardo Martins, Francisco Richardson, "
             + "João Fortuna, José Loureiro, Hugo Queirós, Margarida Faria, "
             + "José Correia, Hugo Dias, Rui Gonçalves, Eduardo Marques";
 

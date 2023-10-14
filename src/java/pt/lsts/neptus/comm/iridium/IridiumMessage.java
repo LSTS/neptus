@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2021 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -84,26 +84,27 @@ public abstract class IridiumMessage implements Comparable<IridiumMessage> {
     }
     
     public static IridiumMessage deserialize(byte[] data) throws Exception {
-
         IMCInputStream iis = new IMCInputStream(new ByteArrayInputStream(data), IMCDefinition.getInstance());
         iis.setBigEndian(false);
+        iis.mark(10);
         int source = iis.readUnsignedShort();
         int dest = iis.readUnsignedShort();
         int mgid = iis.readUnsignedShort();
         IridiumMessage m = null;
         if (iridiumTypes.containsKey(mgid)) {
             m = iridiumTypes.get(mgid).getDeclaredConstructor().newInstance();
-        }
-        else {
-            iis.close();
-            throw new Exception("Unrecognized message type: "+mgid);
+        } else {
+            mgid = -1;
+            iis.reset();
+            m = PlainTextMessage.createTextMessageFrom(iis);
         }
         
         if (m != null) {
-            m.setSource(source);
-            m.setDestination(dest);
+            m.setSource(mgid > -1 ? source : 0xFFFF);
+            m.setDestination(mgid > -1 ? dest : 0xFFFF);
             m.setMessageType(mgid);
-            m.deserializeFields(iis);
+            if (mgid > -1)
+                m.deserializeFields(iis);
         }
         iis.close();
         

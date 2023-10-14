@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2021 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -38,8 +38,8 @@ import java.util.TreeSet;
 
 import javax.swing.SwingUtilities;
 
-import org.apache.log4j.Logger;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pt.lsts.neptus.types.coord.LocationType;
 
 
@@ -50,7 +50,7 @@ import pt.lsts.neptus.types.coord.LocationType;
  * 
  */
 public class Spot {
-    public static Logger log = Logger.getLogger("SPOT");
+    public static Logger log = LogManager.getLogger("SPOT");
 
     // protected final SpotPageKeys pageInfo;
     private final String id;

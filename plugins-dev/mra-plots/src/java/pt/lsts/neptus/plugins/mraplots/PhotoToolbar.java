@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2021 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -59,6 +59,8 @@ public class PhotoToolbar extends JPanel {
     protected MraPhotosVisualization display;
     protected JToggleButton grayToggle, sharpenToggle, wbalanceToggle,
     contrastToggle, brightToggle, legendToggle, histGrayFilter, histColorFilter;
+
+    protected JToggleButton rotateImageToggle;
 
     protected JButton nextButton, prevButton;
     protected File[] allFiles;
@@ -195,10 +197,22 @@ public class PhotoToolbar extends JPanel {
                 display.setCurFile(display.getCurFile());
             }
         });
-        legendToggle.setSelected(true);
+        legendToggle.setSelected(display.rotateToPaintImage);
         legendToggle.setToolTipText(I18n.text("Show legend"));
         add(legendToggle);
-        
+
+        rotateImageToggle = new JToggleButton("R");
+        rotateImageToggle.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                display.rotateToPaintImage = rotateImageToggle.isSelected();
+                display.repaint();
+            }
+        });
+        rotateImageToggle.setSelected(false);
+        rotateImageToggle.setToolTipText(I18n.text("Rotate image"));
+        add(rotateImageToggle);
+
         //!Find OPENCV JNI
         hasOcv = SearchOpenCv.searchJni();
         

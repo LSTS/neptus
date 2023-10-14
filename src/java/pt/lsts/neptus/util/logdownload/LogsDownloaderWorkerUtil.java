@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2021 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -59,6 +59,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.ftp.FtpDownloader;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.loader.NeptusMain;
 import pt.lsts.neptus.messages.listener.MessageInfo;
 import pt.lsts.neptus.messages.listener.MessageListener;
 import pt.lsts.neptus.mra.NeptusMRA;
@@ -203,7 +204,7 @@ class LogsDownloaderWorkerUtil {
                                     public void run() {
                                         JFrame mra = new NeptusMRA();
                                         mra.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                                        
+                                        NeptusMain.wrapMainApplicationWindowWithCloseActionWindowAdapter(mra);
                                         ((NeptusMRA) mra).getMraFilesHandler().openLog(log);
                                     };
                                 };
@@ -235,7 +236,7 @@ class LogsDownloaderWorkerUtil {
     private static FtpDownloader getOrRenewFtpDownloader(FtpDownloader clientFtp, String host, int port)
             throws Exception {
         if (clientFtp == null)
-            clientFtp = new FtpDownloader(host, port);
+            clientFtp = new FtpDownloader(host, port, false);
         else
             clientFtp.setHostAndPort(host, port);
 

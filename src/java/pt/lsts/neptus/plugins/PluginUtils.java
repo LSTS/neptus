@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2021 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -45,6 +45,7 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -1045,7 +1046,7 @@ public class PluginUtils {
     }
     
     public static String getResourceAsString(String filename) throws IOException{
-        return IOUtils.toString(getResourceAsStream(filename));
+        return IOUtils.toString(getResourceAsStream(filename), (Charset) null);
     }
     
     private static String[] computeParamNameAlternatives(String name) {

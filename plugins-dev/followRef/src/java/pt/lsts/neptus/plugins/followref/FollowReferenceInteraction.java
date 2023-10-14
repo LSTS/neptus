@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2021 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -319,7 +319,7 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
                 if (ref != null && lastFrefState != null) {
                     Color c = Color.red;
                     if (lastFrefState != null) {
-                        if (ref.getLat() == lastFrefState.getReference().getLat()
+                        if (lastFrefState.getReference() != null && ref.getLat() == lastFrefState.getReference().getLat()
                                 && ref.getLon() == lastFrefState.getReference().getLon())
                             c = Color.green;
                     }

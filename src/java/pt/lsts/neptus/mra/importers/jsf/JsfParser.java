@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2021 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -227,6 +227,9 @@ public class JsfParser {
             tslist.put(SUBSYS_HIGH, tslisthigh);
 
             index.numberOfPackets = count;
+
+            index.frequenciesList.sort(null);
+            index.subSystemsList.sort(null);
 
             ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(indexPath));
             out.writeObject(index);

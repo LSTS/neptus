@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2021 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -45,10 +45,14 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.i18n.I18n;
 
 public class SdfParser {
     // Minimum valid timestamp (2000-01-01 00:00:00).
@@ -64,7 +68,6 @@ public class SdfParser {
     private LinkedHashMap<Integer, Long[]> tslist = new LinkedHashMap<Integer, Long[]>();
     private LinkedHashMap<Integer, Long> nextTimestamp = new LinkedHashMap<Integer, Long>();
     private LinkedHashMap<File, SdfIndex> fileIndex = new LinkedHashMap<>();
-
 
     private ArrayList<Long[]> tsSHigh = new ArrayList<>();
     private ArrayList<Long[]> tsSLow = new ArrayList<>();
@@ -91,7 +94,6 @@ public class SdfParser {
                     generateIndex();
                 }
             }
-
         }
         catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -182,9 +184,8 @@ public class SdfParser {
         long pos = 0;
         curPosition = 0;
         try {
-
+            Set<Integer> unimplementedPageVersionSet = new HashSet<>();
             while (true) {
-
                 // Read the header
                 ByteBuffer buf = channel.map(MapMode.READ_ONLY, curPosition, 512); //header size 512bytes
                 buf.order(ByteOrder.LITTLE_ENDIAN);
@@ -192,15 +193,17 @@ public class SdfParser {
                 curPosition += header.getHeaderSize();
                 //System.out.println("curPos " + curPosition);
 
-
                 if (header.getPageVersion() == SUBSYS_HIGH || header.getPageVersion() == SUBSYS_LOW) {
                     //set header of this ping
                     ping.setHeader(header);
                     ping.calculateTimeStamp();
+                    ping.calculateFixTimeStamp();
                     pos = curPosition-header.getHeaderSize();
-
                 } else { //ignore other pageVersions
-                    NeptusLog.pub().info("SDF Data file contains unimplemented pageVersion # "+header.getPageVersion());
+                    if (!unimplementedPageVersionSet.contains(header.getPageVersion())) {
+                        unimplementedPageVersionSet.add(header.getPageVersion());
+                        NeptusLog.pub().info("SDF Data file contains unimplemented pageVersion # " + header.getPageVersion());
+                    }
                     curPosition += (header.getNumberBytes()+4) - header.getHeaderSize();
                     pos = curPosition;
                     if (curPosition >= channel.size()) //check if curPosition is at the end of file
@@ -209,9 +212,9 @@ public class SdfParser {
                         continue;
                 }
 
-
                 //get timestamp, freq and subsystem used
                 long t = ping.getTimestamp(); // Timestamp
+                long tfix = ping.getFixTimestamp(); // FixTimestamp
                 int f = ping.getHeader().getSonarFreq(); // Frequency
                 int subsystem = ping.getHeader().getPageVersion();
                 //  System.out.println(pos+": ["+header.getPingNumber()+"] timestamp "+ t + " freq "+f + " subsys "+subsystem);
@@ -219,10 +222,17 @@ public class SdfParser {
                 if (!index2.frequenciesList.contains(f)) {
                     index2.frequenciesList.add(f);
                 }
-
                 if (!index2.subSystemsList.contains(subsystem)) {
                     index2.subSystemsList.add(subsystem);
                 }
+
+                if (t < 5000000) { // Fixing timestamp from 1970
+                    NeptusLog.pub().warn(I18n.textf("Something is wrong with the timestamp (%d). " +
+                                    "Trying to calculate using GPS data for ping %d for subsystem %d. New timestamp is %d.",
+                            new Date(t), ping.getHeader().getPingNumber(), subsystem, new Date(tfix)));
+                    t = tfix;
+                }
+
                 if(subsystem == SUBSYS_LOW) {
                     if(!index2.hasLow) index2.hasLow = true;
 
@@ -235,7 +245,7 @@ public class SdfParser {
                     else {
                         l.add(pos);
                     }
-                    
+
                     if (t > minimumValidTimestamp) {
                         minTimestampLow = Math.min(minTimestampLow, t);
                         maxTimestampLow = Math.max(maxTimestampLow, t);
@@ -252,7 +262,6 @@ public class SdfParser {
                         index2.positionMapHigh.put(t, l);
                     }
                     else {
-
                         l.add(pos);
                     }
                     
@@ -287,10 +296,21 @@ public class SdfParser {
             Arrays.sort(tslisthigh);
             Arrays.sort(tslistlow);
 
+            if (tslisthigh.length >= 2968) {
+                NeptusLog.pub().debug(">??>>>> >= 2968 >> HLength:" + tslisthigh.length + "|LLength:" + tslistlow.length +
+                        ">" + tslisthigh[2967] + ", " + "----" + " | " +
+                        (tslistlow.length >= 2968 ? tslistlow[2967] : "----") + ", " +
+                        (tslistlow.length >= 2969 ? tslistlow[2968] : "----") +
+                        " >> " + indexPath);
+            }
+
             tslist.put(SUBSYS_LOW, tslistlow);
             tslist.put(SUBSYS_HIGH, tslisthigh);
 
             index2.numberOfPackets = count;
+
+            index2.frequenciesList.sort(null);
+            index2.subSystemsList.sort(null);
 
             ObjectOutputStream out = new ObjectOutputStream(new  FileOutputStream(indexPath));
             out.writeObject(index2);
@@ -300,7 +320,9 @@ public class SdfParser {
                 fileIndex.put(file, index2);
         }
         catch (IOException e) {
-            e.printStackTrace();
+            NeptusLog.pub().error("Found corrupted SDF file '" + file.getName() + "' while indexing. Error: " +
+                    e.getMessage());
+            // e.printStackTrace();
         }
     }
 
@@ -390,6 +412,17 @@ public class SdfParser {
             tsSHigh.add(tslisthigh);
             tsSLow.add(tslistlow);
 
+            if (tslisthigh.length >= 2968) {
+                NeptusLog.pub().debug(">?!>>>> >= 2968 >> " + file.getName() +
+                        ">HLength:" + tslisthigh.length + "|LLength:" + tslistlow.length +
+                        "> " + tslisthigh[2967] + ", " + "---" + " | " +
+                        (tslistlow.length >= 2968 ? tslistlow[2967] : "----") + ", " +
+                        (tslistlow.length >= 2969 ? tslistlow[2968] : "----"));
+            }
+            else {
+                NeptusLog.pub().debug(">?!>>>>" + file.getName() + ">" + tslisthigh.length + "|" + tslistlow.length + ">");
+            }
+
             fileIndex.put(file, indexN);
 
             in.close();
@@ -434,13 +467,15 @@ public class SdfParser {
     public SdfIndex getIndex() {
         if (multipleFiles) {
             for (Entry<File, SdfIndex> entry : fileIndex.entrySet()) {
-                return entry.getValue();
+                if (entry.getKey() == file)
+                    return entry.getValue();
             }
         }
         return index;
     }
 
     public SdfData getPingAtPosition(long pos, int subsystem) {
+        long posHeader = pos;
         SdfHeader header = new SdfHeader();
         SdfData ping = new SdfData();
         try {
@@ -455,12 +490,45 @@ public class SdfParser {
             header.parse(buf);
             pos += header.getHeaderSize();
 
-            if(header.getPageVersion() != subsystem) 
+            if(header.getPageVersion() != subsystem)
                 return null;
 
             //define header
             ping.setHeader(header);
-            ping.calculateTimeStamp(); 
+            ping.calculateTimeStamp();
+            ping.calculateFixTimeStamp();
+
+            // Let us try to see if we corrected the timestamp
+            //index = getIndex(); // making sure we have the right index
+            LinkedHashMap<Long, ArrayList<Long>> posMapTsToPosList = null;
+            if (subsystem == SUBSYS_LOW)
+                posMapTsToPosList = index.positionMapLow;
+            else if (subsystem == SUBSYS_HIGH)
+                posMapTsToPosList = index.positionMapHigh;
+            if (posMapTsToPosList != null && !posMapTsToPosList.isEmpty()) {
+                for (long tsK : posMapTsToPosList.keySet()) {
+                    boolean found = false;
+                    for (long posK : posMapTsToPosList.get(tsK)) {
+                        if (posK == posHeader) {
+                            ping.setTimestamp(tsK);
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (found) break;
+                }
+            }
+
+            if (ping.getTimestamp() < 1000 || (tslist.get(subsystem).length > 2969 &&
+                    (tslist.get(subsystem)[2968] < 1000 || tslist.get(subsystem)[2969] < 1000))) {
+                if (tslist.get(subsystem).length > 2969) {
+                    NeptusLog.pub().debug(">!!>>>> ts 2968 vs 2969 >>" + tslist.get(subsystem)[2968] +
+                            ", " + tslist.get(subsystem)[2969]);
+                } else {
+                    NeptusLog.pub().debug(">!!>>>> ts ping ts vs fixts>>" + ping.getTimestamp() +
+                            " " + ping.getFixTimestamp());
+                }
+            }
 
             //handle data 
             buf = channel.map(MapMode.READ_ONLY, pos, (header.getNumberBytes() - header.getHeaderSize() - header.getSDFExtensionSize()+4));
@@ -526,9 +594,16 @@ public class SdfParser {
             c++;
         }
 
+        NeptusLog.pub().debug(">>> " + subsystem + " >>>>> Fetch ping " + (c+1) + " of " +
+                tslist.get(subsystem).length + " < " + tslist.get(subsystem).length
+                + " @" + timestamp + " for ping @" + tslist.get(subsystem)[c+1]
+                + " " + (tslist.get(subsystem)[c+1] >= timestamp ? 'T' : 'F')
+                + "   >>> " + file.getName());
         nextTimestamp.put(subsystem, tslist.get(subsystem)[c+1]);
         for(Long pos : positionMap.get(ts)) {
             ping = getPingAtPosition(pos, subsystem);
+            NeptusLog.pub().debug(">>> " + subsystem + " >>>>> For long " + pos +
+                    " @ ts:" + ping.getTimestamp() + " | fixts:" + ping.getFixTimestamp());
         }
 
         return ping;
