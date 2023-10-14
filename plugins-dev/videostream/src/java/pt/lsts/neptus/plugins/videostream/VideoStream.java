@@ -502,7 +502,16 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                     popup = new JPopupMenu();
                     JMenuItem item;
 
-                    popup.add(item = new JMenuItem(I18n.text("Close all connections"),
+                    popup.add(item = new JMenuItem(I18n.text("Connect to a IPCam"),
+                                    ImageUtils.createImageIcon("images/menus/camera.png")))
+                            .addActionListener(new ActionListener() {
+                                public void actionPerformed(ActionEvent e) {
+                                    openIPCamManagementPanel();
+                                }
+                            });
+                    item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, ActionEvent.ALT_MASK));
+
+                    popup.add(item = new JMenuItem(I18n.text("Close connections"),
                                     ImageUtils.createImageIcon(String.format("images/menus/exit.png"))))
                             .addActionListener(new ActionListener() {
                                 public void actionPerformed(ActionEvent e) {
@@ -522,15 +531,6 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                                 }
                             });
                     item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, ActionEvent.ALT_MASK));
-
-                    popup.add(item = new JMenuItem(I18n.text("Start IPCam"),
-                                    ImageUtils.createImageIcon("images/menus/camera.png")))
-                            .addActionListener(new ActionListener() {
-                                public void actionPerformed(ActionEvent e) {
-                                    openIPCamManagementPanel();
-                                }
-                            });
-                    item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, ActionEvent.ALT_MASK));
 
                     popup.addSeparator();
 
@@ -553,7 +553,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                             });
                     item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, ActionEvent.ALT_MASK));
 
-                    popup.add(item = new JMenuItem(I18n.text("Snapshot"),
+                    popup.add(item = new JMenuItem(I18n.text("Take snapshot"),
                                     ImageUtils.createImageIcon("images/menus/snapshot.png")))
                             .addActionListener(new ActionListener() {
                                 public void actionPerformed(ActionEvent e) {
@@ -562,7 +562,7 @@ public class VideoStream extends ConsolePanel implements ItemListener {
                             });
                     item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.ALT_MASK));
 
-                    popup.add(item = new JMenuItem(I18n.text("Maximize Window"),
+                    popup.add(item = new JMenuItem(I18n.text("Maximize window"),
                                     ImageUtils.createImageIcon("images/menus/maximize.png")))
                             .addActionListener(new ActionListener() {
                                 public void actionPerformed(ActionEvent e) {
