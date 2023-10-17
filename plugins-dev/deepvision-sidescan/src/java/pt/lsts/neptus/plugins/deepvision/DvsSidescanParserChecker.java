@@ -68,11 +68,12 @@ public class DvsSidescanParserChecker implements SidescanParserChecker<DvsSidesc
     public DvsSidescanParser getParser(IMraLogGroup log) {
         List<File> fileList = listDataFiles(log);
 
-        if (fileList.isEmpty())
+        if (fileList.isEmpty()) {
             return null;
+        }
 
         File file = fileList.get(0);
-        if(file.exists()) {
+        if (file.exists()) {
             return new DvsSidescanParser(file);
         }
 
