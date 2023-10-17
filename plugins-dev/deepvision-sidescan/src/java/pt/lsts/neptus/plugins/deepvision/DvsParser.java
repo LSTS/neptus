@@ -112,19 +112,18 @@ public class DvsParser {
                 dvsPos.setLongitude(buffer.getDouble());
                 dvsPos.setSpeed(buffer.getFloat());
                 dvsPos.setHeading(buffer.getFloat());
-                dvsPos.setTimestamp((long)(posDataList.size() / (dvsHeader.getLineRate() / 1000)));
+                dvsPos.setTimestamp((long) (posDataList.size() / (dvsHeader.getLineRate() / 1000)));
                 posDataList.add(dvsPos);
 
                 byte[] dst = new byte[dvsHeader.getnSamples() * dvsHeader.getNumberOfActiveChannels()];
                 buffer.get(dst);
 
                 // Left channel needs to be reverse
-                if(dvsHeader.isLeftChannelActive()) {
+                if (dvsHeader.isLeftChannelActive()) {
                     int length = dvsHeader.getnSamples();
                     byte temp;
 
-                    for (int i = 0; i < length/2; i++)
-                    {
+                    for (int i = 0; i < length / 2; i++) {
                         temp = dst[i];
                         dst[i] = dst[length - 1 - i];
                         dst[length - 1 - i] = temp;
@@ -193,7 +192,7 @@ public class DvsParser {
         int left = 0;
         int right = posDataList.size() - 1;
 
-        if(timestamp < posDataList.get(0).getTimestamp() || timestamp > posDataList.get(right).getTimestamp()) {
+        if (timestamp < posDataList.get(0).getTimestamp() || timestamp > posDataList.get(right).getTimestamp()) {
             return -1;
         }
 
@@ -207,7 +206,8 @@ public class DvsParser {
 
             if (timestamp > middleTimestamp) {
                 left = middle + 1;
-            } else {
+            }
+            else {
                 right = middle - 1;
             }
         }
