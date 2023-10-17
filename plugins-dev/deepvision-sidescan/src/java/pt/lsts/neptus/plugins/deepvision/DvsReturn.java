@@ -49,8 +49,7 @@ public class DvsReturn {
         // So we need to decompress them.
         double[] doubleData = new double[data.length];
         for (int i = 0; i < doubleData.length; i++) {
-            doubleData[i] = Byte.toUnsignedInt(data[i]);
-            doubleData[i] = Math.pow(1.025, doubleData[i]);
+            doubleData[i] = Math.pow(1.025, Byte.toUnsignedInt(data[i]));
         }
         return doubleData;
     }
