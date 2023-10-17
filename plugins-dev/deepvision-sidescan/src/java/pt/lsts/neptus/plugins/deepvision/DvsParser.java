@@ -133,6 +133,8 @@ public class DvsParser {
 
                 filePosition += bufferSize;
             }
+
+            fileChannel.close();
         }
         catch (FileNotFoundException e) {
             NeptusLog.pub().error("File " + file.getAbsolutePath() + " not found while creating the DvsParser object.");
