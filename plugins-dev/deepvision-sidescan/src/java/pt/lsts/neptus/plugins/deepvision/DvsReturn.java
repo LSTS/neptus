@@ -35,24 +35,20 @@ package pt.lsts.neptus.plugins.deepvision;
 
 public class DvsReturn {
     private final double LOG_DECOMPRESSION_FACTOR = 1.025;
-    private byte[] data;
+    private double[] data;
 
     public DvsReturn(byte[] data) {
-        this.data = data;
-    }
+        this.data = new double[data.length];
 
-    public byte[] getData() {
-        return data;
-    }
-
-    public double[] getDataAsDouble() {
         // The data points are logarithmically compressed.
         // So we need to decompress them.
-        double[] doubleData = new double[data.length];
-        for (int i = 0; i < doubleData.length; i++) {
-            doubleData[i] = Math.pow(LOG_DECOMPRESSION_FACTOR, Byte.toUnsignedInt(data[i]));
+        for (int i = 0; i < data.length; i++) {
+            this.data[i] = Math.pow(LOG_DECOMPRESSION_FACTOR, Byte.toUnsignedInt(data[i]));
         }
-        return doubleData;
+    }
+
+    public double[] getData() {
+        return data;
     }
 
     public int getLength() {
