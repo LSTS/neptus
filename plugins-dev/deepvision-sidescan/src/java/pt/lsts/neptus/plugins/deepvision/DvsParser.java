@@ -163,24 +163,37 @@ public class DvsParser {
     }
 
     public ArrayList<SidescanLine> getLinesBetween(long timestamp1, long timestamp2, int subsystem, SidescanParameters params) {
+        DvsPos dvsPos;
+        DvsReturn dvsReturn;
+        long timestamp;
+        float range;
+        SystemPositionAndAttitude state;
+        float frequency;
+        double[] data;
+
         ArrayList<SidescanLine> lines = new ArrayList<>();
-        int index1 = findTimestampIndex(timestamp1);
-        int index2 = findTimestampIndex(timestamp2);
+        int index = findTimestampIndex(timestamp1);
 
-        for (int i = index1; i < index2; i++) {
-            DvsPos dvsPos = posDataList.get(i);
-            DvsReturn dvsReturn = returnDataList.get(i);
+        while(index < posDataList.size()) {
+            dvsPos = posDataList.get(index);
+            timestamp = dvsPos.getTimestamp();
 
-            long timestamp = dvsPos.getTimestamp();
-            float range = dvsHeader.getSampleResolution();
-            SystemPositionAndAttitude state = new SystemPositionAndAttitude();
+            if (timestamp >= timestamp2) {
+                break;
+            }
+
+            dvsReturn = returnDataList.get(index);
+            range = dvsHeader.getSampleResolution();
+            state = new SystemPositionAndAttitude();
             state.setPosition(new LocationType(dvsPos.getLatitudeDegrees(), dvsPos.getLongitudeDegrees()));
-            float frequency = dvsHeader.getLineRate();
-            double[] data = dvsReturn.getData();
+            frequency = dvsHeader.getLineRate();
+            data = dvsReturn.getData();
             data = SidescanUtil.applyNormalizationAndTVG(data, range, params);
 
             SidescanLine line = new SidescanLine(timestamp, range, state, frequency, data);
             lines.add(line);
+
+            index++;
         }
 
         return lines;
@@ -216,7 +229,6 @@ public class DvsParser {
 
         return left; // Return closest index
     }
-
 }
 
 
