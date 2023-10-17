@@ -52,6 +52,7 @@ public class DvsHeader {
     public final int HEADER_SIZE = 20;      // Bytes
     public final int VERSION = 1;           // VERSION
 
+    private final float DEFAULT_LINE_RATE = (float) 16.717382321;  // Default line rate
     private float sampleResolution;         // sampleRes [m]
     private float lineRate;                 // lineRate [ ping/s ]
     private int nSamples;                   // nSamples: Number of samples per side
@@ -74,12 +75,7 @@ public class DvsHeader {
     }
 
     public void setLineRate(float lineRate) {
-        if (lineRate > 0) {
-            this.lineRate = lineRate;
-        }
-        else {
-            this.lineRate = (float) (16.717382321);
-        }
+        this.lineRate = lineRate > 0 ? lineRate : DEFAULT_LINE_RATE;
     }
 
     public int getnSamples() {
