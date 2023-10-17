@@ -36,6 +36,7 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mra.api.SidescanLine;
 import pt.lsts.neptus.mra.api.SidescanParameters;
+import pt.lsts.neptus.mra.api.SidescanUtil;
 import pt.lsts.neptus.types.coord.LocationType;
 
 import java.io.File;
@@ -175,6 +176,7 @@ public class DvsParser {
             state.setPosition(new LocationType(dvsPos.getLatitudeDegrees(), dvsPos.getLongitudeDegrees()));
             float frequency = dvsHeader.getLineRate();
             double[] data = dvsReturn.getDataAsDouble();
+            data = SidescanUtil.applyNormalizationAndTVG(data, range, params);
 
             SidescanLine line = new SidescanLine(timestamp, range, state, frequency, data);
             lines.add(line);
