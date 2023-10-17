@@ -50,7 +50,7 @@ public class DvsSidescanParser implements SidescanParser {
     public DvsSidescanParser(File file) {
         parser = new DvsParser(file);
     }
-    
+
     @Override
     public long firstPingTimestamp() {
         return parser.getFirstPingTimestamp();
@@ -60,7 +60,7 @@ public class DvsSidescanParser implements SidescanParser {
     public long lastPingTimestamp() {
         return parser.getLastPingTimestamp();
     }
-    
+
     @Override
     public ArrayList<Integer> getSubsystemList() {
         return parser.getSubsystemList();
