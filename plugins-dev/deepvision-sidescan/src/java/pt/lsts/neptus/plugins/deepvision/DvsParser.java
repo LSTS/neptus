@@ -101,6 +101,7 @@ public class DvsParser {
             filePosition += dvsHeader.HEADER_SIZE;
 
             int bufferSize = dvsHeader.getNumberOfActiveChannels() * dvsHeader.getnSamples() + DvsPos.SIZE;
+            byte[] dst = new byte[dvsHeader.getnSamples() * dvsHeader.getNumberOfActiveChannels()];
             while (filePosition < file.length()) {
                 buffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, filePosition, bufferSize);
                 buffer.order(ByteOrder.LITTLE_ENDIAN);
@@ -115,7 +116,6 @@ public class DvsParser {
                 posDataList.add(dvsPos);
 
                 // Read "Ping Return" data
-                byte[] dst = new byte[dvsHeader.getnSamples() * dvsHeader.getNumberOfActiveChannels()];
                 buffer.get(dst);
 
                 // Bytes from the left channel array need to be reversed
