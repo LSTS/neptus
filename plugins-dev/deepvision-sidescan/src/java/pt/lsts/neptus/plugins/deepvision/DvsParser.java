@@ -80,7 +80,7 @@ public class DvsParser {
             buffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, filePosition, dvsHeader.HEADER_SIZE);
             buffer.order(ByteOrder.LITTLE_ENDIAN);
 
-            // Header
+            // Read Header data
             int VERSION = buffer.getInt() & 0xFFFFFFFF; // Turn int to unsigned int value
             float sampleRes = buffer.getFloat();
             float lineRate = buffer.getFloat();
@@ -100,13 +100,12 @@ public class DvsParser {
 
             filePosition += dvsHeader.HEADER_SIZE;
 
-            // Pos + Return
             int bufferSize = dvsHeader.getNumberOfActiveChannels() * dvsHeader.getnSamples() + DvsPos.SIZE;
             while (filePosition < file.length()) {
                 buffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, filePosition, bufferSize);
                 buffer.order(ByteOrder.LITTLE_ENDIAN);
 
-                // Ping Pos
+                // Read "Ping Pos" data
                 DvsPos dvsPos = new DvsPos();
                 dvsPos.setLatitude(buffer.getDouble());
                 dvsPos.setLongitude(buffer.getDouble());
@@ -115,6 +114,7 @@ public class DvsParser {
                 dvsPos.setTimestamp((long) (posDataList.size() / (dvsHeader.getLineRate() / 1000)));
                 posDataList.add(dvsPos);
 
+                // Read "Ping Return" data
                 byte[] dst = new byte[dvsHeader.getnSamples() * dvsHeader.getNumberOfActiveChannels()];
                 buffer.get(dst);
 
