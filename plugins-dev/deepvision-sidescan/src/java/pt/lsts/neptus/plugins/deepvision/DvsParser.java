@@ -118,7 +118,7 @@ public class DvsParser {
                 byte[] dst = new byte[dvsHeader.getnSamples() * dvsHeader.getNumberOfActiveChannels()];
                 buffer.get(dst);
 
-                // Left channel needs to be reverse
+                // Bytes from the left channel array need to be reversed
                 if (dvsHeader.isLeftChannelActive()) {
                     int length = dvsHeader.getnSamples();
                     byte temp;
