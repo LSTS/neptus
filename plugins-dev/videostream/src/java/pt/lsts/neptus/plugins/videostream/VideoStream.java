@@ -102,6 +102,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -134,7 +135,7 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
     private static final int WATCH_DOG_TIMEOUT = 4000;
 
     @NeptusProperty(name = "Camera URL", editable = false)
-    private String camUrl = "rtsp://10.0.20.207:554/live/ch01_0";
+    private String camUrl = ""; //rtsp://10.0.20.207:554/live/ch01_0
 
     @NeptusProperty(name = "Broadcast positions to other CCUs", editable = true)
     private boolean broadcastPositions = false;
@@ -608,6 +609,15 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
         repaintParametersTextFields();
         cameraList = readIPUrl();
 
+        URI uri = null;
+        try {
+            uri = new URI(camUrl);
+        }
+        catch (Exception e) {
+            NeptusLog.pub().warn("Camera URL is not valid: " + camUrl);
+            e.printStackTrace();
+        }
+
         ipCamPing = new JDialog(SwingUtilities.getWindowAncestor(VideoStream.this), I18n.text("Select IPCam"));
         ipCamPing.setResizable(true);
         ipCamPing.setModalityType(ModalityType.DOCUMENT_MODAL);
@@ -618,6 +628,36 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
         ipCamPing.setIconImage(imgIPCam.getImage());
         ipCamPing.setResizable(false);
         ipCamPing.setBackground(Color.GRAY);
+
+        int sel = 0;
+        if (uri != null || uri.getScheme() != null) {
+            String host = uri.getHost();
+            String name = "Stream " + uri.getScheme() + "@" + uri.getPort();
+            Camera cam = new Camera(name, host, camUrl);
+            NeptusLog.pub().warn("Cam > " + cam + " | URI " + camUrl + " | " + cam.getUrl());
+            Camera matchCam = cameraList.stream().filter(c -> c.getUrl().equalsIgnoreCase(cam.getUrl()))
+                    .findAny().orElse(null);
+
+            if (matchCam == null) {
+                cameraList.add(1, cam);
+                sel = 1;
+            }
+            else {
+                int index = -1;
+                for (int i = 0; i < cameraList.size(); i++) {
+                    Camera c = cameraList.get(i);
+                    if (c == matchCam) {
+                        index = i;
+                        break;
+                    }
+                }
+                sel = index;
+                if (index < 0) {
+                    cameraList.add(1, cam);
+                    sel = 1;
+                }
+            }
+        }
 
         ipCamList = new JComboBox(cameraList.toArray());
         ipCamList.setSelectedIndex(0);
@@ -681,7 +721,7 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
         colorStateIPCam.add(onOffIndicator);
         ipCamManagementPanel.add(colorStateIPCam, "h 30!, w 30!");
 
-        selectIPCam = new JButton(I18n.text("Select IPCam"), imgIPCam);
+        selectIPCam = new JButton(I18n.text("Connect"), imgIPCam);
         selectIPCam.setEnabled(false);
         selectIPCam.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -727,6 +767,11 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
 
         ipCamPing.add(ipCamManagementPanel);
         ipCamPing.pack();
+
+        if (sel > 0) {
+            ipCamList.setSelectedIndex(sel);
+        }
+
         ipCamPing.setVisible(true);
     }
 
