@@ -126,18 +126,15 @@ import java.util.zip.Inflater;
 public class VideoStream extends ConsolePanel { // implements ItemListener {
     private static final String BASE_FOLDER_FOR_IMAGES = ConfigFetch.getLogsFolder() + "/images";
     private static final String BASE_FOLDER_FOR_URLINI = "ipUrl.ini";
-    // Default width and heihgt of Console
+    // Default width and height of Console
     private static final int DEFAULT_WIDTH_CONSOLE = 640;
     private static final int DEFAULT_HEIGHT_CONSOLE = 480;
 
     // Timeout for watchDogThread in milliseconds
     private static final int WATCH_DOG_TIMEOUT = 4000;
 
-    @NeptusProperty(name = "Axis Camera RTSP URL", editable = false)
-    private String camRtpsUrl = "rtsp://10.0.20.207:554/live/ch01_0";
-
-    @NeptusProperty(name = "Cam Tilt Deg Value", editable = true)
-    private double camTiltDeg = 45.0f;// this value may be in configuration
+    @NeptusProperty(name = "Camera URL", editable = false)
+    private String camUrl = "rtsp://10.0.20.207:554/live/ch01_0";
 
     @NeptusProperty(name = "Broadcast positions to other CCUs", editable = true)
     private boolean broadcastPositions = false;
@@ -645,7 +642,7 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
                         public void finish() {
                             if (reachable) {
                                 selectIPCam.setEnabled(true);
-                                camRtpsUrl = selectedCamera.getUrl();
+                                camUrl = selectedCamera.getUrl();
                                 colorStateIPCam.setBackground(Color.GREEN);
                                 onOffIndicator.setText("ON");
                                 ipCamList.setEnabled(true);
@@ -1014,7 +1011,7 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
                             // Create Buffer (type MAT) for Image receive
                             mat = new Mat(heightImgRec, widthImgRec, CvType.CV_8UC3);
                             capture = new VideoCapture();
-                            capture.open(camRtpsUrl);
+                            capture.open(camUrl);
                             if (capture.isOpened()) {
                                 state = true;
                                 NeptusLog.pub().info("Video Stream from IPCam is captured");
@@ -1138,7 +1135,7 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
                 while (true) {
                     if (ipCam && !stateSetUrl) {
                         captureSave = new VideoCapture();
-                        captureSave.open(camRtpsUrl, Videoio.CAP_ANY);
+                        captureSave.open(camUrl, Videoio.CAP_ANY);
                         if (captureSave.isOpened()) {
                             stateSetUrl = true;
                         }
