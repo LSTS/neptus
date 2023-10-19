@@ -156,7 +156,16 @@ public class DvsParser {
         return list;
     }
 
-    public ArrayList<SidescanLine> getLinesBetween(long timestamp1, long timestamp2, int subsystem, SidescanParameters params) {
+    /**
+     * Find and return the lines between the start and stop timestamps in chronological order
+     *
+     * @param startTimestamp the starting point timestamp
+     * @param stopTimestamp the stopping point timestamp
+     * @param subsystem the subsystem number
+     * @param params the Sidescan parameters to apply to the data
+     * @return returns an ArrayList of SidescanLine objects containing the lines between the given timestamps
+     */
+    public ArrayList<SidescanLine> getLinesBetween(long startTimestamp, long stopTimestamp, int subsystem, SidescanParameters params) {
         DvsPos dvsPos;
         DvsReturn dvsReturn;
         long timestamp;
@@ -166,13 +175,13 @@ public class DvsParser {
         double[] data;
 
         ArrayList<SidescanLine> lines = new ArrayList<>();
-        int index = findTimestampIndex(timestamp1);
+        int index = findTimestampIndex(startTimestamp);
 
         while(index < posDataList.size()) {
             dvsPos = posDataList.get(index);
             timestamp = dvsPos.getTimestamp();
 
-            if (timestamp >= timestamp2) {
+            if (timestamp >= stopTimestamp) {
                 break;
             }
 
