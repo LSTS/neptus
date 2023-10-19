@@ -608,8 +608,8 @@ public class PluginUtils {
                     continue;
                 }
                 try {
-                    if (a.editable())
-                        f.set(obj, propertyValue);
+                    //if (a.editable())
+                    f.set(obj, propertyValue);
                 }
                 catch (IllegalArgumentException e) {
                     try {
