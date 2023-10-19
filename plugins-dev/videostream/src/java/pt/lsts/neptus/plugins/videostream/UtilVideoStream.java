@@ -29,10 +29,11 @@
  *
  * Author: Pedro Gonçalves
  */
-
 package pt.lsts.neptus.plugins.videostream;
 
+import org.apache.commons.io.FileUtils;
 import org.opencv.core.Size;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -57,10 +58,8 @@ import java.util.concurrent.TimeUnit;
  * @category OpenCV-Vision
  */
 public class UtilVideoStream {
-
     private UtilVideoStream() {
     }
-
     public static ArrayList<Camera> readIpUrl(File nameFile) {
         ArrayList<Camera> cameraList = new ArrayList<>();
         BufferedReader br = null;
@@ -99,7 +98,15 @@ public class UtilVideoStream {
 
     public static void removeLineFromFile(int lineToRemove, String fileName) {
         File confIni = new File(fileName);
-        File tempFile = new File("/tmp/urlIp.ini-temp");
+        File tempFile = null;
+        try {
+            tempFile = File.createTempFile("neptus_", "tmp", new File(ConfigFetch.getNeptusTmpDir()));
+            tempFile.deleteOnExit();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
 
         String currentLine;
 
@@ -112,24 +119,29 @@ public class UtilVideoStream {
         // decrease the line number to match the lines in the file
         lineToRemove--;
 
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(confIni));
-            BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
+        try (BufferedReader reader = new BufferedReader(new FileReader(confIni));
+             BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile))) {
             int lineNumber = 0;
             while ((currentLine = reader.readLine()) != null) {
+                if (currentLine.isEmpty()) {
+                    continue;
+                }
                 if (lineToRemove != lineNumber) {
                     writer.write(currentLine.trim() + System.getProperty("line.separator"));
                 }
                 lineNumber++;
             }
-            writer.close();
-            reader.close();
         }
         catch (IOException e) {
             e.printStackTrace();
         }
 
-        tempFile.renameTo(confIni);
+        try {
+            FileUtils.copyFile(tempFile, confIni);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /*
