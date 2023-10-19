@@ -121,13 +121,7 @@ public class DvsParser {
                 // Bytes from the left channel array need to be reversed
                 if (dvsHeader.isLeftChannelActive()) {
                     int length = dvsHeader.getnSamples();
-                    byte temp;
-
-                    for (int i = 0; i < length / 2; i++) {
-                        temp = dst[i];
-                        dst[i] = dst[length - 1 - i];
-                        dst[length - 1 - i] = temp;
-                    }
+                    reverseArray(dst, length);
                 }
                 returnDataList.add(new DvsReturn(dst));
 
@@ -228,6 +222,22 @@ public class DvsParser {
         }
 
         return left; // Return closest index
+    }
+
+    /**
+     * Reverse an array in place
+     *
+     * @param arr the byte array to reverse
+     * @param index reverse from start up to (not including) index
+     */
+    private void reverseArray(byte[] arr, int index) {
+        byte temp;
+
+        for (int i = 0; i < index / 2; i++) {
+            temp = arr[i];
+            arr[i] = arr[index - 1 - i];
+            arr[index - 1 - i] = temp;
+        }
     }
 }
 
