@@ -1099,7 +1099,7 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
                             txtText.setText(infoSizeStream);
 
                             if (mat.empty()) {
-                                NeptusLog.pub().error(I18n.text("ERROR capturing img of IPCam"));
+                                NeptusLog.pub().debug(I18n.text("ERROR capturing img of IPCam"));
                                 continue;
                             }
 
