@@ -202,9 +202,6 @@ public class DvsParser {
         return lines;
     }
 
-    public void cleanup() {
-    }
-
     private int findTimestampIndex(long timestamp) {
         // Binary search the timestamps
         int left = 0;

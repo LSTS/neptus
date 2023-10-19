@@ -73,7 +73,6 @@ public class DvsSidescanParser implements SidescanParser {
 
     @Override
     public void cleanup() {
-        parser.cleanup();
         parser = null;
     }
 }
