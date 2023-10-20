@@ -189,6 +189,7 @@ public class DvsParser {
             range = dvsHeader.getSampleResolution();
             state = new SystemPositionAndAttitude();
             state.setPosition(new LocationType(dvsPos.getLatitudeDegrees(), dvsPos.getLongitudeDegrees()));
+            state.setYaw(dvsPos.getHeading());
             frequency = dvsHeader.getLineRate();
             data = dvsReturn.getData();
             data = SidescanUtil.applyNormalizationAndTVG(data, range, params);
