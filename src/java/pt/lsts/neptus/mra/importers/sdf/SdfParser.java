@@ -76,49 +76,46 @@ public class SdfParser {
     final static int SUBSYS_HIGH = 3502;
     final static int BATHY_PULSE_COMPRESSED = 3503;
 
-    public SdfParser(File file) {
-        openIndexFile(file);
-    }
-
     public SdfParser(File[] files) {
-        multipleFiles = true;
-        Arrays.sort(files);
+            multipleFiles = true;
+            Arrays.sort(files);
 
-        for (File file : files) {
-            openIndexFile(file);
-        }
-        int sizeLow = 0;
-        int sizeHigh = 0;
-
-        for (Long[] set : tsSLow) {
-            sizeLow = sizeLow + set.length;
-        }
-
-        for (Long[] set : tsSHigh) {
-            sizeHigh = sizeHigh + set.length;
-        }
-
-        Long[] longHigh = new Long[sizeHigh];
-        Long[] longLow = new Long[sizeLow];
-
-        int count = 0;
-        for (int i = 0; i < tsSLow.size(); i++) {
-            for (int j = 0; j < tsSLow.get(i).length; j++) {
-                longLow[count] = tsSLow.get(i)[j];
-                count++;
+            for (File file : files) {
+                openIndexFile(file);
             }
-        }
+            int sizeLow = 0;
+            int sizeHigh = 0;
 
-        count = 0;
-        for (int i = 0; i < tsSHigh.size(); i++) {
-            for (int j = 0; j < tsSHigh.get(i).length; j++) {
-                longHigh[count] = tsSHigh.get(i)[j];
-                count++;
+            for (Long[] set : tsSLow) {
+                sizeLow = sizeLow + set.length;
             }
-        }
 
-        tslist.put(SUBSYS_LOW, longLow);
-        tslist.put(SUBSYS_HIGH, longHigh);
+            for (Long[] set : tsSHigh) {
+                sizeHigh = sizeHigh + set.length;
+            }
+
+            Long[] longHigh = new Long[sizeHigh];
+            Long[] longLow = new Long[sizeLow];
+
+            int count = 0;
+            for (int i = 0; i < tsSLow.size(); i++) {
+                for (int j = 0; j < tsSLow.get(i).length; j++) {
+                    longLow[count] = tsSLow.get(i)[j];
+                    count++;
+                }
+            }
+
+            count = 0;
+            for (int i = 0; i < tsSHigh.size(); i++) {
+                for (int j = 0; j < tsSHigh.get(i).length; j++) {
+                    longHigh[count] = tsSHigh.get(i)[j];
+                    count++;
+                }
+            }
+
+            tslist.put(SUBSYS_LOW, longLow);
+            tslist.put(SUBSYS_HIGH, longHigh);
+
     }
 
     private void openIndexFile(File file) {
@@ -387,13 +384,13 @@ public class SdfParser {
     public boolean loadIndex(File file) {
         try {
             ObjectInputStream in = new ObjectInputStream(new FileInputStream(indexPath));
-            SdfIndex indexN = (SdfIndex) in.readObject();
+            SdfIndex index = (SdfIndex) in.readObject();
 
             Long[] tslisthigh;
             Long[] tslistlow;
 
-            tslisthigh = indexN.positionMapHigh.keySet().toArray(new Long[]{});
-            tslistlow = indexN.positionMapLow.keySet().toArray(new Long[]{});
+            tslisthigh = index.positionMapHigh.keySet().toArray(new Long[]{});
+            tslistlow = index.positionMapLow.keySet().toArray(new Long[]{});
 
             Arrays.sort(tslisthigh);
             Arrays.sort(tslistlow);
@@ -401,7 +398,7 @@ public class SdfParser {
             tsSHigh.add(tslisthigh);
             tsSLow.add(tslistlow);
 
-            fileIndex.put(file, indexN);
+            fileIndex.put(file, index);
 
             in.close();
         }
@@ -617,7 +614,7 @@ public class SdfParser {
             throw new Exception("Usage: <sdf_file> <page_version>  example 3503 for Bathy Pulse Compressed Data");
         }
 
-        SdfParser parser = new SdfParser(new File(args[0]));
+        SdfParser parser = new SdfParser(new File[]{new File(args[0])});
         return parser.hasAnyPageVersion(Arrays.copyOfRange(args, 1, args.length - 1));
     }
 }
