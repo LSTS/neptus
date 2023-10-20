@@ -68,7 +68,7 @@ public class SdfSidescanParser implements SidescanParser {
 
     @Override
     public ArrayList<Integer> getSubsystemList() {
-        return parser.getIndex().subSystemsList;
+        return parser.getSubsystemList();
     }
 
     @Override
