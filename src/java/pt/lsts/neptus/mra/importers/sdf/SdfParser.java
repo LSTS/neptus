@@ -349,32 +349,6 @@ public class SdfParser {
         return 0;
     }
 
-    public boolean loadIndex() {
-        try {
-            ObjectInputStream in = new ObjectInputStream(new FileInputStream(indexPath));
-            index = (SdfIndex) in.readObject();
-
-            Long[] tslisthigh;
-            Long[] tslistlow;
-
-            tslisthigh = index.positionMapHigh.keySet().toArray(new Long[]{});
-            tslistlow = index.positionMapLow.keySet().toArray(new Long[]{});
-
-            Arrays.sort(tslisthigh);
-            Arrays.sort(tslistlow);
-
-            tslist.put(SUBSYS_LOW, tslistlow);
-            tslist.put(SUBSYS_HIGH, tslisthigh);
-
-            in.close();
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-        return true;
-    }
-
     public boolean loadIndex(File file) {
         try {
             ObjectInputStream in = new ObjectInputStream(new FileInputStream(indexPath));
