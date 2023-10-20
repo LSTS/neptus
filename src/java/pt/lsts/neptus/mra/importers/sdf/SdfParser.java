@@ -159,14 +159,6 @@ public class SdfParser {
 
         tslist.put(SUBSYS_LOW, longLow);
         tslist.put(SUBSYS_HIGH, longHigh);
-
-        //        for (Entry<File, SdfIndex> e : fileIndex.entrySet()) {
-        //            System.out.println(e.getKey().getName() + /*" " + e.getValue().firstTimestampLow +*/ " "
-        //                    + e.getValue().firstTimestampHigh+ " "/*+ e.getValue().lastTimestampLow +" "*/+  e.getValue().lastTimestampHigh);
-        //        }
-        //
-        //        System.out.println(getFirstTimeStamp());
-        //        System.out.println(getLastTimeStamp());
     }
 
     private void generateIndex() {
@@ -191,7 +183,6 @@ public class SdfParser {
                 buf.order(ByteOrder.LITTLE_ENDIAN);
                 header.parse(buf);
                 curPosition += header.getHeaderSize();
-                //System.out.println("curPos " + curPosition);
 
                 if (header.getPageVersion() == SUBSYS_HIGH || header.getPageVersion() == SUBSYS_LOW) {
                     //set header of this ping
@@ -217,7 +208,6 @@ public class SdfParser {
                 long tfix = ping.getFixTimestamp(); // FixTimestamp
                 int f = ping.getHeader().getSonarFreq(); // Frequency
                 int subsystem = ping.getHeader().getPageVersion();
-                //  System.out.println(pos+": ["+header.getPingNumber()+"] timestamp "+ t + " freq "+f + " subsys "+subsystem);
 
                 if (!index2.frequenciesList.contains(f)) {
                     index2.frequenciesList.add(f);
@@ -322,7 +312,6 @@ public class SdfParser {
         catch (IOException e) {
             NeptusLog.pub().error("Found corrupted SDF file '" + file.getName() + "' while indexing. Error: " +
                     e.getMessage());
-            // e.printStackTrace();
         }
     }
 
@@ -350,7 +339,6 @@ public class SdfParser {
                 buf.order(ByteOrder.LITTLE_ENDIAN);
                 header.parse(buf);
                 curPosition += header.getHeaderSize();
-                //System.out.println("curPos " + curPosition);
 
                 if (pageVersionList.stream().anyMatch((p) -> p == header.getPageVersion()))
                     return 1;
@@ -499,7 +487,6 @@ public class SdfParser {
             ping.calculateFixTimeStamp();
 
             // Let us try to see if we corrected the timestamp
-            //index = getIndex(); // making sure we have the right index
             LinkedHashMap<Long, ArrayList<Long>> posMapTsToPosList = null;
             if (subsystem == SUBSYS_LOW)
                 posMapTsToPosList = index.positionMapLow;
@@ -625,40 +612,6 @@ public class SdfParser {
     }
 
     public static int main(String[] args) throws Exception {
-        //        SdfParser parser = new SdfParser(new File("C://Users//Manuel//workspace//neptus-dev//SDF-datasamples//test.sdf"));
-        //        
-        //        System.out.println();
-        //        for(Integer i : parser.index.subSystemsList) {
-        //            System.out.println("Subsys: "+i);
-        //        }
-        //  
-        //        ArrayList<SdfData> ping = parser.getPingAt(parser.index.firstTimestampHigh, parser.index.subSystemsList.get(0));
-        //       
-        //        System.out.println();
-        //        System.out.println();
-        //        System.out.println("first ts HIGH: "+parser.index.firstTimestampHigh);
-        //        System.out.println("first ts LOW: "+parser.index.firstTimestampLow);
-        //        System.out.println("last ts HIGH: "+parser.index.lastTimestampHigh);
-        //        System.out.println("last ts LOW: "+parser.index.lastTimestampLow);
-        //        System.out.println();
-        //        System.out.println("first ts: "+parser.getFirstTimeStamp());
-        //        System.out.println("last ts: "+parser.getLastTimeStamp());
-        //        System.out.println();
-        //        
-        //        System.out.println("First ping "+ ping.get(0).getTimestamp());     
-        //
-        //  
-        //        SdfData singlePing = parser.getPingAtPosition(34406800, 3502);       
-        //        System.out.println("Last ping: "+ singlePing.getHeader().getPingNumber() + " " + singlePing.getTimestamp()+"\n");
-        //
-        //
-        //        while(true) {
-        //            if(ping == null)
-        //                break;
-        //            ping = parser.nextPing(parser.index.subSystemsList.get(0));
-        //
-        //            System.out.println(ping.get(0).getTimestamp());
-        //        }
 
         if (args.length < 2)
             throw new Exception("Usage: <sdf_file> <page_version>  example 3503 for Bathy Pulse Compressed Data");
