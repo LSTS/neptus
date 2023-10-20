@@ -102,16 +102,16 @@ public class SdfParser {
         Long[] longLow = new Long[sizeLow];
 
         int count = 0;
-        for (int i=0; i< tsSLow.size(); i++) {
-            for (int j=0; j < tsSLow.get(i).length; j++) {
+        for (int i = 0; i < tsSLow.size(); i++) {
+            for (int j = 0; j < tsSLow.get(i).length; j++) {
                 longLow[count] = tsSLow.get(i)[j];
                 count++;
             }
         }
 
         count = 0;
-        for (int i=0; i< tsSHigh.size(); i++) {
-            for (int j=0; j < tsSHigh.get(i).length; j++) {
+        for (int i = 0; i < tsSHigh.size(); i++) {
+            for (int j = 0; j < tsSHigh.get(i).length; j++) {
                 longHigh[count] = tsSHigh.get(i)[j];
                 count++;
             }
@@ -175,18 +175,22 @@ public class SdfParser {
                     ping.setHeader(header);
                     ping.calculateTimeStamp();
                     ping.calculateFixTimeStamp();
-                    pos = curPosition-header.getHeaderSize();
-                } else { //ignore other pageVersions
+                    pos = curPosition - header.getHeaderSize();
+                }
+                else { //ignore other pageVersions
                     if (!unimplementedPageVersionSet.contains(header.getPageVersion())) {
                         unimplementedPageVersionSet.add(header.getPageVersion());
                         NeptusLog.pub().info("SDF Data file contains unimplemented pageVersion # " + header.getPageVersion());
                     }
-                    curPosition += (header.getNumberBytes()+4) - header.getHeaderSize();
+                    curPosition += (header.getNumberBytes() + 4) - header.getHeaderSize();
                     pos = curPosition;
                     if (curPosition >= channel.size()) //check if curPosition is at the end of file
+                    {
                         break;
-                    else
+                    }
+                    else {
                         continue;
+                    }
                 }
 
                 //get timestamp, freq and subsystem used
@@ -209,8 +213,10 @@ public class SdfParser {
                     t = tfix;
                 }
 
-                if(subsystem == SUBSYS_LOW) {
-                    if(!index2.hasLow) index2.hasLow = true;
+                if (subsystem == SUBSYS_LOW) {
+                    if (!index2.hasLow) {
+                        index2.hasLow = true;
+                    }
 
                     ArrayList<Long> l = index2.positionMapLow.get(t);
                     if (l == null) {
@@ -228,8 +234,10 @@ public class SdfParser {
                     }
                 }
 
-                if(subsystem == SUBSYS_HIGH) {
-                    if(!index2.hasHigh) index2.hasHigh = true;
+                if (subsystem == SUBSYS_HIGH) {
+                    if (!index2.hasHigh) {
+                        index2.hasHigh = true;
+                    }
 
                     ArrayList<Long> l = index2.positionMapHigh.get(t);
                     if (l == null) {
@@ -240,7 +248,7 @@ public class SdfParser {
                     else {
                         l.add(pos);
                     }
-                    
+
                     if (t > minimumValidTimestamp) {
                         minTimestampHigh = Math.min(minTimestampHigh, t);
                         maxTimestampHigh = Math.max(maxTimestampHigh, t);
@@ -249,11 +257,12 @@ public class SdfParser {
 
                 //end processing data
 
-                curPosition += (header.getNumberBytes()+4) - header.getHeaderSize();
+                curPosition += (header.getNumberBytes() + 4) - header.getHeaderSize();
                 count++;
 
-                if (curPosition >= channel.size())
+                if (curPosition >= channel.size()) {
                     break;
+                }
             }
 
             index2.firstTimestampHigh = minTimestampHigh;
@@ -266,8 +275,8 @@ public class SdfParser {
             Long[] tslisthigh;
             Long[] tslistlow;
 
-            tslisthigh = index2.positionMapHigh.keySet().toArray(new Long[] {});
-            tslistlow = index2.positionMapLow.keySet().toArray(new Long[] {});
+            tslisthigh = index2.positionMapHigh.keySet().toArray(new Long[]{});
+            tslistlow = index2.positionMapLow.keySet().toArray(new Long[]{});
 
             Arrays.sort(tslisthigh);
             Arrays.sort(tslistlow);
@@ -288,12 +297,13 @@ public class SdfParser {
             index2.frequenciesList.sort(null);
             index2.subSystemsList.sort(null);
 
-            ObjectOutputStream out = new ObjectOutputStream(new  FileOutputStream(indexPath));
+            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(indexPath));
             out.writeObject(index2);
             out.close();
-            
-            if (multipleFiles)
+
+            if (multipleFiles) {
                 fileIndex.put(file, index2);
+            }
         }
         catch (IOException e) {
             NeptusLog.pub().error("Found corrupted SDF file '" + file.getName() + "' while indexing. Error: " +
@@ -313,8 +323,9 @@ public class SdfParser {
             }
         });
 
-        if (pageVersionList.isEmpty())
+        if (pageVersionList.isEmpty()) {
             return 0;
+        }
 
         SdfHeader header = new SdfHeader();
         curPosition = 0;
@@ -326,14 +337,18 @@ public class SdfParser {
                 header.parse(buf);
                 curPosition += header.getHeaderSize();
 
-                if (pageVersionList.stream().anyMatch((p) -> p == header.getPageVersion()))
+                if (pageVersionList.stream().anyMatch((p) -> p == header.getPageVersion())) {
                     return 1;
+                }
 
-                curPosition += (header.getNumberBytes()+4) - header.getHeaderSize();
+                curPosition += (header.getNumberBytes() + 4) - header.getHeaderSize();
                 if (curPosition >= channel.size()) //check if curPosition is at the end of file
+                {
                     break;
-                else
+                }
+                else {
                     continue;
+                }
             }
         }
         catch (Exception e) {
@@ -351,8 +366,8 @@ public class SdfParser {
             Long[] tslisthigh;
             Long[] tslistlow;
 
-            tslisthigh = index.positionMapHigh.keySet().toArray(new Long[] {});
-            tslistlow = index.positionMapLow.keySet().toArray(new Long[] {});
+            tslisthigh = index.positionMapHigh.keySet().toArray(new Long[]{});
+            tslistlow = index.positionMapLow.keySet().toArray(new Long[]{});
 
             Arrays.sort(tslisthigh);
             Arrays.sort(tslistlow);
@@ -377,8 +392,8 @@ public class SdfParser {
             Long[] tslisthigh;
             Long[] tslistlow;
 
-            tslisthigh = indexN.positionMapHigh.keySet().toArray(new Long[] {});
-            tslistlow = indexN.positionMapLow.keySet().toArray(new Long[] {});
+            tslisthigh = indexN.positionMapHigh.keySet().toArray(new Long[]{});
+            tslistlow = indexN.positionMapLow.keySet().toArray(new Long[]{});
 
             Arrays.sort(tslisthigh);
             Arrays.sort(tslistlow);
@@ -441,8 +456,9 @@ public class SdfParser {
     public SdfIndex getIndex() {
         if (multipleFiles) {
             for (Entry<File, SdfIndex> entry : fileIndex.entrySet()) {
-                if (entry.getKey() == file)
+                if (entry.getKey() == file) {
                     return entry.getValue();
+                }
             }
         }
         return index;
@@ -464,8 +480,9 @@ public class SdfParser {
             header.parse(buf);
             pos += header.getHeaderSize();
 
-            if(header.getPageVersion() != subsystem)
+            if (header.getPageVersion() != subsystem) {
                 return null;
+            }
 
             //define header
             ping.setHeader(header);
@@ -474,10 +491,12 @@ public class SdfParser {
 
             // Let us try to see if we corrected the timestamp
             LinkedHashMap<Long, ArrayList<Long>> posMapTsToPosList = null;
-            if (subsystem == SUBSYS_LOW)
+            if (subsystem == SUBSYS_LOW) {
                 posMapTsToPosList = index.positionMapLow;
-            else if (subsystem == SUBSYS_HIGH)
+            }
+            else if (subsystem == SUBSYS_HIGH) {
                 posMapTsToPosList = index.positionMapHigh;
+            }
             if (posMapTsToPosList != null && !posMapTsToPosList.isEmpty()) {
                 for (long tsK : posMapTsToPosList.keySet()) {
                     boolean found = false;
@@ -488,7 +507,9 @@ public class SdfParser {
                             break;
                         }
                     }
-                    if (found) break;
+                    if (found) {
+                        break;
+                    }
                 }
             }
 
@@ -497,19 +518,20 @@ public class SdfParser {
                 if (tslist.get(subsystem).length > 2969) {
                     NeptusLog.pub().debug(">!!>>>> ts 2968 vs 2969 >>" + tslist.get(subsystem)[2968] +
                             ", " + tslist.get(subsystem)[2969]);
-                } else {
+                }
+                else {
                     NeptusLog.pub().debug(">!!>>>> ts ping ts vs fixts>>" + ping.getTimestamp() +
                             " " + ping.getFixTimestamp());
                 }
             }
 
             //handle data 
-            buf = channel.map(MapMode.READ_ONLY, pos, (header.getNumberBytes() - header.getHeaderSize() - header.getSDFExtensionSize()+4));
+            buf = channel.map(MapMode.READ_ONLY, pos, (header.getNumberBytes() - header.getHeaderSize() - header.getSDFExtensionSize() + 4));
             buf.order(ByteOrder.LITTLE_ENDIAN);
 
             ping.parseData(buf);
 
-            pos+= (header.getNumberBytes() - header.getHeaderSize() - header.getSDFExtensionSize());
+            pos += (header.getNumberBytes() - header.getHeaderSize() - header.getSDFExtensionSize());
 
         }
         catch (Exception e) {
@@ -521,25 +543,26 @@ public class SdfParser {
     private void redirectIndex(Long timestamp, int subsystem) {
         for (Entry<File, SdfIndex> entry : fileIndex.entrySet()) {
             if (subsystem == SUBSYS_LOW) {
-                if (timestamp >= entry.getValue().firstTimestampLow && timestamp <= entry.getValue().lastTimestampLow)  {
+                if (timestamp >= entry.getValue().firstTimestampLow && timestamp <= entry.getValue().lastTimestampLow) {
                     index = entry.getValue();
                     file = entry.getKey();
                     return;
                 }
-            } else 
-                if (subsystem == SUBSYS_HIGH) {
-                    if (timestamp >= entry.getValue().firstTimestampHigh && timestamp <= entry.getValue().lastTimestampHigh) {
-                        index = entry.getValue();
-                        file = entry.getKey();
-                        return;
-                    }
+            }
+            else if (subsystem == SUBSYS_HIGH) {
+                if (timestamp >= entry.getValue().firstTimestampHigh && timestamp <= entry.getValue().lastTimestampHigh) {
+                    index = entry.getValue();
+                    file = entry.getKey();
+                    return;
                 }
+            }
         }
     }
 
     private boolean existsTimestamp(long timestamp, SdfIndex searchIndex) {
-        if (timestamp >= searchIndex.firstTimestampLow && timestamp <= searchIndex.lastTimestampLow)
+        if (timestamp >= searchIndex.firstTimestampLow && timestamp <= searchIndex.lastTimestampLow) {
             return true;
+        }
 
         return false;
     }
@@ -556,7 +579,7 @@ public class SdfParser {
 
         curPosition = 0;
         SdfData ping = null;
-        LinkedHashMap<Long, ArrayList<Long>> positionMap = ( subsystem == SUBSYS_LOW ? index.positionMapLow : index.positionMapHigh);
+        LinkedHashMap<Long, ArrayList<Long>> positionMap = (subsystem == SUBSYS_LOW ? index.positionMapLow : index.positionMapHigh);
         long ts = 0;
         int c = 0;
         for (Long time : tslist.get(subsystem)) {
@@ -567,26 +590,26 @@ public class SdfParser {
             c++;
         }
 
-        NeptusLog.pub().debug(">>> " + subsystem + " >>>>> Fetch ping " + (c+1) + " of " +
+        NeptusLog.pub().debug(">>> " + subsystem + " >>>>> Fetch ping " + (c + 1) + " of " +
                 tslist.get(subsystem).length + " < " + tslist.get(subsystem).length
-                + " @" + timestamp + " for ping @" + tslist.get(subsystem)[c+1]
-                + " " + (tslist.get(subsystem)[c+1] >= timestamp ? 'T' : 'F')
+                + " @" + timestamp + " for ping @" + tslist.get(subsystem)[c + 1]
+                + " " + (tslist.get(subsystem)[c + 1] >= timestamp ? 'T' : 'F')
                 + "   >>> " + file.getName());
-        nextTimestamp.put(subsystem, tslist.get(subsystem)[c+1]);
+        nextTimestamp.put(subsystem, tslist.get(subsystem)[c + 1]);
 
-        if(positionMap.get(ts) == null) {
+        if (positionMap.get(ts) == null) {
             return null;
         }
         Long position = positionMap.get(ts).get(0);
         ping = getPingAtPosition(position, subsystem);
         NeptusLog.pub().debug(">>> " + subsystem + " >>>>> For long " + position +
-            " @ ts:" + ping.getTimestamp() + " | fixts:" + ping.getFixTimestamp());
+                " @ ts:" + ping.getTimestamp() + " | fixts:" + ping.getFixTimestamp());
 
         return ping;
     }
 
-    public void cleanup(){
-        try { 
+    public void cleanup() {
+        try {
             if (fis != null) {
                 fis.close();
             }
@@ -602,8 +625,9 @@ public class SdfParser {
 
     public static int main(String[] args) throws Exception {
 
-        if (args.length < 2)
+        if (args.length < 2) {
             throw new Exception("Usage: <sdf_file> <page_version>  example 3503 for Bathy Pulse Compressed Data");
+        }
 
         SdfParser parser = new SdfParser(new File(args[0]));
         return parser.hasAnyPageVersion(Arrays.copyOfRange(args, 1, args.length - 1));
