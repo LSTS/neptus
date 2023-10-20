@@ -38,7 +38,7 @@ public class DvsPos {
     private double latitude;    // [rad] WGS84
     private double longitude;   // [rad] WGS84
     private float speed;        // [m/s]
-    private float heading;      // [rad]
+    private float heading;      // [deg]
 
     private long timestamp;     // milliseconds
 
