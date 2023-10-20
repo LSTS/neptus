@@ -62,7 +62,6 @@ public class SdfParser {
     private FileChannel channel;
     private long curPosition = 0;
     private SdfIndex index = new SdfIndex();
-    private boolean multipleFiles = false;
     private String indexPath;
 
     private LinkedHashMap<Integer, Long[]> tslist = new LinkedHashMap<Integer, Long[]>();
@@ -77,44 +76,43 @@ public class SdfParser {
     final static int BATHY_PULSE_COMPRESSED = 3503;
 
     public SdfParser(File[] files) {
-            multipleFiles = true;
-            Arrays.sort(files);
+        Arrays.sort(files);
 
-            for (File file : files) {
-                openIndexFile(file);
+        for (File file : files) {
+            openIndexFile(file);
+        }
+        int sizeLow = 0;
+        int sizeHigh = 0;
+
+        for (Long[] set : tsSLow) {
+            sizeLow = sizeLow + set.length;
+        }
+
+        for (Long[] set : tsSHigh) {
+            sizeHigh = sizeHigh + set.length;
+        }
+
+        Long[] longHigh = new Long[sizeHigh];
+        Long[] longLow = new Long[sizeLow];
+
+        int count = 0;
+        for (int i = 0; i < tsSLow.size(); i++) {
+            for (int j = 0; j < tsSLow.get(i).length; j++) {
+                longLow[count] = tsSLow.get(i)[j];
+                count++;
             }
-            int sizeLow = 0;
-            int sizeHigh = 0;
+        }
 
-            for (Long[] set : tsSLow) {
-                sizeLow = sizeLow + set.length;
+        count = 0;
+        for (int i = 0; i < tsSHigh.size(); i++) {
+            for (int j = 0; j < tsSHigh.get(i).length; j++) {
+                longHigh[count] = tsSHigh.get(i)[j];
+                count++;
             }
+        }
 
-            for (Long[] set : tsSHigh) {
-                sizeHigh = sizeHigh + set.length;
-            }
-
-            Long[] longHigh = new Long[sizeHigh];
-            Long[] longLow = new Long[sizeLow];
-
-            int count = 0;
-            for (int i = 0; i < tsSLow.size(); i++) {
-                for (int j = 0; j < tsSLow.get(i).length; j++) {
-                    longLow[count] = tsSLow.get(i)[j];
-                    count++;
-                }
-            }
-
-            count = 0;
-            for (int i = 0; i < tsSHigh.size(); i++) {
-                for (int j = 0; j < tsSHigh.get(i).length; j++) {
-                    longHigh[count] = tsSHigh.get(i)[j];
-                    count++;
-                }
-            }
-
-            tslist.put(SUBSYS_LOW, longLow);
-            tslist.put(SUBSYS_HIGH, longHigh);
+        tslist.put(SUBSYS_LOW, longLow);
+        tslist.put(SUBSYS_HIGH, longHigh);
 
     }
 
@@ -131,9 +129,7 @@ public class SdfParser {
             }
             else {
                 NeptusLog.pub().info("Loading SDF index for " + file.getAbsolutePath());
-                boolean loadedIndex;
-                loadedIndex = multipleFiles ? loadIndex(file) : loadIndex();
-                if (!loadedIndex) {
+                if (!loadIndex(file)) {
                     NeptusLog.pub().error("Corrupted SDF index file. Trying to create a new index.");
                     generateIndex();
                 }
@@ -298,9 +294,7 @@ public class SdfParser {
             out.writeObject(index2);
             out.close();
 
-            if (multipleFiles) {
-                fileIndex.put(file, index2);
-            }
+            fileIndex.put(file, index2);
         }
         catch (IOException e) {
             NeptusLog.pub().error("Found corrupted SDF file '" + file.getName() + "' while indexing. Error: " +
@@ -410,26 +404,20 @@ public class SdfParser {
     }
 
     public long getFirstTimeStamp() {
-        if (multipleFiles) {
-            for (Entry<File, SdfIndex> entry : fileIndex.entrySet()) {
-                return Math.min(entry.getValue().firstTimestampHigh, entry.getValue().firstTimestampLow);
-            }
+        for (Entry<File, SdfIndex> entry : fileIndex.entrySet()) {
+            return Math.min(entry.getValue().firstTimestampHigh, entry.getValue().firstTimestampLow);
         }
 
         return Math.min(index.firstTimestampHigh, index.firstTimestampLow);
     }
 
     public long getLastTimeStamp() {
-        if (multipleFiles) {
-            Entry<File, SdfIndex> lastEntry = null;
-            for (Entry<File, SdfIndex> entry : fileIndex.entrySet()) {
-                lastEntry = entry;
-            }
-
-            return Math.max(lastEntry.getValue().lastTimestampHigh, lastEntry.getValue().lastTimestampLow);
+        Entry<File, SdfIndex> lastEntry = null;
+        for (Entry<File, SdfIndex> entry : fileIndex.entrySet()) {
+            lastEntry = entry;
         }
 
-        return Math.max(index.lastTimestampHigh, index.lastTimestampLow);
+        return Math.max(lastEntry.getValue().lastTimestampHigh, lastEntry.getValue().lastTimestampLow);
     }
 
     public SdfData nextPing(int subsystem) {
@@ -440,14 +428,12 @@ public class SdfParser {
      * @return the index
      */
     public SdfIndex getIndex() {
-        if (multipleFiles) {
-            for (Entry<File, SdfIndex> entry : fileIndex.entrySet()) {
-                if (entry.getKey() == file) {
-                    return entry.getValue();
-                }
+        for (Entry<File, SdfIndex> entry : fileIndex.entrySet()) {
+            if (entry.getKey() == file) {
+                return entry.getValue();
             }
         }
-        return index;
+        return null;
     }
 
     public SdfData getPingAtPosition(long pos, int subsystem) {
@@ -456,10 +442,8 @@ public class SdfParser {
         SdfData ping = new SdfData();
         try {
             // Map right file 
-            if (multipleFiles) {
-                fis = new FileInputStream(file);
-                channel = fis.getChannel();
-            }
+            fis = new FileInputStream(file);
+            channel = fis.getChannel();
             //
             ByteBuffer buf = channel.map(MapMode.READ_ONLY, pos, 512);
             buf.order(ByteOrder.LITTLE_ENDIAN);
@@ -556,7 +540,7 @@ public class SdfParser {
     public SdfData getPingAt(Long timestamp, int subsystem) {
 
         // point index to right index_ file according to timestamp
-        if (index != null && multipleFiles) {
+        if (index != null) {
             if (!existsTimestamp(timestamp, index)) {
                 redirectIndex(timestamp, subsystem);
             }
