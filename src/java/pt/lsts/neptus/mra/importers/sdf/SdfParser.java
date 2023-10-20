@@ -573,11 +573,14 @@ public class SdfParser {
                 + " " + (tslist.get(subsystem)[c+1] >= timestamp ? 'T' : 'F')
                 + "   >>> " + file.getName());
         nextTimestamp.put(subsystem, tslist.get(subsystem)[c+1]);
-        for(Long pos : positionMap.get(ts)) {
-            ping = getPingAtPosition(pos, subsystem);
-            NeptusLog.pub().debug(">>> " + subsystem + " >>>>> For long " + pos +
-                    " @ ts:" + ping.getTimestamp() + " | fixts:" + ping.getFixTimestamp());
+
+        if(positionMap.get(ts) == null) {
+            return null;
         }
+        Long position = positionMap.get(ts).get(0);
+        ping = getPingAtPosition(position, subsystem);
+        NeptusLog.pub().debug(">>> " + subsystem + " >>>>> For long " + position +
+            " @ ts:" + ping.getTimestamp() + " | fixts:" + ping.getFixTimestamp());
 
         return ping;
     }
