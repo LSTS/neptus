@@ -57,7 +57,6 @@ import pt.lsts.neptus.i18n.I18n;
 public class SdfParser {
     // Minimum valid timestamp (2000-01-01 00:00:00).
     private static final long minimumValidTimestamp = 946684800000L;
-    private File file;
     private FileInputStream fis;
     private FileChannel channel;
     private long curPosition = 0;
@@ -116,20 +115,19 @@ public class SdfParser {
 
     private void openIndexFile(File file) {
         try {
-            this.file = file;
             fis = new FileInputStream(file);
             channel = fis.getChannel();
             indexPath = file.getParent() + "/mra/sdf" + file.getName() + ".index";
 
             if (!new File(indexPath).exists()) {
                 NeptusLog.pub().info("Generating SDF index for " + file.getAbsolutePath());
-                generateIndex();
+                generateIndex(file);
             }
             else {
                 NeptusLog.pub().info("Loading SDF index for " + file.getAbsolutePath());
                 if (!loadIndex(file)) {
                     NeptusLog.pub().error("Corrupted SDF index file. Trying to create a new index.");
-                    generateIndex();
+                    generateIndex(file);
                 }
             }
         }
@@ -138,7 +136,7 @@ public class SdfParser {
         }
     }
 
-    private void generateIndex() {
+    private void generateIndex(File file) {
 
         SdfHeader header = new SdfHeader();
         SdfData ping = new SdfData();
@@ -396,13 +394,11 @@ public class SdfParser {
         return getPingAt(nextTimestamp.get(subsystem), subsystem); // This fetches the next ping and updates nextTimestamp
     }
 
-    /**
-     * @return the index
-     */
-    public SdfIndex getIndex() {
+    // Get corresponding file for the given index
+    private File getFileFromIndex(SdfIndex index) {
         for (Entry<File, SdfIndex> entry : fileIndex.entrySet()) {
-            if (entry.getKey() == file) {
-                return entry.getValue();
+            if (entry.getValue() == index) {
+                return entry.getKey();
             }
         }
         return null;
@@ -413,7 +409,12 @@ public class SdfParser {
         SdfHeader header = new SdfHeader();
         SdfData ping = new SdfData();
         try {
-            // Map right file 
+            // Map right file
+            File file = getFileFromIndex(index);
+            if(file == null) {
+                return null;
+            }
+
             fis = new FileInputStream(file);
             channel = fis.getChannel();
             //
@@ -487,14 +488,12 @@ public class SdfParser {
             if (subsystem == SUBSYS_LOW) {
                 if (timestamp >= entry.getValue().firstTimestampLow && timestamp <= entry.getValue().lastTimestampLow) {
                     index = entry.getValue();
-                    file = entry.getKey();
                     return;
                 }
             }
             else if (subsystem == SUBSYS_HIGH) {
                 if (timestamp >= entry.getValue().firstTimestampHigh && timestamp <= entry.getValue().lastTimestampHigh) {
                     index = entry.getValue();
-                    file = entry.getKey();
                     return;
                 }
             }
@@ -531,11 +530,6 @@ public class SdfParser {
             c++;
         }
 
-        NeptusLog.pub().debug(">>> " + subsystem + " >>>>> Fetch ping " + (c + 1) + " of " +
-                tslist.get(subsystem).length + " < " + tslist.get(subsystem).length
-                + " @" + timestamp + " for ping @" + tslist.get(subsystem)[c + 1]
-                + " " + (tslist.get(subsystem)[c + 1] >= timestamp ? 'T' : 'F')
-                + "   >>> " + file.getName());
         nextTimestamp.put(subsystem, tslist.get(subsystem)[c + 1]);
 
         if (positionMap.get(ts) == null) {
@@ -564,6 +558,16 @@ public class SdfParser {
 
     }
 
+    public ArrayList<Integer> getSubsystemList() {
+        Set<Integer> subsystems = new HashSet<>();
+        for (SdfIndex index : fileIndex.values()) {
+            for (Integer system : index.subSystemsList) {
+                subsystems.add(system);
+            }
+        }
+        return new ArrayList(subsystems);
+    }
+
     public static int main(String[] args) throws Exception {
 
         if (args.length < 2) {
@@ -573,4 +577,5 @@ public class SdfParser {
         SdfParser parser = new SdfParser(new File[]{new File(args[0])});
         return parser.hasAnyPageVersion(Arrays.copyOfRange(args, 1, args.length - 1));
     }
+
 }
