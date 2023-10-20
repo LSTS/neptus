@@ -45,8 +45,8 @@ import pt.lsts.neptus.mra.api.SidescanUtil;
 public class SdfSidescanParser implements SidescanParser {
     private SdfParser parser;
 
-    public SdfSidescanParser(File f) {
-        parser = new SdfParser(f);
+    public SdfSidescanParser(File file) {
+        parser = new SdfParser(new File[]{file});
     }
 
     /**
