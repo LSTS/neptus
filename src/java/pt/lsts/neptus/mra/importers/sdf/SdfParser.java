@@ -75,7 +75,6 @@ public class SdfParser {
     final static int SUBSYS_HIGH = 3502;
 
     public SdfParser(File[] files) {
-        Arrays.sort(files);
 
         for (File file : files) {
             openIndexFile(file);
