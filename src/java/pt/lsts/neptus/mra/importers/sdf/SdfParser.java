@@ -77,27 +77,7 @@ public class SdfParser {
     final static int BATHY_PULSE_COMPRESSED = 3503;
 
     public SdfParser(File file) {
-        try {
-            this.file = file;
-            fis = new FileInputStream(file);
-            channel = fis.getChannel();
-            indexPath = file.getParent() + "/mra/sdf.index";
-
-            if (!new File(indexPath).exists()) {
-                NeptusLog.pub().info("Generating SDF index for " + file.getAbsolutePath());
-                generateIndex();
-            }
-            else {
-                NeptusLog.pub().info("Loading SDF index for " + file.getAbsolutePath());
-                if(!loadIndex()) {
-                    NeptusLog.pub().error("Corrupted SDF index file. Trying to create a new index.");
-                    generateIndex();
-                }
-            }
-        }
-        catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+        openIndexFile(file);
     }
 
     public SdfParser(File[] files) {
@@ -105,27 +85,7 @@ public class SdfParser {
         Arrays.sort(files);
 
         for (File file : files) {
-            try {
-                this.file = file;
-                fis = new FileInputStream(file);
-                channel = fis.getChannel();
-                indexPath = file.getParent() + "/mra/sdf"+file.getName()+".index";
-
-                if (!new File(indexPath).exists()) {
-                    NeptusLog.pub().info("Generating SDF index for " + file.getAbsolutePath());
-                    generateIndex();
-                }
-                else {
-                    NeptusLog.pub().info("Loading SDF index for " + file.getAbsolutePath());
-                    if(!loadIndex(file)) {
-                        NeptusLog.pub().error("Corrupted SDF index file. Trying to create a new index.");
-                        generateIndex();
-                    }
-                }
-            }
-            catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
+            openIndexFile(file);
         }
         int sizeLow = 0;
         int sizeHigh = 0;
@@ -159,6 +119,32 @@ public class SdfParser {
 
         tslist.put(SUBSYS_LOW, longLow);
         tslist.put(SUBSYS_HIGH, longHigh);
+    }
+
+    private void openIndexFile(File file) {
+        try {
+            this.file = file;
+            fis = new FileInputStream(file);
+            channel = fis.getChannel();
+            indexPath = file.getParent() + "/mra/sdf" + file.getName() + ".index";
+
+            if (!new File(indexPath).exists()) {
+                NeptusLog.pub().info("Generating SDF index for " + file.getAbsolutePath());
+                generateIndex();
+            }
+            else {
+                NeptusLog.pub().info("Loading SDF index for " + file.getAbsolutePath());
+                boolean loadedIndex;
+                loadedIndex = multipleFiles ? loadIndex(file) : loadIndex();
+                if (!loadedIndex) {
+                    NeptusLog.pub().error("Corrupted SDF index file. Trying to create a new index.");
+                    generateIndex();
+                }
+            }
+        }
+        catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     private void generateIndex() {
