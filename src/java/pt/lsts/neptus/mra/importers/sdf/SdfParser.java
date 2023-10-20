@@ -401,17 +401,6 @@ public class SdfParser {
             tsSHigh.add(tslisthigh);
             tsSLow.add(tslistlow);
 
-            if (tslisthigh.length >= 2968) {
-                NeptusLog.pub().debug(">?!>>>> >= 2968 >> " + file.getName() +
-                        ">HLength:" + tslisthigh.length + "|LLength:" + tslistlow.length +
-                        "> " + tslisthigh[2967] + ", " + "---" + " | " +
-                        (tslistlow.length >= 2968 ? tslistlow[2967] : "----") + ", " +
-                        (tslistlow.length >= 2969 ? tslistlow[2968] : "----"));
-            }
-            else {
-                NeptusLog.pub().debug(">?!>>>>" + file.getName() + ">" + tslisthigh.length + "|" + tslistlow.length + ">");
-            }
-
             fileIndex.put(file, indexN);
 
             in.close();
