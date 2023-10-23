@@ -350,17 +350,17 @@ public class SdfParser {
             ObjectInputStream in = new ObjectInputStream(new FileInputStream(indexPath));
             SdfIndex index = (SdfIndex) in.readObject();
 
-            Long[] tslisthigh;
-            Long[] tslistlow;
+            Long[] tsListHigh;
+            Long[] tsListLow;
 
-            tslisthigh = index.positionMapHigh.keySet().toArray(new Long[]{});
-            tslistlow = index.positionMapLow.keySet().toArray(new Long[]{});
+            tsListHigh = index.positionMapHigh.keySet().toArray(new Long[]{});
+            tsListLow = index.positionMapLow.keySet().toArray(new Long[]{});
 
-            Arrays.sort(tslisthigh);
-            Arrays.sort(tslistlow);
+            Arrays.sort(tsListHigh);
+            Arrays.sort(tsListLow);
 
-            tsSHigh.add(tslisthigh);
-            tsSLow.add(tslistlow);
+            tsSHigh.add(tsListHigh);
+            tsSLow.add(tsListLow);
 
             fileIndex.put(file, index);
 
