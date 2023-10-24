@@ -102,24 +102,9 @@ public class UtilVideoStream {
         String[] splits;
         try {
             while ((line = br.readLine()) != null) {
-                if (!line.isEmpty() || !line.startsWith("#")) {
-                    splits = line.split("#");
-                    if (splits.length == 3) {
-                        if (splits[0].trim().isEmpty()) continue;
-                        if (splits[1].trim().isEmpty()) continue;
-                        if (splits[2].trim().isEmpty()) continue;
-                        if (UtilVideoStream.getHostFromURI(splits[2].trim().trim()) == null) continue;
-
-                        cameraList.add(new Camera(splits[0], splits[1], splits[2]));
-                    }
-                    else if (splits.length == 2) {
-                        if (splits[0].trim().isEmpty()) continue;
-                        if (splits[1].trim().isEmpty()) continue;
-                        String host = UtilVideoStream.getHostFromURI(splits[1].trim().trim());
-                        if (host == null) continue;
-
-                        cameraList.add(new Camera(splits[0], host, splits[1]));
-                    }
+                Camera cam = parseLineCamera(line);
+                if (cam != null) {
+                    cameraList.add(cam);
                 }
             }
         }
@@ -136,7 +121,31 @@ public class UtilVideoStream {
         return cameraList;
     }
 
-    public static void removeLineFromFile(int lineToRemove, String fileName) {
+    private static Camera parseLineCamera(String line) {
+        if (line.isEmpty() || line.trim().startsWith("#")) return null;
+
+        String[] splits = line.split("#");
+        if (splits.length == 3) {
+            if (splits[0].trim().isEmpty()) return null;
+            if (splits[1].trim().isEmpty()) return null;
+            if (splits[2].trim().isEmpty()) return null;
+            if (UtilVideoStream.getHostFromURI(splits[2].trim().trim()) == null) return null;
+
+            return new Camera(splits[0], splits[1], splits[2]);
+        }
+        else if (splits.length == 2) {
+            if (splits[0].trim().isEmpty()) return null;
+            if (splits[1].trim().isEmpty()) return null;
+            String host = UtilVideoStream.getHostFromURI(splits[1].trim().trim());
+            if (host == null) return null;
+
+            return new Camera(splits[0], host, splits[1]);
+        }
+
+        return null;
+    }
+
+    public static void removeCamFromFile(Camera camToRemove, String fileName) {
         File confIni = new File(fileName);
         File tempFile = null;
         try {
@@ -150,26 +159,27 @@ public class UtilVideoStream {
 
         String currentLine;
 
-        // Can't remove the Select Device line
-        if (lineToRemove == 0) {
-            return;
-        }
-
-        // The file doesn't include the Select Device line so we need to
-        // decrease the line number to match the lines in the file
-        lineToRemove--;
-
         try (BufferedReader reader = new BufferedReader(new FileReader(confIni));
              BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile))) {
-            int lineNumber = 0;
             while ((currentLine = reader.readLine()) != null) {
-                if (currentLine.isEmpty()) {
-                    continue;
+                boolean writeLine = false;
+
+                if (currentLine.isEmpty() || currentLine.trim().startsWith("#")) {
+                    writeLine = true;
                 }
-                if (lineToRemove != lineNumber) {
+
+                if (writeLine == false) {
+                    Camera cam = parseLineCamera(currentLine.trim());
+                    if (cam != null) {
+                        if (!cam.getName().equalsIgnoreCase(camToRemove.getName())) {
+                            writeLine = true;
+                        }
+                    }
+                }
+
+                if (writeLine) {
                     writer.write(currentLine.trim() + System.getProperty("line.separator"));
                 }
-                lineNumber++;
             }
         }
         catch (IOException e) {
@@ -184,7 +194,7 @@ public class UtilVideoStream {
         }
     }
 
-    /*
+        /*
      * Checks if a given host is reachable using ping
      * @param host
      *      The ip to check

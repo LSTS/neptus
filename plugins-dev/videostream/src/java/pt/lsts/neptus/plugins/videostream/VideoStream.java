@@ -765,18 +765,14 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
 
         JButton removeIpCam = new JButton(I18n.text("Remove IPCam"));
         removeIpCam.addActionListener(new ActionListener() {
-
             @Override
             public void actionPerformed(ActionEvent event) {
-
-                int lineToRemove = ipCamList.getSelectedIndex();
+                Camera camToRemove = (Camera) ipCamList.getSelectedItem();
                 String ipUrlFilename = ConfigFetch.getConfFolder() + "/" + BASE_FOLDER_FOR_URLINI;
-
                 // Execute when button is pressed
-                UtilVideoStream.removeLineFromFile(lineToRemove, ipUrlFilename);
+                UtilVideoStream.removeCamFromFile(camToRemove, ipUrlFilename);
                 reloadIPCamList();
             }
-
         });
 
         fieldUrl.addMouseListener(new MouseAdapter() {
