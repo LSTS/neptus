@@ -60,7 +60,7 @@ public class SdfParser {
     private FileInputStream fis;
     private FileChannel channel;
     private long curPosition = 0;
-    private String indexPath;
+    private String indexFilePath;
 
     private LinkedHashMap<Integer, Long[]> tslist = new LinkedHashMap<Integer, Long[]>();
     private LinkedHashMap<Integer, Long> nextTimestamp = new LinkedHashMap<Integer, Long>();
@@ -122,9 +122,9 @@ public class SdfParser {
         }
 
         channel = fis.getChannel();
-        indexPath = file.getParent() + "/mra/sdf" + file.getName() + ".index";
+        indexFilePath = file.getParent() + "/mra/sdf" + file.getName() + ".index";
 
-        if (new File(indexPath).exists()) {
+        if (new File(indexFilePath).exists()) {
             if(loadIndex(file)) {
                 // File loaded
                 return;
@@ -274,7 +274,7 @@ public class SdfParser {
                         ">" + tslisthigh[2967] + ", " + "----" + " | " +
                         (tslistlow.length >= 2968 ? tslistlow[2967] : "----") + ", " +
                         (tslistlow.length >= 2969 ? tslistlow[2968] : "----") +
-                        " >> " + indexPath);
+                        " >> " + indexFilePath);
             }
 
             tslist.put(SUBSYS_LOW, tslistlow);
@@ -285,7 +285,7 @@ public class SdfParser {
             index2.frequenciesList.sort(null);
             index2.subSystemsList.sort(null);
 
-            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(indexPath));
+            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(indexFilePath));
             out.writeObject(index2);
             out.close();
 
@@ -348,7 +348,7 @@ public class SdfParser {
         NeptusLog.pub().info("Loading SDF index for " + file.getAbsolutePath());
 
         try {
-            ObjectInputStream in = new ObjectInputStream(new FileInputStream(indexPath));
+            ObjectInputStream in = new ObjectInputStream(new FileInputStream(indexFilePath));
             SdfIndex index = (SdfIndex) in.readObject();
 
             Long[] tsListHigh;
