@@ -492,23 +492,6 @@ public class SdfParser {
         return ping;
     }
 
-    private void redirectIndex(Long timestamp, int subsystem) {
-        for (Entry<File, SdfIndex> entry : fileIndex.entrySet()) {
-            if (subsystem == SUBSYS_LOW) {
-                if (timestamp >= entry.getValue().firstTimestampLow && timestamp <= entry.getValue().lastTimestampLow) {
-                    index = entry.getValue();
-                    return;
-                }
-            }
-            else if (subsystem == SUBSYS_HIGH) {
-                if (timestamp >= entry.getValue().firstTimestampHigh && timestamp <= entry.getValue().lastTimestampHigh) {
-                    index = entry.getValue();
-                    return;
-                }
-            }
-        }
-    }
-
     private SdfIndex getIndexFromTimestamp(Long timestamp, int subsystem) {
         for (Entry<File, SdfIndex> entry : fileIndex.entrySet()) {
             if (subsystem == SUBSYS_LOW) {
@@ -523,14 +506,6 @@ public class SdfParser {
             }
         }
         return null;
-    }
-
-    private boolean existsTimestamp(long timestamp, SdfIndex searchIndex) {
-        if (timestamp >= searchIndex.firstTimestampLow && timestamp <= searchIndex.lastTimestampLow) {
-            return true;
-        }
-
-        return false;
     }
 
     public SdfData getPingAt(Long timestamp, int subsystem) {
