@@ -60,7 +60,6 @@ public class SdfParser {
     private FileInputStream fis;
     private FileChannel channel;
     private long curPosition = 0;
-    private String indexFilePath;
 
     private LinkedHashMap<Integer, Long[]> tslist = new LinkedHashMap<Integer, Long[]>();
     private LinkedHashMap<Integer, Long> nextTimestamp = new LinkedHashMap<Integer, Long>();
@@ -122,7 +121,7 @@ public class SdfParser {
         }
 
         channel = fis.getChannel();
-        indexFilePath = getIndexFilePath(file);
+        String indexFilePath = getIndexFilePath(file);
 
         if (new File(indexFilePath).exists()) {
             if(loadIndex(file)) {
@@ -148,6 +147,8 @@ public class SdfParser {
         SdfHeader header = new SdfHeader();
         SdfData ping = new SdfData();
         SdfIndex index2 = new SdfIndex();
+
+        String indexFilePath = getIndexFilePath(file);
 
         long maxTimestampHigh = 0;
         long maxTimestampLow = 0;
@@ -353,6 +354,7 @@ public class SdfParser {
 
     public boolean loadIndex(File file) {
         NeptusLog.pub().info("Loading SDF index for " + file.getAbsolutePath());
+        String indexFilePath = getIndexFilePath(file);
 
         try {
             ObjectInputStream in = new ObjectInputStream(new FileInputStream(indexFilePath));
