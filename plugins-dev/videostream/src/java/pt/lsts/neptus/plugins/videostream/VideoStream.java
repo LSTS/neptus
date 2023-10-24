@@ -147,7 +147,7 @@ import java.util.zip.Inflater;
         category = PluginDescription.CATEGORY.INTERFACE)
 public class VideoStream extends ConsolePanel { // implements ItemListener {
     private static final String BASE_FOLDER_FOR_IMAGES = ConfigFetch.getLogsFolder() + "/images";
-    private static final String BASE_FOLDER_FOR_URLINI = "ipUrl.ini";
+    static final String BASE_FOLDER_FOR_URLINI = "ipUrl.ini";
     // Default width and height of Console
     private static final int DEFAULT_WIDTH_CONSOLE = 640;
     private static final int DEFAULT_HEIGHT_CONSOLE = 480;
@@ -757,9 +757,13 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
                 if (fieldUrl.getText().trim().isEmpty()) return;
                 if (UtilVideoStream.getHostFromURI(fieldUrl.getText().trim()) == null) return;
 
-                writeToFile(String.format("%s#%s\n", fieldName.getText().trim(), //fieldIP.getText().trim(),
-                        fieldUrl.getText().trim()));
-                reloadIPCamList();
+                Camera camToAdd = UtilVideoStream.parseLineCamera(String.format("%s#%s#%s\n", fieldName.getText().trim(),
+                        fieldIP.getText().trim(), fieldUrl.getText().trim()));
+                if (camToAdd != null) {
+                    String ipUrlFilename = ConfigFetch.getConfFolder() + "/" + BASE_FOLDER_FOR_URLINI;
+                    UtilVideoStream.addCamToFile(camToAdd, ipUrlFilename);
+                    reloadIPCamList();
+                }
             }
         });
 
@@ -827,16 +831,6 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
 
     private void repaintParametersTextFields() {
         repaintParametersTextFields("NAME", "IP", "URL");
-    }
-
-    // Write to file
-    private void writeToFile(String textString) {
-        String iniRsrcPath = FileUtil.getResourceAsFileKeepName(BASE_FOLDER_FOR_URLINI);
-        File confIni = new File(ConfigFetch.getConfFolder() + "/" + BASE_FOLDER_FOR_URLINI);
-        if (!confIni.exists()) {
-            FileUtil.copyFileToDir(iniRsrcPath, ConfigFetch.getConfFolder());
-        }
-        FileUtil.saveToFile(confIni.getAbsolutePath(), textString, "UTF-8", true);
     }
 
     // Reloads the list of IP cams

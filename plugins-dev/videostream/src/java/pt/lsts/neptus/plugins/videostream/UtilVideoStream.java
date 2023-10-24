@@ -34,6 +34,7 @@ package pt.lsts.neptus.plugins.videostream;
 import org.apache.commons.io.FileUtils;
 import org.opencv.core.Size;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 
 import java.awt.*;
@@ -121,7 +122,7 @@ public class UtilVideoStream {
         return cameraList;
     }
 
-    private static Camera parseLineCamera(String line) {
+    static Camera parseLineCamera(String line) {
         if (line.isEmpty() || line.trim().startsWith("#")) return null;
 
         String[] splits = line.split("#");
@@ -158,7 +159,6 @@ public class UtilVideoStream {
         }
 
         String currentLine;
-
         try (BufferedReader reader = new BufferedReader(new FileReader(confIni));
              BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile))) {
             while ((currentLine = reader.readLine()) != null) {
@@ -194,7 +194,74 @@ public class UtilVideoStream {
         }
     }
 
-        /*
+    public static void addCamToFile(Camera camToAdd, String fileName) {
+        String iniRsrcPath = FileUtil.getResourceAsFileKeepName(VideoStream.BASE_FOLDER_FOR_URLINI);
+
+        File confIni = new File(fileName);
+        if (!confIni.exists()) {
+            FileUtil.copyFileToDir(iniRsrcPath, ConfigFetch.getConfFolder());
+        }
+
+        File tempFile = null;
+        try {
+            tempFile = File.createTempFile("neptus_", "tmp", new File(ConfigFetch.getNeptusTmpDir()));
+            tempFile.deleteOnExit();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        ArrayList<Camera> camsList = readIpUrl(confIni);
+        boolean updateValueLine = camsList.stream().anyMatch(c -> camToAdd.getName().equalsIgnoreCase(c.getName()));
+
+        if (!updateValueLine) {
+            String str = String.format("%s#%s\n", camToAdd.getName().trim(), camToAdd.getUrl().trim());
+            FileUtil.saveToFile(confIni.getAbsolutePath(), str, "UTF-8", true);
+            return;
+        }
+
+        String currentLine;
+        try (BufferedReader reader = new BufferedReader(new FileReader(confIni));
+             BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile))) {
+            while ((currentLine = reader.readLine()) != null) {
+                boolean writeLine = false;
+
+                if (currentLine.isEmpty() || currentLine.trim().startsWith("#")) {
+                    writeLine = true;
+                }
+
+                if (writeLine == false) {
+                    Camera cam = parseLineCamera(currentLine.trim());
+                    if (cam != null) {
+                        if (cam.getName().equalsIgnoreCase(camToAdd.getName())) {
+                            String str = String.format("%s#%s\n", camToAdd.getName().trim(), camToAdd.getUrl().trim());
+                            writer.write(str);
+                        }
+                        else {
+                            writeLine = true;
+                        }
+                    }
+                }
+
+                if (writeLine) {
+                    writer.write(currentLine.trim() + System.getProperty("line.separator"));
+                }
+            }
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            FileUtils.copyFile(tempFile, confIni);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /*
      * Checks if a given host is reachable using ping
      * @param host
      *      The ip to check
