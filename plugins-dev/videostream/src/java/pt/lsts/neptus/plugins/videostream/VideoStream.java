@@ -634,8 +634,7 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
             uri = new URI(camUrl);
         }
         catch (Exception e) {
-            NeptusLog.pub().warn("Camera URL is not valid: " + camUrl);
-            e.printStackTrace();
+            NeptusLog.pub().warn("Camera URL is not valid: " + camUrl + " :: " + e.getMessage());
         }
 
         ipCamPing = new JDialog(SwingUtilities.getWindowAncestor(VideoStream.this), I18n.text("Select IPCam"));
@@ -654,7 +653,7 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
             String host = uri.getHost();
             String name = "Stream " + uri.getScheme() + "@" + uri.getPort();
             Camera cam = new Camera(name, host, camUrl);
-            NeptusLog.pub().warn("Cam > " + cam + " | URI " + camUrl + " | " + cam.getUrl());
+            NeptusLog.pub().warn("Cam > " + cam +  " | host " + host+ " | URI " + camUrl + " | " + cam.getUrl());
             Camera matchCam = cameraList.stream().filter(c -> c.getUrl().equalsIgnoreCase(cam.getUrl()))
                     .findAny().orElse(null);
 
