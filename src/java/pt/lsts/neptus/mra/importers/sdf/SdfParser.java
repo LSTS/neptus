@@ -412,7 +412,7 @@ public class SdfParser {
         return null;
     }
 
-    public SdfData getPingAtPosition(long pos, int subsystem) {
+    public SdfData getPingAtPosition(long pos, int subsystem, SdfIndex index) {
         long posHeader = pos;
         SdfHeader header = new SdfHeader();
         SdfData ping = new SdfData();
@@ -544,7 +544,7 @@ public class SdfParser {
             return null;
         }
         Long position = positionMap.get(ts).get(0);
-        SdfData ping = getPingAtPosition(position, subsystem);
+        SdfData ping = getPingAtPosition(position, subsystem, index);
         NeptusLog.pub().debug(">>> " + subsystem + " >>>>> For long " + position +
                 " @ ts:" + ping.getTimestamp() + " | fixts:" + ping.getFixTimestamp());
 
