@@ -650,7 +650,7 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
         ipCamPing.setBackground(Color.GRAY);
 
         int sel = 0;
-        if (uri != null || uri.getScheme() != null) {
+        if (uri != null || uri != null && uri.getScheme() != null) {
             String host = uri.getHost();
             String name = "Stream " + uri.getScheme() + "@" + uri.getPort();
             Camera cam = new Camera(name, host, camUrl);
