@@ -135,6 +135,13 @@ public class SdfParser {
         generateIndex(file);
     }
 
+    private String getIndexFilePath(File file) {
+        if (new File(indexFilePath).exists()) {
+            return file.getParent() + "/mra/sdf" + file.getName() + ".index";
+        }
+        return null;
+    }
+
     private void generateIndex(File file) {
         NeptusLog.pub().info("Generating SDF index for " + file.getAbsolutePath());
 
