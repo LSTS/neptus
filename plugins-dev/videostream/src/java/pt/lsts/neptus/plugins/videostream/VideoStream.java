@@ -109,6 +109,7 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.ItemEvent;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
@@ -146,7 +147,7 @@ import java.util.zip.Inflater;
         category = PluginDescription.CATEGORY.INTERFACE)
 public class VideoStream extends ConsolePanel { // implements ItemListener {
     private static final String BASE_FOLDER_FOR_IMAGES = ConfigFetch.getLogsFolder() + "/images";
-    private static final String BASE_FOLDER_FOR_URLINI = "ipUrl.ini";
+    static final String BASE_FOLDER_FOR_URLINI = "ipUrl.ini";
     // Default width and height of Console
     private static final int DEFAULT_WIDTH_CONSOLE = 640;
     private static final int DEFAULT_HEIGHT_CONSOLE = 480;
@@ -629,13 +630,7 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
         repaintParametersTextFields();
         cameraList = readIPUrl();
 
-        URI uri = null;
-        try {
-            uri = new URI(camUrl);
-        }
-        catch (Exception e) {
-            NeptusLog.pub().warn("Camera URL is not valid: " + camUrl + " :: " + e.getMessage());
-        }
+        URI uri = UtilVideoStream.getCamUrlAsURI(camUrl);
 
         ipCamPing = new JDialog(SwingUtilities.getWindowAncestor(VideoStream.this), I18n.text("Select IPCam"));
         ipCamPing.setResizable(true);
@@ -653,7 +648,7 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
             String host = uri.getHost();
             String name = "Stream " + uri.getScheme() + "@" + uri.getPort();
             Camera cam = new Camera(name, host, camUrl);
-            NeptusLog.pub().warn("Cam > " + cam +  " | host " + host+ " | URI " + camUrl + " | " + cam.getUrl());
+            NeptusLog.pub().info("Cam > " + cam +  " | host " + host+ " | URI " + camUrl + " | " + cam.getUrl());
             Camera matchCam = cameraList.stream().filter(c -> c.getUrl().equalsIgnoreCase(cam.getUrl()))
                     .findAny().orElse(null);
 
@@ -750,32 +745,51 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
                 state = false;
             }
         });
+        fieldIP.setEditable(false);
         ipCamManagementPanel.add(selectIPCam, "h 30!, wrap");
 
         JButton addNewIPCam = new JButton(I18n.text("Add New IPCam"));
         addNewIPCam.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 // Execute when button is pressed
-                writeToFile(String.format("%s#%s#%s\n", fieldName.getText().trim(), fieldIP.getText().trim(),
-                        fieldUrl.getText().trim()));
-                reloadIPCamList();
+                if (fieldName.getText().trim().isEmpty()) return;
+                if (fieldIP.getText().trim().isEmpty()) return;
+                if (fieldUrl.getText().trim().isEmpty()) return;
+                if (UtilVideoStream.getHostFromURI(fieldUrl.getText().trim()) == null) return;
+
+                Camera camToAdd = UtilVideoStream.parseLineCamera(String.format("%s#%s#%s\n", fieldName.getText().trim(),
+                        fieldIP.getText().trim(), fieldUrl.getText().trim()));
+                if (camToAdd != null) {
+                    String ipUrlFilename = ConfigFetch.getConfFolder() + "/" + BASE_FOLDER_FOR_URLINI;
+                    UtilVideoStream.addCamToFile(camToAdd, ipUrlFilename);
+                    reloadIPCamList();
+                }
             }
         });
 
         JButton removeIpCam = new JButton(I18n.text("Remove IPCam"));
         removeIpCam.addActionListener(new ActionListener() {
-
             @Override
             public void actionPerformed(ActionEvent event) {
-
-                int lineToRemove = ipCamList.getSelectedIndex();
+                Camera camToRemove = (Camera) ipCamList.getSelectedItem();
                 String ipUrlFilename = ConfigFetch.getConfFolder() + "/" + BASE_FOLDER_FOR_URLINI;
-
                 // Execute when button is pressed
-                UtilVideoStream.removeLineFromFile(lineToRemove, ipUrlFilename);
+                UtilVideoStream.removeCamFromFile(camToRemove, ipUrlFilename);
                 reloadIPCamList();
             }
+        });
 
+        fieldUrl.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                updateIPFieldFromUrlField();
+            }
+        });
+        fieldUrl.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                updateIPFieldFromUrlField();
+            }
         });
 
         ipCamManagementPanel.add(fieldName, "w 410!, wrap");
@@ -794,30 +808,29 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
         ipCamPing.setVisible(true);
     }
 
+    private void updateIPFieldFromUrlField() {
+        String host = UtilVideoStream.getHostFromURI(fieldUrl.getText());
+        if (host != null) {
+            fieldIP.setText(host);
+            fieldIP.validate();
+            fieldIP.repaint(200);
+        }
+    }
+
     private void repaintParametersTextFields(String name, String ip, String url) {
-        fieldName.setText(I18n.text(name));
+        fieldName.setText(name);
         fieldName.validate();
         fieldName.repaint();
-        fieldIP.setText(I18n.text(ip));
+        fieldIP.setText(ip);
         fieldIP.validate();
         fieldIP.repaint();
-        fieldUrl.setText(I18n.text(url));
+        fieldUrl.setText(url);
         fieldUrl.validate();
         fieldUrl.repaint();
     }
 
     private void repaintParametersTextFields() {
         repaintParametersTextFields("NAME", "IP", "URL");
-    }
-
-    // Write to file
-    private void writeToFile(String textString) {
-        String iniRsrcPath = FileUtil.getResourceAsFileKeepName(BASE_FOLDER_FOR_URLINI);
-        File confIni = new File(ConfigFetch.getConfFolder() + "/" + BASE_FOLDER_FOR_URLINI);
-        if (!confIni.exists()) {
-            FileUtil.copyFileToDir(iniRsrcPath, ConfigFetch.getConfFolder());
-        }
-        FileUtil.saveToFile(confIni.getAbsolutePath(), textString, "UTF-8", true);
     }
 
     // Reloads the list of IP cams
@@ -1551,7 +1564,7 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
                     if (System.currentTimeMillis() > endTimeMillis && !virtualEndThread) {
                         if (!isCleanTurnOffCam) {
                             NeptusLog.pub().error("TIME OUT IPCAM");
-                            NeptusLog.pub().info("Clossing all Video Stream...");
+                            NeptusLog.pub().info("Closing all Video Stream...");
                             noVideoLogoState = false;
                             state = false;
                             ipCam = false;
