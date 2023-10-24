@@ -535,13 +535,8 @@ public class SdfParser {
 
     public SdfData getPingAt(Long timestamp, int subsystem) {
 
-        // point index to right index_ file according to timestamp
-        if (index != null) {
-            if (!existsTimestamp(timestamp, index)) {
-                redirectIndex(timestamp, subsystem);
-            }
-        }
-        // end
+        SdfIndex index = getIndexFromTimestamp(timestamp, subsystem);
+        if(index == null) return null;
 
         curPosition = 0;
         LinkedHashMap<Long, ArrayList<Long>> positionMap = index.getPositionMap(subsystem);
