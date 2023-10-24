@@ -122,7 +122,7 @@ public class SdfParser {
         }
 
         channel = fis.getChannel();
-        indexFilePath = file.getParent() + "/mra/sdf" + file.getName() + ".index";
+        indexFilePath = getIndexFilePath(file);
 
         if (new File(indexFilePath).exists()) {
             if(loadIndex(file)) {
