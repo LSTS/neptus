@@ -377,8 +377,7 @@ public class SdfParser {
         for (Entry<File, SdfIndex> entry : fileIndex.entrySet()) {
             return Math.min(entry.getValue().firstTimestampHigh, entry.getValue().firstTimestampLow);
         }
-
-        return Math.min(index.firstTimestampHigh, index.firstTimestampLow);
+        return -1L;
     }
 
     public long getLastTimeStamp() {
