@@ -382,12 +382,21 @@ public class SdfParser {
     }
 
     public long getLastTimeStamp() {
-        Entry<File, SdfIndex> lastEntry = null;
+        long entryTimestamp;
+        long maxTimestamp = 0L;
+
         for (Entry<File, SdfIndex> entry : fileIndex.entrySet()) {
-            lastEntry = entry;
+            entryTimestamp = entry.getValue().lastTimestampHigh;
+            if (entryTimestamp > maxTimestamp) {
+                maxTimestamp = entryTimestamp;
+            }
+            entryTimestamp = entry.getValue().lastTimestampLow;
+            if (entryTimestamp > maxTimestamp) {
+                maxTimestamp = entryTimestamp;
+            }
         }
 
-        return Math.max(lastEntry.getValue().lastTimestampHigh, lastEntry.getValue().lastTimestampLow);
+        return maxTimestamp;
     }
 
     public SdfData nextPing(int subsystem) {
