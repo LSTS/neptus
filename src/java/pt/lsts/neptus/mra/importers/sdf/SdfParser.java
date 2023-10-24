@@ -148,7 +148,7 @@ public class SdfParser {
         long minTimestampLow = Long.MAX_VALUE;
 
         long count = 0;
-        long pos = 0;
+        long pos;
         curPosition = 0;
         try {
             Set<Integer> unimplementedPageVersionSet = new HashSet<>();
@@ -172,7 +172,6 @@ public class SdfParser {
                         NeptusLog.pub().info("SDF Data file contains unimplemented pageVersion # " + header.getPageVersion());
                     }
                     curPosition += (header.getNumberBytes() + 4) - header.getHeaderSize();
-                    pos = curPosition;
                     if (curPosition >= channel.size()) //check if curPosition is at the end of file
                     {
                         break;
