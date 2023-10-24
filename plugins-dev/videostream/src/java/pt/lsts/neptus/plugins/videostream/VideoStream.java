@@ -1564,7 +1564,7 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
                     if (System.currentTimeMillis() > endTimeMillis && !virtualEndThread) {
                         if (!isCleanTurnOffCam) {
                             NeptusLog.pub().error("TIME OUT IPCAM");
-                            NeptusLog.pub().info("Clossing all Video Stream...");
+                            NeptusLog.pub().info("Closing all Video Stream...");
                             noVideoLogoState = false;
                             state = false;
                             ipCam = false;
