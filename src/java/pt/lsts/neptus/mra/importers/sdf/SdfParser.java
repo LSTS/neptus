@@ -136,7 +136,7 @@ public class SdfParser {
     }
 
     private String getIndexFilePath(File file) {
-        if (new File(indexFilePath).exists()) {
+        if (file.exists()) {
             return file.getParent() + "/mra/sdf" + file.getName() + ".index";
         }
         return null;
