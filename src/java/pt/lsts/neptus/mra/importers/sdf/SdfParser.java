@@ -528,7 +528,7 @@ public class SdfParser {
         // end
 
         curPosition = 0;
-        LinkedHashMap<Long, ArrayList<Long>> positionMap = (subsystem == SUBSYS_LOW ? index.positionMapLow : index.positionMapHigh);
+        LinkedHashMap<Long, ArrayList<Long>> positionMap = index.getPositionMap(subsystem);
         long ts = 0;
         int c = 0;
         for (Long time : tslist.get(subsystem)) {
