@@ -480,9 +480,6 @@ public class SdfParser {
             buf.order(ByteOrder.LITTLE_ENDIAN);
 
             ping.parseData(buf);
-
-            pos += (header.getNumberBytes() - header.getHeaderSize() - header.getSDFExtensionSize());
-
         }
         catch (Exception e) {
             e.printStackTrace();
