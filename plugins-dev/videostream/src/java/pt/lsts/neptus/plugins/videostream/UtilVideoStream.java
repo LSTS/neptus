@@ -33,6 +33,7 @@ package pt.lsts.neptus.plugins.videostream;
 
 import org.apache.commons.io.FileUtils;
 import org.opencv.core.Size;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 
 import java.awt.*;
@@ -45,6 +46,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.URI;
 import java.net.UnknownHostException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -60,6 +62,31 @@ import java.util.concurrent.TimeUnit;
 public class UtilVideoStream {
     private UtilVideoStream() {
     }
+
+    public static String getHostFromURI(String camUrl) {
+        try {
+            URI uri = new URI(camUrl);
+            if (uri == null) return null;
+
+            return uri.getHost();
+        }
+        catch (Exception e) {
+            NeptusLog.pub().warn("Camera URL is not valid: " + camUrl + " :: " + e.getMessage());
+        }
+        return null;
+    }
+
+    public static URI getCamUrlAsURI(String camUrl) {
+        try {
+            URI uri = new URI(camUrl);
+            return uri;
+        }
+        catch (Exception e) {
+            NeptusLog.pub().warn("Camera URL is not valid: " + camUrl + " :: " + e.getMessage());
+        }
+        return null;
+    }
+
     public static ArrayList<Camera> readIpUrl(File nameFile) {
         ArrayList<Camera> cameraList = new ArrayList<>();
         BufferedReader br = null;
@@ -75,10 +102,23 @@ public class UtilVideoStream {
         String[] splits;
         try {
             while ((line = br.readLine()) != null) {
-                if (!line.isEmpty()) {
+                if (!line.isEmpty() || !line.startsWith("#")) {
                     splits = line.split("#");
                     if (splits.length == 3) {
+                        if (splits[0].trim().isEmpty()) continue;
+                        if (splits[1].trim().isEmpty()) continue;
+                        if (splits[2].trim().isEmpty()) continue;
+                        if (UtilVideoStream.getHostFromURI(splits[2].trim().trim()) == null) continue;
+
                         cameraList.add(new Camera(splits[0], splits[1], splits[2]));
+                    }
+                    else if (splits.length == 2) {
+                        if (splits[0].trim().isEmpty()) continue;
+                        if (splits[1].trim().isEmpty()) continue;
+                        String host = UtilVideoStream.getHostFromURI(splits[1].trim().trim());
+                        if (host == null) continue;
+
+                        cameraList.add(new Camera(splits[0], host, splits[1]));
                     }
                 }
             }
