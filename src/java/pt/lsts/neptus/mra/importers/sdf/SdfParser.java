@@ -124,20 +124,19 @@ public class SdfParser {
         channel = fis.getChannel();
         indexPath = file.getParent() + "/mra/sdf" + file.getName() + ".index";
 
-        if (!new File(indexPath).exists()) {
-            NeptusLog.pub().info("Generating SDF index for " + file.getAbsolutePath());
-            generateIndex(file);
-        }
-        else {
-            NeptusLog.pub().info("Loading SDF index for " + file.getAbsolutePath());
-            if (!loadIndex(file)) {
-                NeptusLog.pub().error("Corrupted SDF index file. Trying to create a new index.");
-                generateIndex(file);
+        if (new File(indexPath).exists()) {
+            if(loadIndex(file)) {
+                // File loaded
+                return;
             }
         }
+
+        // Index file did not load or does not exist
+        generateIndex(file);
     }
 
     private void generateIndex(File file) {
+        NeptusLog.pub().info("Generating SDF index for " + file.getAbsolutePath());
 
         SdfHeader header = new SdfHeader();
         SdfData ping = new SdfData();
@@ -346,6 +345,8 @@ public class SdfParser {
     }
 
     public boolean loadIndex(File file) {
+        NeptusLog.pub().info("Loading SDF index for " + file.getAbsolutePath());
+
         try {
             ObjectInputStream in = new ObjectInputStream(new FileInputStream(indexPath));
             SdfIndex index = (SdfIndex) in.readObject();
