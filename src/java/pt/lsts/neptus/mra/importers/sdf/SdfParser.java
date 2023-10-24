@@ -509,6 +509,22 @@ public class SdfParser {
         }
     }
 
+    private SdfIndex getIndexFromTimestamp(Long timestamp, int subsystem) {
+        for (Entry<File, SdfIndex> entry : fileIndex.entrySet()) {
+            if (subsystem == SUBSYS_LOW) {
+                if (timestamp >= entry.getValue().firstTimestampLow && timestamp <= entry.getValue().lastTimestampLow) {
+                    return entry.getValue();
+                }
+            }
+            else if (subsystem == SUBSYS_HIGH) {
+                if (timestamp >= entry.getValue().firstTimestampHigh && timestamp <= entry.getValue().lastTimestampHigh) {
+                    return entry.getValue();
+                }
+            }
+        }
+        return null;
+    }
+
     private boolean existsTimestamp(long timestamp, SdfIndex searchIndex) {
         if (timestamp >= searchIndex.firstTimestampLow && timestamp <= searchIndex.lastTimestampLow) {
             return true;
