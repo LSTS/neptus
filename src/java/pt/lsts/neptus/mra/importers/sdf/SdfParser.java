@@ -60,7 +60,6 @@ public class SdfParser {
     private FileInputStream fis;
     private FileChannel channel;
     private long curPosition = 0;
-    private SdfIndex index = new SdfIndex();
     private String indexPath;
 
     private LinkedHashMap<Integer, Long[]> tslist = new LinkedHashMap<Integer, Long[]>();
