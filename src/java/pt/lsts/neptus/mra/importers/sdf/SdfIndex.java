@@ -50,11 +50,11 @@ public class SdfIndex implements Serializable {
     boolean hasHigh = false;
     boolean hasLow = false;
     
-    LinkedHashMap<Long, ArrayList<Long>> positionMapHigh = new LinkedHashMap<Long, ArrayList<Long>>();
-    LinkedHashMap<Long, ArrayList<Long>> positionMapLow = new LinkedHashMap<Long, ArrayList<Long>>();
+    LinkedHashMap<Long, ArrayList<Long>> positionMapHigh = new LinkedHashMap<>();
+    LinkedHashMap<Long, ArrayList<Long>> positionMapLow = new LinkedHashMap<>();
     
-    ArrayList<Integer> frequenciesList = new ArrayList<Integer>();
-    ArrayList<Integer> subSystemsList = new ArrayList<Integer>();
+    ArrayList<Integer> frequenciesList = new ArrayList<>();
+    ArrayList<Integer> subSystemsList = new ArrayList<>();
 
     public LinkedHashMap<Long, ArrayList<Long>> getPositionMap(int subsystem) {
         return subsystem == SdfParser.SUBSYS_HIGH ? positionMapHigh : positionMapLow;
