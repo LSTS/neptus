@@ -178,24 +178,24 @@ public class SdfParser {
                 //get timestamp, freq and subsystem used
                 long pingTimestamp = ping.getTimestamp(); // Timestamp
                 long pingFixTimestamp = ping.getFixTimestamp(); // FixTimestamp
-                int pingFrequency = ping.getHeader().getSonarFreq(); // Frequency
-                int pingPageVersion = ping.getHeader().getPageVersion();
+                int sonarFrequency = header.getSonarFreq(); // Frequency
+                int pageVersion = header.getPageVersion();
 
-                if (!index.frequenciesList.contains(pingFrequency)) {
-                    index.frequenciesList.add(pingFrequency);
+                if (!index.frequenciesList.contains(sonarFrequency)) {
+                    index.frequenciesList.add(sonarFrequency);
                 }
-                if (!index.subSystemsList.contains(pingPageVersion)) {
-                    index.subSystemsList.add(pingPageVersion);
+                if (!index.subSystemsList.contains(pageVersion)) {
+                    index.subSystemsList.add(pageVersion);
                 }
 
                 if (pingTimestamp < 5000000) { // Fixing timestamp from 1970
                     NeptusLog.pub().warn(I18n.textf("Something is wrong with the timestamp (%d). " +
                                     "Trying to calculate using GPS data for ping %d for subsystem %d. New timestamp is %d.",
-                            new Date(pingTimestamp), ping.getHeader().getPingNumber(), pingPageVersion, new Date(pingFixTimestamp)));
+                            new Date(pingTimestamp), ping.getHeader().getPingNumber(), pageVersion, new Date(pingFixTimestamp)));
                     pingTimestamp = pingFixTimestamp;
                 }
 
-                if (pingPageVersion == SUBSYS_LOW) {
+                if (pageVersion == SUBSYS_LOW) {
                     if (!index.hasLow) {
                         index.hasLow = true;
                     }
@@ -216,7 +216,7 @@ public class SdfParser {
                     }
                 }
 
-                if (pingPageVersion == SUBSYS_HIGH) {
+                if (pageVersion == SUBSYS_HIGH) {
                     if (!index.hasHigh) {
                         index.hasHigh = true;
                     }
