@@ -154,7 +154,7 @@ public class SdfParser {
             FileChannel channel = fileInputStream.getChannel();
 
             Set<Integer> unimplementedPageVersionSet = new HashSet<>();
-            while (true) {
+            while (curPosition < file.length()) {
                 // Read the header
                 ByteBuffer buf = channel.map(MapMode.READ_ONLY, curPosition, SdfHeader.HEADER_SIZE);
                 buf.order(ByteOrder.LITTLE_ENDIAN);
@@ -249,10 +249,6 @@ public class SdfParser {
 
                 curPosition += (header.getNumberBytes() + 4) - header.getHeaderSize();
                 count++;
-
-                if (curPosition >= channel.size()) {
-                    break;
-                }
             }
 
             index.firstTimestampHigh = minTimestampHigh;
