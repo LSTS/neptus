@@ -49,9 +49,6 @@ public class SdfIndex implements Serializable {
     long firstTimestampLow = -1;
     long lastTimestampLow = -1;
 
-    boolean hasHigh = false;
-    boolean hasLow = false;
-
     LinkedHashMap<Long, ArrayList<Long>> positionMapHigh = new LinkedHashMap<>();
     LinkedHashMap<Long, ArrayList<Long>> positionMapLow = new LinkedHashMap<>();
 
