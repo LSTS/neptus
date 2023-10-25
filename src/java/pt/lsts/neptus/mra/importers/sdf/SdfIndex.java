@@ -34,7 +34,9 @@ package pt.lsts.neptus.mra.importers.sdf;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.Set;
 
 public class SdfIndex implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -51,15 +53,13 @@ public class SdfIndex implements Serializable {
     LinkedHashMap<Long, ArrayList<Long>> positionMapHigh = new LinkedHashMap<>();
     LinkedHashMap<Long, ArrayList<Long>> positionMapLow = new LinkedHashMap<>();
     
-    private final ArrayList<Integer> subSystemList = new ArrayList<>();
+    private final Set<Integer> subSystemList = new HashSet<>();
 
     public void addSubsystem(int subSystem) {
-        if (!subSystemList.contains(subSystem)) {
-            subSystemList.add(subSystem);
-        }
+        subSystemList.add(subSystem);
     }
 
-    public ArrayList<Integer> getSubSystemList() {
+    public Set<Integer> getSubSystemList() {
         return subSystemList;
     }
 
