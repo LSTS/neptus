@@ -145,7 +145,7 @@ public class SdfParser {
         long minTimestampLow = Long.MAX_VALUE;
 
         long count = 0;
-        long pos;
+        long dataPageHeaderPosition;
         long filePosition = 0;
 
         try (FileInputStream fileInputStream = new FileInputStream(file)) {
@@ -158,13 +158,13 @@ public class SdfParser {
                 buf.order(ByteOrder.LITTLE_ENDIAN);
                 header.parse(buf);
 
+                dataPageHeaderPosition = filePosition;
                 if (header.getPageVersion() == SUBSYS_HIGH || header.getPageVersion() == SUBSYS_LOW) {
                     //set header of this ping
                     ping.setHeader(header);
                     ping.calculateTimeStamp();
                     ping.calculateFixTimeStamp();
                     filePosition += header.getHeaderSize();
-                    pos = filePosition - header.getHeaderSize();
                 }
                 else { //ignore other pageVersions
                     if (!unimplementedPageVersionSet.contains(header.getPageVersion())) {
@@ -203,11 +203,11 @@ public class SdfParser {
                     ArrayList<Long> l = index.positionMapLow.get(t);
                     if (l == null) {
                         l = new ArrayList<Long>();
-                        l.add(pos);
+                        l.add(dataPageHeaderPosition);
                         index.positionMapLow.put(t, l);
                     }
                     else {
-                        l.add(pos);
+                        l.add(dataPageHeaderPosition);
                     }
 
                     if (t > minimumValidTimestamp) {
@@ -224,11 +224,11 @@ public class SdfParser {
                     ArrayList<Long> l = index.positionMapHigh.get(t);
                     if (l == null) {
                         l = new ArrayList<Long>();
-                        l.add(pos);
+                        l.add(dataPageHeaderPosition);
                         index.positionMapHigh.put(t, l);
                     }
                     else {
-                        l.add(pos);
+                        l.add(dataPageHeaderPosition);
                     }
 
                     if (t > minimumValidTimestamp) {
