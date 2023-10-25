@@ -105,10 +105,12 @@ public class SdfData {
      */
     public void setHeader(SdfHeader header) {
         this.header = header;
+        setTimestamp(calculateTimeStamp());
+        setFixTimestamp(calculateFixTimeStamp());
     }
 
 
-    public void calculateTimeStamp() {
+    private long calculateTimeStamp() {
         int year = header.getYear();
         int month = header.getMonth();
         int day = header.getDay();
@@ -122,10 +124,10 @@ public class SdfData {
         cal.setTimeZone(TimeZone.getTimeZone("UTC"));
         cal.set(year, month - 1, day, hour, minute, seconds);
         cal.set(Calendar.MILLISECOND, milis);
-        setTimestamp(cal.getTimeInMillis());
+        return cal.getTimeInMillis();
     }
 
-    public void calculateFixTimeStamp() {
+    private long calculateFixTimeStamp() {
         int year = header.getFixTimeYear();
         int month = header.getFixTimeMonth();
         int day = header.getFixTimeDay();
@@ -140,7 +142,7 @@ public class SdfData {
         cal.setTimeZone(TimeZone.getTimeZone("UTC"));
         cal.set(year, month - 1, day, hour, minute, seconds);
         cal.set(Calendar.MILLISECOND, millis);
-        setFixTimestamp(cal.getTimeInMillis());
+        return cal.getTimeInMillis();
     }
 
     /**
