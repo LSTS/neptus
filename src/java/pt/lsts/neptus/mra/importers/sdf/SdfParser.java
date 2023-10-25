@@ -112,14 +112,6 @@ public class SdfParser {
     }
 
     private void openIndexFile(File file) {
-        try {
-            fis = new FileInputStream(file);
-        }
-        catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        channel = fis.getChannel();
         String indexFilePath = getIndexFilePath(file);
 
         if (new File(indexFilePath).exists()) {
@@ -157,7 +149,10 @@ public class SdfParser {
         long count = 0;
         long pos;
         long curPosition = 0;
-        try {
+
+        try (FileInputStream fis = new FileInputStream(file)) {
+            FileChannel channel = fis.getChannel();
+
             Set<Integer> unimplementedPageVersionSet = new HashSet<>();
             while (true) {
                 // Read the header
