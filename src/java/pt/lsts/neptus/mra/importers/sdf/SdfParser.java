@@ -143,7 +143,6 @@ public class SdfParser {
         long minTimestampHigh = Long.MAX_VALUE;
         long minTimestampLow = Long.MAX_VALUE;
 
-        long count = 0;
         long dataPageHeaderPosition;
         long filePosition = 0;
 
@@ -231,7 +230,6 @@ public class SdfParser {
                 //end processing data
 
                 filePosition += (header.getNumberBytes() + 4) - header.getHeaderSize();
-                count++;
             }
 
             index.firstTimestampHigh = minTimestampHigh;
@@ -260,8 +258,6 @@ public class SdfParser {
 
             tslist.put(SUBSYS_LOW, tslistlow);
             tslist.put(SUBSYS_HIGH, tslisthigh);
-
-            index.numberOfPackets = count;
 
             ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(indexFilePath));
             out.writeObject(index);
