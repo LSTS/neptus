@@ -179,12 +179,8 @@ public class SdfParser {
                 int sonarFrequency = header.getSonarFreq(); // Frequency
                 int pageVersion = header.getPageVersion();
 
-                if (!index.frequenciesList.contains(sonarFrequency)) {
-                    index.frequenciesList.add(sonarFrequency);
-                }
-                if (!index.subSystemsList.contains(pageVersion)) {
-                    index.subSystemsList.add(pageVersion);
-                }
+                index.addFrequency(sonarFrequency);
+                index.addSubsystem(pageVersion);
 
                 if (pingTimestamp < 5000000) { // Fixing timestamp from 1970
                     NeptusLog.pub().warn(I18n.textf("Something is wrong with the timestamp (%d). " +
@@ -269,9 +265,6 @@ public class SdfParser {
             tslist.put(SUBSYS_HIGH, tslisthigh);
 
             index.numberOfPackets = count;
-
-            index.frequenciesList.sort(null);
-            index.subSystemsList.sort(null);
 
             ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(indexFilePath));
             out.writeObject(index);
@@ -522,7 +515,7 @@ public class SdfParser {
     public ArrayList<Integer> getSubsystemList() {
         Set<Integer> subsystems = new HashSet<>();
         for (SdfIndex index : fileIndex.values()) {
-            for (Integer system : index.subSystemsList) {
+            for (Integer system : index.getSubSystemList()) {
                 subsystems.add(system);
             }
         }
