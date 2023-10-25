@@ -118,12 +118,12 @@ public class SdfData {
         int minute = header.getMinute();
         int seconds = header.getSecond();
         double fSeconds = header.getfSecond();
-        int milis = (int) (fSeconds * 1000) ;
+        int millis = (int) (fSeconds * 1000) ;
         
         Calendar cal =  Calendar.getInstance();
         cal.setTimeZone(TimeZone.getTimeZone("UTC"));
         cal.set(year, month - 1, day, hour, minute, seconds);
-        cal.set(Calendar.MILLISECOND, milis);
+        cal.set(Calendar.MILLISECOND, millis);
         return cal.getTimeInMillis();
     }
 
