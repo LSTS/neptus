@@ -59,7 +59,6 @@ public class SdfParser {
     private static final long minimumValidTimestamp = 946684800000L;
     private FileInputStream fis;
     private FileChannel channel;
-    private long curPosition = 0;
 
     private LinkedHashMap<Integer, Long[]> tslist = new LinkedHashMap<Integer, Long[]>();
     private LinkedHashMap<Integer, Long> nextTimestamp = new LinkedHashMap<Integer, Long>();
@@ -157,7 +156,7 @@ public class SdfParser {
 
         long count = 0;
         long pos;
-        curPosition = 0;
+        long curPosition = 0;
         try {
             Set<Integer> unimplementedPageVersionSet = new HashSet<>();
             while (true) {
@@ -322,7 +321,7 @@ public class SdfParser {
         }
 
         SdfHeader header = new SdfHeader();
-        curPosition = 0;
+        long curPosition = 0;
         try {
             while (true) {
                 // Read the header
@@ -519,7 +518,6 @@ public class SdfParser {
         SdfIndex index = getIndexFromTimestamp(timestamp, subsystem);
         if(index == null) return null;
 
-        curPosition = 0;
         LinkedHashMap<Long, ArrayList<Long>> positionMap = index.getPositionMap(subsystem);
         long ts = 0;
         int c = 0;
