@@ -32,9 +32,11 @@
  */
 package pt.lsts.neptus.mra.importers.sdf;
 
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.i18n.I18n;
+
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -50,9 +52,6 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.Set;
-
-import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.i18n.I18n;
 
 public class SdfParser {
     // Minimum valid timestamp (2000-01-01 00:00:00).
