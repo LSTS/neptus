@@ -176,64 +176,64 @@ public class SdfParser {
                 }
 
                 //get timestamp, freq and subsystem used
-                long t = ping.getTimestamp(); // Timestamp
-                long tfix = ping.getFixTimestamp(); // FixTimestamp
-                int f = ping.getHeader().getSonarFreq(); // Frequency
-                int subsystem = ping.getHeader().getPageVersion();
+                long pingTimestamp = ping.getTimestamp(); // Timestamp
+                long pingFixTimestamp = ping.getFixTimestamp(); // FixTimestamp
+                int pingFrequency = ping.getHeader().getSonarFreq(); // Frequency
+                int pingPageVersion = ping.getHeader().getPageVersion();
 
-                if (!index.frequenciesList.contains(f)) {
-                    index.frequenciesList.add(f);
+                if (!index.frequenciesList.contains(pingFrequency)) {
+                    index.frequenciesList.add(pingFrequency);
                 }
-                if (!index.subSystemsList.contains(subsystem)) {
-                    index.subSystemsList.add(subsystem);
+                if (!index.subSystemsList.contains(pingPageVersion)) {
+                    index.subSystemsList.add(pingPageVersion);
                 }
 
-                if (t < 5000000) { // Fixing timestamp from 1970
+                if (pingTimestamp < 5000000) { // Fixing timestamp from 1970
                     NeptusLog.pub().warn(I18n.textf("Something is wrong with the timestamp (%d). " +
                                     "Trying to calculate using GPS data for ping %d for subsystem %d. New timestamp is %d.",
-                            new Date(t), ping.getHeader().getPingNumber(), subsystem, new Date(tfix)));
-                    t = tfix;
+                            new Date(pingTimestamp), ping.getHeader().getPingNumber(), pingPageVersion, new Date(pingFixTimestamp)));
+                    pingTimestamp = pingFixTimestamp;
                 }
 
-                if (subsystem == SUBSYS_LOW) {
+                if (pingPageVersion == SUBSYS_LOW) {
                     if (!index.hasLow) {
                         index.hasLow = true;
                     }
 
-                    ArrayList<Long> l = index.positionMapLow.get(t);
+                    ArrayList<Long> l = index.positionMapLow.get(pingTimestamp);
                     if (l == null) {
                         l = new ArrayList<Long>();
                         l.add(dataPageHeaderPosition);
-                        index.positionMapLow.put(t, l);
+                        index.positionMapLow.put(pingTimestamp, l);
                     }
                     else {
                         l.add(dataPageHeaderPosition);
                     }
 
-                    if (t > minimumValidTimestamp) {
-                        minTimestampLow = Math.min(minTimestampLow, t);
-                        maxTimestampLow = Math.max(maxTimestampLow, t);
+                    if (pingTimestamp > minimumValidTimestamp) {
+                        minTimestampLow = Math.min(minTimestampLow, pingTimestamp);
+                        maxTimestampLow = Math.max(maxTimestampLow, pingTimestamp);
                     }
                 }
 
-                if (subsystem == SUBSYS_HIGH) {
+                if (pingPageVersion == SUBSYS_HIGH) {
                     if (!index.hasHigh) {
                         index.hasHigh = true;
                     }
 
-                    ArrayList<Long> l = index.positionMapHigh.get(t);
+                    ArrayList<Long> l = index.positionMapHigh.get(pingTimestamp);
                     if (l == null) {
                         l = new ArrayList<Long>();
                         l.add(dataPageHeaderPosition);
-                        index.positionMapHigh.put(t, l);
+                        index.positionMapHigh.put(pingTimestamp, l);
                     }
                     else {
                         l.add(dataPageHeaderPosition);
                     }
 
-                    if (t > minimumValidTimestamp) {
-                        minTimestampHigh = Math.min(minTimestampHigh, t);
-                        maxTimestampHigh = Math.max(maxTimestampHigh, t);
+                    if (pingTimestamp > minimumValidTimestamp) {
+                        minTimestampHigh = Math.min(minTimestampHigh, pingTimestamp);
+                        maxTimestampHigh = Math.max(maxTimestampHigh, pingTimestamp);
                     }
                 }
 
