@@ -49,9 +49,6 @@ public class SdfIndex implements Serializable {
     long firstTimestampLow = -1;
     long lastTimestampLow = -1;
 
-    LinkedHashMap<Long, ArrayList<Long>> positionMapHigh = new LinkedHashMap<>();
-    LinkedHashMap<Long, ArrayList<Long>> positionMapLow = new LinkedHashMap<>();
-
     private final Map<Integer, PositionMap> positionMaps = new HashMap<>();
 
     public void addSubsystem(int subSystem) {
@@ -65,7 +62,11 @@ public class SdfIndex implements Serializable {
     }
 
     public LinkedHashMap<Long, ArrayList<Long>> getPositionMap(int subsystem) {
-        return subsystem == SdfConstant.SUBSYS_HIGH ? positionMapHigh : positionMapLow;
+        return positionMaps.get(subsystem).getMap();
+    }
+
+    public void addPositionToMap(long timestamp, long position, int subsystem) {
+        positionMaps.get(subsystem).addPosition(timestamp, position);
     }
 }
 
