@@ -85,5 +85,9 @@ class PositionMap implements Serializable{
 
         list.add(position);
     }
+
+    public LinkedHashMap<Long, ArrayList<Long>> getMap() {
+        return map;
+    }
 }
 
