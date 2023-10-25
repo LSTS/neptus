@@ -57,6 +57,8 @@ import pt.lsts.neptus.i18n.I18n;
 public class SdfParser {
     // Minimum valid timestamp (2000-01-01 00:00:00).
     private static final long minimumValidTimestamp = 946684800000L;
+    private FileInputStream fis;
+    private FileChannel channel;
 
     private LinkedHashMap<Integer, Long[]> tslist = new LinkedHashMap<Integer, Long[]>();
     private LinkedHashMap<Integer, Long> nextTimestamp = new LinkedHashMap<Integer, Long>();
