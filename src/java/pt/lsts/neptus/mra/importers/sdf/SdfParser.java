@@ -145,7 +145,7 @@ public class SdfParser {
 
         SdfHeader header = new SdfHeader();
         SdfData ping = new SdfData();
-        SdfIndex index2 = new SdfIndex();
+        SdfIndex index = new SdfIndex();
 
         String indexFilePath = getIndexFilePath(file);
 
@@ -194,11 +194,11 @@ public class SdfParser {
                 int f = ping.getHeader().getSonarFreq(); // Frequency
                 int subsystem = ping.getHeader().getPageVersion();
 
-                if (!index2.frequenciesList.contains(f)) {
-                    index2.frequenciesList.add(f);
+                if (!index.frequenciesList.contains(f)) {
+                    index.frequenciesList.add(f);
                 }
-                if (!index2.subSystemsList.contains(subsystem)) {
-                    index2.subSystemsList.add(subsystem);
+                if (!index.subSystemsList.contains(subsystem)) {
+                    index.subSystemsList.add(subsystem);
                 }
 
                 if (t < 5000000) { // Fixing timestamp from 1970
@@ -209,15 +209,15 @@ public class SdfParser {
                 }
 
                 if (subsystem == SUBSYS_LOW) {
-                    if (!index2.hasLow) {
-                        index2.hasLow = true;
+                    if (!index.hasLow) {
+                        index.hasLow = true;
                     }
 
-                    ArrayList<Long> l = index2.positionMapLow.get(t);
+                    ArrayList<Long> l = index.positionMapLow.get(t);
                     if (l == null) {
                         l = new ArrayList<Long>();
                         l.add(pos);
-                        index2.positionMapLow.put(t, l);
+                        index.positionMapLow.put(t, l);
                     }
                     else {
                         l.add(pos);
@@ -230,15 +230,15 @@ public class SdfParser {
                 }
 
                 if (subsystem == SUBSYS_HIGH) {
-                    if (!index2.hasHigh) {
-                        index2.hasHigh = true;
+                    if (!index.hasHigh) {
+                        index.hasHigh = true;
                     }
 
-                    ArrayList<Long> l = index2.positionMapHigh.get(t);
+                    ArrayList<Long> l = index.positionMapHigh.get(t);
                     if (l == null) {
                         l = new ArrayList<Long>();
                         l.add(pos);
-                        index2.positionMapHigh.put(t, l);
+                        index.positionMapHigh.put(t, l);
                     }
                     else {
                         l.add(pos);
@@ -260,18 +260,18 @@ public class SdfParser {
                 }
             }
 
-            index2.firstTimestampHigh = minTimestampHigh;
-            index2.firstTimestampLow = minTimestampLow;
+            index.firstTimestampHigh = minTimestampHigh;
+            index.firstTimestampLow = minTimestampLow;
 
-            index2.lastTimestampHigh = maxTimestampHigh;
-            index2.lastTimestampLow = maxTimestampLow;
+            index.lastTimestampHigh = maxTimestampHigh;
+            index.lastTimestampLow = maxTimestampLow;
 
             // Save timestamp list
             Long[] tslisthigh;
             Long[] tslistlow;
 
-            tslisthigh = index2.positionMapHigh.keySet().toArray(new Long[]{});
-            tslistlow = index2.positionMapLow.keySet().toArray(new Long[]{});
+            tslisthigh = index.positionMapHigh.keySet().toArray(new Long[]{});
+            tslistlow = index.positionMapLow.keySet().toArray(new Long[]{});
 
             Arrays.sort(tslisthigh);
             Arrays.sort(tslistlow);
@@ -287,16 +287,16 @@ public class SdfParser {
             tslist.put(SUBSYS_LOW, tslistlow);
             tslist.put(SUBSYS_HIGH, tslisthigh);
 
-            index2.numberOfPackets = count;
+            index.numberOfPackets = count;
 
-            index2.frequenciesList.sort(null);
-            index2.subSystemsList.sort(null);
+            index.frequenciesList.sort(null);
+            index.subSystemsList.sort(null);
 
             ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(indexFilePath));
-            out.writeObject(index2);
+            out.writeObject(index);
             out.close();
 
-            fileIndex.put(file, index2);
+            fileIndex.put(file, index);
         }
         catch (IOException e) {
             NeptusLog.pub().error("Found corrupted SDF file '" + file.getName() + "' while indexing. Error: " +
