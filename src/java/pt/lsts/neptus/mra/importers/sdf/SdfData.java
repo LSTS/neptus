@@ -120,11 +120,7 @@ public class SdfData {
         double fSeconds = header.getfSecond();
         int millis = (int) (fSeconds * 1000) ;
         
-        Calendar cal =  Calendar.getInstance();
-        cal.setTimeZone(TimeZone.getTimeZone("UTC"));
-        cal.set(year, month - 1, day, hour, minute, seconds);
-        cal.set(Calendar.MILLISECOND, millis);
-        return cal.getTimeInMillis();
+        return getTimestampInMillis(year, month, day, hour, minute, seconds, millis);
     }
 
     private long calculateFixTimeStamp() {
@@ -138,10 +134,14 @@ public class SdfData {
         int seconds = Math.toIntExact(splitVal.first());
         int millis = (int) (splitVal.second() * 1000) ;
 
+        return getTimestampInMillis(year, month, day, hour, minute, seconds, millis);
+    }
+
+    private long getTimestampInMillis(int year, int month, int day, int hour, int minute, int second, int millisecond) {
         Calendar cal =  Calendar.getInstance();
         cal.setTimeZone(TimeZone.getTimeZone("UTC"));
-        cal.set(year, month - 1, day, hour, minute, seconds);
-        cal.set(Calendar.MILLISECOND, millis);
+        cal.set(year, month - 1, day, hour, minute, second);
+        cal.set(Calendar.MILLISECOND, millisecond);
         return cal.getTimeInMillis();
     }
 
