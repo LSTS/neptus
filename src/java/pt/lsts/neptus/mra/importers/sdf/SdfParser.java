@@ -150,8 +150,8 @@ public class SdfParser {
         long pos;
         long curPosition = 0;
 
-        try (FileInputStream fis = new FileInputStream(file)) {
-            FileChannel channel = fis.getChannel();
+        try (FileInputStream fileInputStream = new FileInputStream(file)) {
+            FileChannel channel = fileInputStream.getChannel();
 
             Set<Integer> unimplementedPageVersionSet = new HashSet<>();
             while (true) {
