@@ -45,8 +45,6 @@ public class SdfIndex implements Serializable {
     long firstTimestampLow = -1;
     long lastTimestampLow = -1;
 
-    long numberOfPackets = -1;
-    
     boolean hasHigh = false;
     boolean hasLow = false;
     
