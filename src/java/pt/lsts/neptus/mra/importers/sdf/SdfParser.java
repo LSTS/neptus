@@ -176,10 +176,8 @@ public class SdfParser {
                 //get timestamp, freq and subsystem used
                 long pingTimestamp = ping.getTimestamp(); // Timestamp
                 long pingFixTimestamp = ping.getFixTimestamp(); // FixTimestamp
-                int sonarFrequency = header.getSonarFreq(); // Frequency
                 int pageVersion = header.getPageVersion();
 
-                index.addFrequency(sonarFrequency);
                 index.addSubsystem(pageVersion);
 
                 if (pingTimestamp < 5000000) { // Fixing timestamp from 1970
