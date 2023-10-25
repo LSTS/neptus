@@ -416,17 +416,15 @@ public class SdfParser {
         long posHeader = pos;
         SdfHeader header = new SdfHeader();
         SdfData ping = new SdfData();
-        try {
-            // Map right file
-            File file = getFileFromIndex(index);
-            if(file == null) {
-                return null;
-            }
 
-            fis = new FileInputStream(file);
-            channel = fis.getChannel();
-            //
-            ByteBuffer buf = channel.map(MapMode.READ_ONLY, pos, 512);
+        File file = getFileFromIndex(index);
+        if(file == null) {
+            return null;
+        }
+
+        try (FileInputStream fileInputStream = new FileInputStream(file)) {
+            FileChannel channel = fileInputStream.getChannel();
+            ByteBuffer buf = channel.map(MapMode.READ_ONLY, pos, SdfHeader.HEADER_SIZE);
             buf.order(ByteOrder.LITTLE_ENDIAN);
             header.parse(buf);
             pos += header.getHeaderSize();
