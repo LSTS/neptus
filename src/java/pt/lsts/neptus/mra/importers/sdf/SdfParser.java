@@ -162,8 +162,6 @@ public class SdfParser {
                 if (header.getPageVersion() == SUBSYS_HIGH || header.getPageVersion() == SUBSYS_LOW) {
                     //set header of this ping
                     ping.setHeader(header);
-                    ping.calculateTimeStamp();
-                    ping.calculateFixTimeStamp();
                     filePosition += header.getHeaderSize();
                 }
                 else { //ignore other pageVersions
@@ -424,8 +422,6 @@ public class SdfParser {
 
             //define header
             ping.setHeader(header);
-            ping.calculateTimeStamp();
-            ping.calculateFixTimeStamp();
 
             // Let us try to see if we corrected the timestamp
             LinkedHashMap<Long, ArrayList<Long>> posMapTsToPosList = null;
