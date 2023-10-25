@@ -182,9 +182,6 @@ public class SdfParser {
                 }
 
                 if (pageVersion == SdfConstant.SUBSYS_LOW) {
-                    if (!index.hasLow) {
-                        index.hasLow = true;
-                    }
 
                     ArrayList<Long> l = index.positionMapLow.get(pingTimestamp);
                     if (l == null) {
@@ -203,9 +200,6 @@ public class SdfParser {
                 }
 
                 if (pageVersion == SdfConstant.SUBSYS_HIGH) {
-                    if (!index.hasHigh) {
-                        index.hasHigh = true;
-                    }
 
                     ArrayList<Long> l = index.positionMapHigh.get(pingTimestamp);
                     if (l == null) {
