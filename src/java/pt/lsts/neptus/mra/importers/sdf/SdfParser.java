@@ -313,30 +313,27 @@ public class SdfParser {
 
         SdfHeader header = new SdfHeader();
         long curPosition = 0;
-        try {
-            while (true) {
-                // Read the header
-                ByteBuffer buf = channel.map(MapMode.READ_ONLY, curPosition, SdfHeader.HEADER_SIZE);
-                buf.order(ByteOrder.LITTLE_ENDIAN);
-                header.parse(buf);
-                curPosition += header.getHeaderSize();
 
-                if (pageVersionList.stream().anyMatch((p) -> p == header.getPageVersion())) {
-                    return 1;
-                }
+        for(File file: fileIndex.keySet()) {
+            try (FileInputStream fileInputStream = new FileInputStream(file)) {
+                while (curPosition < file.length()) {
+                    // Read the header
+                    FileChannel fileChannel = fileInputStream.getChannel();
+                    ByteBuffer buf = fileChannel.map(MapMode.READ_ONLY, curPosition, SdfHeader.HEADER_SIZE);
+                    buf.order(ByteOrder.LITTLE_ENDIAN);
+                    header.parse(buf);
+                    curPosition += header.getHeaderSize();
 
-                curPosition += (header.getNumberBytes() + 4) - header.getHeaderSize();
-                if (curPosition >= channel.size()) //check if curPosition is at the end of file
-                {
-                    break;
-                }
-                else {
-                    continue;
+                    if (pageVersionList.stream().anyMatch((p) -> p == header.getPageVersion())) {
+                        return 1;
+                    }
+
+                    curPosition += (header.getNumberBytes() + 4) - header.getHeaderSize();
                 }
             }
-        }
-        catch (Exception e) {
-            e.printStackTrace();
+            catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         return 0;
