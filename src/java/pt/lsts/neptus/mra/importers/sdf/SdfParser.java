@@ -181,17 +181,9 @@ public class SdfParser {
                     pingTimestamp = pingFixTimestamp;
                 }
 
-                if (pageVersion == SdfConstant.SUBSYS_LOW) {
+                index.addPositionToMap(pingTimestamp, dataPageHeaderPosition, pageVersion);
 
-                    ArrayList<Long> l = index.positionMapLow.get(pingTimestamp);
-                    if (l == null) {
-                        l = new ArrayList<Long>();
-                        l.add(dataPageHeaderPosition);
-                        index.positionMapLow.put(pingTimestamp, l);
-                    }
-                    else {
-                        l.add(dataPageHeaderPosition);
-                    }
+                if (pageVersion == SdfConstant.SUBSYS_LOW) {
 
                     if (pingTimestamp > minimumValidTimestamp) {
                         minTimestampLow = Math.min(minTimestampLow, pingTimestamp);
@@ -200,16 +192,6 @@ public class SdfParser {
                 }
 
                 if (pageVersion == SdfConstant.SUBSYS_HIGH) {
-
-                    ArrayList<Long> l = index.positionMapHigh.get(pingTimestamp);
-                    if (l == null) {
-                        l = new ArrayList<Long>();
-                        l.add(dataPageHeaderPosition);
-                        index.positionMapHigh.put(pingTimestamp, l);
-                    }
-                    else {
-                        l.add(dataPageHeaderPosition);
-                    }
 
                     if (pingTimestamp > minimumValidTimestamp) {
                         minTimestampHigh = Math.min(minTimestampHigh, pingTimestamp);
@@ -232,8 +214,8 @@ public class SdfParser {
             Long[] tslisthigh;
             Long[] tslistlow;
 
-            tslisthigh = index.positionMapHigh.keySet().toArray(new Long[]{});
-            tslistlow = index.positionMapLow.keySet().toArray(new Long[]{});
+            tslisthigh = index.getPositionMap(SdfConstant.SUBSYS_HIGH).keySet().toArray(new Long[]{});
+            tslistlow = index.getPositionMap(SdfConstant.SUBSYS_LOW).keySet().toArray(new Long[]{});
 
             Arrays.sort(tslisthigh);
             Arrays.sort(tslistlow);
@@ -316,8 +298,8 @@ public class SdfParser {
             Long[] tsListHigh;
             Long[] tsListLow;
 
-            tsListHigh = index.positionMapHigh.keySet().toArray(new Long[]{});
-            tsListLow = index.positionMapLow.keySet().toArray(new Long[]{});
+            tsListHigh = index.getPositionMap(SdfConstant.SUBSYS_HIGH).keySet().toArray(new Long[]{});
+            tsListLow = index.getPositionMap(SdfConstant.SUBSYS_HIGH).keySet().toArray(new Long[]{});
 
             Arrays.sort(tsListHigh);
             Arrays.sort(tsListLow);
@@ -401,12 +383,7 @@ public class SdfParser {
 
             // Let us try to see if we corrected the timestamp
             LinkedHashMap<Long, ArrayList<Long>> posMapTsToPosList = null;
-            if (subsystem == SdfConstant.SUBSYS_LOW) {
-                posMapTsToPosList = index.positionMapLow;
-            }
-            else if (subsystem == SdfConstant.SUBSYS_HIGH) {
-                posMapTsToPosList = index.positionMapHigh;
-            }
+            posMapTsToPosList = index.getPositionMap(subsystem);
             if (posMapTsToPosList != null && !posMapTsToPosList.isEmpty()) {
                 for (long tsK : posMapTsToPosList.keySet()) {
                     boolean found = false;
