@@ -64,7 +64,7 @@ public class SdfIndex implements Serializable {
     }
 
     public LinkedHashMap<Long, ArrayList<Long>> getPositionMap(int subsystem) {
-        return subsystem == SdfParser.SUBSYS_HIGH ? positionMapHigh : positionMapLow;
+        return subsystem == SdfConstant.SUBSYS_HIGH ? positionMapHigh : positionMapLow;
     }
 }
 
