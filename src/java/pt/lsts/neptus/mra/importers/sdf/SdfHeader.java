@@ -35,6 +35,8 @@ package pt.lsts.neptus.mra.importers.sdf;
 import java.nio.ByteBuffer;
 
 public class SdfHeader {
+    public final static int HEADER_SIZE = 512; // bytes
+
     private int numberBytes; // total number of bytes in page
 
     /*---------pageVersion-----------------------
