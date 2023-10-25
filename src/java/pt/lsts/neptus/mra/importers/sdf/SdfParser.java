@@ -161,7 +161,7 @@ public class SdfParser {
             Set<Integer> unimplementedPageVersionSet = new HashSet<>();
             while (true) {
                 // Read the header
-                ByteBuffer buf = channel.map(MapMode.READ_ONLY, curPosition, 512); //header size 512bytes
+                ByteBuffer buf = channel.map(MapMode.READ_ONLY, curPosition, SdfHeader.HEADER_SIZE);
                 buf.order(ByteOrder.LITTLE_ENDIAN);
                 header.parse(buf);
                 curPosition += header.getHeaderSize();
@@ -325,7 +325,7 @@ public class SdfParser {
         try {
             while (true) {
                 // Read the header
-                ByteBuffer buf = channel.map(MapMode.READ_ONLY, curPosition, 512); //header size 512bytes
+                ByteBuffer buf = channel.map(MapMode.READ_ONLY, curPosition, SdfHeader.HEADER_SIZE);
                 buf.order(ByteOrder.LITTLE_ENDIAN);
                 header.parse(buf);
                 curPosition += header.getHeaderSize();
