@@ -112,7 +112,7 @@ public class SdfParser {
         String indexFilePath = getIndexFilePath(file);
 
         if (new File(indexFilePath).exists()) {
-            if(loadIndex(file)) {
+            if (loadIndex(file)) {
                 // File loaded
                 return;
             }
@@ -294,7 +294,7 @@ public class SdfParser {
         SdfHeader header = new SdfHeader();
         long curPosition = 0;
 
-        for(File file: fileIndex.keySet()) {
+        for (File file : fileIndex.keySet()) {
             try (FileInputStream fileInputStream = new FileInputStream(file)) {
                 while (curPosition < file.length()) {
                     // Read the header
@@ -395,7 +395,7 @@ public class SdfParser {
         SdfData ping = new SdfData();
 
         File file = getFileFromIndex(index);
-        if(file == null) {
+        if (file == null) {
             return null;
         }
 
@@ -480,7 +480,9 @@ public class SdfParser {
     public SdfData getPingAt(Long timestamp, int subsystem) {
 
         SdfIndex index = getIndexFromTimestamp(timestamp, subsystem);
-        if(index == null) return null;
+        if (index == null) {
+            return null;
+        }
 
         LinkedHashMap<Long, ArrayList<Long>> positionMap = index.getPositionMap(subsystem);
         long ts = 0;
