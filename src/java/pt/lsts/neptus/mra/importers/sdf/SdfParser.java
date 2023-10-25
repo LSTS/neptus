@@ -146,33 +146,33 @@ public class SdfParser {
 
         long count = 0;
         long pos;
-        long curPosition = 0;
+        long filePosition = 0;
 
         try (FileInputStream fileInputStream = new FileInputStream(file)) {
             FileChannel channel = fileInputStream.getChannel();
 
             Set<Integer> unimplementedPageVersionSet = new HashSet<>();
-            while (curPosition < file.length()) {
+            while (filePosition < file.length()) {
                 // Read the header
-                ByteBuffer buf = channel.map(MapMode.READ_ONLY, curPosition, SdfHeader.HEADER_SIZE);
+                ByteBuffer buf = channel.map(MapMode.READ_ONLY, filePosition, SdfHeader.HEADER_SIZE);
                 buf.order(ByteOrder.LITTLE_ENDIAN);
                 header.parse(buf);
-                curPosition += header.getHeaderSize();
+                filePosition += header.getHeaderSize();
 
                 if (header.getPageVersion() == SUBSYS_HIGH || header.getPageVersion() == SUBSYS_LOW) {
                     //set header of this ping
                     ping.setHeader(header);
                     ping.calculateTimeStamp();
                     ping.calculateFixTimeStamp();
-                    pos = curPosition - header.getHeaderSize();
+                    pos = filePosition - header.getHeaderSize();
                 }
                 else { //ignore other pageVersions
                     if (!unimplementedPageVersionSet.contains(header.getPageVersion())) {
                         unimplementedPageVersionSet.add(header.getPageVersion());
                         NeptusLog.pub().info("SDF Data file contains unimplemented pageVersion # " + header.getPageVersion());
                     }
-                    curPosition += (header.getNumberBytes() + 4) - header.getHeaderSize();
-                    if (curPosition >= channel.size()) //check if curPosition is at the end of file
+                    filePosition += (header.getNumberBytes() + 4) - header.getHeaderSize();
+                    if (filePosition >= channel.size()) //check if curPosition is at the end of file
                     {
                         break;
                     }
@@ -245,7 +245,7 @@ public class SdfParser {
 
                 //end processing data
 
-                curPosition += (header.getNumberBytes() + 4) - header.getHeaderSize();
+                filePosition += (header.getNumberBytes() + 4) - header.getHeaderSize();
                 count++;
             }
 
