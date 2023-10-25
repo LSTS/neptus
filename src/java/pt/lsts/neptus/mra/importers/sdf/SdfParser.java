@@ -64,10 +64,6 @@ public class SdfParser {
     private ArrayList<Long[]> tsSHigh = new ArrayList<>();
     private ArrayList<Long[]> tsSLow = new ArrayList<>();
 
-    final static int SUBSYS_LOW = 3501;
-    final static int SUBSYS_HIGH = 3502;
-    final static int BATHY_PULSE_COMPRESSED = 3503;     // Will be used in the future
-
     public SdfParser(File[] files) {
 
         for (File file : files) {
@@ -103,8 +99,8 @@ public class SdfParser {
             }
         }
 
-        tslist.put(SUBSYS_LOW, longLow);
-        tslist.put(SUBSYS_HIGH, longHigh);
+        tslist.put(SdfConstant.SUBSYS_LOW, longLow);
+        tslist.put(SdfConstant.SUBSYS_HIGH, longHigh);
 
     }
 
@@ -157,7 +153,7 @@ public class SdfParser {
                 header.parse(buf);
 
                 dataPageHeaderPosition = filePosition;
-                if (header.getPageVersion() == SUBSYS_HIGH || header.getPageVersion() == SUBSYS_LOW) {
+                if (header.getPageVersion() == SdfConstant.SUBSYS_HIGH || header.getPageVersion() == SdfConstant.SUBSYS_LOW) {
                     //set header of this ping
                     ping.setHeader(header);
                     filePosition += header.getHeaderSize();
@@ -185,7 +181,7 @@ public class SdfParser {
                     pingTimestamp = pingFixTimestamp;
                 }
 
-                if (pageVersion == SUBSYS_LOW) {
+                if (pageVersion == SdfConstant.SUBSYS_LOW) {
                     if (!index.hasLow) {
                         index.hasLow = true;
                     }
@@ -206,7 +202,7 @@ public class SdfParser {
                     }
                 }
 
-                if (pageVersion == SUBSYS_HIGH) {
+                if (pageVersion == SdfConstant.SUBSYS_HIGH) {
                     if (!index.hasHigh) {
                         index.hasHigh = true;
                     }
@@ -256,8 +252,8 @@ public class SdfParser {
                         " >> " + indexFilePath);
             }
 
-            tslist.put(SUBSYS_LOW, tslistlow);
-            tslist.put(SUBSYS_HIGH, tslisthigh);
+            tslist.put(SdfConstant.SUBSYS_LOW, tslistlow);
+            tslist.put(SdfConstant.SUBSYS_HIGH, tslisthigh);
 
             ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(indexFilePath));
             out.writeObject(index);
@@ -411,10 +407,10 @@ public class SdfParser {
 
             // Let us try to see if we corrected the timestamp
             LinkedHashMap<Long, ArrayList<Long>> posMapTsToPosList = null;
-            if (subsystem == SUBSYS_LOW) {
+            if (subsystem == SdfConstant.SUBSYS_LOW) {
                 posMapTsToPosList = index.positionMapLow;
             }
-            else if (subsystem == SUBSYS_HIGH) {
+            else if (subsystem == SdfConstant.SUBSYS_HIGH) {
                 posMapTsToPosList = index.positionMapHigh;
             }
             if (posMapTsToPosList != null && !posMapTsToPosList.isEmpty()) {
@@ -459,12 +455,12 @@ public class SdfParser {
 
     private SdfIndex getIndexFromTimestamp(Long timestamp, int subsystem) {
         for (Entry<File, SdfIndex> entry : fileIndex.entrySet()) {
-            if (subsystem == SUBSYS_LOW) {
+            if (subsystem == SdfConstant.SUBSYS_LOW) {
                 if (timestamp >= entry.getValue().firstTimestampLow && timestamp <= entry.getValue().lastTimestampLow) {
                     return entry.getValue();
                 }
             }
-            else if (subsystem == SUBSYS_HIGH) {
+            else if (subsystem == SdfConstant.SUBSYS_HIGH) {
                 if (timestamp >= entry.getValue().firstTimestampHigh && timestamp <= entry.getValue().lastTimestampHigh) {
                     return entry.getValue();
                 }
