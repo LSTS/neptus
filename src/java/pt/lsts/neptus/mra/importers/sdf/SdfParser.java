@@ -183,14 +183,6 @@ public class SdfParser {
             Arrays.sort(tslisthigh);
             Arrays.sort(tslistlow);
 
-            if (tslisthigh.length >= 2968) {
-                NeptusLog.pub().debug(">??>>>> >= 2968 >> HLength:" + tslisthigh.length + "|LLength:" + tslistlow.length +
-                        ">" + tslisthigh[2967] + ", " + "----" + " | " +
-                        (tslistlow.length >= 2968 ? tslistlow[2967] : "----") + ", " +
-                        (tslistlow.length >= 2969 ? tslistlow[2968] : "----") +
-                        " >> " + indexFilePath);
-            }
-
             ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(indexFilePath));
             out.writeObject(index);
             out.close();
