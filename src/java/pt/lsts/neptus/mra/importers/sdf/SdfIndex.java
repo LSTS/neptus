@@ -88,6 +88,10 @@ public class SdfIndex implements Serializable {
         }
         return lastTimestamp;
     }
+
+    public Long[] getTimestampsAsArray(int subsytem) {
+        return getPositionMap(subsytem).keySet().toArray(new Long[]{});
+    }
 }
 
 class PositionMap implements Serializable {
