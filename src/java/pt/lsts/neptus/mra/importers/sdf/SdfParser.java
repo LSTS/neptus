@@ -33,7 +33,6 @@
 package pt.lsts.neptus.mra.importers.sdf;
 
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.i18n.I18n;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -47,7 +46,6 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
