@@ -348,37 +348,6 @@ public class SdfParser {
             //define header
             ping.setHeader(header);
 
-            // Let us try to see if we corrected the timestamp
-            LinkedHashMap<Long, ArrayList<Long>> posMapTsToPosList = null;
-            posMapTsToPosList = index.getPositionMap(subsystem);
-            if (posMapTsToPosList != null && !posMapTsToPosList.isEmpty()) {
-                for (long tsK : posMapTsToPosList.keySet()) {
-                    boolean found = false;
-                    for (long posK : posMapTsToPosList.get(tsK)) {
-                        if (posK == posHeader) {
-                            ping.setTimestamp(tsK);
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (found) {
-                        break;
-                    }
-                }
-            }
-
-            if (ping.getTimestamp() < 1000 || (tslist.get(subsystem).length > 2969 &&
-                    (tslist.get(subsystem)[2968] < 1000 || tslist.get(subsystem)[2969] < 1000))) {
-                if (tslist.get(subsystem).length > 2969) {
-                    NeptusLog.pub().debug(">!!>>>> ts 2968 vs 2969 >>" + tslist.get(subsystem)[2968] +
-                            ", " + tslist.get(subsystem)[2969]);
-                }
-                else {
-                    NeptusLog.pub().debug(">!!>>>> ts ping ts vs fixts>>" + ping.getTimestamp() +
-                            " " + ping.getFixTimestamp());
-                }
-            }
-
             //handle data 
             buf = channel.map(MapMode.READ_ONLY, pos, (header.getNumberBytes() - header.getHeaderSize() - header.getSDFExtensionSize() + 4));
             buf.order(ByteOrder.LITTLE_ENDIAN);
@@ -409,7 +378,10 @@ public class SdfParser {
             return null;
         }
 
-        LinkedHashMap<Long, ArrayList<Long>> positionMap = index.getPositionMap(subsystem);
+        LinkedHashMap<Long, Long> positionMap = index.getPositionMap(subsystem);
+        if (positionMap == null) {
+            return null;
+        }
         long ts = 0;
         int c = 0;
         for (Long time : tslist.get(subsystem)) {
@@ -425,7 +397,7 @@ public class SdfParser {
         if (positionMap.get(ts) == null) {
             return null;
         }
-        Long position = positionMap.get(ts).get(0);
+        Long position = positionMap.get(ts);
         SdfData ping = getPingAtPosition(position, subsystem, index);
         NeptusLog.pub().debug(">>> " + subsystem + " >>>>> For long " + position +
                 " @ ts:" + ping.getTimestamp() + " | fixts:" + ping.getFixTimestamp());

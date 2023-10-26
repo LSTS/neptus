@@ -55,14 +55,18 @@ public class SdfIndex implements Serializable {
         return positionMaps.keySet();
     }
 
-    public LinkedHashMap<Long, ArrayList<Long>> getPositionMap(int subsystem) {
+    public LinkedHashMap<Long, Long> getPositionMap(int subsystem) {
         return positionMaps.get(subsystem).getMap();
+    }
+
+    public long getPositionList(int subsystem, long timestamp) {
+        return positionMaps.get(subsystem).getMap().get(timestamp);
     }
 
     public void addPositionToMap(long timestamp, long position, int subsystem) {
         positionMaps.get(subsystem).addPosition(timestamp, position);
     }
-    
+
     public long getFirstTimestamp(int subsystem) {
         return positionMaps.get(subsystem).getFirstTimestamp();
     }
@@ -85,35 +89,28 @@ public class SdfIndex implements Serializable {
             lastTimestamp = Math.max(lastTimestamp, positionMap.getLastTimestamp());
         }
         return lastTimestamp;
-    }    
+    }
 }
 
 class PositionMap implements Serializable{
     private long firstTimestamp = Long.MAX_VALUE;
     private long lastTimestamp = -1;
-    private LinkedHashMap<Long, ArrayList<Long>> map = new LinkedHashMap<>();
+    private LinkedHashMap<Long, Long> map = new LinkedHashMap<>();
 
     public void addPosition(long timestamp, long position) {
-        ArrayList<Long> list = map.get(timestamp);
+        map.put(timestamp, position);
 
-        if (list == null) {
-            list = new ArrayList<>();
-            map.put(timestamp, list);
-        }
-        if (timestamp < firstTimestamp) {
+        if(timestamp < firstTimestamp) {
             firstTimestamp = timestamp;
-        }
-        else if (timestamp > lastTimestamp) {
+        } else if (timestamp > lastTimestamp){
             lastTimestamp = timestamp;
         }
-
-        list.add(position);
     }
 
-    public LinkedHashMap<Long, ArrayList<Long>> getMap() {
+    public LinkedHashMap<Long, Long> getMap() {
         return map;
     }
-    
+
     public long getFirstTimestamp() {
         return firstTimestamp;
     }
