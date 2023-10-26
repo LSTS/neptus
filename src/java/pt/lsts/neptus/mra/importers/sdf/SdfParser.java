@@ -243,9 +243,6 @@ public class SdfParser {
             tsListHigh = index.getTimestampsAsArray(SdfConstant.SUBSYS_HIGH);
             tsListLow =  index.getTimestampsAsArray(SdfConstant.SUBSYS_LOW);
 
-            Arrays.sort(tsListHigh);
-            Arrays.sort(tsListLow);
-
             tsSHigh.add(tsListHigh);
             tsSLow.add(tsListLow);
 
