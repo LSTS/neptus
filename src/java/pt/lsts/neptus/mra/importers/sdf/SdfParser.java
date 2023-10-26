@@ -349,11 +349,11 @@ public class SdfParser {
         SdfIndex index;
         for (Entry<File, SdfIndex> entry : fileIndex.entrySet()) {
             index = entry.getValue();
-            if(timestamp >= index.getFirstTimestamp(subsystem) && timestamp <= index.getLastTimestamp(subsystem)) {
+            if (timestamp >= index.getFirstTimestamp(subsystem) && timestamp <= index.getLastTimestamp(subsystem)) {
                 return index;
             }
         }
-        return null;        
+        return null;
     }
 
     public SdfData getPingAt(Long timestamp, int subsystem) {
