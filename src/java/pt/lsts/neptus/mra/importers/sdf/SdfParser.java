@@ -137,11 +137,6 @@ public class SdfParser {
 
         String indexFilePath = getIndexFilePath(file);
 
-        long maxTimestampHigh = 0;
-        long maxTimestampLow = 0;
-        long minTimestampHigh = Long.MAX_VALUE;
-        long minTimestampLow = Long.MAX_VALUE;
-
         long dataPageHeaderPosition;
         long filePosition = 0;
 
@@ -185,22 +180,6 @@ public class SdfParser {
                 }
 
                 index.addPositionToMap(pingTimestamp, dataPageHeaderPosition, pageVersion);
-
-                if (pageVersion == SdfConstant.SUBSYS_LOW) {
-
-                    if (pingTimestamp > minimumValidTimestamp) {
-                        minTimestampLow = Math.min(minTimestampLow, pingTimestamp);
-                        maxTimestampLow = Math.max(maxTimestampLow, pingTimestamp);
-                    }
-                }
-
-                if (pageVersion == SdfConstant.SUBSYS_HIGH) {
-
-                    if (pingTimestamp > minimumValidTimestamp) {
-                        minTimestampHigh = Math.min(minTimestampHigh, pingTimestamp);
-                        maxTimestampHigh = Math.max(maxTimestampHigh, pingTimestamp);
-                    }
-                }
 
                 //end processing data
 
