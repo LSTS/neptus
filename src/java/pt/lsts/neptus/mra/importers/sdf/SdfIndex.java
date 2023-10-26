@@ -46,7 +46,7 @@ public class SdfIndex implements Serializable {
     private final Map<Integer, PositionMap> positionMaps = new HashMap<>();
 
     public void addSubsystem(int subSystem) {
-        if(!positionMaps.containsKey(subSystem)) {
+        if (!positionMaps.containsKey(subSystem)) {
             positionMaps.put(subSystem, new PositionMap());
         }
     }
@@ -77,7 +77,7 @@ public class SdfIndex implements Serializable {
 
     public long getFirstTimestamp() {
         long firstTimestamp = Long.MAX_VALUE;
-        for(PositionMap positionMap: positionMaps.values()) {
+        for (PositionMap positionMap : positionMaps.values()) {
             firstTimestamp = Math.min(firstTimestamp, positionMap.getFirstTimestamp());
         }
         return firstTimestamp;
@@ -85,14 +85,14 @@ public class SdfIndex implements Serializable {
 
     public long getLastTimestamp() {
         long lastTimestamp = -1;
-        for(PositionMap positionMap: positionMaps.values()) {
+        for (PositionMap positionMap : positionMaps.values()) {
             lastTimestamp = Math.max(lastTimestamp, positionMap.getLastTimestamp());
         }
         return lastTimestamp;
     }
 }
 
-class PositionMap implements Serializable{
+class PositionMap implements Serializable {
     private long firstTimestamp = Long.MAX_VALUE;
     private long lastTimestamp = -1;
     private LinkedHashMap<Long, Long> map = new LinkedHashMap<>();
@@ -100,9 +100,10 @@ class PositionMap implements Serializable{
     public void addPosition(long timestamp, long position) {
         map.put(timestamp, position);
 
-        if(timestamp < firstTimestamp) {
+        if (timestamp < firstTimestamp) {
             firstTimestamp = timestamp;
-        } else if (timestamp > lastTimestamp){
+        }
+        else if (timestamp > lastTimestamp) {
             lastTimestamp = timestamp;
         }
     }
