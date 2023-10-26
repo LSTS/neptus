@@ -99,6 +99,9 @@ public class SdfParser {
             }
         }
 
+        Arrays.sort(longLow);
+        Arrays.sort(longHigh);
+
         tslist.put(SdfConstant.SUBSYS_LOW, longLow);
         tslist.put(SdfConstant.SUBSYS_HIGH, longHigh);
 
@@ -203,12 +206,6 @@ public class SdfParser {
 
                 filePosition += (header.getNumberBytes() + 4) - header.getHeaderSize();
             }
-
-            index.firstTimestampHigh = minTimestampHigh;
-            index.firstTimestampLow = minTimestampLow;
-
-            index.lastTimestampHigh = maxTimestampHigh;
-            index.lastTimestampLow = maxTimestampLow;
 
             // Save timestamp list
             Long[] tslisthigh;
@@ -319,28 +316,19 @@ public class SdfParser {
     }
 
     public long getFirstTimeStamp() {
+        long firstTimestamp = Long.MAX_VALUE;
         for (Entry<File, SdfIndex> entry : fileIndex.entrySet()) {
-            return Math.min(entry.getValue().firstTimestampHigh, entry.getValue().firstTimestampLow);
+            firstTimestamp = Math.min(firstTimestamp, entry.getValue().getFirstTimestamp());
         }
-        return -1L;
+        return firstTimestamp;
     }
 
     public long getLastTimeStamp() {
-        long entryTimestamp;
-        long maxTimestamp = 0L;
-
+        long lastTimestamp = -1;
         for (Entry<File, SdfIndex> entry : fileIndex.entrySet()) {
-            entryTimestamp = entry.getValue().lastTimestampHigh;
-            if (entryTimestamp > maxTimestamp) {
-                maxTimestamp = entryTimestamp;
-            }
-            entryTimestamp = entry.getValue().lastTimestampLow;
-            if (entryTimestamp > maxTimestamp) {
-                maxTimestamp = entryTimestamp;
-            }
+            lastTimestamp = Math.max(lastTimestamp, entry.getValue().getLastTimestamp());
         }
-
-        return maxTimestamp;
+        return lastTimestamp;
     }
 
     public SdfData nextPing(int subsystem) {
@@ -425,19 +413,14 @@ public class SdfParser {
     }
 
     private SdfIndex getIndexFromTimestamp(Long timestamp, int subsystem) {
+        SdfIndex index;
         for (Entry<File, SdfIndex> entry : fileIndex.entrySet()) {
-            if (subsystem == SdfConstant.SUBSYS_LOW) {
-                if (timestamp >= entry.getValue().firstTimestampLow && timestamp <= entry.getValue().lastTimestampLow) {
-                    return entry.getValue();
-                }
-            }
-            else if (subsystem == SdfConstant.SUBSYS_HIGH) {
-                if (timestamp >= entry.getValue().firstTimestampHigh && timestamp <= entry.getValue().lastTimestampHigh) {
-                    return entry.getValue();
-                }
+            index = entry.getValue();
+            if(timestamp >= index.getFirstTimestamp(subsystem) && timestamp <= index.getLastTimestamp(subsystem)) {
+                return index;
             }
         }
-        return null;
+        return null;        
     }
 
     public SdfData getPingAt(Long timestamp, int subsystem) {

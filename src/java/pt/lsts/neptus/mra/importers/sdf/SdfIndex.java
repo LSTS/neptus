@@ -43,12 +43,6 @@ import java.util.Set;
 public class SdfIndex implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    long firstTimestampHigh = -1;
-    long lastTimestampHigh = -1;
-    
-    long firstTimestampLow = -1;
-    long lastTimestampLow = -1;
-
     private final Map<Integer, PositionMap> positionMaps = new HashMap<>();
 
     public void addSubsystem(int subSystem) {
@@ -68,9 +62,35 @@ public class SdfIndex implements Serializable {
     public void addPositionToMap(long timestamp, long position, int subsystem) {
         positionMaps.get(subsystem).addPosition(timestamp, position);
     }
+    
+    public long getFirstTimestamp(int subsystem) {
+        return positionMaps.get(subsystem).getFirstTimestamp();
+    }
+
+    public long getLastTimestamp(int subsystem) {
+        return positionMaps.get(subsystem).getLastTimestamp();
+    }
+
+    public long getFirstTimestamp() {
+        long firstTimestamp = Long.MAX_VALUE;
+        for(PositionMap positionMap: positionMaps.values()) {
+            firstTimestamp = Math.min(firstTimestamp, positionMap.getFirstTimestamp());
+        }
+        return firstTimestamp;
+    }
+
+    public long getLastTimestamp() {
+        long lastTimestamp = -1;
+        for(PositionMap positionMap: positionMaps.values()) {
+            lastTimestamp = Math.max(lastTimestamp, positionMap.getLastTimestamp());
+        }
+        return lastTimestamp;
+    }    
 }
 
 class PositionMap implements Serializable{
+    private long firstTimestamp = Long.MAX_VALUE;
+    private long lastTimestamp = -1;
     private LinkedHashMap<Long, ArrayList<Long>> map = new LinkedHashMap<>();
 
     public void addPosition(long timestamp, long position) {
@@ -80,12 +100,26 @@ class PositionMap implements Serializable{
             list = new ArrayList<>();
             map.put(timestamp, list);
         }
+        if (timestamp < firstTimestamp) {
+            firstTimestamp = timestamp;
+        }
+        else if (timestamp > lastTimestamp) {
+            lastTimestamp = timestamp;
+        }
 
         list.add(position);
     }
 
     public LinkedHashMap<Long, ArrayList<Long>> getMap() {
         return map;
+    }
+    
+    public long getFirstTimestamp() {
+        return firstTimestamp;
+    }
+
+    public long getLastTimestamp() {
+        return lastTimestamp;
     }
 }
 
