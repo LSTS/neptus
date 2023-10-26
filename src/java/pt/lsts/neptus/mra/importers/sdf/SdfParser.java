@@ -151,17 +151,16 @@ public class SdfParser {
                 header.parse(buf);
 
                 dataPageHeaderPosition = filePosition;
+                filePosition += header.getNumberBytes() + 4;
                 if (header.getPageVersion() == SdfConstant.SUBSYS_HIGH || header.getPageVersion() == SdfConstant.SUBSYS_LOW) {
                     //set header of this ping
                     ping.setHeader(header);
-                    filePosition += header.getHeaderSize();
                 }
                 else { //ignore other pageVersions
                     if (!unimplementedPageVersionSet.contains(header.getPageVersion())) {
                         unimplementedPageVersionSet.add(header.getPageVersion());
                         NeptusLog.pub().info("SDF Data file contains unimplemented pageVersion # " + header.getPageVersion());
                     }
-                    filePosition += header.getNumberBytes() + 4;
                     continue;
                 }
 
@@ -182,8 +181,6 @@ public class SdfParser {
                 index.addPositionToMap(pingTimestamp, dataPageHeaderPosition, pageVersion);
 
                 //end processing data
-
-                filePosition += (header.getNumberBytes() + 4) - header.getHeaderSize();
             }
 
             // Save timestamp list
