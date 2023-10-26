@@ -171,13 +171,6 @@ public class SdfParser {
 
                 index.addSubsystem(pageVersion);
 
-                if (pingTimestamp < 5000000) { // Fixing timestamp from 1970
-                    NeptusLog.pub().warn(I18n.textf("Something is wrong with the timestamp (%d). " +
-                                    "Trying to calculate using GPS data for ping %d for subsystem %d. New timestamp is %d.",
-                            new Date(pingTimestamp), ping.getHeader().getPingNumber(), pageVersion, new Date(pingFixTimestamp)));
-                    pingTimestamp = pingFixTimestamp;
-                }
-
                 index.addPositionToMap(pingTimestamp, dataPageHeaderPosition, pageVersion);
 
                 //end processing data
