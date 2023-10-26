@@ -159,7 +159,7 @@ public class SdfParser {
                 else { //ignore other pageVersions
                     if (!unimplementedPageVersionSet.contains(header.getPageVersion())) {
                         unimplementedPageVersionSet.add(header.getPageVersion());
-                        NeptusLog.pub().info("SDF Data file contains unimplemented pageVersion # " + header.getPageVersion());
+                        NeptusLog.pub().info("SDF Data file " + file.getName() + " contains unimplemented pageVersion # " + header.getPageVersion());
                     }
                     continue;
                 }
