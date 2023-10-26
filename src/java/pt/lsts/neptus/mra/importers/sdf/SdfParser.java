@@ -344,10 +344,6 @@ public class SdfParser {
             return null;
         }
 
-        LinkedHashMap<Long, Long> positionMap = index.getPositionMap(subsystem);
-        if (positionMap == null) {
-            return null;
-        }
         long ts = 0;
         int c = 0;
         for (Long time : tslist.get(subsystem)) {
@@ -360,10 +356,7 @@ public class SdfParser {
 
         nextTimestamp.put(subsystem, tslist.get(subsystem)[c + 1]);
 
-        if (positionMap.get(ts) == null) {
-            return null;
-        }
-        Long position = positionMap.get(ts);
+        Long position = index.getPositionList(subsystem, ts);
         SdfData ping = getPingAtPosition(position, subsystem, index);
         NeptusLog.pub().debug(">>> " + subsystem + " >>>>> For long " + position +
                 " @ ts:" + ping.getTimestamp() + " | fixts:" + ping.getFixTimestamp());
