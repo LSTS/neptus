@@ -33,6 +33,7 @@
 package pt.lsts.neptus.mra.importers.sdf;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -86,7 +87,9 @@ public class SdfIndex implements Serializable {
     }
 
     public Long[] getTimestampsAsArray(int subsytem) {
-        return getPositionMap(subsytem).keySet().toArray(new Long[]{});
+        Long[] timestamps = getPositionMap(subsytem).keySet().toArray(new Long[]{});
+        Arrays.sort(timestamps);
+        return timestamps;
     }
 
     private LinkedHashMap<Long, Long> getPositionMap(int subsystem) {
