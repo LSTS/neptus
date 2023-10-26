@@ -53,10 +53,6 @@ public class SdfIndex implements Serializable {
         return positionMaps.keySet();
     }
 
-    public LinkedHashMap<Long, Long> getPositionMap(int subsystem) {
-        return positionMaps.get(subsystem).getMap();
-    }
-
     public long getPositionList(int subsystem, long timestamp) {
         return positionMaps.get(subsystem).getMap().get(timestamp);
     }
@@ -92,6 +88,11 @@ public class SdfIndex implements Serializable {
     public Long[] getTimestampsAsArray(int subsytem) {
         return getPositionMap(subsytem).keySet().toArray(new Long[]{});
     }
+
+    private LinkedHashMap<Long, Long> getPositionMap(int subsystem) {
+        return positionMaps.get(subsystem).getMap();
+    }
+
 }
 
 class PositionMap implements Serializable {
