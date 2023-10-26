@@ -194,9 +194,6 @@ public class SdfParser {
                         " >> " + indexFilePath);
             }
 
-            tslist.put(SdfConstant.SUBSYS_LOW, tslistlow);
-            tslist.put(SdfConstant.SUBSYS_HIGH, tslisthigh);
-
             ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(indexFilePath));
             out.writeObject(index);
             out.close();
