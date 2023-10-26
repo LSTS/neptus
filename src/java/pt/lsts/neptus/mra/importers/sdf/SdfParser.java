@@ -173,16 +173,6 @@ public class SdfParser {
                 //end processing data
             }
 
-            // Save timestamp list
-            Long[] tslisthigh;
-            Long[] tslistlow;
-
-            tslisthigh = index.getPositionMap(SdfConstant.SUBSYS_HIGH).keySet().toArray(new Long[]{});
-            tslistlow = index.getPositionMap(SdfConstant.SUBSYS_LOW).keySet().toArray(new Long[]{});
-
-            Arrays.sort(tslisthigh);
-            Arrays.sort(tslistlow);
-
             ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(indexFilePath));
             out.writeObject(index);
             out.close();
