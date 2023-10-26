@@ -262,7 +262,7 @@ public class SdfParser {
             Long[] tsListLow;
 
             tsListHigh = index.getPositionMap(SdfConstant.SUBSYS_HIGH).keySet().toArray(new Long[]{});
-            tsListLow = index.getPositionMap(SdfConstant.SUBSYS_HIGH).keySet().toArray(new Long[]{});
+            tsListLow = index.getPositionMap(SdfConstant.SUBSYS_LOW).keySet().toArray(new Long[]{});
 
             Arrays.sort(tsListHigh);
             Arrays.sort(tsListLow);
