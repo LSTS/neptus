@@ -430,15 +430,6 @@ public class SdfParser {
             fData = SidescanUtil.applyNormalizationAndTVG(fData, range, config);
 
             list.add(new SidescanLine(ping.getTimestamp(), range, pose, frequency, fData));
-
-            try {
-                ping = nextPing(subsystem); // no next ping available
-            }
-            catch (ArrayIndexOutOfBoundsException e) {
-                break;
-            }
-            if (ping == null)
-                return list;
         }
         return list;
     }
