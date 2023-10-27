@@ -296,7 +296,6 @@ public class SdfParser {
     }
 
     public SdfData getPingAtPosition(long pos, int subsystem, SdfIndex index) {
-        long posHeader = pos;
         SdfHeader header = new SdfHeader();
         SdfData ping = new SdfData();
 
