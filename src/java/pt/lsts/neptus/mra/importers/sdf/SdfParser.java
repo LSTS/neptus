@@ -33,6 +33,10 @@
 package pt.lsts.neptus.mra.importers.sdf;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.mra.api.SidescanLine;
+import pt.lsts.neptus.mra.api.SidescanParameters;
+import pt.lsts.neptus.mra.api.SidescanUtil;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -372,6 +376,69 @@ public class SdfParser {
             }
         }
         return new ArrayList(subsystems);
+    }
+
+    public ArrayList<SidescanLine> getLinesBetween(long timestamp1, long timestamp2, int subsystem,
+                                                   SidescanParameters config) {
+
+        NeptusLog.pub().debug(">>>>>>>>>>>>>> getLinesBetween timestamp1=" + timestamp1 +
+                ",  timestamp2=" + timestamp2 + ",  subsystem=" + subsystem);
+
+        ArrayList<SidescanLine> list = new ArrayList<SidescanLine>();
+        SdfData ping;
+        try {
+            ping = getPingAt(timestamp1, subsystem);
+        }
+        catch (ArrayIndexOutOfBoundsException e) {
+            return list;
+        }
+        if (ping == null)
+            return list;
+
+        while (ping.getTimestamp() < timestamp2) {
+            SdfData sboardPboard = ping; // one ping contains both Sboard and Portboard samples
+            int nSamples = sboardPboard != null ? sboardPboard.getNumSamples() : 0;
+            double fData[] = new double[nSamples * 2]; // x2 (portboard + sboard in the same ping)
+
+            // Port side
+            for (int i = 0; i < nSamples; i++) {
+                fData[nSamples - i - 1] = sboardPboard.getPortData()[i];
+            }
+
+            // Starboard side
+            for (int i = 0; i < nSamples; i++) {
+                fData[i + nSamples] = sboardPboard.getStbdData()[i];
+            }
+
+            SystemPositionAndAttitude pose = new SystemPositionAndAttitude();
+            pose.getPosition().setLatitudeDegs(Math.toDegrees(sboardPboard.getHeader().getShipLat())); // rads to
+            // degrees
+            pose.getPosition().setLongitudeDegs(Math.toDegrees(sboardPboard.getHeader().getShipLon()));// rads to
+            // degrees
+
+            pose.setRoll(Math.toRadians(sboardPboard.getHeader().getAuxRoll()));
+            pose.setYaw(Math.toRadians(sboardPboard.getHeader().getShipHeading()));
+            pose.setAltitude(sboardPboard.getHeader().getAuxAlt()); // altitude in meters
+            pose.setU(sboardPboard.getHeader().getSpeedFish() / 100.0); // Convert cm/s to m/s
+            pose.getPosition().setDepth(sboardPboard.getHeader().getAuxDepth());
+
+            float frequency = ping.getHeader().getSonarFreq();
+            float range = ping.getHeader().getRange();
+
+            fData = SidescanUtil.applyNormalizationAndTVG(fData, range, config);
+
+            list.add(new SidescanLine(ping.getTimestamp(), range, pose, frequency, fData));
+
+            try {
+                ping = nextPing(subsystem); // no next ping available
+            }
+            catch (ArrayIndexOutOfBoundsException e) {
+                break;
+            }
+            if (ping == null)
+                return list;
+        }
+        return list;
     }
 
     public static int main(String[] args) throws Exception {
