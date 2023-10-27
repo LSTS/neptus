@@ -61,7 +61,6 @@ public class SdfParser {
     private static final long minimumValidTimestamp = 946684800000L;
 
     private LinkedHashMap<Integer, Long[]> tslist = new LinkedHashMap<Integer, Long[]>();
-    private LinkedHashMap<Integer, Long> nextTimestamp = new LinkedHashMap<Integer, Long>();
     private LinkedHashMap<File, SdfIndex> fileIndex = new LinkedHashMap<>();
 
     private ArrayList<Long[]> tsSHigh = new ArrayList<>();
@@ -286,10 +285,6 @@ public class SdfParser {
         return lastTimestamp;
     }
 
-    public SdfData nextPing(int subsystem) {
-        return getPingAt(nextTimestamp.get(subsystem), subsystem); // This fetches the next ping and updates nextTimestamp
-    }
-
     // Get corresponding file for the given index
     private File getFileFromIndex(SdfIndex index) {
         for (Entry<File, SdfIndex> entry : fileIndex.entrySet()) {
@@ -363,8 +358,6 @@ public class SdfParser {
             }
             c++;
         }
-
-        nextTimestamp.put(subsystem, tslist.get(subsystem)[c + 1]);
 
         Long position = index.getPositionList(subsystem, ts);
         SdfData ping = getPingAtPosition(position, subsystem, index);
