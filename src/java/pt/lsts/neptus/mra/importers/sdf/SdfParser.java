@@ -50,6 +50,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
@@ -65,6 +66,8 @@ public class SdfParser {
 
     private ArrayList<Long[]> tsSHigh = new ArrayList<>();
     private ArrayList<Long[]> tsSLow = new ArrayList<>();
+
+    private HashMap<Integer, SdfTimestampList> timestampListMap = new HashMap<>();
 
     public SdfParser(File[] files) {
 
@@ -103,6 +106,12 @@ public class SdfParser {
 
         Arrays.sort(longLow);
         Arrays.sort(longHigh);
+
+        SdfTimestampList timestampListLow = new SdfTimestampList(longLow);
+        SdfTimestampList timestampListHigh = new SdfTimestampList(longHigh);
+
+        timestampListMap.put(SdfConstant.SUBSYS_HIGH, timestampListHigh);
+        timestampListMap.put(SdfConstant.SUBSYS_LOW, timestampListLow);
 
         tslist.put(SdfConstant.SUBSYS_LOW, longLow);
         tslist.put(SdfConstant.SUBSYS_HIGH, longHigh);
@@ -385,17 +394,10 @@ public class SdfParser {
                 ",  timestamp2=" + timestamp2 + ",  subsystem=" + subsystem);
 
         ArrayList<SidescanLine> list = new ArrayList<SidescanLine>();
-        SdfData ping;
-        try {
-            ping = getPingAt(timestamp1, subsystem);
-        }
-        catch (ArrayIndexOutOfBoundsException e) {
-            return list;
-        }
-        if (ping == null)
-            return list;
+        Long[] timestamps = timestampListMap.get(subsystem).getTimestampsBetween(timestamp1, timestamp2);
 
-        while (ping.getTimestamp() < timestamp2) {
+        for(Long timestamp: timestamps) {
+            SdfData ping = getPingAt(timestamp, subsystem);
             SdfData sboardPboard = ping; // one ping contains both Sboard and Portboard samples
             int nSamples = sboardPboard != null ? sboardPboard.getNumSamples() : 0;
             double fData[] = new double[nSamples * 2]; // x2 (portboard + sboard in the same ping)
