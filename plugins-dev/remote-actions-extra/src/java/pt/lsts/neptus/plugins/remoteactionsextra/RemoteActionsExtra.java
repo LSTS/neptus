@@ -164,6 +164,9 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
                 switch (extraActionsTypesMap.get(action)) {
                     case BUTTON:
                         JButton button = new JButton(action);
+                        button.addActionListener(e -> {
+                            curState.changeButtonActionValue(action, 1);
+                        });
                         String lay = "dock center, sg grp" + grpIdx;
                         lay += ", " + wrapLay;
                         add(button, lay);
