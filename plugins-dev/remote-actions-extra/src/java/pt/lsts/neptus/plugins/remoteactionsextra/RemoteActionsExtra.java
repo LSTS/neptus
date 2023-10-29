@@ -133,7 +133,7 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
     public void cleanSubPanel() {
     }
 
-    private void resetUIWithActions() {
+    private synchronized void resetUIWithActions() {
         removeAll();
         setLayout(new MigLayout("insets 10px"));
 
@@ -212,6 +212,7 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
         }
         catch (Exception e) {
             NeptusLog.pub().error(e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -235,7 +236,7 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
 
           ret.add(value > 0
               ? action + "=1"
-              : (lastState.extraButtonActionsMap.get(action) == 1 ? action + "=0" : ""));
+              : (lastState.extraButtonActionsMap.containsKey(action) && lastState.extraButtonActionsMap.get(action) == 1 ? action + "=0" : ""));
         });
         // For extra Axis
         savedCurState.extraAxisActionsMap.forEach((action, value) -> {
@@ -244,7 +245,7 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
             }
 
             String val = adjustAxisValue(value);
-            ret.add((!Objects.equals(lastState.extraAxisActionsMap.get(action), value)
+            ret.add((lastState.extraButtonActionsMap.containsKey(action) || !Objects.equals(lastState.extraAxisActionsMap.get(action), value)
                     ? action + "=" + ("0.0".equalsIgnoreCase(val) ? "0" : val)
                     : ""));
         });
@@ -287,65 +288,67 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
     }
 
     private void configureActions(String actionsString, boolean decimalAxis, boolean resetActionVerbs) {
-        curState.decimalAxis = decimalAxis;
+        synchronized (extraActionsTypesMap) {
+            curState.decimalAxis = decimalAxis;
 
-        if (resetActionVerbs) {
-            resetActionsVerbs(decimalAxis);
-        } else {
-            reset();
-        }
-
-        if (actionsString == null || actionsString.isEmpty()) {
-            resetUIWithActions();
-            return;
-        }
-
-        try {
-            String[] keyPair = actionsString.split(";");
-            for (String elem : keyPair) {
-                try {
-                    String[] actPair = elem.trim().split("=");
-                    String actTxt = actPair[0].trim();
-                    String typeTxt = actPair[1].trim();
-
-                    if (actTxt.isEmpty()) continue;
-
-                    if ("Exit".equalsIgnoreCase(actTxt) || isActionMotion(actTxt.toLowerCase())) {
-                        // Do nothing, just avoiding going to extra actions
-                    } else if (actionVerbRanges.equalsIgnoreCase(actTxt)) {
-                        // test if ranges decimal
-                        if (typeVerbRangesDecimal.equalsIgnoreCase(typeTxt)) {
-                            curState.decimalAxis = true;
-                        } else if (typeVerbRangesRange127.equalsIgnoreCase(typeTxt)) {
-                            curState.decimalAxis = false;
-                        }
-                    } else {
-                        if (typeVerbButton.equalsIgnoreCase(typeTxt.toLowerCase())) {
-                            curState.extraButtonActionsMap.put(actTxt,  0);
-                            extraActionsTypesMap.put(actTxt, ActionTypeEnum.BUTTON);
-                        } else if (typeVerbAxis.equalsIgnoreCase(typeTxt.toLowerCase())) {
-                            curState.extraAxisActionsMap.put(actTxt,0.0);
-                            extraActionsTypesMap.put(actTxt, ActionTypeEnum.AXIS);
-                        } else if (typeVerbSlider.equalsIgnoreCase(typeTxt.toLowerCase())) {
-                            curState.extraAxisActionsMap.put(actTxt,0.0);
-                            extraActionsTypesMap.put(actTxt, ActionTypeEnum.SLIDER);
-                        } else if (typeVerbHalfSlider.equalsIgnoreCase(typeTxt.toLowerCase()) ||
-                                typeVerbHalfSlider2.equalsIgnoreCase(typeTxt.toLowerCase())) {
-                            curState.extraAxisActionsMap.put(actTxt,0.0);
-                            extraActionsTypesMap.put(actTxt, ActionTypeEnum.HALF_SLIDER);
-                        }
-                    }
-                } catch (Exception e) {
-                    NeptusLog.pub().warn("Not possible to parse one remote action \"" +
-                            elem + "\" with error " + e.getMessage());
-                }
+            if (resetActionVerbs) {
+                resetActionsVerbs(decimalAxis);
+            } else {
+                reset();
             }
-        } catch (Exception e) {
-            NeptusLog.pub().warn("'Not possible to parse remote actions \"" +
-                    actionsString + "\" with error " + e.getMessage());
-        }
 
-        resetUIWithActions();
+            if (actionsString == null || actionsString.isEmpty()) {
+                resetUIWithActions();
+                return;
+            }
+
+            try {
+                String[] keyPair = actionsString.split(";");
+                for (String elem : keyPair) {
+                    try {
+                        String[] actPair = elem.trim().split("=");
+                        String actTxt = actPair[0].trim();
+                        String typeTxt = actPair[1].trim();
+
+                        if (actTxt.isEmpty()) continue;
+
+                        if ("Exit".equalsIgnoreCase(actTxt) || isActionMotion(actTxt.toLowerCase())) {
+                            // Do nothing, just avoiding going to extra actions
+                        } else if (actionVerbRanges.equalsIgnoreCase(actTxt)) {
+                            // test if ranges decimal
+                            if (typeVerbRangesDecimal.equalsIgnoreCase(typeTxt)) {
+                                curState.decimalAxis = true;
+                            } else if (typeVerbRangesRange127.equalsIgnoreCase(typeTxt)) {
+                                curState.decimalAxis = false;
+                            }
+                        } else {
+                            if (typeVerbButton.equalsIgnoreCase(typeTxt.toLowerCase())) {
+                                curState.extraButtonActionsMap.put(actTxt,  0);
+                                extraActionsTypesMap.put(actTxt, ActionTypeEnum.BUTTON);
+                            } else if (typeVerbAxis.equalsIgnoreCase(typeTxt.toLowerCase())) {
+                                curState.extraAxisActionsMap.put(actTxt,0.0);
+                                extraActionsTypesMap.put(actTxt, ActionTypeEnum.AXIS);
+                            } else if (typeVerbSlider.equalsIgnoreCase(typeTxt.toLowerCase())) {
+                                curState.extraAxisActionsMap.put(actTxt,0.0);
+                                extraActionsTypesMap.put(actTxt, ActionTypeEnum.SLIDER);
+                            } else if (typeVerbHalfSlider.equalsIgnoreCase(typeTxt.toLowerCase()) ||
+                                    typeVerbHalfSlider2.equalsIgnoreCase(typeTxt.toLowerCase())) {
+                                curState.extraAxisActionsMap.put(actTxt,0.0);
+                                extraActionsTypesMap.put(actTxt, ActionTypeEnum.HALF_SLIDER);
+                            }
+                        }
+                    } catch (Exception e) {
+                        NeptusLog.pub().warn("Not possible to parse one remote action \"" +
+                                elem + "\" with error " + e.getMessage());
+                    }
+                }
+            } catch (Exception e) {
+                NeptusLog.pub().warn("'Not possible to parse remote actions \"" +
+                        actionsString + "\" with error " + e.getMessage());
+            }
+
+            resetUIWithActions();
+        }
     }
 
     private String extractActionGroupKeyword(String actionText) {
@@ -466,15 +469,21 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
     }
 
     void resetActionsVerbs(boolean decimalAxis) {
-        curState.decimalAxis = decimalAxis;
-        curState.extraButtonActionsMap.forEach((action, value) -> curState.extraButtonActionsMap.put(action,0));
-        curState.extraAxisActionsMap.forEach((action, value) -> curState.extraAxisActionsMap.put(action, 0.0));
+        synchronized (extraActionsTypesMap) {
+            curState.decimalAxis = decimalAxis;
+            curState.extraButtonActionsMap.forEach((action, value) -> curState.extraButtonActionsMap.put(action,0));
+            curState.extraAxisActionsMap.forEach((action, value) -> curState.extraAxisActionsMap.put(action, 0.0));
+            lastState.reset();
+        }
     }
 
     void reset() {
-        curState.decimalAxis = defaultAxisDecimalVal;
-        extraActionsTypesMap.clear();
-        curState.extraButtonActionsMap.clear();
-        curState.extraAxisActionsMap.clear();
+        synchronized (extraActionsTypesMap) {
+            curState.decimalAxis = defaultAxisDecimalVal;
+            lastState.reset();
+            extraActionsTypesMap.clear();
+            curState.extraButtonActionsMap.clear();
+            curState.extraAxisActionsMap.clear();
+        }
     }
 }

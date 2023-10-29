@@ -57,6 +57,12 @@ class RemoteActionsState {
         this.decimalAxis = other.decimalAxis;
     }
 
+    public void reset() {
+        this.extraButtonActionsMap.clear();
+        this.extraAxisActionsMap.clear();
+        this.decimalAxis = RemoteActionsExtra.defaultAxisDecimalVal;
+    }
+
     public void changeButtonActionValue(String action, int val) {
         if (extraButtonActionsMap.containsKey(action)) {
             extraButtonActionsMap.put(action, val);
