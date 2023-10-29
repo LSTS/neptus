@@ -36,8 +36,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 class RemoteActionsState {
-    public final Map<String, Integer> extraButtonActionsMap = new LinkedHashMap();
-    public final Map<String, Double> extraAxisActionsMap = new LinkedHashMap();
+    public final Map<String, Integer> extraButtonActionsMap = new LinkedHashMap<>();
+    public final Map<String, Double> extraAxisActionsMap = new LinkedHashMap<>();
 
     public boolean decimalAxis = RemoteActionsExtra.defaultAxisDecimalVal;
 
