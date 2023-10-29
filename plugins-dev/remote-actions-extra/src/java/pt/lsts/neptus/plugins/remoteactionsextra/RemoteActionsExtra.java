@@ -230,7 +230,7 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
         }
 
         // For extra Buttons
-        curState.extraButtonActionsMap.forEach((action, value) -> {
+        savedCurState.extraButtonActionsMap.forEach((action, value) -> {
           if (isActionMotion(action)) return;
 
           ret.add(value > 0
@@ -238,7 +238,7 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
               : (lastState.extraButtonActionsMap.get(action) == 1 ? action + "=0" : ""));
         });
         // For extra Axis
-        curState.extraAxisActionsMap.forEach((action, value) -> {
+        savedCurState.extraAxisActionsMap.forEach((action, value) -> {
             if (isActionMotion(action)) {
                 return;
             }
