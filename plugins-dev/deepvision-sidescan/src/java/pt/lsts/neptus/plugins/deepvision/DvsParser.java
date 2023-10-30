@@ -175,7 +175,7 @@ public class DvsParser {
         double[] data;
 
         ArrayList<SidescanLine> lines = new ArrayList<>();
-        int index = findTimestampIndex(startTimestamp);
+        int index = findTimestampIndexLinear(startTimestamp);
 
         while(index < posDataList.size()) {
             dvsPos = posDataList.get(index);
@@ -205,6 +205,7 @@ public class DvsParser {
 
     private int findTimestampIndex(long timestamp) {
         // Binary search the timestamps
+        // TODO: fix binary search or remove and use Linear Search
         int left = 0;
         int right = posDataList.size() - 1;
 
@@ -229,6 +230,22 @@ public class DvsParser {
         }
 
         return left; // Return closest index
+    }
+
+    private int findTimestampIndexLinear(long timestamp) {
+        // TODO: improve search by caching last timestamp index
+        int last = posDataList.size() - 1;
+
+        if (timestamp < posDataList.get(0).getTimestamp() || timestamp > posDataList.get(last).getTimestamp()) {
+            return -1;
+        }
+
+        int index = 0;
+        while(posDataList.get(index).getTimestamp() < timestamp) {
+            index++;
+        }
+
+        return index;
     }
 
     /**
