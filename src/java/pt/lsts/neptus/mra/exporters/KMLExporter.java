@@ -118,7 +118,10 @@ public class KMLExporter implements MRAExporter {
 
     @NeptusProperty(category = "SideScan", name="Normalization")
     public double normalization = 0.05;
-    
+
+    @NeptusProperty(category = "SideScan", name="Decompression")
+    public double decompression = 1.025;
+
     @NeptusProperty(category = "SideScan", name="Gain Normalization", description = "Perform an empirical analysis of the data to achieve optimal gain normalization.")
     public boolean egnNormalization = true;
     
@@ -464,7 +467,7 @@ public class KMLExporter implements MRAExporter {
         
         
         int sys = ssParser.getSubsystemList().get(subSystem);
-        SidescanParameters params = new SidescanParameters(normalization, timeVariableGain);
+        SidescanParameters params = new SidescanParameters(normalization, timeVariableGain, decompression);
         if (egnNormalization)
             params = SidescanHistogramNormalizer.HISTOGRAM_DEFAULT_PARAMATERS;
         

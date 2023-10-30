@@ -62,7 +62,7 @@ import pt.lsts.neptus.util.llf.LsfLogSource;
  */
 public class SidescanHistogramNormalizer implements Serializable {
     
-    public static SidescanParameters HISTOGRAM_DEFAULT_PARAMATERS = new SidescanParameters(0.1, 255);
+    public static SidescanParameters HISTOGRAM_DEFAULT_PARAMATERS = new SidescanParameters(0.1, 255, 1.025);
     private static final long serialVersionUID = -6926787167196556272L;
     private static final int LINES_TO_COMPUTE_HISTOGRAM = 1000;
 

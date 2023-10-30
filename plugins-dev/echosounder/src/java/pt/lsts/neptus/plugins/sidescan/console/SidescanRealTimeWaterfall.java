@@ -97,7 +97,10 @@ public class SidescanRealTimeWaterfall extends ConsolePanel
     
     @NeptusProperty (name="Time Variable Gain factor", category="Visualization parameters", userLevel = LEVEL.REGULAR)
     private double tvgGain = 280;
-    
+
+    @NeptusProperty (name="Log Decompression", category="Visualization parameters", userLevel = LEVEL.REGULAR)
+    public double decompression = 1.025;
+
     @NeptusProperty (name="Slant range correction", category="Visualization parameters", userLevel = LEVEL.REGULAR)
     private boolean slantRangeCorrection = false;
 
@@ -115,7 +118,7 @@ public class SidescanRealTimeWaterfall extends ConsolePanel
     private ArrayListComboBoxModel<Long> subSystemsComboBoxModel;
 
     // Data
-    private SidescanParameters sidescanParams = new SidescanParameters(normalization, tvgGain);
+    private SidescanParameters sidescanParams = new SidescanParameters(normalization, tvgGain, decompression);
     
     private EstimatedState curEstimatedState = null;
     
@@ -191,6 +194,7 @@ public class SidescanRealTimeWaterfall extends ConsolePanel
         
         sidescanParams.setNormalization(normalization);
         sidescanParams.setTvgGain(tvgGain);
+        sidescanParams.setDecompression(decompression);
     }
     
     /* (non-Javadoc)

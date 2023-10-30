@@ -91,6 +91,9 @@ public class SidescanTilesExporter implements MRAExporter {
     public double normalization = 0.2;
 
     @NeptusProperty
+    public double decompression = 1.025;
+
+    @NeptusProperty
     public boolean slantRangeCorrection = true;
 
     @NeptusProperty
@@ -127,7 +130,7 @@ public class SidescanTilesExporter implements MRAExporter {
     private ArrayList<PolygonType> mudPolygons = new ArrayList<PolygonType>();
     private ArrayList<PolygonType> gravelPolygons = new ArrayList<PolygonType>();
     
-    private SidescanParameters params = new SidescanParameters(normalization, timeVariableGain);
+    private SidescanParameters params = new SidescanParameters(normalization, timeVariableGain, decompression);
 
     public SidescanTilesExporter(IMraLogGroup source) {
         /* nothing to do */

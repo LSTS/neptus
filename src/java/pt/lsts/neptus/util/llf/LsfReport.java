@@ -462,9 +462,10 @@ public class LsfReport {
             else {
                 config.colorMap = getColorMapFromCode(colorMapCode);
             }
-            SidescanParameters sidescanParams = new SidescanParameters(0, 0);
+            SidescanParameters sidescanParams = new SidescanParameters(0, 0, 0);
             sidescanParams.setNormalization(config.normalization);
             sidescanParams.setTvgGain(config.tvgGain);
+            sidescanParams.setDecompression(config.decompression);
 
             PdfPTable table = new PdfPTable(3 + nSubsys);
 

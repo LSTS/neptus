@@ -86,6 +86,11 @@ public class SidescanToolbar extends JToolBar {
     private final SpinnerNumberModel modelTVG = new SpinnerNumberModel(0.0, -1000.0, 1000.0, 1.0);
     private final JSpinner spinTVG = new JSpinner();
 
+    // Decompression
+    private final JLabel lblDecompression = new JLabel(I18n.textc("Decompression", "Decompresssion Rate"));
+    private final SpinnerNumberModel modelDecompression = new SpinnerNumberModel(0.0, 0, 100.0, 0.1);
+    private final JSpinner spinDecompression = new JSpinner();
+
     JToggleButton btnAutoEgn = new JToggleButton(I18n.text("EGN"));
 
     RangeSlider windowSlider = new RangeSlider(0, 100);
@@ -138,6 +143,7 @@ public class SidescanToolbar extends JToolBar {
             for (SidescanPanel panel : panelList) {
                 panel.config.tvgGain = (Double) spinTVG.getValue();
                 panel.config.normalization = (Double) spinNormalization.getValue();
+                panel.config.decompression = (Double) spinDecompression.getValue();
                 panel.record(btnRecord.isSelected());
             }
         }
@@ -148,6 +154,7 @@ public class SidescanToolbar extends JToolBar {
         public void stateChanged(ChangeEvent e) {
             spinNormalization.setEnabled(!btnAutoEgn.isSelected());
             spinTVG.setEnabled(!btnAutoEgn.isSelected());
+//            spinDecompression.setEnabled(!btnAutoEgn.isSelected());
             windowSlider.setEnabled(!btnAutoEgn.isSelected());
         }
     };
@@ -159,6 +166,7 @@ public class SidescanToolbar extends JToolBar {
         }
         this.spinNormalization.setModel(modelNormalization);
         this.spinTVG.setModel(modelTVG);
+        this.spinDecompression.setModel(modelDecompression);
         buildToolbar();
     }
 
@@ -182,6 +190,9 @@ public class SidescanToolbar extends JToolBar {
         add(spinTVG);
         btnAutoEgn.setToolTipText("Empirical Gain Normalization");
         add(btnAutoEgn);
+
+        add(lblDecompression);
+        add(spinDecompression);
 
         windowSlider.setToolTipText(String.format("<html><p>%s</p><p>%s<br/>%s<br/>%s</p>", I18n.text("Window slider"),
                 I18n.text("Left/right keys for lower value change"),
@@ -267,6 +278,11 @@ public class SidescanToolbar extends JToolBar {
             spinTVG.setValue(panelList.get(0).config.tvgGain);
         }
         spinTVG.addChangeListener(alGains);
+
+        if (!panelList.isEmpty()) {
+            spinDecompression.setValue(panelList.get(0).config.decompression);
+        }
+        spinDecompression.addChangeListener(alGains);
 
         btnAutoEgn.addChangeListener(autoEgnChangeListener);
     }

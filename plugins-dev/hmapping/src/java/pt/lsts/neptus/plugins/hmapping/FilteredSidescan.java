@@ -82,6 +82,9 @@ public class FilteredSidescan implements MRAExporter {
     @NeptusProperty(name="Normalization")
     public double normalization = 0.1;
 
+    @NeptusProperty(name="Decompression")
+    public double decompression = 1.025;
+
     @NeptusProperty(name="Swath Length")
     public double swathLength = 1.0;
     
@@ -116,7 +119,7 @@ public class FilteredSidescan implements MRAExporter {
     @Override
     public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
         parser = SidescanParserFactory.build(this.source);
-        SidescanParameters params = new SidescanParameters(normalization, timeVariableGain);
+        SidescanParameters params = new SidescanParameters(normalization, timeVariableGain, decompression);
         long start = parser.firstPingTimestamp();
         long end = parser.lastPingTimestamp();
         int sys = parser.getSubsystemList().get(0);

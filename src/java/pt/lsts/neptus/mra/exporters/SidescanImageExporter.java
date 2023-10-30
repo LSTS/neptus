@@ -71,6 +71,9 @@ public class SidescanImageExporter implements MRAExporter {
     public double normalization = 0.1;
 
     @NeptusProperty
+    public double decompression = 1.025;
+
+    @NeptusProperty
     public double swathLength = 1.0;
     
     @NeptusProperty
@@ -113,7 +116,7 @@ public class SidescanImageExporter implements MRAExporter {
         MraVehiclePosHud hud = new MraVehiclePosHud(source, hudSize, hudSize);
         hud.setPathColor(Color.white);
         //double ratio = 9.0 / 16.0;
-        SidescanParameters params = new SidescanParameters(normalization, timeVariableGain);
+        SidescanParameters params = new SidescanParameters(normalization, timeVariableGain, decompression);
         ColorMap cmap = ColorMapFactory.createBronzeColormap();
         long start = parser.firstPingTimestamp();
         long end = parser.lastPingTimestamp();

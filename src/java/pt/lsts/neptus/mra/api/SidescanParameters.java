@@ -42,21 +42,24 @@ public class SidescanParameters {
     private double tvgGain = 75;
     private double minValue = 0.0;
     private double windowValue = 1.0;
+    private double decompression = 1.025;
     
     /**
      * @param normalization
      * @param tvgGain
      */
-    public SidescanParameters(double normalization, double tvgGain) {
+    public SidescanParameters(double normalization, double tvgGain, double decompression) {
         this.normalization = normalization;
         this.tvgGain = tvgGain;
+        this.decompression = decompression;
     }
 
-    public SidescanParameters(double normalization, double tvgGain, double minValue, double windowValue) {
+    public SidescanParameters(double normalization, double tvgGain, double minValue, double windowValue, double decompression) {
         this.normalization = normalization;
         this.tvgGain = tvgGain;
         this.minValue = minValue;
         this.windowValue = windowValue;
+        this.decompression = decompression;
     }
 
     /**
@@ -71,6 +74,14 @@ public class SidescanParameters {
      */
     public void setNormalization(double normalization) {
         this.normalization = normalization;
+    }
+
+    public double getDecompression() {
+        return decompression;
+    }
+
+    public void setDecompression(double decompression) {
+        this.decompression = decompression;
     }
 
     /**

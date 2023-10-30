@@ -522,7 +522,7 @@ public class SidescanViewerPanel extends JPanel {
             SonarData sd1 = index.getFirst(SonarData.class);
             //csl.setMainSystem(sd1.getSourceName());
             IMraLog eState = ls.getLog(EstimatedState.class.getSimpleName());
-            SidescanParameters sidescanParams = new SidescanParameters(0.2, 280);
+            SidescanParameters sidescanParams = new SidescanParameters(0.2, 280, 1.025);
             for (int i = 0; i < repeatTimes; i++) {
                 for (SonarData sd : index.getIterator(SonarData.class)) {
                     if (sd.getType() != SonarData.TYPE.SIDESCAN) {

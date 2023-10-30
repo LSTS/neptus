@@ -123,7 +123,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     SidescanConfig config = new SidescanConfig();
     private final SidescanToolbar toolbar = new SidescanToolbar(this);
 
-    private final SidescanParameters sidescanParams = new SidescanParameters(0, 0); // Initialize it to zero for now
+    private final SidescanParameters sidescanParams = new SidescanParameters(0, 0, 0); // Initialize it to zero for now
 
     enum InteractionMode {
         NONE,
@@ -407,6 +407,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
         sidescanParams.setNormalization(config.normalization);
         sidescanParams.setTvgGain(config.tvgGain);
+        sidescanParams.setDecompression(config.decompression);
         sidescanParams.setMinValue(config.sliceMinValue);
         sidescanParams.setWindowValue(config.sliceWindowValue);
 
