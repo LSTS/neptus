@@ -302,9 +302,6 @@ public class SdfParser {
 
         Long pageHeaderPosition = sdfIndex.getPageHeaderPosition(subsystem, timestamp);
         SdfData ping = new SdfData();
-        NeptusLog.pub().debug(">>> " + subsystem + " >>>>> For long " + pageHeaderPosition +
-                " @ ts:" + ping.getTimestamp() + " | fixts:" + ping.getFixTimestamp());
-
         SdfHeader header = new SdfHeader();
 
         File file = getFileFromIndex(sdfIndex);
