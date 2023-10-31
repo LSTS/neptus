@@ -65,7 +65,6 @@ public class SdfParser {
     private final HashMap<Integer, ArrayList<Long[]>> timestampSetMap = new HashMap<>();
     private final HashMap<Integer, SdfTimestampList> timestampListMap = new HashMap<>();
 
-
     public SdfParser(File[] files) {
 
         subsystemsInUse = new HashSet<>();
@@ -272,11 +271,9 @@ public class SdfParser {
                 Long[] timestampList = index.getTimestampsAsArray(subsystem);
                 ArrayList<Long[]> timestampSet = timestampSetMap.get(subsystem);
                 timestampSet.add(timestampList);
-
             }
 
             fileIndex.put(file, index);
-
             in.close();
         }
         catch (Exception e) {
