@@ -229,7 +229,7 @@ public class SdfParser {
 
                 dataPageHeaderPosition = filePosition;
                 filePosition += header.getNumberBytes() + 4;
-                if (header.getPageVersion() == SdfConstant.SUBSYS_HIGH || header.getPageVersion() == SdfConstant.SUBSYS_LOW) {
+                if (subsystemsInUse.contains(header.getPageVersion())) {
                     //set header of this ping
                     ping.setHeader(header);
                 }
