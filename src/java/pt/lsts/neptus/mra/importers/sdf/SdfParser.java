@@ -300,7 +300,7 @@ public class SdfParser {
             return null;
         }
 
-        Long pageHeaderPosition = sdfIndex.getPageHeaderPosition(subsystem, timestamp);
+        Long filePosition = sdfIndex.getPageHeaderPosition(subsystem, timestamp);
         SdfData ping = new SdfData();
         SdfHeader header = new SdfHeader();
 
@@ -311,10 +311,10 @@ public class SdfParser {
 
         try (FileInputStream fileInputStream = new FileInputStream(file)) {
             FileChannel channel = fileInputStream.getChannel();
-            ByteBuffer buf = channel.map(MapMode.READ_ONLY, pageHeaderPosition, SdfHeader.HEADER_SIZE);
+            ByteBuffer buf = channel.map(MapMode.READ_ONLY, filePosition, SdfHeader.HEADER_SIZE);
             buf.order(ByteOrder.LITTLE_ENDIAN);
             header.parse(buf);
-            pageHeaderPosition += header.getHeaderSize();
+            filePosition += header.getHeaderSize();
 
             if (header.getPageVersion() != subsystem) {
                 return null;
@@ -324,7 +324,7 @@ public class SdfParser {
             ping.setHeader(header);
 
             //handle data
-            buf = channel.map(MapMode.READ_ONLY, pageHeaderPosition, (header.getNumberBytes() - header.getHeaderSize() - header.getSDFExtensionSize() + 4));
+            buf = channel.map(MapMode.READ_ONLY, filePosition, (header.getNumberBytes() - header.getHeaderSize() - header.getSDFExtensionSize() + 4));
             buf.order(ByteOrder.LITTLE_ENDIAN);
 
             ping.parseData(buf);
