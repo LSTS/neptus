@@ -71,11 +71,14 @@ public class SdfParser {
     public SdfParser(File[] files) {
 
         for (File file : files) {
+            int retry = 1;
             boolean loadedIndex = loadIndex(file);
 
-            if(!loadedIndex) {
+            while(!loadedIndex && retry > 0) {
                 // Index file did not load or does not exist
                 generateIndex(file);
+                loadedIndex = loadIndex(file);
+                retry--;
             }
         }
         int sizeLow = 0;
@@ -258,8 +261,6 @@ public class SdfParser {
             ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(indexFilePath));
             out.writeObject(index);
             out.close();
-
-            fileIndex.put(file, index);
         }
         catch (IOException e) {
             NeptusLog.pub().error("Found corrupted SDF file '" + file.getName() + "' while indexing. Error: " +
