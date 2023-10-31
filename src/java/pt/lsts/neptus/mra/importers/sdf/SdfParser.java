@@ -61,12 +61,9 @@ public class SdfParser {
     private static final long minimumValidTimestamp = 946684800000L;
 
     private final Set<Integer> subsystemsInUse;
-
-    private LinkedHashMap<File, SdfIndex> fileIndex = new LinkedHashMap<>();
-
-    private HashMap<Integer, ArrayList<Long[]>> timestampSetMap = new HashMap<>();
-
-    private HashMap<Integer, SdfTimestampList> timestampListMap = new HashMap<>();
+    private final LinkedHashMap<File, SdfIndex> fileIndex = new LinkedHashMap<>();
+    private final HashMap<Integer, ArrayList<Long[]>> timestampSetMap = new HashMap<>();
+    private final HashMap<Integer, SdfTimestampList> timestampListMap = new HashMap<>();
 
 
     public SdfParser(File[] files) {
@@ -75,7 +72,7 @@ public class SdfParser {
         subsystemsInUse.add(SdfConstant.SUBSYS_HIGH);
         subsystemsInUse.add(SdfConstant.SUBSYS_LOW);
 
-        for(int subsystem: subsystemsInUse) {
+        for (int subsystem : subsystemsInUse) {
             timestampSetMap.put(subsystem, new ArrayList<>());
         }
 
@@ -83,7 +80,7 @@ public class SdfParser {
             int retry = 1;
             boolean loadedIndex = loadIndex(file);
 
-            while(!loadedIndex && retry > 0) {
+            while (!loadedIndex && retry > 0) {
                 // Index file did not load or does not exist
                 generateIndex(file);
                 loadedIndex = loadIndex(file);
@@ -91,20 +88,20 @@ public class SdfParser {
             }
         }
 
-        for(int subsystem: subsystemsInUse) {
+        for (int subsystem : subsystemsInUse) {
             int size = 0;
             ArrayList<Long[]> timestampSet = timestampSetMap.get(subsystem);
 
 
-            for(Long[] set: timestampSet) {
+            for (Long[] set : timestampSet) {
                 size += set.length;
             }
-            
+
             Long[] allTimestamps = new Long[size];
-            
+
             int count = 0;
-            for(int i = 0; i < timestampSet.size(); i++) {
-                for(int j = 0; j < timestampSet.get(i).length; j++) {
+            for (int i = 0; i < timestampSet.size(); i++) {
+                for (int j = 0; j < timestampSet.get(i).length; j++) {
                     allTimestamps[count] = timestampSet.get(i)[j];
                     count++;
                 }
@@ -165,7 +162,7 @@ public class SdfParser {
         ArrayList<SidescanLine> list = new ArrayList<SidescanLine>();
         Long[] timestamps = timestampListMap.get(subsystem).getTimestampsBetween(timestamp1, timestamp2);
 
-        for(Long timestamp: timestamps) {
+        for (Long timestamp : timestamps) {
             SdfData ping = getPingAt(timestamp, subsystem);
             SdfData sboardPboard = ping; // one ping contains both Sboard and Portboard samples
             int nSamples = sboardPboard != null ? sboardPboard.getNumSamples() : 0;
@@ -264,7 +261,7 @@ public class SdfParser {
         NeptusLog.pub().info("Loading SDF index for " + file.getAbsolutePath());
 
         String indexFilePath = getIndexFilePath(file);
-        if(!new File(indexFilePath).exists()) {
+        if (!new File(indexFilePath).exists()) {
             // Index file doesn't exist
             return false;
         }
@@ -273,7 +270,7 @@ public class SdfParser {
             ObjectInputStream in = new ObjectInputStream(new FileInputStream(indexFilePath));
             SdfIndex index = (SdfIndex) in.readObject();
 
-            for(int subsystem: subsystemsInUse) {
+            for (int subsystem : subsystemsInUse) {
                 Long[] timestampList = index.getTimestampsAsArray(subsystem);
                 ArrayList<Long[]> timestampSet = timestampSetMap.get(subsystem);
                 timestampSet.add(timestampList);
