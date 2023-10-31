@@ -312,16 +312,11 @@ public class SdfParser {
         }
 
         Long position = index.getPosition(subsystem, timestamp);
-        SdfData ping = getPingAtPosition(position, subsystem, index);
+        SdfData ping = new SdfData();
         NeptusLog.pub().debug(">>> " + subsystem + " >>>>> For long " + position +
                 " @ ts:" + ping.getTimestamp() + " | fixts:" + ping.getFixTimestamp());
 
-        return ping;
-    }
-
-    private SdfData getPingAtPosition(long pos, int subsystem, SdfIndex index) {
         SdfHeader header = new SdfHeader();
-        SdfData ping = new SdfData();
 
         File file = getFileFromIndex(index);
         if (file == null) {
@@ -330,10 +325,10 @@ public class SdfParser {
 
         try (FileInputStream fileInputStream = new FileInputStream(file)) {
             FileChannel channel = fileInputStream.getChannel();
-            ByteBuffer buf = channel.map(MapMode.READ_ONLY, pos, SdfHeader.HEADER_SIZE);
+            ByteBuffer buf = channel.map(MapMode.READ_ONLY, position, SdfHeader.HEADER_SIZE);
             buf.order(ByteOrder.LITTLE_ENDIAN);
             header.parse(buf);
-            pos += header.getHeaderSize();
+            position += header.getHeaderSize();
 
             if (header.getPageVersion() != subsystem) {
                 return null;
@@ -343,7 +338,7 @@ public class SdfParser {
             ping.setHeader(header);
 
             //handle data
-            buf = channel.map(MapMode.READ_ONLY, pos, (header.getNumberBytes() - header.getHeaderSize() - header.getSDFExtensionSize() + 4));
+            buf = channel.map(MapMode.READ_ONLY, position, (header.getNumberBytes() - header.getHeaderSize() - header.getSDFExtensionSize() + 4));
             buf.order(ByteOrder.LITTLE_ENDIAN);
 
             ping.parseData(buf);
