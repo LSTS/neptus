@@ -117,158 +117,6 @@ public class SdfParser {
 
     }
 
-    private void openIndexFile(File file) {
-        String indexFilePath = getIndexFilePath(file);
-
-        if (new File(indexFilePath).exists()) {
-            if (loadIndex(file)) {
-                // File loaded
-                return;
-            }
-        }
-
-        // Index file did not load or does not exist
-        generateIndex(file);
-    }
-
-    private String getIndexFilePath(File file) {
-        if (file.exists()) {
-            return file.getParent() + "/mra/sdf" + file.getName() + ".index";
-        }
-        return null;
-    }
-
-    private void generateIndex(File file) {
-        NeptusLog.pub().info("Generating SDF index for " + file.getAbsolutePath());
-
-        SdfHeader header = new SdfHeader();
-        SdfData ping = new SdfData();
-        SdfIndex index = new SdfIndex();
-
-        String indexFilePath = getIndexFilePath(file);
-
-        long dataPageHeaderPosition;
-        long filePosition = 0;
-
-        try (FileInputStream fileInputStream = new FileInputStream(file)) {
-            FileChannel channel = fileInputStream.getChannel();
-
-            Set<Integer> unimplementedPageVersionSet = new HashSet<>();
-            while (filePosition < file.length()) {
-                // Read the header
-                ByteBuffer buf = channel.map(MapMode.READ_ONLY, filePosition, SdfHeader.HEADER_SIZE);
-                buf.order(ByteOrder.LITTLE_ENDIAN);
-                header.parse(buf);
-
-                dataPageHeaderPosition = filePosition;
-                filePosition += header.getNumberBytes() + 4;
-                if (header.getPageVersion() == SdfConstant.SUBSYS_HIGH || header.getPageVersion() == SdfConstant.SUBSYS_LOW) {
-                    //set header of this ping
-                    ping.setHeader(header);
-                }
-                else { //ignore other pageVersions
-                    if (!unimplementedPageVersionSet.contains(header.getPageVersion())) {
-                        unimplementedPageVersionSet.add(header.getPageVersion());
-                        NeptusLog.pub().info("SDF Data file " + file.getName() + " contains unimplemented pageVersion # " + header.getPageVersion());
-                    }
-                    continue;
-                }
-
-                //get timestamp, freq and subsystem used
-                long pingTimestamp = ping.getTimestamp(); // Timestamp
-                int pageVersion = header.getPageVersion();
-
-                index.addSubsystem(pageVersion);
-
-                index.addPositionToMap(pingTimestamp, dataPageHeaderPosition, pageVersion);
-
-                //end processing data
-            }
-
-            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(indexFilePath));
-            out.writeObject(index);
-            out.close();
-
-            fileIndex.put(file, index);
-        }
-        catch (IOException e) {
-            NeptusLog.pub().error("Found corrupted SDF file '" + file.getName() + "' while indexing. Error: " +
-                    e.getMessage());
-        }
-    }
-
-    private int hasAnyPageVersion(String... pageVersions) {
-        ArrayList<Integer> pageVersionList = new ArrayList<>();
-
-        Arrays.stream(pageVersions).forEachOrdered((pv) -> {
-            try {
-                pageVersionList.add(Integer.parseInt(pv));
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-
-        if (pageVersionList.isEmpty()) {
-            return 0;
-        }
-
-        SdfHeader header = new SdfHeader();
-        long curPosition = 0;
-
-        for (File file : fileIndex.keySet()) {
-            try (FileInputStream fileInputStream = new FileInputStream(file)) {
-                while (curPosition < file.length()) {
-                    // Read the header
-                    FileChannel fileChannel = fileInputStream.getChannel();
-                    ByteBuffer buf = fileChannel.map(MapMode.READ_ONLY, curPosition, SdfHeader.HEADER_SIZE);
-                    buf.order(ByteOrder.LITTLE_ENDIAN);
-                    header.parse(buf);
-                    curPosition += header.getHeaderSize();
-
-                    if (pageVersionList.stream().anyMatch((p) -> p == header.getPageVersion())) {
-                        return 1;
-                    }
-
-                    curPosition += (header.getNumberBytes() + 4) - header.getHeaderSize();
-                }
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        return 0;
-    }
-
-    private boolean loadIndex(File file) {
-        NeptusLog.pub().info("Loading SDF index for " + file.getAbsolutePath());
-        String indexFilePath = getIndexFilePath(file);
-
-        try {
-            ObjectInputStream in = new ObjectInputStream(new FileInputStream(indexFilePath));
-            SdfIndex index = (SdfIndex) in.readObject();
-
-            Long[] tsListHigh;
-            Long[] tsListLow;
-
-            tsListHigh = index.getTimestampsAsArray(SdfConstant.SUBSYS_HIGH);
-            tsListLow =  index.getTimestampsAsArray(SdfConstant.SUBSYS_LOW);
-
-            tsSHigh.add(tsListHigh);
-            tsSLow.add(tsListLow);
-
-            fileIndex.put(file, index);
-
-            in.close();
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-        return true;
-    }
-
     public long getFirstTimeStamp() {
         long firstTimestamp = Long.MAX_VALUE;
         for (Entry<File, SdfIndex> entry : fileIndex.entrySet()) {
@@ -285,75 +133,14 @@ public class SdfParser {
         return lastTimestamp;
     }
 
-    // Get corresponding file for the given index
-    private File getFileFromIndex(SdfIndex index) {
-        for (Entry<File, SdfIndex> entry : fileIndex.entrySet()) {
-            if (entry.getValue() == index) {
-                return entry.getKey();
-            }
-        }
-        return null;
-    }
+    public static int main(String[] args) throws Exception {
 
-    private SdfData getPingAtPosition(long pos, int subsystem, SdfIndex index) {
-        SdfHeader header = new SdfHeader();
-        SdfData ping = new SdfData();
-
-        File file = getFileFromIndex(index);
-        if (file == null) {
-            return null;
+        if (args.length < 2) {
+            throw new Exception("Usage: <sdf_file> <page_version>  example 3503 for Bathy Pulse Compressed Data");
         }
 
-        try (FileInputStream fileInputStream = new FileInputStream(file)) {
-            FileChannel channel = fileInputStream.getChannel();
-            ByteBuffer buf = channel.map(MapMode.READ_ONLY, pos, SdfHeader.HEADER_SIZE);
-            buf.order(ByteOrder.LITTLE_ENDIAN);
-            header.parse(buf);
-            pos += header.getHeaderSize();
-
-            if (header.getPageVersion() != subsystem) {
-                return null;
-            }
-
-            //define header
-            ping.setHeader(header);
-
-            //handle data 
-            buf = channel.map(MapMode.READ_ONLY, pos, (header.getNumberBytes() - header.getHeaderSize() - header.getSDFExtensionSize() + 4));
-            buf.order(ByteOrder.LITTLE_ENDIAN);
-
-            ping.parseData(buf);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-        return ping;
-    }
-
-    private SdfIndex getIndexFromTimestamp(Long timestamp, int subsystem) {
-        SdfIndex index;
-        for (Entry<File, SdfIndex> entry : fileIndex.entrySet()) {
-            index = entry.getValue();
-            if (timestamp >= index.getFirstTimestamp(subsystem) && timestamp <= index.getLastTimestamp(subsystem)) {
-                return index;
-            }
-        }
-        return null;
-    }
-
-    private SdfData getPingAt(Long timestamp, int subsystem) {
-
-        SdfIndex index = getIndexFromTimestamp(timestamp, subsystem);
-        if (index == null) {
-            return null;
-        }
-
-        Long position = index.getPositionList(subsystem, timestamp);
-        SdfData ping = getPingAtPosition(position, subsystem, index);
-        NeptusLog.pub().debug(">>> " + subsystem + " >>>>> For long " + position +
-                " @ ts:" + ping.getTimestamp() + " | fixts:" + ping.getFixTimestamp());
-
-        return ping;
+        SdfParser parser = new SdfParser(new File[]{new File(args[0])});
+        return parser.hasAnyPageVersion(Arrays.copyOfRange(args, 1, args.length - 1));
     }
 
     public void cleanup() {
@@ -416,14 +203,227 @@ public class SdfParser {
         return list;
     }
 
-    public static int main(String[] args) throws Exception {
+    private void generateIndex(File file) {
+        NeptusLog.pub().info("Generating SDF index for " + file.getAbsolutePath());
 
-        if (args.length < 2) {
-            throw new Exception("Usage: <sdf_file> <page_version>  example 3503 for Bathy Pulse Compressed Data");
+        SdfHeader header = new SdfHeader();
+        SdfData ping = new SdfData();
+        SdfIndex index = new SdfIndex();
+
+        String indexFilePath = getIndexFilePath(file);
+
+        long dataPageHeaderPosition;
+        long filePosition = 0;
+
+        try (FileInputStream fileInputStream = new FileInputStream(file)) {
+            FileChannel channel = fileInputStream.getChannel();
+
+            Set<Integer> unimplementedPageVersionSet = new HashSet<>();
+            while (filePosition < file.length()) {
+                // Read the header
+                ByteBuffer buf = channel.map(MapMode.READ_ONLY, filePosition, SdfHeader.HEADER_SIZE);
+                buf.order(ByteOrder.LITTLE_ENDIAN);
+                header.parse(buf);
+
+                dataPageHeaderPosition = filePosition;
+                filePosition += header.getNumberBytes() + 4;
+                if (header.getPageVersion() == SdfConstant.SUBSYS_HIGH || header.getPageVersion() == SdfConstant.SUBSYS_LOW) {
+                    //set header of this ping
+                    ping.setHeader(header);
+                }
+                else { //ignore other pageVersions
+                    if (!unimplementedPageVersionSet.contains(header.getPageVersion())) {
+                        unimplementedPageVersionSet.add(header.getPageVersion());
+                        NeptusLog.pub().info("SDF Data file " + file.getName() + " contains unimplemented pageVersion # " + header.getPageVersion());
+                    }
+                    continue;
+                }
+
+                //get timestamp, freq and subsystem used
+                long pingTimestamp = ping.getTimestamp(); // Timestamp
+                int pageVersion = header.getPageVersion();
+
+                index.addSubsystem(pageVersion);
+
+                index.addPositionToMap(pingTimestamp, dataPageHeaderPosition, pageVersion);
+
+                //end processing data
+            }
+
+            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(indexFilePath));
+            out.writeObject(index);
+            out.close();
+
+            fileIndex.put(file, index);
+        }
+        catch (IOException e) {
+            NeptusLog.pub().error("Found corrupted SDF file '" + file.getName() + "' while indexing. Error: " +
+                    e.getMessage());
+        }
+    }
+
+    private void openIndexFile(File file) {
+        String indexFilePath = getIndexFilePath(file);
+
+        if (new File(indexFilePath).exists()) {
+            if (loadIndex(file)) {
+                // File loaded
+                return;
+            }
         }
 
-        SdfParser parser = new SdfParser(new File[]{new File(args[0])});
-        return parser.hasAnyPageVersion(Arrays.copyOfRange(args, 1, args.length - 1));
+        // Index file did not load or does not exist
+        generateIndex(file);
+    }
+
+    private boolean loadIndex(File file) {
+        NeptusLog.pub().info("Loading SDF index for " + file.getAbsolutePath());
+        String indexFilePath = getIndexFilePath(file);
+
+        try {
+            ObjectInputStream in = new ObjectInputStream(new FileInputStream(indexFilePath));
+            SdfIndex index = (SdfIndex) in.readObject();
+
+            Long[] tsListHigh;
+            Long[] tsListLow;
+
+            tsListHigh = index.getTimestampsAsArray(SdfConstant.SUBSYS_HIGH);
+            tsListLow =  index.getTimestampsAsArray(SdfConstant.SUBSYS_LOW);
+
+            tsSHigh.add(tsListHigh);
+            tsSLow.add(tsListLow);
+
+            fileIndex.put(file, index);
+
+            in.close();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    private SdfData getPingAt(Long timestamp, int subsystem) {
+
+        SdfIndex index = getIndexFromTimestamp(timestamp, subsystem);
+        if (index == null) {
+            return null;
+        }
+
+        Long position = index.getPositionList(subsystem, timestamp);
+        SdfData ping = getPingAtPosition(position, subsystem, index);
+        NeptusLog.pub().debug(">>> " + subsystem + " >>>>> For long " + position +
+                " @ ts:" + ping.getTimestamp() + " | fixts:" + ping.getFixTimestamp());
+
+        return ping;
+    }
+
+    private SdfData getPingAtPosition(long pos, int subsystem, SdfIndex index) {
+        SdfHeader header = new SdfHeader();
+        SdfData ping = new SdfData();
+
+        File file = getFileFromIndex(index);
+        if (file == null) {
+            return null;
+        }
+
+        try (FileInputStream fileInputStream = new FileInputStream(file)) {
+            FileChannel channel = fileInputStream.getChannel();
+            ByteBuffer buf = channel.map(MapMode.READ_ONLY, pos, SdfHeader.HEADER_SIZE);
+            buf.order(ByteOrder.LITTLE_ENDIAN);
+            header.parse(buf);
+            pos += header.getHeaderSize();
+
+            if (header.getPageVersion() != subsystem) {
+                return null;
+            }
+
+            //define header
+            ping.setHeader(header);
+
+            //handle data
+            buf = channel.map(MapMode.READ_ONLY, pos, (header.getNumberBytes() - header.getHeaderSize() - header.getSDFExtensionSize() + 4));
+            buf.order(ByteOrder.LITTLE_ENDIAN);
+
+            ping.parseData(buf);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ping;
+    }
+
+    private String getIndexFilePath(File file) {
+        if (file.exists()) {
+            return file.getParent() + "/mra/sdf" + file.getName() + ".index";
+        }
+        return null;
+    }
+
+    private int hasAnyPageVersion(String... pageVersions) {
+        ArrayList<Integer> pageVersionList = new ArrayList<>();
+
+        Arrays.stream(pageVersions).forEachOrdered((pv) -> {
+            try {
+                pageVersionList.add(Integer.parseInt(pv));
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+
+        if (pageVersionList.isEmpty()) {
+            return 0;
+        }
+
+        SdfHeader header = new SdfHeader();
+        long curPosition = 0;
+
+        for (File file : fileIndex.keySet()) {
+            try (FileInputStream fileInputStream = new FileInputStream(file)) {
+                while (curPosition < file.length()) {
+                    // Read the header
+                    FileChannel fileChannel = fileInputStream.getChannel();
+                    ByteBuffer buf = fileChannel.map(MapMode.READ_ONLY, curPosition, SdfHeader.HEADER_SIZE);
+                    buf.order(ByteOrder.LITTLE_ENDIAN);
+                    header.parse(buf);
+                    curPosition += header.getHeaderSize();
+
+                    if (pageVersionList.stream().anyMatch((p) -> p == header.getPageVersion())) {
+                        return 1;
+                    }
+
+                    curPosition += (header.getNumberBytes() + 4) - header.getHeaderSize();
+                }
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return 0;
+    }
+
+    // Get corresponding file for the given index
+    private File getFileFromIndex(SdfIndex index) {
+        for (Entry<File, SdfIndex> entry : fileIndex.entrySet()) {
+            if (entry.getValue() == index) {
+                return entry.getKey();
+            }
+        }
+        return null;
+    }
+
+    private SdfIndex getIndexFromTimestamp(Long timestamp, int subsystem) {
+        SdfIndex index;
+        for (Entry<File, SdfIndex> entry : fileIndex.entrySet()) {
+            index = entry.getValue();
+            if (timestamp >= index.getFirstTimestamp(subsystem) && timestamp <= index.getLastTimestamp(subsystem)) {
+                return index;
+            }
+        }
+        return null;
     }
 
 }
