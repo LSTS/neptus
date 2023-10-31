@@ -241,7 +241,7 @@ public class SdfParser {
         return 0;
     }
 
-    public boolean loadIndex(File file) {
+    private boolean loadIndex(File file) {
         NeptusLog.pub().info("Loading SDF index for " + file.getAbsolutePath());
         String indexFilePath = getIndexFilePath(file);
 
@@ -295,7 +295,7 @@ public class SdfParser {
         return null;
     }
 
-    public SdfData getPingAtPosition(long pos, int subsystem, SdfIndex index) {
+    private SdfData getPingAtPosition(long pos, int subsystem, SdfIndex index) {
         SdfHeader header = new SdfHeader();
         SdfData ping = new SdfData();
 
@@ -341,7 +341,7 @@ public class SdfParser {
         return null;
     }
 
-    public SdfData getPingAt(Long timestamp, int subsystem) {
+    private SdfData getPingAt(Long timestamp, int subsystem) {
 
         SdfIndex index = getIndexFromTimestamp(timestamp, subsystem);
         if (index == null) {
