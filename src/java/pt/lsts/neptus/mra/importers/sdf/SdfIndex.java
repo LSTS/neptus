@@ -54,12 +54,12 @@ public class SdfIndex implements Serializable {
         return positionMaps.keySet();
     }
 
-    public long getPosition(int subsystem, long timestamp) {
+    public long getPageHeaderPosition(int subsystem, long timestamp) {
         return positionMaps.get(subsystem).getMap().get(timestamp);
     }
 
-    public void addPositionToMap(long timestamp, long position, int subsystem) {
-        positionMaps.get(subsystem).addPosition(timestamp, position);
+    public void addPageHeaderPositionToMap(long timestamp, long pageHeaderPosition, int subsystem) {
+        positionMaps.get(subsystem).addPosition(timestamp, pageHeaderPosition);
     }
 
     public long getFirstTimestamp(int subsystem) {
