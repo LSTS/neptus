@@ -107,8 +107,6 @@ public class SdfParser {
                 }
             }
 
-            Arrays.sort(allTimestamps);
-
             SdfTimestampList sdfTimestampList = new SdfTimestampList(allTimestamps);
             timestampListMap.put(subsystem, sdfTimestampList);
         }
