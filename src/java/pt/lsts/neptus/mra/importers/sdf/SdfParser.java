@@ -62,7 +62,6 @@ public class SdfParser {
 
     private final Set<Integer> subsystemsInUse;
 
-    private LinkedHashMap<Integer, Long[]> tslist = new LinkedHashMap<Integer, Long[]>();
     private LinkedHashMap<File, SdfIndex> fileIndex = new LinkedHashMap<>();
 
     private HashMap<Integer, ArrayList<Long[]>> timestampSetMap = new HashMap<>();
@@ -115,7 +114,6 @@ public class SdfParser {
 
             SdfTimestampList sdfTimestampList = new SdfTimestampList(allTimestamps);
             timestampListMap.put(subsystem, sdfTimestampList);
-            tslist.put(subsystem, allTimestamps);
         }
     }
 
