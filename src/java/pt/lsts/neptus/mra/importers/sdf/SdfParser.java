@@ -311,7 +311,7 @@ public class SdfParser {
             return null;
         }
 
-        Long position = index.getPositionList(subsystem, timestamp);
+        Long position = index.getPosition(subsystem, timestamp);
         SdfData ping = getPingAtPosition(position, subsystem, index);
         NeptusLog.pub().debug(">>> " + subsystem + " >>>>> For long " + position +
                 " @ ts:" + ping.getTimestamp() + " | fixts:" + ping.getFixTimestamp());

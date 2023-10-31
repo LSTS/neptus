@@ -54,7 +54,7 @@ public class SdfIndex implements Serializable {
         return positionMaps.keySet();
     }
 
-    public long getPositionList(int subsystem, long timestamp) {
+    public long getPosition(int subsystem, long timestamp) {
         return positionMaps.get(subsystem).getMap().get(timestamp);
     }
 
