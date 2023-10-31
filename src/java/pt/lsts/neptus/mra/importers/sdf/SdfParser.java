@@ -71,7 +71,12 @@ public class SdfParser {
     public SdfParser(File[] files) {
 
         for (File file : files) {
-            openIndexFile(file);
+            boolean loadedIndex = loadIndex(file);
+
+            if(!loadedIndex) {
+                // Index file did not load or does not exist
+                generateIndex(file);
+            }
         }
         int sizeLow = 0;
         int sizeHigh = 0;
@@ -262,23 +267,14 @@ public class SdfParser {
         }
     }
 
-    private void openIndexFile(File file) {
-        String indexFilePath = getIndexFilePath(file);
-
-        if (new File(indexFilePath).exists()) {
-            if (loadIndex(file)) {
-                // File loaded
-                return;
-            }
-        }
-
-        // Index file did not load or does not exist
-        generateIndex(file);
-    }
-
     private boolean loadIndex(File file) {
         NeptusLog.pub().info("Loading SDF index for " + file.getAbsolutePath());
+
         String indexFilePath = getIndexFilePath(file);
+        if(!new File(indexFilePath).exists()) {
+            // Index file doesn't exist
+            return false;
+        }
 
         try {
             ObjectInputStream in = new ObjectInputStream(new FileInputStream(indexFilePath));
