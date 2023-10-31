@@ -306,19 +306,19 @@ public class SdfParser {
 
     private SdfData getPingAt(Long timestamp, int subsystem) {
 
-        SdfIndex index = getIndexFromTimestamp(timestamp, subsystem);
-        if (index == null) {
+        SdfIndex sdfIndex = getIndexFromTimestamp(timestamp, subsystem);
+        if (sdfIndex == null) {
             return null;
         }
 
-        Long position = index.getPosition(subsystem, timestamp);
+        Long position = sdfIndex.getPosition(subsystem, timestamp);
         SdfData ping = new SdfData();
         NeptusLog.pub().debug(">>> " + subsystem + " >>>>> For long " + position +
                 " @ ts:" + ping.getTimestamp() + " | fixts:" + ping.getFixTimestamp());
 
         SdfHeader header = new SdfHeader();
 
-        File file = getFileFromIndex(index);
+        File file = getFileFromIndex(sdfIndex);
         if (file == null) {
             return null;
         }
