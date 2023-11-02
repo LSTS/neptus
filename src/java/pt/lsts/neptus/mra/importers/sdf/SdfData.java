@@ -51,8 +51,8 @@ public class SdfData {
     void parseData(ByteBuffer buf) {
         numSamples = header.getNumSamples();
         //index 4 of buf ( integer ) has number of samples (that must be equal to header numSamples)
-        if (numSamples!=buf.getInt(4)) {
-            NeptusLog.pub().info("<###> "+SdfParser.class.getSimpleName() + " :: Sample size mismatch");
+        if (numSamples != buf.getInt(4)) {
+            NeptusLog.pub().info("<###> " + SdfParser.class.getSimpleName() + " :: Sample size mismatch");
             return;
         }
 
@@ -60,18 +60,18 @@ public class SdfData {
         stbdData = new long[numSamples];
 
         // index = first 4bytes (marker) + next 4bytes (indicate num of samples)
-        int index = 8; 
+        int index = 8;
         // index2 = numSamples * int (size 4bytes) + 12bytes ([4] marker + [4] num samples first array + [4] num samples 2nd array)
-        int index2 = (numSamples*4)+12; 
-        
-        for (int i=0;i<numSamples; i++){
+        int index2 = (numSamples * 4) + 12;
+
+        for (int i = 0; i < numSamples; i++) {
             long portValue = buf.getInt(index) & 0xffffffffL;  //signed int to unsigned long
             long stbdValue = buf.getInt(index2) & 0xffffffffL; //signed int to unsigned long
             portData[i] = portValue;
             stbdData[i] = stbdValue;
-           
-            index+=4;
-            index2+=4;
+
+            index += 4;
+            index2 += 4;
         }
     }
 
@@ -118,8 +118,8 @@ public class SdfData {
         int minute = header.getMinute();
         int seconds = header.getSecond();
         double fSeconds = header.getfSecond();
-        int millis = (int) (fSeconds * 1000) ;
-        
+        int millis = (int) (fSeconds * 1000);
+
         return getTimestampInMillis(year, month, day, hour, minute, seconds, millis);
     }
 
@@ -132,13 +132,13 @@ public class SdfData {
         float secondsWithMillis = header.getFixTimeSecond();
         Pair<Long, Float> splitVal = MathMiscUtils.splitDecimalPart(secondsWithMillis);
         int seconds = Math.toIntExact(splitVal.first());
-        int millis = (int) (splitVal.second() * 1000) ;
+        int millis = (int) (splitVal.second() * 1000);
 
         return getTimestampInMillis(year, month, day, hour, minute, seconds, millis);
     }
 
     private long getTimestampInMillis(int year, int month, int day, int hour, int minute, int second, int millisecond) {
-        Calendar cal =  Calendar.getInstance();
+        Calendar cal = Calendar.getInstance();
         cal.setTimeZone(TimeZone.getTimeZone("UTC"));
         cal.set(year, month - 1, day, hour, minute, second);
         cal.set(Calendar.MILLISECOND, millisecond);
@@ -202,5 +202,5 @@ public class SdfData {
     public void setStbdData(long[] stbdData) {
         this.stbdData = stbdData;
     }
-    
+
 }
