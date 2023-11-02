@@ -131,7 +131,6 @@ public class SdfParser {
                 continue;
             }
 
-            int nSamples = ping.getNumSamples();
             double fData[] = ping.getData();
 
             SystemPositionAndAttitude pose = new SystemPositionAndAttitude();
