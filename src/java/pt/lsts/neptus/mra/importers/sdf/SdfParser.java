@@ -88,25 +88,8 @@ public class SdfParser {
         }
 
         for (int subsystem : subsystemsInUse) {
-            int size = 0;
             ArrayList<Long[]> timestampSet = timestampSetMap.get(subsystem);
-
-
-            for (Long[] set : timestampSet) {
-                size += set.length;
-            }
-
-            Long[] allTimestamps = new Long[size];
-
-            int count = 0;
-            for (int i = 0; i < timestampSet.size(); i++) {
-                for (int j = 0; j < timestampSet.get(i).length; j++) {
-                    allTimestamps[count] = timestampSet.get(i)[j];
-                    count++;
-                }
-            }
-
-            SdfTimestampList sdfTimestampList = new SdfTimestampList(allTimestamps);
+            SdfTimestampList sdfTimestampList = new SdfTimestampList(timestampSet);
             timestampListMap.put(subsystem, sdfTimestampList);
         }
     }
