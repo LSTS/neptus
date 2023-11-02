@@ -49,7 +49,6 @@ import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -122,7 +121,7 @@ public class SdfParser {
         NeptusLog.pub().debug(">>>>>>>>>>>>>> getLinesBetween timestamp1=" + timestamp1 +
                 ",  timestamp2=" + timestamp2 + ",  subsystem=" + subsystem);
 
-        ArrayList<SidescanLine> list = new ArrayList<SidescanLine>();
+        ArrayList<SidescanLine> list = new ArrayList<>();
         Long[] timestamps = timestampListMap.get(subsystem).getTimestampsBetween(timestamp1, timestamp2);
 
         for (Long timestamp : timestamps) {
