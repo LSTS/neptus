@@ -33,7 +33,6 @@
 package pt.lsts.neptus.mra.importers.sdf;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
