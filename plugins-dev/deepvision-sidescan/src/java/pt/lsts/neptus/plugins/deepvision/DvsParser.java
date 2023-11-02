@@ -59,7 +59,6 @@ public class DvsParser {
     // List of the Ping Return data
     ArrayList<DvsReturn> returnDataList;
 
-
     public DvsParser(File file) {
         this.file = file;
         dvsHeader = new DvsHeader();
@@ -67,6 +66,64 @@ public class DvsParser {
         returnDataList = new ArrayList<>();
 
         readInData();
+        generateIndex(file);
+    }
+
+    private void generateIndex(File file) {
+        int filePosition = 0;
+        ArrayList<Long> timestamps = new ArrayList<>();
+
+        try (FileInputStream fileInputStream = new FileInputStream(file)) {
+            ByteBuffer buffer;
+            FileChannel fileChannel = fileInputStream.getChannel();
+            buffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, filePosition, dvsHeader.HEADER_SIZE);
+            buffer.order(ByteOrder.LITTLE_ENDIAN);
+
+            // Read Header data
+            int VERSION = buffer.getInt() & 0xFFFFFFFF; // Turn int to unsigned int value
+            float sampleRes = buffer.getFloat();
+            float lineRate = buffer.getFloat();
+            int nSamples = buffer.getInt();
+            boolean left = buffer.get() > 0;
+            boolean right = buffer.get() > 0;
+
+            if (!dvsHeader.versionMatches(VERSION)) {
+                NeptusLog.pub().error("Dvs file is not version 1. Abort.");
+                return;
+            }
+            dvsHeader.setSampleResolution(sampleRes);
+            dvsHeader.setLineRate(lineRate);
+            dvsHeader.setnSamples(nSamples);
+            dvsHeader.setLeftChannelActive(left);
+            dvsHeader.setRightChannelActive(right);
+
+            filePosition += dvsHeader.HEADER_SIZE;
+
+            int bufferSize = dvsHeader.getNumberOfActiveChannels() * dvsHeader.getnSamples() + DvsPos.SIZE;
+            while (filePosition < file.length()) {
+                buffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, filePosition, bufferSize);
+                buffer.order(ByteOrder.LITTLE_ENDIAN);
+
+                buffer.get(24);
+                long timestamp = (long) (posDataList.size() / (dvsHeader.getLineRate() / 1000));
+                timestamps.add(timestamp);
+
+                filePosition += bufferSize;
+            }
+
+            fileChannel.close();
+
+            DvsIndex dvsIndex = new DvsIndex(dvsHeader, timestamps);
+        }
+        catch (FileNotFoundException e) {
+            NeptusLog.pub().error("File " + file.getAbsolutePath() + " not found while creating the DvsParser object.");
+            e.printStackTrace();
+        }
+        catch (IOException e) {
+            NeptusLog.pub().error("While trying to read " + file.getAbsolutePath() + " an IOException occurred");
+            e.printStackTrace();
+        }
+
     }
 
     // Called by constructor
