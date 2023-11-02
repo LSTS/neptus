@@ -57,8 +57,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 public class SdfParser {
-    // Minimum valid timestamp (2000-01-01 00:00:00).
-    private static final long minimumValidTimestamp = 946684800000L;
 
     private final Set<Integer> subsystemsInUse;
     private final LinkedHashMap<File, SdfIndex> fileIndex = new LinkedHashMap<>();
