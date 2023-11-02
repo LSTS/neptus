@@ -60,7 +60,7 @@ public class SdfParser {
 
     private final Set<Integer> subsystemsInUse;
     private final LinkedHashMap<File, SdfIndex> fileIndex = new LinkedHashMap<>();
-    private final HashMap<Integer, ArrayList<Long[]>> timestampSetMap = new HashMap<>();
+    // Map subsystem to SdfTimestampList
     private final HashMap<Integer, SdfTimestampList> timestampListMap = new HashMap<>();
 
     public SdfParser(File[] files) {
@@ -70,7 +70,8 @@ public class SdfParser {
         subsystemsInUse.add(SdfConstant.SUBSYS_LOW);
 
         for (int subsystem : subsystemsInUse) {
-            timestampSetMap.put(subsystem, new ArrayList<>());
+            SdfTimestampList sdfTimestampList = new SdfTimestampList();
+            timestampListMap.put(subsystem, sdfTimestampList);
         }
 
         for (File file : files) {
@@ -83,12 +84,6 @@ public class SdfParser {
                 loadedIndex = loadIndex(file);
                 retry--;
             }
-        }
-
-        for (int subsystem : subsystemsInUse) {
-            ArrayList<Long[]> timestampSet = timestampSetMap.get(subsystem);
-            SdfTimestampList sdfTimestampList = new SdfTimestampList(timestampSet);
-            timestampListMap.put(subsystem, sdfTimestampList);
         }
     }
 
@@ -249,9 +244,8 @@ public class SdfParser {
             SdfIndex index = (SdfIndex) in.readObject();
 
             for (int subsystem : subsystemsInUse) {
-                Long[] timestampList = index.getTimestampsAsArray(subsystem);
-                ArrayList<Long[]> timestampSet = timestampSetMap.get(subsystem);
-                timestampSet.add(timestampList);
+                Long[] timestamps = index.getTimestampsAsArray(subsystem);
+                timestampListMap.get(subsystem).add(timestamps);
             }
 
             fileIndex.put(file, index);
