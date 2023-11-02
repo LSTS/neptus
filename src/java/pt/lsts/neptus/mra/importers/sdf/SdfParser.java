@@ -125,38 +125,38 @@ public class SdfParser {
         Long[] timestamps = timestampListMap.get(subsystem).getTimestampsBetween(timestamp1, timestamp2);
 
         for (Long timestamp : timestamps) {
-            SdfData sboardPboard = getPingAt(timestamp, subsystem);
-            int nSamples = sboardPboard != null ? sboardPboard.getNumSamples() : 0;
+            SdfData ping = getPingAt(timestamp, subsystem);
+            int nSamples = ping != null ? ping.getNumSamples() : 0;
             double fData[] = new double[nSamples * 2]; // x2 (portboard + sboard in the same ping)
 
             // Port side
             for (int i = 0; i < nSamples; i++) {
-                fData[nSamples - i - 1] = sboardPboard.getPortData()[i];
+                fData[nSamples - i - 1] = ping.getPortData()[i];
             }
 
             // Starboard side
             for (int i = 0; i < nSamples; i++) {
-                fData[i + nSamples] = sboardPboard.getStbdData()[i];
+                fData[i + nSamples] = ping.getStbdData()[i];
             }
 
             SystemPositionAndAttitude pose = new SystemPositionAndAttitude();
-            pose.getPosition().setLatitudeDegs(Math.toDegrees(sboardPboard.getHeader().getShipLat())); // rads to
+            pose.getPosition().setLatitudeDegs(Math.toDegrees(ping.getHeader().getShipLat())); // rads to
             // degrees
-            pose.getPosition().setLongitudeDegs(Math.toDegrees(sboardPboard.getHeader().getShipLon()));// rads to
+            pose.getPosition().setLongitudeDegs(Math.toDegrees(ping.getHeader().getShipLon()));// rads to
             // degrees
 
-            pose.setRoll(Math.toRadians(sboardPboard.getHeader().getAuxRoll()));
-            pose.setYaw(Math.toRadians(sboardPboard.getHeader().getShipHeading()));
-            pose.setAltitude(sboardPboard.getHeader().getAuxAlt()); // altitude in meters
-            pose.setU(sboardPboard.getHeader().getSpeedFish() / 100.0); // Convert cm/s to m/s
-            pose.getPosition().setDepth(sboardPboard.getHeader().getAuxDepth());
+            pose.setRoll(Math.toRadians(ping.getHeader().getAuxRoll()));
+            pose.setYaw(Math.toRadians(ping.getHeader().getShipHeading()));
+            pose.setAltitude(ping.getHeader().getAuxAlt()); // altitude in meters
+            pose.setU(ping.getHeader().getSpeedFish() / 100.0); // Convert cm/s to m/s
+            pose.getPosition().setDepth(ping.getHeader().getAuxDepth());
 
-            float frequency = sboardPboard.getHeader().getSonarFreq();
-            float range = sboardPboard.getHeader().getRange();
+            float frequency = ping.getHeader().getSonarFreq();
+            float range = ping.getHeader().getRange();
 
             fData = SidescanUtil.applyNormalizationAndTVG(fData, range, config);
 
-            list.add(new SidescanLine(sboardPboard.getTimestamp(), range, pose, frequency, fData));
+            list.add(new SidescanLine(ping.getTimestamp(), range, pose, frequency, fData));
         }
         return list;
     }
