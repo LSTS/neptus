@@ -136,7 +136,6 @@ public class SdfParser {
             SystemPositionAndAttitude pose = new SystemPositionAndAttitude();
             pose.getPosition().setLatitudeRads(ping.getHeader().getShipLat());
             pose.getPosition().setLongitudeRads(ping.getHeader().getShipLon());
-
             pose.setRoll(Math.toRadians(ping.getHeader().getAuxRoll()));
             pose.setYaw(Math.toRadians(ping.getHeader().getShipHeading()));
             pose.setAltitude(ping.getHeader().getAuxAlt()); // altitude in meters
@@ -177,11 +176,7 @@ public class SdfParser {
 
                 dataPageHeaderPosition = filePosition;
                 filePosition += header.getNumberBytes() + 4;
-                if (subsystemsInUse.contains(header.getPageVersion())) {
-                    //set header of this ping
-                    ping.setHeader(header);
-                }
-                else { //ignore other pageVersions
+                if (!subsystemsInUse.contains(header.getPageVersion())) {
                     if (!unimplementedPageVersionSet.contains(header.getPageVersion())) {
                         unimplementedPageVersionSet.add(header.getPageVersion());
                         NeptusLog.pub().info("SDF Data file " + file.getName() + " contains unimplemented pageVersion # " + header.getPageVersion());
@@ -189,6 +184,7 @@ public class SdfParser {
                     continue;
                 }
 
+                ping.setHeader(header);
                 //get timestamp, freq and subsystem used
                 long pingTimestamp = ping.getTimestamp(); // Timestamp
                 int pageVersion = header.getPageVersion();
