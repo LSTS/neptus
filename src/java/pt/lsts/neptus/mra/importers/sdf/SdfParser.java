@@ -128,20 +128,21 @@ public class SdfParser {
                 continue;
             }
 
-            double fData[] = ping.getData();
+            SdfHeader header = ping.getHeader();
 
             SystemPositionAndAttitude pose = new SystemPositionAndAttitude();
-            pose.getPosition().setLatitudeRads(ping.getHeader().getShipLat());
-            pose.getPosition().setLongitudeRads(ping.getHeader().getShipLon());
-            pose.setRoll(Math.toRadians(ping.getHeader().getAuxRoll()));
-            pose.setYaw(Math.toRadians(ping.getHeader().getShipHeading()));
-            pose.setAltitude(ping.getHeader().getAuxAlt()); // altitude in meters
-            pose.setU(ping.getHeader().getSpeedFish() / 100.0); // Convert cm/s to m/s
-            pose.getPosition().setDepth(ping.getHeader().getAuxDepth());
+            pose.getPosition().setLatitudeRads(header.getShipLat());
+            pose.getPosition().setLongitudeRads(header.getShipLon());
+            pose.setRoll(Math.toRadians(header.getAuxRoll()));
+            pose.setYaw(Math.toRadians(header.getShipHeading()));
+            pose.setAltitude(header.getAuxAlt()); // altitude in meters
+            pose.setU(header.getSpeedFish() / 100.0); // Convert cm/s to m/s
+            pose.getPosition().setDepth(header.getAuxDepth());
 
-            float frequency = ping.getHeader().getSonarFreq();
-            float range = ping.getHeader().getRange();
+            float frequency = header.getSonarFreq();
+            float range = header.getRange();
 
+            double fData[] = ping.getData();
             fData = SidescanUtil.applyNormalizationAndTVG(fData, range, config);
 
             list.add(new SidescanLine(ping.getTimestamp(), range, pose, frequency, fData));
