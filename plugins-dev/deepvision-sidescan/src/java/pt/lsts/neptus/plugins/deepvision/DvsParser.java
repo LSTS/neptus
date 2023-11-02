@@ -319,6 +319,13 @@ public class DvsParser {
             arr[index - 1 - i] = temp;
         }
     }
+
+    private String getIndexFilePath(File file) {
+        if (file.exists()) {
+            return file.getParent() + "/mra/dvs_" + file.getName() + ".index";
+        }
+        return null;
+    }
 }
 
 
