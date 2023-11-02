@@ -118,9 +118,6 @@ public class SdfParser {
     public ArrayList<SidescanLine> getLinesBetween(long timestamp1, long timestamp2, int subsystem,
                                                    SidescanParameters config) {
 
-        NeptusLog.pub().debug(">>>>>>>>>>>>>> getLinesBetween timestamp1=" + timestamp1 +
-                ",  timestamp2=" + timestamp2 + ",  subsystem=" + subsystem);
-
         ArrayList<SidescanLine> list = new ArrayList<>();
         Long[] timestamps = timestampListMap.get(subsystem).getTimestampsBetween(timestamp1, timestamp2);
 
