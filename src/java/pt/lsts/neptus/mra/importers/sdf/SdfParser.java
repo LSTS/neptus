@@ -297,50 +297,6 @@ public class SdfParser {
         return null;
     }
 
-    private int hasAnyPageVersion(String... pageVersions) {
-        ArrayList<Integer> pageVersionList = new ArrayList<>();
-
-        Arrays.stream(pageVersions).forEachOrdered((pv) -> {
-            try {
-                pageVersionList.add(Integer.parseInt(pv));
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-
-        if (pageVersionList.isEmpty()) {
-            return 0;
-        }
-
-        SdfHeader header = new SdfHeader();
-        long curPosition = 0;
-
-        for (File file : fileIndex.keySet()) {
-            try (FileInputStream fileInputStream = new FileInputStream(file)) {
-                while (curPosition < file.length()) {
-                    // Read the header
-                    FileChannel fileChannel = fileInputStream.getChannel();
-                    ByteBuffer buf = fileChannel.map(MapMode.READ_ONLY, curPosition, SdfHeader.HEADER_SIZE);
-                    buf.order(ByteOrder.LITTLE_ENDIAN);
-                    header.parse(buf);
-                    curPosition += header.getHeaderSize();
-
-                    if (pageVersionList.stream().anyMatch((p) -> p == header.getPageVersion())) {
-                        return 1;
-                    }
-
-                    curPosition += (header.getNumberBytes() + 4) - header.getHeaderSize();
-                }
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        return 0;
-    }
-
     // Get corresponding file for the given index
     private File getFileFromIndex(SdfIndex index) {
         for (Entry<File, SdfIndex> entry : fileIndex.entrySet()) {
