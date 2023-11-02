@@ -42,46 +42,46 @@ import java.util.Set;
 public class SdfIndex implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private final Map<Integer, PositionMap> positionMaps = new HashMap<>();
+    private final Map<Integer, HeaderPositionMap> headerPositionMaps = new HashMap<>();
 
     public void addSubsystem(int subSystem) {
-        if (!positionMaps.containsKey(subSystem)) {
-            positionMaps.put(subSystem, new PositionMap());
+        if (!headerPositionMaps.containsKey(subSystem)) {
+            headerPositionMaps.put(subSystem, new HeaderPositionMap());
         }
     }
 
     public Set<Integer> getSubSystemList() {
-        return positionMaps.keySet();
+        return headerPositionMaps.keySet();
     }
 
     public long getPageHeaderPosition(int subsystem, long timestamp) {
-        return positionMaps.get(subsystem).getMap().get(timestamp);
+        return headerPositionMaps.get(subsystem).getMap().get(timestamp);
     }
 
     public void addPageHeaderPositionToMap(long timestamp, long pageHeaderPosition, int subsystem) {
-        positionMaps.get(subsystem).addPosition(timestamp, pageHeaderPosition);
+        headerPositionMaps.get(subsystem).addPosition(timestamp, pageHeaderPosition);
     }
 
     public long getFirstTimestamp(int subsystem) {
-        return positionMaps.get(subsystem).getFirstTimestamp();
+        return headerPositionMaps.get(subsystem).getFirstTimestamp();
     }
 
     public long getLastTimestamp(int subsystem) {
-        return positionMaps.get(subsystem).getLastTimestamp();
+        return headerPositionMaps.get(subsystem).getLastTimestamp();
     }
 
     public long getFirstTimestamp() {
         long firstTimestamp = Long.MAX_VALUE;
-        for (PositionMap positionMap : positionMaps.values()) {
-            firstTimestamp = Math.min(firstTimestamp, positionMap.getFirstTimestamp());
+        for (HeaderPositionMap headerPositionMap : headerPositionMaps.values()) {
+            firstTimestamp = Math.min(firstTimestamp, headerPositionMap.getFirstTimestamp());
         }
         return firstTimestamp;
     }
 
     public long getLastTimestamp() {
         long lastTimestamp = -1;
-        for (PositionMap positionMap : positionMaps.values()) {
-            lastTimestamp = Math.max(lastTimestamp, positionMap.getLastTimestamp());
+        for (HeaderPositionMap headerPositionMap : headerPositionMaps.values()) {
+            lastTimestamp = Math.max(lastTimestamp, headerPositionMap.getLastTimestamp());
         }
         return lastTimestamp;
     }
@@ -93,12 +93,12 @@ public class SdfIndex implements Serializable {
     }
 
     private LinkedHashMap<Long, Long> getPositionMap(int subsystem) {
-        return positionMaps.get(subsystem).getMap();
+        return headerPositionMaps.get(subsystem).getMap();
     }
 
 }
 
-class PositionMap implements Serializable {
+class HeaderPositionMap implements Serializable {
     private long firstTimestamp = Long.MAX_VALUE;
     private long lastTimestamp = -1;
     // Map timestamps to header position
