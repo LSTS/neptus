@@ -36,15 +36,12 @@ import java.nio.ByteBuffer;
 import java.util.Calendar;
 import java.util.TimeZone;
 
-import org.apache.commons.lang.ArrayUtils;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.util.MathMiscUtils;
 
 public class SdfData {
     private SdfHeader header;
-    private long[] portData;
-    private long[] stbdData;
     private double[] data;
     private long timestamp;
     private long fixTimestamp;
@@ -58,25 +55,22 @@ public class SdfData {
             return;
         }
 
-        portData = new long[numSamples];
-        stbdData = new long[numSamples];
+        long[] portData = new long[numSamples];
+        long[] stbdData = new long[numSamples];
 
         // portDataPosition = first 4bytes (marker) + next 4bytes (indicate num of samples)
         int portDataPosition = 8;
 
-        for (int i = 0; i < numSamples; i++) {
-            long portValue = buf.getInt(portDataPosition) & 0xffffffffL;  //signed int to unsigned long
-            portData[i] = portValue;
+        // Port Data is in reverse order
+        for (int i = numSamples - 1; i >= 0; i--) {
+            portData[i] = buf.getInt(portDataPosition) & 0xffffffffL;  //signed int to unsigned long
             portDataPosition += 4;
         }
-
-        ArrayUtils.reverse(portData);
 
         // stbdDataPosition = numSamples * int (size 4bytes) + 12bytes ([4] marker + [4] num samples first array + [4] num samples 2nd array)
         int stbdDataPosition = (numSamples * 4) + 12;
         for (int i = 0; i < numSamples; i++) {
-            long stbdValue = buf.getInt(stbdDataPosition) & 0xffffffffL; //signed int to unsigned long
-            stbdData[i] = stbdValue;
+            stbdData[i] = buf.getInt(stbdDataPosition) & 0xffffffffL; //signed int to unsigned long
             stbdDataPosition += 4;
         }
 
@@ -190,36 +184,6 @@ public class SdfData {
      */
     public void setFixTimestamp(long fixTimestamp) {
         this.fixTimestamp = fixTimestamp;
-    }
-
-    /**
-     * @return the portData
-     */
-    public long[] getPortData() {
-        return portData;
-    }
-
-    /**
-     * @param portData the portData to set
-     */
-    public void setPortData(long[] portData) {
-        this.portData = portData;
-    }
-
-
-    /**
-     * @return the stbdData
-     */
-    public long[] getStbdData() {
-        return stbdData;
-    }
-
-
-    /**
-     * @param stbdData the stbdData to set
-     */
-    public void setStbdData(long[] stbdData) {
-        this.stbdData = stbdData;
     }
 
 }
