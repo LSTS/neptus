@@ -134,10 +134,8 @@ public class SdfParser {
             double fData[] = ping.getData();
 
             SystemPositionAndAttitude pose = new SystemPositionAndAttitude();
-            pose.getPosition().setLatitudeDegs(Math.toDegrees(ping.getHeader().getShipLat())); // rads to
-            // degrees
-            pose.getPosition().setLongitudeDegs(Math.toDegrees(ping.getHeader().getShipLon()));// rads to
-            // degrees
+            pose.getPosition().setLatitudeRads(ping.getHeader().getShipLat());
+            pose.getPosition().setLongitudeRads(ping.getHeader().getShipLon());
 
             pose.setRoll(Math.toRadians(ping.getHeader().getAuxRoll()));
             pose.setYaw(Math.toRadians(ping.getHeader().getShipHeading()));
