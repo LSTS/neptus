@@ -36,6 +36,7 @@ import java.nio.ByteBuffer;
 import java.util.Calendar;
 import java.util.TimeZone;
 
+import org.apache.commons.lang.ArrayUtils;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.util.MathMiscUtils;
@@ -44,6 +45,7 @@ public class SdfData {
     private SdfHeader header;
     private long[] portData;
     private long[] stbdData;
+    private double[] data;
     private long timestamp;
     private long fixTimestamp;
     private int numSamples;
@@ -59,19 +61,32 @@ public class SdfData {
         portData = new long[numSamples];
         stbdData = new long[numSamples];
 
-        // index = first 4bytes (marker) + next 4bytes (indicate num of samples)
-        int index = 8;
-        // index2 = numSamples * int (size 4bytes) + 12bytes ([4] marker + [4] num samples first array + [4] num samples 2nd array)
-        int index2 = (numSamples * 4) + 12;
+        // portDataPosition = first 4bytes (marker) + next 4bytes (indicate num of samples)
+        int portDataPosition = 8;
 
         for (int i = 0; i < numSamples; i++) {
-            long portValue = buf.getInt(index) & 0xffffffffL;  //signed int to unsigned long
-            long stbdValue = buf.getInt(index2) & 0xffffffffL; //signed int to unsigned long
+            long portValue = buf.getInt(portDataPosition) & 0xffffffffL;  //signed int to unsigned long
             portData[i] = portValue;
-            stbdData[i] = stbdValue;
+            portDataPosition += 4;
+        }
 
-            index += 4;
-            index2 += 4;
+        ArrayUtils.reverse(portData);
+
+        // stbdDataPosition = numSamples * int (size 4bytes) + 12bytes ([4] marker + [4] num samples first array + [4] num samples 2nd array)
+        int stbdDataPosition = (numSamples * 4) + 12;
+        for (int i = 0; i < numSamples; i++) {
+            long stbdValue = buf.getInt(stbdDataPosition) & 0xffffffffL; //signed int to unsigned long
+            stbdData[i] = stbdValue;
+            stbdDataPosition += 4;
+        }
+
+        data = new double[numSamples * 2];
+        for(int i = 0; i < numSamples; i++) {
+            data[i] = portData[i];
+        }
+
+        for(int i = 0; i < numSamples; i++) {
+            data[i + numSamples] = stbdData[i];
         }
     }
 
@@ -107,6 +122,10 @@ public class SdfData {
         this.header = header;
         setTimestamp(calculateTimeStamp());
         setFixTimestamp(calculateFixTimeStamp());
+    }
+
+    public double[] getData() {
+        return data;
     }
 
 
