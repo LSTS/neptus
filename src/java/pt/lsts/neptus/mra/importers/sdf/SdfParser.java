@@ -188,8 +188,6 @@ public class SdfParser {
                 long pingTimestamp = ping.getTimestamp();
                 int subsystemPageVersion = header.getPageVersion();
 
-                index.addSubsystem(subsystemPageVersion);
-
                 index.addPageHeaderPositionToMap(pingTimestamp, dataPageHeaderPosition, subsystemPageVersion);
 
                 //end processing data
