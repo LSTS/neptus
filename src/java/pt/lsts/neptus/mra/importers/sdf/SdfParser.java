@@ -125,8 +125,7 @@ public class SdfParser {
         Long[] timestamps = timestampListMap.get(subsystem).getTimestampsBetween(timestamp1, timestamp2);
 
         for (Long timestamp : timestamps) {
-            SdfData ping = getPingAt(timestamp, subsystem);
-            SdfData sboardPboard = ping; // one ping contains both Sboard and Portboard samples
+            SdfData sboardPboard = getPingAt(timestamp, subsystem);
             int nSamples = sboardPboard != null ? sboardPboard.getNumSamples() : 0;
             double fData[] = new double[nSamples * 2]; // x2 (portboard + sboard in the same ping)
 
@@ -152,12 +151,12 @@ public class SdfParser {
             pose.setU(sboardPboard.getHeader().getSpeedFish() / 100.0); // Convert cm/s to m/s
             pose.getPosition().setDepth(sboardPboard.getHeader().getAuxDepth());
 
-            float frequency = ping.getHeader().getSonarFreq();
-            float range = ping.getHeader().getRange();
+            float frequency = sboardPboard.getHeader().getSonarFreq();
+            float range = sboardPboard.getHeader().getRange();
 
             fData = SidescanUtil.applyNormalizationAndTVG(fData, range, config);
 
-            list.add(new SidescanLine(ping.getTimestamp(), range, pose, frequency, fData));
+            list.add(new SidescanLine(sboardPboard.getTimestamp(), range, pose, frequency, fData));
         }
         return list;
     }
