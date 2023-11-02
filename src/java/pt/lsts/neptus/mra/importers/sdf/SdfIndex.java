@@ -101,10 +101,11 @@ public class SdfIndex implements Serializable {
 class PositionMap implements Serializable {
     private long firstTimestamp = Long.MAX_VALUE;
     private long lastTimestamp = -1;
+    // Map timestamps to header position
     private LinkedHashMap<Long, Long> map = new LinkedHashMap<>();
 
-    public void addPosition(long timestamp, long position) {
-        map.put(timestamp, position);
+    public void addPosition(long timestamp, long headerPosition) {
+        map.put(timestamp, headerPosition);
 
         if (timestamp < firstTimestamp) {
             firstTimestamp = timestamp;
