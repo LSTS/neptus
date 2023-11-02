@@ -87,9 +87,7 @@ public class SdfIndex implements Serializable {
     }
 
     public Long[] getTimestampsAsArray(int subsytem) {
-        Long[] timestamps = getPositionMap(subsytem).keySet().toArray(new Long[]{});
-        Arrays.sort(timestamps);
-        return timestamps;
+        return getPositionMap(subsytem).keySet().toArray(new Long[]{});
     }
 
     private LinkedHashMap<Long, Long> getPositionMap(int subsystem) {
