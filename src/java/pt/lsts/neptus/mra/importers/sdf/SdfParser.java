@@ -126,7 +126,12 @@ public class SdfParser {
 
         for (Long timestamp : timestamps) {
             SdfData ping = getPingAt(timestamp, subsystem);
-            int nSamples = ping != null ? ping.getNumSamples() : 0;
+
+            if(ping == null) {
+                continue;
+            }
+
+            int nSamples = ping.getNumSamples();
             double fData[] = new double[nSamples * 2]; // x2 (portboard + sboard in the same ping)
 
             // Port side
