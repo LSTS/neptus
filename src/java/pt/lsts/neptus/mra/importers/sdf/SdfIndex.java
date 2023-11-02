@@ -58,6 +58,9 @@ public class SdfIndex implements Serializable {
     }
 
     public void addPageHeaderPositionToMap(long timestamp, long pageHeaderPosition, int subsystem) {
+        if (!headerPositionMaps.containsKey(subsystem)) {
+            headerPositionMaps.put(subsystem, new HeaderPositionMap());
+        }
         headerPositionMaps.get(subsystem).addPosition(timestamp, pageHeaderPosition);
     }
 
