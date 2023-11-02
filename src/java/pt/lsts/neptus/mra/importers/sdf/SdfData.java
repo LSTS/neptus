@@ -47,7 +47,7 @@ public class SdfData {
     private long fixTimestamp;
     private int numSamples;
 
-    void parseData(ByteBuffer buf) {
+    public void parseData(ByteBuffer buf) {
         numSamples = header.getNumSamples();
         //index 4 of buf ( integer ) has number of samples (that must be equal to header numSamples)
         if (numSamples != buf.getInt(4)) {
@@ -73,30 +73,12 @@ public class SdfData {
         }
     }
 
-
-    /**
-     * @return the numSamples
-     */
-    public int getNumSamples() {
-        return numSamples;
-    }
-
-
-    /**
-     * @param numSamples the numSamples to set
-     */
-    public void setNumSamples(int numSamples) {
-        this.numSamples = numSamples;
-    }
-
-
     /**
      * @return the header
      */
     public SdfHeader getHeader() {
         return header;
     }
-
 
     /**
      * @param header the header to set
@@ -109,6 +91,34 @@ public class SdfData {
 
     public double[] getData() {
         return data;
+    }
+
+    /**
+     * @return the timestamp
+     */
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    /**
+     * @param timestamp the timestamp to set
+     */
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    /**
+     * @return the fixTimestamp
+     */
+    public long getFixTimestamp() {
+        return fixTimestamp;
+    }
+
+    /**
+     * @param fixTimestamp the fixTimestamp to set
+     */
+    public void setFixTimestamp(long fixTimestamp) {
+        this.fixTimestamp = fixTimestamp;
     }
 
 
@@ -146,33 +156,4 @@ public class SdfData {
         cal.set(Calendar.MILLISECOND, millisecond);
         return cal.getTimeInMillis();
     }
-
-    /**
-     * @return the timestamp
-     */
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    /**
-     * @param timestamp the timestamp to set
-     */
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    /**
-     * @return the fixTimestamp
-     */
-    public long getFixTimestamp() {
-        return fixTimestamp;
-    }
-
-    /**
-     * @param fixTimestamp the fixTimestamp to set
-     */
-    public void setFixTimestamp(long fixTimestamp) {
-        this.fixTimestamp = fixTimestamp;
-    }
-
 }
