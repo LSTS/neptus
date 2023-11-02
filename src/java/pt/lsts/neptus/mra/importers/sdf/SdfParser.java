@@ -132,17 +132,7 @@ public class SdfParser {
             }
 
             int nSamples = ping.getNumSamples();
-            double fData[] = new double[nSamples * 2]; // x2 (portboard + sboard in the same ping)
-
-            // Port side
-            for (int i = 0; i < nSamples; i++) {
-                fData[nSamples - i - 1] = ping.getPortData()[i];
-            }
-
-            // Starboard side
-            for (int i = 0; i < nSamples; i++) {
-                fData[i + nSamples] = ping.getStbdData()[i];
-            }
+            double fData[] = ping.getData();
 
             SystemPositionAndAttitude pose = new SystemPositionAndAttitude();
             pose.getPosition().setLatitudeDegs(Math.toDegrees(ping.getHeader().getShipLat())); // rads to
