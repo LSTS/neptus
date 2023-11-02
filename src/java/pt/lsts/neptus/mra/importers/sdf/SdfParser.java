@@ -185,8 +185,7 @@ public class SdfParser {
                 }
 
                 ping.setHeader(header);
-                //get timestamp, freq and subsystem used
-                long pingTimestamp = ping.getTimestamp(); // Timestamp
+                long pingTimestamp = ping.getTimestamp();
                 int pageVersion = header.getPageVersion();
 
                 index.addSubsystem(pageVersion);
