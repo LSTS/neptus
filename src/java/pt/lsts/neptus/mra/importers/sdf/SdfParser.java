@@ -103,16 +103,6 @@ public class SdfParser {
         return lastTimestamp;
     }
 
-    public static int main(String[] args) throws Exception {
-
-        if (args.length < 2) {
-            throw new Exception("Usage: <sdf_file> <page_version>  example 3503 for Bathy Pulse Compressed Data");
-        }
-
-        SdfParser parser = new SdfParser(new File[]{new File(args[0])});
-        return parser.hasAnyPageVersion(Arrays.copyOfRange(args, 1, args.length - 1));
-    }
-
     public void cleanup() {
     }
 
