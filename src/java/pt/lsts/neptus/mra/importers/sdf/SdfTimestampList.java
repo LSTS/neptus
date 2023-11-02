@@ -1,11 +1,17 @@
 package pt.lsts.neptus.mra.importers.sdf;
 
+import org.apache.commons.lang.ArrayUtils;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 
 public class SdfTimestampList {
     private Long[] list;
     private int indexCache = 0;
+
+    public SdfTimestampList() {
+        list = new Long[0];
+    }
 
     public SdfTimestampList(Long[] list) {
         this.list = list;
@@ -27,6 +33,11 @@ public class SdfTimestampList {
         }
 
         init();
+    }
+
+    public void add(Long[] timestampList) {
+        list = (Long[]) ArrayUtils.addAll(list, timestampList);
+        Arrays.sort(list);
     }
 
     // Call after constructor
