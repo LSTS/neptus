@@ -55,32 +55,21 @@ public class SdfData {
             return;
         }
 
-        long[] portData = new long[numSamples];
-        long[] stbdData = new long[numSamples];
+        data = new double[numSamples * 2];
 
         // portDataPosition = first 4bytes (marker) + next 4bytes (indicate num of samples)
         int portDataPosition = 8;
-
         // Port Data is in reverse order
         for (int i = numSamples - 1; i >= 0; i--) {
-            portData[i] = buf.getInt(portDataPosition) & 0xffffffffL;  //signed int to unsigned long
+            data[i] = buf.getInt(portDataPosition) & 0xffffffffL;  //signed int to unsigned long
             portDataPosition += 4;
         }
 
         // stbdDataPosition = numSamples * int (size 4bytes) + 12bytes ([4] marker + [4] num samples first array + [4] num samples 2nd array)
         int stbdDataPosition = (numSamples * 4) + 12;
-        for (int i = 0; i < numSamples; i++) {
-            stbdData[i] = buf.getInt(stbdDataPosition) & 0xffffffffL; //signed int to unsigned long
+        for (int i = numSamples; i < 2 * numSamples; i++) {
+            data[i] = buf.getInt(stbdDataPosition) & 0xffffffffL; //signed int to unsigned long
             stbdDataPosition += 4;
-        }
-
-        data = new double[numSamples * 2];
-        for(int i = 0; i < numSamples; i++) {
-            data[i] = portData[i];
-        }
-
-        for(int i = 0; i < numSamples; i++) {
-            data[i + numSamples] = stbdData[i];
         }
     }
 
