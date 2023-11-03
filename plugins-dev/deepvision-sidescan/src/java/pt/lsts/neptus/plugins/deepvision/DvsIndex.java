@@ -65,6 +65,20 @@ public class DvsIndex implements Serializable {
         return timestamps;
     }
 
+    public List<Integer> getPositionsBetween(long startTimestamp, long stopTimestamp) {
+        int startIndex = findTimestamp(startTimestamp);
+        int stopIndex = findTimestamp(stopTimestamp);
+        ArrayList<Integer> positions = new ArrayList<>();
+        for(int i = startIndex; i < stopIndex; i++) {
+            positions.add(getPosition(i));
+        }
+        return positions;
+    }
+
+    private int getPosition(int index) {
+        return dvsHeader.HEADER_SIZE + index * (DvsPos.SIZE + dvsHeader.getnSamples() * dvsHeader.getNumberOfActiveChannels());
+    }
+
     private int findTimestamp(long timestamp) {
         return (int)(timestamp * (dvsHeader.getLineRate() /1000));
     }
