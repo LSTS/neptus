@@ -9,11 +9,13 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.io.FileOutputStream;
+import java.util.List;
 
 public class DvsIndex implements Serializable {
     private static final long serialVersionUID = 1L;
     private DvsHeader dvsHeader;
     private ArrayList<Long> timestamps;
+    private int searchCache = 0;
 
     public DvsIndex(DvsHeader dvsHeader, ArrayList<Long> timestamps) {
         this.dvsHeader = dvsHeader;
@@ -40,5 +42,39 @@ public class DvsIndex implements Serializable {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public List<Long> getTimestampsBetween(long startTimestamp, long stopTimestamp) {
+        int startIndex = findTimestamp(startTimestamp);
+        int stopIndex = startIndex;
+        while(timestamps.get(stopIndex) < stopTimestamp) {
+            stopIndex++;
+        }
+        return timestamps.subList(startIndex, stopIndex);
+    }
+
+    private int findTimestamp(long timestamp) {
+        if (timestamp < timestamps.get(0) || timestamp > timestamps.get(timestamps.size() - 1)) {
+            return -1;
+        }
+
+        if (timestamps.get(searchCache) == timestamp) {
+            return searchCache;
+        }
+
+        int index = searchCache;
+        if (timestamps.get(searchCache) < timestamp) {
+            while (timestamps.get(index) < timestamp) {
+                index++;
+            }
+        }
+        else {
+            while (timestamps.get(index) > timestamp) {
+                index--;
+            }
+            index++;
+        }
+        searchCache = index;
+        return index;
     }
 }
