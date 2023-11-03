@@ -108,23 +108,11 @@ public class DvsParser {
             dvsHeader.setLeftChannelActive(left);
             dvsHeader.setRightChannelActive(right);
 
-            filePosition += dvsHeader.HEADER_SIZE;
-
-            int bufferSize = dvsHeader.getNumberOfActiveChannels() * dvsHeader.getnSamples() + DvsPos.SIZE;
-            while (filePosition < file.length()) {
-                buffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, filePosition, bufferSize);
-                buffer.order(ByteOrder.LITTLE_ENDIAN);
-
-                buffer.get(24);
-                long timestamp = (long) (timestamps.size() / (dvsHeader.getLineRate() / 1000));
-                timestamps.add(timestamp);
-
-                filePosition += bufferSize;
-            }
+            long totalPings = (file.length() - dvsHeader.HEADER_SIZE) / (DvsPos.SIZE + dvsHeader.getnSamples() * dvsHeader.getNumberOfActiveChannels());
 
             fileChannel.close();
 
-            DvsIndex dvsIndex = new DvsIndex(dvsHeader, timestamps);
+            DvsIndex dvsIndex = new DvsIndex(dvsHeader, totalPings);
             dvsIndex.save(getIndexFilePath(file));
         }
         catch (FileNotFoundException e) {
