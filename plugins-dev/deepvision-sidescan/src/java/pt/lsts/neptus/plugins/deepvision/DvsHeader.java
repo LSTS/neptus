@@ -32,7 +32,9 @@
  */
 package pt.lsts.neptus.plugins.deepvision;
 
-public class DvsHeader {
+import java.io.Serializable;
+
+public class DvsHeader implements Serializable {
     /* HEADER STRUCTURE
     Version, UINT32, Must be 0x00000001
     File Header, V1_FileHeader
