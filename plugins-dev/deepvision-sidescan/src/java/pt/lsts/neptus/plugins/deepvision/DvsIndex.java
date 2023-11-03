@@ -14,12 +14,11 @@ import java.util.List;
 public class DvsIndex implements Serializable {
     private static final long serialVersionUID = 1L;
     private DvsHeader dvsHeader;
-    private ArrayList<Long> timestamps;
-    private int searchCache = 0;
+    private long totalPings;
 
-    public DvsIndex(DvsHeader dvsHeader, ArrayList<Long> timestamps) {
+    public DvsIndex(DvsHeader dvsHeader, long totalPings) {
         this.dvsHeader = dvsHeader;
-        this.timestamps = timestamps;
+        this.totalPings = totalPings;
     }
 
     public void save(String filePath) {
@@ -46,35 +45,15 @@ public class DvsIndex implements Serializable {
 
     public List<Long> getTimestampsBetween(long startTimestamp, long stopTimestamp) {
         int startIndex = findTimestamp(startTimestamp);
-        int stopIndex = startIndex;
-        while(timestamps.get(stopIndex) < stopTimestamp) {
-            stopIndex++;
+        int stopIndex = findTimestamp(stopTimestamp);
+        ArrayList<Long> timestamps = new ArrayList<>();
+        for(int i = startIndex; i < stopIndex; i++) {
+            timestamps.add((long)(i / (dvsHeader.getLineRate() / 1000)));
         }
-        return timestamps.subList(startIndex, stopIndex);
+        return timestamps;
     }
 
     private int findTimestamp(long timestamp) {
-        if (timestamp < timestamps.get(0) || timestamp > timestamps.get(timestamps.size() - 1)) {
-            return -1;
-        }
-
-        if (timestamps.get(searchCache) == timestamp) {
-            return searchCache;
-        }
-
-        int index = searchCache;
-        if (timestamps.get(searchCache) < timestamp) {
-            while (timestamps.get(index) < timestamp) {
-                index++;
-            }
-        }
-        else {
-            while (timestamps.get(index) > timestamp) {
-                index--;
-            }
-            index++;
-        }
-        searchCache = index;
-        return index;
+        return (int)(timestamp * (dvsHeader.getLineRate() /1000));
     }
 }
