@@ -52,7 +52,7 @@ import java.util.ArrayList;
  * @author: Pedro Costa
  */
 public class DvsParser {
-    private File file;
+    private File dvsFile;
     private DvsHeader dvsHeader;
     // List of the Ping Pos data
     private ArrayList<DvsPos> posDataList;
@@ -60,8 +60,8 @@ public class DvsParser {
     private ArrayList<DvsReturn> returnDataList;
     private DvsIndex dvsIndex;
 
-    public DvsParser(File file) {
-        this.file = file;
+    public DvsParser(File dvsFile) {
+        this.dvsFile = dvsFile;
         dvsHeader = new DvsHeader();
         posDataList = new ArrayList<>();
         returnDataList = new ArrayList<>();
@@ -69,12 +69,12 @@ public class DvsParser {
         readInData();
 
         int retry = 1;
-        dvsIndex = loadIndex(file);
+        dvsIndex = loadIndex(dvsFile);
 
         while (dvsIndex == null && retry > 0) {
             // Index file did not load or does not exist
-            generateIndex(file);
-            dvsIndex = loadIndex(file);
+            generateIndex(dvsFile);
+            dvsIndex = loadIndex(dvsFile);
             retry--;
         }
     }
@@ -156,7 +156,7 @@ public class DvsParser {
     private void readInData() {
         int filePosition = 0;
 
-        try (FileInputStream fileInputStream = new FileInputStream(file)) {
+        try (FileInputStream fileInputStream = new FileInputStream(dvsFile)) {
             ByteBuffer buffer;
             FileChannel fileChannel = fileInputStream.getChannel();
             buffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, filePosition, dvsHeader.HEADER_SIZE);
@@ -184,7 +184,7 @@ public class DvsParser {
 
             int bufferSize = dvsHeader.getNumberOfActiveChannels() * dvsHeader.getnSamples() + DvsPos.SIZE;
             byte[] returnData = new byte[dvsHeader.getnSamples() * dvsHeader.getNumberOfActiveChannels()];
-            while (filePosition < file.length()) {
+            while (filePosition < dvsFile.length()) {
                 buffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, filePosition, bufferSize);
                 buffer.order(ByteOrder.LITTLE_ENDIAN);
 
@@ -213,11 +213,11 @@ public class DvsParser {
             fileChannel.close();
         }
         catch (FileNotFoundException e) {
-            NeptusLog.pub().error("File " + file.getAbsolutePath() + " not found while creating the DvsParser object.");
+            NeptusLog.pub().error("File " + dvsFile.getAbsolutePath() + " not found while creating the DvsParser object.");
             e.printStackTrace();
         }
         catch (IOException e) {
-            NeptusLog.pub().error("While trying to read " + file.getAbsolutePath() + " an IOException occurred");
+            NeptusLog.pub().error("While trying to read " + dvsFile.getAbsolutePath() + " an IOException occurred");
             e.printStackTrace();
         }
 
