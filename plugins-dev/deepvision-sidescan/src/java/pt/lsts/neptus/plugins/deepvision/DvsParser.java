@@ -114,6 +114,7 @@ public class DvsParser {
             fileChannel.close();
 
             DvsIndex dvsIndex = new DvsIndex(dvsHeader, timestamps);
+            dvsIndex.save(getIndexFilePath(file));
         }
         catch (FileNotFoundException e) {
             NeptusLog.pub().error("File " + file.getAbsolutePath() + " not found while creating the DvsParser object.");
@@ -322,7 +323,7 @@ public class DvsParser {
 
     private String getIndexFilePath(File file) {
         if (file.exists()) {
-            return file.getParent() + "/mra/dvs_" + file.getName() + ".index";
+            return file.getParent() + "/mra/" + file.getName() + ".index";
         }
         return null;
     }
