@@ -47,6 +47,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author: Pedro Costa
@@ -115,7 +116,7 @@ public class DvsParser {
                 buffer.order(ByteOrder.LITTLE_ENDIAN);
 
                 buffer.get(24);
-                long timestamp = (long) (posDataList.size() / (dvsHeader.getLineRate() / 1000));
+                long timestamp = (long) (timestamps.size() / (dvsHeader.getLineRate() / 1000));
                 timestamps.add(timestamp);
 
                 filePosition += bufferSize;
@@ -258,6 +259,7 @@ public class DvsParser {
 
         ArrayList<SidescanLine> lines = new ArrayList<>();
         int index = findTimestampIndexLinear(startTimestamp);
+        List<Long> timestamps = dvsIndex.getTimestampsBetween(startTimestamp, stopTimestamp);
 
         while(index < posDataList.size()) {
             dvsPos = posDataList.get(index);
