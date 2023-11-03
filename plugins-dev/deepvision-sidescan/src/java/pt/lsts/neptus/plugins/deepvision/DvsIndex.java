@@ -43,6 +43,14 @@ public class DvsIndex implements Serializable {
         return null;
     }
 
+    public long getFirstTimestamp() {
+        return 0;
+    }
+
+    public long getLastTimestamp() {
+        return (long)(totalPings / (dvsHeader.getLineRate() / 1000));
+    }
+
     public List<Long> getTimestampsBetween(long startTimestamp, long stopTimestamp) {
         int startIndex = findTimestamp(startTimestamp);
         int stopIndex = findTimestamp(stopTimestamp);
