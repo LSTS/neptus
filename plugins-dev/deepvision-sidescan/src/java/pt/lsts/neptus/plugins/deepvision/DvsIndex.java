@@ -15,10 +15,12 @@ public class DvsIndex implements Serializable {
     private static final long serialVersionUID = 1L;
     private DvsHeader dvsHeader;
     private long totalPings;
+    private int pingBlockSize;
 
     public DvsIndex(DvsHeader dvsHeader, long totalPings) {
         this.dvsHeader = dvsHeader;
         this.totalPings = totalPings;
+        this.pingBlockSize = DvsPos.SIZE + dvsHeader.getnSamples() * dvsHeader.getNumberOfActiveChannels();
     }
 
     public void save(String filePath) {
@@ -75,8 +77,12 @@ public class DvsIndex implements Serializable {
         return positions;
     }
 
+    public int getPingBlockSize() {
+        return pingBlockSize;
+    }
+
     private int getPosition(int index) {
-        return dvsHeader.HEADER_SIZE + index * (DvsPos.SIZE + dvsHeader.getnSamples() * dvsHeader.getNumberOfActiveChannels());
+        return dvsHeader.HEADER_SIZE + index * pingBlockSize;
     }
 
     private int findTimestamp(long timestamp) {
