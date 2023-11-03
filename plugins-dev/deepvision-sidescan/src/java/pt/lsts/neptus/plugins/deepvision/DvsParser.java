@@ -58,6 +58,7 @@ public class DvsParser {
     ArrayList<DvsPos> posDataList;
     // List of the Ping Return data
     ArrayList<DvsReturn> returnDataList;
+    DvsIndex dvsIndex;
 
     public DvsParser(File file) {
         this.file = file;
@@ -66,7 +67,16 @@ public class DvsParser {
         returnDataList = new ArrayList<>();
 
         readInData();
-        generateIndex(file);
+
+        int retry = 1;
+        dvsIndex = loadIndex(file);
+
+        while (dvsIndex == null && retry > 0) {
+            // Index file did not load or does not exist
+            generateIndex(file);
+            dvsIndex = loadIndex(file);
+            retry--;
+        }
     }
 
     private void generateIndex(File file) {
@@ -126,6 +136,21 @@ public class DvsParser {
         }
 
     }
+
+    private DvsIndex loadIndex(File file) {
+        String indexFilePath = getIndexFilePath(file);
+        if(!new File(indexFilePath).exists()) {
+            return null;
+        }
+
+        DvsIndex dvsIndex = DvsIndex.restore(indexFilePath);
+        if(dvsIndex == null) {
+            return null;
+        }
+
+        return dvsIndex;
+    }
+
 
     // Called by constructor
     private void readInData() {
