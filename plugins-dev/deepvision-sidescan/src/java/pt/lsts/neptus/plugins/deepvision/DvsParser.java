@@ -52,13 +52,13 @@ import java.util.ArrayList;
  * @author: Pedro Costa
  */
 public class DvsParser {
-    File file;
-    DvsHeader dvsHeader;
+    private File file;
+    private DvsHeader dvsHeader;
     // List of the Ping Pos data
-    ArrayList<DvsPos> posDataList;
+    private ArrayList<DvsPos> posDataList;
     // List of the Ping Return data
-    ArrayList<DvsReturn> returnDataList;
-    DvsIndex dvsIndex;
+    private ArrayList<DvsReturn> returnDataList;
+    private DvsIndex dvsIndex;
 
     public DvsParser(File file) {
         this.file = file;
