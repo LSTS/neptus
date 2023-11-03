@@ -51,6 +51,10 @@ public class DvsIndex implements Serializable {
         return (long)(totalPings / (dvsHeader.getLineRate() / 1000));
     }
 
+    public DvsHeader getDvsHeader() {
+        return dvsHeader;
+    }
+
     public List<Long> getTimestampsBetween(long startTimestamp, long stopTimestamp) {
         int startIndex = findTimestamp(startTimestamp);
         int stopIndex = findTimestamp(stopTimestamp);
