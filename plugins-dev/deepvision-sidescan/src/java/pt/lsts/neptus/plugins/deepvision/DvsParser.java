@@ -214,11 +214,11 @@ public class DvsParser {
 
 
     public long getLastPingTimestamp() {
-        return posDataList.get(posDataList.size() - 1).getTimestamp();
+        return dvsIndex.getLastTimestamp();
     }
 
     public long getFirstPingTimestamp() {
-        return 0L;
+        return dvsIndex.getFirstTimestamp();
     }
 
     public ArrayList<Integer> getSubsystemList() {
