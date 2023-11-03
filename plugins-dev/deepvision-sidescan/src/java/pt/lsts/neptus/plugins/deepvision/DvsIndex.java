@@ -2,7 +2,9 @@ package pt.lsts.neptus.plugins.deepvision;
 
 import pt.lsts.neptus.NeptusLog;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -26,5 +28,17 @@ public class DvsIndex implements Serializable {
             NeptusLog.pub().error("Could not save index to " + filePath);
             e.printStackTrace();
         }
+    }
+
+    public static DvsIndex restore(String filePath) {
+        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(filePath))){
+            DvsIndex dvsIndex = (DvsIndex) in.readObject();
+            return dvsIndex;
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error("Could not restore index file at " + filePath);
+            e.printStackTrace();
+        }
+        return null;
     }
 }
