@@ -111,4 +111,8 @@ public class DvsHeader implements Serializable {
     public int getNumberOfActiveChannels() {
         return (leftChannelActive ? 1 : 0) + (rightChannelActive ? 1 : 0);
     }
+
+    public float getRange() {
+        return sampleResolution * nSamples;
+    }
 }
