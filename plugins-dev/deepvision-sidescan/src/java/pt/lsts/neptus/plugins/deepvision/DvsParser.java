@@ -67,8 +67,6 @@ public class DvsParser {
         posDataList = new ArrayList<>();
         returnDataList = new ArrayList<>();
 
-        readInData();
-
         int retry = 1;
         dvsIndex = loadIndex(dvsFile);
 
@@ -107,12 +105,24 @@ public class DvsParser {
             dvsHeader.setnSamples(nSamples);
             dvsHeader.setLeftChannelActive(left);
             dvsHeader.setRightChannelActive(right);
+            filePosition += dvsHeader.HEADER_SIZE;
 
-            long totalPings = (file.length() - dvsHeader.HEADER_SIZE) / (DvsPos.SIZE + dvsHeader.getnSamples() * dvsHeader.getNumberOfActiveChannels());
+            ArrayList<Long> timestampList = new ArrayList<>();
+            ArrayList<Integer> positionList = new ArrayList<>();
+            int bufferSize = dvsHeader.getNumberOfActiveChannels() * dvsHeader.getnSamples() + DvsPos.SIZE;
+            while (filePosition < dvsFile.length()) {
+                buffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, filePosition, bufferSize);
+                buffer.order(ByteOrder.LITTLE_ENDIAN);
+                positionList.add(filePosition);
+
+                timestampList.add((long) (timestampList.size() / (dvsHeader.getLineRate() / 1000)));
+
+                filePosition += bufferSize;
+            }
 
             fileChannel.close();
 
-            DvsIndex dvsIndex = new DvsIndex(dvsHeader, totalPings);
+            DvsIndex dvsIndex = new DvsIndex(dvsHeader, timestampList, positionList);
             dvsIndex.save(getIndexFilePath(file));
         }
         catch (FileNotFoundException e) {
@@ -140,79 +150,6 @@ public class DvsParser {
         return dvsIndex;
     }
 
-
-    // Called by constructor
-    private void readInData() {
-        int filePosition = 0;
-
-        try (FileInputStream fileInputStream = new FileInputStream(dvsFile)) {
-            ByteBuffer buffer;
-            FileChannel fileChannel = fileInputStream.getChannel();
-            buffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, filePosition, dvsHeader.HEADER_SIZE);
-            buffer.order(ByteOrder.LITTLE_ENDIAN);
-
-            // Read Header data
-            int VERSION = buffer.getInt() & 0xFFFFFFFF; // Turn int to unsigned int value
-            float sampleRes = buffer.getFloat();
-            float lineRate = buffer.getFloat();
-            int nSamples = buffer.getInt();
-            boolean left = buffer.get() > 0;
-            boolean right = buffer.get() > 0;
-
-            if (!dvsHeader.versionMatches(VERSION)) {
-                NeptusLog.pub().error("Dvs file is not version 1. Abort.");
-                return;
-            }
-            dvsHeader.setSampleResolution(sampleRes);
-            dvsHeader.setLineRate(lineRate);
-            dvsHeader.setnSamples(nSamples);
-            dvsHeader.setLeftChannelActive(left);
-            dvsHeader.setRightChannelActive(right);
-
-            filePosition += dvsHeader.HEADER_SIZE;
-
-            int bufferSize = dvsHeader.getNumberOfActiveChannels() * dvsHeader.getnSamples() + DvsPos.SIZE;
-            byte[] returnData = new byte[dvsHeader.getnSamples() * dvsHeader.getNumberOfActiveChannels()];
-            while (filePosition < dvsFile.length()) {
-                buffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, filePosition, bufferSize);
-                buffer.order(ByteOrder.LITTLE_ENDIAN);
-
-                // Read "Ping Pos" data
-                DvsPos dvsPos = new DvsPos();
-                dvsPos.setLatitude(buffer.getDouble());
-                dvsPos.setLongitude(buffer.getDouble());
-                dvsPos.setSpeed(buffer.getFloat());
-                dvsPos.setHeading(buffer.getFloat());
-                dvsPos.setTimestamp((long) (posDataList.size() / (dvsHeader.getLineRate() / 1000)));
-                posDataList.add(dvsPos);
-
-                // Read "Ping Return" data
-                buffer.get(returnData);
-
-                // Bytes from the left channel array need to be reversed
-                if (dvsHeader.isLeftChannelActive()) {
-                    int length = dvsHeader.getnSamples();
-                    reverseArray(returnData, length);
-                }
-                returnDataList.add(new DvsReturn(returnData));
-
-                filePosition += bufferSize;
-            }
-
-            fileChannel.close();
-        }
-        catch (FileNotFoundException e) {
-            NeptusLog.pub().error("File " + dvsFile.getAbsolutePath() + " not found while creating the DvsParser object.");
-            e.printStackTrace();
-        }
-        catch (IOException e) {
-            NeptusLog.pub().error("While trying to read " + dvsFile.getAbsolutePath() + " an IOException occurred");
-            e.printStackTrace();
-        }
-
-    }
-
-
     public long getLastPingTimestamp() {
         return dvsIndex.getLastTimestamp();
     }
@@ -239,25 +176,23 @@ public class DvsParser {
     public ArrayList<SidescanLine> getLinesBetween(long startTimestamp, long stopTimestamp, int subsystem, SidescanParameters params) {
         DvsPos dvsPos;
         DvsReturn dvsReturn;
-        long timestamp;
+        DvsHeader dvsHeader = dvsIndex.getDvsHeader();
         float range;
         SystemPositionAndAttitude state;
         float frequency;
         double[] data;
 
         ArrayList<SidescanLine> lines = new ArrayList<>();
-        int index = findTimestampIndexLinear(startTimestamp);
-        List<Long> timestamps = dvsIndex.getTimestampsBetween(startTimestamp, stopTimestamp);
+        List<Integer> positions = dvsIndex.getPositionsBetween(startTimestamp, stopTimestamp);
 
-        while(index < posDataList.size()) {
-            dvsPos = posDataList.get(index);
-            timestamp = dvsPos.getTimestamp();
-
-            if (timestamp >= stopTimestamp) {
-                break;
+        for(long position: positions) {
+            DvsPing ping = getPingAt(position);
+            if(ping == null) {
+                NeptusLog.pub().error("Debug - ping is null");
             }
+            dvsPos = ping.getDvsPos();
+            dvsReturn = ping.getDvsReturn();
 
-            dvsReturn = returnDataList.get(index);
             range = dvsHeader.getSampleResolution();
             state = new SystemPositionAndAttitude();
             state.setPosition(new LocationType(dvsPos.getLatitudeDegrees(), dvsPos.getLongitudeDegrees()));
@@ -266,13 +201,46 @@ public class DvsParser {
             data = dvsReturn.getData();
             data = SidescanUtil.applyNormalizationAndTVG(data, range, params);
 
-            SidescanLine line = new SidescanLine(timestamp, range, state, frequency, data);
+            SidescanLine line = new SidescanLine(dvsPos.getTimestamp(), range, state, frequency, data);
             lines.add(line);
-
-            index++;
         }
-
         return lines;
+    }
+
+    private DvsPing getPingAt(long position) {
+        DvsHeader dvsHeader = dvsIndex.getDvsHeader();
+        try(FileInputStream fileInputStream = new FileInputStream(dvsFile)) {
+            FileChannel fileChannel = fileInputStream.getChannel();
+            ByteBuffer buffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, position, dvsIndex.getPingBlockSize());
+            buffer.order(ByteOrder.LITTLE_ENDIAN);
+
+            // Read "Ping Pos" data
+            DvsPos dvsPos = new DvsPos();
+            dvsPos.setLatitude(buffer.getDouble());
+            dvsPos.setLongitude(buffer.getDouble());
+            dvsPos.setSpeed(buffer.getFloat());
+            dvsPos.setHeading(buffer.getFloat());
+            long timestamp = (long)((position / dvsIndex.getPingBlockSize() ) / (dvsHeader.getLineRate() / 1000));
+            dvsPos.setTimestamp(timestamp);
+
+            byte[] returnData = new byte[dvsHeader.getnSamples() * dvsHeader.getNumberOfActiveChannels()];
+            // Read "Ping Return" data
+            buffer.get(returnData);
+
+            // Bytes from the left channel array need to be reversed
+            if (dvsHeader.isLeftChannelActive()) {
+                int length = dvsHeader.getnSamples();
+                reverseArray(returnData, length);
+            }
+            DvsReturn dvsReturn = new DvsReturn(returnData);
+            return new DvsPing(dvsPos, dvsReturn);
+        } catch (FileNotFoundException e) {
+            NeptusLog.pub().error("getPingAt: Could not find file " + dvsFile.getAbsolutePath());
+        } catch (IOException e) {
+            NeptusLog.pub().error("Could not load file " + dvsFile.getAbsolutePath());
+            e.printStackTrace();
+        }
+        return null;
     }
 
     private int findTimestampIndex(long timestamp) {
