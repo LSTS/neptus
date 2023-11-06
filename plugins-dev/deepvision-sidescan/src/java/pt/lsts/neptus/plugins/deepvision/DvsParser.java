@@ -176,6 +176,9 @@ public class DvsParser {
 
         for(long position: positions) {
             ping = getPingAt(position);
+            if(ping == null) {
+                continue;
+            }
             dvsPos = ping.getDvsPos();
             dvsReturn = ping.getDvsReturn();
 
