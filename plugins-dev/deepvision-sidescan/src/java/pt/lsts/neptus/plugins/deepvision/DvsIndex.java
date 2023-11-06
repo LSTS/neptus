@@ -90,16 +90,6 @@ public class DvsIndex implements Serializable {
         return dvsHeader;
     }
 
-    public List<Long> getTimestampsBetween(long startTimestamp, long stopTimestamp) {
-        int startIndex = findTimestamp(startTimestamp);
-        int stopIndex = findTimestamp(stopTimestamp);
-        ArrayList<Long> timestamps = new ArrayList<>();
-        for(int i = startIndex; i < stopIndex; i++) {
-            timestamps.add((long)(i / (dvsHeader.getLineRate() / 1000)));
-        }
-        return timestamps;
-    }
-
     public List<Integer> getPositionsBetween(long startTimestamp, long stopTimestamp) {
         int startIndex = findTimestamp(startTimestamp);
         int stopIndex = startIndex;
