@@ -54,12 +54,10 @@ import java.util.List;
  */
 public class DvsParser {
     private File dvsFile;
-    private DvsHeader dvsHeader;
     private DvsIndex dvsIndex;
 
     public DvsParser(File dvsFile) {
         this.dvsFile = dvsFile;
-        dvsHeader = new DvsHeader();
 
         int retry = 1;
         dvsIndex = loadIndex(dvsFile);
@@ -78,7 +76,7 @@ public class DvsParser {
         try (FileInputStream fileInputStream = new FileInputStream(file)) {
             ByteBuffer buffer;
             FileChannel fileChannel = fileInputStream.getChannel();
-            buffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, filePosition, dvsHeader.HEADER_SIZE);
+            buffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, filePosition, DvsHeader.HEADER_SIZE);
             buffer.order(ByteOrder.LITTLE_ENDIAN);
 
             // Read Header data
@@ -89,6 +87,7 @@ public class DvsParser {
             boolean left = buffer.get() > 0;
             boolean right = buffer.get() > 0;
 
+            DvsHeader dvsHeader = new DvsHeader();
             if (!dvsHeader.versionMatches(VERSION)) {
                 NeptusLog.pub().error("Dvs file is not version 1. Abort.");
                 return;
@@ -98,7 +97,7 @@ public class DvsParser {
             dvsHeader.setnSamples(nSamples);
             dvsHeader.setLeftChannelActive(left);
             dvsHeader.setRightChannelActive(right);
-            filePosition += dvsHeader.HEADER_SIZE;
+            filePosition += DvsHeader.HEADER_SIZE;
 
             ArrayList<Long> timestampList = new ArrayList<>();
             ArrayList<Integer> positionList = new ArrayList<>();
