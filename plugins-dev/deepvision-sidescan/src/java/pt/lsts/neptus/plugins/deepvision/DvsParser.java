@@ -135,12 +135,7 @@ public class DvsParser {
             return null;
         }
 
-        DvsIndex dvsIndex = DvsIndex.restore(indexFilePath);
-        if(dvsIndex == null) {
-            return null;
-        }
-
-        return dvsIndex;
+        return DvsIndex.restore(indexFilePath);
     }
 
     public long getLastPingTimestamp() {
