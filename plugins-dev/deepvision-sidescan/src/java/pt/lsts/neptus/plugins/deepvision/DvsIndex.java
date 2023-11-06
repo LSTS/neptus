@@ -103,10 +103,6 @@ public class DvsIndex implements Serializable {
         return pingBlockSize;
     }
 
-    private int getPosition(int index) {
-        return dvsHeader.HEADER_SIZE + index * pingBlockSize;
-    }
-
     private int findTimestamp(long timestamp) {
         if(timestamp < timestampList.get(0) || timestamp > timestampList.get(timestampList.size() - 1)) {
             return -1;
