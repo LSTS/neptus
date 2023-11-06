@@ -69,8 +69,7 @@ public class DvsIndex implements Serializable {
 
     public static DvsIndex restore(String filePath) {
         try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(filePath))){
-            DvsIndex dvsIndex = (DvsIndex) in.readObject();
-            return dvsIndex;
+            return (DvsIndex) in.readObject();
         }
         catch (Exception e) {
             NeptusLog.pub().error("Could not restore index file at " + filePath);
