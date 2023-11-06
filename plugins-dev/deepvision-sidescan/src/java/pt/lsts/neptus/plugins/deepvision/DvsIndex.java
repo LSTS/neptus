@@ -14,13 +14,15 @@ import java.util.List;
 public class DvsIndex implements Serializable {
     private static final long serialVersionUID = 1L;
     private DvsHeader dvsHeader;
-    private long totalPings;
     private int pingBlockSize;
+    private ArrayList<Long> timestampList;
+    private ArrayList<Integer> positionList;
 
-    public DvsIndex(DvsHeader dvsHeader, long totalPings) {
+    public DvsIndex(DvsHeader dvsHeader, ArrayList<Long> timestampList, ArrayList<Integer> positionList) {
         this.dvsHeader = dvsHeader;
-        this.totalPings = totalPings;
         this.pingBlockSize = DvsPos.SIZE + dvsHeader.getnSamples() * dvsHeader.getNumberOfActiveChannels();
+        this.timestampList = timestampList;
+        this.positionList = positionList;
     }
 
     public void save(String filePath) {
@@ -50,7 +52,7 @@ public class DvsIndex implements Serializable {
     }
 
     public long getLastTimestamp() {
-        return (long)(totalPings / (dvsHeader.getLineRate() / 1000));
+        return timestampList.get(timestampList.size() - 1);
     }
 
     public DvsHeader getDvsHeader() {
@@ -69,12 +71,11 @@ public class DvsIndex implements Serializable {
 
     public List<Integer> getPositionsBetween(long startTimestamp, long stopTimestamp) {
         int startIndex = findTimestamp(startTimestamp);
-        int stopIndex = findTimestamp(stopTimestamp);
-        ArrayList<Integer> positions = new ArrayList<>();
-        for(int i = startIndex; i < stopIndex; i++) {
-            positions.add(getPosition(i));
+        int stopIndex = startIndex;
+        while(timestampList.get(stopIndex) < stopTimestamp) {
+            stopIndex++;
         }
-        return positions;
+        return positionList.subList(startIndex, stopIndex);
     }
 
     public int getPingBlockSize() {
@@ -86,6 +87,14 @@ public class DvsIndex implements Serializable {
     }
 
     private int findTimestamp(long timestamp) {
-        return (int)(timestamp * (dvsHeader.getLineRate() /1000));
+        if(timestamp < timestampList.get(0) || timestamp > timestampList.get(timestampList.size() - 1)) {
+            return -1;
+        }
+
+        int index = 0;
+        while(timestampList.get(index) < timestamp) {
+            index++;
+        }
+        return index;
     }
 }
