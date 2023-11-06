@@ -51,8 +51,8 @@ public class DvsHeader implements Serializable {
 
     Plus 2 padding bytes to align at the word boundary
     */
-    public final int HEADER_SIZE = 20;      // Bytes
-    public final int VERSION = 1;           // VERSION
+    public static final int HEADER_SIZE = 20;      // Bytes
+    public static final int VERSION = 1;           // VERSION
 
     private final float DEFAULT_LINE_RATE = (float) 16.717382321;  // Default line rate
     private float sampleResolution;         // sampleRes [m]
