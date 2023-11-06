@@ -247,10 +247,7 @@ public class DvsParser {
     }
 
     private String getIndexFilePath(File file) {
-        if (file.exists()) {
-            return file.getParent() + "/mra/" + file.getName() + ".index";
-        }
-        return null;
+        return file.getParent() + "/mra/" + file.getName() + ".index";
     }
 }
 
