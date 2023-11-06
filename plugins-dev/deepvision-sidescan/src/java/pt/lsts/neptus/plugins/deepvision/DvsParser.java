@@ -55,17 +55,11 @@ import java.util.List;
 public class DvsParser {
     private File dvsFile;
     private DvsHeader dvsHeader;
-    // List of the Ping Pos data
-    private ArrayList<DvsPos> posDataList;
-    // List of the Ping Return data
-    private ArrayList<DvsReturn> returnDataList;
     private DvsIndex dvsIndex;
 
     public DvsParser(File dvsFile) {
         this.dvsFile = dvsFile;
         dvsHeader = new DvsHeader();
-        posDataList = new ArrayList<>();
-        returnDataList = new ArrayList<>();
 
         int retry = 1;
         dvsIndex = loadIndex(dvsFile);
@@ -80,7 +74,6 @@ public class DvsParser {
 
     private void generateIndex(File file) {
         int filePosition = 0;
-        ArrayList<Long> timestamps = new ArrayList<>();
 
         try (FileInputStream fileInputStream = new FileInputStream(file)) {
             ByteBuffer buffer;
