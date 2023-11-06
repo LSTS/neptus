@@ -50,7 +50,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author: Pedro Costa
+ * @author Pedro Costa
  */
 public class DvsParser {
     private File dvsFile;
