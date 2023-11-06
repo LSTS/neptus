@@ -164,16 +164,18 @@ public class DvsParser {
         DvsPos dvsPos;
         DvsReturn dvsReturn;
         DvsHeader dvsHeader = dvsIndex.getDvsHeader();
+        DvsPing ping;
         float range;
         SystemPositionAndAttitude state;
         float frequency;
         double[] data;
+        SidescanLine line;
 
         ArrayList<SidescanLine> lines = new ArrayList<>();
         List<Integer> positions = dvsIndex.getPositionsBetween(startTimestamp, stopTimestamp);
 
         for(long position: positions) {
-            DvsPing ping = getPingAt(position);
+            ping = getPingAt(position);
             if(ping == null) {
                 NeptusLog.pub().error("Debug - ping is null");
             }
@@ -188,7 +190,7 @@ public class DvsParser {
             data = dvsReturn.getData();
             data = SidescanUtil.applyNormalizationAndTVG(data, range, params);
 
-            SidescanLine line = new SidescanLine(dvsPos.getTimestamp(), range, state, frequency, data);
+            line = new SidescanLine(dvsPos.getTimestamp(), range, state, frequency, data);
             lines.add(line);
         }
         return lines;
