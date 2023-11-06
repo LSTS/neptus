@@ -45,10 +45,10 @@ import java.util.List;
 
 public class DvsIndex implements Serializable {
     private static final long serialVersionUID = 1L;
-    private DvsHeader dvsHeader;
-    private int pingBlockSize;
-    private ArrayList<Long> timestampList;
-    private ArrayList<Integer> positionList;
+    private final DvsHeader dvsHeader;
+    private final int pingBlockSize;
+    private final ArrayList<Long> timestampList;
+    private final ArrayList<Integer> positionList;
 
     public DvsIndex(DvsHeader dvsHeader, ArrayList<Long> timestampList, ArrayList<Integer> positionList) {
         this.dvsHeader = dvsHeader;
