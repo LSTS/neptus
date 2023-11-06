@@ -50,8 +50,4 @@ public class DvsReturn {
     public double[] getData() {
         return data;
     }
-
-    public int getLength() {
-        return data.length;
-    }
 }
