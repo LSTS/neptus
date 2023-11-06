@@ -182,7 +182,7 @@ public class DvsParser {
             dvsPos = ping.getDvsPos();
             dvsReturn = ping.getDvsReturn();
 
-            range = dvsHeader.getSampleResolution();
+            range = dvsHeader.getRange();
             state = new SystemPositionAndAttitude();
             state.setPosition(new LocationType(dvsPos.getLatitudeDegrees(), dvsPos.getLongitudeDegrees()));
             state.setYaw(dvsPos.getHeading());
