@@ -53,7 +53,7 @@ import java.util.List;
  * @author Pedro Costa
  */
 public class DvsParser {
-    private File dvsFile;
+    private final File dvsFile;
     private DvsIndex dvsIndex;
 
     public DvsParser(File dvsFile) {
