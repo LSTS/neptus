@@ -35,7 +35,7 @@ package pt.lsts.neptus.plugins.deepvision;
 
 public class DvsReturn {
     private final double LOG_DECOMPRESSION_FACTOR = 1.025;
-    private double[] data;
+    private final double[] data;
 
     public DvsReturn(byte[] data) {
         this.data = new double[data.length];
