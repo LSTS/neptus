@@ -176,9 +176,6 @@ public class DvsParser {
 
         for(long position: positions) {
             ping = getPingAt(position);
-            if(ping == null) {
-                NeptusLog.pub().error("Debug - ping is null");
-            }
             dvsPos = ping.getDvsPos();
             dvsReturn = ping.getDvsReturn();
 
