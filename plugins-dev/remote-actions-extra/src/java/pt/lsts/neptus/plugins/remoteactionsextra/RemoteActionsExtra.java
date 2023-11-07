@@ -88,7 +88,7 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
         add("Decelerate");
         add("Stop");
         add("Heading"); add("turning"); add("yaw"); add("rotate");
-        add("Trust"); add("surge"); add("forward"); add("throrrle");
+        add("Trust"); add("surge"); add("forward"); add("throttle");
         add("Lateral"); add("sway"); add("sideways");
         add("Vertical"); add("heave"); add("up"); add("ascend"); add("verticalrate"); add("depth"); add("z");
         add("Roll"); add("bank");
