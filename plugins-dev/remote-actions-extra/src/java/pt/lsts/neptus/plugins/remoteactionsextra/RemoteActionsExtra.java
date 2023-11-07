@@ -138,7 +138,7 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
         setLayout(new MigLayout("insets 10px"));
 
         if (extraActionsTypesMap.isEmpty()) {
-            add(new JLabel("No Actions available", SwingConstants.CENTER), "dock center");
+            add(new JLabel("No actions available", SwingConstants.CENTER), "dock center");
             invalidate();
             validate();
             repaint(100);
