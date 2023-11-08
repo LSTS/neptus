@@ -123,7 +123,6 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
     private String lastCmdBuilt = "";
 
     private TakeControlMonitor takeControlMonitor;
-    private TakeControlMonitor takeControlMonitor2;
 
     @NeptusProperty(name = "OBS Entity Name", userLevel = NeptusProperty.LEVEL.ADVANCED,
         description = "Used to check the state of the OBS take control status.")
@@ -137,8 +136,6 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
         super(console, usedInsideAnotherConsolePanel);
         takeControlMonitor = new TakeControlMonitor(this);
         takeControlMonitor.setEntityName(obsEntityName);
-        takeControlMonitor2 = new TakeControlMonitor(this);
-        takeControlMonitor2.setEntityName(obsEntityName);
     }
 
     @Override
@@ -149,18 +146,15 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
     @Override
     public void cleanSubPanel() {
         takeControlMonitor.setButton(null);
-        takeControlMonitor2.setButton(null);
     }
 
     @Override
     public void propertiesChanged() {
         takeControlMonitor.setEntityName(obsEntityName);
-        takeControlMonitor2.setEntityName(obsEntityName);
     }
 
     private synchronized void resetUIWithActions() {
         takeControlMonitor.setButton(null);
-        takeControlMonitor2.setButton(null);
 
         removeAll();
         setLayout(new MigLayout("insets 10px"));
@@ -198,11 +192,7 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
                         if ("Take Control".equalsIgnoreCase(action)) {
                             takeControlMonitor.setButton(button);
                             takeControlMonitor.askedControl();
-                        } else if ("Relinquish Control".equalsIgnoreCase(action)) {
-                            takeControlMonitor2.setButton(button);
-                            takeControlMonitor2.askedControl();
                         }
-
                         break;
                     case AXIS:
                     case SLIDER:
@@ -221,7 +211,6 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
     public void on(ConsoleEventMainSystemChange evt) {
         configureActions("", defaultAxisDecimalVal, false);
         takeControlMonitor.on(evt);
-        takeControlMonitor2.on(evt);
     }
 
     @Subscribe
@@ -238,13 +227,11 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
     @Subscribe
     public void on(EntityState msg) {
         takeControlMonitor.on(msg);
-        takeControlMonitor2.on(msg);
     }
 
     @Subscribe
     public void on(VehicleState msg) {
         takeControlMonitor.on(msg);
-        takeControlMonitor2.on(msg);
     }
 
     @Periodic(millisBetweenUpdates = 1_000)
