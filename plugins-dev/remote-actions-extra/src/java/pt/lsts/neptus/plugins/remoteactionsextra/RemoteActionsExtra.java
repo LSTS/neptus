@@ -66,6 +66,7 @@ import java.util.stream.Collectors;
 public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChangeListener {
 
     static final boolean defaultAxisDecimalVal = false;
+    private static final int DECIMAL_HOUSES_FOR_DECIMAL_AXIS = 6;
 
     enum ActionTypeEnum {
         BUTTON,
@@ -276,7 +277,7 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
 
     private String adjustAxisValue(double value) {
         if (curState.decimalAxis) {
-            return String.valueOf(MathMiscUtils.round(value, 6));
+            return String.valueOf(MathMiscUtils.round(value, DECIMAL_HOUSES_FOR_DECIMAL_AXIS));
         }
         else {
             return String.valueOf(Math.round(value * 127));
