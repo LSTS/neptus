@@ -34,13 +34,17 @@ package pt.lsts.neptus.plugins.remoteactionsextra;
 
 import com.google.common.eventbus.Subscribe;
 import net.miginfocom.swing.MigLayout;
+import pt.lsts.imc.EntityState;
 import pt.lsts.imc.RemoteActions;
 import pt.lsts.imc.RemoteActionsRequest;
+import pt.lsts.imc.VehicleState;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
+import pt.lsts.neptus.plugins.ConfigurationListener;
+import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.update.Periodic;
@@ -63,7 +67,7 @@ import java.util.stream.Collectors;
     author = "Paulo Dias", icon = "images/control-mode/teleoperation.png",
     description = "This plugin listen for non motion related remote actions and displays its controls.")
 @Popup(name = "Remote Actions Extra", width = 300, height = 200, pos = Popup.POSITION.BOTTOM, accelerator = KeyEvent.VK_3)
-public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChangeListener {
+public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChangeListener, ConfigurationListener {
 
     static final boolean defaultAxisDecimalVal = false;
     private static final int DECIMAL_HOUSES_FOR_DECIMAL_AXIS = 6;
@@ -118,12 +122,23 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
 
     private String lastCmdBuilt = "";
 
+    private TakeControlMonitor takeControlMonitor;
+    private TakeControlMonitor takeControlMonitor2;
+
+    @NeptusProperty(name = "OBS Entity Name", userLevel = NeptusProperty.LEVEL.ADVANCED,
+        description = "Used to check the state of the OBS take control status.")
+    public String obsEntityName = "OBS Broker";
+
     public RemoteActionsExtra(ConsoleLayout console) {
-        super(console);
+        this(console, false);
     }
 
     public RemoteActionsExtra(ConsoleLayout console, boolean usedInsideAnotherConsolePanel) {
         super(console, usedInsideAnotherConsolePanel);
+        takeControlMonitor = new TakeControlMonitor(this);
+        takeControlMonitor.setEntityName(obsEntityName);
+        takeControlMonitor2 = new TakeControlMonitor(this);
+        takeControlMonitor2.setEntityName(obsEntityName);
     }
 
     @Override
@@ -133,9 +148,20 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
 
     @Override
     public void cleanSubPanel() {
+        takeControlMonitor.setButton(null);
+        takeControlMonitor2.setButton(null);
+    }
+
+    @Override
+    public void propertiesChanged() {
+        takeControlMonitor.setEntityName(obsEntityName);
+        takeControlMonitor2.setEntityName(obsEntityName);
     }
 
     private synchronized void resetUIWithActions() {
+        takeControlMonitor.setButton(null);
+        takeControlMonitor2.setButton(null);
+
         removeAll();
         setLayout(new MigLayout("insets 10px"));
 
@@ -169,6 +195,14 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
                         String lay = "dock center, sg grp" + grpIdx;
                         lay += ", " + wrapLay;
                         add(button, lay);
+                        if ("Take Control".equalsIgnoreCase(action)) {
+                            takeControlMonitor.setButton(button);
+                            takeControlMonitor.askedControl();
+                        } else if ("Relinquish Control".equalsIgnoreCase(action)) {
+                            takeControlMonitor2.setButton(button);
+                            takeControlMonitor2.askedControl();
+                        }
+
                         break;
                     case AXIS:
                     case SLIDER:
@@ -186,6 +220,8 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
     @Subscribe
     public void on(ConsoleEventMainSystemChange evt) {
         configureActions("", defaultAxisDecimalVal, false);
+        takeControlMonitor.on(evt);
+        takeControlMonitor2.on(evt);
     }
 
     @Subscribe
@@ -197,6 +233,18 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
         if (msg.getOp() != RemoteActionsRequest.OP.REPORT) return;
 
         configureActions(msg.getActions(), defaultAxisDecimalVal, false);
+    }
+
+    @Subscribe
+    public void on(EntityState msg) {
+        takeControlMonitor.on(msg);
+        takeControlMonitor2.on(msg);
+    }
+
+    @Subscribe
+    public void on(VehicleState msg) {
+        takeControlMonitor.on(msg);
+        takeControlMonitor2.on(msg);
     }
 
     @Periodic(millisBetweenUpdates = 1_000)
