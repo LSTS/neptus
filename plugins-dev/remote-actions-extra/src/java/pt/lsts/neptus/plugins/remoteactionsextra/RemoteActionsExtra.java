@@ -34,6 +34,7 @@ package pt.lsts.neptus.plugins.remoteactionsextra;
 
 import com.google.common.eventbus.Subscribe;
 import net.miginfocom.swing.MigLayout;
+import pt.lsts.imc.RemoteActions;
 import pt.lsts.imc.RemoteActionsRequest;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -206,7 +207,7 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
             }
             if (actionsStr.isEmpty()) return;
 
-            pt.lsts.imc.RemoteActions remoteActionsMsg = new pt.lsts.imc.RemoteActions();
+            RemoteActions remoteActionsMsg = new RemoteActions();
             remoteActionsMsg.setActions(actionsStr);
             send(remoteActionsMsg);
         }
