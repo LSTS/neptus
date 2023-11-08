@@ -132,7 +132,7 @@ class TakeControlMonitor {
         switch (entState) {
             case NORMAL:
                 if (isExternal) {
-                    askedControl();
+                    resetControl();
                 } else {
                     inControl();
                 }
