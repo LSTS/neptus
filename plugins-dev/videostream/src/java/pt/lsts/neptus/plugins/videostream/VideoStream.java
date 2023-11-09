@@ -286,7 +286,7 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
     // Buffer image for zoom image temp
     private BufferedImage zoomTemp;
     // PopPup zoom Image
-    private JPopupMenu popupzoom;
+    private JPopupMenu popupZoom;
     // cord x for zoom
     private int zoomX = 100;
     // cord y for zoom
@@ -302,15 +302,15 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
     // Flag of ping state to host
     private boolean pingHostOk = false;
     // Flag for Histogram image
-    private boolean histogramflag = false;
+    private boolean histogramFlag = false;
     // Flag to save snapshot
     private boolean saveSnapshot = false;
 
     // *** TEST FOR SAVE VIDEO **/
-    private File outputfile;
+    private File outputFile;
     private boolean flagBuffImg = false;
     private int cnt = 0;
-    private int FPS = 8;
+    private int fps = 8;
     // *************************/
 
     // worker thread designed to acquire the data packet from DUNE
@@ -362,7 +362,7 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
                 public void keyReleased(KeyEvent e) {
                     if (e.getKeyCode() == KeyEvent.VK_Z && zoomMask) {
                         zoomMask = false;
-                        popupzoom.setVisible(false);
+                        popupZoom.setVisible(false);
                     }
                     if (e.getKeyCode() == KeyEvent.VK_CONTROL) {
                         paused = false;
@@ -375,7 +375,7 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
                             && !zoomMask) {
                         if (ipCam) {
                             zoomMask = true;
-                            popupzoom.add(zoomImg);
+                            popupZoom.add(zoomImg);
                         }
                     }
                     else if ((e.getKeyCode() == KeyEvent.VK_I)
@@ -406,17 +406,17 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
                                 && yLocMouse + 60 < VideoStream.this.getSize().getHeight() && yLocMouse - 60 > 0) {
                             zoomX = xLocMouse;
                             zoomY = yLocMouse;
-                            popupzoom.setLocation(MouseInfo.getPointerInfo().getLocation().x - 150,
+                            popupZoom.setLocation(MouseInfo.getPointerInfo().getLocation().x - 150,
                                     MouseInfo.getPointerInfo().getLocation().y - 150);
                         }
                         else {
-                            popupzoom.setVisible(false);
+                            popupZoom.setVisible(false);
                             zoomMask = false;
                         }
                     }
                     else if ((e.getKeyCode() == KeyEvent.VK_H)
                             && ((e.getModifiersEx() & KeyEvent.ALT_DOWN_MASK) != 0)) {
-                        histogramflag = !histogramflag;
+                        histogramFlag = !histogramFlag;
                     }
                     else if ((e.getKeyCode() == KeyEvent.VK_S)
                             && ((e.getModifiersEx() & KeyEvent.ALT_DOWN_MASK) != 0)) {
@@ -565,7 +565,7 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
                                     ImageUtils.createImageIcon("images/menus/histogram.png")))
                             .addActionListener(new ActionListener() {
                                 public void actionPerformed(ActionEvent e) {
-                                    histogramflag = !histogramflag;
+                                    histogramFlag = !histogramFlag;
                                 }
                             });
                     item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, InputEvent.ALT_MASK));
@@ -963,8 +963,8 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
 
         // Config JFrame zoom img
         zoomImg.setSize(300, 300);
-        popupzoom = new JPopupMenu();
-        popupzoom.setSize(300, 300);
+        popupZoom = new JPopupMenu();
+        popupZoom.setSize(300, 300);
 
         logDir = String.format(BASE_FOLDER_FOR_IMAGES + "/%s", date.toString().replace(":", "-"));
 
@@ -1141,14 +1141,14 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
                             // Convert Mat to BufferedImage
                             offlineImage = UtilCv.matToBufferedImage(matResize);
                             // Display image in JFrame
-                            if (histogramflag) {
+                            if (histogramFlag) {
                                 if (zoomMask) {
                                     zoomTemp = offlineImage;
                                     getCutImage(UtilCv.histogramCv(zoomTemp), zoomX, zoomY);
-                                    popupzoom.setVisible(true);
+                                    popupZoom.setVisible(true);
                                 }
                                 else {
-                                    popupzoom.setVisible(false);
+                                    popupZoom.setVisible(false);
                                 }
 
                                 if (saveSnapshot) {
@@ -1163,10 +1163,10 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
                             else {
                                 if (zoomMask) {
                                     getCutImage(offlineImage, zoomX, zoomY);
-                                    popupzoom.setVisible(true);
+                                    popupZoom.setVisible(true);
                                 }
                                 else {
-                                    popupzoom.setVisible(false);
+                                    popupZoom.setVisible(false);
                                 }
 
                                 if (saveSnapshot) {
@@ -1229,16 +1229,16 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
                             if (!matSaveImg.empty()) {
                                 String imageJpeg = null;
                                 try {
-                                    if (histogramflag) {
+                                    if (histogramFlag) {
                                         imageJpeg = String.format("%s/imageSave/%d_H.jpeg", logDir, cnt);
-                                        outputfile = checkExistenceOfFolderForFile(new File(imageJpeg));
+                                        outputFile = checkExistenceOfFolderForFile(new File(imageJpeg));
                                         ImageIO.write(UtilCv.histogramCv(UtilCv.matToBufferedImage(matSaveImg)), "jpeg",
-                                                outputfile);
+                                                outputFile);
                                     }
                                     else {
                                         imageJpeg = String.format("%s/imageSave/%d.jpeg", logDir, cnt);
-                                        outputfile = checkExistenceOfFolderForFile(new File(imageJpeg));
-                                        ImageIO.write(UtilCv.matToBufferedImage(matSaveImg), "jpeg", outputfile);
+                                        outputFile = checkExistenceOfFolderForFile(new File(imageJpeg));
+                                        ImageIO.write(UtilCv.matToBufferedImage(matSaveImg), "jpeg", outputFile);
                                     }
                                 }
                                 catch (IOException e) {
@@ -1246,7 +1246,7 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
                                 }
                                 cnt++;
                                 long stopTime = System.currentTimeMillis();
-                                while ((stopTime - startTime) < (1000 / FPS)) {
+                                while ((stopTime - startTime) < (1000 / fps)) {
                                     stopTime = System.currentTimeMillis();
                                 }
                             }
@@ -1442,7 +1442,7 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
             Imgproc.resize(mat, matResize, size);
 
             // Display image in JFrame
-            if (histogramflag) {
+            if (histogramFlag) {
                 if (saveSnapshot) {
                     UtilCv.saveSnapshot(UtilCv.addText(UtilCv.histogramCv(offlineImage), I18n.text("Histogram - On"),
                             Color.WHITE, offlineImage.getWidth() - 5, 20), String.format(logDir + "/snapshotImage"));
@@ -1459,7 +1459,7 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
                 showImage(offlineImage);
             }
 
-            if (histogramflag) {
+            if (histogramFlag) {
                 showImage(UtilCv.addText(UtilCv.histogramCv(UtilCv.matToBufferedImage(matResize)),
                         I18n.text("Histogram - On"), Color.WHITE, matResize.cols() - 5, 20));
                 if (saveSnapshot) {
@@ -1482,7 +1482,7 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
             xScale = (float) widthConsole / widthImgRec;
             yScale = (float) heightConsole / heightImgRec;
             long stopTime = System.currentTimeMillis();
-            while ((stopTime - startTime) < (1000 / FPS)) {
+            while ((stopTime - startTime) < (1000 / fps)) {
                 stopTime = System.currentTimeMillis();
             }
 
@@ -1531,7 +1531,7 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
             h = imageToCut.getHeight() - 55;
         }
 
-        if (popupzoom.isShowing()) {
+        if (popupZoom.isShowing()) {
             zoomImgCut = new BufferedImage(100, 100, BufferedImage.TYPE_3BYTE_BGR);
             for (int i = -50; i < 50; i++) {
                 for (int j = -50; j < 50; j++) {
