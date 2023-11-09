@@ -123,7 +123,7 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
 
     private String lastCmdBuilt = "";
 
-    private TakeControlMonitor takeControlMonitor;
+    private final TakeControlMonitor takeControlMonitor;
 
     @NeptusProperty(name = "OBS Entity Name", userLevel = NeptusProperty.LEVEL.ADVANCED,
         description = "Used to check the state of the OBS take control status.")
@@ -196,8 +196,11 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
                         }
                         break;
                     case AXIS:
+                        // TODO
                     case SLIDER:
+                        // TODO
                     case HALF_SLIDER:
+                        // TODO
                         break;
                 }
             }
