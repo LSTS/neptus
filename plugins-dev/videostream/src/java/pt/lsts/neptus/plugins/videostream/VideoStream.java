@@ -134,6 +134,7 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
 
@@ -148,7 +149,7 @@ import java.util.zip.Inflater;
 @PluginDescription(name = "Video Stream", version = "1.5.1", author = "Pedro Gonçalves",
         description = "Plugin to view IP Camera streams", icon = "images/menus/camera.png",
         category = PluginDescription.CATEGORY.INTERFACE)
-public class VideoStream extends ConsolePanel { // implements ItemListener {
+public class VideoStream extends ConsolePanel {
     private static final String BASE_FOLDER_FOR_IMAGES = ConfigFetch.getLogsFolder() + "/images";
     static final String BASE_FOLDER_FOR_URL_INI = "ipUrl.ini";
     // Default width and height of Console
@@ -157,12 +158,15 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
 
     // Timeout for watchDogThread in milliseconds
     private static final int WATCH_DOG_TIMEOUT_MILLIS = 4000;
+    private static final int MAX_NULL_FRAMES_FOR_RECONNECT = 10;
 
     @NeptusProperty(name = "Camera URL", editable = false)
     private String camUrl = ""; //rtsp://10.0.20.207:554/live/ch01_0
 
     @NeptusProperty(name = "Broadcast positions to other CCUs", editable = true)
     private boolean broadcastPositions = false;
+
+    private AtomicInteger emptyFramesCounter = new AtomicInteger(0);
 
     // Send data for sync
     private PrintWriter out = null;
@@ -573,11 +577,12 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
                                     NeptusLog.pub().info("Closing all Video Streams");
                                     noVideoLogoState = false;
                                     isCleanTurnOffCam = true;
-                                    if (tcpOK) {
+                                    if (ipCam && state && capture != null && capture.isOpened()) {
                                         try {
-                                        }
-                                        catch (IOException e1) {
-                                            e1.printStackTrace();
+                                            capture.release();
+                                            NeptusLog.pub().info("Capture successfully released");
+                                        } catch (Exception exp) {
+                                            NeptusLog.pub().error(exp.getMessage());
                                         }
                                     }
                                     state = false;
@@ -1153,6 +1158,13 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
                     }
                     else if (ipCam) {
                         if (state == false) {
+                            try {
+                                if (capture != null && capture.isOpened()) {
+                                    capture.release();
+                                }
+                            } catch (Exception e) {
+                                NeptusLog.pub().warn(e.getMessage());
+                            }
                             // Create Buffer (type MAT) for Image receive
                             mat = new Mat(heightImgRec, widthImgRec, CvType.CV_8UC3);
                             capture = new VideoCapture();
@@ -1161,6 +1173,7 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
                                 state = true;
                                 NeptusLog.pub().info("Video Stream from IPCam is captured");
                                 startWatchDog();
+                                emptyFramesCounter.set(0);
                                 isCleanTurnOffCam = false;
                             }
                             else {
@@ -1194,9 +1207,13 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
                             txtText.setText(infoSizeStream);
 
                             if (mat.empty()) {
-                                NeptusLog.pub().debug(I18n.text("ERROR capturing img of IPCam"));
+                                NeptusLog.pub().warn(I18n.text("ERROR capturing img of IPCam"));
+                                repaint();
+                                emptyFramesCounter.incrementAndGet();
                                 continue;
                             }
+
+                            emptyFramesCounter.set(0);
 
                             xScale = (float) widthConsole / mat.cols();
                             yScale = (float) heightConsole / mat.rows();
@@ -1506,5 +1523,13 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
     private void resetWatchDog(double timeout) {
         endTimeMillis = (long) (System.currentTimeMillis() + timeout);
         virtualEndThread = false;
+    }
+
+    @Periodic(millisBetweenUpdates = 1_000)
+    public void tick() {
+        if(emptyFramesCounter.getAndSet(0) <= MAX_NULL_FRAMES_FOR_RECONNECT) return;
+
+        NeptusLog.pub().warn("Stream connection hanging, re-connecting");
+        state = false;
     }
 }
