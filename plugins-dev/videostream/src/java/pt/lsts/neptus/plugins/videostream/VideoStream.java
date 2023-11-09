@@ -164,8 +164,6 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
     @NeptusProperty(name = "Broadcast positions to other CCUs", editable = true)
     private boolean broadcastPositions = false;
 
-    // Opencv library name
-    private Socket clientSocket = null;
     // Send data for sync
     private PrintWriter out = null;
     // Buffer for data image
@@ -577,7 +575,6 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
                                     isCleanTurnOffCam = true;
                                     if (tcpOK) {
                                         try {
-                                            clientSocket.close();
                                         }
                                         catch (IOException e1) {
                                             e1.printStackTrace();
