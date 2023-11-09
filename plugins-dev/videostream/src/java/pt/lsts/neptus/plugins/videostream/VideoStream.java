@@ -204,6 +204,7 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
     // Buffer image for showImage
     private BufferedImage offlineImage;
     private BufferedImage onScreenImage;
+    private BufferedImage onScreenImageLastGood;
     // Flag - Lost connection to the vehicle
     private boolean state = false;
     // Flag - Show/hide Menu JFrame
@@ -233,6 +234,7 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
     private JPopupMenu popup;
     // JLabel for image
     private JLabel streamNameJLabel;
+    private JLabel streamWarnJLabel;
 
     // Flag to enable/disable zoom
     private boolean zoomMask = false;
@@ -474,6 +476,14 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
         streamNameJLabel.setHorizontalAlignment(SwingConstants.CENTER);
         streamNameJLabel.setVerticalAlignment(SwingConstants.TOP);
         streamNameJLabel.setVerticalTextPosition(SwingConstants.TOP);
+
+        streamWarnJLabel = new JLabel();
+        streamWarnJLabel.setForeground(Color.WHITE);
+        streamWarnJLabel.setOpaque(false);
+        streamWarnJLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        streamWarnJLabel.setVerticalAlignment(SwingConstants.BOTTOM);
+        streamWarnJLabel.setVerticalTextPosition(SwingConstants.BOTTOM);
+
     }
 
     @Periodic(millisBetweenUpdates = 1_000)
@@ -486,6 +496,10 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
             tooltipText = I18n.text("streaming from") + " " + fieldName.getText();
         }
         this.setToolTipText(I18n.text(tooltipText));
+
+        if (!ipCam) {
+            onScreenImageLastGood = null;
+        }
     }
 
     private void updateSizeVariables(Component comp) {
@@ -965,9 +979,14 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
     // Print Image to JPanel
     @Override
     protected void paintComponent(Graphics g) {
+        boolean warn = false;
         if (refreshTemp && onScreenImage != null) {
             g.drawImage(onScreenImage, 0, 0, this);
             refreshTemp = false;
+        }
+        else if (onScreenImageLastGood != null) {
+            g.drawImage(onScreenImageLastGood, 0, 0, this);
+            warn = true;
         }
         else {
             g.setColor(Color.BLACK);
@@ -975,15 +994,27 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
         }
 
         if (ipCam) {
-            Rectangle2D bounds = g.getFontMetrics().getStringBounds(fieldName.getText(), g);
-            streamNameJLabel.setText(fieldName.getText());
+            String text = fieldName.getText();
+            Rectangle2D bounds = g.getFontMetrics().getStringBounds(text, g);
+            streamNameJLabel.setText(text);
             streamNameJLabel.setSize((int) size.width, (int) bounds.getHeight() + 5);
             streamNameJLabel.paint(g);
+
+            if (warn) {
+                String textWarn = "⚠";
+                streamWarnJLabel.setText(textWarn);
+                streamWarnJLabel.setSize((int) size.width, (int) size.height);
+                streamWarnJLabel.paint(g);
+            }
         }
     }
 
     private void showImage(BufferedImage image) {
         if (!paused) {
+            if (onScreenImage != null) {
+                onScreenImageLastGood = onScreenImage;
+            }
+
             onScreenImage = image;
         }
         refreshTemp = true;
