@@ -439,7 +439,7 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
         return actionGroups;
     }
 
-    public List<List<String>> processActions(List<List<String>> groupedActions, int maxElemsPerActionGroup, boolean isPortrait) {
+    private List<List<String>> processActions(List<List<String>> groupedActions, int maxElemsPerActionGroup, boolean isPortrait) {
         return groupedActions.stream()
                 .map(ll -> slices(ll, maxElemsPerActionGroup))
                 .flatMap(List::stream)
@@ -449,7 +449,7 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
                         ret.add(ll);
                         return ret;
                     }
-                    ;
+
                     boolean split = false;
                     for (String action : ll) {
                         ActionTypeEnum at = extraActionsTypesMap.get(action);
@@ -457,15 +457,14 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
                             at = ActionTypeEnum.SLIDER;
                         }
                         if (at == ActionTypeEnum.SLIDER || at == ActionTypeEnum.HALF_SLIDER) {
-                            split |= !testIfForVertical(action);
+                            split = !testIfForVertical(action);
                             if (split) {
                                 break;
                             }
                         }
                     }
                     if (split) {
-                        List<List<String>> ddd = slices(new ArrayList<>(ll), 1);
-                        return ddd;
+                        return slices(new ArrayList<>(ll), 1);
                     }
 
                     List<List<String>> ret = new ArrayList<>();
