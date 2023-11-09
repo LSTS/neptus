@@ -74,7 +74,6 @@ import pt.lsts.neptus.types.map.MarkElement;
 import pt.lsts.neptus.types.mission.MapMission;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.util.FileUtil;
-import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.SearchOpenCv;
 import pt.lsts.neptus.util.UtilCv;
@@ -86,7 +85,6 @@ import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
-import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -120,12 +118,8 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.net.Socket;
 import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -135,8 +129,6 @@ import java.util.LinkedHashMap;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.zip.DataFormatException;
-import java.util.zip.Inflater;
 
 /**
  * Neptus Plugin for Video Stream and tag frame/object
@@ -168,14 +160,8 @@ public class VideoStream extends ConsolePanel {
 
     private AtomicInteger emptyFramesCounter = new AtomicInteger(0);
 
-    // Send data for sync
-    private PrintWriter out = null;
-    // Buffer for data image
-    private InputStream is = null;
     // Buffer for info of data image
     private BufferedReader in = null;
-    // Flag state of TCP connection
-    private boolean tcpOK = false;
     // Strut Video Capture Opencv
     private VideoCapture capture;
     private VideoCapture captureSave;
@@ -195,14 +181,6 @@ public class VideoStream extends ConsolePanel {
     private float xScale;
     // Scale factor of y pixel
     private float yScale;
-    // read size of pack compress
-    private String line;
-    // Buffer for data receive from DUNE over TCP
-    private String duneGps;
-    // Size of image received
-    private int lengthImage;
-    // buffer for save data receive
-    private byte[] data;
     // Buffer image for showImage
     private BufferedImage offlineImage;
     private BufferedImage onScreenImage;
@@ -213,8 +191,6 @@ public class VideoStream extends ConsolePanel {
     private boolean show_menu = false;
     // Flag state of IP CAM
     private boolean ipCam = false;
-    // Close comTCP state
-    private boolean closeComState = false;
     // Url of IPCam
     private ArrayList<Camera> cameraList;
     private boolean closingPanel = false;
@@ -228,8 +204,6 @@ public class VideoStream extends ConsolePanel {
     private JLabel txtData;
     // JText of data warning message
     private JLabel warningText;
-    // JText of data receive over DUNE TCP message
-    private JLabel txtDataTcp;
     // JFrame for menu options
     private JDialog menu;
     // JPopup Menu
@@ -248,10 +222,6 @@ public class VideoStream extends ConsolePanel {
     private Date date = new Date();
     // Location of log folder
     private String logDir;
-    // Decompress data received
-    private Inflater decompresser = new Inflater(false);
-    // Create an expandable byte array to hold the decompressed data
-    private ByteArrayOutputStream bos;
     // Image resize
     private Mat matResize;
     // Image receive
@@ -301,15 +271,6 @@ public class VideoStream extends ConsolePanel {
     // cord y for zoom
     private int zoomY = 100;
 
-    // check ip for Host - TCP
-    // JFormattedTextField for host ip
-    private JFormattedTextField hostIP;
-    // JDialog to check host connection
-    private JDialog ipHostPing;
-    // JPanel for host ip check
-    private JPanel ipHostCheck;
-    // Flag of ping state to host
-    private boolean pingHostOk = false;
     // Flag for Histogram image
     private boolean histogramFlag = false;
     // Flag to save snapshot
