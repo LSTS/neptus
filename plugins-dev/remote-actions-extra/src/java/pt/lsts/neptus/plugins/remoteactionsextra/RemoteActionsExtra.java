@@ -71,6 +71,7 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
 
     static final boolean DEFAULT_AXIS_DECIMAL_VAL = false;
     private static final int DECIMAL_HOUSES_FOR_DECIMAL_AXIS = 6;
+    private static final int RANGE_127_AXIS_VAL = 127;
 
     enum ActionTypeEnum {
         BUTTON,
@@ -315,7 +316,7 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
             return String.valueOf(MathMiscUtils.round(value, DECIMAL_HOUSES_FOR_DECIMAL_AXIS));
         }
         else {
-            return String.valueOf(Math.round(value * 127));
+            return String.valueOf(Math.round(value * RANGE_127_AXIS_VAL));
         }
     }
 
