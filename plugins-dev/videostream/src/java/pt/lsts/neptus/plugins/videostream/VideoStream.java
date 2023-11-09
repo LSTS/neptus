@@ -469,21 +469,21 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
             this.add(warningText);
         }
 
+        Color whiteLabel = new Color(255, 255, 255, 100);
         streamNameJLabel = new JLabel();
-        streamNameJLabel.setForeground(Color.WHITE);
-        streamNameJLabel.setBackground(new Color(0, 0, 0, 128));
+        streamNameJLabel.setForeground(whiteLabel);
+        streamNameJLabel.setBackground(new Color(0, 0, 0, 80));
         streamNameJLabel.setOpaque(true);
         streamNameJLabel.setHorizontalAlignment(SwingConstants.CENTER);
         streamNameJLabel.setVerticalAlignment(SwingConstants.TOP);
         streamNameJLabel.setVerticalTextPosition(SwingConstants.TOP);
 
         streamWarnJLabel = new JLabel();
-        streamWarnJLabel.setForeground(Color.WHITE);
+        streamWarnJLabel.setForeground(whiteLabel);
         streamWarnJLabel.setOpaque(false);
         streamWarnJLabel.setHorizontalAlignment(SwingConstants.CENTER);
         streamWarnJLabel.setVerticalAlignment(SwingConstants.BOTTOM);
         streamWarnJLabel.setVerticalTextPosition(SwingConstants.BOTTOM);
-
     }
 
     @Periodic(millisBetweenUpdates = 1_000)
@@ -984,7 +984,8 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
             g.drawImage(onScreenImage, 0, 0, this);
             refreshTemp = false;
         }
-        else if (onScreenImageLastGood != null) {
+        else if (onScreenImageLastGood != null && onScreenImageLastGood.getWidth() == size.width
+                && onScreenImageLastGood.getHeight() == size.height) {
             g.drawImage(onScreenImageLastGood, 0, 0, this);
             warn = true;
         }
