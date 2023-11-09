@@ -93,6 +93,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import java.awt.Color;
 import java.awt.Component;
@@ -116,6 +117,7 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -229,6 +231,8 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
     private JDialog menu;
     // JPopup Menu
     private JPopupMenu popup;
+    // JLabel for image
+    private JLabel streamNameJLabel;
 
     // Flag to enable/disable zoom
     private boolean zoomMask = false;
@@ -462,6 +466,14 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
             warningText.setFont(new Font("Courier New", Font.ITALIC, 18));
             this.add(warningText);
         }
+
+        streamNameJLabel = new JLabel();
+        streamNameJLabel.setForeground(Color.WHITE);
+        streamNameJLabel.setBackground(new Color(0, 0, 0, 128));
+        streamNameJLabel.setOpaque(true);
+        streamNameJLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        streamNameJLabel.setVerticalAlignment(SwingConstants.TOP);
+        streamNameJLabel.setVerticalTextPosition(SwingConstants.TOP);
     }
 
     @Periodic(millisBetweenUpdates = 1_000)
@@ -960,6 +972,13 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
         else {
             g.setColor(Color.BLACK);
             g.fillRect(0, 0, (int) size.width, (int) size.height);
+        }
+
+        if (ipCam) {
+            Rectangle2D bounds = g.getFontMetrics().getStringBounds(fieldName.getText(), g);
+            streamNameJLabel.setText(fieldName.getText());
+            streamNameJLabel.setSize((int) size.width, (int) bounds.getHeight() + 5);
+            streamNameJLabel.paint(g);
         }
     }
 
