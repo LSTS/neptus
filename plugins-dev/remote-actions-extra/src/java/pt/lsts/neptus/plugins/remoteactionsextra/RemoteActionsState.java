@@ -39,7 +39,7 @@ class RemoteActionsState {
     public final Map<String, Integer> extraButtonActionsMap = new LinkedHashMap<>();
     public final Map<String, Double> extraAxisActionsMap = new LinkedHashMap<>();
 
-    public boolean decimalAxis = RemoteActionsExtra.defaultAxisDecimalVal;
+    public boolean decimalAxis = RemoteActionsExtra.DEFAULT_AXIS_DECIMAL_VAL;
 
     public RemoteActionsState() {
     }
@@ -60,7 +60,7 @@ class RemoteActionsState {
     public void reset() {
         this.extraButtonActionsMap.clear();
         this.extraAxisActionsMap.clear();
-        this.decimalAxis = RemoteActionsExtra.defaultAxisDecimalVal;
+        this.decimalAxis = RemoteActionsExtra.DEFAULT_AXIS_DECIMAL_VAL;
     }
 
     public void changeButtonActionValue(String action, int val) {

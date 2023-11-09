@@ -69,7 +69,7 @@ import java.util.stream.Collectors;
 @Popup(name = "Remote Actions Extra", width = 300, height = 200, pos = Popup.POSITION.BOTTOM, accelerator = KeyEvent.VK_3)
 public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChangeListener, ConfigurationListener {
 
-    static final boolean defaultAxisDecimalVal = false;
+    static final boolean DEFAULT_AXIS_DECIMAL_VAL = false;
     private static final int DECIMAL_HOUSES_FOR_DECIMAL_AXIS = 6;
 
     enum ActionTypeEnum {
@@ -209,7 +209,7 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
 
     @Subscribe
     public void on(ConsoleEventMainSystemChange evt) {
-        configureActions("", defaultAxisDecimalVal, false);
+        configureActions("", DEFAULT_AXIS_DECIMAL_VAL, false);
         takeControlMonitor.on(evt);
     }
 
@@ -221,7 +221,7 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
 
         if (msg.getOp() != RemoteActionsRequest.OP.REPORT) return;
 
-        configureActions(msg.getActions(), defaultAxisDecimalVal, false);
+        configureActions(msg.getActions(), DEFAULT_AXIS_DECIMAL_VAL, false);
     }
 
     @Subscribe
@@ -516,7 +516,7 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
 
     void reset() {
         synchronized (extraActionsTypesMap) {
-            curState.decimalAxis = defaultAxisDecimalVal;
+            curState.decimalAxis = DEFAULT_AXIS_DECIMAL_VAL;
             lastState.reset();
             extraActionsTypesMap.clear();
             curState.extraButtonActionsMap.clear();
