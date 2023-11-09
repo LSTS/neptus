@@ -506,6 +506,7 @@ public class VideoStream extends ConsolePanel {
                         double y = height - e.getY();
                         mouseLoc = new Point2D.Double((x / width - 0.5) * 2, (y / height - 0.5) * 2);
                         LocationType loc = camFov.getLookAt(mouseLoc.getX(), mouseLoc.getY());
+                        loc.convertToAbsoluteLatLonDepth();
                         String id = placeLocationOnMap(loc);
                         snap = new StoredSnapshot(id, loc, e.getPoint(), onScreenImage, new Date());
                         snap.setCamFov(camFov);
@@ -892,6 +893,11 @@ public class VideoStream extends ConsolePanel {
         double lon = loc.getLongitudeDegs();
         long timestamp = System.currentTimeMillis();
         String id = I18n.text("Snap") + "-" + frameTagID + "-" + timestampToReadableHoursString(timestamp);
+
+        if (loc.equals(LocationType.ABSOLUTE_ZERO)) {
+            // Don't create map elements on lat/lon zero
+            return id;
+        }
 
         AbstractElement elems[] = MapGroup.getMapGroupInstance(getConsole().getMission()).getMapObjectsByID(id);
 
