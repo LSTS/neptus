@@ -195,7 +195,7 @@ public class UtilVideoStream {
     }
 
     public static void addCamToFile(Camera camToAdd, String fileName) {
-        String iniRsrcPath = FileUtil.getResourceAsFileKeepName(VideoStream.BASE_FOLDER_FOR_URLINI);
+        String iniRsrcPath = FileUtil.getResourceAsFileKeepName(VideoStream.BASE_FOLDER_FOR_URL_INI);
 
         File confIni = new File(fileName);
         if (!confIni.exists()) {

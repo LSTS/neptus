@@ -142,18 +142,18 @@ import java.util.zip.Inflater;
  */
 @Popup(pos = POSITION.CENTER, width = 640, height = 480, accelerator = 'R')
 @LayerPriority(priority = 0)
-@PluginDescription(name = "Video Stream", version = "1.4.1", author = "Pedro Gonçalves",
+@PluginDescription(name = "Video Stream", version = "1.5.1", author = "Pedro Gonçalves",
         description = "Plugin to view IP Camera streams", icon = "images/menus/camera.png",
         category = PluginDescription.CATEGORY.INTERFACE)
 public class VideoStream extends ConsolePanel { // implements ItemListener {
     private static final String BASE_FOLDER_FOR_IMAGES = ConfigFetch.getLogsFolder() + "/images";
-    static final String BASE_FOLDER_FOR_URLINI = "ipUrl.ini";
+    static final String BASE_FOLDER_FOR_URL_INI = "ipUrl.ini";
     // Default width and height of Console
     private static final int DEFAULT_WIDTH_CONSOLE = 640;
     private static final int DEFAULT_HEIGHT_CONSOLE = 480;
 
     // Timeout for watchDogThread in milliseconds
-    private static final int WATCH_DOG_TIMEOUT = 4000;
+    private static final int WATCH_DOG_TIMEOUT_MILLIS = 4000;
 
     @NeptusProperty(name = "Camera URL", editable = false)
     private String camUrl = ""; //rtsp://10.0.20.207:554/live/ch01_0
@@ -760,7 +760,7 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
                 Camera camToAdd = UtilVideoStream.parseLineCamera(String.format("%s#%s#%s\n", fieldName.getText().trim(),
                         fieldIP.getText().trim(), fieldUrl.getText().trim()));
                 if (camToAdd != null) {
-                    String ipUrlFilename = ConfigFetch.getConfFolder() + "/" + BASE_FOLDER_FOR_URLINI;
+                    String ipUrlFilename = ConfigFetch.getConfFolder() + "/" + BASE_FOLDER_FOR_URL_INI;
                     UtilVideoStream.addCamToFile(camToAdd, ipUrlFilename);
                     reloadIPCamList();
                 }
@@ -772,7 +772,7 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
             @Override
             public void actionPerformed(ActionEvent event) {
                 Camera camToRemove = (Camera) ipCamList.getSelectedItem();
-                String ipUrlFilename = ConfigFetch.getConfFolder() + "/" + BASE_FOLDER_FOR_URLINI;
+                String ipUrlFilename = ConfigFetch.getConfFolder() + "/" + BASE_FOLDER_FOR_URL_INI;
                 // Execute when button is pressed
                 UtilVideoStream.removeCamFromFile(camToRemove, ipUrlFilename);
                 reloadIPCamList();
@@ -861,8 +861,8 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
 
     // Read file
     private ArrayList<Camera> readIPUrl() {
-        String iniRsrcPath = FileUtil.getResourceAsFileKeepName(BASE_FOLDER_FOR_URLINI);
-        File confIni = new File(ConfigFetch.getConfFolder() + "/" + BASE_FOLDER_FOR_URLINI);
+        String iniRsrcPath = FileUtil.getResourceAsFileKeepName(BASE_FOLDER_FOR_URL_INI);
+        File confIni = new File(ConfigFetch.getConfFolder() + "/" + BASE_FOLDER_FOR_URL_INI);
         if (!confIni.exists()) {
             FileUtil.copyFileToDir(iniRsrcPath, ConfigFetch.getConfFolder());
         }
@@ -1035,8 +1035,8 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
         Thread ipUrl = new Thread("Create file IPUrl Thread") {
             @Override
             public void run() {
-                String iniRsrcPath = FileUtil.getResourceAsFileKeepName(BASE_FOLDER_FOR_URLINI);
-                File confIni = new File(ConfigFetch.getConfFolder() + "/" + BASE_FOLDER_FOR_URLINI);
+                String iniRsrcPath = FileUtil.getResourceAsFileKeepName(BASE_FOLDER_FOR_URL_INI);
+                File confIni = new File(ConfigFetch.getConfFolder() + "/" + BASE_FOLDER_FOR_URL_INI);
                 if (!confIni.exists()) {
                     FileUtil.copyFileToDir(iniRsrcPath, ConfigFetch.getConfFolder());
                 }
@@ -1558,7 +1558,7 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
         watchDog = new Thread(new Runnable() {
             @Override
             public void run() {
-                endTimeMillis = System.currentTimeMillis() + WATCH_DOG_TIMEOUT;
+                endTimeMillis = System.currentTimeMillis() + WATCH_DOG_TIMEOUT_MILLIS;
                 virtualEndThread = false;
                 while (true) {
                     if (System.currentTimeMillis() > endTimeMillis && !virtualEndThread) {
