@@ -64,6 +64,7 @@ import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
+import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.AbstractElement;
@@ -353,6 +354,8 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
                 }
             });
 
+            this.setToolTipText(I18n.text("not connected"));
+
             // Mouse click
             mouseListenerInit();
 
@@ -459,6 +462,18 @@ public class VideoStream extends ConsolePanel { // implements ItemListener {
             warningText.setFont(new Font("Courier New", Font.ITALIC, 18));
             this.add(warningText);
         }
+    }
+
+    @Periodic(millisBetweenUpdates = 1_000)
+    public void updateToolTip() {
+        String tooltipText = I18n.text("not connected");
+        if (ipCam && !state) {
+            tooltipText = I18n.text("connecting to") + " " + fieldName.getText();
+        }
+        else if (ipCam) {
+            tooltipText = I18n.text("streaming from") + " " + fieldName.getText();
+        }
+        this.setToolTipText(I18n.text(tooltipText));
     }
 
     private void updateSizeVariables(Component comp) {
