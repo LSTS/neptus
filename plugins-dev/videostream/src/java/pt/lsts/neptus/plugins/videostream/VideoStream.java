@@ -461,8 +461,9 @@ public class VideoStream extends ConsolePanel {
         this.setToolTipText(I18n.text(tooltipText));
 
         if (!ipCam) {
-            onScreenImageLastGood = null;
+            onScreenImageLastGood = offlineImage;
         }
+        repaint(500);
     }
 
     private void updateSizeVariables(Component comp) {
@@ -549,6 +550,7 @@ public class VideoStream extends ConsolePanel {
                                     }
                                     state = false;
                                     ipCam = false;
+                                    repaint(500);
                                 }
                             });
                     item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, InputEvent.ALT_MASK));
