@@ -806,8 +806,8 @@ public class VideoStream extends ConsolePanel {
         ipCamManagementPanel.add(fieldName, "w 410!, wrap");
         ipCamManagementPanel.add(fieldIP, "w 410!, wrap");
         ipCamManagementPanel.add(fieldUrl, "w 410!, wrap");
-        ipCamManagementPanel.add(addNewIPCam, "w 120!, center, wrap");
-        ipCamManagementPanel.add(removeIpCam, "w 120!, center");
+        ipCamManagementPanel.add(addNewIPCam, "split 2, width 120!, center, gap related");
+        ipCamManagementPanel.add(removeIpCam, "w 120!");
 
         ipCamPing.add(ipCamManagementPanel);
         ipCamPing.pack();
