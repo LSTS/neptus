@@ -432,7 +432,7 @@ public class VideoStream extends ConsolePanel {
             this.add(warningText);
         }
 
-        Color whiteLabel = new Color(255, 255, 255, 100);
+        Color whiteLabel = new Color(255, 255, 255, 200);
         streamNameJLabel = new JLabel();
         streamNameJLabel.setForeground(whiteLabel);
         streamNameJLabel.setBackground(new Color(0, 0, 0, 80));
