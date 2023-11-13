@@ -533,11 +533,11 @@ public class VideoStream extends ConsolePanel {
                             });
                     item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, InputEvent.ALT_MASK));
 
-                    popup.add(item = new JMenuItem(I18n.text("Close connections"),
-                                    ImageUtils.createImageIcon(String.format("images/menus/exit.png"))))
+                    popup.add(item = new JMenuItem(I18n.text("Close connection"),
+                                    ImageUtils.createImageIcon("images/menus/exit.png")))
                             .addActionListener(new ActionListener() {
                                 public void actionPerformed(ActionEvent e) {
-                                    NeptusLog.pub().info("Closing all Video Streams");
+                                    NeptusLog.pub().info("Closing video streams");
                                     noVideoLogoState = false;
                                     isCleanTurnOffCam = true;
                                     if (ipCam && state && capture != null && capture.isOpened()) {
