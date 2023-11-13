@@ -151,7 +151,7 @@ public class VideoStream extends ConsolePanel {
 
     // Timeout for watchDogThread in milliseconds
     private static final int WATCH_DOG_TIMEOUT_MILLIS = 4000;
-    private static final int WATCH_DOG_LOOP_THREAD_TIMEOUT_MILLIS = 2000;
+    private static final int WATCH_DOG_LOOP_THREAD_TIMEOUT_MILLIS = 6000;
 
     private static final int MAX_NULL_FRAMES_FOR_RECONNECT = 10;
 
