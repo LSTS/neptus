@@ -129,6 +129,7 @@ import java.util.LinkedHashMap;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Neptus Plugin for Video Stream and tag frame/object
@@ -150,6 +151,8 @@ public class VideoStream extends ConsolePanel {
 
     // Timeout for watchDogThread in milliseconds
     private static final int WATCH_DOG_TIMEOUT_MILLIS = 4000;
+    private static final int WATCH_DOG_LOOP_THREAD_TIMEOUT_MILLIS = 2000;
+
     private static final int MAX_NULL_FRAMES_FOR_RECONNECT = 10;
 
     @NeptusProperty(name = "Camera URL", editable = false)
@@ -300,6 +303,7 @@ public class VideoStream extends ConsolePanel {
     private Point2D mouseLoc = null;
     private StoredSnapshot snap = null;
     private boolean paused = false;
+    private AtomicLong captureLoopAtomicLongMillis = new AtomicLong(-1);
 
     public VideoStream(ConsoleLayout console) {
         super(console);
@@ -540,11 +544,11 @@ public class VideoStream extends ConsolePanel {
                                     NeptusLog.pub().info("Closing video streams");
                                     noVideoLogoState = false;
                                     isCleanTurnOffCam = true;
-                                    if (ipCam && state && capture != null && capture.isOpened()) {
+                                    if (capture != null && capture.isOpened()) {
                                         try {
                                             capture.release();
                                             NeptusLog.pub().info("Capture successfully released");
-                                        } catch (Exception exp) {
+                                        } catch (Exception | Error exp) {
                                             NeptusLog.pub().error(exp.getMessage());
                                         }
                                     }
@@ -1117,28 +1121,52 @@ public class VideoStream extends ConsolePanel {
     private Thread updaterThread() {
         Thread ret = new Thread("Video Stream Thread") {
             @Override
+            public void interrupt() {
+                super.interrupt();
+                NeptusLog.pub().error("<<<<<<<<<<<<<<< Interrupted >>>>>>>>>>>>>>>");
+                try {
+                    VideoCapture captureOld = capture;
+                    if (captureOld != null && captureOld.isOpened()) {
+                        captureOld.release();
+                    }
+                } catch (Exception | Error e) {
+                    NeptusLog.pub().warn(e.getMessage());
+                }
+            }
+
+            @Override
             public void run() {
                 initImage();
                 setupWatchDog();
                 while (true) {
+                    captureLoopAtomicLongMillis.set(System.currentTimeMillis());
                     if (closingPanel) {
                         state = false;
                         ipCam = false;
                     }
                     else if (ipCam) {
-                        if (state == false) {
+                        if (!state) {
                             try {
                                 if (capture != null && capture.isOpened()) {
                                     capture.release();
                                 }
-                            } catch (Exception e) {
+                            } catch (Exception | Error e) {
                                 NeptusLog.pub().warn(e.getMessage());
                             }
                             // Create Buffer (type MAT) for Image receive
                             mat = new Mat(heightImgRec, widthImgRec, CvType.CV_8UC3);
                             capture = new VideoCapture();
-                            capture.open(camUrl);
-                            if (capture.isOpened()) {
+                            capture.setExceptionMode(true);
+                            try {
+                                boolean res = capture.open(camUrl);
+                                if (!res) {
+                                    capture = null;
+                                }
+                            } catch (Exception | Error e) {
+                                capture = null;
+                                NeptusLog.pub().error(e.getMessage());
+                            }
+                            if (capture != null && capture.isOpened()) {
                                 state = true;
                                 NeptusLog.pub().info("Video Stream from IPCam is captured");
                                 startWatchDog();
@@ -1156,8 +1184,12 @@ public class VideoStream extends ConsolePanel {
                             isAliveIPCam = false;
                             resetWatchDog(4000);
                             while (watchDog.isAlive() && !isAliveIPCam) {
-                                capture.read(mat);
-                                isAliveIPCam = true;
+                                try {
+                                    capture.read(mat);
+                                    isAliveIPCam = true;
+                                } catch (Exception | Error e) {
+                                    NeptusLog.pub().debug(e.getMessage());
+                                }
                             }
                             if (isAliveIPCam) {
                                 resetWatchDog(4000);
@@ -1500,5 +1532,23 @@ public class VideoStream extends ConsolePanel {
 
         NeptusLog.pub().warn("Stream connection hanging, re-connecting");
         state = false;
+    }
+
+    @Periodic(millisBetweenUpdates = 1_000)
+    public void tick2() {
+        long timer = captureLoopAtomicLongMillis.get();
+        if (timer == -1) return;
+
+        if (System.currentTimeMillis() - timer > WATCH_DOG_LOOP_THREAD_TIMEOUT_MILLIS) {
+            try {
+                Thread oldUpdater = updater;
+                oldUpdater.interrupt();
+            } catch (Exception e) {
+                NeptusLog.pub().error(e.getMessage());
+            }
+
+            updater = updaterThread();
+            updater.start();
+        }
     }
 }
