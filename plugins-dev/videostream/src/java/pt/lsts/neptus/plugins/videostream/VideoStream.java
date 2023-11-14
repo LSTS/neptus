@@ -1540,6 +1540,7 @@ public class VideoStream extends ConsolePanel {
         if (timer == -1) return;
 
         if (System.currentTimeMillis() - timer > WATCH_DOG_LOOP_THREAD_TIMEOUT_MILLIS) {
+            captureLoopAtomicLongMillis.set(-1);
             try {
                 Thread oldUpdater = updater;
                 oldUpdater.interrupt();
