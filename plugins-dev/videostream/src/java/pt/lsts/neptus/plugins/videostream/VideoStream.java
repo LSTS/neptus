@@ -544,6 +544,8 @@ public class VideoStream extends ConsolePanel {
                                     NeptusLog.pub().info("Closing video streams");
                                     noVideoLogoState = false;
                                     isCleanTurnOffCam = true;
+                                    state = false;
+                                    ipCam = false;
                                     if (capture != null && capture.isOpened()) {
                                         try {
                                             capture.release();
@@ -552,8 +554,6 @@ public class VideoStream extends ConsolePanel {
                                             NeptusLog.pub().error(exp.getMessage());
                                         }
                                     }
-                                    state = false;
-                                    ipCam = false;
                                     repaint(500);
                                 }
                             });
@@ -1183,7 +1183,7 @@ public class VideoStream extends ConsolePanel {
                             long startTime = System.currentTimeMillis();
                             isAliveIPCam = false;
                             resetWatchDog(4000);
-                            while (watchDog.isAlive() && !isAliveIPCam) {
+                            while (watchDog.isAlive() && !isAliveIPCam && capture != null && capture.isOpened()) {
                                 try {
                                     capture.read(mat);
                                     isAliveIPCam = true;
