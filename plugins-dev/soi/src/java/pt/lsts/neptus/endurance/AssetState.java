@@ -142,7 +142,7 @@ public class AssetState {
 		Date d = null;
 		if (obj.get("timestamp") != null)
 			d = new Date((long)(obj.getDouble("timestamp", 0) * 1000));
-		System.out.println("date for asset state is "+d);
+		//System.out.println("date for asset state is "+d);
 		ArrayList<String> errors = new ArrayList<>();
 		
 		if (obj.get("errors") != null) {
