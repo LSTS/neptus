@@ -334,7 +334,7 @@ public class AssetsManager {
                     plans.put(id, received.getPlan());
             }
             if (sb.length() > 0) {
-                NeptusLog.pub().info(sb);
+                NeptusLog.pub().info(sb.substring(0, 100));
             }
         }
         catch (TimeoutException e) {
