@@ -162,6 +162,7 @@ public class VideoStream extends ConsolePanel {
     private boolean broadcastPositions = false;
 
     private AtomicInteger emptyFramesCounter = new AtomicInteger(0);
+    private AtomicInteger threadsIdCounter = new AtomicInteger(0);
 
     // Buffer for info of data image
     private BufferedReader in = null;
@@ -1119,11 +1120,14 @@ public class VideoStream extends ConsolePanel {
 
     // Thread to handle data receive
     private Thread updaterThread() {
-        Thread ret = new Thread("Video Stream Thread") {
+        final int threadId = threadsIdCounter.incrementAndGet();
+        NeptusLog.pub().info("New Video Stream Thread " + threadId);
+        Thread ret = new Thread("Video Stream Thread " + threadId) {
+            int tid = threadId;
             @Override
             public void interrupt() {
                 super.interrupt();
-                NeptusLog.pub().error("<<<<<<<<<<<<<<< Interrupted >>>>>>>>>>>>>>>");
+                NeptusLog.pub().error("<<<<<<<<<<<<<<< Interrupted " + tid + " >>>>>>>>>>>>>>>");
                 try {
                     VideoCapture captureOld = capture;
                     if (captureOld != null && captureOld.isOpened()) {
@@ -1139,6 +1143,11 @@ public class VideoStream extends ConsolePanel {
                 initImage();
                 setupWatchDog();
                 while (true) {
+                    if (tid != threadsIdCounter.get()) {
+                        NeptusLog.pub().error("<<<<<<<<<<<<<<< Killing numb " + tid + " >>>>>>>>>>>>>>>");
+                        return;
+                    }
+
                     captureLoopAtomicLongMillis.set(System.currentTimeMillis());
                     if (closingPanel) {
                         state = false;
