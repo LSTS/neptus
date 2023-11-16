@@ -34,6 +34,7 @@ package pt.lsts.neptus.plugins.remoteactionsextra;
 
 import pt.lsts.imc.EntityState;
 import pt.lsts.imc.VehicleState;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 
 import javax.swing.JButton;
@@ -92,8 +93,13 @@ class TakeControlMonitor {
     }
 
     public void on(EntityState msg) {
-        if (!msg.getSourceName().equals(parent.getMainVehicleId())
-                || !msg.getEntityName().equals(entityName)) {
+        try {
+            if (!msg.getSourceName().equals(parent.getMainVehicleId())
+                    || !msg.getEntityName().equals(entityName)) {
+                return;
+            }
+        } catch (Exception e) {
+            NeptusLog.pub().warn(e.getMessage());
             return;
         }
 
