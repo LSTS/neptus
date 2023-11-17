@@ -552,7 +552,7 @@ public class VideoStream extends ConsolePanel {
                                             capture.release();
                                             NeptusLog.pub().info("Capture successfully released");
                                         } catch (Exception | Error exp) {
-                                            NeptusLog.pub().error(exp.getMessage());
+                                            NeptusLog.pub().warn("Capture error releasing :" + exp.getMessage());
                                         }
                                     }
                                     repaint(500);
@@ -1123,18 +1123,20 @@ public class VideoStream extends ConsolePanel {
         final int threadId = threadsIdCounter.incrementAndGet();
         NeptusLog.pub().info("New Video Stream Thread " + threadId);
         Thread ret = new Thread("Video Stream Thread " + threadId) {
-            int tid = threadId;
+            final int tid = threadId;
+            final String cid = String.format("%05X-%d", VideoStream.this.hashCode(), tid);
             @Override
             public void interrupt() {
                 super.interrupt();
-                NeptusLog.pub().error("<<<<<<<<<<<<<<< Interrupted " + tid + " >>>>>>>>>>>>>>>");
+                NeptusLog.pub().error("<<<<< Interrupted tid::" + cid + " >>>>>");
                 try {
                     VideoCapture captureOld = capture;
                     if (captureOld != null && captureOld.isOpened()) {
                         captureOld.release();
+                        NeptusLog.pub().info("Old capture for tid::" + cid + " successfully released");
                     }
                 } catch (Exception | Error e) {
-                    NeptusLog.pub().warn(e.getMessage());
+                    NeptusLog.pub().warn("Old capture for tid::" + cid + " error releasing :" + e.getMessage());
                 }
             }
 
@@ -1144,7 +1146,7 @@ public class VideoStream extends ConsolePanel {
                 setupWatchDog();
                 while (true) {
                     if (tid != threadsIdCounter.get()) {
-                        NeptusLog.pub().error("<<<<<<<<<<<<<<< Killing numb " + tid + " >>>>>>>>>>>>>>>");
+                        NeptusLog.pub().error("<<<<< Killing numb tid::" + cid + " >>>>>");
                         return;
                     }
 
@@ -1158,9 +1160,10 @@ public class VideoStream extends ConsolePanel {
                             try {
                                 if (capture != null && capture.isOpened()) {
                                     capture.release();
+                                    NeptusLog.pub().info("Old capture for tid::" + cid + " successfully released");
                                 }
                             } catch (Exception | Error e) {
-                                NeptusLog.pub().warn(e.getMessage());
+                                NeptusLog.pub().warn("Old capture for tid::" + cid + " error releasing :" + e.getMessage());
                             }
                             // Create Buffer (type MAT) for Image receive
                             mat = new Mat(heightImgRec, widthImgRec, CvType.CV_8UC3);
@@ -1177,14 +1180,14 @@ public class VideoStream extends ConsolePanel {
                             }
                             if (capture != null && capture.isOpened()) {
                                 state = true;
-                                NeptusLog.pub().info("Video Stream from IPCam is captured");
+                                NeptusLog.pub().info("Video Stream from IPCam is captured - tid::" + cid);
                                 startWatchDog();
                                 emptyFramesCounter.set(0);
                                 isCleanTurnOffCam = false;
                             }
                             else {
                                 ipCam = false;
-                                NeptusLog.pub().info("Video Stream from IPCam is not captured");
+                                NeptusLog.pub().info("Video Stream from IPCam is not captured - tid::" + cid);
                             }
                         }
                         // IPCam Capture
@@ -1217,7 +1220,7 @@ public class VideoStream extends ConsolePanel {
                             txtText.setText(infoSizeStream);
 
                             if (mat.empty()) {
-                                NeptusLog.pub().warn(I18n.text("ERROR capturing img of IPCam"));
+                                NeptusLog.pub().warn(I18n.text("ERROR capturing img of IPCam - tid::" + cid));
                                 repaint();
                                 emptyFramesCounter.incrementAndGet();
                                 continue;
@@ -1273,7 +1276,7 @@ public class VideoStream extends ConsolePanel {
                             TimeUnit.MILLISECONDS.sleep(1000);
                         }
                         catch (InterruptedException e) {
-                            e.printStackTrace();
+                            NeptusLog.pub().warn("<<<<< Interrupted while sleeping tid::" + cid + " >>>>>");
                         }
                         initImage();
                     }
@@ -1346,7 +1349,7 @@ public class VideoStream extends ConsolePanel {
                                 TimeUnit.MILLISECONDS.sleep(100);
                             }
                             catch (InterruptedException e) {
-                                e.printStackTrace();
+                                NeptusLog.pub().warn("Interrupted save while sleeping");
                             }
                         }
                     }
@@ -1355,7 +1358,7 @@ public class VideoStream extends ConsolePanel {
                             TimeUnit.MILLISECONDS.sleep(1000);
                         }
                         catch (InterruptedException e) {
-                            e.printStackTrace();
+                            NeptusLog.pub().warn("Interrupted save while sleeping");
                         }
                     }
                     if (closingPanel) {
