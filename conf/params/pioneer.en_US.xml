@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2022.04.0 (project/bugwright2,d69b2115d)" system="pioneer" i18n="en_US">
+<config format="1" version="2022.04.0 (feature/pioneer_wall_tracking,4faa3256f)" system="pioneer" i18n="en_US">
   <section name="Text Message Parser" name-i18n="Text Message Parser">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -393,6 +393,106 @@
       <desc>Limit velocity vector inside 2D range.Defined as: x_min, x_max, y_min, y_max.Default is empty (no trimming).</desc>
       <size>4</size>
     </param>
+    <param name="Wall Tracking -- Active">
+      <name-i18n>Wall Tracking -- Active</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Wall tracking active</desc>
+    </param>
+    <param name="Entity Label - Multibeam Distance">
+      <name-i18n>Entity Label - Multibeam Distance</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Oculus Distance</default>
+      <units/>
+      <desc>Entity label of 'Distance' messages triggered by the multibeam</desc>
+    </param>
+    <param name="Entity Label - Multibeam Angle">
+      <name-i18n>Entity Label - Multibeam Angle</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Oculus Angle</default>
+      <units/>
+      <desc>Entity label of 'Angle' messages triggered by the multibeam</desc>
+    </param>
+    <param name="Wall Tracking -- Wall Distance Threshold">
+      <name-i18n>Wall Tracking -- Wall Distance Threshold</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5</default>
+      <units/>
+      <desc>Wall distance threshold</desc>
+    </param>
+    <param name="Wall Tracking -- Average Distance Window">
+      <name-i18n>Wall Tracking -- Average Distance Window</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5</default>
+      <units/>
+      <desc>Wall distance moving average window size</desc>
+    </param>
+    <param name="Wall Tracking -- Average Angle Window">
+      <name-i18n>Wall Tracking -- Average Angle Window</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5</default>
+      <units/>
+      <desc>Wall angle moving average window size</desc>
+    </param>
+    <param name="Wall Tracking -- Gains">
+      <name-i18n>Wall Tracking -- Gains</name-i18n>
+      <type>list:real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.5, 0.0, 0.1</default>
+      <units/>
+      <desc>Distance PID controller gains</desc>
+      <size>3</size>
+    </param>
+    <param name="Wall Tracking -- Maximum Speed">
+      <name-i18n>Wall Tracking -- Maximum Speed</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.5</default>
+      <units>m/s</units>
+      <desc>Maximum speed output from PID</desc>
+    </param>
+    <param name="Wall Tracking -- Integral Limit">
+      <name-i18n>Wall Tracking -- Integral Limit</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.2</default>
+      <units>m/s</units>
+      <desc>PID Integral limit</desc>
+    </param>
+    <param name="Wall Tracking -- Absolute Maximum Error">
+      <name-i18n>Wall Tracking -- Absolute Maximum Error</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.0</default>
+      <units>m</units>
+      <desc>Absolute value of maximum error in distance</desc>
+    </param>
+    <param name="Wall Tracking -- Desired Wall Distance">
+      <name-i18n>Wall Tracking -- Desired Wall Distance</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.0</default>
+      <units>m</units>
+      <desc>Desired distance to wall during maneuver</desc>
+    </param>
   </section>
   <section name="Pioneer Control" name-i18n="Pioneer Control">
     <param name="Entity Label">
@@ -576,7 +676,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1</default>
+      <default>2</default>
       <units/>
       <desc>Set motion input type (slow[0], normal[1], fast[2])</desc>
     </param>
@@ -638,6 +738,24 @@
       <default>false</default>
       <units/>
       <desc>Lock rotation for debug purposes.</desc>
+    </param>
+    <param name="Entity Label - Multibeam Distance">
+      <name-i18n>Entity Label - Multibeam Distance</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Oculus Distance</default>
+      <units/>
+      <desc>Entity label of 'Distance' messages triggered by the multibeam</desc>
+    </param>
+    <param name="Entity Label - Multibeam Angle">
+      <name-i18n>Entity Label - Multibeam Angle</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Oculus Angle</default>
+      <units/>
+      <desc>Entity label of 'Angle' messages triggered by the multibeam</desc>
     </param>
   </section>
   <section name="Depth Control" name-i18n="Depth Control">
@@ -757,7 +875,7 @@
       <type>list:real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1.0, 0.0, 0.0</default>
+      <default>4.0, 0.2, 0.1</default>
       <units/>
       <desc>Proportional gain for heave controller</desc>
       <size>3</size>
@@ -861,7 +979,7 @@
       <type>list:real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>2.0, 0.0, 0.2</default>
+      <default>2.0, 0.0, 0.1</default>
       <units/>
       <desc>PID gains for Heading Rate controller</desc>
       <size>3</size>
@@ -881,7 +999,7 @@
       <type>list:real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0.0, 0.03, 0.0</default>
+      <default>0.5, 0.25, 0.1</default>
       <units/>
       <desc>PID gains for Surge controller</desc>
       <size>3</size>
@@ -891,7 +1009,7 @@
       <type>list:real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0.0, 0.03, 0.0</default>
+      <default>2.0, 0.3, 0.1</default>
       <units/>
       <desc>PID gains for Sway controller</desc>
       <size>3</size>
@@ -2909,6 +3027,353 @@
       <default/>
       <units/>
       <desc>Set of commands for plans to generate at boot</desc>
+    </param>
+  </section>
+  <section name="GPS" name-i18n="GPS">
+    <param name="Entity Label">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>GPS</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Activation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>3.0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="IO Port - Device">
+      <name-i18n>IO Port - Device</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>tcp://192.168.1.101:27644</default>
+      <units/>
+      <desc>IO device URI in the form "uart://DEVICE:BAUD"</desc>
+    </param>
+    <param name="Input Timeout">
+      <name-i18n>Input Timeout</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>4.0</default>
+      <units>s</units>
+      <desc>Input timeout</desc>
+      <min>0.0</min>
+    </param>
+    <param name="Power Channel - Names">
+      <name-i18n>Power Channel - Names</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>Device's power channels</desc>
+    </param>
+    <param name="Sentence Order">
+      <name-i18n>Sentence Order</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>GPGSA, GPRMC, GPGGA</default>
+      <units/>
+      <desc>Sentence order</desc>
+    </param>
+    <param name="Initialization String 0 - Command">
+      <name-i18n>Initialization String 0 - Command</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>$PUBX,40,VTG,0,0,0,1,0,0\r\n</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Initialization String 0 - Reply">
+      <name-i18n>Initialization String 0 - Reply</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Initialization String 1 - Command">
+      <name-i18n>Initialization String 1 - Command</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>$PUBX,40,ZDA,0,0,0,1,0,0\r\n</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Initialization String 1 - Reply">
+      <name-i18n>Initialization String 1 - Reply</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Initialization String 2 - Command">
+      <name-i18n>Initialization String 2 - Command</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>$PUBX,40,00,0,0,0,1,0,0\r\n</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Initialization String 2 - Reply">
+      <name-i18n>Initialization String 2 - Reply</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Initialization String 3 - Command">
+      <name-i18n>Initialization String 3 - Command</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>$PUBX,40,GLL,0,0,0,0,0,0\r\n</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Initialization String 3 - Reply">
+      <name-i18n>Initialization String 3 - Reply</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Initialization String 4 - Command">
+      <name-i18n>Initialization String 4 - Command</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>$PUBX,40,GSA,0,0,0,0,0,0\r\n</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Initialization String 4 - Reply">
+      <name-i18n>Initialization String 4 - Reply</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Initialization String 5 - Command">
+      <name-i18n>Initialization String 5 - Command</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>$PUBX,40,GSV,0,0,0,0,0,0\r\n</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Initialization String 5 - Reply">
+      <name-i18n>Initialization String 5 - Reply</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Initialization String 6 - Command">
+      <name-i18n>Initialization String 6 - Command</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>$PUBX,40,RMC,0,0,0,0,0,0\r\n</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Initialization String 6 - Reply">
+      <name-i18n>Initialization String 6 - Reply</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Initialization String 7 - Command">
+      <name-i18n>Initialization String 7 - Command</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>$PUBX,40,GGA,0,0,0,0,0,0\r\n</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Initialization String 7 - Reply">
+      <name-i18n>Initialization String 7 - Reply</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Initialization String 8 - Command">
+      <name-i18n>Initialization String 8 - Command</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>$PUBX,40,GLL,0,0,0,0,0,0\r\n</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Initialization String 8 - Reply">
+      <name-i18n>Initialization String 8 - Reply</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Initialization String 9 - Command">
+      <name-i18n>Initialization String 9 - Command</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Initialization String 9 - Reply">
+      <name-i18n>Initialization String 9 - Reply</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Initialization String 10 - Command">
+      <name-i18n>Initialization String 10 - Command</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Initialization String 10 - Reply">
+      <name-i18n>Initialization String 10 - Reply</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Initialization String 11 - Command">
+      <name-i18n>Initialization String 11 - Command</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Initialization String 11 - Reply">
+      <name-i18n>Initialization String 11 - Reply</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Initialization String 12 - Command">
+      <name-i18n>Initialization String 12 - Command</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Initialization String 12 - Reply">
+      <name-i18n>Initialization String 12 - Reply</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Initialization String 13 - Command">
+      <name-i18n>Initialization String 13 - Command</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Initialization String 13 - Reply">
+      <name-i18n>Initialization String 13 - Reply</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Novatel SBAS">
+      <name-i18n>Novatel SBAS</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Enable novatel sbas mode</desc>
     </param>
   </section>
   <section name="DVL" name-i18n="DVL">
