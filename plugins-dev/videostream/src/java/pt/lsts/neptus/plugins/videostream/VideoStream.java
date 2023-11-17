@@ -151,7 +151,7 @@ public class VideoStream extends ConsolePanel {
 
     // Timeout for watchDogThread in milliseconds
     private static final int WATCH_DOG_TIMEOUT_MILLIS = 4000;
-    private static final int WATCH_DOG_LOOP_THREAD_TIMEOUT_MILLIS = 6000;
+    private static final int WATCH_DOG_LOOP_THREAD_TIMEOUT_MILLIS = 10_000;
 
     private static final int MAX_NULL_FRAMES_FOR_RECONNECT = 10;
 
@@ -548,14 +548,7 @@ public class VideoStream extends ConsolePanel {
                                     isCleanTurnOffCam = true;
                                     state = false;
                                     ipCam = false;
-                                    if (capture != null && capture.isOpened()) {
-                                        try {
-                                            capture.release();
-                                            NeptusLog.pub().info("Capture successfully released");
-                                        } catch (Exception | Error exp) {
-                                            NeptusLog.pub().warn("Capture error releasing :" + exp.getMessage());
-                                        }
-                                    }
+                                    closeCapture(capture);
                                     repaint(500);
                                 }
                             });
@@ -1107,16 +1100,29 @@ public class VideoStream extends ConsolePanel {
         try {
             heightImgRec = Integer.parseInt(in.readLine());
         }
-        catch (NumberFormatException e) {
-            e.printStackTrace();
-        }
-        catch (IOException e) {
+        catch (NumberFormatException | IOException e) {
             e.printStackTrace();
         }
         xScale = (float) widthConsole / widthImgRec;
         yScale = (float) heightConsole / heightImgRec;
         // Create Buffer (type MAT) for Image receive
         mat = new Mat(heightImgRec, widthImgRec, CvType.CV_8UC3);
+    }
+
+    private void closeCapture(VideoCapture captureToClose) {
+        closeCapture(captureToClose, null);
+    }
+    private void closeCapture(VideoCapture captureToClose, String cid) {
+        try {
+            if (captureToClose != null && captureToClose.isOpened()) {
+                captureToClose.release();
+                NeptusLog.pub().info("Capture" + (cid != null ? " for tid::" + cid: "") +
+                        " successfully released");
+            }
+        } catch (Exception | Error e) {
+            NeptusLog.pub().warn("Capture" + (cid != null ? " for tid::" + cid: "") +
+                    " error releasing :" + e.getMessage());
+        }
     }
 
     // Thread to handle data receive
@@ -1126,19 +1132,16 @@ public class VideoStream extends ConsolePanel {
         Thread ret = new Thread("Video Stream Thread " + threadId) {
             final int tid = threadId;
             final String cid = String.format("%05X-%d", VideoStream.this.hashCode(), tid);
+
+            private boolean isStreamThreadActive() {
+                return  tid == threadsIdCounter.get();
+            }
+
             @Override
             public void interrupt() {
                 super.interrupt();
                 NeptusLog.pub().error("<<<<< Interrupted tid::" + cid + " >>>>>");
-                try {
-                    VideoCapture captureOld = capture;
-                    if (captureOld != null && captureOld.isOpened()) {
-                        captureOld.release();
-                        NeptusLog.pub().info("Old capture for tid::" + cid + " successfully released");
-                    }
-                } catch (Exception | Error e) {
-                    NeptusLog.pub().warn("Old capture for tid::" + cid + " error releasing :" + e.getMessage());
-                }
+                closeCapture(capture, cid);
             }
 
             @Override
@@ -1146,7 +1149,7 @@ public class VideoStream extends ConsolePanel {
                 initImage();
                 setupWatchDog();
                 while (true) {
-                    if (tid != threadsIdCounter.get()) {
+                    if (!isStreamThreadActive()) {
                         NeptusLog.pub().error("<<<<< Killing numb tid::" + cid + " >>>>>");
                         return;
                     }
@@ -1158,27 +1161,29 @@ public class VideoStream extends ConsolePanel {
                     }
                     else if (ipCam) {
                         if (!state) {
-                            try {
-                                if (capture != null && capture.isOpened()) {
-                                    capture.release();
-                                    NeptusLog.pub().info("Old capture for tid::" + cid + " successfully released");
-                                }
-                            } catch (Exception | Error e) {
-                                NeptusLog.pub().warn("Old capture for tid::" + cid + " error releasing :" + e.getMessage());
-                            }
+                            closeCapture(capture, cid);
                             // Create Buffer (type MAT) for Image receive
                             mat = new Mat(heightImgRec, widthImgRec, CvType.CV_8UC3);
                             capture = new VideoCapture();
                             capture.setExceptionMode(true);
                             try {
+                                NeptusLog.pub().info("Video Stream from IPCam capturing - tid::" + cid);
                                 boolean res = capture.open(camUrl);
-                                if (!res) {
+                                if (!res && isStreamThreadActive()) {
                                     capture = null;
                                 }
                             } catch (Exception | Error e) {
-                                capture = null;
-                                NeptusLog.pub().error(e.getMessage());
+                                if (isStreamThreadActive()) {
+                                    capture = null;
+                                }
+                                NeptusLog.pub().error("Video Stream from IPCam open error - tid::" + cid +
+                                        " :: " + e.getMessage());
                             }
+                            if (!isStreamThreadActive()) {
+                                NeptusLog.pub().error("<<<<< Killing numb tid::" + cid + " by timeout opening >>>>>");
+                                return;
+                            }
+
                             if (capture != null && capture.isOpened()) {
                                 state = true;
                                 NeptusLog.pub().info("Video Stream from IPCam is captured - tid::" + cid);
@@ -1199,6 +1204,10 @@ public class VideoStream extends ConsolePanel {
                             while (watchDog.isAlive() && !isAliveIPCam && capture != null && capture.isOpened()) {
                                 try {
                                     capture.read(mat);
+                                    if (!isStreamThreadActive()) {
+                                        NeptusLog.pub().error("<<<<< Killing numb tid::" + cid + " by read timeout >>>>>");
+                                        return;
+                                    }
                                     isAliveIPCam = true;
                                 } catch (Exception | Error e) {
                                     NeptusLog.pub().debug(e.getMessage());
@@ -1280,6 +1289,10 @@ public class VideoStream extends ConsolePanel {
                         }
                         catch (InterruptedException e) {
                             NeptusLog.pub().warn("<<<<< Interrupted while sleeping tid::" + cid + " >>>>>");
+                        }
+                        if (!isStreamThreadActive()) {
+                            NeptusLog.pub().error("<<<<< Killing after sleeping numb tid::" + cid + " >>>>>");
+                            return;
                         }
                         initImage();
                     }
@@ -1563,6 +1576,8 @@ public class VideoStream extends ConsolePanel {
                 NeptusLog.pub().error(e.getMessage());
             }
 
+            ipCam = false;
+            state = false;
             updater = updaterThread();
             updater.start();
         }
