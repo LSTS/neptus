@@ -155,6 +155,8 @@ public class VideoStream extends ConsolePanel {
 
     private static final int MAX_NULL_FRAMES_FOR_RECONNECT = 10;
 
+    private final Color LABEL_WHITE_COLOR = new Color(255, 255, 255, 200);
+
     @NeptusProperty(name = "Camera URL", editable = false)
     private String camUrl = ""; //rtsp://10.0.20.207:554/live/ch01_0
 
@@ -437,9 +439,8 @@ public class VideoStream extends ConsolePanel {
             this.add(warningText);
         }
 
-        Color whiteLabel = new Color(255, 255, 255, 200);
         streamNameJLabel = new JLabel();
-        streamNameJLabel.setForeground(whiteLabel);
+        streamNameJLabel.setForeground(LABEL_WHITE_COLOR);
         streamNameJLabel.setBackground(new Color(0, 0, 0, 80));
         streamNameJLabel.setOpaque(true);
         streamNameJLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -447,7 +448,7 @@ public class VideoStream extends ConsolePanel {
         streamNameJLabel.setVerticalTextPosition(SwingConstants.TOP);
 
         streamWarnJLabel = new JLabel();
-        streamWarnJLabel.setForeground(whiteLabel);
+        streamWarnJLabel.setForeground(LABEL_WHITE_COLOR);
         streamWarnJLabel.setOpaque(false);
         streamWarnJLabel.setHorizontalAlignment(SwingConstants.CENTER);
         streamWarnJLabel.setVerticalAlignment(SwingConstants.BOTTOM);
@@ -1246,12 +1247,14 @@ public class VideoStream extends ConsolePanel {
 
                                 if (saveSnapshot) {
                                     UtilCv.saveSnapshot(UtilCv.addText(UtilCv.histogramCv(offlineImage),
-                                                    I18n.text("Histogram - On"), Color.WHITE, offlineImage.getWidth() - 5, 20),
+                                                    I18n.text("Histogram - On"), LABEL_WHITE_COLOR,
+                                                    offlineImage.getWidth() - 5, 20),
                                             String.format(logDir + "/snapshotImage"));
                                     saveSnapshot = false;
                                 }
-                                showImage(UtilCv.addText(UtilCv.histogramCv(offlineImage), I18n.text("Histogram - On"),
-                                        Color.WHITE, offlineImage.getWidth() - 5, 20));
+                                showImage(UtilCv.addText(UtilCv.histogramCv(offlineImage),
+                                        I18n.text("Histogram - On"),
+                                        LABEL_WHITE_COLOR, offlineImage.getWidth() - 5, 20));
                             }
                             else {
                                 if (zoomMask) {
