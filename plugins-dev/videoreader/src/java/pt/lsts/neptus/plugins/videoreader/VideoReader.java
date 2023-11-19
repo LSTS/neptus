@@ -226,8 +226,6 @@ public class VideoReader extends ConsolePanel {
             warn = true;
         }
         else {
-            NeptusLog.pub().warn("<<<<<<<<<<<<< Black Image >>>>>>>>>>>>>");
-            System.out.println("<<<<<<<<<<<<< Black Image >>>>>>>>>>>>>");
             g.setColor(Color.BLACK);
             g.fillRect(0, 0, (int) widthConsole, (int) heightConsole);
         }
@@ -447,15 +445,15 @@ public class VideoReader extends ConsolePanel {
                             });
                     item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.ALT_MASK));
 
-                    popup.addSeparator();
+//                    popup.addSeparator();
 
 //                    JLabel infoZoom = new JLabel(I18n.text("For zoom use Alt-Z"));
 //                    infoZoom.setEnabled(false);
 //                    popup.add(infoZoom, JMenuItem.CENTER_ALIGNMENT);
 
-                    JLabel markSnap = new JLabel(I18n.text("Ctr+Click to mark frame in the map"));
-                    markSnap.setEnabled(false);
-                    popup.add(markSnap, JMenuItem.CENTER_ALIGNMENT);
+//                    JLabel markSnap = new JLabel(I18n.text("Ctr+Click to mark frame in the map"));
+//                    markSnap.setEnabled(false);
+//                    popup.add(markSnap, JMenuItem.CENTER_ALIGNMENT);
 
                     popup.show((Component) e.getSource(), e.getX(), e.getY());
                 }
