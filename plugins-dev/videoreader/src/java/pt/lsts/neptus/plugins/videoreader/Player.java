@@ -73,6 +73,10 @@ class Player {
         this.id = id;
     }
 
+    public String getId() {
+        return id;
+    }
+
     public boolean isStreamingActive() {
         return streamingActive;
     }

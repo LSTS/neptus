@@ -35,10 +35,12 @@ package pt.lsts.neptus.plugins.videoreader;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.preview.payloads.CameraFOV;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -296,6 +298,9 @@ public class VideoReader extends ConsolePanel {
             });
         }
         catch (IOException | InterruptedException | RuntimeException e) {
+            String error = player.getId() + " :: ERROR :: " + e.getMessage();
+            NeptusLog.pub().error(error);
+            getConsole().post(Notification.warning(PluginUtils.getPluginName(this.getClass()), error));
             player.setStopRequest();
             player = null;
         }
