@@ -426,14 +426,14 @@ public class VideoStream extends ConsolePanel {
             String opencvInstallLink = "";
             if (OsInfo.getFamily() == Family.UNIX) {
                 opencvInstallLink = "<br>" + I18n.text(
-                        "Install OpenCv 4.4 and dependencies at <br>https://www.lsts.pt/bin/opencv/v4.4.0-x64_x86/deb/");
+                        "Install OpenCv 4.4+ and dependencies at <br>https://www.lsts.pt/bin/opencv/v4.4.0-x64_x86/deb/");
             }
             else if (OsInfo.getFamily() == Family.WINDOWS) {
                 opencvInstallLink = "<br>" + I18n.text(
-                        "Install OpenCv 4.4 and dependencies at <br>https://www.lsts.pt/bin/opencv/v4.4.0-x64_x86/win-x64_86/");
+                        "Install OpenCv 4.4+ and dependencies at <br>https://www.lsts.pt/bin/opencv/v4.8.0-x64_x86/");
             }
             warningText = new JLabel(
-                    "<html>" + I18n.text("Please install OpenCV 4.4.0 and its dependencies." + opencvInstallLink));
+                    "<html>" + I18n.text("Please install OpenCV 4.4+ and its dependencies." + opencvInstallLink));
             warningText.setForeground(Color.BLACK);
             warningText.setFont(new Font("Courier New", Font.ITALIC, 18));
             this.add(warningText);
