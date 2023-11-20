@@ -82,7 +82,7 @@ public class SearchOpenCv {
             }
             else if(OsInfo.getFamily() == Family.WINDOWS) {
                 NeptusLog.pub().error("OpenCV not found - please install OpenCV 4.4 and " +
-                        "dependencies at https://www.lsts.pt/bin/opencv/v4.4.0-x64_x86/win-x64_86/");
+                        "dependencies at https://www.lsts.pt/bin/opencv/v4.8.0-x64_x86/");
             }
         }
 
