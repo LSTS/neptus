@@ -120,6 +120,9 @@ public class VideoReader extends ConsolePanel {
     private BufferedImage onScreenImage;
     private BufferedImage onScreenImageLastGood;
 
+    // Flag for Histogram image
+    private boolean histogramFlag = false;
+
     private int widthImgRec;
     // Height size of image
     private int heightImgRec;
@@ -296,6 +299,7 @@ public class VideoReader extends ConsolePanel {
         //player = new Player(String.format("%05X-%d", VideoReader.this.hashCode(), threadsIdCounter.getAndIncrement()), service);
         player = new PlayerOpenCv(String.format("%05X-%d", VideoReader.this.hashCode(), threadsIdCounter.getAndIncrement()), service);
         player.sizeChange(new Dimension(widthConsole, heightConsole));
+        player.setHistogramFlag(histogramFlag);
         try {
             player.start(camUrl /*fieldUrl.getText()*/, image -> {
                 //BufferedImage scaledImage = ImageUtils.toBufferedImage(ImageUtils.getFastScaledImage(image, widthConsole, heightConsole, true));
@@ -447,6 +451,18 @@ public class VideoReader extends ConsolePanel {
                     item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, InputEvent.ALT_MASK));
 
                     popup.addSeparator();
+
+                    popup.add(item = new JMenuItem(I18n.text("Toggle Histogram filter"),
+                                    ImageUtils.createImageIcon("images/menus/histogram.png")))
+                            .addActionListener(new ActionListener() {
+                                public void actionPerformed(ActionEvent e) {
+                                    histogramFlag = !histogramFlag;
+                                    if (player != null) {
+                                        player.setHistogramFlag(histogramFlag);
+                                    }
+                                }
+                            });
+                    item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, InputEvent.ALT_MASK));
 
                     popup.add(item = new JMenuItem(I18n.text("Maximize window"),
                                     ImageUtils.createImageIcon("images/menus/maximize.png")))
