@@ -47,7 +47,6 @@ import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 
 class PlayerOpenCv {
@@ -63,7 +62,7 @@ class PlayerOpenCv {
     private static final int DEFAULT_WIDTH_CONSOLE = 640;
     private static final int DEFAULT_HEIGHT_CONSOLE = 480;
 
-    private ExecutorService service;
+    private final ExecutorService service;
     private final String id;
     private Function<Dimension, Void> sizeChangeFunction;
     private VideoCapture capture;
@@ -77,9 +76,7 @@ class PlayerOpenCv {
 
     private Function<BufferedImage, Void> updateImageFrameFunction;
     private AtomicInteger emptyFramesCounter = new AtomicInteger(0);
-    private AtomicInteger threadsIdCounter = new AtomicInteger(0);
 
-    private Scalar black = new Scalar(0);
     // Size of output frame
     private Dimension size = null;
 
@@ -91,18 +88,12 @@ class PlayerOpenCv {
     private int widthConsole = DEFAULT_WIDTH_CONSOLE;
     // Height size of Console
     private int heightConsole = DEFAULT_HEIGHT_CONSOLE;
-    // flag for state of neptus logo
-    private boolean noVideoLogoState = false;
     // Scale factor of x pixel
     private float xScale;
     // Scale factor of y pixel
     private float yScale;
 
     private BufferedImage frameImage;
-
-    // counter for frame tag ID
-    private short frameTagID = 1;
-    private AtomicLong captureLoopAtomicLongMillis = new AtomicLong(-1);
 
     private boolean histogramFlag = false;
 

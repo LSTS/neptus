@@ -217,7 +217,7 @@ public class IpCamManagementPanel extends JPanel {
                 setValidUrlFunction.apply(selectedCamera.getName(), selectedCamera.getUrl());
                 videoReader.service.execute(connectStreamFunction);
             }
-        });dis
+        });
         fieldIP.setEditable(false);
         fieldIP.setFocusable(false);
         add(selectIPCam, "h 30!, wrap");

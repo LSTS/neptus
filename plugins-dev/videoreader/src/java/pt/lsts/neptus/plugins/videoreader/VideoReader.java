@@ -294,11 +294,12 @@ public class VideoReader extends ConsolePanel {
             disconnectStream();
         }
 
-        //player = new Player(String.format("%05X-%d", VideoReader.this.hashCode(), threadsIdCounter.getAndIncrement()), service);
-        player = new PlayerOpenCv(String.format("%05X-%d", VideoReader.this.hashCode(), threadsIdCounter.getAndIncrement()), service);
-        player.sizeChange(new Dimension(widthConsole, heightConsole));
-        player.setHistogramFlag(histogramFlag);
+        String cid = String.format("%05X-%d", VideoReader.this.hashCode(), threadsIdCounter.getAndIncrement());
         try {
+            //player = new Player(String.format("%05X-%d", VideoReader.this.hashCode(), threadsIdCounter.getAndIncrement()), service);
+            player = new PlayerOpenCv(cid, service);
+            player.sizeChange(new Dimension(widthConsole, heightConsole));
+            player.setHistogramFlag(histogramFlag);
             player.start(camUrl /*fieldUrl.getText()*/, image -> {
                 //BufferedImage scaledImage = ImageUtils.toBufferedImage(ImageUtils.getFastScaledImage(image, widthConsole, heightConsole, true));
                 BufferedImage scaledImage = image;
@@ -307,11 +308,13 @@ public class VideoReader extends ConsolePanel {
             });
         }
         catch (Exception | Error e) {
-            String error = player.getId() + " :: ERROR :: " + e.getMessage();
+            String error = cid + " :: ERROR :: " + e.getMessage();
             NeptusLog.pub().error(error);
             getConsole().post(Notification.warning(PluginUtils.getPluginName(this.getClass()), error));
-            player.setStopRequest();
-            player = null;
+            if (player != null) {
+                player.setStopRequest();
+                player = null;
+            }
         }
 
         repaint(100);
