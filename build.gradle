@@ -467,7 +467,7 @@ project(':core') {
         //implementation name: 'netcdfAll-5.2'
         implementation 'org.jsoup:jsoup:1.13.1'
 
-        implementation name: 'opencv_440'
+        implementation name: 'opencv-480'
         implementation 'oro:oro:2.0.8' // should be 0 2.1-dev
 
         implementation name: 'percentlayout'
