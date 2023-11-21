@@ -37,13 +37,11 @@ import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.mp.preview.payloads.CameraFOV;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.update.Periodic;
-import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.ImageUtils;
 
 import javax.swing.JDialog;
@@ -70,7 +68,6 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -108,9 +105,9 @@ public class VideoReader extends ConsolePanel {
     });
 
     @NeptusProperty(name = "Camera URL", editable = false)
-    private String camUrl = "rtsp://127.0.0.1:8554/"; //rtsp://10.0.20.207:554/live/ch01_0
+    private String camUrl = ""; //rtsp://10.0.20.207:554/live/ch01_0
+    private String camName = "";
 
-    private AtomicInteger emptyFramesCounter = new AtomicInteger(0);
     private AtomicInteger threadsIdCounter = new AtomicInteger(0);
 
 
@@ -134,7 +131,7 @@ public class VideoReader extends ConsolePanel {
     private float xScale;
     // Scale factor of y pixel
     private float yScale;
-    private CameraFOV camFov = null;
+    //private CameraFOV camFov = null;
     private Point2D mouseLoc = null;
 
     private ArrayList<Camera> cameraList;
@@ -145,10 +142,10 @@ public class VideoReader extends ConsolePanel {
 
     // JPopup Menu
     private JPopupMenu popup;
-    private IpCamManagementPanel ipCamManagementPanel;
+    private final IpCamManagementPanel ipCamManagementPanel;
     // JTextField for IPCam name
-    private JLabel streamNameJLabel;
-    private JLabel streamWarnJLabel;
+    private final JLabel streamNameJLabel;
+    private final JLabel streamWarnJLabel;
 
     public VideoReader(ConsoleLayout console) {
         this(console, false);
@@ -184,8 +181,9 @@ public class VideoReader extends ConsolePanel {
 
         this.setToolTipText(I18n.text("not connected"));
 
-        ipCamManagementPanel = new IpCamManagementPanel(this, s -> {
-                    camUrl = s;
+        ipCamManagementPanel = new IpCamManagementPanel(this, (name, url) -> {
+                    camName = name;
+                    camUrl = url;
                     return null;
                 },
                 this::connectStream);
@@ -240,7 +238,7 @@ public class VideoReader extends ConsolePanel {
         }
 
         if (isConnect() || isConnecting() || isDisconnecting()) {
-            String text = ipCamManagementPanel.getStreamName();
+            String text = camName; //ipCamManagementPanel.getStreamName();
             Rectangle2D bounds = g.getFontMetrics().getStringBounds(text, g);
             streamNameJLabel.setText(text);
             streamNameJLabel.setSize((int) widthConsole, (int) bounds.getHeight() + 5);
@@ -381,13 +379,13 @@ public class VideoReader extends ConsolePanel {
         addMouseMotionListener(new MouseAdapter() {
             @Override
             public void mouseMoved(MouseEvent e) {
-                if (camFov != null) {
-                    double width = ((Component) e.getSource()).getWidth();
-                    double height = ((Component) e.getSource()).getHeight();
-                    double x = e.getX();
-                    double y = height - e.getY();
-                    mouseLoc = new Point2D.Double((x / width - 0.5) * 2, (y / height - 0.5) * 2);
-                }
+//                if (camFov != null) {
+//                    double width = ((Component) e.getSource()).getWidth();
+//                    double height = ((Component) e.getSource()).getHeight();
+//                    double x = e.getX();
+//                    double y = height - e.getY();
+//                    mouseLoc = new Point2D.Double((x / width - 0.5) * 2, (y / height - 0.5) * 2);
+//                }
             }
         });
 
@@ -399,16 +397,16 @@ public class VideoReader extends ConsolePanel {
             }
 
             public void mouseClicked(MouseEvent e) {
-                if (SwingUtilities.isLeftMouseButton(e) && e.isControlDown()) {
-                    if (camFov != null) {
-                        double width = ((Component) e.getSource()).getWidth();
-                        double height = ((Component) e.getSource()).getHeight();
-                        double x = e.getX();
-                        double y = height - e.getY();
-                        mouseLoc = new Point2D.Double((x / width - 0.5) * 2, (y / height - 0.5) * 2);
-                        LocationType loc = camFov.getLookAt(mouseLoc.getX(), mouseLoc.getY());
-                        loc.convertToAbsoluteLatLonDepth();
-                        //String id = placeLocationOnMap(loc);
+//                if (SwingUtilities.isLeftMouseButton(e) && e.isControlDown()) {
+//                    if (camFov != null) {
+//                        double width = ((Component) e.getSource()).getWidth();
+//                        double height = ((Component) e.getSource()).getHeight();
+//                        double x = e.getX();
+//                        double y = height - e.getY();
+//                        mouseLoc = new Point2D.Double((x / width - 0.5) * 2, (y / height - 0.5) * 2);
+//                        LocationType loc = camFov.getLookAt(mouseLoc.getX(), mouseLoc.getY());
+//                        loc.convertToAbsoluteLatLonDepth();
+//                        String id = placeLocationOnMap(loc);
 //                        snap = new StoredSnapshot(id, loc, e.getPoint(), onScreenImage, new Date());
 //                        snap.setCamFov(camFov);
 //                        try {
@@ -417,14 +415,14 @@ public class VideoReader extends ConsolePanel {
 //                        catch (Exception ex) {
 //                            NeptusLog.pub().error(ex);
 //                        }
-                    }
-                }
+//                    }
+//                }
 
                 if (e.getButton() == MouseEvent.BUTTON3) {
                     popup = new JPopupMenu();
                     JMenuItem item;
 
-                    popup.add(item = new JMenuItem(I18n.text("Connect to a IPCam"),
+                    popup.add(item = new JMenuItem(I18n.text("Connect to stream"),
                                     ImageUtils.createImageIcon("images/menus/camera.png")))
                             .addActionListener(new ActionListener() {
                                 public void actionPerformed(ActionEvent e) {
@@ -434,7 +432,7 @@ public class VideoReader extends ConsolePanel {
                             });
                     item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, InputEvent.ALT_MASK));
 
-                    popup.add(item = new JMenuItem(I18n.text("Close connection"),
+                    popup.add(item = new JMenuItem(I18n.text("Close stream connection"),
                                     ImageUtils.createImageIcon("images/menus/exit.png")))
                             .addActionListener(new ActionListener() {
                                 public void actionPerformed(ActionEvent e) {

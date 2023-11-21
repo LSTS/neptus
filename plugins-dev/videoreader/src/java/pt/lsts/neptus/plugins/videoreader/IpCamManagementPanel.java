@@ -60,11 +60,12 @@ import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.concurrent.Callable;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public class IpCamManagementPanel extends JPanel {
     private final VideoReader videoReader;
-    private final Function<String, Void> setValidUrlFunction;
+    private final BiFunction<String, String, Void> setValidUrlFunction;
     private final Runnable connectStreamFunction;
     private ArrayList<Camera> cameraList;
     // JPanel for color state of ping to host IPCam
@@ -84,7 +85,7 @@ public class IpCamManagementPanel extends JPanel {
     // JTextField for IPCam url
     private final JTextField fieldUrl = new JTextField(I18n.text("URL"));
 
-    public IpCamManagementPanel(VideoReader videoReader, Function<String, Void> setValidUrlFunction,
+    public IpCamManagementPanel(VideoReader videoReader, BiFunction<String, String, Void> setValidUrlFunction,
                                 Runnable connectStreamFunction) {
         this.videoReader = videoReader;
         this.setValidUrlFunction = setValidUrlFunction;
@@ -172,8 +173,7 @@ public class IpCamManagementPanel extends JPanel {
                         public void finish() {
                             if (reachable) {
                                 selectIPCam.setEnabled(true);
-                                //camUrl = selectedCamera.getUrl();
-                                setValidUrlFunction.apply(selectedCamera.getUrl());
+                                //setValidUrlFunction.apply(selectedCamera.getName(), selectedCamera.getUrl());
                                 colorStateIPCam.setBackground(Color.GREEN);
                                 onOffIndicator.setText("ON");
                                 ipCamList.setEnabled(true);
@@ -213,9 +213,11 @@ public class IpCamManagementPanel extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 NeptusLog.pub().info("IPCam Select: " + cameraList.get(selectedItemIndex));
                 ipCamPing.setVisible(false);
+                Camera selectedCamera = cameraList.get(selectedItemIndex);
+                setValidUrlFunction.apply(selectedCamera.getName(), selectedCamera.getUrl());
                 videoReader.service.execute(connectStreamFunction);
             }
-        });
+        });dis
         fieldIP.setEditable(false);
         fieldIP.setFocusable(false);
         add(selectIPCam, "h 30!, wrap");
