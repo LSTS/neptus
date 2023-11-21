@@ -325,8 +325,6 @@ public class VideoReader extends ConsolePanel {
             return;
         }
 
-        System.out.println("disconnectStream");
-
         PlayerOpenCv playerToDisconnect = player;
         player = null;
         playerToDisconnect.setStopRequest();
