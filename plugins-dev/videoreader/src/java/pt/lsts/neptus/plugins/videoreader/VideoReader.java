@@ -90,7 +90,7 @@ public class VideoReader extends ConsolePanel {
     private static final int MAX_NULL_FRAMES_FOR_RECONNECT = 10;
     public static final String IMAGE_NO_VIDEO = "images/novideo.png";
 
-    private final Color LABEL_WHITE_COLOR = new Color(255, 255, 255, 200);
+    final static Color LABEL_WHITE_COLOR = new Color(255, 255, 255, 200);
 
     final ExecutorService service = Executors.newCachedThreadPool(new ThreadFactory() {
         private final String namePrefix = VideoReader.class.getSimpleName() + "::"
@@ -114,7 +114,7 @@ public class VideoReader extends ConsolePanel {
     private AtomicInteger threadsIdCounter = new AtomicInteger(0);
 
 
-    private Player player;
+    private PlayerOpenCv player;
 
     private BufferedImage offlineImage;
     private BufferedImage onScreenImage;
@@ -171,6 +171,10 @@ public class VideoReader extends ConsolePanel {
                 updateSizeVariables(c);
                 if (isDisconnect()) {
                     setupNoVideoImage();
+                }
+
+                if (player != null) {
+                    player.sizeChange(c.getSize());
                 }
             }
         });
@@ -289,15 +293,18 @@ public class VideoReader extends ConsolePanel {
             disconnectStream();
         }
 
-        player = new Player(String.format("%05X-%d", VideoReader.this.hashCode(), threadsIdCounter.getAndIncrement()), service);
+        //player = new Player(String.format("%05X-%d", VideoReader.this.hashCode(), threadsIdCounter.getAndIncrement()), service);
+        player = new PlayerOpenCv(String.format("%05X-%d", VideoReader.this.hashCode(), threadsIdCounter.getAndIncrement()), service);
+        player.sizeChange(new Dimension(widthConsole, heightConsole));
         try {
             player.start(camUrl /*fieldUrl.getText()*/, image -> {
-                BufferedImage scaledImage = ImageUtils.toBufferedImage(ImageUtils.getFastScaledImage(image, widthConsole, heightConsole, true));
+                //BufferedImage scaledImage = ImageUtils.toBufferedImage(ImageUtils.getFastScaledImage(image, widthConsole, heightConsole, true));
+                BufferedImage scaledImage = image;
                 showImage(scaledImage);
                 return null;
             });
         }
-        catch (IOException | InterruptedException | RuntimeException e) {
+        catch (Exception | Error e) {
             String error = player.getId() + " :: ERROR :: " + e.getMessage();
             NeptusLog.pub().error(error);
             getConsole().post(Notification.warning(PluginUtils.getPluginName(this.getClass()), error));
@@ -315,7 +322,7 @@ public class VideoReader extends ConsolePanel {
 
         System.out.println("disconnectStream");
 
-        Player playerToDisconnect = player;
+        PlayerOpenCv playerToDisconnect = player;
         player = null;
         playerToDisconnect.setStopRequest();
 
