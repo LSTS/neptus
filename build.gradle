@@ -544,6 +544,7 @@ project(':core') {
 
         implementation 'com.adobe.xmp:xmpcore:5.1.2' //6.1.10
         implementation name: 'xuggle-xuggler-5.4'
+        implementation 'io.humble:humble-video-all:0.3.0' // Needs to be in the core because of the dll/so libs
 
         implementation 'com.google.zxing:javase:3.2.1' //3.4.0
 
