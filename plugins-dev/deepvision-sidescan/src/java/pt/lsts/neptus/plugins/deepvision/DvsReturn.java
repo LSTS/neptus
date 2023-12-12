@@ -35,7 +35,8 @@ package pt.lsts.neptus.plugins.deepvision;
 
 public class DvsReturn {
     private final double DECOMPRESSION_FACTOR_CENTER = 1.045;
-    private final double DECOMPRESSION_FACTOR_EDGE = 1.015;
+    private final double DECOMPRESSION_FACTOR_EDGE = 1.025;
+    private final double diff = DECOMPRESSION_FACTOR_EDGE - DECOMPRESSION_FACTOR_CENTER;
     private final double[] data;
 
     public DvsReturn(byte[] data) {
@@ -43,14 +44,13 @@ public class DvsReturn {
 
         // The data points are logarithmically compressed.
         // So we need to decompress them.
-        double diff = DECOMPRESSION_FACTOR_EDGE - DECOMPRESSION_FACTOR_CENTER;
         double half_length = (data.length / 2) - 1;
         for (int i = 0; i < data.length / 2; i++) {
-            double decompression_factor = DECOMPRESSION_FACTOR_CENTER + ((double)i / half_length) * diff;
+            double decompression_factor = DECOMPRESSION_FACTOR_CENTER + ((double) i / half_length) * diff;
             this.data[i] = Math.pow(decompression_factor, Byte.toUnsignedInt(data[i]));
         }
         for (int i = data.length / 2; i < data.length; i++) {
-            double decompression_factor = DECOMPRESSION_FACTOR_EDGE - (((double)i - (double)(data.length/2)) / half_length) * diff;
+            double decompression_factor = DECOMPRESSION_FACTOR_EDGE - (((double) i - (double) (data.length / 2)) / half_length) * diff;
             this.data[i] = Math.pow(decompression_factor, Byte.toUnsignedInt(data[i]));
         }
     }
