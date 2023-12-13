@@ -72,7 +72,7 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
     private long currentTime;
     private long lastUpdateTime;
     private Map<Integer, SidescanPanel> sidescanPanels = new HashMap<>();
-    private Map<Integer, JButton> panelButtons = new HashMap<>();
+    private Map<Integer, JToggleButton> panelButtons = new HashMap<>();
     private ArrayList<LogMarker> markerList = new ArrayList<>();
     private SidescanParser ssParser;
     private SidescanHistogramNormalizer histogram;
@@ -111,8 +111,7 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
 
         for (Integer subsys : ssParser.getSubsystemList()) {
             sidescanPanels.put(subsys, new SidescanPanel(this, ssParser, subsys));
-            JButton button = new JButton(subsys.toString());
-            button.setBorder( new LineBorder(Color.BLACK) );
+            JToggleButton button = new JToggleButton(subsys.toString());
             button.addActionListener(e -> {
                 updateSidescanPanel(subsys);
             });
@@ -122,15 +121,15 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
         // Layout building
         setLayout(new MigLayout());
 
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setBackground(new Color(0xff, 0, 0xff));
-        buttonPanel.setLayout(new GridLayout(0, ssParser.getSubsystemList().size()));
-        for(JButton button: panelButtons.values()) {
-            buttonPanel.add(button);
+        JToolBar toolBar = new JToolBar();
+        toolBar.setLayout(new GridLayout(0, ssParser.getSubsystemList().size()));
+        ButtonGroup buttonGroup = new ButtonGroup();
+        for(JToggleButton button: panelButtons.values()) {
+            buttonGroup.add(button);
+            toolBar.add(button);
         }
-        buttonPanel.getComponent(0).setBackground(Color.gray);
-
-        add(buttonPanel, "wrap");
+        add(toolBar, "dock north");
+        panelButtons.get(ssParser.getSubsystemList().get(0)).setSelected(true);
 
         currentPanel = sidescanPanels.get(ssParser.getSubsystemList().get(0));
 
@@ -143,10 +142,6 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
         if (currentPanel == sidescanPanels.get(subsystem)) {
             return;
         }
-        for(JButton button: panelButtons.values()) {
-            button.setBackground(Color.lightGray);
-        }
-        panelButtons.get(subsystem).setBackground(Color.gray);
         remove(currentPanel);
         remove(timeline);
         currentPanel = sidescanPanels.get(subsystem);
