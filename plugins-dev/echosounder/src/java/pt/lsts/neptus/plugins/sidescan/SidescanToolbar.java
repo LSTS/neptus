@@ -36,19 +36,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.AbstractAction;
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JSlider;
-import javax.swing.JSpinner;
-import javax.swing.JToggleButton;
-import javax.swing.JToolBar;
-import javax.swing.SpinnerNumberModel;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -56,11 +48,9 @@ import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.swing.RangeSlider;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.sidescan.SidescanPanel.InteractionMode;
-import pt.lsts.neptus.util.MathMiscUtils;
 
 /**
  * @author jqcorreia
- *
  */
 public class SidescanToolbar extends JToolBar {
     private static final long serialVersionUID = 1L;
@@ -89,6 +79,10 @@ public class SidescanToolbar extends JToolBar {
     JToggleButton btnAutoEgn = new JToggleButton(I18n.text("EGN"));
 
     RangeSlider windowSlider = new RangeSlider(0, 100);
+    private SubsystemListener subsystemListener;
+
+    private final List<Integer> subsystemList;
+    private ArrayList<JToggleButton> subsystemButtons;
 
     JButton btnConfig = new JButton(new AbstractAction(I18n.textc("Config", "Configuration")) {
         private static final long serialVersionUID = -878895322319699542L;
@@ -103,11 +97,13 @@ public class SidescanToolbar extends JToolBar {
             PropertiesEditor.editProperties(panel.config, SwingUtilities.getWindowAncestor(panel), true);
             panel.config.saveProps();
 
-            if (panel.config.tvgGain != (Double) spinTVG.getValue())
+            if (panel.config.tvgGain != (Double) spinTVG.getValue()) {
                 spinTVG.setValue(panel.config.tvgGain);
+            }
 
-            if (panel.config.normalization != (Double) spinNormalization.getValue())
+            if (panel.config.normalization != (Double) spinNormalization.getValue()) {
                 spinTVG.setValue(panel.config.normalization);
+            }
         }
     });
 
@@ -116,20 +112,26 @@ public class SidescanToolbar extends JToolBar {
         public void actionPerformed(ActionEvent e) {
             SidescanPanel.InteractionMode imode = SidescanPanel.InteractionMode.NONE;
 
-            if (btnInfo.isSelected())
+            if (btnInfo.isSelected()) {
                 imode = InteractionMode.INFO;
-            if (btnMark.isSelected())
+            }
+            if (btnMark.isSelected()) {
                 imode = InteractionMode.MARK;
-            if (btnMeasure.isSelected())
+            }
+            if (btnMeasure.isSelected()) {
                 imode = InteractionMode.MEASURE;
-            if (btnMeasureHeight.isSelected())
+            }
+            if (btnMeasureHeight.isSelected()) {
                 imode = InteractionMode.MEASURE_HEIGHT;
+            }
 
             for (SidescanPanel panel : panelList) {
                 panel.setInteractionMode(imode);
                 panel.setZoom(btnZoom.isSelected());
             }
-        };
+        }
+
+        ;
     };
 
     private final ChangeListener alGains = new ChangeListener() {
@@ -152,13 +154,14 @@ public class SidescanToolbar extends JToolBar {
         }
     };
 
-    public SidescanToolbar(SidescanPanel... panel) {
+    public SidescanToolbar(List<Integer> subsystemList, SidescanPanel... panel) {
         super();
         for (SidescanPanel p : panel) {
             this.panelList.add(p);
         }
         this.spinNormalization.setModel(modelNormalization);
         this.spinTVG.setModel(modelTVG);
+        this.subsystemList = subsystemList;
         buildToolbar();
     }
 
@@ -173,6 +176,41 @@ public class SidescanToolbar extends JToolBar {
         add(btnMeasureHeight);
         add(btnMark);
         add(btnZoom);
+
+        addSeparator();
+
+        ButtonGroup subsystemButtonGroup = new ButtonGroup() {
+            @Override
+            public void setSelected(ButtonModel model, boolean selected) {
+                if (selected) {
+                    super.setSelected(model, selected);
+                }
+                else {
+                    clearSelection();
+                }
+            }
+        };
+        subsystemButtons = new ArrayList<>();
+        for (Integer subsystem : subsystemList) {
+            JToggleButton subsystemButton = new JToggleButton(subsystem.toString());
+            subsystemButtonGroup.add(subsystemButton);
+            subsystemButtons.add(subsystemButton);
+            subsystemButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    int subsystem = -1;
+                    for(JToggleButton button: subsystemButtons) {
+                        if(button.isSelected()) {
+                            subsystem = Integer.valueOf(button.getText());
+                            break;
+                        }
+                    }
+                    if (subsystemListener != null) {
+                        subsystemListener.setSubsystem(subsystem);
+                    }
+                }
+            });
+            add(subsystemButton);
+        }
 
         addSeparator();
         add(lblNormalization);
@@ -193,6 +231,7 @@ public class SidescanToolbar extends JToolBar {
         windowSlider.setMajorTickSpacing(20);
         windowSlider.addKeyListener(new KeyAdapter() {
             RangeSlider slider = windowSlider;
+
             @Override
             public void keyPressed(KeyEvent e) {
                 slider.setValueIsAdjusting(true);
@@ -201,29 +240,33 @@ public class SidescanToolbar extends JToolBar {
                     case KeyEvent.VK_KP_LEFT:
                     case KeyEvent.VK_DOWN:
                     case KeyEvent.VK_KP_DOWN:
-                        if (e.isShiftDown())
+                        if (e.isShiftDown()) {
                             slider.setUpperValue(slider.getUpperValue() - slider.getMinorTickSpacing());
+                        }
                         else if (e.isControlDown()) {
                             int delta = slider.getUpperValue() - slider.getValue();
                             slider.setValue(slider.getValue() - slider.getMinorTickSpacing());
                             slider.setUpperValue(slider.getValue() + delta);
                         }
-                        else
+                        else {
                             slider.setValue(slider.getValue() - slider.getMinorTickSpacing());
+                        }
                         break;
                     case KeyEvent.VK_RIGHT:
                     case KeyEvent.VK_KP_RIGHT:
                     case KeyEvent.VK_UP:
                     case KeyEvent.VK_KP_UP:
-                        if (e.isShiftDown())
+                        if (e.isShiftDown()) {
                             slider.setUpperValue(slider.getUpperValue() + slider.getMinorTickSpacing());
+                        }
                         else if (e.isControlDown()) {
                             int delta = slider.getUpperValue() - slider.getValue();
                             slider.setUpperValue(slider.getUpperValue() + slider.getMinorTickSpacing());
                             slider.setValue(slider.getUpperValue() - delta);
                         }
-                        else
+                        else {
                             slider.setValue(slider.getValue() + slider.getMinorTickSpacing());
+                        }
                         break;
                     default:
                         break;
@@ -231,6 +274,7 @@ public class SidescanToolbar extends JToolBar {
                 e.consume();
                 super.keyPressed(e);
             }
+
             public void keyReleased(KeyEvent e) {
                 slider.setValueIsAdjusting(false);
             }
@@ -270,4 +314,20 @@ public class SidescanToolbar extends JToolBar {
 
         btnAutoEgn.addChangeListener(autoEgnChangeListener);
     }
+
+    public void setSubsystemListener(SubsystemListener subsystemListener) {
+        this.subsystemListener = subsystemListener;
+    }
+
+    public void setCurrentSubsystem(Integer subsystem) {
+        for (JToggleButton subsystemButton : subsystemButtons) {
+            if(subsystem == -1) {
+                subsystemButton.setSelected(false);
+            }
+            else if (subsystemButton.getText().equals(subsystem.toString())) {
+                subsystemButton.setSelected(true);
+            }
+        }
+    }
+
 }

@@ -38,10 +38,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.*;
-import javax.swing.border.LineBorder;
 import javax.swing.plaf.basic.BasicSliderUI;
 
-import com.sun.codemodel.JForEach;
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.gui.Timeline;
 import pt.lsts.neptus.gui.TimelineChangeListener;
@@ -76,7 +74,7 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
     private ArrayList<LogMarker> markerList = new ArrayList<>();
     private SidescanParser ssParser;
     private SidescanHistogramNormalizer histogram;
-    private SidescanPanel currentPanel;
+    private ArrayList<SidescanPanel> currentPanels = new ArrayList<>();
 
     public SidescanAnalyzer(MRAPanel panel) {
         this.mraPanel = panel;
@@ -110,7 +108,6 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
 
 
         for (Integer subsys : ssParser.getSubsystemList()) {
-            sidescanPanels.put(subsys, new SidescanPanel(this, ssParser, subsys));
             JToggleButton button = new JToggleButton(subsys.toString());
             button.addActionListener(e -> {
                 updateSidescanPanel(subsys);
@@ -121,32 +118,45 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
         // Layout building
         setLayout(new MigLayout());
 
-        JToolBar toolBar = new JToolBar();
-        toolBar.setLayout(new GridLayout(0, ssParser.getSubsystemList().size()));
-        ButtonGroup buttonGroup = new ButtonGroup();
-        for(JToggleButton button: panelButtons.values()) {
-            buttonGroup.add(button);
-            toolBar.add(button);
+        for (Integer subsys : ssParser.getSubsystemList()) {
+            SidescanPanel panel = new SidescanPanel(this, ssParser, subsys, ssParser.getSubsystemList());
+            panel.setToolbarSubsystemListener(new SubsystemListener() {
+                @Override
+                public void setSubsystem(int subsystem) {
+                    updateSidescanPanel(subsystem);
+                }
+            });
+            sidescanPanels.put(subsys, panel);
+            currentPanels.add(panel);
+            add(panel, "w 100%, h 100%, wrap");
         }
-        add(toolBar, "dock north");
-        panelButtons.get(ssParser.getSubsystemList().get(0)).setSelected(true);
-
-        currentPanel = sidescanPanels.get(ssParser.getSubsystemList().get(0));
-
-        add(currentPanel, "w 100%, h 100%, wrap");
-
         add(timeline, "w 100%, split");
     }
 
     private void updateSidescanPanel(int subsystem) {
-        if (currentPanel == sidescanPanels.get(subsystem)) {
-            return;
+        // Display all
+        for (SidescanPanel panel : currentPanels) {
+            remove(panel);
         }
-        remove(currentPanel);
         remove(timeline);
-        currentPanel = sidescanPanels.get(subsystem);
-        add(currentPanel, "w 100%, h 100%, wrap");
+        currentPanels.clear();
+
+        if (subsystem == -1) {
+            for (SidescanPanel panel : sidescanPanels.values()) {
+                currentPanels.add(panel);
+            }
+        }
+        else {
+            currentPanels.add(sidescanPanels.get(subsystem));
+        }
+
+        for (SidescanPanel panel : currentPanels) {
+            panel.notifySubsystem(subsystem);
+            add(panel, "w 100%, h 100%, wrap");
+        }
         add(timeline, "w 100%, split");
+        repaint();
+        revalidate();
     }
 
     @Override
@@ -187,10 +197,9 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
             // If this is true but currentTime and lastTime as the same value
             if (Math.abs(value - currentTime) > 1000 / 15 * timeline.getSpeed()) {
                 // this means it dragged
-//                for (SidescanPanel p : sidescanPanels) {
-//                    p.clearLines();
-//                }
-                currentPanel.clearLines();
+                for (SidescanPanel p : sidescanPanels.values()) {
+                    p.clearLines();
+                }
 
                 lastUpdateTime = value;
             }
@@ -204,21 +213,14 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
                 timeline.pause();
             }
 
-//            for (SidescanPanel p : sidescanPanels) {
-//                try {
-//                    p.updateImage(currentTime, lastUpdateTime);
-//                    p.repaint();
-//                }
-//                catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-//            }
-            try {
-                currentPanel.updateImage(currentTime, lastUpdateTime);
-                currentPanel.repaint();
-            }
-            catch (Exception e) {
-                e.printStackTrace();
+            for (SidescanPanel p : sidescanPanels.values()) {
+                try {
+                    p.updateImage(currentTime, lastUpdateTime);
+                    p.repaint();
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
 
             timeline.setTime(firstPingTime + currentTime);
@@ -304,5 +306,4 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
     public void goToMarker(LogMarker marker) {
 
     }
-
 }
