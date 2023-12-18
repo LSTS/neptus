@@ -163,7 +163,38 @@ public class SearchOpenCv {
                     File[] libsToAdd = new File(pathFld).listFiles((file, s) -> s.endsWith(".dll"));
                     if (libsToAdd != null) {
                         List<String> orderedLibs = Arrays.stream(libsToAdd).sorted((o1, o2) -> {
-                            if (o1.getName().toLowerCase().contains("msmf")
+                            if (o1.getName().toLowerCase().contains("swresample-")
+                                    && o2.getName().toLowerCase().contains("avutil-")) {
+                                return 1;
+                            } else if (o2.getName().toLowerCase().contains("swresample-")
+                                    && o1.getName().toLowerCase().contains("avutil-")) {
+                                return -1;
+                            }
+                            else if (o1.getName().toLowerCase().contains("swresample-")) {
+                                return -1;
+                            } else if (o2.getName().toLowerCase().contains("swresample-")) {
+                                return 1;
+                            }
+                            else if (o1.getName().toLowerCase().contains("avutil-")) {
+                                return -1;
+                            } else if (o2.getName().toLowerCase().contains("avutil-")) {
+                                return 1;
+                            }
+                            else if (o1.getName().toLowerCase().contains("ffmpeg")
+                                    && o2.getName().toLowerCase().contains("avutil-")) {
+                                return 1;
+                            } else if (o2.getName().toLowerCase().contains("ffmpeg")
+                                    && o1.getName().toLowerCase().contains("avutil-")) {
+                                return -1;
+                            }
+                            else if (o1.getName().toLowerCase().contains("ffmpeg")
+                                    && o2.getName().toLowerCase().contains("swresample-")) {
+                                return 1;
+                            } else if (o2.getName().toLowerCase().contains("ffmpeg")
+                                    && o1.getName().toLowerCase().contains("swresample-")) {
+                                return -1;
+                            }
+                            else if (o1.getName().toLowerCase().contains("msmf")
                                     && o2.getName().toLowerCase().contains("world")) {
                                 return 1;
                             } else if (o2.getName().toLowerCase().contains("msmf")
@@ -171,7 +202,7 @@ public class SearchOpenCv {
                                 return -1;
                             }
 
-                            return o1.compareTo(o2);
+                            return 0;//o1.compareTo(o2);
                         }).map(File::getAbsolutePath).collect(Collectors.toList());
                         libsStrToLoad.addAll(orderedLibs);
                     }
