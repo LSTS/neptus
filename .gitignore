@@ -169,6 +169,7 @@ TCL*.tmp
 /to_upload_*
 *.hprof
 /cp.jar
+/*.vmoptions
 
 NSIS_release/static_files/batch_files/
 dev-scripts/grow_pot.sh
