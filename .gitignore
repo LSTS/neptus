@@ -157,6 +157,7 @@ Thumbs.db
 *.edited
 \#*#
 *~
+*.swp
 /neptus.bat
 /neptus.sh
 /*.log
