@@ -51,6 +51,14 @@ cd %APP_HOME%
 @rem Add default JVM options here. You can also use JAVA_OPTS and ${optsEnvironmentVar} to pass JVM options to this script.
 set DEFAULT_JVM_OPTS=${defaultJvmOpts}
 
+set OPTIONS_FILE_OPTS=
+IF EXIST "%APP_HOME%\\neptus.vmoptions" (
+  IF NOT "%OPTIONS_FILE_OPTS%" == "" (
+    FOR /F "eol=# usebackq delims=" %%i IN ("%APP_HOME%\\neptus.vmoptions") DO CALL SET "OPTIONS_FILE_OPTS=%%OPTIONS_FILE_OPTS%% %%i"
+  )
+)
+
+
 set DEFAULT=${mainClassName}
 
 set CLASSPATH=%APP_HOME%;%APP_HOME%\\bin\\neptus.jar;%APP_HOME%\\conf;${classpath};%APP_HOME%\\plugins\\*;%CLASSPATH%
@@ -152,5 +160,5 @@ set CMD_LINE_ARGS=%*
 set OLDPATH=%PATH%
 set PATH=%LIBRARYPATH%;%PATH%
 @rem Execute ${applicationName}
-"%JAVA_EXE%" -Dj3d.rend=d3d -Dsun.java2d.d3d=true %DEFAULT_JVM_OPTS% %JAVA_OPTS% %${optsEnvironmentVar}% -Djava.library.path="%LIBRARYPATH%" -classpath "%CLASSPATH%" %DEFAULT% %CMD_LINE_ARGS%
+"%JAVA_EXE%" -Dj3d.rend=d3d -Dsun.java2d.d3d=true %DEFAULT_JVM_OPTS% %OPTIONS_FILE_OPTS% %JAVA_OPTS% %${optsEnvironmentVar}% -Djava.library.path="%LIBRARYPATH%" -classpath "%CLASSPATH%" %DEFAULT% %CMD_LINE_ARGS%
 set PATH=%OLDPATH%
