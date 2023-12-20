@@ -187,41 +187,43 @@ public class SidescanToolbar extends JToolBar {
         add(btnMark);
         add(btnZoom);
 
-        addSeparator();
+        if (subsystemList.size() > 1) {
+            addSeparator();
 
-        ButtonGroup subsystemButtonGroup = new ButtonGroup() {
-            @Override
-            public void setSelected(ButtonModel model, boolean selected) {
-                if (selected) {
-                    super.setSelected(model, selected);
+            ButtonGroup subsystemButtonGroup = new ButtonGroup() {
+                @Override
+                public void setSelected(ButtonModel model, boolean selected) {
+                    if (selected) {
+                        super.setSelected(model, selected);
+                    }
+                    else {
+                        clearSelection();
+                    }
                 }
-                else {
-                    clearSelection();
-                }
-            }
-        };
-        subsystemButtons = new ArrayList<>();
-        for (int i = 1; i <= subsystemList.size(); i++) {
-            Integer subsystem = subsystemList.get(i - 1);
-            JToggleButton subsystemButton = new JToggleButton("CH " + i);
-            subsystemButtonGroup.add(subsystemButton);
-            subsystemButtons.add(subsystemButton);
-            subsystemButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    int subsystem = -1;
-                    for (int i = 0; i < subsystemButtons.size(); i++) {
-                        JToggleButton button = subsystemButtons.get(i);
-                        if (button.isSelected()) {
-                            subsystem = subsystemList.get(i);
-                            break;
+            };
+            subsystemButtons = new ArrayList<>();
+            for (int i = 1; i <= subsystemList.size(); i++) {
+                Integer subsystem = subsystemList.get(i - 1);
+                JToggleButton subsystemButton = new JToggleButton("CH " + i);
+                subsystemButtonGroup.add(subsystemButton);
+                subsystemButtons.add(subsystemButton);
+                subsystemButton.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        int subsystem = -1;
+                        for (int i = 0; i < subsystemButtons.size(); i++) {
+                            JToggleButton button = subsystemButtons.get(i);
+                            if (button.isSelected()) {
+                                subsystem = subsystemList.get(i);
+                                break;
+                            }
+                        }
+                        if (subsystemListener != null) {
+                            subsystemListener.setSubsystem(subsystem);
                         }
                     }
-                    if (subsystemListener != null) {
-                        subsystemListener.setSubsystem(subsystem);
-                    }
-                }
-            });
-            add(subsystemButton);
+                });
+                add(subsystemButton);
+            }
         }
 
         addSeparator();
