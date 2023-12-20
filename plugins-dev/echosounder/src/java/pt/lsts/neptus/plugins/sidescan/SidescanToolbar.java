@@ -40,7 +40,17 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.ButtonGroup;
+import javax.swing.ButtonModel;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JSlider;
+import javax.swing.JSpinner;
+import javax.swing.JToggleButton;
+import javax.swing.JToolBar;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -198,8 +208,8 @@ public class SidescanToolbar extends JToolBar {
             subsystemButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     int subsystem = -1;
-                    for(JToggleButton button: subsystemButtons) {
-                        if(button.isSelected()) {
+                    for (JToggleButton button : subsystemButtons) {
+                        if (button.isSelected()) {
                             subsystem = Integer.valueOf(button.getText());
                             break;
                         }
@@ -321,7 +331,7 @@ public class SidescanToolbar extends JToolBar {
 
     public void setCurrentSubsystem(Integer subsystem) {
         for (JToggleButton subsystemButton : subsystemButtons) {
-            if(subsystem == -1) {
+            if (subsystem == -1) {
                 subsystemButton.setSelected(false);
             }
             else if (subsystemButton.getText().equals(subsystem.toString())) {
