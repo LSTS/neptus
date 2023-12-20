@@ -326,7 +326,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     public SidescanPanel(SidescanAnalyzer analyzer, SidescanParser parser, int subsystem, List<Integer> subsystemList) {
         this.parent = analyzer;
         ssParser = parser;
-        toolbar = new SidescanToolbar( subsystemList, this);
+        toolbar = new SidescanToolbar(subsystemList, this);
         initialize();
         this.subsystem = subsystem;
         posHud = new MraVehiclePosHud(analyzer.mraPanel.getSource(), config.hudSize, config.hudSize);
@@ -1452,7 +1452,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     }
 
     public void notifySubsystem(int subsystem) {
-        if(toolbar != null) {
+        if (toolbar != null) {
             toolbar.setCurrentSubsystem(subsystem);
         }
     }

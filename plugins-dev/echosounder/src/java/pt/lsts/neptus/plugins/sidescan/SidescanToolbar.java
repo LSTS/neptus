@@ -201,16 +201,18 @@ public class SidescanToolbar extends JToolBar {
             }
         };
         subsystemButtons = new ArrayList<>();
-        for (Integer subsystem : subsystemList) {
-            JToggleButton subsystemButton = new JToggleButton(subsystem.toString());
+        for (int i = 1; i <= subsystemList.size(); i++) {
+            Integer subsystem = subsystemList.get(i - 1);
+            JToggleButton subsystemButton = new JToggleButton("CH " + i);
             subsystemButtonGroup.add(subsystemButton);
             subsystemButtons.add(subsystemButton);
             subsystemButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     int subsystem = -1;
-                    for (JToggleButton button : subsystemButtons) {
+                    for (int i = 0; i < subsystemButtons.size(); i++) {
+                        JToggleButton button = subsystemButtons.get(i);
                         if (button.isSelected()) {
-                            subsystem = Integer.valueOf(button.getText());
+                            subsystem = subsystemList.get(i);
                             break;
                         }
                     }
@@ -330,11 +332,12 @@ public class SidescanToolbar extends JToolBar {
     }
 
     public void setCurrentSubsystem(Integer subsystem) {
-        for (JToggleButton subsystemButton : subsystemButtons) {
+        for (int i = 0; i < subsystemButtons.size(); i++) {
+            JToggleButton subsystemButton = subsystemButtons.get(i);
             if (subsystem == -1) {
                 subsystemButton.setSelected(false);
             }
-            else if (subsystemButton.getText().equals(subsystem.toString())) {
+            else if (subsystem.equals(subsystemList.get(i))) {
                 subsystemButton.setSelected(true);
             }
         }
