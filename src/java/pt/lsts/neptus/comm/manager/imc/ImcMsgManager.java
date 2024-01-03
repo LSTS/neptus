@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2022 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -40,6 +40,7 @@ import java.net.URL;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -64,6 +65,7 @@ import com.google.common.collect.HashBiMap;
 import com.google.common.eventbus.AsyncEventBus;
 
 import pt.lsts.imc.Announce;
+import pt.lsts.imc.AssetReport;
 import pt.lsts.imc.EntityInfo;
 import pt.lsts.imc.EntityList;
 import pt.lsts.imc.FuelLevel;
@@ -858,7 +860,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         if (imcSys == null) {
             NeptusLog.pub().error("Could not find system with id "+sysId);
             return;
-        }        
+        }
         
         LocationType loc = new LocationType(lat, lon);
         loc.setDepth(depth);
@@ -917,7 +919,79 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         
         messagesCreatedToFoward.add(pcsMsg);
     }
-    
+
+    private void processAssetReport(MessageInfo info, AssetReport msg, ArrayList<IMCMessage> messagesCreatedToFoward) {
+
+        String reporterId = msg.getSourceName();
+        String sysId = msg.getName();
+
+        long dataTimeMillis = Double.valueOf(msg.getReportTime() * 1000).longValue();
+
+        AssetReport.MEDIUM mediumReported = msg.getMedium();
+
+        double latRad = msg.getLat();
+        double lonRad = msg.getLon();
+        double depth = msg.getDepth();
+        double altitude = msg.getAlt();
+
+        double speedMS = msg.getSog();
+        double cogRads = msg.getCog();
+
+        ArrayList<IMCMessage> otherMsgs = Collections.list(msg.getMsgs().elements()); // TODO
+
+        ImcSystem imcSys = ImcSystemsHolder.lookupSystemByName(sysId);
+        ExternalSystem extSys = null;
+        if (imcSys == null) {
+            extSys = ExternalSystemsHolder.lookupSystem(sysId);
+            if (extSys == null) {
+                extSys = new ExternalSystem(sysId);
+                ExternalSystemsHolder.registerSystem(extSys);
+            }
+        }
+
+        if (Double.isFinite(latRad) && Double.isFinite(lonRad)) {
+            LocationType loc = new LocationType(AngleUtils.nomalizeAngleDegrees180(Math.toDegrees(latRad)),
+                    AngleUtils.nomalizeAngleDegrees180(Math.toDegrees(lonRad)));
+            if (Double.isFinite(depth)) {
+                loc.setDepth(depth);
+            }
+            if (imcSys != null) {
+                imcSys.setLocation(loc, dataTimeMillis);
+            } else {
+                extSys.setLocation(loc, dataTimeMillis);
+            }
+        }
+        double headingRads = Double.NaN;
+        if (Double.isFinite(cogRads) && Double.isFinite(speedMS) && Math.abs(speedMS) > 0.2) {
+            headingRads = AngleUtils.nomalizeAngleRads2Pi(cogRads * (speedMS < 0 ? -1 : 1));
+            if (imcSys != null) {
+                imcSys.setAttitudeDegrees(headingRads, dataTimeMillis);
+                imcSys.storeData(
+                        SystemUtils.HEADING_DEGS_KEY,
+                        (int) AngleUtils.nomalizeAngleDegrees360(MathMiscUtils.round(Math.toDegrees(headingRads), 0)),
+                        dataTimeMillis, true);
+            } else {
+                extSys.setAttitudeDegrees(headingRads, dataTimeMillis);
+                extSys.storeData(
+                        SystemUtils.HEADING_DEGS_KEY,
+                        (int) AngleUtils.nomalizeAngleDegrees360(MathMiscUtils.round(Math.toDegrees(headingRads), 0)),
+                        dataTimeMillis, true);
+            }
+        }
+
+        if (imcSys != null) {
+            imcSys.storeData(SystemUtils.GROUND_SPEED_KEY, speedMS, dataTimeMillis, true);
+            imcSys.storeData(SystemUtils.COURSE_DEGS_KEY,
+                    (int) AngleUtils.nomalizeAngleDegrees360(MathMiscUtils.round(Math.toDegrees(cogRads), 0)),
+                    dataTimeMillis, true);
+        } else {
+            extSys.storeData(SystemUtils.GROUND_SPEED_KEY, speedMS, dataTimeMillis, true);
+            extSys.storeData(SystemUtils.COURSE_DEGS_KEY,
+                    (int) AngleUtils.nomalizeAngleDegrees360(MathMiscUtils.round(Math.toDegrees(cogRads), 0)),
+                    dataTimeMillis, true);
+        }
+    }
+
     private void processRemoteSensorInfo(MessageInfo info, RemoteSensorInfo msg) {
         // Process pos. state reported from other system
         String sysId = msg.getId();
@@ -1050,6 +1124,10 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                         break;
                     case StateReport.ID_STATIC:
                         processStateReport(info, new StateReport(msg), messagesCreatedToFoward);
+                        break;
+                    case AssetReport.ID_STATIC:
+                        processAssetReport(info, new AssetReport(msg), messagesCreatedToFoward);
+                        break;
                     default:
                         break;
                 }
@@ -1625,9 +1703,18 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         ImcSystem[] ccus = ImcSystemsHolder.lookupSystemCCUs();
 
         for (ImcSystem ccu : ccus)
-            sendMessage(message, ccu.getId(), null);
+            sendMessage(message.cloneMessage(), ccu.getId(), null);
 
         return ccus.length > 0;
+    }
+
+    public boolean broadcastToVehicles(IMCMessage message) {
+        ImcSystem[] vehs = ImcSystemsHolder.lookupSystemVehicles();
+
+        for (ImcSystem veh : vehs)
+            sendMessage(message.cloneMessage(), veh.getId(), null);
+
+        return vehs.length > 0;
     }
 
     /**

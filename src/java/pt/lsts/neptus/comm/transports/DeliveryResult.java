@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2022 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -15,7 +15,7 @@
  *
  * Modified European Union Public Licence - EUPL v.1.1 Usage
  * Alternatively, this file may be used under the terms of the Modified EUPL,
- * Version 1.1 only (the "Licence"), appearing in the file LICENSE.md
+ * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
  * law or agreed to in writing, software distributed under the Licence is
@@ -27,20 +27,29 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: zp
- * Jan 19, 2018
+ * Author: Paulo Dias
+ * 10/02/2011
  */
-package pt.lsts.neptus.comm.iridium;
+package pt.lsts.neptus.comm.transports;
 
-/**
- * @author zp
- *
- */
-@IridiumProvider(id="ripples", name="Ripples Messenger", description="Sends Iridium messages directly to ripples app.")
-public class RipplesIridiumMessenger extends HubIridiumMessenger {
+public class DeliveryResult {
+    public final DeliveryListener.ResultEnum result;
+    public final Exception exception;
 
-    public RipplesIridiumMessenger() {
-        serverUrl = "http://falkor.lsts.pt:9090/api/v1/";        
+    private DeliveryResult(DeliveryListener.ResultEnum result, Exception error) {
+        this.result = result;
+        this.exception = error;
     }
-    
+
+    private DeliveryResult(DeliveryListener.ResultEnum result) {
+        this(result, null);
+    }
+
+    public static DeliveryResult from(DeliveryListener.ResultEnum result) {
+        return new DeliveryResult(result);
+    }
+
+    public static DeliveryResult from(DeliveryListener.ResultEnum result, Exception error) {
+        return new DeliveryResult(result, error);
+    }
 }

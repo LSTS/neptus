@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2022 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -36,6 +36,7 @@ import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -49,11 +50,14 @@ import java.util.TimeZone;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.control.customizers.ImportCustomizer;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.ValueMarker;
+import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.chart.ui.TextAnchor;
@@ -81,6 +85,8 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
 
     protected Map<String, String> traces = new LinkedHashMap<>();
     protected TimeSeriesCollection customTsc = new TimeSeriesCollection();
+    protected Map<String, Integer> tracesToAxisIndex = new HashMap<>();
+    protected Map<Integer, String> axisIndexNames = new HashMap<>();
     protected Vector<String> hiddenFiles = new Vector<>();
     protected Map<ValueMarker,LogMarker> rangeMarks = new HashMap<>();
     protected LinkedHashMap<String, TimeSeries> hiddenSeries = new LinkedHashMap<>();
@@ -93,6 +99,8 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
     private String title = null;
     private boolean processed = false;
     private StringBuilder sb = new StringBuilder();
+
+    private boolean isMultiAxis = false;
 
     public boolean isProcessed() {
         return processed;
@@ -204,13 +212,29 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
         return true;
     }
 
+    public void axisName(String name) {
+        axisName(0, name);
+    }
+
+    public void axisName(int idx, String name) {
+        axisIndexNames.put(idx, name);
+    }
+
     /**
      * Adds a new time series to the existing plot. If the series already exists, it updates it.
      * 
      * @param ts the TimeSeries to be added
      */
     public void addTimeSeries(TimeSeries ts) {
+        addTimeSeries(0, ts);
+    }
+
+    public void addTimeSeries(int idx, TimeSeries ts) {
         String trace = ts.getKey().toString();
+        idx = Math.abs(idx);
+        if (idx != 0) {
+            tracesToAxisIndex.put(trace, idx);
+        }
         if (!forbiddenSeries.contains(trace)) {
             if (!series.containsKey(trace)) {
                 addTrace(trace);
@@ -224,8 +248,16 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
     }
 
     public void addTimeSeries(String id, String query) {
+        addTimeSeries(0, id, query);
+    }
+
+    public void addTimeSeries(int idx, String id, String query) {
         if(!isProcessed()) {
+            idx = Math.abs(idx);
             traces.put(id, query);
+            if (idx != 0) {
+                tracesToAxisIndex.put(id, idx);
+            }
         }
     }
 
@@ -267,7 +299,7 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
         return tsc;
     }
 
-    public void hideTimeSeries(String id,TimeSeries ts){
+    public void hideTimeSeries(String id, TimeSeries ts){
         if(series.containsKey(id)){
             series.remove(id);
             hiddenFiles.add(id);
@@ -299,6 +331,8 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
     public void removeTimeSeries(String id) {
         if (!isProcessed())
             return;
+
+        tracesToAxisIndex.remove(id);
 
         if (hiddenFiles.contains(id)) {
             for (Iterator<TimeSeries> itr = hiddenSeries.values().iterator(); itr.hasNext();) {
@@ -346,7 +380,13 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
         return variable;
     }
 
-    public void addQuery(String id,String query) {
+    private String getSeriesId(String query) {
+        String fields[] = query.split("\\.");
+        String variable = query.substring(fields[0].length()+1);
+        return variable;
+    }
+
+    public void addQuery(String id, String query) {
         traces.put(id,query); //Get data from LSFIndex
         if(!hiddenFiles.contains(id))
             hiddenFiles.addElement(id); //Don't add it to plot
@@ -417,7 +457,7 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
         }
     }
     
-    public void addRangeMarker (String label,double value) {
+    public void addRangeMarker (String label, double value) {
         if (isProcessed()) {
             ValueMarker marker = new ValueMarker(value);
             LogMarker lm = new LogMarker(label, value, 0, 0);
@@ -461,12 +501,98 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
         runScript(scriptPath);
         process(index);
         chart = createChart();
+        if (!axisIndexNames.isEmpty() && axisIndexNames.get(0) != null) {
+            chart.getXYPlot().getRangeAxis().setLabel(axisIndexNames.get(0));
+        }
         XYItemRenderer r = chart.getXYPlot().getRenderer();
         if (r != null) {
             for (int i = 0; i < tsc.getSeriesCount(); i++) {
                 r.setSeriesPaint(i, seriesColors[i % seriesColors.length]);
             }
         }
+
+        // Process to add multiple axis
+        if (series.size() > 1 && !tracesToAxisIndex.isEmpty()) {
+            Map<String, List<String>> groupingCollections = new LinkedHashMap<>();
+
+            // Remove titles without traces
+            axisIndexNames.keySet().stream().collect(Collectors.toList()).stream().forEach(i -> {
+                if (!tracesToAxisIndex.values().contains(i) && i != 0) {
+                    axisIndexNames.remove(i);
+                }
+            });
+            // Get names to axis that have none
+            List<Integer> ik = tracesToAxisIndex.values().stream().collect(Collectors.toList());
+            ik.add(0);
+            ik.stream().distinct().forEach(i -> {
+                if (!axisIndexNames.containsKey(i)) {
+                    String an = tracesToAxisIndex.keySet().stream().filter(id -> tracesToAxisIndex.get(id) == i)
+                            .findFirst().orElse("");
+                    axisIndexNames.put(i, an);
+                }
+            });
+
+            // Creating the groupingCollections
+            for (int idx : axisIndexNames.keySet().stream().sorted().collect(Collectors.toList())) {
+                groupingCollections.put(axisIndexNames.get(idx), new ArrayList<>());
+            }
+            for (String serName : series.keySet()) {
+                String sName = getSeriesId(serName);
+                Integer idxByName = tracesToAxisIndex.get(sName);
+                int idx = idxByName == null ? 0 : idxByName;
+                groupingCollections.get(axisIndexNames.get(idx)).add(serName);
+            }
+
+            Map<String, String> labelsCollections = new LinkedHashMap<>();
+            Map<String, TimeSeriesCollection> tsers = new HashMap<>();
+            String firstGrp = null;
+
+            int idx = 0;
+            for (String grpName : groupingCollections.keySet()) {
+                if (firstGrp == null) {
+                    firstGrp = grpName;
+                    continue;
+                }
+
+                TimeSeriesCollection ntsc = new TimeSeriesCollection();
+                tsers.put(grpName, ntsc);
+                for (String ser : groupingCollections.get(grpName)) {
+                    tsc.removeSeries(series.get(ser));
+                    ntsc.addSeries(series.get(ser));
+                }
+                final NumberAxis axis2 = new NumberAxis(grpName);
+                axis2.setAutoRangeIncludesZero(false);
+                axis2.setLowerMargin(0.02);  // reduce the default margins
+                axis2.setUpperMargin(0.02);
+                chart.getXYPlot().setRangeAxis(++idx, axis2);
+                chart.getXYPlot().setDataset(idx, ntsc);
+                chart.getXYPlot().mapDatasetToRangeAxis(idx, 1);
+            }
+            chart.getXYPlot().getRangeAxis().setLabel(firstGrp);
+
+            // Fix series color
+            int col = 0;
+            idx = 0;
+            for (String grpName : groupingCollections.keySet()) {
+                XYItemRenderer r1 = null;
+                TimeSeriesCollection t1 = null;
+                if (firstGrp.equalsIgnoreCase(grpName)) {
+                    r1 = chart.getXYPlot().getRenderer();
+                    t1 = tsc;
+                } else {
+                    r1 = new StandardXYItemRenderer();
+                    chart.getXYPlot().setRenderer(++idx, r1);
+                    t1 = tsers.get(grpName);
+                }
+
+                if (r1 != null) {
+                    for (int i = 0; i < t1.getSeriesCount(); i++) {
+                        r1.setSeriesPaint(i, seriesColors[col++ % seriesColors.length]);
+                    }
+                }
+            }
+        }
+
         for (LogMarker marker : mraPanel.getMarkers()) {
                 addLogMarker(marker);
         }

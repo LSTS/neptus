@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2022 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -216,7 +216,7 @@ public class ManeuversUtil {
         newPoints.add(point);
         
         double x2;
-        for (double y = 0; y <= width; y += hstep) {
+        for (double y = 0; y - (!direction ? hstep * (1 - alternationPercent) : 0) <= width; y += hstep) {
             if (direction)
                 x2 = length + curvOff;
             else
@@ -229,7 +229,7 @@ public class ManeuversUtil {
             point = new double[] { x2, y - hstepDelta, 0, -1 };
             newPoints.add(point);
 
-            if (y + hstep <= width) {
+            if (y + hstep * (!direction ? alternationPercent : 1) <= width) {
                 double hstepAlt = hstep;
                 if (!direction)
                     hstepAlt = hstep * alternationPercent;

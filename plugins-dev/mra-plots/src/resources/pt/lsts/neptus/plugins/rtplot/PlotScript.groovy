@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2022 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -31,6 +31,8 @@
  * Dec 12, 2018
  */
 package pt.lsts.neptus.plugins.rtplot
+
+import pt.lsts.neptus.util.AngleUtils
 
 import java.awt.BorderLayout
 import java.awt.geom.Point2D
@@ -79,6 +81,18 @@ class PlotScript {
         else
             Double.NaN
     }
+
+    static public toDegrees = {double rad -> Math.toDegrees(rad)}
+
+    static public toRadians = {double deg -> Math.toRadians(deg)}
+
+    static public normalizeAngleRads2Pi = {double double1 -> AngleUtils.nomalizeAngleRads2Pi(double1)}
+
+    static public normalizeAngleRadsPi = {double double1 -> AngleUtils.nomalizeAngleRadsPi(double1)}
+
+    static public normalizeAngleDegrees360 = {double double1 -> AngleUtils.nomalizeAngleDegrees360(double1)}
+
+    static public normalizeAngleDegrees180 = {double double1 -> AngleUtils.nomalizeAngleDegrees180(double1)}
 
     static String newName(String dottedName, String serieName) {
         dottedName.split(/(\.)/)[0] + "." +serieName

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2022 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -29,121 +29,279 @@
  *
  * Author: Pedro Gonçalves
  */
-
 package pt.lsts.neptus.plugins.videostream;
 
-import java.awt.Graphics2D;
-import java.awt.Image;
+import org.apache.commons.io.FileUtils;
+import org.opencv.core.Size;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.conf.ConfigFetch;
+
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.URI;
 import java.net.UnknownHostException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
-import org.opencv.core.Size;
-
-/** 
+/**
  * @author pedrog
+ * @author Pedro Costa
  * @version 1.0
  * @category OpenCV-Vision
- *
  */
 public class UtilVideoStream {
-    
     private UtilVideoStream() {
     }
-    
-    public static String[][] readIpUrl(File nameFile) {
+
+    public static String getHostFromURI(String camUrl) {
+        try {
+            URI uri = new URI(camUrl);
+            if (uri == null) return null;
+
+            return uri.getHost();
+        }
+        catch (Exception e) {
+            NeptusLog.pub().warn("Camera URL is not valid: " + camUrl + " :: " + e.getMessage());
+        }
+        return null;
+    }
+
+    public static URI getCamUrlAsURI(String camUrl) {
+        try {
+            URI uri = new URI(camUrl);
+            return uri;
+        }
+        catch (Exception e) {
+            NeptusLog.pub().warn("Camera URL is not valid: " + camUrl + " :: " + e.getMessage());
+        }
+        return null;
+    }
+
+    public static ArrayList<Camera> readIpUrl(File nameFile) {
+        ArrayList<Camera> cameraList = new ArrayList<>();
         BufferedReader br = null;
-        String lineFile;
-        String[] splits;
-        String[] emptyData = {"Select Device", "", ""};
-        ArrayList<String[]> dataIpCam = new ArrayList<>();
+        String line;
         try {
             br = new BufferedReader(new FileReader(nameFile));
         }
         catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        dataIpCam.add(emptyData);
+        cameraList.add(new Camera());
+
+        String[] splits;
         try {
-            while ((lineFile = br.readLine()) != null) {
-                if(!lineFile.isEmpty()) {
-                    splits = lineFile.split("#");                  
-                    if(splits.length == 3)
-                        dataIpCam.add(splits);
+            while ((line = br.readLine()) != null) {
+                Camera cam = parseLineCamera(line);
+                if (cam != null) {
+                    cameraList.add(cam);
                 }
             }
         }
         catch (IOException e) {
             e.printStackTrace();
         }
-        
+
         try {
             br.close();
         }
         catch (IOException e) {
             e.printStackTrace();
         }
-        return dataIpCam.toArray(new String[dataIpCam.size()][0]);
+        return cameraList;
     }
-    
-    public static boolean pingIp(String host) {
-        boolean ping = false;
-        boolean ping2 = false;
-        try {
-            String[] cmd;
-            if (System.getProperty("os.name").startsWith("Windows")) {
-                // For Windows
-                cmd = new String[]{
-                        "ping",
-                        "-n",
-                        "1",
-                        host};
-            }
-            else {
-                // For Linux and OSX
-                cmd = new String[]{
-                        "ping",
-                        "-c",
-                        "1",
-                        host};
-            }
-            Process myProcess = Runtime.getRuntime().exec(cmd);
-            try {
-                myProcess.waitFor();
-            }
-            catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            
-            InetAddress hostip = InetAddress.getByName(host);
-            ping2 = hostip.isReachable(1000);
-            
-            if (myProcess.exitValue() == 0 && ping2)
-                ping = true;
-            else
-                ping = false;
+
+    static Camera parseLineCamera(String line) {
+        if (line.isEmpty() || line.trim().startsWith("#")) return null;
+
+        String[] splits = line.split("#");
+        if (splits.length == 3) {
+            if (splits[0].trim().isEmpty()) return null;
+            if (splits[1].trim().isEmpty()) return null;
+            if (splits[2].trim().isEmpty()) return null;
+            if (UtilVideoStream.getHostFromURI(splits[2].trim().trim()) == null) return null;
+
+            return new Camera(splits[0], splits[1], splits[2]);
         }
-        catch (UnknownHostException e) {
-            e.printStackTrace();
+        else if (splits.length == 2) {
+            if (splits[0].trim().isEmpty()) return null;
+            if (splits[1].trim().isEmpty()) return null;
+            String host = UtilVideoStream.getHostFromURI(splits[1].trim().trim());
+            if (host == null) return null;
+
+            return new Camera(splits[0], host, splits[1]);
+        }
+
+        return null;
+    }
+
+    public static void removeCamFromFile(Camera camToRemove, String fileName) {
+        File confIni = new File(fileName);
+        File tempFile = null;
+        try {
+            tempFile = File.createTempFile("neptus_", "tmp", new File(ConfigFetch.getNeptusTmpDir()));
+            tempFile.deleteOnExit();
         }
         catch (IOException e) {
             e.printStackTrace();
-        } // Ping doesnt work
-        
-        return ping;
+            return;
+        }
+
+        String currentLine;
+        try (BufferedReader reader = new BufferedReader(new FileReader(confIni));
+             BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile))) {
+            while ((currentLine = reader.readLine()) != null) {
+                boolean writeLine = false;
+
+                if (currentLine.isEmpty() || currentLine.trim().startsWith("#")) {
+                    writeLine = true;
+                }
+
+                if (writeLine == false) {
+                    Camera cam = parseLineCamera(currentLine.trim());
+                    if (cam != null) {
+                        if (!cam.getName().equalsIgnoreCase(camToRemove.getName())) {
+                            writeLine = true;
+                        }
+                    }
+                }
+
+                if (writeLine) {
+                    writer.write(currentLine.trim() + System.getProperty("line.separator"));
+                }
+            }
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            FileUtils.copyFile(tempFile, confIni);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
     }
-    
+
+    public static void addCamToFile(Camera camToAdd, String fileName) {
+        String iniRsrcPath = FileUtil.getResourceAsFileKeepName(VideoStream.BASE_FOLDER_FOR_URL_INI);
+
+        File confIni = new File(fileName);
+        if (!confIni.exists()) {
+            FileUtil.copyFileToDir(iniRsrcPath, ConfigFetch.getConfFolder());
+        }
+
+        File tempFile = null;
+        try {
+            tempFile = File.createTempFile("neptus_", "tmp", new File(ConfigFetch.getNeptusTmpDir()));
+            tempFile.deleteOnExit();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        ArrayList<Camera> camsList = readIpUrl(confIni);
+        boolean updateValueLine = camsList.stream().anyMatch(c -> camToAdd.getName().equalsIgnoreCase(c.getName()));
+
+        if (!updateValueLine) {
+            String str = String.format("%s#%s\n", camToAdd.getName().trim(), camToAdd.getUrl().trim());
+            FileUtil.saveToFile(confIni.getAbsolutePath(), str, "UTF-8", true);
+            return;
+        }
+
+        String currentLine;
+        try (BufferedReader reader = new BufferedReader(new FileReader(confIni));
+             BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile))) {
+            while ((currentLine = reader.readLine()) != null) {
+                boolean writeLine = false;
+
+                if (currentLine.isEmpty() || currentLine.trim().startsWith("#")) {
+                    writeLine = true;
+                }
+
+                if (writeLine == false) {
+                    Camera cam = parseLineCamera(currentLine.trim());
+                    if (cam != null) {
+                        if (cam.getName().equalsIgnoreCase(camToAdd.getName())) {
+                            String str = String.format("%s#%s\n", camToAdd.getName().trim(), camToAdd.getUrl().trim());
+                            writer.write(str);
+                        }
+                        else {
+                            writeLine = true;
+                        }
+                    }
+                }
+
+                if (writeLine) {
+                    writer.write(currentLine.trim() + System.getProperty("line.separator"));
+                }
+            }
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            FileUtils.copyFile(tempFile, confIni);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /*
+     * Checks if a given host is reachable using ping
+     * @param host
+     *      The ip to check
+     * @return boolean: true if host is reachable
+     */
+    public static boolean hostIsReachable(String host) {
+        InetAddress address;
+        try {
+            address = InetAddress.getByName(host);
+        }
+        catch (UnknownHostException e) {
+            return false;
+        }
+
+        // Host must be reachable 3 times to count as reachable
+        int tries = 3;
+        boolean isReachable;
+        while(tries-- > 0) {
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("mm:ss:SSSS");
+            LocalDateTime now = LocalDateTime.now();
+            try {
+                isReachable = address.isReachable(1000);
+                if(!isReachable)
+                    return false;
+                // Avoid spamming
+                TimeUnit.MILLISECONDS.sleep(100);
+            }
+            catch (Exception e) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public static BufferedImage resizeBufferedImage(BufferedImage img, Size size) {
-        if(size != null && size.width != 0 && size.height != 0){
-            BufferedImage dimg = new BufferedImage((int)size.width, (int)size.height, img.getType());
+        if (size != null && size.width != 0 && size.height != 0) {
+            BufferedImage dimg = new BufferedImage((int) size.width, (int) size.height, img.getType());
             Graphics2D g2d = dimg.createGraphics();
-            g2d.drawImage(img.getScaledInstance((int)size.width, (int)size.height, Image.SCALE_SMOOTH), 0, 0, null);
+            g2d.drawImage(img.getScaledInstance((int) size.width, (int) size.height, Image.SCALE_SMOOTH), 0, 0, null);
             g2d.dispose();
             return dimg;
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2022 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -201,7 +201,7 @@ public class ImcTcpTransport {
                             case TimeOut:
                                 deliveryListener.deliveryTimeOut(message);
                                 break;
-                            case Unreacheable:
+                            case Unreachable:
                                 deliveryListener.deliveryUnreacheable(message);
                                 break;
                             default:
@@ -212,8 +212,19 @@ public class ImcTcpTransport {
                     }
                 };                
             }
-            boolean ret = getTcpTransport().sendMessage(destination, port,
-                    baos.toByteArray(), listener);
+            DeliveryResult retResult = getTcpTransport().sendMessage(IdPair.from(destination, port), baos.toByteArray()).get();
+            listener.deliveryResult(retResult.result, retResult.exception);
+            boolean ret = false;
+            switch (retResult.result) {
+                case Success:
+                    ret = true;
+                    break;
+                case UnFinished:
+                case TimeOut:
+                case Unreachable:
+                case Error:
+                    break;
+            }
             if (!ret) {
                 if (deliveryListener != null) {
                     deliveryListener.deliveryError(message, new Exception("Delivery "

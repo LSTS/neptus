@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2022 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -137,17 +137,18 @@ public class UtilCv {
     }
 
     /**  Add text to Buffered Image */
-    public static BufferedImage addText(BufferedImage old, String text, Color m_color, int posX, int posY) {
+    public static BufferedImage addText(BufferedImage old, String text, Color textColor, int posX, int posY) {
         BufferedImage img = new BufferedImage(old.getWidth(), old.getHeight(), BufferedImage.TYPE_INT_ARGB);
         Graphics2D g1d = img.createGraphics();
         g1d.drawImage(old, 0, 0, null);
-        g1d.setPaint(Color.DARK_GRAY);
-        g1d.setFont(new Font("Serif", Font.BOLD, 14));
+        g1d.setPaint(new Color(Color.DARK_GRAY.getRed(), Color.DARK_GRAY.getGreen(),
+                Color.DARK_GRAY.getBlue(), textColor.getAlpha()));
+        g1d.setFont(new Font("Serif", Font.BOLD, 10));
         FontMetrics fm = g1d.getFontMetrics();
         g1d.drawString(text, posX - fm.stringWidth(text) - 10, posY);
 
-        g1d.setPaint(m_color);
-        g1d.setFont(new Font("Serif", Font.BOLD, 14));
+        g1d.setPaint(textColor);
+        g1d.setFont(new Font("Serif", Font.BOLD, 10));
         fm = g1d.getFontMetrics();
         g1d.drawString(text, posX - fm.stringWidth(text) - 12, posY);
         g1d.dispose();

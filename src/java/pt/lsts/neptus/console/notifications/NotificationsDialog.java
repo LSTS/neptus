@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2022 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -76,7 +76,6 @@ import pt.lsts.neptus.i18n.I18n;
  * 
  */
 public class NotificationsDialog extends JDialog implements WindowFocusListener, AWTEventListener {
-
     private static final long serialVersionUID = -344983838194932720L;
     private ConsoleLayout console;
     private JList<Notification> jList;
@@ -114,18 +113,11 @@ public class NotificationsDialog extends JDialog implements WindowFocusListener,
         jList.setLayoutOrientation(JList.VERTICAL);
         jList.setCellRenderer(new NotificationRenderer());
         jList.addListSelectionListener(new ListSelectionListener() {
-            
             @Override
             public void valueChanged(ListSelectionEvent e) {
-                if (e.getValueIsAdjusting() == false) {
-
-                    if (jList.getSelectedIndex() == -1) {
-                    
-
-                    } else {
-                        Notification noty = jList.getSelectedValue();
-                        glassPane.addAtomic(noty);
-                    }
+                if (e.getValueIsAdjusting() == false && jList.getSelectedIndex() != -1) {
+                    Notification noty = jList.getSelectedValue();
+                    glassPane.addAtomic(noty);
                 }
             }
         });
@@ -155,7 +147,6 @@ public class NotificationsDialog extends JDialog implements WindowFocusListener,
         options.add(Box.createHorizontalGlue());
         options.add(clear);
         this.add(options, BorderLayout.SOUTH);
-
     }
 
     /**
@@ -200,8 +191,9 @@ public class NotificationsDialog extends JDialog implements WindowFocusListener,
         List<Notification> n = notifications.getList();
         Collections.sort(n);
         jList.setListData(n.toArray(new Notification[0]));
-        if (popupsEnabled)
+        if (popupsEnabled) {
             glassPane.add(e.getNoty());
+        }
     }
 
     @Override
@@ -215,7 +207,6 @@ public class NotificationsDialog extends JDialog implements WindowFocusListener,
     }
 
     private class NotificationRenderer extends JLabel implements ListCellRenderer<Notification> {
-
         private static final long serialVersionUID = 1L;
 
         @Override
@@ -263,7 +254,5 @@ public class NotificationsDialog extends JDialog implements WindowFocusListener,
             if (!name.equals("notification") && focus == false)
                 this.visible(false);
         }
-
     }
-
 }

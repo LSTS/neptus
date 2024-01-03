@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2022 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -40,7 +40,7 @@ import pt.lsts.neptus.comm.transports.Notification;
  * @author pdias
  *
  */
-public class UDPNotification extends Notification{
+public class UDPNotification extends Notification {
 
 	/**
 	 * @param isReception
@@ -50,13 +50,12 @@ public class UDPNotification extends Notification{
 	public UDPNotification(boolean isReception, InetSocketAddress address, byte[] buffer) {
 		super(isReception, address, buffer);
 	}
-	
 
 	/**
-	 * @param reception
-	 * @param socketAddress
-	 * @param recBytes
-	 * @param currentTimeMillis
+	 * @param isReception
+	 * @param address
+	 * @param buffer
+	 * @param timeMillis
 	 */
 	public UDPNotification(boolean isReception, InetSocketAddress address,
 			byte[] buffer, long timeMillis) {

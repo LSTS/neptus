@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #############################################################################
-# Copyright (c) 2004-2022 Universidade do Porto - Faculdade de Engenharia   #
+# Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia   #
 # Laboratório de Sistemas e Tecnologia Subaquática (LSTS)                   #
 # All rights reserved.                                                      #
 # Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal            #
@@ -66,6 +66,11 @@ APP_BASE_NAME=\$(basename "\$0")
 
 # Add default JVM options here. You can also use JAVA_OPTS and ${optsEnvironmentVar} to pass JVM options to this script.
 DEFAULT_JVM_OPTS=${defaultJvmOpts}
+
+OPTIONS_FILE_OPTS=''
+if [ -r "\${APP_HOME}/neptus.vmoptions" ]; then
+    OPTIONS_FILE_OPTS=\$(cat "\${APP_HOME}/neptus.vmoptions" 2> /dev/null | grep -E -v -e "^#.*")
+fi
 
 DEFAULT=${mainClassName}
 
@@ -152,7 +157,7 @@ set -- \\
 #
 
 eval "set -- \$(
-        printf '%s\\n' "\$DEFAULT_JVM_OPTS \$JAVA_OPTS \$${optsEnvironmentVar}" |
+        printf '%s\\n' "\$DEFAULT_JVM_OPTS \$OPTIONS_FILE_OPTS \$JAVA_OPTS \$${optsEnvironmentVar}" |
         xargs -n1 |
         sed ' s~[^-[:alnum:]+,./:=@_]~\\\\&~g; ' |
         tr '\\n' ' '

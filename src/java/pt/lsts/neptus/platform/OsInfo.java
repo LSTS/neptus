@@ -241,6 +241,10 @@ public final class OsInfo {
             arch = Architecture.ARM;
             dataModel = DataModel.B32;
         }
+        else if (osArch.contains("aarch64")) {
+            arch = Architecture.ARM;
+            dataModel = DataModel.B64;
+        }
         else {
             throw new RuntimeException("Unknown architecture");
         }

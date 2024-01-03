@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2022 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -34,11 +34,16 @@ package pt.lsts.neptus.plugins.sidescan;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
@@ -48,8 +53,10 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import pt.lsts.neptus.gui.PropertiesEditor;
+import pt.lsts.neptus.gui.swing.RangeSlider;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.sidescan.SidescanPanel.InteractionMode;
+import pt.lsts.neptus.util.MathMiscUtils;
 
 /**
  * @author jqcorreia
@@ -58,7 +65,7 @@ import pt.lsts.neptus.plugins.sidescan.SidescanPanel.InteractionMode;
 public class SidescanToolbar extends JToolBar {
     private static final long serialVersionUID = 1L;
 
-    SidescanPanel panel;
+    List<SidescanPanel> panelList = new ArrayList<>();
 
     ButtonGroup bgroup = new ButtonGroup();
 
@@ -71,7 +78,7 @@ public class SidescanToolbar extends JToolBar {
 
     // Normalization.
     private final JLabel lblNormalization = new JLabel(I18n.text("Normalization"));
-    private final SpinnerNumberModel modelNormalization = new SpinnerNumberModel(0.0, 0.0, 100.0, 0.1);
+    private final SpinnerNumberModel modelNormalization = new SpinnerNumberModel(0.0, 0.0, 100.0, 0.01);
     private final JSpinner spinNormalization = new JSpinner();
 
     // TVG.
@@ -79,13 +86,20 @@ public class SidescanToolbar extends JToolBar {
     private final SpinnerNumberModel modelTVG = new SpinnerNumberModel(0.0, -1000.0, 1000.0, 1.0);
     private final JSpinner spinTVG = new JSpinner();
 
-    JToggleButton btnAutoTvg = new JToggleButton(I18n.text("Auto TVG"));
+    JToggleButton btnAutoEgn = new JToggleButton(I18n.text("EGN"));
+
+    RangeSlider windowSlider = new RangeSlider(0, 100);
 
     JButton btnConfig = new JButton(new AbstractAction(I18n.textc("Config", "Configuration")) {
         private static final long serialVersionUID = -878895322319699542L;
 
         @Override
         public void actionPerformed(ActionEvent e) {
+            if (panelList.isEmpty()) {
+                return;
+            }
+
+            SidescanPanel panel = panelList.get(0);
             PropertiesEditor.editProperties(panel.config, SwingUtilities.getWindowAncestor(panel), true);
             panel.config.saveProps();
 
@@ -111,31 +125,38 @@ public class SidescanToolbar extends JToolBar {
             if (btnMeasureHeight.isSelected())
                 imode = InteractionMode.MEASURE_HEIGHT;
 
-            panel.setInteractionMode(imode);
-            panel.setZoom(btnZoom.isSelected());
+            for (SidescanPanel panel : panelList) {
+                panel.setInteractionMode(imode);
+                panel.setZoom(btnZoom.isSelected());
+            }
         };
     };
 
     private final ChangeListener alGains = new ChangeListener() {
         @Override
         public void stateChanged(ChangeEvent e) {
-            panel.config.tvgGain = (Double) spinTVG.getValue();
-            panel.config.normalization = (Double) spinNormalization.getValue();
-            panel.record(btnRecord.isSelected());
+            for (SidescanPanel panel : panelList) {
+                panel.config.tvgGain = (Double) spinTVG.getValue();
+                panel.config.normalization = (Double) spinNormalization.getValue();
+                panel.record(btnRecord.isSelected());
+            }
         }
     };
 
-    private final ChangeListener autoTvgChangeListener = new ChangeListener() {
+    private final ChangeListener autoEgnChangeListener = new ChangeListener() {
         @Override
         public void stateChanged(ChangeEvent e) {
-            spinNormalization.setEnabled(!btnAutoTvg.isSelected());
-            spinTVG.setEnabled(!btnAutoTvg.isSelected());
+            spinNormalization.setEnabled(!btnAutoEgn.isSelected());
+            spinTVG.setEnabled(!btnAutoEgn.isSelected());
+            windowSlider.setEnabled(!btnAutoEgn.isSelected());
         }
     };
 
-    public SidescanToolbar(SidescanPanel panel) {
+    public SidescanToolbar(SidescanPanel... panel) {
         super();
-        this.panel = panel;
+        for (SidescanPanel p : panel) {
+            this.panelList.add(p);
+        }
         this.spinNormalization.setModel(modelNormalization);
         this.spinTVG.setModel(modelTVG);
         buildToolbar();
@@ -159,7 +180,73 @@ public class SidescanToolbar extends JToolBar {
 
         add(lblTVG);
         add(spinTVG);
-        add(btnAutoTvg);
+        btnAutoEgn.setToolTipText("Empirical Gain Normalization");
+        add(btnAutoEgn);
+
+        windowSlider.setToolTipText(String.format("<html><p>%s</p><p>%s<br/>%s<br/>%s</p>", I18n.text("Window slider"),
+                I18n.text("Left/right keys for lower value change"),
+                I18n.text("Shift+left/right keys for upper value change"),
+                I18n.text("Control+left/right keys for window value change")));
+        windowSlider.setUpperValue(100);
+        windowSlider.setValue(0);
+        windowSlider.setMinorTickSpacing(5);
+        windowSlider.setMajorTickSpacing(20);
+        windowSlider.addKeyListener(new KeyAdapter() {
+            RangeSlider slider = windowSlider;
+            @Override
+            public void keyPressed(KeyEvent e) {
+                slider.setValueIsAdjusting(true);
+                switch (e.getKeyCode()) {
+                    case KeyEvent.VK_LEFT:
+                    case KeyEvent.VK_KP_LEFT:
+                    case KeyEvent.VK_DOWN:
+                    case KeyEvent.VK_KP_DOWN:
+                        if (e.isShiftDown())
+                            slider.setUpperValue(slider.getUpperValue() - slider.getMinorTickSpacing());
+                        else if (e.isControlDown()) {
+                            int delta = slider.getUpperValue() - slider.getValue();
+                            slider.setValue(slider.getValue() - slider.getMinorTickSpacing());
+                            slider.setUpperValue(slider.getValue() + delta);
+                        }
+                        else
+                            slider.setValue(slider.getValue() - slider.getMinorTickSpacing());
+                        break;
+                    case KeyEvent.VK_RIGHT:
+                    case KeyEvent.VK_KP_RIGHT:
+                    case KeyEvent.VK_UP:
+                    case KeyEvent.VK_KP_UP:
+                        if (e.isShiftDown())
+                            slider.setUpperValue(slider.getUpperValue() + slider.getMinorTickSpacing());
+                        else if (e.isControlDown()) {
+                            int delta = slider.getUpperValue() - slider.getValue();
+                            slider.setUpperValue(slider.getUpperValue() + slider.getMinorTickSpacing());
+                            slider.setValue(slider.getUpperValue() - delta);
+                        }
+                        else
+                            slider.setValue(slider.getValue() + slider.getMinorTickSpacing());
+                        break;
+                    default:
+                        break;
+                }
+                e.consume();
+                super.keyPressed(e);
+            }
+            public void keyReleased(KeyEvent e) {
+                slider.setValueIsAdjusting(false);
+            }
+        });
+        windowSlider.addChangeListener(e -> {
+            double selMin = windowSlider.getValue() / 100.0;
+            double selMax = windowSlider.getUpperValue() / 100.0;
+            if (!((JSlider) e.getSource()).getValueIsAdjusting()) {
+                for (SidescanPanel panel : panelList) {
+                    panel.config.sliceMinValue = selMin;
+                    panel.config.sliceWindowValue = selMax - selMin;
+                    panel.config.validateValues();
+                }
+            }
+        });
+        add(windowSlider);
 
         addSeparator();
         add(btnConfig);
@@ -171,12 +258,16 @@ public class SidescanToolbar extends JToolBar {
         btnMeasureHeight.addActionListener(alMode);
         btnMark.addActionListener(alMode);
 
-        spinNormalization.setValue(panel.config.normalization);
+        if (!panelList.isEmpty()) {
+            spinNormalization.setValue(panelList.get(0).config.normalization);
+        }
         spinNormalization.addChangeListener(alGains);
 
-        spinTVG.setValue(panel.config.tvgGain);
+        if (!panelList.isEmpty()) {
+            spinTVG.setValue(panelList.get(0).config.tvgGain);
+        }
         spinTVG.addChangeListener(alGains);
 
-        btnAutoTvg.addChangeListener(autoTvgChangeListener);
+        btnAutoEgn.addChangeListener(autoEgnChangeListener);
     }
 }

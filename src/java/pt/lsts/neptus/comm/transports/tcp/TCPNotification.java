@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2022 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -54,10 +54,10 @@ public class TCPNotification extends Notification {
 	}
 	
 	/**
-	 * @param reception
-	 * @param socketAddress
-	 * @param recBytes
-	 * @param currentTimeMillis
+	 * @param isReception
+	 * @param address
+	 * @param buffer
+	 * @param timeMillis
 	 */
 	public TCPNotification(boolean isReception, InetSocketAddress address,
 			byte[] buffer, long timeMillis) {

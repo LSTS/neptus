@@ -19,13 +19,13 @@ description = """
 This is the Neptus C2 Framework for controlling autonomous vehicles.
 https://www.lsts.pt/toolchain/neptus/
 """
-version = '2022.04.0'
+version = '2023.02.1'
 
 ext {
     copyYears = "2004-${new Date().format('yyyy')}"
     libJNIPaths = ['.']
 
-    jreDownloadVersion = "jdk-11.0.14.1+1"
+    jreDownloadVersion = "jdk-11.0.21+9"
 }
 
 defaultTasks 'buildJars', 'buildBundleJars'
@@ -196,6 +196,8 @@ task updateLibJNIPaths {
         println "Version:      ${OS_VERSION}"
         println "Architecture: ${OS_ARCH}"
         println "libJNIPaths:  ${libJNIPaths.collect { "${relativePath(it)}" }.join(isFamily(FAMILY_WINDOWS) ? ';' : ':') }"
+
+        // println ">>>>>>>> " + configurations.runtimeClasspath.asPath
     }
 }
 
@@ -386,7 +388,7 @@ project(':core') {
         implementation name: 'gpsinput-0.5.3' // needs log4j v1.x
         implementation name: 'gpxparser'
         implementation 'org.codehaus.groovy:groovy:3.0.3' //2.5.4
-        implementation 'com.google.code.gson:gson:2.8.6'
+        implementation 'com.google.code.gson:gson:2.9.1'
         implementation 'com.google.guava:guava:30.1-jre'
 
         implementation 'de.grundid.opendatalab:geojson-jackson:1.14'
@@ -410,8 +412,8 @@ project(':core') {
         implementation 'org.javassist:javassist:3.18.0-GA' //3.27.0-GA
         // implementation 'net.sf.jchart2d:jchart2d:3.3.2' // should be 1.03
         implementation 'org.jfree:jcommon:1.0.24'
+        implementation 'org.jfree:jfreechart:1.5.3'
         implementation 'org.mortbay.jetty:jetty:6.0.2'
-        implementation 'org.jfree:jfreechart:1.5.0'
         implementation 'com.jgoodies:jgoodies-looks:2.5.3' //2.7.0
         implementation 'com.jhlabs:filters:2.0.235-1' // don't know the orig version
 
@@ -465,7 +467,7 @@ project(':core') {
         //implementation name: 'netcdfAll-5.2'
         implementation 'org.jsoup:jsoup:1.13.1'
 
-        implementation name: 'opencv_440'
+        implementation name: 'opencv-480'
         implementation 'oro:oro:2.0.8' // should be 0 2.1-dev
 
         implementation name: 'percentlayout'
@@ -542,6 +544,7 @@ project(':core') {
 
         implementation 'com.adobe.xmp:xmpcore:5.1.2' //6.1.10
         implementation name: 'xuggle-xuggler-5.4'
+        implementation 'io.humble:humble-video-all:0.3.0' // Needs to be in the core because of the dll/so libs
 
         implementation 'com.google.zxing:javase:3.2.1' //3.4.0
 

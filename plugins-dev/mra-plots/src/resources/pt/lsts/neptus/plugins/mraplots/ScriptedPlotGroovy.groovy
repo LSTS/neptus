@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2022 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -39,6 +39,7 @@ import org.jfree.data.time.TimeSeriesCollection
 import org.jfree.data.time.RegularTimePeriod
 import pt.lsts.imc.lsf.LsfIndex
 import pt.lsts.neptus.mra.plots.ScriptedPlot
+import pt.lsts.neptus.util.AngleUtils
 
 import java.text.SimpleDateFormat
 
@@ -62,24 +63,50 @@ class ScriptedPlotGroovy  {
         scriptedPlot.isProcessed()
     }
 
+    static void axis(String name) {
+        scriptedPlot.axisName(0, name);
+    }
+
+    static void axis(int idx, String name) {
+        scriptedPlot.axisName(idx, name);
+    }
+
 	static void plot(LinkedHashMap<String,String> queries) {
         queries.each {
             scriptedPlot.addTimeSeries(it.key, it.value)
         }
 	}
-    
+
+    static void plot(int index, LinkedHashMap<String, String> queries) {
+        queries.each {
+            scriptedPlot.addTimeSeries(index, it.key, it.value)
+        }
+    }
+
     static void plot(String... queries) {
        queries.each { 
            scriptedPlot.addTimeSeries(it, it)
        }
     }
-       
+
+    static void plot(int index, String... queries) {
+        queries.each {
+            scriptedPlot.addTimeSeries(index, it, it)
+        }
+    }
+
     static void plot(TimeSeriesCollection tsc) {
         tsc.getSeries().each { TimeSeries ts ->
             scriptedPlot.addTimeSeries(ts)
         }
     }
- 
+
+    static void plot(int index, TimeSeriesCollection tsc) {
+        tsc.getSeries().each { TimeSeries ts ->
+            scriptedPlot.addTimeSeries(index, ts)
+        }
+    }
+
     static void addQuery(String... query) {
         query.each {
             scriptedPlot.addQuery(it,it)
@@ -91,65 +118,156 @@ class ScriptedPlotGroovy  {
             scriptedPlot.addQuery(it.key,it.value)
         }
     }
-    
-    static public TimeSeriesCollection apply(String queryID, Object function) {
+
+    static public TimeSeriesCollection apply(String queryID, Closure<Number>... function) {
         TimeSeriesCollection tsc = scriptedPlot.getTimeSeriesFor(queryID)
-        TimeSeriesCollection result = new TimeSeriesCollection()
-                tsc.getSeries().each { TimeSeries ts ->
-                    String name = ts.getKey().toString()
-                    TimeSeries s = new TimeSeries(name)
-                    for(TimeSeriesDataItem item: s.getItems()) {
-                        def value = function.call(item.getValue())
-                        s.addOrUpdate(item.getPeriod(),value)
-                    }
-                    result.addSeries(s)
-                }
+        apply(tsc, function)
+    }
+
+    static public TimeSeriesCollection apply(String queryID, Closure<Number> function) {
+        TimeSeriesCollection tsc = scriptedPlot.getTimeSeriesFor(queryID)
+        return applyWorker(tsc, function)
+    }
+
+    static public TimeSeriesCollection apply(TimeSeriesCollection timeSeries, Closure<Number>... function) {
+        TimeSeriesCollection result = timeSeries
+        for (Object fun : function) {
+            result = applyWorker(result, fun)
+        }
         result
     }
-    
-    static public TimeSeriesCollection apply(String name,String queryID, Closure<Number> function) {
+
+    static public TimeSeriesCollection apply(TimeSeriesCollection timeSeries, Closure<Number> function) {
+        TimeSeriesCollection tsc = timeSeries
+        return applyWorker(tsc, function)
+    }
+
+    private static TimeSeriesCollection applyWorker(TimeSeriesCollection tsc, Closure<Number> function) {
+        TimeSeriesCollection result = new TimeSeriesCollection()
+        tsc.getSeries().each { TimeSeries ts ->
+            String name = ts.getKey().toString()
+            TimeSeries s = new TimeSeries(name)
+            for (TimeSeriesDataItem item : ts.getItems()) {
+                def value = function.call(item.getValue())
+                s.addOrUpdate(item.getPeriod(), value)
+            }
+            result.addSeries(s)
+        }
+        result
+    }
+
+    static public TimeSeriesCollection apply(String name, String queryID, Closure<Number>... function) {
+        TimeSeriesCollection tsc = scriptedPlot.getTimeSeriesFor(queryID)
+        apply(name, tsc, function)
+    }
+
+    static public TimeSeriesCollection apply(String name, String queryID, Closure<Number> function) {
         TimeSeriesCollection result = new TimeSeriesCollection()
         if(!scriptedPlot.isProcessed())
             return result
         TimeSeriesCollection tsc = scriptedPlot.getTimeSeriesFor(queryID)
-                tsc.getSeries().each { TimeSeries ts ->
-                    def newName = ts.getKey().toString().split("\\.")[0]+ "."+name
-                    TimeSeries s = new TimeSeries(newName)
-                    for(TimeSeriesDataItem item: ts.getItems()) {
-                        def value = item.getValue()
-                        def new_value = function.call(value)
-                        s.addOrUpdate(item.getPeriod(),new_value)
-                    }
-                    result.addSeries(s)
-                }
+        applyWorker(name, tsc, function)
+    }
+
+    static public TimeSeriesCollection apply(String name, TimeSeriesCollection timeSeries, Closure<Number>... function) {
+        boolean first = true
+        TimeSeriesCollection result = timeSeries
+        if (function.size() == 0) {
+            result = applyWorker(name, result, {double val -> val})
+        } else {
+            for (Object fun : function) {
+                result = first ? applyWorker(name, result, fun) : applyWorker(result, fun)
+                first = false
+            }
+        }
         result
     }
-    
-    static public TimeSeriesCollection apply(String id,String queryID1,String queryID2, Closure<Number> function) {
+
+    static public TimeSeriesCollection apply(String name, TimeSeriesCollection timeSeries, Closure<Number> function) {
+        TimeSeriesCollection result = new TimeSeriesCollection()
+        if(!scriptedPlot.isProcessed())
+            return result
+        TimeSeriesCollection tsc = timeSeries
+        applyWorker(name, tsc, function)
+    }
+
+    private static TimeSeriesCollection applyWorker(String name, TimeSeriesCollection tsc, Closure<Number> function) {
+        TimeSeriesCollection result = new TimeSeriesCollection()
+        tsc.getSeries().each { TimeSeries ts ->
+            def newName = ts.getKey().toString().split("\\.")[0] + "." + name
+            TimeSeries s = new TimeSeries(newName)
+            for (TimeSeriesDataItem item : ts.getItems()) {
+                def value = item.getValue()
+                def new_value = function.call(value)
+                s.addOrUpdate(item.getPeriod(), new_value)
+            }
+            result.addSeries(s)
+        }
+        result
+    }
+
+    static public TimeSeriesCollection apply(String id, String queryID1, String queryID2, Closure<Number> function) {
         TimeSeriesCollection result = new TimeSeriesCollection()
         if(!scriptedPlot.isProcessed())
             return result
         TimeSeriesCollection tsc1 = scriptedPlot.getTimeSeriesFor(queryID1)
         TimeSeriesCollection tsc2 = scriptedPlot.getTimeSeriesFor(queryID2)
+        applyWorker(id, tsc1, tsc2, function)
+    }
+
+    static public TimeSeriesCollection apply(String id, String queryID1,
+                                             TimeSeriesCollection timeSeries2, Closure<Number> function) {
+        TimeSeriesCollection result = new TimeSeriesCollection()
+        if(!scriptedPlot.isProcessed())
+            return result
+        TimeSeriesCollection tsc1 = scriptedPlot.getTimeSeriesFor(queryID1)
+        TimeSeriesCollection tsc2 = timeSeries2
+        applyWorker(id, tsc1, tsc2, function)
+    }
+
+    static public TimeSeriesCollection apply(String id, TimeSeriesCollection timeSeries1,
+                                             String queryID2, Closure<Number> function) {
+        TimeSeriesCollection result = new TimeSeriesCollection()
+        if(!scriptedPlot.isProcessed())
+            return result
+        TimeSeriesCollection tsc1 = timeSeries1
+        TimeSeriesCollection tsc2 = scriptedPlot.getTimeSeriesFor(queryID2)
+        applyWorker(id, tsc1, tsc2, function)
+    }
+
+    static public TimeSeriesCollection apply(String id, TimeSeriesCollection timeSeries1,
+                                             TimeSeriesCollection timeSeries2, Closure<Number> function) {
+        TimeSeriesCollection result = new TimeSeriesCollection()
+        if(!scriptedPlot.isProcessed())
+            return result
+        TimeSeriesCollection tsc1 = timeSeries1
+        TimeSeriesCollection tsc2 = timeSeries2
+        applyWorker(id, tsc1, tsc2, function)
+    }
+
+    private static TimeSeriesCollection applyWorker(String id, TimeSeriesCollection tsc1, TimeSeriesCollection tsc2,
+                                    Closure<Number> function) {
+        TimeSeriesCollection result = new TimeSeriesCollection()
         int min_tsc = Math.min(tsc1.getSeriesCount(), tsc2.getSeriesCount())
-        TimeSeries ts1, ts2,ts
-        for(int j=0;j<min_tsc;j++) {
+        TimeSeries ts1, ts2, ts
+        for (int j = 0; j < min_tsc; j++) {
             String key = tsc1.getSeriesKey(j)
             ts1 = tsc1.getSeries(key)
             key = tsc2.getSeriesKey(j)
             ts2 = tsc2.getSeries(key)
-            if(ts1.getKey().toString().split("\\.")[0].equals(ts2.getKey().toString().split("\\.")[0])) { //Same source vehicle lauv-noptilus-1.<Query_ID>
-                def newName = ts1.getKey().toString().split("\\.")[0]+ "."+id
+            if (ts1.getKey().toString().split("\\.")[0].equals(ts2.getKey().toString().split("\\.")[0])) {
+                //Same source vehicle lauv-noptilus-1.<Query_ID>
+                def newName = ts1.getKey().toString().split("\\.")[0] + "." + id
                 ts = new TimeSeries(newName)
-                for (TimeSeriesDataItem val1: ts1.getItems()) {
+                for (TimeSeriesDataItem val1 : ts1.getItems()) {
                     RegularTimePeriod p = val1.getPeriod()
                     int index = ts2.getIndex(p)
-                    if(index < 0)
+                    if (index < 0)
                         continue;
                     TimeSeriesDataItem val2 = ts2.getDataItem(index)
                     double v1 = val1.getValue()
                     double v2 = val2.getValue()
-                    double val  = function.call(v1,v2)
+                    double val = function.call(v1, v2)
                     ts.addOrUpdate(p, val)
                 }
                 result.addSeries(ts)
@@ -157,7 +275,7 @@ class ScriptedPlotGroovy  {
         }
         result
     }
-    
+
     static public TimeSeriesDataItem getTimeSeriesMaxItem(String id) {
     	if(!scriptedPlot.isProcessed())
     		return null
@@ -191,7 +309,6 @@ class ScriptedPlotGroovy  {
                 if(min > t.getValue()) {
                     min    = t.getValue()
                     result = new TimeSeriesDataItem(t.getPeriod(),t.getValue().doubleValue())
-                    
                 }
             }
         }
@@ -281,7 +398,19 @@ class ScriptedPlotGroovy  {
         else
             Double.NaN             
             }
-  
+
+    static public toDegrees = {double rad -> Math.toDegrees(rad)}
+
+    static public toRadians = {double deg -> Math.toRadians(deg)}
+
+    static public normalizeAngleRads2Pi = {double double1 -> AngleUtils.nomalizeAngleRads2Pi(double1)}
+
+    static public normalizeAngleRadsPi = {double double1 -> AngleUtils.nomalizeAngleRadsPi(double1)}
+
+    static public normalizeAngleDegrees360 = {double double1 -> AngleUtils.nomalizeAngleDegrees360(double1)}
+
+    static public normalizeAngleDegrees180 = {double double1 -> AngleUtils.nomalizeAngleDegrees180(double1)}
+
     static public void plotDomainMarker(String label,long time) {
         if(scriptedPlot != null || time != Double.NaN)
             scriptedPlot.mark(time,label)

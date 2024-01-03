@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2022 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -46,8 +46,10 @@ import java.nio.channels.FileChannel.MapMode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
@@ -182,6 +184,7 @@ public class SdfParser {
         long pos = 0;
         curPosition = 0;
         try {
+            Set<Integer> unimplementedPageVersionSet = new HashSet<>();
             while (true) {
                 // Read the header
                 ByteBuffer buf = channel.map(MapMode.READ_ONLY, curPosition, 512); //header size 512bytes
@@ -197,7 +200,10 @@ public class SdfParser {
                     ping.calculateFixTimeStamp();
                     pos = curPosition-header.getHeaderSize();
                 } else { //ignore other pageVersions
-                    NeptusLog.pub().info("SDF Data file contains unimplemented pageVersion # "+header.getPageVersion());
+                    if (!unimplementedPageVersionSet.contains(header.getPageVersion())) {
+                        unimplementedPageVersionSet.add(header.getPageVersion());
+                        NeptusLog.pub().info("SDF Data file contains unimplemented pageVersion # " + header.getPageVersion());
+                    }
                     curPosition += (header.getNumberBytes()+4) - header.getHeaderSize();
                     pos = curPosition;
                     if (curPosition >= channel.size()) //check if curPosition is at the end of file

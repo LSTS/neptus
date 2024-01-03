@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2022 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -222,36 +222,43 @@ public class RipplesUpdater extends ConsolePanel implements ConfigurationListene
 
     @Periodic(millisBetweenUpdates = 1000)
     public void sendUpdatesToRipples() {
-        if (!this.connected)
+        if (!this.connected) {
             return;
-        ArrayList<RipplesAsset> payload = new ArrayList<>();
-        assetStates.forEach((sysName, assetState) -> {
-            PlanControlState pcs = planStates.get(sysName);
-            RipplesPlan plan = new RipplesPlan();
-            if (pcs != null) {
-                plan = pcsToRipplesPlan(pcs);
-            }
-            ImcSystem imcSystem = ImcSystemsHolder.lookupSystemByName(sysName);
-            int imcId = (imcSystem != null && imcSystem.getId() != null) ? imcSystem.getId().intValue() : -1;
-            payload.add(new RipplesAsset(sysName, imcId, assetState, plan));
-            NeptusLog.pub().debug("Asset state: " + assetState);
-        });
+        }
 
-        String assetsAsJson = gson.toJson(payload);
         try {
-            NeptusLog.pub().info("Sending update for " + payload.size() + " assets");
-            sendPost(assetsAsJson);
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
+            ArrayList<RipplesAsset> payload = new ArrayList<>();
+            assetStates.forEach((sysName, assetState) -> {
+                PlanControlState pcs = planStates.get(sysName);
+                RipplesPlan plan = new RipplesPlan();
+                if (pcs != null) {
+                    plan = pcsToRipplesPlan(pcs);
+                }
+                ImcSystem imcSystem = ImcSystemsHolder.lookupSystemByName(sysName);
+                int imcId = (imcSystem != null && imcSystem.getId() != null) ? imcSystem.getId().intValue() : -1;
+                payload.add(new RipplesAsset(sysName, imcId, assetState, plan));
+                NeptusLog.pub().debug("Asset state: " + assetState);
+            });
 
-        synchronized (assetStates) {
-            assetStates.clear();
+            try {
+                String assetsAsJson = gson.toJson(payload);
+                NeptusLog.pub().info("Sending update for " + payload.size() + " assets");
+                sendPost(assetsAsJson);
+            }
+            catch (Exception e) {
+                NeptusLog.pub().warn(e.getMessage());
+            }
+
+            synchronized (assetStates) {
+                assetStates.clear();
+            }
+        }
+        catch (Exception e) {
+            NeptusLog.pub().warn(e.getMessage());
         }
     }
 
-    private String sendPost(String data) throws IOException {
+    private String sendPost(String data) throws Exception {
         if (this.connected) {
             URL url = new URL(this.ripplesPostUrl);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();

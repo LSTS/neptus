@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2022 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -100,29 +100,23 @@ public class PluginsLoader {
         }
 
         if (ConfigFetch.getRunEnvironment() == Environment.DEVELOPMENT) {
-//            List<Path> externalJars = findExternalPluginsJars();
-//
-//            try {
-//                for (Path jar : externalJars) {
-//                    try {
-//                        addToSysClassLoader(jar.toUri().toURL());
-//                    }
-//                    catch (Exception e) {
-//                        NeptusLog.pub().error("Error loading plugin jar from dev", e);
-//                    }
-//                }
-//            }
-//            catch (Exception e) {
-//                NeptusLog.pub().error("Error getting plugins from dev", e);
-//            }
-
-            FindPlugins plugins = new FindPlugins();
-            Path start = Paths.get("plugins-dev");
+            Path devFolderBase = Paths.get(".");
+            FindPluginsDevFolders pluginsDevFolders = new FindPluginsDevFolders();
             try {
-                Files.walkFileTree(start, plugins);
-                List<Path> pluginsLST = plugins.getPlugins();
-                for (Path lst : pluginsLST) {
-                    loadPluginFromLST(lst);
+                Files.walkFileTree(devFolderBase, pluginsDevFolders);
+                for (Path start : pluginsDevFolders.getPluginsFolders()) {
+                    FindPlugins plugins = new FindPlugins();
+                    //Path start = Paths.get("plugins-dev");
+                    try {
+                        Files.walkFileTree(start, plugins);
+                        List<Path> pluginsLST = plugins.getPlugins();
+                        for (Path lst : pluginsLST) {
+                            loadPluginFromLST(lst);
+                        }
+                    }
+                    catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
             catch (IOException e) {
@@ -240,6 +234,23 @@ public class PluginsLoader {
             if (file.getFileName().toString().equalsIgnoreCase("plugins.lst")) {
                 plugins.add(file);
                 // System.out.println(file.toAbsolutePath());
+                return FileVisitResult.SKIP_SIBLINGS;
+            }
+            return FileVisitResult.CONTINUE;
+        }
+    }
+
+    protected static class FindPluginsDevFolders extends SimpleFileVisitor<Path> {
+        List<Path> pluginsFolders = new ArrayList<>();
+
+        public List<Path> getPluginsFolders() {
+            return pluginsFolders;
+        }
+
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+            if (attrs.isDirectory() && file.getFileName().toString().startsWith("plugins-dev")) {
+                pluginsFolders.add(file);
                 return FileVisitResult.SKIP_SIBLINGS;
             }
             return FileVisitResult.CONTINUE;

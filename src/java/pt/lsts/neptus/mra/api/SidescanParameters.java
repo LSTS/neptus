@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2022 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -40,6 +40,8 @@ package pt.lsts.neptus.mra.api;
 public class SidescanParameters {
     private double normalization = 0.2;
     private double tvgGain = 75;
+    private double minValue = 0.0;
+    private double windowValue = 1.0;
     
     /**
      * @param normalization
@@ -48,6 +50,13 @@ public class SidescanParameters {
     public SidescanParameters(double normalization, double tvgGain) {
         this.normalization = normalization;
         this.tvgGain = tvgGain;
+    }
+
+    public SidescanParameters(double normalization, double tvgGain, double minValue, double windowValue) {
+        this.normalization = normalization;
+        this.tvgGain = tvgGain;
+        this.minValue = minValue;
+        this.windowValue = windowValue;
     }
 
     /**
@@ -77,6 +86,20 @@ public class SidescanParameters {
     public void setTvgGain(double tvgGain) {
         this.tvgGain = tvgGain;
     }
-    
-    
+
+    public double getMinValue() {
+        return minValue;
+    }
+
+    public void setMinValue(double minValue) {
+        this.minValue = minValue;
+    }
+
+    public double getWindowValue() {
+        return windowValue;
+    }
+
+    public void setWindowValue(double windowValue) {
+        this.windowValue = windowValue;
+    }
 }

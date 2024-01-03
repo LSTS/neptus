@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2022 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -142,7 +142,7 @@ public class AssetState {
 		Date d = null;
 		if (obj.get("timestamp") != null)
 			d = new Date((long)(obj.getDouble("timestamp", 0) * 1000));
-		System.out.println("date for asset state is "+d);
+		//System.out.println("date for asset state is "+d);
 		ArrayList<String> errors = new ArrayList<>();
 		
 		if (obj.get("errors") != null) {

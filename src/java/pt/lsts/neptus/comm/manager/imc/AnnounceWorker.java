@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2022 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -53,6 +53,7 @@ import pt.lsts.imc.AcousticSystemsQuery;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCOutputStream;
+import pt.lsts.imc.RemoteActionsRequest;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.CommUtil;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
@@ -432,6 +433,7 @@ public class AnnounceWorker {
 					sendPlanDBMsgs(sys);
 					sendBeaconsRequestMsgs(sys);
 					sendAcousticSystemsQueryMsg(sys);
+                    sendRemoteActionsRequestMsg(sys);
 				}
 			}
 		};
@@ -640,6 +642,19 @@ public class AnnounceWorker {
             NeptusLog.pub().warn("Sending '" + sys.name + " | "
                     + sys.getId() + "' AcousticSystemsQuery request...");
             IMCMessage msg = new AcousticSystemsQuery(imcDefinition);
+            imcManager.sendMessage(msg, sys.getId(), null);
+        }
+        catch (Exception e) {
+            NeptusLog.pub().warn(e);
+        }
+    }
+
+    private void sendRemoteActionsRequestMsg(ImcSystem sys) {
+        try {
+            NeptusLog.pub().warn("Sending '" + sys.name + " | "
+                    + sys.getId() + "' RemoteActionsRequest request...");
+            RemoteActionsRequest msg = new RemoteActionsRequest(imcDefinition);
+            msg.setOp(RemoteActionsRequest.OP.QUERY);
             imcManager.sendMessage(msg, sys.getId(), null);
         }
         catch (Exception e) {

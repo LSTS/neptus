@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2020.01.0 (master,6419144f0)" system="manta-3" i18n="pt_PT">
+<config format="1" version="2022.04.0 (master,dd5a98a4f)" system="manta-3" i18n="pt_PT">
   <section name="Text Message Parser" name-i18n="Processador de Mensagens de Texto">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -75,6 +75,190 @@
       <default>abort,dislodge,dive,errors,info,force,go,help,phone,reboot,sk,start,surface</default>
       <units/>
       <desc/>
+    </param>
+  </section>
+  <section name="Manta Fuel Level" name-i18n="Manta Fuel Level">
+    <param name="Entity Label">
+      <name-i18n>Nome da Entidade</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Manta Fuel Level</default>
+      <units/>
+      <desc>Nome principal da entidade</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Prioridade de Execução</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Prioridade de execução</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Tempo de Ativação</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Tempo de Desativação</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Nível de Depuração</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Execution Frequency">
+      <name-i18n>Frequência de Execução</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.2</default>
+      <units>Hz</units>
+      <desc>Frequência com que a tarefa é executada</desc>
+    </param>
+    <param name="Entity Label - FuelLevel">
+      <name-i18n>Entity Label - FuelLevel</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>FuelLevel</default>
+      <units/>
+      <desc>Entity label of fuel level.</desc>
+    </param>
+    <param name="Fuel Level 1">
+      <name-i18n>Fuel Level 1</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>28.5</default>
+      <units/>
+      <desc>Fuel Level value.</desc>
+    </param>
+    <param name="Fuel Level 2">
+      <name-i18n>Fuel Level 2</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>27.5</default>
+      <units/>
+      <desc>Fuel Level value.</desc>
+    </param>
+    <param name="Fuel Level 3">
+      <name-i18n>Fuel Level 3</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>26.5</default>
+      <units/>
+      <desc>Fuel Level value.</desc>
+    </param>
+    <param name="Fuel Level 4">
+      <name-i18n>Fuel Level 4</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>24.6</default>
+      <units/>
+      <desc>Fuel Level value.</desc>
+    </param>
+    <param name="Fuel Level 5">
+      <name-i18n>Fuel Level 5</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>23.5</default>
+      <units/>
+      <desc>Fuel Level value.</desc>
+    </param>
+    <param name="Entity Label for Main Voltage">
+      <name-i18n>Entity Label for Main Voltage</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Main Board</default>
+      <units/>
+      <desc>Entity label to get main voltage level.</desc>
+    </param>
+    <param name="Entity Label for Charger Current">
+      <name-i18n>Entity Label for Charger Current</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Charger</default>
+      <units/>
+      <desc>Entity label to get charger current level.</desc>
+    </param>
+    <param name="Current Value Charger Reject">
+      <name-i18n>Current Value Charger Reject</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.05</default>
+      <units/>
+      <desc>Minimun value to ignore charge.</desc>
+    </param>
+    <param name="Fuel Percentage Warning">
+      <name-i18n>Fuel Percentage Warning</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>40</default>
+      <units/>
+      <desc>Fuel Percentage Warning.</desc>
+    </param>
+    <param name="Fuel Percentage Auto Shutdown">
+      <name-i18n>Fuel Percentage Auto Shutdown</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Fuel Percentage Auto Shutdown.</desc>
+    </param>
+    <param name="Use Voltage Value">
+      <name-i18n>Use Voltage Value</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Monitor the fuel level using battery voltage.</desc>
+    </param>
+    <param name="Fuel Voltage Warning">
+      <name-i18n>Fuel Voltage Warning</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>23.5</default>
+      <units/>
+      <desc>Fuel Voltage Warning.</desc>
+    </param>
+    <param name="Fuel Voltage Auto Shutdown">
+      <name-i18n>Fuel Voltage Auto Shutdown</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>22.5</default>
+      <units/>
+      <desc>Fuel Voltage Auto Shutdown.</desc>
     </param>
   </section>
   <section name="Navigation" name-i18n="Navegação">
@@ -545,7 +729,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>N/C (Bat_Out)</default>
+      <default>Acoustic Modem</default>
       <units/>
       <desc/>
     </param>
@@ -554,7 +738,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0</default>
+      <default>1</default>
       <units/>
       <desc/>
     </param>
@@ -608,7 +792,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0</default>
+      <default>1</default>
       <units/>
       <desc/>
     </param>
@@ -754,7 +938,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0</default>
+      <default>3.0</default>
       <units/>
       <desc/>
     </param>
@@ -778,23 +962,41 @@
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
-    <param name="Serial Port - Device">
-      <name-i18n>Serial Port - Device</name-i18n>
+    <param name="Active - Scope">
+      <name-i18n>Ativa - Escopo</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>/dev/ttyACM0</default>
+      <default>global</default>
       <units/>
-      <desc>Serial port device used to communicate with the sensor</desc>
+      <desc>Escopo do parâmetro 'Ativa'</desc>
     </param>
-    <param name="Serial Port - Baud Rate">
-      <name-i18n>Serial Port - Baud Rate</name-i18n>
-      <type>integer</type>
+    <param name="Active - Visibility">
+      <name-i18n>Ativa - Visibilidade</name-i18n>
+      <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>57600</default>
+      <default>developer</default>
       <units/>
-      <desc>Serial port baud rate</desc>
+      <desc>Visibilidade do parâmetro 'Ativa'</desc>
+    </param>
+    <param name="Active">
+      <name-i18n>Ativa</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1</default>
+      <units/>
+      <desc>Verdadeiro para ativar tarefa, falso caso contrário</desc>
+    </param>
+    <param name="IO Port - Device">
+      <name-i18n>IO Port - Device</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>uart:///dev/ttyACM0:57600</default>
+      <units/>
+      <desc>IO device URI in the form "uart://DEVICE:BAUD"</desc>
     </param>
     <param name="Input Timeout">
       <name-i18n>Input Timeout</name-i18n>
@@ -814,6 +1016,15 @@
       <default/>
       <units/>
       <desc>Device's power channels</desc>
+    </param>
+    <param name="Post Power On Delay">
+      <name-i18n>Post Power On Delay</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0</default>
+      <units/>
+      <desc>Delay on power on before attempts to connect</desc>
     </param>
     <param name="Sentence Order">
       <name-i18n>Sentence Order</name-i18n>
@@ -1076,14 +1287,23 @@
       <units/>
       <desc/>
     </param>
+    <param name="Novatel SBAS">
+      <name-i18n>Novatel SBAS</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Enable novatel sbas mode</desc>
+    </param>
   </section>
-  <section name="AHRS" name-i18n="AHRS">
+  <section name="Clock" name-i18n="Relógio">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>AHRS</default>
+      <default>Clock</default>
       <units/>
       <desc>Nome principal da entidade</desc>
     </param>
@@ -1130,39 +1350,63 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>/dev/ttyUSB0</default>
+      <default/>
       <units/>
-      <desc>Serial port device used to communicate with the sensor</desc>
+      <desc>Serial port device with PPS on CDC pin</desc>
     </param>
-    <param name="Serial Port - Baud Rate">
-      <name-i18n>Serial Port - Baud Rate</name-i18n>
+    <param name="PPS - Device">
+      <name-i18n>PPS - Device</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>/dev/pps0</default>
+      <units/>
+      <desc>Platform specific PPS device</desc>
+    </param>
+    <param name="PPS - Propagation Delay">
+      <name-i18n>PPS - Propagation Delay</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>115200</default>
-      <units/>
-      <desc>Serial port baud rate</desc>
+      <default>675</default>
+      <units>ns</units>
+      <desc>Propagation delay of the PPS</desc>
     </param>
-    <param name="Data Timeout">
-      <name-i18n>Data Timeout</name-i18n>
-      <type>real</type>
+    <param name="PPS - Maximum Offset">
+      <name-i18n>PPS - Maximum Offset</name-i18n>
+      <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1.0</default>
-      <units>s</units>
-      <desc>Number of seconds without data before reporting an error</desc>
-      <min>0.2</min>
+      <default>50</default>
+      <units>us</units>
+      <desc>Maximum PPS offset in order to consider the local clock disciplined</desc>
     </param>
-    <param name="Data Rate">
-      <name-i18n>Data Rate</name-i18n>
+    <param name="GPS Offset Count">
+      <name-i18n>GPS Offset Count</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>40</default>
+      <default>10</default>
       <units/>
-      <desc>Sensor data rate</desc>
-      <min>-50</min>
-      <max>40</max>
+      <desc>Number of GPS samples to compute time offser</desc>
+    </param>
+    <param name="Entity Label - GPS">
+      <name-i18n>Entity Label - GPS</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>GPS</default>
+      <units/>
+      <desc>The entity label of the GPS</desc>
+    </param>
+    <param name="Execute On Synchronization">
+      <name-i18n>Execute On Synchronization</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>hwclock -w</default>
+      <units/>
+      <desc>System command to execute everytime the clock is synchronized</desc>
     </param>
   </section>
   <section name="Service Announcer" name-i18n="Serviço de Anúncio">
@@ -1299,7 +1543,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>eth0:prv</default>
+      <default>eth0:prv, eth1:prv</default>
       <units/>
       <desc>List of interfaces whose services will not be announced</desc>
     </param>
@@ -1442,7 +1686,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Seatrac Addresses</default>
+      <default>Evologics Addresses</default>
       <units/>
       <desc>Name of the configuration section with acoustic modem addresses</desc>
     </param>
@@ -1760,6 +2004,257 @@
       <desc>List of messages to transport</desc>
     </param>
   </section>
+  <section name="Iridium Transport" name-i18n="Transporte Iridium">
+    <param name="Entity Label">
+      <name-i18n>Nome da Entidade</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Iridium Transport</default>
+      <units/>
+      <desc>Nome principal da entidade</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Prioridade de Execução</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Prioridade de execução</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Tempo de Ativação</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Tempo de Desativação</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Nível de Depuração</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Active - Scope">
+      <name-i18n>Ativa - Escopo</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>global</default>
+      <units/>
+      <desc>Escopo do parâmetro 'Ativa'</desc>
+    </param>
+    <param name="Active - Visibility">
+      <name-i18n>Ativa - Visibilidade</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>user</default>
+      <units/>
+      <desc>Visibilidade do parâmetro 'Ativa'</desc>
+    </param>
+    <param name="Active">
+      <name-i18n>Ativa</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc>Verdadeiro para ativar tarefa, falso caso contrário</desc>
+    </param>
+    <param name="Device updates - Periodicity">
+      <name-i18n>Device updates - Periodicity</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1200</default>
+      <units>s</units>
+      <desc>Delay between announce update messages. 0 for no updates being sent.</desc>
+    </param>
+    <param name="Announce Periodicity">
+      <name-i18n>Announce Periodicity</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units>s</units>
+      <desc>Delay between announce messages being sent. 0 for no updates being sent.</desc>
+    </param>
+    <param name="Maximum age">
+      <name-i18n>Maximum age</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1200</default>
+      <units>s</units>
+      <desc>Age, in seconds, after which received IMC messages are discarded.</desc>
+    </param>
+    <param name="Iridium Text Origin">
+      <name-i18n>Iridium Text Origin</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>iridium</default>
+      <units/>
+      <desc>Text messages received via Iridium will be tagged with this origin</desc>
+    </param>
+  </section>
+  <section name="Iridium Modem" name-i18n="Modem Iridium">
+    <param name="Entity Label">
+      <name-i18n>Nome da Entidade</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Iridium Modem</default>
+      <units/>
+      <desc>Nome principal da entidade</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Prioridade de Execução</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Prioridade de execução</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Tempo de Ativação</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Tempo de Desativação</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Nível de Depuração</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Active - Scope">
+      <name-i18n>Ativa - Escopo</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>global</default>
+      <units/>
+      <desc>Escopo do parâmetro 'Ativa'</desc>
+    </param>
+    <param name="Active - Visibility">
+      <name-i18n>Ativa - Visibilidade</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>user</default>
+      <units/>
+      <desc>Visibilidade do parâmetro 'Ativa'</desc>
+    </param>
+    <param name="Active">
+      <name-i18n>Ativa</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Verdadeiro para ativar tarefa, falso caso contrário</desc>
+    </param>
+    <param name="Serial Port - Device">
+      <name-i18n>Serial Port - Device</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>/dev/ttyUSB0</default>
+      <units/>
+      <desc>Serial port device used to communicate with the modem</desc>
+    </param>
+    <param name="Serial Port - Baud Rate">
+      <name-i18n>Serial Port - Baud Rate</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>19200</default>
+      <units/>
+      <desc>Serial port baud rate</desc>
+    </param>
+    <param name="Mailbox Check - Periodicity">
+      <name-i18n>Mailbox Check - Periodicity</name-i18n>
+      <type>real</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>1800</default>
+      <units>s</units>
+      <desc>Amount of time without alert rings or MT SBDs before doing a mailbox check</desc>
+    </param>
+    <param name="Maximum Transmission Rate">
+      <name-i18n>Maximum Transmission Rate</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units>s</units>
+      <desc/>
+    </param>
+    <param name="Flush Iridium Queue">
+      <name-i18n>Flush Iridium Queue</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Use 9523N Module">
+      <name-i18n>Use 9523N Module</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Serial Port 9523 - Baud Rate">
+      <name-i18n>Serial Port 9523 - Baud Rate</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>115200</default>
+      <units/>
+      <desc>Serial port baud rate for 9523N Module</desc>
+    </param>
+  </section>
   <section name="Log Book" name-i18n="Diário de Bordo">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -1974,7 +2469,7 @@
       <type>boolean</type>
       <visibility>user</visibility>
       <scope>global</scope>
-      <default>true</default>
+      <default>false</default>
       <units/>
       <desc>Verdadeiro para ativar tarefa, falso caso contrário</desc>
     </param>

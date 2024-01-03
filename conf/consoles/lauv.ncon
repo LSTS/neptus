@@ -35,7 +35,7 @@
       </child>
       <child class="pt.lsts.neptus.plugins.acoustic.MantaOperations" x="0" y="0" width="0" height="0">
         <properties>
-          <entry key="Systems listing">benthos2,benthos3,benthos4,benthos5,lauv-noptilus-1,lauv-noptilus-2,lauv-noptilus-3,lauv-xplore-1,lauv-xplore-2,lauv-xtreme-2,manta-1,manta-2,manta-11,manta-12,manta-21,manta-rugged</entry>
+          <entry key="Systems listing">benthos1,benthos2,benthos3,benthos4,benthos5,lauv-noptilus-1,lauv-noptilus-2,lauv-noptilus-3,lauv-xplore-1,lauv-xplore-2,lauv-xtreme-2,manta-1,manta-2,manta-11,manta-12,manta-21,manta-rugged</entry>
         </properties>
       </child>
       <child class="pt.lsts.neptus.plugins.state.AudibleVehicleState" x="0" y="0" width="0" height="0">

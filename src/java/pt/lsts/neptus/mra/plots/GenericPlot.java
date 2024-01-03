@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2022 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -50,13 +50,20 @@ public class GenericPlot extends MRATimeSeriesPlot {
 
     protected String[] fieldsToPlot = null;
     protected final String name;
+    protected final String postfixTile;
 
-    public GenericPlot(String[] fieldsToPlot, MRAPanel panel) {
+    protected GenericPlot(String[] fieldsToPlot, MRAPanel panel, String postfixTile) {
         super(panel);
+        this.postfixTile = postfixTile;
         StringBuilder sb = new StringBuilder(Arrays.toString(fieldsToPlot));
-        sb.append(" Messages");
+        sb.append(" " + this.postfixTile);
         this.name = sb.toString();
         this.fieldsToPlot = fieldsToPlot;
+
+    }
+
+    public GenericPlot(String[] fieldsToPlot, MRAPanel panel) {
+        this(fieldsToPlot, panel, "Messages");
     }
 
     @Override

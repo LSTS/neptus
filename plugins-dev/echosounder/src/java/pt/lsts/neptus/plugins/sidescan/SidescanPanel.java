@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2022 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2023 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -407,11 +407,13 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
         sidescanParams.setNormalization(config.normalization);
         sidescanParams.setTvgGain(config.tvgGain);
+        sidescanParams.setMinValue(config.sliceMinValue);
+        sidescanParams.setWindowValue(config.sliceWindowValue);
 
-        boolean autoTVG = toolbar.btnAutoTvg.isSelected();
+        boolean autoEGN = toolbar.btnAutoEgn.isSelected();
 
         ArrayList<SidescanLine> list = ssParser.getLinesBetween(firstPingTime + lastUpdateTime, firstPingTime
-                + currentTime, subsystem, autoTVG ? SidescanHistogramNormalizer.HISTOGRAM_DEFAULT_PARAMATERS : sidescanParams);
+                + currentTime, subsystem, autoEGN ? SidescanHistogramNormalizer.HISTOGRAM_DEFAULT_PARAMATERS : sidescanParams);
 
         ArrayList<SidescanLine> drawList = new ArrayList<>(list);
 
@@ -466,7 +468,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             }
 
             double[] data = sidescanLine.getData();
-            if (autoTVG) {
+            if (autoEGN) {
                 data = parent.getHistogram().normalize(data, subsystem);
             }
             sidescanLine.setImage(new BufferedImage(data.length, 1, BufferedImage.TYPE_INT_RGB),
