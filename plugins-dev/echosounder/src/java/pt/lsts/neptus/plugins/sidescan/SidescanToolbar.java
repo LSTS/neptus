@@ -147,9 +147,22 @@ public class SidescanToolbar extends JToolBar {
     private final ChangeListener autoEgnChangeListener = new ChangeListener() {
         @Override
         public void stateChanged(ChangeEvent e) {
-            spinNormalization.setEnabled(!btnAutoEgn.isSelected());
-            spinTVG.setEnabled(!btnAutoEgn.isSelected());
-            windowSlider.setEnabled(!btnAutoEgn.isSelected());
+            boolean btnState = !btnAutoEgn.isSelected();
+            spinNormalization.setEnabled(btnState);
+            spinTVG.setEnabled(btnState);
+            windowSlider.setEnabled(btnState);
+            btnLogarithmicDecompression.setEnabled(btnState);
+        }
+    };
+
+    private final ChangeListener logarithmicDecompressionChangeListener = new ChangeListener() {
+        @Override
+        public void stateChanged(ChangeEvent e) {
+            boolean btnState = !btnLogarithmicDecompression.isSelected();
+            spinNormalization.setEnabled(btnState);
+            spinTVG.setEnabled(btnState);
+            windowSlider.setEnabled(btnState);
+            btnAutoEgn.setEnabled(btnState);
         }
     };
 
@@ -272,5 +285,6 @@ public class SidescanToolbar extends JToolBar {
         spinTVG.addChangeListener(alGains);
 
         btnAutoEgn.addChangeListener(autoEgnChangeListener);
+        btnLogarithmicDecompression.addChangeListener(logarithmicDecompressionChangeListener);
     }
 }
