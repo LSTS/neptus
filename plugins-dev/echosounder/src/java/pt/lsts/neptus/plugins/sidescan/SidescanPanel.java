@@ -1455,6 +1455,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         if (toolbar != null) {
             toolbar.setCurrentSubsystem(subsystem);
         }
+        clearLines();
     }
 
 }
