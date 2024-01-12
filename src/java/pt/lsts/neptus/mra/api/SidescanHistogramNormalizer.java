@@ -85,7 +85,11 @@ public class SidescanHistogramNormalizer implements Serializable {
         }
         return ret;
     }
-    
+
+    public double[] decompress(double[] data, int subsys) {
+        return data;
+    }
+
     public static void preview(IMraLogGroup source) {
         SidescanParser ssParser = SidescanParserFactory.build(source);
         SidescanHistogramNormalizer hist = SidescanHistogramNormalizer.create(source);
