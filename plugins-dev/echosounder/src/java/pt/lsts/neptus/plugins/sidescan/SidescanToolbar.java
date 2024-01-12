@@ -87,6 +87,7 @@ public class SidescanToolbar extends JToolBar {
     private final JSpinner spinTVG = new JSpinner();
 
     JToggleButton btnAutoEgn = new JToggleButton(I18n.text("EGN"));
+    JToggleButton btnLogarithmicDecompression = new JToggleButton(I18n.text("DEC"));
 
     RangeSlider windowSlider = new RangeSlider(0, 100);
 
@@ -182,6 +183,8 @@ public class SidescanToolbar extends JToolBar {
         add(spinTVG);
         btnAutoEgn.setToolTipText("Empirical Gain Normalization");
         add(btnAutoEgn);
+        btnLogarithmicDecompression.setToolTipText("Logarithmic Decompression");
+        add(btnLogarithmicDecompression);
 
         windowSlider.setToolTipText(String.format("<html><p>%s</p><p>%s<br/>%s<br/>%s</p>", I18n.text("Window slider"),
                 I18n.text("Left/right keys for lower value change"),
