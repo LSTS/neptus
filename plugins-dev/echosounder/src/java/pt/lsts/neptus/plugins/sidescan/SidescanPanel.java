@@ -411,6 +411,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         sidescanParams.setWindowValue(config.sliceWindowValue);
 
         boolean autoEGN = toolbar.btnAutoEgn.isSelected();
+        boolean logarithmicDecompression = toolbar.btnLogarithmicDecompression.isSelected();
 
         ArrayList<SidescanLine> list = ssParser.getLinesBetween(firstPingTime + lastUpdateTime, firstPingTime
                 + currentTime, subsystem, autoEGN ? SidescanHistogramNormalizer.HISTOGRAM_DEFAULT_PARAMATERS : sidescanParams);
@@ -470,6 +471,8 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             double[] data = sidescanLine.getData();
             if (autoEGN) {
                 data = parent.getHistogram().normalize(data, subsystem);
+            } else if (logarithmicDecompression) {
+//                data = parent.getHistogram().decompress(data, subsystem);
             }
             sidescanLine.setImage(new BufferedImage(data.length, 1, BufferedImage.TYPE_INT_RGB),
                     false);
