@@ -88,6 +88,8 @@ public class SidescanToolbar extends JToolBar {
 
     JToggleButton btnAutoEgn = new JToggleButton(I18n.text("EGN"));
     JToggleButton btnLogarithmicDecompression = new JToggleButton(I18n.text("DEC"));
+    final JSpinner spinLogarithmicDecompression = new JSpinner();
+    private final SpinnerNumberModel modelLogarithmicDecompression = new SpinnerNumberModel(5.0, 0.1, 100.0, 0.1);
 
     RangeSlider windowSlider = new RangeSlider(0, 100);
 
@@ -152,6 +154,7 @@ public class SidescanToolbar extends JToolBar {
             spinTVG.setEnabled(btnState);
             windowSlider.setEnabled(btnState);
             btnLogarithmicDecompression.setEnabled(btnState);
+            spinLogarithmicDecompression.setEnabled(btnState);
         }
     };
 
@@ -173,6 +176,7 @@ public class SidescanToolbar extends JToolBar {
         }
         this.spinNormalization.setModel(modelNormalization);
         this.spinTVG.setModel(modelTVG);
+        this.spinLogarithmicDecompression.setModel(modelLogarithmicDecompression);
         buildToolbar();
     }
 
@@ -196,6 +200,7 @@ public class SidescanToolbar extends JToolBar {
         add(spinTVG);
         btnAutoEgn.setToolTipText("Empirical Gain Normalization");
         add(btnAutoEgn);
+        add(spinLogarithmicDecompression);
         btnLogarithmicDecompression.setToolTipText("Logarithmic Decompression");
         add(btnLogarithmicDecompression);
 

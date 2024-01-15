@@ -88,17 +88,11 @@ public class SidescanHistogramNormalizer implements Serializable {
         return ret;
     }
 
-    public double[] decompress(double[] inputData, int subsys) {
+    public double[] decompress(double[] inputData, double decompressionFactor) {
         double data[] = new double[inputData.length];
 
-        double half_length = (data.length / 2) - 1;
-        for (int i = 0; i < data.length / 2; i++) {
-            double decompression_factor = DECOMPRESSION_FACTOR_CENTER + ((double) i / half_length) * diff;
-            data[i] = Math.pow(decompression_factor, inputData[i]) / decompression_factor;
-        }
-        for (int i = data.length / 2; i < data.length; i++) {
-            double decompression_factor = DECOMPRESSION_FACTOR_EDGE - (((double) i - (double) (data.length / 2)) / half_length) * diff;
-            data[i] = Math.pow(decompression_factor, inputData[i]) / decompression_factor;
+        for (int i = 0; i < data.length; i++) {
+            data[i] = Math.pow(decompressionFactor, inputData[i]) / decompressionFactor;
         }
 
         return data;
