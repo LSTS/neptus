@@ -58,33 +58,32 @@ import pt.lsts.neptus.util.llf.LsfLogSource;
 
 /**
  * @author zp
- *
  */
 public class SidescanHistogramNormalizer implements Serializable {
-    
+
     public static SidescanParameters HISTOGRAM_DEFAULT_PARAMATERS = new SidescanParameters(0.1, 255);
     private static final long serialVersionUID = -6926787167196556272L;
     private static final int LINES_TO_COMPUTE_HISTOGRAM = 1000;
 
     private LinkedHashMap<Integer, float[]> histograms = new LinkedHashMap<Integer, float[]>();
     private LinkedHashMap<Integer, Float> averages = new LinkedHashMap<Integer, Float>();
-    private static final Random random = new Random(System.currentTimeMillis());    
+    private static final Random random = new Random(System.currentTimeMillis());
 
     private final double DECOMPRESSION_FACTOR_CENTER = 5;
     private final double DECOMPRESSION_FACTOR_EDGE = 5;
     private final double diff = DECOMPRESSION_FACTOR_EDGE - DECOMPRESSION_FACTOR_CENTER;
-    
+
     public double[] normalize(double[] data, int subsys) {
         double[] ret = new double[data.length];
-        
+
         if (!histograms.containsKey(subsys)) {
-            NeptusLog.pub().warn("No histogram calculated for subsystem "+subsys);
+            NeptusLog.pub().warn("No histogram calculated for subsystem " + subsys);
             return data;
         }
         float[] hist = histograms.get(subsys);
         float avg = averages.get(subsys);
         for (int i = 0; i < data.length; i++) {
-            ret[i] = data[i] * (avg/hist[i]);
+            ret[i] = data[i] * (avg / hist[i]);
         }
         return ret;
     }
@@ -108,10 +107,10 @@ public class SidescanHistogramNormalizer implements Serializable {
     public static void preview(IMraLogGroup source) {
         SidescanParser ssParser = SidescanParserFactory.build(source);
         SidescanHistogramNormalizer hist = SidescanHistogramNormalizer.create(source);
-        
-        
+
+
         for (int subId : ssParser.getSubsystemList()) {
-            
+
             BufferedImage img = new BufferedImage(1024, 1024, BufferedImage.TYPE_INT_ARGB);
 
             JLabel lbl = new JLabel() {
@@ -120,15 +119,17 @@ public class SidescanHistogramNormalizer implements Serializable {
                 @Override
                 public void paint(java.awt.Graphics g) {
                     g.drawImage(img, 0, 0, getWidth(), getHeight(), 0, 0, img.getWidth(), img.getHeight(), null);
-                };
+                }
+
+                ;
             };
-            
+
             JFrame frm = GuiUtils.testFrame(lbl, "Histogram Preview");
             frm.getContentPane().setBackground(Color.white);
             frm.setSize(1024, 1024);
             GuiUtils.centerOnScreen(frm);
             ColorMap cmap = ColorMapFactory.createBronzeColormap();
-            
+
             float[] factor = hist.histograms.get(subId);
             float avg = hist.averages.get(subId);
             int count = 0;
@@ -136,45 +137,45 @@ public class SidescanHistogramNormalizer implements Serializable {
             try {
                 for (time = ssParser.firstPingTimestamp(); count < 512 && time < ssParser.lastPingTimestamp(); time += 1000) {
                     ArrayList<SidescanLine> lines = ssParser.getLinesBetween(time, time + 1000, subId, HISTOGRAM_DEFAULT_PARAMATERS);
-                    
+
                     for (int l = 0; l < lines.size(); l++) {
                         double[] data = lines.get(l).getData();
-                        
+
                         for (int i = 0; i < data.length; i++) {
-                            float advance = img.getWidth()/(float)data.length;
-                            int x = (int)(i * advance);
+                            float advance = img.getWidth() / (float) data.length;
+                            int x = (int) (i * advance);
                             int y = count;
                             Color color = cmap.getColor(data[i]);
-                            img.setRGB(x, y, color.getRGB());                                
-                        }                    
+                            img.setRGB(x, y, color.getRGB());
+                        }
                         count++;
                         lbl.repaint();
-                    }              
+                    }
                 }
-                
+
                 for (time = ssParser.firstPingTimestamp(); count < 1024 && time < ssParser.lastPingTimestamp(); time += 1000) {
                     ArrayList<SidescanLine> lines = ssParser.getLinesBetween(time, time + 1000, subId, HISTOGRAM_DEFAULT_PARAMATERS);
-                    
+
                     for (int l = 0; l < lines.size(); l++) {
                         double[] data = lines.get(l).getData();
                         for (int i = 0; i < data.length; i++) {
-                            float advance = img.getWidth()/(float)data.length;
-                            int x = (int)(i * advance);
+                            float advance = img.getWidth() / (float) data.length;
+                            int x = (int) (i * advance);
                             int y = count;
-                            Color color = cmap.getColor(data[i] * (avg/factor[i]));
-                            img.setRGB(x, y, color.getRGB());                                
-                        }                    
+                            Color color = cmap.getColor(data[i] * (avg / factor[i]));
+                            img.setRGB(x, y, color.getRGB());
+                        }
                         count++;
                         lbl.repaint();
-                    }              
+                    }
                 }
             }
             catch (Exception e) {
                 continue;
             }
-        }    
+        }
     }
-    
+
     public static SidescanHistogramNormalizer create(IMraLogGroup source) {
         synchronized (source) {
             File cache = new File(source.getDir(), "mra/histogram.cache");
@@ -184,25 +185,27 @@ public class SidescanHistogramNormalizer implements Serializable {
                     SidescanHistogramNormalizer histogram = (SidescanHistogramNormalizer) ois.readObject();
                     ois.close();
                     NeptusLog.pub().info("Read histogram from cache file.");
-                    if (histogram.averages.isEmpty())
+                    if (histogram.averages.isEmpty()) {
                         throw new Exception();
+                    }
                     return histogram;
                 }
             }
             catch (Exception e) {
-                
+
             }
             SidescanParser ssParser = SidescanParserFactory.build(source);
-            if (ssParser == null)
+            if (ssParser == null) {
                 return new SidescanHistogramNormalizer();
-            
+            }
+
             NeptusLog.pub().info("Histogram cache not found. Creating new one.");
             SidescanHistogramNormalizer hist = new SidescanHistogramNormalizer();
-            
+
             for (int subId : ssParser.getSubsystemList()) {
-                NeptusLog.pub().info("Calculating histogram for subsystem "+subId);
+                NeptusLog.pub().info("Calculating histogram for subsystem " + subId);
                 try {
-                    SidescanLine pivot = ssParser.getLinesBetween(ssParser.lastPingTimestamp()-1000, ssParser.lastPingTimestamp(), subId, HISTOGRAM_DEFAULT_PARAMATERS).get(0);
+                    SidescanLine pivot = ssParser.getLinesBetween(ssParser.lastPingTimestamp() - 1000, ssParser.lastPingTimestamp(), subId, HISTOGRAM_DEFAULT_PARAMATERS).get(0);
                     float[] avg = new float[pivot.getData().length];
                     int count = 0;
                     int logSeconds = (int) ((ssParser.lastPingTimestamp() - ssParser.firstPingTimestamp()) / 1000);
@@ -214,7 +217,8 @@ public class SidescanHistogramNormalizer implements Serializable {
                             for (int i = 0; i < data.length; i++) {
                                 try {
                                     avg[i] = (float) ((avg[i] * count) + data[i]) / (count + 1);
-                                } catch (Exception e) {
+                                }
+                                catch (Exception e) {
                                     NeptusLog.pub().error("Something wrong: " + e.getMessage());
                                 }
                             }
@@ -224,18 +228,19 @@ public class SidescanHistogramNormalizer implements Serializable {
 
                     double sum = 0;
                     for (int i = 0; i < avg.length; i++) {
-                        if (!Float.isFinite(avg[i]))
+                        if (!Float.isFinite(avg[i])) {
                             avg[i] = 0;
+                        }
                         sum += avg[i];
                     }
                     hist.histograms.put(subId, avg);
-                    hist.averages.put(subId, (float) (sum / avg.length));                    
+                    hist.averages.put(subId, (float) (sum / avg.length));
                 }
                 catch (Exception e) {
                     e.printStackTrace();
                     continue;
                 }
-            }       
+            }
             try {
                 ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(cache));
                 oos.writeObject(hist);
@@ -244,56 +249,59 @@ public class SidescanHistogramNormalizer implements Serializable {
             catch (Exception e) {
                 e.printStackTrace();
             }
-            NeptusLog.pub().info("Histogram cache saved to "+cache.getPath()+".");
-            
+            NeptusLog.pub().info("Histogram cache saved to " + cache.getPath() + ".");
+
             return hist;
         }
-        
+
     }
-    
+
     boolean hasHistogram() {
         return !histograms.isEmpty();
     }
-    private SidescanHistogramNormalizer() {}
-    
+
+    private SidescanHistogramNormalizer() {
+    }
+
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        for (float[] hist : histograms.values())
+        for (float[] hist : histograms.values()) {
             for (int i = 0; i < hist.length; i++) {
-                builder.append(hist[i]+"\n");
+                builder.append(hist[i] + "\n");
             }
+        }
         builder.append("\n");
         return builder.toString();
 
     }
-    
+
     public static class HistogramExporter implements MRAExporter {
-        
+
         public HistogramExporter(IMraLogGroup source) {
         }
-        
+
         @Override
         public boolean canBeApplied(IMraLogGroup source) {
             return SidescanParserFactory.build(source) != null;
-            
+
         }
 
         @Override
         public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
-            return "" + SidescanHistogramNormalizer.create(source);            
+            return "" + SidescanHistogramNormalizer.create(source);
         }
     }
-    
-    public static void main(String[] args) throws Exception {      
-        args = new String[] {
-             //"/media/zp/5e169b60-ba8d-47db-b25d-9048fe40eed1/OMARE/Raw/lauv-noptilus-2/20180711/110508_A042_NP2/"   
-             //"/media/zp/5e169b60-ba8d-47db-b25d-9048fe40eed1/OMARE/Raw/lauv-noptilus-3/20190712/140525_A75-NP3-FP13"
-             "/media/zp/5e169b60-ba8d-47db-b25d-9048fe40eed1/OMARE/Raw/lauv-xtreme-2/20190114/134424_A73_XT2"
+
+    public static void main(String[] args) throws Exception {
+        args = new String[]{
+                //"/media/zp/5e169b60-ba8d-47db-b25d-9048fe40eed1/OMARE/Raw/lauv-noptilus-2/20180711/110508_A042_NP2/"
+                //"/media/zp/5e169b60-ba8d-47db-b25d-9048fe40eed1/OMARE/Raw/lauv-noptilus-3/20190712/140525_A75-NP3-FP13"
+                "/media/zp/5e169b60-ba8d-47db-b25d-9048fe40eed1/OMARE/Raw/lauv-xtreme-2/20190114/134424_A73_XT2"
         };
-        
+
         SidescanHistogramNormalizer.preview(new LsfLogSource("/media/zp/5e169b60-ba8d-47db-b25d-9048fe40eed1/OMARE/Raw/lauv-noptilus-2/20180711/110508_A042_NP2/Data.lsf", null));
-        
+
 //        MRAProperties.batchMode = true;
 //        GuiUtils.setLookAndFeelNimbus();
 //        if (args.length == 0)
