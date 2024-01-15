@@ -69,7 +69,10 @@ public class SidescanHistogramNormalizer implements Serializable {
     private LinkedHashMap<Integer, float[]> histograms = new LinkedHashMap<Integer, float[]>();
     private LinkedHashMap<Integer, Float> averages = new LinkedHashMap<Integer, Float>();
     private static final Random random = new Random(System.currentTimeMillis());    
-    
+
+    private final double DECOMPRESSION_FACTOR_CENTER = 5;
+    private final double DECOMPRESSION_FACTOR_EDGE = 5;
+    private final double diff = DECOMPRESSION_FACTOR_EDGE - DECOMPRESSION_FACTOR_CENTER;
     
     public double[] normalize(double[] data, int subsys) {
         double[] ret = new double[data.length];
@@ -86,7 +89,19 @@ public class SidescanHistogramNormalizer implements Serializable {
         return ret;
     }
 
-    public double[] decompress(double[] data, int subsys) {
+    public double[] decompress(double[] inputData, int subsys) {
+        double data[] = new double[inputData.length];
+
+        double half_length = (data.length / 2) - 1;
+        for (int i = 0; i < data.length / 2; i++) {
+            double decompression_factor = DECOMPRESSION_FACTOR_CENTER + ((double) i / half_length) * diff;
+            data[i] = Math.pow(decompression_factor, inputData[i]) / decompression_factor;
+        }
+        for (int i = data.length / 2; i < data.length; i++) {
+            double decompression_factor = DECOMPRESSION_FACTOR_EDGE - (((double) i - (double) (data.length / 2)) / half_length) * diff;
+            data[i] = Math.pow(decompression_factor, inputData[i]) / decompression_factor;
+        }
+
         return data;
     }
 
