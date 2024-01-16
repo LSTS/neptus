@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<system>
+    <properties>
+        <id>wavynos-echo-1</id>
+        <name>WAVYNOS Echo 01</name>
+        <type>AUV</type>
+        <model>LAUV</model>
+        <appearance>
+            <x-size>1.7</x-size>
+            <y-size>0.3</y-size>
+            <z-size>0.54</z-size>
+            <top-image-2D>../vehicles-files/lauv/lauv-seacon0-top.png</top-image-2D>
+            <side-image-2D>../vehicles-files/lauv/lauv-seacon0-side.png</side-image-2D>
+            <back-image-2D>../vehicles-files/lauv/lauv-seacon0-back.png</back-image-2D>
+            <presentation-image-2D>../vehicles-files/lauv/lauv-seacon0-presentation.png</presentation-image-2D>
+            <icon-color>
+                <r>255</r>
+                <g>154</g>
+                <b>15</b>
+            </icon-color>
+        </appearance>
+        <magnetometer>true</magnetometer>
+    </properties>
+    <communication-means>
+        <comm-mean>
+            <name>ethernet</name>
+            <type>ethernet</type>
+            <host-address>10.0.200.61</host-address>
+            <protocols>imc</protocols>
+            <protocols-args>
+                <imc>
+                    <port>6002</port>
+                    <port-tcp>6002</port-tcp>
+                    <udp-on>true</udp-on>
+                    <tcp-on>false</tcp-on>
+                    <imc-id>80:91</imc-id>
+                </imc>
+            </protocols-args>
+        </comm-mean>
+    </communication-means>
+</system>
