@@ -60,7 +60,7 @@ public class WavyCsvExporter implements MRAExporter {
                         || m.getUnitsOf(field).equals("enumerated")) {
                     String str = m.getMessageType().getFieldPossibleValues(field).get(
                             ((Number) v).longValue());
-                    ret += ", " + str;
+                    ret += "," + str;
                 } else {
 
                     long val = m.getLong(field);
@@ -74,18 +74,18 @@ public class WavyCsvExporter implements MRAExporter {
                     str = str.replaceAll("\\|null", "");
                     if (str.length() > 0) // remove last "|"
                         str = str.substring(0, str.length() - 1);
-                    ret += ", " + str;
+                    ret += "," + str;
                 }
             } else {
                 switch (m.getTypeOf(field)) {
                     case "fp32_t":
-                        ret += ", " + floats.format(m.getDouble(field));
+                        ret += "," + floats.format(m.getDouble(field));
                         break;
                     case "fp64_t":
-                        ret += ", " + doubles.format(m.getDouble(field));
+                        ret += "," + doubles.format(m.getDouble(field));
                         break;
                     default:
-                        ret += ", " + m.getAsString(field);
+                        ret += "," + m.getAsString(field);
                         break;
                 }
             }
