@@ -415,9 +415,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         ArrayList<SidescanLine> list = ssParser.getLinesBetween(firstPingTime + lastUpdateTime, firstPingTime
                 + currentTime, subsystem, autoEGN ? SidescanHistogramNormalizer.HISTOGRAM_DEFAULT_PARAMATERS : sidescanParams);
 
-        ArrayList<SidescanLine> drawList = new ArrayList<>(list);
-
-        for (SidescanLine l : drawList) {
+        for (SidescanLine l : list) {
             // Update the rangeMax to the ruler
             if (l.getRange() != getRangeForRuler()) {
                 setRangeForRuler(l.getRange());
@@ -460,7 +458,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
         int d = 0;
 
-        for (SidescanLine sidescanLine : drawList) {
+        for (SidescanLine sidescanLine : list) {
             sidescanLine.setYPos(yref - d);
             d += sidescanLine.getYSize();
             if (sidescanLine.getData().length <= 0) {
@@ -499,11 +497,11 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                 if (sidescanLine.getYPos() > image.getHeight())
                     removeList.add(sidescanLine);
             }
-            lineList.addAll(drawList);
+            lineList.addAll(list);
             lineList.removeAll(removeList);
         }
 
-        drawList.clear();
+        list.clear();
         removeList.clear();
     }
 
