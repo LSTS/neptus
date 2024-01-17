@@ -13,6 +13,7 @@
             <side-image-2D>../vehicles-files/lauv/lauv-seacon0-side.png</side-image-2D>
             <back-image-2D>../vehicles-files/lauv/lauv-seacon0-back.png</back-image-2D>
             <presentation-image-2D>../vehicles-files/lauv/lauv-seacon0-presentation.png</presentation-image-2D>
+            <model-3D>../vehicles-files/lauv/lauv-xtreme-2.x3d</model-3D>
             <icon-color>
                 <r>255</r>
                 <g>154</g>
@@ -20,13 +21,47 @@
             </icon-color>
         </appearance>
         <magnetometer>true</magnetometer>
+            <limits>
+            <valid-zunits>depth, height</valid-zunits>
+            <min-speed>0</min-speed>
+            <max-speed>1</max-speed>
+            <max-duration-hours>24</max-duration-hours>
+        </limits>
+        <coordinate-system-label>SNAME</coordinate-system-label>
     </properties>
+    <feasibleManeuvers>
+    <maneuver>
+      <Goto kind="automatic">
+        <finalPoint type="pointType">
+          <point>
+            <id>wpt</id>
+            <name>wpt</name>
+            <coordinate>
+              <latitude>0N</latitude>
+              <longitude>0E</longitude>
+              <height>0</height>
+            </coordinate>
+          </point>
+          <radiusTolerance>1</radiusTolerance>
+        </finalPoint>
+        <velocity tolerance="10" type="float" unit="m/s">16</velocity>
+        <trajectoryTolerance>
+          <radiusTolerance type="float">1</radiusTolerance>
+        </trajectoryTolerance>
+        <annotation>
+          <documentation>Move to a given point</documentation>
+          <implementation-class>pt.lsts.neptus.mp.maneuvers.Goto</implementation-class>
+        </annotation>
+      </Goto>
+    </maneuver>
+    </feasibleManeuvers>
     <communication-means>
         <comm-mean>
             <name>ethernet</name>
             <type>ethernet</type>
             <host-address>10.0.200.62</host-address>
             <protocols>imc</protocols>
+            <latency value="10M" unit="bps"/>
             <protocols-args>
                 <imc>
                     <port>6002</port>
@@ -38,4 +73,9 @@
             </protocols-args>
         </comm-mean>
     </communication-means>
+    <consoles>
+    <console name="LAUV">
+      <xml-file>../conf/consoles/lauv.ncon</xml-file>
+    </console>
+  </consoles>
 </system>

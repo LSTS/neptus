@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<config format="1" version="2023.07.0 (project/wavynos,c17dbcc71,dirty)" system="wavynos-hydro-1" i18n="en_US">
+<config format="1" version="2023.07.0 (project/wavynos,c17dbcc71,dirty)" system="wavynos-echo-1" i18n="en_US">
 <section name="Text Message Parser" name-i18n="Text Message Parser">
 <param name="Entity Label">
 <name-i18n>Entity Label</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>Text Message Parser</default><units></units><desc>Main entity label</desc></param>
@@ -249,13 +249,13 @@
 <param name="Time Between Announces Pos">
 <name-i18n>Time Between Announces Pos</name-i18n><type>real</type><visibility>developer</visibility><scope>global</scope><default>5</default><units></units><desc>Time Between Announces Pos</desc></param>
 <param name="Server">
-<name-i18n>Server</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>https://wavynos-rtds.inesctec.pt</default><units></units><desc>Server URL</desc></param>
+<name-i18n>Server</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>https://meloa.inesctec.pt</default><units></units><desc>Server URL</desc></param>
 <param name="Path to Executive">
-<name-i18n>Path to Executive</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>/api/observations</default><units></units><desc>Path to Executive</desc></param>
+<name-i18n>Path to Executive</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>/api/u?</default><units></units><desc>Path to Executive</desc></param>
 <param name="Valid Reply to Receive">
 <name-i18n>Valid Reply to Receive</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>OK</default><units></units><desc>Valid Reply to Receive</desc></param>
 <param name="Payload Sensors">
-<name-i18n>Payload Sensors</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>IMU,GNSS,HIFI</default><units></units><desc>Payload Sensors of System</desc></param>
+<name-i18n>Payload Sensors</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>IMU,GNSS,ECHO</default><units></units><desc>Payload Sensors of System</desc></param>
 <param name="Voltage Entity Label">
 <name-i18n>Voltage Entity Label</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>Batteries</default><units></units><desc>Voltage Entity Label</desc></param>
 </section>
@@ -383,6 +383,30 @@
 <param name="White LED On">
 <name-i18n>White LED On</name-i18n><type>boolean</type><visibility>developer</visibility><scope>global</scope><default>true</default><units></units><desc>White LED On</desc></param>
 </section>
+<section name="Echo Sounder" name-i18n="Echo Sounder">
+<param name="Entity Label">
+<name-i18n>Entity Label</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>Echo Sounder</default><units></units><desc>Main entity label</desc></param>
+<param name="Execution Priority">
+<name-i18n>Execution Priority</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>10</default><units></units><desc>Execution priority</desc></param>
+<param name="Activation Time">
+<name-i18n>Activation Time</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>10.0</default><units></units><desc></desc></param>
+<param name="Deactivation Time">
+<name-i18n>Deactivation Time</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>0.0</default><units></units><desc></desc></param>
+<param name="Debug Level">
+<name-i18n>Debug Level</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>Spew</default><units></units><desc></desc><values>None, Debug, Trace, Spew</values><values-i18n>None, Debug, Trace, Spew</values-i18n></param>
+<param name="Active - Scope">
+<name-i18n>Active - Scope</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>global</default><units></units><desc>Scoped of the &apos;Active&apos; parameter</desc></param>
+<param name="Active - Visibility">
+<name-i18n>Active - Visibility</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>user</default><units></units><desc>Visibility of the &apos;Active&apos; parameter</desc></param>
+<param name="Active">
+<name-i18n>Active</name-i18n><type>boolean</type><visibility>user</visibility><scope>global</scope><default>true</default><units></units><desc>True to activate task, false otherwise</desc></param>
+<param name="Serial Port - Device">
+<name-i18n>Serial Port - Device</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>/dev/ttyUSB0</default><units></units><desc>Serial port device used to communicate with the sensor</desc></param>
+<param name="Serial Port - Baud Rate">
+<name-i18n>Serial Port - Baud Rate</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>921600</default><units></units><desc>Serial port baud rate</desc></param>
+<param name="Power Channel">
+<name-i18n>Power Channel</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>ECHO</default><units></units><desc></desc></param>
+</section>
 <section name="GPS" name-i18n="GPS">
 <param name="Entity Label">
 <name-i18n>Entity Label</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>GPS</default><units></units><desc>Main entity label</desc></param>
@@ -468,32 +492,6 @@
 <name-i18n>Initialization String 13 - Reply</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default></default><units></units><desc></desc></param>
 <param name="Novatel SBAS">
 <name-i18n>Novatel SBAS</name-i18n><type>boolean</type><visibility>developer</visibility><scope>global</scope><default>false</default><units></units><desc>Enable novatel sbas mode</desc></param>
-</section>
-<section name="Hydrophone" name-i18n="Hydrophone">
-<param name="Entity Label">
-<name-i18n>Entity Label</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>Hydrophone</default><units></units><desc>Main entity label</desc></param>
-<param name="Execution Priority">
-<name-i18n>Execution Priority</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>10</default><units></units><desc>Execution priority</desc></param>
-<param name="Activation Time">
-<name-i18n>Activation Time</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>5</default><units></units><desc></desc></param>
-<param name="Deactivation Time">
-<name-i18n>Deactivation Time</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>0</default><units></units><desc></desc></param>
-<param name="Debug Level">
-<name-i18n>Debug Level</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>Debug</default><units></units><desc></desc><values>None, Debug, Trace, Spew</values><values-i18n>None, Debug, Trace, Spew</values-i18n></param>
-<param name="Active - Scope">
-<name-i18n>Active - Scope</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>global</default><units></units><desc>Scoped of the &apos;Active&apos; parameter</desc></param>
-<param name="Active - Visibility">
-<name-i18n>Active - Visibility</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>user</default><units></units><desc>Visibility of the &apos;Active&apos; parameter</desc></param>
-<param name="Active">
-<name-i18n>Active</name-i18n><type>boolean</type><visibility>user</visibility><scope>global</scope><default>true</default><units></units><desc>True to activate task, false otherwise</desc></param>
-<param name="Sound Card Channel">
-<name-i18n>Sound Card Channel</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>plughw:CARD=sndrpihifiberry,DEV=0</default><units></units><desc>Sound card channel to record, e.g. &quot;hw:0,0&quot; or &quot;default&quot;</desc></param>
-<param name="Number of Channels">
-<name-i18n>Number of Channels</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>1</default><units></units><desc>Number of channels to record</desc></param>
-<param name="Sample Rate">
-<name-i18n>Sample Rate</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>192000</default><units></units><desc>Sample rate to record</desc></param>
-<param name="Recording Schedule">
-<name-i18n>Recording Schedule</name-i18n><type>list:real</type><visibility>developer</visibility><scope>global</scope><default>1,30</default><units>s</units><desc>Clip duration and pause between clips, in seconds</desc><size>2</size></param>
 </section>
 <section name="Thermal Zone" name-i18n="Thermal Zone">
 <param name="Entity Label">
@@ -695,6 +693,50 @@
 <param name="Transports">
 <name-i18n>Transports</name-i18n><type>list:string</type><visibility>developer</visibility><scope>global</scope><default>Abort, Acceleration, AcousticLink, AcousticOperation, AcousticRequest, AcousticStatus, AllocatedControlTorques, AlignmentState, AngularVelocity, Announce, Brake, Chlorophyll, ClockControl, CompassCalibration, Collision, Conductivity, ControlLoops, ControlParcel, CpuUsage, Current, DataSanity, Depth, DesiredControl, DesiredZ, DesiredHeading, DesiredHeadingRate, DesiredPath, DesiredPitch, DesiredSpeed, DevCalibrationControl, DevCalibrationState, DevDataBinary, DevDataText, Distance, DvlRejection, Elevator, EmergencyControl, EmergencyControlState, EntityActivationState, EntityInfo, EntityList, EntityMonitoringState, EntityParameters, EntityState, EstimatedState, EstimatedStreamVelocity, EulerAngles, EulerAnglesDelta, Fluorescein, FollowPath, FollowRefState, FuelLevel, Goto, GpsFix, GpsFixRejection, GroundVelocity, Heartbeat, IdleManeuver, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblConfig, LblEstimate, LblRange, LblRangeAcceptance, LogBookEntry, Loiter, ManeuverControlState, MagneticField, NavigationData, NavigationUncertainty, OperationalLimits, PathControlState, PH, Phycocyanin, Phycoerythrin, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, PlanStatistics, PopEntityParameters, PopUp, PowerChannelControl, PowerChannelState, Pulse, PulseDetectionControl, PushEntityParameters, Pressure, Redox, Rows, QueryEntityParameters, Reference, RemoteActions, RemoteActionsRequest, RemoteState, ReportControl, RhodamineDye, Rpm, RSSI, Salinity, SadcReadings, SimAcousticMessage, SaveEntityParameters, ServoPosition, SetEntityParameters, SetServoPosition, SetThrusterActuation, SoiCommand, SoiState, SonarData, SimulatedState, Sms, SmsRequest, SmsStatus, SoundSpeed, StateReport, StationKeeping, StopManeuver, TCPRequest, TCPStatus, Teleoperation, TeleoperationDone, Temperature, TextMessage, TrexObservation, TrexOperation, TrexPlan, TrexToken, TransmissionRequest, TransmissionStatus, TransportBindings, Turbidity, UamRxFrame, UamTxFrame, UamTxStatus, UamRxRange, UsblAnglesExtended, UsblPositionExtended, UsblFixExtended, UsblModem, UsblConfig, VehicleCommand, VehicleMedium, VehicleState, VelocityDelta, Voltage, WaterDensity, WaterVelocity, YoYo</default><units></units><desc></desc></param>
 </section>
+<section name="Mobile Internet" name-i18n="Mobile Internet">
+<param name="Entity Label">
+<name-i18n>Entity Label</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>Mobile Internet</default><units></units><desc>Main entity label</desc></param>
+<param name="Execution Priority">
+<name-i18n>Execution Priority</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>10</default><units></units><desc>Execution priority</desc></param>
+<param name="Activation Time">
+<name-i18n>Activation Time</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>0</default><units></units><desc></desc></param>
+<param name="Deactivation Time">
+<name-i18n>Deactivation Time</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>0</default><units></units><desc></desc></param>
+<param name="Debug Level">
+<name-i18n>Debug Level</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>None</default><units></units><desc></desc><values>None, Debug, Trace, Spew</values><values-i18n>None, Debug, Trace, Spew</values-i18n></param>
+<param name="Active - Scope">
+<name-i18n>Active - Scope</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>global</default><units></units><desc>Scoped of the &apos;Active&apos; parameter</desc></param>
+<param name="Active - Visibility">
+<name-i18n>Active - Visibility</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>user</default><units></units><desc>Visibility of the &apos;Active&apos; parameter</desc></param>
+<param name="Active">
+<name-i18n>Active</name-i18n><type>boolean</type><visibility>user</visibility><scope>global</scope><default>true</default><units></units><desc>True to activate task, false otherwise</desc></param>
+<param name="Serial Port - Device">
+<name-i18n>Serial Port - Device</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>/dev/ttyACM1</default><units></units><desc>Serial port device</desc></param>
+<param name="Power Channel">
+<name-i18n>Power Channel</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default></default><units></units><desc>Power channel name</desc></param>
+<param name="GSM - User">
+<name-i18n>GSM - User</name-i18n><type>string</type><visibility>user</visibility><scope>global</scope><default></default><units></units><desc>GSM/GPRS username</desc></param>
+<param name="GSM - Password">
+<name-i18n>GSM - Password</name-i18n><type>string</type><visibility>user</visibility><scope>global</scope><default></default><units></units><desc>GSM/GPRS password</desc></param>
+<param name="GSM - APN">
+<name-i18n>GSM - APN</name-i18n><type>string</type><visibility>user</visibility><scope>global</scope><default>internetm2m</default><units></units><desc>GSM/GPRS Access Point Name (APN)</desc></param>
+<param name="GSM - Pin">
+<name-i18n>GSM - Pin</name-i18n><type>string</type><visibility>user</visibility><scope>global</scope><default></default><units></units><desc>GSM/GPRS pin.</desc></param>
+<param name="GSM - Mode">
+<name-i18n>GSM - Mode</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>AT\+UUSBCONF\=0</default><units></units><desc>GSM/GPRS mode.</desc></param>
+<param name="Code Presentation Mode">
+<name-i18n>Code Presentation Mode</name-i18n><type>boolean</type><visibility>developer</visibility><scope>global</scope><default>true</default><units></units><desc>Code Presentation Mode</desc></param>
+<param name="PPP - Interface">
+<name-i18n>PPP - Interface</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>ppp0</default><units></units><desc>PPP Interface</desc></param>
+<param name="Enable IP Forwarding">
+<name-i18n>Enable IP Forwarding</name-i18n><type>boolean</type><visibility>developer</visibility><scope>global</scope><default>true</default><units></units><desc>Enable or disable IP forward</desc></param>
+<param name="Enable Dynamic DNS">
+<name-i18n>Enable Dynamic DNS</name-i18n><type>boolean</type><visibility>user</visibility><scope>global</scope><default>false</default><units></units><desc>Enable or disable Dynamic DNS</desc></param>
+<param name="DynDNS Update Periodicity">
+<name-i18n>DynDNS Update Periodicity</name-i18n><type>real</type><visibility>developer</visibility><scope>global</scope><default>60</default><units>s</units><desc>Number of seconds between dynamic DNS updates</desc></param>
+<param name="DynDNS URL">
+<name-i18n>DynDNS URL</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default></default><units></units><desc>URL used to update dynamic DNS</desc></param>
+</section>
 <section name="GSM" name-i18n="GSM">
 <param name="Entity Label">
 <name-i18n>Entity Label</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>GSM</default><units></units><desc>Main entity label</desc></param>
@@ -707,7 +749,7 @@
 <param name="Debug Level">
 <name-i18n>Debug Level</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>Debug</default><units></units><desc></desc><values>None, Debug, Trace, Spew</values><values-i18n>None, Debug, Trace, Spew</values-i18n></param>
 <param name="Serial Port - Device">
-<name-i18n>Serial Port - Device</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>/dev/ttyUSB2</default><units></units><desc>Serial port device used to communicate with the sensor</desc></param>
+<name-i18n>Serial Port - Device</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>/dev/ttyACM2</default><units></units><desc>Serial port device used to communicate with the sensor</desc></param>
 <param name="Serial Port - Baud Rate">
 <name-i18n>Serial Port - Baud Rate</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>115200</default><units></units><desc>Serial port baud rate</desc></param>
 <param name="Reply Timeout">
@@ -768,35 +810,5 @@
 <name-i18n>Local Messages Only</name-i18n><type>boolean</type><visibility>developer</visibility><scope>global</scope><default>false</default><units></units><desc>Only transmit messsages from local system.</desc></param>
 <param name="Custom Service Type">
 <name-i18n>Custom Service Type</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default></default><units></units><desc>Optional custom service type (imc+udp+&lt;Custom Service Type&gt;), empty entry gives default service (imc+udp)</desc></param>
-</section>
-<section name="Mobile Internet" name-i18n="Mobile Internet">
-<param name="Entity Label">
-<name-i18n>Entity Label</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>Mobile Internet</default><units></units><desc>Main entity label</desc></param>
-<param name="Execution Priority">
-<name-i18n>Execution Priority</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>10</default><units></units><desc>Execution priority</desc></param>
-<param name="Activation Time">
-<name-i18n>Activation Time</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>40</default><units></units><desc></desc></param>
-<param name="Deactivation Time">
-<name-i18n>Deactivation Time</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>5</default><units></units><desc></desc></param>
-<param name="Debug Level">
-<name-i18n>Debug Level</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>None</default><units></units><desc></desc><values>None, Debug, Trace, Spew</values><values-i18n>None, Debug, Trace, Spew</values-i18n></param>
-<param name="Active - Scope">
-<name-i18n>Active - Scope</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>global</default><units></units><desc>Scoped of the &apos;Active&apos; parameter</desc></param>
-<param name="Active - Visibility">
-<name-i18n>Active - Visibility</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>user</default><units></units><desc>Visibility of the &apos;Active&apos; parameter</desc></param>
-<param name="Active">
-<name-i18n>Active</name-i18n><type>boolean</type><visibility>user</visibility><scope>global</scope><default>true</default><units></units><desc>True to activate task, false otherwise</desc></param>
-<param name="Serial Port - Device">
-<name-i18n>Serial Port - Device</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>uart:///dev/ttyUSB3:115200</default><units></units><desc>Serial port device</desc></param>
-<param name="Power Channel">
-<name-i18n>Power Channel</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default></default><units></units><desc>Power channel name</desc></param>
-<param name="GSM - APN">
-<name-i18n>GSM - APN</name-i18n><type>string</type><visibility>user</visibility><scope>global</scope><default>internetm2m</default><units></units><desc>GSM Access Point Name (APN)</desc></param>
-<param name="Allocate IP Command">
-<name-i18n>Allocate IP Command</name-i18n><type>string</type><visibility>user</visibility><scope>global</scope><default>killall dhclient &gt; /dev/null 2&gt;&amp;1 &amp;&amp; timeout 10 dhclient -1 -v wwan0 &gt; /dev/null 2&gt;&amp;1</default><units></units><desc>System Command to allocate ip to the NIC</desc></param>
-<param name="Network Interface">
-<name-i18n>Network Interface</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>wwan0</default><units></units><desc>WWAN network interface card</desc></param>
-<param name="Internet URL">
-<name-i18n>Internet URL</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>http://httpbin.org/status/200</default><units></units><desc>URL that shall be used to test for internet connection</desc></param>
 </section>
 </config>
