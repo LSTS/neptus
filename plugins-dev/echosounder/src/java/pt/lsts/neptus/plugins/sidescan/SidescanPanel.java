@@ -489,13 +489,11 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             // g2d.drawImage(sidescanLine.image, 0, sidescanLine.ypos, null);
         }
         synchronized (lineList) {
-            SidescanLine sidescanLine;
             // Must be in synchronized block
             for (SidescanLine line : lineList) {
-                sidescanLine = line;
-                sidescanLine.setYPos(sidescanLine.getYPos() + yref);
-                if (sidescanLine.getYPos() > image.getHeight())
-                    removeList.add(sidescanLine);
+                line.setYPos(line.getYPos() + yref);
+                if (line.getYPos() > image.getHeight())
+                    removeList.add(line);
             }
             lineList.addAll(list);
             lineList.removeAll(removeList);
