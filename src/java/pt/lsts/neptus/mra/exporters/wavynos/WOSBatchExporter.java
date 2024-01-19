@@ -2,7 +2,10 @@ package pt.lsts.neptus.mra.exporters.wavynos;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
+import java.io.OutputStream;
 import java.util.Base64;
 import java.util.LinkedHashMap;
 
@@ -52,7 +55,7 @@ public class WOSBatchExporter implements MRAExporter {
         StringBuilder sb = new StringBuilder("telemetry=");
         sb.append(name).append("|"); // wavy id
         sb.append("v1|"); // version
-        sb.append(DateTimeUtil.timeFormatterNoMillis.format(fix.getDate())).append("|"); // timestamp
+        sb.append(DateTimeUtil.dateTimeFormatterISO8601.format(fix.getDate())).append("|"); // timestamp
         sb.append(CoordinateUtil.latitudeAsPrettyString(fix.getLat(), LatLonFormatEnum.DECIMAL_DEGREES)).append("|"); // latitude
         sb.append(CoordinateUtil.longitudeAsPrettyString(fix.getLon(), LatLonFormatEnum.DECIMAL_DEGREES)).append("|"); // longitude
         sb.append(fix.getSatellites()).append("|"); // satellites
@@ -90,15 +93,17 @@ public class WOSBatchExporter implements MRAExporter {
             for (int i = 0; i < 2; i++) {
                 SonarData sd = sonarData[i];
                 Distance sr = slantRange;
-                if (sd == null || sr == null)
-                    continue;                
+                if (sd == null || sr == null) {
+                    sb.append("NAN|NAN|NAN|");
+                    continue;
+                }            
                 sb.append(sd.getMaxRange()).append("|"); // max range
                 sb.append(sd.getFrequency()).append("|"); // frequency
                 sb.append(sr.getValue()).append("|"); // slant range
             }            
         }
         else 
-            sb.append("GNSS|NAN|NAN|NAN|"); // payload    
+            sb.append("GNSS|NAN|NAN|NAN|NAN|NAN|NAN|"); // payload    
         
         sb.append(getStatsLine(fuel, voltage, rssi));
         sb.append("\n");
@@ -116,7 +121,7 @@ public class WOSBatchExporter implements MRAExporter {
 
     public String getTelemetryLine(String name, GpsFix fix, FuelLevel fuel, Voltage voltage, RSSI rssi) {
         StringBuilder sb = getGpsLine(name, fix);
-        sb.append("GNSS|NAN|NAN|NAN|")
+        sb.append("GNSS|NAN|NAN|NAN|NAN|NAN|NAN|")
             .append(getStatsLine(fuel, voltage, rssi))
             .append("\n");
         return sb.toString();
@@ -129,7 +134,9 @@ public class WOSBatchExporter implements MRAExporter {
         if (vehicle != null)
             name = getWavyId(vehicle.getId());
         File out = new File(source.getFile("mra"), "data.wos");
+        File bin = new File(source.getFile("mra"), "data.bin");
         BufferedWriter writer;
+       
         try {
             writer = new BufferedWriter(new FileWriter(out));          
         }
@@ -151,6 +158,18 @@ public class WOSBatchExporter implements MRAExporter {
         pmonitor.setMaximum(index.getNumberOfMessages());
         LinkedHashMap<Integer, Integer> sonarIndexes = new LinkedHashMap<>();
           
+        SonarData firstEcho = index.getFirst(SonarData.class);
+
+        if (firstEcho != null) { 
+            try {
+                OutputStream os = new FileOutputStream(bin);
+                os.write(firstEcho.getData());
+                os.close();
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         for (int i = 0; i < index.getNumberOfMessages(); i++) {
             if (pmonitor.isCanceled()) {
                 try {
