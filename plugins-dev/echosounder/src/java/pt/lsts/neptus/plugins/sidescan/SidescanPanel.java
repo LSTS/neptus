@@ -424,6 +424,16 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
         ArrayList<SidescanLine> drawList = new ArrayList<>(list);
 
+        // Remove lines with repeated timestamps
+        for(int i = 1; i < drawList.size(); i++) {
+            SidescanLine prev = drawList.get(i - 1);
+            SidescanLine curr = drawList.get(i);
+            if(curr.getTimestampMillis() == prev.getTimestampMillis()) {
+                drawList.remove(i - 1);
+                i--;
+            }
+        }
+
         for (SidescanLine l : drawList) {
             // Update the rangeMax to the ruler
             if (l.getRange() != getRangeForRuler()) {
