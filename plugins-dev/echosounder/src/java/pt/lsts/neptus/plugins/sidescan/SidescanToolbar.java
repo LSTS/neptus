@@ -89,7 +89,7 @@ public class SidescanToolbar extends JToolBar {
     JToggleButton btnAutoEgn = new JToggleButton(I18n.text("EGN"));
     JToggleButton btnLogarithmicDecompression = new JToggleButton(I18n.text("DEC"));
     final JSpinner spinLogarithmicDecompression = new JSpinner();
-    private final SpinnerNumberModel modelLogarithmicDecompression = new SpinnerNumberModel(5.0, 0.1, 100.0, 0.1);
+    private final SpinnerNumberModel modelLogarithmicDecompression = new SpinnerNumberModel(1.7, 0.0, 100.0, 0.1);
 
     RangeSlider windowSlider = new RangeSlider(0, 100);
 
