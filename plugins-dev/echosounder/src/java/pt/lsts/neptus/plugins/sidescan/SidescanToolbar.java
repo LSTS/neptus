@@ -271,17 +271,11 @@ public class SidescanToolbar extends JToolBar {
 
         if (!panelList.isEmpty()) {
             spinNormalization.setValue(panelList.get(0).config.normalization);
-        }
-        spinNormalization.addChangeListener(alGains);
-
-        if (!panelList.isEmpty()) {
             spinTVG.setValue(panelList.get(0).config.tvgGain);
-        }
-        spinTVG.addChangeListener(alGains);
-
-        if (!panelList.isEmpty()) {
             spinLogarithmicDecompression.setValue(panelList.get(0).config.logartihmicDecompression);
         }
+        spinNormalization.addChangeListener(alGains);
+        spinTVG.addChangeListener(alGains);
         spinLogarithmicDecompression.addChangeListener(alGains);
 
         btnAutoEgn.addChangeListener(autoEgnChangeListener);
