@@ -141,6 +141,7 @@ public class SidescanToolbar extends JToolBar {
             for (SidescanPanel panel : panelList) {
                 panel.config.tvgGain = (Double) spinTVG.getValue();
                 panel.config.normalization = (Double) spinNormalization.getValue();
+                panel.config.logartihmicDecompression = (Double) spinLogarithmicDecompression.getValue();
                 panel.record(btnRecord.isSelected());
             }
         }
@@ -277,6 +278,11 @@ public class SidescanToolbar extends JToolBar {
             spinTVG.setValue(panelList.get(0).config.tvgGain);
         }
         spinTVG.addChangeListener(alGains);
+
+        if (!panelList.isEmpty()) {
+            spinLogarithmicDecompression.setValue(panelList.get(0).config.logartihmicDecompression);
+        }
+        spinLogarithmicDecompression.addChangeListener(alGains);
 
         btnAutoEgn.addChangeListener(autoEgnChangeListener);
     }
