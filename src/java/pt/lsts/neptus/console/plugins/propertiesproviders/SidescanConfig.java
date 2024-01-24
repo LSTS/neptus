@@ -76,6 +76,9 @@ public class SidescanConfig implements PropertiesProvider {
             description = "Trim values between minimum and this window (max = min + window). Values in [0.0; 1.0].")
     public double sliceWindowValue = 1.0;
 
+    @NeptusProperty (name="Logarithmic Decompression Factor", category = "Visualization parameters")
+    public double logartihmicDecompression = 1.7;
+
     @NeptusProperty (name="Display Vehicle Path", category="Vehicle Path")
     public boolean showPositionHud = true;
     
@@ -84,8 +87,7 @@ public class SidescanConfig implements PropertiesProvider {
     
     @NeptusProperty (name="Path display color", category="Vehicle Path")
     public Color pathColor = Color.WHITE;
-    
-    
+
     {
         loadProps();
     }
