@@ -93,7 +93,7 @@ public class LsfTree extends JTree {
 			    String fieldType = entry.getTypeOf(fieldName);
 			    LLFField field = new LLFField(fieldName, fieldType);
 			    treeModel.insertNodeInto(new DefaultMutableTreeNode(field),fileNode, treeModel.getChildCount(fileNode));
-			    }
+			}
 		}
 		catch (Exception e) {			
 		    e.printStackTrace();
