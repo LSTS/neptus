@@ -96,6 +96,11 @@ public class MraVehiclePosHud {
         int msgType = index.getDefinitions().getMessageId("EstimatedState");
         int lastIndex = 0;
 
+        int indexFirtsMsg = index.getFirstMessageOfType(msgType);
+        if (indexFirtsMsg < 0) {
+            return;
+        }
+
         for (double time = startTime; time < endTime; time++) {
             int i = index.getMessageAtOrAfer(msgType, 0xFF, lastIndex, time);
             if (i != -1) {
