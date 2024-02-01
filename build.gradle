@@ -284,6 +284,7 @@ allprojects {
                 'Build-Revision': "${rootProject.name}-${project.version}-git#${-> project.ext.gitProps['git.commit.id.describe']}",
                 'Built-By': "${System.properties['user.name']}",
                 'Built-On': "${new Date()}",
+                'Build-Jdk': "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})",
                 )
         }
         archiveVersion = ''
@@ -828,6 +829,7 @@ task buildWorldmapBundleJar(type: Jar) {
             'Build-Revision': "${rootProject.name}-${project.version}-git#${-> project.ext.gitProps['git.commit.id.describe']}",
             'Built-By': "${System.properties['user.name']}",
             'Built-On': "${new Date()}",
+            'Build-Jdk': "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})",
             'Main-Class': 'pt.lsts.neptus.app.tiles.WorldMapPanel',
             )
     }
@@ -915,6 +917,7 @@ task buildCheckBundleJar(type: Jar) {
             'Build-Revision': "${rootProject.name}-${project.version}-git#${-> project.ext.gitProps['git.commit.id.describe']}",
             'Built-By': "${System.properties['user.name']}",
             'Built-On': "${new Date()}",
+            'Build-Jdk': "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})",
             'Main-Class': 'pt.lsts.neptus.gui.checklist.ChecklistPanel',
             )
     }
