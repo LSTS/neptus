@@ -260,8 +260,8 @@ allprojects {
     compileJava.options.encoding = 'UTF-8'
     // compileJava.options.compilerArgs << '-Xlint:unchecked'
     // compileJava.options.deprecation = true
-    java.sourceCompatibility = JavaVersion.VERSION_1_8
-    java.targetCompatibility = JavaVersion.VERSION_1_8
+    java.sourceCompatibility = JavaVersion.VERSION_11
+    java.targetCompatibility = JavaVersion.VERSION_11
 
     processResources {
         mustRunAfter(generateRunScripts)
