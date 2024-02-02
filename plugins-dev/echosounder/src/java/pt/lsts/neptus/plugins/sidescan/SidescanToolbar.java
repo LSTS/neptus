@@ -107,7 +107,7 @@ public class SidescanToolbar extends JToolBar {
                 spinTVG.setValue(panel.config.tvgGain);
 
             if (panel.config.normalization != (Double) spinNormalization.getValue())
-                spinTVG.setValue(panel.config.normalization);
+                spinNormalization.setValue(panel.config.normalization);
         }
     });
 
