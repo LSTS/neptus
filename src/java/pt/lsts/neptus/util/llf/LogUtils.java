@@ -707,8 +707,8 @@ public class LogUtils {
 
                 // 0 -> NED ONLY, 1 -> LLD ONLY, 2 -> NED_LLD
                 long refMode = estimatedStateMessage.getLong("ref");
-                
-                // IMC5 Compatibility
+
+                // Pre IMC5 Compatibility
                 if(!estimatedStateMessage.getMessageType().getFieldNames().contains("ref")) {
                     refMode = 2;
                 }
@@ -743,7 +743,8 @@ public class LogUtils {
         if (loc == null)
             return null;
 
-        long refMode = estimatedStateEntry.getLong("ref");
+        // Pre IMC5 Compatibility
+        long refMode = estimatedStateEntry.getValue("ref") == null ? 2 : estimatedStateEntry.getLong("ref");
         if (refMode == 0) {
             loc.setLatitudeDegs(baseLoc.getLatitudeDegs());
             loc.setLongitudeDegs(baseLoc.getLongitudeDegs());
@@ -756,6 +757,7 @@ public class LogUtils {
         MapType mt = new MapType();
         LocationType lt = new LocationType(mission.getStartLocation());
         PathElement pe = new PathElement(MapGroup.getMapGroupInstance(mission), mt, lt);
+        pe.setShape(false);
         pe.setParentMap(mt);
         mt.addObject(pe);
 
@@ -772,7 +774,8 @@ public class LogUtils {
             parser.advance(100);
             entry = parser.nextLogEntry();
             if (entry != null) {
-                long refMode = entry.getLong("ref");
+                // Pre IMC5 Compatibility
+                long refMode = entry.getValue("ref") == null ? 2 : entry.getLong("ref");
                 if (refMode == 0) {
                     pe.addPoint(entry.getDouble("y"),entry.getDouble("x"), entry.getDouble("z"),false);
                 }
@@ -802,10 +805,6 @@ public class LogUtils {
                     tmp.setDepth(depth);
 
                     double[] offs = tmp.getOffsetFrom(mission.getStartLocation());
-                    // if (!(xVals.contains(offs[0]+x) && yVals.contains(offs[1]+y))) {
-                    // xVals.add(offs[0]+x);
-                    // yVals.add(offs[1]+y);
-                    // }
                     pe.addPoint(offs[1] + y, offs[0] + x, offs[2] + z, false);
                 }
             }
