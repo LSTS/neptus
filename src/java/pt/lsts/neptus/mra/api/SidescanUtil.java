@@ -397,10 +397,6 @@ public class SidescanUtil {
         avgPboard /= (double) middle * sidescanParams.getNormalization();
         avgSboard /= (double) middle * sidescanParams.getNormalization();
 
-        // applying slide window
-        double minVal = MathMiscUtils.round(Math.min(1, Math.max(0, sidescanParams.getMinValue())), 2);
-        double maxVal = MathMiscUtils.round(Math.min(1 - minVal, Math.max(0, minVal + sidescanParams.getWindowValue())), 2);
-
         for (int c = 0; c < data.length; c++) {
             double r;
             double avg;
@@ -414,12 +410,7 @@ public class SidescanUtil {
             }
             double gain = Math.abs(30.0 * Math.log(r));
             double pb = data[c] * Math.pow(10, gain / sidescanParams.getTvgGain());
-            double v = pb / avg;
-
-            if ((minVal > 0 || maxVal < 1) && !Double.isNaN(v) && Double.isFinite(v)) {
-                v = (v - minVal) / (maxVal - minVal);
-            }
-            outData[c] = v;
+            outData[c] = pb / avg;
         }
         
         return outData;

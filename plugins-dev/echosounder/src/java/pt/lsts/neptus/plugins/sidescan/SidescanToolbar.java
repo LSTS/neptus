@@ -87,8 +87,9 @@ public class SidescanToolbar extends JToolBar {
     private final JSpinner spinTVG = new JSpinner();
 
     JToggleButton btnAutoEgn = new JToggleButton(I18n.text("EGN"));
-
-    RangeSlider windowSlider = new RangeSlider(0, 100);
+    JToggleButton btnLogarithmicDecompression = new JToggleButton(I18n.text("DEC"));
+    final JSpinner spinLogarithmicDecompression = new JSpinner();
+    private final SpinnerNumberModel modelLogarithmicDecompression = new SpinnerNumberModel(1.7, 0.0, 100.0, 0.1);
 
     JButton btnConfig = new JButton(new AbstractAction(I18n.textc("Config", "Configuration")) {
         private static final long serialVersionUID = -878895322319699542L;
@@ -108,6 +109,9 @@ public class SidescanToolbar extends JToolBar {
 
             if (panel.config.normalization != (Double) spinNormalization.getValue())
                 spinNormalization.setValue(panel.config.normalization);
+
+            if (panel.config.logartihmicDecompression != (Double) spinLogarithmicDecompression.getValue())
+                spinLogarithmicDecompression.setValue(panel.config.logartihmicDecompression);
         }
     });
 
@@ -138,6 +142,7 @@ public class SidescanToolbar extends JToolBar {
             for (SidescanPanel panel : panelList) {
                 panel.config.tvgGain = (Double) spinTVG.getValue();
                 panel.config.normalization = (Double) spinNormalization.getValue();
+                panel.config.logartihmicDecompression = (Double) spinLogarithmicDecompression.getValue();
                 panel.record(btnRecord.isSelected());
             }
         }
@@ -146,9 +151,9 @@ public class SidescanToolbar extends JToolBar {
     private final ChangeListener autoEgnChangeListener = new ChangeListener() {
         @Override
         public void stateChanged(ChangeEvent e) {
-            spinNormalization.setEnabled(!btnAutoEgn.isSelected());
-            spinTVG.setEnabled(!btnAutoEgn.isSelected());
-            windowSlider.setEnabled(!btnAutoEgn.isSelected());
+            boolean btnState = !btnAutoEgn.isSelected();
+            spinNormalization.setEnabled(btnState);
+            spinTVG.setEnabled(btnState);
         }
     };
 
@@ -159,6 +164,7 @@ public class SidescanToolbar extends JToolBar {
         }
         this.spinNormalization.setModel(modelNormalization);
         this.spinTVG.setModel(modelTVG);
+        this.spinLogarithmicDecompression.setModel(modelLogarithmicDecompression);
         buildToolbar();
     }
 
@@ -182,71 +188,9 @@ public class SidescanToolbar extends JToolBar {
         add(spinTVG);
         btnAutoEgn.setToolTipText("Empirical Gain Normalization");
         add(btnAutoEgn);
-
-        windowSlider.setToolTipText(String.format("<html><p>%s</p><p>%s<br/>%s<br/>%s</p>", I18n.text("Window slider"),
-                I18n.text("Left/right keys for lower value change"),
-                I18n.text("Shift+left/right keys for upper value change"),
-                I18n.text("Control+left/right keys for window value change")));
-        windowSlider.setUpperValue(100);
-        windowSlider.setValue(0);
-        windowSlider.setMinorTickSpacing(5);
-        windowSlider.setMajorTickSpacing(20);
-        windowSlider.addKeyListener(new KeyAdapter() {
-            RangeSlider slider = windowSlider;
-            @Override
-            public void keyPressed(KeyEvent e) {
-                slider.setValueIsAdjusting(true);
-                switch (e.getKeyCode()) {
-                    case KeyEvent.VK_LEFT:
-                    case KeyEvent.VK_KP_LEFT:
-                    case KeyEvent.VK_DOWN:
-                    case KeyEvent.VK_KP_DOWN:
-                        if (e.isShiftDown())
-                            slider.setUpperValue(slider.getUpperValue() - slider.getMinorTickSpacing());
-                        else if (e.isControlDown()) {
-                            int delta = slider.getUpperValue() - slider.getValue();
-                            slider.setValue(slider.getValue() - slider.getMinorTickSpacing());
-                            slider.setUpperValue(slider.getValue() + delta);
-                        }
-                        else
-                            slider.setValue(slider.getValue() - slider.getMinorTickSpacing());
-                        break;
-                    case KeyEvent.VK_RIGHT:
-                    case KeyEvent.VK_KP_RIGHT:
-                    case KeyEvent.VK_UP:
-                    case KeyEvent.VK_KP_UP:
-                        if (e.isShiftDown())
-                            slider.setUpperValue(slider.getUpperValue() + slider.getMinorTickSpacing());
-                        else if (e.isControlDown()) {
-                            int delta = slider.getUpperValue() - slider.getValue();
-                            slider.setUpperValue(slider.getUpperValue() + slider.getMinorTickSpacing());
-                            slider.setValue(slider.getUpperValue() - delta);
-                        }
-                        else
-                            slider.setValue(slider.getValue() + slider.getMinorTickSpacing());
-                        break;
-                    default:
-                        break;
-                }
-                e.consume();
-                super.keyPressed(e);
-            }
-            public void keyReleased(KeyEvent e) {
-                slider.setValueIsAdjusting(false);
-            }
-        });
-        windowSlider.addChangeListener(e -> {
-            double selMin = windowSlider.getValue() / 100.0;
-            double selMax = windowSlider.getUpperValue() / 100.0;
-            if (!((JSlider) e.getSource()).getValueIsAdjusting()) {
-                for (SidescanPanel panel : panelList) {
-                    panel.config.sliceMinValue = selMin;
-                    panel.config.sliceWindowValue = selMax - selMin;
-                    panel.config.validateValues();
-                }
-            }
-        });
-        add(windowSlider);
+        add(spinLogarithmicDecompression);
+        btnLogarithmicDecompression.setToolTipText("Logarithmic Decompression");
+        add(btnLogarithmicDecompression);
 
         addSeparator();
         add(btnConfig);
@@ -260,13 +204,12 @@ public class SidescanToolbar extends JToolBar {
 
         if (!panelList.isEmpty()) {
             spinNormalization.setValue(panelList.get(0).config.normalization);
+            spinTVG.setValue(panelList.get(0).config.tvgGain);
+            spinLogarithmicDecompression.setValue(panelList.get(0).config.logartihmicDecompression);
         }
         spinNormalization.addChangeListener(alGains);
-
-        if (!panelList.isEmpty()) {
-            spinTVG.setValue(panelList.get(0).config.tvgGain);
-        }
         spinTVG.addChangeListener(alGains);
+        spinLogarithmicDecompression.addChangeListener(alGains);
 
         btnAutoEgn.addChangeListener(autoEgnChangeListener);
     }
