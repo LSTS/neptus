@@ -485,12 +485,14 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             }
 
             double[] data = sidescanLine.getData();
+            if (logarithmicDecompression) {
+                data = parent.getHistogram().decompress(data, (double) toolbar.spinLogarithmicDecompression.getValue());
+            }
+
             if (autoEGN) {
                 data = parent.getHistogram().normalize(data, subsystem);
             }
-            else if (logarithmicDecompression) {
-                data = parent.getHistogram().decompress(data, (double) toolbar.spinLogarithmicDecompression.getValue());
-            }
+
             sidescanLine.setImage(new BufferedImage(data.length, 1, BufferedImage.TYPE_INT_RGB),
                     false);
 
