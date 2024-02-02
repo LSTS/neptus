@@ -68,14 +68,6 @@ public class SidescanConfig implements PropertiesProvider {
     @NeptusProperty (name="Time Variable Gain factor", category="Visualization parameters")
     public double tvgGain = 280;
 
-    @NeptusProperty (name="Slice Minimum Value", category="Visualization parameters",
-            description = "Trim values between this minimum and the window. Values in [0.0; 1.0].")
-    public double sliceMinValue = 0.0;
-
-    @NeptusProperty (name="Slice Window Size", category="Visualization parameters",
-            description = "Trim values between minimum and this window (max = min + window). Values in [0.0; 1.0].")
-    public double sliceWindowValue = 1.0;
-
     @NeptusProperty (name="Logarithmic Decompression Factor", category = "Visualization parameters")
     public double logartihmicDecompression = 1.7;
 
@@ -103,8 +95,6 @@ public class SidescanConfig implements PropertiesProvider {
     }
 
     public void validateValues() {
-        sliceMinValue = Math.min(1, Math.max(0, sliceMinValue));
-        sliceWindowValue = Math.min(1 - sliceMinValue, Math.max(0, sliceWindowValue));
     }
 
     public void saveProps() {

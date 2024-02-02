@@ -413,8 +413,6 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
         sidescanParams.setNormalization(config.normalization);
         sidescanParams.setTvgGain(config.tvgGain);
-        sidescanParams.setMinValue(config.sliceMinValue);
-        sidescanParams.setWindowValue(config.sliceWindowValue);
 
         boolean autoEGN = toolbar.btnAutoEgn.isSelected();
         boolean logarithmicDecompression = toolbar.btnLogarithmicDecompression.isSelected();

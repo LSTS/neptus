@@ -91,8 +91,6 @@ public class SidescanToolbar extends JToolBar {
     final JSpinner spinLogarithmicDecompression = new JSpinner();
     private final SpinnerNumberModel modelLogarithmicDecompression = new SpinnerNumberModel(1.7, 0.0, 100.0, 0.1);
 
-    RangeSlider windowSlider = new RangeSlider(0, 100);
-
     JButton btnConfig = new JButton(new AbstractAction(I18n.textc("Config", "Configuration")) {
         private static final long serialVersionUID = -878895322319699542L;
 
@@ -156,9 +154,6 @@ public class SidescanToolbar extends JToolBar {
             boolean btnState = !btnAutoEgn.isSelected();
             spinNormalization.setEnabled(btnState);
             spinTVG.setEnabled(btnState);
-            windowSlider.setEnabled(btnState);
-            //btnLogarithmicDecompression.setEnabled(btnState);
-            //spinLogarithmicDecompression.setEnabled(btnState);
         }
     };
 
@@ -196,71 +191,6 @@ public class SidescanToolbar extends JToolBar {
         add(spinLogarithmicDecompression);
         btnLogarithmicDecompression.setToolTipText("Logarithmic Decompression");
         add(btnLogarithmicDecompression);
-
-        windowSlider.setToolTipText(String.format("<html><p>%s</p><p>%s<br/>%s<br/>%s</p>", I18n.text("Window slider"),
-                I18n.text("Left/right keys for lower value change"),
-                I18n.text("Shift+left/right keys for upper value change"),
-                I18n.text("Control+left/right keys for window value change")));
-        windowSlider.setUpperValue(100);
-        windowSlider.setValue(0);
-        windowSlider.setMinorTickSpacing(5);
-        windowSlider.setMajorTickSpacing(20);
-        windowSlider.addKeyListener(new KeyAdapter() {
-            RangeSlider slider = windowSlider;
-            @Override
-            public void keyPressed(KeyEvent e) {
-                slider.setValueIsAdjusting(true);
-                switch (e.getKeyCode()) {
-                    case KeyEvent.VK_LEFT:
-                    case KeyEvent.VK_KP_LEFT:
-                    case KeyEvent.VK_DOWN:
-                    case KeyEvent.VK_KP_DOWN:
-                        if (e.isShiftDown())
-                            slider.setUpperValue(slider.getUpperValue() - slider.getMinorTickSpacing());
-                        else if (e.isControlDown()) {
-                            int delta = slider.getUpperValue() - slider.getValue();
-                            slider.setValue(slider.getValue() - slider.getMinorTickSpacing());
-                            slider.setUpperValue(slider.getValue() + delta);
-                        }
-                        else
-                            slider.setValue(slider.getValue() - slider.getMinorTickSpacing());
-                        break;
-                    case KeyEvent.VK_RIGHT:
-                    case KeyEvent.VK_KP_RIGHT:
-                    case KeyEvent.VK_UP:
-                    case KeyEvent.VK_KP_UP:
-                        if (e.isShiftDown())
-                            slider.setUpperValue(slider.getUpperValue() + slider.getMinorTickSpacing());
-                        else if (e.isControlDown()) {
-                            int delta = slider.getUpperValue() - slider.getValue();
-                            slider.setUpperValue(slider.getUpperValue() + slider.getMinorTickSpacing());
-                            slider.setValue(slider.getUpperValue() - delta);
-                        }
-                        else
-                            slider.setValue(slider.getValue() + slider.getMinorTickSpacing());
-                        break;
-                    default:
-                        break;
-                }
-                e.consume();
-                super.keyPressed(e);
-            }
-            public void keyReleased(KeyEvent e) {
-                slider.setValueIsAdjusting(false);
-            }
-        });
-        windowSlider.addChangeListener(e -> {
-            double selMin = windowSlider.getValue() / 100.0;
-            double selMax = windowSlider.getUpperValue() / 100.0;
-            if (!((JSlider) e.getSource()).getValueIsAdjusting()) {
-                for (SidescanPanel panel : panelList) {
-                    panel.config.sliceMinValue = selMin;
-                    panel.config.sliceWindowValue = selMax - selMin;
-                    panel.config.validateValues();
-                }
-            }
-        });
-        add(windowSlider);
 
         addSeparator();
         add(btnConfig);
