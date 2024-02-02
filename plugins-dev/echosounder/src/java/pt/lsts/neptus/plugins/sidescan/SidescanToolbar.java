@@ -157,8 +157,8 @@ public class SidescanToolbar extends JToolBar {
             spinNormalization.setEnabled(btnState);
             spinTVG.setEnabled(btnState);
             windowSlider.setEnabled(btnState);
-            btnLogarithmicDecompression.setEnabled(btnState);
-            spinLogarithmicDecompression.setEnabled(btnState);
+            //btnLogarithmicDecompression.setEnabled(btnState);
+            //spinLogarithmicDecompression.setEnabled(btnState);
         }
     };
 
