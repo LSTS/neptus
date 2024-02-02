@@ -111,6 +111,9 @@ public class SidescanToolbar extends JToolBar {
 
             if (panel.config.normalization != (Double) spinNormalization.getValue())
                 spinNormalization.setValue(panel.config.normalization);
+
+            if (panel.config.logartihmicDecompression != (Double) spinLogarithmicDecompression.getValue())
+                spinLogarithmicDecompression.setValue(panel.config.logartihmicDecompression);
         }
     });
 
