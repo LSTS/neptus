@@ -82,7 +82,7 @@ import pt.lsts.neptus.plugins.update.Periodic;
  * @author pdias
  *
  */
-@PluginDescription(author = "Paulo Dias", version = "0.4", name = "Sidescan Real-Time Waterfall")
+@PluginDescription(author = "Paulo Dias", version = "0.4", name = "Sidescan Real-Time Waterfall", icon = "images/sidescan.png")
 @Popup(pos = POSITION.TOP_LEFT, width = 300, height = 500)
 @SuppressWarnings("serial")
 public class SidescanRealTimeWaterfall extends ConsolePanel

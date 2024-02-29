@@ -56,13 +56,14 @@ import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.plots.LogMarkerListener;
 import pt.lsts.neptus.mra.visualizations.MRAVisualization;
 import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.llf.LogUtils;
 
 /**
  * @author jqcorreia
  */
-@PluginDescription(author = "jqcorreia", name = "Sidescan Analyzer", icon = "pt/lsts/neptus/plugins/echosounder/echosounder.png")
+@PluginDescription(author = "jqcorreia", name = "Sidescan Analyzer", icon = "images/sidescan.png")
 public class SidescanAnalyzer extends JPanel implements MRAVisualization, TimelineChangeListener, LogMarkerListener {
     private static final long serialVersionUID = 1L;
 
@@ -246,7 +247,7 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
 
     @Override
     public ImageIcon getIcon() {
-        return ImageUtils.getScaledIcon("pt/lsts/neptus/plugins/echosounder/echosounder.png", 16, 16);
+        return ImageUtils.getScaledIcon(PluginUtils.getPluginIcon(this.getClass()), 16, 16);
     }
 
     @Override
