@@ -54,6 +54,7 @@ import java.awt.image.Raster;
 import java.io.File;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -121,7 +122,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
     private final SidescanAnalyzer parent;
     SidescanConfig config = new SidescanConfig();
-    private final SidescanToolbar toolbar = new SidescanToolbar(this);
+    private final SidescanToolbar toolbar;
 
     private final SidescanParameters sidescanParams = new SidescanParameters(0, 0); // Initialize it to zero for now
 
@@ -322,12 +323,12 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     private final Object lockTimelineChangeListenerExecution = new Object();
     private ScheduledFuture<?> timelineChangeListenerExecution;
 
-    public SidescanPanel(SidescanAnalyzer analyzer, SidescanParser parser, int subsystem) {
+    public SidescanPanel(SidescanAnalyzer analyzer, SidescanParser parser, int subsystem, List<Integer> subsystemList) {
         this.parent = analyzer;
         ssParser = parser;
+        toolbar = new SidescanToolbar(subsystemList, this);
         initialize();
         this.subsystem = subsystem;
-
         posHud = new MraVehiclePosHud(analyzer.mraPanel.getSource(), config.hudSize, config.hudSize);
     }
 
@@ -1459,4 +1460,16 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         mouseX = mouseY = -1;
         repaint();
     }
+
+    public void setToolbarSubsystemListener(SubsystemListener subsystemListener) {
+        toolbar.setSubsystemListener(subsystemListener);
+    }
+
+    public void notifySubsystem(int subsystem) {
+        if (toolbar != null) {
+            toolbar.setCurrentSubsystem(subsystem);
+        }
+        clearLines();
+    }
+
 }
