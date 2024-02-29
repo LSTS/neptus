@@ -971,7 +971,7 @@ task buildBundleJars {
     description = "Generate the bundle Jars"
     group = 'Distribution'
 
-    dependsOn buildWorldmapBundleJar, buildCheckBundleJar
+    dependsOn buildWorldmapBundleJar
 }
 
 //////////////////////////
