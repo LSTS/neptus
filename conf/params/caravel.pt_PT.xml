@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2022.04.0 (system/caravel,25a3843d9,dirty)" system="caravel" i18n="pt_PT">
+<config format="1" version="2022.04.0 (system/caravel,ce032a6f7)" system="caravel" i18n="pt_PT">
   <section name="Text Actions" name-i18n="Text Actions">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -441,6 +441,15 @@
       <default>20</default>
       <units/>
       <desc>Roll rate above which measurement is discarded.</desc>
+    </param>
+    <param name="Enable speed controller">
+      <name-i18n>Enable speed controller</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc/>
     </param>
   </section>
   <section name="Remote Control" name-i18n="Controlo Remoto">
@@ -1396,6 +1405,100 @@
       <default>None</default>
       <units/>
       <desc>Z Mode to use. One of Depth, Altitude or Height.</desc>
+    </param>
+  </section>
+  <section name="Compass Calibration Maneuver" name-i18n="Manobra de Calibração de Bússola">
+    <param name="Entity Label">
+      <name-i18n>Nome da Entidade</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Compass Calibration Maneuver</default>
+      <units/>
+      <desc>Nome principal da entidade</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Prioridade de Execução</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Prioridade de execução</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Tempo de Ativação</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Tempo de Desativação</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Nível de Depuração</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Maximum Pitch Variation">
+      <name-i18n>Maximum Pitch Variation</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>20.0</default>
+      <units>°</units>
+      <desc>Maximum pitch variation step when changing z direction</desc>
+    </param>
+    <param name="Entity Label - Compass">
+      <name-i18n>Entity Label - Compass</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>AHRS</default>
+      <units/>
+      <desc>Entity label of 'AHRS' messages</desc>
+    </param>
+    <param name="Cross Track Tolerance">
+      <name-i18n>Cross Track Tolerance</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.0</default>
+      <units>m</units>
+      <desc>Tolerance in cross-track error to consider loiter has started</desc>
+    </param>
+    <param name="Number Of Turns">
+      <name-i18n>Number Of Turns</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>50</default>
+      <units/>
+      <desc>Number of 360 degree turns until calibration</desc>
+    </param>
+    <param name="Calibrate Compass">
+      <name-i18n>Calibrate Compass</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Perform compass calibration if true</desc>
     </param>
   </section>
   <section name="Multiplexer Maneuver" name-i18n="Manobra Multiplexer">
@@ -4138,7 +4241,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>global</default>
+      <default>maneuver</default>
       <units/>
       <desc>Escopo do parâmetro 'Ativa'</desc>
     </param>
@@ -4147,15 +4250,15 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>developer</default>
+      <default>user</default>
       <units/>
       <desc>Visibilidade do parâmetro 'Ativa'</desc>
     </param>
     <param name="Active">
       <name-i18n>Ativa</name-i18n>
       <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
       <default>1</default>
       <units/>
       <desc>Verdadeiro para ativar tarefa, falso caso contrário</desc>
@@ -4254,8 +4357,8 @@
     <param name="Sampling Duration">
       <name-i18n>Sampling Duration</name-i18n>
       <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
       <default>0.0</default>
       <units/>
       <desc>Sampling duration in seconds</desc>
@@ -4263,8 +4366,8 @@
     <param name="Sampling Period">
       <name-i18n>Sampling Period</name-i18n>
       <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
       <default>0.0</default>
       <units/>
       <desc>Sampling period in seconds</desc>
@@ -4834,7 +4937,7 @@
       <name-i18n>Start Acquisition</name-i18n>
       <type>boolean</type>
       <visibility>user</visibility>
-      <scope>global</scope>
+      <scope>maneuver</scope>
       <default>false</default>
       <units/>
       <desc>Start Acquisition.</desc>
@@ -4843,7 +4946,7 @@
       <name-i18n>Sample Time Duration</name-i18n>
       <type>integer</type>
       <visibility>user</visibility>
-      <scope>global</scope>
+      <scope>maneuver</scope>
       <default>60</default>
       <units/>
       <desc>Sample Time Duration in seconds.</desc>
@@ -4852,7 +4955,7 @@
       <name-i18n>Periodicity of Data Sampling</name-i18n>
       <type>integer</type>
       <visibility>user</visibility>
-      <scope>global</scope>
+      <scope>maneuver</scope>
       <default>80</default>
       <units/>
       <desc>Periodicity of Data Sampling in seconds.</desc>
@@ -5081,7 +5184,7 @@
       <name-i18n>Start Acquisition</name-i18n>
       <type>boolean</type>
       <visibility>user</visibility>
-      <scope>global</scope>
+      <scope>maneuver</scope>
       <default>false</default>
       <units/>
       <desc>Start Acquisition.</desc>
@@ -5090,7 +5193,7 @@
       <name-i18n>Sample Time Duration</name-i18n>
       <type>integer</type>
       <visibility>user</visibility>
-      <scope>global</scope>
+      <scope>maneuver</scope>
       <default>60</default>
       <units/>
       <desc>Sample Time Duration in seconds.</desc>
@@ -5099,7 +5202,7 @@
       <name-i18n>Periodicity of Data Sampling</name-i18n>
       <type>integer</type>
       <visibility>user</visibility>
-      <scope>global</scope>
+      <scope>maneuver</scope>
       <default>80</default>
       <units/>
       <desc>Periodicity of Data Sampling in seconds.</desc>
@@ -5202,7 +5305,7 @@
       <name-i18n>Start Acquisition</name-i18n>
       <type>boolean</type>
       <visibility>user</visibility>
-      <scope>global</scope>
+      <scope>maneuver</scope>
       <default>true</default>
       <units/>
       <desc>Controls sensor activation/deactivation</desc>
@@ -5210,7 +5313,7 @@
     <param name="Sample Period (ms)">
       <name-i18n>Sample Period (ms)</name-i18n>
       <type>integer</type>
-      <visibility>developer</visibility>
+      <visibility>user</visibility>
       <scope>global</scope>
       <default>125</default>
       <units>ms</units>
@@ -5220,7 +5323,7 @@
       <name-i18n>Sample Time Duration</name-i18n>
       <type>integer</type>
       <visibility>user</visibility>
-      <scope>global</scope>
+      <scope>maneuver</scope>
       <default>5</default>
       <units/>
       <desc>Sample Time Duration in seconds.</desc>
@@ -5229,7 +5332,7 @@
       <name-i18n>Periodicity of Data Sampling</name-i18n>
       <type>integer</type>
       <visibility>user</visibility>
-      <scope>global</scope>
+      <scope>maneuver</scope>
       <default>20</default>
       <units/>
       <desc>Periodicity of Data Sampling in seconds.</desc>
