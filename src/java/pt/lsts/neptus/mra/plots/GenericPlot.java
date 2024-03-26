@@ -117,12 +117,16 @@ public class GenericPlot extends MRATimeSeriesPlot {
                             + field;
                 }
 
-                if (m.getMessageType().getFieldUnits(variable) != null && m.getMessageType().getFieldUnits(variable).startsWith("rad")) {
-                    // Special case for angles in radians
-                    addValue(m.getTimestampMillis(), seriesName, Math.toDegrees(m.getDouble(variable)));
+                if (Double.isFinite(m.getDouble(variable))) {
+                    if (m.getMessageType().getFieldUnits(variable) != null && m.getMessageType().getFieldUnits(variable).startsWith("rad")) {
+                        // Special case for angles in radians
+                        addValue(m.getTimestampMillis(), seriesName, Math.toDegrees(m.getDouble(variable)));
+                    }
+                    else {
+                        addValue(m.getTimestampMillis(), seriesName, m.getDouble(variable));
+                    }
+
                 }
-                else
-                    addValue(m.getTimestampMillis(), seriesName, m.getDouble(variable));
             }
         }
     }
