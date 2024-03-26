@@ -421,6 +421,8 @@ public class ColorMapVisualization extends JPanel implements MRAVisualization, A
                     continue;
             
                 stateEntry = stateParser.getEntryAtOrAfter(parser.currentTimeMillis());
+                if (stateEntry == null)
+                    continue;
 
                 LocationType loc = new LocationType();
                 loc.setLatitudeRads(stateEntry.getDouble("lat"));
