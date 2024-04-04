@@ -35,6 +35,12 @@ package pt.lsts.neptus.util.http.client;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.config.Registry;
+import org.apache.http.config.RegistryBuilder;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
+import org.apache.http.conn.socket.PlainConnectionSocketFactory;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
@@ -42,11 +48,18 @@ import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 
 import pt.lsts.neptus.comm.proxy.ProxyInfoProvider;
 
+import javax.net.ssl.SSLContext;
+import java.security.NoSuchAlgorithmException;
+
 /**
  * This helper class encapsulates the use of Apache's HttpComponents.
  * It uses a {@link CloseableHttpClient} and {@link PoolingHttpClientConnectionManager}.
- * Additionally it allows the use of proxy connection with the call of {@link ProxyInfoProvider}.
- * 
+ * Additionally, it allows the use of proxy connection with the call of {@link ProxyInfoProvider}.
+ *
+ * If you want to use a custom {@link ConnectionSocketFactory} you can set it with {@link #setRegistry(Registry)}.
+ * or use the {@link #setRegistryNoHostNameVerifier()} to use a default one with no host name verifier.
+ * You need to call this before calling {@link #initializeComm()}.
+ *
  * To start the comms. call {@link #initializeComm()} and at the end {@link #cleanUp()} to close the comms.
  * 
  * @author pdias
@@ -67,6 +80,8 @@ public class HttpClientConnectionHelper {
     private int connectionTimeout = CONNECTION_TIMEOUT;
     private boolean initializeProxyRoutePlanner = true;
     private String userAgent = null;
+
+    private Registry<ConnectionSocketFactory> registry;
     
     public HttpClientConnectionHelper() {
     }
@@ -80,6 +95,24 @@ public class HttpClientConnectionHelper {
         this(maxTotalConnections, defaultMaxConnectionsPerRoute, connectionTimeout, initializeProxyRoutePlanner);
         this.userAgent = userAgent;
     }
+
+    public void setRegistry(Registry<ConnectionSocketFactory> registry) {
+        this.registry = registry;
+    }
+
+    public void setRegistryNoHostNameVerifier() {
+        try {
+            SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(SSLContext.getDefault(),
+                    NoopHostnameVerifier.INSTANCE);
+            this.registry = RegistryBuilder.<ConnectionSocketFactory>create()
+                    .register("http", new PlainConnectionSocketFactory())
+                    .register("https", sslsf)
+                    .build();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     /**
      * @param maxTotalConnections
@@ -120,7 +153,8 @@ public class HttpClientConnectionHelper {
 //        SchemeRegistry schemeRegistry = new SchemeRegistry(); //(4.3) use Registry
 //        schemeRegistry.register(new Scheme("http", 80, PlainSocketFactory.getSocketFactory()));
 //        schemeRegistry.register(new Scheme("https", 443, PlainSocketFactory.getSocketFactory()));
-        httpConnectionManager = new PoolingHttpClientConnectionManager(); //schemeRegistry
+        httpConnectionManager = registry == null ?  new PoolingHttpClientConnectionManager()
+                : new PoolingHttpClientConnectionManager(registry); //schemeRegistry
         httpConnectionManager.setMaxTotal(maxTotalConnections);
         httpConnectionManager.setDefaultMaxPerRoute(defaultMaxConnectionsPerRoute);
         clientBuilder.setConnectionManager(httpConnectionManager);
