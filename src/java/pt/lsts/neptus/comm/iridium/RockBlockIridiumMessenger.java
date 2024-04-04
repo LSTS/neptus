@@ -104,6 +104,7 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
 @IridiumProvider(id="rock7", name="RockBlock Messenger", description="Sends Iridium messages directly via RockBlock web service and receives new messages by polling a gmail address")
 public class RockBlockIridiumMessenger implements IridiumMessenger {
 
+    protected HttpClientConnectionHelper httpComm;
     protected boolean available = true;
     protected static String serverUrl = "https://core.rock7.com/rockblock/MT";
     protected HashSet<IridiumMessageListener> listeners = new HashSet<>();
@@ -137,6 +138,11 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
         catch (Exception e) {
         }
         askGmailPassword = askRockBlockPassword = alwaysAskForPassword;
+
+        httpComm = new HttpClientConnectionHelper(HttpClientConnectionHelper.MAX_TOTAL_CONNECTIONS,
+                HttpClientConnectionHelper.DEFAULT_MAX_CONNECTIONS_PER_ROUTE, 1000, true);
+        httpComm.setRegistryNoHostNameVerifier();
+        httpComm.initializeComm();
     }
 
     private String getRockBlockUsername() {
@@ -217,33 +223,10 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
         }
     }
 
-    static final SSLConnectionSocketFactory sslsf;
-    static final Registry<ConnectionSocketFactory> registry;
-    static final PoolingHttpClientConnectionManager cm;
-    static {
-        try {
-            sslsf = new SSLConnectionSocketFactory(SSLContext.getDefault(),
-                    NoopHostnameVerifier.INSTANCE);
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-
-        registry = RegistryBuilder.<ConnectionSocketFactory>create()
-                .register("http", new PlainConnectionSocketFactory())
-                .register("https", sslsf)
-                .build();
-        cm = new PoolingHttpClientConnectionManager(registry);
-        cm.setMaxTotal(100);
-    }
-    
-    public static String sendToRockBlockHttp(String destImei, String username, String password, byte[] data)
+    public String sendToRockBlockHttp(String destImei, String username, String password, byte[] data)
             throws IOException {
 
-        try (CloseableHttpClient client = HttpClients.custom()
-                .setSSLSocketFactory(sslsf)
-                .setConnectionManager(cm)
-                .build()) {
-
+        try {
             HttpPost post = new HttpPost(serverUrl);
             List<NameValuePair> urlParameters = new ArrayList<NameValuePair>();
             urlParameters.add(new BasicNameValuePair("imei", destImei));
@@ -253,7 +236,11 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
 
             post.setEntity(new UrlEncodedFormEntity(urlParameters));
             post.setHeader("Content-Type", "application/x-www-form-urlencoded");
-            try (CloseableHttpResponse response = client.execute(post);) {
+
+            HttpClientContext context = HttpClientContext.create();
+            try (CloseableHttpResponse response = httpComm.getClient().execute(post, context)) {
+                httpComm.autenticateProxyIfNeeded(response, context);
+
                 BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
 
                 StringBuffer result = new StringBuffer();
@@ -371,8 +358,7 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
 
     @Override
     public void cleanup() {
-        // TODO Auto-generated method stub
-
+        httpComm.cleanUp();
     }
 
     public static Future<Boolean> rockBlockIsReachable() {
