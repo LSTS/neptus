@@ -38,7 +38,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -53,6 +52,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.mail.AuthenticationFailedException;
 import javax.mail.BodyPart;
 import javax.mail.Folder;
 import javax.mail.Message;
@@ -61,25 +61,15 @@ import javax.mail.NoSuchProviderException;
 import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.internet.MimeMultipart;
-import javax.net.ssl.SSLContext;
 import javax.xml.bind.DatatypeConverter;
 
 import org.apache.commons.codec.binary.StringUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.config.Registry;
-import org.apache.http.config.RegistryBuilder;
-import org.apache.http.conn.socket.ConnectionSocketFactory;
-import org.apache.http.conn.socket.PlainConnectionSocketFactory;
-import org.apache.http.conn.ssl.NoopHostnameVerifier;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.message.BasicNameValuePair;
 
 import pt.lsts.neptus.NeptusLog;
@@ -93,6 +83,7 @@ import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.ByteUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.util.http.client.HttpClientConnectionHelper;
 
 /**
  * This class uses the RockBlock HTTP API (directly) to send messages to Iridium destinations and a gmail inbox to poll
@@ -105,8 +96,9 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
 public class RockBlockIridiumMessenger implements IridiumMessenger {
 
     protected HttpClientConnectionHelper httpComm;
+
     protected boolean available = true;
-    protected static String serverUrl = "https://core.rock7.com/rockblock/MT";
+    protected static String serverUrl = "https://secure.rock7mobile.com/rockblock/MT";
     protected HashSet<IridiumMessageListener> listeners = new HashSet<>();
     private static long lastSuccess = -1;
 
@@ -216,10 +208,13 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
         String result = sendToRockBlockHttp(args.getImei(), getRockBlockUsername(), getRockBlockPassword(),
                 msg.serialize());
 
-        if (result != null) {
-            if (!result.split(",")[0].equals("OK")) {
-                throw new Exception("RockBlock server failed to deliver the message: '" + result + "'");
+        if (!result.split(",")[0].equals("OK")) {
+            String[] errorCode = result.split(",");
+            if (errorCode[0].equalsIgnoreCase("FAILED") && errorCode[1].equalsIgnoreCase("10")) {
+                // 'FAILED,10,Invalid login credentials'
+                askRockBlockPassword = true;
             }
+            throw new Exception("RockBlock server failed to deliver the message: '" + result + "'");
         }
     }
 
@@ -251,6 +246,7 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
                 return result.toString();
             }
             catch (Exception e) {
+                e.printStackTrace();
                 throw e;
             }
         }
@@ -308,12 +304,21 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
                 }
             }
         }
+        catch (AuthenticationFailedException ex) {
+            askGmailPassword = true;
+            ex.printStackTrace();
+            return new Vector<>();
+        }
         catch (NoSuchProviderException ex) {
             ex.printStackTrace();
             return new Vector<>();
         }
         catch (MessagingException ex) {
             ex.printStackTrace();
+            return new Vector<>();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
             return new Vector<>();
         }
 
