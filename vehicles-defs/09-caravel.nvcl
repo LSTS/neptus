@@ -351,10 +351,13 @@
     </maneuver>
   </feasibleManeuvers>
   <protocols-supported>
-    <protocols/>
-    <protocols-args>
-        </protocols-args>
-  </protocols-supported>
+      <protocols>iridium</protocols>
+      <protocols-args>
+        <iridium>
+          <imei>300125060492800</imei>
+        </iridium>
+      </protocols-args>
+    </protocols-supported>
   <communication-means>
     <comm-mean>
       <name>ethernet</name>
