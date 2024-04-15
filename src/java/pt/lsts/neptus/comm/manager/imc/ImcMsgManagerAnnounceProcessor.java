@@ -49,7 +49,7 @@ import java.util.Map;
 import static pt.lsts.neptus.comm.manager.imc.ImcMsgManager.DEFAULT_UDP_VEH_PORT;
 
 public class ImcMsgManagerAnnounceProcessor {
-    private ImcMsgManager manager;
+    private final ImcMsgManager manager;
 
     public ImcMsgManagerAnnounceProcessor(ImcMsgManager manager) {
         this.manager = manager;
@@ -107,7 +107,7 @@ public class ImcMsgManagerAnnounceProcessor {
         }
 
         if (portUdp > 0 && !udpIpPortFound) {
-            // Lets try to see if we received a message from any of the IPs
+            // Let's try to see if we received a message from any of the IPs
             String ipReceived = hostUdp.isEmpty() ? info.getPublisherInetAddress() : hostUdp;
             hostWasGuessed = hostUdp.isEmpty() ? hostWasGuessed : true;
             hostUdp = ipReceived;
@@ -328,7 +328,7 @@ public class ImcMsgManagerAnnounceProcessor {
             }
 
             Map<Integer, String> er = EntitiesResolver.getEntities(resSys.getName());
-            if (er == null || er.size() == 0)
+            if (er == null || er.isEmpty())
                 requestEntityList = true;
 
             if (requestEntityList)
