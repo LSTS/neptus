@@ -122,7 +122,7 @@ public class GeneralPreferences implements PropertiesProvider {
             description = "If enable allows the announce msg request to use the sender IP to be use in future comms. to the sender system.")
     public static boolean imcChangeBySourceIpRequest = true;
 
-    @NeptusProperty(name = "IMC Unicast Annonce Enable", category = "IMC Communications", userLevel = LEVEL.ADVANCED, 
+    @NeptusProperty(name = "IMC Unicast Announce Enable", category = "IMC Communications", userLevel = LEVEL.ADVANCED,
             description = "To send announce also by Unicast. Enable or disable")
     public static boolean imcUnicastAnnounceEnable = true;
 
@@ -134,7 +134,7 @@ public class GeneralPreferences implements PropertiesProvider {
 
     // -------------------------------------------------------------------------
 
-    @NeptusProperty(name = "Logs Downloader - Enable Parcial Download", category = "IMC Logs Downloader", userLevel = LEVEL.ADVANCED, 
+    @NeptusProperty(name = "Logs Downloader - Enable Partial Download", category = "IMC Logs Downloader", userLevel = LEVEL.ADVANCED,
             description = "Enable the partial logs downloads (resume partial downloads). NOTE: THE DOWNLOAD BOXES ONLY READ THIS OPTION UPON CREATION.")
     public static boolean logsDownloaderEnablePartialDownload = true;
 
@@ -197,15 +197,15 @@ public class GeneralPreferences implements PropertiesProvider {
             description = "Select the comms. queues size.")
     public static int commsQueueSize = 1024;
 
-    @NeptusProperty(name = "Comms. Messsage Separation Time (ms)", category = "Communications", userLevel = LEVEL.ADVANCED, 
-            description = "Select the comms. separation time in miliseconds that a message (by type) should be warn. Use \"-1\" for always warn.")
+    @NeptusProperty(name = "Comms. Message Separation Time (ms)", category = "Communications", userLevel = LEVEL.ADVANCED,
+            description = "Select the comms. separation time in milliseconds that a message (by type) should be warn. Use \"-1\" for always warn.")
     public static int commsMsgSeparationMillis = -1;
 
     @NeptusProperty(name = "Filter UDP Redirect Also By Port", editable = false, category = "IMC Communications", userLevel = LEVEL.ADVANCED)
     public static boolean filterUdpAlsoByPort = false;
 
     @NeptusProperty(name = "Redirect Unknown Comms. To First Vehicle In Comm. List", editable = false, category = "IMC Communications", userLevel = LEVEL.ADVANCED,
-            description = "Any messages comming from unknown vehicle will be redirect to the first on comm. list.")
+            description = "Any messages coming from unknown vehicle will be redirect to the first on comm. list.")
     public static boolean redirectUnknownIdsToFirstCommVehicle = false;
     
 
@@ -244,22 +244,24 @@ public class GeneralPreferences implements PropertiesProvider {
     // -------------------------------------------------------------------------
 
     @NeptusProperty(name = "Place Main Vehicle Combobox On Menu Or Status Bar", category="Console", userLevel = LEVEL.REGULAR,
-            description = "Place the console vehicle combobox on the menu bar or status bar (overcomes Unity hidding menus).")
+            description = "Place the console vehicle combobox on the menu bar or status bar (overcomes Unity hiding menus).")
     public static boolean placeMainVehicleComboOnMenuOrStatusBar = true;
 
     @NeptusProperty(name = "Use Main Vehicle Combo on Consoles", category="Console", userLevel = LEVEL.ADVANCED,
-            description = "Needs console retarts.")
+            description = "Needs console restarts.")
     public static boolean useMainVehicleComboOnConsoles = true;
 
     @NeptusProperty(name = "Place Notification Button on Console Status Bar", category="Console", userLevel = LEVEL.ADVANCED,
-            description = "Needs console retarts.")
+            description = "Needs console restarts.")
     public static boolean placeNotificationButtonOnConsoleStatusBar = true;
 
     // -------------------------------------------------------------------------
 
+    @Deprecated
     @NeptusProperty(name = "AIS MMSI Query Prefix", category = "AIS MMSI Query", userLevel = LEVEL.ADVANCED)
     public static String aisMmsiQueryUrlPrefix = "http://api.ais.owm.io/1.2/vessels/";
-    
+
+    @Deprecated
     @NeptusProperty(name = "AIS MMSI Query Sufix", category = "AIS MMSI Query", userLevel = LEVEL.ADVANCED)
     public static String aisMmsiQueryUrlSufix = ".json?api_key=f7a0da8eacb49740eb45b5e74d130459";
     
@@ -277,7 +279,7 @@ public class GeneralPreferences implements PropertiesProvider {
     
     @NeptusProperty(name = "Preferred Z Units Array", category = "Z Value", userLevel = LEVEL.ADVANCED, 
             editable = false, rendererClass = ArrayAsStringRenderer.class,
-            description = "This lists the valid Z units to show. This can be overided by the per vehicle settings. "
+            description = "This lists the valid Z units to show. This can be override by the per vehicle settings. "
                     + "Leeave it empty for no restrictions.")
     public static ManeuverLocation.Z_UNITS[] validZUnits = {};
 
