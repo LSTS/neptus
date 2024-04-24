@@ -378,7 +378,7 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
                 }
 
                 try {
-                    URL url = new URL("https://secure.rock7mobile.com/rockblock");
+                    URL url = new URL("http://secure.rock7mobile.com/rockblock");
                     int len = url.openConnection().getContentLength();
                     if (len > 0)
                         lastSuccess = System.currentTimeMillis();
