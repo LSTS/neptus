@@ -38,7 +38,9 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.Set;
 import java.util.Vector;
 
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
@@ -191,8 +193,8 @@ public class LsfLogSource implements IMraLogGroup {
     public String[] listLogs() {
 
         if (existingMessages == null) {
-            Vector<String> list = new Vector<String>();
-            Vector<Integer> indexes = new Vector<Integer>();
+            Vector<String> list = new Vector<>();
+            Set<Integer> indexes = new HashSet<>();
 
             for(int i = 0; i < index.getNumberOfMessages(); i++) {
                 int type = index.typeOf(i);
@@ -206,7 +208,7 @@ public class LsfLogSource implements IMraLogGroup {
                         list.add(index.getDefinitions().getMessageName(type));
                 }
             }
-            existingMessages = list.toArray(new String[list.size()]);
+            existingMessages = list.toArray(new String[0]);
         }
         return existingMessages;
     }
