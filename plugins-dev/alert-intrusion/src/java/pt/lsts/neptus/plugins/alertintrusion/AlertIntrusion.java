@@ -59,7 +59,7 @@ import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-@PluginDescription(name = "Alert Intrusion", icon = "pt/lsts/neptus/plugins/alertintrusion/alert.png",
+@PluginDescription(name = "Alert Intrusion", icon = "pt/lsts/neptus/plugins/alertintrusion/alert-intrusion.png",
     description = "Alert Intrusion", category = PluginDescription.CATEGORY.INTERFACE, version = "0.1")
 @LayerPriority(priority = 121)
 public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeListener {
