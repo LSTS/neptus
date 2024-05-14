@@ -46,9 +46,11 @@ import pt.lsts.neptus.renderer2d.OffScreenLayerImageControl;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.systems.external.ExternalSystemsHolder;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.util.WGS84Utilities;
 
 import java.awt.Graphics2D;
+import java.awt.geom.AffineTransform;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collections;
@@ -192,6 +194,9 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
             collisionsTree.get(lastMainVehicle).forEach((time, pair) -> {
                 String ship = pair.first();
                 double distance = pair.second();
+                //AffineTransform trans = AffineTransform.getTranslateInstance(xpos, ypos);
+                //trans.scale(scale, scale);
+                g2.drawImage(ImageUtils.getScaledImage("pt/lsts/neptus/plugins/alertintrusion/colreg.png", 30, 30), null, null);
                 g2.drawString("Collision with " + ship + " at " + sdf.format(time) + " (" + distance + "m)", 10, 10);
             });
 
