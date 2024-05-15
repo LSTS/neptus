@@ -74,6 +74,12 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
     public int collisionCriticalDistancePercentage = 20;
     @NeptusProperty(name = "Use course for calculation", userLevel = NeptusProperty.LEVEL.REGULAR)
     public boolean useCourseForCalculation = true;
+    @NeptusProperty(name = "Minimum Speed To Be Stopped", description = "Configures the maximum speed (m/s) for the system to be considered stoped (affects the drawing of the course/speed vector on the renderer)",
+            category = "Renderer", userLevel = NeptusProperty.LEVEL.REGULAR)
+    public double minimumSpeedToBeStopped = 0.2;
+    @NeptusProperty(name = "Minutes To Hide Systems Without Known Location", description = "Minutes after which systems disapear from render if inactive (0 to disable)",
+            category = "Systems in Renderer", userLevel = NeptusProperty.LEVEL.REGULAR)
+    public int minutesToHideSystemsWithoutKnownLocation = 10;
 
     private OffScreenLayerImageControl layerPainter;
     //private Map<String, VehicleRiskAnalysis> state = new ConcurrentHashMap<>();
@@ -133,27 +139,27 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
         final ConcurrentHashMap<Pair<String, String>, Pair<Double, Date>> collisions = new ConcurrentHashMap<>();
 
         for (long timeOffset = 0; timeOffset < 3_600 * 3_000; timeOffset += 1_000 * collisionDistance / 4) {
-            final long time = timeOffset;
+            final long deltaTimeMillis = timeOffset;
             Arrays.stream(ImcSystemsHolder.lookupAllSystems())
                     .filter(system -> !system.getName().equalsIgnoreCase(mainSystemName))
                     .forEach(system -> {
-                        Date t = new Date(System.currentTimeMillis() + time);
+                        Date t = new Date(System.currentTimeMillis() + deltaTimeMillis);
                         LocationType locationSystem = system.getLocation().getNewAbsoluteLatLonDepth();
                         LocationType locationMain = mainSystem.getLocation().getNewAbsoluteLatLonDepth();
                         String systemName = system.getName();
                         SystemSizeAndCourseData sysData = SystemSizeAndCourseData.from(system);
-                        calcDistanceAndAdd(mainSystemName, locationMain, systemName, locationSystem, t, sysData, collisions);
+                        calcDistanceAndAdd(mainSystemName, locationMain, systemName, locationSystem, deltaTimeMillis, t, sysData, collisions);
                     });
 
             Arrays.stream(ExternalSystemsHolder.lookupAllSystems())
                     .filter(system -> !system.getName().equalsIgnoreCase(mainSystemName))
                     .forEach(system -> {
-                        Date t = new Date(System.currentTimeMillis() + time);
+                        Date t = new Date(System.currentTimeMillis() + deltaTimeMillis);
                         LocationType locationSystem = system.getLocation().getNewAbsoluteLatLonDepth();
                         LocationType locationMain = mainSystem.getLocation().getNewAbsoluteLatLonDepth();
                         String systemName = system.getName();
                         SystemSizeAndCourseData sysData = SystemSizeAndCourseData.from(system);
-                        calcDistanceAndAdd(mainSystemName, locationMain, systemName, locationSystem, t, sysData, collisions);
+                        calcDistanceAndAdd(mainSystemName, locationMain, systemName, locationSystem, deltaTimeMillis, t, sysData, collisions);
                     });
         }
 
@@ -183,13 +189,46 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
     }
 
     private void calcDistanceAndAdd(String mainSystemName, LocationType locationMain, String systemName,
-                                    LocationType locationSystem, Date t, SystemSizeAndCourseData sysData,
+                                    LocationType locationSystem, long deltaTimeMillis, Date t, SystemSizeAndCourseData sysData,
                                     ConcurrentHashMap<Pair<String, String>, Pair<Double, Date>> collisions) {
+
+        ImcSystem mainSys = ImcSystemsHolder.lookupSystemByName(mainSystemName);
+        SystemSizeAndCourseData mainSysData = SystemSizeAndCourseData.from(mainSys);
+
+        LocationType mainSysProjLoc = projectLocationWithCourseAndSpeed(locationMain, mainSysData, deltaTimeMillis);
+        LocationType sysProjLoc = projectLocationWithCourseAndSpeed(locationSystem, sysData, deltaTimeMillis);
+
+        //sysData.getTimestampMillis()
         double distance = WGS84Utilities.distance(
-                locationMain.getLatitudeDegs(), locationMain.getLongitudeDegs(),
-                locationSystem.getLatitudeDegs(), locationSystem.getLongitudeDegs());
+                mainSysProjLoc.getLatitudeDegs(), mainSysProjLoc.getLongitudeDegs(),
+                sysProjLoc.getLatitudeDegs(), sysProjLoc.getLongitudeDegs());
+
         if (distance < collisionDistance)
             collisions.putIfAbsent(new Pair<>(mainSystemName, systemName), new Pair<>(distance, t));
+    }
+
+    private LocationType projectLocationWithCourseAndSpeed(LocationType locationSystem, SystemSizeAndCourseData sysData,
+                                                           long deltaTimeMillis) {
+        locationSystem = locationSystem.getNewAbsoluteLatLonDepth();
+        // Using the haversine formula, which is a formula used to calculate the great-circle distance
+        // between two points on a sphere given their longitudes and latitudes
+        double R = 6371.0;
+        double distance = sysData.getSpeedMps() * (double)(deltaTimeMillis / 1000L) / 1000.0;
+        double bearingDegs = sysData.getCourseDegrees();
+        double lat = locationSystem.getLatitudeDegs();
+        double lon = locationSystem.getLongitudeDegs();
+        double lat2 = Math.asin(Math.sin(0.017453292519943295 * lat) * Math.cos(distance / 6371.0)
+                + Math.cos(0.017453292519943295 * lat) * Math.sin(distance / 6371.0)
+                * Math.cos(0.017453292519943295 * bearingDegs));
+        double lon2 = 0.017453292519943295 * lon + Math.atan2(Math.sin(0.017453292519943295 * bearingDegs)
+                * Math.sin(distance / 6371.0) * Math.cos(0.017453292519943295 * lat), Math.cos(distance / 6371.0)
+                - Math.sin(0.017453292519943295 * lat) * Math.sin(lat2));
+        lat2 = Math.toRadians(57.29577951308232 * lat2);
+        lon2 = Math.toRadians(57.29577951308232 * lon2);
+
+        locationSystem.setLatitudeRads(lat2);
+        locationSystem.setLongitudeRads(lon2);
+        return locationSystem;
     }
 
     @Override
