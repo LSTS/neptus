@@ -32,6 +32,7 @@
  */
 package pt.lsts.neptus.plugins.alertintrusion;
 
+import com.google.common.util.concurrent.AtomicDouble;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
@@ -62,6 +63,7 @@ import java.util.TimeZone;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 @PluginDescription(name = "Alert Intrusion", icon = "pt/lsts/neptus/plugins/alertintrusion/alert-intrusion.png",
     description = "Alert Intrusion", category = PluginDescription.CATEGORY.INTERFACE, version = "0.1")
@@ -89,10 +91,10 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
     public int collisionCriticalDistancePercentage = 20;
     @NeptusProperty(name = "Use course for calculation", userLevel = NeptusProperty.LEVEL.REGULAR)
     public boolean useCourseForCalculation = true;
-    @NeptusProperty(name = "Minimum Speed To Be Stopped", description = "Configures the maximum speed (m/s) for the system to be considered stoped (affects the drawing of the course/speed vector on the renderer)",
+    @NeptusProperty(name = "Minimum Speed To Be Stopped", description = "Configures the maximum speed (m/s) for the system to be considered stopped (affects the drawing of the course/speed vector on the renderer)",
             category = "Renderer", userLevel = NeptusProperty.LEVEL.REGULAR)
     public double minimumSpeedToBeStopped = 0.2;
-    @NeptusProperty(name = "Minutes To Hide Systems Without Known Location", description = "Minutes after which systems disapear from render if inactive (0 to disable)",
+    @NeptusProperty(name = "Minutes To Hide Systems Without Known Location", description = "Minutes after which systems disappear from render if inactive (0 to disable)",
             category = "Systems in Renderer", userLevel = NeptusProperty.LEVEL.REGULAR)
     public int minutesToHideSystemsWithoutKnownLocation = 10;
     @NeptusProperty(name = "Projection Time Window Value", description = "Time to project the vehicles positions", userLevel = NeptusProperty.LEVEL.REGULAR)
@@ -262,16 +264,31 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
         if (recreateImage) {
             Graphics2D g2 = layerPainter.getImageGraphics();
             // Paint what you want in the graphics
-            collisionsTree.get(lastMainVehicle).forEach((time, pair) -> {
-                String ship = pair.first();
-                double distance = pair.second();
+            if (!collisionsTree.isEmpty()) {
                 AffineTransform trans = AffineTransform.getTranslateInstance(20, 100);
                 //trans.scale(scale, scale);
                 g2.drawImage(colregImage, trans, null);
-                g2.drawString("Collision with " + ship + " at " + sdf.format(time) + " (" + Math.round(distance) + "m)", 10, 10);
+                g2.drawString("# " + collisionsTree.size(), 20 + 50 + 2, 100 + 25);
+            }
 
+            AtomicReference<String> shipClosest = new AtomicReference<>(null);
+            AtomicDouble distanceClosest = new AtomicDouble(Double.MAX_VALUE);
+            AtomicReference<Date> timeClosest = new AtomicReference<>(null);
+            collisionsTree.get(lastMainVehicle).forEach((time, pair) -> {
+                String ship = pair.first();
+                double distance = pair.second();
+                if (distance < distanceClosest.get()) {
+                    shipClosest.set(ship);
+                    distanceClosest.set(distance);
+                    timeClosest.set(time);
+                }
                 //Point2D pt = renderer.getScreenPosition(loc);
             });
+            if (shipClosest.get() != null) {
+                g2.drawString(shipClosest.get(), 20, 100 + 50 + 10);
+                g2.drawString(Math.round(distanceClosest.get()) + "m at "
+                        + sdf.format(timeClosest.get()), 20, 100 + 50 + 10 + 20);
+            }
 
         }
         layerPainter.paintPhaseEndFinishImageRecreateAndPaintImageCacheToRenderer(g, renderer);
