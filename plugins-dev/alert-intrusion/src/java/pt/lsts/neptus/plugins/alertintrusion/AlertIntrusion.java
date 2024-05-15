@@ -46,14 +46,21 @@ import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.OffScreenLayerImageControl;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.systems.external.ExternalSystem;
 import pt.lsts.neptus.systems.external.ExternalSystemsHolder;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.ColorUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.util.WGS84Utilities;
 
+import javax.swing.BorderFactory;
+import javax.swing.JLabel;
+import java.awt.Color;
+import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Image;
-import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collections;
@@ -107,10 +114,14 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
     //private Map<String, VehicleRiskPanel> panels = new ConcurrentHashMap<>();
 
     private String lastMainVehicle;
-    private Map<String, Map<Date, Pair<String, Double>>> collisionsTree = new ConcurrentHashMap<>();
+    private final Map<String, Map<Date, Pair<String, Double>>> collisionsTree = new ConcurrentHashMap<>();
 
-    private Image colregImage = ImageUtils.getScaledImage("pt/lsts/neptus/plugins/alertintrusion/colreg.png",
+    private static final Image colregImage = ImageUtils.getScaledImage("pt/lsts/neptus/plugins/alertintrusion/colreg.png",
             50, 50);
+    private static final Image colregImageSmall = ImageUtils.getScaledImage("pt/lsts/neptus/plugins/alertintrusion/colreg.png",
+            20, 20);
+
+    private final JLabel infoLabel = new JLabel("");
 
     public AlertIntrusion() {
         super();
@@ -260,15 +271,32 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 
+        boolean askForLaterRepaint = false;
+
         boolean recreateImage = layerPainter.paintPhaseStartTestRecreateImageAndRecreate(g, renderer);
         if (recreateImage) {
             Graphics2D g2 = layerPainter.getImageGraphics();
             // Paint what you want in the graphics
             if (!collisionsTree.isEmpty()) {
-                AffineTransform trans = AffineTransform.getTranslateInstance(20, 100);
-                //trans.scale(scale, scale);
-                g2.drawImage(colregImage, trans, null);
-                g2.drawString("# " + collisionsTree.size(), 20 + 50 + 2, 100 + 25);
+                Graphics2D gg = (Graphics2D) g2.create();
+                gg.translate(20, 100);
+                askForLaterRepaint |= !gg.drawImage(colregImage, null, null);
+                gg.dispose();
+
+                infoLabel.setText("# " + collisionsTree.size());
+                infoLabel.setHorizontalTextPosition(JLabel.CENTER);
+                infoLabel.setHorizontalAlignment(JLabel.CENTER);
+                infoLabel.setBackground(ColorUtils.setTransparencyToColor(Color.black, 100));
+                infoLabel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+                infoLabel.setOpaque(true);
+                gg = (Graphics2D) g2.create();
+                gg.translate(20 + 50 + 2, 100 + 25);
+                FontMetrics fontMetrics = gg.getFontMetrics();
+                Rectangle2D rectBounds = fontMetrics.getStringBounds(infoLabel.getText(), gg);
+                infoLabel.setBounds(0, 0, (int) rectBounds.getWidth() + 10, (int) rectBounds.getHeight() + 10);
+                infoLabel.setForeground(Color.white);
+                infoLabel.paint(gg);
+                gg.dispose();
             }
 
             AtomicReference<String> shipClosest = new AtomicReference<>(null);
@@ -285,12 +313,50 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
                 //Point2D pt = renderer.getScreenPosition(loc);
             });
             if (shipClosest.get() != null) {
-                g2.drawString(shipClosest.get(), 20, 100 + 50 + 10);
-                g2.drawString(Math.round(distanceClosest.get()) + "m at "
-                        + sdf.format(timeClosest.get()), 20, 100 + 50 + 10 + 20);
+                String line1 = shipClosest.get();
+                String line2 = Math.round(distanceClosest.get()) + "m at " + sdf.format(timeClosest.get());
+                infoLabel.setText("<html>" + line1 + "<br>" + line2 + "</html>");
+                infoLabel.setForeground(Color.white);
+                infoLabel.setHorizontalAlignment(JLabel.LEFT);
+                Graphics2D gg = (Graphics2D) g2.create();
+                gg.translate(20, 100 + 50 + 5);
+                FontMetrics fontMetrics = gg.getFontMetrics();
+                Rectangle2D rectBounds = fontMetrics.getStringBounds(line1, gg);
+                Rectangle2D rectBounds2 = fontMetrics.getStringBounds(line2, gg);
+                infoLabel.setBounds(0, 0, (int) Math.max(rectBounds.getWidth(), rectBounds2.getWidth()) + 10,
+                        (int) (rectBounds.getHeight() + rectBounds2.getHeight() + 10));
+                infoLabel.paint(gg);
+                gg.dispose();
             }
 
+
+            if (shipClosest.get() != null) {
+                String sysName = shipClosest.get();
+                LocationType loc = null;
+                ImcSystem sys = ImcSystemsHolder.lookupSystemByName(sysName);
+                if (sys != null) {
+                    loc = sys.getLocation().getNewAbsoluteLatLonDepth();
+                } else {
+                    ExternalSystem esys = ExternalSystemsHolder.lookupSystem(sysName);
+                    if (esys != null) {
+                        loc = esys.getLocation().getNewAbsoluteLatLonDepth();
+                    }
+                }
+                if (loc != null) {
+                    Graphics2D gg = (Graphics2D) g2.create();
+                    Point2D spos = renderer.getScreenPosition(loc);
+                    gg.translate(spos.getX() - 20 - 8, spos.getY());
+                    askForLaterRepaint |= !gg.drawImage(colregImageSmall, null, null);
+
+                    gg.dispose();
+                }
+            }
         }
         layerPainter.paintPhaseEndFinishImageRecreateAndPaintImageCacheToRenderer(g, renderer);
+        if (askForLaterRepaint) {
+            layerPainter.triggerImageRebuild();
+            renderer.invalidate();
+            renderer.repaint(10);
+        }
     }
 }
