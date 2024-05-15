@@ -50,6 +50,7 @@ import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.util.WGS84Utilities;
 
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.geom.AffineTransform;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -66,10 +67,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @LayerPriority(priority = 121)
 public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeListener {
 
-    @NeptusProperty(name = "Minimum distance allowed between AUVs and Ships (meters)")
+    @NeptusProperty(name = "Minimum distance allowed between AUVs and Ships (meters)", userLevel = NeptusProperty.LEVEL.REGULAR)
     public int collisionDistance = 100;
     @NeptusProperty(name = "Percentage of the critical distance to trigger the alert")
     public int collisionCriticalDistancePercentage = 20;
+    @NeptusProperty(name = "Use course for calculation", userLevel = NeptusProperty.LEVEL.REGULAR)
+    public boolean useCourseForCalculation = true;
 
     private OffScreenLayerImageControl layerPainter;
     //private Map<String, VehicleRiskAnalysis> state = new ConcurrentHashMap<>();
@@ -78,18 +81,24 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
     private String lastMainVehicle;
     private Map<String, Map<Date, Pair<String, Double>>> collisionsTree = new ConcurrentHashMap<>();
 
+    private Image colregImage = ImageUtils.getScaledImage("pt/lsts/neptus/plugins/alertintrusion/colreg.png",
+            50, 50);
+
     public AlertIntrusion() {
         super();
     }
 
     @Override
     public boolean userControlsOpacity() {
-        return false;
+        return true;
     }
 
     @Override
     public void initLayer() {
         layerPainter = new OffScreenLayerImageControl();
+        // To allow to repaint even on pan and zoom
+        layerPainter.setOffScreenBufferPixel(0);
+        setOpacity(0.8f);
     }
 
     @Override
@@ -99,7 +108,7 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
 
     @Override
     public void mainVehicleChange(String id) {
-
+        layerPainter.triggerImageRebuild();
     }
 
     @Periodic(millisBetweenUpdates = 10_000)
@@ -194,10 +203,12 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
             collisionsTree.get(lastMainVehicle).forEach((time, pair) -> {
                 String ship = pair.first();
                 double distance = pair.second();
-                //AffineTransform trans = AffineTransform.getTranslateInstance(xpos, ypos);
+                AffineTransform trans = AffineTransform.getTranslateInstance(20, 100);
                 //trans.scale(scale, scale);
-                g2.drawImage(ImageUtils.getScaledImage("pt/lsts/neptus/plugins/alertintrusion/colreg.png", 30, 30), null, null);
-                g2.drawString("Collision with " + ship + " at " + sdf.format(time) + " (" + distance + "m)", 10, 10);
+                g2.drawImage(colregImage, trans, null);
+                g2.drawString("Collision with " + ship + " at " + sdf.format(time) + " (" + Math.round(distance) + "m)", 10, 10);
+
+                //Point2D pt = renderer.getScreenPosition(loc);
             });
 
         }
