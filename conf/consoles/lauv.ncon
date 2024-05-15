@@ -183,6 +183,9 @@
   </mainpanel>
   <mainpanel name="console alarm panel"/>
   <layers>
+    <layer class="pt.lsts.neptus.plugins.alertintrusion.AlertIntrusion" opacity="0.8">
+      <properties/>
+    </layer>
     <layer class="pt.lsts.neptus.console.plugins.planning.DesiredPathLayer" opacity="1.0">
       <properties/>
     </layer>
