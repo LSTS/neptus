@@ -68,6 +68,21 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @LayerPriority(priority = 121)
 public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeListener {
 
+    public enum TimeUnit {
+        MINUTES(60_000),
+        HOURS(3_600_000);
+
+        private final long microseconds;
+
+        TimeUnit(long microseconds) {
+            this.microseconds = microseconds;
+        }
+
+        public long getMicroseconds() {
+            return microseconds;
+        }
+    }
+
     @NeptusProperty(name = "Minimum distance allowed between AUVs and Ships (meters)", userLevel = NeptusProperty.LEVEL.REGULAR)
     public int collisionDistance = 100;
     @NeptusProperty(name = "Percentage of the critical distance to trigger the alert")
@@ -80,6 +95,10 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
     @NeptusProperty(name = "Minutes To Hide Systems Without Known Location", description = "Minutes after which systems disapear from render if inactive (0 to disable)",
             category = "Systems in Renderer", userLevel = NeptusProperty.LEVEL.REGULAR)
     public int minutesToHideSystemsWithoutKnownLocation = 10;
+    @NeptusProperty(name = "Projection Time Window Value", description = "Time to project the vehicles positions", userLevel = NeptusProperty.LEVEL.REGULAR)
+    public int projectionTimeWindowValue = 1;
+    @NeptusProperty(name = "Projection Time Window Unit", description = "Time unit to project the vehicles positions", userLevel = NeptusProperty.LEVEL.REGULAR)
+    public TimeUnit projectionTimeWindowUnit = TimeUnit.HOURS;
 
     private OffScreenLayerImageControl layerPainter;
     //private Map<String, VehicleRiskAnalysis> state = new ConcurrentHashMap<>();
@@ -138,7 +157,8 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
         // (vehicle, ship) -> (distance, timestamp)
         final ConcurrentHashMap<Pair<String, String>, Pair<Double, Date>> collisions = new ConcurrentHashMap<>();
 
-        for (long timeOffset = 0; timeOffset < 3_600 * 3_000; timeOffset += 1_000 * collisionDistance / 4) {
+        long timeSpanMillis = projectionTimeWindowValue * projectionTimeWindowUnit.getMicroseconds();
+        for (long timeOffset = 0; timeOffset < timeSpanMillis; timeOffset += 1_000L * collisionDistance / 4) {
             final long deltaTimeMillis = timeOffset;
             Arrays.stream(ImcSystemsHolder.lookupAllSystems())
                     .filter(system -> !system.getName().equalsIgnoreCase(mainSystemName))
@@ -217,11 +237,11 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
         double bearingDegs = sysData.getCourseDegrees();
         double lat = locationSystem.getLatitudeDegs();
         double lon = locationSystem.getLongitudeDegs();
-        double lat2 = Math.asin(Math.sin(0.017453292519943295 * lat) * Math.cos(distance / 6371.0)
-                + Math.cos(0.017453292519943295 * lat) * Math.sin(distance / 6371.0)
+        double lat2 = Math.asin(Math.sin(0.017453292519943295 * lat) * Math.cos(distance / R)
+                + Math.cos(0.017453292519943295 * lat) * Math.sin(distance / R)
                 * Math.cos(0.017453292519943295 * bearingDegs));
         double lon2 = 0.017453292519943295 * lon + Math.atan2(Math.sin(0.017453292519943295 * bearingDegs)
-                * Math.sin(distance / 6371.0) * Math.cos(0.017453292519943295 * lat), Math.cos(distance / 6371.0)
+                * Math.sin(distance / R) * Math.cos(0.017453292519943295 * lat), Math.cos(distance / R)
                 - Math.sin(0.017453292519943295 * lat) * Math.sin(lat2));
         lat2 = Math.toRadians(57.29577951308232 * lat2);
         lon2 = Math.toRadians(57.29577951308232 * lon2);
