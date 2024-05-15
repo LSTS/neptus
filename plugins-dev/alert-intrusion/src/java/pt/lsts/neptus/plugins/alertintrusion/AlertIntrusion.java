@@ -40,6 +40,7 @@ import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.alertintrusion.data.SystemSizeAndCourseData;
 import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.OffScreenLayerImageControl;
@@ -140,7 +141,8 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
                         LocationType locationSystem = system.getLocation().getNewAbsoluteLatLonDepth();
                         LocationType locationMain = mainSystem.getLocation().getNewAbsoluteLatLonDepth();
                         String systemName = system.getName();
-                        calcDistanceAndAdd(mainSystemName, locationMain, systemName, locationSystem, t, collisions);
+                        SystemSizeAndCourseData sysData = SystemSizeAndCourseData.from(system);
+                        calcDistanceAndAdd(mainSystemName, locationMain, systemName, locationSystem, t, sysData, collisions);
                     });
 
             Arrays.stream(ExternalSystemsHolder.lookupAllSystems())
@@ -150,7 +152,8 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
                         LocationType locationSystem = system.getLocation().getNewAbsoluteLatLonDepth();
                         LocationType locationMain = mainSystem.getLocation().getNewAbsoluteLatLonDepth();
                         String systemName = system.getName();
-                        calcDistanceAndAdd(mainSystemName, locationMain, systemName, locationSystem, t, collisions);
+                        SystemSizeAndCourseData sysData = SystemSizeAndCourseData.from(system);
+                        calcDistanceAndAdd(mainSystemName, locationMain, systemName, locationSystem, t, sysData, collisions);
                     });
         }
 
@@ -180,8 +183,8 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
     }
 
     private void calcDistanceAndAdd(String mainSystemName, LocationType locationMain, String systemName,
-                                    LocationType locationSystem, Date t, ConcurrentHashMap<Pair<String, String>,
-                                    Pair<Double, Date>> collisions) {
+                                    LocationType locationSystem, Date t, SystemSizeAndCourseData sysData,
+                                    ConcurrentHashMap<Pair<String, String>, Pair<Double, Date>> collisions) {
         double distance = WGS84Utilities.distance(
                 locationMain.getLatitudeDegs(), locationMain.getLongitudeDegs(),
                 locationSystem.getLatitudeDegs(), locationSystem.getLongitudeDegs());
