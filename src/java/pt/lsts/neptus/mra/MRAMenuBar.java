@@ -95,7 +95,7 @@ import pt.lsts.neptus.util.logdownload.LogsDownloaderWorker;
 
 /**
  * MRA MenuBar
- * 
+ *
  * @author ZP
  * @author pdias (LSF)
  * @author jqcorreia
@@ -110,7 +110,7 @@ public class MRAMenuBar {
     private JMenu recentlyOpenFilesMenu = null;
     private JMenu exporters;
     private JMenu tideMenu;
-    
+
     private boolean isExportersAdded = false;
     private boolean isTidesAdded = false;
 
@@ -127,10 +127,10 @@ public class MRAMenuBar {
     private NeptusMRA mra;
     //private MRAPanel mraPanel; 
 
-    
+
     /**
      * Constructor
-     * 
+     *
      * @param miscFilesOpened Rencently opened log files
      */
     public MRAMenuBar(NeptusMRA mra) {
@@ -160,7 +160,7 @@ public class MRAMenuBar {
         return menuBar;
     }
 
-    
+
     /**
      * Set up File Menu
      */
@@ -173,7 +173,7 @@ public class MRAMenuBar {
         // fileMenu.add(mra.getRecentlyOpenFilesMenu());
         fileMenu.add(getRecentlyOpenFilesMenu());
 
-        openLsf = new AbstractAction(I18n.text("Open LSF log"), 
+        openLsf = new AbstractAction(I18n.text("Open LSF log"),
                 ImageUtils.getIcon("images/menus/zipfolder.png")) {
 
             @Override
@@ -181,56 +181,63 @@ public class MRAMenuBar {
                 File lastFile = null;
                 try {
                     lastFile = miscFilesOpened.size() == 0 ? null : miscFilesOpened.values().iterator().next();
-                    if (lastFile != null && !lastFile.isDirectory())
+                    if (lastFile != null && !lastFile.isDirectory()) {
                         lastFile = lastFile.getParentFile();
-                } catch (Exception ex) {
+                    }
+                }
+                catch (Exception ex) {
                     ex.printStackTrace();
                 }
 
                 File currentDirectory;
-                if(lastFile != null && lastFile.isDirectory() && lastFile.canRead()) {
+                if (lastFile != null && lastFile.isDirectory() && lastFile.canRead()) {
                     currentDirectory = lastFile;
                 }
-                else if (!new File(ConfigFetch.getLogsDownloadedFolder()).canRead())
+                else if (!new File(ConfigFetch.getLogsDownloadedFolder()).canRead()) {
                     currentDirectory = new File(ConfigFetch.getConfigFile());
-                else
+                }
+                else {
                     currentDirectory = new File(ConfigFetch.getLogsDownloadedFolder());
+                }
 
-                JFileChooser fileChooser = GuiUtils.getFileChooser(currentDirectory, I18n.text("LSF log files"), 
+                JFileChooser fileChooser = GuiUtils.getFileChooser(currentDirectory, I18n.text("LSF log files"),
                         FileUtil.FILE_TYPE_LSF, FileUtil.FILE_TYPE_LSF_COMPRESSED, FileUtil.FILE_TYPE_LSF_COMPRESSED_BZIP2);
 
                 if (fileChooser.showOpenDialog(mra) == JFileChooser.APPROVE_OPTION) {
                     final File log = fileChooser.getSelectedFile();
                     boolean proceed = true;
-                    
+
                     LogValidity validity = LogUtils.isValidLSFSource(log.getParentFile());
                     if (validity != LogUtils.LogValidity.VALID) {
-                        if(validity == LogValidity.NO_XML_DEFS) {
+                        if (validity == LogValidity.NO_XML_DEFS) {
                             int op = GuiUtils.confirmDialog(mra, I18n.text("Open LSF log"),
                                     I18n.text("The log folder does not include IMC (xml) definitions. Use defaults?"));
                             if (op != JOptionPane.YES_OPTION) {
                                 proceed = false;
                             }
                         }
-                        else if(validity == LogValidity.NO_DIRECTORY) {
+                        else if (validity == LogValidity.NO_DIRECTORY) {
                             GuiUtils.errorMessage(mra, I18n.text("Open LSF log"),
                                     I18n.text("No such directory / No read permissions"));
                             proceed = false;
                         }
-                        else if(validity == LogValidity.NO_VALID_LOG_FILE) {
+                        else if (validity == LogValidity.NO_VALID_LOG_FILE) {
                             GuiUtils.errorMessage(mra, I18n.text("Open LSF log"),
                                     I18n.text("No valid LSF log file present"));
                             proceed = false;
                         }
-                        if (!proceed)
+                        if (!proceed) {
                             return;
+                        }
                     }
 
                     new Thread("Open Log") {
                         @Override
                         public void run() {
                             mra.getMraFilesHandler().openLog(log);
-                        };
+                        }
+
+                        ;
                     }.start();
                 }
                 return;
@@ -258,7 +265,7 @@ public class MRAMenuBar {
 
     /**
      * This method initializes jMenu
-     * 
+     *
      * @return javax.swing.JMenu
      */
     public JMenu getRecentlyOpenFilesMenu() {
@@ -294,7 +301,7 @@ public class MRAMenuBar {
             }
         };
         genReport = new AbstractAction(I18n.text("Save as PDF"), ImageUtils.getIcon("images/menus/document-pdf.png")) {
-        
+
             @Override
             public void actionPerformed(ActionEvent e) {
 
@@ -302,8 +309,9 @@ public class MRAMenuBar {
                 if (f.exists()) {
                     int resp = JOptionPane.showConfirmDialog(mra,
                             I18n.text("Do you want to overwrite the existing file?"));
-                    if (resp != JOptionPane.YES_OPTION)
+                    if (resp != JOptionPane.YES_OPTION) {
                         return;
+                    }
                 }
                 //mra.getBgp().block(true);
                 //mra.getBgp().setText(I18n.text("Generating PDF Report"));
@@ -325,8 +333,9 @@ public class MRAMenuBar {
                 chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
                 int res = chooser.showOpenDialog(mra);
 
-                if (res != JFileChooser.APPROVE_OPTION)
+                if (res != JFileChooser.APPROVE_OPTION) {
                     return;
+                }
 
                 final File f = chooser.getSelectedFile();
 
@@ -337,7 +346,7 @@ public class MRAMenuBar {
                     @Override
                     public void finish() {
                         panel.stop();
-                        GuiUtils.infoMessage(mra, I18n.text("Batch report ended successfully"), I18n.text("Files saved to")+" "
+                        GuiUtils.infoMessage(mra, I18n.text("Batch report ended successfully"), I18n.text("Files saved to") + " "
                                 + (new File(".").getAbsolutePath()));
                     }
 
@@ -373,8 +382,9 @@ public class MRAMenuBar {
                 if (f.exists()) {
                     int resp = JOptionPane.showConfirmDialog(mra,
                             I18n.text("Do you want to overwrite the existing file?"));
-                    if (resp != JOptionPane.YES_OPTION)
+                    if (resp != JOptionPane.YES_OPTION) {
                         return;
+                    }
                 }
                 //mra.getBgp().block(true);
                 //mra.getBgp().setText(I18n.text("Generating PDF Report"));
@@ -397,11 +407,12 @@ public class MRAMenuBar {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                File f = MissionFileChooser.showOpenMissionDialog(new String[] { "nmis", "nmisz" });
+                File f = MissionFileChooser.showOpenMissionDialog(new String[]{"nmis", "nmisz"});
                 if (f != null) {
                     MissionType mission = new MissionType(f.getAbsolutePath());
-                    if (mra.getMraPanel() != null)
-                        mra.getMraPanel().warnChangeListeners(mission);                    
+                    if (mra.getMraPanel() != null) {
+                        mra.getMraPanel().warnChangeListeners(mission);
+                    }
                 }
             }
         };
@@ -458,7 +469,7 @@ public class MRAMenuBar {
                             }
                         }
                         catch (Exception e1) {
-                            NeptusLog.pub().info("<###> "+system + " "+I18n.text("not selectable"));
+                            NeptusLog.pub().info("<###> " + system + " " + I18n.text("not selectable"));
                         }
                     }
 
@@ -618,6 +629,7 @@ public class MRAMenuBar {
 
     /**
      * This Menu is only added to tools menu after a Log file is added
+     *
      * @param source
      */
     public void setUpExportersMenu(final IMraLogGroup source) {
@@ -625,53 +637,55 @@ public class MRAMenuBar {
                 .listExtensions(MRAExporter.class);
 
         LinkedHashMap<String, MRAExporter> exporters = new LinkedHashMap<>();
-        
+
         //Vector<MRAExporter> exporterList = new Vector<>();
 
         for (Class<? extends MRAExporter> clazz : exporterMap.values()) {
             Constructor<?>[] constructors = clazz.getConstructors();
-            
+
             boolean added = false;
-            
+
             for (Constructor<?> c : constructors) {
                 if (c.getParameterTypes().length == 1 && c.getParameterTypes()[0].equals(IMraLogGroup.class)) {
                     try {
-                        exporters.put(PluginUtils.getPluginI18nName(clazz), clazz.getConstructor(IMraLogGroup.class).newInstance(new Object[] { source }));
+                        exporters.put(PluginUtils.getPluginI18nName(clazz), clazz.getConstructor(IMraLogGroup.class).newInstance(new Object[]{source}));
                     }
-                    catch (Exception e) {                        
+                    catch (Exception e) {
                         e.printStackTrace();
                     }
                     added = true;
                 }
             }
-            
+
             if (!added) {
                 try {
                     exporters.put(PluginUtils.getPluginI18nName(clazz), clazz.getDeclaredConstructor().newInstance());
                     added = true;
                 }
-                catch (Exception e) { }                
+                catch (Exception e) {
+                }
             }
-            
+
             if (!added) {
-                NeptusLog.pub().error("Error Exporter of type "+clazz.getName()+": No valid constructor.");
+                NeptusLog.pub().error("Error Exporter of type " + clazz.getName() + ": No valid constructor.");
             }
         }
 
         // Check for existence of Exporters menu and remove on existence (in case of opening a new log)
-        if(getExportersMenu() != null)
+        if (getExportersMenu() != null) {
             toolsMenu.remove(getExportersMenu());
+        }
 
         setExportersMenu(new JMenu(I18n.text("Exporters")));
         JMenu experimental = new JMenu(I18n.text("Experimental"));
         getExportersMenu().setIcon(ImageUtils.getIcon("images/menus/export.png"));
         getExportersMenu().setToolTipText(I18n.text("Export data to") + "...");
-        
-        
+
+
         Vector<String> names = new Vector<>();
         names.addAll(exporters.keySet());
         Collections.sort(names, Collator.getInstance());
-        
+
         for (String name : names) {
             final MRAExporter exp = exporters.get(name);
             try {
@@ -685,21 +699,26 @@ public class MRAMenuBar {
                                     ProgressMonitor monitor = new ProgressMonitor(mra.getMraPanel(), name, "", 0, 100);
                                     monitor.setProgress(0);
                                     String res = exp.process(source, monitor);
-                                    if (res != null)
+                                    if (res != null) {
                                         GuiUtils.infoMessage(mra.getMraPanel(), name, res);
+                                    }
                                     monitor.close();
-                                };
+                                }
+
+                                ;
                             };
                             t.setDaemon(true);
                             t.start();
                         }
                     });
                     item.setIcon(ImageUtils.getIcon("images/menus/export.png"));
-                    
-                    if (PluginUtils.isPluginExperimental(exp.getClass()))
+
+                    if (PluginUtils.isPluginExperimental(exp.getClass())) {
                         experimental.add(item);
-                    else
+                    }
+                    else {
                         getExportersMenu().add(item);
+                    }
                 }
             }
             catch (Exception e) {
@@ -708,19 +727,21 @@ public class MRAMenuBar {
         }
 
         if (getExportersMenu().getItemCount() > 0) {
-            if(!isExportersAdded) {
+            if (!isExportersAdded) {
                 toolsMenu.addSeparator();
                 isExportersAdded = true;
             }
-            if (experimental.getItemCount() > 0)
+            if (experimental.getItemCount() > 0) {
                 getExportersMenu().add(experimental);
+            }
             toolsMenu.add(getExportersMenu());
         }
     }
-    
+
     public void setUpTidesMenu(final IMraLogGroup source) {
-        if(getTidesMenu() != null)
+        if (getTidesMenu() != null) {
             settingsMenu.remove(getTidesMenu());
+        }
 
         String strTitle = I18n.text("Change tides source");
         JMenuItem changeTideMenu = new JMenuItem(strTitle);
@@ -745,7 +766,9 @@ public class MRAMenuBar {
                                 busyPanel.setBusy(false);
                                 dialog.dispose();
                                 mra.getMraFilesHandler().openLog(source.getFile("Data.lsf"));
-                            };
+                            }
+
+                            ;
                         };
                         busyPanel.setBusy(true);
                         wt.setDaemon(true);
@@ -763,15 +786,15 @@ public class MRAMenuBar {
 
         setTideMenu(tMenu);
 
-        if (getTidesMenu()!= null) {
-            if(!isTidesAdded) {
+        if (getTidesMenu() != null) {
+            if (!isTidesAdded) {
                 settingsMenu.addSeparator();
                 isTidesAdded = true;
             }
             settingsMenu.add(getTidesMenu());
         }
     }
-    
+
     /**
      * @return the menuBar
      */
@@ -788,6 +811,7 @@ public class MRAMenuBar {
 
     /**
      * Gets setMission MenuItem
+     *
      * @return setMission
      */
     public AbstractAction getSetMissionMenuItem() {
@@ -796,6 +820,7 @@ public class MRAMenuBar {
 
     /**
      * Gets genReport MenuItem
+     *
      * @return genReport
      */
     public AbstractAction getGenReportMenuItem() {
@@ -804,6 +829,7 @@ public class MRAMenuBar {
 
     /**
      * Gets report MenuItem
+     *
      * @return genReport
      */
     public JMenu getReportMenuItem() {
@@ -812,6 +838,7 @@ public class MRAMenuBar {
 
     /**
      * Gets genReportCustomOptions MenuItem
+     *
      * @return genReport
      */
     public AbstractAction getGenReportCustomOptionsMenuItem() {
@@ -820,6 +847,7 @@ public class MRAMenuBar {
 
     /**
      * Gets genReportCustomOptions MenuItem
+     *
      * @return genReport
      */
     public AbstractAction getReportOptionsMenuItem() {
@@ -839,7 +867,7 @@ public class MRAMenuBar {
     private void setExportersMenu(JMenu exportersMenu) {
         this.exporters = exportersMenu;
     }
-    
+
     /**
      * @return the tideMenu
      */
