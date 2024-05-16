@@ -60,6 +60,7 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.StringUtils;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**
  * @author pdias
@@ -148,7 +149,13 @@ public class IMCSendMessageUtils {
         for (String sid : ids) {
             boolean ret;
             ImcSystem sysL = ImcSystemsHolder.lookupSystemByName(sid);
-            if (acousticOpSysLst.length != 0 && sysL != null && !sysL.isActive()) {
+            if (GeneralPreferences.imcUseNewMultiChannelCommsEnable && sysL != null && !sysL.isActive()) {
+                ret = ImcMsgManager.getManager().sendMessageUsingActiveChannelWait(msg, sid, -1, parent, acousticOpUserAprovedQuestion);
+                if (ret) {
+                    acousticOpUserAproved = true;
+                }
+            }
+            else if (acousticOpSysLst.length != 0 && sysL != null && !sysL.isActive()) {
                 if (acousticOpUserAprovalRequired) {
                     acousticOpUserAproved = (GuiUtils.confirmDialog(parent, I18n.text("Send by Acoustic Modem"), 
                             I18n.text("Some systems are not active. Do you want to send by acoustic modem?")) == JOptionPane.YES_OPTION);

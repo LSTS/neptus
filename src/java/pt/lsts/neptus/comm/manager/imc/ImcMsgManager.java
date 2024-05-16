@@ -31,22 +31,20 @@
  */
 package pt.lsts.neptus.comm.manager.imc;
 
-import java.io.IOException;
+import java.awt.Component;
 import java.net.Inet4Address;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URL;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -68,24 +66,20 @@ import pt.lsts.imc.Announce;
 import pt.lsts.imc.AssetReport;
 import pt.lsts.imc.EntityInfo;
 import pt.lsts.imc.EntityList;
-import pt.lsts.imc.FuelLevel;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.MessagePart;
-import pt.lsts.imc.PlanControlState;
-import pt.lsts.imc.PlanControlState.STATE;
 import pt.lsts.imc.RemoteSensorInfo;
 import pt.lsts.imc.ReportedState;
 import pt.lsts.imc.StateReport;
 import pt.lsts.imc.lsf.LsfMessageLogger;
-import pt.lsts.imc.net.IMCFragmentHandler;
 import pt.lsts.imc.state.ImcSystemState;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.CommUtil;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.NoTransportAvailableException;
-import pt.lsts.neptus.comm.SystemUtils;
+import pt.lsts.neptus.comm.admin.CommsAdmin;
 import pt.lsts.neptus.comm.manager.CommBaseManager;
 import pt.lsts.neptus.comm.manager.CommManagerStatusChangeListener;
 import pt.lsts.neptus.comm.manager.MessageFrequencyCalculator;
@@ -99,18 +93,11 @@ import pt.lsts.neptus.messages.listener.MessageInfo;
 import pt.lsts.neptus.messages.listener.MessageInfoImpl;
 import pt.lsts.neptus.messages.listener.MessageListener;
 import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.systems.external.ExternalSystem;
-import pt.lsts.neptus.systems.external.ExternalSystem.ExternalTypeEnum;
-import pt.lsts.neptus.systems.external.ExternalSystemsHolder;
 import pt.lsts.neptus.types.XmlOutputMethods;
-import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
-import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
-import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.NetworkInterfacesUtil;
 import pt.lsts.neptus.util.NetworkInterfacesUtil.NInterface;
 import pt.lsts.neptus.util.StringUtils;
@@ -160,6 +147,8 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
     private String multicastAddress = "224.0.75.69";
     private int[] multicastPorts = new int[] { 6969 };
     private boolean broadcastEnabled = true;
+
+    private CommsAdmin commsAdmin = null;
 
     private ImcMsgManagerAnnounceProcessor announceProcessor;
     private ImcMsgManagerMessageProcessor messageProcessor;
@@ -289,6 +278,12 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
 
         GeneralPreferences.addPreferencesListener(gplistener);
         gplistener.preferencesUpdated();
+
+        commsAdmin = new CommsAdmin(this);
+    }
+
+    public CommsAdmin getCommsAdmin() {
+        return commsAdmin;
     }
 
     /* (non-Javadoc)
@@ -1173,6 +1168,54 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
     @Override
     public boolean sendMessage(IMCMessage message, ImcId16 vehicleCommId, String sendProperties) {
         return sendMessage(message, vehicleCommId, sendProperties, null);
+    }
+
+    /**
+     * This method is used to send a message to a specific system using new channels.
+     * Set timeoutMillis to -1 to use the default timeout.
+     * Leave channelsToSend empty to use the default channels.
+     * @return Future with the result of the send operation.
+     */
+    public Future<SendResult> sendMessageUsingActiveChannel(IMCMessage message, String destinationName, int timeoutMillis,
+                                                            Component parentComponentForAlert,
+                                                            boolean requireUserConfirmOtherThanWifi,
+                                                            String... channelsToSend) {
+
+        //if (GeneralPreferences.imcUseNewMultiChannelCommsEnable) {
+        ImcSystem sys = ImcSystemsHolder.lookupSystemByName(destinationName);
+        if (sys == null) {
+            return  CompletableFuture.completedFuture(SendResult.ERROR);
+        }
+
+        timeoutMillis = timeoutMillis < 0 ? CommsAdmin.COMM_TIMEOUT_MILLIS : timeoutMillis;
+
+        Future<SendResult> ret = commsAdmin.sendMessage(message, destinationName, timeoutMillis,
+                parentComponentForAlert, requireUserConfirmOtherThanWifi);
+        return ret;
+    }
+
+    public boolean sendMessageUsingActiveChannelWait(IMCMessage message, String destinationName, int timeoutMillis,
+                                               Component parentComponentForAlert,
+                                               boolean requireUserConfirmOtherThanWifi,
+                                               String... channelsToSend) {
+        Future<SendResult> ret = sendMessageUsingActiveChannel(message, destinationName, timeoutMillis,
+                parentComponentForAlert, requireUserConfirmOtherThanWifi, channelsToSend);
+        try {
+            SendResult sendResult = ret.get();
+            switch (sendResult) {
+                case SUCCESS:
+                case UNCERTAIN_DELIVERY:
+                    return true;
+                case ERROR:
+                case TIMEOUT:
+                case UNREACHABLE:
+                default:
+                    return false;
+            }
+        }
+        catch (Exception e) {
+            return false;
+        }
     }
 
     /**
