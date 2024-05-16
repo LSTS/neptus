@@ -627,6 +627,44 @@ public class MRAMenuBar {
         helpMenu.add(aboutMenuItem);
     }
 
+    private void loadExporter(String name, LinkedHashMap<String, MRAExporter> exporters, final IMraLogGroup source, JMenu experimental) {
+        final MRAExporter exp = exporters.get(name);
+        try {
+            if (exp.canBeApplied(source)) {
+                JMenuItem item = new JMenuItem(new AbstractAction(name) {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        Thread t = new Thread(name + " processing") {
+                            @Override
+                            public void run() {
+                                ProgressMonitor monitor = new ProgressMonitor(mra.getMraPanel(), name, "", 0, 100);
+                                monitor.setProgress(0);
+                                String res = exp.process(source, monitor);
+                                if (res != null) {
+                                    GuiUtils.infoMessage(mra.getMraPanel(), name, res);
+                                }
+                                monitor.close();
+                            }
+                        };
+                        t.setDaemon(true);
+                        t.start();
+                    }
+                });
+                item.setIcon(ImageUtils.getIcon("images/menus/export.png"));
+
+                if (PluginUtils.isPluginExperimental(exp.getClass())) {
+                    experimental.add(item);
+                }
+                else {
+                    getExportersMenu().add(item);
+                }
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     /**
      * This Menu is only added to tools menu after a Log file is added
      *
@@ -687,43 +725,7 @@ public class MRAMenuBar {
         Collections.sort(names, Collator.getInstance());
 
         for (String name : names) {
-            final MRAExporter exp = exporters.get(name);
-            try {
-                if (exp.canBeApplied(source)) {
-                    JMenuItem item = new JMenuItem(new AbstractAction(name) {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            Thread t = new Thread(name + " processing") {
-                                @Override
-                                public void run() {
-                                    ProgressMonitor monitor = new ProgressMonitor(mra.getMraPanel(), name, "", 0, 100);
-                                    monitor.setProgress(0);
-                                    String res = exp.process(source, monitor);
-                                    if (res != null) {
-                                        GuiUtils.infoMessage(mra.getMraPanel(), name, res);
-                                    }
-                                    monitor.close();
-                                }
-
-                                ;
-                            };
-                            t.setDaemon(true);
-                            t.start();
-                        }
-                    });
-                    item.setIcon(ImageUtils.getIcon("images/menus/export.png"));
-
-                    if (PluginUtils.isPluginExperimental(exp.getClass())) {
-                        experimental.add(item);
-                    }
-                    else {
-                        getExportersMenu().add(item);
-                    }
-                }
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
+            loadExporter(name, exporters, source, experimental);
         }
 
         if (getExportersMenu().getItemCount() > 0) {
