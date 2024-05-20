@@ -170,12 +170,18 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
         // (vehicle, ship) -> (distance, timestamp)
         final ConcurrentHashMap<Pair<String, String>, Pair<Double, Date>> collisions = new ConcurrentHashMap<>();
 
+        final Date datetimeNow = new Date();
         long timeSpanMillis = projectionTimeWindowValue * projectionTimeWindowUnit.getMicroseconds();
         for (long timeOffset = 0; timeOffset < timeSpanMillis; timeOffset += 1_000L * collisionDistance / 4) {
             final long deltaTimeMillis = timeOffset;
             Arrays.stream(ImcSystemsHolder.lookupAllSystems())
                     .filter(system -> !system.getName().equalsIgnoreCase(mainSystemName))
                     .forEach(system -> {
+                        Date dataAge = new Date(system.getLocationTimeMillis());
+                        if (dataAge.before(datetimeNow) && datetimeNow.getTime() - dataAge.getTime()
+                                > minutesToHideSystemsWithoutKnownLocation * 60_000L) {
+                            return;
+                        }
                         Date t = new Date(System.currentTimeMillis() + deltaTimeMillis);
                         LocationType locationSystem = system.getLocation().getNewAbsoluteLatLonDepth();
                         LocationType locationMain = mainSystem.getLocation().getNewAbsoluteLatLonDepth();
@@ -187,6 +193,11 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
             Arrays.stream(ExternalSystemsHolder.lookupAllSystems())
                     .filter(system -> !system.getName().equalsIgnoreCase(mainSystemName))
                     .forEach(system -> {
+                        Date dataAge = new Date(system.getLocationTimeMillis());
+                        if (dataAge.before(datetimeNow) && datetimeNow.getTime() - dataAge.getTime()
+                                > minutesToHideSystemsWithoutKnownLocation * 60_000L) {
+                            return;
+                        }
                         Date t = new Date(System.currentTimeMillis() + deltaTimeMillis);
                         LocationType locationSystem = system.getLocation().getNewAbsoluteLatLonDepth();
                         LocationType locationMain = mainSystem.getLocation().getNewAbsoluteLatLonDepth();
@@ -214,7 +225,7 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
         });
 
         long diff = System.currentTimeMillis() - start;
-        NeptusLog.pub().info("RiskAnalysis detected {} collisions in {} milliseconds.", collisions.size(), diff);
+        NeptusLog.pub().info("Risk detected {} collisions in {} milliseconds.", collisions.size(), diff);
 
         if (changed.get()) {
             layerPainter.triggerImageRebuild();
@@ -271,7 +282,7 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 
-        boolean askForLaterRepaint = false;
+        AtomicBoolean askForLaterRepaint = new AtomicBoolean(false);
 
         boolean recreateImage = layerPainter.paintPhaseStartTestRecreateImageAndRecreate(g, renderer);
         if (recreateImage) {
@@ -280,7 +291,10 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
             if (!collisionsTree.isEmpty() && collisionsTree.get(lastMainVehicle) != null && !collisionsTree.get(lastMainVehicle).isEmpty()) {
                 Graphics2D gg = (Graphics2D) g2.create();
                 gg.translate(20, 100);
-                askForLaterRepaint |= !gg.drawImage(colregImage, null, null);
+                boolean res = !gg.drawImage(colregImage, null, null);
+                if (res) {
+                    askForLaterRepaint.compareAndSet(false, true);
+                }
                 gg.dispose();
 
                 int collisionSize = collisionsTree.get(lastMainVehicle).size();
@@ -304,12 +318,34 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
             AtomicDouble distanceClosest = new AtomicDouble(Double.MAX_VALUE);
             AtomicReference<Date> timeClosest = new AtomicReference<>(null);
             collisionsTree.get(lastMainVehicle).forEach((time, pair) -> {
-                String ship = pair.first();
+                String sysName = pair.first();
                 double distance = pair.second();
                 if (distance < distanceClosest.get()) {
-                    shipClosest.set(ship);
+                    shipClosest.set(sysName);
                     distanceClosest.set(distance);
                     timeClosest.set(time);
+
+                    LocationType loc = null;
+                    ImcSystem sys = ImcSystemsHolder.lookupSystemByName(sysName);
+                    if (sys != null) {
+                        loc = sys.getLocation().getNewAbsoluteLatLonDepth();
+                    } else {
+                        ExternalSystem esys = ExternalSystemsHolder.lookupSystem(sysName);
+                        if (esys != null) {
+                            loc = esys.getLocation().getNewAbsoluteLatLonDepth();
+                        }
+                    }
+                    if (loc != null) {
+                        Graphics2D gg = (Graphics2D) g2.create();
+                        Point2D spos = renderer.getScreenPosition(loc);
+                        gg.translate(spos.getX() - 20 - 8, spos.getY());
+                        boolean res = !gg.drawImage(colregImageSmall, null, null);
+                        if (res) {
+                            askForLaterRepaint.compareAndSet(false, true);
+                        }
+                        gg.dispose();
+                    }
+
                 }
                 //Point2D pt = renderer.getScreenPosition(loc);
             });
@@ -330,7 +366,6 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
                 gg.dispose();
             }
 
-
             if (shipClosest.get() != null) {
                 String sysName = shipClosest.get();
                 LocationType loc = null;
@@ -344,17 +379,11 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
                     }
                 }
                 if (loc != null) {
-                    Graphics2D gg = (Graphics2D) g2.create();
-                    Point2D spos = renderer.getScreenPosition(loc);
-                    gg.translate(spos.getX() - 20 - 8, spos.getY());
-                    askForLaterRepaint |= !gg.drawImage(colregImageSmall, null, null);
-
-                    gg.dispose();
                 }
             }
         }
         layerPainter.paintPhaseEndFinishImageRecreateAndPaintImageCacheToRenderer(g, renderer);
-        if (askForLaterRepaint) {
+        if (askForLaterRepaint.get()) {
             layerPainter.triggerImageRebuild();
             renderer.invalidate();
             renderer.repaint(10);
