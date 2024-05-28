@@ -671,6 +671,20 @@ public class MRAMenuBar {
      * @param source
      */
     public void setUpExportersMenu(final IMraLogGroup source) {
+        // Check for existence of Exporters menu and remove on existence (in case of opening a new log)
+        if (getExportersMenu() != null) {
+            toolsMenu.remove(getExportersMenu());
+        }
+        setExportersMenu(new JMenu(I18n.text("Exporters (loading...)")));
+        JMenu experimental = new JMenu(I18n.text("Experimental"));
+        getExportersMenu().setIcon(ImageUtils.getIcon("images/menus/export.png"));
+        getExportersMenu().setToolTipText(I18n.text("Export data to") + "...");
+        if(!isExportersAdded) {
+            toolsMenu.addSeparator();
+        }
+        isExportersAdded = true;
+        toolsMenu.add(getExportersMenu());
+
         LinkedHashMap<String, Class<? extends MRAExporter>> exporterMap = PluginsRepository
                 .listExtensions(MRAExporter.class);
 
@@ -709,29 +723,17 @@ public class MRAMenuBar {
             }
         }
 
-        // Check for existence of Exporters menu and remove on existence (in case of opening a new log)
-        if (getExportersMenu() != null) {
-            toolsMenu.remove(getExportersMenu());
-        }
-
-        setExportersMenu(new JMenu(I18n.text("Exporters (loading...)")));
-        JMenu experimental = new JMenu(I18n.text("Experimental"));
-        getExportersMenu().setIcon(ImageUtils.getIcon("images/menus/export.png"));
-        getExportersMenu().setToolTipText(I18n.text("Export data to") + "...");
-
 
         Vector<String> names = new Vector<>();
         names.addAll(exporters.keySet());
         Collections.sort(names, Collator.getInstance());
 
-        toolsMenu.addSeparator();
-        getExportersMenu().add(experimental);
-        toolsMenu.add(getExportersMenu());
-
         for (String name : names) {
             loadExporter(name, exporters, source, experimental);
         }
 
+        if(experimental.getItemCount() > 0)
+            getExportersMenu().add(experimental);
         getExportersMenu().setText("Experimental");
     }
 
