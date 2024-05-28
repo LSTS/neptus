@@ -714,7 +714,7 @@ public class MRAMenuBar {
             toolsMenu.remove(getExportersMenu());
         }
 
-        setExportersMenu(new JMenu(I18n.text("Exporters")));
+        setExportersMenu(new JMenu(I18n.text("Exporters (loading...)")));
         JMenu experimental = new JMenu(I18n.text("Experimental"));
         getExportersMenu().setIcon(ImageUtils.getIcon("images/menus/export.png"));
         getExportersMenu().setToolTipText(I18n.text("Export data to") + "...");
@@ -724,20 +724,15 @@ public class MRAMenuBar {
         names.addAll(exporters.keySet());
         Collections.sort(names, Collator.getInstance());
 
+        toolsMenu.addSeparator();
+        getExportersMenu().add(experimental);
+        toolsMenu.add(getExportersMenu());
+
         for (String name : names) {
             loadExporter(name, exporters, source, experimental);
         }
 
-        if (getExportersMenu().getItemCount() > 0) {
-            if (!isExportersAdded) {
-                toolsMenu.addSeparator();
-                isExportersAdded = true;
-            }
-            if (experimental.getItemCount() > 0) {
-                getExportersMenu().add(experimental);
-            }
-            toolsMenu.add(getExportersMenu());
-        }
+        getExportersMenu().setText("Experimental");
     }
 
     public void setUpTidesMenu(final IMraLogGroup source) {
