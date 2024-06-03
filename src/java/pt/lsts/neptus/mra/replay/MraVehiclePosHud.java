@@ -82,7 +82,7 @@ public class MraVehiclePosHud {
     }
     
     public void correctPositions() {
-        CorrectedPosition cp = new CorrectedPosition(source);
+        CorrectedPosition cp = CorrectedPosition.getInstance(source);
         for (SystemPositionAndAttitude state : states) {
             double timestamp = state.getTime() / 1000.0;
             SystemPositionAndAttitude corPos = cp.getPosition(timestamp);

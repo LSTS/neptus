@@ -421,7 +421,7 @@ public class KMLExporter implements MRAExporter {
     public String sidescanOverlay(File dir, double resolution, LocationType topLeft, LocationType bottomRight,
             String fname, long startTime, long endTime, Ducer ducer) {
         SidescanParser ssParser = SidescanParserFactory.build(source);
-        CorrectedPosition positions = new CorrectedPosition(source);
+        CorrectedPosition positions = CorrectedPosition.getInstance(source);
         SidescanHistogramNormalizer histogram = null;
         if (egnNormalization) {
             histogram = SidescanHistogramNormalizer.create(source);

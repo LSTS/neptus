@@ -59,7 +59,7 @@ public class CorrectedPositionExporter implements MRAExporter {
 
     @Override
     public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
-        CorrectedPosition positions = new CorrectedPosition(source);
+        CorrectedPosition positions = CorrectedPosition.getInstance(source);
         File dir = new File(source.getFile("mra"), "csv");
         dir.mkdirs();
 

@@ -164,7 +164,7 @@ public class PhotosHudExporter implements MRAExporter {
     
     
     public PhotosHudExporter(IMraLogGroup source) {
-        this.positions = new CorrectedPosition(source);
+        this.positions = CorrectedPosition.getInstance(source);
         hud = new MraVehiclePosHud(source, 180, 180);        
     }
     

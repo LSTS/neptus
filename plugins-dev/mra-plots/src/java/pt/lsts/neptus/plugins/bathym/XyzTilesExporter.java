@@ -104,7 +104,7 @@ public class XyzTilesExporter implements MRAExporter {
 
         pmonitor.setProgress(0);
         
-        positions = new CorrectedPosition(source);
+        positions = CorrectedPosition.getInstance(source);
         pmonitor.setProgress(8);
         folder = new XyzFolder(new File(source.getDir(), "mra/xyz"));
         folder.setAppendToExistingFiles(false);

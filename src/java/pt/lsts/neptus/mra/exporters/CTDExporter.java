@@ -150,7 +150,7 @@ public class CTDExporter implements MRAExporter {
         dir.mkdirs();
         pmonitor.setNote(I18n.text("Generating corrected positions..."));
         pmonitor.setProgress(10);
-        CorrectedPosition cp = new CorrectedPosition(source);
+        CorrectedPosition cp = CorrectedPosition.getInstance(source);
         System.out.println("Exporting...");
         pmonitor.setNote("Exporting...");
         int count = 0;

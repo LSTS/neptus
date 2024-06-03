@@ -247,7 +247,7 @@ public class PmelNetCDFExporter extends MRAExporterFilter {
             
             pmonitor.setNote(I18n.text("Generating corrected positions..."));
             pmonitor.setProgress(1);
-            CorrectedPosition cp = new CorrectedPosition(source);
+            CorrectedPosition cp = CorrectedPosition.getInstance(source);
             
             pmonitor.setNote("Exporting...");
             

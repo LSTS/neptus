@@ -54,10 +54,18 @@ import pt.lsts.neptus.mra.importers.IMraLogGroup;
 public class CorrectedPosition {
 
     private ArrayList<SystemPositionAndAttitude> positions = new ArrayList<>();
+    private static CorrectedPosition instance;
 
+    public static synchronized CorrectedPosition getInstance(IMraLogGroup source) {
+        if (instance == null) {
+            instance = new CorrectedPosition(source);
+        }
+        return instance;
+    }
     @SuppressWarnings("unchecked")
-    public CorrectedPosition(IMraLogGroup source) {
+    private CorrectedPosition(IMraLogGroup source) {
         synchronized (source) {
+            System.out.println("IMraLogGroup source" + source);
             File cache = new File(source.getDir(), "mra/positions.cache");
             try {
                 if (source.getFile("mra/positions.cache").canRead()) {

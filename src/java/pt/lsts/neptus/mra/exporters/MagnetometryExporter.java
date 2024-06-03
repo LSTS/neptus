@@ -82,7 +82,7 @@ public class MagnetometryExporter implements MRAExporter {
         File file1 = new File(dir, "TotalMagneticIntensity.csv");
         File file2 = new File(dir, "MagneticField.csv");
         
-        CorrectedPosition pos = new CorrectedPosition(source);
+        CorrectedPosition pos = CorrectedPosition.getInstance(source);
         
         try {
             BufferedWriter tmi = new BufferedWriter(new FileWriter(file1));

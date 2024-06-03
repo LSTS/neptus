@@ -72,7 +72,7 @@ public class VideoToPhotosFilter implements MRAExporter{
 
 
     public VideoToPhotosFilter(IMraLogGroup source) {
-        this.positions = new CorrectedPosition(source);
+        this.positions = CorrectedPosition.getInstance(source);
         this.frameDecoder = new FrameDecoderMotionJPEG();
     }
 

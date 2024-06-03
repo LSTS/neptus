@@ -348,7 +348,7 @@ public class DeltaTParser implements BathymetryParser {
      */
     public CorrectedPosition getCorrectedPosition() {
         if (position == null)
-            position = new CorrectedPosition(source);
+            position = CorrectedPosition.getInstance(source);
 
         return position;
     }
@@ -409,7 +409,7 @@ public class DeltaTParser implements BathymetryParser {
     public BathymetrySwath nextSwath(double prob) {
 
         if (position == null)
-            position = new CorrectedPosition(source);
+            position = CorrectedPosition.getInstance(source);
         
         try {
             if (curPos >= channel.size()) {
@@ -655,7 +655,7 @@ public class DeltaTParser implements BathymetryParser {
 
     public BathymetrySwath nextSwathNoData() {
         if (position == null)
-            position = new CorrectedPosition(source);
+            position = CorrectedPosition.getInstance(source);
         
         try {
             if (curPos >= channel.size())

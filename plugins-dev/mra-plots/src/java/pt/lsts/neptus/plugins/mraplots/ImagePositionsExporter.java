@@ -52,7 +52,7 @@ import pt.lsts.neptus.plugins.PluginDescription;
 public class ImagePositionsExporter implements MRAExporter {
     private CorrectedPosition positions;
     public ImagePositionsExporter(IMraLogGroup source) {
-        positions = new CorrectedPosition(source);
+        positions = CorrectedPosition.getInstance(source);
     }
 
     @Override

@@ -190,7 +190,7 @@ public class SVSExporter implements MRAExporter {
         dir.mkdirs();
         pmonitor.setNote(I18n.text("Generating corrected positions..."));
         pmonitor.setProgress(10);
-        CorrectedPosition cp = new CorrectedPosition(source);
+        CorrectedPosition cp = CorrectedPosition.getInstance(source);
         pmonitor.setNote("Exporting...");
         int count = 0;
         File out = new File(dir, "SoundSpeed.csv");

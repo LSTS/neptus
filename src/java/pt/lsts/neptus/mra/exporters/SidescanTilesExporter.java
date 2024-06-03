@@ -246,7 +246,7 @@ public class SidescanTilesExporter implements MRAExporter {
     @Override
     public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
 
-    	CorrectedPosition correctedPosition = new CorrectedPosition(source);
+    	CorrectedPosition correctedPosition = CorrectedPosition.getInstance(source);
         // Create sidescan parser and skip this log if no sss data is available
         SidescanParser ss = SidescanParserFactory.build(source);
         if (ss.getSubsystemList().isEmpty())

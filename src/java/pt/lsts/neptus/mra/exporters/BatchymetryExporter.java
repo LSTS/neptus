@@ -77,7 +77,7 @@ public class BatchymetryExporter implements MRAExporter {
     public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
         try  {
             BufferedWriter writer = new BufferedWriter(new FileWriter(outFile, true));
-            positions = new CorrectedPosition(source);
+            positions = CorrectedPosition.getInstance(source);
             LsfIndex index = source.getLsfIndex();
             int timeIdx = 0;
             for (double time = index.getStartTime()+1; time < index.getEndTime(); time++) {

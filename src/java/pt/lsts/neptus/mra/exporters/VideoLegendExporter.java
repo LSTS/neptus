@@ -79,7 +79,7 @@ public class VideoLegendExporter implements MRAExporter {
 
     @Override
     public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
-        CorrectedPosition corPos = new CorrectedPosition(source);
+        CorrectedPosition corPos = CorrectedPosition.getInstance(source);
 
         
         VideoCreator creator = null;

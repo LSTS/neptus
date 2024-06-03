@@ -178,7 +178,7 @@ public class FilteredSidescan implements MRAExporter {
                 numberOfLinesInImg++;
                 applySlantCorrection(l);
                 if(numberOfLinesInImg % (subImageHeight/2) == 0 && numberOfLinesInImg % subImageHeight != 0) {
-                    CorrectedPosition cp = new CorrectedPosition(source);
+                    CorrectedPosition cp = CorrectedPosition.getInstance(source);
                     double timestamp = l.getTimestampMillis() / 1000;
                     SystemPositionAndAttitude pos = cp.getPosition(timestamp);
                     writeToPositionsFile(bw, l, filename, pos);

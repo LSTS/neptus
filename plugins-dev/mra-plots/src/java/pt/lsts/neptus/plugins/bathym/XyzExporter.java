@@ -273,7 +273,7 @@ public class XyzExporter implements MRAExporter {
     }
 
     private void processEstimatedStates(IMraLogGroup source) {
-        CorrectedPosition pos = new CorrectedPosition(source);
+        CorrectedPosition pos = CorrectedPosition.getInstance(source);
         double firstTime = source.getLsfIndex().getStartTime();
         double lastTime = source.getLsfIndex().getEndTime();
         double timeSpan = lastTime - firstTime;
@@ -306,7 +306,7 @@ public class XyzExporter implements MRAExporter {
             timeSpan = 1;
 
         SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd hh:mm");
-        CorrectedPosition pos = new CorrectedPosition(source);
+        CorrectedPosition pos = CorrectedPosition.getInstance(source);
         
         while ((swath = parser.nextSwath()) != null) {
             if (pmonitor.isCanceled())

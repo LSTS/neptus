@@ -142,7 +142,7 @@ public class LogUtils {
         double distance = 0;
         IMCMessage prevEntry = null;
         
-        CorrectedPosition corPosition = new CorrectedPosition(source);
+        CorrectedPosition corPosition = CorrectedPosition.getInstance(source);
         
         LocationType lastLoc = null;
         
