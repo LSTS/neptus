@@ -47,8 +47,9 @@ import pt.lsts.imc.IMCOutputStream;
 public class ImcIridiumMessage extends IridiumMessage {
 
     protected IMCMessage msg;
-    
-    public static int MaxPayloadSize = 270 - 12; 
+
+    // 5 bytes for RB addressing, 6 bytes for type and timestamp, 6 bytes for IMC header
+    public static int MaxPayloadSize = 270 - 17;
     
     public ImcIridiumMessage() {
         super(2010);    
