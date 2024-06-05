@@ -296,7 +296,7 @@ public class CommsAdmin {
                     }
                     break;
                 case IRIDIUM:
-                        sendViaIridium(proxyIridiumSystem.get().getName(), message, waiter);
+                        sendViaIridium(destinationName, message, waiter);
                         return result;
                 case GSM:
                 default:
@@ -400,6 +400,7 @@ public class CommsAdmin {
 
             NeptusLog.pub().warn("Iridium message sent", count + " Iridium messages were sent using "
                     + IridiumManager.getManager().getCurrentMessenger().getName());
+            waiter.deliverySuccess(message);
         }
         catch (Exception e) {
             NeptusLog.pub().warn("Send by Iridium :: " + e.getMessage());
