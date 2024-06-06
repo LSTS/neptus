@@ -96,66 +96,66 @@ public class CaravelDataPlotter extends ConsoleLayer implements PreferencesListe
     public boolean showAirSaturation = false;
 
     @NeptusProperty(name = "Min temperature", userLevel = NeptusProperty.LEVEL.REGULAR, category = "Temperature")
-    private double minTemp = 15;
+    public double minTemp = 15;
     @NeptusProperty(name = "Max temperature", userLevel = NeptusProperty.LEVEL.REGULAR, category = "Temperature")
-    private double maxTemp = 35;
+    public double maxTemp = 35;
 
     @NeptusProperty(name = "Temperature color map", userLevel = NeptusProperty.LEVEL.REGULAR, category = "Temperature")
-    private ColorMap colormapTemp = ColorMapFactory.createJetColorMap();
+    public ColorMap colormapTemp = ColorMapFactory.createJetColorMap();
 
     @NeptusProperty(name = "Min salinity", userLevel = NeptusProperty.LEVEL.REGULAR, category = "Salinity")
-    private double minSal = 33;
+    public double minSal = 33;
     @NeptusProperty(name = "Max salinity", userLevel = NeptusProperty.LEVEL.REGULAR, category = "Salinity")
-    private double maxSal = 36;
+    public double maxSal = 36;
 
     @NeptusProperty(name = "Salinity color map", userLevel = NeptusProperty.LEVEL.REGULAR, category = "Salinity")
-    private ColorMap colormapSal = ColorMapFactory.createJetColorMap();
+    public ColorMap colormapSal = ColorMapFactory.createJetColorMap();
 
     @NeptusProperty(name = "Min turbidity", userLevel = NeptusProperty.LEVEL.REGULAR, category = "Turbidity")
-    private double minTurbidity = 0;
+    public double minTurbidity = 0;
     @NeptusProperty(name = "Max turbidity", userLevel = NeptusProperty.LEVEL.REGULAR, category = "Turbidity")
-    private double maxTurbidity = 30;
+    public double maxTurbidity = 30;
 
     @NeptusProperty(name = "Turbidity color map", userLevel = NeptusProperty.LEVEL.REGULAR, category = "Turbidity")
-    private ColorMap colormapTurbidity = ColorMapFactory.createJetColorMap();
+    public ColorMap colormapTurbidity = ColorMapFactory.createJetColorMap();
 
     @NeptusProperty(name = "Min chlorophyll", userLevel = NeptusProperty.LEVEL.REGULAR, category = "Chlorophyll")
-    private double minChlorophyll = 0;
+    public double minChlorophyll = 0;
     @NeptusProperty(name = "Max chlorophyll", userLevel = NeptusProperty.LEVEL.REGULAR, category = "Chlorophyll")
-    private double maxChlorophyll = 2;
+    public double maxChlorophyll = 2;
 
     @NeptusProperty(name = "Chlorophyll color map", userLevel = NeptusProperty.LEVEL.REGULAR, category = "Chlorophyll")
-    private ColorMap colormapChlorophyll = ColorMapFactory.createJetColorMap();
+    public ColorMap colormapChlorophyll = ColorMapFactory.createJetColorMap();
 
     @NeptusProperty(name = "Min dissolved organic matter", userLevel = NeptusProperty.LEVEL.REGULAR, category = "Dissolved Organic Matter")
-    private double minDissolvedOrganicMatter = 0;
+    public double minDissolvedOrganicMatter = 0;
     @NeptusProperty(name = "Max dissolved organic matter", userLevel = NeptusProperty.LEVEL.REGULAR, category = "Dissolved Organic Matter")
-    private double maxDissolvedOrganicMatter = 10;
+    public double maxDissolvedOrganicMatter = 10;
 
     @NeptusProperty(name = "Dissolved Organic Matter color map", userLevel = NeptusProperty.LEVEL.REGULAR, category = "Dissolved Organic Matter")
-    private ColorMap colormapDissolvedOrganicMatter = ColorMapFactory.createJetColorMap();
+    public ColorMap colormapDissolvedOrganicMatter = ColorMapFactory.createJetColorMap();
 
     @NeptusProperty(name = "Min dissolved oxygen", userLevel = NeptusProperty.LEVEL.REGULAR, category = "Dissolved Oxygen")
-    private double minDissolvedOxygen = 0;
+    public double minDissolvedOxygen = 0;
     @NeptusProperty(name = "Max dissolved oxygen", userLevel = NeptusProperty.LEVEL.REGULAR, category = "Dissolved Oxygen")
-    private double maxDissolvedOxygen = 300;
+    public double maxDissolvedOxygen = 300;
 
     @NeptusProperty(name = "Dissolved Oxygen color map", userLevel = NeptusProperty.LEVEL.REGULAR, category = "Dissolved Oxygen")
-    private ColorMap colormapDissolvedOxygen = ColorMapFactory.createJetColorMap();
+    public ColorMap colormapDissolvedOxygen = ColorMapFactory.createJetColorMap();
 
     @NeptusProperty(name = "Min air saturation", userLevel = NeptusProperty.LEVEL.REGULAR, category = "Air Saturation")
-    private double minAirSaturation = 0;
+    public double minAirSaturation = 0;
     @NeptusProperty(name = "Max air saturation", userLevel = NeptusProperty.LEVEL.REGULAR, category = "Air Saturation")
-    private double maxAirSaturation = 100;
+    public double maxAirSaturation = 100;
 
     @NeptusProperty(name = "Air Saturation color map", userLevel = NeptusProperty.LEVEL.REGULAR, category = "Air Saturation")
-    private ColorMap colormapAirSaturation = ColorMapFactory.createJetColorMap();
+    public ColorMap colormapAirSaturation = ColorMapFactory.createJetColorMap();
 
     @NeptusProperty(name = "Max samples", userLevel = NeptusProperty.LEVEL.REGULAR)
-    private int maxSamples = 35000;
+    public int maxSamples = 35000;
 
     @NeptusProperty(name = "Clamp to fit", userLevel = NeptusProperty.LEVEL.REGULAR)
-    private boolean clampToFit = false;
+    public boolean clampToFit = false;
 
     private OffScreenLayerImageControl offScreenSalinity = new OffScreenLayerImageControl();
     private OffScreenLayerImageControl offScreenTemperature = new OffScreenLayerImageControl();
@@ -288,36 +288,43 @@ public class CaravelDataPlotter extends ConsoleLayer implements PreferencesListe
     @Subscribe
     public void on(Temperature msg) {
         extractSensorMeasurementValueFromMessage(msg.getValue(), pointsTemp, msg);
+        offScreenTemperature.triggerImageRebuild();
     }
 
     @Subscribe
     public void on(Salinity msg) {
         extractSensorMeasurementValueFromMessage(msg.getValue(), pointsSalinity, msg);
+        offScreenSalinity.triggerImageRebuild();
     }
 
     @Subscribe
     public void on(Turbidity msg) {
         extractSensorMeasurementValueFromMessage(msg.getValue(), pointsTurbidity, msg);
+        offScreenTurbidity.triggerImageRebuild();
     }
 
     @Subscribe
     public void on(Chlorophyll msg) {
         extractSensorMeasurementValueFromMessage(msg.getValue(), pointsChlorophyll, msg);
+        offScreenChlorophyll.triggerImageRebuild();
     }
 
     @Subscribe
     public void on(DissolvedOrganicMatter msg) {
         extractSensorMeasurementValueFromMessage(msg.getValue(), pointsDissolvedOrganicMatter, msg);
+        offScreenDissolvedOrganicMatter.triggerImageRebuild();
     }
 
     @Subscribe
     public void on(DissolvedOxygen msg) {
         extractSensorMeasurementValueFromMessage(msg.getValue(), pointsDissolvedOxygen, msg);
+        offScreenDissolvedOxygen.triggerImageRebuild();
     }
 
     @Subscribe
     public void on(AirSaturation msg) {
         extractSensorMeasurementValueFromMessage(msg.getValue(), pointsAirSaturation, msg);
+        offScreenAirSaturation.triggerImageRebuild();
     }
 
     @Periodic(value = 2_000)
@@ -368,9 +375,15 @@ public class CaravelDataPlotter extends ConsoleLayer implements PreferencesListe
             painterThread = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    Graphics2D g2 = offScreenSalinity.getImageGraphics();
-                    try {
+                    Graphics2D g2Temp = offScreenTemperature.getImageGraphics();
+                    Graphics2D g2Salinity = offScreenSalinity.getImageGraphics();
+                    Graphics2D g2Turbidity = offScreenTurbidity.getImageGraphics();
+                    Graphics2D g2Chlorophyll = offScreenChlorophyll.getImageGraphics();
+                    Graphics2D g2DissolvedOrganicMatter = offScreenDissolvedOrganicMatter.getImageGraphics();
+                    Graphics2D g2DissolvedOxygen = offScreenDissolvedOxygen.getImageGraphics();
+                    Graphics2D g2AirSaturation = offScreenAirSaturation.getImageGraphics();
 
+                    try {
                         ArrayList<DataPointXY> ptsTemp = new ArrayList<>();
                         ArrayList<DataPointXY> ptsSalinity = new ArrayList<>();
                         ArrayList<DataPointXY> ptsTurbidity = new ArrayList<>();
@@ -403,7 +416,7 @@ public class CaravelDataPlotter extends ConsoleLayer implements PreferencesListe
 
                         if (showTemp && !abortIndicator.get()) {
                             try {
-                                recreateSensorDataCacheImage(ptsTemp, colormapTemp, minTemp, maxTemp, offScreenTemperature, g2, rendererCalculator);
+                                recreateSensorDataCacheImage(ptsTemp, colormapTemp, minTemp, maxTemp, offScreenTemperature, g2Temp, rendererCalculator);
                             }
                             catch (Exception e) {
                                 e.printStackTrace();
@@ -413,7 +426,7 @@ public class CaravelDataPlotter extends ConsoleLayer implements PreferencesListe
 
                         if (showSal && !abortIndicator.get()) {
                             try {
-                                recreateSensorDataCacheImage(ptsSalinity, colormapSal, minSal, maxSal, offScreenSalinity, g2, rendererCalculator);
+                                recreateSensorDataCacheImage(ptsSalinity, colormapSal, minSal, maxSal, offScreenSalinity, g2Salinity, rendererCalculator);
                             }
                             catch (Exception e) {
                                 e.printStackTrace();
@@ -423,7 +436,7 @@ public class CaravelDataPlotter extends ConsoleLayer implements PreferencesListe
 
                         if (showTurbidity && !abortIndicator.get()) {
                             try {
-                                recreateSensorDataCacheImage(ptsTurbidity, colormapTurbidity, minTurbidity, maxTurbidity, offScreenTurbidity, g2, rendererCalculator);
+                                recreateSensorDataCacheImage(ptsTurbidity, colormapTurbidity, minTurbidity, maxTurbidity, offScreenTurbidity, g2Turbidity, rendererCalculator);
                             }
                             catch (Exception e) {
                                 e.printStackTrace();
@@ -433,7 +446,7 @@ public class CaravelDataPlotter extends ConsoleLayer implements PreferencesListe
 
                         if (showChlorophyll && !abortIndicator.get()) {
                             try {
-                                recreateSensorDataCacheImage(ptsChlorophyll, colormapChlorophyll, minChlorophyll, maxChlorophyll, offScreenChlorophyll, g2, rendererCalculator);
+                                recreateSensorDataCacheImage(ptsChlorophyll, colormapChlorophyll, minChlorophyll, maxChlorophyll, offScreenChlorophyll, g2Chlorophyll, rendererCalculator);
                             }
                             catch (Exception e) {
                                 e.printStackTrace();
@@ -443,7 +456,7 @@ public class CaravelDataPlotter extends ConsoleLayer implements PreferencesListe
 
                         if (showDissolvedOrganicMatter && !abortIndicator.get()) {
                             try {
-                                recreateSensorDataCacheImage(ptsDissolvedOrganicMatter, colormapDissolvedOrganicMatter, minDissolvedOrganicMatter, maxDissolvedOrganicMatter, offScreenDissolvedOrganicMatter, g2, rendererCalculator);
+                                recreateSensorDataCacheImage(ptsDissolvedOrganicMatter, colormapDissolvedOrganicMatter, minDissolvedOrganicMatter, maxDissolvedOrganicMatter, offScreenDissolvedOrganicMatter, g2DissolvedOrganicMatter, rendererCalculator);
                             }
                             catch (Exception e) {
                                 e.printStackTrace();
@@ -453,7 +466,7 @@ public class CaravelDataPlotter extends ConsoleLayer implements PreferencesListe
 
                         if (showDissolvedOxygen && !abortIndicator.get()) {
                             try {
-                                recreateSensorDataCacheImage(ptsDissolvedOxygen, colormapDissolvedOxygen, minDissolvedOxygen, maxDissolvedOxygen, offScreenDissolvedOxygen, g2, rendererCalculator);
+                                recreateSensorDataCacheImage(ptsDissolvedOxygen, colormapDissolvedOxygen, minDissolvedOxygen, maxDissolvedOxygen, offScreenDissolvedOxygen, g2DissolvedOxygen, rendererCalculator);
                             }
                             catch (Exception e) {
                                 e.printStackTrace();
@@ -463,7 +476,7 @@ public class CaravelDataPlotter extends ConsoleLayer implements PreferencesListe
 
                         if (showAirSaturation && !abortIndicator.get()) {
                             try {
-                                recreateSensorDataCacheImage(ptsAirSaturation, colormapAirSaturation, minAirSaturation, maxAirSaturation, offScreenAirSaturation, g2, rendererCalculator);
+                                recreateSensorDataCacheImage(ptsAirSaturation, colormapAirSaturation, minAirSaturation, maxAirSaturation, offScreenAirSaturation, g2AirSaturation, rendererCalculator);
                             }
                             catch (Exception e) {
                                 e.printStackTrace();
@@ -471,7 +484,13 @@ public class CaravelDataPlotter extends ConsoleLayer implements PreferencesListe
                             }
                         }
 
-                        g2.dispose();
+                        g2Temp.dispose();
+                        g2Salinity.dispose();
+                        g2Turbidity.dispose();
+                        g2Chlorophyll.dispose();
+                        g2DissolvedOrganicMatter.dispose();
+                        g2DissolvedOxygen.dispose();
+                        g2AirSaturation.dispose();
                     }
                     catch (Exception | Error e) {
                         e.printStackTrace();
@@ -561,7 +580,7 @@ public class CaravelDataPlotter extends ConsoleLayer implements PreferencesListe
     }
 
     private ArrayList<DataPointXY> transformDataPointsToXY(List<DataPoint> points, MapTileRendererCalculator rendererCalculator) {
-        return pointsTemp.stream().collect(ArrayList<DataPointXY>::new,
+        return points.stream().collect(ArrayList<DataPointXY>::new,
                 (r, p) -> {
                     if (abortIndicator.get()) {
                         return;
