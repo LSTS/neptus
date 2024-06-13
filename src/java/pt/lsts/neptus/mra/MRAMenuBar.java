@@ -734,7 +734,7 @@ public class MRAMenuBar {
 
         if(experimental.getItemCount() > 0)
             getExportersMenu().add(experimental);
-        getExportersMenu().setText("Experimental");
+        getExportersMenu().setText("Exporters");
     }
 
     public void setUpTidesMenu(final IMraLogGroup source) {
