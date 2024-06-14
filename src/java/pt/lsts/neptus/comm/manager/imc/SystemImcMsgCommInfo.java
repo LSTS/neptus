@@ -342,7 +342,7 @@ public class SystemImcMsgCommInfo extends SystemCommBaseInfo<IMCMessage, Message
                     double lat = msg.getDouble("lat");
                     double lon = msg.getDouble("lon");
                     double height = msg.getDouble("height");
-                    msg.getDouble("depth");
+                    double depth = msg.getDouble("depth");
                     msg.getDouble("altitude");
                     double x = msg.getDouble("x");
                     double y = msg.getDouble("y");
@@ -355,6 +355,7 @@ public class SystemImcMsgCommInfo extends SystemCommBaseInfo<IMCMessage, Message
                     loc.setLatitudeRads(lat);
                     loc.setLongitudeRads(lon);
                     loc.setHeight(height);
+                    loc.setDepth(depth);
                     loc.setOffsetNorth(x);
                     loc.setOffsetEast(y);
                     loc.setOffsetDown(z);
