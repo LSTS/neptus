@@ -33,8 +33,11 @@
 package pt.lsts.neptus.plugins.caravelenv;
 
 import com.google.common.eventbus.Subscribe;
+import org.apache.commons.lang3.tuple.Triple;
 import pt.lsts.imc.AirSaturation;
 import pt.lsts.imc.Chlorophyll;
+import pt.lsts.imc.CurrentProfile;
+import pt.lsts.imc.CurrentProfileCell;
 import pt.lsts.imc.DissolvedOrganicMatter;
 import pt.lsts.imc.DissolvedOxygen;
 import pt.lsts.imc.IMCMessage;
@@ -42,43 +45,66 @@ import pt.lsts.imc.Salinity;
 import pt.lsts.imc.Temperature;
 import pt.lsts.imc.Turbidity;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.colormap.ColorBarPainterUtil;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.colormap.ColorMapUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayer;
+import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.messages.listener.Periodic;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.renderer2d.OffScreenLayerImageControl;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.conf.PreferencesListener;
 import pt.lsts.neptus.util.coord.MapTileRendererCalculator;
+import scala.runtime.StringFormat;
 
 import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.RenderingHints;
 import java.awt.Transparency;
+import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
+
+import static com.sun.tools.doclint.Entity.gt;
 
 /**
  * @author pdias
  *
  */
 @PluginDescription(name = "Caravel Data Plotter", description = "Plotter for Caravel underway data.")
-public class CaravelDataPlotter extends ConsoleLayer implements PreferencesListener {
+public class CaravelDataPlotter extends ConsoleLayer implements PreferencesListener, MainVehicleChangeListener {
+
+    final static int ARROW_RADIUS = 12;
+    final static Path2D.Double arrow = new Path2D.Double();
+    static {
+        arrow.moveTo(-5, 6);
+        arrow.lineTo(0, -6);
+        arrow.lineTo(5, 6);
+        arrow.lineTo(0, 3);
+        arrow.lineTo(-5, 6);
+        arrow.closePath();
+    }
 
     @NeptusProperty(name = "Show temperature", userLevel = NeptusProperty.LEVEL.REGULAR, category = "Temperature")
     public boolean showTemp = false;
@@ -94,6 +120,8 @@ public class CaravelDataPlotter extends ConsoleLayer implements PreferencesListe
     public boolean showDissolvedOxygen = false;
     @NeptusProperty(name = "Show air saturation", userLevel = NeptusProperty.LEVEL.REGULAR, category = "Air Saturation")
     public boolean showAirSaturation = false;
+    @NeptusProperty(name = "Show water current", userLevel = NeptusProperty.LEVEL.REGULAR, category = "Water Current")
+    public boolean showWaterCurrent = false;
 
     @NeptusProperty(name = "Min temperature", userLevel = NeptusProperty.LEVEL.REGULAR, category = "Temperature")
     public double minTemp = 15;
@@ -151,6 +179,20 @@ public class CaravelDataPlotter extends ConsoleLayer implements PreferencesListe
     @NeptusProperty(name = "Air Saturation color map", userLevel = NeptusProperty.LEVEL.REGULAR, category = "Air Saturation")
     public ColorMap colormapAirSaturation = ColorMapFactory.createJetColorMap();
 
+    @NeptusProperty(name = "Min water current", userLevel = NeptusProperty.LEVEL.REGULAR, category = "Water Current")
+    public double minWaterCurrent = -2;
+    @NeptusProperty(name = "Max water current", userLevel = NeptusProperty.LEVEL.REGULAR, category = "Water Current")
+    public double maxWaterCurrent = 2;
+
+    @NeptusProperty(name = "Water Current color map", userLevel = NeptusProperty.LEVEL.REGULAR, category = "Water Current")
+    public ColorMap colormapWaterCurrent = ColorMapFactory.createJetColorMap();
+    @NeptusProperty(name = "Water Current Depth", userLevel = NeptusProperty.LEVEL.REGULAR, category = "Water Current",
+            description = "The layer to show the water current data (m).")
+    public double waterCurrentDepth = 2.0;
+    @NeptusProperty(name = "Water Current Depth Window (m)", userLevel = NeptusProperty.LEVEL.REGULAR, category = "Water Current",
+            description = "Window is +- this value from the waterCurrentDepth.")
+    public short waterCurrentDepthWindow = 2;
+
     @NeptusProperty(name = "Max samples", userLevel = NeptusProperty.LEVEL.REGULAR)
     public int maxSamples = 35000;
 
@@ -164,6 +206,7 @@ public class CaravelDataPlotter extends ConsoleLayer implements PreferencesListe
     private OffScreenLayerImageControl offScreenDissolvedOrganicMatter = new OffScreenLayerImageControl();
     private OffScreenLayerImageControl offScreenDissolvedOxygen = new OffScreenLayerImageControl();
     private OffScreenLayerImageControl offScreenAirSaturation = new OffScreenLayerImageControl();
+    private OffScreenLayerImageControl offScreenWaterCurrent = new OffScreenLayerImageControl();
 
     private Thread painterThread = null;
     private AtomicBoolean abortIndicator = null;
@@ -175,18 +218,41 @@ public class CaravelDataPlotter extends ConsoleLayer implements PreferencesListe
     private List<DataPoint> pointsDissolvedOrganicMatter = Collections.synchronizedList(new LinkedList<>());
     private List<DataPoint> pointsDissolvedOxygen = Collections.synchronizedList(new LinkedList<>());
     private List<DataPoint> pointsAirSaturation = Collections.synchronizedList(new LinkedList<>());
+    private List<DataPointPolar> pointsWaterCurrent = Collections.synchronizedList(new LinkedList<>());
 
     private AtomicInteger trigger = new AtomicInteger(0);
     private int triggerCount = 0;
 
-    private class DataPoint {
+    @Override
+    public void mainVehicleChange(String id) {
+        pointsTemp.clear();
+        pointsSalinity.clear();
+        pointsTurbidity.clear();
+        pointsChlorophyll.clear();
+        pointsDissolvedOrganicMatter.clear();
+        pointsDissolvedOxygen.clear();
+        pointsAirSaturation.clear();
+        pointsWaterCurrent.clear();
+    }
+
+    private static class DataPoint {
         LocationType location = null;
         double value = Double.NaN;
     }
 
-    private class DataPointXY {
+    private static class DataPointPolar extends DataPoint {
+        double directionRads = Double.NaN;
+        double zDown = Double.NaN;
+    }
+
+    private static class DataPointXY {
         Point2D point = null;
         double value = Double.NaN;
+    }
+
+    private static class DataPointXYPolar extends DataPointXY {
+        double directionRads = Double.NaN;
+        double zDown = Double.NaN;
     }
 
     /* (non-Javadoc)
@@ -273,6 +339,12 @@ public class CaravelDataPlotter extends ConsoleLayer implements PreferencesListe
         return sys == null ? null : sys.getLocation();
     }
 
+    private double getSystemLocationDepth() {
+        // TODO FIXME
+        ImcSystem sys = ImcSystemsHolder.getSystemWithName(getConsole().getMainSystem());
+        return sys == null ? Double.NaN : sys.getLocation().getDepth();
+    }
+
     private void extractSensorMeasurementValueFromMessage(double value, List<DataPoint> points, IMCMessage msg) {
         LocationType loc = getSystemLocation();
         DataPoint pt = new DataPoint();
@@ -287,55 +359,144 @@ public class CaravelDataPlotter extends ConsoleLayer implements PreferencesListe
 
     @Subscribe
     public void on(Temperature msg) {
+        if (!getConsole().getMainSystem().equalsIgnoreCase(msg.getSourceName())) {
+            return;
+        }
         extractSensorMeasurementValueFromMessage(msg.getValue(), pointsTemp, msg);
         offScreenTemperature.triggerImageRebuild();
     }
 
     @Subscribe
     public void on(Salinity msg) {
+        if (!getConsole().getMainSystem().equalsIgnoreCase(msg.getSourceName())) {
+            return;
+        }
         extractSensorMeasurementValueFromMessage(msg.getValue(), pointsSalinity, msg);
         offScreenSalinity.triggerImageRebuild();
     }
 
     @Subscribe
     public void on(Turbidity msg) {
+        if (!getConsole().getMainSystem().equalsIgnoreCase(msg.getSourceName())) {
+            return;
+        }
         extractSensorMeasurementValueFromMessage(msg.getValue(), pointsTurbidity, msg);
         offScreenTurbidity.triggerImageRebuild();
     }
 
     @Subscribe
     public void on(Chlorophyll msg) {
+        if (!getConsole().getMainSystem().equalsIgnoreCase(msg.getSourceName())) {
+            return;
+        }
         extractSensorMeasurementValueFromMessage(msg.getValue(), pointsChlorophyll, msg);
         offScreenChlorophyll.triggerImageRebuild();
     }
 
     @Subscribe
     public void on(DissolvedOrganicMatter msg) {
+        if (!getConsole().getMainSystem().equalsIgnoreCase(msg.getSourceName())) {
+            return;
+        }
         extractSensorMeasurementValueFromMessage(msg.getValue(), pointsDissolvedOrganicMatter, msg);
         offScreenDissolvedOrganicMatter.triggerImageRebuild();
     }
 
     @Subscribe
     public void on(DissolvedOxygen msg) {
+        if (!getConsole().getMainSystem().equalsIgnoreCase(msg.getSourceName())) {
+            return;
+        }
         extractSensorMeasurementValueFromMessage(msg.getValue(), pointsDissolvedOxygen, msg);
         offScreenDissolvedOxygen.triggerImageRebuild();
     }
 
     @Subscribe
     public void on(AirSaturation msg) {
+        if (!getConsole().getMainSystem().equalsIgnoreCase(msg.getSourceName())) {
+            return;
+        }
         extractSensorMeasurementValueFromMessage(msg.getValue(), pointsAirSaturation, msg);
         offScreenAirSaturation.triggerImageRebuild();
     }
 
+    @Subscribe
+    public void on(CurrentProfile msg) {
+        if (!getConsole().getMainSystem().equalsIgnoreCase(msg.getSourceName())) {
+            return;
+        }
+
+        LocationType loc = getSystemLocation();
+        double depth = getSystemLocationDepth();
+
+        switch (msg.getCoordSys()) {
+            case CurrentProfile.UTF_BEAMS:
+                NeptusLog.pub().warn("BEAMS not supported yet.");
+                return;
+            case CurrentProfile.UTF_XYZ: // TODO FIXME, now it is the same as UTF_ENU
+            case CurrentProfile.UTF_NED:
+            // case CurrentProfile.UTF_ENU: // TODO FIXME
+            default:
+                break;
+        }
+
+        short nBeams = msg.getNbeams();
+        short nCells = msg.getNcells();
+
+        if (nBeams != 3 && nBeams != 4) {
+            NeptusLog.pub().warn("Only 3 or 4 beams supported.");
+            return;
+        }
+
+        if (msg.getProfile().size() != nCells) {
+            NeptusLog.pub().warn("Number of cells does not match the profile size.");
+            return;
+        }
+
+        Vector<CurrentProfileCell> profile = msg.getProfile();
+        for (int i = 0; i < profile.size(); i++) {
+            CurrentProfileCell cpcell = profile.get(i);
+            List<DataPointPolar> points = pointsWaterCurrent;
+
+            double measureDepth = cpcell.getCellPosition() + (depth < 0 ? 0 : depth);
+
+            DataPointPolar pt = new DataPointPolar();
+            pt.location = loc;
+            Triple<Double, Double, Double> valueSDQ = calcWaterSpeedAndDirectionFromBeams(nBeams, cpcell);
+            if (!Double.isNaN(valueSDQ.getLeft()) && !Double.isNaN(valueSDQ.getMiddle()) && !Double.isNaN(valueSDQ.getRight())) {
+                pt.value = valueSDQ.getLeft();
+                pt.directionRads = valueSDQ.getMiddle();
+                pt.zDown = measureDepth;
+                points.add(pt);
+            }
+        }
+
+        if (pointsWaterCurrent.size() > maxSamples)
+            pointsWaterCurrent.remove(0);
+        trigger.incrementAndGet();
+    }
+
+    private Triple<Double, Double, Double> calcWaterSpeedAndDirectionFromBeams(short nBeams, CurrentProfileCell cpcell) {
+        double vel = Double.NaN;
+        double dirRads = Double.NaN;
+        double z = Double.NaN;
+
+        if (nBeams == 3 || nBeams == 4) {
+            vel = Math.sqrt(Math.pow(cpcell.getBeams().get(0).getVel(), 2) + Math.pow(cpcell.getBeams().get(1).getVel(), 2));
+            // East, North
+            dirRads = AngleUtils.nomalizeAngleRads2Pi(AngleUtils.calcAngle(0, 0, cpcell.getBeams().get(0).getVel(), cpcell.getBeams().get(1).getVel()));
+            // Up to Down
+            z = -1 * cpcell.getBeams().get(2).getVel();
+        }
+        if (nBeams == 4) {
+            z = -1 * (cpcell.getBeams().get(2).getVel() + cpcell.getBeams().get(3).getVel()) / 2.0;
+        }
+        return Triple.of(vel, dirRads, z);
+    }
+
     @Periodic(value = 2_000)
     private void update() {
-        offScreenTemperature.triggerImageRebuild();
-        offScreenSalinity.triggerImageRebuild();
-        offScreenTurbidity.triggerImageRebuild();
-        offScreenChlorophyll.triggerImageRebuild();
-        offScreenDissolvedOrganicMatter.triggerImageRebuild();
-        offScreenDissolvedOxygen.triggerImageRebuild();
-        offScreenAirSaturation.triggerImageRebuild();
+        triggerAllImagesRebuild();
     }
 
     /* (non-Javadoc)
@@ -345,13 +506,15 @@ public class CaravelDataPlotter extends ConsoleLayer implements PreferencesListe
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         super.paint(g, renderer);
 
-        boolean recreateImage = offScreenSalinity.paintPhaseStartTestRecreateImageAndRecreate(g, renderer)
-                || offScreenTemperature.paintPhaseStartTestRecreateImageAndRecreate(g, renderer)
-                || offScreenTurbidity.paintPhaseStartTestRecreateImageAndRecreate(g, renderer)
-                || offScreenChlorophyll.paintPhaseStartTestRecreateImageAndRecreate(g, renderer)
-                || offScreenDissolvedOrganicMatter.paintPhaseStartTestRecreateImageAndRecreate(g, renderer)
-                || offScreenDissolvedOxygen.paintPhaseStartTestRecreateImageAndRecreate(g, renderer)
-                || offScreenAirSaturation.paintPhaseStartTestRecreateImageAndRecreate(g, renderer);
+        // Wee need all tests to run to recreate the image cache and not just the first one that is true
+        boolean recreateImage = offScreenSalinity.paintPhaseStartTestRecreateImageAndRecreate(g, renderer);
+        recreateImage = offScreenTemperature.paintPhaseStartTestRecreateImageAndRecreate(g, renderer) || recreateImage;
+        recreateImage = offScreenTurbidity.paintPhaseStartTestRecreateImageAndRecreate(g, renderer) || recreateImage;
+        recreateImage = offScreenChlorophyll.paintPhaseStartTestRecreateImageAndRecreate(g, renderer) || recreateImage;
+        recreateImage = offScreenDissolvedOrganicMatter.paintPhaseStartTestRecreateImageAndRecreate(g, renderer) || recreateImage;
+        recreateImage = offScreenDissolvedOxygen.paintPhaseStartTestRecreateImageAndRecreate(g, renderer) || recreateImage;
+        recreateImage = offScreenAirSaturation.paintPhaseStartTestRecreateImageAndRecreate(g, renderer) || recreateImage;
+        recreateImage = offScreenWaterCurrent.paintPhaseStartTestRecreateImageAndRecreate(g, renderer) || recreateImage;
 
         int c = trigger.get();
         if (c != triggerCount) {
@@ -382,15 +545,17 @@ public class CaravelDataPlotter extends ConsoleLayer implements PreferencesListe
                     Graphics2D g2DissolvedOrganicMatter = offScreenDissolvedOrganicMatter.getImageGraphics();
                     Graphics2D g2DissolvedOxygen = offScreenDissolvedOxygen.getImageGraphics();
                     Graphics2D g2AirSaturation = offScreenAirSaturation.getImageGraphics();
+                    Graphics2D g2WaterCurrent = offScreenWaterCurrent.getImageGraphics();
 
                     try {
-                        ArrayList<DataPointXY> ptsTemp = new ArrayList<>();
-                        ArrayList<DataPointXY> ptsSalinity = new ArrayList<>();
-                        ArrayList<DataPointXY> ptsTurbidity = new ArrayList<>();
-                        ArrayList<DataPointXY> ptsChlorophyll = new ArrayList<>();
-                        ArrayList<DataPointXY> ptsDissolvedOrganicMatter = new ArrayList<>();
-                        ArrayList<DataPointXY> ptsDissolvedOxygen = new ArrayList<>();
-                        ArrayList<DataPointXY> ptsAirSaturation = new ArrayList<>();
+                        List<DataPointXY> ptsTemp = new ArrayList<>();
+                        List<DataPointXY> ptsSalinity = new ArrayList<>();
+                        List<DataPointXY> ptsTurbidity = new ArrayList<>();
+                        List<DataPointXY> ptsChlorophyll = new ArrayList<>();
+                        List<DataPointXY> ptsDissolvedOrganicMatter = new ArrayList<>();
+                        List<DataPointXY> ptsDissolvedOxygen = new ArrayList<>();
+                        List<DataPointXY> ptsAirSaturation = new ArrayList<>();
+                        List<DataPointXYPolar> ptsWaterCurrent = new ArrayList<>();
 
                         if (showTemp) {
                             ptsTemp = transformDataPointsToXY(pointsTemp, rendererCalculator);
@@ -412,6 +577,9 @@ public class CaravelDataPlotter extends ConsoleLayer implements PreferencesListe
                         }
                         if (showAirSaturation) {
                             ptsAirSaturation = transformDataPointsToXY(pointsAirSaturation, rendererCalculator);
+                        }
+                        if (showWaterCurrent) {
+                            ptsWaterCurrent = transformCurrentDataPointsToXYPolar(pointsWaterCurrent, waterCurrentDepth, waterCurrentDepthWindow, rendererCalculator);
                         }
 
                         if (showTemp && !abortIndicator.get()) {
@@ -484,6 +652,17 @@ public class CaravelDataPlotter extends ConsoleLayer implements PreferencesListe
                             }
                         }
 
+                        if (showWaterCurrent && !abortIndicator.get()) {
+                            try {
+                                recreateSensorDataCacheImage(Collections.unmodifiableList(ptsWaterCurrent), colormapWaterCurrent, minWaterCurrent,
+                                    maxWaterCurrent, offScreenWaterCurrent, g2WaterCurrent, rendererCalculator);
+                            }
+                            catch (Exception e) {
+                                e.printStackTrace();
+                                offScreenWaterCurrent.triggerImageRebuild();
+                            }
+                        }
+
                         g2Temp.dispose();
                         g2Salinity.dispose();
                         g2Turbidity.dispose();
@@ -491,16 +670,11 @@ public class CaravelDataPlotter extends ConsoleLayer implements PreferencesListe
                         g2DissolvedOrganicMatter.dispose();
                         g2DissolvedOxygen.dispose();
                         g2AirSaturation.dispose();
+                        g2WaterCurrent.dispose();
                     }
                     catch (Exception | Error e) {
                         e.printStackTrace();
-                        offScreenTemperature.triggerImageRebuild();
-                        offScreenSalinity.triggerImageRebuild();
-                        offScreenTurbidity.triggerImageRebuild();
-                        offScreenChlorophyll.triggerImageRebuild();
-                        offScreenDissolvedOrganicMatter.triggerImageRebuild();
-                        offScreenDissolvedOxygen.triggerImageRebuild();
-                        offScreenAirSaturation.triggerImageRebuild();
+                        triggerAllImagesRebuild();
                     }
 
                     renderer.invalidate();
@@ -517,11 +691,23 @@ public class CaravelDataPlotter extends ConsoleLayer implements PreferencesListe
         offScreenDissolvedOrganicMatter.paintPhaseEndFinishImageRecreateAndPaintImageCacheToRendererNoGraphicDispose(g, renderer);
         offScreenDissolvedOxygen.paintPhaseEndFinishImageRecreateAndPaintImageCacheToRendererNoGraphicDispose(g, renderer);
         offScreenAirSaturation.paintPhaseEndFinishImageRecreateAndPaintImageCacheToRendererNoGraphicDispose(g, renderer);
+        offScreenWaterCurrent.paintPhaseEndFinishImageRecreateAndPaintImageCacheToRendererNoGraphicDispose(g, renderer);
 
         paintColorbars(g, renderer);
     }
 
-    private void recreateSensorDataCacheImage(ArrayList<DataPointXY> pts, ColorMap colormap, double minVal,
+    private void triggerAllImagesRebuild() {
+        offScreenTemperature.triggerImageRebuild();
+        offScreenSalinity.triggerImageRebuild();
+        offScreenTurbidity.triggerImageRebuild();
+        offScreenChlorophyll.triggerImageRebuild();
+        offScreenDissolvedOrganicMatter.triggerImageRebuild();
+        offScreenDissolvedOxygen.triggerImageRebuild();
+        offScreenAirSaturation.triggerImageRebuild();
+        offScreenWaterCurrent.triggerImageRebuild();
+    }
+
+    private void recreateSensorDataCacheImage(List<DataPointXY> pts, ColorMap colormap, double minVal,
                                               double maxVal, OffScreenLayerImageControl offScreenImageControl, Graphics2D g2,
                                               MapTileRendererCalculator rendererCalculator) {
         double fullImgWidth = rendererCalculator.getSize().getWidth() + offScreenImageControl.getOffScreenBufferPixel() * 2.;
@@ -541,25 +727,15 @@ public class CaravelDataPlotter extends ConsoleLayer implements PreferencesListe
         cacheImgHeight *= cacheImgScaleY;
 
         BufferedImage cacheImg = createBufferedImage((int) cacheImgWidth, (int) cacheImgHeight, Transparency.TRANSLUCENT);
-        pts.parallelStream().forEach(pt -> {
-            try {
-                if (abortIndicator.get())
-                    return;
-
-                double v = (double) pt.value;
-
-                if (clampToFit
-                        && (Double.compare(v, minVal) < 0 || Double.compare(v, maxVal) > 0))
-                    return;
-
-                Color color = colormap.getColor(ColorMapUtils.getColorIndexZeroToOneLog10(v, minVal, maxVal));
-                cacheImg.setRGB((int) ((pt.point.getX() + offScreenImageControl.getOffScreenBufferPixel()) * cacheImgScaleX),
-                        (int) ((pt.point.getY() + offScreenImageControl.getOffScreenBufferPixel()) * cacheImgScaleY), color.getRGB());
+        boolean useArrows = false;
+        if (!pts.isEmpty()) {
+            DataPointXY pt0 = pts.get(0);
+            if (pt0 instanceof DataPointXYPolar) {
+                useArrows = true;
             }
-            catch (Exception e) {
-                NeptusLog.pub().trace(e);
-            }
-        });
+        }
+        pts.parallelStream().forEach(getDataPointXYSensorPainter(colormap, minVal, maxVal, offScreenImageControl,
+                cacheImg, cacheImgScaleX, cacheImgScaleY, rendererCalculator, useArrows));
 
         Graphics2D gt = (Graphics2D) g2.create();
         try {
@@ -579,7 +755,48 @@ public class CaravelDataPlotter extends ConsoleLayer implements PreferencesListe
             gt.dispose();
     }
 
-    private ArrayList<DataPointXY> transformDataPointsToXY(List<DataPoint> points, MapTileRendererCalculator rendererCalculator) {
+    private Consumer<DataPointXY> getDataPointXYSensorPainter(ColorMap colormap, double minVal, double maxVal,
+                                                              OffScreenLayerImageControl offScreenImageControl,
+                                                              BufferedImage cacheImg, double cacheImgScaleX, double cacheImgScaleY,
+                                                              MapTileRendererCalculator rendererCalculator, boolean useArrows) {
+        return pt -> {
+            try {
+                if (abortIndicator.get())
+                    return;
+
+                double v = (double) pt.value;
+
+                if (clampToFit
+                        && (Double.compare(v, minVal) < 0 || Double.compare(v, maxVal) > 0))
+                    return;
+
+                Color color = colormap.getColor(ColorMapUtils.getColorIndexZeroToOneLog10(v, minVal, maxVal));
+                if (useArrows && false) {
+                    try {
+                        DataPointXYPolar ptPloar = (DataPointXYPolar) pt;
+                        Graphics2D g2 = (Graphics2D) offScreenImageControl.getImageGraphics();
+                        g2.setColor(color);
+                        g2.translate((ptPloar.point.getX() + offScreenImageControl.getOffScreenBufferPixel()),
+                                (ptPloar.point.getY() + offScreenImageControl.getOffScreenBufferPixel()));
+                        double rot = ptPloar.directionRads + Math.PI / 2. - rendererCalculator.getRotation();
+                        g2.rotate(rot);
+                        g2.fill(arrow);
+                        g2.rotate(-rot);
+                    } catch (Exception e) {
+                        //NeptusLog.pub().trace(e);
+                    }
+                } else {
+                    cacheImg.setRGB((int) ((pt.point.getX() + offScreenImageControl.getOffScreenBufferPixel()) * cacheImgScaleX),
+                            (int) ((pt.point.getY() + offScreenImageControl.getOffScreenBufferPixel()) * cacheImgScaleY), color.getRGB());
+                }
+            }
+            catch (Exception e) {
+                NeptusLog.pub().trace(e);
+            }
+        };
+    }
+
+    private List<DataPointXY> transformDataPointsToXY(List<DataPoint> points, MapTileRendererCalculator rendererCalculator) {
         return points.stream().collect(ArrayList<DataPointXY>::new,
                 (r, p) -> {
                     if (abortIndicator.get()) {
@@ -613,6 +830,49 @@ public class CaravelDataPlotter extends ConsoleLayer implements PreferencesListe
                 });
     }
 
+    private List<DataPointXYPolar> transformCurrentDataPointsToXYPolar(List<DataPointPolar> points,
+                                                                       double waterCurrentDepth, int waterCurrentDepthWindow,
+                                                                       MapTileRendererCalculator rendererCalculator) {
+        final double minDepth = waterCurrentDepth - waterCurrentDepthWindow;
+        final double maxDepth = waterCurrentDepth + waterCurrentDepthWindow;
+        return points.stream().filter(dp -> dp.zDown >= minDepth && dp.zDown <= maxDepth)
+                .collect(ArrayList<DataPointXYPolar>::new,
+                (r, p) -> {
+                    if (abortIndicator.get()) {
+                        return;
+                    }
+                    Point2D pxy = rendererCalculator.getScreenPosition(p.location);
+                    DataPointXYPolar dpxy = new DataPointXYPolar();
+                    dpxy.point = pxy;
+                    dpxy.value = p.value;
+                    dpxy.directionRads = p.directionRads;
+                    dpxy.zDown = p.zDown;
+                    r.add(dpxy);
+                }, (r1, r2) -> {
+                    for (DataPointXYPolar d2 : r2) {
+                        if (abortIndicator.get()) {
+                            break;
+                        }
+                        boolean found = false;
+                        for (DataPointXYPolar d1 : r1) {
+                            if (abortIndicator.get()) {
+                                break;
+                            }
+                            if (d2.point.equals(d1.point)) {
+                                d1.value = (d1.value + d2.value) / 2.;
+                                d1.directionRads = (d1.directionRads + d2.directionRads) / 2.;
+                                d1.zDown = (d1.zDown + d2.zDown) / 2.;
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) {
+                            r1.add(d2);
+                        }
+                    }
+                });
+    }
+
     private static BufferedImage createBufferedImage(int cacheImgWidth, int cacheImgHeight, int translucent) {
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         GraphicsDevice gs = ge.getDefaultScreenDevice();
@@ -620,21 +880,72 @@ public class CaravelDataPlotter extends ConsoleLayer implements PreferencesListe
         return gc.createCompatibleImage((int) cacheImgWidth , (int) cacheImgHeight , Transparency.TRANSLUCENT);
     }
 
+    private void paintColorbars(Graphics2D go, StateRenderer2D renderer) {
+        int offsetHeight = 130 * 2;
+        int offsetWidth = 5;
+        int offsetDelta = 130;
+
+        if (showTemp) {
+            Graphics2D gl = (Graphics2D) go.create();
+            gl.translate(offsetWidth, offsetHeight);
+            ColorBarPainterUtil.paintColorBar(go, colormapTemp, "Temperature", "ºC", minTemp, maxTemp);
+            gl.dispose();
+            offsetHeight += offsetDelta;
+        } else if (showSal) {
+            Graphics2D gl = (Graphics2D) go.create();
+            gl.translate(offsetWidth, offsetHeight);
+            ColorBarPainterUtil.paintColorBar(go, colormapSal, "Salinity", "PSU", minSal, maxSal);
+            gl.dispose();
+            offsetHeight += offsetDelta;
+        } else if (showTurbidity) {
+            Graphics2D gl = (Graphics2D) go.create();
+            gl.translate(offsetWidth, offsetHeight);
+            ColorBarPainterUtil.paintColorBar(go, colormapTurbidity, "Turbidity", "NTU", minTurbidity, maxTurbidity);
+            gl.dispose();
+            offsetHeight += offsetDelta;
+        } else if (showChlorophyll) {
+            Graphics2D gl = (Graphics2D) go.create();
+            gl.translate(offsetWidth, offsetHeight);
+            ColorBarPainterUtil.paintColorBar(go, colormapChlorophyll, "Chlorophyll", "µg/L", minChlorophyll, maxChlorophyll);
+            gl.dispose();
+            offsetHeight += offsetDelta;
+        } else if (showDissolvedOrganicMatter) {
+            Graphics2D gl = (Graphics2D) go.create();
+            gl.translate(offsetWidth, offsetHeight);
+            ColorBarPainterUtil.paintColorBar(go, colormapDissolvedOrganicMatter, "Dissolved Organic Matter", "PPB", minDissolvedOrganicMatter, maxDissolvedOrganicMatter);
+            gl.dispose();
+            offsetHeight += offsetDelta;
+        } else if (showDissolvedOxygen) {
+            Graphics2D gl = (Graphics2D) go.create();
+            gl.translate(offsetWidth, offsetHeight);
+            ColorBarPainterUtil.paintColorBar(go, colormapDissolvedOxygen, "Dissolved Oxygen", "µM", minDissolvedOxygen, maxDissolvedOxygen);
+            gl.dispose();
+            offsetHeight += offsetDelta;
+        } else if (showAirSaturation) {
+            Graphics2D gl = (Graphics2D) go.create();
+            gl.translate(offsetWidth, offsetHeight);
+            ColorBarPainterUtil.paintColorBar(go, colormapAirSaturation, "Air Saturation", "%", minAirSaturation, maxAirSaturation);
+            gl.dispose();
+            offsetHeight += offsetDelta;
+        } else if (showWaterCurrent) {
+            Graphics2D gl = (Graphics2D) go.create();
+            gl.translate(offsetWidth, offsetHeight);
+            String txtName = String.format("Water Current [%.2f ±%d]", waterCurrentDepth, waterCurrentDepthWindow);
+            ColorBarPainterUtil.paintColorBar(go, colormapWaterCurrent, txtName, "m/s", minWaterCurrent, maxWaterCurrent);
+            gl.dispose();
+            offsetHeight += offsetDelta;
+        }
+    }
+
     /**
      * @param go
      * @param renderer
      */
-    private void paintColorbars(Graphics2D go, StateRenderer2D renderer) {
-//        int offsetHeight = 130;
-//        int offsetWidth = 5;
-//        int offsetDelta = 130;
-//        if (showSal) {
-//            Graphics2D gl = (Graphics2D) go.create();
-//            gl.translate(offsetWidth, offsetHeight);
-//            ColorBarPainterUtil.paintColorBar(gl, colorMapVar, I18n.text(info.name), info.unit, minValue, maxValue);
-//            gl.dispose();
-//            offsetHeight += offsetDelta;
-//        }
+    private void paintColorbars(Graphics2D go, StateRenderer2D renderer, ColorMap colormap, String name,
+                                String unit, double minValue, double maxValue) {
+        Graphics2D gl = (Graphics2D) go.create();
+        ColorBarPainterUtil.paintColorBar(gl, colormap, name, unit, minValue, maxValue);
+        gl.dispose();
     }
 
     /* (non-Javadoc)
@@ -642,6 +953,7 @@ public class CaravelDataPlotter extends ConsoleLayer implements PreferencesListe
      */
     @Override
     public void preferencesUpdated() {
+        triggerAllImagesRebuild();
         getConsole().repaint();
     }
 }
