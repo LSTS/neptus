@@ -43,6 +43,7 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
+import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -51,6 +52,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 
+import org.jdesktop.swingx.JXBusyLabel;
 import org.jdesktop.swingx.JXStatusBar;
 
 import net.miginfocom.swing.MigLayout;
@@ -148,7 +150,17 @@ public class MRAPanel extends JPanel {
         // adds Exporters MenuItem to Tools menu after a Log is loaded
         mra.getBgp().setText(I18n.text("Setup exporters menu."));
         Thread thread = new Thread(() -> {
+            JPanel panel = new JPanel();
+            panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
+            JLabel jlabel = new JLabel("Loading exporters...");
+            JXBusyLabel busy = InfiniteProgressPanel.createBusyAnimationInfiniteBeans(20);
+            busy.setBusy(true);
+            panel.add(jlabel);
+            panel.add(busy);
+            statusBar.add(panel);
+
             mra.getMRAMenuBar().setUpExportersMenu(source);
+            reDrawStatusBar();
         });
         thread.start();
         mra.getBgp().setText(I18n.text("Finishing loading"));
