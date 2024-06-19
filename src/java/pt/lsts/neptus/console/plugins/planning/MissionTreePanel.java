@@ -425,6 +425,22 @@ public class MissionTreePanel extends ConsolePanel
                     });
         }
 
+        private void addActionSendPlanInfoRequest(final ConsoleLayout console2, final PlanDBControl pdbControl,
+                                       final ArrayList<NameId> selectedItems, JPopupMenu popupMenu) {
+            if (!usePlanDBSyncFeatures)
+                return;
+
+            popupMenu.add(I18n.textf("Get %planName info from %system", getPlanNamesString(selectedItems, true), console2.getMainSystem()))
+                    .addActionListener(e -> {
+                                for (NameId nameId : selectedItems) {
+                                    PlanType sel = (PlanType) nameId;
+                                    String mainSystem = console2.getMainSystem();
+                                    pdbControl.setRemoteSystemId(mainSystem);
+                                    pdbControl.requestPlanInfo(sel.getId());
+                                }
+                            });
+        }
+
         private <T extends NameId> StringBuilder getPlanNamesString(final ArrayList<T> selectedItems, boolean plans) {
             StringBuilder objectNames = new StringBuilder();
             
@@ -640,6 +656,13 @@ public class MissionTreePanel extends ConsolePanel
                         addActionSendPlan(getConsole(), pdbControl, toSend, popupMenu);
                     if (toGetPlan.size() > 0)
                         addActionGetRemotePlan(getConsole(), pdbControl, toGetPlan, popupMenu);
+                    if (!toRemoveRemotely.isEmpty() || !toGetPlan.isEmpty()) {
+                        ArrayList<NameId> toGetInfo = new ArrayList<>();
+                        toGetInfo.addAll(toRemoveRemotely);
+                        toGetInfo.addAll(toGetPlan);
+                        toGetInfo = toGetInfo.stream().distinct().collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
+                        addActionSendPlanInfoRequest(getConsole(), pdbControl, toGetInfo, popupMenu);
+                    }
                     break;
                 case Transponder:
                     addActionAddNewTrans(popupMenu);
