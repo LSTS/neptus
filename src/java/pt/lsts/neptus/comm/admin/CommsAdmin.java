@@ -41,6 +41,7 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.comm.iridium.ImcIridiumMessage;
 import pt.lsts.neptus.comm.iridium.IridiumManager;
+import pt.lsts.neptus.comm.iridium.UpdateDeviceActivation;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
@@ -49,11 +50,14 @@ import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 import java.awt.Component;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -68,6 +72,7 @@ public class CommsAdmin {
     public static final int COMM_TIMEOUT_MILLIS = 20000;
     public static final int MAX_ACOMMS_PAYLOAD_SIZE = 998;
     public static final double TIMEOUT_ACOMMS_SECS = 60;
+    private int minutesBetweenDeviceActivationSendSeconds = 5;
 
     public enum CommChannelType {
         WIFI("WiFi", "Wi-Fi channel", "images/channels/wifi.png",
@@ -131,6 +136,8 @@ public class CommsAdmin {
 
     private ImcMsgManager imcMsgManager = null;
     private List<CommChannelType> channels = new ArrayList<>();
+
+    private Map<String, LocalDateTime> lastIridiumMessageSent = new HashMap<>();
 
     public CommsAdmin(ImcMsgManager imcMsgManager) {
         this.imcMsgManager = imcMsgManager;
@@ -296,8 +303,9 @@ public class CommsAdmin {
                     }
                     break;
                 case IRIDIUM:
-                        sendViaIridium(destinationName, message, waiter);
-                        return result;
+                    sendDeviceActivationViaIridiumIfNeeded(destinationName);
+                    sendViaIridium(destinationName, message, waiter);
+                    return result;
                 case GSM:
                 default:
                     break;
@@ -379,7 +387,7 @@ public class CommsAdmin {
             irMsgs = IridiumManager.iridiumEncode(message);
         }
         catch (Exception e) {
-            NeptusLog.pub().warn( "Send by Iridium :: " + e.getMessage());
+            NeptusLog.pub().warn("Send by Iridium :: " + e.getMessage());
             waiter.deliveryError(message, e);
             return;
         }
@@ -405,6 +413,26 @@ public class CommsAdmin {
         catch (Exception e) {
             NeptusLog.pub().warn("Send by Iridium :: " + e.getMessage());
             waiter.deliveryError(message, e);
+        }
+    }
+
+    private void sendDeviceActivationViaIridiumIfNeeded(String destinationName) {
+        LocalDateTime lastSent = lastIridiumMessageSent.get(destinationName);
+        if (lastSent == null || lastSent.plusMinutes(minutesBetweenDeviceActivationSendSeconds).isAfter(LocalDateTime.now())) {
+            lastIridiumMessageSent.put(destinationName, LocalDateTime.now());
+            int src = ImcMsgManager.getManager().getLocalId().intValue();
+            int dst = IMCDefinition.getInstance().getResolver().resolve(destinationName);
+            UpdateDeviceActivation act = new UpdateDeviceActivation();
+            act.setDestination(dst);
+            act.setSource(src);
+            act.timestampMillis = System.currentTimeMillis();
+            act.setOperation(UpdateDeviceActivation.OperationType.OP_ACTIVATE);
+            act.setTimestamp(act.timestampMillis);
+            try {
+                IridiumManager.getManager().send(act);
+            } catch (Exception e) {
+                NeptusLog.pub().warn("Send by Iridium :: " + e.getMessage());
+            }
         }
     }
 }
