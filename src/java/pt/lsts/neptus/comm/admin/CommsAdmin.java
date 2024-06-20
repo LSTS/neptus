@@ -47,6 +47,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.comm.manager.imc.MessageDeliveryListener;
 import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.util.ByteUtil;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 import java.awt.Component;
@@ -72,7 +73,7 @@ public class CommsAdmin {
     public static final int COMM_TIMEOUT_MILLIS = 20000;
     public static final int MAX_ACOMMS_PAYLOAD_SIZE = 998;
     public static final double TIMEOUT_ACOMMS_SECS = 60;
-    private int minutesBetweenDeviceActivationSendSeconds = 5;
+    private int minutesBetweenDeviceActivationSendMinutes = 5;
 
     public enum CommChannelType {
         WIFI("WiFi", "Wi-Fi channel", "images/channels/wifi.png",
@@ -418,7 +419,7 @@ public class CommsAdmin {
 
     private void sendDeviceActivationViaIridiumIfNeeded(String destinationName) {
         LocalDateTime lastSent = lastIridiumMessageSent.get(destinationName);
-        if (lastSent == null || lastSent.plusMinutes(minutesBetweenDeviceActivationSendSeconds).isAfter(LocalDateTime.now())) {
+        if (lastSent == null || lastSent.plusMinutes(minutesBetweenDeviceActivationSendMinutes).isAfter(LocalDateTime.now())) {
             lastIridiumMessageSent.put(destinationName, LocalDateTime.now());
             int src = ImcMsgManager.getManager().getLocalId().intValue();
             int dst = IMCDefinition.getInstance().getResolver().resolve(destinationName);
@@ -427,8 +428,9 @@ public class CommsAdmin {
             act.setSource(src);
             act.timestampMillis = System.currentTimeMillis();
             act.setOperation(UpdateDeviceActivation.OperationType.OP_ACTIVATE);
-            act.setTimestamp(act.timestampMillis);
+            act.setTimestampSeconds(act.timestampMillis / 1000.);
             try {
+                NeptusLog.pub().warn(">>>> Send activation request <<<< " + ByteUtil.encodeToHex(act.serialize()));
                 IridiumManager.getManager().send(act);
             } catch (Exception e) {
                 NeptusLog.pub().warn("Send by Iridium :: " + e.getMessage());

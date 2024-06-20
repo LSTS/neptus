@@ -56,15 +56,15 @@ public class UpdateDeviceActivation extends IridiumMessage {
     }
 
 
-    protected double timestamp = System.currentTimeMillis();
+    protected double timestampSeconds = System.currentTimeMillis() / 1000.;
     protected OperationType operation = OperationType.OP_ACTIVATE;
 
-    public double getTimestamp() {
-        return timestamp;
+    public double getTimestampSeconds() {
+        return timestampSeconds;
     }
 
-    public void setTimestamp(double timestamp) {
-        this.timestamp = timestamp;
+    public void setTimestampSeconds(double timestampSeconds) {
+        this.timestampSeconds = timestampSeconds;
     }
 
     public OperationType getOperation() {
@@ -77,21 +77,21 @@ public class UpdateDeviceActivation extends IridiumMessage {
 
     @Override
     public int serializeFields(IMCOutputStream out) throws Exception {
-        out.writeDouble(timestampMillis);
+        out.writeDouble(timestampSeconds);
         out.writeByte(operation.ordinal());
-        return 5;
+        return 9;
     }
 
     @Override
     public int deserializeFields(IMCInputStream in) throws Exception {
         try {
-            timestamp = in.readDouble();
+            timestampSeconds = in.readDouble();
             operation = OperationType.values()[in.readUnsignedByte()];
         }
         catch (Exception e) {
             // empty
         }
-        return 5;
+        return 9;
     }
 
     @Override
@@ -102,7 +102,7 @@ public class UpdateDeviceActivation extends IridiumMessage {
     @Override
     public String toString() {
         String s = super.toString();
-        s +=  "\t[timestamp: "+timestamp+"]\n";
+        s +=  "\t[timestampSeconds: "+timestampSeconds+"]\n";
         s +=  "\t[operation: "+operation.name()+"]\n";
         return s;
     }
