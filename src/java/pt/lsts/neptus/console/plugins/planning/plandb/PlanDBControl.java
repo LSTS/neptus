@@ -32,8 +32,6 @@
  */
 package pt.lsts.neptus.console.plugins.planning.plandb;
 
-import java.util.Vector;
-
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
@@ -46,6 +44,10 @@ import pt.lsts.neptus.messages.listener.MessageInfo;
 import pt.lsts.neptus.messages.listener.MessageListener;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Vector;
 
 /**
  * @author zp
@@ -179,6 +181,14 @@ public class PlanDBControl implements MessageListener<MessageInfo, IMCMessage> {
                 PlanDBInfo pinfo = new PlanDBInfo();
                 pinfo.parseIMCMessage(msg.getMessage("arg"));
                 remoteState.storedPlans.put(msg.getAsString("plan_id"), pinfo);
+
+                try {
+                    for (IPlanDBListener l : listeners)
+                        l.dbInfoUpdated(remoteState);
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
             else if (msg.getString("op").equals("DEL")) {
                 remoteState.storedPlans.remove(msg.getAsString("plan_id"));
