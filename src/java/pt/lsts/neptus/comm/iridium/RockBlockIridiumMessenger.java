@@ -288,7 +288,7 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
                 if (m.getReceivedDate().before(timeSince)) {
                     break;
                 }
-                else {
+                else if (m.getContent() instanceof MimeMultipart) {
                     MimeMultipart mime = (MimeMultipart) m.getContent();
                     for (int j = 0; j < mime.getCount(); j++) {
                         BodyPart p = mime.getBodyPart(j);
