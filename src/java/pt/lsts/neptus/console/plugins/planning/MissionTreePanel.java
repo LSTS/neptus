@@ -656,8 +656,9 @@ public class MissionTreePanel extends ConsolePanel
                         addActionSendPlan(getConsole(), pdbControl, toSend, popupMenu);
                     if (toGetPlan.size() > 0)
                         addActionGetRemotePlan(getConsole(), pdbControl, toGetPlan, popupMenu);
-                    if (!toRemoveRemotely.isEmpty() || !toGetPlan.isEmpty()) {
+                    if (!toSend.isEmpty() || !toRemoveRemotely.isEmpty() || !toGetPlan.isEmpty()) {
                         ArrayList<NameId> toGetInfo = new ArrayList<>();
+                        toGetInfo.addAll(toSend);
                         toGetInfo.addAll(toRemoveRemotely);
                         toGetInfo.addAll(toGetPlan);
                         toGetInfo = toGetInfo.stream().distinct().collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
