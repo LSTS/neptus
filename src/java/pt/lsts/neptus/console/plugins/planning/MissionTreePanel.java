@@ -648,13 +648,13 @@ public class MissionTreePanel extends ConsolePanel
                             NeptusLog.pub().error("The plan " + extendedTreeNode + " has no state.");
                         }
                     }
-                    if (toRemoveRemotely.size() > 0)
+                    if (!toRemoveRemotely.isEmpty())
                         addActionRemovePlanRemotely(getConsole(), pdbControl, toRemoveRemotely, popupMenu);
-                    if (toRemoveLocally.size() > 0)
+                    if (!toRemoveLocally.isEmpty())
                         addActionRemovePlanLocally(getConsole(), toRemoveLocally, popupMenu);
-                    if (toSend.size() > 0)
+                    if (!toSend.isEmpty())
                         addActionSendPlan(getConsole(), pdbControl, toSend, popupMenu);
-                    if (toGetPlan.size() > 0)
+                    if (!toGetPlan.isEmpty())
                         addActionGetRemotePlan(getConsole(), pdbControl, toGetPlan, popupMenu);
                     if (!toSend.isEmpty() || !toRemoveRemotely.isEmpty() || !toGetPlan.isEmpty()) {
                         ArrayList<NameId> toGetInfo = new ArrayList<>();
@@ -682,10 +682,10 @@ public class MissionTreePanel extends ConsolePanel
                         if (state == State.NOT_SYNC)
                             notSyncTrans.add((TransponderElement) extendedTreeNode.getUserObject());
                     }
-                    if (localTrans.size() > 0) {
+                    if (!localTrans.isEmpty()) {
                         addActionRemoveTrans(localTrans, popupMenu);
                     }
-                    if (notSyncTrans.size() > 0) {
+                    if (!notSyncTrans.isEmpty()) {
                         addActionGetRemoteTrans(getConsole(), popupMenu, notSyncTrans);
                     }
                     
