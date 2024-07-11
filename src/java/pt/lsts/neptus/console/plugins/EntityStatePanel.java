@@ -54,15 +54,23 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
+import javax.swing.text.html.parser.Entity;
 
 import com.google.common.eventbus.Subscribe;
 
+import pt.lsts.imc.EntityList;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.neptus.comm.manager.imc.MessageDeliveryListener;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
+import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.gui.StatusLed;
 import pt.lsts.neptus.gui.ToolbarButton;
 import pt.lsts.neptus.i18n.I18n;
@@ -91,6 +99,7 @@ public class EntityStatePanel extends ConsolePanel implements NeptusMessageListe
     private final Color COLOR_RED = Color.RED;
 
     private final Icon ICON_CLEAR = ImageUtils.getScaledIcon("images/buttons/clear.png", 16, 16);
+    private final Icon ICON_RQST = ImageUtils.getScaledIcon("images/buttons/log.png", 16, 16);
 
     // Events Data
     private LinkedHashMap<String, EntityStateType> dataMap = new LinkedHashMap<String, EntityStateType>();
@@ -160,6 +169,13 @@ public class EntityStatePanel extends ConsolePanel implements NeptusMessageListe
             }
         });
         clearButton.setToolTipText(I18n.text("Clear table"));
+        ToolbarButton rqstEntListButton = new ToolbarButton(new AbstractAction("request", ICON_RQST) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                sendEntityListRequestMsg();;
+            }
+        });
+        rqstEntListButton.setToolTipText(I18n.text("Request entity list"));
         status = new StatusLed();
         status.made5LevelIndicator();
         status.setLevel(StatusLed.LEVEL_OFF);
@@ -167,6 +183,7 @@ public class EntityStatePanel extends ConsolePanel implements NeptusMessageListe
         wPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
         wPanel.add(status);
         wPanel.add(clearButton);
+        wPanel.add(rqstEntListButton);
         this.add(wPanel, BorderLayout.NORTH);
 
     }
@@ -381,6 +398,69 @@ public class EntityStatePanel extends ConsolePanel implements NeptusMessageListe
             }
             calcTotalState();
         }
+    }
+
+    void sendEntityListRequestMsg() {
+        try {
+            NeptusLog.pub().debug("Sending '" + getConsole().getMainSystem() + " | "
+                    + " EntityList request...");
+            EntityList msg = new EntityList();
+            msg.setOp(EntityList.OP.QUERY);
+            boolean ret = IMCSendMessageUtils.sendMessage(msg, ImcMsgManager.TRANSPORT_TCP,
+                    createDefaultMessageDeliveryListener(), this, I18n.text("Error requesting EntityList"),
+                    true, "", true, true, true,
+                    getConsole().getMainSystem());
+        }
+        catch (Exception e) {
+            NeptusLog.pub().warn(e);
+        }
+    }
+
+    private MessageDeliveryListener createDefaultMessageDeliveryListener() {
+        return (new MessageDeliveryListener() {
+
+            private String  getDest(IMCMessage message) {
+                ImcSystem sys = message != null ? ImcSystemsHolder.lookupSystem(message.getDst()) : null;
+                String dest = sys != null ? sys.getName() : I18n.text("unknown destination");
+                return dest;
+            }
+
+            @Override
+            public void deliveryUnreacheable(IMCMessage message) {
+                post(Notification.error(
+                        I18n.text("Delivering Message"),
+                        I18n.textf("Message %messageType to %destination delivery destination unreacheable",
+                                message.getAbbrev(), getDest(message))));
+            }
+
+            @Override
+            public void deliveryTimeOut(IMCMessage message) {
+                post(Notification.error(
+                        I18n.text("Delivering Message"),
+                        I18n.textf("Message %messageType to %destination delivery timeout",
+                                message.getAbbrev(), getDest(message))));
+            }
+
+            @Override
+            public void deliveryError(IMCMessage message, Object error) {
+                post(Notification.error(
+                        I18n.text("Delivering Message"),
+                        I18n.textf("Message %messageType to %destination delivery error. (%error)",
+                                message.getAbbrev(), getDest(message), error)));
+            }
+
+            @Override
+            public void deliveryUncertain(IMCMessage message, Object msg) {
+            }
+
+            @Override
+            public void deliverySuccess(IMCMessage message) {
+                //                post(Notification.success(
+                //                        I18n.text("Delivering Message"),
+                //                        I18n.textf("Message %messageType to %destination delivery success",
+                //                                message.getAbbrev(), getDest(message))));
+            }
+        });
     }
 
     /**
