@@ -32,19 +32,18 @@
  */
 package pt.lsts.neptus.comm.manager.imc;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-
 import pt.lsts.imc.EntityList;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.util.PropertiesLoader;
 import pt.lsts.neptus.util.conf.ConfigFetch;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * @author zp
@@ -53,34 +52,34 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
 public class EntitiesResolver {
     public static final String ENTITIES_RESOLVER_PROPERTIES_FILE = ".cache/db/entities-resolver.properties";
 
-    private static PropertiesLoader properties = null;
-    static {
-        String propertiesFile = ConfigFetch.resolvePathBasedOnConfigFile(ENTITIES_RESOLVER_PROPERTIES_FILE);
-        if (!new File(propertiesFile).exists()) {
-            String testFile = ConfigFetch.resolvePathBasedOnConfigFile("../" + ENTITIES_RESOLVER_PROPERTIES_FILE);
-            if (new File(testFile).exists())
-                propertiesFile = testFile;
-        }
-        new File(propertiesFile).getParentFile().mkdirs();
-        properties = new PropertiesLoader(propertiesFile, PropertiesLoader.PROPERTIES);
+    //private static PropertiesLoader properties = null;
+    //static {
+    //    String propertiesFile = ConfigFetch.resolvePathBasedOnConfigFile(ENTITIES_RESOLVER_PROPERTIES_FILE);
+    //    if (!new File(propertiesFile).exists()) {
+    //        String testFile = ConfigFetch.resolvePathBasedOnConfigFile("../" + ENTITIES_RESOLVER_PROPERTIES_FILE);
+    //        if (new File(testFile).exists())
+    //            propertiesFile = testFile;
+    //    }
+    //    new File(propertiesFile).getParentFile().mkdirs();
+    //    properties = new PropertiesLoader(propertiesFile, PropertiesLoader.PROPERTIES);
 
-        while (properties.keys().hasMoreElements()) {
-            String key = properties.keys().nextElement().toString();
-            String value = properties.getProperty(key);
-            setEntities(key, value, false);
-        }
-    }
+    //    while (properties.keys().hasMoreElements()) {
+    //        String key = properties.keys().nextElement().toString();
+    //        String value = properties.getProperty(key);
+    //        //setEntities(key, value, false);
+    //    }
+    //}
 
 	protected static LinkedHashMap<String, BiMap<Integer, String>> entitiesMap = new LinkedHashMap<String, BiMap<Integer, String>>();
 	public static final int DEFAULT_ENTITY = 255;
 
     public static void saveProperties() {
-        try {
-            properties.store("EntitiesResolver properties");
-        }
-        catch (IOException e) {
-            NeptusLog.pub().error("saveProperties", e);
-        }
+        //try {
+        //    properties.store("EntitiesResolver properties");
+        //}
+        //catch (IOException e) {
+        //    NeptusLog.pub().error("saveProperties", e);
+        //}
     }
 
 	/**
@@ -104,13 +103,13 @@ public class EntitiesResolver {
             aliases.put(Integer.parseInt(tlist.get(key)), key);
         }
 
-        if (save) {
-            String old = properties.getProperty(id);
-            if (old == null || !old.equals(listAsStr)) {
-                properties.setProperty(id, listAsStr);
-                saveProperties();
-            }
-        }
+        //if (save) {
+        //    String old = properties.getProperty(id);
+        //    if (old == null || !old.equals(listAsStr)) {
+        //        properties.setProperty(id, listAsStr);
+        //        saveProperties();
+        //    }
+        //}
 
         entitiesMap.put(id, aliases);
     }
