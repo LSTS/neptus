@@ -419,7 +419,7 @@ public class CommsAdmin {
 
     private void sendDeviceActivationViaIridiumIfNeeded(String destinationName) {
         LocalDateTime lastSent = lastIridiumMessageSent.get(destinationName);
-        if (lastSent == null || lastSent.plusMinutes(minutesBetweenDeviceActivationSendMinutes).isAfter(LocalDateTime.now())) {
+        if (lastSent == null || lastSent.plusMinutes(minutesBetweenDeviceActivationSendMinutes).isBefore(LocalDateTime.now())) {
             lastIridiumMessageSent.put(destinationName, LocalDateTime.now());
             int src = ImcMsgManager.getManager().getLocalId().intValue();
             int dst = IMCDefinition.getInstance().getResolver().resolve(destinationName);
