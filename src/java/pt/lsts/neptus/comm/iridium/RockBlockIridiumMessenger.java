@@ -322,6 +322,7 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
             return new Vector<>();
         }
 
+        messages.sort((m1, m2) -> Long.compare(m1.timestampMillis, m2.timestampMillis));
         return messages;
     }
 
