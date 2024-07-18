@@ -27,44 +27,40 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: zp
- * Jun 28, 2013
+ * Author: pdias
+ * 18 Jul, 2024
  */
 package pt.lsts.neptus.comm.iridium;
-
-import java.util.Collection;
-import java.util.Vector;
 
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCInputStream;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCOutputStream;
 
+import java.util.Collection;
+import java.util.Vector;
+
 /**
- * @author zp
+ * @author pdias
  *
  */
-public class ImcIridiumMessage extends IridiumMessage {
+public class ImcFullIridiumMessage extends ImcIridiumMessage {
 
     protected IMCMessage msg;
 
     // 5 bytes for RB addressing, 6 bytes for type and timestamp, 6 bytes for IMC header
     public static int MaxPayloadSize = 270 - 17;
+
+    public ImcFullIridiumMessage() {
+        super(2013);
+    }    
     
-    public ImcIridiumMessage() {
-        super(2010);    
-    }
-
-    protected ImcIridiumMessage(int msgType) {
-        super(msgType);
-    }
-
     @Override
     public int serializeFields(IMCOutputStream out) throws Exception {
         if (msg != null) {
-            out.writeUnsignedShort(msg.getMgid());
-            out.writeUnsignedInt((int)msg.getTimestamp());
-            int size = 6 + IMCDefinition.getInstance().serializeFields(msg, out);
+            IMCDefinition.getInstance().serialize(msg, out);
+            timestampMillis = msg.getTimestampMillis();
+            int size = IMCDefinition.getInstance().serializationSize(msg);
             return size;
         }
         return 0;
@@ -72,53 +68,27 @@ public class ImcIridiumMessage extends IridiumMessage {
 
     @Override
     public int deserializeFields(IMCInputStream in) throws Exception {
-        int type = in.readUnsignedShort();
-        long timestamp = in.readUnsignedInt();
-        msg = IMCDefinition.getInstance().create(IMCDefinition.getInstance().getMessageName(type));
-        msg.setTimestamp(timestamp);
         try {
-            IMCDefinition.getInstance().deserializeFields(msg, in);
+            msg = IMCDefinition.getInstance().unserialize(in);
+            timestampMillis = msg.getTimestampMillis();
+            setSource(msg.getSrc());
+            setDestination(msg.getDst());
         }
         catch (Exception e) {
             e.printStackTrace();
         }
-        return msg.getPayloadSize() + 6;
+        return IMCDefinition.getInstance().serializationSize(msg);
     }
 
-    /**
-     * @return the msg
-     */
-    public final IMCMessage getMsg() {
-        return msg;
-    }
-
-    /**
-     * @param msg the msg to set
-     */
-    public final void setMsg(IMCMessage msg) {
-        if (msg != null) {
-            this.source = msg.getSrc();
-            this.destination = msg.getDst();
-        }
-        this.msg = msg;
-    }
-    
     @Override
     public Collection<IMCMessage> asImc() {
        Vector<IMCMessage> vec = new Vector<>();
        if (msg != null)
            vec.add(msg);
        
-       msg.setSrc(getSource());
-       msg.setDst(getDestination());
-       msg.setTimestampMillis(timestampMillis);
+       //msg.setSrc(getSource());
+       //msg.setDst(getDestination());
+       //msg.setTimestampMillis(timestampMillis);
        return vec;
     }
-    
-    @Override
-    public String toString() {
-        String s = super.toString();
-        return s + "\tMessage: "+getMsg().toString();         
-    }
-
 }
