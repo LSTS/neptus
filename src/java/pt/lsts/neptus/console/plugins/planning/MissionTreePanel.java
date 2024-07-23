@@ -267,15 +267,16 @@ public class MissionTreePanel extends ConsolePanel
     }
 
     private void removePlanDBListener() {
-        if (pdbControl != null)
-        pdbControl.removeListener(planDBListener);
+        if (pdbControl != null) {
+            pdbControl.removeListener(planDBListener);
+        }
     }
 
     @Override
     public Vector<PlanType> getSelectedPlans() {
         ArrayList<NameId> selectedItems = browser.getSelectedItems();
         Vector<PlanType> plans = new Vector<PlanType>();
-        if (selectedItems.size() > 0) {
+        if (!selectedItems.isEmpty()) {
             for (NameId o : selectedItems) {
                 if (o instanceof PlanType)
                     plans.add((PlanType) o);
@@ -334,7 +335,7 @@ public class MissionTreePanel extends ConsolePanel
     
     @Subscribe
     public void on(PlanControlState msg) {
-     // If vehicle stops, the timers stop as well
+        // If vehicle stops, the timers stop as well
         if (msg.getState() == STATE.READY || msg.getState() == STATE.BLOCKED) {
                 browser.transStopTimers();
                 this.running = false;
@@ -586,8 +587,9 @@ public class MissionTreePanel extends ConsolePanel
             switch (selecType) {
                 case Plans:
 
-                    if (selectedItems.size() == 1)
+                    if (selectedItems.size() == 1) {
                         addActionRenamePlan(getConsole(), selectedItems, popupMenu);
+                    }
 
                     popupMenu.addSeparator();
                     // New
@@ -669,7 +671,7 @@ public class MissionTreePanel extends ConsolePanel
                         // Switch
                         JMenu switchM = new JMenu(I18n.text("Switch"));
                         ArrayList<TransponderElement> transponders = browser.getTransponders();
-                        if (transponders.size() > 0) {
+                        if (!transponders.isEmpty()) {
                             TransponderElement transA, transB;
                             for (int iA = 0; iA < transponders.size(); iA++) {
                                 transA = transponders.get(iA);
