@@ -288,7 +288,8 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
         if (recreateImage) {
             Graphics2D g2 = layerPainter.getImageGraphics();
             // Paint what you want in the graphics
-            if (!collisionsTree.isEmpty() && collisionsTree.get(lastMainVehicle) != null && !collisionsTree.get(lastMainVehicle).isEmpty()) {
+            if (!collisionsTree.isEmpty() && collisionsTree.get(lastMainVehicle) != null
+                    && !collisionsTree.get(lastMainVehicle).isEmpty()) {
                 Graphics2D gg = (Graphics2D) g2.create();
                 gg.translate(20, 100);
                 boolean res = !gg.drawImage(colregImage, null, null);
