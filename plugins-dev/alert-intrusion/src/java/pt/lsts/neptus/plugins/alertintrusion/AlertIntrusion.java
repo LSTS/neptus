@@ -92,13 +92,13 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
         }
     }
 
-    @NeptusProperty(name = "Minimum distance allowed between AUVs and Ships (meters)", userLevel = NeptusProperty.LEVEL.REGULAR)
+    @NeptusProperty(name = "Minimum distance allowed between vehicle and ships (meters)", userLevel = NeptusProperty.LEVEL.REGULAR)
     public int collisionDistance = 100;
     @NeptusProperty(name = "Percentage of the critical distance to trigger the alert")
     public int collisionCriticalDistancePercentage = 20;
     @NeptusProperty(name = "Use course for calculation", userLevel = NeptusProperty.LEVEL.REGULAR)
     public boolean useCourseForCalculation = true;
-    @NeptusProperty(name = "Minimum Speed To Be Stopped", description = "Configures the maximum speed (m/s) for the system to be considered stopped (affects the drawing of the course/speed vector on the renderer)",
+    @NeptusProperty(name = "Minimum Speed To Be Stopped", description = "Configures the maximum speed (m/s) for the system to be considered stopped.",
             category = "Renderer", userLevel = NeptusProperty.LEVEL.REGULAR)
     public double minimumSpeedToBeStopped = 0.2;
     @NeptusProperty(name = "Minutes To Hide Systems Without Known Location", description = "Minutes after which systems disappear from render if inactive (0 to disable)",
