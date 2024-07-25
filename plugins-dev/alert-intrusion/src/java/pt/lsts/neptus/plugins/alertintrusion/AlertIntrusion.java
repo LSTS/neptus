@@ -138,8 +138,6 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
 
     private final JLabel infoLabel = new JLabel("");
 
-    private final LookIndicatorSymbol lookIndicatorSymbol = new LookIndicatorSymbol();
-
     public AlertIntrusion() {
         super();
     }
