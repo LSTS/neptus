@@ -49,6 +49,7 @@ import pt.lsts.neptus.colormap.ColorBarPainterUtil;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.colormap.ColorMapUtils;
+import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayer;
@@ -122,6 +123,23 @@ public class CaravelDataPlotter extends ConsoleLayer implements PreferencesListe
     public boolean showAirSaturation = false;
     @NeptusProperty(name = "Show water current", userLevel = NeptusProperty.LEVEL.REGULAR, category = "Water Current")
     public boolean showWaterCurrent = false;
+
+    @NeptusProperty(name = "Valid temperature data sources", userLevel = NeptusProperty.LEVEL.REGULAR, category = "Temperature")
+    public String validTempDataSources = "CTD, Daemon";
+    @NeptusProperty(name = "Valid salinity data sources", userLevel = NeptusProperty.LEVEL.REGULAR, category = "Salinity")
+    public String validSalDataSources = "CTD, Daemon";
+    @NeptusProperty(name = "Valid turbidity data sources", userLevel = NeptusProperty.LEVEL.REGULAR, category = "Turbidity")
+    public String validTurbidityDataSources = "Fluorometers, Daemon";
+    @NeptusProperty(name = "Valid chlorophyll data sources", userLevel = NeptusProperty.LEVEL.REGULAR, category = "Chlorophyll")
+    public String validChlorophyllDataSources = "Fluorometers, Daemon";
+    @NeptusProperty(name = "Valid dissolved organic matter data sources", userLevel = NeptusProperty.LEVEL.REGULAR, category = "Dissolved Organic Matter")
+    public String validDissolvedOrganicMatterDataSources = "Fluorometers, Daemon";
+    @NeptusProperty(name = "Valid dissolved oxygen data sources", userLevel = NeptusProperty.LEVEL.REGULAR, category = "Dissolved Oxygen")
+    public String validDissolvedOxygenDataSources = "Dissolved Oxygen, Daemon";
+    @NeptusProperty(name = "Valid air saturation data sources", userLevel = NeptusProperty.LEVEL.REGULAR, category = "Air Saturation")
+    public String validAirSaturationDataSources = "Dissolved Oxygen, Daemon";
+    @NeptusProperty(name = "Valid water current data sources", userLevel = NeptusProperty.LEVEL.REGULAR, category = "Water Current")
+    public String validWaterCurrentDataSources = "ADCP, Daemon";
 
     @NeptusProperty(name = "Min temperature", userLevel = NeptusProperty.LEVEL.REGULAR, category = "Temperature")
     public double minTemp = 15;
@@ -362,6 +380,10 @@ public class CaravelDataPlotter extends ConsoleLayer implements PreferencesListe
         if (!getConsole().getMainSystem().equalsIgnoreCase(msg.getSourceName())) {
             return;
         }
+        String entity = EntitiesResolver.resolveName(msg.getSourceName(), (int) msg.getSrcEnt());
+        if (entity != null && !validTempDataSources.contains(entity)) {
+            return;
+        }
         extractSensorMeasurementValueFromMessage(msg.getValue(), pointsTemp, msg);
         offScreenTemperature.triggerImageRebuild();
     }
@@ -369,6 +391,10 @@ public class CaravelDataPlotter extends ConsoleLayer implements PreferencesListe
     @Subscribe
     public void on(Salinity msg) {
         if (!getConsole().getMainSystem().equalsIgnoreCase(msg.getSourceName())) {
+            return;
+        }
+        String entity = EntitiesResolver.resolveName(msg.getSourceName(), (int) msg.getSrcEnt());
+        if (entity != null && !validSalDataSources.contains(entity)) {
             return;
         }
         extractSensorMeasurementValueFromMessage(msg.getValue(), pointsSalinity, msg);
@@ -380,6 +406,10 @@ public class CaravelDataPlotter extends ConsoleLayer implements PreferencesListe
         if (!getConsole().getMainSystem().equalsIgnoreCase(msg.getSourceName())) {
             return;
         }
+        String entity = EntitiesResolver.resolveName(msg.getSourceName(), (int) msg.getSrcEnt());
+        if (entity != null && !validTurbidityDataSources.contains(entity)) {
+            return;
+        }
         extractSensorMeasurementValueFromMessage(msg.getValue(), pointsTurbidity, msg);
         offScreenTurbidity.triggerImageRebuild();
     }
@@ -387,6 +417,10 @@ public class CaravelDataPlotter extends ConsoleLayer implements PreferencesListe
     @Subscribe
     public void on(Chlorophyll msg) {
         if (!getConsole().getMainSystem().equalsIgnoreCase(msg.getSourceName())) {
+            return;
+        }
+        String entity = EntitiesResolver.resolveName(msg.getSourceName(), (int) msg.getSrcEnt());
+        if (entity != null && !validChlorophyllDataSources.contains(entity)) {
             return;
         }
         extractSensorMeasurementValueFromMessage(msg.getValue(), pointsChlorophyll, msg);
@@ -398,6 +432,10 @@ public class CaravelDataPlotter extends ConsoleLayer implements PreferencesListe
         if (!getConsole().getMainSystem().equalsIgnoreCase(msg.getSourceName())) {
             return;
         }
+        String entity = EntitiesResolver.resolveName(msg.getSourceName(), (int) msg.getSrcEnt());
+        if (entity != null && !validDissolvedOrganicMatterDataSources.contains(entity)) {
+            return;
+        }
         extractSensorMeasurementValueFromMessage(msg.getValue(), pointsDissolvedOrganicMatter, msg);
         offScreenDissolvedOrganicMatter.triggerImageRebuild();
     }
@@ -405,6 +443,10 @@ public class CaravelDataPlotter extends ConsoleLayer implements PreferencesListe
     @Subscribe
     public void on(DissolvedOxygen msg) {
         if (!getConsole().getMainSystem().equalsIgnoreCase(msg.getSourceName())) {
+            return;
+        }
+        String entity = EntitiesResolver.resolveName(msg.getSourceName(), (int) msg.getSrcEnt());
+        if (entity != null && !validDissolvedOxygenDataSources.contains(entity)) {
             return;
         }
         extractSensorMeasurementValueFromMessage(msg.getValue(), pointsDissolvedOxygen, msg);
@@ -416,6 +458,10 @@ public class CaravelDataPlotter extends ConsoleLayer implements PreferencesListe
         if (!getConsole().getMainSystem().equalsIgnoreCase(msg.getSourceName())) {
             return;
         }
+        String entity = EntitiesResolver.resolveName(msg.getSourceName(), (int) msg.getSrcEnt());
+        if (entity != null && !validAirSaturationDataSources.contains(entity)) {
+            return;
+        }
         extractSensorMeasurementValueFromMessage(msg.getValue(), pointsAirSaturation, msg);
         offScreenAirSaturation.triggerImageRebuild();
     }
@@ -423,6 +469,10 @@ public class CaravelDataPlotter extends ConsoleLayer implements PreferencesListe
     @Subscribe
     public void on(CurrentProfile msg) {
         if (!getConsole().getMainSystem().equalsIgnoreCase(msg.getSourceName())) {
+            return;
+        }
+        String entity = EntitiesResolver.resolveName(msg.getSourceName(), (int) msg.getSrcEnt());
+        if (entity != null && !validWaterCurrentDataSources.contains(entity)) {
             return;
         }
 
@@ -881,57 +931,57 @@ public class CaravelDataPlotter extends ConsoleLayer implements PreferencesListe
     }
 
     private void paintColorbars(Graphics2D go, StateRenderer2D renderer) {
-        int offsetHeight = 130 * 2;
+        int offsetHeight = 130 * 3;
         int offsetWidth = 5;
         int offsetDelta = 130;
 
         if (showTemp) {
             Graphics2D gl = (Graphics2D) go.create();
             gl.translate(offsetWidth, offsetHeight);
-            ColorBarPainterUtil.paintColorBar(go, colormapTemp, "Temperature", "ºC", minTemp, maxTemp);
+            ColorBarPainterUtil.paintColorBar(gl, colormapTemp, "Temperature", "ºC", minTemp, maxTemp);
             gl.dispose();
             offsetHeight += offsetDelta;
         } else if (showSal) {
             Graphics2D gl = (Graphics2D) go.create();
             gl.translate(offsetWidth, offsetHeight);
-            ColorBarPainterUtil.paintColorBar(go, colormapSal, "Salinity", "PSU", minSal, maxSal);
+            ColorBarPainterUtil.paintColorBar(gl, colormapSal, "Salinity", "PSU", minSal, maxSal);
             gl.dispose();
             offsetHeight += offsetDelta;
         } else if (showTurbidity) {
             Graphics2D gl = (Graphics2D) go.create();
             gl.translate(offsetWidth, offsetHeight);
-            ColorBarPainterUtil.paintColorBar(go, colormapTurbidity, "Turbidity", "NTU", minTurbidity, maxTurbidity);
+            ColorBarPainterUtil.paintColorBar(gl, colormapTurbidity, "Turbidity", "NTU", minTurbidity, maxTurbidity);
             gl.dispose();
             offsetHeight += offsetDelta;
         } else if (showChlorophyll) {
             Graphics2D gl = (Graphics2D) go.create();
             gl.translate(offsetWidth, offsetHeight);
-            ColorBarPainterUtil.paintColorBar(go, colormapChlorophyll, "Chlorophyll", "µg/L", minChlorophyll, maxChlorophyll);
+            ColorBarPainterUtil.paintColorBar(gl, colormapChlorophyll, "Chlorophyll", "µg/L", minChlorophyll, maxChlorophyll);
             gl.dispose();
             offsetHeight += offsetDelta;
         } else if (showDissolvedOrganicMatter) {
             Graphics2D gl = (Graphics2D) go.create();
             gl.translate(offsetWidth, offsetHeight);
-            ColorBarPainterUtil.paintColorBar(go, colormapDissolvedOrganicMatter, "Dissolved Organic Matter", "PPB", minDissolvedOrganicMatter, maxDissolvedOrganicMatter);
+            ColorBarPainterUtil.paintColorBar(gl, colormapDissolvedOrganicMatter, "Dissolved Organic Matter", "PPB", minDissolvedOrganicMatter, maxDissolvedOrganicMatter);
             gl.dispose();
             offsetHeight += offsetDelta;
         } else if (showDissolvedOxygen) {
             Graphics2D gl = (Graphics2D) go.create();
             gl.translate(offsetWidth, offsetHeight);
-            ColorBarPainterUtil.paintColorBar(go, colormapDissolvedOxygen, "Dissolved Oxygen", "µM", minDissolvedOxygen, maxDissolvedOxygen);
+            ColorBarPainterUtil.paintColorBar(gl, colormapDissolvedOxygen, "Dissolved Oxygen", "µM", minDissolvedOxygen, maxDissolvedOxygen);
             gl.dispose();
             offsetHeight += offsetDelta;
         } else if (showAirSaturation) {
             Graphics2D gl = (Graphics2D) go.create();
             gl.translate(offsetWidth, offsetHeight);
-            ColorBarPainterUtil.paintColorBar(go, colormapAirSaturation, "Air Saturation", "%", minAirSaturation, maxAirSaturation);
+            ColorBarPainterUtil.paintColorBar(gl, colormapAirSaturation, "Air Saturation", "%", minAirSaturation, maxAirSaturation);
             gl.dispose();
             offsetHeight += offsetDelta;
         } else if (showWaterCurrent) {
             Graphics2D gl = (Graphics2D) go.create();
             gl.translate(offsetWidth, offsetHeight);
             String txtName = String.format("Water Current [%.2f ±%d]", waterCurrentDepth, waterCurrentDepthWindow);
-            ColorBarPainterUtil.paintColorBar(go, colormapWaterCurrent, txtName, "m/s", minWaterCurrent, maxWaterCurrent);
+            ColorBarPainterUtil.paintColorBar(gl, colormapWaterCurrent, txtName, "m/s", minWaterCurrent, maxWaterCurrent);
             gl.dispose();
             offsetHeight += offsetDelta;
         }
