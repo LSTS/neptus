@@ -97,13 +97,14 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
     private static final GeneralPath shapeArrow = new GeneralPath();
     static {
         shapeArrow.moveTo(0, 0);
-        shapeArrow.curveTo(7, -3, 7, -3, 14, 0);
+        shapeArrow.curveTo(7, 3, 7, 3, 14, 0);
         //shapeArrow.lineTo(14, 0);
         shapeArrow.lineTo(7, -14);
         shapeArrow.lineTo(0, 0);
     }
 
-    private final Color shapeColor = new Color(0xFF, 0xD0, 0x46, 100);
+    private final Color shapeColor = new Color(0xFF, 0xD0, 0x46, 203);
+    private final Color shapeHighColor = new Color(255, 70, 70, 203);
     private final Color blackTransparentColor = ColorUtils.setTransparencyToColor(Color.black, 100);
 
     @NeptusProperty(name = "Minimum distance allowed between vehicle and ships (meters)", userLevel = NeptusProperty.LEVEL.REGULAR)
@@ -383,8 +384,11 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
                 gg.dispose();
             }
 
-            if (shipClosest.get() != null) {
-                String sysName = shipClosest.get();
+            Point2D indicatorPoint = new Point2D.Double(20 + 25, 100 + 25);
+            AtomicReference<Short> mainlookAngle = new AtomicReference<>((short) 0);
+            boolean[] lookAngle = {false, false, false, false};
+            collisionsTree.get(lastMainVehicle).forEach((time, pair) -> {
+                String sysName = pair.first();
                 LocationType loc = null;
                 ImcSystem sys = ImcSystemsHolder.lookupSystemByName(sysName);
                 if (sys != null) {
@@ -395,16 +399,38 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
                         loc = esys.getLocation().getNewAbsoluteLatLonDepth();
                     }
                 }
-                Point2D indicatorPoint = new Point2D.Double(20 + 25, 100 + 25);
                 if (loc != null) {
                     Point2D pointShipClosest = renderer.getScreenPosition(loc);
-                    double angleRad = calculateAngleToRotate(indicatorPoint, pointShipClosest);
+                    Pair<Double, Short> angleRadAndQuadrant = calculateAngleToRotate(indicatorPoint, pointShipClosest);
+                    if (angleRadAndQuadrant.second() == 0) {
+                        lookAngle[0] = true;
+                    } else if (angleRadAndQuadrant.second() == 1) {
+                        lookAngle[1] = true;
+                    } else if (angleRadAndQuadrant.second() == 2) {
+                        lookAngle[2] = true;
+                    } else if (angleRadAndQuadrant.second() == 3) {
+                        lookAngle[3] = true;
+                    }
 
+                    if (shipClosest.get() != null) {
+                        String closestSysName = shipClosest.get();
+                        if (closestSysName.equals(sysName)) {
+                            mainlookAngle.set(angleRadAndQuadrant.second());
+                        }
+                    }
+                }
+            });
+            for (int i = 0; i < lookAngle.length; i++) {
+                if (lookAngle[i]) {
                     Graphics2D gg = (Graphics2D) g2.create();
                     gg.translate(20 + 25, 100 + 25);
-                    gg.rotate(Math.PI / 2 + angleRad);
+                    gg.rotate(Math.PI / 2 + Math.PI / 4 * (2 * i + 1));
                     gg.translate( -7,-25 - 2);
-                    gg.setColor(shapeColor);
+                    if (mainlookAngle.get() == i) {
+                        gg.setColor(shapeHighColor);
+                    } else {
+                        gg.setColor(shapeColor);
+                    }
                     gg.fill(shapeArrow);
                     gg.setColor(Color.black);
                     gg.draw(shapeArrow);
@@ -412,6 +438,7 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
                 }
             }
         }
+
         layerPainter.paintPhaseEndFinishImageRecreateAndPaintImageCacheToRenderer(g, renderer);
         if (askForLaterRepaint.get()) {
             layerPainter.triggerImageRebuild();
@@ -420,22 +447,26 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
         }
     }
 
-    private double calculateAngleToRotate(Point2D indicatorPoint, Point2D pointShipClosest) {
+    private Pair<Double, Short> calculateAngleToRotate(Point2D indicatorPoint, Point2D pointShipClosest) {
         double angleRad = AngleUtils.nomalizeAngleRadsPi(AngleUtils.calcAngle(
                 indicatorPoint.getY(), indicatorPoint.getX(),
                 pointShipClosest.getY(), pointShipClosest.getX()));
         double angleDeg = Math.toDegrees(angleRad);
+        short quadrant = 0;
         if (angleRad >= 0 && angleRad <= Math.PI / 2) {
             angleRad = Math.PI / 4;
         } else if (angleRad >= Math.PI / 2 && angleRad <= Math.PI) {
-            angleRad = 3 *Math.PI / 4;
+            angleRad = 3 * Math.PI / 4;
+            quadrant = 1;
         } else if (angleRad <= 0 && angleRad >= -Math.PI / 2) {
             angleRad = -Math.PI / 4;
+            quadrant = 3;
         } else if (angleRad <= -Math.PI / 2 && angleRad >= -Math.PI) {
             angleRad = -3 * Math.PI / 4;
+            quadrant = 2;
         }
         double angleDeg1 = Math.toDegrees(angleRad);
         System.out.println("angleDeg: " + angleDeg + "   :: angleDeg1: " + angleDeg1);
-        return angleRad;
+        return new Pair<>(angleRad, quadrant);
     }
 }
