@@ -55,6 +55,7 @@ import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
@@ -193,13 +194,13 @@ public class NmeaPlotter extends ConsoleLayer implements NmeaProvider {
     private boolean isUdpConnected = false;
     private boolean isTcpConnected = false;
 
-    private HashSet<NmeaListener> listeners = new HashSet<>();
-    private AisContactDb contactDb = new AisContactDb();
-    private AISParser parser = new AISParser();
+    private final HashSet<NmeaListener> listeners = new HashSet<>();
+    private final AisContactDb contactDb = new AisContactDb();
+    private final AISParser parser = new AISParser();
     private final AisContactManager aisManager = AisContactManager.getInstance();
 
-    private LinkedHashMap<String, LocationType> lastLocs = new LinkedHashMap<>();
-    private LinkedHashMap<String, ScatterPointsElement> tracks = new LinkedHashMap<>();
+    private final Map<String, LocationType> lastLocs = new LinkedHashMap<>();
+    private final Map<String, ScatterPointsElement> tracks = new LinkedHashMap<>();
 
     @Periodic(millisBetweenUpdates = 5000)
     public void updateTracks() {
@@ -435,7 +436,7 @@ public class NmeaPlotter extends ConsoleLayer implements NmeaProvider {
                                 parseSentence(tk);
                             }
                             catch (Exception e) {
-                                e.printStackTrace();
+                                NeptusLog.pub().warn("Error parsing sentence: {}  :: {}", tk, e.getMessage());
                             }
                             if (retransmitToNeptus)
                                 retransmit(tk);
@@ -443,11 +444,11 @@ public class NmeaPlotter extends ConsoleLayer implements NmeaProvider {
                                 LsfMessageLogger.log(new DevDataText(tk));
                         }
                     }
-                    catch (SocketTimeoutException e) {
-                        continue;
+                    catch (SocketTimeoutException | SocketException e) {
+                        NeptusLog.pub().warn("Socket closed :: {}", e.getMessage());
                     }
                     catch (Exception e) {
-                        e.printStackTrace();
+                        NeptusLog.pub().warn("Socket closed due to error :: {}", e.getMessage());
                         break;
                     }
                 }
@@ -457,7 +458,7 @@ public class NmeaPlotter extends ConsoleLayer implements NmeaProvider {
                     socket.close();
                 }
                 catch (Exception e) {
-                    e.printStackTrace();
+                    NeptusLog.pub().warn("Error closing socket :: {}", e.getMessage());
                 }
                 finally {
                     setTcpConnected(false);
@@ -623,8 +624,7 @@ public class NmeaPlotter extends ConsoleLayer implements NmeaProvider {
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         super.paint(g, renderer);
 
-        ArrayList<ScatterPointsElement> els = new ArrayList<>();
-        els.addAll(tracks.values());
+        ArrayList<ScatterPointsElement> els = new ArrayList<>(tracks.values());
         for (ScatterPointsElement el : els)
             el.paint((Graphics2D) g.create(), renderer, renderer.getRotation());
 
