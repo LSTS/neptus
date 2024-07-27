@@ -33,6 +33,7 @@
 package pt.lsts.neptus.console;
 
 import java.awt.Container;
+import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
@@ -125,6 +126,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
     protected JDialog dialog = null;
     protected Action popUpAction = null;
     private JMenuItem menuItem = null;
+    private boolean alwaysResetPopupPosition = false;
 
     private double percentXPos, percentYPos, percentWidth, percentHeight;
 
@@ -299,6 +301,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         String iconPath = cAction.icon().isEmpty() ? PluginUtils.getPluginIcon(this.getClass()) : cAction.icon();
         int width = cAction.width();
         int height = cAction.height();
+        Dialog.ModalityType modality = cAction.modality();
         KeyStroke accelerator = null;
         if (cAction.accelerator() != KeyEvent.VK_UNDEFINED) {
             int key = cAction.accelerator();
@@ -317,6 +320,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         getConsole().updateJMenuView(); //order view menu items
 
         // Build Dialog
+        alwaysResetPopupPosition = cAction.alwaysResetPopupPosition();
         dialog = new JDialog(getConsole());
         dialog.setTitle(name2);
         dialog.setIconImage(icon.getImage());
@@ -341,6 +345,11 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
             if (res)
                 menuItem.setAccelerator(accelerator);
         }
+
+        if (modality != null && modality != Dialog.ModalityType.MODELESS) {
+            dialog.setModalityType(modality);
+        }
+
         // dialog.add(this); This cannot be done here, because if the component is on the initial layout it will not
         // show
     }
@@ -424,6 +433,16 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
                 dialog.add(ConsolePanel.this);
 
             if (SwingUtilities.isDescendingFrom(ConsolePanel.this.getParent(), dialog)) {
+                boolean wasVisible = dialog.isVisible();
+                Dialog.ModalityType modality = dialog.getModalityType();
+                boolean isModal = modality != Dialog.ModalityType.MODELESS;
+                if (isModal && !wasVisible) {
+                    dialog.setModalityType(Dialog.ModalityType.MODELESS);
+                    dialog.setVisible(true);
+                    setPopupPosition(popupPosition);
+                    dialog.setVisible(false);
+                    dialog.setModalityType(modality);
+                }
                 dialog.setVisible(!dialog.isVisible());
                 if (dialog.isVisible())
                     popupShown();
@@ -906,7 +925,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
     }
 
     protected void setPopupPosition(final POSITION popupPosition) {
-        if (dialog.isVisible() && popupPositionFlag == false) {
+        if (dialog.isVisible() && !popupPositionFlag) {
             Point p = getConsole().getLocationOnScreen();
             switch (popupPosition) {
                 case TOP_LEFT:
@@ -942,7 +961,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
                     break;
             }
             dialog.setLocation(p);
-            this.popupPositionFlag = true;
+            this.popupPositionFlag = !alwaysResetPopupPosition;
         }
     }
 
