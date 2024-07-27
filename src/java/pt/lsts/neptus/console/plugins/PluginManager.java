@@ -92,7 +92,8 @@ import pt.lsts.neptus.util.GuiUtils;
  * @author pdias
  * 
  */
-@Popup(name = "Plugin Manager", icon = "images/buttons/events.png", pos = POSITION.CENTER, width = 500, height = 500, accelerator = 'P')
+@Popup(name = "Plugin Manager", icon = "images/buttons/events.png", pos = POSITION.CENTER, width = 500, height = 500,
+        accelerator = 'P', alwaysResetPopupPosition = true)
 // @PluginDescription(name = "Plugin Manager", icon = "images/buttons/events.png")
 public class PluginManager extends ConsolePanel {
 
