@@ -35,6 +35,7 @@ package pt.lsts.neptus.plugins.remoteactionsextra;
 import com.google.common.eventbus.Subscribe;
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.EntityState;
+import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.RemoteActions;
 import pt.lsts.imc.RemoteActionsRequest;
 import pt.lsts.imc.VehicleState;
@@ -49,13 +50,18 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.util.MathMiscUtils;
+import pt.lsts.neptus.util.PropertiesLoader;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 import java.awt.event.KeyEvent;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,6 +74,7 @@ import java.util.stream.Collectors;
     description = "This plugin listen for non motion related remote actions and displays its controls.")
 @Popup(name = "Remote Actions Extra", width = 300, height = 200, pos = Popup.POSITION.BOTTOM, accelerator = KeyEvent.VK_3)
 public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChangeListener, ConfigurationListener {
+    public static final String REMOTE_ACTIONS_EXTRA_PROPERTIES_FILE = ".cache/db/remote-actions-extra.properties";
 
     static final boolean DEFAULT_AXIS_DECIMAL_VAL = false;
     private static final int DECIMAL_HOUSES_FOR_DECIMAL_AXIS = 6;
@@ -124,6 +131,44 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
     private String lastCmdBuilt = "";
 
     private final TakeControlMonitor takeControlMonitor;
+
+    private static PropertiesLoader properties = null;
+    static {
+        String propertiesFile = ConfigFetch.resolvePathBasedOnConfigFile(REMOTE_ACTIONS_EXTRA_PROPERTIES_FILE);
+        if (!new File(propertiesFile).exists()) {
+            String testFile = ConfigFetch.resolvePathBasedOnConfigFile("../" + REMOTE_ACTIONS_EXTRA_PROPERTIES_FILE);
+            if (new File(testFile).exists())
+                propertiesFile = testFile;
+        }
+        new File(propertiesFile).getParentFile().mkdirs();
+        properties = new PropertiesLoader(propertiesFile, PropertiesLoader.PROPERTIES);
+
+        Enumeration<Object> it = properties.keys();
+        while (it.hasMoreElements()) {
+            String key = it.nextElement().toString();
+            String value = properties.getProperty(key);
+            setRemoteActionsExtra(key, value, false);
+        }
+    }
+
+    private static void saveProperties() {
+        try {
+            properties.store("RemoteActionsExtra properties");
+        }
+        catch (IOException e) {
+            NeptusLog.pub().error("saveProperties", e);
+        }
+    }
+
+    private static void setRemoteActionsExtra(String system, String actionsStr, boolean save) {
+        if (save) {
+            String old = properties.getProperty(system);
+            if (old == null || !old.equals(actionsStr)) {
+                properties.setProperty(system, actionsStr);
+                saveProperties();
+            }
+        }
+    }
 
     @NeptusProperty(name = "OBS Entity Name", userLevel = NeptusProperty.LEVEL.ADVANCED,
         description = "Used to check the state of the OBS take control status.")
@@ -213,7 +258,15 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
 
     @Subscribe
     public void on(ConsoleEventMainSystemChange evt) {
-        configureActions("", DEFAULT_AXIS_DECIMAL_VAL, false);
+        String actionsString = "";
+        try {
+            if (properties.containsKey(getConsole().getMainSystem())) {
+                actionsString = (String) properties.get(getConsole().getMainSystem());
+            }
+        } catch (Exception e) {
+            NeptusLog.pub().error(e.getMessage());
+        }
+        configureActions(actionsString, DEFAULT_AXIS_DECIMAL_VAL, false);
         takeControlMonitor.on(evt);
     }
 
@@ -225,6 +278,7 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
 
         if (msg.getOp() != RemoteActionsRequest.OP.REPORT) return;
 
+        setRemoteActionsExtra(msg.getSourceName(), IMCMessage.encodeTupleList(msg.getActions()), true);
         configureActions(msg.getActions(), DEFAULT_AXIS_DECIMAL_VAL, false);
     }
 
