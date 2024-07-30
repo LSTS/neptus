@@ -186,6 +186,7 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
 
     @Override
     public void initSubPanel() {
+        updateForMainSystems();
         resetUIWithActions();
     }
 
@@ -205,48 +206,50 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
         removeAll();
         setLayout(new MigLayout("insets 10px"));
 
-        if (extraActionsTypesMap.isEmpty()) {
-            add(new JLabel("No actions available", SwingConstants.CENTER), "dock center");
-            invalidate();
-            validate();
-            repaint(100);
-            return;
-        }
+        synchronized (extraActionsTypesMap) {
+            if (extraActionsTypesMap.isEmpty()) {
+                add(new JLabel("No actions available", SwingConstants.CENTER), "dock center");
+                invalidate();
+                validate();
+                repaint(100);
+                return;
+            }
 
-        // Let us process the actions list
-        List<List<String>> groupedActions = groupActionsBySimilarity(extraActionsTypesMap.keySet(), true);
-        groupedActions = processActions(groupedActions, 2, false);
+            // Let us process the actions list
+            List<List<String>> groupedActions = groupActionsBySimilarity(extraActionsTypesMap.keySet(), true);
+            groupedActions = processActions(groupedActions, 2, false);
 
-        int grpIdx = 0;
-        for (List<String> grp1 : groupedActions) {
-            grpIdx++;
-            String lastAct = grp1.get(grp1.size() - 1);
-            for (String action : grp1) {
-                String wrapLay = "";
-                if (lastAct.equals(action)) {
-                    wrapLay = "wrap";
-                }
-                switch (extraActionsTypesMap.get(action)) {
-                    case BUTTON:
-                        JButton button = new JButton(action);
-                        button.addActionListener(e -> {
-                            curState.changeButtonActionValue(action, 1);
-                        });
-                        String lay = "dock center, sg grp" + grpIdx;
-                        lay += ", " + wrapLay;
-                        add(button, lay);
-                        if ("Take Control".equalsIgnoreCase(action)) {
-                            takeControlMonitor.setButton(button);
-                            takeControlMonitor.askedControl();
-                        }
-                        break;
-                    case AXIS:
-                        // TODO
-                    case SLIDER:
-                        // TODO
-                    case HALF_SLIDER:
-                        // TODO
-                        break;
+            int grpIdx = 0;
+            for (List<String> grp1 : groupedActions) {
+                grpIdx++;
+                String lastAct = grp1.get(grp1.size() - 1);
+                for (String action : grp1) {
+                    String wrapLay = "";
+                    if (lastAct.equals(action)) {
+                        wrapLay = "wrap";
+                    }
+                    switch (extraActionsTypesMap.get(action)) {
+                        case BUTTON:
+                            JButton button = new JButton(action);
+                            button.addActionListener(e -> {
+                                curState.changeButtonActionValue(action, 1);
+                            });
+                            String lay = "dock center, sg grp" + grpIdx;
+                            lay += ", " + wrapLay;
+                            add(button, lay);
+                            if ("Take Control".equalsIgnoreCase(action)) {
+                                takeControlMonitor.setButton(button);
+                                takeControlMonitor.askedControl();
+                            }
+                            break;
+                        case AXIS:
+                            // TODO
+                        case SLIDER:
+                            // TODO
+                        case HALF_SLIDER:
+                            // TODO
+                            break;
+                    }
                 }
             }
         }
@@ -258,6 +261,11 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
 
     @Subscribe
     public void on(ConsoleEventMainSystemChange evt) {
+        updateForMainSystems();
+        takeControlMonitor.on(evt);
+    }
+
+    private void updateForMainSystems() {
         String actionsString = "";
         try {
             if (properties.containsKey(getConsole().getMainSystem())) {
@@ -267,7 +275,6 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
             NeptusLog.pub().error(e.getMessage());
         }
         configureActions(actionsString, DEFAULT_AXIS_DECIMAL_VAL, false);
-        takeControlMonitor.on(evt);
     }
 
     @Subscribe
