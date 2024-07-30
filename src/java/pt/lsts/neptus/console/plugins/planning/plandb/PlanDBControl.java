@@ -102,7 +102,10 @@ public class PlanDBControl implements MessageListener<MessageInfo, IMCMessage> {
         IMCMessage imc_PlanDB = IMCDefinition.getInstance().create("PlanDB", "type", "REQUEST", "op", "CLEAR",
                 "request_id", IMCSendMessageUtils.getNextRequestId());
 
-        return ImcMsgManager.getManager().sendMessageToSystem(imc_PlanDB, remoteSystemId);
+        //return ImcMsgManager.getManager().sendMessageToSystem(imc_PlanDB, remoteSystemId);
+        return IMCSendMessageUtils.sendMessage(imc_PlanDB, ImcMsgManager.TRANSPORT_TCP, null, null,
+                I18n.text("Error sending clear all plans request"), true, "",
+                true, true, true, remoteSystemId);
     }
 
     public boolean sendPlan(PlanType plan) {
@@ -110,13 +113,19 @@ public class PlanDBControl implements MessageListener<MessageInfo, IMCMessage> {
                 "request_id", IMCSendMessageUtils.getNextRequestId(), "plan_id", plan.getId(), "arg", plan.asIMCPlan(),
                 "info", "");
 
-        return ImcMsgManager.getManager().sendMessageToSystem(imc_PlanDB, remoteSystemId);
+        //return ImcMsgManager.getManager().sendMessageToSystem(imc_PlanDB, remoteSystemId);
+        return IMCSendMessageUtils.sendMessage(imc_PlanDB, ImcMsgManager.TRANSPORT_TCP, null, null,
+                I18n.text("Error sending plan request"), true, "",
+                true, true, true, remoteSystemId);
     }
 
     public boolean requestPlan(String plan_id) {
         IMCMessage imc_PlanDB = IMCDefinition.getInstance().create("PlanDB", "type", "REQUEST", "op", "GET",
                 "request_id", IMCSendMessageUtils.getNextRequestId(), "plan_id", plan_id);
-        return ImcMsgManager.getManager().sendMessageToSystem(imc_PlanDB, remoteSystemId);
+        //return ImcMsgManager.getManager().sendMessageToSystem(imc_PlanDB, remoteSystemId);
+        return IMCSendMessageUtils.sendMessage(imc_PlanDB, ImcMsgManager.TRANSPORT_TCP, null, null,
+                I18n.text("Error sending request plan request"), true, "",
+                true, true, true, remoteSystemId);
     }
 
     public boolean requestActivePlan() {
@@ -136,7 +145,10 @@ public class PlanDBControl implements MessageListener<MessageInfo, IMCMessage> {
         IMCMessage imc_PlanDB = IMCDefinition.getInstance().create("PlanDB", "type", "REQUEST", "op", "DEL",
                 "request_id", IMCSendMessageUtils.getNextRequestId(), "plan_id", plan_id);
         NeptusLog.pub().debug("Sending to " + remoteSystemId);
-        return ImcMsgManager.getManager().sendMessageToSystem(imc_PlanDB, remoteSystemId);
+        //return ImcMsgManager.getManager().sendMessageToSystem(imc_PlanDB, remoteSystemId);
+        return IMCSendMessageUtils.sendMessage(imc_PlanDB, ImcMsgManager.TRANSPORT_TCP, null, null,
+                I18n.text("Error delete plan request"), true, "",
+                true, true, true, remoteSystemId);
     }
 
     public void updateKnownState(IMCMessage imc_PlanDBState) {
