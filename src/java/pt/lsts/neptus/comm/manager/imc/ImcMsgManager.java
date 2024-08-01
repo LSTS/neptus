@@ -1475,7 +1475,8 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
      * @param message
      */
     private void checkAndSetMessageSrcEntity(IMCMessage message) {
-        if (message.getSrcEnt() == 0 || message.getSrcEnt() == IMCMessage.DEFAULT_ENTITY_ID) {
+        if (ImcMsgManager.getManager().getLocalId().intValue() == message.getSrc() &&
+            (message.getSrcEnt() == 0 || message.getSrcEnt() == IMCMessage.DEFAULT_ENTITY_ID)) {
             String caller = getCallerClass();
 
             if (caller != null) {
