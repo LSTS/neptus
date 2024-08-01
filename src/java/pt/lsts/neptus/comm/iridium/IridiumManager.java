@@ -33,6 +33,7 @@
 package pt.lsts.neptus.comm.iridium;
 
 import java.awt.Component;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -104,7 +105,7 @@ public class IridiumManager {
     
     private Runnable pollMessages = new Runnable() {
         
-        Date lastTime = new Date(System.currentTimeMillis() - 3600 * 1000);
+        Date lastTime = new Date(System.currentTimeMillis() - Duration.ofHours(1).toMillis());
         @Override
         public void run() {
             try {
