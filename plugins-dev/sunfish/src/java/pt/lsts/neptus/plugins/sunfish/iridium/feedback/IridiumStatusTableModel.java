@@ -220,7 +220,8 @@ public class IridiumStatusTableModel extends AbstractTableModel implements Messa
         switch (columnIndex) {
             case TIMESTAMP:
             {
-                if(messageType.equalsIgnoreCase("ImcIridiumMessage")) {
+                if(messageType.equalsIgnoreCase("ImcIridiumMessage") ||
+                        messageType.equalsIgnoreCase("ImcFullIridiumMessage")) {
                     IMCMessage msg = ((ImcIridiumMessage) m).getMsg();
                     if(msg.getMgid() == StateReport.ID_STATIC) {
                         long stime = ((StateReport) msg).getStime() * 1000;
@@ -255,7 +256,8 @@ public class IridiumStatusTableModel extends AbstractTableModel implements Messa
                 }
                     return IridiumCommsStatus.UNCERTAIN;
             case MSG_TYPE:
-                if(messageType.equalsIgnoreCase("ImcIridiumMessage"))
+                if(messageType.equalsIgnoreCase("ImcIridiumMessage") ||
+                        messageType.equalsIgnoreCase("ImcFullIridiumMessage"))
                     return ((ImcIridiumMessage) m).getMsg().getClass().getSimpleName();
                 else 
                     return messageType;
