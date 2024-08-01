@@ -104,7 +104,7 @@ public class IridiumManager {
     }
     
     private Runnable pollMessages = new Runnable() {
-        Date lastTime = new Date(System.currentTimeMillis() - 3600 * 1000);
+        Date lastTime = new Date(System.currentTimeMillis() - Duration.ofHours(1).toMillis());
         Date lastCall;
         boolean running = false;
 
