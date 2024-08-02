@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2022.04.0 (system/caravel,af1405d73,dirty)" system="caravel" i18n="en_US">
+<config format="1" version="2022.04.0 (system/caravel,823d381c0)" system="caravel" i18n="en_US">
   <section name="Text Actions" name-i18n="Text Actions">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -909,7 +909,7 @@
       <type>boolean</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>true</default>
+      <default>false</default>
       <units/>
       <desc>Enable collision avoidance algorithm</desc>
     </param>
@@ -918,7 +918,7 @@
       <type>boolean</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>true</default>
+      <default>false</default>
       <units/>
       <desc>Enable anti-grounding algorithm</desc>
     </param>
@@ -2848,7 +2848,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>EstimatedState:Navigation Manager, Temperature:CTD, Temperature:AirMar120WX, Salinity:CTD, CurrentProfile:ADCP, EstimatedState:Simulated Navigation Manager</default>
+      <default>EstimatedState:Navigation Manager, Temperature:CTD, Salinity:CTD, CurrentProfile:ADCP, EstimatedState:Simulated Navigation Manager</default>
       <units/>
       <desc>List of messages &lt;Message&gt;:&lt;Entity&gt; to send using Iridium.</desc>
     </param>
