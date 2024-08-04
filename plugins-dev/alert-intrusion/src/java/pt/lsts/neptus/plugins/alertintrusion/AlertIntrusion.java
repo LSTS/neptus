@@ -301,17 +301,17 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
 
         boolean recreateImage = layerPainter.paintPhaseStartTestRecreateImageAndRecreate(g, renderer);
         if (recreateImage) {
-            Graphics2D g2 = layerPainter.getImageGraphics();
+            Graphics2D imageGraphics = layerPainter.getImageGraphics();
             // Paint what you want in the graphics
             if (!collisionsTree.isEmpty() && collisionsTree.get(lastMainVehicle) != null
                     && !collisionsTree.get(lastMainVehicle).isEmpty()) {
-                Graphics2D gg = (Graphics2D) g2.create();
-                gg.translate(20, 100);
-                boolean res = !gg.drawImage(colregImage, null, null);
+                Graphics2D graphicsContext = (Graphics2D) imageGraphics.create();
+                graphicsContext.translate(20, 100);
+                boolean res = !graphicsContext.drawImage(colregImage, null, null);
                 if (res) {
                     askForLaterRepaint.compareAndSet(false, true);
                 }
-                gg.dispose();
+                graphicsContext.dispose();
 
                 int collisionSize = collisionsTree.get(lastMainVehicle).size();
                 infoLabel.setText("# " + collisionSize);
@@ -320,14 +320,14 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
                 infoLabel.setBackground(blackTransparentColor);
                 infoLabel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
                 infoLabel.setOpaque(true);
-                gg = (Graphics2D) g2.create();
-                gg.translate(20 + 50 + 5 + 2, 100 + 25);
-                FontMetrics fontMetrics = gg.getFontMetrics();
-                Rectangle2D rectBounds = fontMetrics.getStringBounds(infoLabel.getText(), gg);
+                graphicsContext = (Graphics2D) imageGraphics.create();
+                graphicsContext.translate(20 + 50 + 5 + 2, 100 + 25);
+                FontMetrics fontMetrics = graphicsContext.getFontMetrics();
+                Rectangle2D rectBounds = fontMetrics.getStringBounds(infoLabel.getText(), graphicsContext);
                 infoLabel.setBounds(0, 0, (int) rectBounds.getWidth() + 10, (int) rectBounds.getHeight() + 10);
                 infoLabel.setForeground(Color.white);
-                infoLabel.paint(gg);
-                gg.dispose();
+                infoLabel.paint(graphicsContext);
+                graphicsContext.dispose();
             }
 
             AtomicReference<String> shipClosest = new AtomicReference<>(null);
@@ -352,14 +352,14 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
                         }
                     }
                     if (loc != null) {
-                        Graphics2D gg = (Graphics2D) g2.create();
+                        Graphics2D graphicsContext = (Graphics2D) imageGraphics.create();
                         Point2D spos = renderer.getScreenPosition(loc);
-                        gg.translate(spos.getX() - 20 - 8, spos.getY());
-                        boolean res = !gg.drawImage(colregImageSmall, null, null);
+                        graphicsContext.translate(spos.getX() - 20 - 8, spos.getY());
+                        boolean res = !graphicsContext.drawImage(colregImageSmall, null, null);
                         if (res) {
                             askForLaterRepaint.compareAndSet(false, true);
                         }
-                        gg.dispose();
+                        graphicsContext.dispose();
                     }
 
                 }
@@ -371,15 +371,15 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
                 infoLabel.setText("<html>" + line1 + "<br>" + line2 + "</html>");
                 infoLabel.setForeground(Color.white);
                 infoLabel.setHorizontalAlignment(JLabel.LEFT);
-                Graphics2D gg = (Graphics2D) g2.create();
-                gg.translate(20, 100 + 50 + 5 + 5);
-                FontMetrics fontMetrics = gg.getFontMetrics();
-                Rectangle2D rectBounds = fontMetrics.getStringBounds(line1, gg);
-                Rectangle2D rectBounds2 = fontMetrics.getStringBounds(line2, gg);
+                Graphics2D graphicsContext = (Graphics2D) imageGraphics.create();
+                graphicsContext.translate(20, 100 + 50 + 5 + 5);
+                FontMetrics fontMetrics = graphicsContext.getFontMetrics();
+                Rectangle2D rectBounds = fontMetrics.getStringBounds(line1, graphicsContext);
+                Rectangle2D rectBounds2 = fontMetrics.getStringBounds(line2, graphicsContext);
                 infoLabel.setBounds(0, 0, (int) Math.max(rectBounds.getWidth(), rectBounds2.getWidth()) + 10,
                         (int) (rectBounds.getHeight() + rectBounds2.getHeight() + 10));
-                infoLabel.paint(gg);
-                gg.dispose();
+                infoLabel.paint(graphicsContext);
+                graphicsContext.dispose();
             }
 
             Point2D indicatorPoint = new Point2D.Double(20 + 25, 100 + 25);
@@ -420,19 +420,19 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
             });
             for (int i = 0; i < lookAngle.length; i++) {
                 if (lookAngle[i]) {
-                    Graphics2D gg = (Graphics2D) g2.create();
-                    gg.translate(20 + 25, 100 + 25);
-                    gg.rotate(Math.PI / 2 + Math.PI / 4 * (2 * i + 1));
-                    gg.translate( -7,-25 - 2);
+                    Graphics2D graphicsContext = (Graphics2D) imageGraphics.create();
+                    graphicsContext.translate(20 + 25, 100 + 25);
+                    graphicsContext.rotate(Math.PI / 2 + Math.PI / 4 * (2 * i + 1));
+                    graphicsContext.translate( -7,-25 - 2);
                     if (mainlookAngle.get() == i) {
-                        gg.setColor(shapeHighColor);
+                        graphicsContext.setColor(shapeHighColor);
                     } else {
-                        gg.setColor(shapeColor);
+                        graphicsContext.setColor(shapeColor);
                     }
-                    gg.fill(shapeArrow);
-                    gg.setColor(Color.black);
-                    gg.draw(shapeArrow);
-                    gg.dispose();
+                    graphicsContext.fill(shapeArrow);
+                    graphicsContext.setColor(Color.black);
+                    graphicsContext.draw(shapeArrow);
+                    graphicsContext.dispose();
                 }
             }
         }
