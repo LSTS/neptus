@@ -298,7 +298,7 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 
-        AtomicBoolean askForLaterRepaint = new AtomicBoolean(false);
+        AtomicBoolean repaintRequest = new AtomicBoolean(false);
 
         boolean recreateImage = layerPainter.paintPhaseStartTestRecreateImageAndRecreate(g, renderer);
         if (recreateImage) {
@@ -310,14 +310,14 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
                 graphicsContext.translate(20, 100);
                 boolean res = !graphicsContext.drawImage(colregImage, null, null);
                 if (res) {
-                    askForLaterRepaint.compareAndSet(false, true);
+                    repaintRequest.compareAndSet(false, true);
                 }
                 graphicsContext.dispose();
 
                 createInfoLabel(imageGraphics);
             }
 
-            AtomicReference<String> shipClosest = detectAndRenderClosestCollision(renderer, sdf, askForLaterRepaint, imageGraphics);
+            AtomicReference<String> shipClosest = detectAndRenderClosestCollision(renderer, sdf, repaintRequest, imageGraphics);
 
             Point2D indicatorPoint = new Point2D.Double(20 + 25, 100 + 25);
             AtomicReference<Short> mainlookAngle = new AtomicReference<>((short) 0);
@@ -369,7 +369,7 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
         }
 
         layerPainter.paintPhaseEndFinishImageRecreateAndPaintImageCacheToRenderer(g, renderer);
-        if (askForLaterRepaint.get()) {
+        if (repaintRequest.get()) {
             layerPainter.triggerImageRebuild();
             renderer.invalidate();
             renderer.repaint(10);
