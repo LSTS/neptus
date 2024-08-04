@@ -360,12 +360,7 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
                 graphicsContext.translate(20 + 25, 100 + 25);
                 graphicsContext.rotate(Math.PI / 2 + Math.PI / 4 * (2 * i + 1));
                 graphicsContext.translate(-7, -25 - 2);
-                if (mainlookAngle.get() == i) {
-                    graphicsContext.setColor(shapeHighColor);
-                }
-                else {
-                    graphicsContext.setColor(shapeColor);
-                }
+                graphicsContext.setColor(mainlookAngle.get() == i ? shapeHighColor : shapeColor);
                 graphicsContext.fill(shapeArrow);
                 graphicsContext.setColor(Color.black);
                 graphicsContext.draw(shapeArrow);
