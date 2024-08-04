@@ -73,6 +73,7 @@ import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.IntStream;
 
 @PluginDescription(name = "Alert Intrusion", icon = "pt/lsts/neptus/plugins/alertintrusion/colreg.png",
     description = "Alert Intrusion", category = PluginDescription.CATEGORY.INTERFACE, version = "0.1")
@@ -354,23 +355,22 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
                     }
                 }
             });
-            for (int i = 0; i < lookAngle.length; i++) {
-                if (lookAngle[i]) {
-                    Graphics2D graphicsContext = (Graphics2D) imageGraphics.create();
-                    graphicsContext.translate(20 + 25, 100 + 25);
-                    graphicsContext.rotate(Math.PI / 2 + Math.PI / 4 * (2 * i + 1));
-                    graphicsContext.translate( -7,-25 - 2);
-                    if (mainlookAngle.get() == i) {
-                        graphicsContext.setColor(shapeHighColor);
-                    } else {
-                        graphicsContext.setColor(shapeColor);
-                    }
-                    graphicsContext.fill(shapeArrow);
-                    graphicsContext.setColor(Color.black);
-                    graphicsContext.draw(shapeArrow);
-                    graphicsContext.dispose();
+            IntStream.range(0, lookAngle.length).filter(i -> lookAngle[i]).forEach(i -> {
+                Graphics2D graphicsContext = (Graphics2D) imageGraphics.create();
+                graphicsContext.translate(20 + 25, 100 + 25);
+                graphicsContext.rotate(Math.PI / 2 + Math.PI / 4 * (2 * i + 1));
+                graphicsContext.translate(-7, -25 - 2);
+                if (mainlookAngle.get() == i) {
+                    graphicsContext.setColor(shapeHighColor);
                 }
-            }
+                else {
+                    graphicsContext.setColor(shapeColor);
+                }
+                graphicsContext.fill(shapeArrow);
+                graphicsContext.setColor(Color.black);
+                graphicsContext.draw(shapeArrow);
+                graphicsContext.dispose();
+            });
         }
 
         layerPainter.paintPhaseEndFinishImageRecreateAndPaintImageCacheToRenderer(g, renderer);
