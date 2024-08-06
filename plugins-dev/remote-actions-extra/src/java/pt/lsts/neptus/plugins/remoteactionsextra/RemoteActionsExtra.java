@@ -51,6 +51,7 @@ import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.util.MathMiscUtils;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 import java.awt.event.KeyEvent;
@@ -119,6 +120,8 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
 
     private final Map<String, ActionTypeEnum> extraActionsTypesMap = Collections.synchronizedMap(new LinkedHashMap<>());
 
+    private final List<JButton> extraLockableButtons = new ArrayList<>();
+
     private final RemoteActionsState curState = new RemoteActionsState();
     private final RemoteActionsState lastState = new RemoteActionsState();
 
@@ -157,6 +160,7 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
 
     private synchronized void resetUIWithActions() {
         takeControlMonitor.setButton(null);
+        extraLockableButtons.clear();
 
         removeAll();
         setLayout(new MigLayout("insets 10px"));
@@ -172,6 +176,17 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
         // Let us process the actions list
         List<List<String>> groupedActions = groupActionsBySimilarity(extraActionsTypesMap.keySet(), true);
         groupedActions = processActions(groupedActions, 2, false);
+
+        JCheckBox lockUnlockButton = new JCheckBox("Lock/Unlock");
+        lockUnlockButton.setSelected(true);
+        lockUnlockButton.addActionListener(e -> {
+            if (lockUnlockButton.isSelected()) {
+                extraLockableButtons.forEach(b -> b.setEnabled(false));
+            } else {
+                extraLockableButtons.forEach(b -> b.setEnabled(true));
+            }
+        });
+        add(lockUnlockButton, "dock center, wrap");
 
         int grpIdx = 0;
         for (List<String> grp1 : groupedActions) {
@@ -201,6 +216,9 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
                         String lay = "dock center, sg grp" + grpIdx;
                         lay += ", " + wrapLay;
                         add(button, lay);
+                        if (isToProvideLock) {
+                            extraLockableButtons.add(button);
+                        }
                         if ("Take Control".equalsIgnoreCase(action)) {
                             takeControlMonitor.setButton(button);
                             takeControlMonitor.askedControl();
@@ -217,6 +235,12 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
             }
         }
 
+        if (extraLockableButtons.isEmpty()) {
+            remove(lockUnlockButton);
+        } else {
+            lockUnlockButton.setSelected(true);
+            extraLockableButtons.forEach(b -> b.setEnabled(false));
+        }
         invalidate();
         validate();
         repaint(100);
