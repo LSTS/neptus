@@ -182,8 +182,18 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
                 if (lastAct.equals(action)) {
                     wrapLay = "wrap";
                 }
+
+                boolean provideLock = false;
+                if (curState.extraActionsLocksMap.containsKey(action)) {
+                    Boolean v = curState.extraActionsLocksMap.get(action);
+                    if (v != null && v) {
+                        provideLock = true;
+                    }
+                }
+
                 switch (extraActionsTypesMap.get(action)) {
                     case BUTTON:
+                        boolean isToProvideLock = provideLock || isActionForLock(action);
                         JButton button = new JButton(action);
                         button.addActionListener(e -> {
                             curState.changeButtonActionValue(action, 1);
@@ -349,6 +359,9 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
                 for (String elem : keyPair) {
                     try {
                         String[] actPair = elem.trim().split("=");
+                        if (actPair.length != 2) {
+                            continue;
+                        }
                         String actTxt = actPair[0].trim();
                         String typeTxt = actPair[1].trim();
 
@@ -381,6 +394,30 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
                         }
                     } catch (Exception e) {
                         NeptusLog.pub().warn("Not possible to parse one remote action \"" +
+                                elem + "\" with error " + e.getMessage());
+                    }
+                }
+
+                for (String elem : keyPair) {
+                    try {
+                        String[] actPair = elem.trim().split("=");
+                        if (actPair.length != 2) {
+                            continue;
+                        }
+                        String actTxt = actPair[0].trim();
+                        String lockTxt = actPair[1].trim().toLowerCase();
+
+                        if (actTxt.isEmpty()) {
+                            continue;
+                        }
+
+                        if ("lock".equalsIgnoreCase(lockTxt) &&
+                                curState.extraButtonActionsMap.containsKey(actTxt)) {
+                            curState.extraActionsLocksMap.put(actTxt, true);
+                        }
+                    }
+                    catch (Exception e) {
+                        NeptusLog.pub().warn("Not possible to parse lock for one remote action \"" +
                                 elem + "\" with error " + e.getMessage());
                     }
                 }
@@ -464,6 +501,11 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
             }
         }
         return actionGroups;
+    }
+
+    private static boolean isActionForLock(String actionTxt) {
+        String action = actionTxt.toLowerCase().trim();
+        return action.equals("power off") || action.equals("poweroff");
     }
 
     private List<List<String>> processActions(List<List<String>> groupedActions, int maxElemsPerActionGroup, boolean isPortrait) {
