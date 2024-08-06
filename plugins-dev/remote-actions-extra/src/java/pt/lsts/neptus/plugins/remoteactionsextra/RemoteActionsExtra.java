@@ -55,6 +55,7 @@ import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -403,7 +404,33 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
         }
         if (action.equals("ready") || action.equals("stopped")) return "mode ready";
 
+        List<String> wordsToTest = Arrays.asList("enable", "disable");
+        String groupExtracted = testAndExtractGroup(action, "enable", wordsToTest);
+        if (groupExtracted != null) {
+            return groupExtracted;
+        }
+
+        wordsToTest = Arrays.asList("start", "stop", "abort", "pause", "resume", "record", "play");
+        groupExtracted = testAndExtractGroup(action, "play", wordsToTest);
+        if (groupExtracted != null) {
+            return groupExtracted;
+        }
+
         return action;
+    }
+
+
+    private String testAndExtractGroup(String actionText, String groupSuffix, List<String> wordsToTest) {
+        for (String word : wordsToTest) {
+            if (actionText.contains(" " + word) || actionText.contains(word + " ")) {
+                String pattern = wordsToTest.stream()
+                        .map(w -> "(?:\\s" + w + "|" + w + "\\s)")
+                        .reduce((a, b) -> a + "|" + b)
+                        .orElse("");
+                return actionText.replaceAll(pattern, "") + " " + groupSuffix;
+            }
+        }
+        return null;
     }
 
     private List<List<String>> groupActionsBySimilarity(Set<String> actionList, boolean disableMotionRelatedRemoteActions) {
