@@ -73,6 +73,7 @@ import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.IntStream;
 
 @PluginDescription(name = "Alert Intrusion", icon = "pt/lsts/neptus/plugins/alertintrusion/colreg.png",
     description = "Alert Intrusion", category = PluginDescription.CATEGORY.INTERFACE, version = "0.1")
@@ -297,90 +298,26 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 
-        AtomicBoolean askForLaterRepaint = new AtomicBoolean(false);
+        AtomicBoolean repaintRequest = new AtomicBoolean(false);
 
         boolean recreateImage = layerPainter.paintPhaseStartTestRecreateImageAndRecreate(g, renderer);
         if (recreateImage) {
-            Graphics2D g2 = layerPainter.getImageGraphics();
+            Graphics2D imageGraphics = layerPainter.getImageGraphics();
             // Paint what you want in the graphics
             if (!collisionsTree.isEmpty() && collisionsTree.get(lastMainVehicle) != null
                     && !collisionsTree.get(lastMainVehicle).isEmpty()) {
-                Graphics2D gg = (Graphics2D) g2.create();
-                gg.translate(20, 100);
-                boolean res = !gg.drawImage(colregImage, null, null);
+                Graphics2D graphicsContext = (Graphics2D) imageGraphics.create();
+                graphicsContext.translate(20, 100);
+                boolean res = !graphicsContext.drawImage(colregImage, null, null);
                 if (res) {
-                    askForLaterRepaint.compareAndSet(false, true);
+                    repaintRequest.compareAndSet(false, true);
                 }
-                gg.dispose();
+                graphicsContext.dispose();
 
-                int collisionSize = collisionsTree.get(lastMainVehicle).size();
-                infoLabel.setText("# " + collisionSize);
-                infoLabel.setHorizontalTextPosition(JLabel.CENTER);
-                infoLabel.setHorizontalAlignment(JLabel.CENTER);
-                infoLabel.setBackground(blackTransparentColor);
-                infoLabel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-                infoLabel.setOpaque(true);
-                gg = (Graphics2D) g2.create();
-                gg.translate(20 + 50 + 5 + 2, 100 + 25);
-                FontMetrics fontMetrics = gg.getFontMetrics();
-                Rectangle2D rectBounds = fontMetrics.getStringBounds(infoLabel.getText(), gg);
-                infoLabel.setBounds(0, 0, (int) rectBounds.getWidth() + 10, (int) rectBounds.getHeight() + 10);
-                infoLabel.setForeground(Color.white);
-                infoLabel.paint(gg);
-                gg.dispose();
+                createInfoLabel(imageGraphics);
             }
 
-            AtomicReference<String> shipClosest = new AtomicReference<>(null);
-            AtomicDouble distanceClosest = new AtomicDouble(Double.MAX_VALUE);
-            AtomicReference<Date> timeClosest = new AtomicReference<>(null);
-            collisionsTree.get(lastMainVehicle).forEach((time, pair) -> {
-                String sysName = pair.first();
-                double distance = pair.second();
-                if (distance < distanceClosest.get()) {
-                    shipClosest.set(sysName);
-                    distanceClosest.set(distance);
-                    timeClosest.set(time);
-
-                    LocationType loc = null;
-                    ImcSystem sys = ImcSystemsHolder.lookupSystemByName(sysName);
-                    if (sys != null) {
-                        loc = sys.getLocation().getNewAbsoluteLatLonDepth();
-                    } else {
-                        ExternalSystem esys = ExternalSystemsHolder.lookupSystem(sysName);
-                        if (esys != null) {
-                            loc = esys.getLocation().getNewAbsoluteLatLonDepth();
-                        }
-                    }
-                    if (loc != null) {
-                        Graphics2D gg = (Graphics2D) g2.create();
-                        Point2D spos = renderer.getScreenPosition(loc);
-                        gg.translate(spos.getX() - 20 - 8, spos.getY());
-                        boolean res = !gg.drawImage(colregImageSmall, null, null);
-                        if (res) {
-                            askForLaterRepaint.compareAndSet(false, true);
-                        }
-                        gg.dispose();
-                    }
-
-                }
-                //Point2D pt = renderer.getScreenPosition(loc);
-            });
-            if (shipClosest.get() != null) {
-                String line1 = shipClosest.get();
-                String line2 = Math.round(distanceClosest.get()) + "m at " + sdf.format(timeClosest.get());
-                infoLabel.setText("<html>" + line1 + "<br>" + line2 + "</html>");
-                infoLabel.setForeground(Color.white);
-                infoLabel.setHorizontalAlignment(JLabel.LEFT);
-                Graphics2D gg = (Graphics2D) g2.create();
-                gg.translate(20, 100 + 50 + 5 + 5);
-                FontMetrics fontMetrics = gg.getFontMetrics();
-                Rectangle2D rectBounds = fontMetrics.getStringBounds(line1, gg);
-                Rectangle2D rectBounds2 = fontMetrics.getStringBounds(line2, gg);
-                infoLabel.setBounds(0, 0, (int) Math.max(rectBounds.getWidth(), rectBounds2.getWidth()) + 10,
-                        (int) (rectBounds.getHeight() + rectBounds2.getHeight() + 10));
-                infoLabel.paint(gg);
-                gg.dispose();
-            }
+            AtomicReference<String> shipClosest = detectAndRenderClosestCollision(renderer, sdf, repaintRequest, imageGraphics);
 
             Point2D indicatorPoint = new Point2D.Double(20 + 25, 100 + 25);
             AtomicReference<Short> mainlookAngle = new AtomicReference<>((short) 0);
@@ -418,31 +355,99 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
                     }
                 }
             });
-            for (int i = 0; i < lookAngle.length; i++) {
-                if (lookAngle[i]) {
-                    Graphics2D gg = (Graphics2D) g2.create();
-                    gg.translate(20 + 25, 100 + 25);
-                    gg.rotate(Math.PI / 2 + Math.PI / 4 * (2 * i + 1));
-                    gg.translate( -7,-25 - 2);
-                    if (mainlookAngle.get() == i) {
-                        gg.setColor(shapeHighColor);
-                    } else {
-                        gg.setColor(shapeColor);
-                    }
-                    gg.fill(shapeArrow);
-                    gg.setColor(Color.black);
-                    gg.draw(shapeArrow);
-                    gg.dispose();
-                }
-            }
+            IntStream.range(0, lookAngle.length).filter(i -> lookAngle[i]).forEach(i -> {
+                Graphics2D graphicsContext = (Graphics2D) imageGraphics.create();
+                graphicsContext.translate(20 + 25, 100 + 25);
+                graphicsContext.rotate(Math.PI / 2 + Math.PI / 4 * (2 * i + 1));
+                graphicsContext.translate(-7, -25 - 2);
+                graphicsContext.setColor(mainlookAngle.get() == i ? shapeHighColor : shapeColor);
+                graphicsContext.fill(shapeArrow);
+                graphicsContext.setColor(Color.black);
+                graphicsContext.draw(shapeArrow);
+                graphicsContext.dispose();
+            });
         }
 
         layerPainter.paintPhaseEndFinishImageRecreateAndPaintImageCacheToRenderer(g, renderer);
-        if (askForLaterRepaint.get()) {
+        if (repaintRequest.get()) {
             layerPainter.triggerImageRebuild();
             renderer.invalidate();
             renderer.repaint(10);
         }
+    }
+
+    private void createInfoLabel(Graphics2D imageGraphics) {
+        Graphics2D graphicsContext;
+        int collisionSize = collisionsTree.get(lastMainVehicle).size();
+        infoLabel.setText("# " + collisionSize);
+        infoLabel.setHorizontalTextPosition(JLabel.CENTER);
+        infoLabel.setHorizontalAlignment(JLabel.CENTER);
+        infoLabel.setBackground(blackTransparentColor);
+        infoLabel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        infoLabel.setOpaque(true);
+        graphicsContext = (Graphics2D) imageGraphics.create();
+        graphicsContext.translate(20 + 50 + 5 + 2, 100 + 25);
+        FontMetrics fontMetrics = graphicsContext.getFontMetrics();
+        Rectangle2D rectBounds = fontMetrics.getStringBounds(infoLabel.getText(), graphicsContext);
+        infoLabel.setBounds(0, 0, (int) rectBounds.getWidth() + 10, (int) rectBounds.getHeight() + 10);
+        infoLabel.setForeground(Color.white);
+        infoLabel.paint(graphicsContext);
+        graphicsContext.dispose();
+    }
+
+    private AtomicReference<String> detectAndRenderClosestCollision(StateRenderer2D renderer, SimpleDateFormat sdf, AtomicBoolean askForLaterRepaint, Graphics2D imageGraphics) {
+        AtomicReference<String> shipClosest = new AtomicReference<>(null);
+        AtomicDouble distanceClosest = new AtomicDouble(Double.MAX_VALUE);
+        AtomicReference<Date> timeClosest = new AtomicReference<>(null);
+        collisionsTree.get(lastMainVehicle).forEach((time, pair) -> {
+            String sysName = pair.first();
+            double distance = pair.second();
+            if (distance < distanceClosest.get()) {
+                shipClosest.set(sysName);
+                distanceClosest.set(distance);
+                timeClosest.set(time);
+
+                LocationType loc = null;
+                ImcSystem sys = ImcSystemsHolder.lookupSystemByName(sysName);
+                if (sys != null) {
+                    loc = sys.getLocation().getNewAbsoluteLatLonDepth();
+                } else {
+                    ExternalSystem esys = ExternalSystemsHolder.lookupSystem(sysName);
+                    if (esys != null) {
+                        loc = esys.getLocation().getNewAbsoluteLatLonDepth();
+                    }
+                }
+                if (loc != null) {
+                    Graphics2D graphicsContext = (Graphics2D) imageGraphics.create();
+                    Point2D spos = renderer.getScreenPosition(loc);
+                    graphicsContext.translate(spos.getX() - 20 - 8, spos.getY());
+                    boolean res = !graphicsContext.drawImage(colregImageSmall, null, null);
+                    if (res) {
+                        askForLaterRepaint.compareAndSet(false, true);
+                    }
+                    graphicsContext.dispose();
+                }
+
+            }
+            //Point2D pt = renderer.getScreenPosition(loc);
+        });
+        if (shipClosest.get() != null) {
+            String line1 = shipClosest.get();
+            String line2 = Math.round(distanceClosest.get()) + "m at " + sdf.format(timeClosest.get());
+            infoLabel.setText("<html>" + line1 + "<br>" + line2 + "</html>");
+            infoLabel.setForeground(Color.white);
+            infoLabel.setHorizontalAlignment(JLabel.LEFT);
+            Graphics2D graphicsContext = (Graphics2D) imageGraphics.create();
+            graphicsContext.translate(20, 100 + 50 + 5 + 5);
+            FontMetrics fontMetrics = graphicsContext.getFontMetrics();
+            Rectangle2D rectBounds = fontMetrics.getStringBounds(line1, graphicsContext);
+            Rectangle2D rectBounds2 = fontMetrics.getStringBounds(line2, graphicsContext);
+            infoLabel.setBounds(0, 0, (int) Math.max(rectBounds.getWidth(), rectBounds2.getWidth()) + 10,
+                    (int) (rectBounds.getHeight() + rectBounds2.getHeight() + 10));
+            infoLabel.paint(graphicsContext);
+            graphicsContext.dispose();
+        }
+        return shipClosest;
     }
 
     private Pair<Double, Short> calculateAngleToRotate(Point2D indicatorPoint, Point2D pointShipClosest) {
