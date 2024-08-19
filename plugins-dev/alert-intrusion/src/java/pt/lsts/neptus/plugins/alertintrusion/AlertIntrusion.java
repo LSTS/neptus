@@ -49,6 +49,7 @@ import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.systems.external.ExternalSystem;
 import pt.lsts.neptus.systems.external.ExternalSystemsHolder;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.ColorUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.util.WGS84Utilities;
@@ -59,6 +60,7 @@ import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.text.SimpleDateFormat;
@@ -92,13 +94,26 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
         }
     }
 
-    @NeptusProperty(name = "Minimum distance allowed between AUVs and Ships (meters)", userLevel = NeptusProperty.LEVEL.REGULAR)
+    private static final GeneralPath shapeArrow = new GeneralPath();
+    static {
+        shapeArrow.moveTo(0, 0);
+        shapeArrow.curveTo(7, 3, 7, 3, 14, 0);
+        //shapeArrow.lineTo(14, 0);
+        shapeArrow.lineTo(7, -14);
+        shapeArrow.lineTo(0, 0);
+    }
+
+    private final Color shapeColor = new Color(0xFF, 0xD0, 0x46, 203);
+    private final Color shapeHighColor = new Color(255, 70, 70, 203);
+    private final Color blackTransparentColor = ColorUtils.setTransparencyToColor(Color.black, 100);
+
+    @NeptusProperty(name = "Minimum distance allowed between vehicle and ships (meters)", userLevel = NeptusProperty.LEVEL.REGULAR)
     public int collisionDistance = 100;
     @NeptusProperty(name = "Percentage of the critical distance to trigger the alert")
     public int collisionCriticalDistancePercentage = 20;
     @NeptusProperty(name = "Use course for calculation", userLevel = NeptusProperty.LEVEL.REGULAR)
     public boolean useCourseForCalculation = true;
-    @NeptusProperty(name = "Minimum Speed To Be Stopped", description = "Configures the maximum speed (m/s) for the system to be considered stopped (affects the drawing of the course/speed vector on the renderer)",
+    @NeptusProperty(name = "Minimum Speed To Be Stopped", description = "Configures the maximum speed (m/s) for the system to be considered stopped.",
             category = "Renderer", userLevel = NeptusProperty.LEVEL.REGULAR)
     public double minimumSpeedToBeStopped = 0.2;
     @NeptusProperty(name = "Minutes To Hide Systems Without Known Location", description = "Minutes after which systems disappear from render if inactive (0 to disable)",
@@ -170,12 +185,18 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
         // (vehicle, ship) -> (distance, timestamp)
         final ConcurrentHashMap<Pair<String, String>, Pair<Double, Date>> collisions = new ConcurrentHashMap<>();
 
+        final Date datetimeNow = new Date();
         long timeSpanMillis = projectionTimeWindowValue * projectionTimeWindowUnit.getMicroseconds();
         for (long timeOffset = 0; timeOffset < timeSpanMillis; timeOffset += 1_000L * collisionDistance / 4) {
             final long deltaTimeMillis = timeOffset;
             Arrays.stream(ImcSystemsHolder.lookupAllSystems())
                     .filter(system -> !system.getName().equalsIgnoreCase(mainSystemName))
                     .forEach(system -> {
+                        Date dataAge = new Date(system.getLocationTimeMillis());
+                        if (dataAge.before(datetimeNow) && datetimeNow.getTime() - dataAge.getTime()
+                                > minutesToHideSystemsWithoutKnownLocation * 60_000L) {
+                            return;
+                        }
                         Date t = new Date(System.currentTimeMillis() + deltaTimeMillis);
                         LocationType locationSystem = system.getLocation().getNewAbsoluteLatLonDepth();
                         LocationType locationMain = mainSystem.getLocation().getNewAbsoluteLatLonDepth();
@@ -187,6 +208,11 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
             Arrays.stream(ExternalSystemsHolder.lookupAllSystems())
                     .filter(system -> !system.getName().equalsIgnoreCase(mainSystemName))
                     .forEach(system -> {
+                        Date dataAge = new Date(system.getLocationTimeMillis());
+                        if (dataAge.before(datetimeNow) && datetimeNow.getTime() - dataAge.getTime()
+                                > minutesToHideSystemsWithoutKnownLocation * 60_000L) {
+                            return;
+                        }
                         Date t = new Date(System.currentTimeMillis() + deltaTimeMillis);
                         LocationType locationSystem = system.getLocation().getNewAbsoluteLatLonDepth();
                         LocationType locationMain = mainSystem.getLocation().getNewAbsoluteLatLonDepth();
@@ -214,7 +240,7 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
         });
 
         long diff = System.currentTimeMillis() - start;
-        NeptusLog.pub().info("RiskAnalysis detected {} collisions in {} milliseconds.", collisions.size(), diff);
+        NeptusLog.pub().info("Risk detected {} collisions in {} milliseconds.", collisions.size(), diff);
 
         if (changed.get()) {
             layerPainter.triggerImageRebuild();
@@ -271,27 +297,31 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 
-        boolean askForLaterRepaint = false;
+        AtomicBoolean askForLaterRepaint = new AtomicBoolean(false);
 
         boolean recreateImage = layerPainter.paintPhaseStartTestRecreateImageAndRecreate(g, renderer);
         if (recreateImage) {
             Graphics2D g2 = layerPainter.getImageGraphics();
             // Paint what you want in the graphics
-            if (!collisionsTree.isEmpty() && collisionsTree.get(lastMainVehicle) != null && !collisionsTree.get(lastMainVehicle).isEmpty()) {
+            if (!collisionsTree.isEmpty() && collisionsTree.get(lastMainVehicle) != null
+                    && !collisionsTree.get(lastMainVehicle).isEmpty()) {
                 Graphics2D gg = (Graphics2D) g2.create();
                 gg.translate(20, 100);
-                askForLaterRepaint |= !gg.drawImage(colregImage, null, null);
+                boolean res = !gg.drawImage(colregImage, null, null);
+                if (res) {
+                    askForLaterRepaint.compareAndSet(false, true);
+                }
                 gg.dispose();
 
                 int collisionSize = collisionsTree.get(lastMainVehicle).size();
                 infoLabel.setText("# " + collisionSize);
                 infoLabel.setHorizontalTextPosition(JLabel.CENTER);
                 infoLabel.setHorizontalAlignment(JLabel.CENTER);
-                infoLabel.setBackground(ColorUtils.setTransparencyToColor(Color.black, 100));
+                infoLabel.setBackground(blackTransparentColor);
                 infoLabel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
                 infoLabel.setOpaque(true);
                 gg = (Graphics2D) g2.create();
-                gg.translate(20 + 50 + 2, 100 + 25);
+                gg.translate(20 + 50 + 5 + 2, 100 + 25);
                 FontMetrics fontMetrics = gg.getFontMetrics();
                 Rectangle2D rectBounds = fontMetrics.getStringBounds(infoLabel.getText(), gg);
                 infoLabel.setBounds(0, 0, (int) rectBounds.getWidth() + 10, (int) rectBounds.getHeight() + 10);
@@ -304,12 +334,34 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
             AtomicDouble distanceClosest = new AtomicDouble(Double.MAX_VALUE);
             AtomicReference<Date> timeClosest = new AtomicReference<>(null);
             collisionsTree.get(lastMainVehicle).forEach((time, pair) -> {
-                String ship = pair.first();
+                String sysName = pair.first();
                 double distance = pair.second();
                 if (distance < distanceClosest.get()) {
-                    shipClosest.set(ship);
+                    shipClosest.set(sysName);
                     distanceClosest.set(distance);
                     timeClosest.set(time);
+
+                    LocationType loc = null;
+                    ImcSystem sys = ImcSystemsHolder.lookupSystemByName(sysName);
+                    if (sys != null) {
+                        loc = sys.getLocation().getNewAbsoluteLatLonDepth();
+                    } else {
+                        ExternalSystem esys = ExternalSystemsHolder.lookupSystem(sysName);
+                        if (esys != null) {
+                            loc = esys.getLocation().getNewAbsoluteLatLonDepth();
+                        }
+                    }
+                    if (loc != null) {
+                        Graphics2D gg = (Graphics2D) g2.create();
+                        Point2D spos = renderer.getScreenPosition(loc);
+                        gg.translate(spos.getX() - 20 - 8, spos.getY());
+                        boolean res = !gg.drawImage(colregImageSmall, null, null);
+                        if (res) {
+                            askForLaterRepaint.compareAndSet(false, true);
+                        }
+                        gg.dispose();
+                    }
+
                 }
                 //Point2D pt = renderer.getScreenPosition(loc);
             });
@@ -320,7 +372,7 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
                 infoLabel.setForeground(Color.white);
                 infoLabel.setHorizontalAlignment(JLabel.LEFT);
                 Graphics2D gg = (Graphics2D) g2.create();
-                gg.translate(20, 100 + 50 + 5);
+                gg.translate(20, 100 + 50 + 5 + 5);
                 FontMetrics fontMetrics = gg.getFontMetrics();
                 Rectangle2D rectBounds = fontMetrics.getStringBounds(line1, gg);
                 Rectangle2D rectBounds2 = fontMetrics.getStringBounds(line2, gg);
@@ -330,9 +382,11 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
                 gg.dispose();
             }
 
-
-            if (shipClosest.get() != null) {
-                String sysName = shipClosest.get();
+            Point2D indicatorPoint = new Point2D.Double(20 + 25, 100 + 25);
+            AtomicReference<Short> mainlookAngle = new AtomicReference<>((short) 0);
+            boolean[] lookAngle = {false, false, false, false};
+            collisionsTree.get(lastMainVehicle).forEach((time, pair) -> {
+                String sysName = pair.first();
                 LocationType loc = null;
                 ImcSystem sys = ImcSystemsHolder.lookupSystemByName(sysName);
                 if (sys != null) {
@@ -344,20 +398,73 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
                     }
                 }
                 if (loc != null) {
-                    Graphics2D gg = (Graphics2D) g2.create();
-                    Point2D spos = renderer.getScreenPosition(loc);
-                    gg.translate(spos.getX() - 20 - 8, spos.getY());
-                    askForLaterRepaint |= !gg.drawImage(colregImageSmall, null, null);
+                    Point2D pointShipClosest = renderer.getScreenPosition(loc);
+                    Pair<Double, Short> angleRadAndQuadrant = calculateAngleToRotate(indicatorPoint, pointShipClosest);
+                    if (angleRadAndQuadrant.second() == 0) {
+                        lookAngle[0] = true;
+                    } else if (angleRadAndQuadrant.second() == 1) {
+                        lookAngle[1] = true;
+                    } else if (angleRadAndQuadrant.second() == 2) {
+                        lookAngle[2] = true;
+                    } else if (angleRadAndQuadrant.second() == 3) {
+                        lookAngle[3] = true;
+                    }
 
+                    if (shipClosest.get() != null) {
+                        String closestSysName = shipClosest.get();
+                        if (closestSysName.equals(sysName)) {
+                            mainlookAngle.set(angleRadAndQuadrant.second());
+                        }
+                    }
+                }
+            });
+            for (int i = 0; i < lookAngle.length; i++) {
+                if (lookAngle[i]) {
+                    Graphics2D gg = (Graphics2D) g2.create();
+                    gg.translate(20 + 25, 100 + 25);
+                    gg.rotate(Math.PI / 2 + Math.PI / 4 * (2 * i + 1));
+                    gg.translate( -7,-25 - 2);
+                    if (mainlookAngle.get() == i) {
+                        gg.setColor(shapeHighColor);
+                    } else {
+                        gg.setColor(shapeColor);
+                    }
+                    gg.fill(shapeArrow);
+                    gg.setColor(Color.black);
+                    gg.draw(shapeArrow);
                     gg.dispose();
                 }
             }
         }
+
         layerPainter.paintPhaseEndFinishImageRecreateAndPaintImageCacheToRenderer(g, renderer);
-        if (askForLaterRepaint) {
+        if (askForLaterRepaint.get()) {
             layerPainter.triggerImageRebuild();
             renderer.invalidate();
             renderer.repaint(10);
         }
+    }
+
+    private Pair<Double, Short> calculateAngleToRotate(Point2D indicatorPoint, Point2D pointShipClosest) {
+        double angleRad = AngleUtils.nomalizeAngleRadsPi(AngleUtils.calcAngle(
+                indicatorPoint.getY(), indicatorPoint.getX(),
+                pointShipClosest.getY(), pointShipClosest.getX()));
+        double angleDeg = Math.toDegrees(angleRad);
+        short quadrant = 0;
+        if (angleRad >= 0 && angleRad <= Math.PI / 2) {
+            angleRad = Math.PI / 4;
+        } else if (angleRad >= Math.PI / 2 && angleRad <= Math.PI) {
+            angleRad = 3 * Math.PI / 4;
+            quadrant = 1;
+        } else if (angleRad <= 0 && angleRad >= -Math.PI / 2) {
+            angleRad = -Math.PI / 4;
+            quadrant = 3;
+        } else if (angleRad <= -Math.PI / 2 && angleRad >= -Math.PI) {
+            angleRad = -3 * Math.PI / 4;
+            quadrant = 2;
+        }
+        double angleDeg1 = Math.toDegrees(angleRad);
+        System.out.println("angleDeg: " + angleDeg + "   :: angleDeg1: " + angleDeg1);
+        return new Pair<>(angleRad, quadrant);
     }
 }

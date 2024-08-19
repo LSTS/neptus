@@ -38,6 +38,8 @@ import java.util.Map;
 class RemoteActionsState {
     public final Map<String, Integer> extraButtonActionsMap = new LinkedHashMap<>();
     public final Map<String, Double> extraAxisActionsMap = new LinkedHashMap<>();
+    public final Map<String, Boolean> extraActionsLocksMap = new LinkedHashMap<>();
+
 
     public boolean decimalAxis = RemoteActionsExtra.DEFAULT_AXIS_DECIMAL_VAL;
 
@@ -53,6 +55,8 @@ class RemoteActionsState {
         this.extraButtonActionsMap.putAll(other.extraButtonActionsMap);
         this.extraAxisActionsMap.clear();
         this.extraAxisActionsMap.putAll(other.extraAxisActionsMap);
+        this.extraActionsLocksMap.clear();
+        this.extraActionsLocksMap.putAll(other.extraActionsLocksMap);
 
         this.decimalAxis = other.decimalAxis;
     }
@@ -60,6 +64,7 @@ class RemoteActionsState {
     public void reset() {
         this.extraButtonActionsMap.clear();
         this.extraAxisActionsMap.clear();
+        this.extraActionsLocksMap.clear();
         this.decimalAxis = RemoteActionsExtra.DEFAULT_AXIS_DECIMAL_VAL;
     }
 
@@ -74,5 +79,4 @@ class RemoteActionsState {
             extraAxisActionsMap.put(action, val);
         }
     }
-
 }

@@ -51,10 +51,12 @@ import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.util.MathMiscUtils;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -118,6 +120,8 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
 
     private final Map<String, ActionTypeEnum> extraActionsTypesMap = Collections.synchronizedMap(new LinkedHashMap<>());
 
+    private final List<JButton> extraLockableButtons = new ArrayList<>();
+
     private final RemoteActionsState curState = new RemoteActionsState();
     private final RemoteActionsState lastState = new RemoteActionsState();
 
@@ -156,6 +160,7 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
 
     private synchronized void resetUIWithActions() {
         takeControlMonitor.setButton(null);
+        extraLockableButtons.clear();
 
         removeAll();
         setLayout(new MigLayout("insets 10px"));
@@ -172,6 +177,17 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
         List<List<String>> groupedActions = groupActionsBySimilarity(extraActionsTypesMap.keySet(), true);
         groupedActions = processActions(groupedActions, 2, false);
 
+        JCheckBox lockUnlockButton = new JCheckBox("Lock/Unlock");
+        lockUnlockButton.setSelected(true);
+        lockUnlockButton.addActionListener(e -> {
+            if (lockUnlockButton.isSelected()) {
+                extraLockableButtons.forEach(b -> b.setEnabled(false));
+            } else {
+                extraLockableButtons.forEach(b -> b.setEnabled(true));
+            }
+        });
+        add(lockUnlockButton, "dock center, wrap");
+
         int grpIdx = 0;
         for (List<String> grp1 : groupedActions) {
             grpIdx++;
@@ -181,8 +197,18 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
                 if (lastAct.equals(action)) {
                     wrapLay = "wrap";
                 }
+
+                boolean provideLock = false;
+                if (curState.extraActionsLocksMap.containsKey(action)) {
+                    Boolean v = curState.extraActionsLocksMap.get(action);
+                    if (v != null && v) {
+                        provideLock = true;
+                    }
+                }
+
                 switch (extraActionsTypesMap.get(action)) {
                     case BUTTON:
+                        boolean isToProvideLock = provideLock || isActionForLock(action);
                         JButton button = new JButton(action);
                         button.addActionListener(e -> {
                             curState.changeButtonActionValue(action, 1);
@@ -190,6 +216,9 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
                         String lay = "dock center, sg grp" + grpIdx;
                         lay += ", " + wrapLay;
                         add(button, lay);
+                        if (isToProvideLock) {
+                            extraLockableButtons.add(button);
+                        }
                         if ("Take Control".equalsIgnoreCase(action)) {
                             takeControlMonitor.setButton(button);
                             takeControlMonitor.askedControl();
@@ -206,6 +235,12 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
             }
         }
 
+        if (extraLockableButtons.isEmpty()) {
+            remove(lockUnlockButton);
+        } else {
+            lockUnlockButton.setSelected(true);
+            extraLockableButtons.forEach(b -> b.setEnabled(false));
+        }
         invalidate();
         validate();
         repaint(100);
@@ -348,6 +383,9 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
                 for (String elem : keyPair) {
                     try {
                         String[] actPair = elem.trim().split("=");
+                        if (actPair.length != 2) {
+                            continue;
+                        }
                         String actTxt = actPair[0].trim();
                         String typeTxt = actPair[1].trim();
 
@@ -383,6 +421,30 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
                                 elem + "\" with error " + e.getMessage());
                     }
                 }
+
+                for (String elem : keyPair) {
+                    try {
+                        String[] actPair = elem.trim().split("=");
+                        if (actPair.length != 2) {
+                            continue;
+                        }
+                        String actTxt = actPair[0].trim();
+                        String lockTxt = actPair[1].trim().toLowerCase();
+
+                        if (actTxt.isEmpty()) {
+                            continue;
+                        }
+
+                        if ("lock".equalsIgnoreCase(lockTxt) &&
+                                curState.extraButtonActionsMap.containsKey(actTxt)) {
+                            curState.extraActionsLocksMap.put(actTxt, true);
+                        }
+                    }
+                    catch (Exception e) {
+                        NeptusLog.pub().warn("Not possible to parse lock for one remote action \"" +
+                                elem + "\" with error " + e.getMessage());
+                    }
+                }
             } catch (Exception e) {
                 NeptusLog.pub().warn("'Not possible to parse remote actions \"" +
                         actionsString + "\" with error " + e.getMessage());
@@ -403,7 +465,33 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
         }
         if (action.equals("ready") || action.equals("stopped")) return "mode ready";
 
+        List<String> wordsToTest = Arrays.asList("enable", "disable");
+        String groupExtracted = testAndExtractGroup(action, "enable", wordsToTest);
+        if (groupExtracted != null) {
+            return groupExtracted;
+        }
+
+        wordsToTest = Arrays.asList("start", "stop", "abort", "pause", "resume", "record", "play");
+        groupExtracted = testAndExtractGroup(action, "play", wordsToTest);
+        if (groupExtracted != null) {
+            return groupExtracted;
+        }
+
         return action;
+    }
+
+
+    private String testAndExtractGroup(String actionText, String groupSuffix, List<String> wordsToTest) {
+        for (String word : wordsToTest) {
+            if (actionText.contains(" " + word) || actionText.contains(word + " ")) {
+                String pattern = wordsToTest.stream()
+                        .map(w -> "(?:\\s" + w + "|" + w + "\\s)")
+                        .reduce((a, b) -> a + "|" + b)
+                        .orElse("");
+                return actionText.replaceAll(pattern, "") + " " + groupSuffix;
+            }
+        }
+        return null;
     }
 
     private List<List<String>> groupActionsBySimilarity(Set<String> actionList, boolean disableMotionRelatedRemoteActions) {
@@ -437,6 +525,11 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
             }
         }
         return actionGroups;
+    }
+
+    private static boolean isActionForLock(String actionTxt) {
+        String action = actionTxt.toLowerCase().trim();
+        return action.equals("power off") || action.equals("poweroff");
     }
 
     private List<List<String>> processActions(List<List<String>> groupedActions, int maxElemsPerActionGroup, boolean isPortrait) {

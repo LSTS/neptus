@@ -288,7 +288,7 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
                 if (m.getReceivedDate().before(timeSince)) {
                     break;
                 }
-                else {
+                else if (m.getContent() instanceof MimeMultipart) {
                     MimeMultipart mime = (MimeMultipart) m.getContent();
                     for (int j = 0; j < mime.getCount(); j++) {
                         BodyPart p = mime.getBodyPart(j);
@@ -322,6 +322,7 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
             return new Vector<>();
         }
 
+        messages.sort((m1, m2) -> Long.compare(m1.timestampMillis, m2.timestampMillis));
         return messages;
     }
 
@@ -378,7 +379,7 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
                 }
 
                 try {
-                    URL url = new URL("https://secure.rock7mobile.com/rockblock");
+                    URL url = new URL("http://secure.rock7mobile.com/rockblock");
                     int len = url.openConnection().getContentLength();
                     if (len > 0)
                         lastSuccess = System.currentTimeMillis();

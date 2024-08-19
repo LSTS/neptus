@@ -269,7 +269,9 @@ public class ImcUdpTransport {
                 };                
             }
             DeliveryResult retResult = getUdpTransport().sendMessage(IdPair.from(destination, port), baos.toByteArray()).get();
-            listener.deliveryResult(retResult.result, retResult.exception);
+            if (listener != null) {
+                listener.deliveryResult(retResult.result, retResult.exception);
+            }
             boolean ret = false;
             switch (retResult.result) {
                 case Success:
