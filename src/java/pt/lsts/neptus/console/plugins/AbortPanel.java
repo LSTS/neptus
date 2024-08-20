@@ -58,8 +58,11 @@ import org.jdesktop.swingx.JXButton;
 import pt.lsts.imc.Abort;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.IMCSendMessageUtils;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.neptus.comm.manager.imc.MessageDeliveryListener;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.notifications.Notification;
@@ -249,7 +252,11 @@ public class AbortPanel extends ConsolePanel implements MainVehicleChangeListene
                     SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
                         @Override
                         protected Void doInBackground() throws Exception {
-                            send(new IMCMessage("Abort"));
+                            // send(new IMCMessage("Abort"));
+                            IMCSendMessageUtils.sendMessage(new IMCMessage("Abort"), ImcMsgManager.TRANSPORT_TCP,
+                                    createDefaultMessageDeliveryListener(), getConsole(), "", true,
+                                    "", true, true, true,
+                                    getConsole().getMainSystem());
 
                             boolean sentToAll = false;
                             if ((e.getModifiers() & ActionEvent.CTRL_MASK) != 0) {
@@ -316,6 +323,48 @@ public class AbortPanel extends ConsolePanel implements MainVehicleChangeListene
             };
         }
         return abortAction;
+    }
+
+    private MessageDeliveryListener createDefaultMessageDeliveryListener() {
+        return new MessageDeliveryListener() {
+            private String  getDest(IMCMessage message) {
+                ImcSystem sys = message != null ? ImcSystemsHolder.lookupSystem(message.getDst()) : null;
+                String dest = sys != null ? sys.getName() : I18n.text("unknown destination");
+                return dest;
+            }
+
+            @Override
+            public void deliveryUnreacheable(IMCMessage message) {
+                post(Notification.error(
+                        I18n.text("Delivering Message"),
+                        I18n.textf("Message %messageType to %destination delivery destination unreacheable",
+                                message.getAbbrev(), getDest(message))));
+            }
+
+            @Override
+            public void deliveryTimeOut(IMCMessage message) {
+                post(Notification.error(
+                        I18n.text("Delivering Message"),
+                        I18n.textf("Message %messageType to %destination delivery timeout",
+                                message.getAbbrev(), getDest(message))));
+            }
+
+            @Override
+            public void deliveryError(IMCMessage message, Object error) {
+                post(Notification.error(
+                        I18n.text("Delivering Message"),
+                        I18n.textf("Message %messageType to %destination delivery error. (%error)",
+                                message.getAbbrev(), getDest(message), error)));
+            }
+
+            @Override
+            public void deliveryUncertain(IMCMessage message, Object msg) {
+            }
+
+            @Override
+            public void deliverySuccess(IMCMessage message) {
+            }
+        };
     }
 
     @Override
