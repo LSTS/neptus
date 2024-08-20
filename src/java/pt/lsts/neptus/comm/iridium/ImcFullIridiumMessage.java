@@ -46,8 +46,6 @@ import java.util.Vector;
  */
 public class ImcFullIridiumMessage extends ImcIridiumMessage {
 
-    protected IMCMessage msg;
-
     // 5 bytes for RB addressing, 6 bytes for type and timestamp, 6 bytes for IMC header
     public static int MaxPayloadSize = 270 - 17;
 
