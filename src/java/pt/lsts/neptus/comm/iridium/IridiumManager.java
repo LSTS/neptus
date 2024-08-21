@@ -54,9 +54,11 @@ import pt.lsts.imc.MessagePart;
 import pt.lsts.imc.net.IMCFragmentHandler;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.ByteUtil;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
+import pt.lsts.neptus.util.speech.SpeechUtil;
 
 /**
  * This class will handle Iridium communications
@@ -75,6 +77,8 @@ public class IridiumManager {
     
     public static final int IRIDIUM_MTU = 270;
     public static final int IRIDIUM_HEADER = 6;
+
+    private long timeSinceLastUpdateVoiceWarning = -1;
     
     public enum IridiumMessengerEnum {
         DuneIridiumMessenger,
@@ -111,8 +115,12 @@ public class IridiumManager {
             try {
                 Date now = new Date();
                 Collection<IridiumMessage> msgs = getCurrentMessenger().pollMessages(lastTime);
-                for (IridiumMessage m : msgs)
+                if (!msgs.isEmpty()) {
+                    speakUpdateEntityState();
+                }
+                for (IridiumMessage m : msgs) {
                     processMessage(m);
+                }
                 
                 lastTime = now;
             }
@@ -122,7 +130,15 @@ public class IridiumManager {
             }
         }
     };
-    
+
+    private synchronized void speakUpdateEntityState() {
+        if (System.currentTimeMillis() - timeSinceLastUpdateVoiceWarning > Duration.ofSeconds(10).toMillis()) {
+            timeSinceLastUpdateVoiceWarning = System.currentTimeMillis();
+            String msg = I18n.text("Ireedeehum received"); // To be able to speak Iridium
+            SpeechUtil.readSimpleText(msg);
+        }
+    }
+
     public boolean isAvailable() {
         return getCurrentMessenger().isAvailable();
     }
