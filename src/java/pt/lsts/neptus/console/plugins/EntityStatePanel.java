@@ -38,6 +38,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Timer;
@@ -54,7 +55,6 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
-import javax.swing.text.html.parser.Entity;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -81,6 +81,7 @@ import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.speech.SpeechUtil;
 
 /**
  * @author pdias
@@ -113,6 +114,8 @@ public class EntityStatePanel extends ConsolePanel implements NeptusMessageListe
     // GUI Components
     private JTable table = null;
     private StatusLed status;
+
+    private long timeSinceLastUpdateVoiceWarning = -1;
 
     /**
      * @param console
@@ -375,11 +378,14 @@ public class EntityStatePanel extends ConsolePanel implements NeptusMessageListe
             EntityStateType eType = dataMap.get(entityName);
             Integer index = eType == null ? null : data.indexOf(eType);
 
+            boolean wasChange = false;
+
             // Updating (not the first time receiving for this entity)
             if (index != null) {
                 eType = data.get(index);
                 if (message.getLong("state") != eType.getState().longValue()) { // Means it has changed, time to post a
-//                    msg_type type = msg_type.info;
+                    // msg_type type = msg_type.info;
+                    wasChange = true;
                 }
                 eType.update(entityName, new Enumerated(message.getMessageType().getFieldPossibleValues("state"),
                         message.getLong("state")), message.getString("description"), System.currentTimeMillis());
@@ -387,6 +393,7 @@ public class EntityStatePanel extends ConsolePanel implements NeptusMessageListe
                 etmodel.fireTableRowsUpdated(index, index);
             }
             else {
+                wasChange = true;
                 eType = new EntityStateType(entityName, new Enumerated(message.getMessageType().getFieldPossibleValues(
                         "state"), message.getLong("state")), getDescription(), System.currentTimeMillis());
 
@@ -397,6 +404,9 @@ public class EntityStatePanel extends ConsolePanel implements NeptusMessageListe
                 }
             }
             calcTotalState();
+
+            if (wasChange)
+                speakUpdateEntityState();
         }
     }
 
@@ -413,6 +423,14 @@ public class EntityStatePanel extends ConsolePanel implements NeptusMessageListe
         }
         catch (Exception e) {
             NeptusLog.pub().warn(e);
+        }
+    }
+
+    private synchronized void speakUpdateEntityState() {
+        if (System.currentTimeMillis() - timeSinceLastUpdateVoiceWarning > Duration.ofSeconds(10).toMillis()) {
+            timeSinceLastUpdateVoiceWarning = System.currentTimeMillis();
+            String msg = I18n.text("Entity state");
+            SpeechUtil.readSimpleText(msg);
         }
     }
 
