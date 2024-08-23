@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2022.04.0 (system/caravel,823d381c0)" system="caravel" i18n="pt_PT">
+<config format="1" version="2022.04.0 (system/caravel,81d8a8fbf)" system="caravel" i18n="pt_PT">
   <section name="Text Actions" name-i18n="Text Actions">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -907,7 +907,7 @@
     <param name="Enable Collision Avoidance">
       <name-i18n>Enable Collision Avoidance</name-i18n>
       <type>boolean</type>
-      <visibility>developer</visibility>
+      <visibility>user</visibility>
       <scope>global</scope>
       <default>false</default>
       <units/>
@@ -916,7 +916,7 @@
     <param name="Enable Anti Grounding">
       <name-i18n>Enable Anti Grounding</name-i18n>
       <type>boolean</type>
-      <visibility>developer</visibility>
+      <visibility>user</visibility>
       <scope>global</scope>
       <default>false</default>
       <units/>
@@ -3093,7 +3093,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>GPS</default>
+      <default>AHRS</default>
       <units/>
       <desc>Entity label of 'GpsFix' and 'GroundVelocity' messages</desc>
     </param>
@@ -3902,7 +3902,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>CTD_P</default>
+      <default>Private (CTD_P)</default>
       <units/>
       <desc>Power Channel Entity Label</desc>
     </param>
@@ -5620,7 +5620,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>maneuver</default>
+      <default>global</default>
       <units/>
       <desc>Escopo do parâmetro 'Ativa'</desc>
     </param>
@@ -5629,15 +5629,15 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>user</default>
+      <default>developer</default>
       <units/>
       <desc>Visibilidade do parâmetro 'Ativa'</desc>
     </param>
     <param name="Active">
       <name-i18n>Ativa</name-i18n>
       <type>boolean</type>
-      <visibility>user</visibility>
-      <scope>maneuver</scope>
+      <visibility>developer</visibility>
+      <scope>global</scope>
       <default>1</default>
       <units/>
       <desc>Verdadeiro para ativar tarefa, falso caso contrário</desc>
@@ -5658,7 +5658,16 @@
       <scope>global</scope>
       <default>125</default>
       <units>ms</units>
-      <desc>Sample period in milliseconds</desc>
+      <desc>Sample Period in milliseconds</desc>
+    </param>
+    <param name="Start Acquisition">
+      <name-i18n>Start Acquisition</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>false</default>
+      <units/>
+      <desc>Start Acquisition.</desc>
     </param>
     <param name="Sample Time Duration">
       <name-i18n>Sample Time Duration</name-i18n>
@@ -5704,6 +5713,24 @@
       <default>60</default>
       <units/>
       <desc>Input timeout in seconds. Must be greater than 2*Sample Time Duration</desc>
+    </param>
+    <param name="Medium Threshold">
+      <name-i18n>Medium Threshold</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.2</default>
+      <units/>
+      <desc>Medium conductivity threshold.</desc>
+    </param>
+    <param name="Medium Periodicity">
+      <name-i18n>Medium Periodicity</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.0</default>
+      <units/>
+      <desc>Medium dispatch periodicity.</desc>
     </param>
   </section>
   <section name="Thermal Zone" name-i18n="Zona Térmica">
@@ -6244,7 +6271,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default/>
+      <default>usv</default>
       <units/>
       <desc>System type</desc>
     </param>
@@ -7081,7 +7108,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>120</default>
+      <default>240</default>
       <units/>
       <desc>Time to live for iridium messages.</desc>
     </param>
@@ -7090,7 +7117,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>600</default>
+      <default>1200</default>
       <units/>
       <desc>Iridium operation timeout in seconds.</desc>
     </param>
@@ -7247,7 +7274,7 @@
       <type>real</type>
       <visibility>user</visibility>
       <scope>global</scope>
-      <default>100</default>
+      <default>300</default>
       <units/>
       <desc>Window to prioritize Transmission over Reception</desc>
       <min>5</min>
@@ -7257,7 +7284,7 @@
       <type>real</type>
       <visibility>user</visibility>
       <scope>global</scope>
-      <default>100</default>
+      <default>60</default>
       <units/>
       <desc>Window to prioritize Reception over Transmission</desc>
       <min>5</min>
