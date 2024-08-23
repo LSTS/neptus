@@ -210,57 +210,71 @@ public class IridiumStatusTableModel extends AbstractTableModel implements Messa
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
+        try {
+            IridiumMessage m = msgs.get(rowIndex);
 
-        IridiumMessage m = msgs.get(rowIndex);
-        
-        String messageType = m.getMessageType() == 0 ? "Custom Iridium Message" : m.getClass().getSimpleName();
-        int src = m.getSource();
-        int dst = m.getDestination();
+            String messageType = m.getMessageType() == 0 ? "Custom Iridium Message" : m.getClass().getSimpleName();
+            int src = m.getSource();
+            int dst = m.getDestination();
 
-        switch (columnIndex) {
-            case TIMESTAMP:
-            {
-                if(messageType.equalsIgnoreCase("ImcIridiumMessage")) {
-                    IMCMessage msg = ((ImcIridiumMessage) m).getMsg();
-                    if(msg.getMgid() == StateReport.ID_STATIC) {
-                        long stime = ((StateReport) msg).getStime() * 1000;
-                        TimeZone.getTimeZone(TimeZone.getDefault().getID());
-                        StringBuilder sb = new StringBuilder("V ");
-                        sb.append(sdf.format(new Date(stime)));
+            switch (columnIndex) {
+                case TIMESTAMP: {
+                    try {
+                        if (messageType.equalsIgnoreCase("ImcIridiumMessage") ||
+                                messageType.equalsIgnoreCase("ImcFullIridiumMessage")) {
+                            IMCMessage msg = ((ImcIridiumMessage) m).getMsg();
+                            if (msg.getMgid() == StateReport.ID_STATIC) {
+                                long stime = ((StateReport) msg).getStime() * 1000;
+                                TimeZone.getTimeZone(TimeZone.getDefault().getID());
+                                StringBuilder sb = new StringBuilder("V ");
+                                sb.append(sdf.format(new Date(stime)));
+                                return sb.toString();
+                            }
+                        }
+                        StringBuilder sb = new StringBuilder("M ");
+                        sb.append(sdf.format(new Date(m.timestampMillis)));
                         return sb.toString();
                     }
+                    catch (Exception e) {
+                        NeptusLog.pub().warn("?? " + messageType + " " + m + " :: " + e.getMessage());
+                        return "?? " + messageType + " " + m;
+                    }
                 }
-                StringBuilder sb = new StringBuilder("M ");
-                sb.append(sdf.format(new Date(m.timestampMillis)));
-                return sb.toString();
-            }
-            case SYSTEM:
-                return IMCDefinition.getInstance().getResolver().resolve(src);
-            case STATUS:
-                if (status.containsKey(rowIndex)) {
-                    return status.get(rowIndex)._status;
-                }
-                /*
-                 * else if(src == ImcMsgManager.getManager().getLocalId().intValue()) return IridiumCommsStatus.SENT;
-                 */
-                if(messageType.equalsIgnoreCase("IridiumCommand")) {
-                    IridiumCommand cmd = (IridiumCommand) m;
-                    String txt = cmd.getCommand();
-                    if(txt.startsWith("ERROR"))
-                        return IridiumCommsStatus.ERROR;
+                case SYSTEM:
+                    return IMCDefinition.getInstance().getResolver().resolve(src);
+                case STATUS:
+                    if (status.containsKey(rowIndex)) {
+                        return status.get(rowIndex)._status;
+                    }
+                    /*
+                     * else if(src == ImcMsgManager.getManager().getLocalId().intValue()) return IridiumCommsStatus.SENT;
+                     */
+                    if (messageType.equalsIgnoreCase("IridiumCommand")) {
+                        IridiumCommand cmd = (IridiumCommand) m;
+                        String txt = cmd.getCommand();
+                        if (txt.startsWith("ERROR"))
+                            return IridiumCommsStatus.ERROR;
 
-                }
-                else if (dst == 65535 || dst == ImcMsgManager.getManager().getLocalId().intValue()) { // dst - 65535 - 255 // - broadcast
-                    return IridiumCommsStatus.DELIVERED;
-                }
+                    }
+                    else if (dst == 65535 || dst == ImcMsgManager.getManager().getLocalId().intValue()) { // dst - 65535 - 255 // - broadcast
+                        return IridiumCommsStatus.DELIVERED;
+                    }
                     return IridiumCommsStatus.UNCERTAIN;
-            case MSG_TYPE:
-                if(messageType.equalsIgnoreCase("ImcIridiumMessage"))
-                    return ((ImcIridiumMessage) m).getMsg().getClass().getSimpleName();
-                else 
-                    return messageType;
-            default:
-                return "??";
+                case MSG_TYPE:
+                    try {
+                        if (messageType.equalsIgnoreCase("ImcIridiumMessage") ||
+                                messageType.equalsIgnoreCase("ImcFullIridiumMessage"))
+                            return ((ImcIridiumMessage) m).getMsg().getClass().getSimpleName();
+                        else
+                            return messageType;
+                    } catch (Exception e) {
+                        return "::" + messageType;
+                    }
+                default:
+                    return "??";
+            }
+        } catch (Exception e) {
+            return "?? " + rowIndex + " " + columnIndex + "  " + e.getMessage();
         }
     }
 
@@ -297,13 +311,15 @@ public class IridiumStatusTableModel extends AbstractTableModel implements Messa
      * @param milis - milliseconds 
      */
     public void cleanupAfter(long millis) {
-        msgs.removeIf(msg -> (System.currentTimeMillis() - msg.timestampMillis) >  millis);
+        synchronized (msgs) {
+            msgs.removeIf(msg -> (System.currentTimeMillis() - msg.timestampMillis) >  millis);
+        }
         fireTableDataChanged();
     }
 }
 
 /**
- * Iridium Local Transmissions Status
+ * Iridium Local Transmissions StatusTDefaultRowSorter
  *
  */
 class TransmissionStatus {

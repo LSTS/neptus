@@ -32,40 +32,90 @@
  */
 package pt.lsts.neptus.comm.manager.imc;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-
 import pt.lsts.imc.EntityList;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.util.PropertiesLoader;
+import pt.lsts.neptus.util.conf.ConfigFetch;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Enumeration;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * @author zp
  *
  */
 public class EntitiesResolver {
+    public static final String ENTITIES_RESOLVER_PROPERTIES_FILE = ".cache/db/entities-resolver.properties";
 
-	protected static LinkedHashMap<String, BiMap<Integer, String>> entitiesMap = new LinkedHashMap<String, BiMap<Integer, String>>();
-	public static final int DEFAULT_ENTITY = 255;
-	
-	
+    protected static LinkedHashMap<String, BiMap<Integer, String>> entitiesMap = new LinkedHashMap<String, BiMap<Integer, String>>();
+    public static final int DEFAULT_ENTITY = 255;
+
+    private static PropertiesLoader properties = null;
+
+    static {
+        String propertiesFile = ConfigFetch.resolvePathBasedOnConfigFile(ENTITIES_RESOLVER_PROPERTIES_FILE);
+        if (!new File(propertiesFile).exists()) {
+            String testFile = ConfigFetch.resolvePathBasedOnConfigFile("../" + ENTITIES_RESOLVER_PROPERTIES_FILE);
+            if (new File(testFile).exists())
+                propertiesFile = testFile;
+        }
+        new File(propertiesFile).getParentFile().mkdirs();
+        properties = new PropertiesLoader(propertiesFile, PropertiesLoader.PROPERTIES);
+
+        Enumeration<Object> it = properties.keys();
+        while (it.hasMoreElements()) {
+            String key = it.nextElement().toString();
+            String value = properties.getProperty(key);
+            setEntities(key, value, false);
+        }
+    }
+
+    public static void saveProperties() {
+        try {
+            properties.store("EntitiesResolver properties");
+        }
+        catch (IOException e) {
+            NeptusLog.pub().error("saveProperties", e);
+        }
+    }
+
 	/**
 	 * Based on a EntityList message set all the messages for further queries 
 	 * @param id Name of the name (String id)
 	 * @param message EntityList message
 	 */	
 	public static void setEntities(String id, EntityList message) {
-		LinkedHashMap<String, String> tlist = null;
-		tlist = message.getList();
-		
-		BiMap<Integer, String> aliases = HashBiMap.create();
-		for (String key : tlist.keySet())
-			aliases.put(Integer.parseInt(tlist.get(key)), key);
-		
-		entitiesMap.put(id, aliases);
-	}
-	
+        LinkedHashMap<String, String> tlist = null;
+        tlist = message.getList();
+        String listAsStr = IMCMessage.encodeTupleList(tlist);
+        setEntities(id, listAsStr, true);
+    }
+
+    public static void setEntities(String id, String listAsStr, boolean save) {
+        LinkedHashMap<String, String> tlist = null;
+        tlist = IMCMessage.decodeTupleList(listAsStr);
+
+        BiMap<Integer, String> aliases = HashBiMap.create();
+        for (String key : tlist.keySet()) {
+            aliases.put(Integer.parseInt(tlist.get(key)), key);
+        }
+
+        if (save) {
+            String old = properties.getProperty(id);
+            if (old == null || !old.equals(listAsStr)) {
+                properties.setProperty(id, listAsStr);
+                saveProperties();
+            }
+        }
+
+        entitiesMap.put(id, aliases);
+    }
 	public static final Map<Integer, String> getEntities(Object systemId) {
 		return entitiesMap.get(systemId.toString());
 	}

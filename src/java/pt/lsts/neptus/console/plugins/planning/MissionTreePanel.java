@@ -62,6 +62,8 @@ import pt.lsts.imc.LblRangeAcceptance;
 import pt.lsts.imc.PlanControlState;
 import pt.lsts.imc.PlanControlState.STATE;
 import pt.lsts.imc.PlanSpecification;
+import pt.lsts.imc.StateReport;
+import pt.lsts.imc.state.ImcSystemState;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.comm.IMCUtils;
@@ -133,6 +135,8 @@ public class MissionTreePanel extends ConsolePanel
     boolean inited = false;
     protected MissionBrowser browser = new MissionBrowser();
     protected PlanDBControl pdbControl;
+
+    protected String mainVehicleLastPlanId = null;
 
     /**
      * This adapter is called by a class monitoring PlanDB messages. It is only called if a PlanDB message with field
@@ -206,6 +210,23 @@ public class MissionTreePanel extends ConsolePanel
                     pdbControl.clearDatabase();
             }
         });
+    }
+
+    @Subscribe
+    public void mainVehicleChangeNotification(ConsoleEventMainSystemChange ev) {
+        mainVehicleLastPlanId = null;
+        try {
+            ImcSystemState state = getConsole().getImcMsgManager().getState(getMainVehicleId());
+            if (state != null) {
+                PlanControlState pcsMsg = state.last(PlanControlState.class);
+                if (pcsMsg != null) {
+                     on(pcsMsg);
+                }
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Subscribe
@@ -335,6 +356,10 @@ public class MissionTreePanel extends ConsolePanel
     
     @Subscribe
     public void on(PlanControlState msg) {
+        if (getConsole().getMainSystem().equalsIgnoreCase(msg.getSourceName())) {
+            mainVehicleLastPlanId = msg.getPlanId();
+        }
+
         // If vehicle stops, the timers stop as well
         if (msg.getState() == STATE.READY || msg.getState() == STATE.BLOCKED) {
                 browser.transStopTimers();
@@ -424,6 +449,22 @@ public class MissionTreePanel extends ConsolePanel
                             }
                         }
                     });
+        }
+
+        private void addActionSendPlanInfoRequest(final ConsoleLayout console2, final PlanDBControl pdbControl,
+                                       final ArrayList<NameId> selectedItems, JPopupMenu popupMenu) {
+            if (!usePlanDBSyncFeatures)
+                return;
+
+            popupMenu.add(I18n.textf("Get %planName info from %system", getPlanNamesString(selectedItems, true), console2.getMainSystem()))
+                    .addActionListener(e -> {
+                                for (NameId nameId : selectedItems) {
+                                    PlanType sel = (PlanType) nameId;
+                                    String mainSystem = console2.getMainSystem();
+                                    pdbControl.setRemoteSystemId(mainSystem);
+                                    pdbControl.requestPlanInfo(sel.getId());
+                                }
+                            });
         }
 
         private <T extends NameId> StringBuilder getPlanNamesString(final ArrayList<T> selectedItems, boolean plans) {
@@ -584,27 +625,36 @@ public class MissionTreePanel extends ConsolePanel
             
             ArrayList<NameId> toShare = new ArrayList<NameId>();
 
+            ArrayList<NameId> toRemoveLocally = new ArrayList<NameId>();
+            ArrayList<NameId> toRemoveRemotely = new ArrayList<NameId>();
+            ArrayList<NameId> toGetPlan = new ArrayList<NameId>();
+            ArrayList<NameId> toGetPlanInfo = new ArrayList<NameId>();
+            ArrayList<NameId> toSend = new ArrayList<NameId>();
+
+            boolean addForMainVehiclePlan = mainVehicleLastPlanId != null;
+
             switch (selecType) {
                 case Plans:
 
                     if (selectedItems.size() == 1) {
                         addActionRenamePlan(getConsole(), selectedItems, popupMenu);
+                        addForMainVehiclePlan = false;
                     }
 
                     popupMenu.addSeparator();
-                    // New
-                    ArrayList<NameId> toRemoveLocally = new ArrayList<NameId>();
-                    ArrayList<NameId> toRemoveRemotely = new ArrayList<NameId>();
-                    ArrayList<NameId> toGetPlan = new ArrayList<NameId>();
-                    ArrayList<NameId> toSend = new ArrayList<NameId>();
-                    
+
                     State syncState;
                     // Separate plans by state to give appropriated options to each
                     // addActionChangePlanVehicles(selection, popupMenu); // add appropriatly when multivehicles are
                     // needed
                     for (ExtendedTreeNode extendedTreeNode : selectedNodes) {
                         syncState = (State) extendedTreeNode.getUserInfo().get(NodeInfoKey.SYNC.name());
-                        
+
+                        if (mainVehicleLastPlanId != null && mainVehicleLastPlanId
+                                .equalsIgnoreCase(((NameId) extendedTreeNode.getUserObject()).getIdentification())) {
+                            addForMainVehiclePlan = false;
+                        }
+
                         if (syncState != null) {
                             switch (syncState) {
                                 case REMOTE:
@@ -614,6 +664,7 @@ public class MissionTreePanel extends ConsolePanel
                                 case SYNC:
                                     toRemoveRemotely.add((NameId) extendedTreeNode.getUserObject());
                                     toRemoveLocally.add((NameId) extendedTreeNode.getUserObject());
+                                    toGetPlanInfo.add((NameId) extendedTreeNode.getUserObject());
                                     toShare.add((NameId) extendedTreeNode.getUserObject());
                                     break;
                                 case NOT_SYNC:
@@ -621,11 +672,13 @@ public class MissionTreePanel extends ConsolePanel
                                     toRemoveLocally.add((NameId) extendedTreeNode.getUserObject());
                                     toSend.add((NameId) extendedTreeNode.getUserObject());
                                     toGetPlan.add((NameId) extendedTreeNode.getUserObject());
+                                    toGetPlanInfo.add((NameId) extendedTreeNode.getUserObject());
                                     toShare.add((NameId) extendedTreeNode.getUserObject());
                                     break;
                                 case LOCAL:
                                     toRemoveLocally.add((NameId) extendedTreeNode.getUserObject());
                                     toSend.add((NameId) extendedTreeNode.getUserObject());
+                                    toGetPlanInfo.add((NameId) extendedTreeNode.getUserObject());
                                     toShare.add((NameId) extendedTreeNode.getUserObject());
                                     break;
                             }
@@ -634,14 +687,39 @@ public class MissionTreePanel extends ConsolePanel
                             NeptusLog.pub().error("The plan " + extendedTreeNode + " has no state.");
                         }
                     }
-                    if (toRemoveRemotely.size() > 0)
+
+                    if (addForMainVehiclePlan) {
+                        NameId nameId = new NameId() {
+                            @Override
+                            public String getIdentification() {
+                                return mainVehicleLastPlanId;
+                            }
+                            @Override
+                            public String getDisplayName() {
+                                return mainVehicleLastPlanId;
+                            }
+                        };
+                        toGetPlan.add(nameId);
+
+                        toGetPlanInfo.add(nameId);
+                    }
+
+                    if (!toRemoveRemotely.isEmpty())
                         addActionRemovePlanRemotely(getConsole(), pdbControl, toRemoveRemotely, popupMenu);
-                    if (toRemoveLocally.size() > 0)
+                    if (!toRemoveLocally.isEmpty())
                         addActionRemovePlanLocally(getConsole(), toRemoveLocally, popupMenu);
-                    if (toSend.size() > 0)
+                    if (!toSend.isEmpty())
                         addActionSendPlan(getConsole(), pdbControl, toSend, popupMenu);
-                    if (toGetPlan.size() > 0)
+                    if (!toGetPlan.isEmpty())
                         addActionGetRemotePlan(getConsole(), pdbControl, toGetPlan, popupMenu);
+                    if (!toGetPlanInfo.isEmpty()) {
+                        ArrayList<NameId> toGetInfo = new ArrayList<>();
+                        toGetInfo.addAll(toSend);
+                        toGetInfo.addAll(toRemoveRemotely);
+                        toGetInfo.addAll(toGetPlan);
+                        toGetInfo = toGetInfo.stream().distinct().collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
+                        addActionSendPlanInfoRequest(getConsole(), pdbControl, toGetInfo, popupMenu);
+                    }
                     break;
                 case Transponder:
                     addActionAddNewTrans(popupMenu);
@@ -660,10 +738,10 @@ public class MissionTreePanel extends ConsolePanel
                         if (state == State.NOT_SYNC)
                             notSyncTrans.add((TransponderElement) extendedTreeNode.getUserObject());
                     }
-                    if (localTrans.size() > 0) {
+                    if (!localTrans.isEmpty()) {
                         addActionRemoveTrans(localTrans, popupMenu);
                     }
-                    if (notSyncTrans.size() > 0) {
+                    if (!notSyncTrans.isEmpty()) {
                         addActionGetRemoteTrans(getConsole(), popupMenu, notSyncTrans);
                     }
                     

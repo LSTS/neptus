@@ -69,6 +69,8 @@ public abstract class IridiumMessage implements Comparable<IridiumMessage> {
         iridiumTypes.put(2007, TargetAssetPosition.class);        
         iridiumTypes.put(2010, ImcIridiumMessage.class);
         iridiumTypes.put(2011, ExtendedDeviceUpdate.class);
+        iridiumTypes.put(2012, UpdateDeviceActivation.class);
+        iridiumTypes.put(2013, ImcFullIridiumMessage.class);
     }
     
     public byte[] serialize() throws Exception {

@@ -187,6 +187,16 @@ public class IridiumStatus extends ConsolePanel {
 
             @Override
             public int compare(String sdf1, String sdf2) {
+                if (sdf1 == null && sdf2 == null) {
+                    return 0;
+                }
+                else if (sdf1 == null) {
+                    return -1;
+                }
+                else if (sdf2 == null) {
+                    return 1;
+                }
+
                 SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SSS dd-MM-yyyy 'Z'");
                 sdf1 = sdf1.replaceAll("V ", "");
                 sdf2 = sdf2.replaceAll("V ", "");
