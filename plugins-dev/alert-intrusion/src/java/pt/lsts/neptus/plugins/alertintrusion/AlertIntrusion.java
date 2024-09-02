@@ -333,38 +333,42 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
             AtomicReference<String> shipClosest = new AtomicReference<>(null);
             AtomicDouble distanceClosest = new AtomicDouble(Double.MAX_VALUE);
             AtomicReference<Date> timeClosest = new AtomicReference<>(null);
-            collisionsTree.get(lastMainVehicle).forEach((time, pair) -> {
-                String sysName = pair.first();
-                double distance = pair.second();
-                if (distance < distanceClosest.get()) {
-                    shipClosest.set(sysName);
-                    distanceClosest.set(distance);
-                    timeClosest.set(time);
+            Map<Date, Pair<String, Double>> ctlast = collisionsTree.get(lastMainVehicle);
+            if (ctlast != null) {
+                ctlast.forEach((time, pair) -> {
+                    String sysName = pair.first();
+                    double distance = pair.second();
+                    if (distance < distanceClosest.get()) {
+                        shipClosest.set(sysName);
+                        distanceClosest.set(distance);
+                        timeClosest.set(time);
 
-                    LocationType loc = null;
-                    ImcSystem sys = ImcSystemsHolder.lookupSystemByName(sysName);
-                    if (sys != null) {
-                        loc = sys.getLocation().getNewAbsoluteLatLonDepth();
-                    } else {
-                        ExternalSystem esys = ExternalSystemsHolder.lookupSystem(sysName);
-                        if (esys != null) {
-                            loc = esys.getLocation().getNewAbsoluteLatLonDepth();
+                        LocationType loc = null;
+                        ImcSystem sys = ImcSystemsHolder.lookupSystemByName(sysName);
+                        if (sys != null) {
+                            loc = sys.getLocation().getNewAbsoluteLatLonDepth();
                         }
-                    }
-                    if (loc != null) {
-                        Graphics2D gg = (Graphics2D) g2.create();
-                        Point2D spos = renderer.getScreenPosition(loc);
-                        gg.translate(spos.getX() - 20 - 8, spos.getY());
-                        boolean res = !gg.drawImage(colregImageSmall, null, null);
-                        if (res) {
-                            askForLaterRepaint.compareAndSet(false, true);
+                        else {
+                            ExternalSystem esys = ExternalSystemsHolder.lookupSystem(sysName);
+                            if (esys != null) {
+                                loc = esys.getLocation().getNewAbsoluteLatLonDepth();
+                            }
                         }
-                        gg.dispose();
-                    }
+                        if (loc != null) {
+                            Graphics2D gg = (Graphics2D) g2.create();
+                            Point2D spos = renderer.getScreenPosition(loc);
+                            gg.translate(spos.getX() - 20 - 8, spos.getY());
+                            boolean res = !gg.drawImage(colregImageSmall, null, null);
+                            if (res) {
+                                askForLaterRepaint.compareAndSet(false, true);
+                            }
+                            gg.dispose();
+                        }
 
-                }
-                //Point2D pt = renderer.getScreenPosition(loc);
-            });
+                    }
+                    //Point2D pt = renderer.getScreenPosition(loc);
+                });
+            }
             if (shipClosest.get() != null) {
                 String line1 = shipClosest.get();
                 String line2 = Math.round(distanceClosest.get()) + "m at " + sdf.format(timeClosest.get());
@@ -385,39 +389,46 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
             Point2D indicatorPoint = new Point2D.Double(20 + 25, 100 + 25);
             AtomicReference<Short> mainlookAngle = new AtomicReference<>((short) 0);
             boolean[] lookAngle = {false, false, false, false};
-            collisionsTree.get(lastMainVehicle).forEach((time, pair) -> {
-                String sysName = pair.first();
-                LocationType loc = null;
-                ImcSystem sys = ImcSystemsHolder.lookupSystemByName(sysName);
-                if (sys != null) {
-                    loc = sys.getLocation().getNewAbsoluteLatLonDepth();
-                } else {
-                    ExternalSystem esys = ExternalSystemsHolder.lookupSystem(sysName);
-                    if (esys != null) {
-                        loc = esys.getLocation().getNewAbsoluteLatLonDepth();
+            ctlast = collisionsTree.get(lastMainVehicle);
+            if (ctlast != null) {
+                ctlast.forEach((time, pair) -> {
+                    String sysName = pair.first();
+                    LocationType loc = null;
+                    ImcSystem sys = ImcSystemsHolder.lookupSystemByName(sysName);
+                    if (sys != null) {
+                        loc = sys.getLocation().getNewAbsoluteLatLonDepth();
                     }
-                }
-                if (loc != null) {
-                    Point2D pointShipClosest = renderer.getScreenPosition(loc);
-                    Pair<Double, Short> angleRadAndQuadrant = calculateAngleToRotate(indicatorPoint, pointShipClosest);
-                    if (angleRadAndQuadrant.second() == 0) {
-                        lookAngle[0] = true;
-                    } else if (angleRadAndQuadrant.second() == 1) {
-                        lookAngle[1] = true;
-                    } else if (angleRadAndQuadrant.second() == 2) {
-                        lookAngle[2] = true;
-                    } else if (angleRadAndQuadrant.second() == 3) {
-                        lookAngle[3] = true;
-                    }
-
-                    if (shipClosest.get() != null) {
-                        String closestSysName = shipClosest.get();
-                        if (closestSysName.equals(sysName)) {
-                            mainlookAngle.set(angleRadAndQuadrant.second());
+                    else {
+                        ExternalSystem esys = ExternalSystemsHolder.lookupSystem(sysName);
+                        if (esys != null) {
+                            loc = esys.getLocation().getNewAbsoluteLatLonDepth();
                         }
                     }
-                }
-            });
+                    if (loc != null) {
+                        Point2D pointShipClosest = renderer.getScreenPosition(loc);
+                        Pair<Double, Short> angleRadAndQuadrant = calculateAngleToRotate(indicatorPoint, pointShipClosest);
+                        if (angleRadAndQuadrant.second() == 0) {
+                            lookAngle[0] = true;
+                        }
+                        else if (angleRadAndQuadrant.second() == 1) {
+                            lookAngle[1] = true;
+                        }
+                        else if (angleRadAndQuadrant.second() == 2) {
+                            lookAngle[2] = true;
+                        }
+                        else if (angleRadAndQuadrant.second() == 3) {
+                            lookAngle[3] = true;
+                        }
+
+                        if (shipClosest.get() != null) {
+                            String closestSysName = shipClosest.get();
+                            if (closestSysName.equals(sysName)) {
+                                mainlookAngle.set(angleRadAndQuadrant.second());
+                            }
+                        }
+                    }
+                });
+            }
             for (int i = 0; i < lookAngle.length; i++) {
                 if (lookAngle[i]) {
                     Graphics2D gg = (Graphics2D) g2.create();
