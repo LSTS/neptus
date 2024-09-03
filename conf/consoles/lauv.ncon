@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <console name="Neptus Console" width="1366" height="727" resizable="true" mission-file="../../missions/APDL/missao-apdl.nmisz" main-vehicle="lauv-xplore-1">
-  <!-- Data saved on 2021-11-26T20:06:03.0Z with Neptus version 2020.10.1-SNAPSHOT (compiled on 2021-11-25, gneptus-2020.01.1-786-g4e4d6e3). -->
+  <!-- Data saved on 2024-09-03T15:10:22.0Z with Neptus version 2024.01.0-SNAPSHOT (compiled on 2024-09-03, gneptus-2020.01.1-1242-g488fd5a). -->
   <mainpanel name="console main panel">
     <subpanel class="pt.lsts.neptus.console.plugins.containers.MigLayoutContainer" x="0" y="0" width="1366" height="643">
       <properties>
@@ -178,6 +178,11 @@
       </child>
       <child class="pt.lsts.neptus.plugins.dev.ImcCommsMonitorPanel" x="0" y="0" width="0" height="0">
         <properties/>
+      </child>
+      <child class="pt.lsts.neptus.plugins.remoteactionsextra.RemoteActionsExtra" x="0" y="0" width="300" height="157">
+        <properties>
+          <entry key="OBS Entity Name">OBS Broker</entry>
+        </properties>
       </child>
     </subpanel>
   </mainpanel>
