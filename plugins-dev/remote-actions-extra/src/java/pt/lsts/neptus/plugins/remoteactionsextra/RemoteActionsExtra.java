@@ -260,7 +260,7 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
 
         if (msg.getOp() != RemoteActionsRequest.OP.REPORT) return;
 
-        configureActions(msg.getActions(), DEFAULT_AXIS_DECIMAL_VAL, false);
+        configureActions(msg.getAsString("actions"), DEFAULT_AXIS_DECIMAL_VAL, false);
     }
 
     @Subscribe
