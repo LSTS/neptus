@@ -1150,7 +1150,50 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
             };
             copy.putValue(AbstractAction.SMALL_ICON, new ImageIcon(ImageUtils.getImage("images/menus/editcopy.png")));
             popup.add(copy);
-            
+
+            if (planElem.getPlan() != null && !planElem.getPlan().isEmpty()) {
+                AbstractAction focusPlan = new AbstractAction(I18n.text("Focus plan")) {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        if (planElem.getPlan() == null || planElem.getPlan().isEmpty())
+                            return;
+
+                        Maneuver[] mansList = planElem.getPlan().getGraph().getAllManeuvers();
+                        if (mansList.length == 0)
+                            return;
+
+                        double nlat = 0, slat = 0;
+                        double wlon = 0, elon = 0;
+
+                        for (Maneuver man : mansList) {
+                            if (man instanceof LocatedManeuver) {
+                                Collection<ManeuverLocation> wpslst = ((LocatedManeuver) man).getWaypoints();
+                                for (ManeuverLocation wp : wpslst) {
+                                    if (wp.getLatitudeDegs() == 0 && wp.getLongitudeDegs() == 0)
+                                        continue;
+                                    LocationType absll = wp.getNewAbsoluteLatLonDepth();
+                                    if (nlat == 0 || absll.getLatitudeDegs() > nlat)
+                                        nlat = absll.getLatitudeDegs();
+                                    if (slat == 0 || absll.getLatitudeDegs() < slat)
+                                        slat = absll.getLatitudeDegs();
+                                    if (wlon == 0 || absll.getLongitudeDegs() < wlon)
+                                        wlon = absll.getLongitudeDegs();
+                                    if (elon == 0 || absll.getLongitudeDegs() > elon)
+                                        elon = absll.getLongitudeDegs();
+                                }
+                            }
+                        }
+                        double clat = (nlat + slat) / 2.0;
+                        double clon = (wlon + elon) / 2.0;
+                        renderer.setCenter(new LocationType(clat, clon));
+
+                        CoordinateUtil.copyToClipboard(renderer.getRealWorldLocation(mousePoint));
+                    }
+                };
+                focusPlan.putValue(AbstractAction.SMALL_ICON, new ImageIcon(ImageUtils.getImage("images/menus/zoom.png")));
+                popup.add(focusPlan);
+            }
+
             JCheckBoxMenuItem showSim = new JCheckBoxMenuItem(I18n.text("View Simulation"));
             showSim.setSelected(showSimulation);
             
