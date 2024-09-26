@@ -297,13 +297,18 @@ public class CSVExporter implements MRAExporter {
                 pmonitor.setNote(I18n.textf("Exporting %message data to %csvfile...", message, out.getAbsolutePath()));
                 bw.write(getHeader(message));
                 for (int row = 0; row < source.getLsfIndex().getNumberOfMessages(); row++) {
-                    if (source.getLsfIndex().getMessage(row).getMessageType().getShortName().equals(message)) {
-                        if (entities.contains(source.getLsfIndex().entityNameOf(row))) {
-                            bw.write(getLine(source.getLsfIndex().getMessage(row)));
+                    try {
+                        if (source.getLsfIndex().getMessage(row).getMessageType().getShortName().equals(message)) {
+                            if (entities.contains(source.getLsfIndex().entityNameOf(row))) {
+                                bw.write(getLine(source.getLsfIndex().getMessage(row)));
+                            }
                         }
+                        if (!filter.isVisible()) {
+                            break;
+                        }
+                    } catch (Exception e) {
+                        NeptusLog.pub().warn(e.getMessage());
                     }
-                    if (!filter.isVisible())
-                        break;
                 }
                 bw.close();
                 progress++;
