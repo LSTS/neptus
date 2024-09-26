@@ -79,6 +79,7 @@ import org.jdesktop.swingx.JXBusyLabel;
 
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCMessageType;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.InfiniteProgressPanel;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
@@ -640,12 +641,17 @@ public class CSVExporter implements MRAExporter {
                     if (!Filter.this.isVisible())
                         break;
 
-                    String message = source.getLsfIndex().getMessage(row).getMessageType().getShortName();
-                    String entity = source.getLsfIndex().entityNameOf(row);
-                    if (entity == null)
-                        entity = "" + source.getLsfIndex().entityOf(row);
-                    putInMap(msgEntitiesMapOriginal, message, entity);
-                    putInMap(entityMsgsMapOriginal, entity, message);
+                    try {
+                        String message = source.getLsfIndex().getMessage(row).getMessageType().getShortName();
+                        String entity = source.getLsfIndex().entityNameOf(row);
+                        if (entity == null) {
+                            entity = "" + source.getLsfIndex().entityOf(row);
+                        }
+                        putInMap(msgEntitiesMapOriginal, message, entity);
+                        putInMap(entityMsgsMapOriginal, entity, message);
+                    } catch (Exception e) {
+                        NeptusLog.pub().warn(e.getMessage());
+                    }
                 }
             }
             msgEntitiesMap.clear();
