@@ -313,11 +313,16 @@ public class MissionTreePanel extends ConsolePanel
         boolean alreadyLocal = getConsole().getMission().getIndividualPlansList().containsKey(plan.getId());
         if (alreadyLocal) {
             PlanSpecification local = (PlanSpecification) getConsole().getMission().getIndividualPlansList().get(plan.getId()).asIMCPlan();
-            if (!matchingPlans(local, msg)) {
-                int option = JOptionPane.showConfirmDialog(getConsole(),
-                        I18n.text("Replace plan '"+plan.getId()+"' with version disseminated by "+msg.getSourceName()+"?"));
-                if (option != JOptionPane.YES_OPTION)
-                    return;
+            if (matchingPlans(local, msg)) {
+                return;
+            }
+
+            // Non matching plans
+            int option = JOptionPane.showConfirmDialog(getConsole(),
+                    I18n.text("Replace plan '" + plan.getId() + "' with version disseminated by "
+                            + msg.getSourceName()+"?"));
+            if (option != JOptionPane.YES_OPTION) {
+                return;
             }
         }
         
