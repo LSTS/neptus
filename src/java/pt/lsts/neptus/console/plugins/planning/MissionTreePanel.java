@@ -335,7 +335,7 @@ public class MissionTreePanel extends ConsolePanel
             if(getConsole().getPlan().getId().equals(plan.getId()))
                 getConsole().setPlan(plan);
         }
-        
+        browser.refreshBrowser(getConsole().getMission(), getMainVehicleId(), getConsole());
     }
     
     @Subscribe
