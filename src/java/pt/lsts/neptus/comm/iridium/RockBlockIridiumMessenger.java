@@ -124,9 +124,11 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
     private boolean askRockBlockPassword = true;
     private boolean askGmailPassword = true;
 
+    public static final String CONF_ROCKBLOCK_PROPS = ".cache/rockblock.props";
+
     {
         try {
-            PluginUtils.loadProperties("conf/rockblock.props", this);
+            PluginUtils.loadProperties(CONF_ROCKBLOCK_PROPS, this);
         }
         catch (Exception e) {
         }
@@ -202,7 +204,7 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
                 return;
             setRockBlockUsername(credentials.first());
             setRockBlockPassword(credentials.second());
-            PluginUtils.saveProperties("conf/rockblock.props", this);
+            PluginUtils.saveProperties(CONF_ROCKBLOCK_PROPS, this);
             askRockBlockPassword = false;
         }
         
@@ -268,7 +270,7 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
                 return null;
             setGmailUsername(credentials.first());
             setGmailPassword(credentials.second());
-            PluginUtils.saveProperties("conf/rockblock.props", this);
+            PluginUtils.saveProperties(CONF_ROCKBLOCK_PROPS, this);
             askGmailPassword = false;
         }
 
