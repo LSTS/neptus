@@ -357,9 +357,7 @@ public class SoiInteraction extends SimpleRendererInteraction {
                 vName = v.getNickname();
             
             say(vName+ " update");
-            
         }
-        
     }
     
     @Subscribe
@@ -377,8 +375,9 @@ public class SoiInteraction extends SimpleRendererInteraction {
         try {
             AssetsManager.getInstance().process(cmd, getConsole());
     
-            if (cmd.getType() != SoiCommand.TYPE.SUCCESS)
+            if (cmd.getType() != SoiCommand.TYPE.SUCCESS && cmd.getType() != SoiCommand.TYPE.ERROR) {
                 return;
+            }
     
             NeptusLog.pub().info("Processing SoiCommand: " + cmd.asJSON() + ", " + Thread.currentThread().getName() + ", "
                     + cmd.hashCode());
@@ -391,17 +390,35 @@ public class SoiInteraction extends SimpleRendererInteraction {
             switch (cmd.getCommand()) {
                 case GET_PARAMS:
                 case SET_PARAMS:
-                    setParams(cmd.getSourceName(), cmd.getSettings());
-                    say(vName+" params");
+                    String info = cmd.getInfo();
+                    String getOrSet = cmd.getCommand() == COMMAND.GET_PARAMS ? "get" : "set";
+                    if (cmd.getType() == TYPE.SUCCESS) {
+                        setParams(cmd.getSourceName(), cmd.getSettings());
+                    }
+                    if (info == null) {
+                        info = "";
+                    }
+                    say(vName + " params; " + getOrSet + " "  + cmd.getType().name().toLowerCase() + "; " + info);
                     break;
                 case GET_PLAN:
                 case EXEC:
-                    Plan plan = Plan.parse(cmd.getPlan());
-                    if (plan != null) 
-                        AssetsManager.getInstance().getPlans().put(cmd.getSourceName(), Plan.parse(cmd.getPlan()));
-                    else
-                        AssetsManager.getInstance().getPlans().remove(cmd.getSourceName());
-                    say(vName+" plan");
+                    String getOrExec = cmd.getCommand() == COMMAND.GET_PLAN ? "get" : "exec";
+                    if (cmd.getType() == TYPE.SUCCESS) {
+                        Plan plan = Plan.parse(cmd.getPlan());
+                        if (plan != null) {
+                            AssetsManager.getInstance().getPlans().put(cmd.getSourceName(), Plan.parse(cmd.getPlan()));
+                        }
+                        else {
+                            AssetsManager.getInstance().getPlans().remove(cmd.getSourceName());
+                        }
+                    }
+                    say(vName+" plan; " + getOrExec + " " + cmd.getType().name().toLowerCase());
+                    break;
+                case STOP:
+                    say(vName + " stop; " + cmd.getType().name().toLowerCase());
+                    break;
+                case RESUME:
+                    say(vName + " resume; " + cmd.getType().name().toLowerCase());
                     break;
                 default:
                     break;
