@@ -33,6 +33,7 @@
 package pt.lsts.neptus.comm.iridium;
 
 import java.awt.Component;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -103,21 +104,42 @@ public class IridiumManager {
     }
     
     private Runnable pollMessages = new Runnable() {
-        
         Date lastTime = new Date(System.currentTimeMillis() - 3600 * 1000);
+        Date lastCall;
+        boolean running = false;
+
         @Override
         public void run() {
             try {
+                if (running) {
+                    return;
+                }
+                running = true;
+                Duration poolInterval = Duration.ofMinutes(Math.max(1, Math.min(30, GeneralPreferences.iridiumMessengerPoolMinutes)));
+                if (lastCall != null && System.currentTimeMillis() - lastCall.getTime() < poolInterval.toMillis()) {
+                    return;
+                }
+
                 Date now = new Date();
+                lastCall = now;
                 Collection<IridiumMessage> msgs = getCurrentMessenger().pollMessages(lastTime);
-                for (IridiumMessage m : msgs)
-                    processMessage(m);
+                for (IridiumMessage m : msgs) {
+                    try {
+                        processMessage(m);
+                    } catch (Exception e) {
+                        NeptusLog.pub().warn(e);
+                    }
+                }
+                NeptusLog.pub().info("Polled {} messages from Iridium network. Took {}ms",
+                        msgs.size(), System.currentTimeMillis() - now.getTime());
                 
                 lastTime = now;
             }
             catch (Exception e) {
                 NeptusLog.pub().error(e);
-                
+            }
+            finally {
+                running = false;
             }
         }
     };
@@ -169,7 +191,7 @@ public class IridiumManager {
         
         ImcMsgManager.getManager().registerBusListener(this);        
         service = Executors.newScheduledThreadPool(1);
-        service.scheduleAtFixedRate(pollMessages, 0, 5, TimeUnit.MINUTES);
+        service.scheduleAtFixedRate(pollMessages, 0, 10, TimeUnit.SECONDS);
     }
     
     public synchronized void stop() {
