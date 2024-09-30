@@ -153,7 +153,6 @@ public class IridiumManager {
     }
     
     public void processMessage(IridiumMessage msg) {
-        
         try {
             IridiumMsgTx transmission = new IridiumMsgTx();
             transmission.setData(msg.serialize());
@@ -189,7 +188,7 @@ public class IridiumManager {
         if (service != null)
             stop();
         
-        ImcMsgManager.getManager().registerBusListener(this);        
+        ImcMsgManager.getManager().registerBusListener(this);
         service = Executors.newScheduledThreadPool(1);
         service.scheduleAtFixedRate(pollMessages, 0, 10, TimeUnit.SECONDS);
     }
@@ -218,7 +217,8 @@ public class IridiumManager {
             return Arrays.asList(m);
         }
         else {
-            MessagePart[] parts = new IMCFragmentHandler(IMCDefinition.getInstance()).fragment(msg, ImcIridiumMessage.MaxPayloadSize+IMCDefinition.getInstance().headerLength());
+            MessagePart[] parts = new IMCFragmentHandler(IMCDefinition.getInstance()).fragment(msg,
+                    ImcIridiumMessage.MaxPayloadSize+IMCDefinition.getInstance().headerLength());
             
             ArrayList<ImcIridiumMessage> ret = new ArrayList<ImcIridiumMessage>();
             for (MessagePart mp : parts) {
