@@ -38,6 +38,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -153,7 +154,7 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
         if (password == null)
             this.rockBlockPassword = null;
 
-        this.rockBlockPassword = DatatypeConverter.printBase64Binary(password.getBytes(Charset.forName("UTF8")));
+        this.rockBlockPassword = DatatypeConverter.printBase64Binary(password.getBytes(StandardCharsets.UTF_8));
     }
 
     private void setRockBlockUsername(String username) {
@@ -178,7 +179,7 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
         if (password == null)
             this.gmailPassword = null;
 
-        this.gmailPassword = DatatypeConverter.printBase64Binary(password.getBytes(Charset.forName("UTF8")));
+        this.gmailPassword = DatatypeConverter.printBase64Binary(password.getBytes(StandardCharsets.UTF_8));
     }
 
     private void setGmailUsername(String username) {
