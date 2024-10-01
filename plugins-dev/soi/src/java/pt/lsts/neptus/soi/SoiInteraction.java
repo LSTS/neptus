@@ -412,13 +412,22 @@ public class SoiInteraction extends SimpleRendererInteraction {
                             AssetsManager.getInstance().getPlans().remove(cmd.getSourceName());
                         }
                     }
-                    say(vName+" plan; " + getOrExec + " " + cmd.getType().name().toLowerCase());
+                    info = cmd.getInfo();
+                    if (info == null)
+                        info = "";
+                    say(vName+" plan; " + getOrExec + " " + cmd.getType().name().toLowerCase() + "; " + info);
                     break;
                 case STOP:
-                    say(vName + " stop; " + cmd.getType().name().toLowerCase());
+                    info = cmd.getInfo();
+                    if (info == null)
+                        info = "";
+                    say(vName + " stop; " + cmd.getType().name().toLowerCase() + "; " + info);
                     break;
                 case RESUME:
-                    say(vName + " resume; " + cmd.getType().name().toLowerCase());
+                    info = cmd.getInfo();
+                    if (info == null)
+                        info = "";
+                    say(vName + " resume; " + cmd.getType().name().toLowerCase() + "; " + info);
                     break;
                 default:
                     break;
