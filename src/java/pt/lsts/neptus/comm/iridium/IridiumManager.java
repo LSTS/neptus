@@ -122,7 +122,10 @@ public class IridiumManager {
 
                 Date now = new Date();
                 lastCall = now;
+                NeptusLog.pub().info("Start polling messages from Iridium network.");
                 Collection<IridiumMessage> msgs = getCurrentMessenger().pollMessages(lastTime);
+                NeptusLog.pub().info("Polled {} messages from Iridium network.",
+                        msgs.size());
                 for (IridiumMessage m : msgs) {
                     try {
                         processMessage(m);
@@ -130,7 +133,7 @@ public class IridiumManager {
                         NeptusLog.pub().warn(e);
                     }
                 }
-                NeptusLog.pub().info("Polled {} messages from Iridium network. Took {}ms",
+                NeptusLog.pub().info("Processed polled {} messages from Iridium network. Took {}ms",
                         msgs.size(), System.currentTimeMillis() - now.getTime());
                 
                 lastTime = now;
