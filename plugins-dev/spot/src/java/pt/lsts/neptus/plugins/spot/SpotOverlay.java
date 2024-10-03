@@ -184,8 +184,9 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
 
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
-        if (!visible)
+        if (!visible || (showOnlyWhenInteractionIsActive && !active)) {
             return;
+        }
 
         Graphics2D g2 = (Graphics2D) g.create();
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
