@@ -54,6 +54,7 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -157,10 +158,19 @@ public class VerticalProfileViewer implements Renderer2DPainter {
         g.drawString(p.getDate().toString(), (int) pt.getX() + 10, (int) pt.getY() + 35);
 
         if (valuesTable) {
-            StringBuilder html = new StringBuilder("<html><table><tr><th>Depth</th><th>Salinity</th>");
-            for (int i = 0; i < p.getSamples().size(); i++)
-                html.append("<tr><td>" + p.getSamples().get(i).getDepth()/10.0 + "</td><td>"
-                        + String.format("%.3f", p.getSamples().get(i).getAvg()) + "</td></tr>");
+            String typeStr = p.getParameterStr();
+            if (typeStr == null)
+                typeStr = "unknown";
+            typeStr = typeStr.toLowerCase();
+            typeStr = StringUtils.capitalize(typeStr);
+
+            StringBuilder html = new StringBuilder("<html><table><tr><th>Depth</th><th>"
+                    + typeStr + "</th>");
+            for (int i = 0; i < p.getSamples().size(); i++) {
+                html.append("<tr><td>").append(p.getSamples().get(i).getDepth() / 10.0)
+                        .append("</td><td>").append(String.format("%.3f", p.getSamples().get(i).getAvg()))
+                        .append("</td></tr>");
+            }
             html.append("</table></html>");
 
             JLabel lblHtml = new JLabel(html.toString());
