@@ -79,6 +79,7 @@ import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.gui.OrientationIcon;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -104,7 +105,7 @@ import pt.lsts.neptus.util.nmea.NmeaProvider;
  * @author pdias
  */
 @PluginDescription(name = "NMEA Plotter", icon = "pt/lsts/neptus/plugins/alliance/nmea-ais.png")
-public class NmeaPlotter extends ConsoleLayer implements NmeaProvider {
+public class NmeaPlotter extends ConsoleLayer implements NmeaProvider, ConfigurationListener {
 
     private static final int RECT_WIDTH = 228;
     private static final int RECT_HEIGHT = 85;
@@ -162,13 +163,15 @@ public class NmeaPlotter extends ConsoleLayer implements NmeaProvider {
     @NeptusProperty(name = "Minutes to Show Distress Signal", category = "Distress Test", userLevel = LEVEL.ADVANCED)
     private int minutesToShowDistress = 5; 
     
-    @NeptusProperty(name = "Connect via Ripples", category = "TCP Client", userLevel = LEVEL.REGULAR)
+    @NeptusProperty(name = "Connect via Ripples", category = "AIS Ripples", userLevel = LEVEL.REGULAR)
     public boolean ripplesConnection = false;
 
 
     private JLabel distressLabelToPaint = new JLabel();
 
     private JMenuItem connectItem = null;
+    private JMenuItem connectAisRipplesItem = null;
+
     private boolean connected = false;
 
     GeneralPath ship = new GeneralPath();
@@ -201,6 +204,13 @@ public class NmeaPlotter extends ConsoleLayer implements NmeaProvider {
 
     private final Map<String, LocationType> lastLocs = new LinkedHashMap<>();
     private final Map<String, ScatterPointsElement> tracks = new LinkedHashMap<>();
+
+    @Override
+    public void propertiesChanged() {
+        super.propertiesChanged();
+        System.out.println("Properties changed " + ripplesConnection);
+        updateConnectMenuText();
+    }
 
     @Periodic(millisBetweenUpdates = 5000)
     public void updateTracks() {
@@ -602,6 +612,7 @@ public class NmeaPlotter extends ConsoleLayer implements NmeaProvider {
         }
 
         getConsole().removeMenuItem(I18n.text("Tools") + ">" + I18n.text("NMEA Plotter") + ">" + I18n.text("Connect"));
+        getConsole().removeMenuItem(I18n.text("Tools") + ">" + I18n.text("NMEA Plotter") + ">" + I18n.text("Connect Ripples AIS"));
         getConsole().removeMenuItem(I18n.text("Tools") + ">" + I18n.text("NMEA Plotter") + ">" + I18n.text("Settings"));
     }
 
@@ -612,7 +623,7 @@ public class NmeaPlotter extends ConsoleLayer implements NmeaProvider {
     @Periodic(millisBetweenUpdates = 60000)
     public void purgeOldContacts() {
         if (maximumAisAgeMinutes > 0)
-            contactDb.purge(maximumAisAgeMinutes * 60 * 1000);
+            contactDb.purge(maximumAisAgeMinutes * 60 * 1000L);
     }
 
     @Periodic(millisBetweenUpdates = 120000)
@@ -897,6 +908,16 @@ public class NmeaPlotter extends ConsoleLayer implements NmeaProvider {
                     }
                 });
 
+        connectAisRipplesItem = getConsole().addMenuItem(
+                I18n.text("Tools") + ">" + I18n.text("NMEA Plotter") + ">" + I18n.text("Connect Ripples AIS"),
+                getIcon(), new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        ripplesConnection = !ripplesConnection;
+                        updateConnectMenuText();
+                    }
+                });
+
         getConsole().addMenuItem(I18n.text("Tools") + ">" + I18n.text("NMEA Plotter") + ">" + I18n.text("Settings"),
                 null, new ActionListener() {
                     @Override
@@ -908,6 +929,9 @@ public class NmeaPlotter extends ConsoleLayer implements NmeaProvider {
     }
 
     private void updateConnectMenuText() {
+        if (connectItem == null || connectAisRipplesItem == null)
+            return; // Not initialized yet
+
         if (connected) {
             String comms = isSerialConnected ? "serial" : "";
             comms += isUdpConnected ? (comms.isEmpty() ? "" : ", ") + "UDP" : "";
@@ -918,6 +942,13 @@ public class NmeaPlotter extends ConsoleLayer implements NmeaProvider {
         }
         else {
             connectItem.setText(I18n.text("Connect"));
+        }
+
+        if (ripplesConnection) {
+            connectAisRipplesItem.setText(I18n.text("Disconnect Ripples AIS"));
+        }
+        else {
+            connectAisRipplesItem.setText(I18n.text("Connect Ripples AIS"));
         }
     }
 
