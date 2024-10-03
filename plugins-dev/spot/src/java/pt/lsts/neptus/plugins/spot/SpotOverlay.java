@@ -43,8 +43,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.TreeSet;
-import java.util.Vector;
 
 import javax.swing.SwingUtilities;
 import javax.xml.parsers.ParserConfigurationException;
@@ -70,7 +70,7 @@ import pt.lsts.neptus.util.GuiUtils;
  */
 @PluginDescription(author = "Margarida", name = "SPOT Overlay", icon = "pt/lsts/neptus/plugins/spot/images/spotIcon.png")
 public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicUpdates, ConfigurationListener {
-    private Vector<Spot> spotsOnMap;
+    private List<Spot> spotsOnMap;
     private boolean active = false;
 
     private static final long serialVersionUID = -4807939956933128721L;
@@ -78,20 +78,20 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
     @NeptusProperty
     public int updateMinutes = 2;
 
-    @NeptusProperty(name = "Visible", userLevel = LEVEL.REGULAR)
+    @NeptusProperty(name = "Visible", userLevel = LEVEL.ADVANCED)
     public boolean visible = true;
 
-    @NeptusProperty
+    @NeptusProperty(name = "Show only when interaction is active", userLevel = LEVEL.REGULAR)
     public boolean showOnlyWhenInteractionIsActive = true;
-    @NeptusProperty
+    @NeptusProperty(name = "Show names", userLevel = LEVEL.REGULAR)
     public boolean showNames = true;
-    @NeptusProperty
+    @NeptusProperty(name = "Show speed value", userLevel = LEVEL.REGULAR)
     public boolean showSpeedValue = true;
     @NeptusProperty(userLevel = LEVEL.REGULAR, description = "Set the time window (in hours) for considered positions. Will only consider positions in the last x hours.", name = "Time window (hours)")
     public int hours = 70;
     @NeptusProperty(userLevel = LEVEL.REGULAR, name = "Export to CSV")
     public boolean printCvsFile = false;
-    @NeptusProperty(name = "SPOT Stream ID", description = "Identifier of SPOT stream to show")
+    @NeptusProperty(name = "SPOT Stream ID", description = "Identifier of SPOT stream to show", userLevel = LEVEL.REGULAR)
     public String streamID = "0eFbYotphiMKz9YiDOI7XqR76JJ010Z0X";
 
     protected GeneralPath gp = new GeneralPath();
@@ -111,7 +111,7 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
      */
     public SpotOverlay(ConsoleLayout console) {
         super(console);
-        spotsOnMap = new Vector<Spot>();
+        spotsOnMap = new ArrayList<>();
     }
 
     @Override
@@ -132,7 +132,7 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
     }
 
     private void updateFromPage() {
-        Vector<Spot> nextSpotsOnMap = new Vector<Spot>();
+        List<Spot> nextSpotsOnMap = new ArrayList<>();
         HashMap<String, TreeSet<SpotMessage>> msgBySpot;
         try {
             msgBySpot = SpotMsgFetcher.get(hours, streamID);
