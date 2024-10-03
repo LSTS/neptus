@@ -115,7 +115,9 @@ public class IridiumManager {
                     return;
                 }
                 running = true;
-                Duration poolInterval = Duration.ofMinutes(Math.max(1, Math.min(30, GeneralPreferences.iridiumMessengerPoolMinutes)));
+                double poolIntervalMin = Math.max(0.17, Math.min(30, GeneralPreferences.iridiumMessengerPoolMinutes));
+                Duration poolInterval = poolIntervalMin >= 1 ? Duration.ofMinutes((long) poolIntervalMin)
+                        : Duration.ofSeconds((long) (60 * poolIntervalMin));
                 if (lastCall != null && System.currentTimeMillis() - lastCall.getTime() < poolInterval.toMillis()) {
                     return;
                 }
