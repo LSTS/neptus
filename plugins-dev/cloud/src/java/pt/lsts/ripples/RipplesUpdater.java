@@ -130,15 +130,15 @@ public class RipplesUpdater extends ConsolePanel implements ConfigurationListene
 
             @Override
             public void menuChecked(ActionEvent e) {
-                menuItem.setText(I18n.text("Connect"));
-                menuItem.setIcon(offIcon);
+                menuItem.setText(I18n.text("Disconnect"));
+                menuItem.setIcon(onIcon);
                 connect();
             }
 
             @Override
             public void menuUnchecked(ActionEvent e) {
-                menuItem.setText(I18n.text("Disconnect"));
-                menuItem.setIcon(onIcon);
+                menuItem.setText(I18n.text("Connect"));
+                menuItem.setIcon(offIcon);
                 disconnect();
             }
         });
