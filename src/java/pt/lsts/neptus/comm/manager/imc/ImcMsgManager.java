@@ -852,7 +852,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         double lon = msg.getLongitude();
         double depth = msg.getDepth() == 0xFFFF ? -1 : msg.getDepth() / 10.0;
         // double altitude = msg.getAltitude() == 0xFFFF ? -1 : msg.getAltitude() / 10.0;
-        double heading = ((double)msg.getHeading() / 65535.0) * 360;
+        double heading = Math.toDegrees(AngleUtils.nomalizeAngleRads2Pi(((double) msg.getHeading() / 65535.0) * Math.PI * 2));
         double speedMS = msg.getSpeed() / 100.;
         NeptusLog.pub().info("Received report from "+msg.getSourceName());
         
