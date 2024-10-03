@@ -93,6 +93,12 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
     public boolean printCvsFile = false;
     @NeptusProperty(name = "SPOT Stream ID", description = "Identifier of SPOT stream to show", userLevel = LEVEL.REGULAR)
     public String streamID = "0eFbYotphiMKz9YiDOI7XqR76JJ010Z0X";
+    @NeptusProperty(name = "Filter by SPOT ID", userLevel = LEVEL.REGULAR,
+            description = "Filter the SPOT messages by the SPOT ID. Leave empty to show all SPOTs. Use comma to separate multiple SPOT IDs.")
+    public String spotIDs = "";
+    @NeptusProperty(name = "Case Sensitive Filter by SPOT ID", userLevel = LEVEL.REGULAR,
+            description = "Case sensitive filter the SPOT messages by the SPOT ID.")
+    public boolean spotIDsCaseSensitive = false;
 
     protected GeneralPath gp = new GeneralPath();
     {
@@ -105,6 +111,8 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
         gp.lineTo(-2, 2);
         gp.closePath();
     }
+
+    private final List<String> spotIDsToShow = new ArrayList<>();
 
     /**
      * @param console
@@ -192,6 +200,10 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         // For each spot paint all the known positions with dots in each position and a path connecting them
         for (Spot spot : spotsOnMap) {
+            if (!spotIDsToShow.isEmpty() && spotIDsToShow.stream().noneMatch(
+                    s -> spotIDsCaseSensitive ? spot.getName().equals(s) : spot.getName().equalsIgnoreCase(s))) {
+                continue;
+            }
             LocationType spotLoc = spot.getLastLocation();
             if (spotLoc == null) {
                 continue;
@@ -244,8 +256,15 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
 
     @Override
     public void propertiesChanged() {
-        SwingUtilities.invokeLater(new Runnable() {
+        spotIDsToShow.clear();
+        if (!spotIDs.isEmpty()) {
+            String[] ids = spotIDs.split(",");
+            for (String id : ids) {
+                spotIDsToShow.add(id.trim());
+            }
+        }
 
+        SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
                 updateFromPage();
