@@ -113,6 +113,9 @@
       <child class="pt.lsts.neptus.console.plugins.planning.PlanEditor" x="0" y="0" width="0" height="0">
         <properties/>
       </child>
+      <child class="pt.lsts.neptus.console.plugins.PlanImporter" x="0" y="0" width="0" height="0">
+        <properties/>
+      </child>
       <child class="pt.lsts.neptus.console.plugins.PlanExporter" x="0" y="0" width="0" height="0">
         <properties/>
       </child>
