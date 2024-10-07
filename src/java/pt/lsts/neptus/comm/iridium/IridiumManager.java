@@ -72,7 +72,10 @@ public class IridiumManager {
     private SimulatedMessenger simMessenger;
     private ScheduledExecutorService service = null;
     //private IridiumMessenger currentMessenger;
-    
+
+    private Date lastCall;
+    private boolean running = false;
+
     public static final int IRIDIUM_MTU = 270;
     public static final int IRIDIUM_HEADER = 6;
     
@@ -102,11 +105,9 @@ public class IridiumManager {
                 return simMessenger;
         }
     }
-    
+
     private Runnable pollMessages = new Runnable() {
         Date lastTime = new Date(System.currentTimeMillis() - Duration.ofHours(1).toMillis());
-        Date lastCall;
-        boolean running = false;
 
         @Override
         public void run() {
@@ -195,6 +196,8 @@ public class IridiumManager {
         
         ImcMsgManager.getManager().registerBusListener(this);
         service = Executors.newScheduledThreadPool(1);
+        lastCall = null;
+        running = false;
         service.scheduleAtFixedRate(pollMessages, 1, 2, TimeUnit.SECONDS);
     }
     
