@@ -59,7 +59,9 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
  */
 @PluginDescription
 public class PlanExporter extends ConsolePanel {
-    private static final long serialVersionUID = 5471633324196554012L;
+    private static final String TOOLS_MENU = I18n.text("Tools");
+    private static final String ExPORT_PLAN_MENU = I18n.text("Export Plan");
+
 
     private String lastExportFolder = ConfigFetch.getConfigFile();
     
@@ -80,58 +82,54 @@ public class PlanExporter extends ConsolePanel {
         for (Class<? extends IPlanFileExporter> exporter : PluginsRepository.listExtensions(IPlanFileExporter.class).values()) {
             try {
                 final IPlanFileExporter exp = exporter.getDeclaredConstructor().newInstance();
-                addMenuItem(I18n.text("Tools") + ">" + I18n.text("Export Plan") + ">" + exp.getExporterName(), null,
-                        new ActionListener() {
-                    
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        if (getConsole().getPlan() == null) {
-                            GuiUtils.infoMessage(getConsole(), exp.getExporterName(), I18n.text("Nothing to export"));
-                            return;
-                        }
-                        PlanType plan = getConsole().getPlan();
-                        
-                        JFileChooser chooser = GuiUtils.getFileChooser(lastExportFolder,
-                                I18n.textf("%exporterName files", exp.getExporterName()),
-                                exp.validExtensions());
-                        chooser.setSelectedFile(new File(plan.getDisplayName()));
-                        chooser.setDialogTitle(I18n.text("Select destination file"));
-                        JComponent accessory = exp.createFileChooserAccessory(chooser);
-                        if (accessory != null)
-                            chooser.setAccessory(accessory);
-                        int op = chooser.showSaveDialog(getConsole());
-                        if (op != JFileChooser.APPROVE_OPTION)
-                            return;
-                        try {
-                            File dst = chooser.getSelectedFile();
-                            String[] exts = exp.validExtensions();
-                            if (exts.length > 0 && FileUtil.getFileExtension(dst).isEmpty()) {
-                                dst = new File(dst.getAbsolutePath() + "." + exts[0]);
+                addMenuItem(TOOLS_MENU + ">" + ExPORT_PLAN_MENU + ">" + exp.getExporterName(),
+                        null, e -> {
+                            if (getConsole().getPlan() == null) {
+                                GuiUtils.infoMessage(getConsole(), exp.getExporterName(), I18n.text("Nothing to export"));
+                                return;
                             }
-                            if (dst.exists()) {
-                                int resp = JOptionPane.showConfirmDialog(getConsole(),
-                                        I18n.text("Do you want to overwrite the existing file?"),
-                                        I18n.text("Export plan"), JOptionPane.YES_NO_CANCEL_OPTION);
-                                if (resp != JOptionPane.YES_OPTION) {
-                                    return;
-                                }
-                            }
+                            PlanType plan = getConsole().getPlan();
 
-                            ProgressMonitor pmonitor = new ProgressMonitor(getConsole(), exp.getExporterName(),
-                                    I18n.text("Exporting"), 0, 100);
-                            exp.exportToFile(plan, dst, pmonitor);
-                            lastExportFolder = dst.getAbsolutePath();
-                            GuiUtils.infoMessage(
-                                    getConsole(),
-                                    exp.getExporterName(),
-                                    pmonitor.isCanceled() ? I18n.text("Export cancelled") : I18n
-                                            .text("Export done"));
-                        }
-                        catch (Exception ex) {
-                            GuiUtils.errorMessage(getConsole(), ex);
-                        }                        
-                    }
-                });
+                            JFileChooser chooser = GuiUtils.getFileChooser(lastExportFolder,
+                                    I18n.textf("%exporterName files", exp.getExporterName()),
+                                    exp.validExtensions());
+                            chooser.setSelectedFile(new File(plan.getDisplayName()));
+                            chooser.setDialogTitle(I18n.text("Select destination file"));
+                            JComponent accessory = exp.createFileChooserAccessory(chooser);
+                            if (accessory != null)
+                                chooser.setAccessory(accessory);
+                            int op = chooser.showSaveDialog(getConsole());
+                            if (op != JFileChooser.APPROVE_OPTION)
+                                return;
+                            try {
+                                File dst = chooser.getSelectedFile();
+                                String[] exts = exp.validExtensions();
+                                if (exts.length > 0 && FileUtil.getFileExtension(dst).isEmpty()) {
+                                    dst = new File(dst.getAbsolutePath() + "." + exts[0]);
+                                }
+                                if (dst.exists()) {
+                                    int resp = JOptionPane.showConfirmDialog(getConsole(),
+                                            I18n.text("Do you want to overwrite the existing file?"),
+                                            I18n.text("Export plan"), JOptionPane.YES_NO_CANCEL_OPTION);
+                                    if (resp != JOptionPane.YES_OPTION) {
+                                        return;
+                                    }
+                                }
+
+                                ProgressMonitor pmonitor = new ProgressMonitor(getConsole(), exp.getExporterName(),
+                                        I18n.text("Exporting"), 0, 100);
+                                exp.exportToFile(plan, dst, pmonitor);
+                                lastExportFolder = dst.getAbsolutePath();
+                                GuiUtils.infoMessage(
+                                        getConsole(),
+                                        exp.getExporterName(),
+                                        pmonitor.isCanceled() ? I18n.text("Export cancelled") : I18n
+                                                .text("Export done"));
+                            }
+                            catch (Exception ex) {
+                                GuiUtils.errorMessage(getConsole(), ex);
+                            }
+                        });
             }
             catch (Exception e) {
                 NeptusLog.pub().error(e);
