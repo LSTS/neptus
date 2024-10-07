@@ -195,7 +195,7 @@ public class IridiumManager {
         
         ImcMsgManager.getManager().registerBusListener(this);
         service = Executors.newScheduledThreadPool(1);
-        service.scheduleAtFixedRate(pollMessages, 0, 10, TimeUnit.SECONDS);
+        service.scheduleAtFixedRate(pollMessages, 1, 2, TimeUnit.SECONDS);
     }
     
     public synchronized void stop() {
