@@ -34,6 +34,7 @@ package pt.lsts.neptus.endurance;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -122,16 +123,24 @@ public class AssetsManager {
         else if (commMean == CommMean.Iridium) {
             try {
                 ImcSystem system = ImcSystemsHolder.lookupSystemByName(systemName);
-                ImcIridiumMessage msg = new ImcIridiumMessage();
-                msg.setSource(ImcMsgManager.getManager().getLocalId().intValue());
                 cmd.setSrc(ImcMsgManager.getManager().getLocalId().intValue());
                 cmd.setDst(system.getId().intValue());
-                msg.setMsg(cmd);
-                msg.setDestination(system.getId().intValue());
-                IridiumManager.getManager().send(msg);
-                if (console != null)
-                    console.post(Notification.success(cmd.getCommandStr()+" sent to "+systemName, cmd.getCommandStr()+" sent using "
+
+                Collection<ImcIridiumMessage> irMsgs = IridiumManager.iridiumEncode(cmd);
+
+                for (ImcIridiumMessage msg : irMsgs) {
+                    msg.setSource(ImcMsgManager.getManager().getLocalId().intValue());
+                    //msg.setMsg(cmd);
+                    msg.setDestination(system.getId().intValue());
+                    IridiumManager.getManager().send(msg);
+                }
+
+                if (console != null) {
+                    console.post(Notification.success(cmd.getCommandStr() + " sent"
+                            + (irMsgs.size() > 1 ? " in " + irMsgs.size() + " parts" : "")
+                            + " to " + systemName, cmd.getCommandStr() + " sent using "
                             + IridiumManager.getManager().getCurrentMessenger().getName()));
+                }
             }
             catch (Exception e) {
                 GuiUtils.errorMessage(console != null ? console : null, e);
