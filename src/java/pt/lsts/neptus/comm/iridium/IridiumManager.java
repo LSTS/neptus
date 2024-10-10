@@ -54,6 +54,7 @@ import pt.lsts.imc.MessagePart;
 import pt.lsts.imc.net.IMCFragmentHandler;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.messages.listener.MessageInfo;
 import pt.lsts.neptus.util.ByteUtil;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
@@ -72,6 +73,8 @@ public class IridiumManager {
     private SimulatedMessenger simMessenger;
     private ScheduledExecutorService service = null;
     //private IridiumMessenger currentMessenger;
+
+    private IMCFragmentHandler fragmentHandler = new IMCFragmentHandler(IMCDefinition.getInstance());
 
     private Date lastCall;
     private boolean running = false;
@@ -157,7 +160,11 @@ public class IridiumManager {
     public synchronized boolean isActive() {
         return service != null;
     }
-    
+
+    private IMCMessage processMessagePart(MessagePart msg) {
+        return fragmentHandler.setFragment((MessagePart)msg);
+    }
+
     public void processMessage(IridiumMessage msg) {
         try {
             IridiumMsgTx transmission = new IridiumMsgTx();
@@ -172,10 +179,36 @@ public class IridiumManager {
         }
         
         Collection<IMCMessage> msgs = msg.asImc();
-        
+
         for (IMCMessage m : msgs) {
             NeptusLog.pub().info("Posting resulting "+m.getAbbrev()+" message to bus.");
             ImcMsgManager.getManager().postInternalMessage("iridium", m);            
+        }
+
+        if (!msgs.isEmpty() && msgs.iterator().next().getMgid() == MessagePart.ID_STATIC) {
+            IMCMessage m = processMessagePart((MessagePart) msgs.iterator().next());
+            if (m != null) {
+                NeptusLog.pub().info("Posting resulting fragment " + m.getAbbrev() + " message to bus.");
+                ImcMsgManager.getManager().postInternalMessage("iridium", m);
+                //Let us repost a completed IridiumMsgTx message
+                try {
+                    ImcIridiumMessage imcIridMsg = new ImcIridiumMessage();
+                    imcIridMsg.setMsg(m);
+                    imcIridMsg.setSource(msg.getSource());
+                    imcIridMsg.setDestination(msg.getDestination());
+                    imcIridMsg.timestampMillis = msg.timestampMillis;
+
+                    IridiumMsgTx txMsg = new IridiumMsgTx();
+                    txMsg.setData(imcIridMsg.serialize());
+                    txMsg.setSrc(msg.getSource());
+                    txMsg.setDst(msg.getDestination());
+                    txMsg.setTimestamp(msg.timestampMillis/1000.0);
+                    ImcMsgManager.getManager().postInternalMessage("IridiumManager", txMsg);
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().error(e);
+                }
+            }
         }
     }
 
