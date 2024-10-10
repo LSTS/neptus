@@ -569,8 +569,9 @@ public class IridiumComms extends SimpleRendererInteraction {
                 IridiumCommand command = new IridiumCommand();
                 command.setCommand(text);
 
+                ImcSystem sys = ImcSystemsHolder.getSystemWithName(getMainVehicleId());
                 // send to broadcast
-                command.setDestination(0xFFFF);
+                command.setDestination(sys != null ? sys.getId().intValue() : 0xFFFF);
                 command.setSource(ImcMsgManager.getManager().getLocalId().intValue());
                 try {
                     IridiumManager.getManager().send(command);
