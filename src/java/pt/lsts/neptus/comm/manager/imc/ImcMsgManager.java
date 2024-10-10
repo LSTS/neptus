@@ -1091,6 +1091,10 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                         sameIdErrorDetected = true;
                         sameIdErrorDetectedTimeMillis = System.currentTimeMillis();
                     }
+                } else if (MessagePart.ID_STATIC == msg.getMgid()) {
+                    IMCMessage m = fragmentHandler.setFragment((MessagePart)msg);
+                    if (m != null)
+                        postInternalMessage(msg.getSourceName(), m);
                 }
                 postToBus(msg);
                 return true;
