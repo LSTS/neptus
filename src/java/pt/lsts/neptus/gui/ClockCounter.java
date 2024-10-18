@@ -114,7 +114,7 @@ public class ClockCounter extends JPanel {
 		RoundRectangle2D rrect = new RoundRectangle2D.Double(2,2,getWidth()-4,getHeight()-4, 10, 10);
 		g2d.fill(rrect);
 
-		g2d.setFont(new Font("Arial", Font.BOLD, 10));
+		g2d.setFont(new Font("Arial", Font.BOLD, 8));
 		
 		String tt = "00" + HOURS_SEPARATOR +"00" + MINUTES_SEPARATOR +"00" + SECONDS_SEPARATOR;
 		Rectangle2D sB1 = g2d.getFontMetrics().getStringBounds(tt, g2d);
