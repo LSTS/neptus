@@ -114,7 +114,7 @@ public class GenericMultiAxisPlot extends GenericPlot implements IMultiAxisPlots
                     axis2.setUpperMargin(0.02);
                     chart.getXYPlot().setRangeAxis(++idx, axis2);
                     chart.getXYPlot().setDataset(idx, ntsc);
-                    chart.getXYPlot().mapDatasetToRangeAxis(idx, 1);
+                    chart.getXYPlot().mapDatasetToRangeAxis(idx, idx);
                 }
                 chart.getXYPlot().getRangeAxis().setLabel(firstGrp);
 
