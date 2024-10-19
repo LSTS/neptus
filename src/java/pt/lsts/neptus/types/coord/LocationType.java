@@ -1003,8 +1003,26 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
      * @return
      */
     public boolean fromClipboardText(String text) {
-        StringTokenizer st = new StringTokenizer(text);
+        StringTokenizer st = new StringTokenizer(text, ",\t\n\r\f");
+        try {
+            if (st.countTokens() == 2) {
+                setLatitudeStr(st.nextToken().trim());
+                setLongitudeStr(st.nextToken().trim());
+                // the rest is non-present
+                setDepth(0);
+                setOffsetNorth(0);
+                setOffsetEast(0);
+                setOffsetDown(0);
+                setOffsetDistance(0);
+                setAzimuth(0);
+                setZenith(90);
+                return true;
+            }
+        } catch (Exception e) {
+            // skip error
+        }
 
+        st = new StringTokenizer(text);
         if (st.countTokens() < 11) { // !=
             NeptusLog.pub().error("Invalid location found in the clipboard (" + st.countTokens()
                     + " tokens)");
@@ -1352,6 +1370,28 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
             System.out.println("for >> " + lp.toString());
             System.out.println(loc.getClipboardText());
             System.out.println(loc.fromClipboardText(loc.getClipboardText()));
+            System.out.println(loc.getClipboardText());
+        }
+
+        for (LatLonFormatEnum lp : LatLonFormatEnum.values()) {
+            GeneralPreferences.latLonPrefFormat = lp;
+            System.out.println("alternative1 for >> " + lp.toString());
+            String lls = loc.getLatitudeDegs() + ", " + loc.getLongitudeDegs();
+            System.out.println(lls);
+            System.out.println(loc.fromClipboardText(lls));
+            lls = loc.getLatitudeDegs() + ", " + loc.getLongitudeDegs();
+            System.out.println(lls);
+            System.out.println(loc.getClipboardText());
+        }
+
+        for (LatLonFormatEnum lp : LatLonFormatEnum.values()) {
+            GeneralPreferences.latLonPrefFormat = lp;
+            System.out.println("alternative2 for >> " + lp.toString());
+            String lls = loc.getLatitudeAsPrettyString() + ", " + loc.getLongitudeAsPrettyString();
+            System.out.println(lls);
+            System.out.println(loc.fromClipboardText(lls));
+            lls = loc.getLatitudeAsPrettyString() + ", " + loc.getLongitudeAsPrettyString();
+            System.out.println(lls);
             System.out.println(loc.getClipboardText());
         }
 
