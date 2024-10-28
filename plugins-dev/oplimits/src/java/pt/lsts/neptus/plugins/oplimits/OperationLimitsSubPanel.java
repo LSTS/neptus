@@ -251,8 +251,10 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
 
                 synchronized (OperationLimitsSubPanel.this) {
                     lastMD5 = msg.payloadMD5();
-                    send(msg);
-                    send(new GetOperationalLimits());
+                    boolean ret = send(msg);
+                    if (ret) {
+                        send(new GetOperationalLimits());
+                    }
                 }
             }
         };
@@ -352,15 +354,21 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
             return false;
         ImcSystem sysL = ImcSystemsHolder.lookupSystemByName(destination);
         if (sysL != null && !sysL.isActive()) {
+            boolean userAproveRequest = false;
             boolean userAproved = true;
             if (lastRequest.getTime() + Duration.ofSeconds(30).toMillis() < System.currentTimeMillis()) {
+                userAproveRequest = true;
                 userAproved = (GuiUtils.confirmDialog(getConsole(), I18n.text("Send by Iridium"),
                         I18n.text("Systems is not active. Do you want to send by Iridium?")) == JOptionPane.YES_OPTION);
-                lastRequest = new Date();
             }
             if (userAproved) {
+                if (userAproveRequest) {
+                    lastRequest = new Date();
+                }
                 sendViaIridium(destination, message);
                 return true;
+            } else {
+                return false;
             }
         }
         return super.send(message);
