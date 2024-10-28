@@ -356,7 +356,7 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
         if (sysL != null && !sysL.isActive()) {
             boolean userAproveRequest = false;
             boolean userAproved = true;
-            if (lastRequest.getTime() + Duration.ofSeconds(30).toMillis() < System.currentTimeMillis()) {
+            if (lastRequest.getTime() + Duration.ofSeconds(3).toMillis() < System.currentTimeMillis()) {
                 userAproveRequest = true;
                 userAproved = (GuiUtils.confirmDialog(getConsole(), I18n.text("Send by Iridium"),
                         I18n.text("Systems is not active. Do you want to send by Iridium?")) == JOptionPane.YES_OPTION);
