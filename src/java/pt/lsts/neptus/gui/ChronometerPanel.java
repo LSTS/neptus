@@ -146,7 +146,7 @@ public class ChronometerPanel extends JPanel implements ActionListener {
     private void initialize() {
         setBackground(COLOR_OK);
         MigLayout migLayout = new MigLayout(
-                "debug, fillx, insets 0",
+                "fillx, insets 0",
                 "[][]",
                 "[grow]0[fill]" //, 20:20:30
         );
