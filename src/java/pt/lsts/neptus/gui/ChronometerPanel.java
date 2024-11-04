@@ -65,6 +65,7 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.text.DefaultFormatter;
 
+import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.gui.ClockCounter.ClockState;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.GuiUtils;
@@ -144,34 +145,19 @@ public class ChronometerPanel extends JPanel implements ActionListener {
 
     private void initialize() {
         setBackground(COLOR_OK);
-        GroupLayout layout = new GroupLayout(this);
-        this.setLayout(layout);
-        layout.setAutoCreateGaps(false);
-        layout.setAutoCreateContainerGaps(false);
-
-        layout.setHorizontalGroup(layout
-                .createParallelGroup(GroupLayout.Alignment.LEADING)
-                .addGroup(layout.createSequentialGroup().addComponent(getDisplay()))
-                .addGroup(
-                        layout.createSequentialGroup().addComponent(getStartStopToggleButton())
-                                .addComponent(getPauseResumeToggleButton()).addComponent(getAlarmValueButton())
-                                .addComponent(getCountdownToggleButton()).addGap(10)
-                                .addComponent(getLabelPanel())));
-
-        layout.setVerticalGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addGroup(
-                layout.createSequentialGroup()
-                        .addComponent(getDisplay())
-                        .addGroup(
-                                layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-                                        .addComponent(getStartStopToggleButton())
-                                        .addComponent(getPauseResumeToggleButton()).addComponent(getAlarmValueButton())
-                                        .addComponent(getCountdownToggleButton())
-                                        .addComponent(getLabelPanel()))));
-
-        layout.linkSize(SwingConstants.HORIZONTAL, getStartStopToggleButton(), getPauseResumeToggleButton(),
-                getAlarmValueButton(), getCountdownToggleButton()/* , getResetButton() */);
-        layout.linkSize(SwingConstants.VERTICAL, getStartStopToggleButton(), getPauseResumeToggleButton(),
-                getAlarmValueButton(), getCountdownToggleButton()/* , getResetButton() */);
+        MigLayout migLayout = new MigLayout(
+                "debug, fillx, insets 0",
+                "[][]",
+                "[grow]0[fill]" //, 20:20:30
+        );
+        this.setLayout(migLayout);
+        this.add(getDisplay(), "span, grow, wrap");
+        this.add(getStartStopToggleButton(), "w 20:20:60, h 0:20:30, split 6, gapright 0, grow, top");
+        this.add(getPauseResumeToggleButton(), "w 20:20:60, h 0:20:30, gapright 0, grow, top");
+        this.add(getAlarmValueButton(), "w 20:20:60, h 0:20:30, gapright 0, grow, top");
+        this.add(getCountdownToggleButton(), "w 20:20:60, h 0:20:30, gapright 0, grow, top");
+        this.add(getResetButton(), "w 20:20:60, h 0:20:30, gapright 0, grow, top");
+        this.add(getLabelPanel(), "grow");
     }
 
     public void hideButtons() {
