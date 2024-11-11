@@ -550,14 +550,23 @@ public class MRAMenuBar {
                     chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
                     int op = chooser.showOpenDialog(mra);
                     if (op == JFileChooser.APPROVE_OPTION) {
-                        try {
-                            ConcatenateLsfLog.concatenateFolders(folders, chooser.getSelectedFile(), null);
-                            mra.getMraFilesHandler().openLog(new File(chooser.getSelectedFile(), "Data.lsf"));
-
-                        }
-                        catch (Exception ex) {
-                            GuiUtils.errorMessage(mra, ex);
-                        }
+                        new Thread("Concatenating Logs") {
+                            @Override
+                            public void run() {
+                                mra.getBgp().block(true);
+                                mra.getBgp().setText(I18n.text("Concatenating LSF Data"));
+                                try {
+                                    ConcatenateLsfLog.concatenateFolders(folders, chooser.getSelectedFile(), null);
+                                }
+                                catch (Exception ex) {
+                                    GuiUtils.errorMessage(mra, ex);
+                                    mra.getBgp().block(false);
+                                    return;
+                                }
+                                mra.getBgp().block(false);
+                                mra.getMraFilesHandler().openLog(new File(chooser.getSelectedFile(), "Data.lsf"));
+                            }
+                        }.start();
                     }
                 }
             }
