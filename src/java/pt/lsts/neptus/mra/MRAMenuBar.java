@@ -178,23 +178,7 @@ public class MRAMenuBar {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                File lastFile = null;
-                try {
-                    lastFile = miscFilesOpened.size() == 0 ? null : miscFilesOpened.values().iterator().next();
-                    if (lastFile != null && !lastFile.isDirectory())
-                        lastFile = lastFile.getParentFile();
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-
-                File currentDirectory;
-                if(lastFile != null && lastFile.isDirectory() && lastFile.canRead()) {
-                    currentDirectory = lastFile;
-                }
-                else if (!new File(ConfigFetch.getLogsDownloadedFolder()).canRead())
-                    currentDirectory = new File(ConfigFetch.getConfigFile());
-                else
-                    currentDirectory = new File(ConfigFetch.getLogsDownloadedFolder());
+                File currentDirectory = getLastOpenedLogFolder();
 
                 JFileChooser fileChooser = GuiUtils.getFileChooser(currentDirectory, I18n.text("LSF log files"), 
                         FileUtil.FILE_TYPE_LSF, FileUtil.FILE_TYPE_LSF_COMPRESSED, FileUtil.FILE_TYPE_LSF_COMPRESSED_BZIP2);
@@ -254,6 +238,27 @@ public class MRAMenuBar {
         fileMenu.add(openLsf);
         fileMenu.addSeparator();
         fileMenu.add(exit);
+    }
+
+    private File getLastOpenedLogFolder() {
+        File lastFile = null;
+        try {
+            lastFile = miscFilesOpened.size() == 0 ? null : miscFilesOpened.values().iterator().next();
+            if (lastFile != null && !lastFile.isDirectory())
+                lastFile = lastFile.getParentFile();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        File currentDirectory;
+        if(lastFile != null && lastFile.isDirectory() && lastFile.canRead()) {
+            currentDirectory = lastFile;
+        }
+        else if (!new File(ConfigFetch.getLogsDownloadedFolder()).canRead())
+            currentDirectory = new File(ConfigFetch.getConfigFile());
+        else
+            currentDirectory = new File(ConfigFetch.getLogsDownloadedFolder());
+        return currentDirectory;
     }
 
     /**
@@ -542,10 +547,11 @@ public class MRAMenuBar {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                File[] folders = ConcatenateLsfLog.chooseFolders(mra, new File(".").getAbsolutePath());
+                File currentDirectory = getLastOpenedLogFolder();
+                File[] folders = ConcatenateLsfLog.chooseFolders(mra, currentDirectory.getAbsolutePath());
 
-                if (folders != null) {
-                    JFileChooser chooser = GuiUtils.getFileChooser(ConfigFetch.getConfigFile());
+                if (folders != null && folders.length > 0) {
+                    JFileChooser chooser = GuiUtils.getFileChooser(folders[0].getParentFile().getAbsoluteFile());
                     chooser.setDialogTitle(I18n.text("Select folder where to save concatenated log"));
                     chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
                     int op = chooser.showOpenDialog(mra);
