@@ -120,7 +120,7 @@ public class MRAMenuBar {
     protected AbstractAction reportOptions;
     private AbstractAction batchReport;
     private AbstractAction preferences;
-    private AbstractAction httpDuneDownload, httpVehicleDownload, concatenateLSFLogs, fuseLSFLogs;
+    private AbstractAction httpDuneDownload, httpVehicleDownload, concatenateLSFLogs;
     protected AbstractAction setMission;
 
     private LinkedHashMap<JMenuItem, File> miscFilesOpened;
@@ -573,38 +573,10 @@ public class MRAMenuBar {
         };
         concatenateLSFLogs.putValue(Action.SHORT_DESCRIPTION, I18n.text("Concatenate LSF logs") + ".");
 
-        fuseLSFLogs = new AbstractAction(I18n.text("Fuse LSF logs"), ImageUtils.getIcon("images/menus/merge.png")) {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                File[] folders = ConcatenateLsfLog.chooseFolders(mra, new File(".").getAbsolutePath());
-
-                if (folders != null) {
-                    JFileChooser chooser = new JFileChooser(new File("."));
-                    chooser.setDialogTitle(I18n.text("Select folder where to save concatenated log"));
-                    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-                    int op = chooser.showOpenDialog(mra);
-                    if (op == JFileChooser.APPROVE_OPTION) {
-                        try {
-                            ConcatenateLsfLog.concatenateFolders(folders, chooser.getSelectedFile(), null);
-                            mra.getMraFilesHandler().openLog(new File(chooser.getSelectedFile(), "Data.lsf"));
-
-                        }
-                        catch (Exception ex) {
-                            GuiUtils.errorMessage(mra, ex);
-                        }
-                    }
-                }
-            }
-        };
-        fuseLSFLogs.putValue(Action.SHORT_DESCRIPTION, I18n.text("Fuse LSF logs") + ".");
-
         toolsMenu.add(httpVehicleDownload);
         toolsMenu.add(httpDuneDownload);
         toolsMenu.addSeparator();
         toolsMenu.add(concatenateLSFLogs);
-        toolsMenu.add(fuseLSFLogs);
     }
 
     /**
