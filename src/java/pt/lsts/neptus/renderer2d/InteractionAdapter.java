@@ -116,6 +116,9 @@ public class InteractionAdapter extends ConsolePanel implements StateRendererInt
                     double distanceKm = distance/1000;
                     txt = String.format("%.2f Km", distanceKm);
                 }
+                double distanceNMiles = distance/1852;
+                String milesTxt = String.format("%.2f NM", distanceNMiles);
+
                 g.setStroke(new BasicStroke(5.2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
                 g.setColor(new Color(0, 0, 0, 100));
                 Point2D start = source.getScreenPosition(firstDragPoint);
@@ -147,7 +150,7 @@ public class InteractionAdapter extends ConsolePanel implements StateRendererInt
                 g.setStroke(origStroke);
 
                 Font font = new Font("Arial", Font.BOLD, 17);
-                RenderStringUtils.drawStringWOutline(g, font, Color.WHITE, Color.BLACK, txt, lastDragPoint.getX() + 10, lastDragPoint.getY() + 10);
+                RenderStringUtils.drawStringWOutline(g, font, Color.WHITE, Color.BLACK, txt + " / " + milesTxt, lastDragPoint.getX() + 10, lastDragPoint.getY() + 10);
 
                 font = new Font("Arial", Font.BOLD, 15);
                 RenderStringUtils.drawStringWOutline(g, font, Color.WHITE, Color.BLACK, angleTxt, lastDragPoint.getX() + 10, lastDragPoint.getY() + 30);
