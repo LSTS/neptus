@@ -59,23 +59,31 @@ public class RenderStringUtils {
      * @return
      */
     public static void drawStringWOutline(Graphics2D g, Font font, Color textColor, Color outlineColor, String text, double x, double y) {
-        g.setFont(font);
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        Graphics2D gtemp = (Graphics2D) g.create();
+        try {
+            gtemp.setFont(font);
+            gtemp.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            gtemp.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
-        // Calculate dynamic outline thickness based on font size
-        float outlineThickness = font.getSize() * 0.25f;
+            // Calculate dynamic outline thickness based on font size
+            float outlineThickness = font.getSize() * 0.25f;
 
-        GlyphVector glyphVector = font.createGlyphVector(g.getFontRenderContext(), text);
-        Shape textShape = glyphVector.getOutline((int) (x), (int) (y));
+            GlyphVector glyphVector = font.createGlyphVector(gtemp.getFontRenderContext(), text);
+            Shape textShape = glyphVector.getOutline((int) (x), (int) (y));
 
-        // Draw the outline
-        g.setColor(outlineColor);
-        g.setStroke(new BasicStroke(outlineThickness, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND)); // Thickness of the outline
-        g.draw(textShape);
+            // Draw the outline
+            gtemp.setColor(outlineColor);
+            gtemp.setStroke(new BasicStroke(outlineThickness, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND)); // Thickness of the outline
+            gtemp.draw(textShape);
 
-        // Draw the fill
-        g.setColor(textColor);
-        g.fill(textShape);
+            // Draw the fill
+            gtemp.setColor(textColor);
+            gtemp.fill(textShape);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            gtemp.dispose();
+        }
     }
 }
