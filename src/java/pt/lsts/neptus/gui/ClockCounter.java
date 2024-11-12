@@ -114,10 +114,7 @@ public class ClockCounter extends JPanel {
 		RoundRectangle2D rrect = new RoundRectangle2D.Double(2,2,getWidth()-4,getHeight()-4, 10, 10);
 		g2d.fill(rrect);
 
-		g2d.setFont(new Font("Arial", Font.BOLD, 8));
-		
-		String tt = "00" + HOURS_SEPARATOR +"00" + MINUTES_SEPARATOR +"00" + SECONDS_SEPARATOR;
-		Rectangle2D sB1 = g2d.getFontMetrics().getStringBounds(tt, g2d);
+		g2d.setFont(new Font("Arial", Font.BOLD, 10));
 
 		long hr = (long) (getSecs()/60.0/60.0);
 		long mi = (long) ((getSecs()/60.0)%60.0);
@@ -131,16 +128,16 @@ public class ClockCounter extends JPanel {
 			miS = "0" + miS;
 		if (secS.length() == 1)
 			secS = "0" + secS;
-		String time = " " +hrS + HOURS_SEPARATOR + miS + MINUTES_SEPARATOR + secS + SECONDS_SEPARATOR;
+		String time = " " + hrS + HOURS_SEPARATOR + miS + MINUTES_SEPARATOR + secS + SECONDS_SEPARATOR + " ";
 
 		Rectangle2D sB2 = g2d.getFontMetrics().getStringBounds(time, g2d);
 
 		double scale;
-		double sw0 = w / sB1.getWidth();
-		double sh0 = h / sB1.getHeight();
-		scale = (sw0 < sh0)?sw0:sh0;
-		w = (int) (w * 1/scale);
-		h = (int) (h * 1/scale);
+		double sw0 = w / sB2.getWidth();
+		double sh0 = h / sB2.getHeight();
+		scale = Math.min(sw0, sh0);
+		w = (int) (w/scale);
+		h = (int) (h/scale);
 		
 		//AffineTransform pre = g2d.getTransform();
 		g2d.scale(scale, scale);
@@ -150,10 +147,10 @@ public class ClockCounter extends JPanel {
 		//Ellipse2D ellis = new Ellipse2D.Double(0, 0, 2, 2);
 		//g2d.setColor(Color.CYAN);
 		//g2d.fill(ellis);
-		
+
 		g2d.setColor(COLOR_FORE);
 		g.drawString(time, (int) (-sB2.getWidth()/2), (int) (sB2.getHeight()/2));
-		
+
 		g2d.translate(w/2, -h/2);
 		if (getState() == ClockState.START)
 			g2d.fill(SHAPE_PLAY);
