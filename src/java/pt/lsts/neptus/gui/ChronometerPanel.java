@@ -102,7 +102,7 @@ public class ChronometerPanel extends JPanel implements ActionListener {
             16, 16);
 
     public static enum CronState {
-        STOPED,
+        STOPPED,
         STARTED,
         PAUSED
     };
@@ -120,7 +120,7 @@ public class ChronometerPanel extends JPanel implements ActionListener {
 
     private long maxSecs = -1;
 
-    protected CronState cState = CronState.STOPED;
+    protected CronState cState = CronState.STOPPED;
 
 //    private Timer timer = new Timer(this.getClass().getSimpleName() + ": " + this.hashCode(), true);
 //    private TimerTask tTask = null;
@@ -346,7 +346,7 @@ public class ChronometerPanel extends JPanel implements ActionListener {
             msTime = System.currentTimeMillis() - msStart + msAcum;
         else if (cState == CronState.PAUSED)
             msTime = msStop - msStart + msAcum;
-        else if (cState == CronState.STOPED)
+        else if (cState == CronState.STOPPED)
             msTime = msEnd - msStart + msAcum;
         return msTime;
     }
@@ -414,7 +414,7 @@ public class ChronometerPanel extends JPanel implements ActionListener {
             }
         }
         else if (aCommand.equalsIgnoreCase(ACTION_RESET)) {
-            if (cState == CronState.STOPED) {
+            if (cState == CronState.STOPPED) {
                 setMaxSecs(0L);
             }
         }
@@ -459,7 +459,7 @@ public class ChronometerPanel extends JPanel implements ActionListener {
     }
 
     protected void updateState(CronEvent event) {
-        if (cState == CronState.STOPED) {
+        if (cState == CronState.STOPPED) {
             if (event == CronEvent.START) {
                 msTime = 0;
                 msStart = System.currentTimeMillis();
@@ -477,7 +477,7 @@ public class ChronometerPanel extends JPanel implements ActionListener {
             }
             else if (event == CronEvent.STOP) {
                 msEnd = System.currentTimeMillis();
-                cState = CronState.STOPED;
+                cState = CronState.STOPPED;
                 stopDisplayUpdate();
                 updateDisplay();
                 alreadyReported = false;
@@ -491,7 +491,7 @@ public class ChronometerPanel extends JPanel implements ActionListener {
             }
             else if (event == CronEvent.STOP) {
                 msEnd = msStop;
-                cState = CronState.STOPED;
+                cState = CronState.STOPPED;
                 stopDisplayUpdate();
                 updateDisplay();
             }
@@ -558,7 +558,7 @@ public class ChronometerPanel extends JPanel implements ActionListener {
 
         if (cState == CronState.STARTED)
             getDisplay().setState(ClockState.START);
-        else if (cState == CronState.STOPED)
+        else if (cState == CronState.STOPPED)
             getDisplay().setState(ClockState.STOP);
         else if (cState == CronState.PAUSED)
             getDisplay().setState(ClockState.PAUSE);
