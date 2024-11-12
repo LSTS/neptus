@@ -112,6 +112,10 @@ public class InteractionAdapter extends ConsolePanel implements StateRendererInt
                 LocationType end = source.getRealWorldLocation(lastDragPoint);
                 double distance = end.getDistanceInMeters(firstDragPoint);
                 String txt = String.format("%.2f m", distance);
+                if (distance/1000 >= 1) {
+                    double distanceKm = distance/1000;
+                    txt = String.format("%.2f Km", distanceKm);
+                }
                 g.setStroke(new BasicStroke(5.2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
                 g.setColor(new Color(0, 0, 0, 100));
                 Point2D start = source.getScreenPosition(firstDragPoint);
