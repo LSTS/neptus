@@ -32,7 +32,12 @@
  */
 package pt.lsts.neptus.util;
 
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.Shape;
 import java.awt.font.GlyphVector;
 
 public class RenderStringUtils {
