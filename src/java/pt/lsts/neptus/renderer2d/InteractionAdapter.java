@@ -114,7 +114,7 @@ public class InteractionAdapter extends ConsolePanel implements StateRendererInt
                 String txt = String.format("%.2f m", distance);
                 if (distance/1000 >= 1) {
                     double distanceKm = distance/1000;
-                    txt = String.format("%.2f Km", distanceKm);
+                    txt = String.format("%.2f km", distanceKm);
                 }
                 double distanceNMiles = distance/1852;
                 String milesTxt = String.format("%.2f NM", distanceNMiles);
