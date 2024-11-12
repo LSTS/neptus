@@ -292,6 +292,10 @@ public class MRAChartPanel extends JPanel implements ChartMouseListener {
 
         cpanel = new ChartPanel(c);
 
+        cpanel.setMouseWheelEnabled(true);
+        cpanel.getChart().getXYPlot().setDomainPannable(true);
+        cpanel.getChart().getXYPlot().setRangePannable(true);
+
         cpanel.getPopupMenu().add(I18n.text("Add Mark")).addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
