@@ -67,6 +67,7 @@ import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.RenderStringUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
@@ -140,28 +141,12 @@ public class InteractionAdapter extends ConsolePanel implements StateRendererInt
                 g.setColor(Color.green.brighter().brighter());
                 g.draw(new Line2D.Double(start, lastDragPoint));
                 g.setStroke(origStroke);
-                
-                g.setFont(new Font("Arial", Font.BOLD, 17));
-                g.setColor(new Color(0, 0, 0, 100));
-                g.drawString(txt, (int) (lastDragPoint.getX() + 12), (int) (lastDragPoint.getY() + 11));
-                g.drawString(txt, (int) (lastDragPoint.getX() + 12), (int) (lastDragPoint.getY() + 12));
 
-                g.drawString(txt, (int) (lastDragPoint.getX() + 9), (int) (lastDragPoint.getY() + 8));
-                g.drawString(txt, (int) (lastDragPoint.getX() + 9), (int) (lastDragPoint.getY() + 9));
+                Font font = new Font("Arial", Font.BOLD, 17);
+                RenderStringUtils.drawStringWOutline(g, font, Color.WHITE, Color.BLACK, txt, lastDragPoint.getX() + 10, lastDragPoint.getY() + 10);
 
-                g.setFont(new Font("Arial", Font.BOLD, 15));
-                g.drawString(angleTxt, (int) (lastDragPoint.getX() + 12), (int) (lastDragPoint.getY() + 31));
-                g.drawString(angleTxt, (int) (lastDragPoint.getX() + 13), (int) (lastDragPoint.getY() + 31));
-                g.drawString(angleTxt, (int) (lastDragPoint.getX() + 9), (int) (lastDragPoint.getY() + 29));
-                g.drawString(angleTxt, (int) (lastDragPoint.getX() + 8), (int) (lastDragPoint.getY() + 29));
-
-                g.setFont(new Font("Arial", Font.BOLD, 15));
-                g.setColor(Color.white);
-                g.drawString(angleTxt, (int) (lastDragPoint.getX() + 10), (int) (lastDragPoint.getY() + 30));
-
-                g.setColor(Color.white);
-                g.setFont(new Font("Arial", Font.BOLD, 17));
-                g.drawString(txt, (int) (lastDragPoint.getX() + 10), (int) (lastDragPoint.getY() + 10));
+                font = new Font("Arial", Font.BOLD, 15);
+                RenderStringUtils.drawStringWOutline(g, font, Color.WHITE, Color.BLACK, angleTxt, lastDragPoint.getX() + 10, lastDragPoint.getY() + 30);
             }
             g.drawImage(rulerIcon, 20, 50, null);
         }
