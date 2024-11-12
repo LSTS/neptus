@@ -60,6 +60,7 @@ import javax.swing.JTextField;
 import javax.swing.ListCellRenderer;
 import javax.swing.SwingUtilities;
 
+import net.miginfocom.swing.MigLayout;
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
@@ -99,7 +100,7 @@ public class MRAChartPanel extends JPanel implements ChartMouseListener {
     private JLabel lblX = new JLabel();
     private JLabel lblY = new JLabel();
 
-    JPanel controlPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+    JPanel controlPanel = new JPanel();
     MRAPanel mraPanel;
     double mouseValue;
 
@@ -107,6 +108,12 @@ public class MRAChartPanel extends JPanel implements ChartMouseListener {
         this.mraPanel = panel;
         this.chart = chart;
         this.source = source;
+
+        MigLayout layout = new MigLayout(
+                "fill, insets 10 0 10 0",
+                "[right]"
+        );
+        controlPanel.setLayout(layout);
 
         if (chart.supportsVariableTimeSteps())
             this.timestep = Math.max(chart.getDefaultTimeStep(), timestep);
@@ -145,7 +152,7 @@ public class MRAChartPanel extends JPanel implements ChartMouseListener {
                 }
             });
 
-            controlPanel.add(info);
+            controlPanel.add(info, "split");
         }
 
         if (chart.supportsVariableTimeSteps()) {
@@ -153,7 +160,7 @@ public class MRAChartPanel extends JPanel implements ChartMouseListener {
             timeStepField = new JTextField("" + timestep, 4);
             if (MRATimeSeriesPlot.class.isAssignableFrom(chart.getClass())) {
                 selectEntities = new JButton(I18n.text("Series..."));
-                controlPanel.add(selectEntities);
+                controlPanel.add(selectEntities, "split");
                 selectEntities.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent arg0) {
@@ -161,7 +168,7 @@ public class MRAChartPanel extends JPanel implements ChartMouseListener {
                     }
                 });
             }
-            controlPanel.add(new JLabel(I18n.text("Time Step:")));
+            controlPanel.add(new JLabel(I18n.text("Time Step:")), "split");
             controlPanel.add(timeStepField);
             controlPanel.add(redraw);
 
