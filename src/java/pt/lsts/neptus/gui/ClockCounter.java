@@ -128,7 +128,7 @@ public class ClockCounter extends JPanel {
 			miS = "0" + miS;
 		if (secS.length() == 1)
 			secS = "0" + secS;
-		String time = " " +hrS + HOURS_SEPARATOR + miS + MINUTES_SEPARATOR + secS + SECONDS_SEPARATOR + " ";
+		String time = " " + hrS + HOURS_SEPARATOR + miS + MINUTES_SEPARATOR + secS + SECONDS_SEPARATOR + " ";
 
 		Rectangle2D sB2 = g2d.getFontMetrics().getStringBounds(time, g2d);
 
