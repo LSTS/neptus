@@ -59,6 +59,7 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListCellRenderer;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 
 import net.miginfocom.swing.MigLayout;
 import org.jfree.chart.ChartMouseEvent;
@@ -184,7 +185,20 @@ public class MRAChartPanel extends JPanel implements ChartMouseListener {
                     }
                     if (!(val < 0) && !Double.isNaN(val) && val != timestep) {
                         timestep = val;
-                        regeneratePanel();
+                        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+                            @Override
+                            protected Void doInBackground() throws Exception {
+                                regeneratePanel();
+                                return null;
+                            }
+
+                            @Override
+                            protected void done() {
+                                redraw.setEnabled(true);
+                            }
+                        };
+                        redraw.setEnabled(false);
+                        worker.execute();
                     }
                     timeStepField.setText(timestep + "");
                 }
@@ -289,7 +303,18 @@ public class MRAChartPanel extends JPanel implements ChartMouseListener {
             if (!checks[o].isSelected())
                 chart.getForbiddenSeries().add(checks[o].getText());
         }
-        regeneratePanel();
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                regeneratePanel();
+                return null;
+            }
+
+            @Override
+            protected void done() {
+            }
+        };
+        worker.execute();
     }
 
     public void regeneratePanel() {
