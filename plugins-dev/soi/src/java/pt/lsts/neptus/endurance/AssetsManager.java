@@ -34,6 +34,7 @@ package pt.lsts.neptus.endurance;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -122,16 +123,24 @@ public class AssetsManager {
         else if (commMean == CommMean.Iridium) {
             try {
                 ImcSystem system = ImcSystemsHolder.lookupSystemByName(systemName);
-                ImcIridiumMessage msg = new ImcIridiumMessage();
-                msg.setSource(ImcMsgManager.getManager().getLocalId().intValue());
                 cmd.setSrc(ImcMsgManager.getManager().getLocalId().intValue());
                 cmd.setDst(system.getId().intValue());
-                msg.setMsg(cmd);
-                msg.setDestination(system.getId().intValue());
-                IridiumManager.getManager().send(msg);
-                if (console != null)
-                    console.post(Notification.success(cmd.getCommandStr()+" sent to "+systemName, cmd.getCommandStr()+" sent using "
+
+                Collection<ImcIridiumMessage> irMsgs = IridiumManager.iridiumEncode(cmd);
+
+                for (ImcIridiumMessage msg : irMsgs) {
+                    msg.setSource(ImcMsgManager.getManager().getLocalId().intValue());
+                    //msg.setMsg(cmd);
+                    msg.setDestination(system.getId().intValue());
+                    IridiumManager.getManager().send(msg);
+                }
+
+                if (console != null) {
+                    console.post(Notification.success(cmd.getCommandStr() + " sent"
+                            + (irMsgs.size() > 1 ? " in " + irMsgs.size() + " parts" : "")
+                            + " to " + systemName, cmd.getCommandStr() + " sent using "
                             + IridiumManager.getManager().getCurrentMessenger().getName()));
+                }
             }
             catch (Exception e) {
                 GuiUtils.errorMessage(console != null ? console : null, e);
@@ -238,12 +247,19 @@ public class AssetsManager {
         NeptusLog.pub().info("Processing SoiCommand: " + cmd.asJSON() + ", " + Thread.currentThread().getName() + ", "
                 + cmd.hashCode() + " (at " + dateFormatterXMLNoMillisUTC.format(new Date(cmd.getTimestampMillis())) + ")");
 
+        String info = cmd.getInfo();
+        if (info == null || info.isEmpty()) {
+            info = "";
+        } else {
+            info = "\n (info: " + info + ")";
+        }
+
         switch (cmd.getCommand()) {
             case GET_PARAMS:
                 if (console != null)
                     console.post(Notification.success(I18n.text("Received Settings"),
-                            I18n.textf("Received settings from %vehicle (at %time).", cmd.getSourceName(),
-                                    dateFormatterXMLNoMillisUTC.format(new Date(cmd.getTimestampMillis()))))
+                            I18n.textf("Received settings from %vehicle (at %time).%info", cmd.getSourceName(),
+                                    dateFormatterXMLNoMillisUTC.format(new Date(cmd.getTimestampMillis())), info))
                             .requireHumanAction(true));
                 setParams(cmd.getSourceName(), cmd.getSettings());
                 break;
@@ -251,17 +267,43 @@ public class AssetsManager {
             case EXEC:
                 if (console != null)
                     console.post(Notification.success(I18n.text("Received Plan"),
-                            I18n.textf("Received plan from %vehicle (at %time).", cmd.getSourceName(),
-                                    dateFormatterXMLNoMillisUTC.format(new Date(cmd.getTimestampMillis()))))
+                            I18n.textf("Received plan from %vehicle (at %time).%info", cmd.getSourceName(),
+                                    dateFormatterXMLNoMillisUTC.format(new Date(cmd.getTimestampMillis())), info))
                             .requireHumanAction(true));
                 if (cmd.getPlan() != null)
                     plans.put(cmd.getSourceName(), Plan.parse(cmd.getPlan()));
                 break;
             case RESUME:
+                if (console != null)
+                    console.post(Notification.success(I18n.text("Resumed"),
+                                    I18n.textf("Received resume from %vehicle (at %time).%info", cmd.getSourceName(),
+                                            dateFormatterXMLNoMillisUTC.format(new Date(cmd.getTimestampMillis())), info))
+                            .requireHumanAction(true));
                 break;
             case SET_PARAMS:
+                if (console != null) {
+                    StringBuilder recChangedParams = new StringBuilder();
+                    if (cmd.getSettings() != null && !cmd.getSettings().isEmpty()) {
+                        for (String k : cmd.getSettings().keySet()) {
+                            recChangedParams.append(k).append(" = ").append(cmd.getSettings().get(k)).append("; ");
+                        }
+                        if (recChangedParams.length() > 0)
+                            recChangedParams.insert(0, '\n');
+                    }
+
+                    console.post(Notification.success(I18n.text("Received Plan"),
+                                    I18n.textf("Received plan from %vehicle (at %time).%info %params", cmd.getSourceName(),
+                                            dateFormatterXMLNoMillisUTC.format(new Date(cmd.getTimestampMillis())), info,
+                                            recChangedParams.toString()))
+                            .requireHumanAction(false));
+                }
                 break;
             case STOP:
+                if (console != null)
+                    console.post(Notification.success(I18n.text("Stop Plan"),
+                                    I18n.textf("Received stop plan from %vehicle (at %time).%info", cmd.getSourceName(),
+                                            dateFormatterXMLNoMillisUTC.format(new Date(cmd.getTimestampMillis())), info))
+                            .requireHumanAction(true));
                 break;
             default:
                 break;

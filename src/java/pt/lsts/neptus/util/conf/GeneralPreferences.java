@@ -246,7 +246,11 @@ public class GeneralPreferences implements PropertiesProvider {
     @NeptusProperty(name = "Iridium Messenger", category="Iridium Communications", userLevel = LEVEL.REGULAR,
         description = "Iridium messaging implementation")
     public static IridiumMessengerEnum iridiumMessenger = IridiumMessengerEnum.HubIridiumMessenger;
-    
+    @NeptusProperty(name = "Iridium Messenger Pool Messages", category="Iridium Communications", userLevel = LEVEL.REGULAR,
+            description = "Iridium messaging pool messages in minutes. Valid values between 0.17 (~10s) and 30. Doesn't need restart to apply",
+            units = "minutes")
+    public static double iridiumMessengerPoolMinutes = 5;
+
     // -------------------------------------------------------------------------
     
     @NeptusProperty(name = "Maximum Size of Plan Name For Acoustics", category="Plan", userLevel = LEVEL.ADVANCED,
@@ -406,7 +410,11 @@ public class GeneralPreferences implements PropertiesProvider {
     public static String validateMaximumSizePlanNameForAcoustics(int value) {
         return new IntegerMinMaxValidator(1, 255).validate(value);
     }
-    
+
+    public static String validateIridiumMessengerPoolMinutes(double value) {
+        return new DoubleMinMaxValidator(0.17, 30).validate(value);
+    }
+
     // -------------------------------------------------------------------------
 
     /*

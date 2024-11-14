@@ -115,12 +115,8 @@ public class SoiInteraction extends SimpleRendererInteraction {
     @NeptusProperty(name = "Show profile values", userLevel = LEVEL.REGULAR)
     public boolean profileValues = true;
     
+    private final VerticalProfileViewer profileView = new VerticalProfileViewer();
     
-    private VerticalProfileViewer profileView = new VerticalProfileViewer();
-    
-    /**
-     * @param console
-     */
     public SoiInteraction(ConsoleLayout console) {
         super(console);
     }
@@ -161,7 +157,7 @@ public class SoiInteraction extends SimpleRendererInteraction {
         try {
 
             Collection<PlanType> pps = getConsole().getMission().getIndividualPlansList().values();
-            List<String> ps = pps.stream().map(p -> p.getId()).collect(Collectors.toList());
+            List<String> ps = pps.stream().map(PlanType::getId).collect(Collectors.toList());
 
             if (ps.isEmpty()) {
                 GuiUtils.errorMessage(getConsole(), "Send SOI plan", "Create a plan to define the SOI waypoints.");
@@ -180,7 +176,7 @@ public class SoiInteraction extends SimpleRendererInteraction {
 
             if (scheduleWaypoints) {
                 SoiSettings vehicleSettings = (SoiSettings) AssetsManager.getInstance().getSettings().getOrDefault(system, new SoiSettings());
-                plan.scheduleWaypoints(System.currentTimeMillis() + (long) (timeToFirstWaypoint * 1000l),
+                plan.scheduleWaypoints(System.currentTimeMillis() + (long) (timeToFirstWaypoint * 1000L),
                         vehicleSettings.speed);
             }
 
@@ -357,9 +353,7 @@ public class SoiInteraction extends SimpleRendererInteraction {
                 vName = v.getNickname();
             
             say(vName+ " update");
-            
         }
-        
     }
     
     @Subscribe
@@ -377,8 +371,9 @@ public class SoiInteraction extends SimpleRendererInteraction {
         try {
             AssetsManager.getInstance().process(cmd, getConsole());
     
-            if (cmd.getType() != SoiCommand.TYPE.SUCCESS)
+            if (cmd.getType() != SoiCommand.TYPE.SUCCESS && cmd.getType() != SoiCommand.TYPE.ERROR) {
                 return;
+            }
     
             NeptusLog.pub().info("Processing SoiCommand: " + cmd.asJSON() + ", " + Thread.currentThread().getName() + ", "
                     + cmd.hashCode());
@@ -387,21 +382,49 @@ public class SoiInteraction extends SimpleRendererInteraction {
             String vName = "Vehicle";
             if (v != null)
                 vName = v.getNickname();
-            
+
+            String info = "";
             switch (cmd.getCommand()) {
                 case GET_PARAMS:
                 case SET_PARAMS:
-                    setParams(cmd.getSourceName(), cmd.getSettings());
-                    say(vName+" params");
+                    info = cmd.getInfo();
+                    String getOrSet = cmd.getCommand() == COMMAND.GET_PARAMS ? "get" : "set";
+                    if (cmd.getType() == TYPE.SUCCESS) {
+                        setParams(cmd.getSourceName(), cmd.getSettings());
+                    }
+                    if (info == null) {
+                        info = "";
+                    }
+                    say(vName + " params; " + getOrSet + " "  + cmd.getType().name().toLowerCase() + "; " + info);
                     break;
                 case GET_PLAN:
                 case EXEC:
-                    Plan plan = Plan.parse(cmd.getPlan());
-                    if (plan != null) 
-                        AssetsManager.getInstance().getPlans().put(cmd.getSourceName(), Plan.parse(cmd.getPlan()));
-                    else
-                        AssetsManager.getInstance().getPlans().remove(cmd.getSourceName());
-                    say(vName+" plan");
+                    String getOrExec = cmd.getCommand() == COMMAND.GET_PLAN ? "get" : "exec";
+                    if (cmd.getType() == TYPE.SUCCESS) {
+                        Plan plan = Plan.parse(cmd.getPlan());
+                        if (plan != null) {
+                            AssetsManager.getInstance().getPlans().put(cmd.getSourceName(), Plan.parse(cmd.getPlan()));
+                        }
+                        else {
+                            AssetsManager.getInstance().getPlans().remove(cmd.getSourceName());
+                        }
+                    }
+                    info = cmd.getInfo();
+                    if (info == null)
+                        info = "";
+                    say(vName+" plan; " + getOrExec + " " + cmd.getType().name().toLowerCase() + "; " + info);
+                    break;
+                case STOP:
+                    info = cmd.getInfo();
+                    if (info == null)
+                        info = "";
+                    say(vName + " stop; " + cmd.getType().name().toLowerCase() + "; " + info);
+                    break;
+                case RESUME:
+                    info = cmd.getInfo();
+                    if (info == null)
+                        info = "";
+                    say(vName + " resume; " + cmd.getType().name().toLowerCase() + "; " + info);
                     break;
                 default:
                     break;
@@ -422,16 +445,12 @@ public class SoiInteraction extends SimpleRendererInteraction {
                     String path = m.getAnnotation(NeptusMenuItem.class).value();
                     String name = path.substring(path.lastIndexOf(">") + 1);
 
-                    popup.add(name).addActionListener(new ActionListener() {
-
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            try {
-                                m.invoke(SoiInteraction.this);
-                            }
-                            catch (Exception ex) {
-                                ex.printStackTrace();
-                            }
+                    popup.add(name).addActionListener(e -> {
+                        try {
+                            m.invoke(SoiInteraction.this);
+                        }
+                        catch (Exception ex) {
+                            ex.printStackTrace();
                         }
                     });
                 }
@@ -439,12 +458,9 @@ public class SoiInteraction extends SimpleRendererInteraction {
 
             popup.addSeparator();
 
-            popup.add("Change plug-in settings").addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    PluginUtils.editPluginProperties(SoiInteraction.this, true);
-                    profileView.setOldestProfiles(oldestProfiles);
-                }
+            popup.add("Change plug-in settings").addActionListener(e -> {
+                PluginUtils.editPluginProperties(SoiInteraction.this, true);
+                profileView.setOldestProfiles(oldestProfiles);
             });
 
             popup.show(source, event.getX(), event.getY());
@@ -460,9 +476,7 @@ public class SoiInteraction extends SimpleRendererInteraction {
     }
 
     private void sendCommand(SoiCommand cmd, final String system) {
-        new Thread(() -> {
-            AssetsManager.getInstance().sendCommand(system, cmd, commMean, getConsole());
-        }).start();
+        new Thread(() -> AssetsManager.getInstance().sendCommand(system, cmd, commMean, getConsole())).start();
     }
     
     @Override

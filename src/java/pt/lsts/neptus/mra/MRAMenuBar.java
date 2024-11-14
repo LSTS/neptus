@@ -120,7 +120,7 @@ public class MRAMenuBar {
     protected AbstractAction reportOptions;
     private AbstractAction batchReport;
     private AbstractAction preferences;
-    private AbstractAction httpDuneDownload, httpVehicleDownload, concatenateLSFLogs, fuseLSFLogs;
+    private AbstractAction httpDuneDownload, httpVehicleDownload, concatenateLSFLogs;
     protected AbstractAction setMission;
 
     private LinkedHashMap<JMenuItem, File> miscFilesOpened;
@@ -178,23 +178,7 @@ public class MRAMenuBar {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                File lastFile = null;
-                try {
-                    lastFile = miscFilesOpened.size() == 0 ? null : miscFilesOpened.values().iterator().next();
-                    if (lastFile != null && !lastFile.isDirectory())
-                        lastFile = lastFile.getParentFile();
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-
-                File currentDirectory;
-                if(lastFile != null && lastFile.isDirectory() && lastFile.canRead()) {
-                    currentDirectory = lastFile;
-                }
-                else if (!new File(ConfigFetch.getLogsDownloadedFolder()).canRead())
-                    currentDirectory = new File(ConfigFetch.getConfigFile());
-                else
-                    currentDirectory = new File(ConfigFetch.getLogsDownloadedFolder());
+                File currentDirectory = getLastOpenedLogFolder();
 
                 JFileChooser fileChooser = GuiUtils.getFileChooser(currentDirectory, I18n.text("LSF log files"), 
                         FileUtil.FILE_TYPE_LSF, FileUtil.FILE_TYPE_LSF_COMPRESSED, FileUtil.FILE_TYPE_LSF_COMPRESSED_BZIP2);
@@ -254,6 +238,27 @@ public class MRAMenuBar {
         fileMenu.add(openLsf);
         fileMenu.addSeparator();
         fileMenu.add(exit);
+    }
+
+    private File getLastOpenedLogFolder() {
+        File lastFile = null;
+        try {
+            lastFile = miscFilesOpened.size() == 0 ? null : miscFilesOpened.values().iterator().next();
+            if (lastFile != null && !lastFile.isDirectory())
+                lastFile = lastFile.getParentFile();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        File currentDirectory;
+        if(lastFile != null && lastFile.isDirectory() && lastFile.canRead()) {
+            currentDirectory = lastFile;
+        }
+        else if (!new File(ConfigFetch.getLogsDownloadedFolder()).canRead())
+            currentDirectory = new File(ConfigFetch.getConfigFile());
+        else
+            currentDirectory = new File(ConfigFetch.getLogsDownloadedFolder());
+        return currentDirectory;
     }
 
     /**
@@ -542,60 +547,42 @@ public class MRAMenuBar {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                File[] folders = ConcatenateLsfLog.chooseFolders(mra, new File(".").getAbsolutePath());
+                File currentDirectory = getLastOpenedLogFolder();
+                File[] folders = ConcatenateLsfLog.chooseFolders(mra, currentDirectory.getAbsolutePath());
 
-                if (folders != null) {
-                    JFileChooser chooser = GuiUtils.getFileChooser(ConfigFetch.getConfigFile());
+                if (folders != null && folders.length > 0) {
+                    JFileChooser chooser = GuiUtils.getFileChooser(folders[0].getParentFile().getAbsoluteFile());
                     chooser.setDialogTitle(I18n.text("Select folder where to save concatenated log"));
                     chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
                     int op = chooser.showOpenDialog(mra);
                     if (op == JFileChooser.APPROVE_OPTION) {
-                        try {
-                            ConcatenateLsfLog.concatenateFolders(folders, chooser.getSelectedFile(), null);
-                            mra.getMraFilesHandler().openLog(new File(chooser.getSelectedFile(), "Data.lsf"));
-
-                        }
-                        catch (Exception ex) {
-                            GuiUtils.errorMessage(mra, ex);
-                        }
+                        new Thread("Concatenating Logs") {
+                            @Override
+                            public void run() {
+                                mra.getBgp().block(true);
+                                mra.getBgp().setText(I18n.text("Concatenating LSF Data"));
+                                try {
+                                    ConcatenateLsfLog.concatenateFolders(folders, chooser.getSelectedFile(), null);
+                                }
+                                catch (Exception ex) {
+                                    GuiUtils.errorMessage(mra, ex);
+                                    mra.getBgp().block(false);
+                                    return;
+                                }
+                                mra.getBgp().block(false);
+                                mra.getMraFilesHandler().openLog(new File(chooser.getSelectedFile(), "Data.lsf"));
+                            }
+                        }.start();
                     }
                 }
             }
         };
         concatenateLSFLogs.putValue(Action.SHORT_DESCRIPTION, I18n.text("Concatenate LSF logs") + ".");
 
-        fuseLSFLogs = new AbstractAction(I18n.text("Fuse LSF logs"), ImageUtils.getIcon("images/menus/merge.png")) {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                File[] folders = ConcatenateLsfLog.chooseFolders(mra, new File(".").getAbsolutePath());
-
-                if (folders != null) {
-                    JFileChooser chooser = new JFileChooser(new File("."));
-                    chooser.setDialogTitle(I18n.text("Select folder where to save concatenated log"));
-                    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-                    int op = chooser.showOpenDialog(mra);
-                    if (op == JFileChooser.APPROVE_OPTION) {
-                        try {
-                            ConcatenateLsfLog.concatenateFolders(folders, chooser.getSelectedFile(), null);
-                            mra.getMraFilesHandler().openLog(new File(chooser.getSelectedFile(), "Data.lsf"));
-
-                        }
-                        catch (Exception ex) {
-                            GuiUtils.errorMessage(mra, ex);
-                        }
-                    }
-                }
-            }
-        };
-        fuseLSFLogs.putValue(Action.SHORT_DESCRIPTION, I18n.text("Fuse LSF logs") + ".");
-
         toolsMenu.add(httpVehicleDownload);
         toolsMenu.add(httpDuneDownload);
         toolsMenu.addSeparator();
         toolsMenu.add(concatenateLSFLogs);
-        toolsMenu.add(fuseLSFLogs);
     }
 
     /**

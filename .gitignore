@@ -58,6 +58,7 @@
 /conf/profiles.json
 /conf/consoles
 /conf/ipUrl.ini
+/conf/mraplots/*
 
 # /conf/i18n/
 /conf/i18n/en

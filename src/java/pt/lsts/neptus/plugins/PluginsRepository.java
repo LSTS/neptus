@@ -47,6 +47,7 @@ import pt.lsts.neptus.mra.visualizations.MRAVisualization;
 import pt.lsts.neptus.renderer2d.tiles.MapPainterProvider;
 import pt.lsts.neptus.renderer2d.tiles.Tile;
 import pt.lsts.neptus.types.mission.plan.IPlanFileExporter;
+import pt.lsts.neptus.types.mission.plan.IPlanFileImporter;
 import pt.lsts.neptus.util.ReflectionUtil;
 
 public class PluginsRepository {
@@ -61,6 +62,7 @@ public class PluginsRepository {
             LogReplayLayer.class,
             LogReplayPanel.class,
             IPlanFileExporter.class,
+            IPlanFileImporter.class,
             IPlanElement.class
             );
       

@@ -74,7 +74,10 @@ public class IridiumManager {
     private SimulatedMessenger simMessenger;
     private ScheduledExecutorService service = null;
     //private IridiumMessenger currentMessenger;
-    
+
+    private Date lastCall;
+    private boolean running = false;
+
     public static final int IRIDIUM_MTU = 270;
     public static final int IRIDIUM_HEADER = 6;
 
@@ -106,27 +109,50 @@ public class IridiumManager {
                 return simMessenger;
         }
     }
-    
+
     private Runnable pollMessages = new Runnable() {
-        
         Date lastTime = new Date(System.currentTimeMillis() - Duration.ofHours(1).toMillis());
+
         @Override
         public void run() {
             try {
+                if (running) {
+                    return;
+                }
+                running = true;
+                double poolIntervalMin = Math.max(0.17, Math.min(30, GeneralPreferences.iridiumMessengerPoolMinutes));
+                Duration poolInterval = poolIntervalMin >= 1 ? Duration.ofMinutes((long) poolIntervalMin)
+                        : Duration.ofSeconds((long) (60 * poolIntervalMin));
+                if (lastCall != null && System.currentTimeMillis() - lastCall.getTime() < poolInterval.toMillis()) {
+                    return;
+                }
+
                 Date now = new Date();
+                lastCall = now;
+                NeptusLog.pub().info("Start polling messages from Iridium network.");
                 Collection<IridiumMessage> msgs = getCurrentMessenger().pollMessages(lastTime);
-                if (!msgs.isEmpty()) {
+                NeptusLog.pub().info("Polled {} messages from Iridium network.",
+                        msgs.size());
+		if (!msgs.isEmpty()) {
                     speakUpdateEntityState();
                 }
                 for (IridiumMessage m : msgs) {
-                    processMessage(m);
+                    try {
+                        processMessage(m);
+                    } catch (Exception e) {
+                        NeptusLog.pub().warn(e);
+                    }
                 }
+                NeptusLog.pub().info("Processed polled {} messages from Iridium network. Took {}ms",
+                        msgs.size(), System.currentTimeMillis() - now.getTime());
                 
                 lastTime = now;
             }
             catch (Exception e) {
                 NeptusLog.pub().error(e);
-                
+            }
+            finally {
+                running = false;
             }
         }
     };
@@ -148,7 +174,6 @@ public class IridiumManager {
     }
     
     public void processMessage(IridiumMessage msg) {
-        
         try {
             IridiumMsgTx transmission = new IridiumMsgTx();
             transmission.setData(msg.serialize());
@@ -184,9 +209,11 @@ public class IridiumManager {
         if (service != null)
             stop();
         
-        ImcMsgManager.getManager().registerBusListener(this);        
+        ImcMsgManager.getManager().registerBusListener(this);
         service = Executors.newScheduledThreadPool(1);
-        service.scheduleAtFixedRate(pollMessages, 0, 5, TimeUnit.MINUTES);
+        lastCall = null;
+        running = false;
+        service.scheduleAtFixedRate(pollMessages, 1, 2, TimeUnit.SECONDS);
     }
     
     public synchronized void stop() {
@@ -213,7 +240,8 @@ public class IridiumManager {
             return Arrays.asList(m);
         }
         else {
-            MessagePart[] parts = new IMCFragmentHandler(IMCDefinition.getInstance()).fragment(msg, ImcIridiumMessage.MaxPayloadSize+IMCDefinition.getInstance().headerLength());
+            MessagePart[] parts = new IMCFragmentHandler(IMCDefinition.getInstance()).fragment(msg,
+                    ImcIridiumMessage.MaxPayloadSize+IMCDefinition.getInstance().headerLength());
             
             ArrayList<ImcIridiumMessage> ret = new ArrayList<ImcIridiumMessage>();
             for (MessagePart mp : parts) {

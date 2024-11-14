@@ -53,7 +53,9 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.text.NumberFormat;
+import java.time.Duration;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Vector;
 
 import javax.swing.AbstractAction;
@@ -158,7 +160,9 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
     protected int clickCount = 0;
     protected Point2D lastDragPoint = null;
     protected boolean dragging = false;
-    
+
+    private Date lastRequest = new Date(0);
+
     protected JLabel label = new JLabel("<html></html>");
     {
         label.setOpaque(true);
@@ -247,8 +251,10 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
 
                 synchronized (OperationLimitsSubPanel.this) {
                     lastMD5 = msg.payloadMD5();
-                    send(msg);
-                    send(new GetOperationalLimits());
+                    boolean ret = send(msg);
+                    if (ret) {
+                        send(new GetOperationalLimits());
+                    }
                 }
             }
         };
@@ -339,6 +345,33 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
         oplimits.setMask((short) bmask);
 
         return oplimits;
+    }
+
+    @Override
+    public boolean send(IMCMessage message) {
+        String destination = getConsole().getMainSystem();
+        if (destination == null)
+            return false;
+        ImcSystem sysL = ImcSystemsHolder.lookupSystemByName(destination);
+        if (sysL != null && !sysL.isActive()) {
+            boolean userAproveRequest = false;
+            boolean userAproved = true;
+            if (lastRequest.getTime() + Duration.ofSeconds(3).toMillis() < System.currentTimeMillis()) {
+                userAproveRequest = true;
+                userAproved = (GuiUtils.confirmDialog(getConsole(), I18n.text("Send by Iridium"),
+                        I18n.text("Systems is not active. Do you want to send by Iridium?")) == JOptionPane.YES_OPTION);
+            }
+            if (userAproved) {
+                if (userAproveRequest) {
+                    lastRequest = new Date();
+                }
+                sendViaIridium(destination, message);
+                return true;
+            } else {
+                return false;
+            }
+        }
+        return super.send(message);
     }
 
     @Subscribe

@@ -79,6 +79,7 @@ import org.jdesktop.swingx.JXBusyLabel;
 
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCMessageType;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.InfiniteProgressPanel;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
@@ -296,13 +297,18 @@ public class CSVExporter implements MRAExporter {
                 pmonitor.setNote(I18n.textf("Exporting %message data to %csvfile...", message, out.getAbsolutePath()));
                 bw.write(getHeader(message));
                 for (int row = 0; row < source.getLsfIndex().getNumberOfMessages(); row++) {
-                    if (source.getLsfIndex().getMessage(row).getMessageType().getShortName().equals(message)) {
-                        if (entities.contains(source.getLsfIndex().entityNameOf(row))) {
-                            bw.write(getLine(source.getLsfIndex().getMessage(row)));
+                    try {
+                        if (source.getLsfIndex().getMessage(row).getMessageType().getShortName().equals(message)) {
+                            if (entities.contains(source.getLsfIndex().entityNameOf(row))) {
+                                bw.write(getLine(source.getLsfIndex().getMessage(row)));
+                            }
                         }
+                        if (!filter.isVisible()) {
+                            break;
+                        }
+                    } catch (Exception e) {
+                        NeptusLog.pub().warn(e.getMessage());
                     }
-                    if (!filter.isVisible())
-                        break;
                 }
                 bw.close();
                 progress++;
@@ -640,12 +646,17 @@ public class CSVExporter implements MRAExporter {
                     if (!Filter.this.isVisible())
                         break;
 
-                    String message = source.getLsfIndex().getMessage(row).getMessageType().getShortName();
-                    String entity = source.getLsfIndex().entityNameOf(row);
-                    if (entity == null)
-                        entity = "" + source.getLsfIndex().entityOf(row);
-                    putInMap(msgEntitiesMapOriginal, message, entity);
-                    putInMap(entityMsgsMapOriginal, entity, message);
+                    try {
+                        String message = source.getLsfIndex().getMessage(row).getMessageType().getShortName();
+                        String entity = source.getLsfIndex().entityNameOf(row);
+                        if (entity == null) {
+                            entity = "" + source.getLsfIndex().entityOf(row);
+                        }
+                        putInMap(msgEntitiesMapOriginal, message, entity);
+                        putInMap(entityMsgsMapOriginal, entity, message);
+                    } catch (Exception e) {
+                        NeptusLog.pub().warn(e.getMessage());
+                    }
                 }
             }
             msgEntitiesMap.clear();

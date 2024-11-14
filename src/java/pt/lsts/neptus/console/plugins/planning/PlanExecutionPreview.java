@@ -387,7 +387,7 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
                 EstimatedState current = sim.getState().toEstimatedState();
                 current.setLat(Math.toRadians(msg.getLatitude()));
                 current.setLon(Math.toRadians(msg.getLongitude()));
-                current.setDepth(msg.getDepth()/10.0);
+                current.setDepth(msg.getDepth() == 0xFFFF ? -1 : msg.getDepth()/10.0);
                 double ellapsedTime = Math.abs(System.currentTimeMillis()/1000.0 - msg.getStime()) * 3;
                 sim.setPositionEstimation(current, ellapsedTime);
             }

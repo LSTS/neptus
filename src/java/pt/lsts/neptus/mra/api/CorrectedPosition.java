@@ -78,6 +78,11 @@ public class CorrectedPosition {
 
             source.getLsfIndex().hasMultipleVehicles();
             Collection<Integer> systemsLst = source.getVehicleSources();
+            if (systemsLst.isEmpty()) {
+                NeptusLog.pub().warn("No vehicles positions to create corrected ones for cache to {}", cache);
+                return;
+            }
+
             int sysToUse = systemsLst.iterator().next();
             long prevTime = -1;
 

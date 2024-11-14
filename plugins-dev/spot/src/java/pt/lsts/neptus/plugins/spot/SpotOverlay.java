@@ -43,8 +43,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.TreeSet;
-import java.util.Vector;
 
 import javax.swing.SwingUtilities;
 import javax.xml.parsers.ParserConfigurationException;
@@ -70,7 +70,7 @@ import pt.lsts.neptus.util.GuiUtils;
  */
 @PluginDescription(author = "Margarida", name = "SPOT Overlay", icon = "pt/lsts/neptus/plugins/spot/images/spotIcon.png")
 public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicUpdates, ConfigurationListener {
-    private Vector<Spot> spotsOnMap;
+    private List<Spot> spotsOnMap;
     private boolean active = false;
 
     private static final long serialVersionUID = -4807939956933128721L;
@@ -78,21 +78,27 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
     @NeptusProperty
     public int updateMinutes = 2;
 
-    @NeptusProperty(name = "Visible", userLevel = LEVEL.REGULAR)
+    @NeptusProperty(name = "Visible", userLevel = LEVEL.ADVANCED)
     public boolean visible = true;
 
-    @NeptusProperty
+    @NeptusProperty(name = "Show only when interaction is active", userLevel = LEVEL.REGULAR)
     public boolean showOnlyWhenInteractionIsActive = true;
-    @NeptusProperty
+    @NeptusProperty(name = "Show names", userLevel = LEVEL.REGULAR)
     public boolean showNames = true;
-    @NeptusProperty
+    @NeptusProperty(name = "Show speed value", userLevel = LEVEL.REGULAR)
     public boolean showSpeedValue = true;
     @NeptusProperty(userLevel = LEVEL.REGULAR, description = "Set the time window (in hours) for considered positions. Will only consider positions in the last x hours.", name = "Time window (hours)")
     public int hours = 70;
     @NeptusProperty(userLevel = LEVEL.REGULAR, name = "Export to CSV")
     public boolean printCvsFile = false;
-    @NeptusProperty(name = "SPOT Stream ID", description = "Identifier of SPOT stream to show")
+    @NeptusProperty(name = "SPOT Stream ID", description = "Identifier of SPOT stream to show", userLevel = LEVEL.REGULAR)
     public String streamID = "0eFbYotphiMKz9YiDOI7XqR76JJ010Z0X";
+    @NeptusProperty(name = "Filter by SPOT ID", userLevel = LEVEL.REGULAR,
+            description = "Filter the SPOT messages by the SPOT ID. Leave empty to show all SPOTs. Use comma to separate multiple SPOT IDs.")
+    public String spotIDs = "";
+    @NeptusProperty(name = "Case Sensitive Filter by SPOT ID", userLevel = LEVEL.REGULAR,
+            description = "Case sensitive filter the SPOT messages by the SPOT ID.")
+    public boolean spotIDsCaseSensitive = false;
 
     protected GeneralPath gp = new GeneralPath();
     {
@@ -106,12 +112,14 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
         gp.closePath();
     }
 
+    private final List<String> spotIDsToShow = new ArrayList<>();
+
     /**
      * @param console
      */
     public SpotOverlay(ConsoleLayout console) {
         super(console);
-        spotsOnMap = new Vector<Spot>();
+        spotsOnMap = new ArrayList<>();
     }
 
     @Override
@@ -132,7 +140,7 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
     }
 
     private void updateFromPage() {
-        Vector<Spot> nextSpotsOnMap = new Vector<Spot>();
+        List<Spot> nextSpotsOnMap = new ArrayList<>();
         HashMap<String, TreeSet<SpotMessage>> msgBySpot;
         try {
             msgBySpot = SpotMsgFetcher.get(hours, streamID);
@@ -184,13 +192,18 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
 
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
-        if (!visible)
+        if (!visible || (showOnlyWhenInteractionIsActive && !active)) {
             return;
+        }
 
         Graphics2D g2 = (Graphics2D) g.create();
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         // For each spot paint all the known positions with dots in each position and a path connecting them
         for (Spot spot : spotsOnMap) {
+            if (!spotIDsToShow.isEmpty() && spotIDsToShow.stream().noneMatch(
+                    s -> spotIDsCaseSensitive ? spot.getName().equals(s) : spot.getName().equalsIgnoreCase(s))) {
+                continue;
+            }
             LocationType spotLoc = spot.getLastLocation();
             if (spotLoc == null) {
                 continue;
@@ -243,8 +256,15 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
 
     @Override
     public void propertiesChanged() {
-        SwingUtilities.invokeLater(new Runnable() {
+        spotIDsToShow.clear();
+        if (!spotIDs.isEmpty()) {
+            String[] ids = spotIDs.split(",");
+            for (String id : ids) {
+                spotIDsToShow.add(id.trim());
+            }
+        }
 
+        SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
                 updateFromPage();

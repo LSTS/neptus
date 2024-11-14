@@ -34,14 +34,14 @@ package pt.lsts.neptus.mra;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dialog.ModalityType;
-import java.awt.FlowLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 
 import javax.swing.AbstractAction;
@@ -59,7 +59,9 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListCellRenderer;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 
+import net.miginfocom.swing.MigLayout;
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
@@ -70,6 +72,7 @@ import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.xy.XYSeriesCollection;
 
+import pt.lsts.neptus.gui.InfiniteProgressPanel;
 import pt.lsts.neptus.gui.SelectAllFocusListener;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
@@ -95,11 +98,14 @@ public class MRAChartPanel extends JPanel implements ChartMouseListener {
     private IMraLogGroup source;
     private JTextField timeStepField;
     private JButton selectEntities;
+    private JButton redraw;
+
+    private InfiniteProgressPanel busyPanel;
 
     private JLabel lblX = new JLabel();
     private JLabel lblY = new JLabel();
 
-    JPanel controlPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+    JPanel controlPanel = new JPanel();
     MRAPanel mraPanel;
     double mouseValue;
 
@@ -107,6 +113,12 @@ public class MRAChartPanel extends JPanel implements ChartMouseListener {
         this.mraPanel = panel;
         this.chart = chart;
         this.source = source;
+
+        MigLayout layout = new MigLayout(
+                "fill, insets 10 0 10 0",
+                "[right]"
+        );
+        controlPanel.setLayout(layout);
 
         if (chart.supportsVariableTimeSteps())
             this.timestep = Math.max(chart.getDefaultTimeStep(), timestep);
@@ -145,15 +157,19 @@ public class MRAChartPanel extends JPanel implements ChartMouseListener {
                 }
             });
 
-            controlPanel.add(info);
+            controlPanel.add(info, "split");
         }
 
         if (chart.supportsVariableTimeSteps()) {
-            JButton redraw = new JButton(I18n.text("Redraw"));
+            busyPanel = InfiniteProgressPanel.createInfinitePanelBeans(I18n.text(""), 25);
+            controlPanel.add(busyPanel, "split");
+            busyPanel.setVisible(false);
+
+            redraw = new JButton(I18n.text("Redraw"));
             timeStepField = new JTextField("" + timestep, 4);
             if (MRATimeSeriesPlot.class.isAssignableFrom(chart.getClass())) {
                 selectEntities = new JButton(I18n.text("Series..."));
-                controlPanel.add(selectEntities);
+                controlPanel.add(selectEntities, "split");
                 selectEntities.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent arg0) {
@@ -161,7 +177,7 @@ public class MRAChartPanel extends JPanel implements ChartMouseListener {
                     }
                 });
             }
-            controlPanel.add(new JLabel(I18n.text("Time Step:")));
+            controlPanel.add(new JLabel(I18n.text("Time Step:")), "split");
             controlPanel.add(timeStepField);
             controlPanel.add(redraw);
 
@@ -177,7 +193,20 @@ public class MRAChartPanel extends JPanel implements ChartMouseListener {
                     }
                     if (!(val < 0) && !Double.isNaN(val) && val != timestep) {
                         timestep = val;
-                        regeneratePanel();
+                        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+                            @Override
+                            protected Void doInBackground() throws Exception {
+                                regeneratePanel();
+                                return null;
+                            }
+
+                            @Override
+                            protected void done() {
+                                blockButtonsUI(false);
+                            }
+                        };
+                        blockButtonsUI(true);
+                        worker.execute();
                     }
                     timeStepField.setText(timestep + "");
                 }
@@ -201,69 +230,62 @@ public class MRAChartPanel extends JPanel implements ChartMouseListener {
     protected void selectEntities() {
         boolean allSelected = true;
         MRATimeSeriesPlot chart = (MRATimeSeriesPlot) this.chart;
-        JCheckBox[] checks = new JCheckBox[chart.getSeriesNames().size() + 1];
-        int i = 0;
+        final List<JCheckBox> listModel = new ArrayList<>();
         for (String name : chart.getSeriesNames()) {
-            checks[i] = new JCheckBox(name);
-            checks[i].setOpaque(false);
-            checks[i].setForeground(Color.black);
+            JCheckBox check = new JCheckBox(name);
+            check.setOpaque(false);
+            check.setForeground(Color.black);
             if (chart.getForbiddenSeries().contains(name)) {
-                checks[i].setSelected(false);
+                check.setSelected(false);
                 allSelected = false;
+            } else {
+                check.setSelected(true);
             }
-            else
-                checks[i].setSelected(true);
-            i++;
+            listModel.add(check);
         }
-        i = chart.getSeriesNames().size();
-        checks[i] = new JCheckBox(I18n.text("ALL"));
-        checks[i].setOpaque(false);
-        checks[i].setForeground(Color.black);
-        checks[i].setSelected(allSelected);
+        List<String> seriesPrevState = new ArrayList<>();
+        for (JCheckBox chk : listModel) {
+            if (chk.isSelected())
+                seriesPrevState.add(chk.getText());
+        }
+        JCheckBox checkAll = new JCheckBox(I18n.text("ALL"));
+        checkAll.setOpaque(false);
+        checkAll.setForeground(Color.black);
+        checkAll.setSelected(allSelected);
+        listModel.add(checkAll);
 
-        final JList<?> list = new JList<Object>(checks);
-        list.setCellRenderer(new ListCellRenderer<Object>() {
-
-            @Override
-            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected,
-                    boolean cellHasFocus) {
-                JCheckBox check = (JCheckBox) value;
-
-                return check;
-            }
-
-        });
-        list.addMouseListener(new MouseAdapter() {
+        final JList<JCheckBox> listUI = new JList<>(listModel.toArray(new JCheckBox[0]));
+        listUI.setCellRenderer((ListCellRenderer<Object>) (list1, value, index, isSelected, cellHasFocus) -> (JCheckBox) value);
+        listUI.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                int selectedIndex = list.locationToIndex(e.getPoint());
+                int selectedIndex = listUI.locationToIndex(e.getPoint());
                 if (selectedIndex < 0)
                     return;
 
-                JCheckBox item = (JCheckBox) list.getModel().getElementAt(selectedIndex);
+                JCheckBox item = (JCheckBox) listUI.getModel().getElementAt(selectedIndex);
                 item.setSelected(!item.isSelected());
-                list.setSelectedIndex(selectedIndex);
+                listUI.setSelectedIndex(selectedIndex);
                 if (!item.isSelected()) {
-                    ((JCheckBox) list.getModel().getElementAt(list.getModel().getSize() - 1)).setSelected(false);
+                    ((JCheckBox) listUI.getModel().getElementAt(listUI.getModel().getSize() - 1)).setSelected(false);
                 }
-                if (selectedIndex == list.getModel().getSize() - 1) {
+                if (selectedIndex == listUI.getModel().getSize() - 1) {
                     // select all check..
-                    for (int i = 0; i < list.getModel().getSize(); i++)
-                        ((JCheckBox) list.getModel().getElementAt(i)).setSelected(item.isSelected());
+                    for (int i = 0; i < listUI.getModel().getSize(); i++)
+                        ((JCheckBox) listUI.getModel().getElementAt(i)).setSelected(item.isSelected());
                 }
 
-                list.repaint();
+                listUI.repaint();
             }
         });
         final JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(this));
         dialog.getContentPane().setLayout(new BorderLayout());
         JPanel inner = new JPanel();
-        inner.setBackground(list.getBackground());
+        inner.setBackground(listUI.getBackground());
         inner.setLayout(new BoxLayout(inner, BoxLayout.PAGE_AXIS));
         dialog.getContentPane().add(inner, BorderLayout.CENTER);
-        inner.add(new JScrollPane(list, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
+        inner.add(new JScrollPane(listUI, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
         inner.add(new JLabel());
-        @SuppressWarnings("serial")
         JButton okButton = new JButton(new AbstractAction(I18n.text("OK")) {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -272,17 +294,59 @@ public class MRAChartPanel extends JPanel implements ChartMouseListener {
         });
         GuiUtils.reactEnterKeyPress(okButton);
         dialog.getContentPane().add(okButton, BorderLayout.SOUTH);
-        dialog.setSize(300, 400);
+        dialog.setSize(380, 400);
         dialog.setTitle(I18n.text("Select Entities"));
         dialog.setModalityType(ModalityType.DOCUMENT_MODAL);
         GuiUtils.centerParent(dialog, SwingUtilities.getWindowAncestor(this));
         dialog.setVisible(true);
         chart.getForbiddenSeries().clear();
-        for (int o = 0; o < checks.length - 1; o++) {
-            if (!checks[o].isSelected())
-                chart.getForbiddenSeries().add(checks[o].getText());
+        for (int i = 0; i < listUI.getModel().getSize() - 1; i++) {
+            JCheckBox chk = listUI.getModel().getElementAt(i);
+            if (!chk.isSelected())
+                chart.getForbiddenSeries().add(chk.getText());
         }
-        regeneratePanel();
+
+        boolean unchanged = listModel.stream().allMatch(chk -> {
+            if ("ALL".equalsIgnoreCase(chk.getText())) {
+                return true;
+            }
+            return seriesPrevState.contains(chk.getText()) == chk.isSelected();
+        });
+
+        if (unchanged)
+            return;
+
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                regeneratePanel();
+                return null;
+            }
+
+            @Override
+            protected void done() {
+                blockButtonsUI(false);
+            }
+        };
+        blockButtonsUI(true);
+        worker.execute();
+    }
+
+    private void blockButtonsUI(boolean block) {
+        setBusy(block);
+        if (timeStepField != null)
+            timeStepField.setEnabled(!block);
+        if (selectEntities != null)
+            selectEntities.setEnabled(!block);
+        if (redraw != null)
+            redraw.setEnabled(!block);
+    }
+
+    private void setBusy(boolean busy) {
+        if (busyPanel != null) {
+            busyPanel.setVisible(busy);
+            busyPanel.setBusy(busy);
+        }
     }
 
     public void regeneratePanel() {
@@ -291,6 +355,10 @@ public class MRAChartPanel extends JPanel implements ChartMouseListener {
         JFreeChart c = chart.getChart(source, timestep);
 
         cpanel = new ChartPanel(c);
+
+        cpanel.setMouseWheelEnabled(true);
+        cpanel.getChart().getXYPlot().setDomainPannable(true);
+        cpanel.getChart().getXYPlot().setRangePannable(true);
 
         cpanel.getPopupMenu().add(I18n.text("Add Mark")).addActionListener(new ActionListener() {
             @Override
