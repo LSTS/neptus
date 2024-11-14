@@ -235,7 +235,11 @@ public class MRAChartPanel extends JPanel implements ChartMouseListener {
             }
             listModel.add(check);
         }
-
+        List<String> seriesPrevState = new ArrayList<>();
+        for (JCheckBox chk : listModel) {
+            if (chk.isSelected())
+                seriesPrevState.add(chk.getText());
+        }
         JCheckBox checkAll = new JCheckBox(I18n.text("ALL"));
         checkAll.setOpaque(false);
         checkAll.setForeground(Color.black);
@@ -293,6 +297,17 @@ public class MRAChartPanel extends JPanel implements ChartMouseListener {
             if (!chk.isSelected())
                 chart.getForbiddenSeries().add(chk.getText());
         }
+
+        boolean unchanged = listModel.stream().allMatch(chk -> {
+            if ("ALL".equalsIgnoreCase(chk.getText())) {
+                return true;
+            }
+            return seriesPrevState.contains(chk.getText()) == chk.isSelected();
+        });
+
+        if (unchanged)
+            return;
+
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
             @Override
             protected Void doInBackground() throws Exception {
