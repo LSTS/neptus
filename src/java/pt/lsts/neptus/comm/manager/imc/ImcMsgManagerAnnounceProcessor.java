@@ -312,6 +312,7 @@ public class ImcMsgManagerAnnounceProcessor {
                     loc.setLatitudeDegs(Math.toDegrees(latRad));
                     loc.setLongitudeDegs(Math.toDegrees(lonRad));
                     loc.setHeight(height);
+                    loc.setDepth(-1);
                     long locTime = (long) (info.getTimeSentSec() * 1000);
                     resSys.setLocation(loc, locTime);
                 }
