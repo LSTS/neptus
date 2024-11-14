@@ -40,6 +40,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 
 import javax.swing.AbstractAction;
@@ -220,69 +222,58 @@ public class MRAChartPanel extends JPanel implements ChartMouseListener {
     protected void selectEntities() {
         boolean allSelected = true;
         MRATimeSeriesPlot chart = (MRATimeSeriesPlot) this.chart;
-        JCheckBox[] checks = new JCheckBox[chart.getSeriesNames().size() + 1];
-        int i = 0;
+        final List<JCheckBox> listModel = new ArrayList<>();
         for (String name : chart.getSeriesNames()) {
-            checks[i] = new JCheckBox(name);
-            checks[i].setOpaque(false);
-            checks[i].setForeground(Color.black);
+            JCheckBox check = new JCheckBox(name);
+            check.setOpaque(false);
+            check.setForeground(Color.black);
             if (chart.getForbiddenSeries().contains(name)) {
-                checks[i].setSelected(false);
+                check.setSelected(false);
                 allSelected = false;
+            } else {
+                check.setSelected(true);
             }
-            else
-                checks[i].setSelected(true);
-            i++;
+            listModel.add(check);
         }
-        i = chart.getSeriesNames().size();
-        checks[i] = new JCheckBox(I18n.text("ALL"));
-        checks[i].setOpaque(false);
-        checks[i].setForeground(Color.black);
-        checks[i].setSelected(allSelected);
 
-        final JList<?> list = new JList<Object>(checks);
-        list.setCellRenderer(new ListCellRenderer<Object>() {
+        JCheckBox checkAll = new JCheckBox(I18n.text("ALL"));
+        checkAll.setOpaque(false);
+        checkAll.setForeground(Color.black);
+        checkAll.setSelected(allSelected);
+        listModel.add(checkAll);
 
-            @Override
-            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected,
-                    boolean cellHasFocus) {
-                JCheckBox check = (JCheckBox) value;
-
-                return check;
-            }
-
-        });
-        list.addMouseListener(new MouseAdapter() {
+        final JList<JCheckBox> listUI = new JList<>(listModel.toArray(new JCheckBox[0]));
+        listUI.setCellRenderer((ListCellRenderer<Object>) (list1, value, index, isSelected, cellHasFocus) -> (JCheckBox) value);
+        listUI.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                int selectedIndex = list.locationToIndex(e.getPoint());
+                int selectedIndex = listUI.locationToIndex(e.getPoint());
                 if (selectedIndex < 0)
                     return;
 
-                JCheckBox item = (JCheckBox) list.getModel().getElementAt(selectedIndex);
+                JCheckBox item = (JCheckBox) listUI.getModel().getElementAt(selectedIndex);
                 item.setSelected(!item.isSelected());
-                list.setSelectedIndex(selectedIndex);
+                listUI.setSelectedIndex(selectedIndex);
                 if (!item.isSelected()) {
-                    ((JCheckBox) list.getModel().getElementAt(list.getModel().getSize() - 1)).setSelected(false);
+                    ((JCheckBox) listUI.getModel().getElementAt(listUI.getModel().getSize() - 1)).setSelected(false);
                 }
-                if (selectedIndex == list.getModel().getSize() - 1) {
+                if (selectedIndex == listUI.getModel().getSize() - 1) {
                     // select all check..
-                    for (int i = 0; i < list.getModel().getSize(); i++)
-                        ((JCheckBox) list.getModel().getElementAt(i)).setSelected(item.isSelected());
+                    for (int i = 0; i < listUI.getModel().getSize(); i++)
+                        ((JCheckBox) listUI.getModel().getElementAt(i)).setSelected(item.isSelected());
                 }
 
-                list.repaint();
+                listUI.repaint();
             }
         });
         final JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(this));
         dialog.getContentPane().setLayout(new BorderLayout());
         JPanel inner = new JPanel();
-        inner.setBackground(list.getBackground());
+        inner.setBackground(listUI.getBackground());
         inner.setLayout(new BoxLayout(inner, BoxLayout.PAGE_AXIS));
         dialog.getContentPane().add(inner, BorderLayout.CENTER);
-        inner.add(new JScrollPane(list, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
+        inner.add(new JScrollPane(listUI, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
         inner.add(new JLabel());
-        @SuppressWarnings("serial")
         JButton okButton = new JButton(new AbstractAction(I18n.text("OK")) {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -291,15 +282,16 @@ public class MRAChartPanel extends JPanel implements ChartMouseListener {
         });
         GuiUtils.reactEnterKeyPress(okButton);
         dialog.getContentPane().add(okButton, BorderLayout.SOUTH);
-        dialog.setSize(300, 400);
+        dialog.setSize(380, 400);
         dialog.setTitle(I18n.text("Select Entities"));
         dialog.setModalityType(ModalityType.DOCUMENT_MODAL);
         GuiUtils.centerParent(dialog, SwingUtilities.getWindowAncestor(this));
         dialog.setVisible(true);
         chart.getForbiddenSeries().clear();
-        for (int o = 0; o < checks.length - 1; o++) {
-            if (!checks[o].isSelected())
-                chart.getForbiddenSeries().add(checks[o].getText());
+        for (int i = 0; i < listUI.getModel().getSize() - 1; i++) {
+            JCheckBox chk = listUI.getModel().getElementAt(i);
+            if (!chk.isSelected())
+                chart.getForbiddenSeries().add(chk.getText());
         }
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
             @Override
