@@ -38,6 +38,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 
 import pt.lsts.imc.lsf.LsfIndex;
+import pt.lsts.neptus.mra.api.CorrectedPosition;
 
 /**
  * This interface is used to represent a logical group of log files. For instance, in a mission several log files are produced. 
@@ -85,4 +86,7 @@ public interface IMraLogGroup {
 	public Collection<Integer> getVehicleSources(); 
 	
 	public LsfIndex getLsfIndex();
+
+    public void setCorrectedPosition(CorrectedPosition positions);
+    public CorrectedPosition getCorrectedPosition();
 }
