@@ -72,6 +72,7 @@ import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.xy.XYSeriesCollection;
 
+import pt.lsts.neptus.gui.InfiniteProgressPanel;
 import pt.lsts.neptus.gui.SelectAllFocusListener;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
@@ -97,6 +98,9 @@ public class MRAChartPanel extends JPanel implements ChartMouseListener {
     private IMraLogGroup source;
     private JTextField timeStepField;
     private JButton selectEntities;
+    private JButton redraw;
+
+    private InfiniteProgressPanel busyPanel;
 
     private JLabel lblX = new JLabel();
     private JLabel lblY = new JLabel();
@@ -157,7 +161,11 @@ public class MRAChartPanel extends JPanel implements ChartMouseListener {
         }
 
         if (chart.supportsVariableTimeSteps()) {
-            JButton redraw = new JButton(I18n.text("Redraw"));
+            busyPanel = InfiniteProgressPanel.createInfinitePanelBeans(I18n.text(""), 25);
+            controlPanel.add(busyPanel, "split");
+            busyPanel.setVisible(false);
+
+            redraw = new JButton(I18n.text("Redraw"));
             timeStepField = new JTextField("" + timestep, 4);
             if (MRATimeSeriesPlot.class.isAssignableFrom(chart.getClass())) {
                 selectEntities = new JButton(I18n.text("Series..."));
@@ -194,10 +202,10 @@ public class MRAChartPanel extends JPanel implements ChartMouseListener {
 
                             @Override
                             protected void done() {
-                                redraw.setEnabled(true);
+                                blockButtonsUI(false);
                             }
                         };
-                        redraw.setEnabled(false);
+                        blockButtonsUI(true);
                         worker.execute();
                     }
                     timeStepField.setText(timestep + "");
@@ -317,9 +325,28 @@ public class MRAChartPanel extends JPanel implements ChartMouseListener {
 
             @Override
             protected void done() {
+                blockButtonsUI(false);
             }
         };
+        blockButtonsUI(true);
         worker.execute();
+    }
+
+    private void blockButtonsUI(boolean block) {
+        setBusy(block);
+        if (timeStepField != null)
+            timeStepField.setEnabled(!block);
+        if (selectEntities != null)
+            selectEntities.setEnabled(!block);
+        if (redraw != null)
+            redraw.setEnabled(!block);
+    }
+
+    private void setBusy(boolean busy) {
+        if (busyPanel != null) {
+            busyPanel.setVisible(busy);
+            busyPanel.setBusy(busy);
+        }
     }
 
     public void regeneratePanel() {
