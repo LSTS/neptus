@@ -127,7 +127,7 @@ public class InteractionAdapter extends ConsolePanel implements StateRendererInt
                 int angle = (int) Math.toDegrees(Math.atan2(offsets[1], offsets[0]));
                 if (angle < 0)
                     angle += 360;
-                String angleTxt = String.format("%dº", angle);
+                String angleTxt = String.format("%d°", angle);
                 g.fillArc((int) start.getX() - 30, (int) start.getY() - 30, 60, 60,
                           (int) Math.toDegrees(Math.PI / 2 + source.getRotation()), -angle);
                 
