@@ -40,6 +40,7 @@ import java.io.File;
 import java.lang.reflect.Constructor;
 import java.net.URI;
 import java.text.Collator;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -76,6 +77,7 @@ import pt.lsts.neptus.gui.MissionFileChooser;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.WaitPanel;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mra.api.CorrectedPosition;
 import pt.lsts.neptus.mra.exporters.MRAExporter;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.importers.lsf.ConcatenateLsfLog;
@@ -615,12 +617,25 @@ public class MRAMenuBar {
         
         //Vector<MRAExporter> exporterList = new Vector<>();
 
+        boolean useCP = false;
+        CorrectedPosition positions;
+
         for (Class<? extends MRAExporter> clazz : exporterMap.values()) {
+
+            if (!useCP) {
+                if (Arrays.toString(clazz.getDeclaredFields()).contains("CorrectedPosition")) {
+                    positions = new CorrectedPosition(source);
+                    source.setCorrectedPosition(positions);
+                    useCP = true;
+                }
+            }
+
             Constructor<?>[] constructors = clazz.getConstructors();
             
             boolean added = false;
             
             for (Constructor<?> c : constructors) {
+
                 if (c.getParameterTypes().length == 1 && c.getParameterTypes()[0].equals(IMraLogGroup.class)) {
                     try {
                         exporters.put(PluginUtils.getPluginI18nName(clazz), clazz.getConstructor(IMraLogGroup.class).newInstance(new Object[] { source }));
