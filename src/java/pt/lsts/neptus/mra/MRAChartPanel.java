@@ -41,7 +41,10 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import javax.swing.AbstractAction;
@@ -360,6 +363,8 @@ public class MRAChartPanel extends JPanel implements ChartMouseListener {
         cpanel.getChart().getXYPlot().setDomainPannable(true);
         cpanel.getChart().getXYPlot().setRangePannable(true);
 
+        parseChartTitle(cpanel);
+
         cpanel.getPopupMenu().add(I18n.text("Add Mark")).addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -450,5 +455,42 @@ public class MRAChartPanel extends JPanel implements ChartMouseListener {
 
         lblX.setText(dx + "");
         lblY.setText(dy + "");
+    }
+
+    private void parseChartTitle(ChartPanel cpanel) {
+        String chartTitle = cpanel.getChart().getTitle().getText();
+        String newTitle;
+
+        if (chartTitle.contains("Messages plot")) {
+            MRATimeSeriesPlot chart = (MRATimeSeriesPlot) this.chart;
+            Map<String, List<String>> seriesMap = new HashMap<String, List<String>>();
+            if (chart.getSeriesNames().isEmpty()) {
+                String series = chartTitle.split(" ")[0];
+                series = series.replace("[", "").replace("]", "");
+                String[] seriesVariables = series.split("\\.");
+                String seriesName = seriesVariables[0];
+                String seriesVariable = seriesVariables[1];
+                newTitle = seriesName + " [" + seriesVariable + "] Messages plot";
+                cpanel.getChart().setTitle(newTitle);
+                return;
+            }
+
+            for (String series : chart.getSeriesNames()) {
+                String[] seriesVariables = series.split("\\.");
+                String seriesName = seriesVariables[seriesVariables.length - 2];
+                String seriesVariable = seriesVariables[seriesVariables.length - 1];
+                if (!seriesMap.containsKey(seriesName)) {
+                    seriesMap.put(seriesName, new ArrayList<>());
+                }
+                if (!seriesMap.get(seriesName).contains(seriesVariable)) {
+                    seriesMap.get(seriesName).add(seriesVariable);
+                }
+            }
+
+            newTitle = seriesMap.toString();
+            newTitle = newTitle.substring(1,newTitle.length()-1).replace('=',' ');
+            newTitle += " Messages plot";
+            cpanel.getChart().setTitle(newTitle);
+        }
     }
 }
