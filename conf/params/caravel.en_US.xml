@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2022.04.0 (system/caravel,81d8a8fbf)" system="caravel" i18n="en_US">
+<config format="1" version="2022.04.0 (system/caravel,fcdbd1586)" system="caravel" i18n="en_US">
   <section name="Text Actions" name-i18n="Text Actions">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -2108,6 +2108,102 @@
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
   </section>
+  <section name="Boot Monitor" name-i18n="Boot Monitor">
+    <param name="Entity Label">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Boot Monitor</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Activation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Boot Message Delay">
+      <name-i18n>Boot Message Delay</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Delay, in seconds, before dispatching boot message. Value can not be less than 1s.</desc>
+      <min>1</min>
+    </param>
+    <param name="Boot Message TTL">
+      <name-i18n>Boot Message TTL</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>300</default>
+      <units/>
+      <desc>Boot message time-to-live, in seconds. Value can not be less than 60s.</desc>
+      <min>60</min>
+    </param>
+    <param name="Default SMS Recipient Number">
+      <name-i18n>Default SMS Recipient Number</name-i18n>
+      <type>string</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>Phone number of the SMS recipient</desc>
+    </param>
+    <param name="Task Label for SMS Number">
+      <name-i18n>Task Label for SMS Number</name-i18n>
+      <type>string</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>Monitors.Emergency</default>
+      <units/>
+      <desc>Task Label for SMS Number</desc>
+    </param>
+    <param name="Task Parameter for SMS Number">
+      <name-i18n>Task Parameter for SMS Number</name-i18n>
+      <type>string</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>SMS Recipient Number</default>
+      <units/>
+      <desc>Task Parameter for SMS Number</desc>
+    </param>
+  </section>
   <section name="CPU Scaling" name-i18n="CPU Scaling">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -2328,6 +2424,55 @@
       <default>false</default>
       <units/>
       <desc>Change log file after synchronization</desc>
+    </param>
+  </section>
+  <section name="DUNE Resources Monitor" name-i18n="DUNE Resources Monitor">
+    <param name="Entity Label">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>DUNE Resources Monitor</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Activation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
   </section>
   <section name="Emergency Monitor" name-i18n="Emergency Monitor">
@@ -2848,7 +2993,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>EstimatedState:Navigation Manager, Temperature:CTD, Salinity:CTD, CurrentProfile:ADCP, EstimatedState:Simulated Navigation Manager</default>
+      <default>VerticalProfile:CTD, VerticalProfile:ADCP</default>
       <units/>
       <desc>List of messages &lt;Message&gt;:&lt;Entity&gt; to send using Iridium.</desc>
     </param>
@@ -3708,6 +3853,15 @@
       <units/>
       <desc>Power Channel Entity Label</desc>
     </param>
+    <param name="Power Channel 1 Max Current">
+      <name-i18n>Power Channel 1 Max Current</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5001</default>
+      <units/>
+      <desc>Power Channel Max Current</desc>
+    </param>
     <param name="Power Channel 2 Entity Label">
       <name-i18n>Power Channel 2 Entity Label</name-i18n>
       <type>string</type>
@@ -3716,6 +3870,15 @@
       <default>Private (CPU-AUX)</default>
       <units/>
       <desc>Power Channel Entity Label</desc>
+    </param>
+    <param name="Power Channel 2 Max Current">
+      <name-i18n>Power Channel 2 Max Current</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5002</default>
+      <units/>
+      <desc>Power Channel Max Current</desc>
     </param>
     <param name="Power Channel 3 Entity Label">
       <name-i18n>Power Channel 3 Entity Label</name-i18n>
@@ -3735,6 +3898,15 @@
       <units/>
       <desc>Power Channel State</desc>
     </param>
+    <param name="Power Channel 3 Max Current">
+      <name-i18n>Power Channel 3 Max Current</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5003</default>
+      <units/>
+      <desc>Power Channel Max Current</desc>
+    </param>
     <param name="Power Channel 4 Entity Label">
       <name-i18n>Power Channel 4 Entity Label</name-i18n>
       <type>string</type>
@@ -3752,6 +3924,15 @@
       <default>true</default>
       <units/>
       <desc>Power Channel State</desc>
+    </param>
+    <param name="Power Channel 4 Max Current">
+      <name-i18n>Power Channel 4 Max Current</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5004</default>
+      <units/>
+      <desc>Power Channel Max Current</desc>
     </param>
     <param name="Power Channel 5 Entity Label">
       <name-i18n>Power Channel 5 Entity Label</name-i18n>
@@ -3771,6 +3952,15 @@
       <units/>
       <desc>Power Channel State</desc>
     </param>
+    <param name="Power Channel 5 Max Current">
+      <name-i18n>Power Channel 5 Max Current</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5005</default>
+      <units/>
+      <desc>Power Channel Max Current</desc>
+    </param>
     <param name="Power Channel 6 Entity Label">
       <name-i18n>Power Channel 6 Entity Label</name-i18n>
       <type>string</type>
@@ -3788,6 +3978,15 @@
       <default>true</default>
       <units/>
       <desc>Power Channel State</desc>
+    </param>
+    <param name="Power Channel 6 Max Current">
+      <name-i18n>Power Channel 6 Max Current</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5006</default>
+      <units/>
+      <desc>Power Channel Max Current</desc>
     </param>
     <param name="Power Channel 7 Entity Label">
       <name-i18n>Power Channel 7 Entity Label</name-i18n>
@@ -3807,6 +4006,15 @@
       <units/>
       <desc>Power Channel State</desc>
     </param>
+    <param name="Power Channel 7 Max Current">
+      <name-i18n>Power Channel 7 Max Current</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5007</default>
+      <units/>
+      <desc>Power Channel Max Current</desc>
+    </param>
     <param name="Power Channel 8 Entity Label">
       <name-i18n>Power Channel 8 Entity Label</name-i18n>
       <type>string</type>
@@ -3824,6 +4032,15 @@
       <default>true</default>
       <units/>
       <desc>Power Channel State</desc>
+    </param>
+    <param name="Power Channel 8 Max Current">
+      <name-i18n>Power Channel 8 Max Current</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5008</default>
+      <units/>
+      <desc>Power Channel Max Current</desc>
     </param>
     <param name="Power Channel 9 Entity Label">
       <name-i18n>Power Channel 9 Entity Label</name-i18n>
@@ -3843,6 +4060,15 @@
       <units/>
       <desc>Power Channel State</desc>
     </param>
+    <param name="Power Channel 9 Max Current">
+      <name-i18n>Power Channel 9 Max Current</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5009</default>
+      <units/>
+      <desc>Power Channel Max Current</desc>
+    </param>
     <param name="Power Channel 10 Entity Label">
       <name-i18n>Power Channel 10 Entity Label</name-i18n>
       <type>string</type>
@@ -3860,6 +4086,15 @@
       <default>true</default>
       <units/>
       <desc>Power Channel State</desc>
+    </param>
+    <param name="Power Channel 10 Max Current">
+      <name-i18n>Power Channel 10 Max Current</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5010</default>
+      <units/>
+      <desc>Power Channel Max Current</desc>
     </param>
     <param name="Power Channel 11 Entity Label">
       <name-i18n>Power Channel 11 Entity Label</name-i18n>
@@ -3879,6 +4114,15 @@
       <units/>
       <desc>Power Channel State</desc>
     </param>
+    <param name="Power Channel 11 Max Current">
+      <name-i18n>Power Channel 11 Max Current</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5011</default>
+      <units/>
+      <desc>Power Channel Max Current</desc>
+    </param>
     <param name="Power Channel 12 Entity Label">
       <name-i18n>Power Channel 12 Entity Label</name-i18n>
       <type>string</type>
@@ -3896,6 +4140,15 @@
       <default>true</default>
       <units/>
       <desc>Power Channel State</desc>
+    </param>
+    <param name="Power Channel 12 Max Current">
+      <name-i18n>Power Channel 12 Max Current</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5012</default>
+      <units/>
+      <desc>Power Channel Max Current</desc>
     </param>
     <param name="Power Channel 13 Entity Label">
       <name-i18n>Power Channel 13 Entity Label</name-i18n>
@@ -3915,12 +4168,21 @@
       <units/>
       <desc>Power Channel State</desc>
     </param>
+    <param name="Power Channel 13 Max Current">
+      <name-i18n>Power Channel 13 Max Current</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5013</default>
+      <units/>
+      <desc>Power Channel Max Current</desc>
+    </param>
     <param name="Power Channel 14 Entity Label">
       <name-i18n>Power Channel 14 Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>LED</default>
+      <default>Private (FLED)</default>
       <units/>
       <desc>Power Channel Entity Label</desc>
     </param>
@@ -3932,6 +4194,15 @@
       <default>true</default>
       <units/>
       <desc>Power Channel State</desc>
+    </param>
+    <param name="Power Channel 14 Max Current">
+      <name-i18n>Power Channel 14 Max Current</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5014</default>
+      <units/>
+      <desc>Power Channel Max Current</desc>
     </param>
     <param name="Power Channel 15 Entity Label">
       <name-i18n>Power Channel 15 Entity Label</name-i18n>
@@ -3951,6 +4222,15 @@
       <units/>
       <desc>Power Channel State</desc>
     </param>
+    <param name="Power Channel 15 Max Current">
+      <name-i18n>Power Channel 15 Max Current</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5015</default>
+      <units/>
+      <desc>Power Channel Max Current</desc>
+    </param>
     <param name="Power Channel 16 Entity Label">
       <name-i18n>Power Channel 16 Entity Label</name-i18n>
       <type>string</type>
@@ -3968,6 +4248,15 @@
       <default>false</default>
       <units/>
       <desc>Power Channel State</desc>
+    </param>
+    <param name="Power Channel 16 Max Current">
+      <name-i18n>Power Channel 16 Max Current</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5016</default>
+      <units/>
+      <desc>Power Channel Max Current</desc>
     </param>
     <param name="Power Channel 17 Entity Label">
       <name-i18n>Power Channel 17 Entity Label</name-i18n>
@@ -3987,6 +4276,15 @@
       <units/>
       <desc>Power Channel State</desc>
     </param>
+    <param name="Power Channel 17 Max Current">
+      <name-i18n>Power Channel 17 Max Current</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5017</default>
+      <units/>
+      <desc>Power Channel Max Current</desc>
+    </param>
     <param name="Power Channel 18 Entity Label">
       <name-i18n>Power Channel 18 Entity Label</name-i18n>
       <type>string</type>
@@ -4004,6 +4302,15 @@
       <default>true</default>
       <units/>
       <desc>Power Channel State</desc>
+    </param>
+    <param name="Power Channel 18 Max Current">
+      <name-i18n>Power Channel 18 Max Current</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5018</default>
+      <units/>
+      <desc>Power Channel Max Current</desc>
     </param>
     <param name="Power Data 1 Entity Label">
       <name-i18n>Power Data 1 Entity Label</name-i18n>
@@ -4193,6 +4500,42 @@
       <default>false</default>
       <units/>
       <desc>Set CPC to use NAV and Iridium at Boot.</desc>
+    </param>
+    <param name="Force Water Mode at Boot">
+      <name-i18n>Force Water Mode at Boot</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Force Water Mode at Boot.</desc>
+    </param>
+    <param name="Use Software Fuse">
+      <name-i18n>Use Software Fuse</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>CPC Use Software Fuse.</desc>
+    </param>
+    <param name="Timeout Transmission Request">
+      <name-i18n>Timeout Transmission Request</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>120</default>
+      <units/>
+      <desc>Timeout, in seconds, for TransmissionRequest</desc>
+    </param>
+    <param name="Default SMS Recipient Number">
+      <name-i18n>Default SMS Recipient Number</name-i18n>
+      <type>string</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>Phone number of the SMS recipient</desc>
     </param>
   </section>
   <section name="AIS" name-i18n="AIS">
@@ -4582,7 +4925,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>maneuver</default>
+      <default>global</default>
       <units/>
       <desc>Scoped of the 'Active' parameter</desc>
     </param>
@@ -4591,15 +4934,15 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>user</default>
+      <default>developer</default>
       <units/>
       <desc>Visibility of the 'Active' parameter</desc>
     </param>
     <param name="Active">
       <name-i18n>Active</name-i18n>
       <type>boolean</type>
-      <visibility>user</visibility>
-      <scope>maneuver</scope>
+      <visibility>developer</visibility>
+      <scope>global</scope>
       <default>1</default>
       <units/>
       <desc>True to activate task, false otherwise</desc>
@@ -4695,23 +5038,32 @@
       <units/>
       <desc>Scale factor is used to derive instrument output concentration from the raw signal output of the fluorometer</desc>
     </param>
-    <param name="Sampling Duration">
-      <name-i18n>Sampling Duration</name-i18n>
-      <type>real</type>
+    <param name="Start Acquisition">
+      <name-i18n>Start Acquisition</name-i18n>
+      <type>boolean</type>
       <visibility>user</visibility>
       <scope>maneuver</scope>
-      <default>0.0</default>
+      <default>false</default>
       <units/>
-      <desc>Sampling duration in seconds</desc>
+      <desc>Start Acquisition.</desc>
     </param>
-    <param name="Sampling Period">
-      <name-i18n>Sampling Period</name-i18n>
-      <type>real</type>
+    <param name="Sample Time Duration">
+      <name-i18n>Sample Time Duration</name-i18n>
+      <type>integer</type>
       <visibility>user</visibility>
       <scope>maneuver</scope>
-      <default>0.0</default>
-      <units/>
-      <desc>Sampling period in seconds</desc>
+      <default>60</default>
+      <units>s</units>
+      <desc>Sample Time Duration in seconds.</desc>
+    </param>
+    <param name="Periodicity of Data Sampling">
+      <name-i18n>Periodicity of Data Sampling</name-i18n>
+      <type>integer</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>80</default>
+      <units>s</units>
+      <desc>Periodicity of Data Sampling in seconds.</desc>
     </param>
     <param name="Timeout Transmitting Iridium Message">
       <name-i18n>Timeout Transmitting Iridium Message</name-i18n>
@@ -6405,7 +6757,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>GSM</default>
+      <default>SMS</default>
       <units/>
       <desc>Entity label of GSM modem</desc>
     </param>
@@ -6665,145 +7017,6 @@
       <desc>Maximum amount of seconds to wait for missing fragments in incoming messages</desc>
     </param>
   </section>
-  <section name="GSM" name-i18n="GSM">
-    <param name="Entity Label">
-      <name-i18n>Entity Label</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>GSM</default>
-      <units/>
-      <desc>Main entity label</desc>
-    </param>
-    <param name="Execution Priority">
-      <name-i18n>Execution Priority</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units/>
-      <desc>Execution priority</desc>
-    </param>
-    <param name="Activation Time">
-      <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Deactivation Time">
-      <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Debug Level">
-      <name-i18n>Debug Level</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>None</default>
-      <units/>
-      <desc/>
-      <values>None, Debug, Trace, Spew</values>
-      <values-i18n>None, Debug, Trace, Spew</values-i18n>
-    </param>
-    <param name="Serial Port - Device">
-      <name-i18n>Serial Port - Device</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>/dev/ttyUSB3</default>
-      <units/>
-      <desc>Serial port device used to communicate with the sensor</desc>
-    </param>
-    <param name="Serial Port - Baud Rate">
-      <name-i18n>Serial Port - Baud Rate</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>115200</default>
-      <units/>
-      <desc>Serial port baud rate</desc>
-    </param>
-    <param name="Reply Timeout">
-      <name-i18n>Reply Timeout</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>2.0</default>
-      <units>s</units>
-      <desc>Amount of time to wait for a command reply</desc>
-    </param>
-    <param name="PIN">
-      <name-i18n>PIN</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default/>
-      <units/>
-      <desc>PIN Code</desc>
-    </param>
-    <param name="RSSI Periodicity">
-      <name-i18n>RSSI Periodicity</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units>s</units>
-      <desc>Periodicity of RSSI reports</desc>
-    </param>
-    <param name="Read SMS Periodicity">
-      <name-i18n>Read SMS Periodicity</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units>s</units>
-      <desc>Periodicity of received SMS checks</desc>
-    </param>
-    <param name="SMS Send Timeout">
-      <name-i18n>SMS Send Timeout</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>60</default>
-      <units>s</units>
-      <desc>Maximum amount of time to wait for SMS send completion</desc>
-    </param>
-    <param name="USSD code">
-      <name-i18n>USSD code</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>111</default>
-      <units/>
-      <desc>USSD code</desc>
-    </param>
-    <param name="Request Balance">
-      <name-i18n>Request Balance</name-i18n>
-      <type>boolean</type>
-      <visibility>user</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Enable Balance Request</desc>
-    </param>
-    <param name="Balance Periodicity">
-      <name-i18n>Balance Periodicity</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>60</default>
-      <units/>
-      <desc>Balance Periodicity</desc>
-    </param>
-  </section>
   <section name="HTTP Server" name-i18n="HTTP Server">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -6866,7 +7079,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>5</default>
+      <default>10</default>
       <units/>
       <desc>Number of worker threads</desc>
     </param>
@@ -6875,7 +7088,16 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>CpuUsage, Current, Distance, EntityState, FuelLevel, GpsFix, Heartbeat, PowerChannelState, RSSI, Rpm, StorageUsage, Temperature, Voltage, AirSaturation, Chlorophyll, Conductivity, Pressure, Salinity, Turbidity, WindSpeed</default>
+      <default>Announce, CpuUsage, Current, Distance, EntityState, EntityInfo, FuelLevel, GpsFix, Heartbeat, PowerChannelState, RSSI, Rpm, StorageUsage, Temperature, VehicleState, Voltage, AirSaturation, Chlorophyll, Conductivity, Pressure, Salinity, Turbidity, WindSpeed</default>
+      <units/>
+      <desc>List of messages to transport</desc>
+    </param>
+    <param name="Number Lines From LogBook to send">
+      <name-i18n>Number Lines From LogBook to send</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>500</default>
       <units/>
       <desc>List of messages to transport</desc>
     </param>
@@ -7289,6 +7511,26 @@
       <desc>Window to prioritize Reception over Transmission</desc>
       <min>5</min>
     </param>
+    <param name="Maximum Errors">
+      <name-i18n>Maximum Errors</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>3</default>
+      <units/>
+      <desc>Maximum number of errors to trigger restart</desc>
+      <min>0</min>
+    </param>
+    <param name="Error Reset Period">
+      <name-i18n>Error Reset Period</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>300</default>
+      <units/>
+      <desc>Period to reset error count</desc>
+      <min>60</min>
+    </param>
   </section>
   <section name="Log Book" name-i18n="Log Book">
     <param name="Entity Label">
@@ -7431,6 +7673,145 @@
       <default>Abort, Acceleration, AngularVelocity, Announce, Brake, ClockControl, CompassCalibration, Collision, ControlLoops, ControlParcel, CpuUsage, Current, DataSanity, DesiredControl, DesiredZ, DesiredHeading, DesiredHeadingRate, DesiredPath, DesiredPitch, DesiredSpeed, DesiredVelocity, DevCalibrationControl, DevCalibrationState, DevDataBinary, DevDataText, Distance, EmergencyControl, EmergencyControlState, EntityActivationState, EntityInfo, EntityList, EntityMonitoringState, EntityParameters, EntityState, EstimatedState, EstimatedStreamVelocity, EulerAngles, EulerAnglesDelta, FollowPath, FollowRefState, FuelLevel, Goto, GpsFix, GpsFixRejection, GroundVelocity, Heartbeat, IdleManeuver, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LogBookEntry, Loiter, ManeuverControlState, ManeuverDone, NavigationData, NavigationUncertainty, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, PlanStatistics, PopEntityParameters, PowerChannelControl, PowerChannelState, Pulse, PulseDetectionControl, PushEntityParameters, Rows, QueryEntityParameters, Reference, RemoteActions, RemoteActionsRequest, RemoteState, ReportControl, RSSI, SimAcousticMessage, SaveEntityParameters, SetEntityParameters, SimulatedState, Sms, SmsRequest, SmsStatus, StateReport, StationKeeping, StopManeuver, TCPRequest, TCPStatus, Teleoperation, TeleoperationDone, Temperature, TextMessage, TransmissionRequest, TransmissionStatus, UamRxFrame, UamTxFrame, UamTxStatus, UamRxRange, VehicleCommand, VehicleMedium, VehicleState, VelocityDelta, Voltage, YoYo, AbsoluteWind, AirSaturation, AisInfo, Chlorophyll, Conductivity, CurrentProfile, CurrentProfileCell, Depth, Displacement, DissolvedOrganicMatter, DissolvedOxygen, ENCAwareness, Frequency, MagneticField, Pressure, Rpm, Salinity, ServoPosition, SetServoPosition, SetThrusterActuation, Turbidity, WindSpeed</default>
       <units/>
       <desc/>
+    </param>
+  </section>
+  <section name="SMS" name-i18n="SMS">
+    <param name="Entity Label">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>SMS</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Activation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Serial Port - Device">
+      <name-i18n>Serial Port - Device</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>/dev/ttyUSB3</default>
+      <units/>
+      <desc>Serial port device used to communicate with the sensor</desc>
+    </param>
+    <param name="Serial Port - Baud Rate">
+      <name-i18n>Serial Port - Baud Rate</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>115200</default>
+      <units/>
+      <desc>Serial port baud rate</desc>
+    </param>
+    <param name="Reply Timeout">
+      <name-i18n>Reply Timeout</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>2.0</default>
+      <units>s</units>
+      <desc>Amount of time to wait for a command reply</desc>
+    </param>
+    <param name="PIN">
+      <name-i18n>PIN</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>PIN Code</desc>
+    </param>
+    <param name="RSSI Periodicity">
+      <name-i18n>RSSI Periodicity</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units>s</units>
+      <desc>Periodicity of RSSI reports</desc>
+    </param>
+    <param name="Read SMS Periodicity">
+      <name-i18n>Read SMS Periodicity</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units>s</units>
+      <desc>Periodicity of received SMS checks</desc>
+    </param>
+    <param name="SMS Send Timeout">
+      <name-i18n>SMS Send Timeout</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>60</default>
+      <units>s</units>
+      <desc>Maximum amount of time to wait for SMS send completion</desc>
+    </param>
+    <param name="USSD code">
+      <name-i18n>USSD code</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>111</default>
+      <units/>
+      <desc>USSD code</desc>
+    </param>
+    <param name="Request Balance">
+      <name-i18n>Request Balance</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Enable Balance Request</desc>
+    </param>
+    <param name="Balance Periodicity">
+      <name-i18n>Balance Periodicity</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>60</default>
+      <units/>
+      <desc>Balance Periodicity</desc>
     </param>
   </section>
   <section name="UDP" name-i18n="UDP">
