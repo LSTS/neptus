@@ -832,7 +832,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         return send(destination, message);
     }
 
-    public void sendViaIridium(String destination, IMCMessage message) {
+    public boolean sendViaIridium(String destination, IMCMessage message) {
         if (message.getTimestamp() == 0)
             message.setTimestampMillis(System.currentTimeMillis());
         Collection<ImcIridiumMessage> irMsgs = new ArrayList<ImcIridiumMessage>();
@@ -841,7 +841,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         }
         catch (Exception e) {
             GuiUtils.errorMessage(getConsole(), "Send by Iridium", e.getMessage());
-            return;
+            return false;
         }
         int src = getConsole().getImcMsgManager().getLocalId().intValue();
         int dst = IMCDefinition.getInstance().getResolver().resolve(destination);
@@ -860,10 +860,11 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
 
             getConsole().post(Notification.success("Iridium message sent", count + " Iridium messages were sent using "
                     + IridiumManager.getManager().getCurrentMessenger().getName()));
+            return true;
         }
         catch (Exception e) {
             GuiUtils.errorMessage(getConsole(), "Send by Iridium", e.getMessage());
-            return;
+            return false;
         }
     }
 
