@@ -584,7 +584,7 @@ public class MissionTreePanel extends ConsolePanel
             if (!useTransponderFeatures)
                 return;
 
-            StringBuilder itemsInString = getPlanNamesString(remoteTrans, false);
+            StringBuilder itemsInString = getPlanNamesString(remoteTrans, false); // Check info text, seams wrong, it is a transponder
             popupMenu.add(I18n.textf("Get %planName from %system", itemsInString, console2.getMainSystem()))
                     .addActionListener(new ActionListener() {
                         @Override
