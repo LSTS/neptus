@@ -206,8 +206,16 @@ public class MissionTreePanel extends ConsolePanel
                 PluginUtils.getPluginIcon(getClass())), new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (pdbControl != null)
-                    pdbControl.clearDatabase();
+                if (pdbControl != null) {
+                    SwingWorker<Void, Void> sw = new SwingWorker<Void, Void>() {
+                        @Override
+                        protected Void doInBackground() throws Exception {
+                            pdbControl.clearDatabase();
+                            return null;
+                        }
+                    };
+                    sw.execute();
+                }
             }
         });
     }
@@ -438,22 +446,28 @@ public class MissionTreePanel extends ConsolePanel
                 final ArrayList<NameId> selectedItems, JPopupMenu popupMenu) {
             if (!usePlanDBSyncFeatures)
                 return;
-            
+
             popupMenu.add(
 		    I18n.textf("Send %planName to %system", getPlanNamesString(selectedItems, true), console2.getMainSystem()))
-                    .addActionListener(
-
-                    new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            for (NameId nameId : selectedItems) {
-                                PlanType sel = (PlanType) nameId;
-                                String mainSystem = console2.getMainSystem();
-                                pdbControl.setRemoteSystemId(mainSystem);
-                                pdbControl.sendPlan(sel);
-                            }
-                        }
-                    });
+                    .addActionListener(e -> {
+                                SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+                                    @Override
+                                    protected Void doInBackground() throws Exception {
+                                        for (NameId nameId : selectedItems) {
+                                            PlanType sel = (PlanType) nameId;
+                                            String mainSystem = console2.getMainSystem();
+                                            pdbControl.setRemoteSystemId(mainSystem);
+                                            boolean ret = pdbControl.sendPlan(sel);
+                                            if (!ret) {
+                                                NeptusLog.pub().error("Error sending plan " + sel.getId());
+                                                break;
+                                            }
+                                        }
+                                        return null;
+                                    }
+                                };
+                                worker.execute();
+                            });
         }
 
         private void addActionSendPlanInfoRequest(final ConsoleLayout console2, final PlanDBControl pdbControl,
@@ -463,12 +477,23 @@ public class MissionTreePanel extends ConsolePanel
 
             popupMenu.add(I18n.textf("Get %planName info from %system", getPlanNamesString(selectedItems, true), console2.getMainSystem()))
                     .addActionListener(e -> {
-                                for (NameId nameId : selectedItems) {
-                                    PlanType sel = (PlanType) nameId;
-                                    String mainSystem = console2.getMainSystem();
-                                    pdbControl.setRemoteSystemId(mainSystem);
-                                    pdbControl.requestPlanInfo(sel.getId());
-                                }
+                                SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+                                    @Override
+                                    protected Void doInBackground() throws Exception {
+                                        for (NameId nameId : selectedItems) {
+                                            PlanType sel = (PlanType) nameId;
+                                            String mainSystem = console2.getMainSystem();
+                                            pdbControl.setRemoteSystemId(mainSystem);
+                                            boolean ret = pdbControl.requestPlanInfo(sel.getId());
+                                            if (!ret) {
+                                                NeptusLog.pub().error("Error requesting plan info " + sel.getId());
+                                                break;
+                                            }
+                                        }
+                                        return null;
+                                    }
+                                };
+                                worker.execute();
                             });
         }
 
@@ -535,9 +560,21 @@ public class MissionTreePanel extends ConsolePanel
                     .addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
-                            for (NameId nameId : remotePlans) {
-                                pdbControl.requestPlan(nameId.getIdentification());
-                            }
+                            SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+                                @Override
+                                protected Void doInBackground() throws Exception {
+                                    pdbControl.setRemoteSystemId(console2.getMainSystem());
+                                    for (NameId nameId : remotePlans) {
+                                        boolean ret = pdbControl.requestPlan(nameId.getIdentification());
+                                        if (!ret) {
+                                            NeptusLog.pub().error("Error requesting plan " + nameId.getIdentification());
+                                            break;
+                                        }
+                                    }
+                                    return null;
+                                }
+                            };
+                            worker.execute();
                         }
                     });
         }
@@ -557,7 +594,14 @@ public class MissionTreePanel extends ConsolePanel
                             // Request LBLConfig
                             LblConfig msgLBLConfiguration = new LblConfig();
                             msgLBLConfiguration.setOp(LblConfig.OP.GET_CFG);
-                            sendMsg(msgLBLConfiguration);
+                            SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+                                @Override
+                                protected Void doInBackground() throws Exception {
+                                    sendMsg(msgLBLConfiguration);
+                                    return null;
+                                }
+                            };
+                            worker.execute();
                         }
                     });
         }
@@ -572,10 +616,21 @@ public class MissionTreePanel extends ConsolePanel
                             console2.getMainSystem())).addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    pdbControl.setRemoteSystemId(console2.getMainSystem());
-                    for (NameId nameId : synAndUnsyncPlans) {
-                        pdbControl.deletePlan(nameId.getIdentification());
-                    }
+                    SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+                        @Override
+                        protected Void doInBackground() throws Exception {
+                            pdbControl.setRemoteSystemId(console2.getMainSystem());
+                            for (NameId nameId : synAndUnsyncPlans) {
+                                boolean ret = pdbControl.deletePlan(nameId.getIdentification());
+                                if (!ret) {
+                                    NeptusLog.pub().error("Error deleting plan " + nameId.getIdentification());
+                                    break;
+                                }
+                            }
+                            return null;
+                        }
+                    };
+                    worker.execute();
                 }
             });
         }
@@ -807,15 +862,22 @@ public class MissionTreePanel extends ConsolePanel
             popupMenu.add(I18n.text("Remove all transponders from vehicle")).addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    LblConfig msgLBLConfiguration = new LblConfig();
-                    msgLBLConfiguration.setOp(LblConfig.OP.SET_CFG);
-                    msgLBLConfiguration.setBeacons(new Vector<LblBeacon>());
-                    sendMsg(msgLBLConfiguration);
-                    msgLBLConfiguration = new LblConfig();
-                    msgLBLConfiguration.setOp(LblConfig.OP.GET_CFG);
-                    sendMsg(msgLBLConfiguration);
-                    // TODO On hold until removing all beacons is stable
-                    // browser.removeAllTransponders(console.getMission());
+                    SwingWorker<Void, Void> sw = new SwingWorker<Void, Void>() {
+                        @Override
+                        protected Void doInBackground() throws Exception {
+                            LblConfig msgLBLConfiguration = new LblConfig();
+                            msgLBLConfiguration.setOp(LblConfig.OP.SET_CFG);
+                            msgLBLConfiguration.setBeacons(new Vector<LblBeacon>());
+                            sendMsg(msgLBLConfiguration);
+                            msgLBLConfiguration = new LblConfig();
+                            msgLBLConfiguration.setOp(LblConfig.OP.GET_CFG);
+                            sendMsg(msgLBLConfiguration);
+                            // TODO On hold until removing all beacons is stable
+                            // browser.removeAllTransponders(console.getMission());
+                            return null;
+                        }
+                    };
+                    sw.execute();
                 }
             });
         }
