@@ -462,20 +462,14 @@ public class MRAChartPanel extends JPanel implements ChartMouseListener {
         String newTitle;
 
         if (chartTitle.contains("Messages plot")) {
-            MRATimeSeriesPlot chart = (MRATimeSeriesPlot) this.chart;
             Map<String, List<String>> seriesMap = new HashMap<String, List<String>>();
-            if (chart.getSeriesNames().isEmpty()) {
-                String series = chartTitle.split(" ")[0];
-                series = series.replace("[", "").replace("]", "");
-                String[] seriesVariables = series.split("\\.");
-                String seriesName = seriesVariables[0];
-                String seriesVariable = seriesVariables[1];
-                newTitle = seriesName + " [" + seriesVariable + "] Messages plot";
-                cpanel.getChart().setTitle(newTitle);
-                return;
-            }
 
-            for (String series : chart.getSeriesNames()) {
+            String seriesStr = chartTitle;
+            seriesStr = seriesStr.substring(seriesStr.indexOf("[") + 1);
+            seriesStr = seriesStr.substring(0, seriesStr.indexOf("]"));
+            List<String> seriesList = new ArrayList<String>(Arrays.asList(seriesStr.split(", ")));
+
+            for (String series : seriesList) {
                 String[] seriesVariables = series.split("\\.");
                 String seriesName = seriesVariables[seriesVariables.length - 2];
                 String seriesVariable = seriesVariables[seriesVariables.length - 1];
