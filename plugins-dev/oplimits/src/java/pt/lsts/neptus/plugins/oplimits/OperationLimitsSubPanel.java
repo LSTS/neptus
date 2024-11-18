@@ -69,6 +69,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.SwingWorker;
 import javax.swing.border.EmptyBorder;
 
 import com.google.common.eventbus.Subscribe;
@@ -251,10 +252,17 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
 
                 synchronized (OperationLimitsSubPanel.this) {
                     lastMD5 = msg.payloadMD5();
-                    boolean ret = send(msg);
-                    if (ret) {
-                        send(new GetOperationalLimits());
-                    }
+                    SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
+                        @Override
+                        protected Boolean doInBackground() throws Exception {
+                            boolean ret = send(msg);
+                            if (ret) {
+                                send(new GetOperationalLimits());
+                            }
+                            return ret;
+                        }
+                    };
+                    worker.execute();
                 }
             }
         };
@@ -273,7 +281,13 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
                     updateAction.putValue(AbstractAction.SMALL_ICON, ICON_UPDATE_REQUEST);
                 }
                 updateAction.putValue(AbstractAction.SHORT_DESCRIPTION, TEXT_REQUEST_RESPONSE_WAITING);
-                send(IMCDefinition.getInstance().create("GetOperationalLimits"));
+                SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
+                    @Override
+                    protected Boolean doInBackground() throws Exception {
+                        return send(IMCDefinition.getInstance().create("GetOperationalLimits"));
+                    }
+                };
+                worker.execute();
             }
         };
 
@@ -365,8 +379,7 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
                 if (userAproveRequest) {
                     lastRequest = new Date();
                 }
-                sendViaIridium(destination, message);
-                return true;
+                return sendViaIridium(destination, message);
             } else {
                 return false;
             }
