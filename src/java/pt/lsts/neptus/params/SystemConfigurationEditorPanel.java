@@ -42,6 +42,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -316,7 +317,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
     
     private synchronized void refreshPropertiesOnPanel() {
         titleLabel.setText("<html><b>" + createTitle() + "</b></html>");
-        removeAllPropertiesFromPanel();
+        List<String> openCategories = removeAllPropertiesFromPanel();
         
         resetPropertiesEditorAndRendererFactories();
         
@@ -347,7 +348,16 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         for (String sectionName : secNames) {
             queryValues(sectionName, scopeToUse.getText(), visibility.getText());
         }
-        
+
+        for (int i = 0; i < psp.getTable().getSheetModel().getRowCount(); i++) {
+            Item o = (Item) psp.getTable().getSheetModel().getObject(i);
+            if (o.isVisible() && !o.hasToggle()) {
+                if (!openCategories.contains(o.getParent().getName())) {
+                    o.getParent().toggle();
+                }
+            }
+        }
+
         revalidate();
         repaint();
     }
@@ -359,11 +369,24 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         psp.repaint();
     }
 
-    private void removeAllPropertiesFromPanel() {
+    private List<String> removeAllPropertiesFromPanel() {
+        List<String> toggledCategories = new ArrayList<>();
+        for (int i = 0; i < psp.getTable().getSheetModel().getRowCount(); i++) {
+            Item o = (Item) psp.getTable().getSheetModel().getObject(i);
+            if (o.isVisible() && !o.hasToggle()) {
+                String name = o.getParent().getName();
+                if (!toggledCategories.contains(name)) {
+                    toggledCategories.add(name);
+                }
+            }
+        }
+
         params.clear();
         for (Property p : psp.getProperties()) {
             psp.removeProperty(p);
         }
+
+        return toggledCategories;
     }
 
     private String createTitle() {
