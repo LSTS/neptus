@@ -95,7 +95,8 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
     private JButton refreshButton;
     private JButton resetButton;
     private JButton collapseButton;
-    
+    private JButton expandButton;
+
     private JLabel titleLabel;
     private JCheckBox checkAdvance;
     private JComboBox<Scope> scopeComboBox;
@@ -222,8 +223,25 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
             }
         });
         collapseButton.setToolTipText(I18n.text("Collapse all sections."));
-        add(collapseButton, "sg buttons, split");
+        add(collapseButton, "sg buttons");
 
+        expandButton = new JButton(new AbstractAction(I18n.text("Expand All")) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                for (int i = 0; i < psp.getTable().getSheetModel().getRowCount(); i++) {
+                    Item o = (Item) psp.getTable().getSheetModel().getObject(i);
+                    if (!o.isVisible()) {
+                        if (o.hasToggle() && !o.isVisible()) {
+                            o.toggle();
+                        } else if (!o.hasToggle() && o.getParent() != null && !o.getParent().isVisible()) {
+                            o.getParent().toggle();
+                        }
+                    }
+                }
+            }
+        });
+        expandButton.setToolTipText(I18n.text("Expand all sections."));
+        add(expandButton, "sg buttons, split");
         
         resetButton = new JButton(new AbstractAction(I18n.text("Reset")) {
             @Override
