@@ -79,8 +79,8 @@ public class TileOpenPtMap extends TileHttpFetcher {
     @Override
     protected String createTileRequestURL() {
         // zoom/x/y
-        // http://c.tile.openstreetmap.org/14/7801/6129.png
-        String urlGet = "http://www.openptmap.org/tiles/" + levelOfDetail + "/" + tileX + "/" + tileY + ".png";
+        // https://pt.facilmap.org/tile/14/7801/6129.png
+        String urlGet = "https://pt.facilmap.org/tile/" + levelOfDetail + "/" + tileX + "/" + tileY + ".png";
         return urlGet;
     }
     
