@@ -201,7 +201,8 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
     private static Map<String, MapPainterProvider> mapPainterHolderList = Collections.synchronizedMap(new LinkedHashMap<String, MapPainterProvider>());
     private static Map<String, Map<String, Tile>> tileHolderList = Collections.synchronizedMap(new LinkedHashMap<String, Map<String, Tile>>());
     private static Map<String, Class<? extends Tile>> tileClassList = Collections.synchronizedMap(new LinkedHashMap<String, Class<? extends Tile>>());
-    
+    private static List<String> isExperimentalHolderList = Collections.synchronizedList(new ArrayList<>());
+
     private static List<String> mapsOrderedForPainting = Collections.synchronizedList(new ArrayList<String>());
     
     static {
@@ -213,6 +214,9 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
         mapLayerPrioriryHolderList.put(mapId, TileMercatorSVG.class.getAnnotation(MapTileProvider.class).layerPriority());
         tileHolderList.put(mapId, TileMercatorSVG.getTilesMap());
         tileClassList.put(mapId, TileMercatorSVG.class);
+        if (TileMercatorSVG.class.getAnnotation(MapTileProvider.class).isExperimental()) {
+            isExperimentalHolderList.add(mapId);
+        }
 
         mapId = TileOpenStreetMap.class.getAnnotation(MapTileProvider.class).name();
         mapActiveHolderList.put(mapId, false); //TileOpenStreetMap.getTileStyleID()
@@ -220,6 +224,9 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
         mapLayerPrioriryHolderList.put(mapId, TileMercatorSVG.class.getAnnotation(MapTileProvider.class).layerPriority());
         tileHolderList.put(mapId, TileOpenStreetMap.getTilesMap());
         tileClassList.put(mapId, TileOpenStreetMap.class);
+        if (TileOpenStreetMap.class.getAnnotation(MapTileProvider.class).isExperimental()) {
+            isExperimentalHolderList.add(mapId);
+        }
 
         Vector<Class<? extends MapTileProvider>> lst = new Vector<Class<? extends MapTileProvider>>();
         for (Class<? extends MapTileProvider> clazz : PluginsRepository.getTileProviders().values()) {
@@ -265,6 +272,9 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
                         mapLayerPrioriryHolderList.put(id, clazz.getAnnotation(MapTileProvider.class).layerPriority());
                         tileHolderList.put(id, map);
                         tileClassList.put(id, cz);
+                        if (clazz.getAnnotation(MapTileProvider.class).isExperimental()) {
+                            isExperimentalHolderList.add(id);
+                        }
                     }
                     catch (ClassCastException e) {
                         e.printStackTrace();
@@ -279,6 +289,9 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
                         mapBaseOrLayerHolderList.put(id, clazz.getAnnotation(MapTileProvider.class).isBaseMapOrLayer());
                         mapLayerPrioriryHolderList.put(id, clazz.getAnnotation(MapTileProvider.class).layerPriority());
                         mapPainterHolderList.put(id, instance);
+                        if (clazz.getAnnotation(MapTileProvider.class).isExperimental()) {
+                            isExperimentalHolderList.add(id);
+                        }
                     }
                     catch (ClassCastException e1) {
                         e1.printStackTrace();
@@ -1172,10 +1185,14 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
             }
             
             final JToggleButton rButton;
+            String mapText = ms;
+            if (isExperimentalHolderList.contains(ms)) {
+                mapText += " (" + I18n.text("experimental") + ")";
+            }
             if (mapBaseOrLayerHolderList.containsKey(ms) && mapBaseOrLayerHolderList.get(ms))
-                rButton = new JRadioButton(ms.toString());
+                rButton = new JRadioButton(mapText);
             else
-                rButton = new JCheckBox(ms.toString());
+                rButton = new JCheckBox(mapText);
             rButton.setActionCommand(ms);
             if (mapActiveHolderList.containsKey(ms) && mapActiveHolderList.get(ms))
                 rButton.setSelected(true);
