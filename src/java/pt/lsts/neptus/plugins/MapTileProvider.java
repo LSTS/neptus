@@ -124,4 +124,9 @@ public @interface MapTileProvider {
      * layer maps, not base maps.
      */
     public short layerPriority() default 0;
+
+    /**
+     * @return if the map provider is experimental or not.
+     */
+    public boolean isExperimental() default false;
 }

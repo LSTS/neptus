@@ -82,7 +82,7 @@ public class TileOpenSeaMap extends TileHttpFetcher {
         // http://c.tile.openstreetmap.org/14/7801/6129.png
         // http://tiles.openseamap.org/seamark/15/17485/10492.png
         String urlGet = "http://www.openptmap.org/tiles/" + levelOfDetail + "/" + tileX + "/" + tileY + ".png";
-        urlGet = "http://tiles.openseamap.org/seamark/" + levelOfDetail + "/" + tileX + "/" + tileY + ".png";
+        urlGet = "https://tiles.openseamap.org/seamark/" + levelOfDetail + "/" + tileX + "/" + tileY + ".png";
         return urlGet;
     }
     

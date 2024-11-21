@@ -47,7 +47,7 @@ import pt.lsts.neptus.plugins.NeptusProperty;
  * @author pdias
  *
  */
-@MapTileProvider(name = "NV Map Overlay", isBaseMapOrLayer = true)
+@MapTileProvider(name = "NV Map Overlay", isBaseMapOrLayer = true, isExperimental = true)
 public class TileNVMaps extends TileHttpFetcher implements ConfigurationListener {
     
     //TODO put copyright text to show in renderer "© NVMap contributors"
