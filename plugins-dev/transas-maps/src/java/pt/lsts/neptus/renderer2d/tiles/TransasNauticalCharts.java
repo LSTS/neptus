@@ -46,7 +46,7 @@ import pt.lsts.neptus.plugins.NeptusProperty;
  * @author pdias
  *
  */
-@MapTileProvider(name = "Transas Nautical Charts", isBaseMapOrLayer = false)
+@MapTileProvider(name = "Transas Nautical Charts", isBaseMapOrLayer = false, isExperimental = true)
 public class TransasNauticalCharts extends TileHttpFetcher implements ConfigurationListener {
 
     private static final long serialVersionUID = -6223894220961990645L;
@@ -56,14 +56,13 @@ public class TransasNauticalCharts extends TileHttpFetcher implements Configurat
     private static Map<String, TransasNauticalCharts> tilesMap = Collections.synchronizedMap(new HashMap<String, TransasNauticalCharts>());
 
     private static final int MAX_LEVEL_OF_DETAIL = 18;
-    private static String BASE_URL = "http://wms.transas.com/TMS/1.0.0/TX97-transp/";
-    private static String TOKEN = "9e53bcb2-01d0-46cb-8aff-512e681185a4";
+    private static String BASE_URL = "https://wms.transas.com/TMS/1.0.0/TX97-transp/";
 
     @NeptusProperty(name = "Base URL", description = "The first URL part")
     private static String baseUrl = BASE_URL;
 
     @NeptusProperty(name = "Token", description = "Transas token key")
-    private static String token = TOKEN;
+    private static String token = "";
 
     public TransasNauticalCharts(Integer levelOfDetail, Integer tileX, Integer tileY, BufferedImage image)
             throws Exception {
@@ -88,7 +87,7 @@ public class TransasNauticalCharts extends TileHttpFetcher implements Configurat
         if (baseUrl.length() == 0)
             baseUrl = BASE_URL;
         if (token.length() == 0)
-            token = TOKEN;
+            token = "";
     }
 
     public static int getMaxLevelOfDetail() {
@@ -113,12 +112,14 @@ public class TransasNauticalCharts extends TileHttpFetcher implements Configurat
         if (baseUrl.length() == 0)
             baseUrl = BASE_URL;
         if (token.length() == 0)
-            token = TOKEN;
+            token = "";
 
-        if (levelOfDetail > 17)
+        if (token.isEmpty() || levelOfDetail > 17) {
             return "http://non-existing-url.nope/";
-        int max = (int)  Math.pow(2, levelOfDetail)-1;
-        
+        }
+        int max = (int)  Math.pow(2, levelOfDetail) - 1;
+
+        // https://wms.transas.com/TMS/1.0.0/TX97-transp/14/7801/10254.png?token=9e53bcb2-01d0-46cb-8aff-512e681185a4
         String urlGet = baseUrl + levelOfDetail + "/" + tileX + "/" + (max-tileY) + ".png?token="+token;
         return urlGet;
     }
