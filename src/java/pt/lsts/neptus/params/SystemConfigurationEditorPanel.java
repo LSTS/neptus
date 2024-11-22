@@ -32,28 +32,43 @@
  */
 package pt.lsts.neptus.params;
 
+import java.awt.CardLayout;
 import java.awt.Component;
+import java.awt.Dialog;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.KeyStroke;
 import javax.swing.ListCellRenderer;
+import javax.swing.SwingUtilities;
+import javax.swing.WindowConstants;
 
 import com.l2fprod.common.propertysheet.Property;
 import com.l2fprod.common.propertysheet.PropertyEditorRegistry;
@@ -87,9 +102,15 @@ import pt.lsts.neptus.util.conf.GeneralPreferences;
 @SuppressWarnings("serial")
 public class SystemConfigurationEditorPanel extends JPanel implements PropertyChangeListener {
 
+    public static final String CARD_PROPERTIES = "properties";
+    public static final String CARD_CATEGORIES = "categories";
     protected final LinkedHashMap<String, SystemProperty> params = new LinkedHashMap<>();
 
+    private static boolean isAskForCategories = false;
+
     protected PropertySheetPanel psp;
+    private JPanel categoriesPanel;
+    private JPanel swapPropertiesAndCategoriesPanel;
     private JButton sendButton;
     private JButton saveButton;
     private JButton refreshButton;
@@ -99,6 +120,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
 
     private JLabel titleLabel;
     private JCheckBox checkAdvance;
+    private JCheckBox checkSelection;
     private JComboBox<Scope> scopeComboBox;
     
     protected boolean refreshing = false;
@@ -177,8 +199,14 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         psp.setToolBarVisible(false);
         
         resetPropertiesEditorAndRendererFactories();
-        
-        add(psp, "w 100%, h 100%, wrap");
+
+        categoriesPanel = new JPanel(new MigLayout("fill, insets 0"));
+
+        swapPropertiesAndCategoriesPanel = new JPanel(new CardLayout());
+        swapPropertiesAndCategoriesPanel.add(psp, CARD_PROPERTIES);
+        //swapPropertiesAndCategoriesPanel.add(categoriesPanel, CARD_CATEGORIES);
+
+        add(swapPropertiesAndCategoriesPanel, "w 100%, h 100%, wrap");
         
         sendButton = new JButton(new AbstractAction(I18n.text("Send")) {
             @Override
@@ -194,7 +222,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         refreshButton = new JButton(new AbstractAction(I18n.text("Refresh")) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                refreshPropertiesOnPanel();
+                refreshPropertiesOnPanel(true);
             }
         });
         refreshButton.setToolTipText(I18n.text("Requests the entities sections parameters from the vehicle."));
@@ -260,10 +288,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         checkAdvance = new JCheckBox(I18n.text("Access Developer Parameters"));
         checkAdvance.setToolTipText("<html>" + I18n.textc("Be careful changing these values.<br>They may make the vehicle inoperable.",
                 "This will be a tooltip, and use <br> to change line."));
-//        if (ConfigFetch.getDistributionType() == DistributionEnum.DEVELOPER)
-            add(checkAdvance);
-//        else
-//            visibility = Visibility.USER;
+        add(checkAdvance, "split, sg checkboxes");
         if (visibility == Visibility.DEVELOPER)
             checkAdvance.setSelected(true);
         else
@@ -276,15 +301,45 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
                 else
                     visibility = Visibility.USER;
                 
-                refreshPropertiesOnPanel();
+                // FIXME This might not make sense to not always ask for categories
+                refreshPropertiesOnPanel(true);
             }
         });
         checkAdvance.setFocusable(false);
 
-        refreshPropertiesOnPanel();
+        checkSelection = new JCheckBox(I18n.text("Ask for categories"));
+        checkSelection.setToolTipText("<html>" + I18n.textc("Ask for categories before send.",
+                "This will be a tooltip, and use <br> to change line."));
+        checkSelection.addItemListener(e -> {
+            isAskForCategories = checkSelection.isSelected();
+            updateSendButtons();
+        });
+        checkSelection.setSelected(isAskForCategories);
+        checkSelection.setFocusable(false);
+        add(checkSelection, "sg checkboxes");
+
+        refreshPropertiesOnPanel(false);
         
         revalidate();
         repaint();
+    }
+
+    private void updateSendButtons() {
+        List<Action> actions = new ArrayList<>();
+        actions.add(sendButton.getAction());
+        actions.add(refreshButton.getAction());
+        actions.add(saveButton.getAction());
+
+        String suffix = " #";
+        for (Action action : actions) {
+            String name = (String) action.getValue("Name");
+            if (!isAskForCategories && name.endsWith(suffix)) {
+                name = name.substring(0, name.length() - 2);
+            } else if (isAskForCategories && !name.endsWith(suffix)) {
+                name += suffix;
+            }
+            action.putValue("Name", name);
+        }
     }
 
     private void resetPropertiesEditorAndRendererFactories() {
@@ -316,7 +371,8 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
     public void setSystemId(String systemId) {
         this.systemId = systemId;
         sid = ImcSystemsHolder.getSystemWithName(this.systemId);
-        refreshPropertiesOnPanel();
+        // FIXME This might not make sense to not always ask for categories
+        refreshPropertiesOnPanel(true);
     }
 
     /**
@@ -333,7 +389,10 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         this.refreshing = refreshing;
     }
     
-    private synchronized void refreshPropertiesOnPanel() {
+    private synchronized void refreshPropertiesOnPanel(boolean askForCategories) {
+        // FIXME
+        Map<String, String> oldCategoriesOnPanel = getCategoriesOnPanel(true);
+
         titleLabel.setText("<html><b>" + createTitle() + "</b></html>");
         List<String> openCategories = removeAllPropertiesFromPanel();
         
@@ -363,10 +422,8 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
                 sp.propertyChange(evt);
             }
         }
-        for (String sectionName : secNames) {
-            queryValues(sectionName, scopeToUse.getText(), visibility.getText());
-        }
 
+        // Close all categories
         for (int i = 0; i < psp.getTable().getSheetModel().getRowCount(); i++) {
             Item o = (Item) psp.getTable().getSheetModel().getObject(i);
             if (o.isVisible() && !o.hasToggle()) {
@@ -374,6 +431,28 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
                     o.getParent().toggle();
                 }
             }
+        }
+
+        List<String> queryCategoriesList;
+        if (askForCategories && isAskForCategories) {
+            List<String> validCategories;
+            try {
+                validCategories = askForCategories(oldCategoriesOnPanel).get();
+            }
+            catch (Exception e) {
+                // Do nothing
+                validCategories = Collections.emptyList();
+            }
+            queryCategoriesList = new ArrayList<>();
+            for (String category : validCategories) {
+                if (category != null && validCategories.contains(category))
+                    queryCategoriesList.add(category);
+            }
+        } else {
+            queryCategoriesList = secNames;
+        }
+        for (String sectionName : queryCategoriesList) {
+            queryValues(sectionName, scopeToUse.getText(), visibility.getText());
         }
 
         revalidate();
@@ -484,14 +563,139 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         }
     }
 
+    private Map<String, String> getCategoriesOnPanel(boolean onlyVisible) {
+        Map<String, String> categories = new LinkedHashMap<>();
+        for (SystemProperty sp : params.values()) {
+            String category = sp.getCategoryId();
+            if (!categories.containsKey(category))
+                categories.put(category, sp.getCategory());
+        }
+
+        if (onlyVisible) {
+            List<String> visibleCategoriesI18n = new ArrayList<>();
+            for (int i = 0; i < psp.getTable().getSheetModel().getRowCount(); i++) {
+                Item o = (Item) psp.getTable().getSheetModel().getObject(i);
+                if (o.hasToggle()) { // Is a category
+                    if (!visibleCategoriesI18n.contains(o.getName())) {
+                        visibleCategoriesI18n.add(o.getName()); //I18n name
+                    }
+                } else if (!o.hasToggle() && o.getParent() != null) {
+                    if (!visibleCategoriesI18n.contains(o.getParent().getName())) {
+                        visibleCategoriesI18n.add(o.getParent().getName()); //I18n name
+                    }
+                }
+            }
+
+            categories = categories.entrySet().stream().filter(e -> visibleCategoriesI18n.contains(e.getValue()))
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        }
+
+        return categories;
+    }
+
+    private Future<List<String>>  askForCategories() {
+        return askForCategories(null);
+    }
+
+    private Future<List<String>> askForCategories(Map<String, String> previousCheckCategoriesOnPanel) {
+        CompletableFuture<List<String>> future = new CompletableFuture<>();
+        Map<String, String> categories = getCategoriesOnPanel(true);
+        List<String> chosenCategories = new ArrayList<>(categories.keySet());
+        List<JCheckBox> checkBoxes = new ArrayList<>();
+        for (String category : chosenCategories.stream().sorted().collect(Collectors.toList())) {
+            JCheckBox cb = new JCheckBox(categories.get(category));
+            cb.addActionListener(e -> {
+                if (((JCheckBox) e.getSource()).isSelected()) {
+                    if (!chosenCategories.contains(category))
+                        chosenCategories.add(category);
+                } else {
+                    chosenCategories.remove(category);
+                }
+            });
+            cb.doClick(); // To set ticked;
+            if (previousCheckCategoriesOnPanel != null && !previousCheckCategoriesOnPanel.containsKey(category)) {
+                cb.setSelected(true);
+            }
+            checkBoxes.add(cb);
+        }
+        categoriesPanel.removeAll();
+        categoriesPanel.setLayout(new MigLayout("align center, fill, insets 50"));
+
+        JPanel checklistPanels = new JPanel(new MigLayout("fillx, wrap 2", "[left]rel[grow,fill]", "[]10[]"));
+        JScrollPane scrollPane = new JScrollPane(checklistPanels);
+        categoriesPanel.add(scrollPane, "spanx, grow, wrap");
+        for (JCheckBox cb : checkBoxes) {
+            checklistPanels.add(cb, "");
+        }
+
+        JPanel selButtonsPanel = new JPanel(new MigLayout("alignx leading", "[center]rel[]", "[]10[]"));
+        JButton selectAllButton = new JButton(I18n.text("Sel All"));
+        JButton selectNoneButton = new JButton(I18n.text("Sel None"));
+        selButtonsPanel.add(selectAllButton, "sg selection, center");
+        selButtonsPanel.add(selectNoneButton, "sg selection");
+        categoriesPanel.add(selButtonsPanel, "wrap");
+        selectAllButton.addActionListener(e -> {
+            checkBoxes.forEach(cb -> {
+                if (!cb.isSelected()) {
+                    cb.doClick();
+                }
+            });
+        });
+        selectNoneButton.addActionListener(e -> {
+            checkBoxes.forEach(cb -> {
+                if (cb.isSelected()) {
+                    cb.doClick();
+                }
+            });
+        });
+
+        JPanel okButtonsPanel = new JPanel(new MigLayout("alignx trailing", "[]rel[right]", "[]10[]"));
+        JButton okButton = new JButton(I18n.text("Ok"));
+        JButton cancelButton = new JButton(I18n.text("Cancel"));
+        okButtonsPanel.add(okButton, "gapbefore, sg okcancel, right, tag ok");
+        okButtonsPanel.add(cancelButton, "sg okcancel, right, tag cancel");
+        categoriesPanel.add(okButtonsPanel, "");
+        okButton.addActionListener(e -> {
+            future.complete(new ArrayList<>(chosenCategories));
+            SwingUtilities.getWindowAncestor(categoriesPanel).dispose();
+        });
+        cancelButton.addActionListener(e -> {
+            future.completeExceptionally(new RuntimeException("User cancelled"));
+            SwingUtilities.getWindowAncestor(categoriesPanel).dispose();
+        });
+
+        JDialog dg = new JDialog(SwingUtilities.getWindowAncestor(SystemConfigurationEditorPanel.this),
+                Dialog.ModalityType.DOCUMENT_MODAL);
+        dg.setContentPane(categoriesPanel);
+        dg.setSize(500, 500);
+        dg.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        dg.getRootPane().registerKeyboardAction(ev -> { dg.dispose(); },
+                KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
+        GuiUtils.centerParent(dg, (Window) dg.getParent());
+        dg.setVisible(true);
+
+        //return new ArrayList<>(categories.keySet());
+        return future;
+    }
+
     /**
      * This will send to the system the necessary SetEntityParameters messages with SystemProperty message(s)
      * that are needed. It will only send the SystemProperty messages that are locally dirty.
      */
     private void sendPropertiesToSystem() {
+        List<String> validCategories = null;
+        try {
+            validCategories = askForCategories().get();
+        }
+        catch (Exception e) {
+            return;
+        }
+
         Set<SystemProperty> sentProps = new LinkedHashSet<SystemProperty>();
         ArrayList<SystemProperty> sysPropToSend = new ArrayList<>();
         for (SystemProperty sp : params.values()) {
+            if (!validCategories.contains(sp.getCategoryId()))
+                continue; // Skip if not in the list of valid categories
             if (sp.getTimeDirty() > sp.getTimeSync()) {
                 // sendProperty(sp);
                 sysPropToSend.add(sp);
@@ -514,11 +718,20 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
     }
 
     private void savePropertiesToSystem() {
+        List<String> validCategories = null;
+        try {
+            validCategories = askForCategories().get();
+        }
+        catch (Exception e) {
+            return;
+        }
         Collection<SystemProperty> propsInPanel = params.values();
-        if (propsInPanel.size() > 0) {
+        if (!propsInPanel.isEmpty()) {
             ArrayList<String> secNames = new ArrayList<>();
             for (SystemProperty sp : propsInPanel) {
                 String sectionName = sp.getCategoryId();
+                if (!validCategories.contains(sectionName))
+                    continue; // Skip if not in the list of valid categories
                 if (!secNames.contains(sectionName))
                     secNames.add(sectionName);
             }        
@@ -611,7 +824,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         final SystemConfigurationEditorPanel sc1 = new SystemConfigurationEditorPanel(vehicle, Scope.MANEUVER,
                 Visibility.USER, true, true, true, ImcMsgManager.getManager());
         final SystemConfigurationEditorPanel sc2 = new SystemConfigurationEditorPanel(vehicle, Scope.MANEUVER,
-                Visibility.USER, true, true, true, ImcMsgManager.getManager());
+                Visibility.USER, true, false, true, ImcMsgManager.getManager());
         
 //        ImcMsgManager.getManager().addListener(new MessageListener<MessageInfo, IMCMessage>() {
 //            @Override
