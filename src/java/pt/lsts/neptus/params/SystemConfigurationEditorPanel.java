@@ -330,7 +330,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         actions.add(refreshButton.getAction());
         actions.add(saveButton.getAction());
 
-        String suffix = " #";
+        String suffix = " >";
         for (Action action : actions) {
             String name = (String) action.getValue("Name");
             if (!isAskForCategories && name.endsWith(suffix)) {
@@ -437,7 +437,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         if (askForCategories && isAskForCategories) {
             List<String> validCategories;
             try {
-                validCategories = askForCategories(oldCategoriesOnPanel).get();
+                validCategories = askForCategories("refresh", oldCategoriesOnPanel).get();
             }
             catch (Exception e) {
                 // Do nothing
@@ -593,11 +593,11 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         return categories;
     }
 
-    private Future<List<String>>  askForCategories() {
-        return askForCategories(null);
+    private Future<List<String>>  askForCategories(String forWhat) {
+        return askForCategories(forWhat, null);
     }
 
-    private Future<List<String>> askForCategories(Map<String, String> previousCheckCategoriesOnPanel) {
+    private Future<List<String>> askForCategories(String forWhat, Map<String, String> previousCheckCategoriesOnPanel) {
         CompletableFuture<List<String>> future = new CompletableFuture<>();
         Map<String, String> categories = getCategoriesOnPanel(true);
         List<String> chosenCategories = new ArrayList<>(categories.keySet());
@@ -612,49 +612,57 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
                     chosenCategories.remove(category);
                 }
             });
-            cb.doClick(); // To set ticked;
+            cb.setSelected(true); // To set ticked;
             if (previousCheckCategoriesOnPanel != null && !previousCheckCategoriesOnPanel.containsKey(category)) {
                 cb.setSelected(true);
             }
+            // if selected add to checkCategories
+            if (!chosenCategories.contains(category))
+                chosenCategories.add(category);
             checkBoxes.add(cb);
         }
         categoriesPanel.removeAll();
-        categoriesPanel.setLayout(new MigLayout("align center, fill, insets 50"));
+        categoriesPanel.setLayout(new MigLayout("align center, fill, insets 20"));
+
+        JLabel systemLabel = new JLabel(I18n.textf("%systemName Categories", getSystemId()));
+        systemLabel.setFont(systemLabel.getFont().deriveFont(systemLabel.getFont().getStyle() | java.awt.Font.BOLD));
+        JLabel label = new JLabel(I18n.textf("Select the categories to be used for >> %action", forWhat));
+        categoriesPanel.add(systemLabel, "wrap");
+        categoriesPanel.add(label, "wrap");
 
         JPanel checklistPanels = new JPanel(new MigLayout("fillx, wrap 2", "[left]rel[grow,fill]", "[]10[]"));
         JScrollPane scrollPane = new JScrollPane(checklistPanels);
-        categoriesPanel.add(scrollPane, "spanx, grow, wrap");
+        categoriesPanel.add(scrollPane, "w 100%, h 100%, wrap");
         for (JCheckBox cb : checkBoxes) {
             checklistPanels.add(cb, "");
         }
 
-        JPanel selButtonsPanel = new JPanel(new MigLayout("alignx leading", "[center]rel[]", "[]10[]"));
         JButton selectAllButton = new JButton(I18n.text("Sel All"));
         JButton selectNoneButton = new JButton(I18n.text("Sel None"));
-        selButtonsPanel.add(selectAllButton, "sg selection, center");
-        selButtonsPanel.add(selectNoneButton, "sg selection");
-        categoriesPanel.add(selButtonsPanel, "wrap");
+        categoriesPanel.add(selectAllButton, "sg buttons, split");
+        categoriesPanel.add(selectNoneButton, "sg buttons, split, gapafter 30");
         selectAllButton.addActionListener(e -> {
             checkBoxes.forEach(cb -> {
                 if (!cb.isSelected()) {
-                    cb.doClick();
+                    String categoryLabel = cb.getText();
+                    String category = categories.entrySet().stream()
+                            .filter(ee -> ee.getValue().equals(categoryLabel))
+                            .map(Map.Entry::getKey).findFirst().orElse(null);
+                    if (!chosenCategories.contains(cb.getText()))
+                        chosenCategories.add(category);
+                    cb.setSelected(true);
                 }
             });
         });
         selectNoneButton.addActionListener(e -> {
-            checkBoxes.forEach(cb -> {
-                if (cb.isSelected()) {
-                    cb.doClick();
-                }
-            });
+            chosenCategories.clear();
+            checkBoxes.forEach(cb -> cb.setSelected(false));
         });
 
-        JPanel okButtonsPanel = new JPanel(new MigLayout("alignx trailing", "[]rel[right]", "[]10[]"));
         JButton okButton = new JButton(I18n.text("Ok"));
         JButton cancelButton = new JButton(I18n.text("Cancel"));
-        okButtonsPanel.add(okButton, "gapbefore, sg okcancel, right, tag ok");
-        okButtonsPanel.add(cancelButton, "sg okcancel, right, tag cancel");
-        categoriesPanel.add(okButtonsPanel, "");
+        categoriesPanel.add(okButton, "gapbefore push, sg buttons, split");
+        categoriesPanel.add(cancelButton, "sg buttons, split");
         okButton.addActionListener(e -> {
             future.complete(new ArrayList<>(chosenCategories));
             SwingUtilities.getWindowAncestor(categoriesPanel).dispose();
@@ -685,7 +693,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
     private void sendPropertiesToSystem() {
         List<String> validCategories = null;
         try {
-            validCategories = askForCategories().get();
+            validCategories = askForCategories("send").get();
         }
         catch (Exception e) {
             return;
@@ -720,7 +728,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
     private void savePropertiesToSystem() {
         List<String> validCategories = null;
         try {
-            validCategories = askForCategories().get();
+            validCategories = askForCategories("save").get();
         }
         catch (Exception e) {
             return;
