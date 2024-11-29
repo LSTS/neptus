@@ -34,12 +34,9 @@ package pt.lsts.neptus.params;
 
 import java.awt.CardLayout;
 import java.awt.Component;
-import java.awt.Dialog;
-import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -59,16 +56,12 @@ import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.KeyStroke;
 import javax.swing.ListCellRenderer;
-import javax.swing.SwingUtilities;
-import javax.swing.WindowConstants;
+import javax.swing.SwingWorker;
 
 import com.l2fprod.common.propertysheet.Property;
 import com.l2fprod.common.propertysheet.PropertyEditorRegistry;
@@ -76,8 +69,8 @@ import com.l2fprod.common.propertysheet.PropertyRendererRegistry;
 import com.l2fprod.common.propertysheet.PropertySheet;
 import com.l2fprod.common.propertysheet.PropertySheetPanel;
 import com.l2fprod.common.propertysheet.PropertySheetTableModel.Item;
-
 import net.miginfocom.swing.MigLayout;
+
 import pt.lsts.imc.EntityParameter;
 import pt.lsts.imc.EntityParameters;
 import pt.lsts.imc.IMCMessage;
@@ -85,10 +78,12 @@ import pt.lsts.imc.QueryEntityParameters;
 import pt.lsts.imc.SaveEntityParameters;
 import pt.lsts.imc.SetEntityParameters;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.comm.manager.imc.MessageDeliveryListener;
+import pt.lsts.neptus.gui.InfiniteProgressPanel;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.params.SystemProperty.Scope;
 import pt.lsts.neptus.params.SystemProperty.Visibility;
@@ -104,13 +99,19 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
 
     public static final String CARD_PROPERTIES = "properties";
     public static final String CARD_CATEGORIES = "categories";
+    public static final String CARD_PROGRESS = "progress";
+
     protected final LinkedHashMap<String, SystemProperty> params = new LinkedHashMap<>();
 
     private static boolean isAskForCategories = false;
 
-    protected PropertySheetPanel psp;
-    private JPanel categoriesPanel;
     private JPanel swapPropertiesAndCategoriesPanel;
+    private JPanel mainPanel;
+    private JPanel categoriesPanel;
+
+    private JPanel propertiesPanel;
+    private InfiniteProgressPanel progressPanel;
+    protected PropertySheetPanel psp;
     private JButton sendButton;
     private JButton saveButton;
     private JButton refreshButton;
@@ -148,6 +149,8 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
     
     private void initialize(boolean showSendButton, boolean showScopeCombo, boolean showResetButton) {
         setLayout(new MigLayout());
+
+        mainPanel = new JPanel(new MigLayout("fill, insets 0"));
 
         scopeComboBox = new JComboBox<Scope>(Scope.values()) {
             public void setSelectedItem(Object anObject) {
@@ -188,7 +191,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         });
         
         titleLabel = new JLabel("<html><b>" + createTitle() + "</b></html>");
-        add(titleLabel, "w 100%, wrap"); 
+        mainPanel.add(titleLabel, "w 100%, wrap");
 
         // Configure Property sheet
         psp = new PropertySheetPanel();
@@ -200,43 +203,73 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         
         resetPropertiesEditorAndRendererFactories();
 
+        propertiesPanel = new JPanel(new CardLayout());
+        propertiesPanel.add(psp, CARD_PROPERTIES);
+        progressPanel = new InfiniteProgressPanel(I18n.text("Please wait..."));
+        propertiesPanel.add(progressPanel, CARD_PROGRESS);
+
+        mainPanel.add(propertiesPanel, "w 100%, h 100%, wrap");
+
         categoriesPanel = new JPanel(new MigLayout("fill, insets 0"));
 
         swapPropertiesAndCategoriesPanel = new JPanel(new CardLayout());
-        swapPropertiesAndCategoriesPanel.add(psp, CARD_PROPERTIES);
-        //swapPropertiesAndCategoriesPanel.add(categoriesPanel, CARD_CATEGORIES);
+        //swapPropertiesAndCategoriesPanel.add(psp, CARD_PROPERTIES);
+        swapPropertiesAndCategoriesPanel.add(mainPanel, CARD_PROPERTIES);
+        swapPropertiesAndCategoriesPanel.add(categoriesPanel, CARD_CATEGORIES);
 
-        add(swapPropertiesAndCategoriesPanel, "w 100%, h 100%, wrap");
+        //add(swapPropertiesAndCategoriesPanel, "w 100%, h 100%, wrap");
+        add(swapPropertiesAndCategoriesPanel, "w 100%, h 100%");
         
         sendButton = new JButton(new AbstractAction(I18n.text("Send")) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                sendPropertiesToSystem();
+                SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+                    @Override
+                    protected Void doInBackground() throws Exception {
+                        sendPropertiesToSystem();
+                        return null;
+                    }
+                };
+                worker.execute();
             }
         });
         sendButton.setToolTipText(I18n.text("Send the modified properties."));
         if (showSendButton) {
-            add(sendButton, "sg buttons, split");
+            mainPanel.add(sendButton, "sg buttons, split");
         }
 
         refreshButton = new JButton(new AbstractAction(I18n.text("Refresh")) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                refreshPropertiesOnPanel(true);
+                SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+                    @Override
+                    protected Void doInBackground() throws Exception {
+                        refreshPropertiesOnPanel(true);
+                        return null;
+                    }
+                };
+                worker.execute();
             }
         });
         refreshButton.setToolTipText(I18n.text("Requests the entities sections parameters from the vehicle."));
-        add(refreshButton, "sg buttons, split");
+        mainPanel.add(refreshButton, "sg buttons, split");
 
         saveButton = new JButton(new AbstractAction(I18n.text("Save")) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                savePropertiesToSystem();
+                SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+                    @Override
+                    protected Void doInBackground() throws Exception {
+                        savePropertiesToSystem();
+                        return null;
+                    }
+                };
+                worker.execute();
             }
         });
         saveButton.setToolTipText(I18n.text("Saves the visible entities sections in the vehicle."));
         if (showSendButton) {
-            add(saveButton, "sg buttons, split");
+            mainPanel.add(saveButton, "sg buttons, split");
         }
 
         collapseButton = new JButton(new AbstractAction(I18n.text("Collapse All")) {
@@ -251,7 +284,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
             }
         });
         collapseButton.setToolTipText(I18n.text("Collapse all sections."));
-        add(collapseButton, "sg buttons");
+        mainPanel.add(collapseButton, "sg buttons, gapbefore unrel");
 
         expandButton = new JButton(new AbstractAction(I18n.text("Expand All")) {
             @Override
@@ -269,7 +302,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
             }
         });
         expandButton.setToolTipText(I18n.text("Expand all sections."));
-        add(expandButton, "sg buttons, split");
+        mainPanel.add(expandButton, "sg buttons, split");
         
         resetButton = new JButton(new AbstractAction(I18n.text("Reset")) {
             @Override
@@ -279,16 +312,16 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         });
         resetButton.setToolTipText(I18n.text("Local reset. Needs to be sent to system."));
         if (showResetButton)
-            add(resetButton, "sg buttons, gapbefore 30, split, wrap");
+            mainPanel.add(resetButton, "sg buttons, gapbefore 30, split, wrap");
         resetButton.setToolTipText(I18n.text("Local reset. Needs to be sent to system."));
                     
         if (showScopeCombo)
-            add(scopeComboBox, "split, w :160:");
+            mainPanel.add(scopeComboBox, "split, w :160:");
 
         checkAdvance = new JCheckBox(I18n.text("Access Developer Parameters"));
         checkAdvance.setToolTipText("<html>" + I18n.textc("Be careful changing these values.<br>They may make the vehicle inoperable.",
                 "This will be a tooltip, and use <br> to change line."));
-        add(checkAdvance, "split, sg checkboxes");
+        mainPanel.add(checkAdvance, "split, sg checkboxes");
         if (visibility == Visibility.DEVELOPER)
             checkAdvance.setSelected(true);
         else
@@ -302,7 +335,14 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
                     visibility = Visibility.USER;
                 
                 // FIXME This might not make sense to not always ask for categories
-                refreshPropertiesOnPanel(true);
+                SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+                    @Override
+                    protected Void doInBackground() throws Exception {
+                        refreshPropertiesOnPanel(false);
+                        return null;
+                    }
+                };
+                worker.execute();
             }
         });
         checkAdvance.setFocusable(false);
@@ -316,8 +356,9 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         });
         checkSelection.setSelected(isAskForCategories);
         checkSelection.setFocusable(false);
-        add(checkSelection, "sg checkboxes");
+        mainPanel.add(checkSelection, "sg checkboxes");
 
+        // FIXME This might not make sense to not always ask for categories if no wifi
         refreshPropertiesOnPanel(false);
         
         revalidate();
@@ -390,73 +431,88 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
     }
     
     private synchronized void refreshPropertiesOnPanel(boolean askForCategories) {
-        // FIXME
-        Map<String, String> oldCategoriesOnPanel = getCategoriesOnPanel(true);
+        try {
+            showWaiterUpdateProperties(true);
 
-        titleLabel.setText("<html><b>" + createTitle() + "</b></html>");
-        List<String> openCategories = removeAllPropertiesFromPanel();
-        
-        resetPropertiesEditorAndRendererFactories();
-        
-        ArrayList<SystemProperty> pr = ConfigurationManager.getInstance().getProperties(systemId, visibility, scopeToUse);
-        ArrayList<String> secNames = new ArrayList<>();
-        for (SystemProperty sp : pr) {
-            String sectionName = sp.getCategoryId();
-            String name = sp.getName();
-            if (!secNames.contains(sectionName))
-                secNames.add(sectionName);
-            params.put(sectionName + "." + name, sp);
-            sp.addPropertyChangeListener(this);
-            psp.addProperty(sp);
-            if (sp.getEditor() != null) {
-                per.registerEditor(sp, sp.getEditor());
-            }
-            if (sp.getRenderer() != null) {
-                prr.registerRenderer(sp, sp.getRenderer());
-            }
-        }
-        // Let us make sure all dependencies between properties are ok
-        for (SystemProperty spCh : params.values()) {
-            for (SystemProperty sp : params.values()) {
-                PropertyChangeEvent evt = new PropertyChangeEvent(spCh, spCh.getName(), null, spCh.getValue());
-                sp.propertyChange(evt);
-            }
-        }
+            // FIXME
+            Map<String, String> oldCategoriesOnPanel = getCategoriesOnPanel(true);
 
-        // Close all categories
-        for (int i = 0; i < psp.getTable().getSheetModel().getRowCount(); i++) {
-            Item o = (Item) psp.getTable().getSheetModel().getObject(i);
-            if (o.isVisible() && !o.hasToggle()) {
-                if (!openCategories.contains(o.getParent().getName())) {
-                    o.getParent().toggle();
+            titleLabel.setText("<html><b>" + createTitle() + "</b></html>");
+            List<String> openCategories = removeAllPropertiesFromPanel();
+
+            resetPropertiesEditorAndRendererFactories();
+
+            ArrayList<SystemProperty> pr = ConfigurationManager.getInstance().getProperties(systemId, visibility, scopeToUse);
+            ArrayList<String> secNames = new ArrayList<>();
+            for (SystemProperty sp : pr) {
+                String sectionName = sp.getCategoryId();
+                String name = sp.getName();
+                if (!secNames.contains(sectionName))
+                    secNames.add(sectionName);
+                params.put(sectionName + "." + name, sp);
+                sp.addPropertyChangeListener(this);
+                psp.addProperty(sp);
+                if (sp.getEditor() != null) {
+                    per.registerEditor(sp, sp.getEditor());
+                }
+                if (sp.getRenderer() != null) {
+                    prr.registerRenderer(sp, sp.getRenderer());
                 }
             }
-        }
+            // Let us make sure all dependencies between properties are ok
+            for (SystemProperty spCh : params.values()) {
+                for (SystemProperty sp : params.values()) {
+                    PropertyChangeEvent evt = new PropertyChangeEvent(spCh, spCh.getName(), null, spCh.getValue());
+                    sp.propertyChange(evt);
+                }
+            }
 
-        List<String> queryCategoriesList;
-        if (askForCategories && isAskForCategories) {
-            List<String> validCategories;
-            try {
-                validCategories = askForCategories("refresh", oldCategoriesOnPanel).get();
+            // Close all categories
+            for (int i = 0; i < psp.getTable().getSheetModel().getRowCount(); i++) {
+                Item o = (Item) psp.getTable().getSheetModel().getObject(i);
+                if (o.isVisible() && !o.hasToggle()) {
+                    if (!openCategories.contains(o.getParent().getName())) {
+                        o.getParent().toggle();
+                    }
+                }
             }
-            catch (Exception e) {
-                // Do nothing
-                validCategories = Collections.emptyList();
-            }
-            queryCategoriesList = new ArrayList<>();
-            for (String category : validCategories) {
-                if (category != null && validCategories.contains(category))
-                    queryCategoriesList.add(category);
-            }
-        } else {
-            queryCategoriesList = secNames;
-        }
-        for (String sectionName : queryCategoriesList) {
-            queryValues(sectionName, scopeToUse.getText(), visibility.getText());
-        }
 
-        revalidate();
-        repaint();
+            List<String> queryCategoriesList;
+            if (askForCategories && isAskForCategories) {
+                List<String> validCategories;
+                try {
+                    validCategories = askForCategories("refresh", oldCategoriesOnPanel).get();
+                }
+                catch (Exception e) {
+                    // Do nothing
+                    validCategories = Collections.emptyList();
+                }
+                queryCategoriesList = new ArrayList<>();
+                for (String category : validCategories) {
+                    if (category != null && validCategories.contains(category))
+                        queryCategoriesList.add(category);
+                }
+            } else {
+                queryCategoriesList = secNames;
+            }
+
+            showWaiterUpdateProperties(false);
+            revalidate();
+            repaint();
+
+            for (String sectionName : queryCategoriesList) {
+                boolean ret = queryValues(sectionName, scopeToUse.getText(), visibility.getText());
+                if (!ret)
+                    break;
+            }
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error(e);
+        } finally {
+            showWaiterUpdateProperties(false);
+            revalidate();
+            repaint();
+        }
     }
 
     private synchronized void resetPropertiesOnPanel() {
@@ -486,6 +542,11 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         return toggledCategories;
     }
 
+    private void showWaiterUpdateProperties(boolean wait) {
+        ((CardLayout) propertiesPanel.getLayout()).show(propertiesPanel, wait ? CARD_PROGRESS : CARD_PROPERTIES);
+        progressPanel.setBusy(wait);
+    }
+
     private String createTitle() {
         return I18n.textf("%systemName Parameters", getSystemId() == null ? "" : getSystemId());
     }
@@ -507,22 +568,22 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         }
     }
     
-    private void queryValues(String entityName, String scope, String visibility) {
+    private boolean queryValues(String entityName, String scope, String visibility) {
         QueryEntityParameters qep = new QueryEntityParameters();
         qep.setScope(scope);
         qep.setVisibility(visibility);
         qep.setName(entityName);
-        send(qep);
+        return send(qep);
     }
 
-    private void saveRequest(String entityName) {
+    private boolean saveRequest(String entityName) {
         SaveEntityParameters qep = new SaveEntityParameters();
         qep.setName(entityName);
-        send(qep);
+        return send(qep);
     }
 
     private void sendProperty(SystemProperty... propsList) {
-        Map<String, ArrayList<EntityParameter>> mapCategoryParameterList = new LinkedHashMap<String, ArrayList<EntityParameter>>(); 
+        Map<String, ArrayList<EntityParameter>> mapCategoryParameterList = new LinkedHashMap<String, ArrayList<EntityParameter>>();
         for (SystemProperty prop : propsList) {
             if (prop.getValue() == null)
                 continue;
@@ -559,7 +620,8 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         }
 
         for (SetEntityParameters setEntityParameters : msgs) {
-            send(setEntityParameters);
+            if (!send(setEntityParameters))
+                break;
         }
     }
 
@@ -622,9 +684,10 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
             checkBoxes.add(cb);
         }
         categoriesPanel.removeAll();
-        categoriesPanel.setLayout(new MigLayout("align center, fill, insets 20"));
+        // categoriesPanel.setLayout(new MigLayout("align center, fill, insets 0"));
 
-        JLabel systemLabel = new JLabel(I18n.textf("%systemName Categories", getSystemId()));
+        JLabel systemLabel = new JLabel("<html><b>" + createTitle() + "</b></html>");
+
         systemLabel.setFont(systemLabel.getFont().deriveFont(systemLabel.getFont().getStyle() | java.awt.Font.BOLD));
         JLabel label = new JLabel(I18n.textf("Select the categories to be used for >> %action", forWhat));
         categoriesPanel.add(systemLabel, "wrap");
@@ -665,24 +728,27 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         categoriesPanel.add(cancelButton, "sg buttons, split");
         okButton.addActionListener(e -> {
             future.complete(new ArrayList<>(chosenCategories));
-            SwingUtilities.getWindowAncestor(categoriesPanel).dispose();
+            // SwingUtilities.getWindowAncestor(categoriesPanel).dispose();
+            CardLayout card = (CardLayout) swapPropertiesAndCategoriesPanel.getLayout();
+            card.show(swapPropertiesAndCategoriesPanel, CARD_PROPERTIES);
+            revalidate();
+            repaint();
         });
         cancelButton.addActionListener(e -> {
             future.completeExceptionally(new RuntimeException("User cancelled"));
-            SwingUtilities.getWindowAncestor(categoriesPanel).dispose();
+            // SwingUtilities.getWindowAncestor(categoriesPanel).dispose();
+            CardLayout card = (CardLayout) swapPropertiesAndCategoriesPanel.getLayout();
+            card.show(swapPropertiesAndCategoriesPanel, CARD_PROPERTIES);
+            revalidate();
+            repaint();
         });
+        GuiUtils.reactEnterKeyPress(okButton);
+        GuiUtils.reactEscapeKeyPress(cancelButton);
 
-        JDialog dg = new JDialog(SwingUtilities.getWindowAncestor(SystemConfigurationEditorPanel.this),
-                Dialog.ModalityType.DOCUMENT_MODAL);
-        dg.setContentPane(categoriesPanel);
-        dg.setSize(500, 500);
-        dg.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-        dg.getRootPane().registerKeyboardAction(ev -> { dg.dispose(); },
-                KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
-        GuiUtils.centerParent(dg, (Window) dg.getParent());
-        dg.setVisible(true);
-
-        //return new ArrayList<>(categories.keySet());
+        CardLayout card = (CardLayout) swapPropertiesAndCategoriesPanel.getLayout();
+        card.show(swapPropertiesAndCategoriesPanel, CARD_CATEGORIES);
+        revalidate();
+        repaint();
         return future;
     }
 
@@ -720,7 +786,8 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
                     secNames.add(sectionName);
             }        
             for (String sec : secNames) {
-                queryValues(sec, scopeToUse.getText(), visibility.getText());
+                if (!queryValues(sec, scopeToUse.getText(), visibility.getText()))
+                    break;
             }
         }
     }
@@ -742,18 +809,24 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
                     continue; // Skip if not in the list of valid categories
                 if (!secNames.contains(sectionName))
                     secNames.add(sectionName);
-            }        
-            for (String sec : secNames) {
-                queryValues(sec, scopeToUse.getText(), visibility.getText());
             }
-            
+            boolean ret = true;
             for (String sec : secNames) {
-                saveRequest(sec);
+                ret = queryValues(sec, scopeToUse.getText(), visibility.getText());
+                if (!ret)
+                    break;
+            }
+
+            if (ret) {
+                for (String sec : secNames) {
+                    if (!saveRequest(sec))
+                        break;
+                }
             }
         }
     }
 
-    private void send(IMCMessage msg) {
+    private boolean send(IMCMessage msg) { //}, boolean askApprovalOtherThanWifi) {
         MessageDeliveryListener mdl = new MessageDeliveryListener() {
             @Override
             public void deliveryUnreacheable(IMCMessage message) {
@@ -777,12 +850,17 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         };
         if (sid == null)
             sid = ImcSystemsHolder.getSystemWithName(getSystemId());
-        if (sid != null) {
-            imcMsgManager.sendReliablyNonBlocking(msg, sid.getId(), mdl);
-        }
-        else {
-            imcMsgManager.sendMessageToSystem(msg, getSystemId());
-        }
+        boolean sendReliably = sid != null;
+        String system = sid != null ? sid.getName() : systemId;
+//        if (sid != null) {
+//            imcMsgManager.sendReliablyNonBlocking(msg, sid.getId(), mdl);
+//        }
+//        else {
+//            imcMsgManager.sendMessageToSystem(msg, getSystemId());
+//        }
+        return IMCSendMessageUtils.sendMessage(msg, (sendReliably ? ImcMsgManager.TRANSPORT_TCP
+                        : null), mdl, this, I18n.text("Error sending msg params"),
+                false, "", true, true, true, system);
     }
     
     public static void updatePropertyWithMessageArrived(SystemConfigurationEditorPanel systemConfEditor, IMCMessage message) {
