@@ -133,7 +133,7 @@ public class IridiumManager {
                 Collection<IridiumMessage> msgs = getCurrentMessenger().pollMessages(lastTime);
                 NeptusLog.pub().info("Polled {} messages from Iridium network.",
                         msgs.size());
-		if (!msgs.isEmpty()) {
+                if (!msgs.isEmpty()) {
                     speakUpdateEntityState();
                 }
                 for (IridiumMessage m : msgs) {
