@@ -246,10 +246,10 @@ public class GeneralPreferences implements PropertiesProvider {
     @NeptusProperty(name = "Iridium Messenger", category="Iridium Communications", userLevel = LEVEL.REGULAR,
         description = "Iridium messaging implementation")
     public static IridiumMessengerEnum iridiumMessenger = IridiumMessengerEnum.HubIridiumMessenger;
-    @NeptusProperty(name = "Iridium Messenger Pool Messages", category="Iridium Communications", userLevel = LEVEL.REGULAR,
-            description = "Iridium messaging pool messages in minutes. Valid values between 0.17 (~10s) and 30. Doesn't need restart to apply",
+    @NeptusProperty(name = "Iridium Messenger Poll Messages", category="Iridium Communications", userLevel = LEVEL.REGULAR,
+            description = "Iridium messaging poll messages in minutes. Valid values between 0.17 (~10s) and 30. Doesn't need restart to apply",
             units = "minutes")
-    public static double iridiumMessengerPoolMinutes = 5;
+    public static double iridiumMessengerPollMinutes = 5;
 
     // -------------------------------------------------------------------------
     
