@@ -1190,7 +1190,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         timeoutMillis = timeoutMillis < 0 ? CommsAdmin.COMM_TIMEOUT_MILLIS : timeoutMillis;
 
         Future<SendResult> ret = commsAdmin.sendMessage(message, destinationName, timeoutMillis,
-                parentComponentForAlert, requireUserConfirmOtherThanWifi);
+                parentComponentForAlert, requireUserConfirmOtherThanWifi, channelsToSend);
         return ret;
     }
 
