@@ -211,11 +211,9 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         categoriesPanel = new JPanel(new MigLayout("fill, insets 0"));
 
         swapPropertiesAndCategoriesPanel = new JPanel(new CardLayout());
-        //swapPropertiesAndCategoriesPanel.add(psp, CARD_PROPERTIES);
         swapPropertiesAndCategoriesPanel.add(mainPanel, CARD_PROPERTIES);
         swapPropertiesAndCategoriesPanel.add(categoriesPanel, CARD_CATEGORIES);
 
-        //add(swapPropertiesAndCategoriesPanel, "w 100%, h 100%, wrap");
         add(swapPropertiesAndCategoriesPanel, "w 100%, h 100%");
         
         sendButton = new JButton(new AbstractAction(I18n.text("Send")) {
