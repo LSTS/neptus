@@ -181,13 +181,10 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
             @Override
             public void itemStateChanged(ItemEvent e) {
                 scopeToUse = (Scope) e.getItem();
-                new Thread() {
-                    @Override
-                    public void run() {
-                        if (refreshButton != null)
-                            refreshButton.doClick(50);
-                    }
-                }.start();
+                new Thread(() -> {
+                    if (refreshButton != null)
+                        refreshButton.doClick(50);
+                }).start();
             }
         });
         
