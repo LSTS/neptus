@@ -79,6 +79,7 @@ import pt.lsts.imc.SaveEntityParameters;
 import pt.lsts.imc.SetEntityParameters;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
+import pt.lsts.neptus.comm.admin.CommsAdmin;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
@@ -244,7 +245,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
                 SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
                     @Override
                     protected Void doInBackground() throws Exception {
-                        refreshPropertiesOnPanel(true);
+                        refreshPropertiesOnPanel(true, true, new String[] {CommsAdmin.CommChannelType.WIFI.name});
                         return null;
                     }
                 };
@@ -338,7 +339,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
                 SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
                     @Override
                     protected Void doInBackground() throws Exception {
-                        refreshPropertiesOnPanel(false);
+                        refreshPropertiesOnPanel(false, false, new String[] {CommsAdmin.CommChannelType.WIFI.name});
                         return null;
                     }
                 };
@@ -359,7 +360,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         mainPanel.add(checkSelection, "sg checkboxes");
 
         // FIXME This might not make sense to not always ask for categories if no wifi
-        refreshPropertiesOnPanel(false);
+        refreshPropertiesOnPanel(false, false, new String[] {CommsAdmin.CommChannelType.WIFI.name});
         
         revalidate();
         repaint();
@@ -413,7 +414,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         this.systemId = systemId;
         sid = ImcSystemsHolder.getSystemWithName(this.systemId);
         // FIXME This might not make sense to not always ask for categories
-        refreshPropertiesOnPanel(true);
+        refreshPropertiesOnPanel(false, false, new String[]{CommsAdmin.CommChannelType.WIFI.name});
     }
 
     /**
@@ -430,7 +431,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         this.refreshing = refreshing;
     }
     
-    private synchronized void refreshPropertiesOnPanel(boolean askForCategories) {
+    private synchronized void refreshPropertiesOnPanel(boolean askForCategories, boolean popGuiOnError, String[] channelsToUse) {
         try {
             showWaiterUpdateProperties(true);
 
@@ -501,7 +502,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
             repaint();
 
             for (String sectionName : queryCategoriesList) {
-                boolean ret = queryValues(sectionName, scopeToUse.getText(), visibility.getText());
+                boolean ret = queryValues(sectionName, scopeToUse.getText(), visibility.getText(), popGuiOnError, channelsToUse);
                 if (!ret)
                     break;
             }
@@ -568,18 +569,18 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         }
     }
     
-    private boolean queryValues(String entityName, String scope, String visibility) {
+    private boolean queryValues(String entityName, String scope, String visibility, boolean popGuiOnError, String... channelsToUse) {
         QueryEntityParameters qep = new QueryEntityParameters();
         qep.setScope(scope);
         qep.setVisibility(visibility);
         qep.setName(entityName);
-        return send(qep);
+        return send(qep, popGuiOnError, channelsToUse);
     }
 
     private boolean saveRequest(String entityName) {
         SaveEntityParameters qep = new SaveEntityParameters();
         qep.setName(entityName);
-        return send(qep);
+        return send(qep, true);
     }
 
     private void sendProperty(SystemProperty... propsList) {
@@ -620,7 +621,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         }
 
         for (SetEntityParameters setEntityParameters : msgs) {
-            if (!send(setEntityParameters))
+            if (!send(setEntityParameters, true))
                 break;
         }
     }
@@ -786,7 +787,8 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
                     secNames.add(sectionName);
             }        
             for (String sec : secNames) {
-                if (!queryValues(sec, scopeToUse.getText(), visibility.getText()))
+                // TODO See if we want to ask back from Iridium
+                if (!queryValues(sec, scopeToUse.getText(), visibility.getText(), true))
                     break;
             }
         }
@@ -812,7 +814,8 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
             }
             boolean ret = true;
             for (String sec : secNames) {
-                ret = queryValues(sec, scopeToUse.getText(), visibility.getText());
+                // TODO See if we want to ask back from Iridium
+                ret = queryValues(sec, scopeToUse.getText(), visibility.getText(), true);
                 if (!ret)
                     break;
             }
@@ -826,7 +829,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         }
     }
 
-    private boolean send(IMCMessage msg) { //}, boolean askApprovalOtherThanWifi) {
+    private boolean send(IMCMessage msg, boolean popGuiOnError, String... channelsToUse) { //}, boolean askApprovalOtherThanWifi) {
         MessageDeliveryListener mdl = new MessageDeliveryListener() {
             @Override
             public void deliveryUnreacheable(IMCMessage message) {
@@ -860,7 +863,8 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
 //        }
         return IMCSendMessageUtils.sendMessage(msg, (sendReliably ? ImcMsgManager.TRANSPORT_TCP
                         : null), mdl, this, I18n.text("Error sending msg params"),
-                false, "", true, true, true, system);
+                false, "", true, true,
+                true, popGuiOnError, channelsToUse, system);
     }
     
     public static void updatePropertyWithMessageArrived(SystemConfigurationEditorPanel systemConfEditor, IMCMessage message) {
