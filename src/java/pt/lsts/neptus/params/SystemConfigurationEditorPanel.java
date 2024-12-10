@@ -322,24 +322,21 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
             checkAdvance.setSelected(true);
         else
             checkAdvance.setSelected(false);
-        checkAdvance.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-                if (checkAdvance.isSelected())
-                    visibility = Visibility.DEVELOPER;
-                else
-                    visibility = Visibility.USER;
-                
-                // FIXME This might not make sense to not always ask for categories
-                SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-                    @Override
-                    protected Void doInBackground() throws Exception {
-                        refreshPropertiesOnPanel(false, false, new String[] {CommsAdmin.CommChannelType.WIFI.name});
-                        return null;
-                    }
-                };
-                worker.execute();
-            }
+        checkAdvance.addItemListener(e -> {
+            if (checkAdvance.isSelected())
+                visibility = Visibility.DEVELOPER;
+            else
+                visibility = Visibility.USER;
+
+            // FIXME This might not make sense to not always ask for categories
+            SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+                @Override
+                protected Void doInBackground() throws Exception {
+                    refreshPropertiesOnPanel(false, false, new String[] {CommsAdmin.CommChannelType.WIFI.name});
+                    return null;
+                }
+            };
+            worker.execute();
         });
         checkAdvance.setFocusable(false);
 
@@ -579,7 +576,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
     }
 
     private void sendProperty(SystemProperty... propsList) {
-        Map<String, ArrayList<EntityParameter>> mapCategoryParameterList = new LinkedHashMap<String, ArrayList<EntityParameter>>();
+        Map<String, ArrayList<EntityParameter>> mapCategoryParameterList = new LinkedHashMap<>();
         for (SystemProperty prop : propsList) {
             if (prop.getValue() == null)
                 continue;
@@ -772,8 +769,8 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
                 sentProps.add(sp);
             }
         }
-        if (sysPropToSend.size() > 0) {
-            sendProperty(sysPropToSend.toArray(new SystemProperty[sysPropToSend.size()]));
+        if (!sysPropToSend.isEmpty()) {
+            sendProperty(sysPropToSend.toArray(new SystemProperty[0]));
             
             ArrayList<String> secNames = new ArrayList<>();
             for (SystemProperty sp : sentProps) {
