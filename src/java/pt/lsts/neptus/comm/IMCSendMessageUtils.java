@@ -122,6 +122,20 @@ public class IMCSendMessageUtils {
                 acousticOpUseOnlyActive, acousticOpUserAprovedQuestion, sendOnlyThroughOneAcoustically, ids);
     }
 
+    public static boolean sendMessage(IMCMessage msg, String sendProperties, MessageDeliveryListener listener, Component parent, String errorTextForDialog,
+                                      boolean ignoreAcousticSending, String acousticOpServiceName, boolean acousticOpUseOnlyActive,
+                                      boolean acousticOpUserApprovedQuestion, boolean sendOnlyThroughOneAcoustically, String... ids) {
+        return sendMessage(msg, sendProperties, listener, parent, errorTextForDialog, ignoreAcousticSending, acousticOpServiceName,
+                acousticOpUseOnlyActive, acousticOpUserApprovedQuestion, sendOnlyThroughOneAcoustically, true, new String[0], ids);
+    }
+
+    public static boolean sendMessage(IMCMessage msg, String sendProperties, MessageDeliveryListener listener, Component parent, String errorTextForDialog,
+                                      boolean ignoreAcousticSending, String acousticOpServiceName, boolean acousticOpUseOnlyActive,
+                                      boolean acousticOpUserApprovedQuestion, boolean sendOnlyThroughOneAcoustically, boolean popGuiOnError, String... ids) {
+        return sendMessage(msg, sendProperties, listener, parent, errorTextForDialog, ignoreAcousticSending, acousticOpServiceName,
+                acousticOpUseOnlyActive, acousticOpUserApprovedQuestion, sendOnlyThroughOneAcoustically, popGuiOnError, new String[0], ids);
+    }
+
     /**
      * @param msg
      * @param sendProperties The same of {@link ImcMsgManager#sendMessage(IMCMessage, pt.lsts.neptus.comm.manager.imc.ImcId16, String, pt.lsts.neptus.comm.manager.imc.MessageDeliveryListener)},
@@ -129,28 +143,29 @@ public class IMCSendMessageUtils {
      * @param parent The parent component for popup error message
      * @param errorTextForDialog
      * @param ignoreAcousticSending If this is true mean don't use acoustic.
-     * @param acousticOpServiceName 
+     * @param acousticOpServiceName
      * @param acousticOpUseOnlyActive
-     * @param acousticOpUserAprovedQuestion
+     * @param acousticOpUserApprovedQuestion
      * @param ids
      * @return
      */
     public static boolean sendMessage(IMCMessage msg, String sendProperties, MessageDeliveryListener listener, Component parent, String errorTextForDialog,
             boolean ignoreAcousticSending, String acousticOpServiceName, boolean acousticOpUseOnlyActive,
-            boolean acousticOpUserAprovedQuestion, boolean sendOnlyThroughOneAcoustically, String... ids) {
+            boolean acousticOpUserApprovedQuestion, boolean sendOnlyThroughOneAcoustically, boolean popGuiOnError, String[] channelsToSend, String... ids) {
 
         ImcSystem[] acousticOpSysLst = !ignoreAcousticSending ? ImcSystemsHolder.lookupSystemByService(
                 acousticOpServiceName, SystemTypeEnum.ALL, acousticOpUseOnlyActive)
                 : new ImcSystem[0];
 
-        boolean acousticOpUserAprovalRequired = acousticOpUserAprovedQuestion;
-        boolean acousticOpUserAproved = !acousticOpUserAprovedQuestion;
+        boolean acousticOpUserAprovalRequired = acousticOpUserApprovedQuestion;
+        boolean acousticOpUserAproved = !acousticOpUserApprovedQuestion;
         boolean retAll = true;
         for (String sid : ids) {
             boolean ret;
             ImcSystem sysL = ImcSystemsHolder.lookupSystemByName(sid);
             if (GeneralPreferences.imcUseNewMultiChannelCommsEnable && sysL != null && !sysL.isActive()) {
-                ret = ImcMsgManager.getManager().sendMessageUsingActiveChannelWait(msg, sid, -1, parent, acousticOpUserAprovedQuestion);
+                ret = ImcMsgManager.getManager().sendMessageUsingActiveChannelWait(msg, sid, -1, parent,
+                        acousticOpUserApprovedQuestion, channelsToSend);
                 if (ret) {
                     acousticOpUserAproved = true;
                 }
@@ -171,11 +186,12 @@ public class IMCSendMessageUtils {
             }
             retAll = retAll && ret;
             if (!ret) {
-                if (parent instanceof ConsolePanel) {
+                NeptusLog.pub().warn(errorTextForDialog);
+                if (popGuiOnError && parent instanceof ConsolePanel) {
                     ((ConsolePanel) parent).post(Notification.error(I18n.text("Send Message"), errorTextForDialog).src(
                             I18n.text("Console")));
                 }
-                else {
+                else if (popGuiOnError && parent != null) {
                     GuiUtils.errorMessage(parent, I18n.text("Send Message"), errorTextForDialog);
                 }
             }
