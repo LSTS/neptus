@@ -318,10 +318,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         checkAdvance.setToolTipText("<html>" + I18n.textc("Be careful changing these values.<br>They may make the vehicle inoperable.",
                 "This will be a tooltip, and use <br> to change line."));
         mainPanel.add(checkAdvance, "split, sg checkboxes");
-        if (visibility == Visibility.DEVELOPER)
-            checkAdvance.setSelected(true);
-        else
-            checkAdvance.setSelected(false);
+        checkAdvance.setSelected(visibility == Visibility.DEVELOPER);
         checkAdvance.addItemListener(e -> {
             if (checkAdvance.isSelected())
                 visibility = Visibility.DEVELOPER;
