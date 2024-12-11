@@ -572,7 +572,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         return send(qep, true);
     }
 
-    private void sendProperty(SystemProperty... propsList) {
+    private boolean sendProperty(SystemProperty... propsList) {
         Map<String, ArrayList<EntityParameter>> mapCategoryParameterList = new LinkedHashMap<>();
         for (SystemProperty prop : propsList) {
             if (prop.getValue() == null)
@@ -611,8 +611,9 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
 
         for (SetEntityParameters setEntityParameters : msgs) {
             if (!send(setEntityParameters, true))
-                break;
+                return false; // If one fails, rest is skipped, this helps to avoid iridium to be flooded all errors
         }
+        return true;
     }
 
     private Map<String, String> getCategoriesOnPanel(boolean onlyVisible) {
@@ -767,8 +768,12 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
             }
         }
         if (!sysPropToSend.isEmpty()) {
-            sendProperty(sysPropToSend.toArray(new SystemProperty[0]));
-            
+            boolean ret = sendProperty(sysPropToSend.toArray(new SystemProperty[0]));
+
+            if (!ret) {
+                return;
+            }
+
             ArrayList<String> secNames = new ArrayList<>();
             for (SystemProperty sp : sentProps) {
                 String sectionName = sp.getCategoryId();
