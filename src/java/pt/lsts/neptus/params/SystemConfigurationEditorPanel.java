@@ -136,7 +136,11 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
     protected ImcSystem sid = null;
     
     protected ImcMsgManager imcMsgManager;
-    
+
+    // Category name, category label on gui
+    private Map<String, String> touchedCategoriesList;
+    private Map<String, String> lastSelectedCategoriesList;
+
     public SystemConfigurationEditorPanel(String systemId, Scope scopeToUse, Visibility visibility,
             boolean showSendButton, boolean showScopeCombo, boolean showResetButton, ImcMsgManager imcMsgManager) {
         this.systemId = systemId;
@@ -425,7 +429,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
             showWaiterUpdateProperties(true);
 
             // FIXME
-            Map<String, String> oldCategoriesOnPanel = getCategoriesOnPanel(true);
+            //Map<String, String> oldCategoriesOnPanel = getCategoriesOnPanel(true);
 
             titleLabel.setText("<html><b>" + createTitle() + "</b></html>");
             List<String> openCategories = removeAllPropertiesFromPanel();
@@ -471,7 +475,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
             if (askForCategories && isAskForCategories) {
                 List<String> validCategories;
                 try {
-                    validCategories = askForCategories("refresh", oldCategoriesOnPanel).get();
+                    validCategories = askForCategories("refresh", lastSelectedCategoriesList).get();
                 }
                 catch (Exception e) {
                     // Do nothing
@@ -555,6 +559,10 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
                 sprop.propertyChange(evt);
             }
             sp.propertyChange(evt);
+
+            if (touchedCategoriesList == null)
+                touchedCategoriesList = new LinkedHashMap<>();
+            touchedCategoriesList.putIfAbsent(sp.getCategoryId(), sp.getCategory());
         }
     }
     
@@ -655,6 +663,13 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         Map<String, String> categories = getCategoriesOnPanel(true);
         List<String> chosenCategories = new ArrayList<>(categories.keySet());
         List<JCheckBox> checkBoxes = new ArrayList<>();
+
+        if ((previousCheckCategoriesOnPanel == null || previousCheckCategoriesOnPanel.isEmpty())
+                && lastSelectedCategoriesList != null) {
+            previousCheckCategoriesOnPanel = new LinkedHashMap<>();
+            previousCheckCategoriesOnPanel.putAll(lastSelectedCategoriesList);
+        }
+
         for (String category : chosenCategories.stream().sorted().collect(Collectors.toList())) {
             JCheckBox cb = new JCheckBox(categories.get(category));
             cb.addActionListener(e -> {
@@ -667,7 +682,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
             });
             cb.setSelected(true); // To set ticked;
             if (previousCheckCategoriesOnPanel != null && !previousCheckCategoriesOnPanel.containsKey(category)) {
-                cb.setSelected(true);
+                cb.setSelected(false);
             }
             // if selected add to checkCategories
             if (!chosenCategories.contains(category))
@@ -724,6 +739,13 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
             card.show(swapPropertiesAndCategoriesPanel, CARD_PROPERTIES);
             revalidate();
             repaint();
+
+            if (lastSelectedCategoriesList == null) {
+                lastSelectedCategoriesList = new LinkedHashMap<>();
+            } else {
+                lastSelectedCategoriesList.clear();
+            }
+            chosenCategories.forEach(cat -> lastSelectedCategoriesList.putIfAbsent(cat, categories.get(cat)));
         });
         cancelButton.addActionListener(e -> {
             future.completeExceptionally(new RuntimeException("User cancelled"));
@@ -750,16 +772,16 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
     private void sendPropertiesToSystem() {
         List<String> validCategories = null;
         try {
-            validCategories = askForCategories("send").get();
+            validCategories = isAskForCategories ? askForCategories("send", touchedCategoriesList).get() : null;
         }
         catch (Exception e) {
             return;
         }
 
-        Set<SystemProperty> sentProps = new LinkedHashSet<SystemProperty>();
+        Set<SystemProperty> sentProps = new LinkedHashSet<>();
         ArrayList<SystemProperty> sysPropToSend = new ArrayList<>();
         for (SystemProperty sp : params.values()) {
-            if (!validCategories.contains(sp.getCategoryId()))
+            if (validCategories != null && !validCategories.contains(sp.getCategoryId()))
                 continue; // Skip if not in the list of valid categories
             if (sp.getTimeDirty() > sp.getTimeSync()) {
                 // sendProperty(sp);
@@ -769,6 +791,9 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         }
         if (!sysPropToSend.isEmpty()) {
             boolean ret = sendProperty(sysPropToSend.toArray(new SystemProperty[0]));
+            if (ret) {
+                touchedCategoriesList.clear();
+            }
 
             if (!ret) {
                 return;
@@ -789,9 +814,9 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
     }
 
     private void savePropertiesToSystem() {
-        List<String> validCategories = null;
+        List<String> validCategories;
         try {
-            validCategories = askForCategories("save").get();
+            validCategories = isAskForCategories ? askForCategories("save").get() : null;
         }
         catch (Exception e) {
             return;
@@ -801,7 +826,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
             ArrayList<String> secNames = new ArrayList<>();
             for (SystemProperty sp : propsInPanel) {
                 String sectionName = sp.getCategoryId();
-                if (!validCategories.contains(sectionName))
+                if (validCategories != null && !validCategories.contains(sectionName))
                     continue; // Skip if not in the list of valid categories
                 if (!secNames.contains(sectionName))
                     secNames.add(sectionName);
