@@ -143,7 +143,7 @@ public abstract class MRATimeSeriesPlot implements LLFChart, LogMarkerListener {
 
         String chartType = chartTitle.substring(chartTitle.indexOf("] ") + 1);
 
-        if (chartType.contains("Messages") || chartType.contains("Compare")){
+        if (chartType.contains("Messages") || chartType.contains("Compare") || chartType.contains("Timeline")){
             Map<String, List<String>> seriesMap = new HashMap<String, List<String>>();
 
             String seriesStr = chartTitle;
