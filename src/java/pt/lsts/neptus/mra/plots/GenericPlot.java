@@ -134,36 +134,4 @@ public class GenericPlot extends MRATimeSeriesPlot {
             }
         }
     }
-
-    private String parseChartTitle(StringBuilder sb) {
-        String chartTitle = String.valueOf(sb);
-        String newTitle;
-
-        if (chartTitle.contains("Messages") || chartTitle.contains("Compare") || chartTitle.contains("Timeline")) {
-            Map<String, List<String>> seriesMap = new HashMap<String, List<String>>();
-
-            String seriesStr = chartTitle;
-            seriesStr = seriesStr.substring(seriesStr.indexOf("[") + 1);
-            seriesStr = seriesStr.substring(0, seriesStr.indexOf("]"));
-            List<String> seriesList = new ArrayList<String>(Arrays.asList(seriesStr.split(", ")));
-
-            for (String series : seriesList) {
-                String[] seriesVariables = series.split("\\.");
-                String seriesName = seriesVariables[seriesVariables.length - 2];
-                String seriesVariable = seriesVariables[seriesVariables.length - 1];
-                if (!seriesMap.containsKey(seriesName)) {
-                    seriesMap.put(seriesName, new ArrayList<>());
-                }
-                if (!seriesMap.get(seriesName).contains(seriesVariable)) {
-                    seriesMap.get(seriesName).add(seriesVariable);
-                }
-            }
-
-            newTitle = seriesMap.toString();
-            newTitle = newTitle.substring(1,newTitle.length()-1).replace('=',' ');
-            newTitle += " " + this.postfixTile;
-            return newTitle;
-        }
-        return chartTitle;
-    }
 }
