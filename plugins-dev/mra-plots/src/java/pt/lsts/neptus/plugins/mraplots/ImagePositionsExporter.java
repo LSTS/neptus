@@ -51,8 +51,14 @@ import pt.lsts.neptus.plugins.PluginDescription;
 @PluginDescription(name="Export image positions to CSV")
 public class ImagePositionsExporter implements MRAExporter {
     private CorrectedPosition positions;
+
     public ImagePositionsExporter(IMraLogGroup source) {
-        positions = new CorrectedPosition(source);
+        if (source.getCorrectedPosition() != null) {
+            this.positions = source.getCorrectedPosition();
+        }
+        else {
+            this.positions = new CorrectedPosition(source);
+        }
     }
 
     @Override
