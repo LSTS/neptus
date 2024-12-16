@@ -363,8 +363,6 @@ public class MRAChartPanel extends JPanel implements ChartMouseListener {
         cpanel.getChart().getXYPlot().setDomainPannable(true);
         cpanel.getChart().getXYPlot().setRangePannable(true);
 
-        parseChartTitle(cpanel);
-
         cpanel.getPopupMenu().add(I18n.text("Add Mark")).addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -455,36 +453,5 @@ public class MRAChartPanel extends JPanel implements ChartMouseListener {
 
         lblX.setText(dx + "");
         lblY.setText(dy + "");
-    }
-
-    private void parseChartTitle(ChartPanel cpanel) {
-        String chartTitle = cpanel.getChart().getTitle().getText();
-        String newTitle;
-
-        if (chartTitle.contains("Messages plot")) {
-            Map<String, List<String>> seriesMap = new HashMap<String, List<String>>();
-
-            String seriesStr = chartTitle;
-            seriesStr = seriesStr.substring(seriesStr.indexOf("[") + 1);
-            seriesStr = seriesStr.substring(0, seriesStr.indexOf("]"));
-            List<String> seriesList = new ArrayList<String>(Arrays.asList(seriesStr.split(", ")));
-
-            for (String series : seriesList) {
-                String[] seriesVariables = series.split("\\.");
-                String seriesName = seriesVariables[seriesVariables.length - 2];
-                String seriesVariable = seriesVariables[seriesVariables.length - 1];
-                if (!seriesMap.containsKey(seriesName)) {
-                    seriesMap.put(seriesName, new ArrayList<>());
-                }
-                if (!seriesMap.get(seriesName).contains(seriesVariable)) {
-                    seriesMap.get(seriesName).add(seriesVariable);
-                }
-            }
-
-            newTitle = seriesMap.toString();
-            newTitle = newTitle.substring(1,newTitle.length()-1).replace('=',' ');
-            newTitle += " Messages plot";
-            cpanel.getChart().setTitle(newTitle);
-        }
     }
 }
