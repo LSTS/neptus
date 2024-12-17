@@ -44,13 +44,14 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
+import java.util.List;
 import java.util.TimeZone;
-import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -220,7 +221,7 @@ public class HubIridiumMessenger implements IridiumMessenger {
 
         HubMessage[] msgs = gson.fromJson(baos.toString(), HubMessage[].class);
         
-        Vector<IridiumMessage> ret = new Vector<>();        
+        List<IridiumMessage> ret = new ArrayList<>();
         
         for (HubMessage m : msgs) {
             try {
@@ -300,10 +301,12 @@ public class HubIridiumMessenger implements IridiumMessenger {
     }
     
     public static Date stringToDate(String d) {
+        if (d == null || d.isEmpty())
+            return null;
+
         try {
             return dateFormat.parse(d);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
