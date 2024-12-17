@@ -40,8 +40,9 @@ import pt.lsts.neptus.NeptusLog;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Vector;
+import java.util.List;
 
 /**
  * @author pdias
@@ -66,13 +67,13 @@ public class PlainTextMessage extends IridiumMessage {
     @Override
     public int deserializeFields(IMCInputStream in) throws Exception {
         int bav = in.available();
-        bav = bav < 0 ? 0 : bav;
+        bav = Math.max(bav, 0);
         byte[] data = new byte[bav];
         in.readFully(data);
         rawData = data;
-        text = new String(data, "UTF-8");
+        text = new String(data, StandardCharsets.UTF_8);
         text = text.trim();
-        return text.getBytes("UTF-8").length;
+        return text.getBytes(StandardCharsets.UTF_8).length;
     }
 
     public final String getText() {
@@ -95,8 +96,9 @@ public class PlainTextMessage extends IridiumMessage {
 
     @Override
     public Collection<IMCMessage> asImc() {
-        Vector<IMCMessage> msgs = new Vector<>();
-        msgs.add(new TextMessage("iridium", text));
+        List<IMCMessage> msgs = new ArrayList<>();
+        TextMessage imcTxtMsg = new TextMessage("iridium", text);
+        msgs.add(imcTxtMsg);
         return msgs;
     }
 
