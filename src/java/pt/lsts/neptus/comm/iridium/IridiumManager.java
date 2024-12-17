@@ -33,6 +33,7 @@
 package pt.lsts.neptus.comm.iridium;
 
 import java.awt.Component;
+import java.io.ByteArrayOutputStream;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,6 +49,7 @@ import org.apache.commons.codec.binary.Hex;
 
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.IMCOutputStream;
 import pt.lsts.imc.IMCUtil;
 import pt.lsts.imc.IridiumMsgTx;
 import pt.lsts.imc.MessagePart;
@@ -108,6 +110,7 @@ public class IridiumManager {
 
     private Runnable pollMessages = new Runnable() {
         Date lastTime = new Date(System.currentTimeMillis() - Duration.ofHours(1).toMillis());
+        //Date lastTime = new GregorianCalendar(2024, Calendar.NOVEMBER, 6).getTime(); // new Date(System.currentTimeMillis() - Duration.ofHours(1).toMillis());
 
         @Override
         public void run() {
@@ -161,7 +164,22 @@ public class IridiumManager {
     public void processMessage(IridiumMessage msg) {
         try {
             IridiumMsgTx transmission = new IridiumMsgTx();
-            transmission.setData(msg.serialize());
+
+            if (msg.getMessageType() < 0) {
+                // This allows to send the original message bytes
+                try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+                    IMCOutputStream ios = new IMCOutputStream(baos);
+                    ios.setBigEndian(false);
+                    int size = msg.serializeFields(ios);
+                    transmission.setData(Arrays.copyOf(baos.toByteArray(), size));
+                } catch (Exception e) {
+                    NeptusLog.pub().warn(e.getMessage());
+                    transmission.setData(msg.serialize());
+                }
+            } else {
+                transmission.setData(msg.serialize());
+            }
+
             transmission.setSrc(msg.getSource());
             transmission.setDst(msg.getDestination());
             transmission.setTimestamp(msg.timestampMillis/1000.0);
