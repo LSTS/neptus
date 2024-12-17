@@ -38,6 +38,8 @@ import pt.lsts.imc.IMCOutputStream;
 import pt.lsts.imc.TextMessage;
 import pt.lsts.neptus.NeptusLog;
 
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Vector;
 
@@ -48,6 +50,7 @@ import java.util.Vector;
 public class PlainTextMessage extends IridiumMessage {
 
     String text;
+    byte[] rawData;
 
     public PlainTextMessage() {
         super(-1);
@@ -55,9 +58,9 @@ public class PlainTextMessage extends IridiumMessage {
 
     @Override
     public int serializeFields(IMCOutputStream out) throws Exception {
-        out.write(text.getBytes("UTF-8"));
+        out.write(rawData);
         out.close();
-        return text.getBytes("UTF-8").length;
+        return rawData.length;
     }
 
     @Override
@@ -66,6 +69,7 @@ public class PlainTextMessage extends IridiumMessage {
         bav = bav < 0 ? 0 : bav;
         byte[] data = new byte[bav];
         in.readFully(data);
+        rawData = data;
         text = new String(data, "UTF-8");
         text = text.trim();
         return text.getBytes("UTF-8").length;
@@ -77,6 +81,16 @@ public class PlainTextMessage extends IridiumMessage {
 
     public final void setText(String text) {
         this.text = text;
+        this.rawData = text.getBytes(StandardCharsets.UTF_8);
+    }
+
+    public final byte[] getRawData() {
+        return rawData;
+    }
+
+    public final void setRawData(byte[] rawData) throws UnsupportedEncodingException {
+        this.rawData = rawData;
+        text = new String(rawData, StandardCharsets.UTF_8);
     }
 
     @Override
