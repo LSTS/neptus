@@ -299,7 +299,7 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
                         if (matcher.matches()) {
                             InputStream stream = (InputStream) p.getContent();
                             byte[] data = IOUtils.toByteArray(stream);
-                            IridiumMessage msg = process(data, matcher.group(1));
+                            IridiumMessage msg = process(data, matcher.group(1), matcher.group(2), m.getSentDate());
                             if (msg != null)
                                 messages.add(msg);
                         }
@@ -329,9 +329,21 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
         return messages;
     }
 
-    private IridiumMessage process(byte[] data, String from) {
+    private IridiumMessage process(byte[] data, String fromImei, String seqNumber, Date sentDate) {
         try {
-            return IridiumMessage.deserialize(data);
+            Date now = new Date();
+            IridiumMessage irMsg = IridiumMessage.deserialize(data);
+            if (irMsg.source == ImcId16.NULL_ID.intValue()) {
+                // Let us try to fill the source from imei
+                irMsg.source = HubIridiumMessenger.HubMessage.findSystemIdByImei(fromImei);
+            }
+
+            // If not set, set the timestamp
+            if (!new Date(irMsg.timestampMillis).before(now) && sentDate != null) {
+                irMsg.timestampMillis = sentDate.getTime();
+            }
+
+            return irMsg;
         }
         catch (Exception e){
             e.printStackTrace();
