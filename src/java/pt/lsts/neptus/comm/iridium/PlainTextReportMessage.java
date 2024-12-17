@@ -96,11 +96,12 @@ public class PlainTextReportMessage extends IridiumMessage {
         return "Report: " + report + "\n";
     }
 
-    private void parse() {
+    private void parse() throws Exception {
         Matcher matcher = p.matcher(report);
         if (!matcher.matches()) {
-            return;
+            throw new Exception("Invalid report format: " + report);
         }
+
         vehicle = matcher.group(2);
         timeOfDay = matcher.group(3);
         String latMins = matcher.group(4);
