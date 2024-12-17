@@ -42,6 +42,7 @@ import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCInputStream;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCOutputStream;
+import pt.lsts.neptus.comm.manager.imc.ImcId16;
 
 /**
  * @author zp
@@ -49,7 +50,9 @@ import pt.lsts.imc.IMCOutputStream;
  */
 public abstract class IridiumMessage implements Comparable<IridiumMessage> {
 
-    public int source, destination, message_type;
+    public int source = ImcId16.NULL_ID.intValue();
+    public int destination = ImcId16.NULL_ID.intValue();
+    public int message_type = -1;
     public long timestampMillis = System.currentTimeMillis();
     public abstract int serializeFields(IMCOutputStream out) throws Exception;
     public abstract int deserializeFields(IMCInputStream in) throws Exception;
