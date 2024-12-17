@@ -90,9 +90,10 @@ public abstract class IridiumMessage implements Comparable<IridiumMessage> {
         IMCInputStream iis = new IMCInputStream(new ByteArrayInputStream(data), IMCDefinition.getInstance());
         iis.setBigEndian(false);
         iis.mark(10);
-        int source = iis.readUnsignedShort();
-        int dest = iis.readUnsignedShort();
-        int mgid = iis.readUnsignedShort();
+        int avlBytes = iis.available();
+        int source = avlBytes >= 2 ? iis.readUnsignedShort() : ImcId16.NULL_ID.intValue();
+        int dest = avlBytes >= 4 ? iis.readUnsignedShort() : ImcId16.NULL_ID.intValue();
+        int mgid = avlBytes >= 6 ? iis.readUnsignedShort() : -1;
         IridiumMessage m = null;
         if (iridiumTypes.containsKey(mgid)) {
             m = iridiumTypes.get(mgid).getDeclaredConstructor().newInstance();
