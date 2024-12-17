@@ -62,9 +62,12 @@ import com.google.gson.Gson;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.iridium.Position.PosType;
+import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.ByteUtil;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 
@@ -317,14 +320,59 @@ public class HubIridiumMessenger implements IridiumMessenger {
         String msg;
         String updated_at;
         boolean plaintext;
-        
+
+        // New fields for RockBlock messages
+        String imei;
+        int source = ImcId16.NULL_ID.intValue(); // imc id
+        int destination = ImcId16.NULL_ID.intValue();; // imc id
+        String created_at;
+
         public IridiumMessage message() throws Exception {
             byte[] data = Hex.decodeHex(msg.toCharArray());
-            return IridiumMessage.deserialize(data);
+            Date now = new Date();
+            IridiumMessage irMsg = IridiumMessage.deserialize(data);
+            if (source != ImcId16.NULL_ID.intValue())
+                irMsg.source = source;
+            if (destination != ImcId16.NULL_ID.intValue())
+                irMsg.destination = destination;
+            if (irMsg.source == ImcId16.NULL_ID.intValue()) {
+                // Let us try to fill the source from imei
+                irMsg.source = findSystemIdByImei(imei);
+            }
+            if (!new Date(irMsg.timestampMillis).before(now) &&
+                    created_at != null && stringToDate(created_at) != null) {
+                irMsg.timestampMillis = stringToDate(created_at).getTime();
+            }
+            return irMsg;
         }
-        
+
+        public static int findSystemIdByImei(String imei) {
+            VehicleType vt = VehiclesHolder.getVehicleWithImei(imei);
+            if (vt == null) {
+                return ImcId16.NULL_ID.intValue();
+            }
+
+            ImcSystem imcSys = ImcSystemsHolder.getSystemWithName(vt.getId());
+            if (imcSys == null) {
+                return vt.getImcId().intValue();
+            }
+            return ImcId16.NULL_ID.intValue();
+        }
+
+        public byte[] messageRaw() {
+            try {
+                return Hex.decodeHex(msg.toCharArray());
+            } catch (Exception e) {
+                return null;
+            }
+        }
+
         public Date updatedAt() {
             return stringToDate(updated_at);
+        }
+
+        public Date createdAt() {
+            return stringToDate(created_at);
         }
     }
     
