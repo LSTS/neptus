@@ -90,7 +90,7 @@ import pt.lsts.neptus.util.http.client.HttpClientConnectionHelper;
  * This class uses the RockBlock HTTP API (directly) to send messages to Iridium destinations and a gmail inbox to poll
  * for incoming messages
  * 
- * @see http://rockblock.rock7mobile.com/downloads/RockBLOCK-Web-Services-User-Guide.pdf
+ * @see https://www.groundcontrol.com/wp-content/uploads/2022/02/RockBLOCK-Web-Services-User-Guide.pdf
  * @author zp
  */
 @IridiumProvider(id="rock7", name="RockBlock Messenger", description="Sends Iridium messages directly via RockBlock web service and receives new messages by polling a gmail address")
