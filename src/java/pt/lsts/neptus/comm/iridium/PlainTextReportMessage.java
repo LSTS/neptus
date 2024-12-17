@@ -41,8 +41,10 @@ import pt.lsts.neptus.NeptusLog;
 
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Vector;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -52,7 +54,7 @@ import java.util.regex.Pattern;
  */
 public class PlainTextReportMessage extends IridiumMessage {
 
-    private static Pattern p = Pattern.compile("\\((.)\\) \\((.*)\\) (.*) / (.*), (.*) / .*");
+    private static final Pattern p = Pattern.compile("\\((.)\\) \\((.*)\\) (.*) / (.*), (.*) / .*");
 
     String report;
 
@@ -68,25 +70,25 @@ public class PlainTextReportMessage extends IridiumMessage {
 
     @Override
     public int serializeFields(IMCOutputStream out) throws Exception {
-        out.write(report.getBytes("ISO-8859-1"));
+        out.write(report.getBytes(StandardCharsets.ISO_8859_1));
         out.close();
-        return report.getBytes("ISO-8859-1").length;
+        return report.getBytes(StandardCharsets.ISO_8859_1).length;
     }
 
     @Override
     public int deserializeFields(IMCInputStream in) throws Exception {
         int bav = in.available();
-        bav = bav < 0 ? 0 : bav;
+        bav = Math.max(bav, 0);
         byte[] data = new byte[bav];
         int len = in.read(data);
-        report = new String(data, "ISO-8859-1");
+        report = new String(data, StandardCharsets.ISO_8859_1);
         parse();
         return len;
     }
 
     @Override
     public Collection<IMCMessage> asImc() {
-        Vector<IMCMessage> msgs = new Vector<>();
+        List<IMCMessage> msgs = new ArrayList<>();
         msgs.add(new TextMessage("iridium", report));
         return msgs;
     }
@@ -110,8 +112,8 @@ public class PlainTextReportMessage extends IridiumMessage {
         if (source == -1) {
             return;
         }
-        String latParts[] = latMins.split(" ");
-        String lonParts[] = lonMins.split(" ");
+        String[] latParts = latMins.split(" ");
+        String[] lonParts = lonMins.split(" ");
         latDeg = getCoords(latParts);
         lonDeg = getCoords(lonParts);
     }
