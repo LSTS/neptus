@@ -37,7 +37,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -45,7 +44,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
-import java.util.Vector;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -258,7 +256,7 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
         }
     }
 
-    private Pattern pattern = Pattern.compile("APPLICATION/OCTET-STREAM; name=(\\d+)-(\\d+)\\.bin");
+    private final Pattern pattern = Pattern.compile("APPLICATION/OCTET-STREAM; name=(\\d+)-(\\d+)\\.bin");
 
     @Override
     public Collection<IridiumMessage> pollMessages(Date timeSince) throws Exception {
@@ -310,19 +308,19 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
         catch (AuthenticationFailedException ex) {
             askGmailPassword = true;
             ex.printStackTrace();
-            return new Vector<>();
+            return new ArrayList<>();
         }
         catch (NoSuchProviderException ex) {
             ex.printStackTrace();
-            return new Vector<>();
+            return new ArrayList<>();
         }
         catch (MessagingException ex) {
             ex.printStackTrace();
-            return new Vector<>();
+            return new ArrayList<>();
         }
         catch (Exception e) {
             e.printStackTrace();
-            return new Vector<>();
+            return new ArrayList<>();
         }
 
         messages.sort((m1, m2) -> Long.compare(m1.timestampMillis, m2.timestampMillis));
