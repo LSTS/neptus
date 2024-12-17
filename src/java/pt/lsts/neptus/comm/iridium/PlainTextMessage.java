@@ -107,6 +107,9 @@ public class PlainTextMessage extends IridiumMessage {
     }
 
     static IridiumMessage createTextMessageFrom(IMCInputStream in) throws Exception {
+        if (in.markSupported()) {
+            in.mark(Integer.MAX_VALUE);
+        }
         try {
             PlainTextReportMessage plainTextReport = new PlainTextReportMessage();
             plainTextReport.deserializeFields(in);
@@ -115,6 +118,7 @@ public class PlainTextMessage extends IridiumMessage {
             NeptusLog.pub().warn("Not able to parse iridium msg as PlainTextReportMessage, trying another or simple text");
         }
 
+        in.reset();
         PlainTextMessage plainTextMessage = new PlainTextMessage();
         plainTextMessage.deserializeFields(in);
         return plainTextMessage;
