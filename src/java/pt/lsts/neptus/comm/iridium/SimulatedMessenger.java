@@ -37,10 +37,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Vector;
+import java.util.Set;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -61,9 +62,7 @@ import pt.lsts.neptus.util.conf.GeneralPreferences;
         + "directly in the bus of the destination via IMC. Used only for debug / simulation purposes")
 public class SimulatedMessenger implements IridiumMessenger {
 
-    protected Vector<IridiumMessage> messagesReceived = new Vector<>();
-
-    protected HashSet<IridiumMessageListener> listeners = new HashSet<>();
+    protected Set<IridiumMessageListener> listeners = new HashSet<>();
 
     protected String serverUrl = GeneralPreferences.ripplesUrl + "/api/v1/";
     private final String authKey = GeneralPreferences.ripplesApiKey;
@@ -137,7 +136,7 @@ public class SimulatedMessenger implements IridiumMessenger {
 
     @Override
     public Collection<IridiumMessage> pollMessages(Date timeSince) throws Exception {
-        return new Vector<>();
+        return new ArrayList<>();
     }
 
     @Override
@@ -158,6 +157,5 @@ public class SimulatedMessenger implements IridiumMessenger {
     @Override
     public void cleanup() {
         listeners.clear();
-        messagesReceived.clear();
     }
 }
