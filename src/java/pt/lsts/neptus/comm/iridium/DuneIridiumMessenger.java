@@ -38,7 +38,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Vector;
+import java.util.List;
+import java.util.Set;
 
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCInputStream;
@@ -67,9 +68,7 @@ public class DuneIridiumMessenger implements IridiumMessenger, MessageListener<M
 
     protected int req_id = (int) (Math.random() * 65535);
 
-    protected Vector<IridiumMessage> messagesReceived = new Vector<>();
-
-    protected HashSet<IridiumMessageListener> listeners = new HashSet<>();
+    protected Set<IridiumMessageListener> listeners = new HashSet<>();
 
     @Override
     public void addListener(IridiumMessageListener listener) {
@@ -91,7 +90,6 @@ public class DuneIridiumMessenger implements IridiumMessenger, MessageListener<M
         if (msg.getMgid() == IridiumMsgRx.ID_STATIC) {
             try {
                 IridiumMessage m = IridiumMessage.deserialize(msg.getRawData("data"));
-                messagesReceived.add(m);
                 NeptusLog.pub().info("Received a " + m.getClass().getSimpleName() + " from " + msg.getSourceName());
                 for (IridiumMessageListener listener : listeners)
                     listener.messageReceived(m);
@@ -162,7 +160,7 @@ public class DuneIridiumMessenger implements IridiumMessenger, MessageListener<M
 
     @Override
     public Collection<IridiumMessage> pollMessages(Date timeSince) throws Exception {
-        return new Vector<>();
+        return new ArrayList<>();
     }
 
     @Override
@@ -178,12 +176,10 @@ public class DuneIridiumMessenger implements IridiumMessenger, MessageListener<M
     @Override
     public void cleanup() {
         listeners.clear();
-        messagesReceived.clear();
     }
     
     @Override
     public String toString() {
         return getName();                
     }
-
 }
