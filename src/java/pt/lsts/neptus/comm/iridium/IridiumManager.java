@@ -108,7 +108,7 @@ public class IridiumManager {
         }
     }
 
-    private Runnable pollMessages = new Runnable() {
+    private final Runnable pollMessages = new Runnable() {
         Date lastTime = new Date(System.currentTimeMillis() - Duration.ofHours(1).toMillis());
         //Date lastTime = new GregorianCalendar(2024, Calendar.NOVEMBER, 6).getTime(); // new Date(System.currentTimeMillis() - Duration.ofHours(1).toMillis());
 
@@ -130,8 +130,7 @@ public class IridiumManager {
                 lastCall = now;
                 NeptusLog.pub().info("Start polling messages from Iridium network.");
                 Collection<IridiumMessage> msgs = getCurrentMessenger().pollMessages(lastTime);
-                NeptusLog.pub().info("Polled {} messages from Iridium network.",
-                        msgs.size());
+                NeptusLog.pub().info("Polled {} messages from Iridium network.", msgs.size());
                 for (IridiumMessage m : msgs) {
                     try {
                         processMessage(m);
@@ -284,17 +283,31 @@ public class IridiumManager {
         }
     }
     
-    
-
     /**
      * This method will send the given message using the currently selected messenger
      * 
      * @param msg
-     * @return
      */
     public void send(IridiumMessage msg) throws Exception {
-        NeptusLog.pub().info("Sending iridum message via "+getCurrentMessenger().getName()+": "+ByteUtil.encodeToHex(msg.serialize()));
+        NeptusLog.pub().info("Sending iridium message via "+getCurrentMessenger().getName()+": "+ByteUtil.encodeToHex(msg.serialize()));
         getCurrentMessenger().sendMessage(msg);
+    }
+
+    /**
+     * This method will send the given raw message using the currently selected messenger
+     *
+     * @param destinationName The name of the destination
+     *                        (e.g. the name of the vehicle that should receive the message)
+     * @param destinationAddr The address of the destination, this depends on the messenger
+     *                        (e.g. the IMC address of the vehicle that should receive the message,
+     *                        or the imei of the Iridium device that should receive the message)
+     *                        This can be empty or null, the messenger will try its best to find the
+     *                        missing information.
+     * @param data The data to be sent
+     */
+    public void sendRaw(String destinationName, String destinationAddr, byte[] data) throws Exception {
+        NeptusLog.pub().info("Sending iridium raw message via "+getCurrentMessenger().getName()+": "+ByteUtil.encodeToHex(data));
+        getCurrentMessenger().sendMessageRaw(destinationName, destinationAddr, data);
     }
     
     public static void main(String[] args) throws Exception {

@@ -44,6 +44,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -98,7 +99,7 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
 
     protected boolean available = true;
     protected static String serverUrl = "https://secure.rock7mobile.com/rockblock/MT";
-    protected HashSet<IridiumMessageListener> listeners = new HashSet<>();
+    protected Set<IridiumMessageListener> listeners = new HashSet<>();
     private static long lastSuccess = -1;
 
     @NeptusProperty
@@ -188,27 +189,21 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
         this.gmailUsername = username;
     }
 
-    @Override
-    public void sendMessage(IridiumMessage msg) throws Exception {
-        VehicleType vt = VehiclesHolder.getVehicleWithImc(new ImcId16(msg.getDestination()));
-        if (vt == null) {
-            throw new Exception("Cannot send message to an unknown destination");
-        }
-        IridiumArgs args = (IridiumArgs) vt.getProtocolsArgs().get("iridium");
+    private boolean askCredentials() throws IOException {
         if (askRockBlockPassword || rockBlockPassword == null || rockBlockUsername == null) {
             Pair<String, String> credentials = GuiUtils.askCredentials(ConfigFetch.getSuperParentFrame(),
                     "Enter RockBlock Credentials", getRockBlockUsername(), getRockBlockPassword());
             if (credentials == null)
-                return;
+                return true;
             setRockBlockUsername(credentials.first());
             setRockBlockPassword(credentials.second());
             PluginUtils.saveProperties(CONF_ROCKBLOCK_PROPS, this);
             askRockBlockPassword = false;
         }
-        
-        String result = sendToRockBlockHttp(args.getImei(), getRockBlockUsername(), getRockBlockPassword(),
-                msg.serialize());
+        return false;
+    }
 
+    private void checkResponseFromServer(String result) throws Exception {
         if (!result.split(",")[0].equals("OK")) {
             String[] errorCode = result.split(",");
             if (errorCode[0].equalsIgnoreCase("FAILED") && errorCode[1].equalsIgnoreCase("10")) {
@@ -217,6 +212,40 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
             }
             throw new Exception("RockBlock server failed to deliver the message: '" + result + "'");
         }
+    }
+
+    @Override
+    public void sendMessage(IridiumMessage msg) throws Exception {
+        VehicleType vt = VehiclesHolder.getVehicleWithImc(new ImcId16(msg.getDestination()));
+        if (vt == null) {
+            throw new Exception("Cannot send message to an unknown destination");
+        }
+        IridiumArgs args = (IridiumArgs) vt.getProtocolsArgs().get("iridium");
+
+        if (askCredentials())
+            return;
+
+        String result = sendToRockBlockHttp(args.getImei(), getRockBlockUsername(), getRockBlockPassword(),
+                msg.serialize());
+        checkResponseFromServer(result);
+    }
+
+    @Override
+    public void sendMessageRaw(String destinationName, String imeiAddr, byte[] data) throws Exception {
+        if (imeiAddr == null || imeiAddr.isEmpty()) {
+            VehicleType vt = VehiclesHolder.getVehicleById(destinationName);
+            if (vt == null) {
+                throw new Exception("Cannot send message to an unknown destination");
+            }
+            IridiumArgs args = (IridiumArgs) vt.getProtocolsArgs().get("iridium");
+            imeiAddr = args.getImei();
+        }
+
+        if (askCredentials())
+            return;
+
+        String result = sendToRockBlockHttp(imeiAddr, getRockBlockUsername(), getRockBlockPassword(), data);
+        checkResponseFromServer(result);
     }
 
     public String sendToRockBlockHttp(String destImei, String username, String password, byte[] data)

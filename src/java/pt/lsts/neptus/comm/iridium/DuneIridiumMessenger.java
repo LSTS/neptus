@@ -117,21 +117,15 @@ public class DuneIridiumMessenger implements IridiumMessenger, MessageListener<M
         }
     }
 
+    private static void sendToProvider(IridiumMsgTx tx, ImcSystem system) throws Exception {
+        if (!ImcMsgManager.getManager().sendMessageToSystem(tx, system.getName()))
+            throw new Exception("Error while sending message to " + system.getName() + " via IMC.");
+    }
+
     @Override
     public void sendMessage(IridiumMessage msg) throws Exception {
+        ImcSystem system = getProviderToUse();
 
-        ArrayList<String> providers = new ArrayList<String>();
-        providers.addAll(getIridiumServiceProviders());
-        
-        if (providers.isEmpty()) {
-            throw new Exception("No Iridium service providers are available");
-        }
-        
-        providers.sort(Collections.reverseOrder());
-        ImcSystem system = ImcSystemsHolder.lookupSystemByName(providers.iterator().next());
-        
-        System.out.println("Subscribed to Iridium Device Updates through "+system.getName());
-        
         // Activate and deactivate subscriptions should use the id of the used gateway
         //if (msg instanceof ActivateSubscription || msg instanceof DeactivateSubscription) {
         //    ImcSystem system = ImcSystemsHolder.lookupSystemByName(messengerName);
@@ -143,10 +137,38 @@ public class DuneIridiumMessenger implements IridiumMessenger, MessageListener<M
         tx.setReqId((++req_id % 65535));
         tx.setTtl(3600);
         tx.setData(msg.serialize());
-        if (!ImcMsgManager.getManager().sendMessageToSystem(tx, system.getName()))
-            throw new Exception("Error while sending message to " + system.getName() + " via IMC.");
+        sendToProvider(tx, system);
     }
-    
+
+    @Override
+    public void sendMessageRaw(String destinationName, String destinationAddr, byte[] data) throws Exception {
+        ImcSystem system = getProviderToUse();
+
+        // Activate and deactivate subscriptions should use the id of the used gateway
+        //if (msg instanceof ActivateSubscription || msg instanceof DeactivateSubscription) {
+        //    ImcSystem system = ImcSystemsHolder.lookupSystemByName(messengerName);
+        //    if (system != null)
+        //        msg.setSource(system.getId().intValue());
+
+        IridiumMsgTx tx = new IridiumMsgTx();
+        tx.setReqId((++req_id % 65535));
+        tx.setTtl(3600);
+        tx.setData(data);
+        sendToProvider(tx, system);
+    }
+
+    private ImcSystem getProviderToUse() throws Exception {
+        List<String> providers = new ArrayList<>(getIridiumServiceProviders());
+        if (providers.isEmpty()) {
+            throw new Exception("No Iridium service providers are available");
+        }
+
+        providers.sort(Collections.reverseOrder());
+        ImcSystem system = ImcSystemsHolder.lookupSystemByName(providers.iterator().next());
+        NeptusLog.pub().info("Subscribed to Iridium Device Updates through {}", system.getName());
+        return system;
+    }
+
     public Collection<String> getIridiumServiceProviders() {
         ArrayList<String> names = new ArrayList<>();
         ImcSystem[] providers = ImcSystemsHolder.lookupSystemByService("iridium", SystemTypeEnum.ALL, true);
@@ -160,7 +182,7 @@ public class DuneIridiumMessenger implements IridiumMessenger, MessageListener<M
 
     @Override
     public Collection<IridiumMessage> pollMessages(Date timeSince) throws Exception {
-        return new ArrayList<>();
+        return Collections.emptyList();
     }
 
     @Override

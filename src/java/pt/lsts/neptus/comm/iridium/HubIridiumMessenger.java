@@ -32,10 +32,25 @@
  */
 package pt.lsts.neptus.comm.iridium;
 
+import com.google.gson.Gson;
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.io.IOUtils;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.iridium.Position.PosType;
+import pt.lsts.neptus.comm.manager.imc.ImcId16;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.types.vehicle.VehiclesHolder;
+import pt.lsts.neptus.util.ByteUtil;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
+
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -51,25 +66,11 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.io.IOUtils;
-
-import com.google.gson.Gson;
-
-import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.comm.iridium.Position.PosType;
-import pt.lsts.neptus.comm.manager.imc.ImcId16;
-import pt.lsts.neptus.comm.manager.imc.ImcSystem;
-import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
-import pt.lsts.neptus.types.coord.LocationType;
-import pt.lsts.neptus.types.vehicle.VehicleType;
-import pt.lsts.neptus.types.vehicle.VehiclesHolder;
-import pt.lsts.neptus.util.ByteUtil;
-import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**
  * @author zp
@@ -85,8 +86,9 @@ public class HubIridiumMessenger implements IridiumMessenger {
     protected String systemsUrl = serverUrl+"systems";
     protected String activeSystemsUrl = systemsUrl+"/active";
     protected String messagesUrl = serverUrl+"iridium";
+    protected String messagesRawUrl = serverUrl+"iridium/raw";
     protected int timeoutMillis = 10000;
-    protected HashSet<IridiumMessageListener> listeners = new HashSet<>();
+    protected Set<IridiumMessageListener> listeners = new HashSet<>();
     private static final Pattern p = Pattern.compile("\\((.)\\) \\((.*)\\) (.*) / (.*), (.*) / .*");
     private static final TimeZone tz = TimeZone.getTimeZone("UTC");
     private static final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
@@ -131,47 +133,82 @@ public class HubIridiumMessenger implements IridiumMessenger {
     public void removeListener(IridiumMessageListener listener) {
         listeners.remove(listener);       
     }
-    
-    @Override
-    public void sendMessage(IridiumMessage msg) throws Exception {
-     
-        byte[] data = msg.serialize();
-        data = new String(Hex.encodeHex(data)).getBytes();
-        
-        URL u = new URL(messagesUrl);
+
+    private HttpURLConnection getHttpURLConnection(String url) throws IOException {
+        URL u = new URL(url);
         HttpURLConnection conn = (HttpURLConnection) u.openConnection();
         conn.setDoOutput(true);
         conn.setRequestMethod( "POST" );
         conn.setRequestProperty( "Content-Type", "application/hub" );
-        conn.setRequestProperty( "Content-Length", String.valueOf(data.length * 2) );
         conn.setConnectTimeout(timeoutMillis);
         if (authKey != null && !authKey.isEmpty()) {
             conn.setRequestProperty ("Authorization", authKey);
         }
-        
-        try (OutputStream os = conn.getOutputStream()) {
-            os.write(data);
-        }
+        return conn;
+    }
 
-        NeptusLog.pub().info("{} : {} {}", messagesUrl, conn.getResponseCode(), conn.getResponseMessage());
-        
+    private void checkResponseFromServer(String url, String msgLabel, String msgType, String sentHexData, HttpURLConnection conn) throws Exception {
+        NeptusLog.pub().info("{} : {} {}", url, conn.getResponseCode(), conn.getResponseMessage());
+
         try (InputStream is = conn.getInputStream(); ByteArrayOutputStream incoming = new ByteArrayOutputStream()) {
             IOUtils.copy(is, incoming);
 
-            NeptusLog.pub().info("Sent {} through HTTP: {} {}", msg.getClass().getSimpleName(),
-                conn.getResponseCode(), conn.getResponseMessage());
+            NeptusLog.pub().info("Sent {} through HTTP: {} {}", msgLabel,
+                    conn.getResponseCode(), conn.getResponseMessage());
 
-            logHubInteraction(msg.getClass().getSimpleName()+" ("+msg.getMessageType()+")", messagesUrl,
-                    conn.getRequestMethod(), ""+conn.getResponseCode(), ByteUtil.encodeToHex(msg.serialize()),
-                    incoming.toString());
+            logHubInteraction(msgLabel + " (" + msgType + ")", url,
+                    conn.getRequestMethod(), String.valueOf(conn.getResponseCode()),
+                    sentHexData, incoming.toString());
         }
         catch (Exception e) {
             NeptusLog.pub().error(e);
         }
-        
+
         if (conn.getResponseCode() != 200) {
-            throw new Exception("Server returned "+conn.getResponseCode()+": "+conn.getResponseMessage());
+            throw new Exception("Server returned "+ conn.getResponseCode()+": "+ conn.getResponseMessage());
         }
+    }
+
+    @Override
+    public void sendMessage(IridiumMessage msg) throws Exception {
+        byte[] data = msg.serialize();
+        data = new String(Hex.encodeHex(data)).getBytes();
+
+        HttpURLConnection conn = getHttpURLConnection(messagesUrl);
+        conn.setRequestProperty( "Content-Length", String.valueOf(data.length * 2) );
+
+        try (OutputStream os = conn.getOutputStream()) {
+            os.write(data);
+        }
+
+        checkResponseFromServer(messagesUrl, msg.getClass().getSimpleName(), String.valueOf(msg.getMessageType()),
+                ByteUtil.encodeToHex(msg.serialize()), conn);
+    }
+
+    /**
+     * Send this raw message across
+     * @param destinationName The name of the destination
+     *                        (e.g. the name of the vehicle that should receive the message)
+     * @param imeiAddr The address of the destination, in this case the imei of the Iridium
+     *                 device that should receive the message, leave empty if not known
+     * @param data  The raw data to be sent
+     */
+    @Override
+    public void sendMessageRaw(String destinationName, String imeiAddr, byte[] data) throws Exception {
+        HttpURLConnection conn = getHttpURLConnection(messagesRawUrl);
+
+        conn.setRequestProperty( "source", GeneralPreferences.imcCcuName.toLowerCase(Locale.ROOT));
+        conn.setRequestProperty( "destination", destinationName);
+        conn.setRequestProperty( "imei", imeiAddr);
+
+        conn.setRequestProperty( "Content-Length", String.valueOf(data.length * 2) );
+
+        try (OutputStream os = conn.getOutputStream()) {
+            os.write(new String(Hex.encodeHex(data)).getBytes());
+        }
+
+        checkResponseFromServer(messagesRawUrl, "raw data", "-1",
+                ByteUtil.encodeToHex(data), conn);
     }
 
     public synchronized void logHubInteraction(String message, String url, String method, String statusCode, String requestData, String responseData) throws Exception {
@@ -415,5 +452,9 @@ public class HubIridiumMessenger implements IridiumMessenger {
         Collection<IridiumMessage> msgs = messenger.pollMessages(d);
         System.out.println(msgs.size());
         msgs.forEach(m -> System.out.println(m.asImc()));
+
+        byte[] msg = new byte[]{0x24, 0x01, 0x00, 0x2a, (byte) 0xa5};
+        IridiumManager.getManager().sendRaw("caravel",
+                "300125060492800", msg);
     }
 }
