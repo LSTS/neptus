@@ -34,12 +34,17 @@ package pt.lsts.neptus.mra.plots;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.TimeZone;
 import java.util.Vector;
 
@@ -130,6 +135,41 @@ public abstract class MRATimeSeriesPlot implements LLFChart, LogMarkerListener {
             addTrace(trace);
         }
         series.get(trace).addOrUpdate(new Millisecond(new Date(timeMillis), TimeZone.getTimeZone("UTC"), Locale.getDefault()), value);
+    }
+
+    public String parseChartTitle(StringBuilder sb) {
+        String chartTitle = String.valueOf(sb);
+        String newTitle;
+
+        String chartType = chartTitle.substring(chartTitle.indexOf("] ") + 1);
+
+        if (chartType.contains("Messages") || chartType.contains("Compare") || chartType.contains("Timeline")){
+            Map<String, List<String>> seriesMap = new HashMap<String, List<String>>();
+
+            String seriesStr = chartTitle;
+            seriesStr = seriesStr.substring(seriesStr.indexOf("[") + 1);
+            seriesStr = seriesStr.substring(0, seriesStr.indexOf("]"));
+            List<String> seriesList = new ArrayList<String>(Arrays.asList(seriesStr.split(", ")));
+
+            for (String series : seriesList) {
+                String[] seriesVariables = series.split("\\.");
+                String seriesName = seriesVariables[seriesVariables.length - 2];
+                String seriesVariable = seriesVariables[seriesVariables.length - 1];
+                if (!seriesMap.containsKey(seriesName)) {
+                    seriesMap.put(seriesName, new ArrayList<>());
+                }
+                if (!seriesMap.get(seriesName).contains(seriesVariable)) {
+                    seriesMap.get(seriesName).add(seriesVariable);
+                }
+            }
+
+            newTitle = seriesMap.toString();
+            newTitle = newTitle.substring(1,newTitle.length()-1).replace('=',' ');
+            newTitle += " " + chartType;
+
+            return newTitle;
+        }
+        return chartTitle;
     }
 
     @Override
