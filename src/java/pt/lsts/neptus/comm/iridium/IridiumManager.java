@@ -34,8 +34,6 @@ package pt.lsts.neptus.comm.iridium;
 
 import java.awt.Component;
 import java.io.ByteArrayOutputStream;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -61,8 +59,10 @@ import pt.lsts.imc.IMCUtil;
 import pt.lsts.imc.IridiumMsgTx;
 import pt.lsts.imc.LogBookEntry;
 import pt.lsts.imc.MessagePart;
+import pt.lsts.imc.Voltage;
 import pt.lsts.imc.net.IMCFragmentHandler;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.util.ByteUtil;
 import pt.lsts.neptus.util.ImageUtils;
@@ -214,7 +214,7 @@ public class IridiumManager {
 
         if (msg instanceof PlainTextReportMessage) {
             processAndCreateAssetReportFrom((PlainTextReportMessage) msg);
-            processAndCreateFuelFrom((PlainTextReportMessage) msg);
+            processAndCreateFuelAndBattVoltageFrom((PlainTextReportMessage) msg);
             processAndCreateOpModeFrom((PlainTextReportMessage) msg);
         }
     }
@@ -264,19 +264,21 @@ public class IridiumManager {
         ImcMsgManager.getManager().postInternalMessage("iridium", report);
     }
 
-    private void processAndCreateFuelFrom(PlainTextReportMessage reportMsg) {
-        if (reportMsg.fuelPercentage < 0)
-            return;
-
-        NeptusLog.pub().info("Posting resulting fuel report message to bus.");
+    private void processAndCreateFuelAndBattVoltageFrom(PlainTextReportMessage reportMsg) {
         FuelLevel fuel = new FuelLevel();
         fuel.setSrc(reportMsg.getSource());
         fuel.setDst(reportMsg.getDestination());
         fuel.setTimestamp(reportMsg.timestampMillis / 1000.0);
 
+        Voltage batteryVoltage = new Voltage();
+        batteryVoltage.setSrc(reportMsg.getSource());
+        batteryVoltage.setDst(reportMsg.getDestination());
+        batteryVoltage.setTimestamp(reportMsg.timestampMillis / 1000.0);
+
         try {
             GregorianCalendar reportTime = parseReportTime(reportMsg);
             fuel.setTimestamp(reportTime.getTimeInMillis() / 1000.0);
+            batteryVoltage.setTimestamp(reportTime.getTimeInMillis() / 1000.0);
         } catch (Exception e) {
             NeptusLog.pub().warn(e.getMessage());
         }
@@ -284,7 +286,19 @@ public class IridiumManager {
         fuel.setValue(reportMsg.fuelPercentage);
         fuel.setConfidence(reportMsg.batteryConfidencePercentage);
 
-        ImcMsgManager.getManager().postInternalMessage("iridium", fuel);
+        int entBatt = EntitiesResolver.resolveId(reportMsg.vehicle, "Batteries");
+        if (entBatt > 0)
+            batteryVoltage.setSrcEnt(entBatt);
+        batteryVoltage.setValue(reportMsg.batteryVoltage);
+
+        if (reportMsg.fuelPercentage > 0) {
+            NeptusLog.pub().info("Posting resulting fuel report message to bus.");
+            ImcMsgManager.getManager().postInternalMessage("iridium", fuel);
+        }
+        if (reportMsg.batteryVoltage > 0) {
+            NeptusLog.pub().info("Posting resulting battery voltage report message to bus.");
+            ImcMsgManager.getManager().postInternalMessage("iridium", batteryVoltage);
+        }
     }
 
     private void processAndCreateOpModeFrom(PlainTextReportMessage reportMsg) {
