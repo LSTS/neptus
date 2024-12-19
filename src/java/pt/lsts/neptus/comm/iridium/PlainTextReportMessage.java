@@ -54,6 +54,7 @@ import java.util.regex.Pattern;
  */
 public class PlainTextReportMessage extends IridiumMessage {
 
+    private static final Pattern p0 = Pattern.compile("\\((.)\\) \\((.*)\\) (.*) / (.*), (.*) / f:(\\d*) v:(\\d*) c:(\\d*) / s: ?(.)(.*?)");
     private static final Pattern p = Pattern.compile("\\((.)\\) \\((.*)\\) (.*) / (.*), (.*) / .*");
 
     String report;
@@ -63,6 +64,12 @@ public class PlainTextReportMessage extends IridiumMessage {
     int source = 0xFFFF;
     double latDeg;
     double lonDeg;
+
+    double fuelPercentage = -1;
+    double batteryVoltage = -1;
+    double batteryConfidencePercentage = -1;
+
+    String statusIndicator = "";
 
     public PlainTextReportMessage() {
         super(-1);
@@ -95,13 +102,25 @@ public class PlainTextReportMessage extends IridiumMessage {
 
     @Override
     public String toString() {
-        return "Report: " + report + "\n";
+        return "Report: " + report + "\n"
+                + "Vehicle: " + vehicle + "\n"
+                + "Time of day: " + timeOfDay + "\n"
+                + "Lat: " + latDeg + "\n"
+                + "Lon: " + lonDeg + "\n"
+                + "Fuel: " + fuelPercentage + "\n"
+                + "Battery: " + batteryVoltage + "\n"
+                + "Battery confidence: " + batteryConfidencePercentage + "\n"
+                + "Status: " + statusIndicator;
+
     }
 
     private void parse() throws Exception {
-        Matcher matcher = p.matcher(report);
+        Matcher matcher = p0.matcher(report);
         if (!matcher.matches()) {
-            throw new Exception("Invalid report format: " + report);
+            matcher = p.matcher(report);
+            if (!matcher.matches()) {
+                throw new Exception("Invalid report format: " + report);
+            }
         }
 
         vehicle = matcher.group(2);
@@ -116,6 +135,14 @@ public class PlainTextReportMessage extends IridiumMessage {
         String[] lonParts = lonMins.split(" ");
         latDeg = getCoords(latParts);
         lonDeg = getCoords(lonParts);
+
+        if (matcher.groupCount() <= 6)
+            return;
+
+        fuelPercentage = Double.parseDouble(matcher.group(6));
+        batteryVoltage = Double.parseDouble(matcher.group(7)) / 10.0;
+        batteryConfidencePercentage = Double.parseDouble(matcher.group(8));
+        statusIndicator = matcher.group(9);
     }
 
     private double getCoords(String[] coordParts) {
@@ -137,6 +164,7 @@ public class PlainTextReportMessage extends IridiumMessage {
         try {
             txtIridium.deserializeFields(iis);
             NeptusLog.pub().info("Received a plain text from " + txtIridium.report);
+            System.out.println("Received a plain text from " + txtIridium);
         }
         catch (Exception e) {
             NeptusLog.pub().error(e);
