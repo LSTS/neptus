@@ -66,6 +66,7 @@ import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.util.ByteUtil;
 import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**
@@ -275,10 +276,16 @@ public class IridiumManager {
         batteryVoltage.setDst(reportMsg.getDestination());
         batteryVoltage.setTimestamp(reportMsg.timestampMillis / 1000.0);
 
+        LogBookEntry logBookEntry = new LogBookEntry();
+        logBookEntry.setSrc(reportMsg.getSource());
+        logBookEntry.setDst(reportMsg.getDestination());
+        logBookEntry.setTimestamp(reportMsg.timestampMillis / 1000.0);
+
         try {
             GregorianCalendar reportTime = parseReportTime(reportMsg);
             fuel.setTimestamp(reportTime.getTimeInMillis() / 1000.0);
             batteryVoltage.setTimestamp(reportTime.getTimeInMillis() / 1000.0);
+            logBookEntry.setTimestamp(reportTime.getTimeInMillis() / 1000.0);
         } catch (Exception e) {
             NeptusLog.pub().warn(e.getMessage());
         }
@@ -291,13 +298,27 @@ public class IridiumManager {
             batteryVoltage.setSrcEnt(entBatt);
         batteryVoltage.setValue(reportMsg.batteryVoltage);
 
+        logBookEntry.setHtime(logBookEntry.getTimestamp());
+        logBookEntry.setContext("Text report from Iridium");
+        logBookEntry.setText((reportMsg.batteryVoltage > 0 ? "Batteries voltage is "
+                + MathMiscUtils.round(reportMsg.batteryVoltage, 1) + " V " : "")
+                + (reportMsg.fuelPercentage > 0 ? "Fuel level is " + Math.round(reportMsg.fuelPercentage)
+                + "% (confidence " + Math.round(reportMsg.batteryConfidencePercentage) + "%)" : ""));
+
+        boolean sendLogBookEntry = false;
         if (reportMsg.fuelPercentage > 0) {
             NeptusLog.pub().info("Posting resulting fuel report message to bus.");
             ImcMsgManager.getManager().postInternalMessage("iridium", fuel);
+            sendLogBookEntry = true;
         }
         if (reportMsg.batteryVoltage > 0) {
             NeptusLog.pub().info("Posting resulting battery voltage report message to bus.");
             ImcMsgManager.getManager().postInternalMessage("iridium", batteryVoltage);
+            sendLogBookEntry = true;
+        }
+        if (sendLogBookEntry) {
+            NeptusLog.pub().info("Posting resulting log book entry message to bus.");
+            ImcMsgManager.getManager().postInternalMessage("iridium", logBookEntry);
         }
     }
 
@@ -320,6 +341,7 @@ public class IridiumManager {
 
         logBookEntry.setHtime(logBookEntry.getTimestamp());
         logBookEntry.setContext("Text report from Iridium");
+        logBookEntry.setType(LogBookEntry.TYPE.INFO);
 
         switch (reportMsg.statusIndicator) {
             case "S":
