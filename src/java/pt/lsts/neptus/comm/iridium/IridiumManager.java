@@ -33,11 +33,15 @@
 package pt.lsts.neptus.comm.iridium;
 
 import java.awt.Component;
+import java.io.ByteArrayOutputStream;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.TimeZone;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -46,16 +50,23 @@ import javax.swing.JOptionPane;
 
 import org.apache.commons.codec.binary.Hex;
 
+import pt.lsts.imc.AssetReport;
+import pt.lsts.imc.FuelLevel;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.IMCOutputStream;
 import pt.lsts.imc.IMCUtil;
 import pt.lsts.imc.IridiumMsgTx;
+import pt.lsts.imc.LogBookEntry;
 import pt.lsts.imc.MessagePart;
+import pt.lsts.imc.Voltage;
 import pt.lsts.imc.net.IMCFragmentHandler;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.util.ByteUtil;
 import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**
@@ -106,8 +117,9 @@ public class IridiumManager {
         }
     }
 
-    private Runnable pollMessages = new Runnable() {
+    private final Runnable pollMessages = new Runnable() {
         Date lastTime = new Date(System.currentTimeMillis() - Duration.ofHours(1).toMillis());
+        //Date lastTime = new GregorianCalendar(2024, Calendar.NOVEMBER, 6).getTime(); // new Date(System.currentTimeMillis() - Duration.ofHours(1).toMillis());
 
         @Override
         public void run() {
@@ -127,8 +139,7 @@ public class IridiumManager {
                 lastCall = now;
                 NeptusLog.pub().info("Start polling messages from Iridium network.");
                 Collection<IridiumMessage> msgs = getCurrentMessenger().pollMessages(lastTime);
-                NeptusLog.pub().info("Polled {} messages from Iridium network.",
-                        msgs.size());
+                NeptusLog.pub().info("Polled {} messages from Iridium network.", msgs.size());
                 for (IridiumMessage m : msgs) {
                     try {
                         processMessage(m);
@@ -149,7 +160,16 @@ public class IridiumManager {
             }
         }
     };
-    
+
+    public static Date parseTimeString(String timeOfDay) {
+        GregorianCalendar date = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
+        String[] timeParts = timeOfDay.split(":");
+        date.set(Calendar.HOUR_OF_DAY, Integer.parseInt(timeParts[0]));
+        date.set(Calendar.MINUTE, Integer.parseInt(timeParts[1]));
+        date.set(Calendar.SECOND, Integer.parseInt(timeParts[2]));
+        return date.getTime();
+    }
+
     public boolean isAvailable() {
         return getCurrentMessenger().isAvailable();
     }
@@ -161,7 +181,22 @@ public class IridiumManager {
     public void processMessage(IridiumMessage msg) {
         try {
             IridiumMsgTx transmission = new IridiumMsgTx();
-            transmission.setData(msg.serialize());
+
+            if (msg.getMessageType() < 0) {
+                // This allows to send the original message bytes
+                try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+                    IMCOutputStream ios = new IMCOutputStream(baos);
+                    ios.setBigEndian(false);
+                    int size = msg.serializeFields(ios);
+                    transmission.setData(Arrays.copyOf(baos.toByteArray(), size));
+                } catch (Exception e) {
+                    NeptusLog.pub().warn(e.getMessage());
+                    transmission.setData(msg.serialize());
+                }
+            } else {
+                transmission.setData(msg.serialize());
+            }
+
             transmission.setSrc(msg.getSource());
             transmission.setDst(msg.getDestination());
             transmission.setTimestamp(msg.timestampMillis/1000.0);
@@ -175,8 +210,171 @@ public class IridiumManager {
         
         for (IMCMessage m : msgs) {
             NeptusLog.pub().info("Posting resulting "+m.getAbbrev()+" message to bus.");
-            ImcMsgManager.getManager().postInternalMessage("iridium", m);            
+            ImcMsgManager.getManager().postInternalMessage("iridium", m);
         }
+
+        if (msg instanceof PlainTextReportMessage) {
+            processAndCreateAssetReportFrom((PlainTextReportMessage) msg);
+            processAndCreateFuelAndBattVoltageFrom((PlainTextReportMessage) msg);
+            processAndCreateOpModeFrom((PlainTextReportMessage) msg);
+        }
+    }
+
+    private static GregorianCalendar parseReportTime(PlainTextReportMessage reportMsg) {
+        // Get day month and year from date
+        Date recDate = new Date(reportMsg.timestampMillis);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(recDate);
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        int month = calendar.get(Calendar.MONTH) + 1; // Months are 0-based in Calendar
+        int year = calendar.get(Calendar.YEAR);
+        GregorianCalendar reportTime = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
+        String[] timeParts = reportMsg.timeOfDay.split(":");
+        reportTime.set(Calendar.YEAR, year);
+        reportTime.set(Calendar.MONTH, month);
+        reportTime.set(Calendar.DAY_OF_MONTH, day);
+        reportTime.set(Calendar.HOUR_OF_DAY, Integer.parseInt(timeParts[0]));
+        reportTime.set(Calendar.MINUTE, Integer.parseInt(timeParts[1]));
+        reportTime.set(Calendar.SECOND, Integer.parseInt(timeParts[2]));
+        return reportTime;
+    }
+
+    private static void processAndCreateAssetReportFrom(PlainTextReportMessage reportMsg) {
+        NeptusLog.pub().info("Posting resulting plain text report message to bus.");
+        AssetReport report = new AssetReport();
+        report.setSrc(reportMsg.getSource());
+        report.setDst(reportMsg.getDestination());
+        report.setTimestamp(reportMsg.timestampMillis / 1000.0);
+        report.setMedium(AssetReport.MEDIUM.SATELLITE);
+
+        report.setReportTime(report.getTimestamp());
+
+        try {
+            GregorianCalendar reportTime = parseReportTime(reportMsg);
+            report.setReportTime(reportTime.getTimeInMillis() / 1000.0);
+        } catch (Exception e) {
+            NeptusLog.pub().warn(e.getMessage());
+        }
+
+        report.setName(reportMsg.vehicle);
+        report.setLat(Math.toRadians(reportMsg.latDeg));
+        report.setLon(Math.toRadians(reportMsg.lonDeg));
+        report.setDepth(-1);
+        report.setAlt(-1);
+
+        ImcMsgManager.getManager().postInternalMessage("iridium", report);
+    }
+
+    private void processAndCreateFuelAndBattVoltageFrom(PlainTextReportMessage reportMsg) {
+        FuelLevel fuel = new FuelLevel();
+        fuel.setSrc(reportMsg.getSource());
+        fuel.setDst(reportMsg.getDestination());
+        fuel.setTimestamp(reportMsg.timestampMillis / 1000.0);
+
+        Voltage batteryVoltage = new Voltage();
+        batteryVoltage.setSrc(reportMsg.getSource());
+        batteryVoltage.setDst(reportMsg.getDestination());
+        batteryVoltage.setTimestamp(reportMsg.timestampMillis / 1000.0);
+
+        LogBookEntry logBookEntry = new LogBookEntry();
+        logBookEntry.setSrc(reportMsg.getSource());
+        logBookEntry.setDst(reportMsg.getDestination());
+        logBookEntry.setTimestamp(reportMsg.timestampMillis / 1000.0);
+
+        try {
+            GregorianCalendar reportTime = parseReportTime(reportMsg);
+            fuel.setTimestamp(reportTime.getTimeInMillis() / 1000.0);
+            batteryVoltage.setTimestamp(reportTime.getTimeInMillis() / 1000.0);
+            logBookEntry.setTimestamp(reportTime.getTimeInMillis() / 1000.0);
+        } catch (Exception e) {
+            NeptusLog.pub().warn(e.getMessage());
+        }
+
+        fuel.setValue(reportMsg.fuelPercentage);
+        fuel.setConfidence(reportMsg.batteryConfidencePercentage);
+
+        int entBatt = EntitiesResolver.resolveId(reportMsg.vehicle, "Batteries");
+        if (entBatt > 0)
+            batteryVoltage.setSrcEnt(entBatt);
+        batteryVoltage.setValue(reportMsg.batteryVoltage);
+
+        logBookEntry.setHtime(logBookEntry.getTimestamp());
+        logBookEntry.setContext("Text report from Iridium");
+        logBookEntry.setText((reportMsg.batteryVoltage > 0 ? "Batteries voltage is "
+                + MathMiscUtils.round(reportMsg.batteryVoltage, 1) + " V " : "")
+                + (reportMsg.fuelPercentage > 0 ? "Fuel level is " + Math.round(reportMsg.fuelPercentage)
+                + "% (confidence " + Math.round(reportMsg.batteryConfidencePercentage) + "%)" : ""));
+
+        boolean sendLogBookEntry = false;
+        if (reportMsg.fuelPercentage > 0) {
+            NeptusLog.pub().info("Posting resulting fuel report message to bus.");
+            ImcMsgManager.getManager().postInternalMessage("iridium", fuel);
+            sendLogBookEntry = true;
+        }
+        if (reportMsg.batteryVoltage > 0) {
+            NeptusLog.pub().info("Posting resulting battery voltage report message to bus.");
+            ImcMsgManager.getManager().postInternalMessage("iridium", batteryVoltage);
+            sendLogBookEntry = true;
+        }
+        if (sendLogBookEntry) {
+            NeptusLog.pub().info("Posting resulting log book entry message to bus.");
+            ImcMsgManager.getManager().postInternalMessage("iridium", logBookEntry);
+        }
+    }
+
+    private void processAndCreateOpModeFrom(PlainTextReportMessage reportMsg) {
+        if (reportMsg.statusIndicator.isEmpty())
+            return;
+
+        NeptusLog.pub().info("Posting resulting op. mode report message to bus.");
+        LogBookEntry logBookEntry = new LogBookEntry();
+        logBookEntry.setSrc(reportMsg.getSource());
+        logBookEntry.setDst(reportMsg.getDestination());
+        logBookEntry.setTimestamp(reportMsg.timestampMillis / 1000.0);
+
+        try {
+            GregorianCalendar reportTime = parseReportTime(reportMsg);
+            logBookEntry.setTimestamp(reportTime.getTimeInMillis() / 1000.0);
+        } catch (Exception e) {
+            NeptusLog.pub().warn(e.getMessage());
+        }
+
+        logBookEntry.setHtime(logBookEntry.getTimestamp());
+        logBookEntry.setContext("Text report from Iridium");
+        logBookEntry.setType(LogBookEntry.TYPE.INFO);
+
+        switch (reportMsg.statusIndicator) {
+            case "S":
+                logBookEntry.setType(LogBookEntry.TYPE.INFO);
+                logBookEntry.setText("Vehicle is in service mode");
+                break;
+            case "B":
+                logBookEntry.setType(LogBookEntry.TYPE.WARNING);
+                logBookEntry.setText("Vehicle is in boot mode");
+                break;
+            case "C":
+                logBookEntry.setType(LogBookEntry.TYPE.INFO);
+                logBookEntry.setText("Vehicle is in calibration mode");
+                break;
+            case "E":
+                logBookEntry.setType(LogBookEntry.TYPE.ERROR);
+                logBookEntry.setText("Vehicle is in error mode");
+                break;
+            case "X":
+                logBookEntry.setType(LogBookEntry.TYPE.WARNING);
+                logBookEntry.setText("Vehicle is in external mode");
+                break;
+            case "M":
+                logBookEntry.setType(LogBookEntry.TYPE.INFO);
+                logBookEntry.setText("Vehicle is in maneuver mode");
+                break;
+            default:
+                logBookEntry.setType(LogBookEntry.TYPE.INFO);
+                logBookEntry.setText("Vehicle is in " + reportMsg.statusIndicator + " mode");
+                break;
+        }
+
+        ImcMsgManager.getManager().postInternalMessage("iridium", logBookEntry);
     }
 
     public void selectMessenger(Component parent) {
@@ -266,17 +464,31 @@ public class IridiumManager {
         }
     }
     
-    
-
     /**
      * This method will send the given message using the currently selected messenger
      * 
      * @param msg
-     * @return
      */
     public void send(IridiumMessage msg) throws Exception {
-        NeptusLog.pub().info("Sending iridum message via "+getCurrentMessenger().getName()+": "+ByteUtil.encodeToHex(msg.serialize()));
+        NeptusLog.pub().info("Sending iridium message via "+getCurrentMessenger().getName()+": "+ByteUtil.encodeToHex(msg.serialize()));
         getCurrentMessenger().sendMessage(msg);
+    }
+
+    /**
+     * This method will send the given raw message using the currently selected messenger
+     *
+     * @param destinationName The name of the destination
+     *                        (e.g. the name of the vehicle that should receive the message)
+     * @param destinationAddr The address of the destination, this depends on the messenger
+     *                        (e.g. the IMC address of the vehicle that should receive the message,
+     *                        or the imei of the Iridium device that should receive the message)
+     *                        This can be empty or null, the messenger will try its best to find the
+     *                        missing information.
+     * @param data The data to be sent
+     */
+    public void sendRaw(String destinationName, String destinationAddr, byte[] data) throws Exception {
+        NeptusLog.pub().info("Sending iridium raw message via "+getCurrentMessenger().getName()+": "+ByteUtil.encodeToHex(data));
+        getCurrentMessenger().sendMessageRaw(destinationName, destinationAddr, data);
     }
     
     public static void main(String[] args) throws Exception {

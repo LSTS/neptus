@@ -38,8 +38,11 @@ import pt.lsts.imc.IMCOutputStream;
 import pt.lsts.imc.TextMessage;
 import pt.lsts.neptus.NeptusLog;
 
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Vector;
+import java.util.List;
 
 /**
  * @author pdias
@@ -48,6 +51,7 @@ import java.util.Vector;
 public class PlainTextMessage extends IridiumMessage {
 
     String text;
+    byte[] rawData;
 
     public PlainTextMessage() {
         super(-1);
@@ -55,20 +59,21 @@ public class PlainTextMessage extends IridiumMessage {
 
     @Override
     public int serializeFields(IMCOutputStream out) throws Exception {
-        out.write(text.getBytes("UTF-8"));
+        out.write(rawData);
         out.close();
-        return text.getBytes("UTF-8").length;
+        return rawData.length;
     }
 
     @Override
     public int deserializeFields(IMCInputStream in) throws Exception {
         int bav = in.available();
-        bav = bav < 0 ? 0 : bav;
+        bav = Math.max(bav, 0);
         byte[] data = new byte[bav];
         in.readFully(data);
-        text = new String(data, "UTF-8");
+        rawData = data;
+        text = new String(data, StandardCharsets.UTF_8);
         text = text.trim();
-        return text.getBytes("UTF-8").length;
+        return text.getBytes(StandardCharsets.UTF_8).length;
     }
 
     public final String getText() {
@@ -77,12 +82,23 @@ public class PlainTextMessage extends IridiumMessage {
 
     public final void setText(String text) {
         this.text = text;
+        this.rawData = text.getBytes(StandardCharsets.UTF_8);
+    }
+
+    public final byte[] getRawData() {
+        return rawData;
+    }
+
+    public final void setRawData(byte[] rawData) throws UnsupportedEncodingException {
+        this.rawData = rawData;
+        text = new String(rawData, StandardCharsets.UTF_8);
     }
 
     @Override
     public Collection<IMCMessage> asImc() {
-        Vector<IMCMessage> msgs = new Vector<>();
-        msgs.add(new TextMessage("iridium", text));
+        List<IMCMessage> msgs = new ArrayList<>();
+        TextMessage imcTxtMsg = new TextMessage("iridium", text);
+        msgs.add(imcTxtMsg);
         return msgs;
     }
 
@@ -93,6 +109,9 @@ public class PlainTextMessage extends IridiumMessage {
     }
 
     static IridiumMessage createTextMessageFrom(IMCInputStream in) throws Exception {
+        if (in.markSupported()) {
+            in.mark(Integer.MAX_VALUE);
+        }
         try {
             PlainTextReportMessage plainTextReport = new PlainTextReportMessage();
             plainTextReport.deserializeFields(in);
@@ -101,6 +120,7 @@ public class PlainTextMessage extends IridiumMessage {
             NeptusLog.pub().warn("Not able to parse iridium msg as PlainTextReportMessage, trying another or simple text");
         }
 
+        in.reset();
         PlainTextMessage plainTextMessage = new PlainTextMessage();
         plainTextMessage.deserializeFields(in);
         return plainTextMessage;

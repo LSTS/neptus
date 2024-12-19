@@ -41,8 +41,10 @@ import pt.lsts.neptus.NeptusLog;
 
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Vector;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -52,7 +54,8 @@ import java.util.regex.Pattern;
  */
 public class PlainTextReportMessage extends IridiumMessage {
 
-    private static Pattern p = Pattern.compile("\\((.)\\) \\((.*)\\) (.*) / (.*), (.*) / .*");
+    private static final Pattern p0 = Pattern.compile("\\((.)\\) \\((.*)\\) (.*) / (.*), (.*) / f:(\\d*) v:(\\d*) c:(\\d*) / s: ?(.)(.*?)");
+    private static final Pattern p = Pattern.compile("\\((.)\\) \\((.*)\\) (.*) / (.*), (.*) / .*");
 
     String report;
 
@@ -62,45 +65,64 @@ public class PlainTextReportMessage extends IridiumMessage {
     double latDeg;
     double lonDeg;
 
+    double fuelPercentage = -1;
+    double batteryVoltage = -1;
+    double batteryConfidencePercentage = -1;
+
+    String statusIndicator = "";
+
     public PlainTextReportMessage() {
         super(-1);
     }
 
     @Override
     public int serializeFields(IMCOutputStream out) throws Exception {
-        out.write(report.getBytes("ISO-8859-1"));
+        out.write(report.getBytes(StandardCharsets.ISO_8859_1));
         out.close();
-        return report.getBytes("ISO-8859-1").length;
+        return report.getBytes(StandardCharsets.ISO_8859_1).length;
     }
 
     @Override
     public int deserializeFields(IMCInputStream in) throws Exception {
         int bav = in.available();
-        bav = bav < 0 ? 0 : bav;
+        bav = Math.max(bav, 0);
         byte[] data = new byte[bav];
         int len = in.read(data);
-        report = new String(data, "ISO-8859-1");
+        report = new String(data, StandardCharsets.ISO_8859_1);
         parse();
         return len;
     }
 
     @Override
     public Collection<IMCMessage> asImc() {
-        Vector<IMCMessage> msgs = new Vector<>();
+        List<IMCMessage> msgs = new ArrayList<>();
         msgs.add(new TextMessage("iridium", report));
         return msgs;
     }
 
     @Override
     public String toString() {
-        return "Report: " + report + "\n";
+        return "Report: " + report + "\n"
+                + "Vehicle: " + vehicle + "\n"
+                + "Time of day: " + timeOfDay + "\n"
+                + "Lat: " + latDeg + "\n"
+                + "Lon: " + lonDeg + "\n"
+                + "Fuel: " + fuelPercentage + "\n"
+                + "Battery: " + batteryVoltage + "\n"
+                + "Battery confidence: " + batteryConfidencePercentage + "\n"
+                + "Status: " + statusIndicator;
+
     }
 
-    private void parse() {
-        Matcher matcher = p.matcher(report);
+    private void parse() throws Exception {
+        Matcher matcher = p0.matcher(report);
         if (!matcher.matches()) {
-            return;
+            matcher = p.matcher(report);
+            if (!matcher.matches()) {
+                throw new Exception("Invalid report format: " + report);
+            }
         }
+
         vehicle = matcher.group(2);
         timeOfDay = matcher.group(3);
         String latMins = matcher.group(4);
@@ -109,10 +131,18 @@ public class PlainTextReportMessage extends IridiumMessage {
         if (source == -1) {
             return;
         }
-        String latParts[] = latMins.split(" ");
-        String lonParts[] = lonMins.split(" ");
+        String[] latParts = latMins.split(" ");
+        String[] lonParts = lonMins.split(" ");
         latDeg = getCoords(latParts);
         lonDeg = getCoords(lonParts);
+
+        if (matcher.groupCount() <= 6)
+            return;
+
+        fuelPercentage = Double.parseDouble(matcher.group(6));
+        batteryVoltage = Double.parseDouble(matcher.group(7)) / 10.0;
+        batteryConfidencePercentage = Double.parseDouble(matcher.group(8));
+        statusIndicator = matcher.group(9);
     }
 
     private double getCoords(String[] coordParts) {
@@ -134,6 +164,7 @@ public class PlainTextReportMessage extends IridiumMessage {
         try {
             txtIridium.deserializeFields(iis);
             NeptusLog.pub().info("Received a plain text from " + txtIridium.report);
+            System.out.println("Received a plain text from " + txtIridium);
         }
         catch (Exception e) {
             NeptusLog.pub().error(e);
