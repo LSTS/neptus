@@ -48,6 +48,7 @@ import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.imc.lsf.LsfIndexListener;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.mra.api.CorrectedPosition;
 import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.importers.lsf.LsfMraLog;
@@ -66,6 +67,7 @@ public class LsfLogSource implements IMraLogGroup {
     LsfIndexListener listener = null;
     String[] existingMessages = null;
     Collection<Integer> vehicleSources;
+    CorrectedPosition positions;
     
     
     public LsfLogSource(String filename, LsfIndexListener listener) throws Exception {
@@ -278,4 +280,10 @@ public class LsfLogSource implements IMraLogGroup {
     public LsfIndex getLsfIndex() {
         return index;
     }
+
+    @Override
+    public void setCorrectedPosition(CorrectedPosition newPositions) { positions = newPositions; }
+
+    @Override
+    public CorrectedPosition getCorrectedPosition() { return positions; }
 }

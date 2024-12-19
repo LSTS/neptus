@@ -109,7 +109,7 @@ public class ReplayPlot extends MRATimeSeriesPlot implements TimelineChangeListe
     public String getName() {
         StringBuilder sb = new StringBuilder(Arrays.toString(fieldsToPlot));
         sb.append(" Timeline");
-        return sb.toString();
+        return parseChartTitle(sb);
     }    
 
     @Override

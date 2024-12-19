@@ -32,7 +32,11 @@
  */
 package pt.lsts.neptus.mra.plots;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import javax.swing.ImageIcon;
@@ -57,7 +61,7 @@ public class GenericPlot extends MRATimeSeriesPlot {
         this.postfixTile = postfixTile;
         StringBuilder sb = new StringBuilder(Arrays.toString(fieldsToPlot));
         sb.append(" " + this.postfixTile);
-        this.name = sb.toString();
+        this.name = parseChartTitle(sb);
         this.fieldsToPlot = fieldsToPlot;
 
     }

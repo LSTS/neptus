@@ -205,10 +205,14 @@ public class RipplesUpdater extends ConsolePanel implements ConfigurationListene
             return new RipplesPlan();
         }
         if (!getConsole().getMission().getIndividualPlansList().containsKey(pcs.getPlanId())) {
-            return new RipplesPlan();
+            RipplesPlan plan = new RipplesPlan();
+            if (pcs.getState() != PlanControlState.STATE.READY) {
+                plan.setId(pcs.getPlanId());
+            }
+            return plan;
         }
         PlanType planType = getConsole().getMission().getIndividualPlansList().get(pcs.getPlanId());
-        if (planType == null) {
+        if (planType == null || pcs.getState() == PlanControlState.STATE.READY) {
             return new RipplesPlan();
         }
         ArrayList<double[]> locs = new ArrayList<double[]>();

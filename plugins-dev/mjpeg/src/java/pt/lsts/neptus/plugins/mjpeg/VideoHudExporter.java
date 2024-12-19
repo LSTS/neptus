@@ -104,7 +104,11 @@ public class VideoHudExporter implements MRAExporter {
     
     
     public VideoHudExporter(IMraLogGroup source) {
-        this.positions = new CorrectedPosition(source);
+        if (source.getCorrectedPosition() != null) {
+            this.positions = source.getCorrectedPosition();
+        }
+        else { this.positions = new CorrectedPosition(source); }
+
         this.frameDecoder = new FrameDecoderMotionJPEG();    
         hud = new MraVehiclePosHud(source, 180, 180);
     }

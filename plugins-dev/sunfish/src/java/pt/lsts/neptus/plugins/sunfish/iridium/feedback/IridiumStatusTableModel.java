@@ -39,6 +39,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.TimeZone;
 
 import javax.swing.table.AbstractTableModel;
@@ -55,6 +56,7 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.iridium.ImcIridiumMessage;
 import pt.lsts.neptus.comm.iridium.IridiumCommand;
 import pt.lsts.neptus.comm.iridium.IridiumMessage;
+import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.messages.TypedMessageFilter;
@@ -91,8 +93,18 @@ public class IridiumStatusTableModel extends AbstractTableModel implements Messa
         if (msg.getMgid() == IridiumMsgRx.ID_STATIC) {
             IridiumMessage m;
             try {
+                Date now = new Date();
                 m = IridiumMessage.deserialize(msg.getRawData("data"));
                 //msgs.addElement(m); // m.source == ImcMsgManager.getManager().getLocalId().intValue()
+                if (!new Date(m.timestampMillis).before(now) && !Objects.equals(msg.getDate(), new Date(0))) {
+                    m.timestampMillis = msg.getDate().getTime();
+                }
+                if (m.source == ImcId16.NULL_ID.intValue()) {
+                    m.source = msg.getSrc();
+                }
+                if (m.destination == ImcId16.NULL_ID.intValue()) {
+                    m.destination = msg.getDst();
+                }
                 msgs.add(m);
                 fireTableRowsInserted(msgs.size()-1, msgs.size()-1);
             }
@@ -112,7 +124,17 @@ public class IridiumStatusTableModel extends AbstractTableModel implements Messa
         else if (msg.getMgid() == IridiumMsgTx.ID_STATIC) {
             IridiumMessage m;
             try {
+                Date now = new Date();
                 m = IridiumMessage.deserialize(msg.getRawData("data"));
+                if (!new Date(m.timestampMillis).before(now) && !Objects.equals(msg.getDate(), new Date(0))) {
+                    m.timestampMillis = msg.getDate().getTime();
+                }
+                if (m.source == ImcId16.NULL_ID.intValue()) {
+                    m.source = msg.getSrc();
+                }
+                if (m.destination == ImcId16.NULL_ID.intValue()) {
+                    m.destination = msg.getDst();
+                }
                 synchronized (msgs) {
                     msgs.add(m);
                     if (msg.getSrc() == ImcMsgManager.getManager().getLocalId().intValue()) { // Only keeps local

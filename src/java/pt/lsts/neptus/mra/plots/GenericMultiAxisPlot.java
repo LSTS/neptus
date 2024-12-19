@@ -53,7 +53,7 @@ import java.util.Map;
 public class GenericMultiAxisPlot extends GenericPlot implements IMultiAxisPlots {
 
     public GenericMultiAxisPlot(String[] fieldsToPlot, MRAPanel panel) {
-        super(fieldsToPlot, panel , "Compare Plot");
+        super(fieldsToPlot, panel , "Compare");
     }
 
     // public ImageIcon getIcon() {
