@@ -319,6 +319,17 @@ public class SystemProperty extends DefaultProperty implements PropertyChangeLis
         updatePropRenderer();
     }
 
+    public boolean inSync() {
+        boolean sync;
+        if (timeDirty > timeSync || timeSync <= 0) {
+            sync = false;
+        }
+        else {
+            sync = true;
+        }
+        return sync;
+    }
+
     private void updatePropRenderer() {
         if (this.renderer == null)
             return;
@@ -326,12 +337,8 @@ public class SystemProperty extends DefaultProperty implements PropertyChangeLis
         if (!(renderer instanceof SystemPropertyRenderer))
             return;
 
-        if (timeDirty > timeSync || timeSync <= 0) {
-            ((SystemPropertyRenderer) renderer).setPropertyInSync(false);
-        }
-        else {
-            ((SystemPropertyRenderer) renderer).setPropertyInSync(true);
-        }
+        boolean sync = inSync();
+        ((SystemPropertyRenderer) renderer).setPropertyInSync(sync);
     }
 
     /* (non-Javadoc)
