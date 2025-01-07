@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2024 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2025 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -319,6 +319,17 @@ public class SystemProperty extends DefaultProperty implements PropertyChangeLis
         updatePropRenderer();
     }
 
+    public boolean inSync() {
+        boolean sync;
+        if (timeDirty > timeSync || timeSync <= 0) {
+            sync = false;
+        }
+        else {
+            sync = true;
+        }
+        return sync;
+    }
+
     private void updatePropRenderer() {
         if (this.renderer == null)
             return;
@@ -326,12 +337,8 @@ public class SystemProperty extends DefaultProperty implements PropertyChangeLis
         if (!(renderer instanceof SystemPropertyRenderer))
             return;
 
-        if (timeDirty > timeSync || timeSync <= 0) {
-            ((SystemPropertyRenderer) renderer).setPropertyInSync(false);
-        }
-        else {
-            ((SystemPropertyRenderer) renderer).setPropertyInSync(true);
-        }
+        boolean sync = inSync();
+        ((SystemPropertyRenderer) renderer).setPropertyInSync(sync);
     }
 
     /* (non-Javadoc)
