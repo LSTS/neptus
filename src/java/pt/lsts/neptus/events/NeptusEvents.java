@@ -162,6 +162,15 @@ public enum NeptusEvents {
     }
 
     /**
+     * Unregister for the GLOBAL synchronous event bus
+     *
+     * @param object
+     */
+    public static void unregister(Object object) {
+        INSTANCE.eventBus.unregister(object);
+    }
+
+    /**
      * Unregister for the given console asynchronous event bus
      * 
      * @param object
