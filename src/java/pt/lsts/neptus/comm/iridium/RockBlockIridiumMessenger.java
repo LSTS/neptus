@@ -232,7 +232,7 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
 
     @Override
     public void sendMessageRaw(String destinationName, String imeiAddr, byte[] data) throws Exception {
-        if (imeiAddr == null || imeiAddr.isEmpty()) {
+        if (imeiAddr == null || imeiAddr.trim().isEmpty()) {
             VehicleType vt = VehiclesHolder.getVehicleById(destinationName);
             if (vt == null) {
                 throw new Exception("Cannot send message to an unknown destination");
