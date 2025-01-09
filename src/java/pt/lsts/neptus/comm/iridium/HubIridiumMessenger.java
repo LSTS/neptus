@@ -199,7 +199,8 @@ public class HubIridiumMessenger implements IridiumMessenger {
 
         conn.setRequestProperty( "source", GeneralPreferences.imcCcuName.toLowerCase(Locale.ROOT));
         conn.setRequestProperty( "destination", destinationName);
-        conn.setRequestProperty( "imei", imeiAddr);
+        if (imeiAddr != null && !imeiAddr.isEmpty())
+            conn.setRequestProperty( "imei", imeiAddr);
 
         conn.setRequestProperty( "Content-Length", String.valueOf(data.length * 2) );
 
