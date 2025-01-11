@@ -1471,6 +1471,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
         }
 
         final JLabel levelOfDetailLabel = new JLabel();
+        final JPanel zoomPanel = new JPanel(new MigLayout("ins 0"));
         final JButton zoomInButton = new JButton(new AbstractAction("+") {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -1485,6 +1486,8 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
             }
         });
         zoomOutButton.setToolTipText(I18n.text("Zoom out"));
+        zoomPanel.add(zoomInButton, "sg zoom");
+        zoomPanel.add(zoomOutButton, "sg zoom");
         final JLabel memInfoLabel = new JLabel();
         final JLabel loadingTilesLabel = new JLabel();
         final JButton stopLoadingButton = new JButton(new AbstractAction(I18n.text("Stop Loading")) {
@@ -1497,8 +1500,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
         busyPanel.setVisible(false);
         JXStatusBar statusBar = new JXStatusBar();
         statusBar.add(levelOfDetailLabel);
-        statusBar.add(zoomInButton);
-        statusBar.add(zoomOutButton);
+        statusBar.add(zoomPanel);
         statusBar.add(memInfoLabel, JXStatusBar.Constraint.ResizeBehavior.FILL);
         statusBar.add(loadingTilesLabel);
         statusBar.add(stopLoadingButton);
