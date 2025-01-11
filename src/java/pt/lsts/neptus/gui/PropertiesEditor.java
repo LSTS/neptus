@@ -371,7 +371,11 @@ public class PropertiesEditor {
         propertySheetDialog.getContentPane().add(psp);
         propertySheetDialog.pack();
 
-        GuiUtils.centerOnScreen(propertySheetDialog);
+        if (parent != null) {
+            propertySheetDialog.setLocationRelativeTo(parent);
+        } else {
+            GuiUtils.centerOnScreen(propertySheetDialog);
+        }
         propertySheetDialog.setModalityType(ModalityType.DOCUMENT_MODAL);
         return propertySheetDialog;
     }
