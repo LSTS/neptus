@@ -123,6 +123,7 @@ public class AboutPanel extends JDialog {
         });
         this.fillText();
         GuiUtils.centerOnScreen(this);
+        GuiUtils.reactEscapeKeyPress(this);
     }
 
     /**
