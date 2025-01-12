@@ -46,6 +46,7 @@ import pt.lsts.neptus.plugins.MapTileProvider;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.renderer2d.tiles.MapPainterProvider;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.coord.MapTileUtil;
 import pt.lsts.s57.S57;
@@ -124,6 +125,7 @@ public class S57Chart implements MapPainterProvider {
             painterList.put(renderer, NeptusS57Painter.forge(s57, mc));
         }
 
+        GuiUtils.reactEscapeKeyPress(dialog);
         return dialog;
     }
 
