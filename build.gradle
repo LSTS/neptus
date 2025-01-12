@@ -549,6 +549,8 @@ project(':core') {
 
         implementation 'com.google.zxing:javase:3.2.1' //3.4.0
 
+        implementation 'com.kitfox.svg:svg-salamander:1.0'
+
         // Java 11 related
         implementation 'javax.annotation:javax.annotation-api:1.3.2'
 
