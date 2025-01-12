@@ -1237,6 +1237,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
         dialogProperties.setIconImages(ConfigFetch.getIconImagesForFrames());
         dialogProperties.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         dialogProperties.setTitle(I18n.text("World Map Layer"));
+        GuiUtils.reactEscapeKeyPress(dialogProperties);
         
         ButtonGroup baseMapsButtonGroup = new ButtonGroup();
         JPanel confPanel = new JPanel(new MigLayout("ins 0, wrap 6"));
