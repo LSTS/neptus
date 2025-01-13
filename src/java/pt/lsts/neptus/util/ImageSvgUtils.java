@@ -88,9 +88,10 @@ public class ImageSvgUtils {
     /**
      * Gets the SVG image as a buffered image.
      * @param path the path to the SVG image
+     * @param graphicModifier a function to modify the graphics2D before painting the SVG image
      * @return the buffered image
      */
-    public static BufferedImage getSvgImageAsBufferedImage(String path) {
+    public static BufferedImage getSvgImageAsBufferedImage(String path, BiFunction<Graphics2D, SVGDiagram, Void> graphicModifier) {
         SVGDiagram diagram = getSvgImage(path);
         if (diagram == null)
             return null;
@@ -101,7 +102,10 @@ public class ImageSvgUtils {
             graphics2D.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
             graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
             graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            if (graphicModifier != null)
+                graphicModifier.apply(graphics2D, diagram);
             paintSvgImageToBufferedImage(graphics2D, diagram);
+            graphics2D.dispose();
         }
         catch (Exception e) {
             NeptusLog.pub().error(e);
