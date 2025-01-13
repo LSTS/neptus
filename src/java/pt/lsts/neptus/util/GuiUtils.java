@@ -60,7 +60,9 @@ import java.awt.Transparency;
 import java.awt.TrayIcon;
 import java.awt.TrayIcon.MessageType;
 import java.awt.Window;
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
@@ -88,6 +90,8 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -102,6 +106,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
+import javax.swing.JRootPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
@@ -1006,6 +1011,18 @@ public class GuiUtils {
 
         btn.registerKeyboardAction(btn.getActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0, true)),
                 KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, true), JComponent.WHEN_IN_FOCUSED_WINDOW);
+    }
+
+    public static void reactEscapeKeyPress(JDialog dialog) {
+        Action dispatchClosing = new AbstractAction() {
+            public void actionPerformed(ActionEvent event) {
+                dialog.dispatchEvent(new WindowEvent(dialog, WindowEvent.WINDOW_CLOSING));
+            }
+        };
+        JRootPane root = dialog.getRootPane();
+        root.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
+                KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, false), JComponent.WHEN_IN_FOCUSED_WINDOW);
+        root.getActionMap().put(JComponent.WHEN_IN_FOCUSED_WINDOW, dispatchClosing);
     }
 
     /**
