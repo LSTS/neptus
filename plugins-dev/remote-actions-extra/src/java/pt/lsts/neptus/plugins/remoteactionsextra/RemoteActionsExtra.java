@@ -43,6 +43,7 @@ import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
+import pt.lsts.neptus.gui.swing.HoldFillButton;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -51,7 +52,6 @@ import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.util.MathMiscUtils;
 
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 import java.awt.event.KeyEvent;
@@ -177,17 +177,6 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
         List<List<String>> groupedActions = groupActionsBySimilarity(extraActionsTypesMap.keySet(), true);
         groupedActions = processActions(groupedActions, 2, false);
 
-        JCheckBox lockUnlockButton = new JCheckBox("Lock/Unlock");
-        lockUnlockButton.setSelected(true);
-        lockUnlockButton.addActionListener(e -> {
-            if (lockUnlockButton.isSelected()) {
-                extraLockableButtons.forEach(b -> b.setEnabled(false));
-            } else {
-                extraLockableButtons.forEach(b -> b.setEnabled(true));
-            }
-        });
-        add(lockUnlockButton, "dock center, wrap");
-
         int grpIdx = 0;
         for (List<String> grp1 : groupedActions) {
             grpIdx++;
@@ -209,7 +198,7 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
                 switch (extraActionsTypesMap.get(action)) {
                     case BUTTON:
                         boolean isToProvideLock = provideLock || isActionForLock(action);
-                        JButton button = new JButton(action);
+                        JButton button = isToProvideLock ? new HoldFillButton(action, 2000) : new JButton(action);
                         button.addActionListener(e -> {
                             curState.changeButtonActionValue(action, 1);
                         });
@@ -235,12 +224,6 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
             }
         }
 
-        if (extraLockableButtons.isEmpty()) {
-            remove(lockUnlockButton);
-        } else {
-            lockUnlockButton.setSelected(true);
-            extraLockableButtons.forEach(b -> b.setEnabled(false));
-        }
         invalidate();
         validate();
         repaint(100);
