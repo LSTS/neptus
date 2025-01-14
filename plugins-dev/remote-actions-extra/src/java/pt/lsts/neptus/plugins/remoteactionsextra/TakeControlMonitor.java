@@ -95,7 +95,7 @@ class TakeControlMonitor {
     public void on(EntityState msg) {
         try {
             if (!msg.getSourceName().equals(parent.getMainVehicleId())
-                    || !msg.getEntityName().equals(entityName)) {
+                    || !entityName.equals(msg.getEntityName())) {
                 return;
             }
         } catch (Exception e) {

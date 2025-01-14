@@ -34,6 +34,8 @@ package pt.lsts.neptus.console.plugins.planning;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.TreeMap;
 
 import javax.swing.JOptionPane;
@@ -61,12 +63,18 @@ public class MissionTreePlanDbAdapter extends PlanDBAdapter {
     private ConsoleLayout console;
     private MissionTreePanel missionTree;
     private boolean debugOn = true;
+    private final List<String> planNamesToAutoAcceptUpdatesList = new ArrayList<>();
     
     public MissionTreePlanDbAdapter(ConsoleLayout console, MissionTreePanel missionTree) {
         this.console = console;
         this.missionTree = missionTree;
     }
-    
+
+    public void updatePlanNamesToAutoAcceptUpdatesList(List<String> planNamesToAutoAcceptUpdatesList) {
+        this.planNamesToAutoAcceptUpdatesList.clear();
+        this.planNamesToAutoAcceptUpdatesList.addAll(planNamesToAutoAcceptUpdatesList);
+    }
+
     // Called only if Type == SUCCESS in received PlanDB message
     @Override
     public void dbCleared() {
@@ -114,10 +122,12 @@ public class MissionTreePlanDbAdapter extends PlanDBAdapter {
             PlanSpecification local = (PlanSpecification) console.getMission().getIndividualPlansList()
                     .get(spec.getId()).asIMCPlan();
             if (!ByteUtil.equal(local.payloadMD5(), remote.payloadMD5())) {
-                int option = JOptionPane.showConfirmDialog(console,
-                        I18n.text("Replace plan '" + spec.getId() + "' with received version?"));
-                if (option != JOptionPane.YES_OPTION)
-                    return;
+                if (!planNamesToAutoAcceptUpdatesList.contains(spec.getId())) {
+                    int option = JOptionPane.showConfirmDialog(console,
+                            I18n.text("Replace plan '" + spec.getId() + "' with received version?"));
+                    if (option != JOptionPane.YES_OPTION)
+                        return;
+                }
             }
         }
 

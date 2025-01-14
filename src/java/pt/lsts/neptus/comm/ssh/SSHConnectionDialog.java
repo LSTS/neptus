@@ -257,7 +257,11 @@ public class SSHConnectionDialog extends JPanel {
             jDialog.setSize(this.getWidth() + 5, this.getHeight() + 35);
             jDialog.getContentPane().setLayout(new BorderLayout());
             jDialog.getContentPane().add(this, BorderLayout.CENTER);
-            GuiUtils.centerOnScreen(jDialog);
+            if (parentWindow != null) {
+                jDialog.setLocationRelativeTo(parentWindow);
+            } else {
+                GuiUtils.centerOnScreen(jDialog);
+            }
             //jDialog.setModal(true);
             jDialog.setModalityType(parentWindow != null ? ModalityType.DOCUMENT_MODAL : ModalityType.APPLICATION_MODAL);
             jDialog.setAlwaysOnTop(true);

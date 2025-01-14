@@ -619,12 +619,24 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
      * @param mapStyle
      */
     public static void clearMemCache(String mapStyle) {
+        clearMemCache(mapStyle, null);
+    }
+
+   public static void clearMemCache(String mapStyle, List<String> quadKeys) {
         Map<String, Tile> map = tileHolderList.get(mapStyle);
         if (map != null) {
             Tile[] lst = map.values().toArray(new Tile[0]);
-            map.clear();
+            if (quadKeys == null || quadKeys.isEmpty())
+                map.clear();
             for (Tile tile : lst) {
-                tile.dispose();
+                if (quadKeys == null || quadKeys.isEmpty()) {
+                    tile.dispose();
+                } else {
+                    if (quadKeys.contains(tile.getId())) {
+                        map.remove(tile.getId());
+                        tile.dispose();
+                    }
+                }
             }
         }
     }
@@ -634,12 +646,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
      */
     public static void clearDiskCache() {
         for (Class<? extends Tile> clazz : tileClassList.values()) {
-            try {
-                clazz.getMethod("clearDiskCache").invoke(null);
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
+            clearDiskCache("all", clazz, null);
         }
     }
 
@@ -648,12 +655,58 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
      */
     public static void clearDiskCache(String mapStyle) {
         Class<? extends Tile> clazz = tileClassList.get(mapStyle);
-        if (clazz != null)
+        clearDiskCache(mapStyle, clazz, null);
+    }
+
+    public static void clearDiskCache(String mapStyle, List<String> quadKeys) {
+        Class<? extends Tile> clazz = tileClassList.get(mapStyle);
+        clearDiskCache(mapStyle, clazz, quadKeys);
+    }
+
+    private static void clearDiskCache(String mapStyle, Class<? extends Tile> clazz, List<String> quadKeys) {
+        if (clazz == null)
+            return;
+
+        String mapStyleBaseFolderName = clazz.getSimpleName();
+        try {
+            clazz.getMethod("clearDiskCache", List.class).invoke(null, quadKeys);
+        }
+        catch (NoSuchMethodException e) {
             try {
-                clazz.getMethod("clearDiskCache").invoke(null);
+                if (quadKeys == null) {
+                    clazz.getMethod("clearDiskCache").invoke(null);
+                }
+                else {
+                    clazz.getMethod("clearDiskCache", String[].class).invoke(null, (Object) quadKeys.toArray(new String[0]));
+                }
             }
+            catch (NoSuchMethodException ex) {
+                try {
+                    if (quadKeys == null || quadKeys.isEmpty()) {
+                        clazz.getMethod("clearDiskCache").invoke(null);
+                    } else {
+                        Tile.clearDiskCache(mapStyleBaseFolderName, quadKeys);
+                    }
+                }
+                catch (NoSuchMethodException ex2) {
+                    try {
+                        // Last resort
+                        Tile.clearDiskCache(mapStyleBaseFolderName, quadKeys);
+                    }
+                    catch (Exception e1) {
+                        NeptusLog.pub().error("Error clearing disk cache for {} : {}", mapStyle, e1.getMessage());
+                    }
+                }
+                catch (Exception e1) {
+                    NeptusLog.pub().error("Error clearing disk cache for {} : {}", mapStyle, e1.getMessage());
+                }
+            }
+            catch (Exception e1) {
+                NeptusLog.pub().error("Error clearing disk cache for {} : {}", mapStyle, e1.getMessage());
+            }
+        }
         catch (Exception e) {
-            e.printStackTrace();
+            NeptusLog.pub().error("Error clearing disk cache for {} : {}", mapStyle, e.getMessage());
         }
     }
 
@@ -1042,7 +1095,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
     }
 
     /**
-     * Return the tileXMin, tileYMin, tileXMax, tileYMax array for the current 
+     * Return the tileXMin, tileYMin, tileXMax, tileYMax array for the current
      * renderer level of detail.
      * @param renderer
      * @return tileXMin, tileYMin, tileXMax, tileYMax array
@@ -1063,36 +1116,52 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
         return new int[] { tileXMin, tileYMin, tileXMax, tileYMax };
     }
 
-    private void fetchAllTilesForRendererVisibleArea(StateRenderer2D renderer, String mapStyle) {
+    private static List<String> fetchQuadKeysFor(StateRenderer2D renderer, String mapStyle, int levelOfDetailIncrement) {
         int[] tmmr = getTileMinMaxForRenderer(renderer);
         int tileXMin = tmmr[0];
         int tileXMax = tmmr[2];
         int tileYMin = tmmr[1];
         int tileYMax = tmmr[3];
         int levelOfDetail = renderer.getLevelOfDetail();
-        int maxLevelOfDetail = Math.min(getMaxLevelOfDetail(mapStyle), levelOfDetail + 2);
-        NeptusLog.pub().info("<###>tileXMin=" + tileXMin + ", tileYMin=" + tileYMin + ", tileXMax=" + tileXMax + ", tileYMax=" + tileYMax);
-        Vector<String> bagList = new Vector<String>();
-        for (int x = tileXMin; x <= tileXMax; x++) {
-            for (int y = tileYMin; y <= tileYMax; y++) {
-                String quadKey = MapTileUtil.tileXYToQuadKey(x, y, levelOfDetail);
-                bagList.add(quadKey);
-                //                NeptusLog.pub().info("<###> "+maxLevelOfDetail + " >= \t" + levelOfDetail + " :: \t" + quadKey);
-                if (levelOfDetail >= maxLevelOfDetail)
-                    continue;
-                for (int sLoD = levelOfDetail + 1; sLoD <= maxLevelOfDetail; sLoD++) {
-                    produceQuadKeysWorker(quadKey, maxLevelOfDetail, bagList);
-                }
-            }
-        }
-        NeptusLog.pub().info("<###> "+bagList.size() + " tiles");
-        Collections.sort(bagList, new Comparator<String>() {
-            @Override
-            public int compare(String o1, String o2) {
-                return o1.length() - o2.length();
-            }
-        });
-        //        GuiUtils.printList(bagList);
+        return fetchQuadKeysFor(tileXMin, tileXMax, tileYMin, tileYMax, mapStyle, levelOfDetail, levelOfDetailIncrement);
+    }
+
+    private static List<String> fetchQuadKeysFor(int tileXMin, int tileXMax, int tileYMin, int tileYMax, String mapStyle,
+                                                 int levelOfDetail, int levelOfDetailIncrement) {
+       int maxLevelOfDetail = Math.min(getMaxLevelOfDetail(mapStyle), levelOfDetail + Math.max(0, levelOfDetailIncrement));
+       NeptusLog.pub().info("<###>tileXMin=" + tileXMin + ", tileYMin=" + tileYMin + ", tileXMax=" + tileXMax + ", tileYMax=" + tileYMax);
+       List<String> bagList = new ArrayList<>();
+       for (int x = tileXMin; x <= tileXMax; x++) {
+           for (int y = tileYMin; y <= tileYMax; y++) {
+               String quadKey = MapTileUtil.tileXYToQuadKey(x, y, levelOfDetail);
+               bagList.add(quadKey);
+               //                NeptusLog.pub().info("<###> "+maxLevelOfDetail + " >= \t" + levelOfDetail + " :: \t" + quadKey);
+               if (levelOfDetail >= maxLevelOfDetail)
+                   continue;
+               for (int sLoD = levelOfDetail + 1; sLoD <= maxLevelOfDetail; sLoD++) {
+                   produceQuadKeysWorker(quadKey, maxLevelOfDetail, bagList);
+               }
+           }
+       }
+       NeptusLog.pub().info("<###> " + bagList.size() + " tiles");
+       Collections.sort(bagList, new Comparator<String>() {
+           @Override
+           public int compare(String o1, String o2) {
+               return o1.length() - o2.length();
+           }
+       });
+       //        GuiUtils.printList(bagList);
+       return bagList;
+   }
+
+   private void fetchAllTilesForRendererVisibleArea(StateRenderer2D renderer, String mapStyle) {
+        int[] tmmr = getTileMinMaxForRenderer(renderer);
+        int tileXMin = tmmr[0];
+        int tileXMax = tmmr[2];
+        int tileYMin = tmmr[1];
+        int tileYMax = tmmr[3];
+        int levelOfDetail = renderer.getLevelOfDetail();
+        List<String> bagList = fetchQuadKeysFor(tileXMin, tileXMax, tileYMin, tileYMax, mapStyle, levelOfDetail, 2);
 
         for (String quadKey : bagList) {
             Map<String, Tile> map = tileHolderList.get(mapStyle);
@@ -1116,7 +1185,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
         }
     }
 
-    private List<String> produceQuadKeysWorker(String quadKey, int maxLevelOfDetail, List<String> bagList) {
+    private static  List<String> produceQuadKeysWorker(String quadKey, int maxLevelOfDetail, List<String> bagList) {
         if (quadKey.length() >= maxLevelOfDetail)
             return bagList;
         String qk0 = quadKey + "0";
@@ -1164,13 +1233,14 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
         Window winParent = SwingUtilities.windowForComponent(renderer2D); //parent);
         dialogProperties = new JDialog(winParent);
         dialogProperties.setLayout(new BorderLayout(10, 0));
-        dialogProperties.setSize(700, 350);
+        dialogProperties.setSize(720, 350);
         dialogProperties.setIconImages(ConfigFetch.getIconImagesForFrames());
         dialogProperties.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         dialogProperties.setTitle(I18n.text("World Map Layer"));
+        GuiUtils.reactEscapeKeyPress(dialogProperties);
         
         ButtonGroup baseMapsButtonGroup = new ButtonGroup();
-        JPanel confPanel = new JPanel(new MigLayout("ins 0, wrap 5"));
+        JPanel confPanel = new JPanel(new MigLayout("ins 0, wrap 6"));
         confPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
         
         List<String> mapKeys = getOrderedMapList();
@@ -1232,7 +1302,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
             boolean tileOrMapProvider = isTileOrMapProvider(ms);
             if (tileOrMapProvider) {
                 final JButton clearButton = new JButton();
-                AbstractAction clearAction = new AbstractAction(I18n.text("Clear cache").toLowerCase()) {
+                AbstractAction clearAction = new AbstractAction(I18n.text("Clear").toLowerCase()) {
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         clearButton.setEnabled(false);
@@ -1258,7 +1328,45 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
                     }
                 };
                 clearButton.setAction(clearAction);
+                clearButton.setToolTipText(I18n.text("Clear all tiles from disk cache."));
                 confPanel.add(clearButton, "sg buttons");
+            }
+            else {
+                confPanel.add(new JLabel(), "sg buttons");
+            }
+
+            if (tileOrMapProvider) {
+                final JButton clearVizButton = new JButton();
+                AbstractAction clearVizAction = new AbstractAction(I18n.text("Clear visible").toLowerCase()) {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        clearVizButton.setEnabled(false);
+                        new SwingWorker<Void, Void>() {
+                            @Override
+                            protected Void doInBackground() throws Exception {
+                                int levelOfDetail = renderer2D.getLevelOfDetail();
+                                List<String> bagList = fetchQuadKeysFor(renderer2D, ms, MapTileUtil.LEVEL_MAX - levelOfDetail);
+                                clearMemCache(ms, bagList);
+                                clearDiskCache(ms, bagList);
+                                return null;
+                            }
+
+                            @Override
+                            protected void done() {
+                                try {
+                                    get();
+                                }
+                                catch (Exception e) {
+                                    NeptusLog.pub().error(e);
+                                }
+                                clearVizButton.setEnabled(true);
+                            }
+                        }.execute();
+                    }
+                };
+                clearVizButton.setAction(clearVizAction);
+                clearVizButton.setToolTipText(I18n.text("Clear visible tiles from disk cache."));
+                confPanel.add(clearVizButton, "sg buttons");
             }
             else {
                 confPanel.add(new JLabel(), "sg buttons");
@@ -1276,7 +1384,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
                 }
                 else {
                     final PropertiesProvider pprov = createPropertiesProvider(ms, dFA);
-                    confPanel.add(new JButton(new AbstractAction(I18n.text("Edit properties").toLowerCase()) {
+                    confPanel.add(new JButton(new AbstractAction(I18n.text("properties").toLowerCase()) {
                         @Override
                         public void actionPerformed(ActionEvent e) {
                             PropertiesEditor.editProperties(pprov, dialogProperties, true);
@@ -1296,7 +1404,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
                         dialog.setModalityType(ModalityType.DOCUMENT_MODAL);
 
                     final JDialog dialog1 = dialog;
-                    confPanel.add(new JButton(new AbstractAction(I18n.text("Edit properties").toLowerCase()) {
+                    confPanel.add(new JButton(new AbstractAction(I18n.text("properties").toLowerCase()) {
                         @Override
                         public void actionPerformed(ActionEvent e) {
                             dialog1.requestFocus();
@@ -1332,7 +1440,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
             else {
                 final JButton fetchButton = new JButton();
                 /// To fetch the map tiles from the visible area
-                AbstractAction fetchAction = new AbstractAction(I18n.text("Fetch visible area").toLowerCase()) {
+                AbstractAction fetchAction = new AbstractAction(I18n.text("Fetch visible").toLowerCase()) {
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         fetchButton.setEnabled(false);
@@ -1364,6 +1472,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
         }
 
         final JLabel levelOfDetailLabel = new JLabel();
+        final JPanel zoomPanel = new JPanel(new MigLayout("ins 0"));
         final JButton zoomInButton = new JButton(new AbstractAction("+") {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -1378,6 +1487,8 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
             }
         });
         zoomOutButton.setToolTipText(I18n.text("Zoom out"));
+        zoomPanel.add(zoomInButton, "sg zoom");
+        zoomPanel.add(zoomOutButton, "sg zoom");
         final JLabel memInfoLabel = new JLabel();
         final JLabel loadingTilesLabel = new JLabel();
         final JButton stopLoadingButton = new JButton(new AbstractAction(I18n.text("Stop Loading")) {
@@ -1390,8 +1501,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
         busyPanel.setVisible(false);
         JXStatusBar statusBar = new JXStatusBar();
         statusBar.add(levelOfDetailLabel);
-        statusBar.add(zoomInButton);
-        statusBar.add(zoomOutButton);
+        statusBar.add(zoomPanel);
         statusBar.add(memInfoLabel, JXStatusBar.Constraint.ResizeBehavior.FILL);
         statusBar.add(loadingTilesLabel);
         statusBar.add(stopLoadingButton);
