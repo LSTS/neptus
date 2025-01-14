@@ -43,6 +43,7 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Vector;
 
 import javax.swing.ImageIcon;
@@ -104,7 +105,6 @@ import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.ByteUtil;
 
-
 /**
  * Panel that holds mission objects namely plans and acoustic transponders.
  * 
@@ -127,12 +127,17 @@ public class MissionTreePanel extends ConsolePanel
     private boolean debugOn = false;
     @NeptusProperty(name = "Acceptable Elapsed Time", description = "Maximum acceptable interval between transponder ranges, in seconds.")
     private int maxAcceptableElapsedTime = 600;
+    @NeptusProperty(name = "Plan Names to Automatically Accept Updates", description = "Comma separated values. This upon reception of a plan " +
+            "with the same name as the ones listed here, it will be automatically accepted the changes and replace it.")
+    private String planNamesToAutoAcceptUpdates = "teleoperation-mode, service_loiter";
 
     private MissionTreeMouse mouseAdapter;
     private boolean running = false;
     boolean inited = false;
     protected MissionBrowser browser = new MissionBrowser();
     protected PlanDBControl pdbControl;
+
+    protected final List<String> planNamesToAutoAcceptUpdatesList = new ArrayList<>();
 
     /**
      * This adapter is called by a class monitoring PlanDB messages. It is only called if a PlanDB message with field
@@ -318,11 +323,13 @@ public class MissionTreePanel extends ConsolePanel
             }
 
             // Non matching plans
-            int option = JOptionPane.showConfirmDialog(getConsole(),
-                    I18n.text("Replace plan '" + plan.getId() + "' with version disseminated by "
-                            + msg.getSourceName()+"?"));
-            if (option != JOptionPane.YES_OPTION) {
-                return;
+            if (!planNamesToAutoAcceptUpdatesList.contains(plan.getId())) {
+                int option = JOptionPane.showConfirmDialog(getConsole(),
+                        I18n.text("Replace plan '" + plan.getId() + "' with version disseminated by "
+                                + msg.getSourceName()+"?"));
+                if (option != JOptionPane.YES_OPTION) {
+                    return;
+                }
             }
         }
         
@@ -385,6 +392,12 @@ public class MissionTreePanel extends ConsolePanel
         planDBListener.setDebugOn(debugOn);
         browser.setMaxAcceptableElapsedTime(maxAcceptableElapsedTime);
         browser.setHideTransponder(!useTransponderFeatures);
+
+        planNamesToAutoAcceptUpdatesList.clear();
+        String[] pList = planNamesToAutoAcceptUpdates.split(",");
+        for (String p : pList) {
+            planNamesToAutoAcceptUpdatesList.add(p.trim());
+        }
     }
 
     class MissionTreeMouse extends MouseAdapter {
