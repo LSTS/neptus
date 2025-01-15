@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2022.04.0 (system/caravel,fcdbd1586)" system="caravel" i18n="pt_PT">
+<config format="1" version="2022.04.0 (system/caravel,109ae0c6d)" system="caravel" i18n="pt_PT">
   <section name="Text Actions" name-i18n="Text Actions">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -2203,6 +2203,15 @@
       <units/>
       <desc>Task Parameter for SMS Number</desc>
     </param>
+    <param name="External Info Text">
+      <name-i18n>External Info Text</name-i18n>
+      <type>string</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>caravel</default>
+      <units/>
+      <desc>External information to be sent in the boot message</desc>
+    </param>
   </section>
   <section name="CPU Scaling" name-i18n="CPU Scaling">
     <param name="Entity Label">
@@ -2608,6 +2617,15 @@
       <units>s</units>
       <desc>Expiration time of lost communications SMS</desc>
       <min>0.0</min>
+    </param>
+    <param name="External Info Text">
+      <name-i18n>External Info Text</name-i18n>
+      <type>string</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>caravel</default>
+      <units/>
+      <desc>External information to be sent in the boot message</desc>
     </param>
   </section>
   <section name="Entity Monitor" name-i18n="Monitor de Entidades">
@@ -3753,6 +3771,7 @@
       <default>40</default>
       <units/>
       <desc>Set Minimum value of pwm.</desc>
+      <min>1</min>
     </param>
     <param name="Set PWM1 Center">
       <name-i18n>Set PWM1 Center</name-i18n>
@@ -3771,6 +3790,7 @@
       <default>140</default>
       <units/>
       <desc>Set Maximum value of pwm.</desc>
+      <max>2000</max>
     </param>
     <param name="Set PWM2 Mode">
       <name-i18n>Set PWM2 Mode</name-i18n>
@@ -3789,6 +3809,7 @@
       <default>1100</default>
       <units/>
       <desc>Set Minimum value of pwm.</desc>
+      <min>1</min>
     </param>
     <param name="Set PWM2 Center">
       <name-i18n>Set PWM2 Center</name-i18n>
@@ -3807,6 +3828,7 @@
       <default>1900</default>
       <units/>
       <desc>Set Maximum value of pwm.</desc>
+      <max>2000</max>
     </param>
     <param name="Set PWM3 Mode">
       <name-i18n>Set PWM3 Mode</name-i18n>
@@ -3825,6 +3847,7 @@
       <default>1100</default>
       <units/>
       <desc>Set Minimum value of pwm.</desc>
+      <min>1</min>
     </param>
     <param name="Set PWM3 Center">
       <name-i18n>Set PWM3 Center</name-i18n>
@@ -3843,6 +3866,7 @@
       <default>1900</default>
       <units/>
       <desc>Set Maximum value of pwm.</desc>
+      <max>2000</max>
     </param>
     <param name="Power Channel 1 Entity Label">
       <name-i18n>Power Channel 1 Entity Label</name-i18n>
@@ -3861,6 +3885,8 @@
       <default>5001</default>
       <units/>
       <desc>Power Channel Max Current</desc>
+      <min>1</min>
+      <max>10000</max>
     </param>
     <param name="Power Channel 2 Entity Label">
       <name-i18n>Power Channel 2 Entity Label</name-i18n>
@@ -3879,6 +3905,8 @@
       <default>5002</default>
       <units/>
       <desc>Power Channel Max Current</desc>
+      <min>1</min>
+      <max>10000</max>
     </param>
     <param name="Power Channel 3 Entity Label">
       <name-i18n>Power Channel 3 Entity Label</name-i18n>
@@ -3906,6 +3934,8 @@
       <default>5003</default>
       <units/>
       <desc>Power Channel Max Current</desc>
+      <min>1</min>
+      <max>10000</max>
     </param>
     <param name="Power Channel 4 Entity Label">
       <name-i18n>Power Channel 4 Entity Label</name-i18n>
@@ -3933,6 +3963,8 @@
       <default>5004</default>
       <units/>
       <desc>Power Channel Max Current</desc>
+      <min>1</min>
+      <max>10000</max>
     </param>
     <param name="Power Channel 5 Entity Label">
       <name-i18n>Power Channel 5 Entity Label</name-i18n>
@@ -3960,6 +3992,8 @@
       <default>5005</default>
       <units/>
       <desc>Power Channel Max Current</desc>
+      <min>1</min>
+      <max>10000</max>
     </param>
     <param name="Power Channel 6 Entity Label">
       <name-i18n>Power Channel 6 Entity Label</name-i18n>
@@ -3987,6 +4021,8 @@
       <default>5006</default>
       <units/>
       <desc>Power Channel Max Current</desc>
+      <min>1</min>
+      <max>10000</max>
     </param>
     <param name="Power Channel 7 Entity Label">
       <name-i18n>Power Channel 7 Entity Label</name-i18n>
@@ -4014,6 +4050,8 @@
       <default>5007</default>
       <units/>
       <desc>Power Channel Max Current</desc>
+      <min>1</min>
+      <max>10000</max>
     </param>
     <param name="Power Channel 8 Entity Label">
       <name-i18n>Power Channel 8 Entity Label</name-i18n>
@@ -4041,6 +4079,8 @@
       <default>5008</default>
       <units/>
       <desc>Power Channel Max Current</desc>
+      <min>1</min>
+      <max>10000</max>
     </param>
     <param name="Power Channel 9 Entity Label">
       <name-i18n>Power Channel 9 Entity Label</name-i18n>
@@ -4068,6 +4108,8 @@
       <default>5009</default>
       <units/>
       <desc>Power Channel Max Current</desc>
+      <min>1</min>
+      <max>10000</max>
     </param>
     <param name="Power Channel 10 Entity Label">
       <name-i18n>Power Channel 10 Entity Label</name-i18n>
@@ -4095,6 +4137,8 @@
       <default>5010</default>
       <units/>
       <desc>Power Channel Max Current</desc>
+      <min>1</min>
+      <max>10000</max>
     </param>
     <param name="Power Channel 11 Entity Label">
       <name-i18n>Power Channel 11 Entity Label</name-i18n>
@@ -4122,6 +4166,8 @@
       <default>5011</default>
       <units/>
       <desc>Power Channel Max Current</desc>
+      <min>1</min>
+      <max>10000</max>
     </param>
     <param name="Power Channel 12 Entity Label">
       <name-i18n>Power Channel 12 Entity Label</name-i18n>
@@ -4149,6 +4195,8 @@
       <default>5012</default>
       <units/>
       <desc>Power Channel Max Current</desc>
+      <min>1</min>
+      <max>10000</max>
     </param>
     <param name="Power Channel 13 Entity Label">
       <name-i18n>Power Channel 13 Entity Label</name-i18n>
@@ -4176,6 +4224,8 @@
       <default>5013</default>
       <units/>
       <desc>Power Channel Max Current</desc>
+      <min>1</min>
+      <max>10000</max>
     </param>
     <param name="Power Channel 14 Entity Label">
       <name-i18n>Power Channel 14 Entity Label</name-i18n>
@@ -4203,6 +4253,8 @@
       <default>5014</default>
       <units/>
       <desc>Power Channel Max Current</desc>
+      <min>1</min>
+      <max>10000</max>
     </param>
     <param name="Power Channel 15 Entity Label">
       <name-i18n>Power Channel 15 Entity Label</name-i18n>
@@ -4230,6 +4282,8 @@
       <default>5015</default>
       <units/>
       <desc>Power Channel Max Current</desc>
+      <min>1</min>
+      <max>10000</max>
     </param>
     <param name="Power Channel 16 Entity Label">
       <name-i18n>Power Channel 16 Entity Label</name-i18n>
@@ -4257,6 +4311,8 @@
       <default>5016</default>
       <units/>
       <desc>Power Channel Max Current</desc>
+      <min>1</min>
+      <max>10000</max>
     </param>
     <param name="Power Channel 17 Entity Label">
       <name-i18n>Power Channel 17 Entity Label</name-i18n>
@@ -4284,6 +4340,8 @@
       <default>5017</default>
       <units/>
       <desc>Power Channel Max Current</desc>
+      <min>1</min>
+      <max>10000</max>
     </param>
     <param name="Power Channel 18 Entity Label">
       <name-i18n>Power Channel 18 Entity Label</name-i18n>
@@ -4311,6 +4369,8 @@
       <default>5018</default>
       <units/>
       <desc>Power Channel Max Current</desc>
+      <min>1</min>
+      <max>10000</max>
     </param>
     <param name="Power Data 1 Entity Label">
       <name-i18n>Power Data 1 Entity Label</name-i18n>
@@ -4491,6 +4551,17 @@
       <default>true</default>
       <units/>
       <desc>Is Main CPU</desc>
+    </param>
+    <param name="Board ID">
+      <name-i18n>Board ID</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0x01</default>
+      <units/>
+      <desc>Board ID</desc>
+      <min>0</min>
+      <max>255</max>
     </param>
     <param name="Set CPC to use NAV and Iridium at Boot">
       <name-i18n>Set CPC to use NAV and Iridium at Boot</name-i18n>
@@ -7303,7 +7374,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>PlanControlState:120, EstimatedState:120, VehicleState:120, StateReport:120, FuelLevel:120</default>
+      <default>EstimatedState:120, FuelLevel:120, PlanControlState:120, StateReport:120, VehicleState:120</default>
       <units/>
       <desc>List of &lt;Message&gt;:&lt;Period&gt; to send messages at a specific period.</desc>
     </param>
@@ -7321,7 +7392,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>PlanControl, PlanControlState, EstimatedState, VehicleState, StateReport, FuelLevel, Aborted</default>
+      <default>Aborted, EstimatedState, EntityParameters, FuelLevel, PlanControl, PlanControlState, StateReport, VehicleState</default>
       <units/>
       <desc>List of messages to transport</desc>
     </param>
@@ -7530,6 +7601,34 @@
       <units/>
       <desc>Period to reset error count</desc>
       <min>60</min>
+    </param>
+    <param name="Time to check RSSI signal">
+      <name-i18n>Time to check RSSI signal</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>45.0</default>
+      <units/>
+      <desc>Time to check RSSI signal</desc>
+      <min>10</min>
+    </param>
+    <param name="Monitor Iridium Modems">
+      <name-i18n>Monitor Iridium Modems</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Monitor Iridium Modems</desc>
+    </param>
+    <param name="Monitor Iridium Task Label">
+      <name-i18n>Monitor Iridium Task Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>CPC</default>
+      <units/>
+      <desc>Monitor Iridium Task Label</desc>
     </param>
   </section>
   <section name="Log Book" name-i18n="Diário de Bordo">
