@@ -40,6 +40,9 @@ import pt.lsts.neptus.comm.iridium.Position.PosType;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.neptus.types.comm.CommMean;
+import pt.lsts.neptus.types.comm.protocol.IridiumArgs;
+import pt.lsts.neptus.types.comm.protocol.ProtocolArgs;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
@@ -267,6 +270,7 @@ public class HubIridiumMessenger implements IridiumMessenger {
         for (HubMessage m : msgs) {
             try {
                 ret.add(m.message());
+                updateVehicleWithLastSeenImei(m.imei, m.createdAt());
             }
             catch (Exception e) {
                 String report = new String(Hex.decodeHex(m.msg.toCharArray()));
@@ -284,11 +288,12 @@ public class HubIridiumMessenger implements IridiumMessenger {
                     long timestamp = parseTimeString(timeOfDay).getTime();
                     
                     ImcSystem system = ImcSystemsHolder.getSystemWithName(vehicle);
-                    
+
                     if (system != null) {
                         system.setLocation(new LocationType(lat, lon), timestamp);
                     }
 
+                    updateVehicleWithLastSeenImei(m.imei, m.createdAt() != null ? m.createdAt() : m.updatedAt());
                     NeptusLog.pub().info("Text report: {}", report);
                 }
                 
@@ -300,7 +305,17 @@ public class HubIridiumMessenger implements IridiumMessenger {
         
         return ret;
     }
-    
+
+    public static void updateVehicleWithLastSeenImei(String imei, Date date) {
+        VehicleType veh = VehiclesHolder.getVehicleWithImei(imei);
+        if (veh != null) {
+            IridiumArgs iridiumArgs = (IridiumArgs) veh.getProtocolsArgs().get(CommMean.IRIDIUM);
+            if (iridiumArgs != null) {
+                iridiumArgs.setLastSeenImei(imei, date);
+            }
+        }
+    }
+
     public static Date parseTimeString(String timeOfDay) {
         GregorianCalendar date = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
         String[] timeParts = timeOfDay.split(":");
