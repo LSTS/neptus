@@ -122,9 +122,8 @@ public class IridiumManager {
     }
 
     private final Runnable pollMessages = new Runnable() {
-        //Date lastTime = new Date(System.currentTimeMillis() - Duration.ofHours(1).toMillis());
+        Date lastTime = new Date(System.currentTimeMillis() - Duration.ofHours(1).toMillis());
         //Date lastTime = new GregorianCalendar(2024, Calendar.NOVEMBER, 6).getTime(); // new Date(System.currentTimeMillis() - Duration.ofHours(1).toMillis());
-        Date lastTime = new GregorianCalendar(2025, Calendar.JANUARY, 14).getTime(); // new Date(System.currentTimeMillis() - Duration.ofHours(1).toMillis());
 
         @Override
         public void run() {
