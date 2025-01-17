@@ -131,7 +131,7 @@ public class MissionTreePanel extends ConsolePanel
     private int maxAcceptableElapsedTime = 600;
     @NeptusProperty(name = "Plan Names to Automatically Accept Updates", description = "Comma separated values. This upon reception of a plan " +
             "with the same name as the ones listed here, it will be automatically accepted the changes and replace it.")
-    private String planNamesToAutoAcceptUpdates = "teleoperation-mode, service_loiter";
+    private String planNamesToAutoAcceptUpdates = "teleoperation-mode, service_loiter, emergency_autonaut";
 
     private MissionTreeMouse mouseAdapter;
     private boolean running = false;
