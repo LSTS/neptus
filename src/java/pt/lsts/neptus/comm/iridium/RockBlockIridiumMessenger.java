@@ -368,8 +368,8 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
             if (irMsg.source == ImcId16.NULL_ID.intValue()) {
                 // Let us try to fill the source from imei
                 irMsg.source = HubIridiumMessenger.HubMessage.findSystemIdByImei(fromImei);
-                updateVehicleWithLastSeenImei(fromImei, sentDate);
             }
+            updateVehicleWithLastSeenImei(fromImei, sentDate);
 
             // If not set, set the timestamp
             if (!new Date(irMsg.timestampMillis).before(now) && sentDate != null) {
