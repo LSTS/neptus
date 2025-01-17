@@ -106,8 +106,8 @@ public abstract class IridiumMessage implements Comparable<IridiumMessage> {
         }
         
         if (m != null) {
-            m.setSource(mgid > -1 ? source : 0xFFFF);
-            m.setDestination(mgid > -1 ? dest : 0xFFFF);
+            //m.setSource(mgid > -1 ? source : 0xFFFF);
+            //m.setDestination(mgid > -1 ? dest : 0xFFFF);
             m.setMessageType(mgid);
             if (mgid > -1)
                 m.deserializeFields(iis);
