@@ -328,7 +328,9 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
                         if (matcher.matches()) {
                             InputStream stream = (InputStream) p.getContent();
                             byte[] data = IOUtils.toByteArray(stream);
-                            IridiumMessage msg = process(data, matcher.group(1), matcher.group(2),
+                            String fromImei = matcher.group(1);
+                            String seqNumber = matcher.group(2);
+                            IridiumMessage msg = process(data, fromImei, seqNumber,
                                     m.getSentDate() == null ? m.getReceivedDate() : m.getSentDate());
                             if (msg != null)
                                 messages.add(msg);
