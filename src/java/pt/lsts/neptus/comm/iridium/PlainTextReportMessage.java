@@ -60,6 +60,7 @@ public class PlainTextReportMessage extends IridiumMessage {
     String report;
 
     String vehicle;
+    String vehicleAlt;
     String timeOfDay;
     int source = 0xFFFF;
     double latDeg;
@@ -104,6 +105,7 @@ public class PlainTextReportMessage extends IridiumMessage {
     public String toString() {
         return "Report: " + report + "\n"
                 + "Vehicle: " + vehicle + "\n"
+                + "Vehicle Alt: " + (vehicleAlt == null ? "" : vehicleAlt) + "\n"
                 + "Time of day: " + timeOfDay + "\n"
                 + "Lat: " + latDeg + "\n"
                 + "Lon: " + lonDeg + "\n"
@@ -124,6 +126,11 @@ public class PlainTextReportMessage extends IridiumMessage {
         }
 
         vehicle = matcher.group(2);
+        String[] tks = vehicle.split(" - ");
+        if (tks.length > 1) {
+            vehicleAlt = vehicle.replaceFirst(tks[0], "").trim();
+            vehicle = tks[0];
+        }
         timeOfDay = matcher.group(3);
         String latMins = matcher.group(4);
         String lonMins = matcher.group(5);
