@@ -46,6 +46,7 @@ import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -1042,9 +1043,9 @@ public class FileUtil {
                 return null;
 
         try {
-            return StreamUtil.copyStreamToTempFile(inStream).getPath();
+            return Objects.requireNonNull(StreamUtil.copyStreamToTempFile(inStream)).getPath();
         }
-        catch (RuntimeException e) {
+        catch (Exception e) {
             return null;
         }
     }
@@ -1058,15 +1059,22 @@ public class FileUtil {
      */
     public static InputStream getResourceAsStream(String name) {
         InputStream inStream = FileUtil.class.getResourceAsStream(name.replace('\\', '/'));
-        if (inStream == null) {
-            Class<?> clazz = getCallerClass();
-            if (clazz == null)
-                return null;
-            inStream = clazz.getResourceAsStream(name.replace('\\', '/'));
-            if (inStream == null)
-                return null;
-        }
-        
+        if (inStream != null)
+            return inStream;
+
+        inStream = FileUtil.class.getResourceAsStream("/" + name.replace('\\', '/'));
+        if (inStream != null)
+            return inStream;
+
+        Class<?> clazz = getCallerClass();
+        if (clazz == null)
+            return null;
+
+        inStream = clazz.getResourceAsStream(name.replace('\\', '/'));
+        if (inStream != null)
+            return inStream;
+
+        inStream = clazz.getResourceAsStream("/" + name.replace('\\', '/'));
         return inStream;
     }
 
