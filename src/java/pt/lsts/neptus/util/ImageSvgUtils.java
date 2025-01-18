@@ -49,6 +49,7 @@ import java.awt.image.BufferedImage;
 import java.awt.print.PageFormat;
 import java.awt.print.Paper;
 import java.io.File;
+import java.io.IOException;
 import java.io.StringReader;
 import java.util.function.BiFunction;
 
@@ -66,7 +67,16 @@ public class ImageSvgUtils {
             String parser = XMLResourceDescriptor.getXMLParserClassName();
             SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(parser);
             String data = StreamUtil.copyStreamToString(FileUtil.getResourceAsStream(path));
-            Document wDoc = f.createDocument(null, new StringReader((String) data));
+            Document wDoc;
+            try {
+                wDoc = f.createDocument(null, new StringReader((String) data));
+            }
+            catch (IOException e) {
+                // Trying if missing xmlns svg
+                data = data.replace("<svg", "<svg xmlns=\"http://www.w3.org/2000/svg\"");
+                wDoc = f.createDocument(null, new StringReader((String) data));
+                NeptusLog.pub().warn("SVG file was missing xmlns=\"http://www.w3.org/2000/svg\". Fixed it.");
+            }
             wDoc = SvgUtil.cleanInkscapeSVG(wDoc);
             return wDoc;
         }
