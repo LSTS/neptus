@@ -67,6 +67,7 @@ import com.drew.metadata.exif.ExifSubIFDDescriptor;
 import com.drew.metadata.exif.ExifSubIFDDirectory;
 import com.jhlabs.image.ContrastFilter;
 
+import org.apache.commons.lang3.tuple.Pair;
 import pt.lsts.neptus.NeptusLog;
 
 /**
@@ -75,6 +76,36 @@ import pt.lsts.neptus.NeptusLog;
  * 
  */
 public class ImageUtils {
+    public static Pair<Integer, Integer> getScaledSize(int width, int height, int maxWidth, int maxHeight) {
+        double imgRatio = (double) width / (double) height;
+        double desiredRatio = (double) maxWidth / (double) maxHeight;
+        int newWidth = maxWidth;
+        int newHeight = maxHeight;
+
+        if (desiredRatio > imgRatio) {
+            newWidth = (int) (maxHeight * imgRatio);
+        }
+        else {
+            newHeight = (int) (maxWidth / imgRatio);
+        }
+        return Pair.of(newWidth, newHeight);
+    }
+
+    public static Pair<Double, Double> getScaledSize(double width, double height, double maxWidth, double maxHeight) {
+        double imgRatio = width / height;
+        double desiredRatio = maxWidth / maxHeight;
+        double newWidth = maxWidth;
+        double newHeight = maxHeight;
+
+        if (desiredRatio > imgRatio) {
+            newWidth = maxHeight * imgRatio;
+        }
+        else {
+            newHeight = maxWidth / imgRatio;
+        }
+        return Pair.of(newWidth, newHeight);
+    }
+
     /*
      * Taken from: http://today.java.net/pub/a/today/2007/04/03/perils-of-image-getscaledinstance.html
      */

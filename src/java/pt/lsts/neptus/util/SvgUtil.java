@@ -32,6 +32,9 @@
  */
 package pt.lsts.neptus.util;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 import java.util.List;
 
 /**
@@ -85,4 +88,23 @@ public class SvgUtil {
 		//NeptusLog.pub().info("<###> "+doc.asXML());
 		return Dom4JUtil.convertDOM4JtoDOM(doc);
 	}
+
+    public static double getWidth(Document document) {
+        Element root = document.getDocumentElement();
+        String widthStr = root.getAttribute("width");
+        return parseDimension(widthStr);
+    }
+
+    public static double getHeight(Document document) {
+        Element root = document.getDocumentElement();
+        String heightStr = root.getAttribute("height");
+        return parseDimension(heightStr);
+    }
+
+    private static double parseDimension(String dimension) {
+        if (dimension.endsWith("px")) {
+            dimension = dimension.substring(0, dimension.length() - 2);
+        }
+        return Double.parseDouble(dimension);
+    }
 }
