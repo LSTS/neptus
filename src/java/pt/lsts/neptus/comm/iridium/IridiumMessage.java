@@ -72,6 +72,8 @@ public abstract class IridiumMessage implements Comparable<IridiumMessage> {
         iridiumTypes.put(2007, TargetAssetPosition.class);        
         iridiumTypes.put(2010, ImcIridiumMessage.class);
         iridiumTypes.put(2011, ExtendedDeviceUpdate.class);
+        iridiumTypes.put(2012, UpdateDeviceActivation.class);
+        iridiumTypes.put(2013, ImcFullIridiumMessage.class);
     }
     
     public byte[] serialize() throws Exception {
@@ -104,8 +106,8 @@ public abstract class IridiumMessage implements Comparable<IridiumMessage> {
         }
         
         if (m != null) {
-            m.setSource(mgid > -1 ? source : 0xFFFF);
-            m.setDestination(mgid > -1 ? dest : 0xFFFF);
+            //m.setSource(mgid > -1 ? source : 0xFFFF);
+            //m.setDestination(mgid > -1 ? dest : 0xFFFF);
             m.setMessageType(mgid);
             if (mgid > -1)
                 m.deserializeFields(iis);

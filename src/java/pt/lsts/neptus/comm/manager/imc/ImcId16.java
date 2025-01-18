@@ -105,9 +105,13 @@ public class ImcId16 extends Number implements Comparable<ImcId16>{
 
     @Override
     public int compareTo(ImcId16 o) {
-		//return (int) (longValue() - o.longValue());
         return (longValue() < o.longValue() ? -1 : (longValue() == o.longValue() ? 0 : 1));
 	}
+
+    public int compareTo(int id) {
+        long i = id & 0xFFFF;
+        return (longValue() < i ? -1 : (longValue() == i ? 0 : 1));
+    }
 
     @Override
     public boolean equals(Object obj) {

@@ -185,7 +185,7 @@ public class VehiclesHolder {
 
        return vtList.stream().filter(vt -> vt.getProtocolsArgs().containsKey(CommMean.IRIDIUM)).filter(vt -> {
             IridiumArgs args = (IridiumArgs) vt.getProtocolsArgs().get(CommMean.IRIDIUM);
-            return args.getImei().equals(imei);
+            return args.getImei().equals(imei) || (args.getImei1() != null && args.getImei1().equals(imei));
         }).findFirst().orElse(null);
     }
 

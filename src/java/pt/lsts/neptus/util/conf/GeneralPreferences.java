@@ -132,6 +132,18 @@ public class GeneralPreferences implements PropertiesProvider {
                     " A value too high will create inbound messages delay.")
     public static int imcReachabilityTestTimeout = 50;
 
+    @NeptusProperty(name = "Communication - Send Use New Multi-Channels", category = "IMC Communications", userLevel = LEVEL.ADVANCED,
+            description = "To use the new multichannel comms. Enable or disable")
+    public static boolean imcUseNewMultiChannelCommsEnable = false;
+
+    @NeptusProperty(name = "IMC Channels to Use", category = "IMC Communications", userLevel = LEVEL.ADVANCED,
+            description = "Comma separated transports list. Valid values are (WiFi, Acoustic, GSM, Satellite). (The order implies preference of use.)")
+    public static String imcChannelsToUse = "WiFi, Acoustic, Satellite";
+
+    @NeptusProperty(name = "IMC Channel - Max Acoustic Distance (m)", category = "IMC Communications", userLevel = LEVEL.ADVANCED,
+            description = "The maximum distance in meters to use the acoustic channel.")
+    public static int imcChannelMaxAcousticDistanceMeters = 2_000;
+
     // -------------------------------------------------------------------------
 
     @NeptusProperty(name = "Logs Downloader - Enable Partial Download", category = "IMC Logs Downloader", userLevel = LEVEL.ADVANCED,

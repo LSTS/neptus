@@ -52,9 +52,12 @@ import java.util.List;
 public class HoldFillButton extends JButton {
     private Timer timer;
     private int progress = 0;
-    private int holdDurationMs = 2000; // 2 seconds
+    private int holdDurationMillis = 2000;
+    private final Color fillColor = new Color(0, 128, 255, 100);
+    private final int tempButtonDurationMillis = 1000;
     private final List<ActionListener> actionListeners = new ArrayList<>();
     private final ImageIcon LOCK_CLOCK = new ImageIcon(ImageUtils.getScaledImage("images/buttons/lock_clock.png", 15, 15));
+    private final ImageIcon TICK = new ImageIcon(ImageUtils.getScaledImage("images/buttons/tick.png", 15, 15));
 
     public HoldFillButton(String text) {
         super(text);
@@ -62,10 +65,10 @@ public class HoldFillButton extends JButton {
         setupButton();
     }
 
-    public HoldFillButton(String text, int holdDurationMs) {
+    public HoldFillButton(String text, int holdDurationMillis) {
         super(text);
         setIcon(LOCK_CLOCK);
-        this.holdDurationMs = holdDurationMs;
+        this.holdDurationMillis = holdDurationMillis;
         setupButton();
     }
 
@@ -81,13 +84,14 @@ public class HoldFillButton extends JButton {
 
                     timer = new Timer(10, event -> {
                         long elapsed = System.currentTimeMillis() - pressStartTime;
-                        progress = (int) (elapsed * 100 / holdDurationMs);
+                        progress = (int) (elapsed * 100 / holdDurationMillis);
                         repaint();
 
-                        if (elapsed >= holdDurationMs) {
+                        if (elapsed >= holdDurationMillis) {
                             timer.stop();
                             triggerAction();
                             progress = 0;
+                            repaint();
                         }
                     });
                     timer.start();
@@ -104,6 +108,8 @@ public class HoldFillButton extends JButton {
             }
 
             private void triggerAction() {
+                progress = 0;
+                changeButtonTemporarily();
                 fireCustomActionPerformed();
             }
         });
@@ -118,6 +124,15 @@ public class HoldFillButton extends JButton {
             ActionListener listener = iterator.next();
             listener.actionPerformed(customEvent);
         }
+    }
+
+    private void changeButtonTemporarily() {
+        setIcon(TICK);
+        Timer timer = new Timer(tempButtonDurationMillis, (ActionEvent event) -> {
+            setIcon(LOCK_CLOCK);
+        });
+        timer.setRepeats(false); // Run only once
+        timer.start();
     }
 
     @Override
@@ -137,8 +152,6 @@ public class HoldFillButton extends JButton {
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
             int fillWidth = (int) (getWidth() * (progress / 100.0));
-
-            Color fillColor = new Color(0, 128, 255, 100);
 
             g2d.setColor(fillColor);
             g2d.fillRect(0, 0, fillWidth, getHeight());

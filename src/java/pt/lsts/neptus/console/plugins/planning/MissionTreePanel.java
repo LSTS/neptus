@@ -63,6 +63,8 @@ import pt.lsts.imc.LblRangeAcceptance;
 import pt.lsts.imc.PlanControlState;
 import pt.lsts.imc.PlanControlState.STATE;
 import pt.lsts.imc.PlanSpecification;
+import pt.lsts.imc.StateReport;
+import pt.lsts.imc.state.ImcSystemState;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.comm.IMCUtils;
@@ -129,13 +131,15 @@ public class MissionTreePanel extends ConsolePanel
     private int maxAcceptableElapsedTime = 600;
     @NeptusProperty(name = "Plan Names to Automatically Accept Updates", description = "Comma separated values. This upon reception of a plan " +
             "with the same name as the ones listed here, it will be automatically accepted the changes and replace it.")
-    private String planNamesToAutoAcceptUpdates = "teleoperation-mode, service_loiter";
+    private String planNamesToAutoAcceptUpdates = "teleoperation-mode, service_loiter, emergency_autonaut";
 
     private MissionTreeMouse mouseAdapter;
     private boolean running = false;
     boolean inited = false;
     protected MissionBrowser browser = new MissionBrowser();
     protected PlanDBControl pdbControl;
+
+    protected String mainVehicleLastPlanId = null;
 
     protected final List<String> planNamesToAutoAcceptUpdatesList = new ArrayList<>();
 
@@ -207,10 +211,35 @@ public class MissionTreePanel extends ConsolePanel
                 PluginUtils.getPluginIcon(getClass())), new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (pdbControl != null)
-                    pdbControl.clearDatabase();
+                if (pdbControl != null) {
+                    SwingWorker<Void, Void> sw = new SwingWorker<Void, Void>() {
+                        @Override
+                        protected Void doInBackground() throws Exception {
+                            pdbControl.clearDatabase();
+                            return null;
+                        }
+                    };
+                    sw.execute();
+                }
             }
         });
+    }
+
+    @Subscribe
+    public void mainVehicleChangeNotification(ConsoleEventMainSystemChange ev) {
+        mainVehicleLastPlanId = null;
+        try {
+            ImcSystemState state = getConsole().getImcMsgManager().getState(getMainVehicleId());
+            if (state != null) {
+                PlanControlState pcsMsg = state.last(PlanControlState.class);
+                if (pcsMsg != null) {
+                     on(pcsMsg);
+                }
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Subscribe
@@ -347,6 +376,10 @@ public class MissionTreePanel extends ConsolePanel
     
     @Subscribe
     public void on(PlanControlState msg) {
+        if (getConsole().getMainSystem().equalsIgnoreCase(msg.getSourceName())) {
+            mainVehicleLastPlanId = msg.getPlanId();
+        }
+
         // If vehicle stops, the timers stop as well
         if (msg.getState() == STATE.READY || msg.getState() == STATE.BLOCKED) {
                 browser.transStopTimers();
@@ -426,22 +459,55 @@ public class MissionTreePanel extends ConsolePanel
                 final ArrayList<NameId> selectedItems, JPopupMenu popupMenu) {
             if (!usePlanDBSyncFeatures)
                 return;
-            
+
             popupMenu.add(
 		    I18n.textf("Send %planName to %system", getPlanNamesString(selectedItems, true), console2.getMainSystem()))
-                    .addActionListener(
+                    .addActionListener(e -> {
+                                SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+                                    @Override
+                                    protected Void doInBackground() throws Exception {
+                                        for (NameId nameId : selectedItems) {
+                                            PlanType sel = (PlanType) nameId;
+                                            String mainSystem = console2.getMainSystem();
+                                            pdbControl.setRemoteSystemId(mainSystem);
+                                            boolean ret = pdbControl.sendPlan(sel);
+                                            if (!ret) {
+                                                NeptusLog.pub().error("Error sending plan " + sel.getId());
+                                                break;
+                                            }
+                                        }
+                                        return null;
+                                    }
+                                };
+                                worker.execute();
+                            });
+        }
 
-                    new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            for (NameId nameId : selectedItems) {
-                                PlanType sel = (PlanType) nameId;
-                                String mainSystem = console2.getMainSystem();
-                                pdbControl.setRemoteSystemId(mainSystem);
-                                pdbControl.sendPlan(sel);
-                            }
-                        }
-                    });
+        private void addActionSendPlanInfoRequest(final ConsoleLayout console2, final PlanDBControl pdbControl,
+                                       final ArrayList<NameId> selectedItems, JPopupMenu popupMenu) {
+            if (!usePlanDBSyncFeatures)
+                return;
+
+            popupMenu.add(I18n.textf("Get %planName info from %system", getPlanNamesString(selectedItems, true), console2.getMainSystem()))
+                    .addActionListener(e -> {
+                                SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+                                    @Override
+                                    protected Void doInBackground() throws Exception {
+                                        for (NameId nameId : selectedItems) {
+                                            PlanType sel = (PlanType) nameId;
+                                            String mainSystem = console2.getMainSystem();
+                                            pdbControl.setRemoteSystemId(mainSystem);
+                                            boolean ret = pdbControl.requestPlanInfo(sel.getId());
+                                            if (!ret) {
+                                                NeptusLog.pub().error("Error requesting plan info " + sel.getId());
+                                                break;
+                                            }
+                                        }
+                                        return null;
+                                    }
+                                };
+                                worker.execute();
+                            });
         }
 
         private <T extends NameId> StringBuilder getPlanNamesString(final ArrayList<T> selectedItems, boolean plans) {
@@ -507,9 +573,21 @@ public class MissionTreePanel extends ConsolePanel
                     .addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
-                            for (NameId nameId : remotePlans) {
-                                pdbControl.requestPlan(nameId.getIdentification());
-                            }
+                            SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+                                @Override
+                                protected Void doInBackground() throws Exception {
+                                    pdbControl.setRemoteSystemId(console2.getMainSystem());
+                                    for (NameId nameId : remotePlans) {
+                                        boolean ret = pdbControl.requestPlan(nameId.getIdentification());
+                                        if (!ret) {
+                                            NeptusLog.pub().error("Error requesting plan " + nameId.getIdentification());
+                                            break;
+                                        }
+                                    }
+                                    return null;
+                                }
+                            };
+                            worker.execute();
                         }
                     });
         }
@@ -519,7 +597,7 @@ public class MissionTreePanel extends ConsolePanel
             if (!useTransponderFeatures)
                 return;
 
-            StringBuilder itemsInString = getPlanNamesString(remoteTrans, false);
+            StringBuilder itemsInString = getPlanNamesString(remoteTrans, false); // Check info text, seams wrong, it is a transponder
             popupMenu.add(I18n.textf("Get %planName from %system", itemsInString, console2.getMainSystem()))
                     .addActionListener(new ActionListener() {
                         @Override
@@ -529,7 +607,14 @@ public class MissionTreePanel extends ConsolePanel
                             // Request LBLConfig
                             LblConfig msgLBLConfiguration = new LblConfig();
                             msgLBLConfiguration.setOp(LblConfig.OP.GET_CFG);
-                            sendMsg(msgLBLConfiguration);
+                            SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+                                @Override
+                                protected Void doInBackground() throws Exception {
+                                    sendMsg(msgLBLConfiguration);
+                                    return null;
+                                }
+                            };
+                            worker.execute();
                         }
                     });
         }
@@ -544,10 +629,21 @@ public class MissionTreePanel extends ConsolePanel
                             console2.getMainSystem())).addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    pdbControl.setRemoteSystemId(console2.getMainSystem());
-                    for (NameId nameId : synAndUnsyncPlans) {
-                        pdbControl.deletePlan(nameId.getIdentification());
-                    }
+                    SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+                        @Override
+                        protected Void doInBackground() throws Exception {
+                            pdbControl.setRemoteSystemId(console2.getMainSystem());
+                            for (NameId nameId : synAndUnsyncPlans) {
+                                boolean ret = pdbControl.deletePlan(nameId.getIdentification());
+                                if (!ret) {
+                                    NeptusLog.pub().error("Error deleting plan " + nameId.getIdentification());
+                                    break;
+                                }
+                            }
+                            return null;
+                        }
+                    };
+                    worker.execute();
                 }
             });
         }
@@ -602,27 +698,36 @@ public class MissionTreePanel extends ConsolePanel
             
             ArrayList<NameId> toShare = new ArrayList<NameId>();
 
+            ArrayList<NameId> toRemoveLocally = new ArrayList<NameId>();
+            ArrayList<NameId> toRemoveRemotely = new ArrayList<NameId>();
+            ArrayList<NameId> toGetPlan = new ArrayList<NameId>();
+            ArrayList<NameId> toGetPlanInfo = new ArrayList<NameId>();
+            ArrayList<NameId> toSend = new ArrayList<NameId>();
+
+            boolean addForMainVehiclePlan = mainVehicleLastPlanId != null;
+
             switch (selecType) {
                 case Plans:
 
                     if (selectedItems.size() == 1) {
                         addActionRenamePlan(getConsole(), selectedItems, popupMenu);
+                        addForMainVehiclePlan = false;
                     }
 
                     popupMenu.addSeparator();
-                    // New
-                    ArrayList<NameId> toRemoveLocally = new ArrayList<NameId>();
-                    ArrayList<NameId> toRemoveRemotely = new ArrayList<NameId>();
-                    ArrayList<NameId> toGetPlan = new ArrayList<NameId>();
-                    ArrayList<NameId> toSend = new ArrayList<NameId>();
-                    
+
                     State syncState;
                     // Separate plans by state to give appropriated options to each
                     // addActionChangePlanVehicles(selection, popupMenu); // add appropriatly when multivehicles are
                     // needed
                     for (ExtendedTreeNode extendedTreeNode : selectedNodes) {
                         syncState = (State) extendedTreeNode.getUserInfo().get(NodeInfoKey.SYNC.name());
-                        
+
+                        if (mainVehicleLastPlanId != null && mainVehicleLastPlanId
+                                .equalsIgnoreCase(((NameId) extendedTreeNode.getUserObject()).getIdentification())) {
+                            addForMainVehiclePlan = false;
+                        }
+
                         if (syncState != null) {
                             switch (syncState) {
                                 case REMOTE:
@@ -632,6 +737,7 @@ public class MissionTreePanel extends ConsolePanel
                                 case SYNC:
                                     toRemoveRemotely.add((NameId) extendedTreeNode.getUserObject());
                                     toRemoveLocally.add((NameId) extendedTreeNode.getUserObject());
+                                    toGetPlanInfo.add((NameId) extendedTreeNode.getUserObject());
                                     toShare.add((NameId) extendedTreeNode.getUserObject());
                                     break;
                                 case NOT_SYNC:
@@ -639,11 +745,13 @@ public class MissionTreePanel extends ConsolePanel
                                     toRemoveLocally.add((NameId) extendedTreeNode.getUserObject());
                                     toSend.add((NameId) extendedTreeNode.getUserObject());
                                     toGetPlan.add((NameId) extendedTreeNode.getUserObject());
+                                    toGetPlanInfo.add((NameId) extendedTreeNode.getUserObject());
                                     toShare.add((NameId) extendedTreeNode.getUserObject());
                                     break;
                                 case LOCAL:
                                     toRemoveLocally.add((NameId) extendedTreeNode.getUserObject());
                                     toSend.add((NameId) extendedTreeNode.getUserObject());
+                                    toGetPlanInfo.add((NameId) extendedTreeNode.getUserObject());
                                     toShare.add((NameId) extendedTreeNode.getUserObject());
                                     break;
                             }
@@ -652,14 +760,39 @@ public class MissionTreePanel extends ConsolePanel
                             NeptusLog.pub().error("The plan " + extendedTreeNode + " has no state.");
                         }
                     }
-                    if (toRemoveRemotely.size() > 0)
+
+                    if (addForMainVehiclePlan) {
+                        NameId nameId = new NameId() {
+                            @Override
+                            public String getIdentification() {
+                                return mainVehicleLastPlanId;
+                            }
+                            @Override
+                            public String getDisplayName() {
+                                return mainVehicleLastPlanId;
+                            }
+                        };
+                        toGetPlan.add(nameId);
+
+                        toGetPlanInfo.add(nameId);
+                    }
+
+                    if (!toRemoveRemotely.isEmpty())
                         addActionRemovePlanRemotely(getConsole(), pdbControl, toRemoveRemotely, popupMenu);
-                    if (toRemoveLocally.size() > 0)
+                    if (!toRemoveLocally.isEmpty())
                         addActionRemovePlanLocally(getConsole(), toRemoveLocally, popupMenu);
-                    if (toSend.size() > 0)
+                    if (!toSend.isEmpty())
                         addActionSendPlan(getConsole(), pdbControl, toSend, popupMenu);
-                    if (toGetPlan.size() > 0)
+                    if (!toGetPlan.isEmpty())
                         addActionGetRemotePlan(getConsole(), pdbControl, toGetPlan, popupMenu);
+                    if (!toGetPlanInfo.isEmpty()) {
+                        ArrayList<NameId> toGetInfo = new ArrayList<>();
+                        toGetInfo.addAll(toSend);
+                        toGetInfo.addAll(toRemoveRemotely);
+                        toGetInfo.addAll(toGetPlan);
+                        toGetInfo = toGetInfo.stream().distinct().collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
+                        addActionSendPlanInfoRequest(getConsole(), pdbControl, toGetInfo, popupMenu);
+                    }
                     break;
                 case Transponder:
                     addActionAddNewTrans(popupMenu);
@@ -678,10 +811,10 @@ public class MissionTreePanel extends ConsolePanel
                         if (state == State.NOT_SYNC)
                             notSyncTrans.add((TransponderElement) extendedTreeNode.getUserObject());
                     }
-                    if (localTrans.size() > 0) {
+                    if (!localTrans.isEmpty()) {
                         addActionRemoveTrans(localTrans, popupMenu);
                     }
-                    if (notSyncTrans.size() > 0) {
+                    if (!notSyncTrans.isEmpty()) {
                         addActionGetRemoteTrans(getConsole(), popupMenu, notSyncTrans);
                     }
                     
@@ -742,15 +875,22 @@ public class MissionTreePanel extends ConsolePanel
             popupMenu.add(I18n.text("Remove all transponders from vehicle")).addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    LblConfig msgLBLConfiguration = new LblConfig();
-                    msgLBLConfiguration.setOp(LblConfig.OP.SET_CFG);
-                    msgLBLConfiguration.setBeacons(new Vector<LblBeacon>());
-                    sendMsg(msgLBLConfiguration);
-                    msgLBLConfiguration = new LblConfig();
-                    msgLBLConfiguration.setOp(LblConfig.OP.GET_CFG);
-                    sendMsg(msgLBLConfiguration);
-                    // TODO On hold until removing all beacons is stable
-                    // browser.removeAllTransponders(console.getMission());
+                    SwingWorker<Void, Void> sw = new SwingWorker<Void, Void>() {
+                        @Override
+                        protected Void doInBackground() throws Exception {
+                            LblConfig msgLBLConfiguration = new LblConfig();
+                            msgLBLConfiguration.setOp(LblConfig.OP.SET_CFG);
+                            msgLBLConfiguration.setBeacons(new Vector<LblBeacon>());
+                            sendMsg(msgLBLConfiguration);
+                            msgLBLConfiguration = new LblConfig();
+                            msgLBLConfiguration.setOp(LblConfig.OP.GET_CFG);
+                            sendMsg(msgLBLConfiguration);
+                            // TODO On hold until removing all beacons is stable
+                            // browser.removeAllTransponders(console.getMission());
+                            return null;
+                        }
+                    };
+                    sw.execute();
                 }
             });
         }

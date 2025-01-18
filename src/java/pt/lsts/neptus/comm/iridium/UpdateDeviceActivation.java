@@ -27,98 +27,83 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: zp
- * Jun 28, 2013
+ * Author: pdias
+ * Jun 19, 2024
  */
 package pt.lsts.neptus.comm.iridium;
 
-import java.util.Collection;
-import java.util.Vector;
-
-import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCInputStream;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCOutputStream;
+
+import java.util.Collection;
+import java.util.Vector;
 
 /**
  * @author zp
  *
  */
-public class ImcIridiumMessage extends IridiumMessage {
+public class UpdateDeviceActivation extends IridiumMessage {
 
-    protected IMCMessage msg;
+    public static enum OperationType {
+        OP_DEACTIVATE,
+        OP_ACTIVATE;
 
-    // 5 bytes for RB addressing, 6 bytes for type and timestamp, 6 bytes for IMC header
-    public static int MaxPayloadSize = 270 - 17;
-    
-    public ImcIridiumMessage() {
-        super(2010);    
     }
 
-    protected ImcIridiumMessage(int msgType) {
-        super(msgType);
+    public UpdateDeviceActivation() {
+        super(2012);
+    }
+
+
+    protected double timestampSeconds = System.currentTimeMillis() / 1000.;
+    protected OperationType operation = OperationType.OP_ACTIVATE;
+
+    public double getTimestampSeconds() {
+        return timestampSeconds;
+    }
+
+    public void setTimestampSeconds(double timestampSeconds) {
+        this.timestampSeconds = timestampSeconds;
+    }
+
+    public OperationType getOperation() {
+        return operation;
+    }
+
+    public void setOperation(OperationType operation) {
+        this.operation = operation;
     }
 
     @Override
     public int serializeFields(IMCOutputStream out) throws Exception {
-        if (msg != null) {
-            out.writeUnsignedShort(msg.getMgid());
-            out.writeUnsignedInt((int)msg.getTimestamp());
-            int size = 6 + IMCDefinition.getInstance().serializeFields(msg, out);
-            return size;
-        }
-        return 0;
+        out.writeDouble(timestampSeconds);
+        out.writeByte(operation.ordinal());
+        return 9;
     }
 
     @Override
     public int deserializeFields(IMCInputStream in) throws Exception {
-        int type = in.readUnsignedShort();
-        long timestamp = in.readUnsignedInt();
-        msg = IMCDefinition.getInstance().create(IMCDefinition.getInstance().getMessageName(type));
-        msg.setTimestamp(timestamp);
         try {
-            IMCDefinition.getInstance().deserializeFields(msg, in);
+            timestampSeconds = in.readDouble();
+            operation = OperationType.values()[in.readUnsignedByte()];
         }
         catch (Exception e) {
-            e.printStackTrace();
+            // empty
         }
-        return msg.getPayloadSize() + 6;
+        return 9;
     }
 
-    /**
-     * @return the msg
-     */
-    public final IMCMessage getMsg() {
-        return msg;
-    }
-
-    /**
-     * @param msg the msg to set
-     */
-    public final void setMsg(IMCMessage msg) {
-        if (msg != null) {
-            this.source = msg.getSrc();
-            this.destination = msg.getDst();
-        }
-        this.msg = msg;
-    }
-    
     @Override
     public Collection<IMCMessage> asImc() {
-       Vector<IMCMessage> vec = new Vector<>();
-       if (msg != null)
-           vec.add(msg);
-       
-       msg.setSrc(getSource());
-       msg.setDst(getDestination());
-       msg.setTimestampMillis(timestampMillis);
-       return vec;
+        return new Vector<>();
     }
     
     @Override
     public String toString() {
         String s = super.toString();
-        return s + "\tMessage: "+getMsg().toString();         
+        s +=  "\t[timestampSeconds: "+timestampSeconds+"]\n";
+        s +=  "\t[operation: "+operation.name()+"]\n";
+        return s;
     }
-
 }

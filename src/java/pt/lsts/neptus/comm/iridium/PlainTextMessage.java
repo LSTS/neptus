@@ -32,26 +32,34 @@
  */
 package pt.lsts.neptus.comm.iridium;
 
+import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCInputStream;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCOutputStream;
 import pt.lsts.imc.TextMessage;
 import pt.lsts.neptus.NeptusLog;
 
+import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
+import java.io.ByteArrayInputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author pdias
  *
  */
 public class PlainTextMessage extends IridiumMessage {
+    private static final Pattern p0 = Pattern.compile("\\(([^\\)]*)\\).*");
 
     String text;
     byte[] rawData;
+
+    public String vehicle = "";
 
     public PlainTextMessage() {
         super(-1);
@@ -73,6 +81,17 @@ public class PlainTextMessage extends IridiumMessage {
         rawData = data;
         text = new String(data, StandardCharsets.UTF_8);
         text = text.trim();
+
+        Matcher matcher = p0.matcher(text);
+        if (matcher.matches()) {
+            vehicle = matcher.group(1).trim();
+            String[] tks = vehicle.split(" - ");
+            if (tks.length > 1) {
+                vehicle = tks[0];
+            }
+            source = IMCDefinition.getInstance().getResolver().resolve(vehicle);
+        }
+
         return text.getBytes(StandardCharsets.UTF_8).length;
     }
 
@@ -124,5 +143,24 @@ public class PlainTextMessage extends IridiumMessage {
         PlainTextMessage plainTextMessage = new PlainTextMessage();
         plainTextMessage.deserializeFields(in);
         return plainTextMessage;
+    }
+
+    public static void main(String[] args) {
+        String textMsg = "(caravel) 2025/01/16 09:52:16 (APC):Using Modem 1";
+
+        byte[] bytesMsh = textMsg.getBytes();
+
+        IMCInputStream iis = new IMCInputStream(new ByteArrayInputStream(bytesMsh), IMCDefinition.getInstance());
+        iis.setBigEndian(false);
+        PlainTextMessage txtIridium = new PlainTextMessage();
+        try {
+            txtIridium.deserializeFields(iis);
+            NeptusLog.pub().info("Received a plain text from " + txtIridium.text);
+            System.out.println("Received a plain text from " + txtIridium + "  ::  " + txtIridium.vehicle);
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error(e);
+            e.printStackTrace();
+        }
     }
 }

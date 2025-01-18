@@ -85,6 +85,8 @@ import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.http.client.HttpClientConnectionHelper;
 
+import static pt.lsts.neptus.comm.iridium.HubIridiumMessenger.updateVehicleWithLastSeenImei;
+
 /**
  * This class uses the RockBlock HTTP API (directly) to send messages to Iridium destinations and a gmail inbox to poll
  * for incoming messages
@@ -225,7 +227,7 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
         if (askCredentials())
             return;
 
-        String result = sendToRockBlockHttp(args.getImei(), getRockBlockUsername(), getRockBlockPassword(),
+        String result = sendToRockBlockHttp(args.getLastSeenImei(), getRockBlockUsername(), getRockBlockPassword(),
                 msg.serialize());
         checkResponseFromServer(result);
     }
@@ -238,7 +240,7 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
                 throw new Exception("Cannot send message to an unknown destination");
             }
             IridiumArgs args = (IridiumArgs) vt.getProtocolsArgs().get("iridium");
-            imeiAddr = args.getImei();
+            imeiAddr = args.getLastSeenImei();
         }
 
         if (askCredentials())
@@ -326,7 +328,10 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
                         if (matcher.matches()) {
                             InputStream stream = (InputStream) p.getContent();
                             byte[] data = IOUtils.toByteArray(stream);
-                            IridiumMessage msg = process(data, matcher.group(1), matcher.group(2), m.getSentDate());
+                            String fromImei = matcher.group(1);
+                            String seqNumber = matcher.group(2);
+                            IridiumMessage msg = process(data, fromImei, seqNumber,
+                                    m.getSentDate() == null ? m.getReceivedDate() : m.getSentDate());
                             if (msg != null)
                                 messages.add(msg);
                         }
@@ -364,6 +369,7 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
                 // Let us try to fill the source from imei
                 irMsg.source = HubIridiumMessenger.HubMessage.findSystemIdByImei(fromImei);
             }
+            updateVehicleWithLastSeenImei(fromImei, sentDate);
 
             // If not set, set the timestamp
             if (!new Date(irMsg.timestampMillis).before(now) && sentDate != null) {
