@@ -37,6 +37,7 @@ import org.apache.batik.transcoder.SVGAbstractTranscoder;
 import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.print.PrintTranscoder;
 import org.apache.batik.util.XMLResourceDescriptor;
+import org.apache.commons.lang3.tuple.Pair;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import pt.lsts.neptus.NeptusLog;
@@ -180,10 +181,10 @@ public class ImageSvgUtils {
             Document d = svgDoc[i];
             double svgWidth = SvgUtil.getWidth(d);
             double svgHeight = SvgUtil.getHeight(d);
+            Pair<Double, Double> newSized = ImageUtils.getScaledSize(svgWidth, svgHeight, width, height);
             Graphics2D gScaled = (Graphics2D) graphics2D.create();
             if (scaleToBufferedImageSize) {
-                double maxWH = Math.max(svgWidth, svgHeight);
-                gScaled.scale(width / maxWH, height / maxWH);
+                gScaled.scale(newSized.getLeft() / svgWidth, newSized.getRight() / svgHeight);
             }
             if (graphicModifier != null)
                 graphicModifier.apply(gScaled, i);
