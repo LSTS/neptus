@@ -46,8 +46,8 @@ import java.io.File;
 import java.util.Objects;
 import java.util.function.BiFunction;
 
-public class ImageSvgUtils {
-    private ImageSvgUtils() {
+public class ImageSvgUtilsFast {
+    private ImageSvgUtilsFast() {
     }
 
     /**
