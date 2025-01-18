@@ -36,6 +36,7 @@ import com.kitfox.svg.SVGDiagram;
 import com.kitfox.svg.SVGElement;
 import com.kitfox.svg.SVGException;
 import com.kitfox.svg.SVGUniverse;
+import org.apache.commons.lang3.tuple.Pair;
 import pt.lsts.neptus.NeptusLog;
 
 import java.awt.Graphics2D;
@@ -155,8 +156,8 @@ public class ImageSvgUtilsFast {
             SVGDiagram d = diagram[i];
             Graphics2D gScaled = (Graphics2D) graphics2D.create();
             if (scaleToBufferedImageSize) {
-                double maxWH = Math.max(d.getWidth(), d.getHeight());
-                gScaled.scale(width / maxWH, height / maxWH);
+                Pair<Double, Double> newSized = ImageUtils.getScaledSize(d.getWidth(), d.getHeight(), width, height);
+                gScaled.scale(newSized.getLeft() / d.getWidth(), newSized.getRight() / d.getHeight());
             }
             if (graphicModifier != null)
                 graphicModifier.apply(gScaled, i);
