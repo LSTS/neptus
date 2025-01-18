@@ -28,7 +28,7 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: pdias
- * 12/Jan/2025
+ * 18/Jan/2025
  */
 package pt.lsts.neptus.util;
 
@@ -101,12 +101,12 @@ public class ImageSvgUtils {
      * @return the buffered image
      */
     public static BufferedImage getSvgImageAsBufferedImage(String path, BiFunction<Graphics2D, Document, Void> graphicModifier) {
-        Document diagram = getSvgImage(path);
-        if (diagram == null)
+        Document svgDoc = getSvgImage(path);
+        if (svgDoc == null)
             return null;
 
-        double width = SvgUtil.getWidth(diagram);
-        double height = SvgUtil.getHeight(diagram);
+        double width = SvgUtil.getWidth(svgDoc);
+        double height = SvgUtil.getHeight(svgDoc);
         BufferedImage bufferedImage = ImageUtils.createCompatibleImage((int) Math.floor(width), (int) Math.floor(height),
                 Transparency.TRANSLUCENT);
         try {
@@ -115,8 +115,8 @@ public class ImageSvgUtils {
             graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
             graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             if (graphicModifier != null)
-                graphicModifier.apply(graphics2D, diagram);
-            paintSvgImageToBufferedImage(graphics2D, diagram);
+                graphicModifier.apply(graphics2D, svgDoc);
+            paintSvgImageToBufferedImage(graphics2D, svgDoc);
             graphics2D.dispose();
         }
         catch (Exception e) {
@@ -128,18 +128,18 @@ public class ImageSvgUtils {
     /**
      * Paints the SVG image to the buffered image.
      * @param graphics2D the graphics2D to paint the SVG image
-     * @param diagram the SVG diagram to paint
+     * @param svgDoc the SVG document to paint
      */
-    public static void paintSvgImageToBufferedImage(Graphics2D graphics2D, Document diagram) {
-        if (diagram == null || graphics2D == null)
+    public static void paintSvgImageToBufferedImage(Graphics2D graphics2D, Document svgDoc) {
+        if (svgDoc == null || graphics2D == null)
             return;
         try {
-            double width = SvgUtil.getWidth(diagram);
-            double height = SvgUtil.getHeight(diagram);
+            double width = SvgUtil.getWidth(svgDoc);
+            double height = SvgUtil.getHeight(svgDoc);
             PrintTranscoder prm = new PrintTranscoder();
             prm.addTranscodingHint(SVGAbstractTranscoder.KEY_WIDTH, Double.valueOf(width).floatValue());
             prm.addTranscodingHint(SVGAbstractTranscoder.KEY_HEIGHT, Double.valueOf(height).floatValue());
-            TranscoderInput ti = new TranscoderInput(diagram);
+            TranscoderInput ti = new TranscoderInput(svgDoc);
             prm.transcode(ti, null);
 
             Paper paper = new Paper();
@@ -162,12 +162,12 @@ public class ImageSvgUtils {
      * @param scaleToBufferedImageSize if true the SVG image will be scaled to the buffered image size
      * @param graphicModifier a function to modify the graphics2D before painting the SVG image (non-cumulative).
      *                        The first parameter is the graphics2D and the second is the SVG element index, starts at 0.
-     * @param diagram the SVG diagram(s) to paint
+     * @param svgDoc the SVG document(s) to paint
      */
     public static void paintSvgImageToBufferedImage(BufferedImage bufferedImage, boolean scaleToBufferedImageSize,
                                                          BiFunction<Graphics2D, Integer, Void> graphicModifier,
-                                                         Document... diagram) {
-        if (diagram == null || diagram.length == 0 || bufferedImage == null)
+                                                         Document... svgDoc) {
+        if (svgDoc == null || svgDoc.length == 0 || bufferedImage == null)
             return;
 
         Graphics2D graphics2D = bufferedImage.createGraphics();
@@ -176,8 +176,8 @@ public class ImageSvgUtils {
         graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         int width = bufferedImage.getWidth();
         int height = bufferedImage.getHeight();
-        for (int i = 0; i < diagram.length; i++) {
-            Document d = diagram[i];
+        for (int i = 0; i < svgDoc.length; i++) {
+            Document d = svgDoc[i];
             double svgWidth = SvgUtil.getWidth(d);
             double svgHeight = SvgUtil.getHeight(d);
             Graphics2D gScaled = (Graphics2D) graphics2D.create();
