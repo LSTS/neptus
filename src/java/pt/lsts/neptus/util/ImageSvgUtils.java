@@ -80,19 +80,14 @@ public class ImageSvgUtils {
             wDoc = SvgUtil.cleanInkscapeSVG(wDoc);
             return wDoc;
         }
-        catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
         catch (NoClassDefFoundError e) {
-            System.out.print("Batik missing in the classpath. Proceding without worldmap.");
+            System.out.print("Batik missing in the classpath. Proceeding without world map.");
             return null;
         }
-        catch (Error e) {
-            e.printStackTrace();
+        catch (Exception | Error e) {
+            NeptusLog.pub().error(e);
             return null;
         }
-
     }
 
     /**
