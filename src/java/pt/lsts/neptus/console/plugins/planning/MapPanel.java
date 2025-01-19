@@ -178,7 +178,7 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
         setBorder(BorderFactory.createEmptyBorder()); // editor.setEditable(false);
 
         renderer.setMinDelay(0);
-        renderer.setShowWorldMapOnScreenControls(false);
+        renderer.setShowWorldMapOnScreenControls(true);
         add(renderer, BorderLayout.CENTER);
         
         bottom.setFloatable(false);

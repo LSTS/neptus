@@ -132,7 +132,7 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
     private final int DEFAULT_LOD = 18;
     private final int MIN_LOD = MapTileUtil.LEVEL_MIN;
     private final int MAX_LOD = MapTileUtil.LEVEL_MAX;
-    private boolean worldMapShowScreenControls = false;
+    private boolean worldMapShowScreenControls = true;
 
     public static Cursor rotateCursor, translateCursor, zoomCursor, grabCursor, grab2Cursor, crosshairCursor,
             drawCursor;
@@ -328,8 +328,8 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
             worldMapPainter.setShowOnScreenControls(worldMapShowScreenControls);
             addPreRenderPainter(worldMapPainter);
             addPostRenderPainter(worldMapPainter.getPostRenderPainter(), "World Map Painter Control");
-            //addMouseListener(worldMapPainter);
-            //addMouseMotionListener(worldMapPainter);
+            addMouseListener(worldMapPainter);
+            addMouseMotionListener(worldMapPainter);
         }
         catch (NoClassDefFoundError e) {
             NeptusLog.pub().warn("Probably running inside a reduced api jar!!", e);
@@ -1724,6 +1724,11 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
             else
                 painters.addPainter(I18n.text(name), painter, 1, 0);
         }
+
+        if (painter instanceof MapControllerButtons) {
+            worldMapPainter.addMapControllerButtons((MapControllerButtons) painter);
+        }
+
         return true;
     }
 
@@ -1737,6 +1742,11 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
         synchronized (painters) {
             painters.remove(painter);
         }
+
+        if (painter instanceof MapControllerButtons) {
+            worldMapPainter.removeMapControllerButtons((MapControllerButtons) painter);
+        }
+
         return true;
     }
 
@@ -1752,6 +1762,10 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
             else
                 painters.addPainter(painter.getClass().getSimpleName(), painter, -1, 0);
         }
+
+        if (painter instanceof MapControllerButtons) {
+            worldMapPainter.addMapControllerButtons((MapControllerButtons) painter);
+        }
     }
 
     /**
@@ -1761,6 +1775,10 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
     public void removePreRenderPainter(Renderer2DPainter painter) {
         synchronized (painters) {
             painters.remove(painter);
+        }
+
+        if (painter instanceof MapControllerButtons) {
+            worldMapPainter.removeMapControllerButtons((MapControllerButtons) painter);
         }
     }
 
@@ -2005,6 +2023,10 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
     public void addInteraction(StateRendererInteraction interaction) {
         if (!interactions.contains(interaction))
             interactions.add(interaction);
+
+        if (interaction instanceof MapControllerButtons) {
+            worldMapPainter.addMapControllerButtons((MapControllerButtons) interaction);
+        }
     }
 
     /**
@@ -2016,6 +2038,10 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
             setActiveInteraction(defaultInteraction);
         }
         interactions.remove(interaction);
+
+        if (interaction instanceof MapControllerButtons) {
+            worldMapPainter.removeMapControllerButtons((MapControllerButtons) interaction);
+        }
     }
 
     @Deprecated

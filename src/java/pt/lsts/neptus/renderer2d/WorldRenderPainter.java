@@ -179,7 +179,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
     private static final Color COLOR_BLACK_TRANS_150 = ColorUtils.setTransparencyToColor(Color.BLACK, 150);
     private static final Color COLOR_BLACK_TRANS_40 = ColorUtils.setTransparencyToColor(Color.BLACK, 40);
 
-    private Vector<HoveringButton> controlRenderButtons = new Vector<HoveringButton>();
+    private final List<HoveringButton> controlRenderButtons = Collections.synchronizedList(new ArrayList<>());
     private HoveringButton mapControlButton = null;
     private HoveringButton mapSettingsButton = null;
     private HoveringButton mapShowActiveLayerDialogButton = null;
@@ -447,7 +447,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
         };
         mapControlButton.setXYConfiguredPos(xPos, yPos);
         mapControlButton.setSelected(this.drawWorldMap);
-        controlRenderButtons.add(mapControlButton);
+        //controlRenderButtons.add(mapControlButton);
 
         yPos += 5 + ICON_SIZE;
         mapSettingsButton = new HoveringButton(ICON_WORLD_SETTINGS) {
@@ -457,7 +457,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
         };
         mapSettingsButton.setXYConfiguredPos(xPos, yPos);
         mapSettingsButton.setToggle(false);
-        controlRenderButtons.add(mapSettingsButton);
+        //controlRenderButtons.add(mapSettingsButton);
 
         yPos += 5 + ICON_SIZE;
         mapShowActiveLayerDialogButton = new HoveringButton(ICON_WORLD_DIALOG) {
@@ -497,7 +497,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
         };
         mapShowActiveLayerDialogButton.setXYConfiguredPos(xPos, yPos);
         mapShowActiveLayerDialogButton.setToggle(false);
-        controlRenderButtons.add(mapShowActiveLayerDialogButton);
+        //controlRenderButtons.add(mapShowActiveLayerDialogButton);
 
         for (String key : mapStyle) {
             if (mapActiveHolderList.containsKey(key)) {
@@ -524,6 +524,10 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
 //            timer = null;
 //        }
 
+        synchronized (controlRenderButtons) {
+            controlRenderButtons.clear();
+        }
+
         if (dialogProperties != null) {
             dialogProperties.setVisible(false);
             dialogProperties.dispose();
@@ -546,6 +550,35 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
         catch (Exception e) {
             NeptusLog.pub().error("Not possible to open \"conf/"
                     + WorldRenderPainter.class.getSimpleName().toLowerCase() + ".properties\"");
+        }
+    }
+
+    public boolean addMapControllerButtons(MapControllerButtons controller) {
+        if (controller == null)
+            return false;
+        synchronized (controlRenderButtons) {
+            boolean ret = true;
+            for (HoveringButton button : controller.getMapControllerButtons(renderer2D)) {
+                if (controlRenderButtons.contains(button)) {
+                    continue;
+                }
+                ret &= controlRenderButtons.add(button);
+            }
+            return ret;
+        }
+    }
+
+    public boolean removeMapControllerButtons(MapControllerButtons controller) {
+        if (controller == null)
+            return false;
+        synchronized (controlRenderButtons) {
+            boolean ret = true;
+            for (HoveringButton button : controller.getMapControllerButtons(renderer2D)) {
+                if (!controlRenderButtons.contains(button))
+                    continue;
+                ret &= controlRenderButtons.remove(button);
+            }
+            return ret;
         }
     }
 
@@ -828,8 +861,13 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
     public class ControlsPostRender implements Renderer2DPainter {
         @Override
         public void paint(Graphics2D g, StateRenderer2D renderer) {
+            ArrayList<HoveringButton> controlRenderButtonsList;
+            synchronized (controlRenderButtons) {
+                controlRenderButtonsList = new ArrayList<>(controlRenderButtons);
+            }
+
             if (!isShowOnScreenControls()) {
-                for (HoveringButton hb : controlRenderButtons) {
+                for (HoveringButton hb : controlRenderButtonsList) {
                     hb.setVisible(false);
                 }
                 return;
@@ -839,7 +877,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
             if (!mapControlButton.isSelected()) {
                 visible = false;
             }
-            for (HoveringButton hb : controlRenderButtons) {
+            for (HoveringButton hb : controlRenderButtonsList) {
                 if (hb != mapControlButton)
                     hb.setVisible(visible);
             }
@@ -855,7 +893,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
                 }
                 mapShowActiveLayerDialogButton.setVisible(show);
             }
-            for (HoveringButton hb : controlRenderButtons) {
+            for (HoveringButton hb : controlRenderButtonsList) {
                 hb.paint(g, renderer);
             }
         }
