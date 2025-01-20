@@ -38,6 +38,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -103,6 +105,9 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
     protected static String serverUrl = "https://secure.rock7mobile.com/rockblock/MT";
     protected Set<IridiumMessageListener> listeners = new HashSet<>();
     private static long lastSuccess = -1;
+
+    private final Pattern patternText = Pattern.compile("TEXT/PLAIN; charset=([a-zA-Z0-9-]+)");
+    private final Pattern patternAttach = Pattern.compile("APPLICATION/OCTET-STREAM; name=(\\d+)-(\\d+)\\.bin");
 
     @NeptusProperty
     private boolean alwaysAskForPassword = false;
@@ -287,8 +292,6 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
         }
     }
 
-    private final Pattern pattern = Pattern.compile("APPLICATION/OCTET-STREAM; name=(\\d+)-(\\d+)\\.bin");
-
     @Override
     public Collection<IridiumMessage> pollMessages(Date timeSince) throws Exception {
 
@@ -317,6 +320,7 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
 
             for (int i = numMsgs; i > 0; i--) {
                 Message m = inbox.getMessage(i);
+                Date transmiteDate = null;
                 if (m.getReceivedDate().before(timeSince)) {
                     break;
                 }
@@ -324,14 +328,35 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
                     MimeMultipart mime = (MimeMultipart) m.getContent();
                     for (int j = 0; j < mime.getCount(); j++) {
                         BodyPart p = mime.getBodyPart(j);
-                        Matcher matcher = pattern.matcher(p.getContentType());
+                        Matcher matcher = patternText.matcher(p.getContentType());
+                        if (matcher.matches()) {
+                            String text = (String) p.getContent();
+                            String[] partsList = text.split("\n");
+                            for (String prt : partsList) {
+                                if (prt.trim().isEmpty())
+                                    continue;
+                                prt = prt.trim();
+                                if (prt.startsWith("Transmit Time:")) {
+                                    String trmTime = prt.split("e: ")[1].trim();
+                                    // Parse date in format: 2025-01-20T14:16:03Z UTC
+                                    trmTime = trmTime.replaceFirst(" UTC", "");
+                                    DateTimeFormatter formatter = DateTimeFormatter.ISO_ZONED_DATE_TIME;
+                                    ZonedDateTime dateTime = ZonedDateTime.parse(trmTime, formatter);
+                                    transmiteDate = Date.from(dateTime.toInstant());
+                                }
+                            }
+
+                            continue;
+                        }
+                        matcher = patternAttach.matcher(p.getContentType());
                         if (matcher.matches()) {
                             InputStream stream = (InputStream) p.getContent();
                             byte[] data = IOUtils.toByteArray(stream);
                             String fromImei = matcher.group(1);
                             String seqNumber = matcher.group(2);
                             IridiumMessage msg = process(data, fromImei, seqNumber,
-                                    m.getSentDate() == null ? m.getReceivedDate() : m.getSentDate());
+                                    transmiteDate != null ? transmiteDate
+                                    : (m.getSentDate() == null ? m.getReceivedDate() : m.getSentDate()));
                             if (msg != null)
                                 messages.add(msg);
                         }
