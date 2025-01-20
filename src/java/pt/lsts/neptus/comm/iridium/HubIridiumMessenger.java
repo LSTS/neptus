@@ -409,7 +409,7 @@ public class HubIridiumMessenger implements IridiumMessenger {
             if (imcSys == null) {
                 return vt.getImcId().intValue();
             }
-            return ImcId16.NULL_ID.intValue();
+            return imcSys.getId().intValue();
         }
 
         public byte[] messageRaw() {
