@@ -97,7 +97,10 @@ public class PlainTextReportMessage extends IridiumMessage {
     @Override
     public Collection<IMCMessage> asImc() {
         List<IMCMessage> msgs = new ArrayList<>();
-        msgs.add(new TextMessage("iridium", report));
+        TextMessage msg = new TextMessage("iridium", report);
+        msg.setSrc(source);
+        msg.setTimestampMillis(timestampMillis);
+        msgs.add(msg);
         return msgs;
     }
 
