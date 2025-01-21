@@ -421,7 +421,7 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
     private IridiumMessage process(byte[] data, String fromImei, String seqNumber, Date sentDate) {
         try {
             updateVehicleWithLastSeenImei(fromImei, sentDate);
-            if (data.length == 0)
+            if (data == null || data.length == 0)
                 return null;
 
             Date now = new Date();
