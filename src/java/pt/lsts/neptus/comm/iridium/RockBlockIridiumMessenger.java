@@ -321,8 +321,30 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
             for (int i = numMsgs; i > 0; i--) {
                 Message m = inbox.getMessage(i);
                 Date transmiteDate = null;
+                String fromImei = "";
+                String seqNumber = "";
+                byte[] data = null;
                 if (m.getReceivedDate().before(timeSince)) {
                     break;
+                }
+
+                if (m.getContent() instanceof String) {
+                    // No attach data so empty msg
+                    String text = (String) m.getContent();
+                    String[] partsList = text.split("\n");
+                    for (String prt : partsList) {
+                        if (prt.trim().isEmpty())
+                            continue;
+                        prt = prt.trim();
+                        if (prt.startsWith("Transmit Time:")) {
+                            String trmTime = prt.split("e: ")[1].trim();
+                            transmiteDate = getTransmitDateToDate(trmTime);
+                        } else if (prt.startsWith("IMEI:")) {
+                            fromImei = prt.split(":")[1].trim();
+                        } else if (prt.startsWith("MOMSN:")) {
+                            seqNumber = prt.split(":")[1].trim();
+                        }
+                    }
                 }
                 else if (m.getContent() instanceof MimeMultipart) {
                     MimeMultipart mime = (MimeMultipart) m.getContent();
@@ -338,30 +360,32 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
                                 prt = prt.trim();
                                 if (prt.startsWith("Transmit Time:")) {
                                     String trmTime = prt.split("e: ")[1].trim();
-                                    // Parse date in format: 2025-01-20T14:16:03Z UTC
-                                    trmTime = trmTime.replaceFirst(" UTC", "");
-                                    DateTimeFormatter formatter = DateTimeFormatter.ISO_ZONED_DATE_TIME;
-                                    ZonedDateTime dateTime = ZonedDateTime.parse(trmTime, formatter);
-                                    transmiteDate = Date.from(dateTime.toInstant());
+                                    transmiteDate = getTransmitDateToDate(trmTime);
+                                } else if (prt.startsWith("IMEI:")) {
+                                    fromImei = prt.split(":")[1].trim();
+                                } else if (prt.startsWith("MOMSN:")) {
+                                    seqNumber = prt.split(":")[1].trim();
                                 }
                             }
-
                             continue;
                         }
                         matcher = patternAttach.matcher(p.getContentType());
                         if (matcher.matches()) {
                             InputStream stream = (InputStream) p.getContent();
-                            byte[] data = IOUtils.toByteArray(stream);
-                            String fromImei = matcher.group(1);
-                            String seqNumber = matcher.group(2);
-                            IridiumMessage msg = process(data, fromImei, seqNumber,
-                                    transmiteDate != null ? transmiteDate
-                                    : (m.getSentDate() == null ? m.getReceivedDate() : m.getSentDate()));
-                            if (msg != null)
-                                messages.add(msg);
+                            data = IOUtils.toByteArray(stream);
+                            fromImei = matcher.group(1);
+                            seqNumber = matcher.group(2);
                         }
                     }
                 }
+
+                if (fromImei == null || fromImei.isEmpty())
+                    continue;
+                IridiumMessage msg = process(data, fromImei, seqNumber,
+                        transmiteDate != null ? transmiteDate
+                                : (m.getSentDate() == null ? m.getReceivedDate() : m.getSentDate()));
+                if (msg != null)
+                    messages.add(msg);
             }
         }
         catch (AuthenticationFailedException ex) {
@@ -386,15 +410,26 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
         return messages;
     }
 
+    private static Date getTransmitDateToDate(String trmTime) {
+        // Parse date in format: 2025-01-20T14:16:03Z UTC
+        trmTime = trmTime.replaceFirst(" UTC", "");
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_ZONED_DATE_TIME;
+        ZonedDateTime dateTime = ZonedDateTime.parse(trmTime, formatter);
+        return Date.from(dateTime.toInstant());
+    }
+
     private IridiumMessage process(byte[] data, String fromImei, String seqNumber, Date sentDate) {
         try {
+            updateVehicleWithLastSeenImei(fromImei, sentDate);
+            if (data.length == 0)
+                return null;
+
             Date now = new Date();
             IridiumMessage irMsg = IridiumMessage.deserialize(data);
             if (irMsg.source == ImcId16.NULL_ID.intValue()) {
                 // Let us try to fill the source from imei
                 irMsg.source = HubIridiumMessenger.HubMessage.findSystemIdByImei(fromImei);
             }
-            updateVehicleWithLastSeenImei(fromImei, sentDate);
 
             // If not set, set the timestamp
             if (!new Date(irMsg.timestampMillis).before(now) && sentDate != null) {
