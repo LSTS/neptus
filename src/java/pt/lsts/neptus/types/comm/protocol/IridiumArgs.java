@@ -40,6 +40,7 @@ import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
 import org.dom4j.Node;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesProvider;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginUtils;
@@ -95,8 +96,10 @@ public class IridiumArgs extends ProtocolArgs implements PropertiesProvider {
             lastActiveImei = 1;
         else
             return false;
-        if (oldImei != lastActiveImei)
-            System.out.println("Switched to IMEI " + getLastSeenImei());
+        if (oldImei != lastActiveImei) {
+            NeptusLog.pub().info("Switched to IMEI {} from old {}", getLastSeenImei(), oldImei);
+            System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Switched to IMEI " + getLastSeenImei() + " from old " + oldImei);
+        }
         lastImeiDateReceived = date;
         return true;
     }
@@ -113,8 +116,10 @@ public class IridiumArgs extends ProtocolArgs implements PropertiesProvider {
             lastActiveImei = 1;
         else
             return false;
-        if (oldImei != lastActiveImei)
-            System.out.println("Switched to IMEI " + getLastSeenImei());
+        if (oldImei != lastActiveImei) {
+            NeptusLog.pub().info("Switched to IMEI {} from old {}", getLastSeenImei(), oldImei);
+            System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Switched to IMEI " + getLastSeenImei() + " from old " + oldImei);
+        }
         lastImeiDateReceived = date;
         return true;
     }
