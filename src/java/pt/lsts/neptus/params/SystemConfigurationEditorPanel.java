@@ -684,9 +684,11 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
             if (previousCheckCategoriesOnPanel != null && !previousCheckCategoriesOnPanel.containsKey(category)) {
                 cb.setSelected(false);
             }
-            // if selected add to checkCategories
-            if (!chosenCategories.contains(category))
+            // if selected add to checkCategories, else remove it
+            if (cb.isSelected() && !chosenCategories.contains(category))
                 chosenCategories.add(category);
+            if (!cb.isSelected())
+                chosenCategories.remove(category);
             checkBoxes.add(cb);
         }
         categoriesPanel.removeAll();
