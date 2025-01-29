@@ -104,7 +104,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
 
     protected final LinkedHashMap<String, SystemProperty> params = new LinkedHashMap<>();
 
-    private static boolean isAskForCategories = false;
+    private static boolean isAskForCategories = true;
 
     private JPanel swapPropertiesAndCategoriesPanel;
     private JPanel mainPanel;
