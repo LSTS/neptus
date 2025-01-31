@@ -32,20 +32,20 @@
  */
 package pt.lsts.neptus.plugins.sabuvisii;
 
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.PlanControl;
+import pt.lsts.imc.PlanDB;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.IMCSendMessageUtils;
+import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleInteraction;
 import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
-import pt.lsts.neptus.mp.maneuvers.RowsManeuver;
-import pt.lsts.neptus.mp.maneuvers.StationKeeping;
-import pt.lsts.neptus.mp.maneuvers.VehicleFormation;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
-import pt.lsts.neptus.types.coord.LocationType;
-import pt.lsts.neptus.types.map.PlanUtil;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
@@ -58,7 +58,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -72,7 +71,6 @@ import java.util.concurrent.Executors;
 public class SabuvisUI extends ConsoleLayer {
     private ImcSystemsHolder holder;
     private ConsoleInteraction interaction;
-    private VehicleFormation vForm = null;
 
     private AbstractAction sendFormationAbs = null;
     
@@ -84,7 +82,7 @@ public class SabuvisUI extends ConsoleLayer {
 
     }
 
-    private static String[] getSystemNames() {
+    private static String[] getActiveSystemNames() {
         ImcSystem[] systems = ImcSystemsHolder.lookupAllActiveSystems();
 
         return Arrays.stream(systems)
@@ -93,10 +91,8 @@ public class SabuvisUI extends ConsoleLayer {
     }
 
     private class SystemSelectionWindow {
-        private JComboBox<String> leaderComboBox;
         private JPanel checkBoxPanel = new JPanel();
         private List<String> systems; // Original list of systems
-        private String selectedLeader = null; // Current leader
 
         public SystemSelectionWindow() {
             JDialog frame = new JDialog(new JFrame(), "Formation Participants");
@@ -115,26 +111,6 @@ public class SabuvisUI extends ConsoleLayer {
             mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
             frame.add(mainPanel);
 
-            // Label and ComboBox for leader selection
-            JLabel leaderLabel = new JLabel("Select Leader:");
-
-            systems = Arrays.asList(getSystemNames());
-            ArrayList<String> lList = new ArrayList<>();
-            lList.add("<Choose Leader>");
-            lList.addAll(systems);
-            leaderComboBox = new JComboBox<>(lList.toArray(new String[0]));
-
-            leaderComboBox.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    selectedLeader = (String) leaderComboBox.getSelectedItem();
-                    updateCheckBoxPanel(); // Update the checkboxes when the leader changes
-                }
-            });
-
-            mainPanel.add(leaderLabel);
-            mainPanel.add(leaderComboBox);
-
             // Separator
             mainPanel.add(Box.createVerticalStrut(10));
 
@@ -143,6 +119,9 @@ public class SabuvisUI extends ConsoleLayer {
             mainPanel.add(systemsLabel);
 
             checkBoxPanel.setLayout(new BoxLayout(checkBoxPanel, BoxLayout.Y_AXIS));
+
+            //get all available systems
+            systems = Arrays.asList(getActiveSystemNames());
             updateCheckBoxPanel();
 
             JScrollPane scrollPane = new JScrollPane(checkBoxPanel);
@@ -153,100 +132,69 @@ public class SabuvisUI extends ConsoleLayer {
             JComboBox<String> planCbox = new JComboBox<>(getConsole().getMission().getIndividualPlansList().keySet().toArray(new String[0]));
 
 
-            JButton submitButton = new JButton("Submit");
+            JButton submitButton = new JButton("Send");
             submitButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    // Get selected leader
-                    String leader = (String) leaderComboBox.getSelectedItem();
+                    Vector<VehicleType> list = new Vector<>();
 
-                    if (leader != null) {
-                        if (leader.equals("<Choose Leader>")) {
-                            GuiUtils.errorMessage(getConsole(), I18n.text("Error"), I18n.text("Invalid leader."));
-                            return;
-                        }
-                        Vector<VehicleType> list = new Vector<>();
-                        vForm = new VehicleFormation();
-                        VehicleType vLeader = VehiclesHolder.getVehicleById(leader);
-                        list.add(vLeader);
-
-                        StringBuilder a = new StringBuilder();
-                        for (Component comp : checkBoxPanel.getComponents()) {
-                            if (comp instanceof JCheckBox) {
-                                JCheckBox checkBox = (JCheckBox) comp;
-                                if (checkBox.isSelected()) {
-                                    list.add(VehiclesHolder.getVehicleById(checkBox.getText()));
-                                    a.append(" ").append(checkBox.getText());
-                                }
+                    StringBuilder a = new StringBuilder();
+                    for (Component comp : checkBoxPanel.getComponents()) {
+                        if (comp instanceof JCheckBox) {
+                            JCheckBox checkBox = (JCheckBox) comp;
+                            if (checkBox.isSelected()) {
+                                list.add(VehiclesHolder.getVehicleById(checkBox.getText()));
+                                a.append("[ ").append(checkBox.getText()).append("] ");
                             }
                         }
-
-                        list.add(VehiclesHolder.getVehicleById("lauv-xplore-1"));
-                        if (list.size() < 2) {
-                            GuiUtils.errorMessage(getConsole(), I18n.text("Error"), I18n.text("No participants selected."));
-                            return;
-                        }
-
-                        vForm.setParticipants(list);
-                        Vector<double[]> trajPoints = new Vector<>();
-
-
-                        if (getConsole().getMission().getIndividualPlansList().isEmpty()) {
-                            GuiUtils.errorMessage(getConsole(), I18n.text("Error"), I18n.text("No plan available.\nCreate a new plan."));
-                            return;
-                        }
-
-                        PlanType sel = null;
-                        for (Map.Entry<String, PlanType> plan : getConsole().getMission().getIndividualPlansList().entrySet()) {
-                            if (plan.getKey().equals((String) planCbox.getSelectedItem())) {
-                                sel = plan.getValue();
-                                break;
-                            }
-                        }
-                        Vector<LocatedManeuver> mans = PlanUtil.getLocationsAsSequence(sel);
-
-                        if (mans.isEmpty()) {
-                            GuiUtils.errorMessage(getConsole(), I18n.text("Error"), I18n.text("Invalid plan selected."));
-                            return;
-                        }
-
-                        // Set initial location
-                        vForm.setManeuverLocation(mans.get(0).getManeuverLocation());
-
-                        // iterate through all maneuvers and add them as offsets
-                        for (LocatedManeuver man : mans) {
-                            if (man instanceof StationKeeping) {
-                                StationKeeping lt = (StationKeeping) man;
-                                double[] ret = lt.getManeuverLocation().getOffsetFrom(vForm.getManeuverLocation());
-                                double[] point = new double[]{ret[0], ret[1], ret[2], lt.getDuration()};
-                                trajPoints.add(point);
-                            } else if (man instanceof RowsManeuver) {
-                                List<LocationType> locations = ((RowsManeuver) man).getPathLocations();
-                                RowsManeuver rm = (RowsManeuver) man;
-                                for (LocationType lt : locations) {
-                                    double[] ret = lt.getOffsetFrom(vForm.getManeuverLocation());
-                                    double[] point = new double[]{ret[0], ret[1], ret[2], -1};
-                                    trajPoints.add(point);
-                                }
-                            } else {
-                                double[] ret = man.getManeuverLocation().getOffsetFrom(vForm.getManeuverLocation());
-                                double[] point = new double[]{ret[0], ret[1], ret[2], -1};
-                                trajPoints.add(point);
-                            }
-                        }
-                        if (trajPoints.isEmpty()) {
-                            GuiUtils.errorMessage(getConsole(), I18n.text("Error"), I18n.text("Trajectory is invalid."));
-                            return;
-                        }
-
-
-                        vForm.setOffsets(trajPoints);
-
-                        // Display the selections
-                        GuiUtils.infoMessage(getConsole(), I18n.text("Participants"), "Leader: " + leader + "\n" + a.toString());
-                        sendFormationAbs.setEnabled(true);
-                        frame.dispose();
                     }
+
+                    if (list.size() < 2) {
+                        GuiUtils.errorMessage(getConsole(), I18n.text("Error"), I18n.text("At least 2 participants need to be selected."));
+                        return;
+                    }
+
+                    String selPlanId = (String) planCbox.getSelectedItem();
+                    PlanType planSelected = getConsole().getMission().getIndividualPlansList().get(selPlanId);
+                    if (planSelected == null) {
+                        GuiUtils.errorMessage(getConsole(), I18n.text("Error"), I18n.text("Invalid plan selected."));
+                        return;
+                    }
+
+                    GuiUtils.infoMessage(getConsole(), I18n.text("Sending to..."), a.toString());
+                    Map<String, Boolean> sendResMap = new HashMap<>();
+                    ExecutorService executorService = Executors.newSingleThreadExecutor();
+                    executorService.submit(() -> {
+                        //send plan to each vehicle
+                        for (VehicleType veh : list) {
+                            IMCMessage planSpecificationMessage = IMCUtils.generatePlanSpecification(planSelected);
+                            int reqId = IMCSendMessageUtils.getNextRequestId();
+                            PlanDB pdb = new PlanDB();
+                            pdb.setType(PlanDB.TYPE.REQUEST);
+                            pdb.setOp(PlanDB.OP.SET);
+                            pdb.setRequestId(reqId);
+                            pdb.setPlanId(planSelected.getId());
+                            pdb.setArg(planSpecificationMessage);
+                            pdb.setInfo("Plan sent by SABUVISUI");
+
+                            boolean sent = ImcMsgManager.getManager().sendMessageToSystem(pdb, veh.getId());
+                            if (!sent)
+                                sendResMap.put(veh.getId(), false);
+                        }
+                        if (sendResMap.values().stream().anyMatch(value -> !value)) {
+                            GuiUtils.errorMessage(getConsole(), I18n.text("Error sending"), I18n.text("Unable to send formation to: "+ String.join(", ", sendResMap.keySet())));
+                        }
+
+                    });
+
+                    // Shutdown the executor when tasks are complete
+                    executorService.shutdown();
+
+                    for (VehicleType veh : list) {
+                        sendStart(planSelected.getId(), veh.getId());
+                    }
+
+                    frame.dispose();
                 }
             });
             mainPanel.add(new JLabel(I18n.text("Select Plan:")));
@@ -266,15 +214,38 @@ public class SabuvisUI extends ConsoleLayer {
 
             // Populate checkboxes with systems excluding the selected leader
             for (String system : systems) {
-                if (!system.equals(selectedLeader)) {
                     JCheckBox checkBox = new JCheckBox(system);
                     checkBoxPanel.add(checkBox);
-                }
             }
 
             // Refresh the panel
             checkBoxPanel.revalidate();
             checkBoxPanel.repaint();
+        }
+
+        private void sendStart(String planId, String systemId) {
+            Runnable send = new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        int reqId = IMCSendMessageUtils.getNextRequestId();
+                        PlanControl pc = new PlanControl();
+                        pc.setType(PlanControl.TYPE.REQUEST);
+                        pc.setRequestId(reqId);
+                        pc.setPlanId(planId);
+                        pc.setOp(PlanControl.OP.START);
+
+                        ImcMsgManager.getManager().sendMessageToSystem(pc, systemId);
+                    }
+                    catch (Exception e) {
+                        NeptusLog.pub().error(e);
+                    }
+                }
+            };
+
+            Thread t = new Thread(send, "Sabuvis PC send");
+            t.setDaemon(true);
+            t.start();
         }
     }
 
@@ -314,7 +285,7 @@ public class SabuvisUI extends ConsoleLayer {
             public void mouseClicked(MouseEvent event, StateRenderer2D source) {
                 if (event.getButton() == MouseEvent.BUTTON3) {
                     JPopupMenu popup = new JPopupMenu();
-                    popup.add(new AbstractAction("Set Parameters") {
+                    popup.add(new AbstractAction("Set Participants") {
 
                         @Override
                         public void actionPerformed(ActionEvent arg0) {
@@ -324,74 +295,11 @@ public class SabuvisUI extends ConsoleLayer {
 
                     popup.addSeparator();
 
-                    sendFormationAbs = new AbstractAction("Send formation") {
-
-                        private static final long serialVersionUID = 1L;
-
-                        @Override
-                        public void actionPerformed(ActionEvent arg0) {
-                            if (vForm != null) {
-                                Map<String, Boolean> ret = new HashMap<>();
-                                ExecutorService executorService = Executors.newSingleThreadExecutor();
-                                executorService.submit(() -> {
-                                    for (VehicleType veh : vForm.getParticipants()) {
-                                        boolean v = ImcMsgManager.getManager().sendMessageToSystem(vForm.serializeToIMC(), veh.getId());
-                                        ret.put(veh.getId(), v);
-                                    }
-                                });
-
-                                // Shutdown the executor when tasks are complete
-                                executorService.shutdown();
-                                if (!ret.isEmpty()) {
-                                    GuiUtils.errorMessage(getConsole(), I18n.text("Error sending"), I18n.text("Unable to send formation to: "+ String.join(", ", ret.keySet())));
-                                }
-                            }
-                            else
-                                GuiUtils.errorMessage(getConsole(), I18n.text("Error"), I18n.text("Invalid Formation."));
-
-                        }
-                    };
-
-                    popup.add(sendFormationAbs);
-                    popup.add(new AbstractAction("Clear formation") {
-
-                        private static final long serialVersionUID = 1L;
-
-                        @Override
-                        public void actionPerformed(ActionEvent arg0) {
-                            vForm = null;
-                            sendFormationAbs.setEnabled(false);
-                        }
-                    });
-
                     popup.show(source, event.getX(), event.getY());
                 }
             }
         };
     }
-
-
-//    private void sendMessage(Message msg) {
-//        Runnable send = new Runnable() {
-//            @Override
-//            public void run() {
-//                try {
-//                    if (sendCommandsReliably)
-//                        sendMessageReliably(msg);
-//                    else
-//                        sendMessageUnreliable(msg);
-//                }
-//                catch (Exception e) {
-//                    e.printStackTrace();
-//                    NeptusLog.pub().error(e);
-//                }
-//            }
-//        };
-//
-//        Thread t = new Thread(send, "NECSAVE send");
-//        t.setDaemon(true);
-//        t.start();
-//    }
 
     @Override
     public void cleanLayer() {
