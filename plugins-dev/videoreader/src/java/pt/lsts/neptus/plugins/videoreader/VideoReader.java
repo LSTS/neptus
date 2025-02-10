@@ -32,6 +32,9 @@
  */
 package pt.lsts.neptus.plugins.videoreader;
 
+import com.google.common.eventbus.Subscribe;
+import pt.lsts.imc.EstimatedState;
+import pt.lsts.imc.FuelLevel;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
@@ -42,8 +45,11 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.update.Periodic;
+import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.RenderStringUtils;
 
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
@@ -51,11 +57,16 @@ import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -73,6 +84,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static pt.lsts.neptus.types.coord.CoordinateUtil.latitudeAsPrettyString;
+import static pt.lsts.neptus.types.coord.CoordinateUtil.longitudeAsPrettyString;
+import static pt.lsts.neptus.util.AngleUtils.nomalizeAngleDegrees180;
+import static pt.lsts.neptus.util.AngleUtils.nomalizeAngleDegrees360;
+import static pt.lsts.neptus.util.ImageUtils.getImage;
+import static pt.lsts.neptus.util.ImageUtils.getScaledImage;
 
 @PluginDescription(name = "Video Reader", version = "0.1", experimental = true, author = "Paulo Dias",
         description = "Plugin to view IP Camera streams using FFMPEG", icon = "images/menus/camera.png",
@@ -147,6 +165,42 @@ public class VideoReader extends ConsolePanel {
     private final JLabel streamNameJLabel;
     private final JLabel streamWarnJLabel;
 
+    private double lastAspectRatio = (double) widthConsole /heightConsole;
+
+    // JLabel for additional information
+    private String positionLabel = "";
+    private String rpyLabel = "";
+    private String velLabel = "";
+    private String depthLabel = "";
+    private String altitudeLabel = "";
+    private String fuelLabel = "";
+
+    private final Image fuelFullImage = getImage("images/full_battery_video.png");
+    private final Image fuelAboveHalfImage = getImage("images/above_half_battery_video.png");
+    private final Image fuelBelowHalfImage = getImage("images/below_half_battery_video.png");
+    private final Image fuelLowImage = getImage("images/low_battery_video.png");
+    private final Image fuelEmptyImage = getImage("images/no_battery_video.png");
+    private Image fuelImage = getImage("images/no_battery_video.png");
+    private Image fuelIcon = getScaledImage(fuelImage, 18, 18, false);
+    private final Image positionImage = getImage("images/position_video.png");
+    private Image positionIcon = getScaledImage(positionImage, 18, 18, false);
+    private final Image rpyImage = getImage("images/rpy_video.png");
+    private Image rpyIcon = getScaledImage(rpyImage, 18, 18, false);
+    private final Image velImage = getImage("images/speed_video.png");
+    private Image velIcon = getScaledImage(velImage, 18, 18, false);
+    private final Image depthImage = getImage("images/depth_video.png");
+    private Image depthIcon = getScaledImage(depthImage, 18, 18, false);
+    private final Image altitudeImage = getImage("images/altitude_video.png");
+    private Image altitudeIcon = getScaledImage(altitudeImage, 18, 18, false);
+
+    private Image lastFuelImage = fuelImage;
+
+    int infoFontSize = 14;
+
+    JMenuItem showInfoItem;
+
+    private boolean showVehicleInfo = false;
+
     public VideoReader(ConsoleLayout console) {
         this(console, false);
     }
@@ -155,6 +209,9 @@ public class VideoReader extends ConsolePanel {
         super(console, usedInsideAnotherConsolePanel);
 
         removeAll();
+
+        initPopupMenu();
+
         this.addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent evt) {
@@ -205,6 +262,7 @@ public class VideoReader extends ConsolePanel {
         streamWarnJLabel.setHorizontalAlignment(SwingConstants.CENTER);
         streamWarnJLabel.setVerticalAlignment(SwingConstants.BOTTOM);
         streamWarnJLabel.setVerticalTextPosition(SwingConstants.BOTTOM);
+        streamWarnJLabel.setText("⚠");
     }
 
     @Override
@@ -244,13 +302,95 @@ public class VideoReader extends ConsolePanel {
             streamNameJLabel.setSize((int) widthConsole, (int) bounds.getHeight() + 5);
             streamNameJLabel.paint(g);
 
+            int x = 10;
+            int y = heightConsole;
+            int iconSpacing = 5;
+            double scaleFactor = (double) (Math.min(widthConsole, heightConsole)) / ((double) (DEFAULT_WIDTH_CONSOLE + DEFAULT_HEIGHT_CONSOLE) / 2);
+            int fontSize = validateFontSize(g, (int) (14 * scaleFactor), positionLabel);
+            int iconSize = fontSize + 8;
+            Font font = new Font("Arial", Font.PLAIN, fontSize);
+            int lineHeight = (int) (fontSize * 2);
+
+            if (showVehicleInfo) {
+                double aspectRatio = (double) widthConsole / heightConsole;
+                if (lastAspectRatio != aspectRatio) {
+                    lastAspectRatio = aspectRatio;
+
+                    fuelIcon = getScaledImage(fuelImage, iconSize, iconSize, false);
+                    rpyIcon = getScaledImage(rpyImage, iconSize, iconSize, false);
+                    velIcon = getScaledImage(velImage, iconSize, iconSize, false);
+                    depthIcon = getScaledImage(depthImage, iconSize, iconSize, false);
+                    altitudeIcon = getScaledImage(altitudeImage, iconSize, iconSize, false);
+                    positionIcon = getScaledImage(positionImage, iconSize, iconSize, false);
+                }
+
+                if (lastFuelImage != fuelImage) {
+                    lastFuelImage = fuelImage;
+                    fuelIcon = getScaledImage(fuelImage, iconSize, iconSize, false);
+                }
+
+                Graphics2D g2d = (Graphics2D) g;
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                AlphaComposite composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.7f); // 50% opacity
+                g2d.setComposite(composite);
+                g2d.setColor(Color.BLACK);
+
+                int positionLabelWidth = getLabelWidth(g, fontSize, positionLabel);
+                int leftPanelRectWidth = (3 * x) + positionIcon.getWidth(this) + iconSpacing + positionLabelWidth; //(int) (200 * scaleFactor);
+                int leftPanelRectHeight = (int) ((lineHeight * 4) + (fontSize));
+                g2d.fillRoundRect(-x, y - leftPanelRectHeight, leftPanelRectWidth, leftPanelRectHeight + x, 30, 30);
+
+                int rpyLabelWidth = getLabelWidth(g, fontSize, rpyLabel);
+                int rightPanelRectWidth = (3 * x) + rpyIcon.getWidth(this) + iconSpacing + rpyLabelWidth; //(int) (200 * scaleFactor);
+                int rightPanelRectHeight = (int) ((lineHeight * 3) + (fontSize));
+                g2d.fillRoundRect(x + widthConsole - rightPanelRectWidth, y - rightPanelRectHeight, rightPanelRectWidth + x, rightPanelRectHeight + x, 30, 30);
+
+                Graphics2D g2dInfo = (Graphics2D) g;
+                RenderStringUtils.drawStringVideo(g2dInfo, font, Color.WHITE, fuelLabel, widthConsole, widthConsole, lineHeight * 2, fuelIcon, iconSpacing, lineHeight, true, true, this);
+                RenderStringUtils.drawStringVideo(g2dInfo, font, Color.WHITE, velLabel, widthConsole, widthConsole, y - (lineHeight * 2), velIcon, iconSpacing, lineHeight, false, true, this);
+                RenderStringUtils.drawStringVideo(g2dInfo, font, Color.WHITE, rpyLabel, widthConsole, widthConsole, y - (lineHeight), rpyIcon, iconSpacing, lineHeight, false, true, this);
+                RenderStringUtils.drawStringVideo(g2dInfo, font, Color.WHITE, depthLabel, widthConsole, x, y - (lineHeight * 3), depthIcon, iconSpacing, lineHeight, false, false, this);
+                RenderStringUtils.drawStringVideo(g2dInfo, font, Color.WHITE, altitudeLabel, widthConsole, x, y - (lineHeight * 2), altitudeIcon, iconSpacing, lineHeight, false, false, this);
+                RenderStringUtils.drawStringVideo(g2dInfo, font, Color.WHITE, positionLabel, widthConsole, x, y - (lineHeight), positionIcon, iconSpacing, lineHeight, false, false, this);
+
+                g2dInfo.dispose();
+                g2d.dispose();
+            }
+
             if (warn) {
-                String textWarn = "⚠";
-                streamWarnJLabel.setText(textWarn);
                 streamWarnJLabel.setSize((int) widthConsole, (int) heightConsole);
                 streamWarnJLabel.paint(g);
             }
         }
+    }
+
+    private int validateFontSize(Graphics g, int fontSize, String text){
+        Graphics2D gTemp = (Graphics2D) g.create();
+        Font font = new Font("Arial", Font.PLAIN, fontSize);
+        gTemp.setFont(font);
+        gTemp.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        gTemp.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        FontMetrics fm = gTemp.getFontMetrics();
+        int textWidth = fm.stringWidth(text);
+        int textHeight = fm.getHeight();
+        int res = (textWidth * 100) / widthConsole;
+        gTemp.dispose();
+        if (res > 40) {
+            return infoFontSize;
+        }
+        infoFontSize = fontSize;
+        return fontSize;
+    }
+
+    private int getLabelWidth(Graphics g, int fontSize, String text){
+        Graphics2D gTemp = (Graphics2D) g.create();
+        Font font = new Font("Arial", Font.PLAIN, fontSize);
+        gTemp.setFont(font);
+        gTemp.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        gTemp.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        FontMetrics fm = gTemp.getFontMetrics();
+        gTemp.dispose();
+        return fm.stringWidth(text);
     }
 
     private boolean isConnect() {
@@ -271,7 +411,7 @@ public class VideoReader extends ConsolePanel {
     }
 
     private void setupNoVideoImage() {
-        Image noVideoImage = ImageUtils.getImage(IMAGE_NO_VIDEO);
+        Image noVideoImage = getImage(IMAGE_NO_VIDEO);
         if (noVideoImage == null) {
             BufferedImage blackImage = ImageUtils.createCompatibleImage(1, 1, 255);
             blackImage.setRGB(0, 0, 0);
@@ -280,7 +420,7 @@ public class VideoReader extends ConsolePanel {
                     && noVideoImage.getHeight(null) > 0
                     && widthConsole >= 0 && heightConsole >= 0
                 //? ImageUtils.getScaledImage(noVideoImage, widthConsole, heightConsole, true)
-                ? Util.resizeBufferedImage(ImageUtils.toBufferedImage(ImageUtils.getImage("images/novideo.png")), new Dimension(widthConsole, heightConsole))
+                ? Util.resizeBufferedImage(ImageUtils.toBufferedImage(getImage("images/novideo.png")), new Dimension(widthConsole, heightConsole))
                 : noVideoImage;
 
         BufferedImage onScreenImage = noVideoImage == null
@@ -420,57 +560,77 @@ public class VideoReader extends ConsolePanel {
 //                }
 
                 if (e.getButton() == MouseEvent.BUTTON3) {
-                    popup = new JPopupMenu();
-                    JMenuItem item;
+                    popup.show((Component) e.getSource(), e.getX(), e.getY());
+                }
+            }
+        });
+    }
 
-                    popup.add(item = new JMenuItem(I18n.text("Connect to stream"),
-                                    ImageUtils.createImageIcon("images/menus/camera.png")))
-                            .addActionListener(new ActionListener() {
-                                public void actionPerformed(ActionEvent e) {
-                                    openIPCamManagementPanel();
-                                    //service.execute(VideoReader.this::connectStream);
-                                }
-                            });
-                    item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, InputEvent.ALT_MASK));
+    private void initPopupMenu() {
+        popup = new JPopupMenu();
+        JMenuItem item;
 
-                    popup.add(item = new JMenuItem(I18n.text("Close stream connection"),
-                                    ImageUtils.createImageIcon("images/menus/exit.png")))
-                            .addActionListener(new ActionListener() {
-                                public void actionPerformed(ActionEvent e) {
-                                    NeptusLog.pub().info("Closing video stream");
-                                    service.execute(VideoReader.this::disconnectStream);
+        popup.add(item = new JMenuItem(I18n.text("Connect to stream"),
+                        ImageUtils.createImageIcon("images/menus/camera.png")))
+                .addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        openIPCamManagementPanel();
+                        //service.execute(VideoReader.this::connectStream);
+                    }
+                });
+        item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, InputEvent.ALT_MASK));
+
+        popup.add(item = new JMenuItem(I18n.text("Close stream connection"),
+                        ImageUtils.createImageIcon("images/menus/exit.png")))
+                .addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        NeptusLog.pub().info("Closing video stream");
+                        service.execute(VideoReader.this::disconnectStream);
 //                                    noVideoLogoState = false;
 //                                    isCleanTurnOffCam = true;
 //                                    state = false;
 //                                    ipCam = false;
 //                                    closeCapture(capture);
-                                    repaint(500);
-                                }
-                            });
-                    item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, InputEvent.ALT_MASK));
+                        repaint(500);
+                    }
+                });
+        item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, InputEvent.ALT_MASK));
 
-                    popup.addSeparator();
+        popup.addSeparator();
 
-                    popup.add(item = new JMenuItem(I18n.text("Toggle Histogram filter"),
-                                    ImageUtils.createImageIcon("images/menus/histogram.png")))
-                            .addActionListener(new ActionListener() {
-                                public void actionPerformed(ActionEvent e) {
-                                    histogramFlag = !histogramFlag;
-                                    if (player != null) {
-                                        player.setHistogramFlag(histogramFlag);
-                                    }
-                                }
-                            });
-                    item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, InputEvent.ALT_MASK));
+        popup.add(item = new JMenuItem(I18n.text("Toggle Histogram filter"),
+                        ImageUtils.createImageIcon("images/menus/histogram.png")))
+                .addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        histogramFlag = !histogramFlag;
+                        if (player != null) {
+                            player.setHistogramFlag(histogramFlag);
+                        }
+                    }
+                });
+        item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, InputEvent.ALT_MASK));
 
-                    popup.add(item = new JMenuItem(I18n.text("Maximize window"),
-                                    ImageUtils.createImageIcon("images/menus/maximize.png")))
-                            .addActionListener(new ActionListener() {
-                                public void actionPerformed(ActionEvent e) {
-                                    maximizeVideoStreamPanel();
-                                }
-                            });
-                    item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.ALT_MASK));
+        popup.add(item = new JMenuItem(I18n.text("Maximize window"),
+                        ImageUtils.createImageIcon("images/menus/maximize.png")))
+                .addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        maximizeVideoStreamPanel();
+                    }
+                });
+        item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.ALT_MASK));
+
+        popup.addSeparator();
+
+        showInfoItem = new JCheckBoxMenuItem(I18n.text("Show vehicle information"));
+
+        showInfoItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                showVehicleInformation();
+            }
+        });
+
+        popup.add(showInfoItem);
+
 
 //                    popup.addSeparator();
 
@@ -482,10 +642,10 @@ public class VideoReader extends ConsolePanel {
 //                    markSnap.setEnabled(false);
 //                    popup.add(markSnap, JMenuItem.CENTER_ALIGNMENT);
 
-                    popup.show((Component) e.getSource(), e.getX(), e.getY());
-                }
-            }
-        });
+    }
+
+    private void showVehicleInformation() {
+        showVehicleInfo = !showVehicleInfo;
     }
 
     private void maximizeVideoStreamPanel() {
@@ -505,5 +665,65 @@ public class VideoReader extends ConsolePanel {
     private void openIPCamManagementPanel() {
         // JPanel for IPCam Select (MigLayout)
         ipCamManagementPanel.show(camUrl);
+    }
+
+    @Subscribe
+    public void on(EstimatedState msg) {
+        String mainVehicleId = getMainVehicleId();
+        if (!msg.getSourceName().equals(mainVehicleId))
+            return;
+
+        double latDeg = Math.toDegrees(msg.getLat());
+        double lonDeg = Math.toDegrees(msg.getLon());
+        LocationType position = new LocationType(latDeg, lonDeg).convertToAbsoluteLatLonDepth();
+        String latStr = position.getLatitudeAsPrettyString();
+        String lonStr = position.getLongitudeAsPrettyString();
+        double roll = nomalizeAngleDegrees180(Math.toDegrees(msg.getPhi()));
+        String rollStr = String.format("%+04d", (int) roll).replace("+"," ");
+        double pitch = nomalizeAngleDegrees180(Math.toDegrees(msg.getTheta()));
+        String pitchStr = String.format("%+04d", (int) pitch).replace("+"," ");
+        double yaw = nomalizeAngleDegrees360(Math.toDegrees(msg.getPsi()));
+        String yawStr = String.format("%+04d", (int) yaw).replace("+"," ");
+        double vel = msg.getVx();
+        String velStr = String.format("%+06.2f", vel).replace("+"," ");
+        if (velStr.equals("-00.00")) {
+            velStr = " 00.00";
+        }
+        double depth = msg.getDepth();
+        double altitude = msg.getAlt();
+
+        positionLabel = latStr + " / " + lonStr;
+        rpyLabel = rollStr + "°(R), " + pitchStr + "°(P), " + yawStr + "°(Y)";
+        velLabel =  velStr + " m/s";
+        depthLabel = String.format("%.2f m", depth);
+        altitudeLabel = String.format("%.2f m", altitude);
+    }
+
+    @Subscribe
+    public void on(FuelLevel msg) {
+        String mainVehicleId = getMainVehicleId();
+        if (!msg.getSourceName().equals(mainVehicleId))
+            return;
+
+        double fuelLevel = msg.getValue();
+
+        if (fuelLevel >= 90.0) {
+            fuelImage = fuelFullImage;
+        }
+        else if (fuelLevel >= 60.0) {
+            fuelImage = fuelAboveHalfImage;
+        }
+        else if (fuelLevel >= 40.0) {
+            fuelImage = fuelBelowHalfImage;
+        }
+
+        else if (fuelLevel >= 10.0) {
+            fuelImage = fuelLowImage;
+        }
+        else {
+            fuelImage = fuelEmptyImage;
+        }
+
+        fuelLabel = String.format("%02d%%", (int) fuelLevel);
     }
 }

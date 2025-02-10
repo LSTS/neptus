@@ -32,13 +32,20 @@
  */
 package pt.lsts.neptus.util;
 
+import javax.swing.ImageIcon;
+import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.font.GlyphVector;
+import java.awt.image.ImageObserver;
 
 public class RenderStringUtils {
 
@@ -59,31 +66,81 @@ public class RenderStringUtils {
      * @return
      */
     public static void drawStringWOutline(Graphics2D g, Font font, Color textColor, Color outlineColor, String text, double x, double y) {
-        Graphics2D gtemp = (Graphics2D) g.create();
+        Graphics2D gTemp = (Graphics2D) g.create();
         try {
-            gtemp.setFont(font);
-            gtemp.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            gtemp.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+            gTemp.setFont(font);
+            gTemp.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            gTemp.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
             // Calculate dynamic outline thickness based on font size
             float outlineThickness = font.getSize() * 0.25f;
 
-            GlyphVector glyphVector = font.createGlyphVector(gtemp.getFontRenderContext(), text);
+            GlyphVector glyphVector = font.createGlyphVector(gTemp.getFontRenderContext(), text);
             Shape textShape = glyphVector.getOutline((int) (x), (int) (y));
 
             // Draw the outline
-            gtemp.setColor(outlineColor);
-            gtemp.setStroke(new BasicStroke(outlineThickness, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND)); // Thickness of the outline
-            gtemp.draw(textShape);
+            gTemp.setColor(outlineColor);
+            gTemp.setStroke(new BasicStroke(outlineThickness, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND)); // Thickness of the outline
+            gTemp.draw(textShape);
 
             // Draw the fill
-            gtemp.setColor(textColor);
-            gtemp.fill(textShape);
+            gTemp.setColor(textColor);
+            gTemp.fill(textShape);
         }
         catch (Exception e) {
             e.printStackTrace();
         } finally {
-            gtemp.dispose();
+            gTemp.dispose();
+        }
+    }
+
+    public static void drawStringVideo(Graphics2D g, Font font, Color textColor, String text, double widthConsole, double x, double y, Image icon, int iconSpacing, int lineHeight, boolean background, boolean rightSide, ImageObserver io) {
+        Graphics2D gTemp = (Graphics2D) g.create();
+        Graphics2D gBackground = (Graphics2D) g.create();
+        try {
+            gTemp.setFont(font);
+            gTemp.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            gTemp.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+
+            GlyphVector glyphVector = font.createGlyphVector(gTemp.getFontRenderContext(), text);
+            Shape textShape = glyphVector.getOutline((int) (x) + icon.getWidth(io) + iconSpacing, (int) (y));
+
+            FontMetrics fm = gTemp.getFontMetrics();
+            int textWidth = fm.stringWidth(text);
+            int textHeight = fm.getHeight();
+
+            int rectX = -10;
+            int rectY = (int) ((int) y - (icon.getHeight(io) * 0.7) - ((double) lineHeight / 10));
+            int rectWidth = (int) (x + icon.getWidth(io) + iconSpacing + textWidth) + (-2 * rectX);
+            int rectHeight = (int) (icon.getHeight(io) + ((double) lineHeight / 5));
+
+            if (rightSide) {
+                textShape = glyphVector.getOutline((float) ((int) (x) - textWidth - 10) , (int) (y));
+                rectX = (int) x - icon.getWidth(io) - textWidth - (iconSpacing) - (-2 * rectX);
+            }
+
+            if (background) {
+                AlphaComposite composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.7f); // 50% opacity
+                gBackground.setComposite(composite);
+                gBackground.setColor(Color.BLACK);
+                gBackground.fillRoundRect(rectX, rectY, rectWidth, rectHeight, 20, 20);
+            }
+
+            gTemp.setColor(textColor);
+            gTemp.fill(textShape);
+
+            if (rightSide) {
+                gTemp.drawImage(icon, (int) x - icon.getWidth(io) - textWidth - (iconSpacing) - 10, (int) ((int) y - (icon.getHeight(io) * 0.7)), io);
+            }
+            else {
+                gTemp.drawImage(icon, (int) x, (int) ((int) y - (icon.getHeight(io) * 0.7)), io);
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            gBackground.dispose();
+            gTemp.dispose();
         }
     }
 }
