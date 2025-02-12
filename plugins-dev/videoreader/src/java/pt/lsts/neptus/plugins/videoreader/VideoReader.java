@@ -693,7 +693,7 @@ public class VideoReader extends ConsolePanel {
         double altitude = msg.getAlt();
 
         positionLabel = latStr + " / " + lonStr;
-        rpyLabel = rollStr + "°(R), " + pitchStr + "°(P), " + yawStr + "°(Y)";
+        rpyLabel = rollStr + "°(R), " + pitchStr + "°(P), " + yawStr + "°(H)";
         velLabel =  velStr + " m/s";
         depthLabel = String.format("%.2f m", depth);
         altitudeLabel = String.format("%.2f m", altitude);
