@@ -336,7 +336,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         
         onMessage(minfo, message);
         
-        bus.post(message);
+        //bus.post(message); // This is not needed as the onMessage will do the job
     }
 
     private void updateUdpOnIpMapper() {
