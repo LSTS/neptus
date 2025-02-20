@@ -128,6 +128,7 @@ public class SimulationActionsPlugin extends ConsolePanel implements IEditorMenu
             return;
         }
         else {
+            GuiUtils.centerParent(gpsFixDialog, getConsole());
             gpsFixDialog.setVisible(true);
         }
     }
