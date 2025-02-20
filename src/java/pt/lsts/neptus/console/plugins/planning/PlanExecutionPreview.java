@@ -166,8 +166,7 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
             return;
 
         if (simulators.containsKey(src) && lastStateTimes.containsKey(getConsole().getMainSystem())) {
-
-            long lastStateTime = lastStateTimes.get(getConsole().getMainSystem());
+            long lastStateTime = getLastStateTimeForMainSystem();
 
             if (System.currentTimeMillis() - lastStateTime < 1000)
                 return;
@@ -189,8 +188,7 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
             return;
 
         if (simulators.containsKey(src)) {
-
-            long lastStateTime = lastStateTimes.get(getConsole().getMainSystem());
+            long lastStateTime = getLastStateTimeForMainSystem();
 
             if (System.currentTimeMillis() - lastStateTime < 1000)
                 return;
@@ -212,16 +210,22 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
         if (mainSimulator == null)
             return;
 
-        long lastStateTime = lastStateTimes.get(getConsole().getMainSystem());
+        long lastStateTime = getLastStateTimeForMainSystem();
 
         if (System.currentTimeMillis() - lastStateTime < 1000)
             return;
         else {
             mainSimulator.setPositionEstimation(estimate.getEstimation(), 8);
             updateFutureState(getConsole().getMainSystem());
+
+    private long getLastStateTimeForMainSystem() {
+        long lastStateTime = 0;
+        if (lastStateTimes.containsKey(getConsole().getMainSystem()) && lastStateTimes.get(getConsole().getMainSystem()) != null) {
+            lastStateTime = lastStateTimes.get(getConsole().getMainSystem());
         }
+        return lastStateTime;
     }
-    
+
     protected void updateFutureState(String system) {
         PlanSimulator simulator = simulators.get(system);
         if (simulator == null)
