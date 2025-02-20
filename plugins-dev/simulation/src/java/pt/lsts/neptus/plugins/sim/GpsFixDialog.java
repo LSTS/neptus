@@ -152,7 +152,9 @@ public class GpsFixDialog extends JDialog {
                     String latText = latTextField.getText();
                     String lonText = lonTextField.getText();
                     if (Objects.equals(latText, "") || Objects.equals(lonText, "")) {
-                        throw new IllegalArgumentException("Latitude and longitude cannot be empty when setting a position.");
+                        GuiUtils.errorMessage(GpsFixDialog.this, I18n.text("Error"),
+                                I18n.text("Latitude and longitude cannot be empty when setting a position."),
+                                ModalityType.DOCUMENT_MODAL);
                     }
                     LocationType lt = null;
                     try {
