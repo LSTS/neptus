@@ -214,9 +214,10 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
 
         if (System.currentTimeMillis() - lastStateTime < 1000)
             return;
-        else {
-            mainSimulator.setPositionEstimation(estimate.getEstimation(), 8);
-            updateFutureState(getConsole().getMainSystem());
+
+        mainSimulator.setPositionEstimation(estimate.getEstimation(), 8);
+        updateFutureState(getConsole().getMainSystem());
+    }
 
     private long getLastStateTimeForMainSystem() {
         long lastStateTime = 0;
