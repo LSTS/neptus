@@ -32,14 +32,11 @@
  */
 package pt.lsts.neptus.plugins.sim;
 
-import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.LinkedHashMap;
 import java.util.Vector;
 
 import javax.swing.AbstractAction;
