@@ -179,5 +179,8 @@ public class GpsFixDialog extends JDialog {
                 dispose();
             }
         });
+
+        GuiUtils.reactEnterKeyPress(okButton);
+        GuiUtils.reactEscapeKeyPress(cancelButton);
     }
 }
