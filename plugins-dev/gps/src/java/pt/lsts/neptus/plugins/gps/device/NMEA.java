@@ -196,19 +196,27 @@ public class NMEA {
         }
 
         // Position.
-        fix.setLatitude(parseLatitude(chunks.get(2), chunks.get(3)));
-        fix.setLongitude(parseLongitude(chunks.get(4), chunks.get(5)));
-        fix.setHeight(parseReal(chunks.get(9)) + parseReal(chunks.get(11)));
+        if (!chunks.get(2).isEmpty() && !chunks.get(3).isEmpty() && !chunks.get(4).isEmpty() && !chunks.get(5).isEmpty() && !chunks.get(9).isEmpty() && !chunks.get(11).isEmpty()) {
+            fix.setLatitude(parseLatitude(chunks.get(2), chunks.get(3)));
+            fix.setLongitude(parseLongitude(chunks.get(4), chunks.get(5)));
+            fix.setHeight(parseReal(chunks.get(9)) + parseReal(chunks.get(11)));
+        }
 
         // Satellites.
-        fix.setSatellites(parseInteger(chunks.get(7)));
+        if (!chunks.get(7).isEmpty()) {
+            fix.setSatellites(parseInteger(chunks.get(7)));
+        }
 
         // Dilution.
-        fix.setHorizontalDilution(parseReal(chunks.get(8)));
+        if (!chunks.get(8).isEmpty()) {
+            fix.setHorizontalDilution(parseReal(chunks.get(8)));
+        }
 
         // Time.
-        fix.setTime(parseTime(chunks.get(1)));
-
+        if (!chunks.get(1).isEmpty()) {
+            fix.setTime(parseTime(chunks.get(1)));
+        }
+        
         listener.onFix(fix);
     }
 
