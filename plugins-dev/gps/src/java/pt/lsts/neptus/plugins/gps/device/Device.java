@@ -34,6 +34,7 @@ package pt.lsts.neptus.plugins.gps.device;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Vector;
@@ -170,6 +171,7 @@ public class Device implements SerialPortEventListener {
 
                 try {
                     byte[] receivedData = serialPort.readBytes();
+                    System.out.println("Bytes read froms erial port: " + Arrays.toString(receivedData));
                     for (byte receivedDatum : receivedData) {
                         try {
                             parser.parse(receivedDatum);

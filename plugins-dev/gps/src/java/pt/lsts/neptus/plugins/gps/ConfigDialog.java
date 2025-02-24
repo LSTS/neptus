@@ -102,24 +102,6 @@ public class ConfigDialog extends JDialog {
 
         // Frame.
         frameComboBox = new JComboBox<Object>(Device.FRAME_TYPES);
-        frameComboBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String type = (String) frameComboBox.getSelectedItem();
-                System.out.println(type);
-                dataBits = type.charAt(0);
-                if (type.charAt(1) == 'e') {
-                    parityBits = 2;
-                }
-                else if (type.charAt(1) == 'o') {
-                    parityBits = 1;
-                }
-                else {
-                    parityBits = 0;
-                }
-                stopBits = type.charAt(2);
-            }
-        });
 
         // OK Button.
         final JButton okButton = new JButton(I18n.text("OK"));
@@ -129,6 +111,21 @@ public class ConfigDialog extends JDialog {
                 baud = (String) baudComboBox.getSelectedItem();
                 port = (String) portComboBox.getSelectedItem();
                 frame = (String) frameComboBox.getSelectedItem();
+                String type = (String) frameComboBox.getSelectedItem();
+                dataBits = Character.getNumericValue(type.charAt(0));
+                if (type.charAt(1) == 'e') {
+                    parityBits = 2;
+                }
+                else if (type.charAt(1) == 'o') {
+                    parityBits = 1;
+                }
+                else {
+                    parityBits = 0;
+                }
+                stopBits = Character.getNumericValue(type.charAt(2));
+                System.out.println(dataBits);
+                System.out.println(parityBits);
+                System.out.println(stopBits);
                 close();
             }
         });
@@ -243,22 +240,23 @@ public class ConfigDialog extends JDialog {
      *             if no serial ports are available.
      */
     public boolean open(String aPort, String aBaud, String aFrame) {
-        portComboBox.setSelectedItem(aPort);
-        if (portComboBox.getSelectedIndex() == -1)
-            portComboBox.setSelectedIndex(0);
-
-        baudComboBox.setSelectedItem(aBaud);
-        if (baudComboBox.getSelectedIndex() == -1)
-            baudComboBox.setSelectedIndex(0);
-
-        frameComboBox.setSelectedItem(aFrame);
-        if (frameComboBox.getSelectedIndex() == -1)
-            frameComboBox.setSelectedIndex(0);
+//        portComboBox.setSelectedItem(aPort);
+//        if (portComboBox.getSelectedIndex() == -1)
+//            portComboBox.setSelectedIndex(0);
+//
+//        baudComboBox.setSelectedItem(aBaud);
+//        if (baudComboBox.getSelectedIndex() == -1)
+//            baudComboBox.setSelectedIndex(0);
+//
+//        frameComboBox.setSelectedItem(aFrame);
+//        if (frameComboBox.getSelectedIndex() == -1)
+//            frameComboBox.setSelectedIndex(0);
 
         GuiUtils.centerParent(this, this.getOwner());
         setVisible(true);
 
-        return !canceled;
+        return true;
+        //return !canceled;
     }
 
     /**
