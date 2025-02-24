@@ -168,6 +168,7 @@ public class NMEA {
      * Interpret the parsed sentence.
      */
     private void interpret() {
+        System.out.println(chunks);
         if ("GPGGA".equals(chunks.get(0)))
             interpretGPGGA();
         else if ("GPVTG".equals(chunks.get(0)))
@@ -179,6 +180,7 @@ public class NMEA {
      */
     private void interpretGPGGA() {
         // Validity.
+
         int quality = Integer.parseInt(chunks.get(6));
         if (quality == 1) {
             fix.setType(Fix.Type.STANDALONE);
@@ -214,12 +216,13 @@ public class NMEA {
      * Interpret a GPVTG sentence.
      */
     private void interpretGPVTG() {
-        System.out.println("Nº Chunks: " + chunks.size());
         if (!chunks.get(1).isEmpty()) {
             fix.setCog(parseReal(chunks.get(1)));
         }
-        double value = parseReal(chunks.get(7));
-        fix.setSog(value * 1000.0 / 3600.0);
+        if (!chunks.get(7).isEmpty()) {
+            double value = parseReal(chunks.get(7));
+            fix.setSog(value * 1000.0 / 3600.0);
+        }
     }
 
     /**
