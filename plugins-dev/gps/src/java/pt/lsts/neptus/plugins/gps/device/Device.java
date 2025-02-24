@@ -166,12 +166,13 @@ public class Device implements SerialPortEventListener {
         serialPort.addEventListener(new jssc.SerialPortEventListener() {
             @Override
             public void serialEvent(jssc.SerialPortEvent serEvt) {
-                if (serEvt.getEventType() != gnu.io.SerialPortEvent.DATA_AVAILABLE)
-                    return;
-
                 try {
+
                     byte[] receivedData = serialPort.readBytes();
-                    System.out.println("Bytes read froms erial port: " + Arrays.toString(receivedData));
+                    if (receivedData == null|| receivedData.length == 0)
+                        return;
+
+                    System.out.println("Bytes read froms serial port: " + Arrays.toString(receivedData));
                     for (byte receivedDatum : receivedData) {
                         try {
                             parser.parse(receivedDatum);

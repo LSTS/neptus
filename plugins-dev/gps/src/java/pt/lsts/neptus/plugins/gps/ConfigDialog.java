@@ -123,9 +123,6 @@ public class ConfigDialog extends JDialog {
                     parityBits = 0;
                 }
                 stopBits = Character.getNumericValue(type.charAt(2));
-                System.out.println(dataBits);
-                System.out.println(parityBits);
-                System.out.println(stopBits);
                 close();
             }
         });
