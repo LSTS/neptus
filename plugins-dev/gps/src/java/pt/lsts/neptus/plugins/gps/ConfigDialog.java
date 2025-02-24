@@ -74,20 +74,14 @@ public class ConfigDialog extends JDialog {
     /** Selected serial port device. */
     private String port;
     /** Selected serial port baud rate. */
-    private int baud;
+    private String baud;
     /** Selected serial port frame type. */
     private String frame;
-    /** Number of data bits. */
-    private JTextField dataBitsField = new JTextField();
-    /** Number of stop bits. */
-    private JTextField stopBitsField = new JTextField();
-    /** Number of parity bits. */
-    private JTextField parityBitsField = new JTextField();
-    /** Selected serial port device. */
+    /** SNumber of data bits. */
     private int dataBits;
-    /** Selected serial port baud rate. */
+    /** SNumber of stop bits. */
     private int stopBits;
-    /** Selected serial port frame type. */
+    /** Number of parity bits. */
     private int parityBits;
     /** True if dialog was canceled. */
     private boolean canceled = false;
@@ -132,7 +126,7 @@ public class ConfigDialog extends JDialog {
         okButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                baud = (int) baudComboBox.getSelectedItem();
+                baud = (String) baudComboBox.getSelectedItem();
                 port = (String) portComboBox.getSelectedItem();
                 frame = (String) frameComboBox.getSelectedItem();
                 close();
@@ -179,12 +173,6 @@ public class ConfigDialog extends JDialog {
         ///Serial port frame type
         panel.add(new JLabel(I18n.text("Frame Type")));
         panel.add(frameComboBox);
-//        panel.add(new JLabel(I18n.text("Data Bits")));
-//        panel.add(dataBitsField);
-//        panel.add(new JLabel(I18n.text("Stop Bits")));
-//        panel.add(stopBitsField);
-//        panel.add(new JLabel(I18n.text("Parity Bits")));
-//        panel.add(parityBitsField);
         panel.add(okButton);
         panel.add(cancelButton);
 
@@ -207,7 +195,7 @@ public class ConfigDialog extends JDialog {
      * 
      * @return baud rate.
      */
-    public int getBaud() {
+    public String getBaud() {
         return baud;
     }
 

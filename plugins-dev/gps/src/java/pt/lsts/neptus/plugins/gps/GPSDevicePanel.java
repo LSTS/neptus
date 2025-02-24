@@ -325,7 +325,7 @@ public class GPSDevicePanel extends ConsolePanel implements ActionListener, FixL
 
             if (dialog.open(uartDevice, uartBaudRate, uartFrameType)) {
                 uartDevice = dialog.getPort();
-                uartBaudRate = String.valueOf(dialog.getBaud());
+                uartBaudRate = dialog.getBaud();
                 uartFrameType = dialog.getFrame();
                 return true;
             }
