@@ -46,6 +46,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
 
+import jssc.SerialPortException;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
@@ -109,6 +110,8 @@ public class GPSDevicePanel extends ConsolePanel implements ActionListener, FixL
     private final Timer watchDog = new Timer(watchDogTimeoutSegs * 1000, this);
 
     // GUI
+    /** Dialog window */
+    ConfigDialog dialog;
     /** Action button. */
     private final JButton actionButton = new JButton();
     /** Main panel. */
@@ -218,14 +221,31 @@ public class GPSDevicePanel extends ConsolePanel implements ActionListener, FixL
     public void actionPerformed(ActionEvent e) {
         if (I18n.text("Connect").equals(e.getActionCommand())) {
             if (setup()) {
-                connect();
+                try {
+                    connectJSSC();
+                }
+                catch (Exception ex) {
+                    throw new RuntimeException(ex);
+                }
             }
         }
         else if (I18n.text("Disconnect").equals(e.getActionCommand())) {
-            disconnect(MSG_NOT_CONNECTED);
+            //disconnect(MSG_NOT_CONNECTED);
+            try {
+                disconnectJSSC(MSG_NOT_CONNECTED);
+            }
+            catch (SerialPortException ex) {
+                throw new RuntimeException(ex);
+            }
         }
         else if (I18n.text("Timeout").equals(e.getActionCommand())) {
-            disconnect(ERR_NO_INPUT);
+            //disconnect(ERR_NO_INPUT);
+            try {
+                disconnectJSSC(ERR_NO_INPUT);
+            }
+            catch (SerialPortException ex) {
+                throw new RuntimeException(ex);
+            }
         }
     }
 
@@ -266,6 +286,33 @@ public class GPSDevicePanel extends ConsolePanel implements ActionListener, FixL
         watchDog.stop();
     }
 
+    private void connectJSSC() throws Exception {
+        int dataBits = dialog.getDataBits();
+        int stopBits = dialog.getStopBits();
+        int parityBits = dialog.getParityBits();
+
+        changeButton(I18n.text("Connecting"), false);
+
+        try {
+            gpsDevice.connectJSSC(this, uartDevice, Integer.parseInt(uartBaudRate), dataBits, stopBits, parityBits);
+            changeButton(I18n.text("Disconnect"), true);
+            dataLabel.setText(MSG_WAIT_DATA);
+            watchDog.setDelay(watchDogTimeoutSegs * 1000);
+            watchDog.start();
+        }
+        catch (Exception e) {
+            NeptusLog.pub().info("<###> "+e);
+        }
+    }
+
+    private void disconnectJSSC(String msg) throws SerialPortException {
+        changeButton(I18n.text("Disconnecting"), false);
+        gpsDevice.disconnectJSSC();
+        dataLabel.setText(msg);
+        changeButton(I18n.text("Connect"), true);
+        watchDog.stop();
+    }
+
     /**
      * Open the configuration dialog.
      *
@@ -274,11 +321,11 @@ public class GPSDevicePanel extends ConsolePanel implements ActionListener, FixL
      */
     private boolean setup() {
         try {
-            ConfigDialog dialog = new ConfigDialog(this, I18n.text("GPS Device Configuration"));
+            dialog = new ConfigDialog(this, I18n.text("GPS Device Configuration"));
 
             if (dialog.open(uartDevice, uartBaudRate, uartFrameType)) {
                 uartDevice = dialog.getPort();
-                uartBaudRate = dialog.getBaud();
+                uartBaudRate = String.valueOf(dialog.getBaud());
                 uartFrameType = dialog.getFrame();
                 return true;
             }

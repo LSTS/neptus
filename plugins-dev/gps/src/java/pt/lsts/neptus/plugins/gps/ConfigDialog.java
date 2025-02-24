@@ -45,10 +45,14 @@ import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
+import jssc.SerialPort;
+import jssc.SerialPortList;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.gps.device.Device;
 import pt.lsts.neptus.util.GuiUtils;
 
@@ -70,9 +74,21 @@ public class ConfigDialog extends JDialog {
     /** Selected serial port device. */
     private String port;
     /** Selected serial port baud rate. */
-    private String baud;
+    private int baud;
     /** Selected serial port frame type. */
     private String frame;
+    /** Number of data bits. */
+    private JTextField dataBitsField = new JTextField();
+    /** Number of stop bits. */
+    private JTextField stopBitsField = new JTextField();
+    /** Number of parity bits. */
+    private JTextField parityBitsField = new JTextField();
+    /** Selected serial port device. */
+    private int dataBits;
+    /** Selected serial port baud rate. */
+    private int stopBits;
+    /** Selected serial port frame type. */
+    private int parityBits;
     /** True if dialog was canceled. */
     private boolean canceled = false;
 
@@ -81,24 +97,42 @@ public class ConfigDialog extends JDialog {
 
         // Port.
         Vector<String> devices = Device.enumerate();
-        if (devices.size() == 0)
-            throw new Exception(I18n.text("No serial ports available"));
+        //if (devices.size() == 0)
+        //    throw new Exception(I18n.text("No serial ports available"));
 
         // Port.
-        portComboBox = new JComboBox<String>(devices);
+        portComboBox = new JComboBox<String>(SerialPortList.getPortNames());
 
         // Baud Rate.
         baudComboBox = new JComboBox<Object>(Device.BAUD_RATES);
 
         // Frame.
         frameComboBox = new JComboBox<Object>(Device.FRAME_TYPES);
+        frameComboBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String type = (String) frameComboBox.getSelectedItem();
+                System.out.println(type);
+                dataBits = type.charAt(0);
+                if (type.charAt(1) == 'e') {
+                    parityBits = 2;
+                }
+                else if (type.charAt(1) == 'o') {
+                    parityBits = 1;
+                }
+                else {
+                    parityBits = 0;
+                }
+                stopBits = type.charAt(2);
+            }
+        });
 
         // OK Button.
         final JButton okButton = new JButton(I18n.text("OK"));
         okButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                baud = (String) baudComboBox.getSelectedItem();
+                baud = (int) baudComboBox.getSelectedItem();
                 port = (String) portComboBox.getSelectedItem();
                 frame = (String) frameComboBox.getSelectedItem();
                 close();
@@ -145,6 +179,12 @@ public class ConfigDialog extends JDialog {
         ///Serial port frame type
         panel.add(new JLabel(I18n.text("Frame Type")));
         panel.add(frameComboBox);
+//        panel.add(new JLabel(I18n.text("Data Bits")));
+//        panel.add(dataBitsField);
+//        panel.add(new JLabel(I18n.text("Stop Bits")));
+//        panel.add(stopBitsField);
+//        panel.add(new JLabel(I18n.text("Parity Bits")));
+//        panel.add(parityBitsField);
         panel.add(okButton);
         panel.add(cancelButton);
 
@@ -167,7 +207,7 @@ public class ConfigDialog extends JDialog {
      * 
      * @return baud rate.
      */
-    public String getBaud() {
+    public int getBaud() {
         return baud;
     }
 
@@ -181,6 +221,33 @@ public class ConfigDialog extends JDialog {
     }
 
     /**
+     * Get inserted number of data bits.
+     *
+     * @return number of data bits.
+     */
+    public int getDataBits() {
+        return dataBits;
+    }
+
+    /**
+     * Get inserted number of stop bits.
+     *
+     * @return number of stop bits.
+     */
+    public int getStopBits() {
+        return stopBits;
+    }
+
+    /**
+     * Get inserted number of parity bits.
+     *
+     * @return number of parity bits.
+     */
+    public int getParityBits() {
+        return parityBits;
+    }
+
+    /**
      * Open dialog.
      * 
      * @return true if the user pressed OK, false otherwise.
@@ -188,22 +255,23 @@ public class ConfigDialog extends JDialog {
      *             if no serial ports are available.
      */
     public boolean open(String aPort, String aBaud, String aFrame) {
-        portComboBox.setSelectedItem(aPort);
-        if (portComboBox.getSelectedIndex() == -1)
-            portComboBox.setSelectedIndex(0);
-
-        baudComboBox.setSelectedItem(aBaud);
-        if (baudComboBox.getSelectedIndex() == -1)
-            baudComboBox.setSelectedIndex(0);
-
-        frameComboBox.setSelectedItem(aFrame);
-        if (frameComboBox.getSelectedIndex() == -1)
-            frameComboBox.setSelectedIndex(0);
+//        portComboBox.setSelectedItem(aPort);
+//        if (portComboBox.getSelectedIndex() == -1)
+//            portComboBox.setSelectedIndex(0);
+//
+//        baudComboBox.setSelectedItem(aBaud);
+//        if (baudComboBox.getSelectedIndex() == -1)
+//            baudComboBox.setSelectedIndex(0);
+//
+//        frameComboBox.setSelectedItem(aFrame);
+//        if (frameComboBox.getSelectedIndex() == -1)
+//            frameComboBox.setSelectedIndex(0);
 
         GuiUtils.centerParent(this, this.getOwner());
         setVisible(true);
 
-        return !canceled;
+        return true;
+        //return !canceled;
     }
 
     /**

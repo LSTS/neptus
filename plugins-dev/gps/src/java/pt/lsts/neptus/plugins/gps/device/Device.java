@@ -44,7 +44,10 @@ import gnu.io.PortInUseException;
 import gnu.io.SerialPort;
 import gnu.io.SerialPortEvent;
 import gnu.io.SerialPortEventListener;
+import jssc.SerialPortException;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.console.notifications.Notification;
 
 public class Device implements SerialPortEventListener {
     /** Frame type: 8 data bits, 1 stop bit, no parity. */
@@ -91,6 +94,8 @@ public class Device implements SerialPortEventListener {
     private NMEA parser = null;
     /** True if device is connected. */
     private boolean connected = false;
+
+    private jssc.SerialPort serialPort = null;
 
     /**
      * Default constructor.
@@ -140,6 +145,54 @@ public class Device implements SerialPortEventListener {
     public void disconnect() {
         handle.removeEventListener();
         handle.close();
+        connected = false;
+    }
+
+    public void connectJSSC(ConsolePanel console, String device, int baudRate, int dataBits, int stopBits, int parityBits) throws Exception {
+        serialPort = new jssc.SerialPort(device);
+
+        boolean opened = serialPort.openPort();
+        if (!opened) {
+            serialPort = null;
+            Exception e = new Exception("Unable to open port " + device);
+            NeptusLog.pub().error(e);
+            console.getConsole().post(Notification.error("GPS Device Panel",
+                    "Error connecting via serial to  \"" + serialPort + "\".").requireHumanAction(false));
+
+            throw e;
+        }
+        serialPort.setParams(baudRate, dataBits, stopBits, parityBits);
+        serialPort.addEventListener(new jssc.SerialPortEventListener() {
+            @Override
+            public void serialEvent(jssc.SerialPortEvent serEvt) {
+                if (serEvt.getEventType() != gnu.io.SerialPortEvent.DATA_AVAILABLE)
+                    return;
+
+                try {
+                    byte[] receivedData = serialPort.readBytes();
+                    for (byte receivedDatum : receivedData) {
+                        try {
+                            parser.parse(receivedDatum);
+                        }
+                        catch (Exception e) {
+                            NeptusLog.pub().info("<###> " + e);
+                        }
+                    }
+                }
+                catch (SerialPortException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+        NeptusLog.pub().info("Listening to GPS messages over serial \"" + serialPort + "\".");
+        console.getConsole().post(Notification.success("GPS Device Panel", "Connected via serial to \"" + device + "\"."));
+    }
+
+    /**
+     * Close the serial port connection to the GPS.
+     */
+    public void disconnectJSSC() throws SerialPortException {
+        serialPort.closePort();
         connected = false;
     }
 
