@@ -255,23 +255,22 @@ public class ConfigDialog extends JDialog {
      *             if no serial ports are available.
      */
     public boolean open(String aPort, String aBaud, String aFrame) {
-//        portComboBox.setSelectedItem(aPort);
-//        if (portComboBox.getSelectedIndex() == -1)
-//            portComboBox.setSelectedIndex(0);
-//
-//        baudComboBox.setSelectedItem(aBaud);
-//        if (baudComboBox.getSelectedIndex() == -1)
-//            baudComboBox.setSelectedIndex(0);
-//
-//        frameComboBox.setSelectedItem(aFrame);
-//        if (frameComboBox.getSelectedIndex() == -1)
-//            frameComboBox.setSelectedIndex(0);
+        portComboBox.setSelectedItem(aPort);
+        if (portComboBox.getSelectedIndex() == -1)
+            portComboBox.setSelectedIndex(0);
+
+        baudComboBox.setSelectedItem(aBaud);
+        if (baudComboBox.getSelectedIndex() == -1)
+            baudComboBox.setSelectedIndex(0);
+
+        frameComboBox.setSelectedItem(aFrame);
+        if (frameComboBox.getSelectedIndex() == -1)
+            frameComboBox.setSelectedIndex(0);
 
         GuiUtils.centerParent(this, this.getOwner());
         setVisible(true);
 
-        return true;
-        //return !canceled;
+        return !canceled;
     }
 
     /**
