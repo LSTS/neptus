@@ -98,9 +98,7 @@ public class NMEA {
      *             if an invalid checksum is found.
      */
     public void parse(byte b) throws InvalidChecksumException {
-        System.out.println(b);
-        System.out.println((char) b);
-
+        System.out.print((char) b);
         switch (state) {
             case DOLLAR:
                 if (b == '$')
