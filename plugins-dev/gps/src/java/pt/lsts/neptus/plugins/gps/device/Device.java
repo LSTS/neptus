@@ -168,9 +168,6 @@ public class Device {
     public static ArrayList<String> enumerate() {
         ArrayList<String> devs = new ArrayList<>();
         String[] portNames = SerialPortList.getPortNames();
-        if (portNames.length == 0) {
-            System.out.println("No serial ports found.");
-        }
         for (String port : portNames) {
             try {
                 SerialPort tempSerialPort = new SerialPort(port);

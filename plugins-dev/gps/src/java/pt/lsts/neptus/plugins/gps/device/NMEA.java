@@ -98,7 +98,6 @@ public class NMEA {
      *             if an invalid checksum is found.
      */
     public void parse(byte b) throws InvalidChecksumException {
-        System.out.print((char) b);
         switch (state) {
             case DOLLAR:
                 if (b == '$')
@@ -168,7 +167,6 @@ public class NMEA {
      * Interpret the parsed sentence.
      */
     private void interpret() {
-        System.out.println(chunks);
         if ("GPGGA".equals(chunks.get(0)))
             interpretGPGGA();
         else if ("GPVTG".equals(chunks.get(0)))
