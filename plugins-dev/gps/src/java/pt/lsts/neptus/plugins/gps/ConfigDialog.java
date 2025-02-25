@@ -39,21 +39,16 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
-import java.util.Vector;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
-import jssc.SerialPort;
-import jssc.SerialPortList;
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.gps.device.Device;
 import pt.lsts.neptus.util.GuiUtils;
 
@@ -91,14 +86,11 @@ public class ConfigDialog extends JDialog {
         super(SwingUtilities.getWindowAncestor(owner), title);
 
         // Port.
-        Vector<String> devices = Device.enumerate();
-        ArrayList<String> devicesv2 = Device.enumeratev2();
-        System.out.println("Old structure: " + devices);
-        System.out.println("JSSC structure: " + devicesv2);
+        ArrayList<String> devices = Device.enumerate();
         if (devices.isEmpty()) {
             throw new Exception(I18n.text("No serial ports available"));
         }
-        portComboBox = new JComboBox<String>(SerialPortList.getPortNames());
+        portComboBox = new JComboBox<>(devices.toArray(new String[0]));
 
         // Baud Rate.
         baudComboBox = new JComboBox<Object>(Device.BAUD_RATES);

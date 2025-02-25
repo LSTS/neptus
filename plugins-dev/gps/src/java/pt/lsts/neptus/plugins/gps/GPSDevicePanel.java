@@ -162,7 +162,7 @@ public class GPSDevicePanel extends ConsolePanel implements ActionListener, FixL
     public void cleanSubPanel() {
         if (gpsDevice.isConnected()) {
             try {
-                gpsDevice.disconnectJSSC();
+                gpsDevice.disconnect();
             }
             catch (SerialPortException e) {
                 throw new RuntimeException(e);
@@ -227,7 +227,7 @@ public class GPSDevicePanel extends ConsolePanel implements ActionListener, FixL
         if (I18n.text("Connect").equals(e.getActionCommand())) {
             if (setup()) {
                 try {
-                    connectJSSC();
+                    connect();
                 }
                 catch (Exception ex) {
                     throw new RuntimeException(ex);
@@ -235,56 +235,17 @@ public class GPSDevicePanel extends ConsolePanel implements ActionListener, FixL
             }
         }
         else if (I18n.text("Disconnect").equals(e.getActionCommand())) {
-            //disconnect(MSG_NOT_CONNECTED);
-            disconnectJSSC(MSG_NOT_CONNECTED);
+            disconnect(MSG_NOT_CONNECTED);
         }
         else if (I18n.text("Timeout").equals(e.getActionCommand())) {
-            //disconnect(ERR_NO_INPUT);
-            disconnectJSSC(ERR_NO_INPUT);
+            disconnect(ERR_NO_INPUT);
         }
     }
-
-//    /**
-//     * Connect the currently configured GPS device.
-//     */
-//    private void connect() {
-//        HashMap<Device.Parameter, String> params = new HashMap<Device.Parameter, String>();
-//        params.put(Device.Parameter.DEV, uartDevice);
-//        params.put(Device.Parameter.BAUD, uartBaudRate);
-//        params.put(Device.Parameter.FRAME, uartFrameType);
-//
-//        changeButton(I18n.text("Connecting"), false);
-//
-//        try {
-//            gpsDevice.connect(params);
-//            changeButton(I18n.text("Disconnect"), true);
-//            dataLabel.setText(MSG_WAIT_DATA);
-//            watchDog.setDelay(watchDogTimeoutSegs * 1000);
-//            watchDog.start();
-//        }
-//        catch (Exception e) {
-//            NeptusLog.pub().info("<###> "+e);
-//        }
-//    }
-
-//    /**
-//     * Disconnect the currently connected GPS device.
-//     *
-//     * @param msg
-//     *            message to display in the main label.
-//     */
-//    private void disconnect(String msg) {
-//        changeButton(I18n.text("Disconnecting"), false);
-//        gpsDevice.disconnect();
-//        dataLabel.setText(msg);
-//        changeButton(I18n.text("Connect"), true);
-//        watchDog.stop();
-//    }
 
     /**
      * Connect the currently configured GPS device.
      */
-    private void connectJSSC() {
+    private void connect() {
         int dataBits = dialog.getDataBits();
         int stopBits = dialog.getStopBits();
         int parityBits = dialog.getParityBits();
@@ -292,7 +253,7 @@ public class GPSDevicePanel extends ConsolePanel implements ActionListener, FixL
         changeButton(I18n.text("Connecting"), false);
 
         try {
-            gpsDevice.connectJSSC(this, uartDevice, Integer.parseInt(uartBaudRate), dataBits, stopBits, parityBits);
+            gpsDevice.connect(this, uartDevice, Integer.parseInt(uartBaudRate), dataBits, stopBits, parityBits);
             changeButton(I18n.text("Disconnect"), true);
             dataLabel.setText(MSG_WAIT_DATA);
             watchDog.setDelay(watchDogTimeoutSegs * 1000);
@@ -308,10 +269,10 @@ public class GPSDevicePanel extends ConsolePanel implements ActionListener, FixL
     *
     * @param msg message to display in the main label.
     */
-    private void disconnectJSSC(String msg) {
+    private void disconnect(String msg) {
         changeButton(I18n.text("Disconnecting"), false);
         try {
-            gpsDevice.disconnectJSSC();
+            gpsDevice.disconnect();
         }
         catch (SerialPortException e) {
             throw new RuntimeException(e);
