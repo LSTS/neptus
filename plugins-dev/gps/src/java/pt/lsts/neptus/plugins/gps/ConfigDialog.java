@@ -38,6 +38,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
 import java.util.Vector;
 
 import javax.swing.JButton;
@@ -77,9 +78,9 @@ public class ConfigDialog extends JDialog {
     private String baud;
     /** Selected serial port frame type. */
     private String frame;
-    /** SNumber of data bits. */
+    /** Number of data bits. */
     private int dataBits;
-    /** SNumber of stop bits. */
+    /** Number of stop bits. */
     private int stopBits;
     /** Number of parity bits. */
     private int parityBits;
@@ -91,10 +92,12 @@ public class ConfigDialog extends JDialog {
 
         // Port.
         Vector<String> devices = Device.enumerate();
-        //if (devices.size() == 0)
-        //    throw new Exception(I18n.text("No serial ports available"));
-
-        // Port.
+        ArrayList<String> devicesv2 = Device.enumeratev2();
+        System.out.println("Old structure: " + devices);
+        System.out.println("JSSC structure: " + devicesv2);
+        if (devices.isEmpty()) {
+            throw new Exception(I18n.text("No serial ports available"));
+        }
         portComboBox = new JComboBox<String>(SerialPortList.getPortNames());
 
         // Baud Rate.
@@ -237,23 +240,22 @@ public class ConfigDialog extends JDialog {
      *             if no serial ports are available.
      */
     public boolean open(String aPort, String aBaud, String aFrame) {
-//        portComboBox.setSelectedItem(aPort);
-//        if (portComboBox.getSelectedIndex() == -1)
-//            portComboBox.setSelectedIndex(0);
-//
-//        baudComboBox.setSelectedItem(aBaud);
-//        if (baudComboBox.getSelectedIndex() == -1)
-//            baudComboBox.setSelectedIndex(0);
-//
-//        frameComboBox.setSelectedItem(aFrame);
-//        if (frameComboBox.getSelectedIndex() == -1)
-//            frameComboBox.setSelectedIndex(0);
+        portComboBox.setSelectedItem(aPort);
+        if (portComboBox.getSelectedIndex() == -1)
+            portComboBox.setSelectedIndex(0);
+
+        baudComboBox.setSelectedItem(aBaud);
+        if (baudComboBox.getSelectedIndex() == -1)
+            baudComboBox.setSelectedIndex(0);
+
+        frameComboBox.setSelectedItem(aFrame);
+        if (frameComboBox.getSelectedIndex() == -1)
+            frameComboBox.setSelectedIndex(0);
 
         GuiUtils.centerParent(this, this.getOwner());
         setVisible(true);
 
-        return true;
-        //return !canceled;
+        return !canceled;
     }
 
     /**
