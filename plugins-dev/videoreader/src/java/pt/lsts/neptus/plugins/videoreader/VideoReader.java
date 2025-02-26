@@ -757,7 +757,7 @@ public class VideoReader extends ConsolePanel implements PreferencesListener {
         if (showVehicleInfo) {
             if (!Double.isNaN(positionLatDeg) && !Double.isNaN(positionLonDeg)) {
                 String latStr = CoordinateUtil.latitudeAsPrettyString(positionLatDeg);
-                String lonStr = CoordinateUtil.latitudeAsPrettyString(positionLonDeg);
+                String lonStr = CoordinateUtil.longitudeAsPrettyString(positionLonDeg);
                 positionLabel = latStr + " / " + lonStr;
             }
         }
