@@ -36,7 +36,9 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
@@ -127,6 +129,9 @@ public class SystemInfoPainter extends ConsoleLayer {
     private int lastHbCount = 0;
     private double depth = -1;
     private double altitude = -1;
+
+    private String cpuEntity = "";
+    private Map<String, Integer> cpuUsageList = new LinkedHashMap<>();
 
     @Override
     public void initLayer() {
@@ -240,7 +245,42 @@ public class SystemInfoPainter extends ConsoleLayer {
     public void consume(CpuUsage msg) {
         if (!msg.getSourceName().equals(mainSysName))
             return;
-        cpuUsage = msg.getValue();
+        String entity = msg.getEntityName();
+        if (entity == null)
+            return;
+
+        if (entity.contains("CPU") || entity.equals("Daemon")) {
+            switch (entity) {
+                case "DUNE-CPU":
+                    if (!cpuEntity.equals("DUNE-CPU"))
+                        cpuEntity = "DUNE-CPU";
+                    cpuUsage = msg.getValue();
+                    break;
+                case "Daemon":
+                    if (!cpuEntity.equals("DUNE-CPU")) {
+                        if (!cpuEntity.equals("Daemon"))
+                            cpuEntity = "Daemon";
+                        cpuUsage = msg.getValue();
+                    }
+                    break;
+                case "CPU Usage":
+                    if (!cpuEntity.equals("DUNE-CPU") && !cpuEntity.equals("Daemon")) {
+                        if (!cpuEntity.equals("CPU Usage"))
+                            cpuEntity = "CPU Usage";
+                        cpuUsage = msg.getValue();
+                    }
+                    break;
+                default:
+                    if (!cpuEntity.equals("DUNE-CPU") && !cpuEntity.equals("Daemon") && !cpuEntity.equals("CPU Usage")) {
+                        if (!entity.equals("CPU Scaling")) {
+                            cpuUsageList.put(entity, (int) msg.getValue());
+                            int cpuAverage = (int) cpuUsageList.values().stream().mapToInt(Integer::intValue).average().orElse(0.0);
+                            cpuUsage = cpuAverage;
+                        }
+                    }
+                    break;
+            }
+        }
     }
 
     @Subscribe
@@ -353,6 +393,7 @@ public class SystemInfoPainter extends ConsoleLayer {
         mainSysName = ev.getCurrent();
         depth = -1;
         altitude = -1;
+        cpuEntity = "";
 
         ImcSystemState state = getState();
         if (state != null) {
