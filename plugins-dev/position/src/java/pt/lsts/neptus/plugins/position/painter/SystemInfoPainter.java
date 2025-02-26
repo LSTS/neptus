@@ -243,9 +243,12 @@ public class SystemInfoPainter extends ConsoleLayer {
 
     @Subscribe
     public void consume(CpuUsage msg) {
-        String entity = msg.getEntityName();
-        if (!msg.getSourceName().equals(mainSysName) || entity == null)
+        if (!msg.getSourceName().equals(mainSysName))
             return;
+        String entity = msg.getEntityName();
+        if (entity == null)
+            return;
+
         if (entity.contains("CPU") || entity.equals("Daemon")) {
             switch (entity) {
                 case "DUNE-CPU":
