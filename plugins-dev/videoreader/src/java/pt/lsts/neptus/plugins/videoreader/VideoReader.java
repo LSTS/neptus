@@ -38,6 +38,7 @@ import pt.lsts.imc.FuelLevel;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.NeptusProperty;
@@ -45,9 +46,12 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.update.Periodic;
+import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.RenderStringUtils;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
+import pt.lsts.neptus.util.conf.PreferencesListener;
 
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JDialog;
@@ -85,8 +89,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static pt.lsts.neptus.types.coord.CoordinateUtil.latitudeAsPrettyString;
-import static pt.lsts.neptus.types.coord.CoordinateUtil.longitudeAsPrettyString;
 import static pt.lsts.neptus.util.AngleUtils.nomalizeAngleDegrees180;
 import static pt.lsts.neptus.util.AngleUtils.nomalizeAngleDegrees360;
 import static pt.lsts.neptus.util.ImageUtils.getImage;
@@ -96,7 +98,7 @@ import static pt.lsts.neptus.util.ImageUtils.getScaledImage;
         description = "Plugin to view IP Camera streams using FFMPEG", icon = "images/menus/camera.png",
         category = PluginDescription.CATEGORY.INTERFACE)
 @Popup(name = "Video Reader", width = 640, height = 480, icon = "images/menus/camera.png")
-public class VideoReader extends ConsolePanel {
+public class VideoReader extends ConsolePanel implements PreferencesListener {
     static final String BASE_FOLDER_FOR_URL_INI = "ipUrl.ini";
 
     private static final int DEFAULT_WIDTH_CONSOLE = 640;
@@ -195,11 +197,14 @@ public class VideoReader extends ConsolePanel {
 
     private Image lastFuelImage = fuelImage;
 
-    int infoFontSize = 14;
+    private int infoFontSize = 14;
 
-    JMenuItem showInfoItem;
+    private JMenuItem showInfoItem;
 
     private boolean showVehicleInfo = false;
+
+    private double positionLatDeg = Double.NaN;
+    private double positionLonDeg = Double.NaN;
 
     public VideoReader(ConsoleLayout console) {
         this(console, false);
@@ -267,12 +272,14 @@ public class VideoReader extends ConsolePanel {
 
     @Override
     public void initSubPanel() {
+        GeneralPreferences.addPreferencesListener(this);
         service.execute(Util::createIpUrlFile);
         //setMainVehicle(getConsole().getMainSystem());
     }
 
     @Override
     public void cleanSubPanel() {
+        GeneralPreferences.removePreferencesListener(this);
         closingPanel = true;
         service.shutdown();
         disconnectStream();
@@ -364,6 +371,17 @@ public class VideoReader extends ConsolePanel {
         }
     }
 
+    @Subscribe
+    public void mainVehicleChangeNotification(ConsoleEventMainSystemChange evt) {
+        fuelLabel = "";
+        velLabel = "";
+        rpyLabel = "";
+        depthLabel = "";
+        altitudeLabel = "";
+        positionLabel = "";
+        fuelImage = fuelEmptyImage;
+    }
+
     private int validateFontSize(Graphics g, int fontSize, String text){
         Graphics2D gTemp = (Graphics2D) g.create();
         Font font = new Font("Arial", Font.PLAIN, fontSize);
@@ -372,7 +390,6 @@ public class VideoReader extends ConsolePanel {
         gTemp.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         FontMetrics fm = gTemp.getFontMetrics();
         int textWidth = fm.stringWidth(text);
-        int textHeight = fm.getHeight();
         int res = (textWidth * 100) / widthConsole;
         gTemp.dispose();
         if (res > 40) {
@@ -675,7 +692,13 @@ public class VideoReader extends ConsolePanel {
 
         double latDeg = Math.toDegrees(msg.getLat());
         double lonDeg = Math.toDegrees(msg.getLon());
-        LocationType position = new LocationType(latDeg, lonDeg).convertToAbsoluteLatLonDepth();
+        LocationType position = new LocationType(latDeg, lonDeg);
+        position.setOffsetNorth(msg.getX());
+        position.setOffsetEast(msg.getY());
+        position.setOffsetDown(msg.getZ());
+        position.convertToAbsoluteLatLonDepth();
+        positionLatDeg = position.getLatitudeDegs();
+        positionLonDeg = position.getLongitudeDegs();
         String latStr = position.getLatitudeAsPrettyString();
         String lonStr = position.getLongitudeAsPrettyString();
         double roll = nomalizeAngleDegrees180(Math.toDegrees(msg.getPhi()));
@@ -684,7 +707,9 @@ public class VideoReader extends ConsolePanel {
         String pitchStr = String.format("%+04d", (int) pitch).replace("+"," ");
         double yaw = nomalizeAngleDegrees360(Math.toDegrees(msg.getPsi()));
         String yawStr = String.format("%+04d", (int) yaw).replace("+"," ");
-        double vel = msg.getVx();
+        double vx = msg.getVx();
+        double vy = msg.getVy();
+        double vel = Math.sqrt(Math.pow(vx,2) + Math.pow(vy,2));
         String velStr = String.format("%+06.2f", vel).replace("+"," ");
         if (velStr.equals("-00.00")) {
             velStr = " 00.00";
@@ -725,5 +750,16 @@ public class VideoReader extends ConsolePanel {
         }
 
         fuelLabel = String.format("%02d%%", (int) fuelLevel);
+    }
+
+    @Override
+    public void preferencesUpdated() {
+        if (showVehicleInfo) {
+            if (!Double.isNaN(positionLatDeg) && !Double.isNaN(positionLonDeg)) {
+                String latStr = CoordinateUtil.latitudeAsPrettyString(positionLatDeg);
+                String lonStr = CoordinateUtil.latitudeAsPrettyString(positionLonDeg);
+                positionLabel = latStr + " / " + lonStr;
+            }
+        }
     }
 }
