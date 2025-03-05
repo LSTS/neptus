@@ -328,6 +328,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
 
         dialog.setSize(width, height);
         // dialog.setFocusable(true);
+        onPopupCreation();
 
         if (accelerator != null) {
             popUpAction = menuItem.getAction(); //use same action as the one used on object creation
@@ -379,6 +380,12 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         menuItem = null;
         dialog = null;
         popUpAction = null;
+    }
+
+    /**
+     * Optional method for triggering logic after popup creation
+     */
+    protected void onPopupCreation() {
     }
 
     /**
