@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2022.04.0 (system/caravel,109ae0c6d)" system="caravel" i18n="en_US">
+<config format="1" version="2024.09.0 (feature/caravel_merge,f7a4a357f)" system="caravel" i18n="en_US">
   <section name="Text Actions" name-i18n="Text Actions">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -47,6 +47,15 @@
       <desc/>
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
     </param>
     <param name="Reply timeout">
       <name-i18n>Reply timeout</name-i18n>
@@ -124,6 +133,15 @@
       <desc/>
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
     </param>
     <param name="Enable Gain Scheduling">
       <name-i18n>Enable Gain Scheduling</name-i18n>
@@ -509,6 +527,15 @@
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
+    </param>
     <param name="Execution Frequency">
       <name-i18n>Execution Frequency</name-i18n>
       <type>real</type>
@@ -553,6 +580,15 @@
       <default>2.0</default>
       <units>s</units>
       <desc/>
+    </param>
+    <param name="Additional Actions">
+      <name-i18n>Additional Actions</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>Actions to be added to remote actions list (comma separated in the form Action:Type)</desc>
     </param>
     <param name="Thrust Scale">
       <name-i18n>Thrust Scale</name-i18n>
@@ -620,6 +656,15 @@
       <desc/>
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
     </param>
     <param name="Control Frequency">
       <name-i18n>Control Frequency</name-i18n>
@@ -858,6 +903,15 @@
       <default>25000</default>
       <units>m</units>
       <desc>Maximum admissible track length</desc>
+    </param>
+    <param name="Bottom Track -- FLS Entity Label">
+      <name-i18n>Bottom Track -- FLS Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Echo Sounder</default>
+      <units/>
+      <desc>Entity label of the Forward Looking Sonar (FLS).</desc>
     </param>
     <param name="Entity Label - Navigation simulation">
       <name-i18n>Entity Label - Navigation simulation</name-i18n>
@@ -1419,6 +1473,15 @@
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
+    </param>
     <param name="Loitering Radius">
       <name-i18n>Loitering Radius</name-i18n>
       <type>real</type>
@@ -1494,6 +1557,15 @@
       <desc/>
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
     </param>
     <param name="Maximum Pitch Variation">
       <name-i18n>Maximum Pitch Variation</name-i18n>
@@ -1588,6 +1660,15 @@
       <desc/>
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
     </param>
     <param name="Entity Label -- IdleManeuver">
       <name-i18n>Entity Label -- IdleManeuver</name-i18n>
@@ -2107,6 +2188,15 @@
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
+    </param>
   </section>
   <section name="Boot Monitor" name-i18n="Boot Monitor">
     <param name="Entity Label">
@@ -2155,6 +2245,15 @@
       <desc/>
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
     </param>
     <param name="Boot Message Delay">
       <name-i18n>Boot Message Delay</name-i18n>
@@ -2261,6 +2360,15 @@
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
+    </param>
     <param name="Set CPU In Mode">
       <name-i18n>Set CPU In Mode</name-i18n>
       <type>string</type>
@@ -2287,55 +2395,6 @@
       <default>500</default>
       <units/>
       <desc>Set Maximum CPU Frequency in MHz.</desc>
-    </param>
-  </section>
-  <section name="CPU Usage" name-i18n="CPU Usage">
-    <param name="Entity Label">
-      <name-i18n>Entity Label</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>CPU Usage</default>
-      <units/>
-      <desc>Main entity label</desc>
-    </param>
-    <param name="Execution Priority">
-      <name-i18n>Execution Priority</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units/>
-      <desc>Execution priority</desc>
-    </param>
-    <param name="Activation Time">
-      <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Deactivation Time">
-      <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Debug Level">
-      <name-i18n>Debug Level</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>None</default>
-      <units/>
-      <desc/>
-      <values>None, Debug, Trace, Spew</values>
-      <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
   </section>
   <section name="Clock" name-i18n="Clock">
@@ -2386,6 +2445,15 @@
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
+    </param>
     <param name="Minimum GPS Fixes">
       <name-i18n>Minimum GPS Fixes</name-i18n>
       <type>integer</type>
@@ -2435,55 +2503,6 @@
       <desc>Change log file after synchronization</desc>
     </param>
   </section>
-  <section name="DUNE Resources Monitor" name-i18n="DUNE Resources Monitor">
-    <param name="Entity Label">
-      <name-i18n>Entity Label</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>DUNE Resources Monitor</default>
-      <units/>
-      <desc>Main entity label</desc>
-    </param>
-    <param name="Execution Priority">
-      <name-i18n>Execution Priority</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units/>
-      <desc>Execution priority</desc>
-    </param>
-    <param name="Activation Time">
-      <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Deactivation Time">
-      <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Debug Level">
-      <name-i18n>Debug Level</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>None</default>
-      <units/>
-      <desc/>
-      <values>None, Debug, Trace, Spew</values>
-      <values-i18n>None, Debug, Trace, Spew</values-i18n>
-    </param>
-  </section>
   <section name="Emergency Monitor" name-i18n="Emergency Monitor">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -2531,6 +2550,15 @@
       <desc/>
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
     </param>
     <param name="Execution Frequency">
       <name-i18n>Execution Frequency</name-i18n>
@@ -2676,6 +2704,15 @@
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
+    </param>
     <param name="Report Timeout">
       <name-i18n>Report Timeout</name-i18n>
       <type>real</type>
@@ -2722,6 +2759,64 @@
       <units/>
       <desc>Maximum number of consecutive transitions before starting to ignore</desc>
       <min>0</min>
+    </param>
+  </section>
+  <section name="Host Resources" name-i18n="Host Resources">
+    <param name="Entity Label">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Host Resources</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Activation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
     </param>
   </section>
   <section name="Log Monitor" name-i18n="Log Monitor">
@@ -2771,6 +2866,15 @@
       <desc/>
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
     </param>
     <param name="Log Timeout">
       <name-i18n>Log Timeout</name-i18n>
@@ -2829,6 +2933,15 @@
       <desc/>
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
     </param>
     <param name="Execution Frequency">
       <name-i18n>Execution Frequency</name-i18n>
@@ -2970,6 +3083,15 @@
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
+    </param>
     <param name="Active - Scope">
       <name-i18n>Active - Scope</name-i18n>
       <type>string</type>
@@ -3081,6 +3203,15 @@
       <desc/>
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
     </param>
     <param name="Active">
       <name-i18n>Active</name-i18n>
@@ -3251,6 +3382,15 @@
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
+    </param>
     <param name="Entity Label - Euler Angles">
       <name-i18n>Entity Label - Euler Angles</name-i18n>
       <type>string</type>
@@ -3373,6 +3513,15 @@
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
+    </param>
     <param name="DB Path">
       <name-i18n>DB Path</name-i18n>
       <type>string</type>
@@ -3430,6 +3579,15 @@
       <desc/>
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
     </param>
     <param name="Compute Progress">
       <name-i18n>Compute Progress</name-i18n>
@@ -3579,6 +3737,15 @@
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
+    </param>
     <param name="Dive depth">
       <name-i18n>Dive depth</name-i18n>
       <type>real</type>
@@ -3682,6 +3849,15 @@
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
+    </param>
     <param name="Active - Scope">
       <name-i18n>Active - Scope</name-i18n>
       <type>string</type>
@@ -3741,7 +3917,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Test</default>
+      <default>Mission</default>
       <units/>
       <desc>Operation Mode of the CPC.</desc>
     </param>
@@ -3753,6 +3929,15 @@
       <default>2</default>
       <units/>
       <desc>-1 turn off the led, 0 turn on the led, &gt; 0 blink the led at the period defined</desc>
+    </param>
+    <param name="Number of retries to connect to CPC">
+      <name-i18n>Number of retries to connect to CPC</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>3</default>
+      <units/>
+      <desc>Number of retries to connect to CPC</desc>
     </param>
     <param name="Set PWM1 Mode">
       <name-i18n>Set PWM1 Mode</name-i18n>
@@ -3816,7 +4001,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1560</default>
+      <default>1520</default>
       <units/>
       <desc>Set Center value of pwm.</desc>
     </param>
@@ -3873,7 +4058,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Private (CPU-MAIN)</default>
+      <default>Private (CPU-MAIN_C)</default>
       <units/>
       <desc>Power Channel Entity Label</desc>
     </param>
@@ -3893,7 +4078,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Private (CPU-AUX)</default>
+      <default>Private (CPU-AUX_C)</default>
       <units/>
       <desc>Power Channel Entity Label</desc>
     </param>
@@ -3913,7 +4098,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>BPUMPS</default>
+      <default>BPUMPS_C</default>
       <units/>
       <desc>Power Channel Entity Label</desc>
     </param>
@@ -3942,7 +4127,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>WIFI</default>
+      <default>WIFI_C</default>
       <units/>
       <desc>Power Channel Entity Label</desc>
     </param>
@@ -3971,7 +4156,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Private (ETH)</default>
+      <default>ETH_C</default>
       <units/>
       <desc>Power Channel Entity Label</desc>
     </param>
@@ -4000,7 +4185,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>AIS_P</default>
+      <default>AIS_C</default>
       <units/>
       <desc>Power Channel Entity Label</desc>
     </param>
@@ -4029,7 +4214,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>IRIDIUM</default>
+      <default>IRIDIUM_C</default>
       <units/>
       <desc>Power Channel Entity Label</desc>
     </param>
@@ -4058,7 +4243,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>IMU</default>
+      <default>AHRS_C</default>
       <units/>
       <desc>Power Channel Entity Label</desc>
     </param>
@@ -4087,7 +4272,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>GNSS</default>
+      <default>GNSS_C</default>
       <units/>
       <desc>Power Channel Entity Label</desc>
     </param>
@@ -4116,7 +4301,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>ECHOTRIP</default>
+      <default>ECHOTRIP_C</default>
       <units/>
       <desc>Power Channel Entity Label</desc>
     </param>
@@ -4145,7 +4330,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>OXYGEN</default>
+      <default>OXYGEN_C</default>
       <units/>
       <desc>Power Channel Entity Label</desc>
     </param>
@@ -4174,7 +4359,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>AIRMAR</default>
+      <default>AIRMAR_C</default>
       <units/>
       <desc>Power Channel Entity Label</desc>
     </param>
@@ -4203,7 +4388,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Private (CTD_P)</default>
+      <default>Private (CTD_C)</default>
       <units/>
       <desc>Power Channel Entity Label</desc>
     </param>
@@ -4232,7 +4417,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Private (FLED)</default>
+      <default>Private (FLED_C)</default>
       <units/>
       <desc>Power Channel Entity Label</desc>
     </param>
@@ -4261,7 +4446,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>ADCP_P</default>
+      <default>ADCP_C</default>
       <units/>
       <desc>Power Channel Entity Label</desc>
     </param>
@@ -4290,7 +4475,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Private (SPOT)</default>
+      <default>Private (SPOT_C)</default>
       <units/>
       <desc>Power Channel Entity Label</desc>
     </param>
@@ -4319,7 +4504,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>ECHOMAX_P</default>
+      <default>ECHOMAX_C</default>
       <units/>
       <desc>Power Channel Entity Label</desc>
     </param>
@@ -4348,7 +4533,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>MOBILE</default>
+      <default>MOBILE_1_C</default>
       <units/>
       <desc>Power Channel Entity Label</desc>
     </param>
@@ -4372,12 +4557,128 @@
       <min>1</min>
       <max>10000</max>
     </param>
+    <param name="Power Channel 19 Entity Label">
+      <name-i18n>Power Channel 19 Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>MOBILE_2_C</default>
+      <units/>
+      <desc>Power Channel Entity Label</desc>
+    </param>
+    <param name="Power Channel 19 Turn On">
+      <name-i18n>Power Channel 19 Turn On</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Power Channel State</desc>
+    </param>
+    <param name="Power Channel 19 Max Current">
+      <name-i18n>Power Channel 19 Max Current</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5019</default>
+      <units/>
+      <desc>Power Channel Max Current</desc>
+      <min>1</min>
+      <max>10000</max>
+    </param>
+    <param name="Power Channel 20 Entity Label">
+      <name-i18n>Power Channel 20 Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Private (THRUSTER_C)</default>
+      <units/>
+      <desc>Power Channel Entity Label</desc>
+    </param>
+    <param name="Power Channel 20 Turn On">
+      <name-i18n>Power Channel 20 Turn On</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Power Channel State</desc>
+    </param>
+    <param name="Power Channel 20 Max Current">
+      <name-i18n>Power Channel 20 Max Current</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5020</default>
+      <units/>
+      <desc>Power Channel Max Current</desc>
+      <min>1</min>
+      <max>10000</max>
+    </param>
+    <param name="Power Channel 21 Entity Label">
+      <name-i18n>Power Channel 21 Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Private (RUDDER_C)</default>
+      <units/>
+      <desc>Power Channel Entity Label</desc>
+    </param>
+    <param name="Power Channel 21 Turn On">
+      <name-i18n>Power Channel 21 Turn On</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Power Channel State</desc>
+    </param>
+    <param name="Power Channel 21 Max Current">
+      <name-i18n>Power Channel 21 Max Current</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5021</default>
+      <units/>
+      <desc>Power Channel Max Current</desc>
+      <min>1</min>
+      <max>10000</max>
+    </param>
+    <param name="Power Channel 22 Entity Label">
+      <name-i18n>Power Channel 22 Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Private (PWM_C)</default>
+      <units/>
+      <desc>Power Channel Entity Label</desc>
+    </param>
+    <param name="Power Channel 22 Turn On">
+      <name-i18n>Power Channel 22 Turn On</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Power Channel State</desc>
+    </param>
+    <param name="Power Channel 22 Max Current">
+      <name-i18n>Power Channel 22 Max Current</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5022</default>
+      <units/>
+      <desc>Power Channel Max Current</desc>
+      <min>1</min>
+      <max>10000</max>
+    </param>
     <param name="Power Data 1 Entity Label">
       <name-i18n>Power Data 1 Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>ADCP_P</default>
+      <default>GNSS_D</default>
       <units/>
       <desc>Power Data Label</desc>
     </param>
@@ -4386,7 +4687,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>FLED</default>
+      <default>AHRS_D</default>
       <units/>
       <desc>Power Data Label</desc>
     </param>
@@ -4395,7 +4696,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>CTD_P</default>
+      <default>IRIDIUM_D</default>
       <units/>
       <desc>Power Data Label</desc>
     </param>
@@ -4404,7 +4705,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>AIRMAR</default>
+      <default>AIS_D</default>
       <units/>
       <desc>Power Data Label</desc>
     </param>
@@ -4413,7 +4714,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>OXYGEN</default>
+      <default>ADCP_D</default>
       <units/>
       <desc>Power Data Label</desc>
     </param>
@@ -4422,7 +4723,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>PBUS</default>
+      <default>FLED_D</default>
       <units/>
       <desc>Power Data Label</desc>
     </param>
@@ -4431,7 +4732,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>ECHOTRIP</default>
+      <default>CTD_D</default>
       <units/>
       <desc>Power Data Label</desc>
     </param>
@@ -4440,7 +4741,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>ECHOMAX</default>
+      <default>AIRMAR_D</default>
       <units/>
       <desc>Power Data Label</desc>
     </param>
@@ -4449,7 +4750,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>ETH</default>
+      <default>OXYGEN_D</default>
       <units/>
       <desc>Power Data Label</desc>
     </param>
@@ -4458,7 +4759,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>WIFI</default>
+      <default>PWM_D</default>
       <units/>
       <desc>Power Data Label</desc>
     </param>
@@ -4467,7 +4768,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>BPUMPS</default>
+      <default>ECHOTRIP_D</default>
       <units/>
       <desc>Power Data Label</desc>
     </param>
@@ -4476,7 +4777,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>VBAT1</default>
+      <default>ECHOMAX_D</default>
       <units/>
       <desc>Power Data Label</desc>
     </param>
@@ -4485,7 +4786,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>GNSS</default>
+      <default>ETH_D</default>
       <units/>
       <desc>Power Data Label</desc>
     </param>
@@ -4494,7 +4795,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>AHRS_P</default>
+      <default>WIFI_D</default>
       <units/>
       <desc>Power Data Label</desc>
     </param>
@@ -4503,7 +4804,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>IRIDIUM</default>
+      <default>BPUMPS_D</default>
       <units/>
       <desc>Power Data Label</desc>
     </param>
@@ -4512,7 +4813,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>AIS_P</default>
+      <default>VBAT1_D</default>
       <units/>
       <desc>Power Data Label</desc>
     </param>
@@ -4521,7 +4822,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>CPU-AUX</default>
+      <default>CPU-MAIN_D</default>
       <units/>
       <desc>Power Data Label</desc>
     </param>
@@ -4530,7 +4831,43 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>CPU-MAIN</default>
+      <default>CPU-AUX_D</default>
+      <units/>
+      <desc>Power Data Label</desc>
+    </param>
+    <param name="Power Data 19 Entity Label">
+      <name-i18n>Power Data 19 Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>GSM_2_D</default>
+      <units/>
+      <desc>Power Data Label</desc>
+    </param>
+    <param name="Power Data 20 Entity Label">
+      <name-i18n>Power Data 20 Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>GSM_1_D</default>
+      <units/>
+      <desc>Power Data Label</desc>
+    </param>
+    <param name="Power Data 21 Entity Label">
+      <name-i18n>Power Data 21 Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>THRUST_D</default>
+      <units/>
+      <desc>Power Data Label</desc>
+    </param>
+    <param name="Power Data 22 Entity Label">
+      <name-i18n>Power Data 22 Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>RUDDER_D</default>
       <units/>
       <desc>Power Data Label</desc>
     </param>
@@ -4595,7 +4932,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>120</default>
+      <default>180</default>
       <units/>
       <desc>Timeout, in seconds, for TransmissionRequest</desc>
     </param>
@@ -4607,6 +4944,24 @@
       <default/>
       <units/>
       <desc>Phone number of the SMS recipient</desc>
+    </param>
+    <param name="Task Entity Label for Iridium Driver">
+      <name-i18n>Task Entity Label for Iridium Driver</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Iridium Modem</default>
+      <units/>
+      <desc>Task Entity Label for Iridium Driver</desc>
+    </param>
+    <param name="Send Reset Command to CPC">
+      <name-i18n>Send Reset Command to CPC</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Send Reset Command to CPC</desc>
     </param>
   </section>
   <section name="AIS" name-i18n="AIS">
@@ -4656,6 +5011,15 @@
       <desc/>
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
     </param>
     <param name="Active - Scope">
       <name-i18n>Active - Scope</name-i18n>
@@ -4827,7 +5191,7 @@
       <scope>global</scope>
       <default/>
       <units/>
-      <desc>Power Channel</desc>
+      <desc>Power Channel Label for AIS power control</desc>
     </param>
     <param name="Log messages">
       <name-i18n>Log messages</name-i18n>
@@ -4886,6 +5250,15 @@
       <desc/>
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
     </param>
     <param name="Active - Scope">
       <name-i18n>Active - Scope</name-i18n>
@@ -4990,6 +5363,15 @@
       <desc/>
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
     </param>
     <param name="Active - Scope">
       <name-i18n>Active - Scope</name-i18n>
@@ -5193,6 +5575,15 @@
       <desc/>
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
     </param>
     <param name="Active - Scope">
       <name-i18n>Active - Scope</name-i18n>
@@ -5489,6 +5880,15 @@
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
+    </param>
     <param name="Active - Scope">
       <name-i18n>Active - Scope</name-i18n>
       <type>string</type>
@@ -5651,6 +6051,15 @@
       <desc/>
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
     </param>
     <param name="Active - Scope">
       <name-i18n>Active - Scope</name-i18n>
@@ -5863,6 +6272,15 @@
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
+    </param>
     <param name="Active - Scope">
       <name-i18n>Active - Scope</name-i18n>
       <type>string</type>
@@ -6038,6 +6456,15 @@
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
+    </param>
     <param name="Active - Scope">
       <name-i18n>Active - Scope</name-i18n>
       <type>string</type>
@@ -6204,6 +6631,15 @@
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
+    </param>
     <param name="Execution Frequency">
       <name-i18n>Execution Frequency</name-i18n>
       <type>real</type>
@@ -6279,6 +6715,15 @@
       <desc/>
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
     </param>
     <param name="Execution Frequency">
       <name-i18n>Execution Frequency</name-i18n>
@@ -6357,6 +6802,15 @@
       <desc/>
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
     </param>
     <param name="Main Power Channel">
       <name-i18n>Main Power Channel</name-i18n>
@@ -6442,6 +6896,15 @@
       <desc/>
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
     </param>
     <param name="Acoustic Reports">
       <name-i18n>Acoustic Reports</name-i18n>
@@ -6532,6 +6995,15 @@
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
+    </param>
     <param name="Execution Frequency">
       <name-i18n>Execution Frequency</name-i18n>
       <type>real</type>
@@ -6616,6 +7088,15 @@
       <desc/>
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
     </param>
     <param name="Announcement Periodicity">
       <name-i18n>Announcement Periodicity</name-i18n>
@@ -6756,6 +7237,15 @@
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
+    </param>
     <param name="Loading Order">
       <name-i18n>Loading Order</name-i18n>
       <type>list:string</type>
@@ -6813,6 +7303,15 @@
       <desc/>
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
     </param>
     <param name="Iridium - Entity Label">
       <name-i18n>Iridium - Entity Label</name-i18n>
@@ -6926,6 +7425,15 @@
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
+    </param>
     <param name="Ports">
       <name-i18n>Ports</name-i18n>
       <type>list:integer</type>
@@ -7001,6 +7509,15 @@
       <desc/>
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
     </param>
     <param name="Data Port">
       <name-i18n>Data Port</name-i18n>
@@ -7078,6 +7595,15 @@
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
+    </param>
     <param name="Reception timeout">
       <name-i18n>Reception timeout</name-i18n>
       <type>real</type>
@@ -7135,6 +7661,15 @@
       <desc/>
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
     </param>
     <param name="Port">
       <name-i18n>Port</name-i18n>
@@ -7220,6 +7755,15 @@
       <desc/>
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
     </param>
     <param name="Active - Scope">
       <name-i18n>Active - Scope</name-i18n>
@@ -7332,6 +7876,15 @@
       <desc/>
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
     </param>
     <param name="Active - Scope">
       <name-i18n>Active - Scope</name-i18n>
@@ -7463,6 +8016,15 @@
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
+    </param>
     <param name="Active - Scope">
       <name-i18n>Active - Scope</name-i18n>
       <type>string</type>
@@ -7540,7 +8102,7 @@
       <type>boolean</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>true</default>
+      <default>false</default>
       <units/>
       <desc/>
     </param>
@@ -7679,6 +8241,15 @@
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
+    </param>
   </section>
   <section name="Logger" name-i18n="Logger">
     <param name="Entity Label">
@@ -7728,6 +8299,15 @@
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
+    </param>
     <param name="Flush Interval">
       <name-i18n>Flush Interval</name-i18n>
       <type>real</type>
@@ -7769,7 +8349,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Abort, Acceleration, AngularVelocity, Announce, Brake, ClockControl, CompassCalibration, Collision, ControlLoops, ControlParcel, CpuUsage, Current, DataSanity, DesiredControl, DesiredZ, DesiredHeading, DesiredHeadingRate, DesiredPath, DesiredPitch, DesiredSpeed, DesiredVelocity, DevCalibrationControl, DevCalibrationState, DevDataBinary, DevDataText, Distance, EmergencyControl, EmergencyControlState, EntityActivationState, EntityInfo, EntityList, EntityMonitoringState, EntityParameters, EntityState, EstimatedState, EstimatedStreamVelocity, EulerAngles, EulerAnglesDelta, FollowPath, FollowRefState, FuelLevel, Goto, GpsFix, GpsFixRejection, GroundVelocity, Heartbeat, IdleManeuver, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LogBookEntry, Loiter, ManeuverControlState, ManeuverDone, NavigationData, NavigationUncertainty, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, PlanStatistics, PopEntityParameters, PowerChannelControl, PowerChannelState, Pulse, PulseDetectionControl, PushEntityParameters, Rows, QueryEntityParameters, Reference, RemoteActions, RemoteActionsRequest, RemoteState, ReportControl, RSSI, SimAcousticMessage, SaveEntityParameters, SetEntityParameters, SimulatedState, Sms, SmsRequest, SmsStatus, StateReport, StationKeeping, StopManeuver, TCPRequest, TCPStatus, Teleoperation, TeleoperationDone, Temperature, TextMessage, TransmissionRequest, TransmissionStatus, UamRxFrame, UamTxFrame, UamTxStatus, UamRxRange, VehicleCommand, VehicleMedium, VehicleState, VelocityDelta, Voltage, YoYo, AbsoluteWind, AirSaturation, AisInfo, Chlorophyll, Conductivity, CurrentProfile, CurrentProfileCell, Depth, Displacement, DissolvedOrganicMatter, DissolvedOxygen, ENCAwareness, Frequency, MagneticField, Pressure, Rpm, Salinity, ServoPosition, SetServoPosition, SetThrusterActuation, Turbidity, WindSpeed</default>
+      <default>Abort, Acceleration, AngularVelocity, Announce, Brake, ClockControl, CompassCalibration, Collision, ControlLoops, ControlParcel, CpuUsage, Current, DataSanity, DesiredControl, DesiredZ, DesiredHeading, DesiredHeadingRate, DesiredPath, DesiredPitch, DesiredSpeed, DesiredVelocity, DevCalibrationControl, DevCalibrationState, DevDataBinary, DevDataText, Distance, EmergencyControl, EmergencyControlState, EntityActivationState, EntityInfo, EntityList, EntityMonitoringState, EntityParameters, EntityState, EstimatedState, EstimatedStreamVelocity, EulerAngles, EulerAnglesDelta, FollowPath, FollowRefState, FuelLevel, Goto, GpsFix, GpsFixRejection, GroundVelocity, Heartbeat, IdleManeuver, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LogBookEntry, Loiter, ManeuverControlState, ManeuverDone, NavigationData, NavigationUncertainty, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, PlanStatistics, PopEntityParameters, PowerChannelControl, PowerChannelState, Pulse, PulseDetectionControl, PushEntityParameters, Rows, QueryEntityParameters, Reference, RemoteActions, RemoteActionsRequest, RemoteState, ReportControl, RSSI, SimAcousticMessage, SaveEntityParameters, SetEntityParameters, SimulatedState, Sms, SmsRequest, SmsStatus, StateReport, StationKeeping, StopManeuver, TCPRequest, TCPStatus, Teleoperation, TeleoperationDone, Temperature, TextMessage, TransmissionRequest, TransmissionStatus, UamRxFrame, UamTxFrame, UamTxStatus, UamRxRange, VehicleCommand, VehicleMedium, VehicleState, VelocityDelta, VersionInfo, Voltage, YoYo, AbsoluteWind, AirSaturation, AisInfo, Chlorophyll, Conductivity, CurrentProfile, CurrentProfileCell, Depth, Displacement, DissolvedOrganicMatter, DissolvedOxygen, ENCAwareness, Frequency, MagneticField, Pressure, Rpm, Salinity, ServoPosition, SetServoPosition, SetThrusterActuation, Turbidity, WindSpeed</default>
       <units/>
       <desc/>
     </param>
@@ -7821,6 +8401,15 @@
       <desc/>
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
     </param>
     <param name="Serial Port - Device">
       <name-i18n>Serial Port - Device</name-i18n>
@@ -7960,6 +8549,15 @@
       <desc/>
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
     </param>
     <param name="Local Port">
       <name-i18n>Local Port</name-i18n>
