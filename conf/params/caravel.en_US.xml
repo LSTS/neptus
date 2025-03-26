@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2024.09.0 (feature/caravel_merge,f7a4a357f)" system="caravel" i18n="en_US">
+<config format="1" version="2024.09.0 (feature/caravel_merge,c1b47780a,dirty)" system="caravel" i18n="en_US">
   <section name="Text Actions" name-i18n="Text Actions">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -4571,7 +4571,7 @@
       <type>boolean</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>true</default>
+      <default>false</default>
       <units/>
       <desc>Power Channel State</desc>
     </param>
