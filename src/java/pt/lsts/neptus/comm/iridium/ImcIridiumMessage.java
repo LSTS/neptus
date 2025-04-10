@@ -111,7 +111,7 @@ public class ImcIridiumMessage extends IridiumMessage {
 
            msg.setSrc(getSource());
            msg.setDst(getDestination());
-           msg.setTimestampMillis(timestampMillis);
+           //msg.setTimestampMillis(timestampMillis);
        }
        return vec;
     }
