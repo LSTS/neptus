@@ -244,7 +244,8 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
                 SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
                     @Override
                     protected Void doInBackground() throws Exception {
-                        refreshPropertiesOnPanel(true, true, new String[] {CommsAdmin.CommChannelType.WIFI.name});
+                        refreshPropertiesOnPanel(true, true,
+                                new String[] {CommsAdmin.CommChannelType.WIFI.name, CommsAdmin.CommChannelType.IRIDIUM.name});
                         return null;
                     }
                 };
