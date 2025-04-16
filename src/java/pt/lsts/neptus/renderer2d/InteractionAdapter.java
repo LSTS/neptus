@@ -122,6 +122,7 @@ public class InteractionAdapter extends ConsolePanel implements StateRendererInt
                 g.setStroke(new BasicStroke(5.2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
                 g.setColor(new Color(0, 0, 0, 100));
                 Point2D start = source.getScreenPosition(firstDragPoint);
+                Point2D endPoint = source.getScreenPosition(end);
 
                 double[] offsets = end.getOffsetFrom(firstDragPoint);
                 int angle = (int) Math.toDegrees(Math.atan2(offsets[1], offsets[0]));
@@ -132,7 +133,8 @@ public class InteractionAdapter extends ConsolePanel implements StateRendererInt
                           (int) Math.toDegrees(Math.PI / 2 + source.getRotation()), -angle);
                 
                 Stroke origStroke = g.getStroke();
-                double diameter = distance * source.getZoom() * 2;
+                // double diameterOld = distance * source.getZoom() * 2; // Using zoom here introduces errors in painting
+                double diameter = start.distance(endPoint) * 2;
                 g.setColor(Color.black);
                 g.setStroke(dashed2);
                 g.drawOval((int) (start.getX() - diameter / 2), (int) (start.getY() - diameter / 2), (int) diameter, (int) diameter);
