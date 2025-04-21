@@ -53,6 +53,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -78,6 +79,8 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 
 import org.jdesktop.swingx.JXBusyLabel;
 
@@ -170,6 +173,10 @@ public class MraRawMessages extends SimpleMRAVisualization {
     public JComponent getVisualization(IMraLogGroup source, double timestep) {
         final LsfIndex index = source.getLsfIndex();
         table = new JTable(new RawMessagesTableModel(index));
+        TableRowSorter<TableModel> sorter = new TableRowSorter<>(table.getModel());
+        sorter.setComparator(0, Comparator.naturalOrder());
+        sorter.setComparator(7, Comparator.naturalOrder());
+        table.setRowSorter(sorter);
         Color defColor = table.getSelectionBackground();
         JPanel contentPane = new JPanel();
         contentPane.setBorder(new EmptyBorder(0, 0, 0, 0));
