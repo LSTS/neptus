@@ -46,6 +46,7 @@ import com.eclipsesource.json.JsonObject;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.plugins.alliance.NmeaPlotter.MTShip;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**
  * @author zp
@@ -57,7 +58,15 @@ public class RipplesAisParser {
     private static final SimpleDateFormat sdfIso = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
 
     public static ArrayList<MTShip> getShips() throws Exception {
-        URL url = new URL("https://ripples.lsts.pt/ais");
+        String ripplesBaseUrl = GeneralPreferences.ripplesUrl;
+        if (ripplesBaseUrl == null || ripplesBaseUrl.isEmpty()) {
+            throw new Exception("Ripples URL must be valid");
+        }
+
+        if (!ripplesBaseUrl.endsWith("/")) {
+            ripplesBaseUrl += "/";
+        }
+        URL url = new URL(ripplesBaseUrl + "ais");
         HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();    
         JsonArray val = Json.parse(new InputStreamReader(httpConnection.getInputStream())).asArray();
        
