@@ -40,11 +40,17 @@ import pt.lsts.imc.RemoteActions;
 import pt.lsts.imc.RemoteActionsRequest;
 import pt.lsts.imc.VehicleState;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.IMCSendMessageUtils;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.neptus.comm.manager.imc.MessageDeliveryListener;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
+import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.gui.swing.HoldFillButton;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -329,12 +335,63 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
 
             RemoteActions remoteActionsMsg = new RemoteActions();
             remoteActionsMsg.setActions(actionsStr);
-            send(remoteActionsMsg);
+            // send(remoteActionsMsg);
+            boolean ret = IMCSendMessageUtils.sendMessage(remoteActionsMsg, null,
+                    createDefaultMessageDeliveryListener(), this, I18n.text("Error sending remote actions"),
+                    true, "", true, true,
+                    true, this.getMainVehicleId());
         }
         catch (Exception e) {
             NeptusLog.pub().error(e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    private MessageDeliveryListener createDefaultMessageDeliveryListener() {
+        return new MessageDeliveryListener() {
+
+            private String  getDest(IMCMessage message) {
+                ImcSystem sys = message != null ? ImcSystemsHolder.lookupSystem(message.getDst()) : null;
+                String dest = sys != null ? sys.getName() : I18n.text("unknown destination");
+                return dest;
+            }
+
+            @Override
+            public void deliveryUnreacheable(IMCMessage message) {
+                post(Notification.error(
+                        I18n.text("Delivering Message"),
+                        I18n.textf("Message %messageType to %destination delivery destination unreacheable",
+                                message.getAbbrev(), getDest(message))));
+            }
+
+            @Override
+            public void deliveryTimeOut(IMCMessage message) {
+                post(Notification.error(
+                        I18n.text("Delivering Message"),
+                        I18n.textf("Message %messageType to %destination delivery timeout",
+                                message.getAbbrev(), getDest(message))));
+            }
+
+            @Override
+            public void deliveryError(IMCMessage message, Object error) {
+                post(Notification.error(
+                        I18n.text("Delivering Message"),
+                        I18n.textf("Message %messageType to %destination delivery error. (%error)",
+                                message.getAbbrev(), getDest(message), error)));
+            }
+
+            @Override
+            public void deliveryUncertain(IMCMessage message, Object msg) {
+            }
+
+            @Override
+            public void deliverySuccess(IMCMessage message) {
+                //                post(Notification.success(
+                //                        I18n.text("Delivering Message"),
+                //                        I18n.textf("Message %messageType to %destination delivery success",
+                //                                message.getAbbrev(), getDest(message))));
+            }
+        };
     }
 
     private String buildCmdAndReset() {
