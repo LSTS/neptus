@@ -85,7 +85,7 @@ def generateStartScriptsFor(String applicationNameOpt, String taskPrefixName,
 
         defaultJvmOpts = [
             '-Xms10m',
-            '-Xmx2g',
+            '-Xmx4g',
             '-XX:MaxMetaspaceSize=512m',
             '-XX:+UseG1GC', //for Java 8+
             //'-XX:+UseZGC', //for Java 11+
@@ -218,7 +218,7 @@ application {
     // https://dzone.com/articles/7-jvm-arguments-of-highly-effective-applications-1?edition=590292&utm_source=Weekly%20Digest&utm_medium=email&utm_campaign=Weekly%20Digest%202020-04-01
     applicationDefaultJvmArgs = [
         '-Xms10m',
-        '-Xmx2g',
+        '-Xmx4g',
         '-XX:MaxMetaspaceSize=512m',
         '-XX:+UseG1GC', //for Java 8+
         //'-XX:+UseZGC', //for Java 11+
