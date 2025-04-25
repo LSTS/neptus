@@ -10,10 +10,10 @@
       <x-size>2</x-size>
       <y-size>1.4</y-size>
       <z-size>0.9</z-size>
-      <top-image-2D>../vehicles-files/lauv/lauv-seacon0-top.png</top-image-2D>
-      <side-image-2D>../vehicles-files/lauv/lauv-seacon0-side.png</side-image-2D>
-      <back-image-2D>../vehicles-files/lauv/lauv-seacon0-back.png</back-image-2D>
-      <presentation-image-2D>../vehicles-files/lauv/lauv-seacon0-presentation.png</presentation-image-2D>
+      <top-image-2D>../vehicles-files/autonaut/autonaut-top.png</top-image-2D>
+      <side-image-2D>../vehicles-files/autonaut/autonaut-side.png</side-image-2D>
+      <back-image-2D>../vehicles-files/autonaut/autonaut-back.png</back-image-2D>
+      <presentation-image-2D>../vehicles-files/autonaut/autonaut-presentation.png</presentation-image-2D>
       <model-3D>../vehicles-files/lauv/lauv-xtreme-2.x3d</model-3D>
       <icon-color>
         <r>255</r>
