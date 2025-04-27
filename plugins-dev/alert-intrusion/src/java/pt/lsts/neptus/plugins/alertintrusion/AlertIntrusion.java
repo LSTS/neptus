@@ -74,7 +74,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-@PluginDescription(name = "Alert Intrusion", icon = "pt/lsts/neptus/plugins/alertintrusion/colreg.png",
+@PluginDescription(name = "Alert Intrusion", icon = "pt/lsts/neptus/plugins/alertintrusion/traffic.png",
     description = "Alert Intrusion", category = PluginDescription.CATEGORY.INTERFACE, version = "0.1")
 @LayerPriority(priority = 182)
 public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeListener {
@@ -131,9 +131,9 @@ public class AlertIntrusion extends ConsoleLayer implements MainVehicleChangeLis
     private String lastMainVehicle;
     private final Map<String, Map<Date, Pair<String, Double>>> collisionsTree = new ConcurrentHashMap<>();
 
-    private static final Image colregImage = ImageUtils.getScaledImage("pt/lsts/neptus/plugins/alertintrusion/colreg.png",
+    private static final Image colregImage = ImageUtils.getScaledImage("pt/lsts/neptus/plugins/alertintrusion/traffic.png",
             50, 50);
-    private static final Image colregImageSmall = ImageUtils.getScaledImage("pt/lsts/neptus/plugins/alertintrusion/colreg.png",
+    private static final Image colregImageSmall = ImageUtils.getScaledImage("pt/lsts/neptus/plugins/alertintrusion/traffic.png",
             20, 20);
 
     private final JLabel infoLabel = new JLabel("");
