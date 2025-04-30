@@ -462,4 +462,16 @@ public class NumberEditor<T extends Number> extends NumberPropertyEditor impleme
             super(Integer.class, 0, Integer.MAX_VALUE);
         }
     }
+
+    public T getMinValue() {
+        return minValue;
+    }
+
+    public T getMaxValue() {
+        return maxValue;
+    }
+
+    public Class<T> getClassType() {
+        return classType;
+    }
 }

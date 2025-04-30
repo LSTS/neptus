@@ -132,4 +132,12 @@ public class ComboEditor<T extends Object> extends AbstractPropertyEditor {
 	public void setValue(Object arg0) {
 		combo.setSelectedItem(arg0);
 	}
+
+    public JComboBox<T> getCombo() {
+        return combo;
+    }
+
+    public Vector<String> getStringValues() {
+        return stringValues;
+    }
 }

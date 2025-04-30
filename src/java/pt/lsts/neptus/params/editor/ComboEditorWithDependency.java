@@ -34,6 +34,7 @@ package pt.lsts.neptus.params.editor;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
 import pt.lsts.neptus.gui.editor.ComboEditor;
@@ -44,7 +45,7 @@ public class ComboEditorWithDependency<T extends Object> extends ComboEditor<T> 
 
     private LinkedHashMap<Object, Object> dependencyVariables = new LinkedHashMap<>();
     private PropertyEditorChangeValuesIfDependencyAdapter<?, ?> pec;
-        
+
         /**
          * @param options
          * @param pec
@@ -62,7 +63,7 @@ public class ComboEditorWithDependency<T extends Object> extends ComboEditor<T> 
             super(options, stringValues);
             this.pec = pec;
         }
-        
+
         private void updateDependenciesVariables() {
             if (pec == null || pec.valuesIfTests.isEmpty()) {
                 dependencyVariables.clear();
@@ -85,28 +86,28 @@ public class ComboEditorWithDependency<T extends Object> extends ComboEditor<T> 
                 return;
 
             updateDependenciesVariables();
-            
+
             if(evt.getSource() instanceof SystemProperty) {
                 SystemProperty sp = (SystemProperty) evt.getSource();
-                
+
                 if (dependencyVariables.containsKey(sp.getName()))
                     dependencyVariables.put(sp.getName(), sp.getValue());
                 else
                     return;
 
                 boolean found = false;
-                
+
                 for (Object testVarKey : dependencyVariables.keySet()) {
                     Object testVarValue = dependencyVariables.get(testVarKey);
                     if (testVarValue == null)
                         continue;
-                    
+
                     for (int i = 0; i < pec.getValuesIfTests().size(); i++) {
                         PropertyEditorChangeValuesIfDependencyAdapter.ValuesIf<?, ?> vl = (ValuesIf<?, ?>) pec.getValuesIfTests().get(i);
                         PropertyEditorChangeValuesIfDependencyAdapter.ValuesIf<?, ?> vlI18n = (ValuesIf<?, ?>) pec.getValuesI18nIfTests().get(i);
                         if (!vl.dependantParamId.equals(testVarKey))
                             continue;
-                        
+
                         boolean isEquals = false;
                         if (vl.testValue instanceof Number)
                             isEquals = ((Number) vl.testValue).doubleValue() == ((Number) testVarValue).doubleValue();
@@ -116,7 +117,7 @@ public class ComboEditorWithDependency<T extends Object> extends ComboEditor<T> 
                             isEquals = ((String) vl.testValue).equals((String) testVarValue);
                         else
                             isEquals = vl.testValue.equals(testVarValue);
-                        
+
                         if (isEquals) {
                             combo.removeAllItems();
                             for (Object item : vl.values)
@@ -129,11 +130,19 @@ public class ComboEditorWithDependency<T extends Object> extends ComboEditor<T> 
                             found = true;
                             break;
                         }
-                        
+
                         if (found)
                             break;
                     }
                 }
             }
         }
+
+    public LinkedHashMap<Object, Object> getDependencyVariables() {
+        return dependencyVariables;
     }
+
+    public PropertyEditorChangeValuesIfDependencyAdapter<?, ?> getPec() {
+        return pec;
+    }
+}

@@ -63,6 +63,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
 import javax.swing.ListCellRenderer;
 import javax.swing.SwingWorker;
+import javax.xml.parsers.ParserConfigurationException;
 
 import com.l2fprod.common.propertysheet.Property;
 import com.l2fprod.common.propertysheet.PropertyEditorRegistry;
@@ -126,7 +127,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
     private JCheckBox checkSelection;
     private JComboBox<Scope> scopeComboBox;
     private JToggleButton fakeSyncButton;
-    
+
     protected boolean refreshing = false;
     private PropertyEditorRegistry per;
     private PropertyRendererRegistry prr;
@@ -153,7 +154,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
                                           boolean showFakeSyncButton, ImcMsgManager imcMsgManager) {
         this.systemId = systemId;
         this.imcMsgManager = imcMsgManager;
-
+        
         this.scopeToUse = scopeToUse;
         this.visibility = visibility;
 
@@ -285,7 +286,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
             public void actionPerformed(ActionEvent e) {
                 for (int i = 0; i < psp.getTable().getSheetModel().getRowCount(); i++) {
                     Item o = (Item) psp.getTable().getSheetModel().getObject(i);
-                    if (o.isVisible() && !o.hasToggle()) { 
+                    if (o.isVisible() && !o.hasToggle()) {
                         o.getParent().toggle();
                     }
                 }
@@ -379,11 +380,30 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
             mainPanel.add(fakeSyncButton, "sg buttons2, split");
         }
 
+        JButton generateXmlButton = new JButton(new AbstractAction(I18n.text("Generate XML File")) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    generateXMLFile();
+                }
+                catch (ParserConfigurationException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        });
+        mainPanel.add(generateXmlButton);
+
         // FIXME This might not make sense to not always ask for categories if no wifi
         refreshPropertiesOnPanel(false, false, new String[] {CommsAdmin.CommChannelType.WIFI.name});
         
         revalidate();
         repaint();
+    }
+
+    private void generateXMLFile() throws ParserConfigurationException {
+        SystemProperty.Scope scopeToUse = SystemProperty.Scope.GLOBAL;
+        SystemProperty.Visibility visibility = SystemProperty.Visibility.DEVELOPER;
+        ConfigurationManager.getInstance().generateXML(systemId, visibility, scopeToUse);
     }
 
     private void updateSendButtons() {
@@ -451,7 +471,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
     public void setRefreshing(boolean refreshing) {
         this.refreshing = refreshing;
     }
-
+    
     private synchronized void refreshPropertiesOnPanel(boolean askForCategories, boolean popGuiOnError, String[] channelsToUse) {
         refreshPropertiesOnPanel(askForCategories, popGuiOnError, true, channelsToUse);
     }
