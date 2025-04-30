@@ -185,4 +185,12 @@ implements PropertyChangeListener {
             clearAdmisibleRangeValues();
         }
     }
+
+    public LinkedHashMap<String, Object> getDependencyVariables() {
+        return dependencyVariables;
+    }
+
+    public PropertyEditorChangeValuesIfDependencyAdapter<?, T> getPec() {
+        return pec;
+    }
 }

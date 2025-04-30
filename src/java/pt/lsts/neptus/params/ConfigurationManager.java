@@ -33,8 +33,10 @@
 package pt.lsts.neptus.params;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -44,14 +46,17 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
+import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
+import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
 
 import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
 import com.l2fprod.common.beans.editor.BooleanAsCheckBoxPropertyEditor;
 import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
 
+import org.dom4j.io.XMLWriter;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
@@ -76,6 +81,8 @@ import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
+
+import javax.xml.parsers.ParserConfigurationException;
 
 /**
  * @author pdias
@@ -883,6 +890,282 @@ public class ConfigurationManager {
             }
         }
         return params;
+    }
+
+    public void generateXML(String system, Visibility vis, Scope scope) throws ParserConfigurationException {
+        try {
+            Document doc = DocumentHelper.createDocument();
+            Element rootElement = doc.addElement("config");
+            rootElement.addAttribute("format", "1");
+            rootElement.addAttribute("version", "???");
+            rootElement.addAttribute("system", system);
+            rootElement.addAttribute("i18n", "en_US");
+
+            LinkedHashMap<String, Element> sections = new LinkedHashMap<>();
+            ArrayList<SystemProperty> pr = getProperties(system, vis, scope);
+            for (SystemProperty sp : pr) {
+                String sectionName = sp.getCategoryId();
+                String sectionI18nName = sp.getCategory();
+                String sectionEditor = ""; // sp.getRawEditor(); TODO: Check if editor name is correct
+                CustomSystemPropertyEditor customEditor = sp.getSectionCustomEditor();
+                if (customEditor != null) {
+                    sectionEditor = customEditor.getClass().getSimpleName(); //TODO: Remove "CustomEditor" from name
+                }
+                Element sectionElement = null;
+                if (sections.get(sectionName) == null) {
+                    sectionElement = rootElement.addElement("section");
+                    sectionElement.addAttribute("name", sectionName);
+                    sectionElement.addAttribute("name-i18n", sectionI18nName);
+                    if (!sectionEditor.isEmpty()) {
+                        sectionElement.addAttribute("editor", sectionEditor);
+                    }
+                    sections.put(sectionName, sectionElement);
+                }
+
+                sectionElement = sections.get(sectionName);
+                String paramName = sp.getName();
+                String paramEditable = "";
+                if (!sp.isEditable()) {
+                    paramEditable = String.valueOf(sp.isEditable());
+                }
+                String paramI18nName = sp.getDisplayName();
+
+                Element paramElement = sectionElement.addElement("param");
+                paramElement.addAttribute("name", paramName);
+                if (!paramEditable.isEmpty()) {
+                    paramElement.addAttribute("editable", paramEditable);
+                }
+                paramElement.addElement("name-i18n").setText(paramI18nName);
+
+                addXmlTags(paramElement, sp);
+            }
+
+            OutputFormat format = OutputFormat.createPrettyPrint();
+            format.setNewLineAfterDeclaration(false);
+            format.setExpandEmptyElements(false);
+            XMLWriter writer = new XMLWriter(new FileWriter("/home/miguel/Documents/" + "genXML_" + system + ".xml"), format);
+            writer.write(doc);
+            writer.close();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void addXmlTags(Element paramElement, SystemProperty sp) {
+        String defaultStr = String.valueOf(sp.getDefaultValue()).replace("[", "").replace("]", "");
+        String descStr = sp.getShortDescription();
+
+        //Type
+        String typeStr = "";
+        Class typeClass = sp.getType();
+        ValueTypeEnum valueClass = sp.getValueType();
+        boolean isIpv4 = false;
+        try {
+            StringPatternEditor typeEditor = (StringPatternEditor) sp.getEditor();
+            String pattern = typeEditor.getElementPattern();
+            if (pattern.equals(ArrayListEditor.IP_ADDRESS_PATTERN)) {
+                isIpv4 = true;
+            }
+        }
+        catch (Exception e) {
+        }
+        if (isIpv4) {
+            typeStr = "ipv4-address";
+        }
+        else {
+            if (typeClass == ArrayList.class) {
+                typeStr = "list:";
+            }
+            typeStr += valueClass.getText();
+        }
+
+        paramElement.addElement("type").setText(typeStr);
+
+        //Visibility
+        String visibilityStr = sp.getVisibility().getText();
+        paramElement.addElement("visibility").setText(visibilityStr);
+
+        //Scope
+        String scopeStr = sp.getScope().getText();
+        paramElement.addElement("scope").setText(scopeStr);
+
+        //Default
+        Element defaultElement = paramElement.addElement("default");
+        if (!defaultStr.isEmpty()) {
+            defaultElement.setText(defaultStr);
+        }
+
+        //Units
+        SystemPropertyRenderer renderer = (SystemPropertyRenderer) sp.getRenderer();
+        String unitsStr = renderer.getUnitsStr();
+        Element unitsElement = paramElement.addElement("units");
+        if (unitsStr != null && !unitsStr.isEmpty()) {
+            unitsElement.setText(unitsStr);
+        }
+
+        //Description
+        Element descElement = paramElement.addElement("desc");
+        if (descStr.contains("<br/>")) {
+            String[] paramDescArray = descStr.split("<br/>");
+            int occurrences = paramDescArray.length;
+            if (occurrences > 1) {
+                descStr = paramDescArray[0];
+            }
+            else {
+                descStr = "";
+            }
+        }
+        if (!descStr.isEmpty()) {
+            descElement.setText(descStr);
+        }
+
+        //Size
+        String sizeStr = "";
+        if (typeClass == ArrayList.class) {
+            if (valueClass == ValueTypeEnum.REAL || valueClass == ValueTypeEnum.INTEGER || valueClass == ValueTypeEnum.STRING) {
+                try {
+                    ArrayListEditor sizeEditor = (ArrayListEditor) sp.getEditor();
+                    if (sizeEditor.getMinSize() == sizeEditor.getMaxSize()) {
+                        sizeStr = String.valueOf(sizeEditor.getMinSize());
+                    }
+                }
+                catch (Exception e) {
+                }
+            }
+        }
+
+        if (sizeStr != null && !sizeStr.isEmpty()) {
+            paramElement.addElement("size").setText(sizeStr);
+        }
+
+        //Min & Max
+        String minStr = "";
+        String maxStr = "";
+        try {
+            NumberEditor minMaxSizeEditor = (NumberEditor) sp.getEditor();
+            Number minV = minMaxSizeEditor.getMinValue();
+            Number maxV = minMaxSizeEditor.getMaxValue();
+            if (minV != null) {
+                minStr = minV.toString();
+            }
+            if (maxV != null) {
+                boolean validMax = (maxV instanceof Double && (Double) maxV != Double.MAX_VALUE) || (maxV instanceof Long && (Long) maxV != Long.MAX_VALUE);
+                if (validMax) {
+                    maxStr = maxV.toString();
+                }
+            }
+        }
+        catch (Exception e) {
+        }
+
+        if (minStr != null && !minStr.isEmpty()) {
+            paramElement.addElement("min").setText(minStr);
+        }
+        if (maxStr != null && !maxStr.isEmpty()) {
+            paramElement.addElement("max").setText(maxStr);
+        }
+
+        //Value & Values-i18n
+        String valuesStr = "";
+        String valuesI18nStr = "";
+        try {
+            ComboEditor valuesEditor = (ComboEditor) sp.getEditor();
+            int optionCount = valuesEditor.getCombo().getItemCount();
+            String[] values = new String[optionCount];
+            for(int i = 0; i < optionCount; i++) {
+                values[i] = valuesEditor.getCombo().getItemAt(i).toString();
+            }
+            valuesStr = Arrays.toString(values).replace("[", "").replace("]", "");
+            valuesI18nStr = String.valueOf(valuesEditor.getStringValues()).replace("[", "").replace("]", "");
+            if (valuesI18nStr.isEmpty()) {
+                valuesI18nStr = valuesStr;
+            }
+        }
+        catch (Exception e) {
+        }
+        if (!valuesStr.isEmpty()) {
+            paramElement.addElement("values").setText(valuesStr);
+            paramElement.addElement("values-i18n").setText(I18n.text(valuesI18nStr));
+        }
+
+        //Values-If
+        ArrayList<ValuesIf> valuesIfs = new ArrayList<>();
+        String valuesIfParam = "";
+        String valuesIfEquals = "";
+        String valuesIfValues = "";
+        try {
+            BooleanAsCheckBoxPropertyEditorWithDependency valuesEditor = (BooleanAsCheckBoxPropertyEditorWithDependency) sp.getEditor();
+            System.out.println("-------------VALUES-IF---------------");
+            System.out.println(sp.getCategoryId());
+            System.out.println(sp.getName());
+            System.out.println(valuesEditor.getValue());
+            String className = valuesEditor.getValue().getClass().getSimpleName();
+            LinkedHashMap<String, Object> values_if = valuesEditor.getDependencyVariables();
+            System.out.println(values_if);
+            for (int i = 0; i < valuesEditor.getPec().getValuesIfTests().size(); i++) {
+                ValuesIf obj = (ValuesIf) valuesEditor.getPec().getValuesIfTests().get(i);
+                System.out.println(obj);
+                System.out.println(obj.dependantParamId); // <param>
+                System.out.println(obj.op); // <equals>
+                System.out.println(obj.values);
+                System.out.println(obj.testValue);
+                valuesIfs.add(obj);
+            }
+        }
+        catch (Exception e) {
+            if (sp.getName().equals("Low-Frequency Bathymetry Channel")) {
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            ComboEditorWithDependency valuesEditor = (ComboEditorWithDependency) sp.getEditor();
+            System.out.println("-------------VALUES-IF-COMBO---------------");
+            System.out.println(sp.getCategoryId());
+            System.out.println(sp.getName());
+            LinkedHashMap<String, Object> values_if = valuesEditor.getDependencyVariables();
+            System.out.println(values_if);
+            for (int i = 0; i < valuesEditor.getPec().getValuesIfTests().size(); i++) {
+                ValuesIf obj = (ValuesIf) valuesEditor.getPec().getValuesIfTests().get(i);
+                System.out.println(obj);
+                System.out.println(obj.dependantParamId); // <param>
+                System.out.println(obj.op); // <equals>
+                System.out.println(obj.values);
+                System.out.println(obj.testValue);
+                valuesIfs.add(obj);
+            }
+        }
+        catch (Exception e) {
+        }
+
+        try {
+            NumberEditorWithDependencies valuesEditor = (NumberEditorWithDependencies) sp.getEditor();
+            System.out.println("-------------VALUES-IF-NUMBER---------------");
+            System.out.println(sp.getCategoryId());
+            LinkedHashMap<String, Object> values_if = valuesEditor.getDependencyVariables();
+            System.out.println(values_if);
+            for (int i = 0; i < valuesEditor.getPec().getValuesIfTests().size(); i++) {
+                ValuesIf obj = (ValuesIf) valuesEditor.getPec().getValuesIfTests().get(i);
+                System.out.println(obj);
+                System.out.println(obj.dependantParamId); // <param>
+                System.out.println(obj.op); // <equals>
+                System.out.println(obj.values);
+                System.out.println(obj.testValue);
+                valuesIfs.add(obj);
+            }
+        }
+        catch (Exception e) {
+        }
+
+        if (!valuesIfs.isEmpty()) {
+            //for () {
+            Element valuesIfElement = paramElement.addElement("values-if");
+            valuesIfElement.addElement("param").setText(valuesIfParam);
+            valuesIfElement.addElement("equals"); //.setText(valuesIfList.get(1));
+            valuesIfElement.addElement("values").setText(valuesIfValues);
+            //}
+        }
     }
 
     private String buildValuesDescription(ArrayList<?> values) {

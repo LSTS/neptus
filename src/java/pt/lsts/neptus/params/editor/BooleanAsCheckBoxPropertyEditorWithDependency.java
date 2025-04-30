@@ -196,4 +196,12 @@ public class BooleanAsCheckBoxPropertyEditorWithDependency<T extends Boolean> ex
         }
         // if (testVariablePresent && !passedAtLeastOneTest) {}
     }
+
+    public LinkedHashMap<String, Object> getDependencyVariables() {
+        return dependencyVariables;
+    }
+
+    public PropertyEditorChangeValuesIfDependencyAdapter<?, T> getPec() {
+        return pec;
+    }
 }

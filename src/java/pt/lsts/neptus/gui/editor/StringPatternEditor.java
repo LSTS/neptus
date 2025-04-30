@@ -139,4 +139,8 @@ public class StringPatternEditor extends StringConverterPropertyEditor {
     protected String convertToString(Object value) {
         return value.toString();
     }
+
+    public String getElementPattern() {
+        return elementPattern;
+    }
 }

@@ -62,6 +62,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListCellRenderer;
 import javax.swing.SwingWorker;
+import javax.xml.parsers.ParserConfigurationException;
 
 import com.l2fprod.common.propertysheet.Property;
 import com.l2fprod.common.propertysheet.PropertyEditorRegistry;
@@ -124,7 +125,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
     private JCheckBox checkAdvance;
     private JCheckBox checkSelection;
     private JComboBox<Scope> scopeComboBox;
-    
+
     protected boolean refreshing = false;
     private PropertyEditorRegistry per;
     private PropertyRendererRegistry prr;
@@ -134,7 +135,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
 
     protected String systemId;
     protected ImcSystem sid = null;
-    
+
     protected ImcMsgManager imcMsgManager;
 
     // Category name, category label on gui
@@ -145,13 +146,13 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
             boolean showSendButton, boolean showScopeCombo, boolean showResetButton, ImcMsgManager imcMsgManager) {
         this.systemId = systemId;
         this.imcMsgManager = imcMsgManager;
-        
+
         this.scopeToUse = scopeToUse;
         this.visibility = visibility;
-        
+
         initialize(showSendButton, showScopeCombo, showResetButton);
     }
-    
+
     private void initialize(boolean showSendButton, boolean showScopeCombo, boolean showResetButton) {
         setLayout(new MigLayout());
 
@@ -176,7 +177,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
                     label.setBackground(list.getBackground());
                     label.setForeground(list.getForeground());
                 }
-    
+
                 return label;
             }
         });
@@ -191,7 +192,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
                 }).start();
             }
         });
-        
+
         titleLabel = new JLabel("<html><b>" + createTitle() + "</b></html>");
         mainPanel.add(titleLabel, "w 100%, wrap");
 
@@ -202,7 +203,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         psp.setDescriptionVisible(true);
         psp.setMode(PropertySheet.VIEW_AS_CATEGORIES);
         psp.setToolBarVisible(false);
-        
+
         resetPropertiesEditorAndRendererFactories();
 
         propertiesPanel = new JPanel(new CardLayout());
@@ -219,7 +220,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         swapPropertiesAndCategoriesPanel.add(categoriesPanel, CARD_CATEGORIES);
 
         add(swapPropertiesAndCategoriesPanel, "w 100%, h 100%");
-        
+
         sendButton = new JButton(new AbstractAction(I18n.text("Send")) {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -278,7 +279,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
             public void actionPerformed(ActionEvent e) {
                 for (int i = 0; i < psp.getTable().getSheetModel().getRowCount(); i++) {
                     Item o = (Item) psp.getTable().getSheetModel().getObject(i);
-                    if (o.isVisible() && !o.hasToggle()) { 
+                    if (o.isVisible() && !o.hasToggle()) {
                         o.getParent().toggle();
                     }
                 }
@@ -304,7 +305,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         });
         expandButton.setToolTipText(I18n.text("Expand all sections."));
         mainPanel.add(expandButton, "sg buttons, split");
-        
+
         resetButton = new JButton(new AbstractAction(I18n.text("Reset")) {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -315,7 +316,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         if (showResetButton)
             mainPanel.add(resetButton, "sg buttons, gapbefore 30, split, wrap");
         resetButton.setToolTipText(I18n.text("Local reset. Needs to be sent to system."));
-                    
+
         if (showScopeCombo)
             mainPanel.add(scopeComboBox, "split, w :160:");
 
@@ -353,11 +354,30 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         checkSelection.setFocusable(false);
         mainPanel.add(checkSelection, "sg checkboxes");
 
+        JButton generateXmlButton = new JButton(new AbstractAction(I18n.text("Generate XML File")) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    generateXMLFile();
+                }
+                catch (ParserConfigurationException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        });
+        mainPanel.add(generateXmlButton);
+
         // FIXME This might not make sense to not always ask for categories if no wifi
         refreshPropertiesOnPanel(false, false, new String[] {CommsAdmin.CommChannelType.WIFI.name});
-        
+
         revalidate();
         repaint();
+    }
+
+    private void generateXMLFile() throws ParserConfigurationException {
+        SystemProperty.Scope scopeToUse = SystemProperty.Scope.GLOBAL;
+        SystemProperty.Visibility visibility = SystemProperty.Visibility.DEVELOPER;
+        ConfigurationManager.getInstance().generateXML(systemId, visibility, scopeToUse);
     }
 
     private void updateSendButtons() {
@@ -386,21 +406,21 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         // prr.registerDefaults();
         psp.setRendererFactory(prr);
     }
-    
+
     /**
      * @return the params
      */
     public LinkedHashMap<String, SystemProperty> getParams() {
         return params;
     }
-    
+
     /**
      * @return the systemId
      */
     public String getSystemId() {
         return systemId;
     }
-    
+
     /**
      * @param systemId the systemId to set
      */
@@ -417,14 +437,14 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
     public boolean isRefreshing() {
         return refreshing;
     }
-    
+
     /**
      * @param refreshing the refreshing to set
      */
     public void setRefreshing(boolean refreshing) {
         this.refreshing = refreshing;
     }
-    
+
     private synchronized void refreshPropertiesOnPanel(boolean askForCategories, boolean popGuiOnError, String[] channelsToUse) {
         try {
             showWaiterUpdateProperties(true);
@@ -555,7 +575,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         if(!refreshing && evt.getSource() instanceof SystemProperty) {
             SystemProperty sp = (SystemProperty) evt.getSource();
             sp.setValue(evt.getNewValue());
-            
+
             for (SystemProperty sprop : params.values()) {
                 sprop.propertyChange(evt);
             }
@@ -566,7 +586,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
             touchedCategoriesList.putIfAbsent(sp.getCategoryId(), sp.getCategory());
         }
     }
-    
+
     private boolean queryValues(String entityName, String scope, String visibility, boolean popGuiOnError, String... channelsToUse) {
         QueryEntityParameters qep = new QueryEntityParameters();
         qep.setScope(scope);
@@ -590,7 +610,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
             String category = prop.getCategoryId();
             if (category == null)
                 continue;
-            
+
             EntityParameter ep = new EntityParameter();
             ep.setName(prop.getName());
             boolean isList = false;
@@ -807,7 +827,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
                 String sectionName = sp.getCategoryId();
                 if (!secNames.contains(sectionName))
                     secNames.add(sectionName);
-            }        
+            }
             for (String sec : secNames) {
                 // TODO See if we want to ask back from Iridium
                 if (!queryValues(sec, scopeToUse.getText(), visibility.getText(), true))
@@ -856,19 +876,19 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
             @Override
             public void deliveryUnreacheable(IMCMessage message) {
             }
-            
+
             @Override
             public void deliveryUncertain(IMCMessage message, Object msg) {
             }
-            
+
             @Override
             public void deliveryTimeOut(IMCMessage message) {
             }
-            
+
             @Override
             public void deliverySuccess(IMCMessage message) {
             }
-            
+
             @Override
             public void deliveryError(IMCMessage message, Object error) {
             }
@@ -888,11 +908,11 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
                 false, "", true, true,
                 true, popGuiOnError, channelsToUse, system);
     }
-    
+
     public static void updatePropertyWithMessageArrived(SystemConfigurationEditorPanel systemConfEditor, IMCMessage message) {
         if (systemConfEditor == null || message == null || !(message instanceof EntityParameters))
             return;
-        
+
         try {
             systemConfEditor.setRefreshing(true);
             EntityParameters eps = EntityParameters.clone(message);
@@ -930,14 +950,14 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
 //        GuiUtils.testFrame(icmm);
         GuiUtils.setLookAndFeel();
         String vehicle = "lauv-noptilus-1";
-        
+
         GeneralPreferences.language = "en_US";
-        
+
         final SystemConfigurationEditorPanel sc1 = new SystemConfigurationEditorPanel(vehicle, Scope.MANEUVER,
                 Visibility.USER, true, true, true, ImcMsgManager.getManager());
         final SystemConfigurationEditorPanel sc2 = new SystemConfigurationEditorPanel(vehicle, Scope.MANEUVER,
                 Visibility.USER, true, false, true, ImcMsgManager.getManager());
-        
+
 //        ImcMsgManager.getManager().addListener(new MessageListener<MessageInfo, IMCMessage>() {
 //            @Override
 //            public void onMessage(MessageInfo info, IMCMessage msg) {
@@ -952,7 +972,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
 //                return ret;
 //            }
 //        });
-        
+
         GuiUtils.testFrame(sc1);
         GuiUtils.testFrame(sc2);
     }
