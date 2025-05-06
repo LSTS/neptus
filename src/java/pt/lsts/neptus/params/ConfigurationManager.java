@@ -41,6 +41,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -83,6 +84,8 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 import javax.xml.parsers.ParserConfigurationException;
+
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
  * @author pdias
@@ -897,7 +900,7 @@ public class ConfigurationManager {
             Document doc = DocumentHelper.createDocument();
             Element rootElement = doc.addElement("config");
             rootElement.addAttribute("format", "1");
-            rootElement.addAttribute("version", "???");
+            rootElement.addAttribute("version", "Neptus - " + ConfigFetch.getNeptusVersion());
             rootElement.addAttribute("system", system);
             rootElement.addAttribute("i18n", "en_US");
 
@@ -909,7 +912,7 @@ public class ConfigurationManager {
                 String sectionEditor = ""; // sp.getRawEditor(); TODO: Check if editor name is correct
                 CustomSystemPropertyEditor customEditor = sp.getSectionCustomEditor();
                 if (customEditor != null) {
-                    sectionEditor = customEditor.getClass().getSimpleName(); //TODO: Remove "CustomEditor" from name
+                    sectionEditor = customEditor.getClass().getSimpleName().replace("CustomEditor", "");
                 }
                 Element sectionElement = null;
                 if (sections.get(sectionName) == null) {
@@ -953,22 +956,27 @@ public class ConfigurationManager {
     }
 
     private void addXmlTags(Element paramElement, SystemProperty sp) {
-        String defaultStr = String.valueOf(sp.getDefaultValue()).replace("[", "").replace("]", "");
+        String defaultStr;
+        Class typeClass = sp.getType();
+        if (typeClass == ArrayList.class) {
+            List<?> list = (List<?>) sp.getDefaultValue();
+            defaultStr = list.stream().map(String::valueOf).collect(Collectors.joining(","));
+        }
+        else {
+            defaultStr = String.valueOf(sp.getDefaultValue());
+        }
         String descStr = sp.getShortDescription();
 
         //Type
         String typeStr = "";
-        Class typeClass = sp.getType();
         ValueTypeEnum valueClass = sp.getValueType();
         boolean isIpv4 = false;
-        try {
+        if (sp.getEditor() instanceof StringPatternEditor) {
             StringPatternEditor typeEditor = (StringPatternEditor) sp.getEditor();
             String pattern = typeEditor.getElementPattern();
             if (pattern.equals(ArrayListEditor.IP_ADDRESS_PATTERN)) {
                 isIpv4 = true;
             }
-        }
-        catch (Exception e) {
         }
         if (isIpv4) {
             typeStr = "ipv4-address";
@@ -1042,7 +1050,7 @@ public class ConfigurationManager {
         //Min & Max
         String minStr = "";
         String maxStr = "";
-        try {
+        if (sp.getEditor() instanceof NumberEditor) {
             NumberEditor minMaxSizeEditor = (NumberEditor) sp.getEditor();
             Number minV = minMaxSizeEditor.getMinValue();
             Number maxV = minMaxSizeEditor.getMaxValue();
@@ -1056,8 +1064,6 @@ public class ConfigurationManager {
                 }
             }
         }
-        catch (Exception e) {
-        }
 
         if (minStr != null && !minStr.isEmpty()) {
             paramElement.addElement("min").setText(minStr);
@@ -1066,106 +1072,69 @@ public class ConfigurationManager {
             paramElement.addElement("max").setText(maxStr);
         }
 
-        //Value & Values-i18n
-        String valuesStr = "";
-        String valuesI18nStr = "";
-        try {
-            ComboEditor valuesEditor = (ComboEditor) sp.getEditor();
-            int optionCount = valuesEditor.getCombo().getItemCount();
-            String[] values = new String[optionCount];
-            for(int i = 0; i < optionCount; i++) {
-                values[i] = valuesEditor.getCombo().getItemAt(i).toString();
-            }
-            valuesStr = Arrays.toString(values).replace("[", "").replace("]", "");
-            valuesI18nStr = String.valueOf(valuesEditor.getStringValues()).replace("[", "").replace("]", "");
-            if (valuesI18nStr.isEmpty()) {
-                valuesI18nStr = valuesStr;
-            }
-        }
-        catch (Exception e) {
-        }
-        if (!valuesStr.isEmpty()) {
-            paramElement.addElement("values").setText(valuesStr);
-            paramElement.addElement("values-i18n").setText(I18n.text(valuesI18nStr));
-        }
-
         //Values-If
         ArrayList<ValuesIf> valuesIfs = new ArrayList<>();
-        String valuesIfParam = "";
-        String valuesIfEquals = "";
-        String valuesIfValues = "";
-        try {
+
+        if (sp.getEditor() instanceof BooleanAsCheckBoxPropertyEditorWithDependency) {
             BooleanAsCheckBoxPropertyEditorWithDependency valuesEditor = (BooleanAsCheckBoxPropertyEditorWithDependency) sp.getEditor();
-            System.out.println("-------------VALUES-IF---------------");
-            System.out.println(sp.getCategoryId());
-            System.out.println(sp.getName());
-            System.out.println(valuesEditor.getValue());
-            String className = valuesEditor.getValue().getClass().getSimpleName();
-            LinkedHashMap<String, Object> values_if = valuesEditor.getDependencyVariables();
-            System.out.println(values_if);
             for (int i = 0; i < valuesEditor.getPec().getValuesIfTests().size(); i++) {
                 ValuesIf obj = (ValuesIf) valuesEditor.getPec().getValuesIfTests().get(i);
-                System.out.println(obj);
-                System.out.println(obj.dependantParamId); // <param>
-                System.out.println(obj.op); // <equals>
-                System.out.println(obj.values);
-                System.out.println(obj.testValue);
                 valuesIfs.add(obj);
             }
         }
-        catch (Exception e) {
-            if (sp.getName().equals("Low-Frequency Bathymetry Channel")) {
-                e.printStackTrace();
-            }
-        }
-
-        try {
+        else if (sp.getEditor() instanceof ComboEditorWithDependency) {
             ComboEditorWithDependency valuesEditor = (ComboEditorWithDependency) sp.getEditor();
-            System.out.println("-------------VALUES-IF-COMBO---------------");
-            System.out.println(sp.getCategoryId());
-            System.out.println(sp.getName());
-            LinkedHashMap<String, Object> values_if = valuesEditor.getDependencyVariables();
-            System.out.println(values_if);
             for (int i = 0; i < valuesEditor.getPec().getValuesIfTests().size(); i++) {
                 ValuesIf obj = (ValuesIf) valuesEditor.getPec().getValuesIfTests().get(i);
-                System.out.println(obj);
-                System.out.println(obj.dependantParamId); // <param>
-                System.out.println(obj.op); // <equals>
-                System.out.println(obj.values);
-                System.out.println(obj.testValue);
                 valuesIfs.add(obj);
             }
         }
-        catch (Exception e) {
-        }
-
-        try {
+        else if (sp.getEditor() instanceof NumberEditorWithDependencies) {
             NumberEditorWithDependencies valuesEditor = (NumberEditorWithDependencies) sp.getEditor();
             System.out.println("-------------VALUES-IF-NUMBER---------------");
-            System.out.println(sp.getCategoryId());
-            LinkedHashMap<String, Object> values_if = valuesEditor.getDependencyVariables();
-            System.out.println(values_if);
             for (int i = 0; i < valuesEditor.getPec().getValuesIfTests().size(); i++) {
                 ValuesIf obj = (ValuesIf) valuesEditor.getPec().getValuesIfTests().get(i);
-                System.out.println(obj);
-                System.out.println(obj.dependantParamId); // <param>
-                System.out.println(obj.op); // <equals>
-                System.out.println(obj.values);
-                System.out.println(obj.testValue);
                 valuesIfs.add(obj);
             }
-        }
-        catch (Exception e) {
         }
 
         if (!valuesIfs.isEmpty()) {
-            //for () {
-            Element valuesIfElement = paramElement.addElement("values-if");
-            valuesIfElement.addElement("param").setText(valuesIfParam);
-            valuesIfElement.addElement("equals"); //.setText(valuesIfList.get(1));
-            valuesIfElement.addElement("values").setText(valuesIfValues);
-            //}
+            for (int i = 0; i < valuesIfs.size(); i++) {
+                ValuesIf obj = valuesIfs.get(i);
+                String valuesIfParam = obj.dependantParamId;
+                String valuesIfOp = String.valueOf(obj.op).toLowerCase();
+                String valuesIfTestValue = String.valueOf(obj.testValue);
+                String valuesIfValues = (String) obj.values.stream().map(String::valueOf).collect(Collectors.joining(","));
+                Element valuesIfElement = paramElement.addElement("values-if");
+                valuesIfElement.addElement("param").setText(valuesIfParam);
+                valuesIfElement.addElement(valuesIfOp).setText(valuesIfTestValue);
+                valuesIfElement.addElement("values").setText(valuesIfValues);
+            }
         }
+        else {
+            //Value & Values-i18n
+            String valuesStr = "";
+            String valuesI18nStr = "";
+            if (sp.getEditor() instanceof ComboEditor) {
+                ComboEditor valuesEditor = (ComboEditor) sp.getEditor();
+                int optionCount = valuesEditor.getCombo().getItemCount();
+                String[] values = new String[optionCount];
+                for (int i = 0; i < optionCount; i++) {
+                    values[i] = valuesEditor.getCombo().getItemAt(i).toString();
+                }
+                valuesStr = String.join(",", values);
+                valuesI18nStr = String.join(",", valuesEditor.getStringValues());
+                if (valuesI18nStr.isEmpty()) {
+                    valuesI18nStr = valuesStr;
+                }
+            }
+            if (!valuesStr.isEmpty()) {
+                paramElement.addElement("values").setText(valuesStr);
+                paramElement.addElement("values-i18n").setText(I18n.text(valuesI18nStr));
+            }
+        }
+
+
     }
 
     private String buildValuesDescription(ArrayList<?> values) {
