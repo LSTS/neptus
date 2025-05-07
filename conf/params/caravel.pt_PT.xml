@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2024.09.0 (system/caravel,2cf11c85f)" system="caravel" i18n="pt_PT">
+<config format="1" version="2024.09.0 (system/caravel,c09a03838)" system="caravel" i18n="pt_PT">
   <section name="Text Actions" name-i18n="Text Actions">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -215,15 +215,17 @@
       <default>0.75</default>
       <units/>
       <desc>Percentage of thrust assistance</desc>
+      <min>-1.0</min>
+      <max>1.0</max>
     </param>
-    <param name="Force Thrust Assistance">
-      <name-i18n>Force Thrust Assistance</name-i18n>
+    <param name="Thruster Always On">
+      <name-i18n>Thruster Always On</name-i18n>
       <type>boolean</type>
       <visibility>user</visibility>
       <scope>maneuver</scope>
       <default>false</default>
       <units/>
-      <desc>Force thrust assistance when thrust assistance is enabled</desc>
+      <desc>Force the thruster to be always on</desc>
     </param>
     <param name="Maximum Thrust Actuation">
       <name-i18n>Maximum Thrust Actuation</name-i18n>
@@ -233,6 +235,8 @@
       <default>0.75</default>
       <units/>
       <desc>Maximum Motor Command</desc>
+      <min>0.0</min>
+      <max>1.0</max>
     </param>
     <param name="Minimum Speed for Thrust">
       <name-i18n>Minimum Speed for Thrust</name-i18n>
@@ -242,6 +246,7 @@
       <default>0.1</default>
       <units/>
       <desc>Speed [m/s] below which thruster is used</desc>
+      <min>0.0</min>
     </param>
     <param name="Maximum Rudder Actuation">
       <name-i18n>Maximum Rudder Actuation</name-i18n>
@@ -402,15 +407,6 @@
       <default>1.0</default>
       <units>Hz</units>
       <desc>Frequency for external user-defined filter.</desc>
-    </param>
-    <param name="Heading Control">
-      <name-i18n>Heading Control</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Switch to heading control.</desc>
     </param>
     <param name="SOG threshold - Heading Control">
       <name-i18n>SOG threshold - Heading Control</name-i18n>
@@ -5626,12 +5622,51 @@
       <units/>
       <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
     </param>
+    <param name="Power Channel - Names">
+      <name-i18n>Power Channel - Names</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>ECHOTRIP_C</default>
+      <units/>
+      <desc>Device's power channels</desc>
+    </param>
+    <param name="Power On Delay">
+      <name-i18n>Power On Delay</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0</default>
+      <units/>
+      <desc>Delay before powering on the device</desc>
+      <min>0.0</min>
+    </param>
+    <param name="Power Off Delay">
+      <name-i18n>Power Off Delay</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0</default>
+      <units/>
+      <desc>Delay before powering off the device</desc>
+      <min>0.0</min>
+    </param>
+    <param name="Post Power On Delay">
+      <name-i18n>Post Power On Delay</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0</default>
+      <units/>
+      <desc>Delay after powering up the device</desc>
+      <min>0.0</min>
+    </param>
     <param name="Active - Scope">
       <name-i18n>Ativa - Escopo</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>global</default>
+      <default>maneuver</default>
       <units/>
       <desc>Escopo do parâmetro 'Ativa'</desc>
     </param>
@@ -5648,28 +5683,19 @@
       <name-i18n>Ativa</name-i18n>
       <type>boolean</type>
       <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>1</default>
+      <scope>maneuver</scope>
+      <default>0</default>
       <units/>
       <desc>Verdadeiro para ativar tarefa, falso caso contrário</desc>
     </param>
-    <param name="Serial Port - Device">
-      <name-i18n>Serial Port - Device</name-i18n>
+    <param name="IO Port - Device">
+      <name-i18n>IO Port - Device</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>/dev/ttyS11</default>
+      <default>uart:///dev/ttyS11:19200</default>
       <units/>
-      <desc>Serial port device used to communicate with the sensor</desc>
-    </param>
-    <param name="Serial Port - Baud Rate">
-      <name-i18n>Serial Port - Baud Rate</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>19200</default>
-      <units/>
-      <desc>Serial port Baud Rate</desc>
+      <desc>IO device URI in the form "uart://DEVICE:BAUD"</desc>
     </param>
     <param name="Input Timeout">
       <name-i18n>Input Timeout</name-i18n>
@@ -5744,15 +5770,6 @@
       <units/>
       <desc>Scale factor is used to derive instrument output concentration from the raw signal output of the fluorometer</desc>
     </param>
-    <param name="Start Acquisition">
-      <name-i18n>Start Acquisition</name-i18n>
-      <type>boolean</type>
-      <visibility>user</visibility>
-      <scope>maneuver</scope>
-      <default>false</default>
-      <units/>
-      <desc>Start Acquisition.</desc>
-    </param>
     <param name="Sample Time Duration">
       <name-i18n>Sample Time Duration</name-i18n>
       <type>integer</type>
@@ -5761,6 +5778,7 @@
       <default>60</default>
       <units>s</units>
       <desc>Sample Time Duration in seconds.</desc>
+      <min>1</min>
     </param>
     <param name="Periodicity of Data Sampling">
       <name-i18n>Periodicity of Data Sampling</name-i18n>
@@ -5769,16 +5787,8 @@
       <scope>maneuver</scope>
       <default>80</default>
       <units>s</units>
-      <desc>Periodicity of Data Sampling in seconds.</desc>
-    </param>
-    <param name="Timeout Transmitting Iridium Message">
-      <name-i18n>Timeout Transmitting Iridium Message</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>60</default>
-      <units/>
-      <desc>Timeout Transmitting Iridium Message.</desc>
+      <desc>Periodicity of Data Sampling in seconds. Must be greater than "Sample Time Duration"</desc>
+      <min>1</min>
     </param>
   </section>
   <section name="GPS" name-i18n="GPS">
@@ -6427,7 +6437,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>global</default>
+      <default>maneuver</default>
       <units/>
       <desc>Escopo do parâmetro 'Ativa'</desc>
     </param>
@@ -6444,8 +6454,8 @@
       <name-i18n>Ativa</name-i18n>
       <type>boolean</type>
       <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>1</default>
+      <scope>maneuver</scope>
+      <default>0</default>
       <units/>
       <desc>Verdadeiro para ativar tarefa, falso caso contrário</desc>
     </param>
@@ -6466,15 +6476,6 @@
       <default>60</default>
       <units/>
       <desc>Timeout Transmitting Iridium Message.</desc>
-    </param>
-    <param name="Start Acquisition">
-      <name-i18n>Start Acquisition</name-i18n>
-      <type>boolean</type>
-      <visibility>user</visibility>
-      <scope>maneuver</scope>
-      <default>false</default>
-      <units/>
-      <desc>Start Acquisition.</desc>
     </param>
     <param name="Sample Time Duration">
       <name-i18n>Sample Time Duration</name-i18n>
@@ -6686,7 +6687,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>global</default>
+      <default>maneuver</default>
       <units/>
       <desc>Escopo do parâmetro 'Ativa'</desc>
     </param>
@@ -6703,8 +6704,8 @@
       <name-i18n>Ativa</name-i18n>
       <type>boolean</type>
       <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>1</default>
+      <scope>maneuver</scope>
+      <default>0</default>
       <units/>
       <desc>Verdadeiro para ativar tarefa, falso caso contrário</desc>
     </param>
@@ -6761,15 +6762,6 @@
       <default>1</default>
       <units>Hz</units>
       <desc>Data Acquisition Rate.</desc>
-    </param>
-    <param name="Start Acquisition">
-      <name-i18n>Start Acquisition</name-i18n>
-      <type>boolean</type>
-      <visibility>user</visibility>
-      <scope>maneuver</scope>
-      <default>false</default>
-      <units/>
-      <desc>Start Acquisition.</desc>
     </param>
     <param name="Sample Time Duration">
       <name-i18n>Sample Time Duration</name-i18n>
@@ -6940,14 +6932,14 @@
       <units>ms</units>
       <desc>Sample Period in milliseconds</desc>
     </param>
-    <param name="Start Acquisition">
-      <name-i18n>Start Acquisition</name-i18n>
+    <param name="Dispatch Data">
+      <name-i18n>Dispatch Data</name-i18n>
       <type>boolean</type>
       <visibility>user</visibility>
       <scope>maneuver</scope>
       <default>false</default>
       <units/>
-      <desc>Start Acquisition.</desc>
+      <desc>Dispatch Data.</desc>
     </param>
     <param name="Sample Time Duration">
       <name-i18n>Sample Time Duration</name-i18n>
