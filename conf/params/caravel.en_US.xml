@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2024.09.0 (system/caravel,03496b753)" system="caravel" i18n="en_US">
+<config format="1" version="2024.09.0 (system/caravel,27cd7349d)" system="caravel" i18n="en_US">
   <section name="Text Actions" name-i18n="Text Actions">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -3994,6 +3994,8 @@
       <default>Mission</default>
       <units/>
       <desc>Operation Mode of the CPC.</desc>
+      <values>Mission, Test</values>
+      <values-i18n>Mission, Test</values-i18n>
     </param>
     <param name="LED Period">
       <name-i18n>LED Period</name-i18n>
@@ -4268,7 +4270,7 @@
       <type>boolean</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>true</default>
+      <default>false</default>
       <units/>
       <desc>Power Channel State</desc>
     </param>
@@ -4384,7 +4386,7 @@
       <type>boolean</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>true</default>
+      <default>false</default>
       <units/>
       <desc>Power Channel State</desc>
     </param>
@@ -4471,7 +4473,7 @@
       <type>boolean</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>true</default>
+      <default>false</default>
       <units/>
       <desc>Power Channel State</desc>
     </param>
@@ -4491,7 +4493,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Private (CTD_C)</default>
+      <default>CTD_C</default>
       <units/>
       <desc>Power Channel Entity Label</desc>
     </param>
@@ -4500,7 +4502,7 @@
       <type>boolean</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>true</default>
+      <default>false</default>
       <units/>
       <desc>Power Channel State</desc>
     </param>
@@ -5098,10 +5100,10 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>900</default>
+      <default>300</default>
       <units/>
       <desc>Timeout to Switch over Modems</desc>
-      <min>300</min>
+      <min>120</min>
     </param>
     <param name="Number of errors to switch over Modems">
       <name-i18n>Number of errors to switch over Modems</name-i18n>
@@ -5119,10 +5121,10 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>8</default>
+      <default>5</default>
       <units/>
       <desc>Maximum Transmission Failures to switch</desc>
-      <min>3</min>
+      <min>2</min>
       <max>20</max>
     </param>
     <param name="Thruster Power Data - Entity Label">
@@ -5197,7 +5199,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default/>
+      <default>AIS_C</default>
       <units/>
       <desc>Device's power channels</desc>
     </param>
@@ -5394,15 +5396,6 @@
       <units/>
       <desc>Invertal for checking AIS errors</desc>
     </param>
-    <param name="Power Channel">
-      <name-i18n>Power Channel</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default/>
-      <units/>
-      <desc>Power Channel Label for AIS power control</desc>
-    </param>
     <param name="Log messages">
       <name-i18n>Log messages</name-i18n>
       <type>boolean</type>
@@ -5437,7 +5430,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>3.0</default>
+      <default>10.0</default>
       <units/>
       <desc/>
     </param>
@@ -5475,7 +5468,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default/>
+      <default>AIRMAR_C</default>
       <units/>
       <desc>Device's power channels</desc>
     </param>
@@ -5504,7 +5497,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0.0</default>
+      <default>5</default>
       <units/>
       <desc>Delay after powering up the device</desc>
       <min>0.0</min>
@@ -5777,8 +5770,8 @@
       <scope>maneuver</scope>
       <default>60</default>
       <units>s</units>
-      <desc>Sample Time Duration in seconds.</desc>
-      <min>1</min>
+      <desc>Sample Time Duration (S) in seconds. This value must not be greater than Periodicity of Data Sampling (P), otherwise, task will be deactivated.&lt;pre style='font-family: Monospaced'&gt;[P][=========][=========]&lt;br&gt;[S][===------][===------]&lt;/pre&gt;</desc>
+      <min>0</min>
     </param>
     <param name="Periodicity of Data Sampling">
       <name-i18n>Periodicity of Data Sampling</name-i18n>
@@ -5787,8 +5780,8 @@
       <scope>maneuver</scope>
       <default>80</default>
       <units>s</units>
-      <desc>Periodicity of Data Sampling in seconds. Must be greater than "Sample Time Duration"</desc>
-      <min>1</min>
+      <desc>Periodicity of Data Sampling (P) in seconds. This value must not be lower than Sample Time Duration (S), otherwise, task will be deactivated.&lt;pre style='font-family: Monospaced'&gt;[P][=========][=========]&lt;br&gt;[S][===------][===------]&lt;/pre&gt;</desc>
+      <min>0</min>
     </param>
   </section>
   <section name="GPS" name-i18n="GPS">
@@ -5853,7 +5846,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default/>
+      <default>GNSS_C</default>
       <units/>
       <desc>Device's power channels</desc>
     </param>
@@ -6196,7 +6189,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default/>
+      <default>AHRS_C</default>
       <units/>
       <desc>Device's power channels</desc>
     </param>
@@ -6483,8 +6476,9 @@
       <visibility>user</visibility>
       <scope>maneuver</scope>
       <default>60</default>
-      <units/>
-      <desc>Sample Time Duration in seconds.</desc>
+      <units>s</units>
+      <desc>Sample Time Duration (S) in seconds. This value must not be greater than Periodicity of Data Sampling (P), otherwise, task will be deactivated.&lt;pre style='font-family: Monospaced'&gt;[P][=========][=========]&lt;br&gt;[S][===------][===------]&lt;/pre&gt;</desc>
+      <min>0</min>
     </param>
     <param name="Periodicity of Data Sampling">
       <name-i18n>Periodicity of Data Sampling</name-i18n>
@@ -6492,8 +6486,9 @@
       <visibility>user</visibility>
       <scope>maneuver</scope>
       <default>80</default>
-      <units/>
-      <desc>Periodicity of Data Sampling in seconds.</desc>
+      <units>s</units>
+      <desc>Periodicity of Data Sampling (P) in seconds. This value must not be lower than Sample Time Duration (S), otherwise, task will be deactivated.&lt;pre style='font-family: Monospaced'&gt;[P][=========][=========]&lt;br&gt;[S][===------][===------]&lt;/pre&gt;</desc>
+      <min>0</min>
     </param>
     <param name="Initialization String 0 - Command">
       <name-i18n>Initialization String 0 - Command</name-i18n>
@@ -6770,7 +6765,8 @@
       <scope>maneuver</scope>
       <default>60</default>
       <units>s</units>
-      <desc>Sample Time Duration in seconds.</desc>
+      <desc>Sample Time Duration (S) in seconds. This value must not be greater than Periodicity of Data Sampling (P), otherwise, task will be deactivated.&lt;pre style='font-family: Monospaced'&gt;[P][=========][=========]&lt;br&gt;[S][===------][===------]&lt;/pre&gt;</desc>
+      <min>0</min>
     </param>
     <param name="Periodicity of Data Sampling">
       <name-i18n>Periodicity of Data Sampling</name-i18n>
@@ -6779,7 +6775,8 @@
       <scope>maneuver</scope>
       <default>80</default>
       <units>s</units>
-      <desc>Periodicity of Data Sampling in seconds.</desc>
+      <desc>Periodicity of Data Sampling (P) in seconds. This value must not be lower than Sample Time Duration (S), otherwise, task will be deactivated.&lt;pre style='font-family: Monospaced'&gt;[P][=========][=========]&lt;br&gt;[S][===------][===------]&lt;/pre&gt;</desc>
+      <min>0</min>
     </param>
     <param name="Timeout Transmitting Iridium Message">
       <name-i18n>Timeout Transmitting Iridium Message</name-i18n>
@@ -6853,7 +6850,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default/>
+      <default>CTD_C</default>
       <units/>
       <desc>Device's power channels</desc>
     </param>
@@ -6947,8 +6944,9 @@
       <visibility>user</visibility>
       <scope>maneuver</scope>
       <default>5</default>
-      <units/>
-      <desc>Sample Time Duration in seconds.</desc>
+      <units>s</units>
+      <desc>Sample Time Duration (S) in seconds. This value must not be greater than Periodicity of Data Sampling (P), otherwise, task will be deactivated.&lt;pre style='font-family: Monospaced'&gt;[P][=========][=========]&lt;br&gt;[S][===------][===------]&lt;/pre&gt;</desc>
+      <min>0</min>
     </param>
     <param name="Periodicity of Data Sampling">
       <name-i18n>Periodicity of Data Sampling</name-i18n>
@@ -6956,8 +6954,9 @@
       <visibility>user</visibility>
       <scope>maneuver</scope>
       <default>20</default>
-      <units/>
-      <desc>Periodicity of Data Sampling in seconds.</desc>
+      <units>s</units>
+      <desc>Periodicity of Data Sampling (P) in seconds. This value must not be lower than Sample Time Duration (S), otherwise, task will be deactivated.&lt;pre style='font-family: Monospaced'&gt;[P][=========][=========]&lt;br&gt;[S][===------][===------]&lt;/pre&gt;</desc>
+      <min>0</min>
     </param>
     <param name="Timeout Transmitting Iridium Message">
       <name-i18n>Timeout Transmitting Iridium Message</name-i18n>
