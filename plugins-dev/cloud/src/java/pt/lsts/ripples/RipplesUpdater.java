@@ -263,7 +263,6 @@ public class RipplesUpdater extends ConsolePanel implements ConfigurationListene
         if (this.connected) {
             String ripplesPostUrl = GeneralPreferences.ripplesUrl + "/assets";
             String authKey = GeneralPreferences.ripplesApiKey;
-            System.out.println(ripplesPostUrl);
             URL url = new URL(ripplesPostUrl);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("POST");
