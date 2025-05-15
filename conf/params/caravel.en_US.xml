@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2024.09.0 (system/caravel,4257e9d5a)" system="caravel" i18n="en_US">
+<config format="1" version="2024.09.0 (system/caravel,353c90ca6)" system="caravel" i18n="en_US">
   <section name="Text Actions" name-i18n="Text Actions">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -567,6 +567,8 @@
       <default>maneuver</default>
       <units/>
       <desc>Scoped of the 'Active' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
     </param>
     <param name="Active - Visibility">
       <name-i18n>Active - Visibility</name-i18n>
@@ -576,6 +578,8 @@
       <default>developer</default>
       <units/>
       <desc>Visibility of the 'Active' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
     </param>
     <param name="Active">
       <name-i18n>Active</name-i18n>
@@ -2600,6 +2604,8 @@
       <default>idle</default>
       <units/>
       <desc>Scoped of the 'Active' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
     </param>
     <param name="Active - Visibility">
       <name-i18n>Active - Visibility</name-i18n>
@@ -2609,6 +2615,8 @@
       <default>user</default>
       <units/>
       <desc>Visibility of the 'Active' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
     </param>
     <param name="Active">
       <name-i18n>Active</name-i18n>
@@ -3135,6 +3143,8 @@
       <default>maneuver</default>
       <units/>
       <desc>Scoped of the 'Active' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
     </param>
     <param name="Active - Visibility">
       <name-i18n>Active - Visibility</name-i18n>
@@ -3144,6 +3154,8 @@
       <default>user</default>
       <units/>
       <desc>Visibility of the 'Active' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
     </param>
     <param name="Active">
       <name-i18n>Active</name-i18n>
@@ -3168,7 +3180,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>VerticalProfile:CTD, VerticalProfile:ADCP</default>
+      <default>VerticalProfile:CTD, VerticalProfile:ADCP, VerticalProfile:CTD - Temperature</default>
       <units/>
       <desc>List of messages &lt;Message&gt;:&lt;Entity&gt; to send using Iridium.</desc>
     </param>
@@ -3901,6 +3913,8 @@
       <default>global</default>
       <units/>
       <desc>Scoped of the 'Active' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
     </param>
     <param name="Active - Visibility">
       <name-i18n>Active - Visibility</name-i18n>
@@ -3910,6 +3924,8 @@
       <default>developer</default>
       <units/>
       <desc>Visibility of the 'Active' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
     </param>
     <param name="Active">
       <name-i18n>Active</name-i18n>
@@ -3957,26 +3973,6 @@
       <default>0.0</default>
       <units/>
       <desc>Delay after powering up the device</desc>
-      <min>0.0</min>
-    </param>
-    <param name="Sample Time Duration">
-      <name-i18n>Sample Time Duration</name-i18n>
-      <type>real</type>
-      <visibility>user</visibility>
-      <scope>maneuver</scope>
-      <default>0.0</default>
-      <units>s</units>
-      <desc>Sample Time Duration (S) in seconds. This value must not be greater than Periodicity of Data Sampling (P), otherwise, task will be deactivated.&lt;pre style='font-family: Monospaced'&gt;[P][=========][=========]&lt;br&gt;[S][===------][===------]&lt;/pre&gt;</desc>
-      <min>0.0</min>
-    </param>
-    <param name="Periodicity of Data Sampling">
-      <name-i18n>Periodicity of Data Sampling</name-i18n>
-      <type>real</type>
-      <visibility>user</visibility>
-      <scope>maneuver</scope>
-      <default>0.0</default>
-      <units>s</units>
-      <desc>Periodicity of Data Sampling (P) in seconds. This value must not be lower than Sample Time Duration (S), otherwise, task will be deactivated.&lt;pre style='font-family: Monospaced'&gt;[P][=========][=========]&lt;br&gt;[S][===------][===------]&lt;/pre&gt;</desc>
       <min>0.0</min>
     </param>
     <param name="IO Port - Device">
@@ -5222,6 +5218,8 @@
       <default>global</default>
       <units/>
       <desc>Scoped of the 'Active' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
     </param>
     <param name="Active - Visibility">
       <name-i18n>Active - Visibility</name-i18n>
@@ -5231,6 +5229,8 @@
       <default>developer</default>
       <units/>
       <desc>Visibility of the 'Active' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
     </param>
     <param name="Active">
       <name-i18n>Active</name-i18n>
@@ -5278,26 +5278,6 @@
       <default>0.0</default>
       <units/>
       <desc>Delay after powering up the device</desc>
-      <min>0.0</min>
-    </param>
-    <param name="Sample Time Duration">
-      <name-i18n>Sample Time Duration</name-i18n>
-      <type>real</type>
-      <visibility>user</visibility>
-      <scope>maneuver</scope>
-      <default>0.0</default>
-      <units>s</units>
-      <desc>Sample Time Duration (S) in seconds. This value must not be greater than Periodicity of Data Sampling (P), otherwise, task will be deactivated.&lt;pre style='font-family: Monospaced'&gt;[P][=========][=========]&lt;br&gt;[S][===------][===------]&lt;/pre&gt;</desc>
-      <min>0.0</min>
-    </param>
-    <param name="Periodicity of Data Sampling">
-      <name-i18n>Periodicity of Data Sampling</name-i18n>
-      <type>real</type>
-      <visibility>user</visibility>
-      <scope>maneuver</scope>
-      <default>0.0</default>
-      <units>s</units>
-      <desc>Periodicity of Data Sampling (P) in seconds. This value must not be lower than Sample Time Duration (S), otherwise, task will be deactivated.&lt;pre style='font-family: Monospaced'&gt;[P][=========][=========]&lt;br&gt;[S][===------][===------]&lt;/pre&gt;</desc>
       <min>0.0</min>
     </param>
     <param name="IO Port - Device">
@@ -5511,6 +5491,8 @@
       <default>global</default>
       <units/>
       <desc>Scoped of the 'Active' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
     </param>
     <param name="Active - Visibility">
       <name-i18n>Active - Visibility</name-i18n>
@@ -5520,6 +5502,8 @@
       <default>developer</default>
       <units/>
       <desc>Visibility of the 'Active' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
     </param>
     <param name="Active">
       <name-i18n>Active</name-i18n>
@@ -5567,26 +5551,6 @@
       <default>5</default>
       <units/>
       <desc>Delay after powering up the device</desc>
-      <min>0.0</min>
-    </param>
-    <param name="Sample Time Duration">
-      <name-i18n>Sample Time Duration</name-i18n>
-      <type>real</type>
-      <visibility>user</visibility>
-      <scope>maneuver</scope>
-      <default>0.0</default>
-      <units>s</units>
-      <desc>Sample Time Duration (S) in seconds. This value must not be greater than Periodicity of Data Sampling (P), otherwise, task will be deactivated.&lt;pre style='font-family: Monospaced'&gt;[P][=========][=========]&lt;br&gt;[S][===------][===------]&lt;/pre&gt;</desc>
-      <min>0.0</min>
-    </param>
-    <param name="Periodicity of Data Sampling">
-      <name-i18n>Periodicity of Data Sampling</name-i18n>
-      <type>real</type>
-      <visibility>user</visibility>
-      <scope>maneuver</scope>
-      <default>0.0</default>
-      <units>s</units>
-      <desc>Periodicity of Data Sampling (P) in seconds. This value must not be lower than Sample Time Duration (S), otherwise, task will be deactivated.&lt;pre style='font-family: Monospaced'&gt;[P][=========][=========]&lt;br&gt;[S][===------][===------]&lt;/pre&gt;</desc>
       <min>0.0</min>
     </param>
     <param name="IO Port - Device">
@@ -5683,6 +5647,8 @@
       <default>maneuver</default>
       <units/>
       <desc>Scoped of the 'Active' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
     </param>
     <param name="Active - Visibility">
       <name-i18n>Active - Visibility</name-i18n>
@@ -5692,6 +5658,8 @@
       <default>user</default>
       <units/>
       <desc>Visibility of the 'Active' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
     </param>
     <param name="Active">
       <name-i18n>Active</name-i18n>
@@ -5746,20 +5714,64 @@
       <type>real</type>
       <visibility>user</visibility>
       <scope>maneuver</scope>
-      <default>0.0</default>
+      <default>60</default>
       <units>s</units>
-      <desc>Sample Time Duration (S) in seconds. This value must not be greater than Periodicity of Data Sampling (P), otherwise, task will be deactivated.&lt;pre style='font-family: Monospaced'&gt;[P][=========][=========]&lt;br&gt;[S][===------][===------]&lt;/pre&gt;</desc>
+      <desc>Sample Time Duration (S) in seconds. This value must not be greater than Periodicity of Data Sampling (P), otherwise, task will be deactivated.&lt;table border="1"&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;[S]&lt;/th&gt;&lt;th&gt;[P]&lt;/th&gt;&lt;th&gt;Description&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;=P&lt;/td&gt;&lt;td&gt;=S&lt;/td&gt;&lt;td&gt;Continuous sampling&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;=0&lt;/td&gt;&lt;td&gt;&amp;gt;0&lt;/td&gt;&lt;td&gt;Periodic single sample&lt;pre style='font-family: Monospaced'&gt;[P][=====][=====]&lt;br&gt;[S]|------|------&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;lt;P&lt;/td&gt;&lt;td&gt;&amp;gt;S&lt;/td&gt;&lt;td&gt;Periodic sampling&lt;pre style='font-family: Monospaced'&gt;[P][=====][=====]&lt;br&gt;[S][==---][==---]&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;gt;P&lt;/td&gt;&lt;td&gt;&amp;lt;S&lt;/td&gt;&lt;td&gt;Invalid&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;</desc>
       <min>0.0</min>
+    </param>
+    <param name="Sample Time Duration - Visibility">
+      <name-i18n>Sample Time Duration - Visibility</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>user</default>
+      <units/>
+      <desc>Visibility of the 'Sample Time Duration' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
+    </param>
+    <param name="Sample Time Duration - Scope">
+      <name-i18n>Sample Time Duration - Scope</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>maneuver</default>
+      <units/>
+      <desc>Scoped of the 'Sample Time Duration' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
     </param>
     <param name="Periodicity of Data Sampling">
       <name-i18n>Periodicity of Data Sampling</name-i18n>
       <type>real</type>
       <visibility>user</visibility>
       <scope>maneuver</scope>
-      <default>0.0</default>
+      <default>80</default>
       <units>s</units>
-      <desc>Periodicity of Data Sampling (P) in seconds. This value must not be lower than Sample Time Duration (S), otherwise, task will be deactivated.&lt;pre style='font-family: Monospaced'&gt;[P][=========][=========]&lt;br&gt;[S][===------][===------]&lt;/pre&gt;</desc>
+      <desc>Periodicity of Data Sampling (P) in seconds. This value must not be lower than Sample Time Duration (S), otherwise, task will be deactivated.&lt;table border="1"&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;[S]&lt;/th&gt;&lt;th&gt;[P]&lt;/th&gt;&lt;th&gt;Description&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;=P&lt;/td&gt;&lt;td&gt;=S&lt;/td&gt;&lt;td&gt;Continuous sampling&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;=0&lt;/td&gt;&lt;td&gt;&amp;gt;0&lt;/td&gt;&lt;td&gt;Periodic single sample&lt;pre style='font-family: Monospaced'&gt;[P][=====][=====]&lt;br&gt;[S]|------|------&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;lt;P&lt;/td&gt;&lt;td&gt;&amp;gt;S&lt;/td&gt;&lt;td&gt;Periodic sampling&lt;pre style='font-family: Monospaced'&gt;[P][=====][=====]&lt;br&gt;[S][==---][==---]&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;gt;P&lt;/td&gt;&lt;td&gt;&amp;lt;S&lt;/td&gt;&lt;td&gt;Invalid&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;</desc>
       <min>0.0</min>
+    </param>
+    <param name="Periodicity of Data Sampling - Visibility">
+      <name-i18n>Periodicity of Data Sampling - Visibility</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>user</default>
+      <units/>
+      <desc>Visibility of the 'Periodicity of Data Sampling' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
+    </param>
+    <param name="Periodicity of Data Sampling - Scope">
+      <name-i18n>Periodicity of Data Sampling - Scope</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>maneuver</default>
+      <units/>
+      <desc>Scoped of the 'Periodicity of Data Sampling' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
     </param>
     <param name="IO Port - Device">
       <name-i18n>IO Port - Device</name-i18n>
@@ -5909,6 +5921,8 @@
       <default>global</default>
       <units/>
       <desc>Scoped of the 'Active' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
     </param>
     <param name="Active - Visibility">
       <name-i18n>Active - Visibility</name-i18n>
@@ -5918,6 +5932,8 @@
       <default>developer</default>
       <units/>
       <desc>Visibility of the 'Active' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
     </param>
     <param name="Active">
       <name-i18n>Active</name-i18n>
@@ -5965,26 +5981,6 @@
       <default>0.0</default>
       <units/>
       <desc>Delay after powering up the device</desc>
-      <min>0.0</min>
-    </param>
-    <param name="Sample Time Duration">
-      <name-i18n>Sample Time Duration</name-i18n>
-      <type>real</type>
-      <visibility>user</visibility>
-      <scope>maneuver</scope>
-      <default>0.0</default>
-      <units>s</units>
-      <desc>Sample Time Duration (S) in seconds. This value must not be greater than Periodicity of Data Sampling (P), otherwise, task will be deactivated.&lt;pre style='font-family: Monospaced'&gt;[P][=========][=========]&lt;br&gt;[S][===------][===------]&lt;/pre&gt;</desc>
-      <min>0.0</min>
-    </param>
-    <param name="Periodicity of Data Sampling">
-      <name-i18n>Periodicity of Data Sampling</name-i18n>
-      <type>real</type>
-      <visibility>user</visibility>
-      <scope>maneuver</scope>
-      <default>0.0</default>
-      <units>s</units>
-      <desc>Periodicity of Data Sampling (P) in seconds. This value must not be lower than Sample Time Duration (S), otherwise, task will be deactivated.&lt;pre style='font-family: Monospaced'&gt;[P][=========][=========]&lt;br&gt;[S][===------][===------]&lt;/pre&gt;</desc>
       <min>0.0</min>
     </param>
     <param name="IO Port - Device">
@@ -6272,6 +6268,8 @@
       <default>global</default>
       <units/>
       <desc>Scoped of the 'Active' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
     </param>
     <param name="Active - Visibility">
       <name-i18n>Active - Visibility</name-i18n>
@@ -6281,6 +6279,8 @@
       <default>developer</default>
       <units/>
       <desc>Visibility of the 'Active' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
     </param>
     <param name="Active">
       <name-i18n>Active</name-i18n>
@@ -6328,26 +6328,6 @@
       <default>2.0</default>
       <units/>
       <desc>Delay after powering up the device</desc>
-      <min>0.0</min>
-    </param>
-    <param name="Sample Time Duration">
-      <name-i18n>Sample Time Duration</name-i18n>
-      <type>real</type>
-      <visibility>user</visibility>
-      <scope>maneuver</scope>
-      <default>0.0</default>
-      <units>s</units>
-      <desc>Sample Time Duration (S) in seconds. This value must not be greater than Periodicity of Data Sampling (P), otherwise, task will be deactivated.&lt;pre style='font-family: Monospaced'&gt;[P][=========][=========]&lt;br&gt;[S][===------][===------]&lt;/pre&gt;</desc>
-      <min>0.0</min>
-    </param>
-    <param name="Periodicity of Data Sampling">
-      <name-i18n>Periodicity of Data Sampling</name-i18n>
-      <type>real</type>
-      <visibility>user</visibility>
-      <scope>maneuver</scope>
-      <default>0.0</default>
-      <units>s</units>
-      <desc>Periodicity of Data Sampling (P) in seconds. This value must not be lower than Sample Time Duration (S), otherwise, task will be deactivated.&lt;pre style='font-family: Monospaced'&gt;[P][=========][=========]&lt;br&gt;[S][===------][===------]&lt;/pre&gt;</desc>
       <min>0.0</min>
     </param>
     <param name="IO Port - Device">
@@ -6494,6 +6474,8 @@
       <default>maneuver</default>
       <units/>
       <desc>Scoped of the 'Active' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
     </param>
     <param name="Active - Visibility">
       <name-i18n>Active - Visibility</name-i18n>
@@ -6503,6 +6485,8 @@
       <default>user</default>
       <units/>
       <desc>Visibility of the 'Active' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
     </param>
     <param name="Active">
       <name-i18n>Active</name-i18n>
@@ -6559,8 +6543,30 @@
       <scope>maneuver</scope>
       <default>60</default>
       <units>s</units>
-      <desc>Sample Time Duration (S) in seconds. This value must not be greater than Periodicity of Data Sampling (P), otherwise, task will be deactivated.&lt;pre style='font-family: Monospaced'&gt;[P][=========][=========]&lt;br&gt;[S][===------][===------]&lt;/pre&gt;</desc>
+      <desc>Sample Time Duration (S) in seconds. This value must not be greater than Periodicity of Data Sampling (P), otherwise, task will be deactivated.&lt;table border="1"&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;[S]&lt;/th&gt;&lt;th&gt;[P]&lt;/th&gt;&lt;th&gt;Description&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;=P&lt;/td&gt;&lt;td&gt;=S&lt;/td&gt;&lt;td&gt;Continuous sampling&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;=0&lt;/td&gt;&lt;td&gt;&amp;gt;0&lt;/td&gt;&lt;td&gt;Periodic single sample&lt;pre style='font-family: Monospaced'&gt;[P][=====][=====]&lt;br&gt;[S]|------|------&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;lt;P&lt;/td&gt;&lt;td&gt;&amp;gt;S&lt;/td&gt;&lt;td&gt;Periodic sampling&lt;pre style='font-family: Monospaced'&gt;[P][=====][=====]&lt;br&gt;[S][==---][==---]&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;gt;P&lt;/td&gt;&lt;td&gt;&amp;lt;S&lt;/td&gt;&lt;td&gt;Invalid&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;</desc>
       <min>0.0</min>
+    </param>
+    <param name="Sample Time Duration - Visibility">
+      <name-i18n>Sample Time Duration - Visibility</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>user</default>
+      <units/>
+      <desc>Visibility of the 'Sample Time Duration' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
+    </param>
+    <param name="Sample Time Duration - Scope">
+      <name-i18n>Sample Time Duration - Scope</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>maneuver</default>
+      <units/>
+      <desc>Scoped of the 'Sample Time Duration' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
     </param>
     <param name="Periodicity of Data Sampling">
       <name-i18n>Periodicity of Data Sampling</name-i18n>
@@ -6569,8 +6575,30 @@
       <scope>maneuver</scope>
       <default>80</default>
       <units>s</units>
-      <desc>Periodicity of Data Sampling (P) in seconds. This value must not be lower than Sample Time Duration (S), otherwise, task will be deactivated.&lt;pre style='font-family: Monospaced'&gt;[P][=========][=========]&lt;br&gt;[S][===------][===------]&lt;/pre&gt;</desc>
+      <desc>Periodicity of Data Sampling (P) in seconds. This value must not be lower than Sample Time Duration (S), otherwise, task will be deactivated.&lt;table border="1"&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;[S]&lt;/th&gt;&lt;th&gt;[P]&lt;/th&gt;&lt;th&gt;Description&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;=P&lt;/td&gt;&lt;td&gt;=S&lt;/td&gt;&lt;td&gt;Continuous sampling&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;=0&lt;/td&gt;&lt;td&gt;&amp;gt;0&lt;/td&gt;&lt;td&gt;Periodic single sample&lt;pre style='font-family: Monospaced'&gt;[P][=====][=====]&lt;br&gt;[S]|------|------&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;lt;P&lt;/td&gt;&lt;td&gt;&amp;gt;S&lt;/td&gt;&lt;td&gt;Periodic sampling&lt;pre style='font-family: Monospaced'&gt;[P][=====][=====]&lt;br&gt;[S][==---][==---]&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;gt;P&lt;/td&gt;&lt;td&gt;&amp;lt;S&lt;/td&gt;&lt;td&gt;Invalid&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;</desc>
       <min>0.0</min>
+    </param>
+    <param name="Periodicity of Data Sampling - Visibility">
+      <name-i18n>Periodicity of Data Sampling - Visibility</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>user</default>
+      <units/>
+      <desc>Visibility of the 'Periodicity of Data Sampling' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
+    </param>
+    <param name="Periodicity of Data Sampling - Scope">
+      <name-i18n>Periodicity of Data Sampling - Scope</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>maneuver</default>
+      <units/>
+      <desc>Scoped of the 'Periodicity of Data Sampling' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
     </param>
     <param name="IO Port - Device">
       <name-i18n>IO Port - Device</name-i18n>
@@ -6746,6 +6774,8 @@
       <default>maneuver</default>
       <units/>
       <desc>Scoped of the 'Active' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
     </param>
     <param name="Active - Visibility">
       <name-i18n>Active - Visibility</name-i18n>
@@ -6755,6 +6785,8 @@
       <default>user</default>
       <units/>
       <desc>Visibility of the 'Active' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
     </param>
     <param name="Active">
       <name-i18n>Active</name-i18n>
@@ -6811,8 +6843,30 @@
       <scope>maneuver</scope>
       <default>60</default>
       <units>s</units>
-      <desc>Sample Time Duration (S) in seconds. This value must not be greater than Periodicity of Data Sampling (P), otherwise, task will be deactivated.&lt;pre style='font-family: Monospaced'&gt;[P][=========][=========]&lt;br&gt;[S][===------][===------]&lt;/pre&gt;</desc>
+      <desc>Sample Time Duration (S) in seconds. This value must not be greater than Periodicity of Data Sampling (P), otherwise, task will be deactivated.&lt;table border="1"&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;[S]&lt;/th&gt;&lt;th&gt;[P]&lt;/th&gt;&lt;th&gt;Description&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;=P&lt;/td&gt;&lt;td&gt;=S&lt;/td&gt;&lt;td&gt;Continuous sampling&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;=0&lt;/td&gt;&lt;td&gt;&amp;gt;0&lt;/td&gt;&lt;td&gt;Periodic single sample&lt;pre style='font-family: Monospaced'&gt;[P][=====][=====]&lt;br&gt;[S]|------|------&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;lt;P&lt;/td&gt;&lt;td&gt;&amp;gt;S&lt;/td&gt;&lt;td&gt;Periodic sampling&lt;pre style='font-family: Monospaced'&gt;[P][=====][=====]&lt;br&gt;[S][==---][==---]&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;gt;P&lt;/td&gt;&lt;td&gt;&amp;lt;S&lt;/td&gt;&lt;td&gt;Invalid&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;</desc>
       <min>0.0</min>
+    </param>
+    <param name="Sample Time Duration - Visibility">
+      <name-i18n>Sample Time Duration - Visibility</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>user</default>
+      <units/>
+      <desc>Visibility of the 'Sample Time Duration' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
+    </param>
+    <param name="Sample Time Duration - Scope">
+      <name-i18n>Sample Time Duration - Scope</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>maneuver</default>
+      <units/>
+      <desc>Scoped of the 'Sample Time Duration' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
     </param>
     <param name="Periodicity of Data Sampling">
       <name-i18n>Periodicity of Data Sampling</name-i18n>
@@ -6821,8 +6875,30 @@
       <scope>maneuver</scope>
       <default>80</default>
       <units>s</units>
-      <desc>Periodicity of Data Sampling (P) in seconds. This value must not be lower than Sample Time Duration (S), otherwise, task will be deactivated.&lt;pre style='font-family: Monospaced'&gt;[P][=========][=========]&lt;br&gt;[S][===------][===------]&lt;/pre&gt;</desc>
+      <desc>Periodicity of Data Sampling (P) in seconds. This value must not be lower than Sample Time Duration (S), otherwise, task will be deactivated.&lt;table border="1"&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;[S]&lt;/th&gt;&lt;th&gt;[P]&lt;/th&gt;&lt;th&gt;Description&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;=P&lt;/td&gt;&lt;td&gt;=S&lt;/td&gt;&lt;td&gt;Continuous sampling&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;=0&lt;/td&gt;&lt;td&gt;&amp;gt;0&lt;/td&gt;&lt;td&gt;Periodic single sample&lt;pre style='font-family: Monospaced'&gt;[P][=====][=====]&lt;br&gt;[S]|------|------&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;lt;P&lt;/td&gt;&lt;td&gt;&amp;gt;S&lt;/td&gt;&lt;td&gt;Periodic sampling&lt;pre style='font-family: Monospaced'&gt;[P][=====][=====]&lt;br&gt;[S][==---][==---]&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;gt;P&lt;/td&gt;&lt;td&gt;&amp;lt;S&lt;/td&gt;&lt;td&gt;Invalid&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;</desc>
       <min>0.0</min>
+    </param>
+    <param name="Periodicity of Data Sampling - Visibility">
+      <name-i18n>Periodicity of Data Sampling - Visibility</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>user</default>
+      <units/>
+      <desc>Visibility of the 'Periodicity of Data Sampling' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
+    </param>
+    <param name="Periodicity of Data Sampling - Scope">
+      <name-i18n>Periodicity of Data Sampling - Scope</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>maneuver</default>
+      <units/>
+      <desc>Scoped of the 'Periodicity of Data Sampling' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
     </param>
     <param name="IO Port - Device">
       <name-i18n>IO Port - Device</name-i18n>
@@ -6953,6 +7029,8 @@
       <default>global</default>
       <units/>
       <desc>Scoped of the 'Active' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
     </param>
     <param name="Active - Visibility">
       <name-i18n>Active - Visibility</name-i18n>
@@ -6962,6 +7040,8 @@
       <default>developer</default>
       <units/>
       <desc>Visibility of the 'Active' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
     </param>
     <param name="Active">
       <name-i18n>Active</name-i18n>
@@ -7018,8 +7098,30 @@
       <scope>maneuver</scope>
       <default>0.0</default>
       <units>s</units>
-      <desc>Sample Time Duration (S) in seconds. This value must not be greater than Periodicity of Data Sampling (P), otherwise, task will be deactivated.&lt;pre style='font-family: Monospaced'&gt;[P][=========][=========]&lt;br&gt;[S][===------][===------]&lt;/pre&gt;</desc>
+      <desc>Sample Time Duration (S) in seconds. This value must not be greater than Periodicity of Data Sampling (P), otherwise, task will be deactivated.&lt;table border="1"&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;[S]&lt;/th&gt;&lt;th&gt;[P]&lt;/th&gt;&lt;th&gt;Description&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;=P&lt;/td&gt;&lt;td&gt;=S&lt;/td&gt;&lt;td&gt;Continuous sampling&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;=0&lt;/td&gt;&lt;td&gt;&amp;gt;0&lt;/td&gt;&lt;td&gt;Periodic single sample&lt;pre style='font-family: Monospaced'&gt;[P][=====][=====]&lt;br&gt;[S]|------|------&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;lt;P&lt;/td&gt;&lt;td&gt;&amp;gt;S&lt;/td&gt;&lt;td&gt;Periodic sampling&lt;pre style='font-family: Monospaced'&gt;[P][=====][=====]&lt;br&gt;[S][==---][==---]&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;gt;P&lt;/td&gt;&lt;td&gt;&amp;lt;S&lt;/td&gt;&lt;td&gt;Invalid&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;</desc>
       <min>0.0</min>
+    </param>
+    <param name="Sample Time Duration - Visibility">
+      <name-i18n>Sample Time Duration - Visibility</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>user</default>
+      <units/>
+      <desc>Visibility of the 'Sample Time Duration' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
+    </param>
+    <param name="Sample Time Duration - Scope">
+      <name-i18n>Sample Time Duration - Scope</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>maneuver</default>
+      <units/>
+      <desc>Scoped of the 'Sample Time Duration' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
     </param>
     <param name="Periodicity of Data Sampling">
       <name-i18n>Periodicity of Data Sampling</name-i18n>
@@ -7028,8 +7130,30 @@
       <scope>maneuver</scope>
       <default>0.0</default>
       <units>s</units>
-      <desc>Periodicity of Data Sampling (P) in seconds. This value must not be lower than Sample Time Duration (S), otherwise, task will be deactivated.&lt;pre style='font-family: Monospaced'&gt;[P][=========][=========]&lt;br&gt;[S][===------][===------]&lt;/pre&gt;</desc>
+      <desc>Periodicity of Data Sampling (P) in seconds. This value must not be lower than Sample Time Duration (S), otherwise, task will be deactivated.&lt;table border="1"&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;[S]&lt;/th&gt;&lt;th&gt;[P]&lt;/th&gt;&lt;th&gt;Description&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;=P&lt;/td&gt;&lt;td&gt;=S&lt;/td&gt;&lt;td&gt;Continuous sampling&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;=0&lt;/td&gt;&lt;td&gt;&amp;gt;0&lt;/td&gt;&lt;td&gt;Periodic single sample&lt;pre style='font-family: Monospaced'&gt;[P][=====][=====]&lt;br&gt;[S]|------|------&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;lt;P&lt;/td&gt;&lt;td&gt;&amp;gt;S&lt;/td&gt;&lt;td&gt;Periodic sampling&lt;pre style='font-family: Monospaced'&gt;[P][=====][=====]&lt;br&gt;[S][==---][==---]&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;gt;P&lt;/td&gt;&lt;td&gt;&amp;lt;S&lt;/td&gt;&lt;td&gt;Invalid&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;</desc>
       <min>0.0</min>
+    </param>
+    <param name="Periodicity of Data Sampling - Visibility">
+      <name-i18n>Periodicity of Data Sampling - Visibility</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>user</default>
+      <units/>
+      <desc>Visibility of the 'Periodicity of Data Sampling' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
+    </param>
+    <param name="Periodicity of Data Sampling - Scope">
+      <name-i18n>Periodicity of Data Sampling - Scope</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>maneuver</default>
+      <units/>
+      <desc>Scoped of the 'Periodicity of Data Sampling' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
     </param>
     <param name="IO Port - Device">
       <name-i18n>IO Port - Device</name-i18n>
@@ -8314,6 +8438,8 @@
       <default>global</default>
       <units/>
       <desc>Scoped of the 'Active' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
     </param>
     <param name="Active - Visibility">
       <name-i18n>Active - Visibility</name-i18n>
@@ -8323,6 +8449,8 @@
       <default>user</default>
       <units/>
       <desc>Visibility of the 'Active' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
     </param>
     <param name="Active">
       <name-i18n>Active</name-i18n>
@@ -8435,6 +8563,8 @@
       <default>global</default>
       <units/>
       <desc>Scoped of the 'Active' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
     </param>
     <param name="Active - Visibility">
       <name-i18n>Active - Visibility</name-i18n>
@@ -8444,6 +8574,8 @@
       <default>user</default>
       <units/>
       <desc>Visibility of the 'Active' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
     </param>
     <param name="Active">
       <name-i18n>Active</name-i18n>
@@ -8574,6 +8706,8 @@
       <default>global</default>
       <units/>
       <desc>Scoped of the 'Active' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
     </param>
     <param name="Active - Visibility">
       <name-i18n>Active - Visibility</name-i18n>
@@ -8583,6 +8717,8 @@
       <default>user</default>
       <units/>
       <desc>Visibility of the 'Active' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
     </param>
     <param name="Active">
       <name-i18n>Active</name-i18n>
