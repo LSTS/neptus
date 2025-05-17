@@ -37,6 +37,7 @@ import java.awt.Graphics2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 import java.awt.geom.RoundRectangle2D;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -366,8 +367,8 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
             return null;
 
         for (String planId : getConsole().getMission().getIndividualPlansList().keySet()) {
-            byte[] str = planId.getBytes();
-            if (IMCUtil.computeCrc16(str, 0, str.length) == checksum)
+            byte[] str = planId.getBytes(StandardCharsets.UTF_8);
+            if (IMCUtil.computeCrc16(str, 0, 0) == checksum)
                 return planId;
         }
         return null;
