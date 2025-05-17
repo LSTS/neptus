@@ -33,6 +33,7 @@
 package pt.lsts.neptus.console.plugins.planning;
 
 import java.awt.Color;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 import javax.swing.JLabel;
@@ -84,6 +85,7 @@ public class PlanControlStatePanel extends ConsolePanel {
 
     private PlanControlState.STATE state;
     private String planId = "";
+    private String planIdNote = "";
     private String nodeId = "";
     private String lastOutcome = "<html><font color='0x666666'>" + I18n.text("N/A") + "</font>";
     private int nodeTypeImcId = -1;
@@ -157,11 +159,13 @@ public class PlanControlStatePanel extends ConsolePanel {
             return;
         
         for (String plan : getConsole().getMission().getIndividualPlansList().keySet()) {
-            byte[] bytes = plan.getBytes();
-            if (IMCUtil.computeCrc16(bytes , 0, bytes.length) == message.getPlanChecksum()) {
-                planId = plan + " (CS::" + message.getPlanChecksum() + ")";
+            byte[] bytes = plan.getBytes(StandardCharsets.UTF_8);
+            if (IMCUtil.computeCrc16(bytes , 0, 0) == message.getPlanChecksum()) {
+                planId = plan;
+                planIdNote = "hash::" + message.getPlanChecksum();
                 break;
-            }            
+            }
+            planIdNote = "?";
         }
         
         int progress = -1;
@@ -204,6 +208,7 @@ public class PlanControlStatePanel extends ConsolePanel {
         
         try {
             planId = message.getPlanId();
+            planIdNote = "";
             nodeId = message.getManId();
             nodeTypeImcId = message.getManType();
             nodeEtaSec = message.getManEta();
@@ -256,10 +261,11 @@ public class PlanControlStatePanel extends ConsolePanel {
         if (state != null)
             stateValueLabel.setText(I18n.text(state.toString()));
 
-        String planTimeStr;
-
-        planTimeStr = "";
-        planIdValueLabel.setText(planId + planTimeStr);
+        String planNoteStr = "";
+        if (planIdNote != null && !planIdNote.isEmpty()) {
+            planNoteStr = " <font color='#666666' size='3'>(" + planIdNote + ")</font>";
+        }
+        planIdValueLabel.setText(planId + planNoteStr);
 
         String nodeStr = nodeId;
 
@@ -294,6 +300,7 @@ public class PlanControlStatePanel extends ConsolePanel {
     public void mainVehicleChangeNotification(ConsoleEventMainSystemChange ev) {
         state = PlanControlState.STATE.BLOCKED;
         planId = "";
+        planIdNote = "";
         nodeId = "";
         nodeStarTimeMillisUTC = -1;
         nodeTypeImcId = 0xFFFF;
