@@ -310,8 +310,8 @@ public class RemoteActionsExtra extends ConsolePanel implements MainVehicleChang
 
         if (msg.getOp() != RemoteActionsRequest.OP.REPORT) return;
 
-        setRemoteActionsExtra(msg.getSourceName(), IMCMessage.encodeTupleList(msg.getActions()), true);
-        configureActions(msg.getActions(), DEFAULT_AXIS_DECIMAL_VAL, false);
+        setRemoteActionsExtra(msg.getSourceName(), msg.getAsString("actions"), true);
+        configureActions(msg.getAsString("actions"), DEFAULT_AXIS_DECIMAL_VAL, false);
     }
 
     @Subscribe
