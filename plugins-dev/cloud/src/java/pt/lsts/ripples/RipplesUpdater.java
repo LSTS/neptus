@@ -30,7 +30,6 @@
  * Author: ineeve
  * July 15, 2019
  */
-
 package pt.lsts.ripples;
 
 import java.awt.event.ActionEvent;
@@ -42,7 +41,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedHashMap;
 
 import javax.swing.ImageIcon;
@@ -72,13 +73,17 @@ import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.PlanUtil;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.conf.DoubleMinMaxValidator;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
-
 
 @PluginDescription(name = "Ripples Updater", icon = "pt/lsts/ripples/ripples_on.png")
 public class RipplesUpdater extends ConsolePanel implements ConfigurationListener {
 
     private static final long serialVersionUID = 8901788326550597186L;
+
+    @NeptusProperty(name = "Update Interval in Minutes", description = "Valid values between 0.17 (~10s) and 30. Doesn't need restart to apply",
+            units = "minutes", userLevel = NeptusProperty.LEVEL.REGULAR)
+    public double updateIntervalMinutes = 0.17;
 
     private JCheckBoxMenuItem menuItem;
 
@@ -94,9 +99,15 @@ public class RipplesUpdater extends ConsolePanel implements ConfigurationListene
     private LinkedHashMap<String, RipplesAssetState> assetStates = new LinkedHashMap<String, RipplesAssetState>();
     private LinkedHashMap<String, PlanControlState> planStates = new LinkedHashMap<String, PlanControlState>();
 
+    private Date lastSendTime = null;
+
     public RipplesUpdater(ConsoleLayout console) {
         super(console);
         console.getSystems();
+    }
+
+    public static String validateUpdateIntervalMinutes(double value) {
+        return new DoubleMinMaxValidator(0.17, 30).validate(value);
     }
 
     @Override
@@ -224,10 +235,20 @@ public class RipplesUpdater extends ConsolePanel implements ConfigurationListene
     @Periodic(millisBetweenUpdates = 1000)
     public void sendUpdatesToRipples() {
         if (!this.connected) {
+            lastSendTime = null;
             return;
         }
 
+        double pollIntervalMin = Math.max(0.17, Math.min(30, updateIntervalMinutes));
+        Duration pollInterval = pollIntervalMin >= 1 ? Duration.ofMinutes((long) pollIntervalMin)
+                : Duration.ofSeconds((long) (60 * pollIntervalMin));
+        if (lastSendTime != null && System.currentTimeMillis() - lastSendTime.getTime() < pollInterval.toMillis()) {
+            return;
+        }
+        lastSendTime =  new Date();
+
         try {
+            System.out.println("Sending updates to Ripples");
             ArrayList<RipplesAsset> payload = new ArrayList<>();
             assetStates.forEach((sysName, assetState) -> {
                 PlanControlState pcs = planStates.get(sysName);
@@ -244,6 +265,7 @@ public class RipplesUpdater extends ConsolePanel implements ConfigurationListene
             try {
                 String assetsAsJson = gson.toJson(payload);
                 NeptusLog.pub().info("Sending update for " + payload.size() + " assets");
+                System.out.println("Sending update for " + payload.size() + " assets");
                 sendPost(assetsAsJson);
             }
             catch (Exception e) {
