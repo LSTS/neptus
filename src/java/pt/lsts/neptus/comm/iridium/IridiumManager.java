@@ -63,6 +63,7 @@ import pt.lsts.imc.Voltage;
 import pt.lsts.imc.net.IMCFragmentHandler;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
+import pt.lsts.neptus.comm.manager.imc.ImcMessageFragmentManager;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.ByteUtil;
@@ -440,7 +441,11 @@ public class IridiumManager {
         else {
             MessagePart[] parts = new IMCFragmentHandler(IMCDefinition.getInstance()).fragment(msg,
                     ImcIridiumMessage.MaxPayloadSize+IMCDefinition.getInstance().headerLength());
-            
+
+            if (parts.length > 0) {
+                ImcMessageFragmentManager.getInstance().addSentFragments(parts[0].getUid(), Arrays.asList(parts));
+            }
+
             ArrayList<ImcIridiumMessage> ret = new ArrayList<ImcIridiumMessage>();
             for (MessagePart mp : parts) {
                 ImcIridiumMessage m = new ImcIridiumMessage();

@@ -42,6 +42,7 @@ import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.comm.iridium.ImcIridiumMessage;
 import pt.lsts.neptus.comm.iridium.IridiumManager;
 import pt.lsts.neptus.comm.iridium.UpdateDeviceActivation;
+import pt.lsts.neptus.comm.manager.imc.ImcMessageFragmentManager;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
@@ -283,6 +284,10 @@ public class CommsAdmin {
                                 IMCFragmentHandler handler = new IMCFragmentHandler(IMCDefinition.getInstance());
 
                                 MessagePart[] parts = handler.fragment(message, MAX_ACOMMS_PAYLOAD_SIZE);
+                                if (parts.length > 0) {
+                                    ImcMessageFragmentManager.getInstance().addSentFragments(parts[0].getUid(), Arrays.asList(parts));
+                                }
+
                                 NeptusLog.pub().info("PlanDB message resulted in " + parts.length + " fragments");
                                 for (MessagePart part : parts) {
                                     TransmissionRequest request = getAcousticTransmissionRequestForImcMessage(part, system);
