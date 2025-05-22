@@ -41,6 +41,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Date;
@@ -55,7 +56,9 @@ import com.google.gson.Gson;
 import pt.lsts.imc.Announce;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.IMCUtil;
 import pt.lsts.imc.PlanControlState;
+import pt.lsts.imc.StateReport;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
@@ -96,8 +99,8 @@ public class RipplesUpdater extends ConsolePanel implements ConfigurationListene
 
     private Gson gson = new Gson();
 
-    private LinkedHashMap<String, RipplesAssetState> assetStates = new LinkedHashMap<String, RipplesAssetState>();
-    private LinkedHashMap<String, PlanControlState> planStates = new LinkedHashMap<String, PlanControlState>();
+    private final LinkedHashMap<String, RipplesAssetState> assetStates = new LinkedHashMap<String, RipplesAssetState>();
+    private final LinkedHashMap<String, PlanControlState> planStates = new LinkedHashMap<String, PlanControlState>();
 
     private Date lastSendTime = null;
 
@@ -205,6 +208,65 @@ public class RipplesUpdater extends ConsolePanel implements ConfigurationListene
             planStates.put(pcs.getSourceName(), pcs);
         }
 
+    }
+
+    @Subscribe
+    public void on(StateReport message) {
+        if (!this.connected)
+            return;
+
+        for (String plan : getConsole().getMission().getIndividualPlansList().keySet()) {
+            byte[] bytes = plan.getBytes(StandardCharsets.UTF_8);
+            if (IMCUtil.computeCrc16(bytes, 0, 0) == message.getPlanChecksum()) {
+                PlanControlState pcs = planStates.get(message.getSourceName());
+                if (pcs == null) {
+                    pcs = new PlanControlState();
+                    pcs.setSrc(message.getSrc());
+                    pcs.setSrcEnt(message.getSrcEnt());
+                    pcs.setPlanId(plan);
+                    pcs.setState(PlanControlState.STATE.EXECUTING);
+                } else {
+                    if (message.getTimestampMillis() > pcs.getTimestampMillis()) {
+                        pcs.setTimestampMillis(message.getTimestampMillis());
+
+                        if (plan.equalsIgnoreCase(pcs.getPlanId())) {
+                            pcs.setState(PlanControlState.STATE.EXECUTING);
+                        } else {
+                            pcs.setPlanId(plan);
+                            pcs.setManEta(-1);
+                            pcs.setPlanId("");
+                            pcs.setManType(-1);
+                            pcs.setPlanProgress(-1);
+                            pcs.setState(PlanControlState.STATE.EXECUTING);
+                        }
+                    }
+                }
+
+                synchronized (planStates) {
+                    planStates.put(pcs.getSourceName(), pcs);
+                }
+
+                break;
+            }
+        }
+
+        // Update the asset state with the latest location
+        LocationType location = new LocationType();
+        location.setLatitudeDegs(message.getLatitude());
+        location.setLongitudeDegs(message.getLongitude());
+        double headingRads = message.getHeading() / (0xFFFF / (2* Math.PI));
+        RipplesAssetState ripplesState = new RipplesAssetState((int) message.getTimestamp(), location.getLatitudeDegs(),
+                location.getLongitudeDegs(), Math.toDegrees(headingRads), -1);
+        synchronized (assetStates) {
+            if (assetStates.containsKey(message.getSourceName())) {
+                RipplesAssetState oldState = assetStates.get(message.getSourceName());
+                if (ripplesState.getTimestamp() > oldState.getTimestamp()) {
+                    assetStates.put(message.getSourceName(), ripplesState);
+                }
+            } else {
+                assetStates.put(message.getSourceName(), ripplesState);
+            }
+        }
     }
 
     private RipplesPlan pcsToRipplesPlan(PlanControlState pcs) {
