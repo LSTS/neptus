@@ -88,6 +88,7 @@ public class RipplesAisParser {
         ship.SHIPNAME = object.getString("name", "mmsi_"+ship.SHIP_ID);
         ship.TYPE = object.getInt("type", 0);
         ship.DESTINATION = object.getString("destination", "N/A");
+        ship.DRAUGHT = object.getDouble("draught", 0);
         double bow = object.getDouble("bow", 0);
         double stern = object.getDouble("stern", 0);
         double port = object.getDouble("port", 0);

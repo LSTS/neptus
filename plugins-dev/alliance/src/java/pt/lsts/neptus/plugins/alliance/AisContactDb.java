@@ -348,7 +348,7 @@ public class AisContactDb implements AISObserver {
         additionalProps.setDimensionToStern(ship.LENGTH-ship.L_FORE);
         additionalProps.setAisVersion(-1);
         additionalProps.setCallSign("Unknown");
-        additionalProps.setDraught(0);
+        additionalProps.setDraught(ship.DRAUGHT);
         additionalProps.setShipType(ship.TYPE);
         additionalProps.setDestination(ship.DESTINATION);
         contact.update(additionalProps);
