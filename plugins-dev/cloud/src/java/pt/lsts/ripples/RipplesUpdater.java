@@ -315,6 +315,10 @@ public class RipplesUpdater extends ConsolePanel implements ConfigurationListene
             System.out.println("Sending updates to Ripples");
             ArrayList<RipplesAsset> payload = new ArrayList<>();
             assetStates.forEach((sysName, assetState) -> {
+                if (assetState.getLatitude() == 0 && assetState.getLongitude() == 0) {
+                    return;
+                }
+
                 PlanControlState pcs = planStates.get(sysName);
                 RipplesPlan plan = new RipplesPlan();
                 if (pcs != null) {
