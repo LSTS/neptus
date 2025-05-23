@@ -205,7 +205,7 @@ public class RipplesUpdater extends ConsolePanel implements ConfigurationListene
             return;
 
         synchronized (planStates) {
-            if (planStates.containsKey(pcs.getSourceName()) &&
+            if (!planStates.containsKey(pcs.getSourceName()) ||
                     pcs.getTimestampMillis() > planStates.get(pcs.getSourceName()).getTimestampMillis()) {
                 planStates.put(pcs.getSourceName(), pcs);
             }
