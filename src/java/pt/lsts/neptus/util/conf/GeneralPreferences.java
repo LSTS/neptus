@@ -256,6 +256,11 @@ public class GeneralPreferences implements PropertiesProvider {
             units = "minutes")
     public static long minutesToDumpAllFragments = 60;
 
+    @NeptusProperty(name = "Minutes To Request Missing Received Fragments", category="Fragments Communications", userLevel = LEVEL.REGULAR,
+            description = "Minutes to request missing received fragments. Valid values are positive values between 1 and 60. Doesn't need restart to apply",
+            units = "minutes")
+    public static long minutesToRequestMissingReceivedFragments = 10;
+
     // -------------------------------------------------------------------------
     
     @NeptusProperty(name = "Maximum Size of Plan Name For Acoustics", category="Plan", userLevel = LEVEL.ADVANCED,
@@ -422,6 +427,10 @@ public class GeneralPreferences implements PropertiesProvider {
 
     public static String validateMinutesToDumpAllFragments(long value) {
         return new LongMinMaxValidator(10, 240).validate(value);
+    }
+
+    public static String validateMinutesToRequestMissingReceivedFragments(long value) {
+        return new LongMinMaxValidator(1, 60).validate(value);
     }
 
     // -------------------------------------------------------------------------

@@ -40,15 +40,19 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.comm.admin.CommsAdmin;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.plugins.update.Periodic;
+import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -60,15 +64,26 @@ public class ImcMessageFragmentManager {
     private static final ImcMessageFragmentManager instance = new ImcMessageFragmentManager();
 
     // Lock instance
-    private final Object lock = new Object();
+    private final Object lockSent = new Object();
+    private final Object lockReceived = new Object();
+
     // Map to hold the sent fragments insert time. Pair is frag id and system id of the destination of the fragments
     private final Map<Pair<Integer, Integer>, Long> sentFragmentsInsertTimeHolder = Collections.synchronizedMap(new HashMap<>());
     // Map to hold the sent fragments
     private final Map<Pair<Integer, Integer>, List<MessagePart>> sentFragmentsHolder = Collections.synchronizedMap(new HashMap<>());
 
+    // Map to hold the received fragments. Pair is frag id and system id of the destination of the fragments
+    private final Map<Pair<Integer, Integer>, List<MessagePart>> receivedFragmentsHolder = Collections.synchronizedMap(new HashMap<>());
+    // Map to hold the received fragments insert time. Pair is frag id and system id of the destination of the fragments
+    private final Map<Pair<Integer, Integer>, Long> receivedFragmentsInsertTimeHolder = Collections.synchronizedMap(new HashMap<>());
+
     public ImcMessageFragmentManager() {
         // Constructor logic here
         ImcMsgManager.getManager().registerBusListener(this);
+        Collection<IPeriodicUpdates> periodicUpdaters = PeriodicUpdatesService.inspect(this);
+        for (IPeriodicUpdates updater : periodicUpdaters) {
+            PeriodicUpdatesService.register(updater);
+        }
     }
 
     public static ImcMessageFragmentManager getInstance() {
@@ -80,8 +95,8 @@ public class ImcMessageFragmentManager {
             return;
         }
 
-        synchronized (lock) {
-            int systemId = fragmentList.get(0).getDst();
+        synchronized (lockSent) {
+            int systemId = fragmentList.get(0).getSrc();
             int fragId = fragmentList.get(0).getUid();
             Pair<Integer, Integer> idPair = Pair.create(fragId, systemId);
             System.out.println("Adding sent fragments to " + idPair + ": " + fragmentList);
@@ -91,11 +106,51 @@ public class ImcMessageFragmentManager {
         }
     }
 
+    public void addReceivedFragments(MessagePart... fragmentList) {
+        if (fragmentList == null || fragmentList.length == 0) {
+            return;
+        }
+
+        List<MessagePart> fragments = Arrays.asList(fragmentList);
+        addReceivedFragments(fragments);
+    }
+
+    public void addReceivedFragments(List<MessagePart> fragmentList) {
+        if (fragmentList == null || fragmentList.isEmpty()) {
+            return;
+        }
+
+        synchronized (lockReceived) {
+            int systemId = fragmentList.get(0).getSrc();
+            int fragId = fragmentList.get(0).getUid();
+            Pair<Integer, Integer> idPair = Pair.create(fragId, systemId);
+            System.out.println("Adding received fragments to " + idPair + ": " + fragmentList);
+            NeptusLog.pub().warn("Adding received fragments to {}: {}", idPair, fragmentList);
+            receivedFragmentsInsertTimeHolder.put(idPair, System.currentTimeMillis());
+            List<MessagePart> allFragmentList = receivedFragmentsHolder.get(idPair);
+            if (allFragmentList == null) {
+                allFragmentList = new ArrayList<>();
+            }
+            receivedFragmentsHolder.put(idPair, allFragmentList);
+
+            // Add the fragments to the list, avoiding duplicates
+            for (MessagePart fragment : fragmentList) {
+                boolean matched = allFragmentList.stream().anyMatch(mp -> mp.getFragNumber() == fragment.getFragNumber());
+                if (!matched) {
+                    allFragmentList.add(fragment);
+                }
+            }
+        }
+    }
+
     @Subscribe
     private void onMessageSent(MessagePartControl msg) {
-        int systemId = msg.getDst();
+        int systemId = msg.getSrc();
         int fragId = msg.getUid();
         Pair<Integer, Integer> idPair = Pair.create(fragId, systemId);
+
+        System.out.println("Message Frag Control sent: with frag id " + fragId + " and system id " + systemId);
+        NeptusLog.pub().warn("Message Frag Control request: with frag id {} and system id {}", fragId, systemId);
 
         if (!sentFragmentsHolder.containsKey(idPair))
             return; // Not a known fragment
@@ -120,7 +175,7 @@ public class ImcMessageFragmentManager {
         }
 
         List<MessagePart> fragmentsToSend = Collections.emptyList();
-        synchronized (lock) {
+        synchronized (lockSent) {
             if (msg.getOp() == MessagePartControl.OP.STATUS_RECEIVED) {
                 removeReceivedFragments(idPair, isPositiveConsidered, fragIdsList);
                 sentFragmentsInsertTimeHolder.put(idPair, System.currentTimeMillis());
@@ -157,7 +212,7 @@ public class ImcMessageFragmentManager {
     }
 
     private void removeReceivedFragments(Pair<Integer, Integer> idPair, boolean isPositiveConsidered, List<Integer> fragIdsList) {
-        synchronized (lock) {
+        synchronized (lockSent) {
             if (isPositiveConsidered) {
                 // Remove the fragments that are in the list
                 List<MessagePart> fragments = sentFragmentsHolder.get(idPair);
@@ -174,16 +229,120 @@ public class ImcMessageFragmentManager {
         }
     }
 
-    @Periodic(millisBetweenUpdates = 1000)
+    @Subscribe
+    public void onReceivedFragments(MessagePart fragment) {
+        if (fragment == null || fragment.getSrc() == GeneralPreferences.imcCcuId.intValue())
+            return;
+
+        if (fragment.getUid() <= 0 || fragment.getSrc() <= 0) {
+            return; // Invalid fragment
+        }
+
+        int systemId = fragment.getSrc();
+        int fragId = fragment.getUid();
+        Pair<Integer, Integer> idPair = Pair.create(fragId, systemId);
+
+        // Add the fragment to the received fragments holder
+        addReceivedFragments(fragment);
+    }
+
+    @Periodic(millisBetweenUpdates = 20_000)
     public void checkSentFragments() {
         long currentTimeMillis = System.currentTimeMillis();
-        synchronized (lock) {
+        synchronized (lockSent) {
+            List<Pair<Integer, Integer>> toRemove = new ArrayList<>();
             for (Map.Entry<Pair<Integer, Integer>, Long> entry : sentFragmentsInsertTimeHolder.entrySet()) {
                 Pair<Integer, Integer> fragmentIdPair = entry.getKey();
                 long insertTimeMillis = entry.getValue();
                 if (currentTimeMillis - insertTimeMillis > GeneralPreferences.minutesToDumpAllFragments * 60 * 1_000) {
-                    sentFragmentsHolder.remove(fragmentIdPair);
-                    sentFragmentsInsertTimeHolder.remove(fragmentIdPair);
+                    toRemove.add(fragmentIdPair);
+                }
+            }
+            for (Pair<Integer, Integer> fragmentIdPair : toRemove) {
+                sentFragmentsHolder.remove(fragmentIdPair);
+                sentFragmentsInsertTimeHolder.remove(fragmentIdPair);
+            }
+
+            System.out.println("Checking sent fragments. Current time: " + currentTimeMillis +
+                    ", Sent fragments: " + sentFragmentsInsertTimeHolder.size() + ", Removed fragments: " + toRemove);
+            NeptusLog.pub().warn("Checking sent fragments. Current time: {}, Sent fragments: {}, Removed fragments: {}",
+                    currentTimeMillis, sentFragmentsInsertTimeHolder.size(), toRemove);
+        }
+    }
+
+    @Periodic(millisBetweenUpdates = 20_000)
+    public void checkReceivedFragments() {
+        long currentTimeMillis = System.currentTimeMillis();
+        synchronized (lockReceived) {
+            List<Pair<Integer, Integer>> toRemove = new ArrayList<>();
+            for (Map.Entry<Pair<Integer, Integer>, Long> entry : receivedFragmentsInsertTimeHolder.entrySet()) {
+                Pair<Integer, Integer> fragmentIdPair = entry.getKey();
+                long insertTimeMillis = entry.getValue();
+                if (currentTimeMillis - insertTimeMillis > GeneralPreferences.minutesToDumpAllFragments * 60 * 1_000) {
+                    toRemove.add(fragmentIdPair);
+                }
+            }
+            for (Pair<Integer, Integer> fragmentIdPair : toRemove) {
+                receivedFragmentsHolder.remove(fragmentIdPair);
+                receivedFragmentsInsertTimeHolder.remove(fragmentIdPair);
+            }
+
+            for (Map.Entry<Pair<Integer, Integer>, Long> entry : receivedFragmentsInsertTimeHolder.entrySet()) {
+                Pair<Integer, Integer> fragmentIdPair = entry.getKey();
+                long insertTimeMillis = entry.getValue();
+                if (currentTimeMillis - insertTimeMillis <= GeneralPreferences.minutesToRequestMissingReceivedFragments * 60 * 1_000) {
+                    continue; // Still within the time to request missing fragments
+                }
+
+                List<MessagePart> fragmentsAlreadyReceived = receivedFragmentsHolder.get(fragmentIdPair);
+                if (fragmentsAlreadyReceived == null || fragmentsAlreadyReceived.isEmpty()) {
+                    continue; // No fragments to request
+                }
+
+                MessagePart firstFrag = fragmentsAlreadyReceived.get(0);
+                int fragUid = fragmentIdPair.getFirst();
+                int systemId = fragmentIdPair.getSecond();
+                int totalNFrag = firstFrag.getNumFrags();
+                List<Integer> receivedFragNumbers = fragmentsAlreadyReceived.stream()
+                        .map(MessagePart::getFragNumber)
+                        .map(Integer::valueOf)
+                        .collect(Collectors.toList());
+                List<Integer> missingFragNumbers = new ArrayList<>();
+                for (int i = 0; i < totalNFrag; i++) {
+                    if (!receivedFragNumbers.contains(i)) {
+                        missingFragNumbers.add(i);
+                    }
+                }
+
+                if (missingFragNumbers.isEmpty()) {
+                    continue; // No missing fragments to request
+                }
+
+                // Request the missing fragments
+                MessagePartControl requestMsg = new MessagePartControl();
+                requestMsg.setDst(systemId);
+                requestMsg.setUid((short) fragUid);
+                requestMsg.setOpVal((short) MessagePartControl.OP.REQUEST_RETRANSMIT.value());
+                requestMsg.setFragIds((missingFragNumbers.size() <= receivedFragNumbers.size() ? "" : "!")
+                        + (missingFragNumbers.size() <= receivedFragNumbers.size()
+                            ? missingFragNumbers : receivedFragNumbers).stream()
+                        .map(String::valueOf)
+                        .collect(Collectors.joining(",")));
+
+                System.out.println("Requesting missing fragments " + requestMsg.getFragIds() +
+                        " from " + requestMsg.getSourceName() + " for frag id " + fragUid);
+                NeptusLog.pub().warn("Requesting missing fragments {} from {} for frag id {}",
+                        requestMsg.getFragIds(), requestMsg.getSourceName(), fragUid);
+
+                String systemName = ImcSystemsHolder.translateImcIdToSystemName(systemId);
+                String[] channelsToUse = new String[] {CommsAdmin.CommChannelType.WIFI.name, CommsAdmin.CommChannelType.IRIDIUM.name};
+                boolean ret =  IMCSendMessageUtils.sendMessage(requestMsg, ImcMsgManager.TRANSPORT_TCP,
+                        (MessageDeliveryListener) null, null, I18n.text("Error sending msg part retransmit requested for sender"),
+                        false, "", true, true,
+                        true, false, channelsToUse, systemName);
+
+                if (ret) {
+                    receivedFragmentsInsertTimeHolder.put(fragmentIdPair, System.currentTimeMillis());
                 }
             }
         }
