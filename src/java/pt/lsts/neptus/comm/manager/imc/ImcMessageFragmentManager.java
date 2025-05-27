@@ -141,7 +141,7 @@ public class ImcMessageFragmentManager {
     }
 
     @Subscribe
-    private void onMessageSent(MessagePartControl msg) {
+    public void onMessageSent(MessagePartControl msg) {
         int systemId = msg.getSrc();
         int fragId = msg.getUid();
         Pair<Integer, Integer> idPair = Pair.create(fragId, systemId);
