@@ -26,6 +26,12 @@ ext {
     libJNIPaths = ['.']
 
     jreDownloadVersion = "jdk-11.0.21+9"
+
+    // optional "gradle.local.properties" file properties
+    runUiScale = 1.0 // Default UI scale factor for application task
+}
+if (file('gradle.local.properties').exists()) {
+    apply from: 'gradle.local.properties'
 }
 
 defaultTasks 'buildJars', 'buildBundleJars'
@@ -227,6 +233,7 @@ application {
         '-XX:+HeapDumpOnOutOfMemoryError', "-XX:HeapDumpPath=${relativePath('./log/heap-dump.hprof')}".toString(),
         '-Xss256k',
         "-Djava.library.path=\"${libJNIPaths.collect { "${relativePath(it)}" }.join(isFamily(FAMILY_WINDOWS) ? ';' : ':') }\"".toString(),
+        "-Dsun.java2d.uiScale=${runUiScale}".toString(),
         ]
 }
 
