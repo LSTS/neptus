@@ -234,6 +234,12 @@ public class ImcMessageFragmentManager {
         if (fragment == null || fragment.getSrc() == GeneralPreferences.imcCcuId.intValue())
             return;
 
+        System.out.println("Received " + ((fragment.getUid() <= 0 || fragment.getSrc() <= 0) ? "invalid " : "")
+                + "fragment: " + fragment.getUid() + " from system " + fragment.getSrc());
+        NeptusLog.pub().warn("Received {}fragment: {} from system {}",
+                (fragment.getUid() <= 0 || fragment.getSrc() <= 0) ? "invalid " : "",
+                fragment.getUid(), fragment.getSrc());
+
         if (fragment.getUid() <= 0 || fragment.getSrc() <= 0) {
             return; // Invalid fragment
         }
