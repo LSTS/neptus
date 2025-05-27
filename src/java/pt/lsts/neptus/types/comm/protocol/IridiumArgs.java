@@ -117,8 +117,8 @@ public class IridiumArgs extends ProtocolArgs implements PropertiesProvider {
         else
             return false;
         if (oldImei != lastActiveImei) {
-            NeptusLog.pub().info("Switched to IMEI {} from old {}", getLastSeenImei(), oldImei);
-            System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Switched to IMEI " + getLastSeenImei() + " from old " + oldImei);
+            NeptusLog.pub().info("Switched to IMEI {} from old {} to new {}", getLastSeenImei(), oldImei, lastActiveImei);
+            System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Switched to IMEI " + getLastSeenImei() + " from old " + oldImei + " to new " + lastActiveImei);
         }
         lastImeiDateReceived = date;
         return true;
