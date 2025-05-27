@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2024.09.0 (system/caravel,353c90ca6)" system="caravel" i18n="en_US">
+<config format="1" version="2024.09.0 (system/caravel,ee3c573e1)" system="caravel" i18n="en_US">
   <section name="Text Actions" name-i18n="Text Actions">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -152,43 +152,6 @@
       <units/>
       <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
     </param>
-    <param name="Enable Gain Scheduling">
-      <name-i18n>Enable Gain Scheduling</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Enable gain scheduling during turn</desc>
-    </param>
-    <param name="Preferred scheduling">
-      <name-i18n>Preferred scheduling</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>adcp</default>
-      <units/>
-      <desc>Preferred information for computing gamma.</desc>
-    </param>
-    <param name="Gain Scheduling Interval">
-      <name-i18n>Gain Scheduling Interval</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>60</default>
-      <units/>
-      <desc>Interval for recomputing PID gains.</desc>
-      <min>30</min>
-    </param>
-    <param name="Use new gains">
-      <name-i18n>Use new gains</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Enable gain scheduling based on gamma</desc>
-    </param>
     <param name="Enable Thrust Assistance">
       <name-i18n>Enable Thrust Assistance</name-i18n>
       <type>boolean</type>
@@ -204,8 +167,8 @@
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0.1</default>
-      <units/>
-      <desc>Speed [m/s] below which thruster is used</desc>
+      <units>m/s</units>
+      <desc>Speed below which thruster is used</desc>
       <min>0.0</min>
     </param>
     <param name="Enable Thrust During Turn">
@@ -257,16 +220,6 @@
       <units/>
       <desc>Maximum Rudder Command</desc>
     </param>
-    <param name="Course PID Gains Transect">
-      <name-i18n>Course PID Gains Transect</name-i18n>
-      <type>list:real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0.75, 0.001, 0.0</default>
-      <units/>
-      <desc>PID gains for Course controller during straight line</desc>
-      <size>3</size>
-    </param>
     <param name="Course PID Gains Turning">
       <name-i18n>Course PID Gains Turning</name-i18n>
       <type>list:real</type>
@@ -276,15 +229,6 @@
       <units/>
       <desc>PID gains for Course controller during turn</desc>
       <size>3</size>
-    </param>
-    <param name="Ramp Actuation Limit">
-      <name-i18n>Ramp Actuation Limit</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0.0</default>
-      <units/>
-      <desc>Ramp actuation limit when the value is rising in actuation per second</desc>
     </param>
     <param name="Log PID Parcels">
       <name-i18n>Log PID Parcels</name-i18n>
@@ -303,158 +247,6 @@
       <default>Navigation Manager</default>
       <units/>
       <desc>Entity label of Navigation task</desc>
-    </param>
-    <param name="Activate LP Filtering">
-      <name-i18n>Activate LP Filtering</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Activate Low-pass filtering of computed rudder angle</desc>
-    </param>
-    <param name="Activate N Filtering">
-      <name-i18n>Activate N Filtering</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Activate Notch filtering of computed rudder angle</desc>
-    </param>
-    <param name="Activate BS Filtering">
-      <name-i18n>Activate BS Filtering</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Activate Band-stop filtering of computed rudder angle</desc>
-    </param>
-    <param name="Activate External Filtering">
-      <name-i18n>Activate External Filtering</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Activate external user-defined filtering of computed rudder angle</desc>
-    </param>
-    <param name="External Filter Type">
-      <name-i18n>External Filter Type</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>LPF</default>
-      <units/>
-      <desc>External user-defined filter type</desc>
-    </param>
-    <param name="LP taps">
-      <name-i18n>LP taps</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>20</default>
-      <units/>
-      <desc>Low-pass filter number of taps</desc>
-      <min>1.0</min>
-    </param>
-    <param name="LPF scaling">
-      <name-i18n>LPF scaling</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>1.2</default>
-      <units/>
-      <desc>Low-pass filter gain to remove HF components</desc>
-      <min>1.0</min>
-    </param>
-    <param name="NF taps">
-      <name-i18n>NF taps</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units/>
-      <desc>Notch filter number of taps</desc>
-      <min>1.0</min>
-    </param>
-    <param name="BSF taps">
-      <name-i18n>BSF taps</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units/>
-      <desc>Band-stop filter(s) number of taps</desc>
-      <min>1.0</min>
-    </param>
-    <param name="BSF scaling">
-      <name-i18n>BSF scaling</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>20</default>
-      <units/>
-      <desc>BSF scaling percentage around cut-off estimated frequency</desc>
-      <min>1</min>
-    </param>
-    <param name="External Filter Frequency">
-      <name-i18n>External Filter Frequency</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>1.0</default>
-      <units>Hz</units>
-      <desc>Frequency for external user-defined filter.</desc>
-    </param>
-    <param name="SOG threshold - Heading Control">
-      <name-i18n>SOG threshold - Heading Control</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0.2</default>
-      <units/>
-      <desc>SOG threshold above which switch to heading control.</desc>
-      <min>0.001</min>
-    </param>
-    <param name="Correlation Limit">
-      <name-i18n>Correlation Limit</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc>Correlation above which measurement is discarded.</desc>
-      <min>0</min>
-      <max>100</max>
-    </param>
-    <param name="Amplitude Limit">
-      <name-i18n>Amplitude Limit</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units>dB</units>
-      <desc>Amplitude above which measurement is discarded.</desc>
-    </param>
-    <param name="Vehicle Pitch Rate Limit">
-      <name-i18n>Vehicle Pitch Rate Limit</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>18</default>
-      <units/>
-      <desc>Pitching rate above which measurement is discarded.</desc>
-    </param>
-    <param name="Vehicle Roll Rate Limit">
-      <name-i18n>Vehicle Roll Rate Limit</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>20</default>
-      <units/>
-      <desc>Roll rate above which measurement is discarded.</desc>
     </param>
     <param name="Enable speed controller">
       <name-i18n>Enable speed controller</name-i18n>
@@ -949,51 +741,6 @@
       <units/>
       <desc>Radius around endpoint to consider maneuver as done.</desc>
     </param>
-    <param name="Entity Label - Navigation simulation">
-      <name-i18n>Entity Label - Navigation simulation</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Simulated Navigation Manager</default>
-      <units/>
-      <desc>Entity label of Navigation in simulation</desc>
-    </param>
-    <param name="Entity Label - Navigation hardware">
-      <name-i18n>Entity Label - Navigation hardware</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Navigation Manager</default>
-      <units/>
-      <desc>Entity label of Navigation in hardware</desc>
-    </param>
-    <param name="Entity Label - Wind">
-      <name-i18n>Entity Label - Wind</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>AirMar120WX</default>
-      <units/>
-      <desc>Entity label of 'AbsoluteWind' message</desc>
-    </param>
-    <param name="Entity Label - Heave">
-      <name-i18n>Entity Label - Heave</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>GPS</default>
-      <units/>
-      <desc>Entity label of 'Displacement' message</desc>
-    </param>
-    <param name="Entity Label - Wave Frequency">
-      <name-i18n>Entity Label - Wave Frequency</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Wave Frequency Estimator</default>
-      <units/>
-      <desc>Entity label of 'Frequency' message</desc>
-    </param>
     <param name="Enable Collision Avoidance">
       <name-i18n>Enable Collision Avoidance</name-i18n>
       <type>boolean</type>
@@ -1002,15 +749,6 @@
       <default>false</default>
       <units/>
       <desc>Enable collision avoidance algorithm</desc>
-    </param>
-    <param name="Enable Anti Grounding">
-      <name-i18n>Enable Anti Grounding</name-i18n>
-      <type>boolean</type>
-      <visibility>user</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Enable anti-grounding algorithm</desc>
     </param>
     <param name="Maximum Obstacle Surveillance Range">
       <name-i18n>Maximum Obstacle Surveillance Range</name-i18n>
@@ -1152,26 +890,6 @@
       <desc>Cost of Collision.</desc>
       <min>0.0</min>
       <max>1.0</max>
-    </param>
-    <param name="Cost of grounding">
-      <name-i18n>Cost of grounding</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>100.0</default>
-      <units/>
-      <desc>Cost of Grounding.</desc>
-      <min>0.0</min>
-    </param>
-    <param name="Weights environmental factors">
-      <name-i18n>Weights environmental factors</name-i18n>
-      <type>list:real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10.0,50.0,50.0,50.0,100.0</default>
-      <units/>
-      <desc>Weights on environmental factors.</desc>
-      <min>0.0, 0.0, 0.0, 0.0, 0.0</min>
     </param>
     <param name="Cost of not complying COLREGS">
       <name-i18n>Cost of not complying COLREGS</name-i18n>
@@ -1381,62 +1099,6 @@
       <desc>Portions of positive angle range in degrees</desc>
       <min>10.0</min>
       <max>45.0</max>
-    </param>
-    <param name="Radius around threat">
-      <name-i18n>Radius around threat</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>50.0</default>
-      <units>m</units>
-      <desc>Safety radius around a static threat at sea.</desc>
-    </param>
-    <param name="Course offsets">
-      <name-i18n>Course offsets</name-i18n>
-      <type>list:real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>90.0,75.0,60.0,45.0,30.0,15.0,0.0,-15.0,-30.0,-45.0,-60.0,-75.0,-90.0</default>
-      <units>°</units>
-      <desc>Course offsets for contours surroundings</desc>
-    </param>
-    <param name="Correlation Limit">
-      <name-i18n>Correlation Limit</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>50</default>
-      <units/>
-      <desc>Correlation above which measurement is discarded.</desc>
-      <min>0</min>
-      <max>100</max>
-    </param>
-    <param name="Amplitude Limit">
-      <name-i18n>Amplitude Limit</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units>dB</units>
-      <desc>Amplitude above which measurement is discarded.</desc>
-    </param>
-    <param name="Vehicle Pitch Rate Limit">
-      <name-i18n>Vehicle Pitch Rate Limit</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc>Pitching rate above which measurement is discarded.</desc>
-    </param>
-    <param name="Vehicle Roll Rate Limit">
-      <name-i18n>Vehicle Roll Rate Limit</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc>Roll rate above which measurement is discarded.</desc>
     </param>
     <param name="Corridor -- Width">
       <name-i18n>Corridor -- Width</name-i18n>
@@ -2760,7 +2422,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Daemon, GPS, Operational Limits, Path Control</default>
+      <default>Daemon, Operational Limits, Path Control</default>
       <units/>
       <desc>Default entities to monitor</desc>
     </param>
@@ -3180,7 +2842,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>VerticalProfile:CTD, VerticalProfile:ADCP, VerticalProfile:CTD - Temperature</default>
+      <default>VerticalProfile:ADCP, VerticalProfile:CTD - Temperature, VerticalProfile:CTD - Salinity</default>
       <units/>
       <desc>List of messages &lt;Message&gt;:&lt;Entity&gt; to send using Iridium.</desc>
     </param>
@@ -4518,7 +4180,7 @@
       <type>boolean</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>false</default>
+      <default>true</default>
       <units/>
       <desc>Power Channel State</desc>
     </param>
@@ -4712,7 +4374,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Private (THRUSTER_C)</default>
+      <default>THRUSTER_C</default>
       <units/>
       <desc>Power Channel Entity Label</desc>
     </param>
@@ -4741,7 +4403,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Private (RUDDER_C)</default>
+      <default>RUDDER_C</default>
       <units/>
       <desc>Power Channel Entity Label</desc>
     </param>
@@ -5137,7 +4799,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>5</default>
+      <default>10</default>
       <units/>
       <desc>Maximum Transmission Failures to switch</desc>
       <min>2</min>
@@ -5426,13 +5088,13 @@
       <desc>Add messages received to logs</desc>
     </param>
   </section>
-  <section name="AirMar120WX" name-i18n="AirMar120WX">
+  <section name="AirMar220WX" name-i18n="AirMar220WX">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>AirMar120WX</default>
+      <default>AirMar220WX</default>
       <units/>
       <desc>Main entity label</desc>
     </param>
@@ -5580,6 +5242,15 @@
       <default>5</default>
       <units>°</units>
       <desc>Angle offset for relative wind</desc>
+    </param>
+    <param name="Vertical Profile Periodicity">
+      <name-i18n>Vertical Profile Periodicity</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1800.0</default>
+      <units>s</units>
+      <desc>Periodicity of vertical profiles. 0 means never send.</desc>
     </param>
   </section>
   <section name="Fluorometers" name-i18n="Fluorometers">
@@ -5854,6 +5525,15 @@
       <default>0.0024</default>
       <units/>
       <desc>Scale factor is used to derive instrument output concentration from the raw signal output of the fluorometer</desc>
+    </param>
+    <param name="Vertical Profile Periodicity">
+      <name-i18n>Vertical Profile Periodicity</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1800.0</default>
+      <units>s</units>
+      <desc>Periodicity of vertical profiles. 0 means never send.</desc>
     </param>
   </section>
   <section name="GPS" name-i18n="GPS">
@@ -6963,6 +6643,15 @@
       <units>s</units>
       <desc>Timeout Transmitting Iridium Message.</desc>
     </param>
+    <param name="Vertical Profile Periodicity">
+      <name-i18n>Vertical Profile Periodicity</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1800.0</default>
+      <units>s</units>
+      <desc>Periodicity of vertical profiles. 0 means never send.</desc>
+    </param>
   </section>
   <section name="CTD" name-i18n="CTD">
     <param name="Entity Label">
@@ -7173,15 +6862,6 @@
       <units>ms</units>
       <desc>Sample Period in milliseconds</desc>
     </param>
-    <param name="Dispatch Data">
-      <name-i18n>Dispatch Data</name-i18n>
-      <type>boolean</type>
-      <visibility>user</visibility>
-      <scope>maneuver</scope>
-      <default>false</default>
-      <units/>
-      <desc>Dispatch Data.</desc>
-    </param>
     <param name="Timeout Transmitting Iridium Message">
       <name-i18n>Timeout Transmitting Iridium Message</name-i18n>
       <type>integer</type>
@@ -7218,14 +6898,14 @@
       <units/>
       <desc>Medium dispatch periodicity.</desc>
     </param>
-    <param name="Temperature Entity Label">
-      <name-i18n>Temperature Entity Label</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
+    <param name="Dispatch Medium">
+      <name-i18n>Dispatch Medium</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
       <scope>global</scope>
-      <default>CTD - Temperature</default>
+      <default>true</default>
       <units/>
-      <desc>Emtity label used for temperature related messages.</desc>
+      <desc>Dispatch VehicleMedium message.</desc>
     </param>
   </section>
   <section name="Thermal Zone" name-i18n="Thermal Zone">
@@ -7386,7 +7066,7 @@
       <scope>global</scope>
       <default>30.0</default>
       <units/>
-      <desc>Radius for loiter on service option</desc>
+      <desc>Radius for loiter on service option.</desc>
       <min>5.0</min>
     </param>
     <param name="Loiter On Service -- Speed">
@@ -7396,8 +7076,28 @@
       <scope>global</scope>
       <default>0.5</default>
       <units/>
-      <desc>Speed for loiter on service option</desc>
+      <desc>Speed for loiter on service option.</desc>
       <min>0.1</min>
+    </param>
+    <param name="Loiter On Service -- Time">
+      <name-i18n>Loiter On Service -- Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units>s</units>
+      <desc>Time for loiter on service option. If set to 0.0, the loiter will not timeout and will continue until the vehicle is disarmed.</desc>
+      <min>0</min>
+    </param>
+    <param name="Final Loiter -- Position">
+      <name-i18n>Final Loiter -- Position</name-i18n>
+      <type>list:real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>38.68765, -24.56268</default>
+      <units>°</units>
+      <desc>Lat, Lon coordinates (degrees) for the final loiter maneuver.</desc>
+      <size>2</size>
     </param>
   </section>
   <section name="Power Supervisor" name-i18n="Power Supervisor">
@@ -8639,6 +8339,16 @@
       <default>1200</default>
       <units/>
       <desc>Iridium operation timeout in seconds.</desc>
+    </param>
+    <param name="Fragments Retrasmission Request Timeout">
+      <name-i18n>Fragments Retrasmission Request Timeout</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1800</default>
+      <units>s</units>
+      <desc>Represents the amount of time a message is valid for retransmission. If set to 0, retransmission requests are not allowed.</desc>
+      <min>0</min>
     </param>
   </section>
   <section name="Iridium Modem" name-i18n="Iridium Modem">
