@@ -75,7 +75,7 @@ def String relativePathIfOnProjectPath(fx, String prefixForRelative){
 def generateStartScriptsFor(String applicationNameOpt, String taskPrefixName,
         String mainclass, String appHomeRelativePathOpt, String addedSectionSnippetName,
         FileCollection classpathCollection) {
-    return tasks.create("${taskPrefixName}StartScripts", CreateStartScripts) {
+    return tasks.create("${taskPrefixName}StartScripts".toString(), CreateStartScripts) {
         applicationName = "$applicationNameOpt"
         outputs.upToDateWhen { false }
         mainClass = "$mainclass"
@@ -97,20 +97,20 @@ def generateStartScriptsFor(String applicationNameOpt, String taskPrefixName,
 
         doLast {
             unixScript.text = unixScript.text.replace('@lib_jni_linux_x64@',
-                getLibJNIFor(['linux'], ['x64', 'x86']).collect { "${relativePathIfOnProjectPath(it, '\$APP_HOME/',)}" }.join(':'))
+                getLibJNIFor(['linux'], ['x64', 'x86']).collect { "${relativePathIfOnProjectPath(it, '\$APP_HOME/',)}".toString() }.join(':'))
             unixScript.text = unixScript.text.replace('@lib_jni_linux_x86@',
-                getLibJNIFor(['linux'], ['x86']).collect { "${relativePathIfOnProjectPath(it, '\$APP_HOME/')}" }.join(':'))
+                getLibJNIFor(['linux'], ['x86']).collect { "${relativePathIfOnProjectPath(it, '\$APP_HOME/')}".toString() }.join(':'))
             unixScript.text = unixScript.text.replace('@lib_jni_osx_x64@',
-                getLibJNIFor(['osx'], ['x64']).collect { "${relativePathIfOnProjectPath(it, '\$APP_HOME/')}" }.join(':'))
+                getLibJNIFor(['osx'], ['x64']).collect { "${relativePathIfOnProjectPath(it, '\$APP_HOME/')}".toString() }.join(':'))
             unixScript.text = unixScript.text.replace('@added_section@', addedSectionSnippetName.isEmpty() ? ''
-                : rootProject.file("dist/scripts/unixSnippet${addedSectionSnippetName}.txt").getText('UTF-8'))
+                : rootProject.file("dist/scripts/unixSnippet${addedSectionSnippetName}.txt".toString()).getText('UTF-8'))
 
             windowsScript.text = windowsScript.text.replace('@lib_jni_windows_x64@',
-                getLibJNIFor(['win'], ['x64', 'x86']).collect { "${relativePathIfOnProjectPath(it, '%APP_HOME%\\',)}" }.join(';'))
+                getLibJNIFor(['win'], ['x64', 'x86']).collect { "${relativePathIfOnProjectPath(it, '%APP_HOME%\\',)}".toString() }.join(';'))
             windowsScript.text = windowsScript.text.replace('@lib_jni_windows_x86@',
-                getLibJNIFor(['win'], ['x86']).collect { "${relativePathIfOnProjectPath(it, '%APP_HOME%\\',)}" }.join(';'))
+                getLibJNIFor(['win'], ['x86']).collect { "${relativePathIfOnProjectPath(it, '%APP_HOME%\\',)}".toString() }.join(';'))
             windowsScript.text = windowsScript.text.replace('@added_section@', addedSectionSnippetName.isEmpty() ? ''
-                : rootProject.file("dist/scripts/windowsSnippet${addedSectionSnippetName}.txt").getText('UTF-8'))
+                : rootProject.file("dist/scripts/windowsSnippet${addedSectionSnippetName}.txt".toString()).getText('UTF-8'))
         }
     }
 }
@@ -224,9 +224,9 @@ application {
         //'-XX:+UseZGC', //for Java 11+
         //'-XX:+PrintGCDetails', '-XX:+PrintGCDateStamps', "-Xloggc:${relativePath('./log')}", //for Java 8-
         //"-Xlog:gc*:file=${relativePath('./log')}", //for Java 9+
-        '-XX:+HeapDumpOnOutOfMemoryError', "-XX:HeapDumpPath=${relativePath('./log/heap-dump.hprof')}",
+        '-XX:+HeapDumpOnOutOfMemoryError', "-XX:HeapDumpPath=${relativePath('./log/heap-dump.hprof')}".toString(),
         '-Xss256k',
-        "-Djava.library.path=\"${libJNIPaths.collect { "${relativePath(it)}" }.join(isFamily(FAMILY_WINDOWS) ? ';' : ':') }\"",
+        "-Djava.library.path=\"${libJNIPaths.collect { "${relativePath(it)}" }.join(isFamily(FAMILY_WINDOWS) ? ';' : ':') }\"".toString(),
         ]
 }
 
