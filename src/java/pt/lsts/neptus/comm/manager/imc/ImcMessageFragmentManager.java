@@ -80,10 +80,7 @@ public class ImcMessageFragmentManager {
     public ImcMessageFragmentManager() {
         // Constructor logic here
         ImcMsgManager.getManager().registerBusListener(this);
-        Collection<IPeriodicUpdates> periodicUpdaters = PeriodicUpdatesService.inspect(this);
-        for (IPeriodicUpdates updater : periodicUpdaters) {
-            PeriodicUpdatesService.register(updater);
-        }
+        PeriodicUpdatesService.registerPojo(this);
     }
 
     public static ImcMessageFragmentManager getInstance() {
