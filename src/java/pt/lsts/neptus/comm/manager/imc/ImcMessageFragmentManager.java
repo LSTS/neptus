@@ -276,6 +276,11 @@ public class ImcMessageFragmentManager {
     @Periodic(millisBetweenUpdates = 20_000)
     public void checkReceivedFragments() {
         long currentTimeMillis = System.currentTimeMillis();
+        System.out.println("Checking received fragments. Current time: " + currentTimeMillis +
+                ", received fragments: " + sentFragmentsInsertTimeHolder.size());
+        NeptusLog.pub().warn("Checking received fragments. Current time: {}, received fragments: {}",
+                currentTimeMillis, sentFragmentsInsertTimeHolder.size());
+
         synchronized (lockReceived) {
             List<Pair<Integer, Integer>> toRemove = new ArrayList<>();
             for (Map.Entry<Pair<Integer, Integer>, Long> entry : receivedFragmentsInsertTimeHolder.entrySet()) {
