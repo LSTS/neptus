@@ -299,6 +299,20 @@ public class ImcMessageFragmentManager {
                 long insertTimeMillis = entry.getValue();
                 if (currentTimeMillis - insertTimeMillis > GeneralPreferences.minutesToDumpAllFragments * 60 * 1_000) {
                     toRemove.add(fragmentIdPair);
+                    continue;
+                }
+
+                // If the fragment is still valid, check if it is all received
+                List<MessagePart> fragmentsAlreadyReceived = receivedFragmentsHolder.get(fragmentIdPair);
+                if (fragmentsAlreadyReceived == null || fragmentsAlreadyReceived.isEmpty()) {
+                    continue; // No fragments to request
+                }
+                int nFrags = fragmentsAlreadyReceived.get(0).getNumFrags();
+                if (fragmentsAlreadyReceived.size() >= nFrags) {
+                    // All fragments received, remove from the holder
+                    toRemove.add(fragmentIdPair);
+                    System.out.println("All fragments received for " + fragmentIdPair + ", removing from holder.");
+                    NeptusLog.pub().warn("All fragments received for {}, removing from holder.", fragmentIdPair);
                 }
             }
             for (Pair<Integer, Integer> fragmentIdPair : toRemove) {
