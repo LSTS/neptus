@@ -288,9 +288,9 @@ public class ImcMessageFragmentManager {
     public void checkReceivedFragments() {
         long currentTimeMillis = System.currentTimeMillis();
         System.out.println("Checking received fragments. Current time: " + currentTimeMillis +
-                ", received fragments: " + sentFragmentsInsertTimeHolder.size());
+                ", received fragments: " + receivedFragmentsInsertTimeHolder.size());
         NeptusLog.pub().warn("Checking received fragments. Current time: {}, received fragments: {}",
-                currentTimeMillis, sentFragmentsInsertTimeHolder.size());
+                currentTimeMillis, receivedFragmentsInsertTimeHolder.size());
 
         synchronized (lockReceived) {
             List<Pair<Integer, Integer>> toRemove = new ArrayList<>();
