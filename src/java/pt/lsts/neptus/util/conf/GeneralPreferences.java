@@ -251,6 +251,11 @@ public class GeneralPreferences implements PropertiesProvider {
             units = "minutes")
     public static double iridiumMessengerPollMinutes = 5;
 
+    @NeptusProperty(name = "Iridium Messenger Poll Window Hours", category="Iridium Communications", userLevel = LEVEL.REGULAR,
+            description = "Iridium messaging poll window in hours. Valid values between 0.17 (~10m) and 24. Doesn't need restart to apply",
+            units = "minutes")
+    public static double iridiumMessengerPollWindowHours = 1;
+
     @NeptusProperty(name = "Minutes To Dump All Fragments", category="Fragments Communications", userLevel = LEVEL.REGULAR,
             description = "Minutes to dump all fragments. Valid values are positive values between 10 and 240. Doesn't need restart to apply",
             units = "minutes")
@@ -431,6 +436,10 @@ public class GeneralPreferences implements PropertiesProvider {
 
     public static String validateMinutesToRequestMissingReceivedFragments(long value) {
         return new LongMinMaxValidator(1, 60).validate(value);
+    }
+
+    public static String validateIridiumMessengerPollWindowHours(double value) {
+        return new DoubleMinMaxValidator(0.17, 24).validate(value);
     }
 
     // -------------------------------------------------------------------------
