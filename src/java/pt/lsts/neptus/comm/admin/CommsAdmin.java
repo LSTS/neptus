@@ -146,7 +146,7 @@ public class CommsAdmin {
 
         Collections.addAll(channels, CommChannelType.values());
 
-        ImcMessageFragmentManager.getInstance(); // Ensure the fragment manager is initialized
+        ImcMessageFragmentManager.getInstance(this.imcMsgManager); // Ensure the fragment manager is initialized
     }
 
     //public static boolean sendMessage(IMCMessage msg, String sendProperties, MessageDeliveryListener listener,

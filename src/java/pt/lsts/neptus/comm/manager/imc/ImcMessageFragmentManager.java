@@ -61,7 +61,7 @@ import java.util.stream.Collectors;
  * for retransmission of fragments if requested.
  */
 public class ImcMessageFragmentManager {
-    private static final ImcMessageFragmentManager instance = new ImcMessageFragmentManager();
+    private static ImcMessageFragmentManager instance;
 
     // Lock instance
     private final Object lockSent = new Object();
@@ -78,12 +78,23 @@ public class ImcMessageFragmentManager {
     private final Map<Pair<Integer, Integer>, Long> receivedFragmentsInsertTimeHolder = Collections.synchronizedMap(new HashMap<>());
 
     public ImcMessageFragmentManager() {
+        this(ImcMsgManager.getManager());
+    }
+
+    public ImcMessageFragmentManager(ImcMsgManager imcMsgManager) {
         // Constructor logic here
-        ImcMsgManager.getManager().registerBusListener(this);
+        imcMsgManager.registerBusListener(this);
         PeriodicUpdatesService.registerPojo(this);
     }
 
-    public static ImcMessageFragmentManager getInstance() {
+    public synchronized static ImcMessageFragmentManager getInstance() {
+        return getInstance(ImcMsgManager.getManager());
+    }
+
+    public synchronized static ImcMessageFragmentManager getInstance(ImcMsgManager imcMsgManager) {
+        if (instance == null) {
+            instance = new ImcMessageFragmentManager(imcMsgManager);
+        }
         return instance;
     }
 
