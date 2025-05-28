@@ -265,7 +265,7 @@ public class PlanControlStatePanel extends ConsolePanel {
         if (planIdNote != null && !planIdNote.isEmpty()) {
             planNoteStr = " <font color='#666666' size='3'>(" + planIdNote + ")</font>";
         }
-        planIdValueLabel.setText(planId + planNoteStr);
+        planIdValueLabel.setText("<html>" + planId + planNoteStr);
 
         String nodeStr = nodeId;
 
