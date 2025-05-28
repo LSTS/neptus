@@ -160,8 +160,11 @@ public class ImcMessageFragmentManager {
         System.out.println("Message Frag Control sent: with frag id " + fragId + " and system id " + systemId);
         NeptusLog.pub().warn("Message Frag Control request: with frag id {} and system id {}", fragId, systemId);
 
-        if (!sentFragmentsHolder.containsKey(idPair))
+        if (!sentFragmentsHolder.containsKey(idPair)) {
+            System.out.println("Not a known fragment: " + idPair);
+            NeptusLog.pub().warn("Not a known fragment: {}", idPair);
             return; // Not a known fragment
+        }
 
         String fragIdStr = msg.getFragIds();
         boolean isPositiveConsidered = true; // If positive is to consider  the elements, otherwise the negative
