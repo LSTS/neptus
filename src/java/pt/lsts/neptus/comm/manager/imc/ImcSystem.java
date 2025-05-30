@@ -868,8 +868,18 @@ public class ImcSystem implements Comparable<ImcSystem> {
         }
     }
 
+    /**
+     * This will check if the data stored with the given key.
+     * Use negative ageMillis to ignore the timing of the data.
+     * @param key
+     * @param ageMillis
+     * @return
+     */
     public boolean containsData(String key, long ageMillis) {
         synchronized (dataStorage) {
+            if (ageMillis < 0)
+                return dataStorage.containsKey(key);
+
             boolean ret = dataStorage.containsKey(key);
             if (ret && ageMillis > 0) {
                 long time = dataStorageTime.get(key);
@@ -882,6 +892,7 @@ public class ImcSystem implements Comparable<ImcSystem> {
 
 	/**
 	 * This will retrieve the data stored or {@code null} if not found.
+	 * Use negative ageMillis to ignore the timing of the data.
 	 * @param key
 	 * @param ageMillis
 	 * @return
