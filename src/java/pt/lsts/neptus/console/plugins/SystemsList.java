@@ -229,6 +229,10 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
             category = "Filter", userLevel = LEVEL.REGULAR)
     public SortOrderEnum systemsOrdering = SortOrderEnum.SORTED;
 
+    @NeptusProperty(name = "Is Filter By Time Information Shown", description = "This configures if the time information is used to filter shown information.",
+            category = "Filter", userLevel = LEVEL.REGULAR)
+    public boolean isFilterByTimeInformationShown = true;
+
     @NeptusProperty(name = "Show System With Authority Equal Or Above", description = "This configures if the systems should be shown dependent on the Authority State", 
             category = "Filter", userLevel = LEVEL.REGULAR)
     public IMCAuthorityState showSystemWithAuthorityEqualOrAbove = IMCAuthorityState.OFF;
@@ -1232,7 +1236,7 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
             boolean showHeight) {
         // long timeStampMillis = System.currentTimeMillis();
 
-        long maxAgeTimeMillis = DateTimeUtil.MINUTE;
+        long maxAgeTimeMillis = isFilterByTimeInformationShown ? DateTimeUtil.MINUTE : -1;
 
         String lineSep = htmlFragmentOrSimpleText ? "<br>" : "\n";
         String txtInfo = "";
