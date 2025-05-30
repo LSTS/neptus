@@ -281,11 +281,11 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
             category = "MilStd-2525", userLevel = LEVEL.REGULAR)
     public MilStd2525SymbolsFilledEnum milStd2525FilledOrNot = MilStd2525SymbolsFilledEnum.FILLED;
 
-    @NeptusProperty(name = "Minutes To Hide Systems Without Known Location", description = "Minutes after which systems disapear from render if inactive (0 to disable)", 
+    @NeptusProperty(name = "Minutes To Hide Systems Without Known Location", description = "Minutes after which systems disappear from render if inactive (0 to disable)",
             category = "Systems in Renderer", userLevel = LEVEL.REGULAR)
     public int minutesToHideSystemsWithoutKnownLocation = 5;
 
-    @NeptusProperty(name = "Draw Circle Arround System Icon In Render Dependent Of System Type", description = "This configures if the circle arround the symbol in render is to be drawn dependent of system type",
+    @NeptusProperty(name = "Draw Circle Around System Icon In Render Dependent Of System Type", description = "This configures if the circle around the symbol in render is to be drawn dependent of system type",
             category = "Renderer", userLevel = LEVEL.REGULAR)
     public boolean drawCircleInRenderDependentOfSystemType = true;
     
