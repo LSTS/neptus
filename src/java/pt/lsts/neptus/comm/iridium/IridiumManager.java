@@ -435,6 +435,7 @@ public class IridiumManager {
 
     public static Collection<ImcIridiumMessage> iridiumEncode(IMCMessage msg) throws Exception {
         if (msg.getPayloadSize() < ImcIridiumMessage.MaxPayloadSize) {
+        if ((msg instanceof MessagePart) || msg.getPayloadSize() <= ImcIridiumMessage.MaxPayloadSize) {
             ImcIridiumMessage m = new ImcIridiumMessage();
             m.setSource(msg.getSrc());
             m.setDestination(msg.getDst());
