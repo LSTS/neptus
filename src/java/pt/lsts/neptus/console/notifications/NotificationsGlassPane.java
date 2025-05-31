@@ -56,6 +56,7 @@ import javax.swing.border.LineBorder;
 import javax.swing.text.View;
 
 import pt.lsts.neptus.console.notifications.Notification.NotificationType;
+import pt.lsts.neptus.gui.swing.ActionLabel;
 import pt.lsts.neptus.util.ImageUtils;
 
 /**
@@ -132,11 +133,13 @@ public class NotificationsGlassPane extends JPanel {
         this.setVisible(true);
         list.add(noty);
         this.add(build(noty, true));
+        this.invalidate();
+        this.validate();
         this.repaint();
     }
 
-    private JLabel build(final Notification noty, boolean atomic) {
-        final JLabel label;
+    private ActionLabel build(final Notification noty, boolean atomic) {
+        final ActionLabel label;
         Border paddingBorder = BorderFactory.createEmptyBorder(6, 10, 6, 10);
         Border border;
         String html;
@@ -144,37 +147,53 @@ public class NotificationsGlassPane extends JPanel {
         switch (noty.getType()) {
             case SUCCESS:
                 html = "<html> <b>" + noty.getSrc() + "</b> " + noty.getTitle() + "<br>" + msgTxt+ "</html>";
-                label = new JLabel(html, ImageUtils.createImageIcon("images/icons/noty-success.png"),
+                label = new ActionLabel(html, ImageUtils.createImageIcon("images/icons/noty-success.png"),
                         SwingConstants.LEFT);
                 label.setBackground(new Color(0xDFF0D8));
                 label.setForeground(new Color(0x333333));
                 border = new LineBorder(new Color(0x468847), 1);
+                label.addActionButton("apply", e -> {
+                    refresh();
+                    repaint();
+                });
                 break;
             case ERROR:
                 html = "<html> <b>" + noty.getSrc() + "</b> " + noty.getTitle() + "<br>" + msgTxt + "</html>";
-                label = new JLabel(html, ImageUtils.createImageIcon("images/icons/noty-error.png"), SwingConstants.LEFT);
+                label = new ActionLabel(html, ImageUtils.createImageIcon("images/icons/noty-error.png"), SwingConstants.LEFT);
                 label.setBackground(new Color(0xF2DEDE));
                 label.setForeground(new Color(0x333333));
                 border = new LineBorder(new Color(0xB94A48), 1);
+                label.addActionButton("apply", e -> {
+                    refresh();
+                    repaint();
+                });
                 break;
             case WARNING:
                 html = "<html> <b>" + noty.getSrc() + "</b> " + noty.getTitle() + "<br>" + msgTxt + "</html>";
-                label = new JLabel(html, ImageUtils.createImageIcon("images/icons/noty-warning.png"),
+                label = new ActionLabel(html, ImageUtils.createImageIcon("images/icons/noty-warning.png"),
                         SwingConstants.LEFT);
                 label.setBackground(new Color(0xFCF8E3));
                 label.setForeground(new Color(0x333333));
                 border = new LineBorder(new Color(0xC09853), 1);
+                label.addActionButton("apply", e -> {
+                    refresh();
+                    repaint();
+                });
                 break;
             case INFO:
                 html = "<html> <b>" + noty.getSrc() + "</b> " + noty.getTitle() + "<br>" + msgTxt + "</html>";
-                label = new JLabel(html, ImageUtils.createImageIcon("images/icons/noty-info.png"), SwingConstants.LEFT);
+                label = new ActionLabel(html, ImageUtils.createImageIcon("images/icons/noty-info.png"), SwingConstants.LEFT);
                 label.setBackground(new Color(0xD9EDF7));
                 label.setForeground(new Color(0x333333));
                 border = new LineBorder(new Color(0x3A87AD), 1);
+                label.addActionButton("apply", e -> {
+                    refresh();
+                    repaint();
+                });
                 break;
             default:
                 html = "<html> <b>" + noty.getSrc() + "</b> " + noty.getTitle() + "<br>" + msgTxt + "</html>";
-                label = new JLabel(html, ImageUtils.createImageIcon("images/icons/info.png"), SwingConstants.LEFT);
+                label = new ActionLabel(html, ImageUtils.createImageIcon("images/icons/info.png"), SwingConstants.LEFT);
                 label.setBackground(new Color(0xD9EDF7));
                 label.setForeground(new Color(0x333333));
                 border = new LineBorder(new Color(0x3A87AD), 1);
@@ -182,14 +201,16 @@ public class NotificationsGlassPane extends JPanel {
         }
         label.setBorder(BorderFactory.createCompoundBorder(border, paddingBorder));
         label.setOpaque(true);
-        label.setFont(new Font("Arial", Font.PLAIN, 12));
-        label.setIconTextGap(10);
+        label.getLabel().setFont(new Font("Arial", Font.PLAIN, 12));
+        label.getLabel().setIconTextGap(10);
 
-        View view = (View) label.getClientProperty(javax.swing.plaf.basic.BasicHTML.propertyKey);
-        view.setSize(500, 0);
+        int bWidth = label.getActionButton() != null ? 100 : 0;
+        View view = (View) label.getLabel().getClientProperty(javax.swing.plaf.basic.BasicHTML.propertyKey);
+        view.setSize(500 - bWidth, 0);
         float w = view.getPreferredSpan(View.X_AXIS);
         float h = view.getPreferredSpan(View.Y_AXIS);
-        label.setSize(new Dimension((int) Math.ceil(w), (int) Math.ceil(h) + 30));
+        label.setSize(new Dimension((int) Math.ceil(w) + bWidth, (int) Math.ceil(h) + 30));
+        label.getLabel().setSize(new Dimension((int) Math.ceil(w), (int) Math.ceil(h) + 30));
 
         label.setLocation(this.getWidth() - (label.getWidth() + MARGIN_RIGHT), (this.getHeight()
                 - (label.getHeight() + MARGIN_BOTTOM) - currentHeight));
