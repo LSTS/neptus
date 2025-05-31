@@ -854,7 +854,7 @@ public class MissionTreePanel extends ConsolePanel
                             addActionAddNewTrans(popupMenu);
                             addActionRemoveAllTrans(popupMenu);
                         } else if (parentName.equals(ParentNodes.PLANS.nodeName)){
-                            if (addForMainVehiclePlan) {
+                            if (addForMainVehiclePlan && mainVehicleLastPlanId != null && !mainVehicleLastPlanId.isEmpty()) {
                                 NameId nameId = new NameId() {
                                     @Override
                                     public String getIdentification() {

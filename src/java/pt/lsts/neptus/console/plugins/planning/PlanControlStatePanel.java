@@ -157,17 +157,22 @@ public class PlanControlStatePanel extends ConsolePanel {
     public void consume(StateReport message) {
         if (!message.getSourceName().equals(getConsole().getMainSystem()))
             return;
-        
-        for (String plan : getConsole().getMission().getIndividualPlansList().keySet()) {
-            byte[] bytes = plan.getBytes(StandardCharsets.UTF_8);
-            if (IMCUtil.computeCrc16(bytes , 0, 0) == message.getPlanChecksum()) {
-                planId = plan;
-                planIdNote = "hash::" + message.getPlanChecksum();
-                break;
+
+        if (message.getPlanChecksum() == 0) {
+            planId = "";
+            planIdNote = "";
+        } else {
+            for (String plan : getConsole().getMission().getIndividualPlansList().keySet()) {
+                byte[] bytes = plan.getBytes(StandardCharsets.UTF_8);
+                if (IMCUtil.computeCrc16(bytes , 0, 0) == message.getPlanChecksum()) {
+                    planId = plan;
+                    planIdNote = "hash::" + message.getPlanChecksum();
+                    break;
+                }
+                planIdNote = "?";
             }
-            planIdNote = "?";
         }
-        
+
         int progress = -1;
         switch (message.getExecState()) {
             case -1:
@@ -191,6 +196,8 @@ public class PlanControlStatePanel extends ConsolePanel {
             lastOutcome = GuiUtils.getNeptusDecimalFormat(0).format(progress) + " %";
         else
             lastOutcome = "<html><font color='#666666'>" + I18n.text("N/A") + "</font>";
+
+        outcomeLabel.setText(lastOutcome);
     }
     
     @Subscribe
@@ -304,6 +311,7 @@ public class PlanControlStatePanel extends ConsolePanel {
         nodeId = "";
         nodeStarTimeMillisUTC = -1;
         nodeTypeImcId = 0xFFFF;
+        lastOutcome = "";
         try {
             ImcSystemState state = getConsole().getImcMsgManager().getState(getMainVehicleId());
             if (state != null) {
@@ -327,7 +335,6 @@ public class PlanControlStatePanel extends ConsolePanel {
         catch (Exception e) {
             e.printStackTrace();
         }
-        
     }
 
     @Override

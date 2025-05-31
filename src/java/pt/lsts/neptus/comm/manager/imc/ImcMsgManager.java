@@ -123,6 +123,8 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
      * Singleton
      */
     private static ImcMsgManager commManager = null;
+    // This is used to avoid creating the singleton more than once
+    private static boolean singletonBeingCreated = false;
 
     private ImcId16 localId = ImcId16.NULL_ID;
     private boolean sameIdErrorDetected = false;
@@ -248,6 +250,12 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
 
     private static synchronized ImcMsgManager createManager() {
         if (commManager == null) {
+            if (singletonBeingCreated) {
+                NeptusLog.pub().error("ImcMsgManager is being created by another thread on the same time!!");
+                throw new IllegalStateException("ImcMsgManager is being created by another thread on the same time!!");
+            }
+
+            singletonBeingCreated = true;
             commManager = new ImcMsgManager(IMCDefinition.getInstance());
         }
         return commManager;
