@@ -67,7 +67,7 @@ import pt.lsts.neptus.util.ImageUtils;
 public class NotificationsGlassPane extends JPanel {
     private static final long serialVersionUID = -1397790967075620867L;
     private static final int MARGIN_BOTTOM = 5;
-    private static final int MARGIN_RIGHT = 2;
+    private static final int MARGIN_RIGHT = 10;
     private static final int BOTTOM_GAP = 25;
     private static final int VISIBLE_GLASS_NOTIFICATIONS = 3;
 
