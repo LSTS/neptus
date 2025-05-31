@@ -98,13 +98,12 @@ public class ImcMessageFragmentManager {
         return instance;
     }
 
-    public void addSentFragments(int fragmentId, List<MessagePart> fragmentList) {
+    public void addSentFragments(int fragmentId, int systemId, List<MessagePart> fragmentList) {
         if (fragmentList == null || fragmentList.isEmpty()) {
             return;
         }
 
         synchronized (lockSent) {
-            int systemId = fragmentList.get(0).getSrc();
             int fragId = fragmentList.get(0).getUid();
             Pair<Integer, Integer> idPair = Pair.create(fragId, systemId);
             System.out.println("Adding sent fragments to " + idPair + ": " + fragmentList);

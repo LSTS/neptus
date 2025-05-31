@@ -50,6 +50,7 @@ import pt.lsts.imc.TransmissionRequest.COMM_MEAN;
 import pt.lsts.imc.TransmissionRequest.DATA_MODE;
 import pt.lsts.imc.net.IMCFragmentHandler;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.comm.manager.imc.ImcMessageFragmentManager;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
@@ -234,7 +235,10 @@ public class IMCSendMessageUtils {
             
             MessagePart[] parts = handler.fragment(msg, 998);
             if (parts.length > 1) {
-                ImcMessageFragmentManager.getInstance().addSentFragments(parts[0].getUid(), Arrays.asList(parts));
+                ImcSystem systemImc = ImcSystemsHolder.getSystemWithName(destination);
+                ImcMessageFragmentManager.getInstance().addSentFragments(parts[0].getUid(),
+                        systemImc == null ? ImcId16.NULL_ID.intValue() : systemImc.getId().intValue(),
+                        Arrays.asList(parts));
             }
 
             NeptusLog.pub().info("PlanDB message resulted in "+parts.length+" fragments");

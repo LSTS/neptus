@@ -287,7 +287,9 @@ public class CommsAdmin {
 
                                 MessagePart[] parts = handler.fragment(message, MAX_ACOMMS_PAYLOAD_SIZE);
                                 if (parts.length > 0) {
-                                    ImcMessageFragmentManager.getInstance().addSentFragments(parts[0].getUid(), Arrays.asList(parts));
+                                    ImcMessageFragmentManager.getInstance().addSentFragments(parts[0].getUid(),
+                                            system.getId().intValue(),
+                                            Arrays.asList(parts));
                                 }
 
                                 NeptusLog.pub().info("PlanDB message resulted in " + parts.length + " fragments");
@@ -390,9 +392,10 @@ public class CommsAdmin {
     public void sendViaIridium(String destination, IMCMessage message, ResultWaiter waiter) {
         if (message.getTimestamp() == 0)
             message.setTimestampMillis(System.currentTimeMillis());
+        int dst = IMCDefinition.getInstance().getResolver().resolve(destination);
         Collection<ImcIridiumMessage> irMsgs;
         try {
-            irMsgs = IridiumManager.iridiumEncode(message);
+            irMsgs = IridiumManager.iridiumEncode(dst, message);
         }
         catch (Exception e) {
             NeptusLog.pub().warn("Send by Iridium :: " + e.getMessage());
@@ -400,7 +403,6 @@ public class CommsAdmin {
             return;
         }
         int src = ImcMsgManager.getManager().getLocalId().intValue();
-        int dst = IMCDefinition.getInstance().getResolver().resolve(destination);
         int count = 0;
         try {
             NeptusLog.pub().warn(message.getAbbrev() + " resulted in " + irMsgs.size() + " iridium SBD messages.");

@@ -126,7 +126,7 @@ public class AssetsManager {
                 cmd.setSrc(ImcMsgManager.getManager().getLocalId().intValue());
                 cmd.setDst(system.getId().intValue());
 
-                Collection<ImcIridiumMessage> irMsgs = IridiumManager.iridiumEncode(cmd);
+                Collection<ImcIridiumMessage> irMsgs = IridiumManager.iridiumEncode(system.getId().intValue(), cmd);
 
                 for (ImcIridiumMessage msg : irMsgs) {
                     msg.setSource(ImcMsgManager.getManager().getLocalId().intValue());

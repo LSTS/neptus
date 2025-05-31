@@ -433,8 +433,7 @@ public class IridiumManager {
         return instance;
     }
 
-    public static Collection<ImcIridiumMessage> iridiumEncode(IMCMessage msg) throws Exception {
-        if (msg.getPayloadSize() < ImcIridiumMessage.MaxPayloadSize) {
+    public static Collection<ImcIridiumMessage> iridiumEncode(int imcSystemId, IMCMessage msg) throws Exception {
         if ((msg instanceof MessagePart) || msg.getPayloadSize() <= ImcIridiumMessage.MaxPayloadSize) {
             ImcIridiumMessage m = new ImcIridiumMessage();
             m.setSource(msg.getSrc());
@@ -448,7 +447,7 @@ public class IridiumManager {
                     ImcIridiumMessage.MaxPayloadSize+IMCDefinition.getInstance().headerLength());
 
             if (parts.length > 0) {
-                ImcMessageFragmentManager.getInstance().addSentFragments(parts[0].getUid(), Arrays.asList(parts));
+                ImcMessageFragmentManager.getInstance().addSentFragments(parts[0].getUid(), imcSystemId, Arrays.asList(parts));
             }
 
             ArrayList<ImcIridiumMessage> ret = new ArrayList<ImcIridiumMessage>();
@@ -473,7 +472,7 @@ public class IridiumManager {
             System.out.println("Message of type "+m.getAbbrev()+" and size "+(m.getPayloadSize()));
             System.out.println(m);
             try {
-                Collection<ImcIridiumMessage> msgs = iridiumEncode(m);
+                Collection<ImcIridiumMessage> msgs = iridiumEncode(0xFFFF, m);
                 System.out.println(" ==> "+msgs.size()+" messages");
                 for (ImcIridiumMessage msg : msgs) {
                     ByteUtil.dumpAsHex("Iridium message of type "+msg.getMessageType(), msg.serialize(), System.out);
