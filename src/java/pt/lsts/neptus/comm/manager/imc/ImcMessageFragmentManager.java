@@ -110,7 +110,8 @@ public class ImcMessageFragmentManager {
             System.out.println("Adding sent fragments to " + idPair + ": " + fragmentList);
             NeptusLog.pub().warn("Adding sent fragments to {}: {}", idPair, fragmentList);
             sentFragmentsInsertTimeHolder.put(idPair, System.currentTimeMillis());
-            sentFragmentsHolder.put(idPair, fragmentList);
+            List<MessagePart> fl = new ArrayList<>(fragmentList);
+            sentFragmentsHolder.put(idPair, fl);
         }
     }
 
