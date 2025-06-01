@@ -191,6 +191,7 @@ public class NotificationsDialog extends JDialog implements WindowFocusListener,
         List<Notification> n = notifications.getList();
         Collections.sort(n);
         jList.setListData(n.toArray(new Notification[0]));
+        jList.repaint();
         if (popupsEnabled) {
             glassPane.add(e.getNoty());
         }
