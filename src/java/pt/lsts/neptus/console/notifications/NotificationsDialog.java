@@ -166,6 +166,9 @@ public class NotificationsDialog extends JDialog implements WindowFocusListener,
      * @param flag
      */
     public void visible(boolean flag) {
+        if (flag && !this.isVisible()) {
+            this.jList.clearSelection();
+        }
         this.setVisible(flag);
         glassPane.clear();
         if (flag) {
