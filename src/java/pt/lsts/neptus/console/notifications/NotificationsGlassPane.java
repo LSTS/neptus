@@ -75,7 +75,7 @@ public class NotificationsGlassPane extends JPanel {
     private static final int VISIBLE_GLASS_NOTIFICATIONS = 3;
 
     private final JFrame frame;
-    private List<Notification> list = new ArrayList<>();
+    private final List<Notification> list = new ArrayList<>();
     private int currentHeight = BOTTOM_GAP;
 
     public NotificationsGlassPane(JFrame frame) {
