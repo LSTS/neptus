@@ -49,15 +49,16 @@ import java.util.TimerTask;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 import javax.swing.text.View;
 
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.notifications.Notification.NotificationType;
 import pt.lsts.neptus.gui.swing.ActionLabel;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.ImageUtils;
 
 /**
@@ -153,10 +154,6 @@ public class NotificationsGlassPane extends JPanel {
                 label.setBackground(new Color(0xDFF0D8));
                 label.setForeground(new Color(0x333333));
                 border = new LineBorder(new Color(0x468847), 1);
-                label.addActionButton("apply", e -> {
-                    refresh();
-                    repaint();
-                });
                 break;
             case ERROR:
                 html = "<html> <b>" + noty.getSrc() + "</b> " + noty.getTitle() + "<br>" + msgTxt + "</html>";
@@ -164,10 +161,6 @@ public class NotificationsGlassPane extends JPanel {
                 label.setBackground(new Color(0xF2DEDE));
                 label.setForeground(new Color(0x333333));
                 border = new LineBorder(new Color(0xB94A48), 1);
-                label.addActionButton("apply", e -> {
-                    refresh();
-                    repaint();
-                });
                 break;
             case WARNING:
                 html = "<html> <b>" + noty.getSrc() + "</b> " + noty.getTitle() + "<br>" + msgTxt + "</html>";
@@ -176,10 +169,6 @@ public class NotificationsGlassPane extends JPanel {
                 label.setBackground(new Color(0xFCF8E3));
                 label.setForeground(new Color(0x333333));
                 border = new LineBorder(new Color(0xC09853), 1);
-                label.addActionButton("apply", e -> {
-                    refresh();
-                    repaint();
-                });
                 break;
             case INFO:
                 html = "<html> <b>" + noty.getSrc() + "</b> " + noty.getTitle() + "<br>" + msgTxt + "</html>";
@@ -187,10 +176,6 @@ public class NotificationsGlassPane extends JPanel {
                 label.setBackground(new Color(0xD9EDF7));
                 label.setForeground(new Color(0x333333));
                 border = new LineBorder(new Color(0x3A87AD), 1);
-                label.addActionButton("apply", e -> {
-                    refresh();
-                    repaint();
-                });
                 break;
             default:
                 html = "<html> <b>" + noty.getSrc() + "</b> " + noty.getTitle() + "<br>" + msgTxt + "</html>";
@@ -200,24 +185,31 @@ public class NotificationsGlassPane extends JPanel {
                 border = new LineBorder(new Color(0x3A87AD), 1);
                 break;
         }
+
+        if (noty.getActionListener() != null) {
+            label.addActionButton(I18n.text("apply"), e -> {
+                try {
+                    noty.getActionListener().actionPerformed(e);
+                } catch (Exception ex) {
+                    NeptusLog.pub().error("Error executing notification action: {}", noty.getTitle(), ex);
+                }
+                noty.setActionTriggered(true);
+                label.getActionButton().setEnabled(false);
+                refresh();
+                repaint();
+            });
+
+            if (noty.isActionTriggered()) {
+                label.getActionButton().setEnabled(false);
+            }
+        }
+
         label.setBorder(BorderFactory.createCompoundBorder(border, paddingBorder));
         label.setOpaque(true);
         label.getLabel().setFont(new Font("Arial", Font.PLAIN, 12));
         label.getLabel().setIconTextGap(10);
-        JButton aButton = label.getActionButton();
-        int wBtn = 0;
-        if (aButton != null) {
-            aButton.setFont(new Font("Arial", Font.PLAIN, 10));
-            View view = (View) aButton.getClientProperty(javax.swing.plaf.basic.BasicHTML.propertyKey);
-            if (view != null) {
-                view.setSize(0, 0);
-                wBtn = (int) Math.ceil(view.getPreferredSpan(View.X_AXIS));
-            } else {
-                wBtn = aButton.getPreferredSize().width;
-            }
-            wBtn += 10; // padding
-        }
 
+        int wBtn = getActionButtonPreferredWidth(label);
         View view = (View) label.getLabel().getClientProperty(javax.swing.plaf.basic.BasicHTML.propertyKey);
         view.setSize(500 - wBtn, 0);
         float w = view.getPreferredSpan(View.X_AXIS);
@@ -272,6 +264,23 @@ public class NotificationsGlassPane extends JPanel {
             }
         }
         return label;
+    }
+
+    private static int getActionButtonPreferredWidth(ActionLabel label) {
+        JButton aButton = label.getActionButton();
+        int wBtn = 0;
+        if (aButton != null) {
+            aButton.setFont(new Font("Arial", Font.PLAIN, 10));
+            View view = (View) aButton.getClientProperty(javax.swing.plaf.basic.BasicHTML.propertyKey);
+            if (view != null) {
+                view.setSize(0, 0);
+                wBtn = (int) Math.ceil(view.getPreferredSpan(View.X_AXIS));
+            } else {
+                wBtn = aButton.getPreferredSize().width;
+            }
+            wBtn += 10; // padding
+        }
+        return wBtn;
     }
 
     private void setupListeners() {
