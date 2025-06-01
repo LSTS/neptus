@@ -117,8 +117,9 @@ public class NotificationsGlassPane extends JPanel {
             list.remove(0);
             this.remove(0);
         }
-        if (noty.getType() == NotificationType.INFO)
+        if (!noty.needsHumanAction() && noty.getType() == NotificationType.INFO)
             return;
+
         frame.setGlassPane(this);
         this.setVisible(true);
         list.add(noty);
