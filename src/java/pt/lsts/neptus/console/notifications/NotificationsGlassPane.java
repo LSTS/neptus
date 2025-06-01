@@ -47,6 +47,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -203,13 +204,25 @@ public class NotificationsGlassPane extends JPanel {
         label.setOpaque(true);
         label.getLabel().setFont(new Font("Arial", Font.PLAIN, 12));
         label.getLabel().setIconTextGap(10);
+        JButton aButton = label.getActionButton();
+        int wBtn = 0;
+        if (aButton != null) {
+            aButton.setFont(new Font("Arial", Font.PLAIN, 10));
+            View view = (View) aButton.getClientProperty(javax.swing.plaf.basic.BasicHTML.propertyKey);
+            if (view != null) {
+                view.setSize(0, 0);
+                wBtn = (int) Math.ceil(view.getPreferredSpan(View.X_AXIS));
+            } else {
+                wBtn = aButton.getPreferredSize().width;
+            }
+            wBtn += 10; // padding
+        }
 
-        int bWidth = label.getActionButton() != null ? 100 : 0;
         View view = (View) label.getLabel().getClientProperty(javax.swing.plaf.basic.BasicHTML.propertyKey);
-        view.setSize(500 - bWidth, 0);
+        view.setSize(500 - wBtn, 0);
         float w = view.getPreferredSpan(View.X_AXIS);
         float h = view.getPreferredSpan(View.Y_AXIS);
-        label.setSize(new Dimension((int) Math.ceil(w) + bWidth, (int) Math.ceil(h) + 30));
+        label.setSize(new Dimension((int) Math.ceil(w) + wBtn, (int) Math.ceil(h) + 30));
         label.getLabel().setSize(new Dimension((int) Math.ceil(w), (int) Math.ceil(h) + 30));
 
         label.setLocation(this.getWidth() - (label.getWidth() + MARGIN_RIGHT), (this.getHeight()
