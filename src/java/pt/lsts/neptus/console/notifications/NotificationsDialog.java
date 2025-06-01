@@ -216,8 +216,11 @@ public class NotificationsDialog extends JDialog implements WindowFocusListener,
         @Override
         public Component getListCellRendererComponent(JList<? extends Notification> list, Notification value,
                 int index, boolean isSelected, boolean cellHasFocus) {
+            String actionTxt = value.getActionListener() != null && !value.isActionTriggered()
+                    ? "[ <b><i>" + I18n.text("action") + "</i></b> ] "
+                    : "";
             setText("<html> " + value.getTimeText() + " [ <b width='100px; display: inline'>" + value.getSrc()
-                    + "</b> ] " + value.getTitle() + "</html>");
+                    + "</b> ] " + actionTxt + value.getTitle() + "</html>");
 
             if (isSelected) {
                 setBackground(list.getSelectionBackground());
