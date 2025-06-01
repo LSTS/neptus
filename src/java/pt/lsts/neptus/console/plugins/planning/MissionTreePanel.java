@@ -360,27 +360,41 @@ public class MissionTreePanel extends ConsolePanel
 
             // Non matching plans
             if (!planNamesToAutoAcceptUpdatesList.contains(plan.getId())) {
-                int option = JOptionPane.showConfirmDialog(getConsole(),
-                        I18n.text("Replace plan '" + plan.getId() + "' with version disseminated by "
-                                + msg.getSourceName()+"?"));
-                if (option != JOptionPane.YES_OPTION) {
-                    return;
-                }
+                getConsole().post(Notification.info(I18n.text("Plan Dissemination"),
+                                I18n.textf("Replace plan '%plan' with version disseminated by %sourceName?",
+                                        plan.getId(), msg.getSourceName()))
+                        .requireHumanAction(true)
+                        .actionListener(e -> {
+                            updatePlanOnMission(msg, plan, true,
+                                    I18n.textf("Replaced plan '%plan' with version disseminated by %sourceName.",
+                                            plan.getId(), msg.getSourceName()));
+                        }));
+                return;
+//                int option = JOptionPane.showConfirmDialog(getConsole(),
+//                        I18n.text("Replace plan '" + plan.getId() + "' with version disseminated by "
+//                                + msg.getSourceName()+"?"));
+//                if (option != JOptionPane.YES_OPTION) {
+//                    return;
+//                }
             }
         }
-        
+
+        updatePlanOnMission(msg, plan, alreadyLocal, I18n.textf("Received plan '%plan' from %ccu.",
+                plan.getId(), msg.getSourceName()));
+    }
+
+    private void updatePlanOnMission(PlanSpecification msg, PlanType plan, boolean alreadyLocal, String messageToShow) {
         getConsole().getMission().getIndividualPlansList().put(plan.getId(), plan);
         getConsole().getMission().save(true);
-        getConsole().post(Notification.success(I18n.text("Plan Dissemination"),
-                I18n.textf("Received plan '%plan' from %ccu.", plan.getId(), msg.getSourceName())));
-        
+        getConsole().post(Notification.success(I18n.text("Plan Dissemination"), messageToShow));
+
         if (alreadyLocal && getConsole().getPlan() != null) {
             if(getConsole().getPlan().getId().equals(plan.getId()))
                 getConsole().setPlan(plan);
         }
         browser.refreshBrowser(getConsole().getMission(), getMainVehicleId(), getConsole());
     }
-    
+
     @Subscribe
     public void on(PlanControlState msg) {
         if (getConsole().getMainSystem().equalsIgnoreCase(msg.getSourceName())) {

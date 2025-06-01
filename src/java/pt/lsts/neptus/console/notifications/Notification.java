@@ -32,6 +32,7 @@
  */
 package pt.lsts.neptus.console.notifications;
 
+import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
 
 import pt.lsts.neptus.i18n.I18n;
@@ -59,6 +60,9 @@ public class Notification implements Comparable<Notification> {
     private boolean requireHumanAction = false;
     private String src = I18n.text("Console");
 
+    private ActionListener actionListener;
+    private boolean isActionTriggered = false;
+
     /**
      * Static factory method for error type This already has require human action activated
      * 
@@ -66,26 +70,46 @@ public class Notification implements Comparable<Notification> {
      * @return
      */
     public static Notification error(String title, String text) {
-        return new Notification(title, text, NotificationType.ERROR).requireHumanAction(true);
+        return new Notification(title, text, NotificationType.ERROR, null).requireHumanAction(true);
+    }
+
+    public static Notification error(String title, String text, ActionListener actionListener) {
+        return new Notification(title, text, NotificationType.ERROR, actionListener).requireHumanAction(true);
     }
 
     public static Notification info(String title, String text) {
-        return new Notification(title, text, NotificationType.INFO);
+        return new Notification(title, text, NotificationType.INFO, null);
+    }
+
+    public static Notification info(String title, String text, ActionListener actionListener) {
+        return new Notification(title, text, NotificationType.INFO, actionListener);
     }
 
     public static Notification success(String title, String text) {
-        return new Notification(title, text, NotificationType.SUCCESS);
+        return new Notification(title, text, NotificationType.SUCCESS, null);
+    }
+
+    public static Notification success(String title, String text, ActionListener actionListener) {
+        return new Notification(title, text, NotificationType.SUCCESS, actionListener);
     }
 
     public static Notification warning(String title, String text) {
-        return new Notification(title, text, NotificationType.WARNING);
+        return new Notification(title, text, NotificationType.WARNING, null);
+    }
+
+    public static Notification warning(String title, String text, ActionListener actionListener) {
+        return new Notification(title, text, NotificationType.WARNING, actionListener);
     }
 
     public static Notification newNotification(String title, String text, NotificationType type) {
-        return new Notification(title, text, type);
+        return new Notification(title, text, type, null);
     }
 
-    private Notification(String title, String text, NotificationType type) {
+    public static Notification newNotification(String title, String text, NotificationType type, ActionListener actionListener) {
+        return new Notification(title, text, type, actionListener);
+    }
+
+    private Notification(String title, String text, NotificationType type, ActionListener actionListener) {
         this.timestamp = System.currentTimeMillis();
         this.text = text;
         this.title = title;
@@ -98,13 +122,13 @@ public class Notification implements Comparable<Notification> {
         return this;
     }
 
+    public boolean needsHumanAction() {
+        return requireHumanAction;
+    }
+
     public Notification src(String src) {
         this.src = src;
         return this;
-    }
-
-    public boolean needsHumanAction() {
-        return requireHumanAction;
     }
 
     /**
@@ -147,6 +171,27 @@ public class Notification implements Comparable<Notification> {
      */
     public NotificationType getType() {
         return type;
+    }
+
+    public Notification actionListener(ActionListener actionListener) {
+        this.actionListener = actionListener;
+        return this;
+    }
+
+    public ActionListener getActionListener() {
+        return actionListener;
+    }
+
+    public void setActionListener(ActionListener actionListener) {
+        this.actionListener = actionListener;
+    }
+
+    public boolean isActionTriggered() {
+        return isActionTriggered;
+    }
+
+    public void setActionTriggered(boolean actionTriggered) {
+        isActionTriggered = actionTriggered;
     }
 
     /*

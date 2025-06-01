@@ -52,6 +52,7 @@ import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
@@ -70,6 +71,7 @@ import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.events.ConsoleEventNewNotification;
 import pt.lsts.neptus.events.NeptusEvents;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.util.ImageUtils;
 
 /**
  * @author Hugo
@@ -87,6 +89,11 @@ public class NotificationsDialog extends JDialog implements WindowFocusListener,
     private NotificationsGlassPane glassPane;
     private boolean popupsEnabled = true;
     private boolean focus = false;
+
+    private static ImageIcon successImageIcon = ImageUtils.createScaleImageIcon("images/icons/noty-success.png", 16, 16);
+    private static ImageIcon infoImageIcon = ImageUtils.createScaleImageIcon("images/icons/noty-info.png", 16, 16);
+    private static ImageIcon warningImageIcon = ImageUtils.createScaleImageIcon("images/icons/noty-warning.png", 16, 16);
+    private static ImageIcon errorImageIcon =ImageUtils.createScaleImageIcon("images/icons/noty-error.png", 16, 16);
 
     /**
      * Construtor
@@ -166,6 +173,9 @@ public class NotificationsDialog extends JDialog implements WindowFocusListener,
      * @param flag
      */
     public void visible(boolean flag) {
+        if (flag && !this.isVisible()) {
+            this.jList.clearSelection();
+        }
         this.setVisible(flag);
         glassPane.clear();
         if (flag) {
@@ -191,6 +201,7 @@ public class NotificationsDialog extends JDialog implements WindowFocusListener,
         List<Notification> n = notifications.getList();
         Collections.sort(n);
         jList.setListData(n.toArray(new Notification[0]));
+        jList.repaint();
         if (popupsEnabled) {
             glassPane.add(e.getNoty());
         }
@@ -212,8 +223,11 @@ public class NotificationsDialog extends JDialog implements WindowFocusListener,
         @Override
         public Component getListCellRendererComponent(JList<? extends Notification> list, Notification value,
                 int index, boolean isSelected, boolean cellHasFocus) {
+            String actionTxt = value.getActionListener() != null && !value.isActionTriggered()
+                    ? "[ <b><i>" + I18n.text("action") + "</i></b> ] "
+                    : "";
             setText("<html> " + value.getTimeText() + " [ <b width='100px; display: inline'>" + value.getSrc()
-                    + "</b> ] " + value.getTitle() + "</html>");
+                    + "</b> ] " + actionTxt + value.getTitle() + "</html>");
 
             if (isSelected) {
                 setBackground(list.getSelectionBackground());
@@ -238,6 +252,25 @@ public class NotificationsDialog extends JDialog implements WindowFocusListener,
                 }
                 setForeground(new Color(0x333333));
             }
+
+            switch (value.getType()) {
+                case ERROR:
+                    setIcon(errorImageIcon);
+                    break;
+                case SUCCESS:
+                    setIcon(successImageIcon);
+                    break;
+                case INFO:
+                    setIcon(infoImageIcon);
+                    break;
+                case WARNING:
+                    setIcon(warningImageIcon);
+                    break;
+                default:
+                    setIcon(infoImageIcon);
+                    break;
+            }
+
             setEnabled(list.isEnabled());
             setFont(new Font("Arial", Font.PLAIN, 12));
             setOpaque(true);
