@@ -39,9 +39,11 @@ import java.net.URL;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
@@ -59,6 +61,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.naming.InvalidNameException;
 import javax.swing.JFrame;
 
+import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.eventbus.AsyncEventBus;
 
@@ -120,6 +123,8 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
      * Singleton
      */
     private static ImcMsgManager commManager = null;
+    // This is used to avoid creating the singleton more than once
+    private static boolean singletonBeingCreated = false;
 
     private ImcId16 localId = ImcId16.NULL_ID;
     private boolean sameIdErrorDetected = false;
@@ -245,6 +250,12 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
 
     private static synchronized ImcMsgManager createManager() {
         if (commManager == null) {
+            if (singletonBeingCreated) {
+                NeptusLog.pub().error("ImcMsgManager is being created by another thread on the same time!!");
+                throw new IllegalStateException("ImcMsgManager is being created by another thread on the same time!!");
+            }
+
+            singletonBeingCreated = true;
             commManager = new ImcMsgManager(IMCDefinition.getInstance());
         }
         return commManager;
@@ -278,6 +289,8 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
 
         GeneralPreferences.addPreferencesListener(gplistener);
         gplistener.preferencesUpdated();
+
+        updateEntityResolver();
 
         commsAdmin = new CommsAdmin(this);
     }
@@ -317,6 +330,39 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         NeptusLog.pub().info("Stoping IMC comms");
         return super.stop();
     }
+
+    /**
+     * Updates entity resolver
+     */
+    private void updateEntityResolver() {
+        Map<String, BiMap<Integer, String>> systemEntitiesMap = EntitiesResolver.entitiesMap;
+        for (String systemName : systemEntitiesMap.keySet()) {
+            ImcId16 imcId = null;
+            ImcSystem imcSystem = ImcSystemsHolder.getSystemWithName(systemName);
+            if (imcSystem == null) {
+                VehicleType vehicleType = VehiclesHolder.getVehicleById(systemName);
+                if (vehicleType == null) {
+                    continue;
+                }
+                imcId = vehicleType.getImcId();
+            }
+            else {
+                imcId = imcSystem.getId();
+            }
+            if (imcId == null || imcId.compareTo(ImcId16.NULL_ID) == 0) {
+                continue;
+            }
+
+            Map<Integer, String> entitiesMap = EntitiesResolver.getEntities(systemName);
+            Map<String, Integer> invertedEntitiesMap = new HashMap<>();
+
+            for (Integer key : entitiesMap.keySet()) {
+                invertedEntitiesMap.put(entitiesMap.get(key), key);
+            }
+
+            this.imcDefinition.getResolver().setEntityMap(imcId.intValue(), invertedEntitiesMap);
+        }
+    }
     
     /**
      * Sends a message to local consumers
@@ -336,7 +382,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         
         onMessage(minfo, message);
         
-        bus.post(message);
+        //bus.post(message); // This is not needed as the onMessage will do the job
     }
 
     private void updateUdpOnIpMapper() {

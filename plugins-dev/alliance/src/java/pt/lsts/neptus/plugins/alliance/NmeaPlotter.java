@@ -1038,7 +1038,7 @@ public class NmeaPlotter extends ConsoleLayer implements NmeaProvider, Configura
     }
     
     public static class MTShip{
-        double LAT, LON, SPEED, COURSE, HEADING, TIME;
+        double LAT, LON, SPEED, COURSE, HEADING, TIME, DRAUGHT;
         String SHIPNAME, TYPE_IMG, TYPE_NAME, STATUS_NAME,DESTINATION;
         long SHIP_ID,ELAPSED;
         int LENGTH,WIDTH,L_FORE,W_LEFT,ROT,SHIPTYPE,TYPE;

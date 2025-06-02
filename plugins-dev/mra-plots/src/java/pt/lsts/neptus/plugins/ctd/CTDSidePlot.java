@@ -54,6 +54,7 @@ import pt.lsts.imc.Depth;
 import pt.lsts.imc.Salinity;
 import pt.lsts.imc.Temperature;
 import pt.lsts.imc.lsf.LsfIndex;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.colormap.ColorMapUtils;
@@ -209,18 +210,26 @@ public class CTDSidePlot extends SimpleMRAVisualization {
                 sal.add(s.getValue());
             }
             catch (Exception e) {
-                e.printStackTrace();
+                NeptusLog.pub().warn("Error parsing data: {}", e.getMessage());
             }
-            
-            
         }
         
         pmonitor.setNote("Generating temperature colormap");
-        tabs.add("Temperature", buildImage("Depth", xCoords, yCoords, temp));
-        
+        try {
+            tabs.add("Temperature", buildImage("Depth", xCoords, yCoords, temp));
+        }
+        catch (Exception e) {
+            NeptusLog.pub().warn("Error generating temperature colormap. {}", e.getMessage());
+        }
+
         pmonitor.setNote("Generating salinity colormap");
-        tabs.add("Salinity", buildImage("Depth", xCoords, yCoords, sal));
-        
+        try {
+            tabs.add("Salinity", buildImage("Depth", xCoords, yCoords, sal));
+        }
+        catch (Exception e) {
+            NeptusLog.pub().warn("Error generating salinity colormap. {}", e.getMessage());
+        }
+
         pmonitor.close();
         return tabs;
     }

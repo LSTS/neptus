@@ -104,7 +104,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
 
     protected final LinkedHashMap<String, SystemProperty> params = new LinkedHashMap<>();
 
-    private static boolean isAskForCategories = false;
+    private static boolean isAskForCategories = true;
 
     private JPanel swapPropertiesAndCategoriesPanel;
     private JPanel mainPanel;
@@ -244,7 +244,8 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
                 SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
                     @Override
                     protected Void doInBackground() throws Exception {
-                        refreshPropertiesOnPanel(true, true, new String[] {CommsAdmin.CommChannelType.WIFI.name});
+                        refreshPropertiesOnPanel(true, true,
+                                new String[] {CommsAdmin.CommChannelType.WIFI.name, CommsAdmin.CommChannelType.IRIDIUM.name});
                         return null;
                     }
                 };
@@ -684,9 +685,11 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
             if (previousCheckCategoriesOnPanel != null && !previousCheckCategoriesOnPanel.containsKey(category)) {
                 cb.setSelected(false);
             }
-            // if selected add to checkCategories
-            if (!chosenCategories.contains(category))
+            // if selected add to checkCategories, else remove it
+            if (cb.isSelected() && !chosenCategories.contains(category))
                 chosenCategories.add(category);
+            if (!cb.isSelected())
+                chosenCategories.remove(category);
             checkBoxes.add(cb);
         }
         categoriesPanel.removeAll();

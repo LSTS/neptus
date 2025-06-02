@@ -655,7 +655,12 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
         clearMemCache(mapStyle, null);
     }
 
-   public static void clearMemCache(String mapStyle, List<String> quadKeys) {
+    /**
+     * Clear all quadKeys and also all zoom levels below the quadKey tiles
+     * @param mapStyle
+     * @param quadKeys
+     */
+    public static void clearMemCache(String mapStyle, List<String> quadKeys) {
         Map<String, Tile> map = tileHolderList.get(mapStyle);
         if (map != null) {
             Tile[] lst = map.values().toArray(new Tile[0]);
@@ -665,7 +670,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
                 if (quadKeys == null || quadKeys.isEmpty()) {
                     tile.dispose();
                 } else {
-                    if (quadKeys.contains(tile.getId())) {
+                    if (quadKeys.stream().anyMatch(s -> tile.getId().startsWith(s))) {
                         map.remove(tile.getId());
                         tile.dispose();
                     }
@@ -1383,7 +1388,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
                             @Override
                             protected Void doInBackground() throws Exception {
                                 int levelOfDetail = renderer2D.getLevelOfDetail();
-                                List<String> bagList = fetchQuadKeysFor(renderer2D, ms, MapTileUtil.LEVEL_MAX - levelOfDetail);
+                                List<String> bagList = fetchQuadKeysFor(renderer2D, ms, 0);
                                 clearMemCache(ms, bagList);
                                 clearDiskCache(ms, bagList);
                                 return null;

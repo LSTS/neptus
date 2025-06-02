@@ -149,7 +149,11 @@ public class GdalDataSet {
         catch (IOException e) {
             throw new Exception("Unable to read source image: " + e.getMessage(), e);
         }
-        
+
+        if (!file.exists()) {
+            throw new Exception("Unable to write image to file " + file.getAbsolutePath());
+        }
+
         el.setImageFileName(file.getAbsolutePath());
         double[] mppx = getMetersPerPixel();
         el.setImageScale(mppx[0]);

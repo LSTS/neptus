@@ -26,6 +26,12 @@ ext {
     libJNIPaths = ['.']
 
     jreDownloadVersion = "jdk-11.0.21+9"
+
+    // optional "gradle.local.properties" file properties
+    runUiScale = 1.0 // Default UI scale factor for application task
+}
+if (file('gradle.local.properties').exists()) {
+    apply from: 'gradle.local.properties'
 }
 
 defaultTasks 'buildJars', 'buildBundleJars'
@@ -75,7 +81,7 @@ def String relativePathIfOnProjectPath(fx, String prefixForRelative){
 def generateStartScriptsFor(String applicationNameOpt, String taskPrefixName,
         String mainclass, String appHomeRelativePathOpt, String addedSectionSnippetName,
         FileCollection classpathCollection) {
-    return tasks.create("${taskPrefixName}StartScripts", CreateStartScripts) {
+    return tasks.create("${taskPrefixName}StartScripts".toString(), CreateStartScripts) {
         applicationName = "$applicationNameOpt"
         outputs.upToDateWhen { false }
         mainClass = "$mainclass"
@@ -85,7 +91,7 @@ def generateStartScriptsFor(String applicationNameOpt, String taskPrefixName,
 
         defaultJvmOpts = [
             '-Xms10m',
-            '-Xmx2g',
+            '-Xmx4g',
             '-XX:MaxMetaspaceSize=512m',
             '-XX:+UseG1GC', //for Java 8+
             //'-XX:+UseZGC', //for Java 11+
@@ -97,20 +103,20 @@ def generateStartScriptsFor(String applicationNameOpt, String taskPrefixName,
 
         doLast {
             unixScript.text = unixScript.text.replace('@lib_jni_linux_x64@',
-                getLibJNIFor(['linux'], ['x64', 'x86']).collect { "${relativePathIfOnProjectPath(it, '\$APP_HOME/',)}" }.join(':'))
+                getLibJNIFor(['linux'], ['x64', 'x86']).collect { "${relativePathIfOnProjectPath(it, '\$APP_HOME/',)}".toString() }.join(':'))
             unixScript.text = unixScript.text.replace('@lib_jni_linux_x86@',
-                getLibJNIFor(['linux'], ['x86']).collect { "${relativePathIfOnProjectPath(it, '\$APP_HOME/')}" }.join(':'))
+                getLibJNIFor(['linux'], ['x86']).collect { "${relativePathIfOnProjectPath(it, '\$APP_HOME/')}".toString() }.join(':'))
             unixScript.text = unixScript.text.replace('@lib_jni_osx_x64@',
-                getLibJNIFor(['osx'], ['x64']).collect { "${relativePathIfOnProjectPath(it, '\$APP_HOME/')}" }.join(':'))
+                getLibJNIFor(['osx'], ['x64']).collect { "${relativePathIfOnProjectPath(it, '\$APP_HOME/')}".toString() }.join(':'))
             unixScript.text = unixScript.text.replace('@added_section@', addedSectionSnippetName.isEmpty() ? ''
-                : rootProject.file("dist/scripts/unixSnippet${addedSectionSnippetName}.txt").getText('UTF-8'))
+                : rootProject.file("dist/scripts/unixSnippet${addedSectionSnippetName}.txt".toString()).getText('UTF-8'))
 
             windowsScript.text = windowsScript.text.replace('@lib_jni_windows_x64@',
-                getLibJNIFor(['win'], ['x64', 'x86']).collect { "${relativePathIfOnProjectPath(it, '%APP_HOME%\\',)}" }.join(';'))
+                getLibJNIFor(['win'], ['x64', 'x86']).collect { "${relativePathIfOnProjectPath(it, '%APP_HOME%\\',)}".toString() }.join(';'))
             windowsScript.text = windowsScript.text.replace('@lib_jni_windows_x86@',
-                getLibJNIFor(['win'], ['x86']).collect { "${relativePathIfOnProjectPath(it, '%APP_HOME%\\',)}" }.join(';'))
+                getLibJNIFor(['win'], ['x86']).collect { "${relativePathIfOnProjectPath(it, '%APP_HOME%\\',)}".toString() }.join(';'))
             windowsScript.text = windowsScript.text.replace('@added_section@', addedSectionSnippetName.isEmpty() ? ''
-                : rootProject.file("dist/scripts/windowsSnippet${addedSectionSnippetName}.txt").getText('UTF-8'))
+                : rootProject.file("dist/scripts/windowsSnippet${addedSectionSnippetName}.txt".toString()).getText('UTF-8'))
         }
     }
 }
@@ -218,15 +224,16 @@ application {
     // https://dzone.com/articles/7-jvm-arguments-of-highly-effective-applications-1?edition=590292&utm_source=Weekly%20Digest&utm_medium=email&utm_campaign=Weekly%20Digest%202020-04-01
     applicationDefaultJvmArgs = [
         '-Xms10m',
-        '-Xmx2g',
+        '-Xmx4g',
         '-XX:MaxMetaspaceSize=512m',
         '-XX:+UseG1GC', //for Java 8+
         //'-XX:+UseZGC', //for Java 11+
         //'-XX:+PrintGCDetails', '-XX:+PrintGCDateStamps', "-Xloggc:${relativePath('./log')}", //for Java 8-
         //"-Xlog:gc*:file=${relativePath('./log')}", //for Java 9+
-        '-XX:+HeapDumpOnOutOfMemoryError', "-XX:HeapDumpPath=${relativePath('./log/heap-dump.hprof')}",
+        '-XX:+HeapDumpOnOutOfMemoryError', "-XX:HeapDumpPath=${relativePath('./log/heap-dump.hprof')}".toString(),
         '-Xss256k',
-        "-Djava.library.path=\"${libJNIPaths.collect { "${relativePath(it)}" }.join(isFamily(FAMILY_WINDOWS) ? ';' : ':') }\"",
+        "-Djava.library.path=\"${libJNIPaths.collect { "${relativePath(it)}" }.join(isFamily(FAMILY_WINDOWS) ? ';' : ':') }\"".toString(),
+        "-Dsun.java2d.uiScale=${runUiScale}".toString(),
         ]
 }
 
@@ -349,8 +356,8 @@ project(':core') {
     }
 
     dependencies {
-        implementation name: 'libimc-5.90.4'
-        implementation name: 'libimcsender-5.90.4'
+        implementation name: 'libimc-5.90.5'
+        implementation name: 'libimcsender-5.90.5'
 
         implementation name: 'aisparser-2.0.0'
         implementation name: 'jssc' //dependency of aisparser, and serial port reader

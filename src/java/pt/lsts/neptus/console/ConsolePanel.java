@@ -328,6 +328,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
 
         dialog.setSize(width, height);
         // dialog.setFocusable(true);
+        onPopupCreation();
 
         if (accelerator != null) {
             popUpAction = menuItem.getAction(); //use same action as the one used on object creation
@@ -379,6 +380,12 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         menuItem = null;
         dialog = null;
         popUpAction = null;
+    }
+
+    /**
+     * Optional method for triggering logic after popup creation
+     */
+    protected void onPopupCreation() {
     }
 
     /**
@@ -836,15 +843,15 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         if (message.getTimestamp() == 0)
             message.setTimestampMillis(System.currentTimeMillis());
         Collection<ImcIridiumMessage> irMsgs = new ArrayList<ImcIridiumMessage>();
+        int dst = IMCDefinition.getInstance().getResolver().resolve(destination);
         try {
-            irMsgs = IridiumManager.iridiumEncode(message);
+            irMsgs = IridiumManager.iridiumEncode(dst, message);
         }
         catch (Exception e) {
             GuiUtils.errorMessage(getConsole(), "Send by Iridium", e.getMessage());
             return false;
         }
         int src = getConsole().getImcMsgManager().getLocalId().intValue();
-        int dst = IMCDefinition.getInstance().getResolver().resolve(destination);
         int count = 0;
         try {
             NeptusLog.pub().warn(message.getAbbrev() + " resulted in " + irMsgs.size() + " iridium SBD messages.");

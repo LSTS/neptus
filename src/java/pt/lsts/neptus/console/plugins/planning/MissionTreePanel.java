@@ -40,6 +40,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -56,6 +57,7 @@ import javax.swing.SwingWorker;
 import com.google.common.eventbus.Subscribe;
 
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.IMCUtil;
 import pt.lsts.imc.LblBeacon;
 import pt.lsts.imc.LblConfig;
 import pt.lsts.imc.LblConfig.OP;
@@ -234,6 +236,11 @@ public class MissionTreePanel extends ConsolePanel
                 PlanControlState pcsMsg = state.last(PlanControlState.class);
                 if (pcsMsg != null) {
                      on(pcsMsg);
+                } else {
+                    StateReport srMsg = state.last(StateReport.class);
+                    if (srMsg != null) {
+                        on(srMsg);
+                    }
                 }
             }
         }
@@ -353,27 +360,41 @@ public class MissionTreePanel extends ConsolePanel
 
             // Non matching plans
             if (!planNamesToAutoAcceptUpdatesList.contains(plan.getId())) {
-                int option = JOptionPane.showConfirmDialog(getConsole(),
-                        I18n.text("Replace plan '" + plan.getId() + "' with version disseminated by "
-                                + msg.getSourceName()+"?"));
-                if (option != JOptionPane.YES_OPTION) {
-                    return;
-                }
+                getConsole().post(Notification.info(I18n.text("Plan Dissemination"),
+                                I18n.textf("Replace plan '%plan' with version disseminated by %sourceName?",
+                                        plan.getId(), msg.getSourceName()))
+                        .requireHumanAction(true)
+                        .actionListener(e -> {
+                            updatePlanOnMission(msg, plan, true,
+                                    I18n.textf("Replaced plan '%plan' with version disseminated by %sourceName.",
+                                            plan.getId(), msg.getSourceName()));
+                        }));
+                return;
+//                int option = JOptionPane.showConfirmDialog(getConsole(),
+//                        I18n.text("Replace plan '" + plan.getId() + "' with version disseminated by "
+//                                + msg.getSourceName()+"?"));
+//                if (option != JOptionPane.YES_OPTION) {
+//                    return;
+//                }
             }
         }
-        
+
+        updatePlanOnMission(msg, plan, alreadyLocal, I18n.textf("Received plan '%plan' from %ccu.",
+                plan.getId(), msg.getSourceName()));
+    }
+
+    private void updatePlanOnMission(PlanSpecification msg, PlanType plan, boolean alreadyLocal, String messageToShow) {
         getConsole().getMission().getIndividualPlansList().put(plan.getId(), plan);
         getConsole().getMission().save(true);
-        getConsole().post(Notification.success(I18n.text("Plan Dissemination"),
-                I18n.textf("Received plan '%plan' from %ccu.", plan.getId(), msg.getSourceName())));
-        
+        getConsole().post(Notification.success(I18n.text("Plan Dissemination"), messageToShow));
+
         if (alreadyLocal && getConsole().getPlan() != null) {
             if(getConsole().getPlan().getId().equals(plan.getId()))
                 getConsole().setPlan(plan);
         }
         browser.refreshBrowser(getConsole().getMission(), getMainVehicleId(), getConsole());
     }
-    
+
     @Subscribe
     public void on(PlanControlState msg) {
         if (getConsole().getMainSystem().equalsIgnoreCase(msg.getSourceName())) {
@@ -391,7 +412,21 @@ public class MissionTreePanel extends ConsolePanel
             this.running = true;
         }
     }
-    
+
+    @Subscribe
+    public void on(StateReport message) {
+        if (!message.getSourceName().equals(getConsole().getMainSystem()))
+            return;
+
+        for (String plan : getConsole().getMission().getIndividualPlansList().keySet()) {
+            byte[] bytes = plan.getBytes(StandardCharsets.UTF_8);
+            if (IMCUtil.computeCrc16(bytes, 0, 0) == message.getPlanChecksum()) {
+                mainVehicleLastPlanId = plan;
+                break;
+            }
+        }
+    }
+
     @Subscribe
     public void on(LblRangeAcceptance msg) {
         browser.transUpdateTimer(msg.getId(), getMainVehicleId());
@@ -761,22 +796,6 @@ public class MissionTreePanel extends ConsolePanel
                         }
                     }
 
-                    if (addForMainVehiclePlan) {
-                        NameId nameId = new NameId() {
-                            @Override
-                            public String getIdentification() {
-                                return mainVehicleLastPlanId;
-                            }
-                            @Override
-                            public String getDisplayName() {
-                                return mainVehicleLastPlanId;
-                            }
-                        };
-                        toGetPlan.add(nameId);
-
-                        toGetPlanInfo.add(nameId);
-                    }
-
                     if (!toRemoveRemotely.isEmpty())
                         addActionRemovePlanRemotely(getConsole(), pdbControl, toRemoveRemotely, popupMenu);
                     if (!toRemoveLocally.isEmpty())
@@ -845,9 +864,26 @@ public class MissionTreePanel extends ConsolePanel
                     // Check if what is selected is a parent folders
                     if (selectedNodes.size() == 1) {
                         String parentName = (String) selectedNodes.get(0).getUserObject();
-                        if(parentName.equals(ParentNodes.TRANSPONDERS.nodeName)){
+                        if (parentName.equals(ParentNodes.TRANSPONDERS.nodeName)){
                             addActionAddNewTrans(popupMenu);
                             addActionRemoveAllTrans(popupMenu);
+                        } else if (parentName.equals(ParentNodes.PLANS.nodeName)){
+                            if (addForMainVehiclePlan && mainVehicleLastPlanId != null && !mainVehicleLastPlanId.isEmpty()) {
+                                NameId nameId = new NameId() {
+                                    @Override
+                                    public String getIdentification() {
+                                        return mainVehicleLastPlanId;
+                                    }
+                                    @Override
+                                    public String getDisplayName() {
+                                        return mainVehicleLastPlanId;
+                                    }
+                                };
+                                ArrayList<NameId> list = new ArrayList<>();
+                                list.add(nameId);
+                                addActionGetRemotePlan(getConsole(), pdbControl, list, popupMenu);
+                                addActionSendPlanInfoRequest(getConsole(), pdbControl, list, popupMenu);
+                            }
                         }
                     }
                     break;

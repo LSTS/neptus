@@ -63,6 +63,7 @@ import pt.lsts.imc.Voltage;
 import pt.lsts.imc.net.IMCFragmentHandler;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
+import pt.lsts.neptus.comm.manager.imc.ImcMessageFragmentManager;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.ByteUtil;
@@ -122,7 +123,11 @@ public class IridiumManager {
     }
 
     private final Runnable pollMessages = new Runnable() {
-        Date lastTime = new Date(System.currentTimeMillis() - Duration.ofHours(1).toMillis());
+        int hourPart = (int) GeneralPreferences.iridiumMessengerPollWindowHours;
+        int minutePart = (int) Math.round((GeneralPreferences.iridiumMessengerPollWindowHours - hourPart) * 60);
+
+        Date lastTime = new Date(System.currentTimeMillis() - (hourPart > 0 ? Duration.ofHours(hourPart).toMillis() : 0)
+                - (minutePart > 0 ? Duration.ofMinutes(minutePart).toMillis() : 0));
         //Date lastTime = new GregorianCalendar(2024, Calendar.NOVEMBER, 6).getTime(); // new Date(System.currentTimeMillis() - Duration.ofHours(1).toMillis());
 
         @Override
@@ -428,8 +433,8 @@ public class IridiumManager {
         return instance;
     }
 
-    public static Collection<ImcIridiumMessage> iridiumEncode(IMCMessage msg) throws Exception {
-        if (msg.getPayloadSize() < ImcIridiumMessage.MaxPayloadSize) {
+    public static Collection<ImcIridiumMessage> iridiumEncode(int imcSystemId, IMCMessage msg) throws Exception {
+        if ((msg instanceof MessagePart) || msg.getPayloadSize() <= ImcIridiumMessage.MaxPayloadSize) {
             ImcIridiumMessage m = new ImcIridiumMessage();
             m.setSource(msg.getSrc());
             m.setDestination(msg.getDst());
@@ -440,7 +445,11 @@ public class IridiumManager {
         else {
             MessagePart[] parts = new IMCFragmentHandler(IMCDefinition.getInstance()).fragment(msg,
                     ImcIridiumMessage.MaxPayloadSize+IMCDefinition.getInstance().headerLength());
-            
+
+            if (parts.length > 0) {
+                ImcMessageFragmentManager.getInstance().addSentFragments(parts[0].getUid(), imcSystemId, Arrays.asList(parts));
+            }
+
             ArrayList<ImcIridiumMessage> ret = new ArrayList<ImcIridiumMessage>();
             for (MessagePart mp : parts) {
                 ImcIridiumMessage m = new ImcIridiumMessage();
@@ -463,7 +472,7 @@ public class IridiumManager {
             System.out.println("Message of type "+m.getAbbrev()+" and size "+(m.getPayloadSize()));
             System.out.println(m);
             try {
-                Collection<ImcIridiumMessage> msgs = iridiumEncode(m);
+                Collection<ImcIridiumMessage> msgs = iridiumEncode(0xFFFF, m);
                 System.out.println(" ==> "+msgs.size()+" messages");
                 for (ImcIridiumMessage msg : msgs) {
                     ByteUtil.dumpAsHex("Iridium message of type "+msg.getMessageType(), msg.serialize(), System.out);

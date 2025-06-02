@@ -137,7 +137,7 @@ public class MissionTreePlanDbAdapter extends PlanDBAdapter {
         // Alert listeners
         console.updateMissionListeners();
 
-        if (console.getPlan().getId().equals(spec.getId())) {
+        if (console.getPlan() != null && console.getPlan().getId().equals(spec.getId())) {
             console.setPlan(spec);
         }
 

@@ -618,30 +618,9 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
      * A public static method clearDiskCache(String... tileQuadKeys) should be created for every class extending Tile.
      * @param tileClassId This should be the class {@link Class#getSimpleName()}.
      *                    If null will delete all cache.
-     * @param tileQuadKeys This should be the quad keys of the tiles to delete.
+     * @param tileQuadKeys This should be the quad keys of the tiles to delete. Also will delete all tiles from the zooms above
      */
     public static void clearDiskCache(String tileClassId, List<String> tileQuadKeys) {
-        Map<String, Map<String, List<String>>> mapTilesZXY = new HashMap<>();
-        if (tileQuadKeys != null) {
-            for (String tileQuadKey : tileQuadKeys) {
-                try {
-                    int[] txy = MapTileUtil.quadKeyToTileXY(tileQuadKey);
-                    String z = txy[2] + "";
-                    String x = txy[0] + "";
-                    String y = txy[1] + "";
-                    if (!mapTilesZXY.containsKey(z))
-                        mapTilesZXY.put(z, new HashMap<>());
-                    Map<String, List<String>> mz = mapTilesZXY.get(z);
-                    if (!mz.containsKey(x))
-                        mz.put(x, new ArrayList<>());
-                    mz.get(x).add(y);
-                }
-                catch (Exception e) {
-                    NeptusLog.pub().debug("Error parsing tile quad key: {}", tileQuadKey);
-                }
-            }
-        }
-
         final String path = TILE_BASE_CACHE_DIR + "/" + tileClassId;
         Thread t = new Thread(() -> {
             tileCacheDiskClearOrTileSaveLock.writeLock().lock();
@@ -656,9 +635,7 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
                 for (File fileZ : zList) {
                     String zStr = fileZ.getName().replace("z", "");
                     try {
-                        Integer.parseInt(zStr);
-                        if (!mapTilesZXY.isEmpty() && !mapTilesZXY.containsKey(zStr))
-                            continue;
+                        int zLevel = Integer.parseInt(zStr);
                         File[] xList = fileZ.listFiles(pathname -> pathname.isDirectory() && (!pathname.getName().isEmpty()
                                 && pathname.getName().charAt(0) == 'x'));
                         if (xList == null)
@@ -666,9 +643,7 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
                         for (File fileX : xList) {
                             String xStr = fileX.getName().replace("x", "");
                             try {
-                                Integer.parseInt(xStr);
-                                if (!mapTilesZXY.isEmpty() && !mapTilesZXY.get(zStr).containsKey(xStr))
-                                    continue;
+                                int tileX = Integer.parseInt(xStr);
                                 File[] yList = fileX.listFiles(pathname -> pathname.isFile()
                                         && TILE_FX_EXTENSION.equalsIgnoreCase(FileUtil
                                         .getFileExtension(pathname))
@@ -678,9 +653,11 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
                                 for (File fileY : yList) {
                                     String yStr = fileY.getName().replace("y", "").replace("." + TILE_FX_EXTENSION, "");
                                     try {
-                                        Integer.parseInt(yStr);
-                                        if (!mapTilesZXY.isEmpty() && !mapTilesZXY.get(zStr).get(xStr).contains(yStr))
+                                        int tileY = Integer.parseInt(yStr);
+                                        String quadkey = MapTileUtil.tileXYToQuadKey(tileX, tileY, zLevel);
+                                        if (tileQuadKeys != null && tileQuadKeys.stream().noneMatch(s -> quadkey.startsWith(s)))
                                             continue;
+
                                         if (fileY.delete())
                                             yCount++;
                                         else
@@ -690,7 +667,7 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
                                         NeptusLog.pub().debug("Error deleting tile Y file: {} : {}", fileY.getAbsolutePath(), e.getMessage());
                                     }
                                 }
-                                if (mapTilesZXY.isEmpty() || Objects.requireNonNull(fileX.listFiles()).length == 0) {
+                                if (tileQuadKeys == null || tileQuadKeys.isEmpty() || Objects.requireNonNull(fileX.listFiles()).length == 0) {
                                     if (fileX.delete())
                                         xCount++;
                                     else
@@ -701,7 +678,7 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
                                 NeptusLog.pub().debug("Error deleting tile X folder: {} : {}", fileX.getAbsolutePath(), e.getMessage());
                             }
                         }
-                        if (mapTilesZXY.isEmpty() || Objects.requireNonNull(fileZ.listFiles()).length == 0) {
+                        if (tileQuadKeys == null || tileQuadKeys.isEmpty() || Objects.requireNonNull(fileZ.listFiles()).length == 0) {
                             if (fileZ.delete())
                                 zCount++;
                             else
@@ -712,7 +689,7 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
                         NeptusLog.pub().debug("Error deleting tile Z folder: {} : {}", fileZ.getAbsolutePath(), e.getMessage());
                     }
                 }
-                if (mapTilesZXY.isEmpty() || Objects.requireNonNull(base.listFiles()).length == 0) {
+                if (tileQuadKeys == null || tileQuadKeys.isEmpty() || Objects.requireNonNull(base.listFiles()).length == 0) {
                     bCount = base.delete() ? bCount + 1 : bCount;
                 }
             }

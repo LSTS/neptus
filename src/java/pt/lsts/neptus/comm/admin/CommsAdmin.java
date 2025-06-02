@@ -42,6 +42,7 @@ import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.comm.iridium.ImcIridiumMessage;
 import pt.lsts.neptus.comm.iridium.IridiumManager;
 import pt.lsts.neptus.comm.iridium.UpdateDeviceActivation;
+import pt.lsts.neptus.comm.manager.imc.ImcMessageFragmentManager;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
@@ -144,6 +145,8 @@ public class CommsAdmin {
         this.imcMsgManager = imcMsgManager;
 
         Collections.addAll(channels, CommChannelType.values());
+
+        ImcMessageFragmentManager.getInstance(this.imcMsgManager); // Ensure the fragment manager is initialized
     }
 
     //public static boolean sendMessage(IMCMessage msg, String sendProperties, MessageDeliveryListener listener,
@@ -283,6 +286,12 @@ public class CommsAdmin {
                                 IMCFragmentHandler handler = new IMCFragmentHandler(IMCDefinition.getInstance());
 
                                 MessagePart[] parts = handler.fragment(message, MAX_ACOMMS_PAYLOAD_SIZE);
+                                if (parts.length > 0) {
+                                    ImcMessageFragmentManager.getInstance().addSentFragments(parts[0].getUid(),
+                                            system.getId().intValue(),
+                                            Arrays.asList(parts));
+                                }
+
                                 NeptusLog.pub().info("PlanDB message resulted in " + parts.length + " fragments");
                                 for (MessagePart part : parts) {
                                     TransmissionRequest request = getAcousticTransmissionRequestForImcMessage(part, system);
@@ -383,9 +392,10 @@ public class CommsAdmin {
     public void sendViaIridium(String destination, IMCMessage message, ResultWaiter waiter) {
         if (message.getTimestamp() == 0)
             message.setTimestampMillis(System.currentTimeMillis());
+        int dst = IMCDefinition.getInstance().getResolver().resolve(destination);
         Collection<ImcIridiumMessage> irMsgs;
         try {
-            irMsgs = IridiumManager.iridiumEncode(message);
+            irMsgs = IridiumManager.iridiumEncode(dst, message);
         }
         catch (Exception e) {
             NeptusLog.pub().warn("Send by Iridium :: " + e.getMessage());
@@ -393,7 +403,6 @@ public class CommsAdmin {
             return;
         }
         int src = ImcMsgManager.getManager().getLocalId().intValue();
-        int dst = IMCDefinition.getInstance().getResolver().resolve(destination);
         int count = 0;
         try {
             NeptusLog.pub().warn(message.getAbbrev() + " resulted in " + irMsgs.size() + " iridium SBD messages.");
