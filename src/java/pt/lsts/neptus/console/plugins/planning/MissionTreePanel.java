@@ -70,6 +70,7 @@ import pt.lsts.imc.state.ImcSystemState;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.comm.IMCUtils;
+import pt.lsts.neptus.comm.admin.CommsAdmin;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
@@ -267,9 +268,15 @@ public class MissionTreePanel extends ConsolePanel
                 try {
                     LblConfig msgLBLConfiguration = new LblConfig();
                     msgLBLConfiguration.setOp(LblConfig.OP.GET_CFG);
-                    IMCSendMessageUtils.sendMessage(msgLBLConfiguration, 
-                            I18n.textf("Unable to get %vehicle list of transponders.", getMainVehicleId()), 
-                            true, true, getMainVehicleId());
+                    // Don't ask by Iridium
+                    //IMCSendMessageUtils.sendMessage(msgLBLConfiguration,
+                    //        I18n.textf("Unable to get %vehicle list of transponders.", getMainVehicleId()),
+                    //        true, true, getMainVehicleId());
+                    IMCSendMessageUtils.sendMessage(msgLBLConfiguration, null, null, null,
+                            I18n.textf("Unable to get %vehicle list of transponders.", getMainVehicleId()),
+                            true, "acoustic/operation", false, true, true, true,
+                            new String[] {CommsAdmin.CommChannelType.WIFI.name, CommsAdmin.CommChannelType.ACOUSTIC.name},
+                            "acoustic/operation");
                 }
                 catch (Exception e) {
                     e.printStackTrace();
