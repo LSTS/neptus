@@ -284,7 +284,8 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
                 SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
                     @Override
                     protected Boolean doInBackground() throws Exception {
-                        return send(IMCDefinition.getInstance().create("GetOperationalLimits"));
+                        return send(IMCDefinition.getInstance().create("GetOperationalLimits"),
+                                e == null); // if e == null then is called on change the main vehicle
                     }
                 };
                 worker.execute();
@@ -363,11 +364,18 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
 
     @Override
     public boolean send(IMCMessage message) {
+        return send(message, false);
+    }
+
+    public boolean send(IMCMessage message, boolean onlyWifi) {
         String destination = getConsole().getMainSystem();
         if (destination == null)
             return false;
         ImcSystem sysL = ImcSystemsHolder.lookupSystemByName(destination);
         if (sysL != null && !sysL.isActive()) {
+            if (onlyWifi)
+                return false; // do not send via Iridium if onlyWifi is true
+
             boolean userAproveRequest = false;
             boolean userAproved = true;
             if (lastRequest.getTime() + Duration.ofSeconds(3).toMillis() < System.currentTimeMillis()) {
