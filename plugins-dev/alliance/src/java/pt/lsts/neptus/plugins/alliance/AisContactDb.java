@@ -175,7 +175,18 @@ public class AisContactDb implements AISObserver {
             return labelCache.get(mmsi);
         }
     }
-    
+
+    public String getMssiForName(String name) {
+        synchronized (lock) {
+            for (Entry<Integer, String> entry : labelCache.entrySet()) {
+                if (entry.getValue().equalsIgnoreCase(name) && entry.getKey() > 0) {
+                    return String.format("%d", entry.getKey());
+                }
+            }
+        }
+        return null;
+    }
+
     public void processGGA(String sentence) {
         lastGGA = sentence;
         LocationType myLoc = NMEAUtils.processGGASentence(lastGGA);
