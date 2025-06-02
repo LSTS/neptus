@@ -69,6 +69,7 @@ import jssc.SerialPort;
 import jssc.SerialPortEvent;
 import jssc.SerialPortEventListener;
 import pt.lsts.aismanager.api.AisContactManager;
+import pt.lsts.imc.AisInfo;
 import pt.lsts.imc.DevDataText;
 import pt.lsts.imc.lsf.LsfMessageLogger;
 import pt.lsts.neptus.NeptusLog;
@@ -93,10 +94,12 @@ import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.ScatterPointsElement;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
+import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.NMEAUtils;
+import pt.lsts.neptus.util.UnitsUtil;
 import pt.lsts.neptus.util.nmea.NmeaListener;
 import pt.lsts.neptus.util.nmea.NmeaProvider;
 
@@ -349,6 +352,105 @@ public class NmeaPlotter extends ConsoleLayer implements NmeaProvider, Configura
     @Subscribe
     public void on(DevDataText ddt) {
         parseSentence(ddt.getValue());
+    }
+
+    @Subscribe
+    public void on(AisInfo aisInfo) {
+        String mmsiStr = aisInfo.getMmsi();
+        if (mmsiStr == null || mmsiStr.isEmpty())
+            return;
+
+        int mmsiNbr = -1;
+        try {
+            mmsiNbr = Integer.parseInt(mmsiStr);
+        }
+        catch (NumberFormatException e) {
+            NeptusLog.pub().warn("Invalid MMSI: {} :: {}", aisInfo.getMmsi(), e.getMessage());
+            return;
+        }
+
+        String shipName = aisInfo.getName();
+        if (mmsiNbr <= 0) {
+            NeptusLog.pub().warn("Invalid MMSI: {} :: {}", aisInfo.getMmsi(), "MMSI must be greater than 0");
+            if (shipName == null || shipName.isEmpty()) {
+                return;
+            }
+            String mmsiStrFound = contactDb.getMssiForName(shipName);
+            if (mmsiStrFound == null || mmsiStrFound.isEmpty()) {
+                if (mmsiNbr == -1) {
+                    return;
+                }
+
+                NeptusLog.pub().warn("Invalid MMSI: {} :: {}, using the invalid {}",
+                        aisInfo.getMmsi(), "No MMSI found for ship name", mmsiNbr);
+            }
+
+            try {
+                if (mmsiStrFound != null && !mmsiStrFound.isEmpty()) {
+                    mmsiNbr = Integer.parseInt(mmsiStrFound);
+                }
+            }
+            catch (NumberFormatException e) {
+                NeptusLog.pub().warn("Invalid MMSI: {} :: {}", aisInfo.getMmsi(), e.getMessage());
+                return;
+            }
+        }
+
+        if (shipName == null || shipName.isEmpty()) {
+            shipName = contactDb.getNameForMMSI(mmsiNbr);
+            shipName = "MMSI " + mmsiNbr;
+        }
+
+        String msgTypeStr = aisInfo.getMsgType();
+        if (msgTypeStr == null || msgTypeStr.isEmpty()) {
+            NeptusLog.pub().warn("Invalid AIS message type: {} :: {}", aisInfo.getMmsi(), "Message type is null or empty");
+            return;
+        }
+        int msgType = -1;
+        try {
+            msgType = Integer.parseInt(msgTypeStr);
+        }
+        catch (NumberFormatException e) {
+            NeptusLog.pub().warn("Invalid AIS message type: {} :: {}", aisInfo.getMmsi(), e.getMessage());
+            return;
+        }
+
+        if (msgType < 1 || msgType > 27) {
+            NeptusLog.pub().warn("Invalid AIS message type: {} :: {}", aisInfo.getMmsi(), "Message type must be between 1 and 27");
+            return;
+        }
+
+        if (msgType >= 1 && msgType <=3) {
+            MTShip mtShip = new MTShip();
+            mtShip.SHIP_ID = mmsiNbr;
+            mtShip.SHIPNAME = shipName;
+            mtShip.SHIPTYPE = 0; // Not available
+            mtShip.LAT = AngleUtils.nomalizeAngleDegrees180(Math.toDegrees(aisInfo.getLat()));
+            mtShip.LON = AngleUtils.nomalizeAngleDegrees180(Math.toDegrees(aisInfo.getLon()));
+            mtShip.STATUS_NAME = "" + aisInfo.getNavStatus(); // TODO AISUtil.translateNavigationalStatus(aisInfo.getNavStatus());
+            mtShip.SPEED = aisInfo.getSpeed() / UnitsUtil.MS_TO_KNOT;
+            mtShip.COURSE = AngleUtils.nomalizeAngleDegrees180(aisInfo.getCourse());
+            mtShip.HEADING = mtShip.COURSE;
+            mtShip.ELAPSED = System.currentTimeMillis() - aisInfo.getTimestampMillis();
+            contactDb.setMTShip(mtShip);
+        }
+        else if (msgType == 5) {
+            MTShip mtShip = new MTShip();
+            mtShip.SHIP_ID = mmsiNbr;
+            mtShip.SHIPNAME = shipName;
+            mtShip.SHIPTYPE = aisInfo.getTypeAndCargo();
+            mtShip.HEADING = 351; // Not available
+            mtShip.COURSE = 351; // Not available
+            mtShip.W_LEFT = (int) Math.ceil(aisInfo.getC());
+            mtShip.WIDTH = (int) Math.ceil(aisInfo.getC() + aisInfo.getD());
+            mtShip.L_FORE = (int) Math.ceil(aisInfo.getA());
+            mtShip.LENGTH = (int) Math.ceil(aisInfo.getA() + aisInfo.getB());
+            mtShip.DRAUGHT = (int) Math.ceil(aisInfo.getDraught());
+            mtShip.ELAPSED = System.currentTimeMillis() - aisInfo.getTimestampMillis();
+            contactDb.setMTShip(mtShip);
+        }
+
+        NeptusLog.pub().warn("Invalid AIS message type: {} :: {}", aisInfo.getMmsi(), "Message type must be between 1 and 27");
     }
 
     private void parseSentence(String s) {
