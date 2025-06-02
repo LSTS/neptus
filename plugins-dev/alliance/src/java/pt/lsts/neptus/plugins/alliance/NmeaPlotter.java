@@ -428,7 +428,7 @@ public class NmeaPlotter extends ConsoleLayer implements NmeaProvider, Configura
             mtShip.LAT = AngleUtils.nomalizeAngleDegrees180(Math.toDegrees(aisInfo.getLat()));
             mtShip.LON = AngleUtils.nomalizeAngleDegrees180(Math.toDegrees(aisInfo.getLon()));
             mtShip.STATUS_NAME = "" + aisInfo.getNavStatus(); // TODO AISUtil.translateNavigationalStatus(aisInfo.getNavStatus());
-            mtShip.SPEED = aisInfo.getSpeed() / UnitsUtil.MS_TO_KNOT;
+            mtShip.SPEED = aisInfo.getSpeed();
             mtShip.COURSE = AngleUtils.nomalizeAngleDegrees180(aisInfo.getCourse());
             mtShip.HEADING = mtShip.COURSE;
             mtShip.ELAPSED = System.currentTimeMillis() - aisInfo.getTimestampMillis();
@@ -441,6 +441,7 @@ public class NmeaPlotter extends ConsoleLayer implements NmeaProvider, Configura
             mtShip.SHIPTYPE = aisInfo.getTypeAndCargo();
             mtShip.HEADING = 351; // Not available
             mtShip.COURSE = 351; // Not available
+            mtShip.SPEED = -1;
             mtShip.W_LEFT = (int) Math.ceil(aisInfo.getC());
             mtShip.WIDTH = (int) Math.ceil(aisInfo.getC() + aisInfo.getD());
             mtShip.L_FORE = (int) Math.ceil(aisInfo.getA());
