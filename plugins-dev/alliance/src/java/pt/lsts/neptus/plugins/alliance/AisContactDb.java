@@ -383,8 +383,10 @@ public class AisContactDb implements AISObserver {
 
         String name = contact.getLabel();
         ExternalSystem sys = NMEAUtils.getAndRegisterExternalSystem(mmsi, name);
-        
-        sys.setLocation(loc, millis);
+
+        if (!loc.equals(LocationType.ABSOLUTE_ZERO)) {
+            sys.setLocation(loc, millis);
+        }
         sys.setAttitudeDegrees(heading > 360 ? contact.getCog() : heading,millis);
 
         HashMap<String, Object> dimV;
