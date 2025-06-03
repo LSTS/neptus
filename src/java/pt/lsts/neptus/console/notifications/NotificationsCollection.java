@@ -56,6 +56,7 @@ public class NotificationsCollection {
     public NotificationsCollection(ConsoleLayout console) {
         this.console = console;
         NeptusEvents.register(this, console);
+        NeptusEvents.register(this); // Register on the generic event bus
     }
 
     private synchronized void add(Notification noty) {
