@@ -189,13 +189,13 @@ public class NotificationsGlassPane extends JPanel {
 
         if (noty.getActionListener() != null) {
             label.addActionButton(I18n.text("apply"), e -> {
+                noty.setActionTriggered(true);
                 try {
                     noty.getActionListener().actionPerformed(e);
                 } catch (Exception ex) {
                     NeptusLog.pub().error("Error executing notification action: {}", noty.getTitle(), ex);
                 }
-                noty.setActionTriggered(true);
-                label.getActionButton().setEnabled(false);
+                label.getActionButton().setEnabled(!noty.isActionTriggered());
                 refresh();
                 repaint();
             });
