@@ -266,6 +266,10 @@ public class GeneralPreferences implements PropertiesProvider {
             units = "minutes")
     public static long minutesToRequestMissingReceivedFragments = 10;
 
+    @NeptusProperty(name = "Automatically Resend Missing Sent Fragments", category="Fragments Communications", userLevel = LEVEL.REGULAR,
+            description = "If true, the system will automatically resend missing sent fragments. If false, it will need operator intervention.")
+    public static boolean isAutomaticallyResendMissingSentFragments = false;
+
     // -------------------------------------------------------------------------
     
     @NeptusProperty(name = "Maximum Size of Plan Name For Acoustics", category="Plan", userLevel = LEVEL.ADVANCED,

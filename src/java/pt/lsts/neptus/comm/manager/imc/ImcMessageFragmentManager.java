@@ -34,25 +34,31 @@ package pt.lsts.neptus.comm.manager.imc;
 
 import com.google.common.eventbus.Subscribe;
 import org.apache.commons.math3.util.Pair;
+import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.MessagePart;
 import pt.lsts.imc.MessagePartControl;
+import pt.lsts.imc.PlanDB;
+import pt.lsts.imc.PlanSpecification;
+import pt.lsts.imc.net.IMCFragmentHandler;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.comm.admin.CommsAdmin;
+import pt.lsts.neptus.console.notifications.Notification;
+import pt.lsts.neptus.events.NeptusEvents;
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
+import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 
+import javax.swing.SwingWorker;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -63,6 +69,8 @@ import java.util.stream.Collectors;
 public class ImcMessageFragmentManager {
     private static ImcMessageFragmentManager instance;
 
+    private final IMCFragmentHandler imcFragmentHandler;
+
     // Lock instance
     private final Object lockSent = new Object();
     private final Object lockReceived = new Object();
@@ -71,6 +79,8 @@ public class ImcMessageFragmentManager {
     private final Map<Pair<Integer, Integer>, Long> sentFragmentsInsertTimeHolder = Collections.synchronizedMap(new HashMap<>());
     // Map to hold the sent fragments
     private final Map<Pair<Integer, Integer>, List<MessagePart>> sentFragmentsHolder = Collections.synchronizedMap(new HashMap<>());
+    // Map to hold the sent fragments note holder
+    private final Map<Pair<Integer, Integer>, String> sentFragmentsNoteHolder = Collections.synchronizedMap(new HashMap<>());
 
     // Map to hold the received fragments. Pair is frag id and system id of the destination of the fragments
     private final Map<Pair<Integer, Integer>, List<MessagePart>> receivedFragmentsHolder = Collections.synchronizedMap(new HashMap<>());
@@ -85,6 +95,7 @@ public class ImcMessageFragmentManager {
         // Constructor logic here
         imcMsgManager.registerBusListener(this);
         PeriodicUpdatesService.registerPojo(this);
+        imcFragmentHandler = new IMCFragmentHandler(imcMsgManager.imcDefinition);
     }
 
     public synchronized static ImcMessageFragmentManager getInstance() {
@@ -103,6 +114,45 @@ public class ImcMessageFragmentManager {
             return;
         }
 
+        String systemName = ImcSystemsHolder.translateImcIdToSystemName(systemId);
+        if (systemName == null || systemName.isEmpty()) {
+            VehicleType veh = VehiclesHolder.getVehicleWithImc(new ImcId16(systemId));
+            if (veh != null) {
+                systemName = veh.getName();
+            }
+        }
+        if (systemName == null || systemName.isEmpty()) {
+            systemName = new ImcId16(systemId).toPrettyString();
+        }
+
+        String note = "Fragments for frag id " + fragmentId + " to system id " + systemName;
+        try {
+            IMCMessage originalMsg = imcFragmentHandler.reassemble(fragmentList);
+            if (originalMsg == null) {
+                throw new Exception("Original message is null after reassembling fragments");
+            }
+
+            String msgNote = "";
+            switch (originalMsg.getMgid()) {
+                case PlanSpecification.ID_STATIC:
+                    msgNote = String.format(" plan '%s'", ((PlanSpecification) originalMsg).getPlanId());
+                    break;
+                case PlanDB.ID_STATIC:
+                    msgNote = String.format(" plan db '%s' of type '%s' doing operation '%s' [rqst %s]", ((PlanDB) originalMsg).getPlanId(),
+                            ((PlanDB) originalMsg).getType().name(), ((PlanDB) originalMsg).getOp().name(),
+                            ((PlanDB) originalMsg).getRequestId());
+                    break;
+                default:
+                    msgNote = String.format(" message '%s'", originalMsg.getAbbrev());
+            }
+
+            note = "Fragments for" + msgNote +" frag id " + fragmentId + " to system id " + systemName;
+        }
+        catch (Exception e) {
+            System.out.println("Error reassembling sent fragments: " + e.getMessage());
+            NeptusLog.pub().warn("Error reassembling sent fragments: {}", e.getMessage());
+        }
+
         synchronized (lockSent) {
             int fragId = fragmentList.get(0).getUid();
             Pair<Integer, Integer> idPair = Pair.create(fragId, systemId);
@@ -111,6 +161,7 @@ public class ImcMessageFragmentManager {
             sentFragmentsInsertTimeHolder.put(idPair, System.currentTimeMillis());
             List<MessagePart> fl = new ArrayList<>(fragmentList);
             sentFragmentsHolder.put(idPair, fl);
+            sentFragmentsNoteHolder.put(idPair, note);
         }
     }
 
@@ -186,10 +237,12 @@ public class ImcMessageFragmentManager {
         }
 
         List<MessagePart> fragmentsToSend = Collections.emptyList();
+        final String fragNote;
         synchronized (lockSent) {
             if (msg.getOp() == MessagePartControl.OP.STATUS_RECEIVED) {
                 removeReceivedFragments(idPair, isPositiveConsidered, fragIdsList);
                 sentFragmentsInsertTimeHolder.put(idPair, System.currentTimeMillis());
+                fragNote = "";
             }
             else if (msg.getOp() == MessagePartControl.OP.REQUEST_RETRANSMIT) {
                 sentFragmentsInsertTimeHolder.put(idPair, System.currentTimeMillis());
@@ -201,25 +254,67 @@ public class ImcMessageFragmentManager {
                 }
 
                 fragmentsToSend = new ArrayList<>(fragments);
+                fragNote = sentFragmentsNoteHolder.get(idPair);
+            }
+            else {
+                fragNote = "";
             }
         }
 
-        NeptusLog.pub().warn("Resending requested fragments to {} with ids: {}", msg.getSourceName(), fragIdsList);
-        System.out.println("Resending requested fragments to " + msg.getSourceName() + " with ids: " + fragIdsList);
-        // FIXME: Make the actual sending of the fragments be done in a separate thread with a delay, and to be validate with the operator
-
-        for (MessagePart fragment : fragmentsToSend) {
-            // Send the fragments
-            //ImcMsgManager.getManager().sendMessage(fragmentsToSend);
-            String[] channelsToUse = new String[] {CommsAdmin.CommChannelType.WIFI.name, CommsAdmin.CommChannelType.IRIDIUM.name};
-            boolean ret =  IMCSendMessageUtils.sendMessage(fragment, ImcMsgManager.TRANSPORT_TCP,
-                    (MessageDeliveryListener) null, null, I18n.text("Error sending msg part requested by receiver"),
-                    false, "", true, true,
-                    true, false, channelsToUse, msg.getSourceName());
-            if (!ret) {
-                return; // Error sending the message, aborting the rest
-            }
+        if (fragmentsToSend.isEmpty()) {
+            return; // No fragments to send
         }
+
+        final List<MessagePart> fragmentsToSendFinal = fragmentsToSend;
+        final String fragsIdsStr = fragmentsToSendFinal.stream().map(
+                m -> "" + m.getFragNumber()).collect(Collectors.joining(", "));
+        final String fragsTotal = "" + fragmentsToSendFinal.get(0).getNumFrags();
+        final String systemName = ImcSystemsHolder.translateImcIdToSystemName(systemId);
+
+        final Notification sendNotificationAction = Notification.info(I18n.textf("Resend Message Fragments to %name", systemName),
+                        I18n.textf("%note.\n Resend %n of %t fragments for parts: %frags?",
+                                fragNote, fragmentsToSendFinal.size(), fragsTotal, fragsIdsStr))
+                .requireHumanAction(true);
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                NeptusLog.pub().warn("Resending requested fragments to {} with ids: {}", msg.getSourceName(), fragIdsList);
+                System.out.println("Resending requested fragments to " + msg.getSourceName() + " with ids: " + fragIdsList);
+                // FIXME: Make the actual sending of the fragments be done in a separate thread with a delay, and to be validate with the operator
+
+                for (MessagePart fragment : fragmentsToSendFinal) {
+                    // Send the fragments
+                    //ImcMsgManager.getManager().sendMessage(fragmentsToSend);
+                    String[] channelsToUse = new String[] {CommsAdmin.CommChannelType.WIFI.name, CommsAdmin.CommChannelType.IRIDIUM.name};
+                    boolean ret =  IMCSendMessageUtils.sendMessage(fragment, ImcMsgManager.TRANSPORT_TCP,
+                            (MessageDeliveryListener) null, null, I18n.text("Error sending msg part requested by receiver"),
+                            false, "", true, true,
+                            true, false, channelsToUse, msg.getSourceName());
+                    if (!ret) {
+                        NeptusEvents.post(Notification.error(I18n.textf("Resent Message Fragments to %name", systemName),
+                                I18n.textf("%note'.\n Resent ERROR %n of %t fragments for parts: %frags.",
+                                        fragNote, fragmentsToSendFinal.size(), fragsTotal, fragsIdsStr)));
+                        sendNotificationAction.setActionTriggered(false);
+                        return null; // Error sending the message, aborting the rest
+                    }
+                }
+
+                NeptusEvents.post(Notification.success(I18n.textf("Resent Message Fragments to %name", systemName),
+                        I18n.textf("%note'.\n Resent OK %n of %t fragments for parts: %frags.",
+                                fragNote, fragmentsToSendFinal.size(), fragsTotal, fragsIdsStr)));
+                return null;
+            }
+        };
+
+        if (GeneralPreferences.isAutomaticallyResendMissingSentFragments) {
+            worker.execute();
+            return; // No need to ask for confirmation, just execute the worker
+        }
+
+        sendNotificationAction.setActionListener(e -> {
+            worker.execute();
+        });
+        NeptusEvents.post(sendNotificationAction);
     }
 
     private void removeReceivedFragments(Pair<Integer, Integer> idPair, boolean isPositiveConsidered, List<Integer> fragIdsList) {
@@ -278,6 +373,7 @@ public class ImcMessageFragmentManager {
             for (Pair<Integer, Integer> fragmentIdPair : toRemove) {
                 sentFragmentsHolder.remove(fragmentIdPair);
                 sentFragmentsInsertTimeHolder.remove(fragmentIdPair);
+                sentFragmentsNoteHolder.remove(fragmentIdPair);
             }
 
             System.out.println("Checking sent fragments. Current time: " + currentTimeMillis +
