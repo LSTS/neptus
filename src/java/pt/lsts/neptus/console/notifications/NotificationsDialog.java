@@ -105,6 +105,7 @@ public class NotificationsDialog extends JDialog implements WindowFocusListener,
         this.console = console;
         this.notifications = notifications;
         NeptusEvents.register(this, console);
+        NeptusEvents.register(this); // Register on the generic event bus
         Toolkit.getDefaultToolkit().addAWTEventListener(this, AWTEvent.MOUSE_EVENT_MASK);
         this.glassPane = new NotificationsGlassPane(console);
 
