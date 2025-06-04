@@ -118,11 +118,14 @@ public class VerticalProfileViewer implements Renderer2DPainter {
             profiles.add(prof);
 
             StringBuilder sb = new StringBuilder("[");
-            if (profiles.size() >= 1)
-                sb.append(profiles.get(0).asJSON());
-
-            for (int i = 1; i < profiles.size(); i++)
-                sb.append(",\n" + profiles.get(i).asJSON());
+            for (int i = 0; i < profiles.size(); i++) {
+                try {
+                    sb.append((i >= 1 ? ",\n" : "") + profiles.get(i).asJSON());
+                } catch (Exception e) {
+                    NeptusLog.pub().warn("Error serializing profile {} for {}: {}",
+                            i, profiles.get(i).getParameter(), e.getMessage());
+                }
+            }
 
             sb.append("]\n");
 
