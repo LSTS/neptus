@@ -47,7 +47,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
 import javax.swing.JDialog;
@@ -165,12 +167,53 @@ public class VerticalProfileViewer implements Renderer2DPainter {
             if (typeStr == null)
                 typeStr = "unknown";
             typeStr = typeStr.toLowerCase();
-            typeStr = StringUtils.capitalize(typeStr);
+            typeStr = typeStr.replace("_", " ");
+            typeStr = Arrays.stream(typeStr.split(" ")).map(StringUtils::capitalize).collect(Collectors.joining(" "));
 
-            StringBuilder html = new StringBuilder("<html><table><tr><th>Depth</th><th>"
-                    + typeStr + "</th>");
+            String typeUnitStr = "";
+            String depthOrientationStr = "Depth (m)";
+            boolean depthOrOrientation = true;
+            switch (p.getParameter()) {
+                case TEMPERATURE:
+                    typeUnitStr = " (°C)";
+                    break;
+                case CONDUCTIVITY:
+                    typeUnitStr = " (S/m)";
+                    break;
+                case SALINITY:
+                    typeUnitStr = " (PSU)";
+                    break;
+                case DISS_OXYGEN:
+                    typeUnitStr = " (µM)";
+                    break;
+                case DISS_ORGANIC_MATTER:
+                    typeUnitStr = " (PPB)";
+                    break;
+                case CHLOROPHYLL:
+                    typeUnitStr = " (µg/l)";
+                    break;
+                case ABSOLUTE_WIND:
+                    typeUnitStr = " (m/s)";
+                    depthOrientationStr = "Dir (°)";
+                    depthOrOrientation = false;
+                    break;
+                case CURRENT_VELOCITY_U:
+                case CURRENT_VELOCITY_V:
+                    typeUnitStr = " (m/s)";
+                    break;
+                case REDOX:
+                    typeUnitStr = " (V)";
+                    break;
+                case TURBIDITY:
+                    typeUnitStr = " (NTU)";
+                    break;
+                case PH:
+                default:
+                    break;
+            }
+            StringBuilder html = new StringBuilder("<html><table><tr><th>" + depthOrientationStr +"</th><th>" + typeStr + typeUnitStr + "</th>");
             for (int i = 0; i < p.getSamples().size(); i++) {
-                html.append("<tr><td>").append(p.getSamples().get(i).getDepth() / 10.0)
+                html.append("<tr><td>").append(depthOrOrientation ? p.getSamples().get(i).getDepth() / 10.0 : p.getSamples().get(i).getDepth())
                         .append("</td><td>").append(String.format("%.3f", p.getSamples().get(i).getAvg()))
                         .append("</td></tr>");
             }
