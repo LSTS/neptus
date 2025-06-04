@@ -88,7 +88,7 @@ import pt.lsts.neptus.util.GuiUtils;
  */
 public class VerticalProfileViewer implements Renderer2DPainter {
 
-    private ArrayList<VerticalProfile> profiles = new ArrayList<>();
+    private final ArrayList<VerticalProfile> profiles = new ArrayList<>();
     private VerticalProfile selected = null;
     private File store = new File("conf/profiles.json");
     private int oldestProfiles = 24;
