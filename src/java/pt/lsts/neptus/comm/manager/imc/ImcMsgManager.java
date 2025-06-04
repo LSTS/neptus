@@ -867,7 +867,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
             if (!ImcId16.NULL_ID.equals(id) && !ImcId16.BROADCAST_ID.equals(id) && !ImcId16.ANNOUNCE.equals(id)
                     && !localId.equals(id)) {
                 
-                ArrayList<IMCMessage> messagesCreatedToFoward = new ArrayList<>();
+                ArrayList<IMCMessage> messagesCreatedToForward = new ArrayList<>();
                 
                 switch (msg.getMgid()) {
                     case Announce.ID_STATIC:
@@ -890,10 +890,10 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                         messageProcessor.processRemoteSensorInfo(info, (RemoteSensorInfo) msg);
                         break;
                     case StateReport.ID_STATIC:
-                        messageProcessor.processStateReport(info, new StateReport(msg), messagesCreatedToFoward);
+                        messageProcessor.processStateReport(info, new StateReport(msg), messagesCreatedToForward);
                         break;
                     case AssetReport.ID_STATIC:
-                        messageProcessor.processAssetReport(info, new AssetReport(msg), messagesCreatedToFoward);
+                        messageProcessor.processAssetReport(info, new AssetReport(msg), messagesCreatedToForward);
                         break;
                     default:
                         break;
@@ -910,7 +910,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                             this.getClass().getSimpleName() + ": Message redirected for system comm. "
                                     + vci.getSystemCommId() + ".");
 
-                    for (IMCMessage imcMsg : messagesCreatedToFoward) {
+                    for (IMCMessage imcMsg : messagesCreatedToForward) {
                         vci.onMessage(info, imcMsg);
                     }
 
