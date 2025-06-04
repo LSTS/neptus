@@ -231,11 +231,35 @@ public class VerticalProfileViewer implements Renderer2DPainter {
             case SALINITY:
                 g.drawString("S", (int) pt.getX() - 5, (int) pt.getY() - 5);
                 break;
+            case CONDUCTIVITY:
+                g.drawString("Cnd", (int) pt.getX() - 5, (int) pt.getY() - 5);
+                break;
             case CHLOROPHYLL:
                 g.drawString("C", (int) pt.getX() - 5, (int) pt.getY() - 5);
                 break;
             case PH:
                 g.drawString("pH", (int) pt.getX() - 5, (int) pt.getY() - 5);
+                break;
+            case REDOX:
+                g.drawString("ROx", (int) pt.getX() - 5, (int) pt.getY() - 5);
+                break;
+            case TURBIDITY:
+                g.drawString("Trb", (int) pt.getX() - 5, (int) pt.getY() - 5);
+                break;
+            case CURRENT_VELOCITY_U:
+                g.drawString("CVU", (int) pt.getX() - 5, (int) pt.getY() - 5);
+                break;
+            case CURRENT_VELOCITY_V:
+                g.drawString("CVV", (int) pt.getX() - 5, (int) pt.getY() - 5);
+                break;
+            case ABSOLUTE_WIND:
+                g.drawString("AW", (int) pt.getX() - 5, (int) pt.getY() - 5);
+                break;
+            case DISS_ORGANIC_MATTER:
+                g.drawString("DOM", (int) pt.getX() - 5, (int) pt.getY() - 5);
+                break;
+            case DISS_OXYGEN:
+                g.drawString("DO", (int) pt.getX() - 5, (int) pt.getY() - 5);
                 break;
             default:
                 break;
