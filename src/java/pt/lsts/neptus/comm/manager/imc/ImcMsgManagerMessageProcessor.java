@@ -37,6 +37,7 @@ import pt.lsts.imc.EntityInfo;
 import pt.lsts.imc.EntityList;
 import pt.lsts.imc.FuelLevel;
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.IMCUtil;
 import pt.lsts.imc.MessagePart;
 import pt.lsts.imc.PlanControlState;
 import pt.lsts.imc.RemoteSensorInfo;
@@ -50,10 +51,12 @@ import pt.lsts.neptus.messages.listener.MessageInfo;
 import pt.lsts.neptus.systems.external.ExternalSystem;
 import pt.lsts.neptus.systems.external.ExternalSystemsHolder;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.util.AngleUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -203,6 +206,11 @@ class ImcMsgManagerMessageProcessor {
                     pcsMsg.setState(PlanControlState.STATE.BLOCKED);
                 break;
         }
+
+        PlanType lastActivePlan = imcSys.getActivePlan();
+        byte[] bytes = lastActivePlan.getId().getBytes(StandardCharsets.UTF_8);
+        int lastActivePlanChecksum = IMCUtil.computeCrc16(bytes, 0, 0);
+        pcsMsg.setPlanId(msg.getPlanChecksum() == lastActivePlanChecksum ? lastActivePlan.getId() : "?");
 
         pcsMsg.setPlanEta(-1);
         pcsMsg.setPlanProgress(execState >= 0 ? execState : -1);
