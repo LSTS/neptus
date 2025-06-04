@@ -135,7 +135,7 @@ class ImcMsgManagerMessageProcessor {
         }
     }
 
-    void processStateReport(MessageInfo info, StateReport msg, ArrayList<IMCMessage> messagesCreatedToFoward) {
+    void processStateReport(MessageInfo info, StateReport msg, ArrayList<IMCMessage> messagesCreatedToForward) {
 
         String sysId = msg.getSourceName();
 
@@ -178,7 +178,7 @@ class ImcMsgManagerMessageProcessor {
             fuelLevelMsg.setConfidence(0);
             imcSys.storeData(SystemUtils.FUEL_LEVEL_KEY, fuelLevelMsg, dataTimeMillis, true);
 
-            messagesCreatedToFoward.add(fuelLevelMsg);
+            messagesCreatedToForward.add(fuelLevelMsg);
         }
 
         int execState = msg.getExecState();
@@ -210,7 +210,7 @@ class ImcMsgManagerMessageProcessor {
         pcsMsg.setManEta(-1);
         pcsMsg.setManType(0xFFFF);
 
-        messagesCreatedToFoward.add(pcsMsg);
+        messagesCreatedToForward.add(pcsMsg);
     }
 
     void processAssetReport(MessageInfo info, AssetReport msg, ArrayList<IMCMessage> messagesCreatedToFoward) {
