@@ -208,9 +208,11 @@ class ImcMsgManagerMessageProcessor {
         }
 
         PlanType lastActivePlan = imcSys.getActivePlan();
-        byte[] bytes = lastActivePlan.getId().getBytes(StandardCharsets.UTF_8);
-        int lastActivePlanChecksum = IMCUtil.computeCrc16(bytes, 0, 0);
-        pcsMsg.setPlanId(msg.getPlanChecksum() == lastActivePlanChecksum ? lastActivePlan.getId() : "?");
+        if (lastActivePlan != null) {
+            byte[] bytes = lastActivePlan.getId().getBytes(StandardCharsets.UTF_8);
+            int lastActivePlanChecksum = IMCUtil.computeCrc16(bytes, 0, 0);
+            pcsMsg.setPlanId(msg.getPlanChecksum() == lastActivePlanChecksum ? lastActivePlan.getId() : "?");
+        }
 
         pcsMsg.setPlanEta(-1);
         pcsMsg.setPlanProgress(execState >= 0 ? execState : -1);
