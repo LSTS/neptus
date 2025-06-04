@@ -316,7 +316,8 @@ public class SoiInteraction extends SimpleRendererInteraction {
     public void on(VerticalProfile msg) {
         profileView.addProfile(msg);
         getConsole().post(Notification.success(I18n.text("Profile from "+msg.getSourceName()),
-                I18n.textf("Received %param profile from %vehicle.", msg.getParameter().name().toLowerCase(), msg.getSourceName())));
+                I18n.textf("Received %param profile from %vehicle.",
+                        msg.getParameter() != null ? msg.getParameter().name().toLowerCase() : "unknown type", msg.getSourceName())));
         
         if (audioNotifications) {
             VehicleType v = VehiclesHolder.getVehicleById(msg.getSourceName());
