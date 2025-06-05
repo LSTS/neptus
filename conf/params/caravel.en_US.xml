@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2024.09.0 (system/caravel,ee3c573e1)" system="caravel" i18n="en_US">
+<config format="1" version="2024.09.0 (system/caravel,0fdbb2662)" system="caravel" i18n="en_US">
   <section name="Text Actions" name-i18n="Text Actions">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -2884,7 +2884,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>VerticalProfile:ADCP, VerticalProfile:CTD - Temperature, VerticalProfile:CTD - Salinity</default>
+      <default>VerticalProfile:ADCP - North:900, VerticalProfile:ADCP - East:900, VerticalProfile:CTD - Temperature:1800, VerticalProfile:CTD - Salinity:1800, VerticalProfile:CTD - Conductivity:7200, VerticalProfile:Fluorometers - Chlorophyll:1800, VerticalProfile:Fluorometers - Turbidity:1800, VerticalProfile:Fluorometers - Dissolved Organic Matter:1800, VerticalProfile:AirMar120WX - Average:1800, VerticalProfile:AirMar120WX - Maximum:1800, VerticalProfile:Dissolved Oxygen:1800</default>
       <units/>
       <desc>List of messages &lt;Message&gt;:&lt;Entity&gt;:&lt;Rate&gt; to send using Iridium. The rate is in seconds and is optional. If not specified or equal to 0, the message will be sent every time it is received.</desc>
     </param>
@@ -2905,6 +2905,16 @@
       <default>120</default>
       <units/>
       <desc>Time to live for iridium messages.</desc>
+    </param>
+    <param name="Fragments Retrasmission Request Timeout">
+      <name-i18n>Fragments Retrasmission Request Timeout</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1800</default>
+      <units>s</units>
+      <desc>Represents the amount of time a message is valid for retransmission. If set to 0, retransmission requests are not allowed.</desc>
+      <min>0</min>
     </param>
   </section>
   <section name="Wave Frequency Estimator" name-i18n="Wave Frequency Estimator">
@@ -4856,6 +4866,24 @@
       <units/>
       <desc>Entity Label for the Thruster Power Data</desc>
     </param>
+    <param name="Power Channel Label for Iridium 1">
+      <name-i18n>Power Channel Label for Iridium 1</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>IRIDIUM_1_C</default>
+      <units/>
+      <desc>Entity Label for the Iridium 1</desc>
+    </param>
+    <param name="Power Channel Label for Iridium 2">
+      <name-i18n>Power Channel Label for Iridium 2</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>IRIDIUM_2_C</default>
+      <units/>
+      <desc>Entity Label for the Iridium 2</desc>
+    </param>
   </section>
   <section name="AIS" name-i18n="AIS">
     <param name="Entity Label">
@@ -5130,13 +5158,13 @@
       <desc>Add messages received to logs</desc>
     </param>
   </section>
-  <section name="AirMar220WX" name-i18n="AirMar220WX">
+  <section name="AirMar120WX" name-i18n="AirMar120WX">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>AirMar220WX</default>
+      <default>AirMar120WX</default>
       <units/>
       <desc>Main entity label</desc>
     </param>
@@ -5294,15 +5322,6 @@
       <default>5</default>
       <units>°</units>
       <desc>Angle offset for relative wind</desc>
-    </param>
-    <param name="Vertical Profile Periodicity">
-      <name-i18n>Vertical Profile Periodicity</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>1800.0</default>
-      <units>s</units>
-      <desc>Periodicity of vertical profiles. 0 means never send.</desc>
     </param>
   </section>
   <section name="Fluorometers" name-i18n="Fluorometers">
@@ -5587,15 +5606,6 @@
       <default>0.0024</default>
       <units/>
       <desc>Scale factor is used to derive instrument output concentration from the raw signal output of the fluorometer</desc>
-    </param>
-    <param name="Vertical Profile Periodicity">
-      <name-i18n>Vertical Profile Periodicity</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>1800.0</default>
-      <units>s</units>
-      <desc>Periodicity of vertical profiles. 0 means never send.</desc>
     </param>
   </section>
   <section name="GPS" name-i18n="GPS">
@@ -6724,15 +6734,6 @@
       <default>60</default>
       <units>s</units>
       <desc>Timeout Transmitting Iridium Message.</desc>
-    </param>
-    <param name="Vertical Profile Periodicity">
-      <name-i18n>Vertical Profile Periodicity</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>1800.0</default>
-      <units>s</units>
-      <desc>Periodicity of vertical profiles. 0 means never send.</desc>
     </param>
   </section>
   <section name="CTD" name-i18n="CTD">
@@ -8841,6 +8842,24 @@
       <default>Abort, Acceleration, AngularVelocity, Announce, Brake, ClockControl, CompassCalibration, Collision, ControlLoops, ControlParcel, CpuUsage, Current, DataSanity, DesiredControl, DesiredZ, DesiredHeading, DesiredHeadingRate, DesiredPath, DesiredPitch, DesiredSpeed, DesiredVelocity, DevCalibrationControl, DevCalibrationState, DevDataBinary, DevDataText, Distance, EmergencyControl, EmergencyControlState, EntityActivationState, EntityInfo, EntityList, EntityMonitoringState, EntityParameters, EntityState, EstimatedState, EstimatedStreamVelocity, EulerAngles, EulerAnglesDelta, FollowPath, FollowRefState, FuelLevel, Goto, GpsFix, GpsFixRejection, GroundVelocity, Heartbeat, IdleManeuver, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LogBookEntry, Loiter, ManeuverControlState, ManeuverDone, NavigationData, NavigationUncertainty, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, PlanStatistics, PopEntityParameters, PowerChannelControl, PowerChannelState, Pulse, PulseDetectionControl, PushEntityParameters, Rows, QueryEntityParameters, Reference, RemoteActions, RemoteActionsRequest, RemoteState, ReportControl, RSSI, SimAcousticMessage, SaveEntityParameters, SetEntityParameters, SimulatedState, Sms, SmsRequest, SmsStatus, StateReport, StationKeeping, StopManeuver, TCPRequest, TCPStatus, Teleoperation, TeleoperationDone, Temperature, TextMessage, TransmissionRequest, TransmissionStatus, UamRxFrame, UamTxFrame, UamTxStatus, UamRxRange, VehicleCommand, VehicleMedium, VehicleState, VelocityDelta, VersionInfo, Voltage, YoYo, AbsoluteWind, AirSaturation, AisInfo, Chlorophyll, Conductivity, CurrentProfile, CurrentProfileCell, Depth, Displacement, DissolvedOrganicMatter, DissolvedOxygen, ENCAwareness, Frequency, MagneticField, Pressure, Rpm, Salinity, ServoPosition, SetServoPosition, SetThrusterActuation, Turbidity, VerticalProfile, WindSpeed</default>
       <units/>
       <desc/>
+    </param>
+    <param name="Rate Limiters">
+      <name-i18n>Rate Limiters</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>List of &lt;Message&gt;:&lt;Frequency&gt;</desc>
+    </param>
+    <param name="Filtered Entities">
+      <name-i18n>Filtered Entities</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>VerticalProfile:ADCP - North+ADCP - East</default>
+      <units/>
+      <desc>List of &lt;Message&gt;:&lt;Entity&gt;+&lt;Entity&gt; that define the source entities allowed to pass message of a specific message type.</desc>
     </param>
   </section>
   <section name="SMS" name-i18n="SMS">
