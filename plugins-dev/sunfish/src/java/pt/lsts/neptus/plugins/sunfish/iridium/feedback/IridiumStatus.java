@@ -141,7 +141,7 @@ public class IridiumStatus extends ConsolePanel {
                 Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
                 if(table.convertRowIndexToModel(row) >= highlight_init && 
                         table.convertRowIndexToModel(row) <=  highlight_init+highlight_block_size-1){//== table.getRowCount()-1)
-                    c.setBackground(Color.GREEN.darker());
+                    c.setBackground(new Color(43, 186, 103));
                 }
                 else 
                     return defaultRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
