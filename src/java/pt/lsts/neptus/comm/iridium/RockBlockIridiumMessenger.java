@@ -488,10 +488,12 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
 
                 try {
                     URL url = new URL("http://secure.rock7mobile.com/rockblock");
+                    NeptusLog.pub().info("Checking RockBlock server at {}", url);
                     int len = url.openConnection().getContentLength();
                     if (len > 0)
                         lastSuccess = System.currentTimeMillis();
                     result = len > 0;
+                    NeptusLog.pub().info("RockBlock server is {}reachable", result ? "" : "NOT ");
                 }
                 catch (Exception e) {
                     NeptusLog.pub().error(e);
