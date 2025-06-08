@@ -59,8 +59,8 @@ abstract class CommonCommBaseImplementation<M extends IMessage, Mi extends Messa
 
     protected static boolean useListenersQueues = true;
 
-    protected LinkedList<M> msgQueue = new LinkedList<M>();
-    protected LinkedList<Mi> infoQueue = new LinkedList<Mi>();
+    protected final LinkedList<M> msgQueue = new LinkedList<M>();
+    protected final LinkedList<Mi> infoQueue = new LinkedList<Mi>();
     protected MessageProcessor messageProcessor = null;
 
     // Activity Indicators
