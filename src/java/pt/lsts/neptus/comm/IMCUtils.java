@@ -74,6 +74,7 @@ import pt.lsts.imc.IMCFieldType;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCMessageType;
 import pt.lsts.imc.IMCOutputStream;
+import pt.lsts.imc.IMCUtil;
 import pt.lsts.imc.ImcStringDefs;
 import pt.lsts.imc.PolygonVertex;
 import pt.lsts.imc.types.PlanSpecificationAdapter;
@@ -311,20 +312,21 @@ public class IMCUtils {
     }
 
     private static String getAsInnerHtml(IMCMessage msg) {
-        if (msg == null)
-            return "null";
-        String ret = "<table border=1><tr bgcolor='blue'><th>" + msg.getAbbrev() + "</th><th>"
-                + msg.getFieldNames().length + " fields</th></tr>";
-
-        for (String fieldName : msg.getFieldNames()) {
-            String value = msg.getString(fieldName);
-            if (msg.getTypeOf(fieldName).equalsIgnoreCase("message") && msg.getValue(fieldName) != null)
-                value = getAsInnerHtml(msg.getMessage(fieldName));
-
-            ret += "<tr><td>" + fieldName + "=</td><td>" + value + "</td></tr>";
-        }
-
-        return ret + "</table>";
+        return IMCUtil.getAsHtml(msg);
+//        if (msg == null)
+//            return "null";
+//        String ret = "<table border=1><tr bgcolor='blue'><th>" + msg.getAbbrev() + "</th><th>"
+//                + msg.getFieldNames().length + " fields</th></tr>";
+//
+//        for (String fieldName : msg.getFieldNames()) {
+//            String value = msg.getString(fieldName);
+//            if (msg.getTypeOf(fieldName).equalsIgnoreCase("message") && msg.getValue(fieldName) != null)
+//                value = getAsInnerHtml(msg.getMessage(fieldName));
+//
+//            ret += "<tr><td>" + fieldName + "=</td><td>" + value + "</td></tr>";
+//        }
+//
+//        return ret + "</table>";
     }
 
     private static void fillInMessage(IMCMessage msg, Element el) {
