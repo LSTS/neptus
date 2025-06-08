@@ -246,7 +246,7 @@ public class CommsAdmin {
                     }
                     break;
                 case IRIDIUM:
-                    if (IridiumManager.getManager().isAvailable())
+                    if (IridiumManager.getManager().isAvailable() && IridiumManager.getManager().isRunning())
                         return true;
                     break;
                 case GSM:
