@@ -79,6 +79,7 @@ import pt.lsts.neptus.util.speech.SpeechUtil;
  */
 public class IridiumManager {
 
+    public static final String IRIDIUM_MANAGER = "IridiumManager";
     private static IridiumManager instance = null;
     private DuneIridiumMessenger duneMessenger;
     private RockBlockIridiumMessenger rockBlockMessenger;
@@ -220,7 +221,7 @@ public class IridiumManager {
             transmission.setSrc(msg.getSource());
             transmission.setDst(msg.getDestination());
             transmission.setTimestamp(msg.timestampMillis/1000.0);
-            ImcMsgManager.getManager().postInternalMessage("IridiumManager", transmission);
+            ImcMsgManager.getManager().postInternalMessage(IRIDIUM_MANAGER, transmission);
         }
         catch (Exception e) {
             NeptusLog.pub().error(e);
