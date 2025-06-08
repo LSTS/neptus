@@ -227,7 +227,7 @@ public class CommsAdmin {
         channelsToUse = channelsToUse.stream().filter(channel -> {
             switch (channel) {
                 case WIFI:
-                    if (system.isActive()) {
+                    if (system.isActive() && system.isActiveWifi()) {
                         return true;
                     }
                     break;
@@ -273,7 +273,7 @@ public class CommsAdmin {
         for (CommChannelType channel : channelsToUse) {
             switch (channel) {
                 case WIFI:
-                    if (system.isActive()) {
+                    if (system.isActive() && system.isActiveWifi()) {
                         imcMsgManager.sendMessage(message, system.getId(), null, waiter);
                         return result;
                     }

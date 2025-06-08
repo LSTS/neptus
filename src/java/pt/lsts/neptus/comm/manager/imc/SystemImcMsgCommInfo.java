@@ -59,6 +59,7 @@ import pt.lsts.imc.lsf.LsfMessageLogger;
 import pt.lsts.imc.state.ImcSystemState;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.SystemUtils;
+import pt.lsts.neptus.comm.iridium.IridiumManager;
 import pt.lsts.neptus.comm.manager.MessageFrequencyCalculator;
 import pt.lsts.neptus.comm.manager.SystemCommBaseInfo;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem.IMCAuthorityState;
@@ -147,14 +148,42 @@ public class SystemImcMsgCommInfo extends SystemCommBaseInfo<IMCMessage, Message
                     sys.setActive(isActive);
                     // NeptusLog.pub().info("<###> "+sys.getName()+": "+isActive()+"  "+(message !=
                     // null?message.getAbbrevName():""));
+                    if (info != null) {
+                        if (IridiumManager.IRIDIUM_MANAGER.equalsIgnoreCase(info.getPublisher()))
+                            sys.setActiveIridium(isActive);
+                        else
+                            sys.setActiveWifi(isActive);
+                    } else {
+                        if (!isActive)
+                            sys.setActiveIridium(isActive);
+                        sys.setActiveWifi(isActive);
+                    }
                 }
                 else {
                     // If IMCAuthorityState.OFF then we consider not active
                     if (sys.getAuthorityState() == ImcSystem.IMCAuthorityState.OFF) {
                         sys.setActive(false);
+                        if (info != null) {
+                            if (IridiumManager.IRIDIUM_MANAGER.equalsIgnoreCase(info.getPublisher()))
+                                sys.setActiveIridium(false);
+                            else
+                                sys.setActiveWifi(false);
+                        } else {
+                            sys.setActiveIridium(false);
+                            sys.setActiveWifi(false);
+                        }
                     }
                     else if (!isActive) {
                         sys.setActive(false);
+                        if (info != null) {
+                            if (IridiumManager.IRIDIUM_MANAGER.equalsIgnoreCase(info.getPublisher()))
+                                sys.setActiveIridium(false);
+                            else
+                                sys.setActiveWifi(false);
+                        } else {
+                            sys.setActiveIridium(false);
+                            sys.setActiveWifi(false);
+                        }
                     }
                     else {
                         activityCounter.add(System.currentTimeMillis());
@@ -164,13 +193,42 @@ public class SystemImcMsgCommInfo extends SystemCommBaseInfo<IMCMessage, Message
                         }
                         vecSize = activityCounter.size();
                         if (vecSize == 3) {
-                            if (activityCounter.get(2) - activityCounter.get(0) <= 3000)
+                            if (activityCounter.get(2) - activityCounter.get(0) <= 3000) {
                                 sys.setActive(true);
-                            else
+                                if (info != null) {
+                                    if (IridiumManager.IRIDIUM_MANAGER.equalsIgnoreCase(info.getPublisher()))
+                                        sys.setActiveIridium(true);
+                                    else
+                                        sys.setActiveWifi(true);
+                                } else {
+                                    //sys.setActiveIridium(true);
+                                    sys.setActiveWifi(true);
+                                }
+                            }
+                            else {
                                 sys.setActive(false);
+                                if (info != null) {
+                                    if (IridiumManager.IRIDIUM_MANAGER.equalsIgnoreCase(info.getPublisher()))
+                                        sys.setActiveIridium(false);
+                                    else
+                                        sys.setActiveWifi(false);
+                                } else {
+                                    sys.setActiveIridium(false);
+                                    sys.setActiveWifi(false);
+                                }
+                            }
                         }
                         else {
                             sys.setActive(false);
+                            if (info != null) {
+                                if (IridiumManager.IRIDIUM_MANAGER.equalsIgnoreCase(info.getPublisher()))
+                                    sys.setActiveIridium(false);
+                                else
+                                    sys.setActiveWifi(false);
+                            } else {
+                                sys.setActiveIridium(false);
+                                sys.setActiveWifi(false);
+                            }
                         }
                     }
                 }
