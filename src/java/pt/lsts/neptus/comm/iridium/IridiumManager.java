@@ -65,6 +65,8 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
 import pt.lsts.neptus.comm.manager.imc.ImcMessageFragmentManager;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.console.notifications.Notification;
+import pt.lsts.neptus.events.NeptusEvents;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.ByteUtil;
 import pt.lsts.neptus.util.ImageUtils;
@@ -502,6 +504,8 @@ public class IridiumManager {
     public void send(IridiumMessage msg) throws Exception {
         NeptusLog.pub().info("Sending iridium message via "+getCurrentMessenger().getName()+": "+ByteUtil.encodeToHex(msg.serialize()));
         getCurrentMessenger().sendMessage(msg);
+        NeptusEvents.post(Notification.success("Sent Iridium message", "Sent message of type " +
+                msg.getMessageType() + " to " + msg.getDestination()));
     }
 
     /**
@@ -519,6 +523,8 @@ public class IridiumManager {
     public void sendRaw(String destinationName, String destinationAddr, byte[] data) throws Exception {
         NeptusLog.pub().info("Sending iridium raw message via "+getCurrentMessenger().getName()+": "+ByteUtil.encodeToHex(data));
         getCurrentMessenger().sendMessageRaw(destinationName, destinationAddr, data);
+        NeptusEvents.post(Notification.success("Sent Iridium raw message", "Sent raw message to " +
+                destinationName + " at " + destinationAddr + " with " + data.length + " bytes"));
     }
     
     public static void main(String[] args) throws Exception {
