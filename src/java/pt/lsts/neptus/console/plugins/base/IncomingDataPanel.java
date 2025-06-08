@@ -60,15 +60,15 @@ import pt.lsts.neptus.plugins.update.Periodic;
  *
  */
 @PluginDescription(name="Incoming Data")
-@Popup(accelerator=KeyEvent.VK_T, width=600, height=500, name="Incoming Data", pos=POSITION.CENTER, icon="images/menus/view_tree.png")
+@Popup(accelerator=KeyEvent.VK_T, width=650, height=500, name="Incoming Data", pos=POSITION.CENTER, icon="images/menus/view_tree.png")
 public class IncomingDataPanel extends ConsolePanel {
 
     private static final long serialVersionUID = 1L;
     private ImcStatePanel imcStatePanel = new ImcStatePanel(new ImcSystemState(IMCDefinition.getInstance()));
-    private JScrollPane statePanel = new JScrollPane();
+    private final JPanel statePanel = new JPanel(new BorderLayout());
     private String selectedSystem;
-    private JComboBox<String> combovt = new JComboBox<String>();
-    
+    private final JComboBox<String> combovt = new JComboBox<String>();
+
     public IncomingDataPanel(ConsoleLayout console) {
         super(console);
     }
@@ -92,7 +92,7 @@ public class IncomingDataPanel extends ConsolePanel {
         }
         
         for (String s : toRemove) {
-            if (!s.equals(selectedSystem))
+            if (!s.equals(selectedSystem) && !s.equals(getMainVehicleId()))
                 combovt.removeItem(s);
         }
     }
@@ -108,28 +108,31 @@ public class IncomingDataPanel extends ConsolePanel {
         JPanel top = new JPanel(new BorderLayout());
         selectedSystem = getMainVehicleId();
         imcStatePanel = new ImcStatePanel(ImcMsgManager.getManager().getState(selectedSystem));
-        statePanel.setViewportView(imcStatePanel);
+        statePanel.add(imcStatePanel, BorderLayout.CENTER);
         top.add(combovt, BorderLayout.CENTER);
         add(top, BorderLayout.NORTH);
         add(statePanel, BorderLayout.CENTER);
         updateShownSystems();
-        
+
+        combovt.addItem(selectedSystem);
         combovt.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 JComboBox<?> cbox = (JComboBox<?>) evt.getSource();
                 String selection = ""+cbox.getSelectedItem();
-                
+
                 if (selection.equals("null") || selection.equals(selectedSystem))
                     return;
-                
+
                 if (imcStatePanel != null)
                     imcStatePanel.cleanup();
                 selectedSystem = selection;
                 imcStatePanel = new ImcStatePanel(ImcMsgManager.getManager().getState(selectedSystem));
-                statePanel.setViewportView(imcStatePanel);
+                statePanel.removeAll();
+                statePanel.add(imcStatePanel);
                 statePanel.revalidate();
                 statePanel.repaint();
             }
-        });       
+        });
+        combovt.setSelectedItem(selectedSystem);
     }        
 }
