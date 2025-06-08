@@ -37,6 +37,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
@@ -50,6 +51,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
@@ -68,6 +70,7 @@ public class IncomingDataPanel extends ConsolePanel {
     private final JPanel statePanel = new JPanel(new BorderLayout());
     private String selectedSystem;
     private final JComboBox<String> combovt = new JComboBox<String>();
+    private List<String> mainSystemsToKeep = new ArrayList<>();
 
     public IncomingDataPanel(ConsoleLayout console) {
         super(console);
@@ -75,7 +78,9 @@ public class IncomingDataPanel extends ConsolePanel {
     
     @Periodic(millisBetweenUpdates=5000)
     public void updateShownSystems() {
-        
+        if (!mainSystemsToKeep.contains(getMainVehicleId()))
+            mainSystemsToKeep.add(getMainVehicleId());
+
         if (!isVisible())
             return;
         
@@ -84,13 +89,15 @@ public class IncomingDataPanel extends ConsolePanel {
             toRemove.add(combovt.getItemAt(i));
         
         for (ImcSystem sys : ImcSystemsHolder.lookupAllActiveSystems()) {
-            if (toRemove.contains(sys.getName()))
+            if (toRemove.contains(sys.getName())) {
                 toRemove.remove(sys.getName());
+            }
             else {
                 combovt.addItem(sys.getName());    
             }
         }
-        
+
+        toRemove.removeIf(s -> mainSystemsToKeep.contains(s)); // needs to be here, otherwise it will add multiple times the main vehicle
         for (String s : toRemove) {
             if (!s.equals(selectedSystem) && !s.equals(getMainVehicleId()))
                 combovt.removeItem(s);
@@ -107,6 +114,7 @@ public class IncomingDataPanel extends ConsolePanel {
         setLayout(new BorderLayout());
         JPanel top = new JPanel(new BorderLayout());
         selectedSystem = getMainVehicleId();
+        mainSystemsToKeep.add(getMainVehicleId());
         imcStatePanel = new ImcStatePanel(ImcMsgManager.getManager().getState(selectedSystem));
         statePanel.add(imcStatePanel, BorderLayout.CENTER);
         top.add(combovt, BorderLayout.CENTER);
