@@ -408,7 +408,12 @@ public class IridiumManager {
             GeneralPreferences.saveProperties();
         }
     }
-    
+
+    public boolean isRunning() {
+        System.out.println("Is running? " + (service != null));
+        return service != null;
+    }
+
     public synchronized void start() {
         if (service != null)
             stop();
