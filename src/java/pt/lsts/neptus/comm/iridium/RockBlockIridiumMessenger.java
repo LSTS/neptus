@@ -309,9 +309,10 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
         Properties props = new Properties();
         props.put("mail.store.protocol", "imaps");
         ArrayList<IridiumMessage> messages = new ArrayList<>();
+        Store store = null;
         try {
             Session session = Session.getDefaultInstance(props, null);
-            Store store = session.getStore("imaps");
+            store = session.getStore("imaps");
             store.connect("imap.gmail.com", getGmailUsername(), getGmailPassword());
 
             Folder inbox = store.getFolder("Inbox");
@@ -404,6 +405,15 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
         catch (Exception e) {
             e.printStackTrace();
             return new ArrayList<>();
+        } finally {
+            try {
+                if (store != null)
+                    store.close();
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+            store = null;
         }
 
         messages.sort((m1, m2) -> Long.compare(m1.timestampMillis, m2.timestampMillis));
