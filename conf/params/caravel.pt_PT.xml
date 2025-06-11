@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2024.09.0 (system/caravel,0fdbb2662)" system="caravel" i18n="pt_PT">
+<config format="1" version="2024.09.0 (system/caravel,ce545f940)" system="caravel" i18n="pt_PT">
   <section name="Text Actions" name-i18n="Text Actions">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -3170,6 +3170,15 @@
       <units/>
       <desc>Entity label of 'EulerAngles' and 'AngularVelocity' messages</desc>
     </param>
+    <param name="Entity Label - Distance">
+      <name-i18n>Entity Label - Distance</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>ADCP</default>
+      <units/>
+      <desc>Entity label of 'Distance' messages</desc>
+    </param>
     <param name="Main unit">
       <name-i18n>Main unit</name-i18n>
       <type>string</type>
@@ -4310,7 +4319,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>SPOT_C</default>
+      <default>Private (SPOT_C)</default>
       <units/>
       <desc>Power Channel Entity Label</desc>
     </param>
@@ -6371,14 +6380,23 @@
       <units/>
       <desc>IO device URI in the form "uart://DEVICE:BAUD"</desc>
     </param>
-    <param name="Timeout Transmitting Iridium Message">
-      <name-i18n>Timeout Transmitting Iridium Message</name-i18n>
+    <param name="Correlation Threshold for Vertical Profile">
+      <name-i18n>Correlation Threshold for Vertical Profile</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>60</default>
+      <default>50</default>
       <units/>
-      <desc>Timeout Transmitting Iridium Message.</desc>
+      <desc>Correlation threshold for a sample to be considered for the Vertical Profile. If the measurement correlation is lower than this threshold, the sample won't be considered for the Vertical Profile. If value is greater than 100, the correlation threshold won't be considered.</desc>
+    </param>
+    <param name="Distance Threshold for Vertical Profile">
+      <name-i18n>Distance Threshold for Vertical Profile</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>-1.0</default>
+      <units/>
+      <desc>Max difference threshold for a sample to be considered for the Vertical Profile. If the measurement depth minus the measured altitude is greater than this threshold, the sample won't be considered for the Vertical Profile. If value is negative, the distance threshold won't be considered.</desc>
     </param>
     <param name="Initialization String 0 - Command">
       <name-i18n>Initialization String 0 - Command</name-i18n>
@@ -6726,15 +6744,6 @@
       <units>Hz</units>
       <desc>Data Acquisition Rate.</desc>
     </param>
-    <param name="Timeout Transmitting Iridium Message">
-      <name-i18n>Timeout Transmitting Iridium Message</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>60</default>
-      <units>s</units>
-      <desc>Timeout Transmitting Iridium Message.</desc>
-    </param>
   </section>
   <section name="CTD" name-i18n="CTD">
     <param name="Entity Label">
@@ -6954,15 +6963,6 @@
       <default>125</default>
       <units>ms</units>
       <desc>Sample Period in milliseconds</desc>
-    </param>
-    <param name="Timeout Transmitting Iridium Message">
-      <name-i18n>Timeout Transmitting Iridium Message</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>60</default>
-      <units/>
-      <desc>Timeout Transmitting Iridium Message.</desc>
     </param>
     <param name="Input Timeout">
       <name-i18n>Input Timeout</name-i18n>
@@ -7920,91 +7920,6 @@
       <desc>Print incoming messages (Debug)</desc>
     </param>
   </section>
-  <section name="FTP Server" name-i18n="Servidor FTP">
-    <param name="Entity Label">
-      <name-i18n>Nome da Entidade</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>FTP Server</default>
-      <units/>
-      <desc>Nome principal da entidade</desc>
-    </param>
-    <param name="Execution Priority">
-      <name-i18n>Prioridade de Execução</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units/>
-      <desc>Prioridade de execução</desc>
-    </param>
-    <param name="Activation Time">
-      <name-i18n>Tempo de Ativação</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Deactivation Time">
-      <name-i18n>Tempo de Desativação</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Debug Level">
-      <name-i18n>Nível de Depuração</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>None</default>
-      <units/>
-      <desc/>
-      <values>None, Debug, Trace, Spew</values>
-      <values-i18n>None, Debug, Trace, Spew</values-i18n>
-    </param>
-    <param name="Loopback Internal Messages">
-      <name-i18n>Loopback Internal Messages</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
-    </param>
-    <param name="Data Port">
-      <name-i18n>Data Port</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>30020</default>
-      <units/>
-      <desc>Data Port</desc>
-    </param>
-    <param name="Control Port">
-      <name-i18n>Control Port</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>30021</default>
-      <units/>
-      <desc>Control Port</desc>
-    </param>
-    <param name="Session Timeout">
-      <name-i18n>Session Timeout</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>120</default>
-      <units>s</units>
-      <desc>Timeout period of a session</desc>
-    </param>
-  </section>
   <section name="Message Fragments" name-i18n="Fragmentos de Mensagens">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -8839,7 +8754,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Abort, Acceleration, AngularVelocity, Announce, Brake, ClockControl, CompassCalibration, Collision, ControlLoops, ControlParcel, CpuUsage, Current, DataSanity, DesiredControl, DesiredZ, DesiredHeading, DesiredHeadingRate, DesiredPath, DesiredPitch, DesiredSpeed, DesiredVelocity, DevCalibrationControl, DevCalibrationState, DevDataBinary, DevDataText, Distance, EmergencyControl, EmergencyControlState, EntityActivationState, EntityInfo, EntityList, EntityMonitoringState, EntityParameters, EntityState, EstimatedState, EstimatedStreamVelocity, EulerAngles, EulerAnglesDelta, FollowPath, FollowRefState, FuelLevel, Goto, GpsFix, GpsFixRejection, GroundVelocity, Heartbeat, IdleManeuver, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LogBookEntry, Loiter, ManeuverControlState, ManeuverDone, NavigationData, NavigationUncertainty, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, PlanStatistics, PopEntityParameters, PowerChannelControl, PowerChannelState, Pulse, PulseDetectionControl, PushEntityParameters, Rows, QueryEntityParameters, Reference, RemoteActions, RemoteActionsRequest, RemoteState, ReportControl, RSSI, SimAcousticMessage, SaveEntityParameters, SetEntityParameters, SimulatedState, Sms, SmsRequest, SmsStatus, StateReport, StationKeeping, StopManeuver, TCPRequest, TCPStatus, Teleoperation, TeleoperationDone, Temperature, TextMessage, TransmissionRequest, TransmissionStatus, UamRxFrame, UamTxFrame, UamTxStatus, UamRxRange, VehicleCommand, VehicleMedium, VehicleState, VelocityDelta, VersionInfo, Voltage, YoYo, AbsoluteWind, AirSaturation, AisInfo, Chlorophyll, Conductivity, CurrentProfile, CurrentProfileCell, Depth, Displacement, DissolvedOrganicMatter, DissolvedOxygen, ENCAwareness, Frequency, MagneticField, Pressure, Rpm, Salinity, ServoPosition, SetServoPosition, SetThrusterActuation, Turbidity, VerticalProfile, WindSpeed</default>
+      <default>Abort, Acceleration, AngularVelocity, Announce, Brake, ClockControl, CompassCalibration, Collision, ControlLoops, ControlParcel, CpuUsage, Current, DataSanity, DesiredControl, DesiredZ, DesiredHeading, DesiredHeadingRate, DesiredPath, DesiredPitch, DesiredSpeed, DesiredVelocity, DevCalibrationControl, DevCalibrationState, DevDataBinary, DevDataText, Distance, EmergencyControl, EmergencyControlState, EntityActivationState, EntityInfo, EntityList, EntityMonitoringState, EntityParameters, EntityState, EstimatedState, EstimatedStreamVelocity, EulerAngles, EulerAnglesDelta, FollowPath, FollowRefState, FuelLevel, Goto, GpsFix, GpsFixRejection, GroundVelocity, Heartbeat, IdleManeuver, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LogBookEntry, Loiter, ManeuverControlState, ManeuverDone, NavigationData, NavigationUncertainty, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, PlanStatistics, PopEntityParameters, PowerChannelControl, PowerChannelState, Pulse, PulseDetectionControl, PushEntityParameters, Rows, QueryEntityParameters, Reference, RemoteActions, RemoteActionsRequest, RemoteState, ReportControl, RSSI, SimAcousticMessage, SaveEntityParameters, SetEntityParameters, SimulatedState, Sms, SmsRequest, SmsStatus, StateReport, StationKeeping, StopManeuver, TCPRequest, TCPStatus, Teleoperation, TeleoperationDone, Temperature, TextMessage, TransmissionRequest, TransmissionStatus, UamRxFrame, UamTxFrame, UamTxStatus, UamRxRange, VehicleCommand, VehicleMedium, VehicleState, VelocityDelta, VersionInfo, Voltage, YoYo, AbsoluteWind, AirSaturation, AisInfo, Chlorophyll, Conductivity, CurrentProfile, CurrentProfileCell, Depth, Displacement, DissolvedOrganicMatter, DissolvedOxygen, ENCAwareness, Frequency, MagneticField, Pressure, Rpm, Salinity, ServoPosition, SetServoPosition, SetThrusterActuation, Turbidity, VerticalProfile, WindSpeed, MessagePartControl</default>
       <units/>
       <desc/>
     </param>
