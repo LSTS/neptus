@@ -375,7 +375,7 @@
           <port-tcp>6002</port-tcp>
           <udp-on>true</udp-on>
           <tcp-on>false</tcp-on>
-          <imc-id>00:242</imc-id>
+          <imc-id>00:24</imc-id>
         </imc>
       </protocols-args>
     </comm-mean>
