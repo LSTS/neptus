@@ -192,7 +192,8 @@ public class VerticalProfileViewer implements Renderer2DPainter {
                 case CHLOROPHYLL:
                     typeUnitStr = " (µg/l)";
                     break;
-                case ABSOLUTE_WIND:
+                case ABSOLUTE_WIND_AVG:
+                case ABSOLUTE_WIND_MAX:
                     typeUnitStr = " (m/s)";
                     depthOrientationStr = "Dir (°)";
                     depthOrOrientation = false;
@@ -295,8 +296,11 @@ public class VerticalProfileViewer implements Renderer2DPainter {
             case CURRENT_VELOCITY_V:
                 g.drawString("CVV", (int) pt.getX() - 5, (int) pt.getY() - 5);
                 break;
-            case ABSOLUTE_WIND:
-                g.drawString("AW", (int) pt.getX() - 5, (int) pt.getY() - 5);
+            case ABSOLUTE_WIND_AVG:
+                g.drawString("AWA", (int) pt.getX() - 5, (int) pt.getY() - 5);
+                break;
+            case ABSOLUTE_WIND_MAX:
+                g.drawString("AWM", (int) pt.getX() - 5, (int) pt.getY() - 5);
                 break;
             case DISS_ORGANIC_MATTER:
                 g.drawString("DOM", (int) pt.getX() - 5, (int) pt.getY() - 5);
