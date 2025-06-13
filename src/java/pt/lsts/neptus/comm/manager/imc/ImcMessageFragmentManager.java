@@ -114,16 +114,7 @@ public class ImcMessageFragmentManager {
             return;
         }
 
-        String systemName = ImcSystemsHolder.translateImcIdToSystemName(systemId);
-        if (systemName == null || systemName.isEmpty()) {
-            VehicleType veh = VehiclesHolder.getVehicleWithImc(new ImcId16(systemId));
-            if (veh != null) {
-                systemName = veh.getName();
-            }
-        }
-        if (systemName == null || systemName.isEmpty()) {
-            systemName = new ImcId16(systemId).toPrettyString();
-        }
+        String systemName = getSystemName(systemId);
 
         String note = "Fragments for frag id " + fragmentId + " to system id " + systemName;
         try {
@@ -156,13 +147,27 @@ public class ImcMessageFragmentManager {
         synchronized (lockSent) {
             int fragId = fragmentList.get(0).getUid();
             Pair<Integer, Integer> idPair = Pair.create(fragId, systemId);
-            System.out.println("Adding sent fragments to " + idPair + ": " + fragmentList);
-            NeptusLog.pub().warn("Adding sent fragments to {}: {}", idPair, fragmentList);
+            System.out.println("Adding sent fragments to " + systemName + " with id " + idPair + ": " + fragmentList);
+            NeptusLog.pub().warn("Adding sent fragments to {} with id {}: {}", systemName, idPair, fragmentList);
             sentFragmentsInsertTimeHolder.put(idPair, System.currentTimeMillis());
             List<MessagePart> fl = new ArrayList<>(fragmentList);
             sentFragmentsHolder.put(idPair, fl);
             sentFragmentsNoteHolder.put(idPair, note);
         }
+    }
+
+    private static String getSystemName(int systemId) {
+        String systemName = ImcSystemsHolder.translateImcIdToSystemName(systemId);
+        if (systemName == null || systemName.isEmpty()) {
+            VehicleType veh = VehiclesHolder.getVehicleWithImc(new ImcId16(systemId));
+            if (veh != null) {
+                systemName = veh.getName();
+            }
+        }
+        if (systemName == null || systemName.isEmpty()) {
+            systemName = new ImcId16(systemId).toPrettyString();
+        }
+        return systemName;
     }
 
     public void addReceivedFragments(MessagePart... fragmentList) {
@@ -182,9 +187,10 @@ public class ImcMessageFragmentManager {
         synchronized (lockReceived) {
             int systemId = fragmentList.get(0).getSrc();
             int fragId = fragmentList.get(0).getUid();
+            String systemName = getSystemName(systemId);
             Pair<Integer, Integer> idPair = Pair.create(fragId, systemId);
-            System.out.println("Adding received fragments to " + idPair + ": " + fragmentList);
-            NeptusLog.pub().warn("Adding received fragments to {}: {}", idPair, fragmentList);
+            System.out.println("Adding received fragments from " + systemName + " with id " + idPair + ": " + fragmentList);
+            NeptusLog.pub().warn("Adding received fragments from {} with id {}: {}", systemName, idPair, fragmentList);
             receivedFragmentsInsertTimeHolder.put(idPair, System.currentTimeMillis());
             List<MessagePart> allFragmentList = receivedFragmentsHolder.get(idPair);
             if (allFragmentList == null) {
@@ -206,14 +212,15 @@ public class ImcMessageFragmentManager {
     public void onMessageSent(MessagePartControl msg) {
         int systemId = msg.getSrc();
         int fragId = msg.getUid();
+        String systemName = getSystemName(systemId);
         Pair<Integer, Integer> idPair = Pair.create(fragId, systemId);
 
-        System.out.println("Message Frag Control sent: with frag id " + fragId + " and system id " + systemId);
-        NeptusLog.pub().warn("Message Frag Control request: with frag id {} and system id {}", fragId, systemId);
+        System.out.println("Message Frag Control request from " + systemName + ": with frag id " + fragId + " and system id " + systemId);
+        NeptusLog.pub().warn("Message Frag Control request {}; with frag id {} and system id {}", systemName, fragId, systemId);
 
         if (!sentFragmentsHolder.containsKey(idPair)) {
-            System.out.println("Not a known fragment: " + idPair);
-            NeptusLog.pub().warn("Not a known fragment: {}", idPair);
+            System.out.println("Not a known fragment: " + idPair + "with id " + fragId + " and system id " + systemId);
+            NeptusLog.pub().warn("Not a known fragment: {} with id {} and system id {}", idPair, fragId, systemId);
             return; // Not a known fragment
         }
 
@@ -269,7 +276,6 @@ public class ImcMessageFragmentManager {
         final String fragsIdsStr = fragmentsToSendFinal.stream().map(
                 m -> "" + m.getFragNumber()).collect(Collectors.joining(", "));
         final String fragsTotal = "" + fragmentsToSendFinal.get(0).getNumFrags();
-        final String systemName = ImcSystemsHolder.translateImcIdToSystemName(systemId);
 
         final Notification sendNotificationAction = Notification.info(I18n.textf("Resend Message Fragments to %name", systemName),
                         I18n.textf("%note.\n Resend %n of %t fragments for parts: %frags?",
