@@ -552,6 +552,34 @@ public class MissionTreePanel extends ConsolePanel
                             });
         }
 
+        private void addActionSendPlanInfoRequestUserRequest(final ConsoleLayout console2, final PlanDBControl pdbControl,
+                                                  JPopupMenu popupMenu) {
+            if (!usePlanDBSyncFeatures)
+                return;
+
+            popupMenu.add(I18n.textf("Get a plan info from %system", console2.getMainSystem()))
+                    .addActionListener(e -> {
+                        // Ask the user to write a plan name on a dialog
+                        String planName = JOptionPane.showInputDialog(I18n.text("Plan name to request from remote system"));
+                        if (planName == null || planName.isEmpty()) {
+                            return; // User cancelled
+                        }
+                        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+                            @Override
+                            protected Void doInBackground() throws Exception {
+                                String mainSystem = console2.getMainSystem();
+                                pdbControl.setRemoteSystemId(mainSystem);
+                                boolean ret = pdbControl.requestPlanInfo(planName);
+                                if (!ret) {
+                                    NeptusLog.pub().error("Error requesting plan info " + planName);
+                                }
+                                return null;
+                            }
+                        };
+                        worker.execute();
+                    });
+        }
+
         private <T extends NameId> StringBuilder getPlanNamesString(final ArrayList<T> selectedItems, boolean plans) {
             StringBuilder objectNames = new StringBuilder();
             
@@ -625,6 +653,36 @@ public class MissionTreePanel extends ConsolePanel
                                             NeptusLog.pub().error("Error requesting plan " + nameId.getIdentification());
                                             break;
                                         }
+                                    }
+                                    return null;
+                                }
+                            };
+                            worker.execute();
+                        }
+                    });
+        }
+
+        private void addActionGetRemotePlanUserRequest(final ConsoleLayout console2, final PlanDBControl pdbControl,
+                                            JPopupMenu popupMenu) {
+            if (!usePlanDBSyncFeatures)
+                return;
+
+            popupMenu.add(I18n.textf("Get a plan from %system", console2.getMainSystem()))
+                    .addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            // Ask the user to write a plan name on a dialog
+                            String planName = JOptionPane.showInputDialog(I18n.text("Plan name to request from remote system"));
+                            if (planName == null || planName.isEmpty()) {
+                                return; // User cancelled
+                            }
+                            SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+                                @Override
+                                protected Void doInBackground() throws Exception {
+                                    pdbControl.setRemoteSystemId(console2.getMainSystem());
+                                    boolean ret = pdbControl.requestPlan(planName);
+                                    if (!ret) {
+                                        NeptusLog.pub().error("Error requesting plan " + planName);
                                     }
                                     return null;
                                 }
@@ -891,6 +949,9 @@ public class MissionTreePanel extends ConsolePanel
                                 addActionGetRemotePlan(getConsole(), pdbControl, list, popupMenu);
                                 addActionSendPlanInfoRequest(getConsole(), pdbControl, list, popupMenu);
                             }
+
+                            addActionGetRemotePlanUserRequest(getConsole(), pdbControl, popupMenu);
+                            addActionSendPlanInfoRequestUserRequest(getConsole(), pdbControl, popupMenu);
                         }
                     }
                     break;
