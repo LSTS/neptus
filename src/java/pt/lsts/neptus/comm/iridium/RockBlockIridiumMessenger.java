@@ -85,6 +85,7 @@ import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.ByteUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 import pt.lsts.neptus.util.http.client.HttpClientConnectionHelper;
 
 import static pt.lsts.neptus.comm.iridium.HubIridiumMessenger.updateVehicleWithLastSeenImei;
@@ -232,7 +233,8 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
         if (askCredentials())
             return;
 
-        String result = sendToRockBlockHttp(args.getLastSeenImei(), getRockBlockUsername(), getRockBlockPassword(),
+        String destImei = getImeiToUse(args);
+        String result = sendToRockBlockHttp(destImei, getRockBlockUsername(), getRockBlockPassword(),
                 msg.serialize());
         checkResponseFromServer(result);
     }
@@ -245,16 +247,33 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
                 throw new Exception("Cannot send message to an unknown destination");
             }
             IridiumArgs args = (IridiumArgs) vt.getProtocolsArgs().get("iridium");
-            imeiAddr = args.getLastSeenImei();
+            imeiAddr = getImeiToUse(args);
         }
 
-        if (askCredentials())
+        if (askCredentials()) {
             return;
+        }
 
         String result = sendToRockBlockHttp(imeiAddr, getRockBlockUsername(), getRockBlockPassword(), data);
         checkResponseFromServer(result);
     }
 
+    private static String getImeiToUse(IridiumArgs args) {
+        String destImei = args.getLastSeenImei();
+        int imeiIdx = GeneralPreferences.iridiumModemDefaultIndexToUse;
+        if (imeiIdx > 0) {
+            switch (imeiIdx) {
+                case 1:
+                    destImei = args.getImei();
+                    break;
+                case 2:
+                default:
+                    destImei = args.getImei1();
+            }
+        }
+        return destImei;
+    }
+    
     public String sendToRockBlockHttp(String destImei, String username, String password, byte[] data)
             throws IOException {
 
