@@ -256,6 +256,13 @@ public class GeneralPreferences implements PropertiesProvider {
             units = "minutes")
     public static double iridiumMessengerPollWindowHours = 1;
 
+    @NeptusProperty(name = "Iridium Modem Default Index To Use", category="Iridium Communications", userLevel = LEVEL.REGULAR,
+            description = "The default index to use for the iridium modem. This is used when there are multiple modems available. "
+                    + "Use 0 for automatically selection. Use 1 for the first modem, 2 for the second, etc. "
+                    + "If the index is higher than the number of modems available, it will use the last one available. "
+                    + "Only valid for Iridium gateway that supports multiple modems.")
+    public static int iridiumModemDefaultIndexToUse = 0;
+
     @NeptusProperty(name = "Minutes To Dump All Fragments", category="Fragments Communications", userLevel = LEVEL.REGULAR,
             description = "Minutes to dump all fragments. Valid values are positive values between 10 and 240. Doesn't need restart to apply",
             units = "minutes")
