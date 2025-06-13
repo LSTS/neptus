@@ -134,7 +134,7 @@ public class GeneralPreferences implements PropertiesProvider {
 
     @NeptusProperty(name = "Communication - Send Use New Multi-Channels", category = "IMC Communications", userLevel = LEVEL.ADVANCED,
             description = "To use the new multichannel comms. Enable or disable")
-    public static boolean imcUseNewMultiChannelCommsEnable = false;
+    public static boolean imcUseNewMultiChannelCommsEnable = true;
 
     @NeptusProperty(name = "IMC Channels to Use", category = "IMC Communications", userLevel = LEVEL.ADVANCED,
             description = "Comma separated transports list. Valid values are (WiFi, Acoustic, GSM, Satellite). (The order implies preference of use.)")
