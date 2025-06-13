@@ -358,7 +358,7 @@
         <number>+351</number>
       </gsm>
       <iridium>
-        <imei></imei>
+        <imei>300234064327170</imei>
       </iridium>
     </protocols-args>
   </protocols-supported>
