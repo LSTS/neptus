@@ -188,14 +188,16 @@ public class ImcMessageFragmentManager {
             int systemId = fragmentList.get(0).getSrc();
             int fragId = fragmentList.get(0).getUid();
             String systemName = getSystemName(systemId);
+            int nFrags = fragmentList.get(0).getNumFrags();
+            String fragNumber = fragmentList.stream().map(MessagePart::getFragNumber).toString();
             Pair<Integer, Integer> idPair = Pair.create(fragId, systemId);
-            System.out.println("Adding received fragments from " + systemName + " with id " + idPair + ": " + fragmentList);
-            NeptusLog.pub().warn("Adding received fragments from {} with id {}: {}", systemName, idPair, fragmentList);
             receivedFragmentsInsertTimeHolder.put(idPair, System.currentTimeMillis());
             List<MessagePart> allFragmentList = receivedFragmentsHolder.get(idPair);
             if (allFragmentList == null) {
                 allFragmentList = new ArrayList<>();
             }
+            System.out.println("Adding received fragments from " + systemName + " with id " + idPair + " (" + fragNumber + " of " + nFrags + " left " + (nFrags - allFragmentList.size()) +  "): " + fragmentList);
+            NeptusLog.pub().warn("Adding received fragments from {} with id {} ({} of {} left {}): {}", systemName, idPair, fragNumber, nFrags, nFrags - allFragmentList.size(), fragmentList);
             receivedFragmentsHolder.put(idPair, allFragmentList);
 
             // Add the fragments to the list, avoiding duplicates
@@ -212,11 +214,12 @@ public class ImcMessageFragmentManager {
     public void onMessageSent(MessagePartControl msg) {
         int systemId = msg.getSrc();
         int fragId = msg.getUid();
+        String rqst = msg.getFragIds();
         String systemName = getSystemName(systemId);
         Pair<Integer, Integer> idPair = Pair.create(fragId, systemId);
 
-        System.out.println("Message Frag Control request from " + systemName + ": with frag id " + fragId + " and system id " + systemId);
-        NeptusLog.pub().warn("Message Frag Control request {}; with frag id {} and system id {}", systemName, fragId, systemId);
+        System.out.println("Message Frag Control request from " + systemName + ": with frag id " + fragId + " and system id " + systemId + " for " + rqst);
+        NeptusLog.pub().warn("Message Frag Control request {}; with frag id {} and system id {} for {}", systemName, fragId, systemId, rqst);
 
         if (!sentFragmentsHolder.containsKey(idPair)) {
             System.out.println("Not a known fragment: " + idPair + "with id " + fragId + " and system id " + systemId);
