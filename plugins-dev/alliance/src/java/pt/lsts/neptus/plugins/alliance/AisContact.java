@@ -61,7 +61,7 @@ public class AisContact {
     }
     
     public AisContact(int mmsi) {
-        System.out.println("Created AIS contact for mmsi "+mmsi);
+        // System.out.println("Created AIS contact for mmsi "+mmsi);
         this.mmsi = mmsi;
         lastUpdate = System.currentTimeMillis();
     }
