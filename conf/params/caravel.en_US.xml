@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2024.09.0 (system/caravel,ce545f940)" system="caravel" i18n="en_US">
+<config format="1" version="2024.09.0 (system/caravel,df59f4b70)" system="caravel" i18n="en_US">
   <section name="Text Actions" name-i18n="Text Actions">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -166,7 +166,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0.1</default>
+      <default>0.6</default>
       <units>m/s</units>
       <desc>Speed below which thruster is used</desc>
       <min>0.0</min>
@@ -3868,7 +3868,7 @@
       <desc>Set Maximum value of pwm.</desc>
       <max>2000</max>
     </param>
-    <param name="Power Channel 1 Entity Label">
+    <param name="Power Channel 1 Entity Label" editable="false">
       <name-i18n>Power Channel 1 Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
@@ -3877,7 +3877,7 @@
       <units/>
       <desc>Power Channel Entity Label</desc>
     </param>
-    <param name="Power Channel 1 Max Current">
+    <param name="Power Channel 1 Max Current" editable="false">
       <name-i18n>Power Channel 1 Max Current</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
@@ -3888,7 +3888,7 @@
       <min>1</min>
       <max>10000</max>
     </param>
-    <param name="Power Channel 2 Entity Label">
+    <param name="Power Channel 2 Entity Label" editable="false">
       <name-i18n>Power Channel 2 Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
@@ -3897,7 +3897,7 @@
       <units/>
       <desc>Power Channel Entity Label</desc>
     </param>
-    <param name="Power Channel 2 Max Current">
+    <param name="Power Channel 2 Max Current" editable="false">
       <name-i18n>Power Channel 2 Max Current</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
@@ -3908,7 +3908,7 @@
       <min>1</min>
       <max>10000</max>
     </param>
-    <param name="Power Channel 3 Entity Label">
+    <param name="Power Channel 3 Entity Label" editable="false">
       <name-i18n>Power Channel 3 Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
@@ -3926,7 +3926,7 @@
       <units/>
       <desc>Power Channel State</desc>
     </param>
-    <param name="Power Channel 3 Max Current">
+    <param name="Power Channel 3 Max Current" editable="false">
       <name-i18n>Power Channel 3 Max Current</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
@@ -3937,7 +3937,7 @@
       <min>1</min>
       <max>10000</max>
     </param>
-    <param name="Power Channel 4 Entity Label">
+    <param name="Power Channel 4 Entity Label" editable="false">
       <name-i18n>Power Channel 4 Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
@@ -3955,7 +3955,7 @@
       <units/>
       <desc>Power Channel State</desc>
     </param>
-    <param name="Power Channel 4 Max Current">
+    <param name="Power Channel 4 Max Current" editable="false">
       <name-i18n>Power Channel 4 Max Current</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
@@ -3966,7 +3966,7 @@
       <min>1</min>
       <max>10000</max>
     </param>
-    <param name="Power Channel 5 Entity Label">
+    <param name="Power Channel 5 Entity Label" editable="false">
       <name-i18n>Power Channel 5 Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
@@ -3984,7 +3984,7 @@
       <units/>
       <desc>Power Channel State</desc>
     </param>
-    <param name="Power Channel 5 Max Current">
+    <param name="Power Channel 5 Max Current" editable="false">
       <name-i18n>Power Channel 5 Max Current</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
@@ -3995,7 +3995,7 @@
       <min>1</min>
       <max>10000</max>
     </param>
-    <param name="Power Channel 6 Entity Label">
+    <param name="Power Channel 6 Entity Label" editable="false">
       <name-i18n>Power Channel 6 Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
@@ -4013,7 +4013,7 @@
       <units/>
       <desc>Power Channel State</desc>
     </param>
-    <param name="Power Channel 6 Max Current">
+    <param name="Power Channel 6 Max Current" editable="false">
       <name-i18n>Power Channel 6 Max Current</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
@@ -4024,7 +4024,7 @@
       <min>1</min>
       <max>10000</max>
     </param>
-    <param name="Power Channel 7 Entity Label">
+    <param name="Power Channel 7 Entity Label" editable="false">
       <name-i18n>Power Channel 7 Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
@@ -4042,7 +4042,7 @@
       <units/>
       <desc>Power Channel State</desc>
     </param>
-    <param name="Power Channel 7 Max Current">
+    <param name="Power Channel 7 Max Current" editable="false">
       <name-i18n>Power Channel 7 Max Current</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
@@ -4053,7 +4053,7 @@
       <min>1</min>
       <max>10000</max>
     </param>
-    <param name="Power Channel 8 Entity Label">
+    <param name="Power Channel 8 Entity Label" editable="false">
       <name-i18n>Power Channel 8 Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
@@ -4071,7 +4071,7 @@
       <units/>
       <desc>Power Channel State</desc>
     </param>
-    <param name="Power Channel 8 Max Current">
+    <param name="Power Channel 8 Max Current" editable="false">
       <name-i18n>Power Channel 8 Max Current</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
@@ -4082,7 +4082,7 @@
       <min>1</min>
       <max>10000</max>
     </param>
-    <param name="Power Channel 9 Entity Label">
+    <param name="Power Channel 9 Entity Label" editable="false">
       <name-i18n>Power Channel 9 Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
@@ -4100,7 +4100,7 @@
       <units/>
       <desc>Power Channel State</desc>
     </param>
-    <param name="Power Channel 9 Max Current">
+    <param name="Power Channel 9 Max Current" editable="false">
       <name-i18n>Power Channel 9 Max Current</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
@@ -4111,7 +4111,7 @@
       <min>1</min>
       <max>10000</max>
     </param>
-    <param name="Power Channel 10 Entity Label">
+    <param name="Power Channel 10 Entity Label" editable="false">
       <name-i18n>Power Channel 10 Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
@@ -4129,7 +4129,7 @@
       <units/>
       <desc>Power Channel State</desc>
     </param>
-    <param name="Power Channel 10 Max Current">
+    <param name="Power Channel 10 Max Current" editable="false">
       <name-i18n>Power Channel 10 Max Current</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
@@ -4140,7 +4140,7 @@
       <min>1</min>
       <max>10000</max>
     </param>
-    <param name="Power Channel 11 Entity Label">
+    <param name="Power Channel 11 Entity Label" editable="false">
       <name-i18n>Power Channel 11 Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
@@ -4158,7 +4158,7 @@
       <units/>
       <desc>Power Channel State</desc>
     </param>
-    <param name="Power Channel 11 Max Current">
+    <param name="Power Channel 11 Max Current" editable="false">
       <name-i18n>Power Channel 11 Max Current</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
@@ -4169,7 +4169,7 @@
       <min>1</min>
       <max>10000</max>
     </param>
-    <param name="Power Channel 12 Entity Label">
+    <param name="Power Channel 12 Entity Label" editable="false">
       <name-i18n>Power Channel 12 Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
@@ -4187,7 +4187,7 @@
       <units/>
       <desc>Power Channel State</desc>
     </param>
-    <param name="Power Channel 12 Max Current">
+    <param name="Power Channel 12 Max Current" editable="false">
       <name-i18n>Power Channel 12 Max Current</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
@@ -4198,7 +4198,7 @@
       <min>1</min>
       <max>10000</max>
     </param>
-    <param name="Power Channel 13 Entity Label">
+    <param name="Power Channel 13 Entity Label" editable="false">
       <name-i18n>Power Channel 13 Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
@@ -4216,7 +4216,7 @@
       <units/>
       <desc>Power Channel State</desc>
     </param>
-    <param name="Power Channel 13 Max Current">
+    <param name="Power Channel 13 Max Current" editable="false">
       <name-i18n>Power Channel 13 Max Current</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
@@ -4227,7 +4227,7 @@
       <min>1</min>
       <max>10000</max>
     </param>
-    <param name="Power Channel 14 Entity Label">
+    <param name="Power Channel 14 Entity Label" editable="false">
       <name-i18n>Power Channel 14 Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
@@ -4245,7 +4245,7 @@
       <units/>
       <desc>Power Channel State</desc>
     </param>
-    <param name="Power Channel 14 Max Current">
+    <param name="Power Channel 14 Max Current" editable="false">
       <name-i18n>Power Channel 14 Max Current</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
@@ -4256,7 +4256,7 @@
       <min>1</min>
       <max>10000</max>
     </param>
-    <param name="Power Channel 15 Entity Label">
+    <param name="Power Channel 15 Entity Label" editable="false">
       <name-i18n>Power Channel 15 Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
@@ -4274,7 +4274,7 @@
       <units/>
       <desc>Power Channel State</desc>
     </param>
-    <param name="Power Channel 15 Max Current">
+    <param name="Power Channel 15 Max Current" editable="false">
       <name-i18n>Power Channel 15 Max Current</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
@@ -4285,7 +4285,7 @@
       <min>1</min>
       <max>10000</max>
     </param>
-    <param name="Power Channel 16 Entity Label">
+    <param name="Power Channel 16 Entity Label" editable="false">
       <name-i18n>Power Channel 16 Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
@@ -4303,7 +4303,7 @@
       <units/>
       <desc>Power Channel State</desc>
     </param>
-    <param name="Power Channel 16 Max Current">
+    <param name="Power Channel 16 Max Current" editable="false">
       <name-i18n>Power Channel 16 Max Current</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
@@ -4314,7 +4314,7 @@
       <min>1</min>
       <max>10000</max>
     </param>
-    <param name="Power Channel 17 Entity Label">
+    <param name="Power Channel 17 Entity Label" editable="false">
       <name-i18n>Power Channel 17 Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
@@ -4332,7 +4332,7 @@
       <units/>
       <desc>Power Channel State</desc>
     </param>
-    <param name="Power Channel 17 Max Current">
+    <param name="Power Channel 17 Max Current" editable="false">
       <name-i18n>Power Channel 17 Max Current</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
@@ -4343,7 +4343,7 @@
       <min>1</min>
       <max>10000</max>
     </param>
-    <param name="Power Channel 18 Entity Label">
+    <param name="Power Channel 18 Entity Label" editable="false">
       <name-i18n>Power Channel 18 Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
@@ -4361,7 +4361,7 @@
       <units/>
       <desc>Power Channel State</desc>
     </param>
-    <param name="Power Channel 18 Max Current">
+    <param name="Power Channel 18 Max Current" editable="false">
       <name-i18n>Power Channel 18 Max Current</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
@@ -4372,7 +4372,7 @@
       <min>1</min>
       <max>10000</max>
     </param>
-    <param name="Power Channel 19 Entity Label">
+    <param name="Power Channel 19 Entity Label" editable="false">
       <name-i18n>Power Channel 19 Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
@@ -4390,7 +4390,7 @@
       <units/>
       <desc>Power Channel State</desc>
     </param>
-    <param name="Power Channel 19 Max Current">
+    <param name="Power Channel 19 Max Current" editable="false">
       <name-i18n>Power Channel 19 Max Current</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
@@ -4401,7 +4401,7 @@
       <min>1</min>
       <max>10000</max>
     </param>
-    <param name="Power Channel 20 Entity Label">
+    <param name="Power Channel 20 Entity Label" editable="false">
       <name-i18n>Power Channel 20 Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
@@ -4419,7 +4419,7 @@
       <units/>
       <desc>Power Channel State</desc>
     </param>
-    <param name="Power Channel 20 Max Current">
+    <param name="Power Channel 20 Max Current" editable="false">
       <name-i18n>Power Channel 20 Max Current</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
@@ -4430,7 +4430,7 @@
       <min>1</min>
       <max>10000</max>
     </param>
-    <param name="Power Channel 21 Entity Label">
+    <param name="Power Channel 21 Entity Label" editable="false">
       <name-i18n>Power Channel 21 Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
@@ -4448,7 +4448,7 @@
       <units/>
       <desc>Power Channel State</desc>
     </param>
-    <param name="Power Channel 21 Max Current">
+    <param name="Power Channel 21 Max Current" editable="false">
       <name-i18n>Power Channel 21 Max Current</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
@@ -4459,7 +4459,7 @@
       <min>1</min>
       <max>10000</max>
     </param>
-    <param name="Power Channel 22 Entity Label">
+    <param name="Power Channel 22 Entity Label" editable="false">
       <name-i18n>Power Channel 22 Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
@@ -4477,7 +4477,7 @@
       <units/>
       <desc>Power Channel State</desc>
     </param>
-    <param name="Power Channel 22 Max Current">
+    <param name="Power Channel 22 Max Current" editable="false">
       <name-i18n>Power Channel 22 Max Current</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
@@ -4488,7 +4488,7 @@
       <min>1</min>
       <max>10000</max>
     </param>
-    <param name="Power Channel 23 Entity Label">
+    <param name="Power Channel 23 Entity Label" editable="false">
       <name-i18n>Power Channel 23 Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
@@ -4506,7 +4506,7 @@
       <units/>
       <desc>Power Channel State</desc>
     </param>
-    <param name="Power Channel 23 Max Current">
+    <param name="Power Channel 23 Max Current" editable="false">
       <name-i18n>Power Channel 23 Max Current</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
@@ -4517,7 +4517,7 @@
       <min>1</min>
       <max>10000</max>
     </param>
-    <param name="Power Data 1 Entity Label">
+    <param name="Power Data 1 Entity Label" editable="false">
       <name-i18n>Power Data 1 Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
@@ -4526,7 +4526,7 @@
       <units/>
       <desc>Power Data Label</desc>
     </param>
-    <param name="Power Data 2 Entity Label">
+    <param name="Power Data 2 Entity Label" editable="false">
       <name-i18n>Power Data 2 Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
@@ -4535,7 +4535,7 @@
       <units/>
       <desc>Power Data Label</desc>
     </param>
-    <param name="Power Data 3 Entity Label">
+    <param name="Power Data 3 Entity Label" editable="false">
       <name-i18n>Power Data 3 Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
@@ -4544,7 +4544,7 @@
       <units/>
       <desc>Power Data Label</desc>
     </param>
-    <param name="Power Data 4 Entity Label">
+    <param name="Power Data 4 Entity Label" editable="false">
       <name-i18n>Power Data 4 Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
@@ -4553,7 +4553,7 @@
       <units/>
       <desc>Power Data Label</desc>
     </param>
-    <param name="Power Data 5 Entity Label">
+    <param name="Power Data 5 Entity Label" editable="false">
       <name-i18n>Power Data 5 Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
@@ -4562,7 +4562,7 @@
       <units/>
       <desc>Power Data Label</desc>
     </param>
-    <param name="Power Data 6 Entity Label">
+    <param name="Power Data 6 Entity Label" editable="false">
       <name-i18n>Power Data 6 Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
@@ -4571,7 +4571,7 @@
       <units/>
       <desc>Power Data Label</desc>
     </param>
-    <param name="Power Data 7 Entity Label">
+    <param name="Power Data 7 Entity Label" editable="false">
       <name-i18n>Power Data 7 Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
@@ -4580,7 +4580,7 @@
       <units/>
       <desc>Power Data Label</desc>
     </param>
-    <param name="Power Data 8 Entity Label">
+    <param name="Power Data 8 Entity Label" editable="false">
       <name-i18n>Power Data 8 Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
@@ -4589,7 +4589,7 @@
       <units/>
       <desc>Power Data Label</desc>
     </param>
-    <param name="Power Data 9 Entity Label">
+    <param name="Power Data 9 Entity Label" editable="false">
       <name-i18n>Power Data 9 Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
@@ -4598,7 +4598,7 @@
       <units/>
       <desc>Power Data Label</desc>
     </param>
-    <param name="Power Data 10 Entity Label">
+    <param name="Power Data 10 Entity Label" editable="false">
       <name-i18n>Power Data 10 Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
@@ -4607,7 +4607,7 @@
       <units/>
       <desc>Power Data Label</desc>
     </param>
-    <param name="Power Data 11 Entity Label">
+    <param name="Power Data 11 Entity Label" editable="false">
       <name-i18n>Power Data 11 Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
@@ -4616,7 +4616,7 @@
       <units/>
       <desc>Power Data Label</desc>
     </param>
-    <param name="Power Data 12 Entity Label">
+    <param name="Power Data 12 Entity Label" editable="false">
       <name-i18n>Power Data 12 Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
@@ -4625,7 +4625,7 @@
       <units/>
       <desc>Power Data Label</desc>
     </param>
-    <param name="Power Data 13 Entity Label">
+    <param name="Power Data 13 Entity Label" editable="false">
       <name-i18n>Power Data 13 Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
@@ -4634,7 +4634,7 @@
       <units/>
       <desc>Power Data Label</desc>
     </param>
-    <param name="Power Data 14 Entity Label">
+    <param name="Power Data 14 Entity Label" editable="false">
       <name-i18n>Power Data 14 Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
@@ -4643,7 +4643,7 @@
       <units/>
       <desc>Power Data Label</desc>
     </param>
-    <param name="Power Data 15 Entity Label">
+    <param name="Power Data 15 Entity Label" editable="false">
       <name-i18n>Power Data 15 Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
@@ -4652,7 +4652,7 @@
       <units/>
       <desc>Power Data Label</desc>
     </param>
-    <param name="Power Data 16 Entity Label">
+    <param name="Power Data 16 Entity Label" editable="false">
       <name-i18n>Power Data 16 Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
@@ -4661,7 +4661,7 @@
       <units/>
       <desc>Power Data Label</desc>
     </param>
-    <param name="Power Data 17 Entity Label">
+    <param name="Power Data 17 Entity Label" editable="false">
       <name-i18n>Power Data 17 Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
@@ -4670,7 +4670,7 @@
       <units/>
       <desc>Power Data Label</desc>
     </param>
-    <param name="Power Data 18 Entity Label">
+    <param name="Power Data 18 Entity Label" editable="false">
       <name-i18n>Power Data 18 Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
@@ -4679,7 +4679,7 @@
       <units/>
       <desc>Power Data Label</desc>
     </param>
-    <param name="Power Data 19 Entity Label">
+    <param name="Power Data 19 Entity Label" editable="false">
       <name-i18n>Power Data 19 Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
@@ -4688,7 +4688,7 @@
       <units/>
       <desc>Power Data Label</desc>
     </param>
-    <param name="Power Data 20 Entity Label">
+    <param name="Power Data 20 Entity Label" editable="false">
       <name-i18n>Power Data 20 Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
@@ -4697,7 +4697,7 @@
       <units/>
       <desc>Power Data Label</desc>
     </param>
-    <param name="Power Data 21 Entity Label">
+    <param name="Power Data 21 Entity Label" editable="false">
       <name-i18n>Power Data 21 Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
@@ -4706,7 +4706,7 @@
       <units/>
       <desc>Power Data Label</desc>
     </param>
-    <param name="Power Data 22 Entity Label">
+    <param name="Power Data 22 Entity Label" editable="false">
       <name-i18n>Power Data 22 Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
@@ -5021,6 +5021,70 @@
       <desc>Delay after powering up the device</desc>
       <min>0.0</min>
     </param>
+    <param name="Sample Time Duration">
+      <name-i18n>Sample Time Duration</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units>s</units>
+      <desc>Sample Time Duration (S) in seconds. This value must not be greater than Periodicity of Data Sampling (P), otherwise, task will be deactivated.&lt;table border="1"&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;[S]&lt;/th&gt;&lt;th&gt;[P]&lt;/th&gt;&lt;th&gt;Description&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;=P&lt;/td&gt;&lt;td&gt;=S&lt;/td&gt;&lt;td&gt;Continuous sampling&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;=0&lt;/td&gt;&lt;td&gt;&amp;gt;0&lt;/td&gt;&lt;td&gt;Periodic single sample&lt;pre style='font-family: Monospaced'&gt;[P][=====][=====]&lt;br&gt;[S]|------|------&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;lt;P&lt;/td&gt;&lt;td&gt;&amp;gt;S&lt;/td&gt;&lt;td&gt;Periodic sampling&lt;pre style='font-family: Monospaced'&gt;[P][=====][=====]&lt;br&gt;[S][==---][==---]&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;gt;P&lt;/td&gt;&lt;td&gt;&amp;lt;S&lt;/td&gt;&lt;td&gt;Invalid&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;</desc>
+      <min>0.0</min>
+    </param>
+    <param name="Sample Time Duration - Visibility">
+      <name-i18n>Sample Time Duration - Visibility</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>developer</default>
+      <units/>
+      <desc>Visibility of the 'Sample Time Duration' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
+    </param>
+    <param name="Sample Time Duration - Scope">
+      <name-i18n>Sample Time Duration - Scope</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>global</default>
+      <units/>
+      <desc>Scoped of the 'Sample Time Duration' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
+    </param>
+    <param name="Periodicity of Data Sampling">
+      <name-i18n>Periodicity of Data Sampling</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units>s</units>
+      <desc>Periodicity of Data Sampling (P) in seconds. This value must not be lower than Sample Time Duration (S), otherwise, task will be deactivated.&lt;table border="1"&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;[S]&lt;/th&gt;&lt;th&gt;[P]&lt;/th&gt;&lt;th&gt;Description&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;=P&lt;/td&gt;&lt;td&gt;=S&lt;/td&gt;&lt;td&gt;Continuous sampling&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;=0&lt;/td&gt;&lt;td&gt;&amp;gt;0&lt;/td&gt;&lt;td&gt;Periodic single sample&lt;pre style='font-family: Monospaced'&gt;[P][=====][=====]&lt;br&gt;[S]|------|------&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;lt;P&lt;/td&gt;&lt;td&gt;&amp;gt;S&lt;/td&gt;&lt;td&gt;Periodic sampling&lt;pre style='font-family: Monospaced'&gt;[P][=====][=====]&lt;br&gt;[S][==---][==---]&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;gt;P&lt;/td&gt;&lt;td&gt;&amp;lt;S&lt;/td&gt;&lt;td&gt;Invalid&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;</desc>
+      <min>0.0</min>
+    </param>
+    <param name="Periodicity of Data Sampling - Visibility">
+      <name-i18n>Periodicity of Data Sampling - Visibility</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>developer</default>
+      <units/>
+      <desc>Visibility of the 'Periodicity of Data Sampling' parameter</desc>
+      <values>user,developer</values>
+      <values-i18n>user,developer</values-i18n>
+    </param>
+    <param name="Periodicity of Data Sampling - Scope">
+      <name-i18n>Periodicity of Data Sampling - Scope</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>global</default>
+      <units/>
+      <desc>Scoped of the 'Periodicity of Data Sampling' parameter</desc>
+      <values>global,idle,plan,maneuver</values>
+      <values-i18n>global,idle,plan,maneuver</values-i18n>
+    </param>
     <param name="IO Port - Device">
       <name-i18n>IO Port - Device</name-i18n>
       <type>string</type>
@@ -5029,105 +5093,6 @@
       <default>uart:///dev/ttyS10:38400</default>
       <units/>
       <desc>Serial port device used to communicate with the sensor</desc>
-    </param>
-    <param name="Initialization String 0 - Command">
-      <name-i18n>Initialization String 0 - Command</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default/>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Initialization String 0 - Reply">
-      <name-i18n>Initialization String 0 - Reply</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default/>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Initialization String 1 - Command">
-      <name-i18n>Initialization String 1 - Command</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default/>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Initialization String 1 - Reply">
-      <name-i18n>Initialization String 1 - Reply</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default/>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Initialization String 2 - Command">
-      <name-i18n>Initialization String 2 - Command</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default/>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Initialization String 2 - Reply">
-      <name-i18n>Initialization String 2 - Reply</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default/>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Initialization String 3 - Command">
-      <name-i18n>Initialization String 3 - Command</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default/>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Initialization String 3 - Reply">
-      <name-i18n>Initialization String 3 - Reply</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default/>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Initialization String 4 - Command">
-      <name-i18n>Initialization String 4 - Command</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default/>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Initialization String 4 - Reply">
-      <name-i18n>Initialization String 4 - Reply</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default/>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Sentence Order">
-      <name-i18n>Sentence Order</name-i18n>
-      <type>list:string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default/>
-      <units/>
-      <desc>GPS Sentence order</desc>
     </param>
     <param name="Input Timeout">
       <name-i18n>Input Timeout</name-i18n>
@@ -7187,7 +7152,7 @@
       <type>list:real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>39.033772, -26.524612</default>
+      <default>41.22528, -8.99094</default>
       <units>°</units>
       <desc>Lat, Lon coordinates (degrees) for the final loiter maneuver.</desc>
       <size>2</size>
