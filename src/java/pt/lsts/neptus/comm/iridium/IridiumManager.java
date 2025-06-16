@@ -254,7 +254,7 @@ public class IridiumManager {
         GregorianCalendar reportTime = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
         String[] timeParts = reportMsg.timeOfDay.split(":");
         reportTime.set(Calendar.YEAR, year);
-        reportTime.set(Calendar.MONTH, month);
+        reportTime.set(Calendar.MONTH, month - 1); // Months are 0-based in Calendar
         reportTime.set(Calendar.DAY_OF_MONTH, day);
         reportTime.set(Calendar.HOUR_OF_DAY, Integer.parseInt(timeParts[0]));
         reportTime.set(Calendar.MINUTE, Integer.parseInt(timeParts[1]));
