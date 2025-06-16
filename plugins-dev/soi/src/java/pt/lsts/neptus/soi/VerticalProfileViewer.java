@@ -198,8 +198,8 @@ public class VerticalProfileViewer implements Renderer2DPainter {
                     depthOrientationStr = "Dir (°)";
                     depthOrOrientation = false;
                     break;
-                case CURRENT_VELOCITY_U:
-                case CURRENT_VELOCITY_V:
+                case CURRENT_VELOCITY_N:
+                case CURRENT_VELOCITY_E:
                     typeUnitStr = " (m/s)";
                     break;
                 case REDOX:
@@ -290,11 +290,11 @@ public class VerticalProfileViewer implements Renderer2DPainter {
             case TURBIDITY:
                 g.drawString("Trb", (int) pt.getX() - 5, (int) pt.getY() - 5);
                 break;
-            case CURRENT_VELOCITY_U:
-                g.drawString("CVU", (int) pt.getX() - 5, (int) pt.getY() - 5);
+            case CURRENT_VELOCITY_N:
+                g.drawString("CVN", (int) pt.getX() - 5, (int) pt.getY() - 5);
                 break;
-            case CURRENT_VELOCITY_V:
-                g.drawString("CVV", (int) pt.getX() - 5, (int) pt.getY() - 5);
+            case CURRENT_VELOCITY_E:
+                g.drawString("CVE", (int) pt.getX() - 5, (int) pt.getY() - 5);
                 break;
             case ABSOLUTE_WIND_AVG:
                 g.drawString("AWA", (int) pt.getX() - 5, (int) pt.getY() - 5);
