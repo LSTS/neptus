@@ -476,6 +476,13 @@ public class ImcMessageFragmentManager {
                         requestMsg.getFragIds(), requestMsg.getSourceName(), fragUid);
 
                 String systemName = ImcSystemsHolder.translateImcIdToSystemName(systemId);
+
+                Notification sendNotificationAction = Notification.info(I18n.textf(
+                        "Requesting to Resend Message Fragments to %name", systemName),
+                                I18n.textf("Requesting missing fragments $s from $s for frag id $d",
+                                        requestMsg.getFragIds(), requestMsg.getSourceName(), fragUid));
+                NeptusEvents.post(sendNotificationAction);
+
                 String[] channelsToUse = new String[] {CommsAdmin.CommChannelType.WIFI.name, CommsAdmin.CommChannelType.IRIDIUM.name};
                 boolean ret =  IMCSendMessageUtils.sendMessage(requestMsg, ImcMsgManager.TRANSPORT_TCP,
                         (MessageDeliveryListener) null, null, I18n.text("Error sending msg part retransmit requested for sender"),
