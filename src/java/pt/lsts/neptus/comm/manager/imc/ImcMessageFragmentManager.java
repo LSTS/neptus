@@ -56,6 +56,7 @@ import javax.swing.SwingWorker;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -444,6 +445,7 @@ public class ImcMessageFragmentManager {
                 int fragUid = fragmentIdPair.getFirst();
                 int systemId = fragmentIdPair.getSecond();
                 int totalNFrag = firstFrag.getNumFrags();
+                long timeOriginalRequest = fragmentsAlreadyReceived.get(0).getTimestampMillis();
                 List<Integer> receivedFragNumbers = fragmentsAlreadyReceived.stream()
                         .map(MessagePart::getFragNumber)
                         .map(Integer::valueOf)
@@ -470,28 +472,51 @@ public class ImcMessageFragmentManager {
                         .map(String::valueOf)
                         .collect(Collectors.joining(",")));
 
+                Date requestOriginalDate = new Date(timeOriginalRequest);
                 System.out.println("Requesting missing fragments " + requestMsg.getFragIds() +
-                        " from " + requestMsg.getSourceName() + " for frag id " + fragUid);
-                NeptusLog.pub().warn("Requesting missing fragments {} from {} for frag id {}",
-                        requestMsg.getFragIds(), requestMsg.getSourceName(), fragUid);
+                        " from " + requestMsg.getSourceName() + " for frag id " + fragUid +
+                        " at " + requestOriginalDate);
+                NeptusLog.pub().warn("Requesting missing fragments {} from {} for frag id {} at {}",
+                        requestMsg.getFragIds(), requestMsg.getSourceName(), fragUid,
+                        requestOriginalDate);
 
                 String systemName = ImcSystemsHolder.translateImcIdToSystemName(systemId);
 
-                Notification sendNotificationAction = Notification.info(I18n.textf(
-                        "Requesting to Resend Message Fragments to %name", systemName),
-                                I18n.textf("Requesting missing fragments $s from $s for frag id $d",
-                                        requestMsg.getFragIds(), requestMsg.getSourceName(), fragUid));
-                NeptusEvents.post(sendNotificationAction);
+                final Notification sendNotificationAction = Notification.info(I18n.textf("Need to Request a Resend of Message Fragments from %name", systemName),
+                                I18n.textf("Requesting missing fragments $s from $s for frag id $d at $s",
+                                        requestMsg.getFragIds(), requestMsg.getSourceName(), fragUid, requestOriginalDate))
+                        .requireHumanAction(true);
+                SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+                    @Override
+                    protected Void doInBackground() throws Exception {
+                        Notification sendNotificationAction = Notification.info(I18n.textf(
+                                        "Requested %name to Resend Missing Message Fragments", systemName),
+                                I18n.textf("Requesting missing fragments $s from $s for frag id $d at $s",
+                                        requestMsg.getFragIds(), requestMsg.getSourceName(), fragUid, requestOriginalDate));
+                        NeptusEvents.post(sendNotificationAction);
 
-                String[] channelsToUse = new String[] {CommsAdmin.CommChannelType.WIFI.name, CommsAdmin.CommChannelType.IRIDIUM.name};
-                boolean ret =  IMCSendMessageUtils.sendMessage(requestMsg, ImcMsgManager.TRANSPORT_TCP,
-                        (MessageDeliveryListener) null, null, I18n.text("Error sending msg part retransmit requested for sender"),
-                        false, "", true, true,
-                        true, false, channelsToUse, systemName);
+                        String[] channelsToUse = new String[] {CommsAdmin.CommChannelType.WIFI.name, CommsAdmin.CommChannelType.IRIDIUM.name};
+                        boolean ret =  IMCSendMessageUtils.sendMessage(requestMsg, ImcMsgManager.TRANSPORT_TCP,
+                                (MessageDeliveryListener) null, null, I18n.text("Error sending msg part retransmit requested for sender"),
+                                false, "", true, true,
+                                true, false, channelsToUse, systemName);
 
-                if (ret) {
-                    receivedFragmentsInsertTimeHolder.put(fragmentIdPair, System.currentTimeMillis());
+                        if (ret) {
+                            receivedFragmentsInsertTimeHolder.put(fragmentIdPair, System.currentTimeMillis());
+                        }
+                        return null;
+                    }
+                };
+
+                if (GeneralPreferences.isAutomaticallyResendMissingReceivedFragments) {
+                    worker.execute();
+                    return; // No need to ask for confirmation, just execute the worker
                 }
+
+                sendNotificationAction.setActionListener(e -> {
+                    worker.execute();
+                });
+                NeptusEvents.post(sendNotificationAction);
             }
         }
     }

@@ -277,6 +277,10 @@ public class GeneralPreferences implements PropertiesProvider {
             description = "If true, the system will automatically resend missing sent fragments. If false, it will need operator intervention.")
     public static boolean isAutomaticallyResendMissingSentFragments = false;
 
+    @NeptusProperty(name = "Automatically Resend Missing Received Fragments", category="Fragments Communications", userLevel = LEVEL.REGULAR,
+            description = "If true, the system will automatically resend missing received fragments. If false, it will need operator intervention.")
+    public static boolean isAutomaticallyResendMissingReceivedFragments = false;
+
     // -------------------------------------------------------------------------
     
     @NeptusProperty(name = "Maximum Size of Plan Name For Acoustics", category="Plan", userLevel = LEVEL.ADVANCED,
