@@ -273,6 +273,9 @@ public class IridiumStatus extends ConsolePanel {
             String title = "Iridium Message Data";
             JOptionPane.showMessageDialog(this, jscroll, title, JOptionPane.PLAIN_MESSAGE);
         }
+        catch (NullPointerException npe) {
+            NeptusLog.pub().error("Error displaying message data", npe);
+        }
         catch (Exception ex) {
             GuiUtils.errorMessage(getConsole(), ex);
         }
