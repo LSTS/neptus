@@ -34,12 +34,15 @@ package pt.lsts.neptus.console.plugins.planning.plandb;
 
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.PlanDB;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.neptus.console.notifications.Notification;
+import pt.lsts.neptus.events.NeptusEvents;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.messages.listener.MessageInfo;
 import pt.lsts.neptus.messages.listener.MessageListener;
@@ -220,6 +223,21 @@ public class PlanDBControl implements MessageListener<MessageInfo, IMCMessage> {
                 for (IPlanDBListener l : listeners)
                     l.dbPlanSent(msg.getAsString("plan_id"));
             }
+        }
+        else if (PlanDB.TYPE.FAILURE.name().equalsIgnoreCase(msg.getString("type"))) {
+            PlanDB pdb = (PlanDB) msg;
+            String srcName = pdb.getSourceName();
+            NeptusEvents.post(Notification.warning(I18n.textf("PlanDB Warning . %s1", srcName),
+                    I18n.textf("Warning in PlanDB operation: %s1 (%s2) for plan '%s3'",
+                            pdb.getOp(), pdb.getInfo(), pdb.getPlanId()))
+                    .requireHumanAction(true));
+        }
+        else if (PlanDB.TYPE.IN_PROGRESS.name().equalsIgnoreCase(msg.getString("type"))) {
+            PlanDB pdb = (PlanDB) msg;
+            String srcName = pdb.getSourceName();
+            NeptusEvents.post(Notification.info(I18n.textf("PlanDB In Progress . %s1", srcName),
+                    I18n.textf("PlanDB operation: %s1 (%s2) for plan '%s3' is in progress",
+                            pdb.getOp(), pdb.getInfo(), pdb.getPlanId())));
         }
     }
 }
