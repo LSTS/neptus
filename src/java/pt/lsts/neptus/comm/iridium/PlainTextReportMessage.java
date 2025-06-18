@@ -54,8 +54,8 @@ import java.util.regex.Pattern;
  */
 public class PlainTextReportMessage extends IridiumMessage {
 
-    private static final Pattern p0 = Pattern.compile("\\((.)\\) \\((.*)\\) (.*) / (.*), (.*) / f:(\\d*) v:(\\d*) c:(\\d*) / s: ?(.)(.*?)");
-    private static final Pattern p = Pattern.compile("\\((.)\\) \\((.*)\\) (.*) / (.*), (.*) / .*");
+    private static final Pattern p0 = Pattern.compile("(\\((.)\\) )?\\((.*)\\) (.*) / (.*), (.*) / f:(\\d*) v:(\\d*) c:(\\d*) / s: ?(.)(.*?)");
+    private static final Pattern p = Pattern.compile("(\\((.)\\) )?\\((.*)\\) (.*) / (.*), (.*) / .*");
 
     String report;
 
@@ -128,15 +128,15 @@ public class PlainTextReportMessage extends IridiumMessage {
             }
         }
 
-        vehicle = matcher.group(2);
+        vehicle = matcher.group(3);
         String[] tks = vehicle.split(" - ");
         if (tks.length > 1) {
             vehicleAlt = vehicle.replaceFirst(tks[0], "").trim();
             vehicle = tks[0];
         }
-        timeOfDay = matcher.group(3);
-        String latMins = matcher.group(4);
-        String lonMins = matcher.group(5);
+        timeOfDay = matcher.group(4);
+        String latMins = matcher.group(5);
+        String lonMins = matcher.group(6);
         source = IMCDefinition.getInstance().getResolver().resolve(vehicle);
         if (source == -1) {
             return;
@@ -149,10 +149,10 @@ public class PlainTextReportMessage extends IridiumMessage {
         if (matcher.groupCount() <= 6)
             return;
 
-        fuelPercentage = Double.parseDouble(matcher.group(6));
-        batteryVoltage = Double.parseDouble(matcher.group(7)) / 10.0;
-        batteryConfidencePercentage = Double.parseDouble(matcher.group(8));
-        statusIndicator = matcher.group(9);
+        fuelPercentage = Double.parseDouble(matcher.group(7));
+        batteryVoltage = Double.parseDouble(matcher.group(8)) / 10.0;
+        batteryConfidencePercentage = Double.parseDouble(matcher.group(9));
+        statusIndicator = matcher.group(10);
     }
 
     private double getCoords(String[] coordParts) {
@@ -164,9 +164,11 @@ public class PlainTextReportMessage extends IridiumMessage {
     public static void main(String[] args) {
         String hexMsg = "28542920286c6175762d736561636f6e2d33292031323a32353a3433202f2034312031312e3131383035302c202d382034322e323837393530202f20663a393020763a32383920633a313030202f20733a2053";
         String textMsg = "(T) (lauv-seacon-3) 12:25:43 / 41 11.118050, -8 42.287950 / f:90 v:289 c:100 / s: S";
+        String textMsg1 = "(lauv-seacon-3) 12:25:43 / 41 11.118050, -8 42.287950 / f:90 v:289 c:100 / s: S";
 
         HexBinaryAdapter hexAdapter = new HexBinaryAdapter();
         byte[] bytesMsh = hexAdapter.unmarshal(hexMsg);
+        byte[] bytesMsh1 = textMsg1.getBytes(StandardCharsets.ISO_8859_1);
 
         IMCInputStream iis = new IMCInputStream(new ByteArrayInputStream(bytesMsh), IMCDefinition.getInstance());
         iis.setBigEndian(false);
