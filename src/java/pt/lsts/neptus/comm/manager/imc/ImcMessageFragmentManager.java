@@ -197,8 +197,6 @@ public class ImcMessageFragmentManager {
             if (allFragmentList == null) {
                 allFragmentList = new ArrayList<>();
             }
-            System.out.println("Adding received fragments from " + systemName + " with id " + idPair + " (" + fragNumber + " of " + nFrags + " left " + (nFrags - allFragmentList.size()) +  "): " + fragmentList);
-            NeptusLog.pub().warn("Adding received fragments from {} with id {} ({} of {} left {}): {}", systemName, idPair, fragNumber, nFrags, nFrags - allFragmentList.size(), fragmentList);
             receivedFragmentsHolder.put(idPair, allFragmentList);
 
             // Add the fragments to the list, avoiding duplicates
@@ -208,6 +206,12 @@ public class ImcMessageFragmentManager {
                     allFragmentList.add(fragment);
                 }
             }
+
+            System.out.println("Adding received fragments from " + systemName + " with id " + idPair +
+                    " (" + fragNumber + " of " + nFrags + " left " + (nFrags - allFragmentList.size()) +  "): " +
+                    fragmentList);
+            NeptusLog.pub().warn("Adding received fragments from {} with id {} ({} of {} left {}): {}",
+                    systemName, idPair, fragNumber, nFrags, nFrags - allFragmentList.size(), fragmentList);
         }
     }
 
@@ -483,7 +487,7 @@ public class ImcMessageFragmentManager {
                 String systemName = ImcSystemsHolder.translateImcIdToSystemName(systemId);
 
                 final Notification sendNotificationAction = Notification.info(I18n.textf("Need to Request a Resend of Message Fragments from %name", systemName),
-                                I18n.textf("Requesting missing fragments $s from $s for frag id $d at $s",
+                                I18n.textf("Requesting missing fragments %s from %s for frag id %d at %s",
                                         requestMsg.getFragIds(), requestMsg.getSourceName(), fragUid, requestOriginalDate))
                         .requireHumanAction(true);
                 SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
@@ -491,7 +495,7 @@ public class ImcMessageFragmentManager {
                     protected Void doInBackground() throws Exception {
                         Notification sendNotificationAction = Notification.info(I18n.textf(
                                         "Requested %name to Resend Missing Message Fragments", systemName),
-                                I18n.textf("Requesting missing fragments $s from $s for frag id $d at $s",
+                                I18n.textf("Requesting missing fragments %s from %s for frag id %d at %s",
                                         requestMsg.getFragIds(), requestMsg.getSourceName(), fragUid, requestOriginalDate));
                         NeptusEvents.post(sendNotificationAction);
 
