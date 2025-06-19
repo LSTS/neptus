@@ -260,31 +260,10 @@ public class ImcMessageFragmentManager {
                 return; // Data too short to guess the type
             }
 
-            try {
-                IMCDefinition imcDefinition = ImcMsgManager.getManager().imcDefinition;
-                ByteArrayInputStream bais = new ByteArrayInputStream(data);
-                IMCInputStream input = new IMCInputStream(bais, imcDefinition);
-                Header header = imcDefinition.createHeader();
-
-                // Check if the first byte matches the sync word or swapped word
-                // FIXME
-                long syncFirstByte = (long)input.readUnsignedByte();
-                if (!(syncFirstByte == ((imcDefinition.getSyncWord() & 0xFF00) >> 8)
-                        || syncFirstByte == ((imcDefinition.getSwappedWord() & 0xFF00) >> 8))) {
-                    return; // Not a valid IMC message, cannot guess the type
-                }
-                long sync = ((syncFirstByte & 0xFF) << 8) + input.readUnsignedByte(); // input.readUnsignedShort();
-                if (sync == imcDefinition.getSyncWord()) {
-                    input.setBigEndian(true);
-                } else if (sync == imcDefinition.getSwappedWord()) {
-                    input.setBigEndian(false);
-                }
-                else {
-                    return; // Not a valid IMC message, cannot guess the type
-                }
-
-                input.reset();
-                imcDefinition.readHeader(input, header);
+            IMCDefinition imcDefinition = ImcMsgManager.getManager().imcDefinition;
+            try (ByteArrayInputStream bais = new ByteArrayInputStream(data);
+                    IMCInputStream input = new IMCInputStream(bais, imcDefinition)) {
+                Header header = imcDefinition.readHeader(input);
                 int msgId = header.get_mgid();
                 IMCMessageType msgType = imcDefinition.getType(msgId);
                 receivedFragmentsTypeNoteNoteHolder.put(idPair, msgType.getFullName());
