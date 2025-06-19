@@ -61,6 +61,7 @@ public class Notification implements Comparable<Notification> {
     private String src = I18n.text("Console");
 
     private ActionListener actionListener;
+    private ActionListener dismissActionListener;
     private boolean isActionTriggered = false;
 
     /**
@@ -184,6 +185,19 @@ public class Notification implements Comparable<Notification> {
 
     public void setActionListener(ActionListener actionListener) {
         this.actionListener = actionListener;
+    }
+
+    public Notification dismissedActionListener(ActionListener dismissActionListener) {
+        this.dismissActionListener = dismissActionListener;
+        return this;
+    }
+
+    public ActionListener getDismissActionListener() {
+        return dismissActionListener;
+    }
+
+    public void setDismissActionListener(ActionListener dismissActionListener) {
+        this.dismissActionListener = dismissActionListener;
     }
 
     public boolean isActionTriggered() {
