@@ -222,10 +222,8 @@ public class IridiumStatus extends ConsolePanel {
      */
     private void configureTable() {
 
-        table = new JTable(iridiumCommsStatus){
-
+        table = new JTable(){
             private static final long serialVersionUID = -6458618477278894325L;
-
             @Override
             public String getToolTipText(MouseEvent event) {
                 java.awt.Point p = event.getPoint();
@@ -239,11 +237,12 @@ public class IridiumStatus extends ConsolePanel {
                return super.getToolTipText();
             }
         };
+        table.setAutoCreateRowSorter(false);
+        table.setRowSorter(rowSorter);
+        table.setModel(iridiumCommsStatus); // needs to be set after the sorter
         table.getModel().addTableModelListener(changes);
         table.setFillsViewportHeight(true);
         table.setDefaultRenderer(Object.class,highlightRenderer);
-        table.setAutoCreateRowSorter(false);
-        table.setRowSorter(rowSorter);
         table.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
