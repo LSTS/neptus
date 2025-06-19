@@ -32,16 +32,25 @@
  */
 package pt.lsts.neptus.gui.swing;
 
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.ActionListener;
 
 public class ActionLabel extends JPanel {
+    private static final Color DISMISSED_COLOR = new Color(131, 28, 28);
+
     private final JLabel label;
+    private final JPanel buttonPanel;
     private JButton actionButton;
+    private JButton actionSecondButton;
+    private Component buttonGapComponent = Box.createRigidArea(new Dimension(0, 10));
 
     public ActionLabel(String text, Icon icon) {
         this(text, icon, JLabel.LEADING);
@@ -52,7 +61,11 @@ public class ActionLabel extends JPanel {
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
         setOpaque(false);
         label = new JLabel(text, icon, horizontalAlignment);
+        buttonPanel = new JPanel();
+        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
+        buttonPanel.setOpaque(false);
         add(label);
+        add(buttonPanel);
     }
 
 
@@ -75,13 +88,18 @@ public class ActionLabel extends JPanel {
     public void addActionButton(String buttonText, ActionListener listener) {
         if (actionButton != null) {
             remove(actionButton);
+            remove(buttonGapComponent);
         }
         actionButton = new JButton(buttonText);
         actionButton.setOpaque(false);
         actionButton.setBackground(label.getBackground().darker().darker());
         actionButton.setFont(label.getFont().deriveFont(label.getFont().getSize() - 2f));
         actionButton.addActionListener(listener);
-        add(actionButton);
+        actionButton.setAlignmentX(CENTER_ALIGNMENT);
+        buttonPanel.add(actionButton, 0);
+        if (buttonPanel.getComponents().length > 1) {
+            buttonPanel.add(buttonGapComponent, 1);
+        }
         revalidate();
         repaint();
     }
@@ -89,7 +107,38 @@ public class ActionLabel extends JPanel {
     public void removeActionButton() {
         if (actionButton != null) {
             remove(actionButton);
+            remove(buttonGapComponent);
             actionButton = null;
+            revalidate();
+            repaint();
+        }
+    }
+
+    public void addSecondActionButton(String buttonText, ActionListener listener) {
+        if (actionSecondButton != null) {
+            remove(actionSecondButton);
+            remove(buttonGapComponent);
+        }
+        actionSecondButton = new JButton(buttonText);
+        actionSecondButton.setOpaque(false);
+        actionSecondButton.setBackground(label.getBackground().darker().darker());
+        actionSecondButton.setForeground(DISMISSED_COLOR);
+        actionSecondButton.setFont(label.getFont().deriveFont(label.getFont().getSize() - 2f));
+        actionSecondButton.addActionListener(listener);
+        actionSecondButton.setAlignmentX(CENTER_ALIGNMENT);
+        buttonPanel.add(actionSecondButton, actionButton != null ? 1 : 0);
+        if (buttonPanel.getComponents().length > 1) {
+            buttonPanel.add(buttonGapComponent, 1);
+        }
+        revalidate();
+        repaint();
+    }
+
+    public void removeSecondActionButton() {
+        if (actionSecondButton != null) {
+            remove(actionSecondButton);
+            remove(buttonGapComponent);
+            actionSecondButton = null;
             revalidate();
             repaint();
         }
@@ -101,5 +150,9 @@ public class ActionLabel extends JPanel {
 
     public JButton getActionButton() {
         return actionButton;
+    }
+
+    public JButton getActionSecondButton() {
+        return actionSecondButton;
     }
 }

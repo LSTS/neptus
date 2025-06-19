@@ -207,6 +207,9 @@ public class NotificationsGlassPane extends JPanel {
                     NeptusLog.pub().error("Error executing notification action: {}", noty.getTitle(), ex);
                 }
                 label.getActionButton().setEnabled(!noty.isActionTriggered());
+                if (label.getActionSecondButton() != null) {
+                    label.getActionSecondButton().setEnabled(!noty.isActionTriggered());
+                }
                 refresh();
                 repaint();
             });
@@ -214,6 +217,23 @@ public class NotificationsGlassPane extends JPanel {
             if (noty.isActionTriggered()) {
                 label.getActionButton().setEnabled(false);
             }
+        }
+
+        if (noty.getDismissActionListener() != null) {
+            label.addSecondActionButton(I18n.text("dismiss"), e -> {
+                noty.setActionTriggered(true);
+                try {
+                    noty.getDismissActionListener().actionPerformed(e);
+                } catch (Exception ex) {
+                    NeptusLog.pub().error("Error executing dismiss notification action: {}", noty.getTitle(), ex);
+                }
+                label.getActionSecondButton().setEnabled(!noty.isActionTriggered());
+                if (label.getActionButton() != null) {
+                    label.getActionButton().setEnabled(!noty.isActionTriggered());
+                }
+                refresh();
+                repaint();
+            });
         }
 
         label.setBorder(BorderFactory.createCompoundBorder(border, paddingBorder));
