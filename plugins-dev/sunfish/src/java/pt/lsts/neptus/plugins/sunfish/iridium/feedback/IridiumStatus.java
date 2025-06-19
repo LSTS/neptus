@@ -261,6 +261,10 @@ public class IridiumStatus extends ConsolePanel {
     public void displayMessage(){
         try {
             int index = table.convertRowIndexToModel(table.getSelectedRow());
+            if (index < 0 || index >= iridiumCommsStatus.getRowCount()) {
+                NeptusLog.pub().error("Invalid row selected: {}", index);
+                return;
+            }
             String msg = iridiumCommsStatus.getMessageData(index); 
             JTextArea data = new JTextArea();
             data.setEditable(false);
@@ -271,6 +275,9 @@ public class IridiumStatus extends ConsolePanel {
             jscroll.setPreferredSize(new Dimension(400,400));
             String title = "Iridium Message Data";
             JOptionPane.showMessageDialog(this, jscroll, title, JOptionPane.PLAIN_MESSAGE);
+        }
+        catch (IndexOutOfBoundsException aioobe) {
+            NeptusLog.pub().error("Invalid row selected error: {}", aioobe.getMessage());
         }
         catch (NullPointerException npe) {
             NeptusLog.pub().error("Error displaying message data", npe);
