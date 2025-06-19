@@ -344,7 +344,7 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
                 String fromImei = "";
                 String seqNumber = "";
                 byte[] data = null;
-                if (m.getReceivedDate().before(timeSince)) {
+                if (!m.getReceivedDate().after(timeSince)) {
                     break;
                 }
 
