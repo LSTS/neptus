@@ -537,6 +537,15 @@ public class ImcMessageFragmentManager {
                 sendNotificationAction.setActionListener(e -> {
                     worker.execute();
                 });
+                sendNotificationAction.setDismissActionListener(e -> {
+                    synchronized (lockReceived) {
+                        if (!receivedFragmentsHolder.containsKey(fragmentIdPair)) {
+                            return; // No fragments to remove
+                        }
+                        receivedFragmentsHolder.remove(fragmentIdPair);
+                        receivedFragmentsInsertTimeHolder.remove(fragmentIdPair);
+                    }
+                });
                 NeptusEvents.post(sendNotificationAction);
             }
         }
