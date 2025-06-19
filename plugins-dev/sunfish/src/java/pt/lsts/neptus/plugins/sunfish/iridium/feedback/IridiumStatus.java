@@ -230,14 +230,13 @@ public class IridiumStatus extends ConsolePanel {
             public String getToolTipText(MouseEvent event) {
                 java.awt.Point p = event.getPoint();
                 int column = columnAtPoint(p);
-                    if( rowAtPoint(p)> 0 && rowAtPoint(p) < table.getRowCount()) {
-                        int row = table.convertRowIndexToModel(rowAtPoint(p));
-                        if(row > 0 && row < table.getRowCount())
-                            return iridiumCommsStatus.getToolTipText(row,column);
-                   }
+                if (rowAtPoint(p)> 0 && rowAtPoint(p) < table.getRowCount()) {
+                    int row = table.convertRowIndexToModel(rowAtPoint(p));
+                    if (row > 0 && row < table.getRowCount())
+                        return iridiumCommsStatus.getToolTipText(row,column);
+               }
 
-
-                return super.getToolTipText();
+               return super.getToolTipText();
             }
         };
         table.getModel().addTableModelListener(changes);
