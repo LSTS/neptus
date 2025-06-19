@@ -34,7 +34,11 @@ package pt.lsts.neptus.comm.manager.imc;
 
 import com.google.common.eventbus.Subscribe;
 import org.apache.commons.math3.util.Pair;
+import pt.lsts.imc.Header;
+import pt.lsts.imc.IMCDefinition;
+import pt.lsts.imc.IMCInputStream;
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.IMCMessageType;
 import pt.lsts.imc.MessagePart;
 import pt.lsts.imc.MessagePartControl;
 import pt.lsts.imc.PlanDB;
@@ -53,6 +57,7 @@ import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 import javax.swing.SwingWorker;
+import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -87,6 +92,8 @@ public class ImcMessageFragmentManager {
     private final Map<Pair<Integer, Integer>, List<MessagePart>> receivedFragmentsHolder = Collections.synchronizedMap(new HashMap<>());
     // Map to hold the received fragments insert time. Pair is frag id and system id of the destination of the fragments
     private final Map<Pair<Integer, Integer>, Long> receivedFragmentsInsertTimeHolder = Collections.synchronizedMap(new HashMap<>());
+    // Map to hold the received fragments type note holder. Pair is frag id and system id of the destination of the fragments
+    private final Map<Pair<Integer, Integer>, String> receivedFragmentsTypeNoteNoteHolder = Collections.synchronizedMap(new HashMap<>());
 
     public ImcMessageFragmentManager() {
         this(ImcMsgManager.getManager());
@@ -198,6 +205,8 @@ public class ImcMessageFragmentManager {
                 allFragmentList = new ArrayList<>();
             }
             receivedFragmentsHolder.put(idPair, allFragmentList);
+            if (!receivedFragmentsTypeNoteNoteHolder.containsKey(idPair))
+                receivedFragmentsTypeNoteNoteHolder.put(idPair, "");
 
             // Add the fragments to the list, avoiding duplicates
             for (MessagePart fragment : fragmentList) {
@@ -207,11 +216,83 @@ public class ImcMessageFragmentManager {
                 }
             }
 
-            System.out.println("Adding received fragments from " + systemName + " with id " + idPair +
+            tryToGuessMessageType(allFragmentList, idPair, systemName);
+            String msgTypeNoteStr = getMsgTypeStringNote(idPair);
+            System.out.println("Adding received fragments" + msgTypeNoteStr + " from " + systemName + " with id " + idPair +
                     " (" + fragNumber + " of " + nFrags + " left " + (nFrags - allFragmentList.size()) +  "): " +
                     fragmentList);
-            NeptusLog.pub().warn("Adding received fragments from {} with id {} ({} of {} left {}): {}",
-                    systemName, idPair, fragNumber, nFrags, nFrags - allFragmentList.size(), fragmentList);
+            NeptusLog.pub().warn("Adding received fragments{} from {} with id {} ({} of {} left {}): {}",
+                    msgTypeNoteStr, systemName, idPair, fragNumber, nFrags, nFrags - allFragmentList.size(),
+                    fragmentList);
+        }
+    }
+
+    private String getMsgTypeStringNote(Pair<Integer, Integer> idPair) {
+        String typeNote = receivedFragmentsTypeNoteNoteHolder.get(idPair);
+        if (typeNote == null || typeNote.isEmpty()) {
+            return "";
+        }
+        return " for '" + typeNote + "'";
+    }
+
+    private void tryToGuessMessageType(List<MessagePart> allFragmentList, Pair<Integer, Integer> idPair, String systemName) {
+        synchronized (lockReceived) {
+            String typeNote = receivedFragmentsTypeNoteNoteHolder.get(idPair);
+            if (typeNote != null && !typeNote.isEmpty()) {
+                return; // Already guessed the type
+            }
+            if (allFragmentList.isEmpty()) {
+                return; // No fragments to guess the type
+            }
+
+            MessagePart firstMsgPart = allFragmentList.stream().filter(mp -> {
+                    return mp.getFragNumber() == 0; // Find the first message part with frag number 0
+                }).findFirst().orElse(null);
+            if (firstMsgPart == null) {
+                return; // No message part with frag number 0, cannot guess the type
+            }
+
+            byte[] data = firstMsgPart.getData();
+            if (data == null || data.length == 0) {
+                return; // No data to guess the type
+            }
+            if (data.length < 20) {
+                return; // Data too short to guess the type
+            }
+
+            try {
+                IMCDefinition imcDefinition = ImcMsgManager.getManager().imcDefinition;
+                ByteArrayInputStream bais = new ByteArrayInputStream(data);
+                IMCInputStream input = new IMCInputStream(bais, imcDefinition);
+                Header header = imcDefinition.createHeader();
+
+                // Check if the first byte matches the sync word or swapped word
+                // FIXME
+                long syncFirstByte = (long)input.readUnsignedByte();
+                if (!(syncFirstByte == ((imcDefinition.getSyncWord() & 0xFF00) >> 8)
+                        || syncFirstByte == ((imcDefinition.getSwappedWord() & 0xFF00) >> 8))) {
+                    return; // Not a valid IMC message, cannot guess the type
+                }
+                long sync = ((syncFirstByte & 0xFF) << 8) + input.readUnsignedByte(); // input.readUnsignedShort();
+                if (sync == imcDefinition.getSyncWord()) {
+                    input.setBigEndian(true);
+                } else if (sync == imcDefinition.getSwappedWord()) {
+                    input.setBigEndian(false);
+                }
+                else {
+                    return; // Not a valid IMC message, cannot guess the type
+                }
+
+                input.reset();
+                imcDefinition.readHeader(input, header);
+                int msgId = header.get_mgid();
+                IMCMessageType msgType = imcDefinition.getType(msgId);
+                receivedFragmentsTypeNoteNoteHolder.put(idPair, msgType.getFullName());
+            } catch (Exception e) {
+                System.out.println("Error guessing message type from fragments: " + e.getMessage());
+                NeptusLog.pub().warn("Error guessing message type from fragments: {}", e.getMessage());
+                // Error guessing the type, returning without doing anything
+            }
         }
     }
 
@@ -424,13 +505,15 @@ public class ImcMessageFragmentManager {
                 if (fragmentsAlreadyReceived.size() >= nFrags) {
                     // All fragments received, remove from the holder
                     toRemove.add(fragmentIdPair);
-                    System.out.println("All fragments received for " + fragmentIdPair + ", removing from holder.");
-                    NeptusLog.pub().warn("All fragments received for {}, removing from holder.", fragmentIdPair);
+                    String msgTypeNoteStr = getMsgTypeStringNote(fragmentIdPair);
+                    System.out.println("All fragments" + msgTypeNoteStr + " received for " + fragmentIdPair + ", removing from holder.");
+                    NeptusLog.pub().warn("All fragments{} received for {}, removing from holder.", msgTypeNoteStr, fragmentIdPair);
                 }
             }
             for (Pair<Integer, Integer> fragmentIdPair : toRemove) {
                 receivedFragmentsHolder.remove(fragmentIdPair);
                 receivedFragmentsInsertTimeHolder.remove(fragmentIdPair);
+                receivedFragmentsTypeNoteNoteHolder.remove(fragmentIdPair);
             }
 
             for (Map.Entry<Pair<Integer, Integer>, Long> entry : receivedFragmentsInsertTimeHolder.entrySet()) {
@@ -491,34 +574,36 @@ public class ImcMessageFragmentManager {
                 }
                 Date requestOriginalDate = new Date(timeOriginalRequest);
 
+                String msgTypeNoteStr = getMsgTypeStringNote(fragmentIdPair);
                 System.out.println("Requesting missing " + missingFragNumbers.size() +
                         " fragment" + (missingFragNumbers.size() > 1 ? "s" : "") +
                         " (" + missingFragNumbersString +
-                        ") from " + systemName + " for frag id " + fragUid +
+                        ")" + msgTypeNoteStr + " from " + systemName + " for frag id " + fragUid +
                         " at " + requestOriginalDate);
-                NeptusLog.pub().warn("Requesting missing {} fragment{} ({}) from {} for frag id {} at {}",
+                NeptusLog.pub().warn("Requesting missing {} fragment{} ({}){} from {} for frag id {} at {}",
                         missingFragNumbers.size(), missingFragNumbers.size() > 1 ? "s" : "", missingFragNumbersString,
-                        systemName, fragUid, requestOriginalDate);
+                        msgTypeNoteStr, systemName, fragUid, requestOriginalDate);
 
-                final Notification sendNotificationAction = Notification.info(I18n.textf("Requesting %name Missing Fragments for Id %id",
-                                        systemName, fragUid),
-                                I18n.textf("Requesting missing %d0 fragment%s0 (%s1) from %s2 for frag id %d at %s3",
-                                        missingFragNumbers.size(), missingFragNumbers.size() > 1 ? "s" : "",
-                                        missingFragNumbersTrimmedString, systemName, fragUid, requestOriginalDate))
+                final Notification sendNotificationAction = Notification.info(I18n.textf("Requesting %name Missing Fragments%type for Id %id",
+                                        systemName, msgTypeNoteStr, fragUid),
+                                I18n.textf("Requesting missing %d0 fragment%s0 (%s1)%type from %s2 for frag id %d at %s3",
+                                        missingFragNumbers.size(), missingFragNumbers.size() > 1 ? "s" : "", missingFragNumbersTrimmedString,
+                                        msgTypeNoteStr, systemName, fragUid, requestOriginalDate))
                         .requireHumanAction(true);
                 SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
                     @Override
                     protected Void doInBackground() throws Exception {
                         Notification sendNotificationAction = Notification.info(I18n.textf(
-                                        "Requested %name to Resend Missing Message Fragments", systemName),
-                                I18n.textf("Requesting missing %d0 fragment%s0 (%s1) from %s2 for frag id %d at %s3",
-                                        missingFragNumbers.size(), missingFragNumbers.size() > 1 ? "s" : "",
-                                        missingFragNumbersTrimmedString, systemName, fragUid, requestOriginalDate));
+                                        "Requested %name to Resend%type Missing Message Fragments", systemName, msgTypeNoteStr),
+                                I18n.textf("Requesting missing %d0 fragment%s0 (%s1)%type from %s2 for frag id %d at %s3",
+                                        missingFragNumbers.size(), missingFragNumbers.size() > 1 ? "s" : "", missingFragNumbersTrimmedString,
+                                        msgTypeNoteStr, systemName, fragUid, requestOriginalDate));
                         NeptusEvents.post(sendNotificationAction);
 
                         String[] channelsToUse = new String[] {CommsAdmin.CommChannelType.WIFI.name, CommsAdmin.CommChannelType.IRIDIUM.name};
                         boolean ret =  IMCSendMessageUtils.sendMessage(requestMsg, ImcMsgManager.TRANSPORT_TCP,
-                                (MessageDeliveryListener) null, null, I18n.text("Error sending msg part retransmit requested for sender"),
+                                (MessageDeliveryListener) null, null,
+                                I18n.textf("Error sending msg part retransmit requested for sender%type", msgTypeNoteStr),
                                 false, "", true, true,
                                 true, false, channelsToUse, systemName);
 
@@ -544,6 +629,7 @@ public class ImcMessageFragmentManager {
                         }
                         receivedFragmentsHolder.remove(fragmentIdPair);
                         receivedFragmentsInsertTimeHolder.remove(fragmentIdPair);
+                        receivedFragmentsTypeNoteNoteHolder.remove(fragmentIdPair);
                     }
                 });
                 NeptusEvents.post(sendNotificationAction);
