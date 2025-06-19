@@ -69,7 +69,7 @@ public class IridiumStatusTableModel extends AbstractTableModel implements Messa
     private static final long serialVersionUID = 1L;
     private SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SSS dd-MM-yyyy 'Z'");
     private Map<Integer, TransmissionStatus> status = Collections.synchronizedMap(new HashMap<>());
-    List<IridiumMessage> msgs =  Collections.synchronizedList(new ArrayList<>());
+    private final List<IridiumMessage> msgsList =  Collections.synchronizedList(new ArrayList<>());
     protected static final int TIMESTAMP = 0, SYSTEM = 1, STATUS = 2, MSG_TYPE = 3;
     final private String[] statusTooltips = { "Message delivered to recipient(s)", "Error sending message",
             "No confirmation of reception", "Executing a SOICOMMAND or an IRIDIUMCOMMAND" };
@@ -105,8 +105,10 @@ public class IridiumStatusTableModel extends AbstractTableModel implements Messa
                 if (m.destination == ImcId16.NULL_ID.intValue()) {
                     m.destination = msg.getDst();
                 }
-                msgs.add(m);
-                fireTableRowsInserted(msgs.size()-1, msgs.size()-1);
+                synchronized (msgsList) {
+                    msgsList.add(m);
+                    fireTableRowsInserted(msgsList.size() - 1, msgsList.size() - 1);
+                }
             }
             catch (Exception e) {
                 NeptusLog.pub().warn(I18n.text("Unable to deserialize incoming Iridium Message: " + e.getMessage()));
@@ -116,9 +118,10 @@ public class IridiumStatusTableModel extends AbstractTableModel implements Messa
                 m.timestampMillis = msg.getTimestampMillis();
                 m.setMessageType(0);
                 ((IridiumCommand) m).setCommand(new String(((IridiumMsgRx) msg).getData()));
-                msgs.add(m);
-                fireTableRowsInserted(msgs.size()-1, msgs.size()-1);
-
+                synchronized (msgsList){
+                    msgsList.add(m);
+                    fireTableRowsInserted(msgsList.size() - 1, msgsList.size() - 1);
+                }
             }
         }
         else if (msg.getMgid() == IridiumMsgTx.ID_STATIC) {
@@ -135,16 +138,16 @@ public class IridiumStatusTableModel extends AbstractTableModel implements Messa
                 if (m.destination == ImcId16.NULL_ID.intValue()) {
                     m.destination = msg.getDst();
                 }
-                synchronized (msgs) {
-                    msgs.add(m);
+                synchronized (msgsList) {
+                    msgsList.add(m);
                     if (msg.getSrc() == ImcMsgManager.getManager().getLocalId().intValue()) { // Only keeps local
                         // requests info
                         int req_id = ((IridiumMsgTx) msg).getReqId();
-                        status.put(msgs.size(), new TransmissionStatus(req_id, IridiumCommsStatus.UNCERTAIN,
+                        status.put(msgsList.size(), new TransmissionStatus(req_id, IridiumCommsStatus.UNCERTAIN,
                                 IridiumMsgTx.class.getSimpleName()));
                     }
+                    fireTableRowsInserted(msgsList.size() - 1, msgsList.size() - 1);
                 }
-                fireTableRowsInserted(msgs.size()-1, msgs.size()-1);
             }
             catch (Exception e) {
                 NeptusLog.pub().warn(I18n.text("Unable to deserialize incoming Iridium Message: " + e.getMessage()));
@@ -155,32 +158,34 @@ public class IridiumStatusTableModel extends AbstractTableModel implements Messa
                 m.setMessageType(0);
                 ((IridiumCommand) m).setCommand(new String(((IridiumMsgTx) msg).getData()));
 
-                synchronized (msgs) {
-                    msgs.add(m);
+                synchronized (msgsList) {
+                    msgsList.add(m);
                     int req_id = ((IridiumMsgTx) msg).getReqId();
                     if (msg.getSrc() == ImcMsgManager.getManager().getLocalId().intValue())
-                        status.put(msgs.size(),
+                        status.put(msgsList.size(),
                                 new TransmissionStatus(req_id, IridiumCommsStatus.UNCERTAIN, "Custom Iridium Message")); // Only
+                    fireTableRowsInserted(msgsList.size() - 1, msgsList.size() - 1);
                 }
-                fireTableRowsInserted(msgs.size()-1, msgs.size()-1);
             }
         }
         else if (msg.getMgid() == IridiumTxStatus.ID_STATIC) {
             if (msg.getSrc() == ImcMsgManager.getManager().getLocalId().intValue()) { // Only local requests info
                 int req_id = ((IridiumTxStatus) msg).getReqId();
                 pt.lsts.imc.IridiumTxStatus.STATUS s = ((IridiumTxStatus) msg).getStatus();
-                for (Entry<Integer, TransmissionStatus> entry : status.entrySet()) {
-                    if (entry.getValue().req_id == req_id) {
-                        String oldName = entry.getValue().messageType;
-                        if (s.equals(pt.lsts.imc.IridiumTxStatus.STATUS.OK)) {
-                            status.put(entry.getKey(),
-                                    new TransmissionStatus(req_id, IridiumCommsStatus.DELIVERED, oldName));
-                            fireTableRowsInserted(msgs.size()-1, msgs.size()-1);
-                        }
-                        else if (s.equals(pt.lsts.imc.IridiumTxStatus.STATUS.ERROR)) {
-                            status.put(entry.getKey(),
-                                    new TransmissionStatus(req_id, IridiumCommsStatus.ERROR, oldName));
-                            fireTableRowsInserted(msgs.size()-1, msgs.size()-1);
+                synchronized (msgsList) {
+                    for (Entry<Integer, TransmissionStatus> entry : status.entrySet()) {
+                        if (entry.getValue().req_id == req_id) {
+                            String oldName = entry.getValue().messageType;
+                            if (s.equals(pt.lsts.imc.IridiumTxStatus.STATUS.OK)) {
+                                status.put(entry.getKey(),
+                                        new TransmissionStatus(req_id, IridiumCommsStatus.DELIVERED, oldName));
+                                fireTableRowsInserted(msgsList.size() - 1, msgsList.size() - 1);
+                            }
+                            else if (s.equals(pt.lsts.imc.IridiumTxStatus.STATUS.ERROR)) {
+                                status.put(entry.getKey(),
+                                        new TransmissionStatus(req_id, IridiumCommsStatus.ERROR, oldName));
+                                fireTableRowsInserted(msgsList.size() - 1, msgsList.size() - 1);
+                            }
                         }
                     }
                 }
@@ -189,13 +194,19 @@ public class IridiumStatusTableModel extends AbstractTableModel implements Messa
     }
 
     public String getMessageData(int row) throws Exception {
-        IridiumMessage msg = msgs.get(row);
+        IridiumMessage msg = null;
+        synchronized (msgsList) {
+            msg = msgsList.get(row);
+        }
+        if (msg == null)
+            return "";
+
         StringBuilder data = new StringBuilder();
         for (IMCMessage message : msg.asImc()) {
             data.append(message.toString());
             data.append('\n');
         }
-        data.append("HEX DATA: " + new String(Hex.encodeHex(msg.serialize())) + "\n");
+        data.append("HEX DATA: ").append(new String(Hex.encodeHex(msg.serialize()))).append("\n");
         return data.toString();
     }
 
@@ -222,7 +233,9 @@ public class IridiumStatusTableModel extends AbstractTableModel implements Messa
 
     @Override
     public int getRowCount() {
-        return msgs.size();
+        synchronized (msgsList) {
+            return msgsList.size();
+        }
     }
 
     @Override
@@ -233,7 +246,10 @@ public class IridiumStatusTableModel extends AbstractTableModel implements Messa
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         try {
-            IridiumMessage m = msgs.get(rowIndex);
+            IridiumMessage m = null;
+            synchronized (msgsList) {
+                m = msgsList.get(rowIndex);
+            }
 
             String messageType = m.getMessageType() == 0 ? "Custom Iridium Message" : m.getClass().getSimpleName();
             int src = m.getSource();
@@ -330,13 +346,13 @@ public class IridiumStatusTableModel extends AbstractTableModel implements Messa
     }
 
     /**
-     * @param milis - milliseconds 
+     * @param millis - milliseconds
      */
     public void cleanupAfter(long millis) {
-        synchronized (msgs) {
-            msgs.removeIf(msg -> (System.currentTimeMillis() - msg.timestampMillis) >  millis);
+        synchronized (msgsList) {
+            msgsList.removeIf(msg -> (System.currentTimeMillis() - msg.timestampMillis) >  millis);
+            fireTableDataChanged();
         }
-        fireTableDataChanged();
     }
 }
 
