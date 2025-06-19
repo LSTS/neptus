@@ -90,10 +90,10 @@ public class NotificationsDialog extends JDialog implements WindowFocusListener,
     private boolean popupsEnabled = true;
     private boolean focus = false;
 
-    private static ImageIcon successImageIcon = ImageUtils.createScaleImageIcon("images/icons/noty-success.png", 16, 16);
-    private static ImageIcon infoImageIcon = ImageUtils.createScaleImageIcon("images/icons/noty-info.png", 16, 16);
-    private static ImageIcon warningImageIcon = ImageUtils.createScaleImageIcon("images/icons/noty-warning.png", 16, 16);
-    private static ImageIcon errorImageIcon =ImageUtils.createScaleImageIcon("images/icons/noty-error.png", 16, 16);
+    private static final ImageIcon successImageIcon = ImageUtils.createScaleImageIcon("images/icons/noty-success.png", 16, 16);
+    private static final ImageIcon infoImageIcon = ImageUtils.createScaleImageIcon("images/icons/noty-info.png", 16, 16);
+    private static final ImageIcon warningImageIcon = ImageUtils.createScaleImageIcon("images/icons/noty-warning.png", 16, 16);
+    private static final ImageIcon errorImageIcon =ImageUtils.createScaleImageIcon("images/icons/noty-error.png", 16, 16);
 
     /**
      * Construtor
@@ -123,7 +123,7 @@ public class NotificationsDialog extends JDialog implements WindowFocusListener,
         jList.addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
-                if (e.getValueIsAdjusting() == false && jList.getSelectedIndex() != -1) {
+                if (!e.getValueIsAdjusting() && jList.getSelectedIndex() != -1) {
                     Notification noty = jList.getSelectedValue();
                     glassPane.addAtomic(noty);
                 }
@@ -169,9 +169,9 @@ public class NotificationsDialog extends JDialog implements WindowFocusListener,
     }
 
     /**
-     * Sets the visiblity flag of the dialog
+     * Sets the visibility flag of the dialog
      * 
-     * @param flag
+     * @param flag true to show the dialog, false to hide it
      */
     public void visible(boolean flag) {
         if (flag && !this.isVisible()) {
@@ -185,7 +185,7 @@ public class NotificationsDialog extends JDialog implements WindowFocusListener,
     }
 
     /**
-     * Clears the list and glasspane (popups)
+     * Clears the list and glass pane (popups)
      */
     public void clear() {
         notifications.clear();
@@ -218,7 +218,7 @@ public class NotificationsDialog extends JDialog implements WindowFocusListener,
         focus = false;
     }
 
-    private class NotificationRenderer extends JLabel implements ListCellRenderer<Notification> {
+    private static class NotificationRenderer extends JLabel implements ListCellRenderer<Notification> {
         private static final long serialVersionUID = 1L;
 
         @Override
@@ -261,12 +261,10 @@ public class NotificationsDialog extends JDialog implements WindowFocusListener,
                 case SUCCESS:
                     setIcon(successImageIcon);
                     break;
-                case INFO:
-                    setIcon(infoImageIcon);
-                    break;
                 case WARNING:
                     setIcon(warningImageIcon);
                     break;
+                case INFO:
                 default:
                     setIcon(infoImageIcon);
                     break;
@@ -285,7 +283,7 @@ public class NotificationsDialog extends JDialog implements WindowFocusListener,
         if (event instanceof MouseEvent && this.isVisible()) {
             MouseEvent me = (MouseEvent) event;
             String name = me.getComponent().getName() == null ? "" : me.getComponent().getName();
-            if (!name.equals("notification") && focus == false)
+            if (!name.equals("notification") && !focus)
                 this.visible(false);
         }
     }
