@@ -476,27 +476,44 @@ public class ImcMessageFragmentManager {
                         .map(String::valueOf)
                         .collect(Collectors.joining(",")));
 
-                Date requestOriginalDate = new Date(timeOriginalRequest);
-                System.out.println("Requesting missing fragments " + requestMsg.getFragIds() +
-                        " from " + requestMsg.getSourceName() + " for frag id " + fragUid +
-                        " at " + requestOriginalDate);
-                NeptusLog.pub().warn("Requesting missing fragments {} from {} for frag id {} at {}",
-                        requestMsg.getFragIds(), requestMsg.getSourceName(), fragUid,
-                        requestOriginalDate);
-
                 String systemName = ImcSystemsHolder.translateImcIdToSystemName(systemId);
+                String missingFragNumbersString = missingFragNumbers.stream()
+                        .map(String::valueOf)
+                        .collect(Collectors.joining(", "));
+                String missingFragNumbersTrimmedTmpString = missingFragNumbers.stream()
+                        .map(String::valueOf).limit(5)
+                        .collect(Collectors.joining(", "));
+                String missingFragNumbersTrimmedString;
+                if (missingFragNumbersString.length() > missingFragNumbersTrimmedTmpString.length()) {
+                    missingFragNumbersTrimmedString = missingFragNumbersTrimmedTmpString + ", ...";
+                } else {
+                    missingFragNumbersTrimmedString = missingFragNumbersTrimmedTmpString;
+                }
+                Date requestOriginalDate = new Date(timeOriginalRequest);
 
-                final Notification sendNotificationAction = Notification.info(I18n.textf("Need to Request a Resend of Message Fragments from %name", systemName),
-                                I18n.textf("Requesting missing fragments %s from %s for frag id %d at %s",
-                                        requestMsg.getFragIds(), requestMsg.getSourceName(), fragUid, requestOriginalDate))
+                System.out.println("Requesting missing " + missingFragNumbers.size() +
+                        " fragment" + (missingFragNumbers.size() > 1 ? "s" : "") +
+                        " (" + missingFragNumbersString +
+                        ") from " + systemName + " for frag id " + fragUid +
+                        " at " + requestOriginalDate);
+                NeptusLog.pub().warn("Requesting missing {} fragment{} ({}) from {} for frag id {} at {}",
+                        missingFragNumbers.size(), missingFragNumbers.size() > 1 ? "s" : "", missingFragNumbersString,
+                        systemName, fragUid, requestOriginalDate);
+
+                final Notification sendNotificationAction = Notification.info(I18n.textf("Requesting %name Missing Fragments for Id %id",
+                                        systemName, fragUid),
+                                I18n.textf("Requesting missing %d0 fragment%s0 (%s1) from %s2 for frag id %d at %s3",
+                                        missingFragNumbers.size(), missingFragNumbers.size() > 1 ? "s" : "",
+                                        missingFragNumbersTrimmedString, systemName, fragUid, requestOriginalDate))
                         .requireHumanAction(true);
                 SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
                     @Override
                     protected Void doInBackground() throws Exception {
                         Notification sendNotificationAction = Notification.info(I18n.textf(
                                         "Requested %name to Resend Missing Message Fragments", systemName),
-                                I18n.textf("Requesting missing fragments %s from %s for frag id %d at %s",
-                                        requestMsg.getFragIds(), requestMsg.getSourceName(), fragUid, requestOriginalDate));
+                                I18n.textf("Requesting missing %d0 fragment%s0 (%s1) from %s2 for frag id %d at %s3",
+                                        missingFragNumbers.size(), missingFragNumbers.size() > 1 ? "s" : "",
+                                        missingFragNumbersTrimmedString, systemName, fragUid, requestOriginalDate));
                         NeptusEvents.post(sendNotificationAction);
 
                         String[] channelsToUse = new String[] {CommsAdmin.CommChannelType.WIFI.name, CommsAdmin.CommChannelType.IRIDIUM.name};
