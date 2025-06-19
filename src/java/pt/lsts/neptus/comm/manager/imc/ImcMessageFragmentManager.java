@@ -190,7 +190,7 @@ public class ImcMessageFragmentManager {
             int fragId = fragmentList.get(0).getUid();
             String systemName = getSystemName(systemId);
             int nFrags = fragmentList.get(0).getNumFrags();
-            String fragNumber = fragmentList.stream().map(MessagePart::getFragNumber).toString();
+            String fragNumber = fragmentList.stream().map(MessagePart::getFragNumber).collect(Collectors.toList()).toString();
             Pair<Integer, Integer> idPair = Pair.create(fragId, systemId);
             receivedFragmentsInsertTimeHolder.put(idPair, System.currentTimeMillis());
             List<MessagePart> allFragmentList = receivedFragmentsHolder.get(idPair);
