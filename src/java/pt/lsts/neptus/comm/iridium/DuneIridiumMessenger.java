@@ -105,7 +105,7 @@ public class DuneIridiumMessenger implements IridiumMessenger, MessageListener<M
                 txtIridium.deserializeFields(iis);
                 NeptusLog.pub().info("Received a plain text from " + msg.getSourceName());
                 for (IMCMessage m : txtIridium.asImc()) {
-                    ImcMsgManager.getManager().postInternalMessage("iridium txt", m);
+                    ImcMsgManager.getManager().postInternalMessage(IridiumManager.IRIDIUM_COMM_PREFIX + " txt", m);
                 }
             }
             catch (Exception e) {
