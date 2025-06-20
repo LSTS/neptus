@@ -60,6 +60,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JToggleButton;
 import javax.swing.ListCellRenderer;
 import javax.swing.SwingWorker;
 
@@ -124,6 +125,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
     private JCheckBox checkAdvance;
     private JCheckBox checkSelection;
     private JComboBox<Scope> scopeComboBox;
+    private JToggleButton fakeSyncButton;
     
     protected boolean refreshing = false;
     private PropertyEditorRegistry per;
@@ -143,16 +145,22 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
 
     public SystemConfigurationEditorPanel(String systemId, Scope scopeToUse, Visibility visibility,
             boolean showSendButton, boolean showScopeCombo, boolean showResetButton, ImcMsgManager imcMsgManager) {
+        this(systemId, scopeToUse, visibility, showSendButton, showScopeCombo, showResetButton, false, imcMsgManager);
+    }
+
+    public SystemConfigurationEditorPanel(String systemId, Scope scopeToUse, Visibility visibility,
+                                          boolean showSendButton, boolean showScopeCombo, boolean showResetButton,
+                                          boolean showFakeSyncButton, ImcMsgManager imcMsgManager) {
         this.systemId = systemId;
         this.imcMsgManager = imcMsgManager;
-        
+
         this.scopeToUse = scopeToUse;
         this.visibility = visibility;
-        
-        initialize(showSendButton, showScopeCombo, showResetButton);
+
+        initialize(showSendButton, showScopeCombo, showResetButton, showFakeSyncButton);
     }
-    
-    private void initialize(boolean showSendButton, boolean showScopeCombo, boolean showResetButton) {
+
+    private void initialize(boolean showSendButton, boolean showScopeCombo, boolean showResetButton, boolean showFakeSyncButton) {
         setLayout(new MigLayout());
 
         mainPanel = new JPanel(new MigLayout("fill, insets 0"));
@@ -352,6 +360,25 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         checkSelection.setFocusable(false);
         mainPanel.add(checkSelection, "sg checkboxes");
 
+        fakeSyncButton = new JToggleButton(new AbstractAction(I18n.text("Fake Sync")) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+                    @Override
+                    protected Void doInBackground() throws Exception {
+                        // Inside the refreshPropertiesOnPanel we look at this button state and act accordingly
+                        refreshPropertiesOnPanel(false, false, false, new String[0]);
+                        return null;
+                    }
+                };
+                worker.execute();
+            }
+        });
+        fakeSyncButton.setToolTipText(I18n.text("Fake sync with the system, useful for reducing parameters to send."));
+        if (showFakeSyncButton) {
+            mainPanel.add(fakeSyncButton, "sg buttons, split");
+        }
+
         // FIXME This might not make sense to not always ask for categories if no wifi
         refreshPropertiesOnPanel(false, false, new String[] {CommsAdmin.CommChannelType.WIFI.name});
         
@@ -406,6 +433,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
     public void setSystemId(String systemId) {
         this.systemId = systemId;
         sid = ImcSystemsHolder.getSystemWithName(this.systemId);
+        fakeSyncButton.setSelected(false);
         // FIXME This might not make sense to not always ask for categories
         refreshPropertiesOnPanel(false, false, new String[]{CommsAdmin.CommChannelType.WIFI.name});
     }
@@ -423,8 +451,12 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
     public void setRefreshing(boolean refreshing) {
         this.refreshing = refreshing;
     }
-    
+
     private synchronized void refreshPropertiesOnPanel(boolean askForCategories, boolean popGuiOnError, String[] channelsToUse) {
+        refreshPropertiesOnPanel(askForCategories, popGuiOnError, true, channelsToUse);
+    }
+
+    private synchronized void refreshPropertiesOnPanel(boolean askForCategories, boolean popGuiOnError, boolean askForRefresh, String[] channelsToUse) {
         try {
             showWaiterUpdateProperties(true);
 
@@ -438,6 +470,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
 
             ArrayList<SystemProperty> pr = ConfigurationManager.getInstance().getProperties(systemId, visibility, scopeToUse);
             ArrayList<String> secNames = new ArrayList<>();
+            long now = System.currentTimeMillis();
             for (SystemProperty sp : pr) {
                 String sectionName = sp.getCategoryId();
                 String name = sp.getName();
@@ -451,6 +484,13 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
                 }
                 if (sp.getRenderer() != null) {
                     prr.registerRenderer(sp, sp.getRenderer());
+                }
+
+                // Check if fake sync is enabled
+                if (fakeSyncButton.isSelected()) {
+                    sp.setTimeFakeSync(now);
+                } else {
+                    sp.resetTimeFakeSync();
                 }
             }
             // Let us make sure all dependencies between properties are ok
@@ -494,10 +534,13 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
             revalidate();
             repaint();
 
-            for (String sectionName : queryCategoriesList) {
-                boolean ret = queryValues(sectionName, scopeToUse.getText(), visibility.getText(), popGuiOnError, channelsToUse);
-                if (!ret)
-                    break;
+            if (askForRefresh) {
+                for (String sectionName : queryCategoriesList) {
+                    boolean ret = queryValues(sectionName, scopeToUse.getText(), visibility.getText(), popGuiOnError, channelsToUse);
+                    if (!ret) {
+                        break;
+                    }
+                }
             }
         }
         catch (Exception e) {
@@ -785,7 +828,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         for (SystemProperty sp : params.values()) {
             if (validCategories != null && !validCategories.contains(sp.getCategoryId()))
                 continue; // Skip if not in the list of valid categories
-            if (sp.getTimeDirty() > sp.getTimeSync()) {
+            if (sp.getTimeDirty() > (fakeSyncButton.isSelected() ? sp.getTimeFakeSync() : sp.getTimeSync())) {
                 // sendProperty(sp);
                 sysPropToSend.add(sp);
                 sentProps.add(sp);
@@ -933,9 +976,9 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         GeneralPreferences.language = "en_US";
         
         final SystemConfigurationEditorPanel sc1 = new SystemConfigurationEditorPanel(vehicle, Scope.MANEUVER,
-                Visibility.USER, true, true, true, ImcMsgManager.getManager());
+                Visibility.USER, true, true, true, true, ImcMsgManager.getManager());
         final SystemConfigurationEditorPanel sc2 = new SystemConfigurationEditorPanel(vehicle, Scope.MANEUVER,
-                Visibility.USER, true, false, true, ImcMsgManager.getManager());
+                Visibility.USER, true, false, true, true, ImcMsgManager.getManager());
         
 //        ImcMsgManager.getManager().addListener(new MessageListener<MessageInfo, IMCMessage>() {
 //            @Override
