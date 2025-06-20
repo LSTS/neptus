@@ -381,8 +381,14 @@ public class SystemProperty extends DefaultProperty implements PropertyChangeLis
         if (!(renderer instanceof SystemPropertyRenderer))
             return;
 
+        SystemPropertyRenderer sysPropRenderer = (SystemPropertyRenderer) renderer;
         boolean sync = inSync();
-        ((SystemPropertyRenderer) renderer).setPropertyInSync(sync);
+        if (sync)
+            sysPropRenderer.setPropertyInSync(SystemPropertyRenderer.SystemPropertySyncState.SYNC);
+        else if (inFakeSync())
+            sysPropRenderer.setPropertyInSync(SystemPropertyRenderer.SystemPropertySyncState.SYNC_FAKE);
+        else
+            sysPropRenderer.setPropertyInSync(SystemPropertyRenderer.SystemPropertySyncState.DIRTY);
     }
 
     /* (non-Javadoc)
