@@ -152,6 +152,7 @@ public class SystemProperty extends DefaultProperty implements PropertyChangeLis
     private ValueTypeEnum valueType = ValueTypeEnum.STRING;
 
     private long timeSync = -2;
+    private long timeFakeSync = -2; // used for fake sync, e.g. when a property is set to a value that is not the default, but not yet synced
     private long timeDirty = -1;
 
     /* (non-Javadoc)
@@ -300,7 +301,43 @@ public class SystemProperty extends DefaultProperty implements PropertyChangeLis
      */
     public void setTimeSync(long timeSync) {
         this.timeSync = timeSync;
+        this.timeFakeSync = this.timeSync;
         this.timeDirty = this.timeSync;
+        updatePropRenderer();
+    }
+
+    /**
+     * Resets the timeSync, timeFakeSync and timeDirty to -2, -2 and -1 respectively.
+     * This is useful when the property is not synced or when it is reset.
+     */
+    public void resetTimeSync() {
+        this.timeSync = -2;
+        this.timeFakeSync = -2;
+        this.timeDirty = -1;
+        updatePropRenderer();
+    }
+
+    /**
+     * @return the timeFakeSync
+     */
+    public long getTimeFakeSync() {
+        return timeFakeSync;
+    }
+
+    /**
+     * @param timeFakeSync the timeFakeSync to set
+     */
+    public void setTimeFakeSync(long timeFakeSync) {
+        this.timeFakeSync = timeFakeSync;
+        updatePropRenderer();
+    }
+
+    /**
+     * Resets the timeFakeSync to -2.
+     * This is useful when the property is not synced or when it is reset.
+     */
+    public void resetTimeFakeSync() {
+        this.timeFakeSync = -2;
         updatePropRenderer();
     }
 
@@ -319,15 +356,22 @@ public class SystemProperty extends DefaultProperty implements PropertyChangeLis
         updatePropRenderer();
     }
 
+    /**
+     * Resets the timeDirty to -1.
+     * This is useful when the property is not synced or when it is reset.
+     */
+    public void resetTimeDirty() {
+        this.timeDirty = -1;
+        updatePropRenderer();
+    }
+
     public boolean inSync() {
-        boolean sync;
-        if (timeDirty > timeSync || timeSync <= 0) {
-            sync = false;
-        }
-        else {
-            sync = true;
-        }
-        return sync;
+        return timeDirty <= timeSync && timeSync > 0;
+    }
+
+    public boolean inFakeSync() {
+        return !inSync() && timeFakeSync > timeSync &&
+                timeDirty <= timeFakeSync  && timeFakeSync > 0;
     }
 
     private void updatePropRenderer() {
@@ -337,8 +381,14 @@ public class SystemProperty extends DefaultProperty implements PropertyChangeLis
         if (!(renderer instanceof SystemPropertyRenderer))
             return;
 
+        SystemPropertyRenderer sysPropRenderer = (SystemPropertyRenderer) renderer;
         boolean sync = inSync();
-        ((SystemPropertyRenderer) renderer).setPropertyInSync(sync);
+        if (sync)
+            sysPropRenderer.setPropertyInSync(SystemPropertyRenderer.SystemPropertySyncState.SYNC);
+        else if (inFakeSync())
+            sysPropRenderer.setPropertyInSync(SystemPropertyRenderer.SystemPropertySyncState.SYNC_FAKE);
+        else
+            sysPropRenderer.setPropertyInSync(SystemPropertyRenderer.SystemPropertySyncState.DIRTY);
     }
 
     /* (non-Javadoc)
