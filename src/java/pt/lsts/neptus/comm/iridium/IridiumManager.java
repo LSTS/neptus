@@ -81,7 +81,9 @@ import pt.lsts.neptus.util.speech.SpeechUtil;
  */
 public class IridiumManager {
 
-    public static final String IRIDIUM_MANAGER = "IridiumManager";
+    public static final String IRIDIUM_COMM_PREFIX = "Iridium";
+    public static final String IRIDIUM_MANAGER = IRIDIUM_COMM_PREFIX + "Manager";
+
     private static IridiumManager instance = null;
     private DuneIridiumMessenger duneMessenger;
     private RockBlockIridiumMessenger rockBlockMessenger;
@@ -233,7 +235,7 @@ public class IridiumManager {
         
         for (IMCMessage m : msgs) {
             NeptusLog.pub().info("Posting resulting "+m.getAbbrev()+" message to bus.");
-            ImcMsgManager.getManager().postInternalMessage("iridium", m);
+            ImcMsgManager.getManager().postInternalMessage(IRIDIUM_MANAGER, m);
         }
 
         if (msg instanceof PlainTextReportMessage) {
@@ -285,7 +287,7 @@ public class IridiumManager {
         report.setDepth(-1);
         report.setAlt(-1);
 
-        ImcMsgManager.getManager().postInternalMessage("iridium", report);
+        ImcMsgManager.getManager().postInternalMessage(IRIDIUM_MANAGER, report);
     }
 
     private void processAndCreateFuelAndBattVoltageFrom(PlainTextReportMessage reportMsg) {
@@ -331,17 +333,17 @@ public class IridiumManager {
         boolean sendLogBookEntry = false;
         if (reportMsg.fuelPercentage > 0) {
             NeptusLog.pub().info("Posting resulting fuel report message to bus.");
-            ImcMsgManager.getManager().postInternalMessage("iridium", fuel);
+            ImcMsgManager.getManager().postInternalMessage(IRIDIUM_MANAGER, fuel);
             sendLogBookEntry = true;
         }
         if (reportMsg.batteryVoltage > 0) {
             NeptusLog.pub().info("Posting resulting battery voltage report message to bus.");
-            ImcMsgManager.getManager().postInternalMessage("iridium", batteryVoltage);
+            ImcMsgManager.getManager().postInternalMessage(IRIDIUM_MANAGER, batteryVoltage);
             sendLogBookEntry = true;
         }
         if (sendLogBookEntry) {
             NeptusLog.pub().info("Posting resulting log book entry message to bus.");
-            ImcMsgManager.getManager().postInternalMessage("iridium", logBookEntry);
+            ImcMsgManager.getManager().postInternalMessage(IRIDIUM_MANAGER, logBookEntry);
         }
     }
 
@@ -397,7 +399,7 @@ public class IridiumManager {
                 break;
         }
 
-        ImcMsgManager.getManager().postInternalMessage("iridium", logBookEntry);
+        ImcMsgManager.getManager().postInternalMessage(IRIDIUM_MANAGER, logBookEntry);
     }
 
     public void selectMessenger(Component parent) {
