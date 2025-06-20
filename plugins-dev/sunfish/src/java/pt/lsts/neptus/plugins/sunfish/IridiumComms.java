@@ -90,8 +90,9 @@ import pt.lsts.neptus.util.GuiUtils;
 @PluginDescription(name = "Iridium Communications Plug-in", icon = "images/iridium/iridium-logo.png")
 @SuppressWarnings("unused")
 public class IridiumComms extends SimpleRendererInteraction {
-
     private static final long serialVersionUID = -8535642303286049869L;
+    public static final String IRIDIUM_COMMS = IridiumManager.IRIDIUM_COMM_PREFIX + "Comms";
+
     protected long lastMessageReceivedTime = System.currentTimeMillis() - 3600000;
     protected LinkedHashMap<String, RemoteSensorInfo> sensorData = new LinkedHashMap<>();
     private static final String[] iridiumDestinations = new String[] { "broadcast", "manta-1", "manta-11",
@@ -178,7 +179,7 @@ public class IridiumComms extends SimpleRendererInteraction {
                         rsi.setId(String.format("Unknown (%X)", p.id));
 
                     rsi.setSensorClass(IMCUtils.getSystemType(p.id));
-                    ImcMsgManager.getManager().postInternalMessage("IridiumComms", rsi);
+                    ImcMsgManager.getManager().postInternalMessage(IRIDIUM_COMMS, rsi);
                 }
             }
             else if (m instanceof DeviceUpdate) {
@@ -202,7 +203,7 @@ public class IridiumComms extends SimpleRendererInteraction {
                     state.setLon(p.lonRads);
                     state.setTimestamp(p.timestamp);
 
-                    ImcMsgManager.getManager().postInternalMessage("IridiumComms", state);
+                    ImcMsgManager.getManager().postInternalMessage(IRIDIUM_COMMS, state);
                 }
             }
             else if (m instanceof ImcIridiumMessage) {
@@ -211,7 +212,7 @@ public class IridiumComms extends SimpleRendererInteraction {
                     message.setTimestampMillis(msg.getTimestampMillis());
                     message.setDst(msg.getDst());
                     NeptusLog.pub().info("Posting incoming message to bus: " + message);
-                    ImcMsgManager.getManager().postInternalMessage("IridiumComms", message);
+                    ImcMsgManager.getManager().postInternalMessage(IRIDIUM_COMMS, message);
                 }
             }
             else if (m instanceof IridiumCommand) {
@@ -260,7 +261,7 @@ public class IridiumComms extends SimpleRendererInteraction {
             rsi.setLon(loc.getLongitudeRads());
             rsi.setTimestampMillis(System.currentTimeMillis());
             rsi.setSensorClass("drifter");
-            ImcMsgManager.getManager().postInternalMessage("IridiumComms", rsi);
+            ImcMsgManager.getManager().postInternalMessage(IRIDIUM_COMMS, rsi);
             post(rsi);
         }
 
