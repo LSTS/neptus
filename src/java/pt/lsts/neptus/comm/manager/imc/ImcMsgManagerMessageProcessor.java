@@ -76,7 +76,7 @@ class ImcMsgManagerMessageProcessor {
     void processMessagePart(MessageInfo info, MessagePart msg) {
         IMCMessage m = fragmentHandler.setFragment((MessagePart)msg);
         if (m != null)
-            manager.postInternalMessage(msg.getSourceName(), m);
+            manager.postInternalMessage(info.getPublisher(), m);
     }
 
     void processEntityList(ImcId16 id, MessageInfo info, EntityList msg) {
