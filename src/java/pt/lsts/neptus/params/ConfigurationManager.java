@@ -848,6 +848,11 @@ public class ConfigurationManager {
                 descStr.replaceAll("\\n$", "");
                 descStr.replaceAll("(\\n){2}", "");
                 descStr = descStr.replaceAll("\\n", "<br/>");
+                // replace also a table (even with other attributes) html tag with style to configure css for more modern table style
+                descStr = descStr.replaceAll("<table(.*?)border=\"\\d+\"(.*?)>", "<table\1\2>");
+                descStr = descStr.replaceAll("<table(.*?)>", "<table style=\"border-collapse:separate;border-spacing:8px 0;\">");
+                descStr = descStr.replaceAll("<th(.*?)>", "<th style=\"background-color:#C1C1C1;padding:6px 12px;border-right:2px solid #E1E1E1;\">");
+                descStr = descStr.replaceAll("<td(.*?)>", "<td style=\"border-bottom: 1px dotted #333;padding:3px 8px;\">");
                 property.setShortDescription(descStr);
                 property.setCategory(sectionI18nName);
                 property.setCategoryId(sectionName);
