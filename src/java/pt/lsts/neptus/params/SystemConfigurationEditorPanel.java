@@ -186,8 +186,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
             public void itemStateChanged(ItemEvent e) {
                 scopeToUse = (Scope) e.getItem();
                 new Thread(() -> {
-                    if (refreshButton != null)
-                        refreshButton.doClick(50);
+                    setSystemId(getSystemId());
                 }).start();
             }
         });
