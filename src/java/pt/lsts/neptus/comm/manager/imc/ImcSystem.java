@@ -74,6 +74,12 @@ public class ImcSystem implements Comparable<ImcSystem> {
 	protected CommMean commsInfo = null;
 	
 	protected boolean active = false;
+    protected long lastActiveTimeMillis = -1;
+    protected boolean activeWifi = false;
+    protected long lastActiveWifiTimeMillis = -1;
+    protected boolean activeIridium = false;
+    protected long lastActiveIridiumTimeMillis = -1;
+
 	protected PlanType activePlan = null;
 	protected final CoordinateSystem location = new CoordinateSystem();
 	protected long locationTimeMillis = -1;
@@ -654,9 +660,45 @@ public class ImcSystem implements Comparable<ImcSystem> {
 	 */
 	public void setActive(boolean active) {
 		this.active = active;
+        if (active)
+            this.lastActiveTimeMillis = System.currentTimeMillis();
 	}
-	
-	/**
+
+    public long getLastActiveTimeMillis() {
+        return lastActiveTimeMillis;
+    }
+
+    public boolean isActiveWifi() {
+        return activeWifi;
+    }
+
+    public void setActiveWifi(boolean activeWifi) {
+        this.activeWifi = activeWifi;
+        if (activeWifi)
+            this.lastActiveWifiTimeMillis = System.currentTimeMillis();
+        setActive(activeWifi);
+    }
+
+    public long getLastActiveWifiTimeMillis() {
+        return lastActiveWifiTimeMillis;
+    }
+
+    public boolean isActiveIridium() {
+        return activeIridium;
+    }
+
+    public void setActiveIridium(boolean activeIridium) {
+        this.activeIridium = activeIridium;
+        if (activeIridium)
+            this.lastActiveIridiumTimeMillis = System.currentTimeMillis();
+        setActive(activeIridium);
+    }
+
+    public long getLastActiveIridiumTimeMillis() {
+        return lastActiveIridiumTimeMillis;
+    }
+
+    /**
 	 * @return the activePlan
 	 */
 	public PlanType getActivePlan() {

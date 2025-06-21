@@ -227,7 +227,7 @@ public class CommsAdmin {
         channelsToUse = channelsToUse.stream().filter(channel -> {
             switch (channel) {
                 case WIFI:
-                    if (system.isActive()) {
+                    if (system.isActive() && system.isActiveWifi()) {
                         return true;
                     }
                     break;
@@ -273,8 +273,9 @@ public class CommsAdmin {
         for (CommChannelType channel : channelsToUse) {
             switch (channel) {
                 case WIFI:
-                    if (system.isActive()) {
+                    if (system.isActive() && system.isActiveWifi()) {
                         imcMsgManager.sendMessage(message, system.getId(), null, waiter);
+                        System.out.println("=====>>>>>>>>>>> Sent via WiFi: " + message.getAbbrev() + " to " + destinationName + " | WiFi active? " + system.isActiveWifi());
                         return result;
                     }
                     break;
@@ -313,8 +314,9 @@ public class CommsAdmin {
                     }
                     break;
                 case IRIDIUM:
-                    sendDeviceActivationViaIridiumIfNeeded(destinationName);
+                    //sendDeviceActivationViaIridiumIfNeeded(destinationName);
                     sendViaIridium(destinationName, message, waiter);
+                    System.out.println("=====>>>>>>>>>>> Sent via Iridium: " + message.getAbbrev() + " to " + destinationName + " | WiFi active? " + system.isActiveWifi());
                     return result;
                 case GSM:
                 default:
