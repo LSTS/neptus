@@ -275,6 +275,7 @@ public class CommsAdmin {
                 case WIFI:
                     if (system.isActive() && system.isActiveWifi()) {
                         imcMsgManager.sendMessage(message, system.getId(), null, waiter);
+                        System.out.println("=====>>>>>>>>>>> Sent via WiFi: " + message.getAbbrev() + " to " + destinationName + " | WiFi active? " + system.isActiveWifi());
                         return result;
                     }
                     break;
@@ -315,6 +316,7 @@ public class CommsAdmin {
                 case IRIDIUM:
                     //sendDeviceActivationViaIridiumIfNeeded(destinationName);
                     sendViaIridium(destinationName, message, waiter);
+                    System.out.println("=====>>>>>>>>>>> Sent via Iridium: " + message.getAbbrev() + " to " + destinationName + " | WiFi active? " + system.isActiveWifi());
                     return result;
                 case GSM:
                 default:
