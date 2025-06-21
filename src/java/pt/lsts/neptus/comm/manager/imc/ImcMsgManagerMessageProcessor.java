@@ -44,6 +44,7 @@ import pt.lsts.imc.RemoteSensorInfo;
 import pt.lsts.imc.ReportedState;
 import pt.lsts.imc.StateReport;
 import pt.lsts.imc.net.IMCFragmentHandler;
+import pt.lsts.imc.state.ImcSystemState;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.SystemUtils;
@@ -138,7 +139,7 @@ class ImcMsgManagerMessageProcessor {
         }
     }
 
-    void processStateReport(MessageInfo info, StateReport msg, ArrayList<IMCMessage> messagesCreatedToForward) {
+    void processStateReport(MessageInfo info, StateReport msg, ArrayList<IMCMessage> messagesCreatedToForward, ImcMsgManager imcMsgManager) {
 
         String sysId = msg.getSourceName();
 
@@ -156,6 +157,15 @@ class ImcMsgManagerMessageProcessor {
         if (imcSys == null) {
             NeptusLog.pub().error("Could not find system with id "+sysId);
             return;
+        }
+
+        boolean isDataNewerThanLastPcs = true;
+        ImcSystemState sysState = imcMsgManager.getState(sysId);
+        if (sysState != null) {
+            PlanControlState pcsMsg = sysState.last(PlanControlState.class);
+            isDataNewerThanLastPcs = pcsMsg == null || dataTimeMillis > pcsMsg.getTimestampMillis() ||
+                    (dataTimeMillis >= pcsMsg.getTimestampMillis() && msg.getPlanChecksum() > 0 &&
+                            ("".equalsIgnoreCase(pcsMsg.getPlanId()) || "?".equalsIgnoreCase(pcsMsg.getPlanId())));
         }
 
         LocationType loc = new LocationType(lat, lon);
@@ -181,7 +191,12 @@ class ImcMsgManagerMessageProcessor {
             fuelLevelMsg.setConfidence(0);
             imcSys.storeData(SystemUtils.FUEL_LEVEL_KEY, fuelLevelMsg, dataTimeMillis, true);
 
-            messagesCreatedToForward.add(fuelLevelMsg);
+            if (sysState != null) {
+                FuelLevel lastFuelLevel = sysState.last(FuelLevel.class);
+                if (lastFuelLevel == null || dataTimeMillis > lastFuelLevel.getTimestampMillis()) {
+                    messagesCreatedToForward.add(fuelLevelMsg);
+                }
+            }
         }
 
         int execState = msg.getExecState();
@@ -220,7 +235,8 @@ class ImcMsgManagerMessageProcessor {
         pcsMsg.setManEta(-1);
         pcsMsg.setManType(0xFFFF);
 
-        messagesCreatedToForward.add(pcsMsg);
+        if (isDataNewerThanLastPcs)
+            messagesCreatedToForward.add(pcsMsg);
     }
 
     void processAssetReport(MessageInfo info, AssetReport msg, ArrayList<IMCMessage> messagesCreatedToFoward) {

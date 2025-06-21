@@ -890,7 +890,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                         messageProcessor.processRemoteSensorInfo(info, (RemoteSensorInfo) msg);
                         break;
                     case StateReport.ID_STATIC:
-                        messageProcessor.processStateReport(info, new StateReport(msg), messagesCreatedToForward);
+                        messageProcessor.processStateReport(info, new StateReport(msg), messagesCreatedToForward, this);
                         break;
                     case AssetReport.ID_STATIC:
                         messageProcessor.processAssetReport(info, new AssetReport(msg), messagesCreatedToForward);
