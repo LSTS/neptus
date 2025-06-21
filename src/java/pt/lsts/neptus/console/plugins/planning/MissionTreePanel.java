@@ -232,16 +232,15 @@ public class MissionTreePanel extends ConsolePanel
     public void mainVehicleChangeNotification(ConsoleEventMainSystemChange ev) {
         mainVehicleLastPlanId = null;
         try {
-            ImcSystemState state = getConsole().getImcMsgManager().getState(getMainVehicleId());
-            if (state != null) {
-                PlanControlState pcsMsg = state.last(PlanControlState.class);
+            ImcSystemState sysState = getConsole().getImcMsgManager().getState(getMainVehicleId());
+            if (sysState != null) {
+                PlanControlState pcsMsg = sysState.last(PlanControlState.class);
                 if (pcsMsg != null) {
                      on(pcsMsg);
-                } else {
-                    StateReport srMsg = state.last(StateReport.class);
-                    if (srMsg != null) {
-                        on(srMsg);
-                    }
+                }
+                StateReport srMsg = sysState.last(StateReport.class);
+                if (srMsg != null) {
+                    on(srMsg);
                 }
             }
         }
@@ -424,6 +423,16 @@ public class MissionTreePanel extends ConsolePanel
     public void on(StateReport message) {
         if (!message.getSourceName().equals(getConsole().getMainSystem()))
             return;
+
+        ImcSystemState sysState = getConsole().getImcMsgManager().getState(getMainVehicleId());
+        if (sysState != null) {
+            PlanControlState pcsMsg = sysState.last(PlanControlState.class);
+            boolean dataNewer = pcsMsg == null || message.getAgeInSeconds() > pcsMsg.getAgeInSeconds() ||
+                    (message.getAgeInSeconds() >= pcsMsg.getAgeInSeconds() && message.getPlanChecksum() > 0 &&
+                            ("".equalsIgnoreCase(pcsMsg.getPlanId()) || "?".equalsIgnoreCase(pcsMsg.getPlanId())));
+            if (!dataNewer)
+                return; // We already have a more recent PlanControlState message
+        }
 
         for (String plan : getConsole().getMission().getIndividualPlansList().keySet()) {
             byte[] bytes = plan.getBytes(StandardCharsets.UTF_8);
