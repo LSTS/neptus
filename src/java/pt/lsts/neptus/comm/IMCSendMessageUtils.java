@@ -170,6 +170,9 @@ public class IMCSendMessageUtils {
                         acousticOpUserApprovedQuestion, channelsToSend);
                 if (ret) {
                     acousticOpUserAproved = true;
+                } else {
+                    // to temporary keep the old behavior if error on new channel
+                    ret = ImcMsgManager.getManager().sendMessageToSystem(msg, sid, sendProperties, listener);
                 }
             }
             else if (acousticOpSysLst.length != 0 && sysL != null && !sysL.isActive()) {
