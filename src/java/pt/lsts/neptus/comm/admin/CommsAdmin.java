@@ -313,7 +313,7 @@ public class CommsAdmin {
                     }
                     break;
                 case IRIDIUM:
-                    sendDeviceActivationViaIridiumIfNeeded(destinationName);
+                    //sendDeviceActivationViaIridiumIfNeeded(destinationName);
                     sendViaIridium(destinationName, message, waiter);
                     return result;
                 case GSM:
