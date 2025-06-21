@@ -158,6 +158,16 @@ public class PlanControlStatePanel extends ConsolePanel {
         if (!message.getSourceName().equals(getConsole().getMainSystem()))
             return;
 
+        ImcSystemState sysState = getConsole().getImcMsgManager().getState(getMainVehicleId());
+        if (sysState != null) {
+            PlanControlState pcsMsg = sysState.last(PlanControlState.class);
+            boolean dataNewer = pcsMsg == null || message.getAgeInSeconds() > pcsMsg.getAgeInSeconds() ||
+                    (message.getAgeInSeconds() >= pcsMsg.getAgeInSeconds()  && message.getPlanChecksum() > 0 &&
+                            ("".equalsIgnoreCase(pcsMsg.getPlanId()) || "?".equalsIgnoreCase(pcsMsg.getPlanId())));
+            if (!dataNewer)
+                return; // We already have a more recent PlanControlState message
+        }
+
         if (message.getPlanChecksum() == 0) {
             planId = "";
             planIdNote = "";
@@ -313,16 +323,15 @@ public class PlanControlStatePanel extends ConsolePanel {
         nodeTypeImcId = 0xFFFF;
         lastOutcome = "";
         try {
-            ImcSystemState state = getConsole().getImcMsgManager().getState(getMainVehicleId());
-            if (state != null) {
-                PlanControlState pcsMsg = state.last(PlanControlState.class);
-                StateReport srMsg = state.last(StateReport.class);
+            ImcSystemState sysState = getConsole().getImcMsgManager().getState(getMainVehicleId());
+            if (sysState != null) {
+                PlanControlState pcsMsg = sysState.last(PlanControlState.class);
+                StateReport srMsg = sysState.last(StateReport.class);
                 
                 if (pcsMsg != null && srMsg != null) {
-                    if (srMsg.getAgeInSeconds() <= pcsMsg.getAgeInSeconds())
-                        consume(srMsg); 
-                    else
-                        consume(pcsMsg); 
+                    consume(pcsMsg);
+                    if (srMsg.getAgeInSeconds() > pcsMsg.getAgeInSeconds())
+                        consume(srMsg);
                 }
                 else if (pcsMsg != null) {
                     consume(pcsMsg); 
