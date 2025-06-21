@@ -165,7 +165,7 @@ public class IMCSendMessageUtils {
         for (String sid : ids) {
             boolean ret;
             ImcSystem sysL = ImcSystemsHolder.lookupSystemByName(sid);
-            if (GeneralPreferences.imcUseNewMultiChannelCommsEnable && sysL != null && !sysL.isActive()) {
+            if (GeneralPreferences.imcUseNewMultiChannelCommsEnable && sysL != null) {
                 ret = ImcMsgManager.getManager().sendMessageUsingActiveChannelWait(msg, sid, -1, parent,
                         acousticOpUserApprovedQuestion, channelsToSend);
                 if (ret) {
