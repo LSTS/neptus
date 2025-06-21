@@ -226,7 +226,22 @@ class ImcMsgManagerMessageProcessor {
         if (lastActivePlan != null) {
             byte[] bytes = lastActivePlan.getId().getBytes(StandardCharsets.UTF_8);
             int lastActivePlanChecksum = IMCUtil.computeCrc16(bytes, 0, 0);
-            pcsMsg.setPlanId(msg.getPlanChecksum() == lastActivePlanChecksum ? lastActivePlan.getId() : "?");
+            if (msg.getPlanChecksum() == lastActivePlanChecksum) {
+                pcsMsg.setPlanId(lastActivePlan.getId());
+            } else {
+                String[] tks = lastActivePlan.getId().split("\\|");
+                if (tks.length > 1) {
+                    bytes = tks[0].getBytes(StandardCharsets.UTF_8);
+                    lastActivePlanChecksum = IMCUtil.computeCrc16(bytes, 0, 0);
+                    if (msg.getPlanChecksum() == lastActivePlanChecksum) {
+                        pcsMsg.setPlanId(tks[0]);
+                    } else {
+                        pcsMsg.setPlanId("?");
+                    }
+                } else {
+                    pcsMsg.setPlanId("?");
+                }
+            }
         }
 
         pcsMsg.setPlanEta(-1);
