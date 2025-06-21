@@ -149,7 +149,7 @@ public class SystemImcMsgCommInfo extends SystemCommBaseInfo<IMCMessage, Message
                     // NeptusLog.pub().info("<###> "+sys.getName()+": "+isActive()+"  "+(message !=
                     // null?message.getAbbrevName():""));
                     if (info != null) {
-                        if (IridiumManager.IRIDIUM_MANAGER.equalsIgnoreCase(info.getPublisher()))
+                        if (info.getPublisher().startsWith(IridiumManager.IRIDIUM_COMM_PREFIX))
                             sys.setActiveIridium(isActive);
                         else
                             sys.setActiveWifi(isActive);
@@ -164,7 +164,7 @@ public class SystemImcMsgCommInfo extends SystemCommBaseInfo<IMCMessage, Message
                     if (sys.getAuthorityState() == ImcSystem.IMCAuthorityState.OFF) {
                         sys.setActive(false);
                         if (info != null) {
-                            if (IridiumManager.IRIDIUM_MANAGER.equalsIgnoreCase(info.getPublisher()))
+                            if (info.getPublisher().startsWith(IridiumManager.IRIDIUM_COMM_PREFIX))
                                 sys.setActiveIridium(false);
                             else
                                 sys.setActiveWifi(false);
@@ -176,7 +176,7 @@ public class SystemImcMsgCommInfo extends SystemCommBaseInfo<IMCMessage, Message
                     else if (!isActive) {
                         sys.setActive(false);
                         if (info != null) {
-                            if (IridiumManager.IRIDIUM_MANAGER.equalsIgnoreCase(info.getPublisher()))
+                            if (info.getPublisher().startsWith(IridiumManager.IRIDIUM_COMM_PREFIX))
                                 sys.setActiveIridium(false);
                             else
                                 sys.setActiveWifi(false);
@@ -196,7 +196,7 @@ public class SystemImcMsgCommInfo extends SystemCommBaseInfo<IMCMessage, Message
                             if (activityCounter.get(2) - activityCounter.get(0) <= 3000) {
                                 sys.setActive(true);
                                 if (info != null) {
-                                    if (IridiumManager.IRIDIUM_MANAGER.equalsIgnoreCase(info.getPublisher()))
+                                    if (info.getPublisher().startsWith(IridiumManager.IRIDIUM_COMM_PREFIX))
                                         sys.setActiveIridium(true);
                                     else
                                         sys.setActiveWifi(true);
@@ -208,7 +208,7 @@ public class SystemImcMsgCommInfo extends SystemCommBaseInfo<IMCMessage, Message
                             else {
                                 sys.setActive(false);
                                 if (info != null) {
-                                    if (IridiumManager.IRIDIUM_MANAGER.equalsIgnoreCase(info.getPublisher()))
+                                    if (info.getPublisher().startsWith(IridiumManager.IRIDIUM_COMM_PREFIX))
                                         sys.setActiveIridium(false);
                                     else
                                         sys.setActiveWifi(false);
@@ -221,7 +221,7 @@ public class SystemImcMsgCommInfo extends SystemCommBaseInfo<IMCMessage, Message
                         else {
                             sys.setActive(false);
                             if (info != null) {
-                                if (IridiumManager.IRIDIUM_MANAGER.equalsIgnoreCase(info.getPublisher()))
+                                if (info.getPublisher().startsWith(IridiumManager.IRIDIUM_COMM_PREFIX))
                                     sys.setActiveIridium(false);
                                 else
                                     sys.setActiveWifi(false);
