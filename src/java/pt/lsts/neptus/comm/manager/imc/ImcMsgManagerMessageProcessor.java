@@ -153,7 +153,7 @@ class ImcMsgManagerMessageProcessor {
             // If the plan checksum does not match, it might have completed the current maneuver
             // TODO: Check if this is the case
 
-            pcsMsg.setPlanId("?");
+            pcsMsg.setPlanId("");
             pcsMsg.setPlanEta(-1);
             pcsMsg.setPlanProgress(-1);
             pcsMsg.setManId("");
@@ -166,7 +166,7 @@ class ImcMsgManagerMessageProcessor {
 
         String[] parts = lastPlan.getId().split("\\|Man:");
         if (parts.length != 2) {
-            pcsMsg.setPlanId("?");
+            pcsMsg.setPlanId("");
             pcsMsg.setPlanEta(-1);
             pcsMsg.setPlanProgress(-1);
             pcsMsg.setManId("");
