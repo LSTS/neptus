@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2024.09.0 (system/caravel,df59f4b70)" system="caravel" i18n="pt_PT">
+<config format="1" version="2024.09.0 (system/caravel,b5a84638b)" system="caravel" i18n="pt_PT">
   <section name="Text Actions" name-i18n="Text Actions">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -710,7 +710,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>25000</default>
+      <default>2500000</default>
       <units>m</units>
       <desc>Maximum admissible track length</desc>
     </param>
@@ -737,7 +737,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>20.0</default>
+      <default>50.0</default>
       <units/>
       <desc>Radius around endpoint to consider maneuver as done.</desc>
     </param>
@@ -2884,9 +2884,9 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>VerticalProfile:ADCP - North:900, VerticalProfile:ADCP - East:900, VerticalProfile:CTD - Temperature:1800, VerticalProfile:CTD - Salinity:1800, VerticalProfile:CTD - Conductivity:7200, VerticalProfile:Fluorometers - Chlorophyll:1800, VerticalProfile:Fluorometers - Turbidity:1800, VerticalProfile:Fluorometers - Dissolved Organic Matter:1800, VerticalProfile:AirMar120WX - Average:1800, VerticalProfile:AirMar120WX - Maximum:1800, VerticalProfile:Dissolved Oxygen:1800</default>
+      <default>VerticalProfile:ADCP - North:900, VerticalProfile:ADCP - East:900, VerticalProfile:CTD - Temperature:1800, VerticalProfile:CTD - Salinity:1800, VerticalProfile:CTD - Conductivity:7200, VerticalProfile:Fluorometers - Chlorophyll:1800, VerticalProfile:Fluorometers - Turbidity:1800, VerticalProfile:Fluorometers - Dissolved Organic Matter:1800, VerticalProfile:AirMar120WX - Average:1800, VerticalProfile:AirMar120WX - Maximum:1800, VerticalProfile:Dissolved Oxygen:1800, Voltage:Batteries:3600</default>
       <units/>
-      <desc>List of messages &lt;Message&gt;:&lt;Entity&gt;:&lt;Rate&gt; to send using Iridium. The rate is in seconds and is optional. If not specified or equal to 0, the message will be sent every time it is received.</desc>
+      <desc>List of messages &lt;Message&gt;:&lt;Entity&gt;:&lt;Rate&gt; to send using Iridium. The rate is in seconds and is optional. If rate is not specified, the message will be sent every time it is received. If rate is 0, the message will be ignored.</desc>
     </param>
     <param name="Maximum payload size">
       <name-i18n>Maximum payload size</name-i18n>
@@ -5021,70 +5021,6 @@
       <desc>Delay after powering up the device</desc>
       <min>0.0</min>
     </param>
-    <param name="Sample Time Duration">
-      <name-i18n>Sample Time Duration</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units>s</units>
-      <desc>Sample Time Duration (S) in seconds. This value must not be greater than Periodicity of Data Sampling (P), otherwise, task will be deactivated.&lt;table border="1"&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;[S]&lt;/th&gt;&lt;th&gt;[P]&lt;/th&gt;&lt;th&gt;Description&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;=P&lt;/td&gt;&lt;td&gt;=S&lt;/td&gt;&lt;td&gt;Continuous sampling&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;=0&lt;/td&gt;&lt;td&gt;&amp;gt;0&lt;/td&gt;&lt;td&gt;Periodic single sample&lt;pre style='font-family: Monospaced'&gt;[P][=====][=====]&lt;br&gt;[S]|------|------&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;lt;P&lt;/td&gt;&lt;td&gt;&amp;gt;S&lt;/td&gt;&lt;td&gt;Periodic sampling&lt;pre style='font-family: Monospaced'&gt;[P][=====][=====]&lt;br&gt;[S][==---][==---]&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;gt;P&lt;/td&gt;&lt;td&gt;&amp;lt;S&lt;/td&gt;&lt;td&gt;Invalid&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;</desc>
-      <min>0.0</min>
-    </param>
-    <param name="Sample Time Duration - Visibility">
-      <name-i18n>Sample Time Duration - Visibility</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>developer</default>
-      <units/>
-      <desc>Visibility of the 'Sample Time Duration' parameter</desc>
-      <values>user,developer</values>
-      <values-i18n>user,developer</values-i18n>
-    </param>
-    <param name="Sample Time Duration - Scope">
-      <name-i18n>Sample Time Duration - Scope</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>global</default>
-      <units/>
-      <desc>Scoped of the 'Sample Time Duration' parameter</desc>
-      <values>global,idle,plan,maneuver</values>
-      <values-i18n>global,idle,plan,maneuver</values-i18n>
-    </param>
-    <param name="Periodicity of Data Sampling">
-      <name-i18n>Periodicity of Data Sampling</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units>s</units>
-      <desc>Periodicity of Data Sampling (P) in seconds. This value must not be lower than Sample Time Duration (S), otherwise, task will be deactivated.&lt;table border="1"&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;[S]&lt;/th&gt;&lt;th&gt;[P]&lt;/th&gt;&lt;th&gt;Description&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;=P&lt;/td&gt;&lt;td&gt;=S&lt;/td&gt;&lt;td&gt;Continuous sampling&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;=0&lt;/td&gt;&lt;td&gt;&amp;gt;0&lt;/td&gt;&lt;td&gt;Periodic single sample&lt;pre style='font-family: Monospaced'&gt;[P][=====][=====]&lt;br&gt;[S]|------|------&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;lt;P&lt;/td&gt;&lt;td&gt;&amp;gt;S&lt;/td&gt;&lt;td&gt;Periodic sampling&lt;pre style='font-family: Monospaced'&gt;[P][=====][=====]&lt;br&gt;[S][==---][==---]&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&amp;gt;P&lt;/td&gt;&lt;td&gt;&amp;lt;S&lt;/td&gt;&lt;td&gt;Invalid&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;</desc>
-      <min>0.0</min>
-    </param>
-    <param name="Periodicity of Data Sampling - Visibility">
-      <name-i18n>Periodicity of Data Sampling - Visibility</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>developer</default>
-      <units/>
-      <desc>Visibility of the 'Periodicity of Data Sampling' parameter</desc>
-      <values>user,developer</values>
-      <values-i18n>user,developer</values-i18n>
-    </param>
-    <param name="Periodicity of Data Sampling - Scope">
-      <name-i18n>Periodicity of Data Sampling - Scope</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>global</default>
-      <units/>
-      <desc>Scoped of the 'Periodicity of Data Sampling' parameter</desc>
-      <values>global,idle,plan,maneuver</values>
-      <values-i18n>global,idle,plan,maneuver</values-i18n>
-    </param>
     <param name="IO Port - Device">
       <name-i18n>IO Port - Device</name-i18n>
       <type>string</type>
@@ -5093,6 +5029,105 @@
       <default>uart:///dev/ttyS10:38400</default>
       <units/>
       <desc>Serial port device used to communicate with the sensor</desc>
+    </param>
+    <param name="Initialization String 0 - Command">
+      <name-i18n>Initialization String 0 - Command</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Initialization String 0 - Reply">
+      <name-i18n>Initialization String 0 - Reply</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Initialization String 1 - Command">
+      <name-i18n>Initialization String 1 - Command</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Initialization String 1 - Reply">
+      <name-i18n>Initialization String 1 - Reply</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Initialization String 2 - Command">
+      <name-i18n>Initialization String 2 - Command</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Initialization String 2 - Reply">
+      <name-i18n>Initialization String 2 - Reply</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Initialization String 3 - Command">
+      <name-i18n>Initialization String 3 - Command</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Initialization String 3 - Reply">
+      <name-i18n>Initialization String 3 - Reply</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Initialization String 4 - Command">
+      <name-i18n>Initialization String 4 - Command</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Initialization String 4 - Reply">
+      <name-i18n>Initialization String 4 - Reply</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Sentence Order">
+      <name-i18n>Sentence Order</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>GPS Sentence order</desc>
     </param>
     <param name="Input Timeout">
       <name-i18n>Input Timeout</name-i18n>
@@ -7777,7 +7812,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>120</default>
+      <default>1800</default>
       <units/>
       <desc>Period, in seconds, between transmission of states via Iridium. Value of 0 disables transmission.</desc>
     </param>
@@ -8273,7 +8308,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>EstimatedState:1200, FuelLevel:600, PlanControlState:300, VehicleState:300</default>
+      <default>EstimatedState:5400, VehicleState:1800</default>
       <units/>
       <desc>List of &lt;Message&gt;:&lt;Period&gt; to send messages at a specific period.</desc>
     </param>
@@ -8291,7 +8326,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Aborted, EstimatedState, EntityParameters, FuelLevel, PlanControl, PlanControlState, VehicleState</default>
+      <default>Aborted, EstimatedState, EntityParameters, PlanControl, VehicleState</default>
       <units/>
       <desc>List of messages to transport</desc>
     </param>
