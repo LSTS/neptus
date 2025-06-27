@@ -139,52 +139,46 @@ class ImcMsgManagerMessageProcessor {
         }
     }
 
-    void checkPlanChecksum(PlanType lastPlan, StateReport srep, PlanControlState pcsMsg) {
-        if (lastPlan == null)
+    void checkPlanChecksum(PlanType lastActivePlan, StateReport srep, PlanControlState pcsMsg) {
+        if (lastActivePlan == null)
             return;
-        
-        byte[] bytes = lastPlan.getId().getBytes(StandardCharsets.UTF_8);
-        int lastPlanChecksum = IMCUtil.computeCrc16(bytes, 0, 0);
-        int planChecksum = srep.getPlanChecksum();
 
-        // Invalid plan checksum
-        if (planChecksum != lastPlanChecksum) {
+        String[] tks = lastActivePlan.getId().split("\\|");
 
-            // If the plan checksum does not match, it might have completed the current maneuver
-            // TODO: Check if this is the case
-
-            pcsMsg.setPlanId("?");
-            pcsMsg.setPlanEta(-1);
-            pcsMsg.setPlanProgress(-1);
-            pcsMsg.setManId("");
-            pcsMsg.setManEta(-1);
-            pcsMsg.setManType(0xFFFF);
-
-            NeptusLog.pub().info("Plan checksum mismatch: received " + planChecksum + ", expected " + lastPlanChecksum + " for plan " + lastPlan.getId());
+        byte[] bytes = lastActivePlan.getId().getBytes(StandardCharsets.UTF_8);
+        int lastActivePlanChecksum = IMCUtil.computeCrc16(bytes, 0, 0);
+        if (srep.getPlanChecksum() == lastActivePlanChecksum && tks.length <= 1) {
+            // If the plan checksum matches and there is no maneuver id, we can use the plan id directly
+            pcsMsg.setPlanId(lastActivePlan.getId());
             return;
         }
 
-        String[] parts = lastPlan.getId().split("\\|Man:");
-        if (parts.length != 2) {
-            pcsMsg.setPlanId("?");
-            pcsMsg.setPlanEta(-1);
-            pcsMsg.setPlanProgress(-1);
-            pcsMsg.setManId("");
-            pcsMsg.setManEta(-1);
-            pcsMsg.setManType(0xFFFF);
+        if (tks.length > 1) {
+            bytes = tks[0].getBytes(StandardCharsets.UTF_8);
+            lastActivePlanChecksum = IMCUtil.computeCrc16(bytes, 0, 0);
+            if (srep.getPlanChecksum() == lastActivePlanChecksum) {
+                pcsMsg.setPlanId(tks[0]);
+                return;
+            }
+        }
+        pcsMsg.setPlanId("?");
 
-            NeptusLog.pub().error("Unexpected format for plan ID: " + lastPlan.getId() + ". Expected format is 'planId|Man:manId'.");
-            return;
+        // Let us see if we can get the plan id from the plan name plus the maneuver id
+        String planId = tks[0];
+        String manId = tks[1].replaceAll("Man:", "").trim();
+        if (srep.getPlanChecksum() == lastActivePlanChecksum) {
+            pcsMsg.setPlanId(planId);
+            pcsMsg.setManId(manId);
+        } else if (srep.getPlanChecksum() == lastActivePlanChecksum) {
+            byte[] bytes2 = (planId + "|Man:1").getBytes(StandardCharsets.UTF_8);
+            int planChecksum = IMCUtil.computeCrc16(bytes2, 0, 0);
+
+            pcsMsg.setPlanId(planId);
+            pcsMsg.setManId("1");
         }
 
-        String planId = parts[0];
-        String manId = parts[1];
-        pcsMsg.setPlanId(planId);
-        pcsMsg.setManId(manId);
-        pcsMsg.setPlanEta(-1);
-        pcsMsg.setPlanProgress(srep.getExecState() >= 0 ? srep.getExecState() : -1);
-        pcsMsg.setManEta(-1);
-        pcsMsg.setManType(0xFFFF);
+        // If the plan checksum does not match, it might be a different maneuver
+        // Do nothing
     }
 
     void processStateReport(MessageInfo info, StateReport msg, ArrayList<IMCMessage> messagesCreatedToForward, ImcMsgManager imcMsgManager) {
@@ -270,38 +264,16 @@ class ImcMsgManagerMessageProcessor {
                 break;
         }
 
-        PlanType lastActivePlan = imcSys.getActivePlan();
-        if (lastActivePlan != null) {
-            byte[] bytes = lastActivePlan.getId().getBytes(StandardCharsets.UTF_8);
-            int lastActivePlanChecksum = IMCUtil.computeCrc16(bytes, 0, 0);
-            if (msg.getPlanChecksum() == lastActivePlanChecksum) {
-                pcsMsg.setPlanId(lastActivePlan.getId());
-            } else {
-                String[] tks = lastActivePlan.getId().split("\\|");
-                if (tks.length > 1) {
-                    bytes = tks[0].getBytes(StandardCharsets.UTF_8);
-                    lastActivePlanChecksum = IMCUtil.computeCrc16(bytes, 0, 0);
-                    if (msg.getPlanChecksum() == lastActivePlanChecksum) {
-                        pcsMsg.setPlanId(tks[0]);
-                    } else {
-                        pcsMsg.setPlanId("?");
-                    }
-                } else {
-                    pcsMsg.setPlanId("?");
-                }
-            }
-        }
-
         pcsMsg.setPlanEta(-1);
         pcsMsg.setPlanProgress(execState >= 0 ? execState : -1);
         pcsMsg.setManId("");
         pcsMsg.setManEta(-1);
         pcsMsg.setManType(0xFFFF);
 
-        if (isDataNewerThanLastPcs)
+        if (isDataNewerThanLastPcs) {
             messagesCreatedToForward.add(pcsMsg);
-        //checkPlanChecksum(imcSys.getActivePlan(), msg, pcsMsg);
-        //messagesCreatedToForward.add(pcsMsg);
+            checkPlanChecksum(imcSys.getActivePlan(), msg, pcsMsg);
+        }
     }
 
     void processAssetReport(MessageInfo info, AssetReport msg, ArrayList<IMCMessage> messagesCreatedToFoward) {
