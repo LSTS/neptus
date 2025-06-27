@@ -851,9 +851,11 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
                     secNames.add(sectionName);
             }        
             for (String sec : secNames) {
-                // TODO See if we want to ask back from Iridium
-                if (!queryValues(sec, scopeToUse.getText(), visibility.getText(), true))
+                // TODO See if we want to ask back from Iridium, sending through Wifi
+                if (!queryValues(sec, scopeToUse.getText(), visibility.getText(), true,
+                        CommsAdmin.CommChannelType.WIFI.name)) {
                     break;
+                }
             }
         }
     }
