@@ -40,9 +40,11 @@ import pt.lsts.neptus.comm.iridium.Position.PosType;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.neptus.console.notifications.Notification;
+import pt.lsts.neptus.events.NeptusEvents;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.types.comm.CommMean;
 import pt.lsts.neptus.types.comm.protocol.IridiumArgs;
-import pt.lsts.neptus.types.comm.protocol.ProtocolArgs;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
@@ -311,7 +313,17 @@ public class HubIridiumMessenger implements IridiumMessenger {
         if (veh != null) {
             IridiumArgs iridiumArgs = (IridiumArgs) veh.getProtocolsArgs().get(CommMean.IRIDIUM);
             if (iridiumArgs != null) {
+                String lastSeen = iridiumArgs.getLastSeenImei();
                 iridiumArgs.setLastSeenImei(imei, date);
+                String lastSeenNew = iridiumArgs.getLastSeenImei();
+                if (!lastSeen.equals(lastSeenNew)) {
+                    NeptusLog.pub().info("Updated vehicle {} with last seen IMEI {} from " +
+                                    "the old {} with date {}", veh.getId(), lastSeenNew, lastSeen, date);
+                    NeptusEvents.post(Notification.warning(
+                            I18n.textf("Iridium IMEI Change for %s", veh.getId()),
+                            I18n.textf("Updated vehicle %vehicle with last seen IMEI %newImei from " +
+                                    "the old %oldImei with date %date", veh.getId(), lastSeenNew, lastSeen, date)));
+                }
             }
         }
     }
