@@ -55,6 +55,7 @@ import pt.lsts.imc.Rpm;
 import pt.lsts.imc.SimulatedState;
 import pt.lsts.imc.TrueSpeed;
 import pt.lsts.imc.VehicleState;
+import pt.lsts.imc.VerticalProfile;
 import pt.lsts.imc.lsf.LsfMessageLogger;
 import pt.lsts.imc.state.ImcSystemState;
 import pt.lsts.neptus.NeptusLog;
@@ -448,6 +449,24 @@ public class SystemImcMsgCommInfo extends SystemCommBaseInfo<IMCMessage, Message
                             SystemUtils.HEADING_DEGS_KEY,
                             (int) AngleUtils.nomalizeAngleDegrees360(MathMiscUtils.round(Math.toDegrees(headingRad), 0)),
                             timeMillis, true);
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+                break;
+
+            case VerticalProfile.ID_STATIC:
+                try {
+                    long timeMillis = msg.getTimestampMillis();
+                    VerticalProfile vp = (VerticalProfile) msg;
+                    double latDeg = vp.getLat();
+                    double lonDeg = vp.getLon();
+
+                    LocationType loc = new LocationType();
+                    loc.setLatitudeDegs(latDeg);
+                    loc.setLongitudeDegs(lonDeg);
+
+                    resSys.setLocation(loc, timeMillis);
                 }
                 catch (Exception e) {
                     e.printStackTrace();
