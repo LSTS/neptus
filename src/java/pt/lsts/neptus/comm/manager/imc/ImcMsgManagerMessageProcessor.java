@@ -154,9 +154,9 @@ class ImcMsgManagerMessageProcessor {
         }
 
         if (tks.length > 1) {
-            bytes = tks[0].getBytes(StandardCharsets.UTF_8);
-            lastActivePlanChecksum = IMCUtil.computeCrc16(bytes, 0, 0);
-            if (srep.getPlanChecksum() == lastActivePlanChecksum) {
+            byte[] bytesTks = tks[0].getBytes(StandardCharsets.UTF_8);
+            int lastCSun = IMCUtil.computeCrc16(bytesTks, 0, 0);
+            if (srep.getPlanChecksum() == lastCSun) {
                 pcsMsg.setPlanId(tks[0]);
                 return;
             }
@@ -164,15 +164,17 @@ class ImcMsgManagerMessageProcessor {
         pcsMsg.setPlanId("?");
 
         // Let us see if we can get the plan id from the plan name plus the maneuver id
-        String planId = tks[0];
-        String manId = tks[1].replaceAll("Man:", "").trim();
+        String planId = tks[0].trim();
+        String manId = tks.length > 1 ? tks[1].replaceAll("Man:", "").trim() : "";
         if (srep.getPlanChecksum() == lastActivePlanChecksum) {
             pcsMsg.setPlanId(planId);
             pcsMsg.setManId(manId);
-        } else if (srep.getPlanChecksum() == lastActivePlanChecksum) {
-            byte[] bytes2 = (planId + "|Man:1").getBytes(StandardCharsets.UTF_8);
-            int planChecksum = IMCUtil.computeCrc16(bytes2, 0, 0);
+            return;
+        }
 
+        byte[] bytes2 = (planId + "|Man:1").getBytes(StandardCharsets.UTF_8);
+        int planChecksum = IMCUtil.computeCrc16(bytes2, 0, 0);
+        if (planChecksum == lastActivePlanChecksum) {
             pcsMsg.setPlanId(planId);
             pcsMsg.setManId("1");
         }
