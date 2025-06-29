@@ -36,6 +36,7 @@ import java.util.Vector;
 
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.StateReport;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
@@ -193,74 +194,108 @@ public class ConsoleSystem implements MissionChangeListener, PreferencesListener
 
     @Override
     public void onMessage(MessageInfo info, IMCMessage msg) {
+        if (msg.getAbbrev().equals(EstimatedState.class.getSimpleName())) {
+            processEstimatedState(info, (EstimatedState) msg);
+        } else if (msg.getAbbrev().equals(StateReport.class.getSimpleName())) {
+            processStateReport(info, (StateReport) msg);
+        }
+    }
 
-        if (msg.getAbbrev().equals("EstimatedState")) {
+    private void processStateReport(MessageInfo info, StateReport msg) {
+        LocationType loc = new LocationType();
+        loc.setLatitudeDegs(msg.getLatitude());
+        loc.setLongitudeRads(msg.getLongitude());
 
-            EstimatedState es = (EstimatedState) msg;
-            LocationType loc = new LocationType();
-            loc.setLatitudeRads(es.getLat());
-            loc.setLongitudeRads(es.getLon());
-            loc.setHeight(loc.getHeight());
+        double time = msg.getTimestampMillis();
+        time = time < 0 ? info.getTimeReceivedNanos() / 1_000_000d : time; // milliseconds
 
-            double phi = es.getPhi();
-            double theta = es.getTheta();
-            double psi = es.getPsi();
+        if (state.getTime() > time) {
+            // Ignore old state reports
+            return;
+        }
 
-            double p = es.getP();
-            double q = es.getQ();
-            double r = es.getR();
+        state.setPosition(loc);
 
-            double u = es.getU();
-            double v = es.getV();
-            double w = es.getW();
+        if (time <= 0)
+            state.setTime(System.currentTimeMillis());
+        else
+            state.setTime((long) time);
 
-            double vx = es.getVx();
-            double vy = es.getVy();
-            double vz = es.getVz();
+        long previousVehicleState = lastVehicleState;
 
-            loc.translatePosition(es.getX(), es.getY(), es.getZ());
+        process(previousVehicleState, loc);
+    }
 
-            double time = info.getTimeReceivedNanos() / 1000000; // milliseconds
+    private void process(long previousVehicleState, LocationType loc) {
+        VehicleType ve = VehiclesHolder.getVehicleById(getVehicleId());
+        if (!((minDelay > 0) && (System.currentTimeMillis() - previousVehicleState < minDelay))) {
+            lastVehicleState = System.currentTimeMillis();
 
-            state.setPosition(loc);
-            state.setRoll(phi);
-            state.setPitch(theta);
-            state.setYaw(psi);
-            state.setUVW(u, v, w);
-            state.setPQR(p, q, r);
-            state.setVxyz(vx, vy, vz);
+            for (VehicleStateListener j : feedRenders) {
+                j.setVehicleState(ve, state);
+            }
 
-            if (time <= 0)
-                state.setTime(System.currentTimeMillis());
-            else
-                state.setTime((long) time);
-
-            long previousVehicleState = lastVehicleState;
-
-            VehicleType ve = VehiclesHolder.getVehicleById(getVehicleId());
-            if (!((minDelay > 0) && (System.currentTimeMillis() - previousVehicleState < minDelay))) {
-                lastVehicleState = System.currentTimeMillis();
-
-                for (VehicleStateListener j : feedRenders) {
-                    j.setVehicleState(ve, state);
+            if (isTailOn()) {
+                if (scatter == null) {
+                    scatter = new ScatterPointsElement(MapGroup.getMapGroupInstance(missionType), mapCS);
+                    scatter.setCenterLocation(new LocationType(loc));
+                    mapCS.addObject(scatter);
                 }
 
-                if (isTailOn()) {
-                    if (scatter == null) {
-                        scatter = new ScatterPointsElement(MapGroup.getMapGroupInstance(missionType), mapCS);
-                        scatter.setCenterLocation(new LocationType(loc));
-                        mapCS.addObject(scatter);
-                    }
-
-                    scatter.addPoint(loc);
-
-                }
-                else {
-                    if (scatter != null)
-                        scatter.clearPoints();
-                }
+                scatter.addPoint(loc);
+            }
+            else {
+                if (scatter != null)
+                    scatter.clearPoints();
             }
         }
+    }
+
+    private void processEstimatedState(MessageInfo info, EstimatedState es) {
+        LocationType loc = new LocationType();
+        loc.setLatitudeRads(es.getLat());
+        loc.setLongitudeRads(es.getLon());
+        loc.setHeight(loc.getHeight());
+
+        double phi = es.getPhi();
+        double theta = es.getTheta();
+        double psi = es.getPsi();
+
+        double p = es.getP();
+        double q = es.getQ();
+        double r = es.getR();
+
+        double u = es.getU();
+        double v = es.getV();
+        double w = es.getW();
+
+        double vx = es.getVx();
+        double vy = es.getVy();
+        double vz = es.getVz();
+
+        loc.translatePosition(es.getX(), es.getY(), es.getZ());
+
+        double time = es.getTimestampMillis();
+        time = time < 0 ? info.getTimeReceivedNanos() / 1_000_000d : time; // milliseconds
+
+        if (state.getTime() < time) {
+            state.setPosition(loc);
+        }
+        state.setRoll(phi);
+        state.setPitch(theta);
+        state.setYaw(psi);
+        state.setUVW(u, v, w);
+        state.setPQR(p, q, r);
+        state.setVxyz(vx, vy, vz);
+
+        if (time <= 0)
+            state.setTime(System.currentTimeMillis());
+        else
+            state.setTime((long) time);
+
+        long previousVehicleState = lastVehicleState;
+
+        process(previousVehicleState, loc);
     }
 
     public SystemPositionAndAttitude getState() {
@@ -412,5 +447,27 @@ public class ConsoleSystem implements MissionChangeListener, PreferencesListener
      */
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void updatePositionWithSystemPos() {
+        if (imcSystem == null || imcSystem.getLocationTimeMillis() < 0) {
+            return;
+        }
+
+        double time = imcSystem.getLocationTimeMillis();
+        if (state.getTime() > time) {
+            // Ignore old state reports
+            return;
+        }
+
+        LocationType loc = new LocationType(imcSystem.getLocation()).convertToAbsoluteLatLonDepth();
+        state.setPosition(loc.getNewAbsoluteLatLonDepth());
+
+        if (time <= 0)
+            state.setTime(System.currentTimeMillis());
+        else
+            state.setTime((long) time);
+
+        process(lastVehicleState, loc);
     }
 }
