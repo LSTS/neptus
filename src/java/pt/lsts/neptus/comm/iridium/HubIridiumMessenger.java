@@ -94,7 +94,7 @@ public class HubIridiumMessenger implements IridiumMessenger {
     protected String messagesRawUrl = serverUrl+"iridium/raw";
     protected int timeoutMillis = 10000;
     protected Set<IridiumMessageListener> listeners = new HashSet<>();
-    private static final Pattern p = Pattern.compile("\\((.)\\) \\((.*)\\) (.*) / (.*), (.*) / .*");
+    private static final Pattern p = Pattern.compile("(\\((.)\\) )?\\((.*)\\) (.*) / (.*), (.*) / .*");
     private static final TimeZone tz = TimeZone.getTimeZone("UTC");
     private static final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
     static { dateFormat.setTimeZone(tz); }
@@ -278,10 +278,10 @@ public class HubIridiumMessenger implements IridiumMessenger {
                 String report = new String(Hex.decodeHex(m.msg.toCharArray()));
                 Matcher matcher = p.matcher(report);
                 if (matcher.matches()) {
-                    String vehicle = matcher.group(2);
-                    String timeOfDay = matcher.group(3);
-                    String latMins = matcher.group(4);
-                    String lonMins = matcher.group(5);
+                    String vehicle = matcher.group(3);
+                    String timeOfDay = matcher.group(4);
+                    String latMins = matcher.group(5);
+                    String lonMins = matcher.group(6);
                     
                     String[] latParts = latMins.split(" ");
                     String[] lonParts = lonMins.split(" ");
