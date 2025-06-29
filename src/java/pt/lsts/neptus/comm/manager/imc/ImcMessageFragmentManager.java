@@ -216,13 +216,29 @@ public class ImcMessageFragmentManager {
                 }
             }
 
+            boolean warnIfTypeGuessed = "".equals(receivedFragmentsTypeNoteNoteHolder.get(idPair));
             tryToGuessMessageType(allFragmentList, idPair, systemName);
+
             String msgTypeNoteStr = getMsgTypeStringNote(idPair);
+
+            if (warnIfTypeGuessed && !receivedFragmentsTypeNoteNoteHolder.get(idPair).isEmpty()) {
+                String partsString = allFragmentList.stream().map(MessagePart::getFragNumber).sorted()
+                        .map(String::valueOf).limit(5).collect(Collectors.joining(", "));
+                if (allFragmentList.size() > 5) {
+                    partsString += ", ...";
+                }
+                NeptusEvents.post(Notification.warning(I18n.textf("Fragment of Message Type %type for %name",
+                                msgTypeNoteStr, systemName),
+                        I18n.textf("Received fragments%s0 from %system with id %is (got %left of %total): %frags",
+                                msgTypeNoteStr, systemName, idPair, nFrags - allFragmentList.size(), nFrags,
+                                partsString)));
+            }
+
             System.out.println("Adding received fragments" + msgTypeNoteStr + " from " + systemName + " with id " + idPair +
-                    " (" + fragNumber + " of " + nFrags + " left " + (nFrags - allFragmentList.size()) +  "): " +
+                    " (" + fragNumber + ",  got " + (nFrags - allFragmentList.size()) + " of " + nFrags +  "): " +
                     fragmentList);
-            NeptusLog.pub().warn("Adding received fragments{} from {} with id {} ({} of {} left {}): {}",
-                    msgTypeNoteStr, systemName, idPair, fragNumber, nFrags, nFrags - allFragmentList.size(),
+            NeptusLog.pub().warn("Adding received fragments{} from {} with id {} ({}, got {} of {}): {}",
+                    msgTypeNoteStr, systemName, idPair, fragNumber, nFrags - allFragmentList.size(), nFrags,
                     fragmentList);
         }
     }
