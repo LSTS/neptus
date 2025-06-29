@@ -40,7 +40,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -56,8 +55,8 @@ import javax.swing.SwingWorker;
 
 import com.google.common.eventbus.Subscribe;
 
+import org.apache.commons.lang3.tuple.Pair;
 import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.IMCUtil;
 import pt.lsts.imc.LblBeacon;
 import pt.lsts.imc.LblConfig;
 import pt.lsts.imc.LblConfig.OP;
@@ -434,13 +433,19 @@ public class MissionTreePanel extends ConsolePanel
                 return; // We already have a more recent PlanControlState message
         }
 
-        for (String plan : getConsole().getMission().getIndividualPlansList().keySet()) {
-            byte[] bytes = plan.getBytes(StandardCharsets.UTF_8);
-            if (IMCUtil.computeCrc16(bytes, 0, 0) == message.getPlanChecksum()) {
-                mainVehicleLastPlanId = plan;
-                break;
-            }
-        }
+//        for (String plan : getConsole().getMission().getIndividualPlansList().keySet()) {
+//            byte[] bytes = plan.getBytes(StandardCharsets.UTF_8);
+//            if (IMCUtil.computeCrc16(bytes, 0, 0) == message.getPlanChecksum()) {
+//                mainVehicleLastPlanId = plan;
+//                break;
+//            }
+//        }
+        Pair<String, String> planAndManFound = IMCUtils.getPlanAndManeuverFromPlanChecksum(getMainVehicleId(), getConsole(),
+                mainVehicleLastPlanId, message.getPlanChecksum());
+        if (planAndManFound == null)
+            return;
+
+        mainVehicleLastPlanId = planAndManFound.getLeft();
     }
 
     @Subscribe
