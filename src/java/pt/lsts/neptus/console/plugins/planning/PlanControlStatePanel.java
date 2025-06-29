@@ -42,6 +42,7 @@ import javax.swing.SwingConstants;
 import com.google.common.eventbus.Subscribe;
 
 import net.miginfocom.swing.MigLayout;
+import org.apache.commons.lang3.tuple.Pair;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCUtil;
 import pt.lsts.imc.PlanControlState;
@@ -52,6 +53,7 @@ import pt.lsts.imc.PlanDB.TYPE;
 import pt.lsts.imc.StateReport;
 import pt.lsts.imc.state.ImcSystemState;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
@@ -172,14 +174,24 @@ public class PlanControlStatePanel extends ConsolePanel {
             planId = "";
             planIdNote = "";
         } else {
-            for (String plan : getConsole().getMission().getIndividualPlansList().keySet()) {
-                byte[] bytes = plan.getBytes(StandardCharsets.UTF_8);
-                if (IMCUtil.computeCrc16(bytes , 0, 0) == message.getPlanChecksum()) {
-                    planId = plan;
-                    planIdNote = "hash::" + message.getPlanChecksum();
-                    break;
-                }
+//            for (String plan : getConsole().getMission().getIndividualPlansList().keySet()) {
+//                byte[] bytes = plan.getBytes(StandardCharsets.UTF_8);
+//                if (IMCUtil.computeCrc16(bytes , 0, 0) == message.getPlanChecksum()) {
+//                    planId = plan;
+//                    planIdNote = "hash::" + message.getPlanChecksum();
+//                    break;
+//                }
+//                planIdNote = "?";
+//            }
+            Pair<String, String> planAndManFound = IMCUtils.getPlanAndManeuverFromPlanChecksum(getMainVehicleId(), getConsole(),
+                    null, message.getPlanChecksum());
+            if (planAndManFound == null) {
                 planIdNote = "?";
+            } else {
+                planId = planAndManFound.getLeft();
+                planIdNote = "hash::" + message.getPlanChecksum();
+                if (planAndManFound.getRight() != null)
+                    nodeId = planAndManFound.getRight();
             }
         }
 
