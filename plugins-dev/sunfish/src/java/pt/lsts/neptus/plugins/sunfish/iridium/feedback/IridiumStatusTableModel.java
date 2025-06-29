@@ -83,7 +83,7 @@ public class IridiumStatusTableModel extends AbstractTableModel implements Messa
 
     public IridiumStatusTableModel() {
         sdf.setTimeZone(TimeZone.getTimeZone("UTC")); // TimeZone.getDefault().getID())
-        System.out.println("Set Timezone to: "+sdf.getTimeZone().getID());
+        NeptusLog.pub().info("Initialized table with timezone: {}", sdf.getTimeZone().getID());
         ImcMsgManager.getManager().addListener(this, new TypedMessageFilter(IridiumMsgRx.class.getSimpleName(),
                 IridiumTxStatus.class.getSimpleName(), IridiumMsgTx.class.getSimpleName()));
     }
