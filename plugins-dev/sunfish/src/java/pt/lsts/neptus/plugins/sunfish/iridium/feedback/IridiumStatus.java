@@ -38,6 +38,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.text.ParseException;
@@ -72,7 +73,7 @@ import pt.lsts.neptus.util.GuiUtils;
 @PluginDescription(name = "Iridium Communications Status",
         icon = "images/iridium/iridium-logo.png",
         description="Iridium Communications Feedback Panel")
-@Popup(pos = Popup.POSITION.BOTTOM_RIGHT, width=355, height=215)
+@Popup(pos = Popup.POSITION.BOTTOM_RIGHT, width=355, height=215, accelerator = KeyEvent.VK_7)
 public class IridiumStatus extends ConsolePanel {
 
     private static final long serialVersionUID = 1L;
