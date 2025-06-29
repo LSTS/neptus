@@ -238,8 +238,8 @@ public class IridiumStatus extends ConsolePanel {
             }
         };
         table.setAutoCreateRowSorter(false);
+        table.setModel(iridiumCommsStatus);
         table.setRowSorter(rowSorter);
-        table.setModel(iridiumCommsStatus); // needs to be set after the sorter
         table.getModel().addTableModelListener(changes);
         table.setFillsViewportHeight(true);
         table.setDefaultRenderer(Object.class,highlightRenderer);
