@@ -208,7 +208,14 @@ public class ConfigFetch {
         NeptusLog.init();
         
         // Set Default Exception Handler
-        Thread.setDefaultUncaughtExceptionHandler((t, e) -> NeptusLog.pub().error("Uncaught Exception! " + ReflectionUtil.getCallerStamp(), e));
+        Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
+            StringBuilder sb = new StringBuilder();
+            for (StackTraceElement ste : e.getStackTrace()) {
+                sb.append(ste.toString()).append("\n");
+            }
+            NeptusLog.pub().error("Uncaught Exception! {}\nStack trace:\n{}",
+                    ReflectionUtil.getCallerStamp(), sb.toString(), e);
+        });
 
         init();
         loadSchemas();
