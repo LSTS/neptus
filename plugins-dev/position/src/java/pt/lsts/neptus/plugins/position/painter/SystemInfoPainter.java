@@ -110,8 +110,10 @@ public class SystemInfoPainter extends ConsoleLayer {
     @NeptusProperty(name = "Display GPS", description = "Display GPS fix status on panel")
     public boolean showGPS = false;
 
-    @NeptusProperty(name = "Entity Name", description = "Vehicle Battery entity name")
-    public String batteryEntityName = "Batteries";
+    @NeptusProperty(name = "Entity Name", description = "Vehicle Battery entity name list")
+    public String batteryEntityName = "Batteries, Daemon";
+
+    protected final List<String> batteryEntityNameList = new ArrayList<>();
 
     private JLabel toDraw;
     private String mainSysName;
@@ -146,6 +148,8 @@ public class SystemInfoPainter extends ConsoleLayer {
         strFixedSat = I18n.textc("Sats", "Short for satellite. Use a single small word");
 
         strGPSFix = GPS_NO_FIX;
+
+        updateVoltageEntities();
     }
 
     private InterpolationColorMap rygColorMap = new InterpolationColorMap(new double[] { 0.0, 0.01, 0.75, 1.0 },
@@ -166,6 +170,21 @@ public class SystemInfoPainter extends ConsoleLayer {
             c = rygInverted.getColor(percent / 100.0);
 
         return String.format("#%02X%02X%02X", c.getRed(), c.getGreen(), c.getBlue());
+    }
+
+    @Override
+    public void propertiesChanged() {
+        super.propertiesChanged();
+
+        updateVoltageEntities();
+    }
+
+    private void updateVoltageEntities() {
+        batteryEntityNameList.clear();
+        String[] pList = batteryEntityName.split(",");
+        for (String p : pList) {
+            batteryEntityNameList.add(p.trim());
+        }
     }
 
     @Override
@@ -294,20 +313,29 @@ public class SystemInfoPainter extends ConsoleLayer {
     public void consume(Voltage msg) {
         if (!msg.getSourceName().equals(mainSysName))
             return;
-        int id = EntitiesResolver.resolveId(mainSysName, batteryEntityName);
-        if (msg.getSrcEnt() != id)
+        if (batteryEntityNameList.isEmpty())
             return;
-        batteryVoltage = msg.getValue();
+
+        // Check if the message is for the battery entity
+        boolean acceptEntity = batteryEntityNameList.stream().anyMatch(s -> {
+            int id = EntitiesResolver.resolveId(mainSysName, s);
+            return msg.getSrcEnt() == id;
+        });
+        if (acceptEntity)
+            batteryVoltage = msg.getValue();
     }
 
     @Subscribe
     public void consume(Current msg) {
         if (!msg.getSourceName().equals(mainSysName))
             return;
-        int id = EntitiesResolver.resolveId(mainSysName, batteryEntityName);
-        if (msg.getSrcEnt() != id)
-            return;
-        current = msg.getValue();
+        // Check if the message is for the battery entity
+        boolean acceptEntity = batteryEntityNameList.stream().anyMatch(s -> {
+            int id = EntitiesResolver.resolveId(mainSysName, s);
+            return msg.getSrcEnt() == id;
+        });
+        if (acceptEntity)
+            current = msg.getValue();
     }
 
     @Subscribe
@@ -406,8 +434,13 @@ public class SystemInfoPainter extends ConsoleLayer {
             if (state.last(FuelLevel.class) != null)
                 fuelLevel = (float) state.last(FuelLevel.class).getValue();
             try {
-                if (state.last(Voltage.class, batteryEntityName) != null)
-                    batteryVoltage = state.last(Voltage.class, batteryEntityName).getValue();
+                for (String entity : batteryEntityNameList) {
+                    Voltage lastVoltage = state.last(Voltage.class, entity);
+                    if (lastVoltage != null) {
+                        batteryVoltage = lastVoltage.getValue();
+                        break; // Use the first found
+                    }
+                }
             }
             catch (Exception e) {
                 batteryVoltage = 0.0;
