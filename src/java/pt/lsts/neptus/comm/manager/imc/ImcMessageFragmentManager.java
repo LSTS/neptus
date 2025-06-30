@@ -229,15 +229,15 @@ public class ImcMessageFragmentManager {
                 }
                 NeptusEvents.post(Notification.warning(I18n.textf("Fragment of Message Type %type for %name",
                                 msgTypeNoteStr, systemName),
-                        I18n.textf("Received fragments%s0 from %system with id %is (got %left of %total): %frags",
+                        I18n.textf("Received fragments%s0 from %system with id %is (left %left of %total): %frags",
                                 msgTypeNoteStr, systemName, idPair, nFrags - allFragmentList.size(), nFrags,
                                 partsString)));
             }
 
             System.out.println("Adding received fragments" + msgTypeNoteStr + " from " + systemName + " with id " + idPair +
-                    " (" + fragNumber + ",  got " + (nFrags - allFragmentList.size()) + " of " + nFrags +  "): " +
+                    " (" + fragNumber + ",  left " + (nFrags - allFragmentList.size()) + " of " + nFrags +  "): " +
                     fragmentList);
-            NeptusLog.pub().warn("Adding received fragments{} from {} with id {} ({}, got {} of {}): {}",
+            NeptusLog.pub().warn("Adding received fragments{} from {} with id {} ({}, left {} of {}): {}",
                     msgTypeNoteStr, systemName, idPair, fragNumber, nFrags - allFragmentList.size(), nFrags,
                     fragmentList);
         }
