@@ -49,10 +49,12 @@ import java.util.TreeSet;
 import javax.swing.SwingUtilities;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.xml.sax.SAXException;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.mp.SpeedType;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
@@ -63,6 +65,8 @@ import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.UnitsUtil;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**
  * @author Margarida Faria
@@ -70,12 +74,16 @@ import pt.lsts.neptus.util.GuiUtils;
  */
 @PluginDescription(author = "Margarida", name = "SPOT Overlay", icon = "pt/lsts/neptus/plugins/spot/images/spotIcon.png")
 public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicUpdates, ConfigurationListener {
+    public static final Color COLOR_SPOT_A128 = new Color(255, 148, 143, 128);
+    public static final Color COLOR_SPOT = new Color(255, 148, 143);
+
     private List<Spot> spotsOnMap;
     private boolean active = false;
 
     private static final long serialVersionUID = -4807939956933128721L;
 
-    @NeptusProperty
+    @NeptusProperty(name = "Update every (minutes)", userLevel = LEVEL.ADVANCED,
+            description = "Time between updates of the SPOT positions. Default is 2 minutes.")
     public int updateMinutes = 2;
 
     @NeptusProperty(name = "Visible", userLevel = LEVEL.ADVANCED)
@@ -214,15 +222,22 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
             g.translate(xScreenPos, yScreenPos);
 
             if (showNames) {
-                g.setColor(Color.red.darker().darker());
-                g.drawString(spot.getName(), 5, 0);
+                g.setColor(Color.BLACK);
+                g.drawString(spot.getName(), 7, 1);
+                g.setColor(COLOR_SPOT);
+                g.drawString(spot.getName(), 6, 0);
             }
 
             double speedMps = spot.getSpeed();
             if (speedMps != -1) {
                 if (showSpeedValue) {
-                    g.setColor(Color.black);
-                    g.drawString(GuiUtils.getNeptusDecimalFormat(1).format(speedMps) + " m/s", 5, 10);
+                    SpeedType.Units speedUnits = GeneralPreferences.speedUnits;
+                    Pair<Double, SpeedType.Units> convSpeed = UnitsUtil.convertSpeed(speedMps, speedUnits);
+                    String speedTxt = GuiUtils.getNeptusDecimalFormat(1).format(convSpeed.getLeft()) + " " + convSpeed.getRight();
+                    g.setColor(Color.BLACK);
+                    g.drawString(speedTxt, 7, 11);
+                    g.setColor(COLOR_SPOT);
+                    g.drawString(speedTxt, 6, 10);
                 }
             }
             g.translate(-xScreenPos, -yScreenPos);
@@ -237,19 +252,29 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
                 location = iterator.next();
                 pt = renderer.getScreenPosition(location);
                 spotPath.moveTo(pt.getX(), pt.getY());
+                min = 1 - Math.min(shadeOfGrey, 0.8f);
+                g2.setColor(new Color(min, min, min));
+                g2.fillOval((int) (pt.getX() - 4), (int) (pt.getY() - 4), 8, 8);
                 while (iterator.hasNext()) {
                     location = iterator.next();
                     pt = renderer.getScreenPosition(location);
                     spotPath.lineTo(pt.getX(), pt.getY());
                     min = 1 - Math.min(shadeOfGrey, 0.8f);
                     g2.setColor(new Color(min, min, min));
-                    g2.fillOval((int) (pt.getX() - 3), (int) (pt.getY() - 3), 7, 7);
+                    g2.fillOval((int) (pt.getX() - 4), (int) (pt.getY() - 4), 8, 8);
                     shadeOfGrey -= shadeOfGreyInc;
-
                 }
-                g2.setStroke(new BasicStroke(1f));
-                g2.setColor(new Color(0.4f, 0.4f, 0.4f, 0.5f));
+                g2.setStroke(new BasicStroke(3f));
+                g2.setColor(COLOR_SPOT_A128);
                 g2.draw(spotPath);
+
+                g2.setStroke(new BasicStroke(1f));
+                g2.setColor(Color.darkGray);
+                g2.drawOval((int) (pt.getX() - 5), (int) (pt.getY() - 5), 9, 9);
+                g2.setColor(new Color(255, 148, 143, 128));
+                g2.fillOval((int) (pt.getX() - 5), (int) (pt.getY() - 5), 10, 10);
+                g2.setColor(Color.darkGray);
+                g2.fillOval((int) (pt.getX() - 2), (int) (pt.getY() - 2), 4, 4  );
             }
         }
     }

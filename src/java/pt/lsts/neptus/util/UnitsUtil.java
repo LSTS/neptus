@@ -32,6 +32,10 @@
  */
 package pt.lsts.neptus.util;
 
+import org.apache.commons.lang3.tuple.Pair;
+import pt.lsts.imc.def.SpeedUnits;
+import pt.lsts.neptus.mp.SpeedType;
+
 /**
  * A conversion constants utility.
  * 
@@ -75,5 +79,21 @@ public class UnitsUtil {
     public static final double MS_TO_MPH = 2.2369362921;
     
     private UnitsUtil() {
+    }
+
+    public static Pair<Double, SpeedType.Units> convertSpeed(double speedMps, SpeedType.Units units) {
+        switch (units) {
+            case Knots:
+                return Pair.of(speedMps * MS_TO_KNOT, SpeedType.Units.Knots);
+            case MPH:
+                return Pair.of(speedMps * MS_TO_MPH, SpeedType.Units.MPH);
+            case KPH:
+                return Pair.of(speedMps * MS_TO_KMH, SpeedType.Units.KPH);
+            case MPS:
+            case RPM:
+            case Percentage:
+            default:
+                return Pair.of(speedMps, SpeedType.Units.MPS);
+        }
     }
 }
