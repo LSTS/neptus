@@ -89,12 +89,12 @@ public class SpotMsgFetcher {
                 if (tagName.equals("feedMessageResponse")) {
                     nlist = feedMsgResp.getChildNodes();
                     if (nlist.getLength() == 5) {
-                        for (int i = 1; i < nlist.getLength(); i++) {
+                        for (int i = 0; i < nlist.getLength(); i++) {
                             Node messages = nlist.item(i);
                             tagName = messages.getNodeName();
                             if (tagName.equals("messages")) {
                                 nlist = messages.getChildNodes();
-                                for (int m = 1; m < nlist.getLength(); m++) {
+                                for (int m = 0; m < nlist.getLength(); m++) {
                                     tagName = nlist.item(m).getNodeName();
                                     if (tagName.equals("message")) {
                                         // TODO this is the same
