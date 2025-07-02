@@ -34,6 +34,7 @@ package pt.lsts.neptus.plugins.spot;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.TreeSet;
 
 import javax.swing.SwingUtilities;
@@ -56,12 +57,13 @@ public class Spot {
     private final String id;
     protected Float speed;
     protected Double direction;
-    protected ArrayList<LocationType> lastLocations;
+    protected List<LocationType> lastLocations;
+    protected List<Long> lastLocationsTimestampMillis;
 
     // private final ArrayList<LocationType> lastLocations;
 
     /**
-     * @param pageInfo
+     * @param id
      */
     public Spot(String id) {
         super();
@@ -70,6 +72,7 @@ public class Spot {
         speed = null;
         direction = null;
         lastLocations = new ArrayList<LocationType>();
+        lastLocationsTimestampMillis = new ArrayList<Long>();
     }
 
 
@@ -93,6 +96,7 @@ public class Spot {
                 speed = speedLocationDirection.speed;
                 direction = speedLocationDirection.direction;
                 lastLocations = speedLocationDirection.locations;
+                lastLocationsTimestampMillis = speedLocationDirection.locationTimestampsMillis;
                 // Spot.log.debug("Gonna update " + messages.first().id + " with " + speed + " m/s, at "
                 // + lastLocation.toString());
             }
@@ -109,9 +113,10 @@ public class Spot {
             // Spot.log.debug("Just one message");
             LocationType location = new LocationType(messages.first().latitude, messages.first().longitude);
             ArrayList<LocationType> locations = new ArrayList<LocationType>();
+            List<Long> locationTimestampsMillis = new ArrayList<>();
             locations.add(location);
             return new LocationSpeedDirection(LocationSpeedDirection.NO_VALUE_F, -LocationSpeedDirection.NO_VALUE_D,
-                    locations);
+                    locations, locationTimestampsMillis);
         }
 
         long elapsedTime;
@@ -121,6 +126,7 @@ public class Spot {
         SpotMessage tmpMsg;
         LocationType tmpLocation, prevLocation;
         ArrayList<LocationType> locations = new ArrayList<LocationType>();
+        List<Long> locationTimestampsMillis = new ArrayList<>();
         SpotMessage prevMsg = null;
         tmpLocation = prevLocation = null;
         Vector3f sumDirVector = new Vector3f(0f, 0f, 0f);
@@ -130,6 +136,7 @@ public class Spot {
             tmpMsg = it.next();
             tmpLocation = new LocationType(tmpMsg.latitude, tmpMsg.longitude);// tmpMsg.getLocation();
             locations.add(tmpLocation);
+            locationTimestampsMillis.add(tmpMsg.timestamp * 1000); // convert to millis
             numMeasurements++;
             if (prevMsg != null) {
                 distanceInMeters = tmpLocation.getDistanceInMeters(prevLocation);
@@ -167,7 +174,7 @@ public class Spot {
         double finalDirection = Math.atan(sumDirVector.y / sumDirVector.x);
         log.debug("finalSpeed " + finalSpeed + ", direction: (" + sumDirVector.x + ", " + sumDirVector.y + ")"
                 + finalDirection);
-        return new LocationSpeedDirection(finalSpeed, finalDirection, locations);
+        return new LocationSpeedDirection(finalSpeed, finalDirection, locations, locationTimestampsMillis);
     }
 
     static double gamma(double z) {
@@ -188,7 +195,7 @@ public class Spot {
         }
     }
 
-    public ArrayList<LocationType> getLastLocations() {
+    public List<LocationType> getLastLocations() {
         return lastLocations;
     }
 
@@ -196,6 +203,20 @@ public class Spot {
         return id;
     }
 
+
+    public Long getLastLocationTimestampMillis() {
+        int size = lastLocationsTimestampMillis.size();
+        if (size > 0) {
+            return lastLocationsTimestampMillis.get(size - 1);
+        }
+        else {
+            return null;
+        }
+    }
+
+    public List<Long> getLastLocationsTimestampMillis() {
+        return lastLocationsTimestampMillis;
+    }
 
     /**
      * @return the speed in meters per second
@@ -230,19 +251,19 @@ public class Spot {
         public final static double NO_VALUE_D = -1;
         public final double direction;
         public final Float speed;
-        public final ArrayList<LocationType> locations;
+        public final List<LocationType> locations;
+        public final List<Long> locationTimestampsMillis;
 
         /**
-         * @param latRads
-         * @param lonRads
          */
-        public LocationSpeedDirection(float speed, double direction, ArrayList<LocationType> locations) {
+        public LocationSpeedDirection(float speed, double direction, ArrayList<LocationType> locations,
+                                      List<Long> locationTimestampsMillis) {
             super();
             this.speed = speed;
             this.direction = direction;
             this.locations = locations;
+            this.locationTimestampsMillis = locationTimestampsMillis;
         }
     }
-
 }
 

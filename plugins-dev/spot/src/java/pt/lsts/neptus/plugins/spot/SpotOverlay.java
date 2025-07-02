@@ -41,6 +41,7 @@ import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -221,11 +222,22 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
             double yScreenPos = pt.getY();
             g.translate(xScreenPos, yScreenPos);
 
+            boolean hasTime = false;
             if (showNames) {
                 g.setColor(Color.BLACK);
                 g.drawString(spot.getName(), 7, 1);
                 g.setColor(COLOR_SPOT);
                 g.drawString(spot.getName(), 6, 0);
+
+                Long timestampMillis = spot.getLastLocationTimestampMillis();
+                if (timestampMillis != null) {
+                    hasTime = true;
+                    String dateStr = new Date(timestampMillis).toString();
+                    g.setColor(Color.BLACK);
+                    g.drawString(dateStr, 7, 13);
+                    g.setColor(COLOR_SPOT);
+                    g.drawString(dateStr, 6, 12);
+                }
             }
 
             double speedMps = spot.getSpeed();
@@ -235,28 +247,33 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
                     Pair<Double, SpeedType.Units> convSpeed = UnitsUtil.convertSpeed(speedMps, speedUnits);
                     String speedTxt = GuiUtils.getNeptusDecimalFormat(1).format(convSpeed.getLeft()) + " " + convSpeed.getRight();
                     g.setColor(Color.BLACK);
-                    g.drawString(speedTxt, 7, 11);
+                    int offset = hasTime ? 12 : 0;
+                    g.drawString(speedTxt, 7, 13 + offset);
                     g.setColor(COLOR_SPOT);
-                    g.drawString(speedTxt, 6, 10);
+                    g.drawString(speedTxt, 6, 12 + offset);
                 }
             }
             g.translate(-xScreenPos, -yScreenPos);
-            ArrayList<LocationType> lastLocations = spot.getLastLocations();
+            List<LocationType> lastLocations = spot.getLastLocations();
+            List<Long> lastLocationsTimestampMillis = spot.getLastLocationsTimestampMillis();
             LocationType location;
+            Long locationTimestampMillis;
             GeneralPath spotPath = new GeneralPath();
-            Iterator<LocationType> iterator = lastLocations.iterator();
             float shadeOfGreyInc = 0.05f;
             float shadeOfGrey = (lastLocations.size() * shadeOfGreyInc);
             float min;
-            if (iterator.hasNext()) {
-                location = iterator.next();
+            if (!lastLocations.isEmpty()) {
+                location = lastLocations.get(0);
+                locationTimestampMillis = lastLocationsTimestampMillis.get(0);
                 pt = renderer.getScreenPosition(location);
                 spotPath.moveTo(pt.getX(), pt.getY());
                 min = 1 - Math.min(shadeOfGrey, 0.8f);
                 g2.setColor(new Color(min, min, min));
                 g2.fillOval((int) (pt.getX() - 4), (int) (pt.getY() - 4), 8, 8);
-                while (iterator.hasNext()) {
-                    location = iterator.next();
+
+                for (int i = 1; i < lastLocations.size(); i++) {
+                    location = lastLocations.get(i);
+                    locationTimestampMillis = lastLocationsTimestampMillis.get(i);
                     pt = renderer.getScreenPosition(location);
                     spotPath.lineTo(pt.getX(), pt.getY());
                     min = 1 - Math.min(shadeOfGrey, 0.8f);
@@ -264,6 +281,7 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
                     g2.fillOval((int) (pt.getX() - 4), (int) (pt.getY() - 4), 8, 8);
                     shadeOfGrey -= shadeOfGreyInc;
                 }
+
                 g2.setStroke(new BasicStroke(3f));
                 g2.setColor(COLOR_SPOT_A128);
                 g2.draw(spotPath);
