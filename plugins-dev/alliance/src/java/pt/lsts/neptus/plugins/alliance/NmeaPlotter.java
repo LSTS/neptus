@@ -411,12 +411,14 @@ public class NmeaPlotter extends ConsoleLayer implements NmeaProvider, Configura
             msgType = Integer.parseInt(msgTypeStr);
         }
         catch (NumberFormatException e) {
-            NeptusLog.pub().warn("Invalid AIS message type: {} :: {}", aisInfo.getMmsi(), e.getMessage());
+            NeptusLog.pub().warn("Invalid AIS message type: {} :: {} :: was {}", aisInfo.getMmsi(),
+                    e.getMessage(), msgTypeStr);
             return;
         }
 
         if (msgType < 1 || msgType > 27) {
-            NeptusLog.pub().warn("Invalid AIS message type: {} :: {}", aisInfo.getMmsi(), "Message type must be between 1 and 27");
+            NeptusLog.pub().warn("Invalid AIS message type: {} :: {} :: was {}", aisInfo.getMmsi(),
+                    "Message type must be between 1 and 27", msgType);
             return;
         }
 
@@ -451,7 +453,7 @@ public class NmeaPlotter extends ConsoleLayer implements NmeaProvider, Configura
             contactDb.setMTShip(mtShip);
         }
 
-        NeptusLog.pub().warn("Invalid AIS message type: {} :: {}", aisInfo.getMmsi(), "Message type must be between 1 and 27");
+        NeptusLog.pub().debug("AIS message type: {} :: for {}", msgType, aisInfo.getMmsi());
     }
 
     private void parseSentence(String s) {
