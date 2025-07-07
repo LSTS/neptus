@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2024.09.0 (system/caravel,b5a84638b)" system="caravel" i18n="en_US">
+<config format="1" version="2024.09.0 (system/caravel,772a1475d)" modules="system/caravel,b1fa56d" system="caravel" i18n="en_US">
   <section name="Text Actions" name-i18n="Text Actions">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -155,7 +155,7 @@
     <param name="Enable Thrust Assistance">
       <name-i18n>Enable Thrust Assistance</name-i18n>
       <type>boolean</type>
-      <visibility>developer</visibility>
+      <visibility>user</visibility>
       <scope>global</scope>
       <default>true</default>
       <units/>
@@ -164,7 +164,7 @@
     <param name="Minimum Speed for Thrust">
       <name-i18n>Minimum Speed for Thrust</name-i18n>
       <type>real</type>
-      <visibility>developer</visibility>
+      <visibility>user</visibility>
       <scope>global</scope>
       <default>0.6</default>
       <units>m/s</units>
@@ -174,7 +174,7 @@
     <param name="Enable Thrust During Turn">
       <name-i18n>Enable Thrust During Turn</name-i18n>
       <type>boolean</type>
-      <visibility>developer</visibility>
+      <visibility>user</visibility>
       <scope>global</scope>
       <default>true</default>
       <units/>
@@ -2917,6 +2917,206 @@
       <min>0</min>
     </param>
   </section>
+  <section name="Monitor Thruster" name-i18n="Monitor Thruster">
+    <param name="Entity Label">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Monitor Thruster</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Activation Time</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
+    </param>
+    <param name="Interval Time Window in Minutes">
+      <name-i18n>Interval Time Window in Minutes</name-i18n>
+      <type>integer</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>30</default>
+      <units/>
+      <desc>Maximum time to wait for high current levels on the thruster (in minutes).</desc>
+      <min>5</min>
+    </param>
+    <param name="Current Threshold in Amperes">
+      <name-i18n>Current Threshold in Amperes</name-i18n>
+      <type>real</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>1.0</default>
+      <units/>
+      <desc>Current value threshold to trigger a warning (in Amperes).</desc>
+      <min>0.1</min>
+    </param>
+    <param name="Thruster Current Channel Label">
+      <name-i18n>Thruster Current Channel Label</name-i18n>
+      <type>string</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>THRUST_D</default>
+      <units/>
+      <desc>Label of the thruster current channel to monitor.</desc>
+    </param>
+  </section>
+  <section name="ZeroTier" name-i18n="ZeroTier">
+    <param name="Entity Label">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>ZeroTier</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Activation Time</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Loopback Internal Messages">
+      <name-i18n>Loopback Internal Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
+    </param>
+    <param name="AutoReconnect">
+      <name-i18n>AutoReconnect</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>AutoReconnect the ZeroTier service if it is not running.</desc>
+    </param>
+    <param name="AutoCheck Interval in Minutes">
+      <name-i18n>AutoCheck Interval in Minutes</name-i18n>
+      <type>integer</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Timeout in minutes to check ZeroTier state. If the ZeroTier service is not running, it will be restarted.</desc>
+      <min>2</min>
+    </param>
+    <param name="Force Restart">
+      <name-i18n>Force Restart</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Force restart of ZeroTier service if it is not running. If this is set to true, the service will be restarted even if it is running.</desc>
+    </param>
+    <param name="Restart Modem GSM">
+      <name-i18n>Restart Modem GSM</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Restart the GSM modem if it is not running. If this is set to true, the modem will be restarted even if it is running.</desc>
+    </param>
+    <param name="Label of GSM Modem Power">
+      <name-i18n>Label of GSM Modem Power</name-i18n>
+      <type>string</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>MOBILE_1_C</default>
+      <units/>
+      <desc>Label of the GSM modem power channel. This is used to control the power of the GSM modem. </desc>
+    </param>
+    <param name="Remote Hosts IP to Check for Connectivity">
+      <name-i18n>Remote Hosts IP to Check for Connectivity</name-i18n>
+      <type>list:string</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>10.188.254.253, 10.188.2.118, 10.188.0.230, 10.188.0.116</default>
+      <units/>
+      <desc>List of Remote Hosts IP to Check for Connectivity</desc>
+    </param>
+  </section>
   <section name="Wave Frequency Estimator" name-i18n="Wave Frequency Estimator">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -3152,14 +3352,23 @@
       <units/>
       <desc>Loopback internal messages, such as EntityState and EntityParameters</desc>
     </param>
-    <param name="Entity Label - Euler Angles">
-      <name-i18n>Entity Label - Euler Angles</name-i18n>
+    <param name="Entity Label - Main Euler Angles">
+      <name-i18n>Entity Label - Main Euler Angles</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>AHRS</default>
       <units/>
-      <desc>Entity label of 'GpsFix' and 'GroundVelocity' messages</desc>
+      <desc>Entity label of main 'EulerAngles' provider</desc>
+    </param>
+    <param name="Entity Label - Secondary Euler Angles">
+      <name-i18n>Entity Label - Secondary Euler Angles</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>GPS</default>
+      <units/>
+      <desc>Entity label of secondary 'EulerAngles' provider</desc>
     </param>
     <param name="Entity Label - Angular Velocity">
       <name-i18n>Entity Label - Angular Velocity</name-i18n>
@@ -3168,7 +3377,7 @@
       <scope>global</scope>
       <default>AHRS</default>
       <units/>
-      <desc>Entity label of 'EulerAngles' and 'AngularVelocity' messages</desc>
+      <desc>Entity label of 'AngularVelocity' messages</desc>
     </param>
     <param name="Entity Label - Distance">
       <name-i18n>Entity Label - Distance</name-i18n>
@@ -3739,7 +3948,7 @@
     <param name="LED Period">
       <name-i18n>LED Period</name-i18n>
       <type>integer</type>
-      <visibility>developer</visibility>
+      <visibility>user</visibility>
       <scope>global</scope>
       <default>2</default>
       <units/>
@@ -5035,7 +5244,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default/>
+      <default>$PSRT,012,,,(--QuaRk--)*4B\r\n</default>
       <units/>
       <desc/>
     </param>
@@ -5053,7 +5262,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default/>
+      <default>$PSRT,GER,01*54\r\n</default>
       <units/>
       <desc/>
     </param>
@@ -5071,7 +5280,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default/>
+      <default>$PSRT,012,,,(--QuaRk--)*4B\r\n</default>
       <units/>
       <desc/>
     </param>
@@ -5089,7 +5298,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default/>
+      <default>$PSRT,GPSDATA,,,1*60\r\n</default>
       <units/>
       <desc/>
     </param>
@@ -5395,7 +5604,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>maneuver</default>
+      <default>global</default>
       <units/>
       <desc>Scoped of the 'Active' parameter</desc>
       <values>global,idle,plan,maneuver</values>
@@ -5486,7 +5695,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>maneuver</default>
+      <default>global</default>
       <units/>
       <desc>Scoped of the 'Sample Time Duration' parameter</desc>
       <values>global,idle,plan,maneuver</values>
@@ -5518,7 +5727,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>maneuver</default>
+      <default>global</default>
       <units/>
       <desc>Scoped of the 'Periodicity of Data Sampling' parameter</desc>
       <values>global,idle,plan,maneuver</values>
@@ -6115,7 +6324,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>20</default>
+      <default>4</default>
       <units>Hz</units>
       <desc>Output frequency</desc>
       <min>1</min>
@@ -6232,7 +6441,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>maneuver</default>
+      <default>global</default>
       <units/>
       <desc>Scoped of the 'Active' parameter</desc>
       <values>global,idle,plan,maneuver</values>
@@ -6323,7 +6532,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>maneuver</default>
+      <default>global</default>
       <units/>
       <desc>Scoped of the 'Sample Time Duration' parameter</desc>
       <values>global,idle,plan,maneuver</values>
@@ -6355,7 +6564,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>maneuver</default>
+      <default>global</default>
       <units/>
       <desc>Scoped of the 'Periodicity of Data Sampling' parameter</desc>
       <values>global,idle,plan,maneuver</values>
@@ -6551,7 +6760,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>maneuver</default>
+      <default>global</default>
       <units/>
       <desc>Scoped of the 'Active' parameter</desc>
       <values>global,idle,plan,maneuver</values>
@@ -6642,7 +6851,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>maneuver</default>
+      <default>global</default>
       <units/>
       <desc>Scoped of the 'Sample Time Duration' parameter</desc>
       <values>global,idle,plan,maneuver</values>
@@ -6674,7 +6883,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>maneuver</default>
+      <default>global</default>
       <units/>
       <desc>Scoped of the 'Periodicity of Data Sampling' parameter</desc>
       <values>global,idle,plan,maneuver</values>
@@ -6898,7 +7107,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>maneuver</default>
+      <default>global</default>
       <units/>
       <desc>Scoped of the 'Sample Time Duration' parameter</desc>
       <values>global,idle,plan,maneuver</values>
@@ -6930,7 +7139,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>maneuver</default>
+      <default>global</default>
       <units/>
       <desc>Scoped of the 'Periodicity of Data Sampling' parameter</desc>
       <values>global,idle,plan,maneuver</values>
@@ -8326,7 +8535,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Aborted, EstimatedState, EntityParameters, PlanControl, VehicleState</default>
+      <default>Aborted, EstimatedState, PlanControl, VehicleState</default>
       <units/>
       <desc>List of messages to transport</desc>
     </param>
@@ -8596,6 +8805,16 @@
       <units/>
       <desc>Maximum number of messages in queue. 0 means no limit</desc>
       <min>0</min>
+    </param>
+    <param name="General Monitor Timeout">
+      <name-i18n>General Monitor Timeout</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>600.0</default>
+      <units/>
+      <desc>Timeout in seconds for the general monitor</desc>
+      <min>60.0</min>
     </param>
   </section>
   <section name="Log Book" name-i18n="Log Book">
