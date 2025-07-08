@@ -34,9 +34,11 @@ package pt.lsts.neptus.comm.manager.imc;
 
 import java.net.InetSocketAddress;
 import java.net.URI;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
@@ -44,7 +46,9 @@ import java.util.Vector;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.CommUtil;
 import pt.lsts.neptus.comm.IMCUtils;
+import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.console.plugins.planning.plandb.PlanDBControl;
+import pt.lsts.neptus.events.NeptusEvents;
 import pt.lsts.neptus.types.comm.CommMean;
 import pt.lsts.neptus.types.comm.protocol.IMCArgs;
 import pt.lsts.neptus.types.coord.CoordinateSystem;
@@ -302,6 +306,14 @@ public class ImcSystem implements Comparable<ImcSystem> {
      */
     public void setLocationTimeMillis(long locationTimeMillis) {
         this.locationTimeMillis = locationTimeMillis;
+        if (locationTimeMillis > System.currentTimeMillis() + Duration.ofMinutes(5).toMillis()) {
+            NeptusLog.pub().warn(">>>>>>>>>>>>>>>>>>>>>>    ImcSystem.setLocationTimeMillis: "
+                    + "Setting location time in the future: " + new Date(locationTimeMillis));
+            NeptusEvents.post(Notification.warning("Location TIMESTAMPP in the Future" ,
+                    ">>>>>>>>>>>>>>>>>>>>>>    ImcSystem.setLocationTimeMillis: "
+                        + "Setting location time in the future: " +
+                            new Date(locationTimeMillis)).requireHumanAction(true));
+        }
     }
 	
     /**
