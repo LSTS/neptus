@@ -255,16 +255,16 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
             }
             g.translate(-xScreenPos, -yScreenPos);
             List<LocationType> lastLocations = spot.getLastLocations();
-            List<Long> lastLocationsTimestampMillis = spot.getLastLocationsTimestampMillis();
+            //List<Long> lastLocationsTimestampMillis = spot.getLastLocationsTimestampMillis();
             LocationType location;
-            Long locationTimestampMillis;
+            //Long locationTimestampMillis;
             GeneralPath spotPath = new GeneralPath();
             float shadeOfGreyInc = 0.05f;
             float shadeOfGrey = (lastLocations.size() * shadeOfGreyInc);
             float min;
             if (!lastLocations.isEmpty()) {
                 location = lastLocations.get(0);
-                locationTimestampMillis = lastLocationsTimestampMillis.get(0);
+                //locationTimestampMillis = lastLocationsTimestampMillis.get(0);
                 pt = renderer.getScreenPosition(location);
                 spotPath.moveTo(pt.getX(), pt.getY());
                 min = 1 - Math.min(shadeOfGrey, 0.8f);
@@ -273,7 +273,7 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
 
                 for (int i = 1; i < lastLocations.size(); i++) {
                     location = lastLocations.get(i);
-                    locationTimestampMillis = lastLocationsTimestampMillis.get(i);
+                    //locationTimestampMillis = lastLocationsTimestampMillis.get(i);
                     pt = renderer.getScreenPosition(location);
                     spotPath.lineTo(pt.getX(), pt.getY());
                     min = 1 - Math.min(shadeOfGrey, 0.8f);
