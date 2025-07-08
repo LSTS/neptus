@@ -95,6 +95,8 @@ public class PlanControlStatePanel extends ConsolePanel {
     private long nodeEtaSec = -1;
     private long lastUpdated = -1;
 
+    private PlanControlState internalGeneratedMessage = null;
+
     @NeptusProperty(name = "Request plans automatically", userLevel=LEVEL.ADVANCED, category="Planning", description = "Select if Neptus should ask the vehicle for plans it is executing but Neptus doesn't know about")
     public boolean requestPlans = false;
 
@@ -140,7 +142,7 @@ public class PlanControlStatePanel extends ConsolePanel {
         this.add(outcomeLabel, "wrap");
     }
 
-    @Subscribe
+    //@Subscribe
     public void on(PlanControlState msg) {
         if (!requestPlans || msg.getPlanId().isEmpty())
             return;
@@ -160,12 +162,15 @@ public class PlanControlStatePanel extends ConsolePanel {
         if (!message.getSourceName().equals(getConsole().getMainSystem()))
             return;
 
+        boolean unknownPlan = false;
         ImcSystemState sysState = getConsole().getImcMsgManager().getState(getMainVehicleId());
         if (sysState != null) {
             PlanControlState pcsMsg = sysState.last(PlanControlState.class);
+            unknownPlan = pcsMsg == null || ("".equalsIgnoreCase(pcsMsg.getPlanId())
+                    || "?".equalsIgnoreCase(pcsMsg.getPlanId()));
             boolean dataNewer = pcsMsg == null || message.getAgeInSeconds() > pcsMsg.getAgeInSeconds() ||
                     (message.getAgeInSeconds() >= pcsMsg.getAgeInSeconds()  && message.getPlanChecksum() > 0 &&
-                            ("".equalsIgnoreCase(pcsMsg.getPlanId()) || "?".equalsIgnoreCase(pcsMsg.getPlanId())));
+                            unknownPlan);
             if (!dataNewer)
                 return; // We already have a more recent PlanControlState message
         }
@@ -187,23 +192,55 @@ public class PlanControlStatePanel extends ConsolePanel {
                     null, message.getPlanChecksum());
             if (planAndManFound == null) {
                 planIdNote = "?";
+                unknownPlan = false;
             } else {
                 planId = planAndManFound.getLeft();
                 planIdNote = "hash::" + message.getPlanChecksum();
                 if (planAndManFound.getRight() != null)
                     nodeId = planAndManFound.getRight();
+                unknownPlan = true;
             }
         }
+
+        int execState = message.getExecState();
+        PlanControlState pcsMsg = new PlanControlState();
+        IMCUtils.copyHeader(message, pcsMsg);
+        pcsMsg.setTimestampMillis(message.getTimestampMillis());
+        switch (execState) {
+            case -1:
+                pcsMsg.setState(PlanControlState.STATE.READY);
+                break;
+            case -3:
+                pcsMsg.setState(PlanControlState.STATE.INITIALIZING);
+                break;
+            case -2:
+            case -4:
+                pcsMsg.setState(PlanControlState.STATE.BLOCKED);
+                break;
+            default:
+                if (execState > 0)
+                    pcsMsg.setState(PlanControlState.STATE.EXECUTING);
+                else
+                    pcsMsg.setState(PlanControlState.STATE.BLOCKED);
+                break;
+        }
+
+        pcsMsg.setPlanId(planId);
+        pcsMsg.setPlanEta(-1);
+        pcsMsg.setPlanProgress(execState >= 0 ? execState : -1);
+        pcsMsg.setManId(nodeId);
+        pcsMsg.setManEta(-1);
+        pcsMsg.setManType(0xFFFF);
 
         int progress = -1;
         switch (message.getExecState()) {
             case -1:
-                state = STATE.READY;    
+                state = STATE.READY;
                 break;
             case -2:
             case -3:
                 state = STATE.INITIALIZING;
-                break;            
+                break;
             case -4:
                 state = STATE.BLOCKED;
                 break;
@@ -220,10 +257,22 @@ public class PlanControlStatePanel extends ConsolePanel {
             lastOutcome = "<html><font color='#666666'>" + I18n.text("N/A") + "</font>";
 
         outcomeLabel.setText(lastOutcome);
+
+        if (unknownPlan) {
+            internalGeneratedMessage = pcsMsg;
+            getConsole().getImcMsgManager().postInternalMessage(PlanControlStatePanel.class.getSimpleName(), pcsMsg);
+        }
     }
     
     @Subscribe
     public void consume(PlanControlState message) {
+        if (internalGeneratedMessage == message) {
+            internalGeneratedMessage = null;
+            return;
+        }
+
+        on(message);
+
         if (!message.getSourceName().equals(getConsole().getMainSystem()))
             return;
 
